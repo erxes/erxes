@@ -9,6 +9,7 @@ import {
   Separator,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CustomersInline, useCustomers } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { useSetAtom } from 'jotai';
@@ -16,6 +17,7 @@ import { callUiAtom } from '@/integrations/call/states/callUiAtom';
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 
 export const CallContacts = () => {
+  const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const setCallUi = useSetAtom(callUiAtom);
@@ -51,7 +53,7 @@ export const CallContacts = () => {
             <Command.Item key={customer._id} value={customer._id}>
               <CustomersInline
                 customers={[customer]}
-                placeholder="Unnamed customer"
+                placeholder={t('unnamed-customer')}
               />
               {[customer.primaryPhone, ...(customer.phones || [])].filter(
                 (phone) => phone,

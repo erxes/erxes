@@ -1,4 +1,5 @@
-import { IconChevronDown, IconChevronUp, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -10,13 +11,12 @@ import {
   Separator,
   Sheet,
   Spinner,
-  Switch,
   toast,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
-import { FacebookMessageButtonsGenerator } from '~/widgets/automations/modules/facebook/components/action/components/FacebookMessageButtonsGenerator';
+import { useEffect, useState } from 'react';
 import { FacebookBotPageSelectorSteps } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotPageSelectorSteps';
+import { FacebookPersistentMenuGenerator } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPersistentMenuGenerator';
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
@@ -24,10 +24,25 @@ import { useFbBotFormContext } from '../context/FbBotFormContext';
 import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
 export const AutomationFbBotFormContent = () => {
+  const { t } = useTranslation('frontline');
   const { form } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
   const { onSave, onSaveloading } = useFacebookBotSave();
-  const [accountId, pageId] = form.watch(['accountId', 'pageId']);
+  const [accountId, pageId, persistentMenus] = form.watch([
+    'accountId',
+    'pageId',
+    'persistentMenus',
+  ]);
+  const hasHumanHandoffMenu = persistentMenus?.some(
+    (menu) => menu.type === 'human_handoff',
+  );
+  const hasBackButtonMenu = persistentMenus?.some(
+    (menu) => menu.type === 'back_button',
+  );
+
+  useEffect(() => {
+    form.setValue('isEnabledBackBtn', Boolean(hasBackButtonMenu));
+  }, [form, hasBackButtonMenu]);
 
   return (
     <>
@@ -45,7 +60,7 @@ export const AutomationFbBotFormContent = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
 
                   <Input {...field} />
                   <Form.Message />
@@ -57,19 +72,13 @@ export const AutomationFbBotFormContent = () => {
               name="persistentMenus"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Persistent Menu</Form.Label>
+                  <Form.Label>{t('persistent-menu')}</Form.Label>
                   <Form.Description>
-                    Configure menu items that appear in your bot
+                    {t('persistent-menu-description')}
                   </Form.Description>
-                  <FacebookMessageButtonsGenerator
-                    addButtonContent={
-                      <>
-                        <IconPlus />
-                        Add persistent menu
-                      </>
-                    }
-                    buttons={field.value}
-                    setButtons={field.onChange}
+                  <FacebookPersistentMenuGenerator
+                    menus={field.value}
+                    setMenus={field.onChange}
                     limit={5}
                   />
                   <Form.Message />
@@ -80,7 +89,7 @@ export const AutomationFbBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? 'Hide' : 'Show'} Optional configuration{' '}
+                    {isOptionalOpen ? t('hide') : t('show')} {t('optional-configuration')}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>
                 </Button>
@@ -91,23 +100,23 @@ export const AutomationFbBotFormContent = () => {
                   name="tag"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Tag</Form.Label>
+                      <Form.Label>{t('tag')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder="Select tag" />
+                          <Select.Value placeholder={t('select-tag')} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            Confirmed Event Update
+                            {t('confirmed-event-update')}
                           </Select.Item>
                           <Select.Item value="POST_PURCHASE_UPDATE">
-                            Post-Purchase Update
+                            {t('post-purchase-update')}
                           </Select.Item>
                           <Select.Item value="ACCOUNT_UPDATE">
-                            Account Update
+                            {t('account-update')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -135,43 +144,56 @@ export const AutomationFbBotFormContent = () => {
                   name="greetText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Greet Message</Form.Label>
+                      <Form.Label>{t('greet-message')}</Form.Label>
                       <Input {...field} />
                       <Form.Message />
                     </Form.Item>
                   )}
                 />
-                <Form.Field
-                  control={form.control}
-                  name="isEnabledBackBtn"
-                  render={({ field }) => (
-                    <Form.Item className="flex justify-between">
-                      <Form.Label className="mt-3">
-                        Enable Back Button on Persistence menu
-                      </Form.Label>
-                      <Switch
-                        className="flex-none"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  control={form.control}
-                  name="backButtonText"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Back Button Text</Form.Label>
-                      <Input
-                        {...field}
-                        disabled={!form.watch('isEnabledBackBtn')}
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
+                {hasHumanHandoffMenu && (
+                  <>
+                    <Form.Field
+                      control={form.control}
+                      name="handoffPauseMinutes"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>{t('inactivity-pause-minutes')}</Form.Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={field.value || 10}
+                            onChange={(event) =>
+                              field.onChange(event.currentTarget.value)
+                            }
+                          />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="handoffMessage"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>{t('human-handoff-message')}</Form.Label>
+                          <Input {...field} />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                    <Form.Field
+                      control={form.control}
+                      name="automationActiveMessage"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>{t('automation-active-message')}</Form.Label>
+                          <Input {...field} />
+                          <Form.Message />
+                        </Form.Item>
+                      )}
+                    />
+                  </>
+                )}
               </Collapsible.Content>
             </Collapsible>
           </div>
@@ -182,12 +204,12 @@ export const AutomationFbBotFormContent = () => {
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
             toast({
-              title: 'Something went wrong',
+              title: t('something-went-wrong'),
               description: JSON.stringify(error),
             }),
           )}
         >
-          {onSaveloading ? <Spinner /> : 'Save'}
+          {onSaveloading ? <Spinner /> : t('save')}
         </Button>
       </Sheet.Footer>
     </>
@@ -201,6 +223,7 @@ const FbBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenFacebookBotSecondarySheet,
   );
@@ -210,7 +233,7 @@ const FbBotFormSecondarySheet = ({
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
         <Sheet.Trigger asChild>
-          <Button>Select Page</Button>
+          <Button>{t('select-page')}</Button>
         </Sheet.Trigger>
       </div>
       <Separator />

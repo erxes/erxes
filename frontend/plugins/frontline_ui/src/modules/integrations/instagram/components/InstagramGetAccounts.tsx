@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   cn,
@@ -23,6 +24,7 @@ import { useInstagramPages } from '../hooks/useInstagramPages';
 import { useIgAuthPopup } from '../hooks/useIgAuthPopup';
 
 export const InstagramGetAccounts = () => {
+  const { t } = useTranslation('frontline');
   const { instagramGetAccounts, loading, refetch } = useInstagramAccounts();
   const { instagramGetPages } = useInstagramPages();
   const [selectedAccount, setSelectedAccount] = useAtom(
@@ -57,18 +59,18 @@ export const InstagramGetAccounts = () => {
       actions={
         <>
           <Button variant="secondary" className="bg-border" disabled>
-            Previous step
+            {t('previous-step')}
           </Button>
           <Button onClick={onNext} disabled={!selectedAccount}>
-            Next step
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <InstagramIntegrationFormSteps
-        title="Connect accounts"
+        title={t('connect-accounts')}
         step={1}
-        description="Select the accounts where you want to integrate its pages with."
+        description={t('ig-select-accounts-description')}
       />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
@@ -76,7 +78,7 @@ export const InstagramGetAccounts = () => {
           <div className="p-1">
             <Command.Primitive.Input asChild>
               <Input
-                placeholder="Search for an account"
+                placeholder={t('search-for-an-account')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -88,10 +90,10 @@ export const InstagramGetAccounts = () => {
               {loading ? (
                 <>
                   <Spinner className="w-3 h-3" />
-                  Loading accounts...
+                  {t('loading-accounts')}
                 </>
               ) : (
-                `${filteredAccounts.length} accounts found`
+                t('accounts-found', { count: filteredAccounts.length })
               )}
             </div>
 
@@ -104,12 +106,12 @@ export const InstagramGetAccounts = () => {
               {isLoggingIn ? (
                 <>
                   <Spinner className="w-4 h-4 mr-2" />
-                  Connecting to Instagram...
+                  {t('connecting-to-instagram')}
                 </>
               ) : (
                 <>
                   <IconBrandInstagram className="w-4 h-4 mr-2 text-pink-600" />
-                  Connect Instagram Account
+                  {t('connect-instagram-account')}
                 </>
               )}
             </Button>
@@ -146,7 +148,7 @@ export const InstagramGetAccounts = () => {
                   <div className="font-semibold">{account.name}</div>
                   {selectedAccount && instagramGetPages?.length ? (
                     <div className="text-sm text-muted-foreground font-mono uppercase ml-auto">
-                      {instagramGetPages.length} pages
+                      {t('pages-found', { count: instagramGetPages.length })}
                     </div>
                   ) : null}
                 </Command.Item>

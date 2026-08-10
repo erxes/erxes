@@ -4,16 +4,49 @@ import {
   getMoveData,
   getPosPostData,
   sendCardInfo,
+  sendErkhetPost,
 } from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels, IContext } from '~/connectionResolvers';
+
+const parseCheckSyncedData = (data: any) => {
+  if (typeof data !== 'string') {
+    return data?.data || data || {};
+  }
+
+  try {
+    const parsed = JSON.parse(data);
+    return parsed?.data || parsed || {};
+  } catch (_e) {
+    // text is not valid JSON, so return it as-is
+    return {};
+  }
+};
+
+const getSyncErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error) || String(error);
+  } catch (_e) {
+    return String(error);
+  }
+};
 
 const checkSyncedMutations = {
   async toCheckSynced(
     _root: undefined,
     { ids }: { ids: string[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -27,27 +60,21 @@ const checkSyncedMutations = {
       orderIds: JSON.stringify(ids),
     };
 
-    // const response = await sendTRPCMessage(
-    //   "rpc_queue:erxes-automation-erkhet",
-    //   {
-    //     action: "check-order-synced",
-    //     payload: JSON.stringify(postData),
-    //     thirdService: true
-    //   }
-    // );
-    const result = JSON.parse('{}');
+    const models = await generateModels(subdomain);
+
+    const result = await sendErkhetPost(models, 'check-order-synced', postData);
 
     if (result.status === 'error') {
       throw new Error(result.message);
     }
 
-    const data = result.data || {};
+    const resultData = parseCheckSyncedData(result.data);
 
-    return (Object.keys(data) || []).map((_id) => {
-      const res: any = data[_id] || {};
+    return ids.map((_id) => {
+      const res: any = resultData[_id] || {};
       return {
         _id,
-        isSynced: res.isSynced,
+        isSynced: res.isSynced || false,
         syncedDate: res.date,
         syncedBillNumber: res.bill_number,
         syncedCustomer: res.customer,
@@ -62,8 +89,10 @@ const checkSyncedMutations = {
       configStageId,
       dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
@@ -82,7 +111,6 @@ const checkSyncedMutations = {
       module: 'deal',
       action: 'find',
       input: { _id: { $in: dealIds } },
-      method: 'query',
       defaultValue: [],
     });
 
@@ -92,7 +120,7 @@ const checkSyncedMutations = {
       createdBy: user._id,
     };
 
-    for (const deal of deals?.data) {
+    for (const deal of deals || []) {
       const syncedStageId = configStageId || deal.stageId;
       if (Object.keys(configs).includes(syncedStageId)) {
         const syncLog = await models.SyncLogs.syncLogsAdd({
@@ -103,14 +131,14 @@ const checkSyncedMutations = {
         });
         try {
           const config = {
-            ...configs[syncedStageId],
             ...mainConfig,
+            ...configs[syncedStageId],
           };
 
           const pipeline = await sendTRPCMessage({
             subdomain,
             pluginName: 'sales',
-            module: 'pipelines',
+            module: 'pipeline',
             action: 'findOne',
             input: { stageId: configStageId || deal.stageId },
             method: 'query',
@@ -125,20 +153,12 @@ const checkSyncedMutations = {
             dateType,
           );
 
-          //   const response = await sendRPCMessage(
-          //     models,
-          //     syncLog,
-          //     "rpc_queue:erxes-automation-erkhet",
-          //     {
-          //       action: "get-response-send-order-info",
-          //       isEbarimt: false,
-          //       payload: JSON.stringify(postData),
-          //       thirdService: true,
-          //       isJson: true
-          //     }
-          //   );
-
-          const response: any = {};
+          const response = await sendErkhetPost(
+            models,
+            'get-response-send-order-info',
+            postData,
+            syncLog,
+          );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
@@ -159,11 +179,15 @@ const checkSyncedMutations = {
 
           result.success.push(deal._id);
           continue;
-        } catch (e) {
+        } catch (e: unknown) {
+          const error = getSyncErrorMessage(e);
+
+          result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
-            { $set: { error: e.message } },
+            { $set: { error } },
           );
+          continue;
         }
       }
 
@@ -176,25 +200,18 @@ const checkSyncedMutations = {
         });
         try {
           const config = {
-            ...moveConfigs[syncedStageId],
             ...mainConfig,
+            ...moveConfigs[syncedStageId],
           };
 
           const postData = await getMoveData(subdomain, config, deal, dateType);
 
-          //   const response = await sendRPCMessage(
-          //     models,
-          //     syncLog,
-          //     "rpc_queue:erxes-automation-erkhet",
-          //     {
-          //       action: "get-response-inv-movement-info",
-          //       isEbarimt: false,
-          //       payload: JSON.stringify(postData),
-          //       thirdService: true,
-          //       isJson: true
-          //     }
-          //   );
-          const response: any = {};
+          const response = await sendErkhetPost(
+            models,
+            'get-response-inv-movement-info',
+            postData,
+            syncLog,
+          );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
@@ -215,11 +232,15 @@ const checkSyncedMutations = {
 
           result.success.push(deal._id);
           continue;
-        } catch (e) {
+        } catch (e: unknown) {
+          const error = getSyncErrorMessage(e);
+
+          result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
-            { $set: { error: e.message } },
+            { $set: { error } },
           );
+          continue;
         }
       }
       result.skipped.push(deal._id);
@@ -231,8 +252,10 @@ const checkSyncedMutations = {
   async toSyncOrders(
     _root: undefined,
     { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
@@ -243,12 +266,11 @@ const checkSyncedMutations = {
       subdomain,
       pluginName: 'sales',
       method: 'query',
-      module: 'pos',
-      action: 'orders.find',
+      module: 'orders',
+      action: 'find',
       input: { _id: { $in: orderIds } },
       defaultValue: [],
     });
-
     const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
     const models = await generateModels(subdomain);
     const poss = await sendTRPCMessage({
@@ -256,7 +278,7 @@ const checkSyncedMutations = {
       pluginName: 'sales',
       method: 'query',
       module: 'pos',
-      action: 'configs.find',
+      action: 'find',
       input: { token: { $in: posTokens } },
       defaultValue: [],
     });
@@ -266,8 +288,23 @@ const checkSyncedMutations = {
       posByToken[pos.token] = pos;
     }
 
+    const posIds = (poss || []).map((pos) => pos._id).filter(Boolean);
+    const posOrderConfigs = posIds.length
+      ? await models.Configs.find({
+          code: 'posOrderErkhetConfig',
+          subId: { $in: posIds },
+        }).lean()
+      : [];
+    const posOrderConfigByPosId = {};
+
+    for (const config of posOrderConfigs) {
+      if (config.subId) {
+        posOrderConfigByPosId[config.subId] = config.value || {};
+      }
+    }
+
     const syncLogDoc = {
-      contentType: 'sales:pos:order',
+      contentType: 'pos:order',
       createdAt: new Date(),
       createdBy: user._id,
     };
@@ -282,11 +319,24 @@ const checkSyncedMutations = {
       try {
         const pos = posByToken[order.posToken];
 
+        if (!pos) {
+          result.skipped.push(order._id);
+          throw new Error('POS config not found');
+        }
+
+        const posOrderConfig = posOrderConfigByPosId[pos._id];
+
+        if (!posOrderConfig?.isSyncErkhet) {
+          result.skipped.push(order._id);
+          throw new Error('Erkhet POS order config not found');
+        }
+
         const postData = await getPosPostData(
           subdomain,
           pos,
           order,
           pos.paymentTypes,
+          posOrderConfig,
         );
 
         if (!postData) {
@@ -294,20 +344,12 @@ const checkSyncedMutations = {
           throw new Error('maybe, has not config');
         }
 
-        // const response = await sendRPCMessage(
-        //   models,
-        //   syncLog,
-        //   "rpc_queue:erxes-automation-erkhet",
-        //   {
-        //     action: "get-response-send-order-info",
-        //     isEbarimt: false,
-        //     payload: JSON.stringify(postData),
-        //     thirdService: true,
-        //     isJson: true
-        //   }
-        // );
-
-        const response: any = {};
+        const response = await sendErkhetPost(
+          models,
+          'get-response-send-order-info',
+          postData,
+          syncLog,
+        );
 
         if (response.message || response.error) {
           const txt = JSON.stringify({
@@ -323,7 +365,7 @@ const checkSyncedMutations = {
             input: {
               selector: { _id: order._id },
               modifier: {
-                $set: { syncErkhetInfo: txt },
+                syncErkhetInfo: txt,
               },
             },
             method: 'mutation',
@@ -338,6 +380,7 @@ const checkSyncedMutations = {
 
         result.success.push(order._id);
       } catch (e) {
+        result.error.push(order._id);
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
           { $set: { error: e.message } },

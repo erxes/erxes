@@ -4,6 +4,8 @@ import {
   HTMLAttributes,
   type ReactNode,
   useContext,
+  useMemo,
+  useRef,
   useState,
   useEffect,
 } from 'react';
@@ -12,6 +14,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   ColumnOrderState,
+  ColumnPinningState,
   ColumnSizingState,
   VisibilityState,
   getCoreRowModel,
@@ -24,6 +27,7 @@ import {
 import RecordTableContainer from 'erxes-ui/modules/record-table/components/RecordTableContainer';
 import { RecordTableDnDProvider } from 'erxes-ui/modules/record-table/components/RecordTableDnDProvider';
 import { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
+import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 import { useTablePreferences } from '../hooks/useTablePreferences';
 
 const RecordTableContext = createContext<IRecordTableContext | null>(null);
@@ -64,11 +68,12 @@ export const RecordTableProvider = forwardRef<
     },
     ref,
   ) => {
+    const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
     const {
-      prefs: { columnOrder, columnSizing, columnVisibility },
+      prefs: { columnOrder, columnPinning, columnSizing, columnVisibility },
       savePrefs,
     } = useTablePreferences(tableId);
     const [colOrder, setColumnOrder] = useState<ColumnOrderState>(
@@ -80,6 +85,49 @@ export const RecordTableProvider = forwardRef<
     const [colSizing, setColSizing] = useState<ColumnSizingState>(
       columnSizing || {},
     );
+    const [colPinning, setColPinning] = useState<ColumnPinningState>(
+      () => columnPinning || { left: stickyColumns ?? [] },
+    );
+    const stickyKey = (stickyColumns ?? []).join(',');
+    const isPinningTouched = useRef(false);
+    useEffect(() => {
+      if (columnPinning || isPinningTouched.current) return;
+      setColPinning((prev) => ({
+        ...prev,
+        left: stickyKey ? stickyKey.split(',') : [],
+      }));
+    }, [columnPinning, stickyKey]);
+
+    const columnIdsKey = columns.map((column) => column.id || '').join(',');
+    useEffect(() => {
+      setColumnOrder((prev) => {
+        const ids = columnIdsKey.split(',').filter(Boolean);
+        const known = prev.filter((id) => ids.includes(id));
+
+        if (known.length === prev.length && known.length === ids.length) {
+          return prev;
+        }
+
+        return [...known, ...ids.filter((id) => !known.includes(id))];
+      });
+    }, [columnIdsKey]);
+
+    const structuralKey = columns
+      .map((column) => column.id)
+      .filter(
+        (id): id is string => typeof id === 'string' && isStructuralColumn(id),
+      )
+      .join(',');
+    const pinning = useMemo<ColumnPinningState>(() => {
+      const left = colPinning.left ?? [];
+      const structural = (structuralKey ? structuralKey.split(',') : []).filter(
+        (id) => !left.includes(id),
+      );
+
+      if (!left.length || !structural.length) return colPinning;
+
+      return { ...colPinning, left: [...structural, ...left] };
+    }, [colPinning, structuralKey]);
     const table = useReactTable({
       data,
       columns,
@@ -91,9 +139,7 @@ export const RecordTableProvider = forwardRef<
         columnOrder: colOrder,
         columnSizing: colSizing,
         columnVisibility: colVisibility,
-        columnPinning: {
-          left: stickyColumns,
-        },
+        columnPinning: pinning,
         sorting,
         columnFilters,
         rowSelection,
@@ -102,6 +148,10 @@ export const RecordTableProvider = forwardRef<
       onColumnOrderChange: setColumnOrder,
       onColumnSizingChange: setColSizing,
       onColumnVisibilityChange: setColVisibility,
+      onColumnPinningChange: (updater) => {
+        isPinningTouched.current = true;
+        setColPinning(updater);
+      },
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
       onRowSelectionChange: setRowSelection,
@@ -112,6 +162,10 @@ export const RecordTableProvider = forwardRef<
     useEffect(() => {
       savePrefs({ columnOrder: colOrder });
     }, [colOrder, savePrefs]);
+
+    useEffect(() => {
+      savePrefs({ columnPinning: colPinning });
+    }, [colPinning, savePrefs]);
 
     useEffect(() => {
       savePrefs({ columnVisibility: colVisibility });
@@ -125,6 +179,8 @@ export const RecordTableProvider = forwardRef<
       <RecordTableContext.Provider
         value={{
           table,
+          columnSelectorOpen,
+          setColumnSelectorOpen,
         }}
       >
         <RecordTableDnDProvider setColumnOrder={setColumnOrder}>

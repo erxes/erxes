@@ -14,12 +14,6 @@ export type ICheckTriggerData = {
   config: any;
 };
 
-export type IReplacePlaceholdersData<TTarget = any> = {
-  target: TTarget;
-  config: any;
-  relatedValueProps: any;
-};
-
 export type IAutomationReceiveActionData = {
   action: IAutomationAction;
   execution: { _id: string } & IAutomationExecution;

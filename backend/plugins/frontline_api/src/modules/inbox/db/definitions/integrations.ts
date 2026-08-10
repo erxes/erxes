@@ -29,7 +29,22 @@ const persistentMenuSchema = new Schema({
   text: { type: String },
   type: { type: String },
   link: { type: String, optional: true },
+  contentType: { type: String, default: 'text' },
   isEditing: { type: Boolean },
+});
+
+const credentialsSchema = new Schema({
+  integrationId: { type: String },
+  description: { type: String },
+  buttonText: { type: String },
+  url: { type: String },
+});
+
+const websiteAppSchema = new Schema({
+  kind: { type: String, default: 'webstite' },
+  showInInbox: { type: Boolean, default: false },
+  credentials: credentialsSchema,
+  scopeBrandIds: { type: [String] },
 });
 
 // subdocument schema for MessengerData
@@ -41,6 +56,7 @@ const messengerDataSchema = new Schema(
     getStarted: { type: Boolean },
     botCheck: { type: Boolean },
     botGreetMessage: { type: String },
+    automationId: { type: String },
     persistentMenus: { type: [persistentMenuSchema] }, // Corrected to an array
     supporterIds: { type: [String] },
     notifyCustomer: { type: Boolean },
@@ -78,6 +94,8 @@ const messengerDataSchema = new Schema(
     hideWhenOffline: { type: Boolean, default: false },
     forceLogoutWhenResolve: { type: Boolean, default: false },
     showVideoCallRequest: { type: Boolean, default: false },
+    knowledgeBaseTopicId: { type: String },
+    websiteApps: { type: [websiteAppSchema], optional: true },
   },
   { _id: false },
 );
@@ -269,7 +287,11 @@ const colorDefinitionSchema = new Schema(
 const uiOptionsSchema = new Schema(
   {
     logo: { type: String },
+    launcherLogo: { type: String },
     primary: { type: colorDefinitionSchema },
+    backgroundColor: { type: String },
+    heroStyleVariant: { type: String },
+    navigationVariant: { type: String },
   },
   { _id: false },
 );
@@ -317,6 +339,6 @@ export const integrationSchema = schemaWrapper(
     formData: { type: leadDataSchema },
     messengerData: { type: messengerDataSchema },
     uiOptions: { type: uiOptionsSchema },
-    ticketConfigId: { type: String },
+    ticketConfigIds: { type: [String] },
   }),
 );

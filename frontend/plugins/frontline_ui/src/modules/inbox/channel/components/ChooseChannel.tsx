@@ -7,10 +7,20 @@ import {
 } from 'erxes-ui';
 import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
-import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { ChannelScope } from '@/channels/types';
+import { channelScopeOf } from '@/channels/utils/channelScope';
+import { useTranslation } from 'react-i18next';
 
-export const ChooseChannel = () => {
-  const { channels, loading } = useGetChannels();
+export const ChooseChannel = ({
+  scope,
+  emptyMessage,
+}: {
+  scope?: ChannelScope;
+  emptyMessage?: string;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { channels, loading } = useGetMyChannels();
 
   if (loading)
     return (
@@ -21,14 +31,18 @@ export const ChooseChannel = () => {
       </div>
     );
 
-  if (!channels?.length)
+  const visibleChannels = scope
+    ? channels?.filter((channel) => channelScopeOf(channel) === scope)
+    : channels;
+
+  if (!visibleChannels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        No channels found
+        {emptyMessage ?? t('no-channels-found')}
       </div>
     );
 
-  return channels?.map((channel: IChannel) => (
+  return visibleChannels?.map((channel: IChannel) => (
     <ChannelItem key={channel._id} {...channel} />
   ));
 };

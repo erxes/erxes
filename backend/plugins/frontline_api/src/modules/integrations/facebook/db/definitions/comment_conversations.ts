@@ -12,6 +12,8 @@ export const commentConversationSchema = new Schema({
   content: String,
   erxesApiId: String,
   customerId: { type: String, optional: true },
+  parentId: String,
+  integrationId: String,
   createdAt: { type: Date, default: Date.now, label: 'Created At' },
   updatedAt: { type: Date, index: true, label: 'Updated At' },
   attachments: [attachmentSchema],

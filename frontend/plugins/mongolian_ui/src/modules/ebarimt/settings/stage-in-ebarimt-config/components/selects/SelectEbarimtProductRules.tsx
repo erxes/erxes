@@ -5,13 +5,8 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  PopoverScoped,
-  SelectTriggerVariant,
-} from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useEbarimtProductRules } from '../../hooks/useEbarimtProductRules';
 import {
   SelectContent,
@@ -25,8 +20,16 @@ interface IProductRule {
   [key: string]: any;
 }
 
+type SelectEbarimtProductRulesVariant =
+  | 'filter'
+  | 'table'
+  | 'card'
+  | 'detail'
+  | 'form'
+  | 'icon';
+
 interface SelectEbarimtProductRulesContextType {
-  value: string;
+  value: string[];
   onValueChange: (ruleId: string) => void;
   loading?: boolean;
   error?: any;
@@ -53,7 +56,7 @@ export const SelectEbarimtProductRulesProvider = ({
   kind,
   children,
 }: {
-  value: string;
+  value: string[];
   onValueChange: (ruleId: string) => void;
   children: React.ReactNode;
   kind: 'vat' | 'ctax';
@@ -70,7 +73,7 @@ export const SelectEbarimtProductRulesProvider = ({
 
   const contextValue = useMemo(
     () => ({
-      value: value || '',
+      value: value || [],
       onValueChange: handleValueChange,
       productRules,
       loading,
@@ -94,13 +97,16 @@ const SelectEbarimtProductRulesValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, productRules } = useSelectEbarimtProductRulesContext();
-  const selectedRule = productRules?.find((rule) => rule._id === value);
+  const selectedRules = productRules?.filter((rule) =>
+    value.includes(rule._id),
+  );
 
-  if (!selectedRule) {
+  if (!selectedRules?.length) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select rule'}
+        {placeholder || t('select-rule')}
       </span>
     );
   }
@@ -108,7 +114,7 @@ const SelectEbarimtProductRulesValue = ({
   return (
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm capitalize', className)}>
-        {selectedRule.title}
+        {selectedRules.map((rule) => rule.title).join(', ')}
       </p>
     </div>
   );
@@ -130,12 +136,13 @@ const SelectEbarimtProductRulesCommandItem = ({
       }}
     >
       <span className="font-medium capitalize">{title}</span>
-      <Combobox.Check checked={value === ruleId} />
+      <Combobox.Check checked={value.includes(ruleId)} />
     </Command.Item>
   );
 };
 
 const SelectEbarimtProductRulesContent = () => {
+  const { t } = useTranslation('mongolian');
   const { productRules, loading, error } =
     useSelectEbarimtProductRulesContext();
 
@@ -143,7 +150,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -151,7 +158,7 @@ const SelectEbarimtProductRulesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -163,9 +170,9 @@ const SelectEbarimtProductRulesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search rule" />
+      <Command.Input placeholder={t('search-rule')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No rules found</span>
+        <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>
@@ -180,21 +187,24 @@ const SelectEbarimtProductRulesRoot = ({
   onValueChange,
   disabled,
 }: {
-  value: string;
+  value: string[];
   kind: 'vat' | 'ctax';
-  variant?: `${SelectTriggerVariant}`;
+  variant?: SelectEbarimtProductRulesVariant;
   scope?: string;
-  onValueChange?: (value: string) => void;
+  onValueChange?: (value: string[]) => void;
   disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
 
   const handleValueChange = useCallback(
-    (value: string) => {
-      onValueChange?.(value);
-      setOpen(false);
+    (ruleId: string) => {
+      const nextValue = value.includes(ruleId)
+        ? value.filter((selectedRuleId) => selectedRuleId !== ruleId)
+        : [...value, ruleId];
+
+      onValueChange?.(nextValue);
     },
-    [onValueChange],
+    [onValueChange, value],
   );
 
   return (

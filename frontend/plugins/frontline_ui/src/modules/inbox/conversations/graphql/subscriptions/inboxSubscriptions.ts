@@ -29,14 +29,20 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
+      conversationId
       content
       formWidgetData
+      extraData
       ${ATTACHMENT_GQL}
       internal
+      fromBot
       createdAt
       isCustomerRead
       userId
       customerId
+      botData
+      source
+      fromBot
     }
   }
 `;
@@ -45,14 +51,19 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
   subscription conversationClientMessageInserted($userId: String!) {
     conversationClientMessageInserted(userId: $userId) {
       _id
+      conversationId
       content
+      createdAt
     }
   }
 `;
 
-const conversationClientTypingStatusChanged = `
+export const CONVERSATION_CLIENT_TYPING_STATUS_CHANGED = gql`
   subscription conversationClientTypingStatusChanged($_id: String!) {
     conversationClientTypingStatusChanged(_id: $_id) {
+      conversationId
+      customerId
+      customerName
       text
     }
   }
@@ -76,6 +87,7 @@ const customerConnectionChanged = `
 export default {
   conversationChanged,
   conversationMessageInserted,
-  conversationClientTypingStatusChanged,
+  conversationClientTypingStatusChanged:
+    CONVERSATION_CLIENT_TYPING_STATUS_CHANGED,
   customerConnectionChanged,
 };

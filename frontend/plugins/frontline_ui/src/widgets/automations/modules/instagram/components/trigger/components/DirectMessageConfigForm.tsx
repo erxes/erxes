@@ -1,5 +1,6 @@
 import { IconSquareKey, IconTrash } from '@tabler/icons-react';
 import { Badge, Button, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { DIRECT_MESSAGE_OPERATOR_TYPES } from '../constants/messageTriggerForm';
 import {
@@ -19,6 +20,7 @@ const DirectMessageCondition = ({
       | TMessageTriggerFormDirectMessage[number]['operator'],
   ) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const { value } = e.currentTarget;
@@ -76,7 +78,7 @@ const DirectMessageCondition = ({
       return (
         <div className="text-muted-foreground flex flex-col items-center">
           <IconSquareKey />
-          <span className="text-xs">There is no keywords configured</span>
+          <span className="text-xs">{t('no-keywords-configured')}</span>
         </div>
       );
     }
@@ -116,7 +118,7 @@ const DirectMessageCondition = ({
         onValueChange={(value) => onChange('operator', value)}
       >
         <Select.Trigger>
-          <Select.Value placeholder="Select..." />
+          <Select.Value placeholder={t('select')} />
         </Select.Trigger>
         <Select.Content>
           {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ label, value }) => (
@@ -126,7 +128,7 @@ const DirectMessageCondition = ({
           ))}
         </Select.Content>
       </Select>
-      <Input placeholder="+ add keyword" onKeyDown={handleKeyPress} />
+      <Input placeholder={t('add-keyword')} onKeyDown={handleKeyPress} />
       {renderKeywords()}
     </div>
   );
@@ -146,6 +148,7 @@ export const DirectMessageConfigForm = ({
   conditions = [],
   onConditionChange,
 }: Props) => {
+  const { t } = useTranslation('frontline');
   const onRemoveCondition = (id: string) => {
     onConditionChange(
       'conditions',
@@ -164,7 +167,7 @@ export const DirectMessageConfigForm = ({
     <div>
       <div className="flex justify-end">
         <Button variant="ghost" onClick={onAddCondition}>
-          + Add condition
+          {t('add-optional-condition')}
         </Button>
       </div>
       {conditions.map((condition) => {

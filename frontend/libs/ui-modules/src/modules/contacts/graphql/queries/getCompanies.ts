@@ -14,6 +14,8 @@ export const GET_COMPANIES = gql`
         primaryName
         names
         primaryEmail
+        primaryPhone
+        code
       }
       totalCount
       ${GQL_PAGE_INFO}
@@ -22,12 +24,19 @@ export const GET_COMPANIES = gql`
 `;
 
 export const GET_ASSIGNED_COMPANIES = gql`
-  query assignedCompaniesSelect($searchValue: String) {
-    companies(searchValue: $searchValue) {
+  query assignedCompaniesSelect(
+    $searchValue: String
+    $ids: [String]
+    $limit: Int
+  ) {
+    companies(searchValue: $searchValue, ids: $ids, limit: $limit) {
       list {
         _id
         avatar
         primaryName
+        primaryEmail
+        primaryPhone
+        code
       }
     }
   }

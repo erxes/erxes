@@ -1,18 +1,25 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import { initRecordReferences } from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
   closeMongooose,
   createTRPCContext,
+  getSubdomain,
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
+import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
+import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
@@ -21,12 +28,28 @@ import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import initImportExport from './meta/import-export';
+import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 
 const PLUGIN_NAME = 'core';
 
+Sentry.getGlobalScope().setTags({
+  plugin: PLUGIN_NAME,
+  service: PLUGIN_NAME,
+});
+
 dotenv.config();
+
+const collectionToContentType = new Map<string, string>(
+  coreLogsConfig.contentTypes.map((c) => [
+    c.collectionName,
+    `${PLUGIN_NAME}:${c.moduleName}.${c.collectionName}`,
+  ]),
+);
+registerRevertContentTypeResolver((collectionName) =>
+  collectionToContentType.get(collectionName),
+);
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
   process.env;
@@ -42,6 +65,9 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(
   express.json({
     limit: '15mb',
+    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+      req.rawBody = buffer;
+    },
   }),
 );
 
@@ -116,11 +142,40 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.get('/get-client-portal-token', async (req, res) => {
+  const token = req.query.GET_CP_TOKEN as string;
+
+  if (!token) {
+    return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
+  }
+
+  if (token !== process.env.GET_CP_TOKEN) {
+    return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
+  }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const clientPortal = await models.ClientPortal.findOne({}).lean();
+
+  if (!clientPortal) {
+    return res.status(404).json({ error: 'Client portal not found' });
+  }
+
+  return res.status(200).json({ token: clientPortal.token });
+});
+
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (core-api): ' + new Date().toISOString());
+});
+
 // Wrap the Express server
 const httpServer = http.createServer(app);
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
+
+  Sentry.setupExpressErrorHandler(app);
 
   await joinErxesGateway({
     name: PLUGIN_NAME,
@@ -129,6 +184,7 @@ httpServer.listen(port, async () => {
     meta,
   });
   await initAutomation(app);
+  await initRecordReferences(app, PLUGIN_NAME, references);
   await initSegmentCoreProducers(app);
   await initImportExport(app);
   await initBroadcast(app);

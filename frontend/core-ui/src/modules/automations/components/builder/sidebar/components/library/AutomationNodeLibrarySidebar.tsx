@@ -1,10 +1,22 @@
-import { TabContentWrapper } from '@/automations/components/builder/sidebar/components/library/TabContentWrapper';
+import { AutomationNodeLibraryTabContent } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabContent';
 import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
 import { AutomationNodeType } from '@/automations/types';
-import { Command, Tabs, Separator, Button } from 'erxes-ui';
-import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
-import { IconX } from '@tabler/icons-react';
+import { IconCheck, IconFilter, IconX } from '@tabler/icons-react';
+import { Badge, Button, cn, Command, Popover, Separator } from 'erxes-ui';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
+import { IAutomationsActionConfigConstants } from 'ui-modules';
+import {
+  getActionGroupBadges,
+  TRIGGER_GROUPS,
+} from '../../utils/automationNodeLibrarySidebarUtils';
+import {
+  AutomationNodeLibraryActionGroupFilterProvider,
+  useAutomationNodeLibraryActionGroupFilter,
+} from '../../context/AutomationNodeLibraryActionGroupFilterContext';
+import { AutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
+import { WorkflowNodeLibraryContent } from './WorkflowNodeLibraryContent';
 
 const SidebarPanelHeader = ({
   title,
@@ -37,97 +49,195 @@ const SidebarPanelHeader = ({
 
 export const AutomationNodeLibrarySidebar = () => {
   const {
-    actionsConst,
-    setQueryParams,
     activeNodeTab,
-    triggersConst,
     loading,
     error,
     refetch,
     onDragStart,
+    onSelectNode,
+    config,
   } = useAutomationNodeLibrarySidebar();
   const { handleClose } = useAutomationBuilderSidebarHooks();
   const { t } = useTranslation('automations');
-  const commonTabContentProps = {
-    loading,
-    error,
-    refetch,
-    onDragStart,
-  };
 
   return (
-    <Tabs
-      defaultValue={activeNodeTab || AutomationNodeType.Trigger}
-      value={activeNodeTab || AutomationNodeType.Trigger}
-      onValueChange={(value) =>
-        setQueryParams({ activeNodeTab: value as AutomationNodeType })
-      }
-      className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <Tabs.Content
-        value={AutomationNodeType.Trigger}
-        className="shrink-0 bg-background"
-      >
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="shrink-0 bg-background">
         <SidebarPanelHeader
-          title={t('choose-trigger-type')}
-          description={t('trigger-type-description')}
+          title={t(config.title)}
+          description={t(config.description)}
           onClose={handleClose}
         />
-      </Tabs.Content>
-      <Tabs.Content
-        value={AutomationNodeType.Action}
-        className="shrink-0 bg-background"
-      >
-        <SidebarPanelHeader
-          title={t('choose-action-type')}
-          description={t('action-type-description')}
-          onClose={handleClose}
-        />
-      </Tabs.Content>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
-          <div className="shrink-0 px-5 py-4">
-            <Command.Input
-              placeholder={t('search')}
-              variant="primary"
-              wrapperClassName="m-0 rounded-md bg-white shadow-xs"
-              autoFocus
-            />
-          </div>
-          <div className="min-h-0 flex-1 overflow-hidden px-4 pb-4">
-            {[
-              {
-                type: AutomationNodeType.Trigger,
-                list: triggersConst,
-              },
-              { type: AutomationNodeType.Action, list: actionsConst },
-            ].map(({ type, list = [] }, index) => (
-              <Tabs.Content
-                key={index}
-                value={type}
-                className="h-full w-full overflow-auto p-0 pr-1"
-              >
-                <Command.Group className="p-0 [&_[cmdk-group-items]]:flex [&_[cmdk-group-items]]:flex-col [&_[cmdk-group-items]]:gap-3">
-                  <TabContentWrapper
-                    {...commonTabContentProps}
-                    type={type}
-                    list={list}
-                  />
-                </Command.Group>
-              </Tabs.Content>
-            ))}
-          </div>
-          {/* // TODO  */}
-          {/* <Tabs.Content
-          className="space-y-2 "
-          value={AutomationNodeType.Workflow}
-        >
-          <Command.Group>
-            <WorkflowsNodeLibrary {...commonTabContentProps} />
-            </Command.Group>
-            </Tabs.Content> */}
-        </Command>
       </div>
-    </Tabs>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <AutomationNodeLibraryProvider
+          loading={loading}
+          error={error}
+          refetch={refetch}
+          onDragStart={onDragStart}
+          onSelectNode={onSelectNode}
+        >
+          <AutomationNodeLibraryActionGroupFilterProvider>
+            <AutomationNodeLibrarySidebarContent
+              activeNodeTab={activeNodeTab}
+              config={config}
+            />
+          </AutomationNodeLibraryActionGroupFilterProvider>
+        </AutomationNodeLibraryProvider>
+      </div>
+    </div>
+  );
+};
+
+const AutomationNodeLibrarySidebarContent = ({
+  activeNodeTab,
+  config,
+}: {
+  activeNodeTab: AutomationNodeType;
+  config: ReturnType<typeof useAutomationNodeLibrarySidebar>['config'];
+}) => {
+  const { t } = useTranslation('automations');
+
+  return (
+    <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
+      <div className="flex shrink-0 flex-row gap-2 px-5 py-4">
+        <Command.Input
+          placeholder={t('search')}
+          variant="primary"
+          wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
+          autoFocus
+        />
+        {activeNodeTab !== AutomationNodeType.Workflow && (
+          <AutomationNodeLibrarySidebarFilters
+            activeNodeTab={activeNodeTab}
+            list={config.list as IAutomationsActionConfigConstants[]}
+          />
+        )}
+      </div>
+      <div className="min-h-0 flex-1 overflow-hidden px-5 pb-4">
+        <div className="h-full w-full overflow-auto p-0 pr-1">
+          {activeNodeTab === AutomationNodeType.Workflow ? (
+            <WorkflowNodeLibraryContent />
+          ) : (
+            <AutomationNodeLibraryTabContent
+              type={
+                activeNodeTab === AutomationNodeType.Action
+                  ? AutomationNodeType.Action
+                  : AutomationNodeType.Trigger
+              }
+              list={config.list}
+            />
+          )}
+        </div>
+      </div>
+    </Command>
+  );
+};
+
+const AutomationNodeLibrarySidebarFilters = ({
+  activeNodeTab,
+  list,
+}: {
+  activeNodeTab: AutomationNodeType;
+  list: IAutomationsActionConfigConstants[];
+}) => {
+  const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false);
+  const {
+    activeActionGroup,
+    setActiveActionGroup,
+    activeTriggerGroup,
+    setActiveTriggerGroup,
+  } = useAutomationNodeLibraryActionGroupFilter();
+
+  const { t } = useTranslation('automations');
+
+  const groups = useMemo(
+    () =>
+      activeNodeTab === AutomationNodeType.Action
+        ? getActionGroupBadges(list as IAutomationsActionConfigConstants[])
+        : TRIGGER_GROUPS,
+    [activeNodeTab, list],
+  );
+  const activeGroup =
+    activeNodeTab === AutomationNodeType.Action
+      ? activeActionGroup
+      : activeTriggerGroup;
+  const setActiveGroup =
+    activeNodeTab === AutomationNodeType.Action
+      ? setActiveActionGroup
+      : setActiveTriggerGroup;
+
+  if (!groups.length) {
+    return null;
+  }
+
+  return (
+    <Popover open={isGroupPopoverOpen} onOpenChange={setIsGroupPopoverOpen}>
+      <Popover.Trigger asChild>
+        <Button
+          variant="secondary"
+          size="icon"
+          className={cn(
+            'size-9 relative',
+            activeGroup &&
+              'border-primary/40 bg-primary/5 text-primary hover:bg-primary/10',
+          )}
+          aria-label={t('filter-by-type')}
+        >
+          <IconFilter className="size-4" />
+          {activeGroup ? (
+            <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
+          ) : null}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content
+        align="end"
+        sideOffset={8}
+        className="w-96 rounded-lg border bg-background p-3 shadow-xl"
+      >
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {t('filter-by-type')}
+          </span>
+          {activeGroup ? (
+            <button
+              type="button"
+              className="text-xs font-medium text-primary hover:underline"
+              onClick={() => {
+                setActiveGroup(null);
+                setIsGroupPopoverOpen(false);
+              }}
+            >
+              Clear
+            </button>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {groups.map((group) => {
+            const isActive = activeGroup === group;
+
+            return (
+              <Badge
+                key={group}
+                variant={isActive ? 'default' : 'secondary'}
+                className={cn(
+                  'flex cursor-pointer items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                  isActive
+                    ? 'border-primary bg-primary text-primary-foreground shadow-xs'
+                    : 'border-border bg-muted/40 text-foreground hover:bg-muted',
+                )}
+                onClick={() => {
+                  setActiveGroup(isActive ? null : group);
+                  setIsGroupPopoverOpen(false);
+                }}
+              >
+                {isActive ? <IconCheck className="size-3" /> : null}
+                {group}
+              </Badge>
+            );
+          })}
+        </div>
+      </Popover.Content>
+    </Popover>
   );
 };

@@ -20,7 +20,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 
   async cmsMenuList(_parent: any, args: any, context: IContext) {
@@ -40,7 +40,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 
   async cmsMenu(_parent: any, args: any, context: IContext) {
@@ -52,7 +52,7 @@ class MenuQueryResolver extends BaseQueryResolver {
     if (!clientPortalId) throw new Error('clientPortalId is required');
     const query = slug ? { slug, clientPortalId } : { _id, clientPortalId };
 
-    return this.getItemWithTranslation(
+    const menu = await this.getItemWithTranslation(
       models.MenuItems,
       query,
       language,
@@ -60,6 +60,8 @@ class MenuQueryResolver extends BaseQueryResolver {
       clientPortalId,
       'menu',
     );
+
+    return models.MenuItems.hydrateMenuItem(menu);
   }
 
   async cpMenus(_parent: any, args: any, context: IContext) {
@@ -79,7 +81,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 
   async cpCmsMenuList(_parent: any, args: any, context: IContext) {
@@ -98,7 +100,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 }
 

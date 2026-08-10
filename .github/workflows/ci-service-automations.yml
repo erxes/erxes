@@ -68,7 +68,7 @@ jobs:
           context: .
           file: backend/services/automations/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           tags: |
             erxes/erxes-next-automations:latest
             erxes/erxes-next-automations:${{ env.DATE }}-${{ env.SHORT_SHA }}

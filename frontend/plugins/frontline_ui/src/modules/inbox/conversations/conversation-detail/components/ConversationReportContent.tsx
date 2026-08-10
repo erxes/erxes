@@ -1,6 +1,5 @@
 import {
   Button,
-  cn,
   Collapsible,
   ScrollArea,
   Separator,
@@ -15,6 +14,7 @@ import { ProgressByAssignee } from './ProgressByAssignee';
 import { ProgressSource } from './ProgressSource';
 import { ProgressTags } from './ProgressTag';
 import { SelectReportDate } from './SelectReportDate';
+import { useTranslation } from 'react-i18next';
 
 export enum ConversationsSideWidgetTabsEnum {
   Assignee = 'assignee',
@@ -23,49 +23,42 @@ export enum ConversationsSideWidgetTabsEnum {
 }
 
 export const ConversationReportContent = ({
-  conversationId,
   customerId,
 }: {
-  conversationId?: string;
   customerId?: string;
 }) => {
-  const [open, setOpen] = useState(false);
+  const { t } = useTranslation('frontline');
   return (
-    <Collapsible
-      defaultOpen={open}
-      onOpenChange={setOpen}
-      className="group/collapsible-menu"
-    >
-      <div className="flex items-center justify-between">
-        <Collapsible.Trigger asChild>
-          <Button variant="secondary" size="sm" onClick={() => setOpen(!open)}>
-            <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90 size-3.5" />
-            Progress
-          </Button>
-        </Collapsible.Trigger>
-
-        <SelectReportDate />
+    <>
+      <div className="border-b">
+        <Collapsible className="group/collapsible-menu" defaultOpen>
+          <div className="flex items-center justify-between">
+            <Collapsible.Trigger asChild>
+              <Button variant="secondary" size="sm">
+                <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90 size-3.5" />
+                {t('progress')}
+              </Button>
+            </Collapsible.Trigger>
+            <SelectReportDate />
+          </div>
+          <Collapsible.Content>
+            <Progress customerId={customerId} />
+            <ProgressChart customerId={customerId} />
+          </Collapsible.Content>
+        </Collapsible>
       </div>
-      <div className={cn('border-b', open && 'border-b-0')}>
-        <Progress customerId={customerId as string} />
-      </div>
-      <Collapsible.Content>
-        <div className={cn('border-b-0', open && 'border-b')}>
-          <ProgressChart customerId={customerId as string} />
-        </div>
-        <ConversationsSideWidgetTabs>
-          <Tabs.Content value={ConversationsSideWidgetTabsEnum.Assignee}>
-            <ProgressByAssignee customerId={customerId as string} />
-          </Tabs.Content>
-          <Tabs.Content value={ConversationsSideWidgetTabsEnum.Source}>
-            <ProgressSource customerId={customerId as string} />
-          </Tabs.Content>
-          <Tabs.Content value={ConversationsSideWidgetTabsEnum.Tag}>
-            <ProgressTags customerId={customerId as string} />
-          </Tabs.Content>
-        </ConversationsSideWidgetTabs>
-      </Collapsible.Content>
-    </Collapsible>
+      <ConversationsSideWidgetTabs>
+        <Tabs.Content value={ConversationsSideWidgetTabsEnum.Assignee}>
+          <ProgressByAssignee customerId={customerId} />
+        </Tabs.Content>
+        <Tabs.Content value={ConversationsSideWidgetTabsEnum.Source}>
+          <ProgressSource customerId={customerId} />
+        </Tabs.Content>
+        <Tabs.Content value={ConversationsSideWidgetTabsEnum.Tag}>
+          <ProgressTags customerId={customerId} />
+        </Tabs.Content>
+      </ConversationsSideWidgetTabs>
+    </>
   );
 };
 
@@ -74,6 +67,7 @@ export const ConversationsSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const [value, setValue] = useState<ConversationsSideWidgetTabsEnum>(
     ConversationsSideWidgetTabsEnum.Assignee,
   );
@@ -97,19 +91,19 @@ export const ConversationsSideWidgetTabs = ({
             value={ConversationsSideWidgetTabsEnum.Assignee}
             className="flex-auto"
           >
-            Assignee
+            {t('assignee')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Source}
             className="flex-auto"
           >
-            Source
+            {t('source')}
           </ToggleGroup.Item>
           <ToggleGroup.Item
             value={ConversationsSideWidgetTabsEnum.Tag}
             className="flex-auto"
           >
-            Tag
+            {t('tag')}
           </ToggleGroup.Item>
         </ToggleGroup>
         <Tabs

@@ -1,7 +1,9 @@
+import { markResolvers } from 'erxes-api-shared/utils';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
+import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
 import { commentQueries } from '@/clientportal/graphql/resolvers/queries/comment';
@@ -18,6 +20,7 @@ import { favoriteQueries } from '@/organization/settings/graphql/favorites/queri
 import { structureQueries } from '@/organization/structure/graphql/resolvers/queries';
 import { userQueries } from '@/organization/team-member/graphql/queries';
 import { permissionQueries } from '~/modules/permissions/graphql/resolvers/queries/permission';
+import { approvalQueries } from '@/approval/graphql/resolvers/queries';
 import { productQueries } from '@/products/graphql/resolvers/queries';
 import { relationsQueries } from '@/relations/graphql/queries';
 import { segmentQueries } from '@/segments/graphql/resolvers';
@@ -32,8 +35,23 @@ import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries'
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
+import { referenceQueries } from '~/meta/references/graphql/queries';
+
+const sentryTestQueries = {
+  _sentryGraphqlTest: () => {
+    throw new Error('GraphQL Sentry test (core): ' + new Date().toISOString());
+  },
+};
+
+markResolvers(sentryTestQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 
 export const queries = {
+  ...sentryTestQueries,
+  ...referenceQueries,
   ...contactQueries,
   ...authQueries,
   ...oauthClientAppQueries,
@@ -49,8 +67,10 @@ export const queries = {
   ...brandQueries,
   ...organizationConfigQueries,
   ...permissionQueries,
+  ...approvalQueries,
   ...documentQueries,
   ...automationQueries,
+  ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,
   ...internalNoteQueries,

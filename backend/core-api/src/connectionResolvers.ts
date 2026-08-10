@@ -66,6 +66,7 @@ import {
   loadUserMovemmentClass,
 } from '@/organization/team-member/db/models/Users';
 import { IProductRuleDocument } from '@/products/@types/rule';
+import { IPackageDocument } from '@/products/@types/package';
 import {
   IProductCategoryModel,
   loadProductCategoryClass,
@@ -75,6 +76,7 @@ import {
   loadProductsConfigClass,
 } from '@/products/db/models/Configs';
 import { IProductModel, loadProductClass } from '@/products/db/models/Products';
+import { IPackageModel, loadPackageClass } from '@/products/db/models/Packages';
 import {
   IProductRuleModel,
   loadProductRuleClass,
@@ -91,7 +93,10 @@ import {
   IActivityLogDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
+  IEmailAddressDocument,
   IEmailDeliveryDocument,
+  IEmailRampDocument,
+  IEmailSenderDocument,
   INotificationDocument,
   notificationSchema,
   NotificationSettings,
@@ -151,6 +156,11 @@ import {
   IAutomationEmailTemplateModel,
   loadAutomationEmailTemplateClass,
 } from './modules/automations/db/models/AutomationEmailTemplates';
+import {
+  IAutomationWorkflowTemplateDocument,
+  IAutomationWorkflowTemplateModel,
+  loadAutomationWorkflowTemplateClass,
+} from './modules/automations/db/models/AutomationWorkflowTemplates';
 import {
   IAutomationModel,
   loadClass as loadAutomationClass,
@@ -215,9 +225,21 @@ import {
   loadFormSubmissionClass,
 } from './modules/forms/db/models/Forms';
 import {
+  IEmailAddressModel,
+  loadEmailAddressClass,
+} from './modules/notifications/db/models/EmailAddresses';
+import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass,
-} from './modules/organization/team-member/db/models/EmailDeliveries';
+} from './modules/notifications/db/models/EmailDeliveries';
+import {
+  IEmailRampModel,
+  loadEmailRampClass,
+} from './modules/notifications/db/models/EmailRamp';
+import {
+  IEmailSenderModel,
+  loadEmailSenderClass,
+} from './modules/notifications/db/models/EmailSenders';
 import { IOrgWhiteLabelDocument } from './modules/organization/whitelabel/@types/orgWhiteLabel';
 import {
   IOrgWhiteLabelModel,
@@ -240,13 +262,27 @@ import {
   ISegmentModel,
   loadSegmentClass,
 } from './modules/segments/db/models/Segments';
-
+import { IProductSimilarityDocument } from '@/products/@types/similarity';
+import {
+  IProductSimilarityModel,
+  loadProductSimilarityClass,
+} from '@/products/db/models/Similarities';
 import { ICPNotificationDocument } from './modules/clientportal/types/cpNotification';
 
 import {
   IPermissionGroupModel,
   loadPermissionGroupClass,
 } from '@/permissions/db/models/Permissions';
+import {
+  IApprovalLockModel,
+  loadApprovalLockClass,
+} from '@/approval/db/models/ApprovalLocks';
+import {
+  IApprovalRequestModel,
+  loadApprovalRequestClass,
+} from '@/approval/db/models/ApprovalRequests';
+import { IApprovalLockDocument } from '@/approval/db/definitions/approvalLocks';
+import { IApprovalRequestDocument } from '@/approval/db/definitions/approvalRequests';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
@@ -274,8 +310,10 @@ export interface IModels {
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
   Products: IProductModel;
+  Packages: IPackageModel;
   ProductCategories: IProductCategoryModel;
   ProductsConfigs: IProductsConfigModel;
+  ProductSimilarities: IProductSimilarityModel;
   Uoms: IUomModel;
   Structures: IStructureModel;
   Departments: IDepartmentModel;
@@ -296,11 +334,15 @@ export interface IModels {
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
   AutomationEmailTemplates: IAutomationEmailTemplateModel;
+  AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
   Notifications: Model<INotificationDocument>;
+  EmailAddresses: IEmailAddressModel;
   EmailDeliveries: IEmailDeliveryModel;
+  EmailRamp: IEmailRampModel;
+  EmailSenders: IEmailSenderModel;
   ClientPortal: IClientPortalModel;
   CPUser: ICPUserModel;
   CPComments: ICPCommentsModel;
@@ -319,6 +361,8 @@ export interface IModels {
   BundleRule: IBundleRuleModel;
   ProductRules: IProductRuleModel;
   PermissionGroups: IPermissionGroupModel;
+  ApprovalLocks: IApprovalLockModel;
+  ApprovalRequests: IApprovalRequestModel;
 
   NotificationSettings: Model<NotificationSettings>;
 
@@ -419,6 +463,11 @@ export const loadClasses = (
     ),
   );
 
+  models.Packages = db.model<IPackageDocument, IPackageModel>(
+    'product_packages',
+    loadPackageClass(models),
+  );
+
   models.Uoms = db.model<IUomDocument, IUomModel>(
     'uoms',
     loadUomClass(models, subdomain, coreEventHandlers('products', 'uoms')),
@@ -445,6 +494,18 @@ export const loadClasses = (
       models,
       subdomain,
       coreEventHandlers('products', 'product_categories'),
+    ),
+  );
+
+  models.ProductSimilarities = db.model<
+    IProductSimilarityDocument,
+    IProductSimilarityModel
+  >(
+    'product_similarities',
+    loadProductSimilarityClass(
+      models,
+      subdomain,
+      coreEventHandlers('products', 'product_similarities'),
     ),
   );
 
@@ -514,7 +575,7 @@ export const loadClasses = (
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',
-    loadRelationClass(models),
+    loadRelationClass(models, coreEventHandlers('relations', 'relations')),
   );
 
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(
@@ -542,6 +603,14 @@ export const loadClasses = (
     IAutomationEmailTemplateModel
   >('automation_email_templates', loadAutomationEmailTemplateClass(models));
 
+  models.AutomationWorkflowTemplates = db.model<
+    IAutomationWorkflowTemplateDocument,
+    IAutomationWorkflowTemplateModel
+  >(
+    'automation_workflow_templates',
+    loadAutomationWorkflowTemplateClass(models),
+  );
+
   models.Notifications = db.model<
     INotificationDocument,
     Model<INotificationDocument>
@@ -552,10 +621,25 @@ export const loadClasses = (
     Model<NotificationSettings>
   >('notification_settings', notificationSettingsSchema);
 
+  models.EmailAddresses = db.model<IEmailAddressDocument, IEmailAddressModel>(
+    'email_addresses',
+    loadEmailAddressClass(models),
+  );
+
   models.EmailDeliveries = db.model<
     IEmailDeliveryDocument,
     IEmailDeliveryModel
   >('email_deliveries', loadEmailDeliveryClass(models));
+
+  models.EmailSenders = db.model<IEmailSenderDocument, IEmailSenderModel>(
+    'email_senders',
+    loadEmailSenderClass(models),
+  );
+
+  models.EmailRamp = db.model<IEmailRampDocument, IEmailRampModel>(
+    'email_ramp',
+    loadEmailRampClass(models),
+  );
 
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',
@@ -647,6 +731,16 @@ export const loadClasses = (
     IPermissionGroupModel
   >('permission_groups', loadPermissionGroupClass(models));
 
+  models.ApprovalLocks = db.model<IApprovalLockDocument, IApprovalLockModel>(
+    'approval_locks',
+    loadApprovalLockClass(models),
+  );
+
+  models.ApprovalRequests = db.model<
+    IApprovalRequestDocument,
+    IApprovalRequestModel
+  >('approval_requests', loadApprovalRequestClass(models));
+
   models.Template = db.model<ITemplateDocument, ITemplateModal>(
     'templates',
     loadTemplateClass(models, subdomain),
@@ -669,7 +763,10 @@ export const loadClasses = (
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',

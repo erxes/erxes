@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 
 import {
   IPost,
@@ -8,13 +8,16 @@ import {
   PostReactionType,
 } from '@/cms/@types/posts';
 import { IModels } from '~/connectionResolvers';
-import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/cms/db/definitions/posts';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import {
+  createSlug,
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
-  getPosts: (query: any) => Promise<IPostDocument[]>;
+  getPosts: (query: FilterQuery<IPostDocument>) => Promise<IPostDocument[]>;
   createPost: (doc: IPost) => Promise<IPostDocument>;
   updatePost: (_id: string, doc: IPost) => Promise<IPostDocument>;
   deletePost: (_id: string) => Promise<IPostDocument>;
@@ -22,6 +25,7 @@ export interface IPostModel extends Model<IPostDocument> {
     _id: string,
     status: 'draft' | 'published' | 'archived' | 'scheduled',
   ) => Promise<IPostDocument>;
+  duplicatePost: (_id: string, authorId?: string) => Promise<IPostDocument>;
   increaseViewCount: (_id: string) => Promise<IPostDocument>;
   updateReactionCount: (
     _id: string,
@@ -38,6 +42,12 @@ const prepareExcerpt = (content: string) => {
   return plainTextContent.length > excerptLength
     ? plainTextContent.substring(0, excerptLength) + '...'
     : plainTextContent;
+};
+
+const prepareSlug = (slug?: string | null) => {
+  const slugValue = slug?.trim();
+
+  return slugValue ? createSlug(slugValue) : '';
 };
 
 const isValidReactionType = (reaction: string): reaction is PostReactionType =>
@@ -97,38 +107,18 @@ export const loadPostClass = (models: IModels) => {
       return models.Posts.countDocuments({ clientPortalId });
     };
 
-    public static async generateUniqueSlug(
-      title: string,
-      attempt = 0,
-    ): Promise<string> {
-      let baseSlug = slugify(title, { lower: true });
-
-      // If it's a retry attempt, append the attempt number to the slug
-      if (attempt > 0) {
-        baseSlug = `${baseSlug}-${attempt}`;
-      }
-
-      // Check if the slug already exists
-      const existingPost = await models.Posts.findOne({ slug: baseSlug });
-
-      // If a post with this slug exists, recursively try again with an incremented attempt number
-      if (existingPost) {
-        return this.generateUniqueSlug(title, attempt + 1);
-      }
-
-      // Return the unique slug
-      return baseSlug;
-    }
-
-    public static getPosts = async (query: any, sort: any) => {
-      return models.Posts.find(query).sort(sort).lean();
+    public static readonly getPosts = async (
+      query: FilterQuery<IPostDocument>,
+      sort: Record<string, SortOrder>,
+    ) => {
+      return await models.Posts.find(query).sort(sort).lean();
     };
 
     public static createPost = async (doc: IPost) => {
       normalizeReactionFields(doc);
 
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
+      if (doc.slug || doc.title) {
+        const baseSlug = prepareSlug(doc.slug || doc.title);
         doc.slug = await generateUniqueSlug(
           models.Posts,
           doc.clientPortalId,
@@ -155,20 +145,29 @@ export const loadPostClass = (models: IModels) => {
     public static updatePost = async (_id: string, doc: IPost) => {
       normalizeReactionFields(doc);
 
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlug(
-          models.Posts,
-          doc.clientPortalId,
-          'slug',
-          baseSlug,
-        );
-      }
-
       const post = await models.Posts.findOne({ _id });
 
       if (!post) {
         throw new Error('Post not found');
+      }
+
+      const clientPortalId = doc.clientPortalId || post.clientPortalId;
+
+      if (doc.slug !== undefined) {
+        const baseSlug = prepareSlug(doc.slug);
+
+        if (!baseSlug) {
+          throw new Error('Slug is required');
+        }
+
+        doc.slug = await generateUniqueSlugWithExclusion(
+          models.Posts,
+          clientPortalId,
+          'slug',
+          baseSlug,
+          _id,
+          1,
+        );
       }
 
       if (doc.content && !doc.excerpt && !post.excerpt) {
@@ -186,6 +185,63 @@ export const loadPostClass = (models: IModels) => {
 
     public static deletePost = async (_id: string) => {
       return models.Posts.deleteOne({ _id });
+    };
+
+    public static readonly duplicatePost = async (
+      _id: string,
+      authorId?: string,
+    ) => {
+      const post = await models.Posts.findOne({ _id }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const {
+        _id: _sourceId,
+        count: _count,
+        slug: _slug,
+        viewCount: _viewCount,
+        recentViewCount: _recentViewCount,
+        reactionCounts: _reactionCounts,
+        publishedDate: _publishedDate,
+        featuredDate: _featuredDate,
+        scheduledDate: _scheduledDate,
+        autoArchiveDate: _autoArchiveDate,
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        ...rest
+      } = post as unknown as IPost & {
+        _id: string;
+        createdAt?: Date;
+        updatedAt?: Date;
+      };
+
+      const duplicated = await this.createPost({
+        ...rest,
+        title: `${post.title} (Copy)`,
+        // createPost regenerates a unique slug from the new title
+        slug: '',
+        status: 'draft',
+        featured: false,
+        ...(authorId ? { authorId, authorKind: 'user' } : {}),
+      });
+
+      const translations = await models.Translations.find({
+        objectId: _id,
+      }).lean();
+
+      if (translations.length) {
+        await models.Translations.insertMany(
+          translations.map(({ _id: _translationId, ...translation }) => ({
+            ...translation,
+            objectId: duplicated._id,
+            title: translation.title ? `${translation.title} (Copy)` : '',
+          })),
+        );
+      }
+
+      return duplicated;
     };
 
     public static changeStatus = async (

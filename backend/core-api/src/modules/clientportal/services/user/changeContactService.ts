@@ -23,6 +23,7 @@ import {
   TokenExpiredError,
   ValidationError,
 } from '@/clientportal/services/errorHandler';
+import { syncCPUserContactToCustomer } from './contactService';
 
 export async function requestChangeEmail(
   userId: string,
@@ -139,7 +140,10 @@ export async function confirmChangeEmail(
     },
   );
 
-  return getCPUserByIdOrThrow(userId, models);
+  const updatedUser = await getCPUserByIdOrThrow(userId, models);
+  await syncCPUserContactToCustomer(models, updatedUser);
+
+  return updatedUser;
 }
 
 export async function requestChangePhone(
@@ -257,5 +261,8 @@ export async function confirmChangePhone(
     },
   );
 
-  return getCPUserByIdOrThrow(userId, models);
+  const updatedUser = await getCPUserByIdOrThrow(userId, models);
+  await syncCPUserContactToCustomer(models, updatedUser);
+
+  return updatedUser;
 }

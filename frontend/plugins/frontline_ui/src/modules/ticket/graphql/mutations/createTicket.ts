@@ -13,6 +13,7 @@ export const CREATE_TICKET = gql`
     $startDate: Date
     $targetDate: Date
     $assigneeId: String
+    $assignedMembers: [String]
     $attachments: [AttachmentInput]
   ) {
     createTicket(
@@ -27,9 +28,29 @@ export const CREATE_TICKET = gql`
       startDate: $startDate
       targetDate: $targetDate
       assigneeId: $assigneeId
+      assignedMembers: $assignedMembers
       attachments: $attachments
     ) {
       _id
+      name
+      description
+      statusId
+      priority
+      labelIds
+      tagIds
+      assigneeId
+      assignedMembers
+      userId
+      startDate
+      targetDate
+      createdAt
+      createdBy
+      updatedAt
+      channelId
+      statusChangedDate
+      number
+      pipelineId
+      state
     }
   }
 `;

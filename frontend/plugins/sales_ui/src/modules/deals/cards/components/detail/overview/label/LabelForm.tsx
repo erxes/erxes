@@ -21,6 +21,7 @@ import { IconLoader } from '@tabler/icons-react';
 import { TwitterPicker } from 'react-color';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
 const LabelForm = ({
   onSuccess,
@@ -106,6 +107,8 @@ const LabelForm = ({
     });
   };
 
+  const { t } = useTranslation('sales');
+
   return (
     <Form {...form}>
       <form
@@ -123,7 +126,7 @@ const LabelForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>NAME</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -137,7 +140,7 @@ const LabelForm = ({
               name="colorCode"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Select a color</Form.Label>
+                  <Form.Label>{t('select-color')}</Form.Label>
                   <TwitterPicker
                     colors={COLORS}
                     color={field.value}
@@ -160,7 +163,7 @@ const LabelForm = ({
               disabled={deleteLoading}
               className="mt-2"
             >
-              Delete
+              {t('delete')}
             </Button>
           )}
           <Popover.Close ref={closeRef}>
@@ -169,7 +172,7 @@ const LabelForm = ({
               variant="ghost"
               className="bg-background hover:bg-background/90 mt-2"
             >
-              Cancel
+              {t('cancel')}
             </Button>
           </Popover.Close>
           <Button
@@ -180,7 +183,7 @@ const LabelForm = ({
                 : 'bg-primary text-primary-foreground hover:bg-primary/90 mt-2',
             )}
           >
-            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : 'Save'}
+            {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : t('save')}
           </Button>
         </div>
       </form>

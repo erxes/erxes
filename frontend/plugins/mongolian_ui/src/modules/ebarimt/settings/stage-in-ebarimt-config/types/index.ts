@@ -1,35 +1,62 @@
 import { z } from 'zod';
-import { addEBarimtStageInConfigSchema } from '../constants/addEBarimtReturnConfigSchema';
+import {
+  EBARIMT_COMMON_DEFAULT_VALUES,
+  getEBarimtCommonFormValues,
+} from '@/ebarimt/settings/types/EBarimtConfig';
 
-export interface StageInEbarimtConfig {
-  title: string;
-  destinationStageBoard: string;
-  pipelineId: string;
-  stageId: string;
-  posNo: string;
-  companyRD: string;
-  merchantTin: string;
-  branchOfProvice: string;
-  subProvice: string;
-  districtCode: string;
-  companyName: string;
-  defaultUnitedCode: string;
-  headerText: string;
-  branchNo: string;
-  HasVat: boolean;
-  vatPercent: string;
-  anotherRulesOfProductsOnVat: string;
-  vatPayableAccount: string;
+export const normalizeRuleIds = (value?: string | string[] | null) => {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
 
-  HasAllCitytax: boolean;
-  allCitytaxPayableAccount: string;
-  footerText: string;
-  citytaxPercent: string;
-  anotherRulesOfProductsOnCitytax: string;
-  withDescription: boolean;
-  skipEbarimt: boolean;
-}
+  return value ? [value] : [];
+};
+
+export const addEBarimtStageInConfigSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  boardId: z.string().min(1, 'Destination stage board is required'),
+  pipelineId: z.string().min(1, 'Pipeline is required'),
+  stageId: z.string().min(1, 'Stage is required'),
+  posNo: z.string().optional(),
+  companyRD: z.string().optional(),
+  merchantTin: z.string().optional(),
+  branchOfProvince: z.string().optional(),
+  subProvince: z.string().optional(),
+  districtCode: z.string().optional(),
+  companyName: z.string().optional(),
+  defaultUnitedCode: z.string().optional(),
+  headerText: z.string().optional(),
+  branchNo: z.string().optional(),
+  citytaxPercent: z.string().optional(),
+  reverseVatRules: z.array(z.string()).optional(),
+  hasVat: z.boolean(),
+  vatPercent: z.string().optional(),
+  hasCitytax: z.boolean().optional(),
+  footerText: z.string().optional(),
+  reverseCtaxRules: z.array(z.string()).optional(),
+  withDescription: z.boolean().optional(),
+  skipEbarimt: z.boolean().optional(),
+  sendEmail: z.boolean().optional(),
+});
 
 export type TStageInEbarimtConfig = z.infer<
   typeof addEBarimtStageInConfigSchema
 >;
+
+export const STAGE_IN_EBARIMT_DEFAULT_VALUES: TStageInEbarimtConfig = {
+  ...EBARIMT_COMMON_DEFAULT_VALUES,
+  boardId: '',
+  pipelineId: '',
+  stageId: '',
+  sendEmail: false,
+};
+
+export const getStageInEBarimtFormValues = (
+  detail: Partial<TStageInEbarimtConfig>,
+): TStageInEbarimtConfig => ({
+  ...getEBarimtCommonFormValues(detail),
+  boardId: detail.boardId || '',
+  pipelineId: detail.pipelineId || '',
+  stageId: detail.stageId || '',
+  sendEmail: detail.sendEmail || false,
+});

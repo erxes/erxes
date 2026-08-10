@@ -6,18 +6,12 @@ import {
   actionCreateMessage,
   checkMessageTrigger,
 } from '@/integrations/facebook/meta/automation/messages';
+import { ICheckTriggerData } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from '@/integrations/facebook/meta/automation/types/automationTypes';
-import {
-  replacePlaceHolders,
   TAiContext,
-  setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
 
 const toISOString = (value?: Date | string) => {
   if (!value) {
@@ -31,6 +25,14 @@ const toISOString = (value?: Date | string) => {
   return String(value);
 };
 
+// An execution can start seconds after its message, by which time newer
+// messages exist. History must stay strictly older than the one being handled.
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   if (message.fromBot) {
     return 'bot' as const;
@@ -41,23 +43,6 @@ const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   }
 
   return 'customer' as const;
-};
-
-const getItems = async (
-  subdomain: string,
-  module: string,
-  execution: any,
-  targetType: string,
-) => {
-  const { target } = execution;
-  if (module === targetType) {
-    return [target];
-  }
-  return [];
-};
-
-const getRelatedValue = async () => {
-  return false;
 };
 
 export const facebookAutomationWorkers = {
@@ -83,20 +68,6 @@ export const facebookAutomationWorkers = {
       default:
         return { result: null };
     }
-  },
-  replacePlaceHolders: async (
-    data: IReplacePlaceholdersData,
-    { models, subdomain },
-  ) => {
-    const { target, config, relatedValueProps } = data;
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target,
-    });
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;
@@ -151,10 +122,12 @@ export const facebookAutomationWorkers = {
       return context;
     }
 
+    const historyCutoff = toHistoryCutoff(target.createdAt);
     const messages = await models.FacebookConversationMessages.find({
       conversationId: target.conversationId,
       internal: { $ne: true },
       _id: { $ne: target._id },
+      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
     })
       .sort({ createdAt: -1 })
       .limit(12)
@@ -171,32 +144,5 @@ export const facebookAutomationWorkers = {
     }));
 
     return context;
-  },
-
-  setProperties: async (
-    {
-      action,
-      execution,
-      targetType,
-    }: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
-    { models, subdomain },
-  ) => {
-    const { module, rules } = action.config;
-    const relatedItems = await getItems(
-      subdomain,
-      module,
-      execution,
-      targetType,
-    );
-    return await setProperty({
-      models,
-      subdomain,
-      getRelatedValue,
-      module,
-      rules,
-      execution,
-      relatedItems,
-      targetType,
-    });
   },
 };

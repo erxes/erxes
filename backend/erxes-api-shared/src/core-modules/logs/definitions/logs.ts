@@ -38,3 +38,9 @@ logsSchema.index(
   { contentType: 1, createdAt: -1 },
   { partialFilterExpression: { contentType: { $exists: true } } },
 );
+
+// Point-in-time revert reads every change in one request's cascade by processId.
+logsSchema.index(
+  { processId: 1, createdAt: -1 },
+  { partialFilterExpression: { processId: { $exists: true } } },
+);

@@ -2,12 +2,14 @@ import { useMutation } from '@apollo/client';
 import { FACEBOOK_BOTS_LIST } from '@/integrations/facebook/graphql/queries/facebookBots';
 import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { toast, useQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   REMOVE_FACEBOOK_BOT,
   REPAIR_FACEBOOK_BOT,
 } from '~/widgets/automations/modules/facebook/components/bots/graphql/automationBotsMutations';
 
 export const useFacebookBotMoreColumn = (_id: string) => {
+  const { t } = useTranslation('frontline');
   const [, setFacebookBotId] = useQueryState('facebookBotId');
 
   const [repairBot, { loading: loadingRepair }] = useMutation(
@@ -41,10 +43,10 @@ export const useFacebookBotMoreColumn = (_id: string) => {
           },
         );
       },
-      onCompleted: () => toast({ title: 'Repaired successfully' }),
+      onCompleted: () => toast({ title: t('repaired-successfully') }),
       onError: (error) =>
         toast({
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -73,10 +75,10 @@ export const useFacebookBotMoreColumn = (_id: string) => {
           },
         );
       },
-      onCompleted: () => toast({ title: 'Removed successfully' }),
+      onCompleted: () => toast({ title: t('removed-successfully') }),
       onError: (error) =>
         toast({
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error.message,
           variant: 'destructive',
         }),

@@ -20,9 +20,14 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITransaction } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
@@ -66,12 +71,23 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
+const StatusCell = ({ row }: any) => {
+  const { status } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_STATUS_LABELS[status] || status}
+    </RecordTableInlineCell>
+  );
+};
+
 const JournalCell = ({ row }: any) => {
+  const { t } = useTranslation('accounting');
   const { journal } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || 'Main'}
+      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || t('main')}
     </RecordTableInlineCell>
   );
 };
@@ -141,7 +157,8 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { details, parentId, _id, originId } = row.original;
+  const navigate = useNavigate();
 
   const name0 = details[0].account?.name;
 
@@ -156,8 +173,19 @@ const AccountCell = ({ row }: any) => {
 
   const codes = Object.keys(infoByCode);
 
+  const handleEditAccount = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
+      }`,
+    );
+  };
+
   return (
-    <RecordTableInlineCell>
+    <RecordTableInlineCell
+      onClick={handleEditAccount}
+      className="cursor-pointer"
+    >
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -177,11 +205,12 @@ const TransactionMoreColumnCell = ({
 }: {
   cell: Cell<ITransaction, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const { parentId, _id, originId } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
-  const handleEdit = () => {
+  const handleEditAcc = () => {
     navigate(
       `/accounting/transaction/edit?parentId=${parentId}&trId=${
         originId || _id
@@ -190,10 +219,10 @@ const TransactionMoreColumnCell = ({
   };
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete these transactions?',
+      message: t('are-you-sure-delete-transactions'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeTransactions(parentId);
@@ -207,11 +236,11 @@ const TransactionMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+            <Command.Item value="edit" onSelect={handleEditAcc}>
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -222,6 +251,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };
@@ -234,7 +264,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
-    size: 400,
+    size: 300,
   },
   {
     id: 'number',
@@ -259,6 +289,18 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     size: 200,
   },
   {
+    id: 'status',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    accessorKey: 'status',
+    cell: ({ row }) => <StatusCell row={row} />,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+  },
+  {
     id: 'sumDt',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label="Дебет дүн" />
@@ -275,12 +317,6 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     cell: ({ getValue, row }) => (
       <SumCreditCell getValue={getValue} row={row} />
     ),
-  },
-  {
-    id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
-    accessorKey: 'journal',
-    cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'branch',

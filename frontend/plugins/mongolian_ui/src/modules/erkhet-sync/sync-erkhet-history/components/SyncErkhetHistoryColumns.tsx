@@ -5,9 +5,8 @@ import {
   IconUser,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/react-table';
 import {
-  RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -15,15 +14,27 @@ import {
 
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
+import { HeaderCell } from '../../components/HeaderCell';
+
+const stringify = (value: unknown) => {
+  if (value == null) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return JSON.stringify(value);
+};
+
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
-    ),
+    header: () => <HeaderCell icon={IconCalendarPlus} label="created-at" />,
     cell: ({ cell }) => {
       return (
         <RelativeDateDisplay value={cell.getValue() as string} asChild>
@@ -35,27 +46,29 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     },
   },
   {
-    id: 'consumeData.user.email',
-    accessorKey: 'consumeData.user.email',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
-    cell: ({ cell }) => {
+    id: 'createdUser',
+    accessorKey: 'createdUser',
+    header: () => <HeaderCell icon={IconHash} label="user" />,
+    cell: ({ row }) => {
+      const user = row.original.createdUser;
+      const value =
+        user?.email || user?.details?.fullName || row.original.createdBy || '';
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'consumeData.type',
-    accessorKey: 'consumeData.type',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
-    ),
+    id: 'contentType',
+    accessorKey: 'contentType',
+    header: () => <HeaderCell icon={IconCurrencyDollar} label="content-type" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
@@ -63,24 +76,41 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Content" />,
+    header: () => <HeaderCell icon={IconUser} label="content" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'responseData.message',
-    accessorKey: 'responseData.message',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
-    cell: ({ cell }) => {
+    id: 'response',
+    accessorKey: 'responseStr',
+    header: () => <HeaderCell icon={IconCategory} label="response" />,
+    cell: ({ row }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <SyncHistoryClickableColumnCell
+          row={row}
+          value={stringify(
+            row.original.responseData || row.original.responseStr,
+          )}
+        />
+      );
+    },
+  },
+  {
+    id: 'error',
+    accessorKey: 'error',
+    header: () => <HeaderCell icon={IconCategory} label="error" />,
+    cell: ({ row }) => {
+      return (
+        <SyncHistoryClickableColumnCell
+          row={row}
+          value={row.original.error || ''}
+          isError
+        />
       );
     },
   },

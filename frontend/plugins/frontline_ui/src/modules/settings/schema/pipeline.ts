@@ -1,8 +1,21 @@
+import {
+  MAX_TICKET_NUMBER_SIZE,
+  MIN_TICKET_NUMBER_SIZE,
+  parseTicketNumberSize,
+} from '@/pipelines/utils/ticketNumberPreview';
 import { z } from 'zod';
 
 const PIPELINE_FORM_BASE_SCHEMA = z.object({
   name: z.string(),
   description: z.string().optional(),
+  numberConfig: z.string().optional(),
+  numberSize: z
+    .string()
+    .optional()
+    .refine((value) => !value || parseTicketNumberSize(value) !== null, {
+      message: `${MIN_TICKET_NUMBER_SIZE}-${MAX_TICKET_NUMBER_SIZE}`,
+    }),
+  nameConfig: z.string().optional(),
 });
 
 export const CREATE_PIPELINE_FORM_SCHEMA = PIPELINE_FORM_BASE_SCHEMA.extend({
@@ -18,7 +31,6 @@ export const UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA = z.object({
   branchOnly: z.boolean(),
   myTicketsOnly: z.boolean(),
   departmentOnly: z.boolean(),
-  allowAllUsers: z.boolean(),
   selectedUsers: z.array(z.string()),
   visibility: z.enum(['public', 'private']),
   memberIds: z.array(z.string()),

@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useGetSalesBoards } from '../../hooks/useGetSalesBoards';
 import {
   SelectTrigger,
@@ -84,13 +85,14 @@ const SelectSalesBoardValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const { value, boards } = useSelectSalesBoardContext();
   const selectedBoard = boards?.find((board) => board._id === value);
 
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select board'}
+        {placeholder || t('select-board')}
       </span>
     );
   }
@@ -122,13 +124,14 @@ const SelectSalesBoardCommandItem = ({ board }: { board: IBoard }) => {
 };
 
 const SelectSalesBoardContent = () => {
+  const { t } = useTranslation('mongolian');
   const { boards, loading, error } = useSelectSalesBoardContext();
 
   const renderContent = useCallback(() => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -136,7 +139,7 @@ const SelectSalesBoardContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error')}: {error.message}
         </div>
       );
     }
@@ -144,13 +147,13 @@ const SelectSalesBoardContent = () => {
     return boards?.map((board) => (
       <SelectSalesBoardCommandItem key={board._id} board={board} />
     ));
-  }, [loading, error, boards]);
+  }, [loading, error, boards, t]);
 
   return (
     <Command>
-      <Command.Input placeholder="Search board" />
+      <Command.Input placeholder={t('search-board')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No boards found</span>
+        <span className="text-muted-foreground">{t('no-boards-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

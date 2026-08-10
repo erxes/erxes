@@ -15,13 +15,36 @@ import {
 import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
+import { useTranslation } from 'react-i18next';
+
+type FormField = { tempFieldId?: string } & Record<string, unknown>;
+
+const buildEditFieldsVariables = (
+  id: string,
+  formFields: FormField[],
+  existingFields: { _id: string }[],
+) => ({
+  contentType: 'form',
+  contentTypeId: id,
+  updatedFields: formFields
+    .filter((field) => existingFields.some((f) => f._id === field.tempFieldId))
+    .map(({ tempFieldId, ...field }) => ({ ...field, _id: tempFieldId })),
+  newFields: formFields.filter(
+    (field) => !existingFields.some((f) => f._id === field.tempFieldId),
+  ),
+  removedFieldIds: existingFields
+    .filter((f) => !formFields.some((field) => field.tempFieldId === f._id))
+    .map((f) => f._id),
+});
 
 export const useFormMutate = () => {
-  const { formId: id, id: channelId } = useParams();
+  const { t } = useTranslation('frontline');
+  const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const { formDetail } = useFormDetail({ formId: id as string });
+  const channelId = formDetail?.channelId || _channelId;
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
@@ -30,7 +53,7 @@ export const useFormMutate = () => {
       {
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -42,7 +65,7 @@ export const useFormMutate = () => {
     useMutation(FORM_BULK_ACTION, {
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -62,27 +85,23 @@ export const useFormMutate = () => {
         },
         onCompleted: () => {
           fieldsBulkAction({
-            variables: {
-              contentType: 'form',
-              contentTypeId: id,
-              updatedFields: formFields
-                .filter((field) =>
-                  formDetail?.fields.some((f) => f._id === field.tempFieldId),
-                )
-                .map(({ tempFieldId, ...field }) => ({
-                  ...field,
-                  _id: tempFieldId,
-                })),
-              newFields: formFields.filter(
-                (field) =>
-                  !formDetail?.fields.some((f) => f._id === field.tempFieldId),
-              ),
+            variables: buildEditFieldsVariables(
+              id,
+              formFields,
+              formDetail?.fields || [],
+            ),
+            onCompleted: () => {
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('form-updated-successfully'),
+              });
             },
           });
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -92,7 +111,7 @@ export const useFormMutate = () => {
       if (!channelId) {
         toast({
           variant: 'destructive',
-          title: 'Channel ID is required to create a form',
+          title: t('channel-id-required'),
         });
         return;
       }
@@ -110,12 +129,19 @@ export const useFormMutate = () => {
               contentTypeId: formsAdd._id,
               newFields: formFields,
             },
+            onCompleted: () => {
+              toast({
+                title: t('success'),
+                variant: 'success',
+                description: t('form-created-successfully'),
+              });
+            },
           });
           addFormClient?.cache.evict({ fieldName: 'Forms' });
         },
         onError: (error) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -123,6 +149,9 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
+    if (!_channelId) {
+      navigate(`/frontline/forms`);
+    }
     navigate(`/settings/frontline/channels/${channelId}/forms`);
   };
 

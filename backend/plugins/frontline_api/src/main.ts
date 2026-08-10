@@ -1,6 +1,6 @@
 import initCallApp from '@/integrations/call/initApp';
-// import { initWebsocketService } from '@/integrations/call/webSocket';
 import onServerInitImap from '@/integrations/imap/initApp';
+import { initDiscord } from '@/integrations/discord/initApp';
 import { startPlugin } from 'erxes-api-shared/utils';
 import {
   createCoreModuleProducerHandler,
@@ -16,15 +16,38 @@ import { afterProcess } from '~/meta/afterProcess';
 import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
-import automations from './meta/automations';
+import { automations } from './meta/automations';
 import { notifications } from './meta/notifications';
+import { permissions } from './meta/permissions';
 import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
-import { ticketExportHandlers } from './meta/import-export/export/exportHandlers';
+import {
+  ticketExportHandlers,
+  formSubmissionExportHandlers,
+} from './meta/import-export/export/exportHandlers';
+import { frontlineReferences } from './meta/references';
+import segments from './meta/segments';
 
-const ticketImportExportTypes = [
+const ticketImportTypes = [
   {
     label: 'Ticket',
     contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsImportManage'],
+  },
+];
+
+const ticketExportTypes = [
+  {
+    label: 'Ticket',
+    contentType: 'frontline:ticket.ticket',
+    permissions: ['ticketsExportManage'],
+  },
+];
+
+const formSubmissionExportTypes = [
+  {
+    label: 'Form Response',
+    contentType: 'frontline:formSubmission.formSubmission',
+    permissions: ['formSubmissionsExportManage'],
   },
 ];
 
@@ -49,10 +72,7 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     await onServerInitImap(app);
-    // const CALL_WS_SERVER = getEnv({ name: 'CALL_WS_SERVER' });
-    // if (CALL_WS_SERVER) {
-    //   await initWebsocketService();
-    // }
+    initDiscord();
   },
 
   apolloServerContext: async (subdomain, context) => {
@@ -73,47 +93,61 @@ startPlugin({
     },
   },
 
-  importExport: {
-    import: {
-      types: ticketImportExportTypes,
-      insertImportRows: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketImportHandlers },
-        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
-        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
-        generateModels,
-      }),
-      getImportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketImportHandlers },
-        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
-        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-    export: {
-      types: ticketImportExportTypes,
-      getExportData: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: TGetExportDataInput) => input.moduleName,
-        generateModels,
-      }),
-      getExportHeaders: createCoreModuleProducerHandler({
-        moduleName: 'importExport',
-        modules: { ticket: ticketExportHandlers },
-        methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
-        generateModels,
-      }),
-    },
-  },
-
   meta: {
+    importExport: {
+      import: {
+        types: ticketImportTypes,
+        insertImportRows: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { ticket: ticketImportHandlers },
+          methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+          extractModuleName: (input: TInsertImportRowsInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+        getImportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: { ticket: ticketImportHandlers },
+          methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+          extractModuleName: (input: TGetImportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+      export: {
+        types: [...ticketExportTypes, ...formSubmissionExportTypes],
+        getExportData: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            ticket: ticketExportHandlers,
+            formSubmission: formSubmissionExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_DATA,
+          extractModuleName: (input: TGetExportDataInput) => input.moduleName,
+          generateModels,
+        }),
+        getExportHeaders: createCoreModuleProducerHandler({
+          moduleName: 'importExport',
+          modules: {
+            ticket: ticketExportHandlers,
+            formSubmission: formSubmissionExportHandlers,
+          },
+          methodName: TImportExportProducers.GET_EXPORT_HEADERS,
+          extractModuleName: (input: TGetExportHeadersInput) =>
+            input.moduleName,
+          generateModels,
+        }),
+      },
+    },
     automations,
     afterProcess,
     notifications,
+    permissions,
+    references: frontlineReferences,
+    segments,
+    relations: {
+      subscribedTypes: ['frontline:conversation'],
+    },
     tags: {
       types: [
         {

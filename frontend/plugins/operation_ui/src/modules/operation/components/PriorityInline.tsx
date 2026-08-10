@@ -1,7 +1,7 @@
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
 import { Badge, cn } from 'erxes-ui';
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PriorityIcon = React.forwardRef<
   SVGSVGElement,
@@ -55,6 +55,7 @@ export const PriorityTitle = React.forwardRef<
   HTMLSpanElement,
   React.ComponentProps<'span'> & { priority: number }
 >(({ priority, className, ...props }, ref) => {
+  const { t } = useTranslation('operation');
   const text = PROJECT_PRIORITIES_OPTIONS[priority];
   return (
     <span
@@ -66,7 +67,7 @@ export const PriorityTitle = React.forwardRef<
       )}
       {...props}
     >
-      {text}
+      {text ? t(text) : ''}
     </span>
   );
 });

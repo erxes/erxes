@@ -5,14 +5,19 @@ import {
 } from '@/loyalties/vouchers/components/VoucherColumns';
 import { useVouchersList } from '@/loyalties/vouchers/hooks/UseVoucherList';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
+  const { t } = useTranslation('loyalty');
   const { vouchersList, handleFetchMore, loading, pageInfo } = useVouchersList({
     posId,
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstVoucherColumns, ...secondVoucherColumns];
+  const allColumns = [
+    ...firstVoucherColumns(t),
+    ...secondVoucherColumns(t),
+  ];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
@@ -54,10 +59,10 @@ export const VoucherRecordTable = ({ posId }: { posId?: string }) => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No vouchers yet
+                {t('no-vouchers-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first voucher.
+                {t('get-started-voucher')}
               </p>
             </div>
           </div>

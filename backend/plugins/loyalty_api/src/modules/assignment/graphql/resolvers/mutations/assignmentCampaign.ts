@@ -5,24 +5,27 @@ export const assignmentCampaignMutations = {
   async assignmentCampaignsAdd(
     _root: undefined,
     doc: IAssignmentCampaign,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignCreate');
     return models.AssignmentCampaigns.createAssignmentCampaign(doc);
-  },
+  },     
 
   async assignmentCampaignsEdit(
     _root: undefined,
     { _id, ...doc }: IAssignmentCampaign & { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignEdit');
     return models.AssignmentCampaigns.updateAssignmentCampaign(_id, doc);
   },
 
   async assignmentCampaignsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignRemove');
     return models.AssignmentCampaigns.removeAssignmentCampaigns(_ids);
   },
 };

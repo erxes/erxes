@@ -47,6 +47,9 @@ export const messageSchema = new Schema({
   botData: { type: Object },
   formWidgetData: { type: Object },
   messengerAppData: { type: Object },
+  // Channel-specific structured payload that has no generic column — currently
+  // Discord rich content (e.g. `{ poll }`), extensible to embeds/stickers.
+  extraData: { type: Object },
   engageData: { type: engageDataSchema },
   contentType: {
     type: String,

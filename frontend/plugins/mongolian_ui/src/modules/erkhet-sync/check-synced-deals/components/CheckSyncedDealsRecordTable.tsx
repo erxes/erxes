@@ -1,20 +1,25 @@
 import { RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { checkSyncedDealsColumns } from './CheckSyncedDealsColumn';
 
 import { CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY } from '../constants/checkSyncedDealsCursorSessionKey';
 import { useCheckSyncedDeals } from '../hooks/useCheckSyncedDeals';
+import { CheckSyncedDealsCommandBar } from './CheckSyncedDealsCommandBar';
+
 export const CheckSyncedDealsRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { Deals, handleFetchMore, loading, pageInfo } = useCheckSyncedDeals();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
-      columns={checkSyncedDealsColumns || []}
+      columns={checkSyncedDealsColumns}
       data={Deals || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'createdAt']}
+      stickyColumns={['checkbox', 'toSync', 'createdAt']}
+      tableId="mongolian_erkhet_check_synced_deals_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -23,7 +28,7 @@ export const CheckSyncedDealsRecordTable = () => {
         sessionKey={CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
@@ -42,15 +47,16 @@ export const CheckSyncedDealsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No sync yet
+                {t('no-sync-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first sync.
+                {t('create-first-sync')}
               </p>
             </div>
           </div>
         )}
       </RecordTable.CursorProvider>
+      <CheckSyncedDealsCommandBar />
     </RecordTable.Provider>
   );
 };

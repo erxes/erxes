@@ -43,11 +43,26 @@ export const cpTicketQueries = {
 
     return models.Ticket.countDocuments(query);
   },
+  cpGetTicketStatus: async (
+    _parent: undefined,
+    { _id },
+    { models }: IContext,
+  ) => {
+    return models.Status.getStatus(_id);
+  },
+
+  cpTicketGetNotes: async (
+    _parent: undefined,
+    { ticketId }: { ticketId: string },
+    { models }: IContext,
+  ) => {
+     return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
+
+  },
 };
 
 markResolvers<IContext>(cpTicketQueries, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

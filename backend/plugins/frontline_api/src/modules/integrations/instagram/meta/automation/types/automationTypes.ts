@@ -1,4 +1,3 @@
-import { IInstagramConversationMessage } from '@/integrations/instagram/@types/conversationMessages';
 import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
 import {
   IAutomationAction,
@@ -28,12 +27,6 @@ export type ICheckTriggerData = {
   trigger: IAutomationTrigger;
   target: any;
   config: any;
-};
-
-export type IReplacePlaceholdersData = {
-  target: IInstagramConversationMessage;
-  config: any;
-  relatedValueProps: any;
 };
 
 export type TInstagramMessageButton = {

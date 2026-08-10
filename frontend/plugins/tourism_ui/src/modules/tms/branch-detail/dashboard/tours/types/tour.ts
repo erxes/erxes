@@ -4,6 +4,7 @@ export interface ITour {
   refNumber?: string;
   groupCode?: string;
   dateType?: 'fixed' | 'flexible';
+  customTourTypeId?: string;
   startDate?: string;
   endDate?: string;
   availableFrom?: string;

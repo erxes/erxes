@@ -12,6 +12,7 @@ import { favoriteMutations } from '@/organization/settings/graphql/favorites/mut
 import { structureMutations } from '@/organization/structure/graphql/resolvers/mutations';
 import { userMutations } from '@/organization/team-member/graphql/mutations';
 import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
+import { approvalMutations } from '@/approval/graphql/resolvers/mutations';
 import { productMutations } from '@/products/graphql/resolvers/mutations';
 import { relationsMutations } from '@/relations/graphql/mutations';
 import { segmentMutations } from '@/segments/graphql/resolvers/mutations';
@@ -29,6 +30,7 @@ import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/com
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
 import { templateMutations } from '@/template/graphql/mutations';
+import { logMutations } from '@/logs/graphql/resolvers/mutations';
 
 export const mutations = {
   ...contactMutations,
@@ -46,6 +48,7 @@ export const mutations = {
   ...structureMutations,
   ...brandMutations,
   ...permissionMutations,
+  ...approvalMutations,
   ...documentMutations,
   ...automationMutations,
   ...notificationMutations,
@@ -60,4 +63,5 @@ export const mutations = {
   ...cpNotificationMutations,
   ...bundleMutations,
   ...templateMutations,
+  ...logMutations,
 };

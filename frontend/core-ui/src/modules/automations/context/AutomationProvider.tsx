@@ -1,8 +1,10 @@
 import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
 import {
   AutomationBuilderTabsType,
+  AutomationConstants,
   AutomationNodeType,
   ConstantsQueryResponse,
+  IAutomation,
   NodeData,
 } from '@/automations/types';
 import { useQuery } from '@apollo/client';
@@ -13,7 +15,12 @@ import {
   OnInit,
   ReactFlowInstance,
 } from '@xyflow/react';
+import {
+  automationBuilderSecondarySidebarOpenState,
+  automationBuilderSiderbarOpenState,
+} from '@/automations/states/automationState';
 import { useMultiQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
 import {
   createContext,
   SetStateAction,
@@ -22,6 +29,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   IAutomationsActionConfigConstants,
   IAutomationsActionFolkConfig,
@@ -40,25 +48,38 @@ type AutomationQueryParams = {
   activeNodeTab?: AutomationNodeType;
 };
 
+type TAutomationSelectedNode = {
+  id: string;
+  type: string;
+  nodeType: AutomationNodeType;
+  label: string;
+  icon?: string;
+} | null;
+
+type TConstantCachedFields =
+  | 'triggersConst'
+  | 'actionsConst'
+  | 'findObjectTargetsConst';
+
+type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
   awaitingToConnectNodeId?: string;
   setAwaitingToConnectNodeId: Dispatch<SetStateAction<string>>;
-  selectedNode: {
-    id: string;
-    type: string;
-    nodeType: AutomationNodeType;
-    label: string;
-    icon?: string;
-  } | null;
-  setSelectedNode: Dispatch<
-    SetStateAction<{
-      id: string;
-      type: string;
-      nodeType: AutomationNodeType;
-      label: string;
-      icon?: string;
-    } | null>
-  >;
+  // Sidebar visibility, scoped like queryParams: the workflow edit sheet has
+  // its own sidebar that must not open/close the main canvas one
+  isSidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
+  isSecondarySidebarOpen: boolean;
+  setSecondarySidebarOpen: (open: boolean) => void;
+  toggleSecondarySidebar: () => void;
+  // Drill-in editing: the id of the workflow whose members are being edited on
+  // the main workspace, or null when the root automation is shown. Lives on the
+  // root provider so the WorkflowNode maximize control and the workspace agree.
+  editingWorkflowId: string | null;
+  setEditingWorkflowId: (workflowId: string | null) => void;
+  selectedNode: TAutomationSelectedNode;
+  setSelectedNode: Dispatch<SetStateAction<TAutomationSelectedNode>>;
   queryParams: QueryValues<AutomationQueryParams>;
   setQueryParams: (values: QueryValues<AutomationQueryParams>) => void;
   triggersConst: IAutomationsTriggerConfigConstants[];
@@ -73,14 +94,22 @@ interface AutomationContextType {
   setReactFlowInstance: OnInit<Node<NodeData>, Edge<EdgeProps>>;
   actionConstMap: Map<string, IAutomationsActionConfigConstants>;
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
+  isCreatePage: boolean;
+  detail?: IAutomation;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
 
 export const AutomationProvider = ({
   children,
+  detail,
+  scoped,
 }: {
   children: React.ReactNode;
+  detail?: IAutomation;
+  // Scoped providers (e.g. workflow edit sheet) keep their node selection in
+  // local state instead of URL params, so they don't fight the main canvas.
+  scoped?: boolean;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
   const [selectedNode, setSelectedNode] = useState<{
@@ -94,18 +123,51 @@ export const AutomationProvider = ({
     Node<NodeData>,
     Edge<EdgeProps>
   > | null>(null);
-  const [queryParams, setQueryParams] =
+  const [urlQueryParams, setUrlQueryParams] =
     useMultiQueryState<AutomationQueryParams>([
       'activeTab',
       'activeNodeTab',
       'activeNodeId',
     ]);
+  const [localQueryParams, setLocalQueryParams] = useState<
+    QueryValues<AutomationQueryParams>
+  >({ activeTab: null, activeNodeTab: null, activeNodeId: null });
 
-  const [cached, setCached] = useState<{
-    triggersConst: any[];
-    actionsConst: any[];
-    findObjectTargetsConst: any[];
-  } | null>(null);
+  const queryParams = scoped ? localQueryParams : urlQueryParams;
+  const setQueryParams = scoped
+    ? (values: QueryValues<AutomationQueryParams>) =>
+        setLocalQueryParams((previous) => ({ ...previous, ...values }))
+    : setUrlQueryParams;
+
+  const [globalSidebarOpen, setGlobalSidebarOpen] = useAtom(
+    automationBuilderSiderbarOpenState,
+  );
+  const [globalSecondarySidebarOpen, setGlobalSecondarySidebarOpen] = useAtom(
+    automationBuilderSecondarySidebarOpenState,
+  );
+  const [localSidebarOpen, setLocalSidebarOpen] = useState(false);
+  const [localSecondarySidebarOpen, setLocalSecondarySidebarOpen] =
+    useState(false);
+
+  const isSidebarOpen = scoped ? localSidebarOpen : globalSidebarOpen;
+  const setSidebarOpen = scoped ? setLocalSidebarOpen : setGlobalSidebarOpen;
+  const isSecondarySidebarOpen = scoped
+    ? localSecondarySidebarOpen
+    : globalSecondarySidebarOpen;
+  const setSecondarySidebarOpen = scoped
+    ? setLocalSecondarySidebarOpen
+    : setGlobalSecondarySidebarOpen;
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+  const toggleSecondarySidebar = () =>
+    setSecondarySidebarOpen(!isSecondarySidebarOpen);
+
+  const [editingWorkflowId, setEditingWorkflowId] = useState<string | null>(
+    null,
+  );
+
+  const { pathname } = useLocation();
+  const isCreatePage = pathname === '/automations/create';
+  const [cached, setCached] = useState<TConstantCached>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
     AUTOMATION_CONSTANTS,
@@ -116,14 +178,21 @@ export const AutomationProvider = ({
     },
   );
 
-  const triggersConst =
-    cached?.triggersConst || data?.automationConstants?.triggersConst || [];
-  const actionsConst =
-    cached?.actionsConst || data?.automationConstants?.actionsConst || [];
-  const findObjectTargetsConst =
-    cached?.findObjectTargetsConst ||
-    data?.automationConstants?.findObjectTargetsConst ||
-    [];
+  const triggersConst = getAutomationConstantsVariables(
+    'triggersConst',
+    cached,
+    data,
+  );
+  const actionsConst = getAutomationConstantsVariables(
+    'actionsConst',
+    cached,
+    data,
+  );
+  const findObjectTargetsConst = getAutomationConstantsVariables(
+    'findObjectTargetsConst',
+    cached,
+    data,
+  );
 
   const actionFolks = Object.fromEntries(
     (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
@@ -176,6 +245,14 @@ export const AutomationProvider = ({
       value={{
         awaitingToConnectNodeId,
         setAwaitingToConnectNodeId,
+        isSidebarOpen,
+        setSidebarOpen,
+        toggleSidebar,
+        isSecondarySidebarOpen,
+        setSecondarySidebarOpen,
+        toggleSecondarySidebar,
+        editingWorkflowId,
+        setEditingWorkflowId,
         selectedNode,
         setSelectedNode,
         queryParams,
@@ -192,11 +269,31 @@ export const AutomationProvider = ({
         setReactFlowInstance,
         actionConstMap,
         triggerConstMap,
+        isCreatePage,
+        detail,
       }}
     >
       {children}
     </AutomationContext.Provider>
   );
+};
+
+const getAutomationConstantsVariables = <TKey extends TConstantCachedFields>(
+  key: TKey,
+  cached: TConstantCached,
+  data?: ConstantsQueryResponse,
+): AutomationConstants[TKey] => {
+  if (cached?.[key]) {
+    return cached[key] as AutomationConstants[TKey];
+  }
+
+  const automationConstants = data?.automationConstants;
+
+  if (automationConstants?.[key]) {
+    return automationConstants[key] as AutomationConstants[TKey];
+  }
+
+  return [] as AutomationConstants[TKey];
 };
 
 export const useAutomation = () => {

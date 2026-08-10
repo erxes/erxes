@@ -5,6 +5,7 @@ import { Badge, RelativeDateDisplay, Spinner, cn } from 'erxes-ui';
 import { LogUserInfo } from '@/logs/components/LogUser';
 import { maskFields } from '../utils/logFormUtils';
 import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
+import { LogRevertPanel } from './LogRevertPanel';
 import { IconClockHour4, IconDatabase } from '@tabler/icons-react';
 
 const MongoContent = lazy(() =>
@@ -173,6 +174,8 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
           </section>
 
           <Component {...detail} />
+
+          <LogRevertPanel detail={detail} />
         </div>
       </div>
     </Suspense>

@@ -39,9 +39,9 @@ const generateFilter = (params: IAgentParams) => {
 };
 
 export const agentQueries = {
-  async agents(_root: undefined, params: IAgentParams, { models }: IContext) {
+  async agents(_root: undefined, params: IAgentParams, { models, checkPermission }: IContext) {
+    await checkPermission('agentView');
     const filter: FilterQuery<IAgentDocument> = generateFilter(params);
-
     return await cursorPaginate({
       model: models.Agents,
       params,
@@ -52,8 +52,9 @@ export const agentQueries = {
   async agentsMain(
     _root: undefined,
     params: IAgentParams & { page?: number; perPage?: number },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentView');
     const { page = 1, perPage = 20 } = params;
     const filter = generateFilter(params);
 
@@ -70,8 +71,9 @@ export const agentQueries = {
   async agentDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('agentView');
     return models.Agents.getAgent(_id);
   },
 };

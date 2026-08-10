@@ -2,37 +2,82 @@ import { AnyProcedure, initTRPC } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { Express } from 'express';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
 import { initializePluginConfig } from '../../utils';
 import { createTRPCContext } from '../../utils/trpc';
+import {
+  buildRuntimeOutputsIndex,
+  normalizeAutomationConstantsForTransport,
+  resolveOutputPathsByNodeType,
+} from './outputResolvers';
 import {
   AutomationConfigs,
   IAutomationContext,
   TAutomationProducers,
 } from './types';
 import {
-  AutomationBaseInput,
   CheckCustomTriggerInput,
-  FindObjectInput,
   CheckTargetMatchInput,
+  FindObjectInput,
   GenerateAiContextInput,
+  LoadAiKnowledgeDocumentBatchInput,
+  LookupAiToolInput,
   ReceiveActionsInput,
-  TAutomationProducersInput,
   ResolveOutputPathsInput,
-  ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
-import {
-  buildRuntimeOutputsIndex,
-  normalizeAutomationConstantsForTransport,
-  resolveOutputValues,
-} from './outputResolvers';
+
+const generateRuntimeResolveOutputPaths = (
+  pluginName: string,
+  config: AutomationConfigs,
+) => {
+  const { resolveOutputPaths, constants } = config || {};
+
+  if (resolveOutputPaths) {
+    return resolveOutputPaths;
+  }
+
+  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, constants);
+  const runtimeOutputKeys = Object.keys(runtimeOutputs);
+
+  if (!runtimeOutputKeys?.length) {
+    return null;
+  }
+  return async (
+    { subdomain, data }: z.infer<typeof ResolveOutputPathsInput>,
+    _context: IAutomationContext,
+  ) => {
+    if (!runtimeOutputs[data.nodeType]) {
+      return {};
+    }
+
+    const resolvedValues = await resolveOutputPathsByNodeType({
+      subdomain,
+      nodeType: data.nodeType,
+      source: data.source || {},
+      paths: data.paths || [],
+      defaultValue: data.defaultValue,
+      runtimeOutputs,
+    });
+
+    return Object.fromEntries(
+      (data.paths || []).map((path) => {
+        const resolvedValue = resolvedValues?.[path];
+
+        return [
+          path,
+          resolvedValue === undefined ? data.defaultValue : resolvedValue,
+        ];
+      }),
+    );
+  };
+};
 
 export const startAutomations = async (
   app: Express,
   pluginName: string,
   config: AutomationConfigs,
 ) => {
-  const runtimeOutputs = buildRuntimeOutputsIndex(pluginName, config.constants);
   const transportConfig = {
     ...config,
     constants: normalizeAutomationConstantsForTransport(
@@ -50,10 +95,9 @@ export const startAutomations = async (
     checkCustomTrigger,
     checkTargetMatch,
     findObject,
-    replacePlaceHolders,
-    resolveOutputPaths,
-    getAdditionalAttributes,
     generateAiContext,
+    loadAiKnowledgeDocumentBatch,
+    lookupAiTool,
   } = config || {};
 
   const automationProcedures: Partial<
@@ -72,18 +116,6 @@ export const startAutomations = async (
       .mutation(async ({ ctx, input }) => setProperties(input, ctx));
   }
 
-  if (getAdditionalAttributes) {
-    automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
-      t.procedure
-        .input(AutomationBaseInput)
-        .mutation(async ({ ctx, input }) =>
-          getAdditionalAttributes(
-            { subdomain: input.subdomain, data: input.data },
-            ctx,
-          ),
-        );
-  }
-
   if (generateAiContext) {
     automationProcedures[TAutomationProducers.GENERATE_AI_CONTEXT] = t.procedure
       .input(GenerateAiContextInput)
@@ -95,38 +127,26 @@ export const startAutomations = async (
       );
   }
 
-  if (replacePlaceHolders) {
-    automationProcedures[TAutomationProducers.REPLACE_PLACEHOLDERS] =
-      t.procedure
-        .input(ReplacePlaceholdersInput)
-        .mutation(async ({ ctx, input }) => replacePlaceHolders(input, ctx));
+  if (loadAiKnowledgeDocumentBatch) {
+    automationProcedures[
+      TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH
+    ] = t.procedure
+      .input(LoadAiKnowledgeDocumentBatchInput)
+      .mutation(async ({ ctx, input }) =>
+        loadAiKnowledgeDocumentBatch(input, ctx),
+      );
   }
 
-  const runtimeResolveOutputPaths =
-    resolveOutputPaths ||
-    (Object.keys(runtimeOutputs).length
-      ? async ({
-          subdomain,
-          data,
-        }: {
-          subdomain: string;
-          data: TAutomationProducersInput[TAutomationProducers.RESOLVE_OUTPUT_PATHS];
-        }) => {
-          const definition = runtimeOutputs[data.nodeType];
+  if (lookupAiTool) {
+    automationProcedures[TAutomationProducers.LOOKUP_AI_TOOL] = t.procedure
+      .input(LookupAiToolInput)
+      .mutation(async ({ ctx, input }) => lookupAiTool(input, ctx));
+  }
 
-          if (!definition) {
-            return {};
-          }
-
-          return resolveOutputValues({
-            definition,
-            subdomain,
-            source: data.source || {},
-            paths: data.paths || [],
-            defaultValue: data.defaultValue,
-          });
-        }
-      : undefined);
+  const runtimeResolveOutputPaths = generateRuntimeResolveOutputPaths(
+    pluginName,
+    config,
+  );
 
   if (runtimeResolveOutputPaths) {
     automationProcedures[TAutomationProducers.RESOLVE_OUTPUT_PATHS] =

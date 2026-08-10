@@ -1,9 +1,6 @@
 import { z } from 'zod';
-import {
-  AI_AGENT_DEFAULTS,
-  AI_AGENT_LIMITS,
-  AI_AGENT_SUPPORTED_PROVIDERS,
-} from './constants';
+import { AI_AGENT_LIMITS, AI_AGENT_DEFAULTS } from './constants';
+import { aiAgentConnectionSchema } from './connection';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string().trim().min(1),
@@ -13,6 +10,13 @@ const aiAgentFileVersionSchema = z.object({
   uploadedAt: z.union([z.string(), z.date()]).optional(),
 });
 
+const aiAgentFileSectionSchema = z.object({
+  key: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  role: z.enum(['behavior', 'content', 'example']),
+  detected: z.boolean().optional(),
+});
+
 const aiAgentFileSchema = z.object({
   id: z.string().min(1),
   key: z.string().trim().min(1),
@@ -20,29 +24,31 @@ const aiAgentFileSchema = z.object({
   size: z.number().int().nonnegative().optional(),
   type: z.string().optional(),
   uploadedAt: z.union([z.string(), z.date()]).optional(),
+  purpose: z.enum(['core', 'knowledge', 'policy', 'examples']).optional(),
+  status: z.enum(['uploaded', 'indexing', 'indexed', 'failed']).optional(),
+  chunkCount: z.number().int().nonnegative().optional(),
+  indexedAt: z.union([z.string(), z.date()]).optional(),
+  contentHash: z.string().optional(),
+  indexError: z.string().optional(),
+  sections: z.array(aiAgentFileSectionSchema).default([]),
   versions: z.array(aiAgentFileVersionSchema).default([]),
 });
 
-const openAiCompatibleConfigSchema = z
-  .object({
-    apiKey: z
-      .string()
-      .trim()
-      .min(1, 'Connection apiKey is required')
-      .max(AI_AGENT_LIMITS.maxSecretChars),
-    baseUrl: z.string().url().default(AI_AGENT_DEFAULTS.baseUrl),
-    headers: z.record(z.string(), z.string()).default({}),
-  })
-  .passthrough();
+const aiAgentKnowledgeSourceSchema = z.object({
+  pluginName: z.string().trim().min(1),
+  moduleName: z.string().trim().min(1),
+  key: z.string().trim().min(1),
+  scope: z.enum(['all', 'selected']).optional(),
+  sourceIds: z.array(z.string().trim().min(1)).max(1000).default([]),
+  config: z.record(z.unknown()).default({}),
+});
 
-const aiAgentConnectionSchema = z.object({
-  provider: z.enum(AI_AGENT_SUPPORTED_PROVIDERS),
-  model: z
-    .string()
-    .trim()
-    .min(1, 'Connection model is required')
-    .max(AI_AGENT_LIMITS.maxModelChars),
-  config: openAiCompatibleConfigSchema,
+const aiAgentToolSchema = z.object({
+  pluginName: z.string().trim().min(1),
+  moduleName: z.string().trim().min(1),
+  key: z.string().trim().min(1),
+  enabled: z.boolean().default(true),
+  config: z.record(z.unknown()).default({}),
 });
 
 const aiAgentRuntimeSchema = z
@@ -73,7 +79,20 @@ const aiAgentContextSchema = z
       .string()
       .max(AI_AGENT_LIMITS.maxSystemPromptChars)
       .default(''),
+    retrieval: z
+      .object({
+        enabled: z.boolean().default(true),
+        // 'tool' lets the model search on demand instead of prefilling context.
+        mode: z.enum(['prompt', 'tool']).default('prompt'),
+        strategy: z.enum(['keyword', 'vector', 'hybrid']).default('keyword'),
+        topK: z.number().int().min(1).max(20).default(5),
+        maxContextBytes: z.number().int().min(500).max(50_000).default(8000),
+        minScore: z.number().optional(),
+      })
+      .default({}),
     files: z.array(aiAgentFileSchema).max(AI_AGENT_LIMITS.maxFiles).default([]),
+    knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
+    tools: z.array(aiAgentToolSchema).max(20).default([]),
   })
   .default({});
 
@@ -93,6 +112,12 @@ export type TAiAgentInput = z.infer<typeof aiAgentInputSchema>;
 export type TAiAgentFile = z.infer<
   typeof aiAgentInputSchema
 >['context']['files'][number];
+export type TAiAgentKnowledgeSource = z.infer<
+  typeof aiAgentInputSchema
+>['context']['knowledgeSources'][number];
+export type TAiAgentTool = z.infer<
+  typeof aiAgentInputSchema
+>['context']['tools'][number];
 
 export const parseAiAgentInput = (input: unknown): TAiAgentInput => {
   return aiAgentInputSchema.parse(input);

@@ -2,19 +2,12 @@ import { cn } from 'erxes-ui';
 import { useSegment } from '../../context/SegmentProvider';
 import { useWatch } from 'react-hook-form';
 import { createFieldNameSafe } from '../../utils/segmentFormUtils';
-import { TConditionsConjunction } from '../../types';
+import { SegmentFormMode, TConditionsConjunction } from '../../types';
+import { useSegmentGroup } from '../../context/SegmentGroupProvider';
 
-export const SegmentPropertiesRailsButton = ({
-  total,
-  index,
-  parentFieldName,
-}: {
-  total: number;
-  index: number;
-  parentFieldName?: `conditionSegments.${number}`;
-}) => {
+export const SegmentPropertiesRailsButton = ({ index }: { index: number }) => {
   const { isAbleToShow, isOdd, conditionsConjunction, handleClick } =
-    useSegmentPropertiesRailsButton({ total, index, parentFieldName });
+    useSegmentPropertiesRailsButton({ index });
   if (!isAbleToShow) {
     return null;
   }
@@ -39,43 +32,35 @@ type TConditionConjunctionField =
   | `conditionSegments.${number}.conditionsConjunction`
   | 'conditionsConjunction';
 
-const useSegmentPropertiesRailsButton = ({
-  total,
-  index,
-  parentFieldName,
-}: {
-  total: number;
-  index: number;
-  parentFieldName?: `conditionSegments.${number}`;
-}) => {
-  const { form } = useSegment();
+const useSegmentPropertiesRailsButton = ({ index }: { index: number }) => {
+  const { form, mode } = useSegment();
+  const { totalFields, fieldPath } = useSegmentGroup();
   const { setValue } = form;
-  const hasTwoElement = total === 2;
-  const isOdd = Math.round(total) % 2 === 0;
-  const middleIndex = Math.round(total / 2) + (isOdd ? 1 : 0);
+  const hasTwoElement = totalFields === 2;
+  const isOdd = Math.round(totalFields) % 2 === 0;
+  const middleIndex = Math.round(totalFields / 2) + (isOdd ? 1 : 0);
   const isAbleToShow =
     middleIndex === index + 1 || (hasTwoElement && index === 1);
   const fieldName = createFieldNameSafe<TConditionConjunctionField>(
-    parentFieldName,
+    mode === SegmentFormMode.SINGLE ? '' : fieldPath.replace('.conditions', ''),
     'conditionsConjunction',
   );
   const conditionsConjunction = useWatch({
     control: form.control,
     name: fieldName,
   });
-  const handleClick = () => {
+  const handleClick = () =>
     setValue(
       fieldName,
       conditionsConjunction === TConditionsConjunction.AND
         ? TConditionsConjunction.OR
         : TConditionsConjunction.AND,
     );
-  };
   return {
     hasTwoElement,
     isOdd,
     middleIndex,
-    conditionsConjunction,
+    conditionsConjunction: conditionsConjunction ?? '',
     handleClick,
     isAbleToShow,
   };

@@ -1,9 +1,21 @@
 import { ComponentType, LazyExoticComponent, lazy } from 'react';
+import { ReportChart } from '@/report/types';
+
+export const TICKET_CHART_TYPES = {
+  statusSummary: 'ticket-status-summary',
+  date: 'ticket-date',
+  source: 'ticket-source',
+  tags: 'ticket-tags',
+  customProperties: 'ticket-custom-properties',
+  list: 'ticket-list',
+} as const;
 
 export interface ReportComponentProps {
   title: string;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
+  cardId?: string;
+  savedChart?: ReportChart;
 }
 
 export interface ReportCardConfig {
@@ -64,41 +76,56 @@ export const reportComponents: Record<
 };
 
 export const DEFAULT_CARD_CONFIGS: Omit<ReportCardConfig, 'component'>[] = [
-  { id: 'conversation-open', title: 'Conversation Open', colSpan: 6 },
-  { id: 'conversation-resolved', title: 'Conversation Resolved', colSpan: 6 },
-  { id: 'conversation-source', title: 'Conversation Source', colSpan: 6 },
-  { id: 'conversation-tag', title: 'Conversation Tag', colSpan: 6 },
-  { id: 'conversation-responses', title: 'Conversation Responses', colSpan: 6 },
-  { id: 'conversation-list', title: 'Conversation List', colSpan: 6 },
+  { id: 'conversation-open', title: 'conversation-open-title', colSpan: 6 },
+  {
+    id: 'conversation-resolved',
+    title: 'conversation-resolved-title',
+    colSpan: 6,
+  },
+  { id: 'conversation-source', title: 'conversation-source-title', colSpan: 6 },
+  { id: 'conversation-tag', title: 'conversation-tag-title', colSpan: 6 },
+  {
+    id: 'conversation-responses',
+    title: 'conversation-responses-title',
+    colSpan: 6,
+  },
+  { id: 'conversation-list', title: 'conversation-list-title', colSpan: 6 },
 ];
 
 export const ticketReportComponents: Record<
   string,
   LazyExoticComponent<ComponentType<ReportComponentProps>>
 > = {
-  'ticket-date': lazy(() =>
+  [TICKET_CHART_TYPES.date]: lazy(() =>
     import('@/report/components/ticket-charts/TicketOpenDate').then(
       (module) => ({
         default: module.TicketOpenDate,
       }),
     ),
   ),
-  'ticket-source': lazy(() =>
+  [TICKET_CHART_TYPES.source]: lazy(() =>
     import('@/report/components/ticket-charts/TicketSource').then((module) => ({
       default: module.TicketSource,
     })),
   ),
-  'ticket-tags': lazy(() =>
+  [TICKET_CHART_TYPES.tags]: lazy(() =>
     import('@/report/components/ticket-charts/TicketTags').then((module) => ({
       default: module.TicketTags,
     })),
   ),
-  'ticket-list': lazy(() =>
+  [TICKET_CHART_TYPES.list]: lazy(() =>
     import('@/report/components/ticket-charts/TicketList').then((module) => ({
       default: module.TicketList,
     })),
   ),
-  'ticket-status-summary': lazy(() =>
+  [TICKET_CHART_TYPES.customProperties]: lazy(() =>
+    import('@/report/components/ticket-charts/TicketCustomProperties').then(
+      (module) => ({
+        default: module.TicketCustomProperties,
+      }),
+    ),
+  ),
+  [TICKET_CHART_TYPES.statusSummary]: lazy(() =>
     import('@/report/components/ticket-charts/TicketStatusSummary').then(
       (module) => ({
         default: module.TicketStatusSummary,
@@ -111,11 +138,20 @@ export const TICKET_DEFAULT_CARD_CONFIGS: Omit<
   ReportCardConfig,
   'component'
 >[] = [
-  { id: 'ticket-status-summary', title: 'Ticket Status Summary', colSpan: 12 },
-  { id: 'ticket-date', title: 'Ticket Date', colSpan: 12 },
-  { id: 'ticket-source', title: 'Ticket Source', colSpan: 6 },
-  { id: 'ticket-tags', title: 'Ticket Tags', colSpan: 6 },
-  { id: 'ticket-list', title: 'Ticket List', colSpan: 12 },
+  {
+    id: TICKET_CHART_TYPES.statusSummary,
+    title: 'ticket-status-summary-title',
+    colSpan: 6,
+  },
+  { id: TICKET_CHART_TYPES.date, title: 'ticket-date-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.source, title: 'ticket-source-title', colSpan: 6 },
+  { id: TICKET_CHART_TYPES.tags, title: 'ticket-tags-title', colSpan: 6 },
+  {
+    id: TICKET_CHART_TYPES.customProperties,
+    title: 'ticket-custom-properties-title',
+    colSpan: 6,
+  },
+  { id: TICKET_CHART_TYPES.list, title: 'ticket-list-title', colSpan: 12 },
 ];
 
 export function getReportComponent(

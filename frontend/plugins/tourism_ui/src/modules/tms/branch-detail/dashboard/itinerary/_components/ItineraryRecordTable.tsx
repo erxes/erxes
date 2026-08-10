@@ -1,6 +1,7 @@
 import { IconRoute } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ItineraryCreateSheet } from './ItineraryCreateSheet';
 import { ItineraryEditSheet } from './ItineraryEditSheet';
 import { itineraryColumns } from './ItineraryColumns';
@@ -27,6 +28,7 @@ export const ItineraryRecordTable = ({
   branchLanguages,
   mainLanguage,
 }: ItineraryRecordTableProps) => {
+  const { t } = useTranslation('tourism');
   const activeLang = useAtomValue(activeLangAtom);
   const language = activeLang || mainLanguage;
 
@@ -76,13 +78,16 @@ export const ItineraryRecordTable = ({
   );
   const columns = useMemo(
     () =>
-      itineraryColumns({
-        onEditClick: handleEditClick,
-        branchId,
-        branchLanguages,
-        mainLanguage,
-      }),
-    [branchId, branchLanguages, handleEditClick, mainLanguage],
+      itineraryColumns(
+        {
+          onEditClick: handleEditClick,
+          branchId,
+          branchLanguages,
+          mainLanguage,
+        },
+        t,
+      ),
+    [branchId, branchLanguages, handleEditClick, mainLanguage, t],
   );
   const rowData = itineraries || [];
 
@@ -103,6 +108,7 @@ export const ItineraryRecordTable = ({
         data={rowData}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="tourism_itineraries_record_table"
       >
         <ItineraryCommandBar
           branchId={branchId}
@@ -152,14 +158,15 @@ function EmptyStateRow({
   branchLanguages?: string[];
   mainLanguage?: string;
 }) {
+  const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconRoute size={64} stroke={1.5} className="text-muted-foreground" />
       <h2 className="text-lg font-semibold text-muted-foreground">
-        No itinerary yet
+        {t('no-itinerary-yet')}
       </h2>
       <p className="max-w-sm text-sm text-muted-foreground">
-        Create your first itinerary to get started.
+        {t('no-itinerary-yet-desc')}
       </p>
       <ItineraryCreateSheet
         branchId={branchId}

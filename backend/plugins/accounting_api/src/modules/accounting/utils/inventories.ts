@@ -20,16 +20,16 @@ import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 export const activeCost = async (
   models: IModels,
   accountId: string,
-  branchId: string,
-  departmentId: string,
-  productIds: string[],
+  branchId?: string,
+  departmentId?: string,
+  productIds: string[] = [],
 ) => {
   const aggCosts = await models.AdjustInvDetails.aggregate([
     {
       $match: {
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchId || '_',
+        departmentId: departmentId || '_',
         productId: { $in: productIds || [] },
       },
     },
@@ -922,6 +922,21 @@ const fixInvTrs = async (
   await fixSaleOutTrs(subdomain, models, { adjustId, saleOutAggrs });
 };
 
+const getUncompletedInventoryTransaction = async (
+  models: IModels,
+  beginDate: Date,
+  endDate: Date,
+) => {
+  return models.Transactions.findOne({
+    date: { $gte: beginDate, $lt: endDate },
+    journal: { $in: JOURNALS.ALL_REAL_INV },
+    status: { $ne: TR_STATUSES.COMPLETE },
+    'details.productId': { $exists: true, $ne: '' },
+  })
+    .sort({ date: 1 })
+    .lean();
+};
+
 export const adjustRunning = async (
   subdomain: string,
   models: IModels,
@@ -952,7 +967,7 @@ export const adjustRunning = async (
       'details.accountId': { $exists: true, $ne: '' },
       branchId: { $exists: true, $ne: '' },
       departmentId: { $exists: true, $ne: '' },
-      status: { $in: TR_STATUSES.ACTIVE },
+      status: TR_STATUSES.COMPLETE,
     };
 
     // өдөр бүрээр гүйлгээнүүдийг журналаар багцалж тооцож өртгийг зүгшрүүлж шаардлагатай бол гүйлгээг засч эндээсээ цэнэглэнэ
@@ -960,6 +975,26 @@ export const adjustRunning = async (
       const nextDate = getTomorrow(currentDate);
 
       try {
+        const uncompletedTr = await getUncompletedInventoryTransaction(
+          models,
+          currentDate,
+          nextDate,
+        );
+
+        if (uncompletedTr) {
+          const warning = `Inventory transaction must be complete before adjusting. Transaction: ${
+            uncompletedTr.number || uncompletedTr._id
+          }`;
+
+          await modifierWrapper(models, adjustInventory, {
+            checkedAt: new Date(),
+            successDate: currentDate,
+            warning,
+            status: ADJ_INV_STATUSES.PROCESS,
+          });
+          return;
+        }
+
         await fixInvTrs(subdomain, models, {
           adjustId,
           beginDate: currentDate,
@@ -1029,6 +1064,7 @@ export const adjustRunning = async (
       checkedAt: new Date(),
       status: ADJ_INV_STATUSES.COMPLETE,
       error: '',
+      warning: '',
     });
   } catch (e) {
     const now = new Date();

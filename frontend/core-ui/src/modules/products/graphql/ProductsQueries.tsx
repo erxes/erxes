@@ -8,6 +8,7 @@ import {
 const productsMain = gql`
   query ProductsMain(
     $type: String
+    $status: String
     $categoryIds: [String]
     $searchValue: String
     $vendorId: String
@@ -21,6 +22,7 @@ const productsMain = gql`
   ) {
     productsMain(
       type: $type
+      status: $status
       categoryIds: $categoryIds
       searchValue: $searchValue
       vendorId: $vendorId
@@ -51,6 +53,7 @@ const productsMain = gql`
         shortName
         uom
         unitPrice
+        status
         type
         vendor {
           _id
@@ -63,8 +66,16 @@ const productsMain = gql`
 `;
 
 const productCategories = gql`
-  query ProductCategories {
-    productCategories {
+  query ProductCategories(
+    $parentId: String
+    $status: String
+    $searchValue: String
+  ) {
+    productCategories(
+      parentId: $parentId
+      status: $status
+      searchValue: $searchValue
+    ) {
       _id
       parentId
       attachment {
@@ -74,7 +85,22 @@ const productCategories = gql`
       name
       order
       productCount
+      status
     }
+  }
+`;
+
+const productCategoriesTotalCount = gql`
+  query ProductCategoriesTotalCount(
+    $parentId: String
+    $status: String
+    $searchValue: String
+  ) {
+    productCategoriesTotalCount(
+      parentId: $parentId
+      status: $status
+      searchValue: $searchValue
+    )
   }
 `;
 
@@ -122,6 +148,7 @@ const productCategoryDetail = gql`
 export const productsQueries = {
   productsMain,
   productCategories,
+  productCategoriesTotalCount,
   productTags,
   productCategoryDetail,
 };

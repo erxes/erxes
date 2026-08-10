@@ -2,12 +2,16 @@ import { UseFormReturn } from 'react-hook-form';
 import { TChannelForm } from '@/channels/types';
 import { Form, IconPicker, Input, Textarea } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelForm = ({
   form,
 }: {
   form: UseFormReturn<TChannelForm>;
 }) => {
+  const { t } = useTranslation('frontline');
+  const scope = form.watch('scope');
+  const isTeam = scope === 'team';
   return (
     <div className="flex flex-col gap-3">
       <div className="w-full flex gap-2">
@@ -16,12 +20,14 @@ export const ChannelForm = ({
           name="icon"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Icon</Form.Label>
-              <Form.Description className="sr-only">Icon</Form.Description>
+              <Form.Label>{t('icon')}</Form.Label>
+              <Form.Description className="sr-only">
+                {t('icon')}
+              </Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
-                  value={field.value}
+                  value={field.value as string}
                   className="w-min"
                 />
               </Form.Control>
@@ -34,7 +40,7 @@ export const ChannelForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="flex-auto">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>{t('name')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -49,7 +55,7 @@ export const ChannelForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Description</Form.Label>
+            <Form.Label>{t('description')}</Form.Label>
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
@@ -62,7 +68,7 @@ export const ChannelForm = ({
         name="memberIds"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Members</Form.Label>
+            <Form.Label>{t('members-title')}</Form.Label>
             <Form.Control>
               <SelectMember.FormItem
                 mode="multiple"

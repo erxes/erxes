@@ -9,7 +9,6 @@ export const posCommonFields = `
   pdomain
   createdAt
   token
-  erxesAppToken
   serviceCharge
   serviceChargeApplicableProductId
   adminIds
@@ -23,7 +22,6 @@ export const posCommonFields = `
       fullName
     }
   }
-  type
   isOnline
   onServer
   branchId
@@ -35,8 +33,6 @@ export const posCommonFields = `
   kitchenScreen
   kioskMachine
   uiOptions
-  ebarimtConfig
-  erkhetConfig
   cardsConfig
   catProdMappings {
     _id
@@ -50,11 +46,11 @@ export const posCommonFields = `
   kioskExcludeCategoryIds
   kioskExcludeProductIds
   deliveryConfig
-  checkRemainder
   permissionConfig
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+  saveRemainder
   banFractions
 
   branchTitle
@@ -141,19 +137,6 @@ const posOrdersSummary = gql`
   }
 `;
 
-const getPayments = gql`
-  query Payments($status: String, $kind: String) {
-    payments(status: $status, kind: $kind) {
-      _id
-      name
-      kind
-      status
-      config
-      createdAt
-    }
-  }
-`;
-
 const ebarimtProductRules = gql`
   query EbarimtProductRules($searchValue: String, $kind: String) {
     ebarimtProductRules(searchValue: $searchValue, kind: $kind) {
@@ -207,7 +190,6 @@ export default {
   getDbSchemaLabels,
   posSlots,
   posOrdersSummary,
-  getPayments,
   ebarimtProductRules,
   fieldsCombinedByContentType,
   ProductCategories,

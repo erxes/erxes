@@ -1,5 +1,19 @@
-import { getAiAgentHealth, parseAiAgentInput, runAiAction } from '../ai';
-import { Job } from 'bullmq';
+import {
+  getAiAgentHealth,
+  getAiAgentKnowledgeSourceStatuses,
+  indexAiAgentKnowledgeFiles,
+  indexKnowledgeDocument,
+  parseAiAgentInput,
+  refreshAiKnowledgeSource,
+  removeKnowledgeDocument,
+  syncAiAgentKnowledgeSources,
+  syncAiKnowledgeSourceScope,
+} from '../ai';
+import type {
+  TAiKnowledgeSourceReference,
+  TKnowledgeIndexJob,
+} from 'erxes-api-shared/utils';
+import type { Job } from 'bullmq';
 import { generateModels } from '../connectionResolver';
 
 export const checkAiAgentHealthWorker = async (job: Job) => {
@@ -15,31 +29,97 @@ export const checkAiAgentHealthWorker = async (job: Job) => {
   return await getAiAgentHealth(subdomain, agent);
 };
 
-// Worker for AI execution (automation actions)
-export const executeAiAgent = async (job: Job) => {
-  const { data = {}, subdomain } = job.data;
-  const { actionConfig, inputData, aiContext, memory } = data;
+export const indexAiAgentKnowledgeWorker = async (job: Job) => {
+  const { data, subdomain } = job.data;
+  const { agentId, fileId } = data;
   const models = await generateModels(subdomain);
 
-  const aiAgentId = actionConfig?.aiAgentId;
+  const agent = await models.AiAgents.findById({ _id: agentId }).lean();
 
-  if (!aiAgentId) {
-    throw new Error('AI action config is missing aiAgentId.');
+  const parsedAgent = agent ? parseAiAgentInput(agent) : null;
+  const sourceSyncResult = fileId
+    ? { status: 'skipped' as const, reason: 'file-only reindex' }
+    : await syncAiAgentKnowledgeSources({
+        models,
+        subdomain,
+        agentId,
+        sources: parsedAgent?.context.knowledgeSources || [],
+      });
+
+  if (!parsedAgent) {
+    await models.KnowledgeChunks.deleteMany({ agentId });
+    return { sourceSyncResult, status: 'removed' as const };
   }
 
-  const agent = await models.AiAgents.findById({ _id: aiAgentId }).lean();
-
-  if (!agent) {
-    throw new Error('AI Agent not found');
-  }
-
-  return await runAiAction({
+  const fileIndexResult = await indexAiAgentKnowledgeFiles({
+    models,
     subdomain,
-    agent: parseAiAgentInput(agent),
-    actionConfig,
-    inputData,
-    aiContext,
-    memory,
+    agentId,
+    files: fileId
+      ? parsedAgent.context.files.filter((file) => file.id === fileId)
+      : parsedAgent.context.files,
+  });
+
+  return { fileIndexResult, sourceSyncResult };
+};
+
+export const indexKnowledgeDocumentWorker = async (
+  job: Job<{ subdomain: string; data: TKnowledgeIndexJob }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  if (data.operation === 'remove') {
+    return removeKnowledgeDocument({
+      models,
+      source: data.source,
+    });
+  }
+
+  return indexKnowledgeDocument({
+    models,
+    document: data.document,
+  });
+};
+
+export const refreshAiKnowledgeSourceWorker = async (
+  job: Job<{
+    subdomain: string;
+    data: { source: TAiKnowledgeSourceReference };
+  }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  return refreshAiKnowledgeSource({
+    models,
+    subdomain,
+    source: data.source,
+  });
+};
+
+export const getAiAgentKnowledgeSourceStatusesWorker = async (
+  job: Job<{ subdomain: string; data: { agentId: string } }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  return getAiAgentKnowledgeSourceStatuses({
+    models,
+    agentId: data.agentId,
+  });
+};
+
+export const syncAiKnowledgeSourceScopeWorker = async (
+  job: Job<{ subdomain: string; data: { runId: string } }>,
+) => {
+  const { data, subdomain } = job.data;
+  const models = await generateModels(subdomain);
+
+  return syncAiKnowledgeSourceScope({
+    models,
+    subdomain,
+    runId: data.runId,
   });
 };
 
@@ -48,8 +128,16 @@ export const aiWorker = async (job: Job) => {
   switch (name) {
     case 'checkAiAgentHealth':
       return checkAiAgentHealthWorker(job);
-    case 'executeAiAgent':
-      return executeAiAgent(job);
+    case 'indexAiAgentKnowledge':
+      return indexAiAgentKnowledgeWorker(job);
+    case 'indexKnowledgeDocument':
+      return indexKnowledgeDocumentWorker(job);
+    case 'refreshAiKnowledgeSource':
+      return refreshAiKnowledgeSourceWorker(job);
+    case 'syncAiKnowledgeSourceScope':
+      return syncAiKnowledgeSourceScopeWorker(job);
+    case 'getAiAgentKnowledgeSourceStatuses':
+      return getAiAgentKnowledgeSourceStatusesWorker(job);
     default:
       throw new Error(`Unknown job name: ${name}`);
   }

@@ -1,4 +1,5 @@
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useFieldGroups, useFields } from 'ui-modules';
 
 interface FilterFieldSelectProps {
@@ -10,6 +11,7 @@ export const FilterFieldSelect = ({
   value,
   onValueChange,
 }: FilterFieldSelectProps) => {
+  const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
   const { fieldGroups } = useFieldGroups({
     contentType: 'core:product',
   });
@@ -17,7 +19,7 @@ export const FilterFieldSelect = ({
   return (
     <Select value={value || undefined} onValueChange={onValueChange}>
       <Select.Trigger>
-        <Select.Value placeholder="Select field" />
+        <Select.Value placeholder={t('select-field', 'Select field')} />
       </Select.Trigger>
       <Select.Content>
         {fieldGroups.map((group) => (

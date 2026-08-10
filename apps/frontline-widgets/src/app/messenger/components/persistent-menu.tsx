@@ -20,17 +20,18 @@ export const PersistentMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger disabled={!hasPersistentMenus}>
-        <Button size={'icon'} asChild className="size-8 p-2">
+        <Button size={'icon'} asChild className="size-8 p-2 rounded-full">
           <IconMenu />
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end" sideOffset={12}>
+      <DropdownMenu.Content align="end" className="min-w-48" sideOffset={12}>
         {persistentMenus?.map((menu, index) => (
           <Item
             key={index}
             type={menu.type}
             text={menu.text}
             link={menu.link}
+            contentType={menu.contentType}
           />
         ))}
       </DropdownMenu.Content>
@@ -38,18 +39,24 @@ export const PersistentMenu = () => {
   );
 };
 
-export const Item = ({ type, text, link }: IPersistentMenu) => {
+export const Item = ({ type, text, link, contentType }: IPersistentMenu) => {
   switch (type) {
     case 'button':
-      return <ButtonItem text={text} />;
+      return <ButtonItem text={text} contentType={contentType} />;
     case 'link':
       return <LinkItem text={text} link={link} />;
     default:
-      return <ButtonItem text={text} />;
+      return <ButtonItem text={text} contentType={contentType} />;
   }
 };
 
-export const ButtonItem = ({ text }: { text: string }) => {
+export const ButtonItem = ({
+  text,
+  contentType = 'text',
+}: {
+  text: string;
+  contentType: string;
+}) => {
   const { insertMessage } = useInsertMessage();
   const connection = useAtomValue(connectionAtom);
   const { customerId } = connection.widgetsMessengerConnect;
@@ -58,7 +65,7 @@ export const ButtonItem = ({ text }: { text: string }) => {
   const handleClick = () => {
     insertMessage({
       variables: {
-        contentType: 'text',
+        contentType,
         message: text,
         customerId: customerId || __customerId || undefined,
       },
@@ -67,7 +74,7 @@ export const ButtonItem = ({ text }: { text: string }) => {
   return (
     <DropdownMenu.Item
       key={text}
-      className="hover:bg-primary/30!"
+      className="hover:bg-primary/30! text-foreground"
       onSelect={handleClick}
     >
       <span className="text-sm">{text}</span>
@@ -82,7 +89,7 @@ export const LinkItem = ({ text, link }: { text: string; link?: string }) => {
         to={link || '#'}
         target={link ? '_blank' : undefined}
         rel={link ? 'noopener noreferrer' : undefined}
-        className="text-sm"
+        className="text-sm text-foreground"
       >
         {text}
       </Link>

@@ -1,5 +1,5 @@
 import { SyncDealConfigForm } from './SyncDealConfigForm';
-import { SyncOrderConfigForm } from './SyncOrderConfigFrom';
+import { SyncOrderConfigForm } from './SyncOrderConfigForm';
 import { SyncDealReturnConfigForm } from './SyncDealConfigReturnForm';
 import { UseFormReturn } from 'react-hook-form';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';

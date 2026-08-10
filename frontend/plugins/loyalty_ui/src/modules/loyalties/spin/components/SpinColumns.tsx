@@ -7,6 +7,7 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import { useState } from 'react';
 
 import { ISpin } from '@/loyalties/spin/types/spin';
@@ -62,12 +63,14 @@ const OwnerCell = ({
   );
 };
 
-export const firstSpinColumns: ColumnDef<ISpin>[] = [
+export const firstSpinColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ISpin>[] => [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Created At" />
+      <RecordTable.InlineHead icon={IconClock} label={t('created-at')} />
     ),
     size: 100,
     cell: ({ row }) => <CreatedAtCell spin={row.original} />,
@@ -75,21 +78,27 @@ export const firstSpinColumns: ColumnDef<ISpin>[] = [
   {
     id: 'ownerType',
     accessorKey: 'ownerType',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Type" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <span className="capitalize">{cell.getValue() as string}</span>
-      </RecordTableInlineCell>
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-type')} />
     ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <span className="capitalize">{t(cell.getValue() as string)}</span>
+        </RecordTableInlineCell>
+      );
+    },
     size: 130,
   },
 ];
 
-export const secondSpinColumns: ColumnDef<ISpin>[] = [
+export const secondSpinColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ISpin>[] => [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label={t('owner')} />,
     cell: ({ row }) => (
       <OwnerCell
         ownerId={row.original.ownerId}
@@ -100,17 +109,21 @@ export const secondSpinColumns: ColumnDef<ISpin>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Status" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <Badge variant="default">{cell.getValue() as string}</Badge>
-      </RecordTableInlineCell>
-    ),
+    header: () => <RecordTable.InlineHead icon={IconTag} label={t('status')} />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <Badge variant="default">{t(cell.getValue() as string)}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
     size: 60,
   },
 ];
 
-export const spinColumns: ColumnDef<ISpin>[] = [
-  ...firstSpinColumns,
-  ...secondSpinColumns,
+export const spinColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<ISpin>[] => [
+  ...firstSpinColumns(t),
+  ...secondSpinColumns(t),
 ];

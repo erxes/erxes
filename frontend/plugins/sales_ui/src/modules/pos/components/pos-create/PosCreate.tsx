@@ -4,22 +4,18 @@ import {
   Button,
   Input,
   Textarea,
-  Select,
   Label,
   Form,
 } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { usePosAdd } from '@/pos/hooks/usePosAdd';
 import { useForm } from 'react-hook-form';
-import { POS_TYPES, PosType } from '@/pos/constants';
-import { EcommerceFields } from './EcommerceFields';
-import { PosFields } from './PosFields';
-import { RestaurantFields } from './RestaurantFields';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 import { useRef, useState } from 'react';
 import type { CustomNode } from '@/pos/slot/types';
 import { useUpdatePosSlots } from '@/pos/hooks/useSlotAdd';
+import { useTranslation } from 'react-i18next';
 
 interface PosCreateDialogProps {
   open: boolean;
@@ -30,7 +26,6 @@ interface PosCreateDialogProps {
 export interface PosFormData {
   name: string;
   description: string;
-  type: PosType | '';
   branchId?: string;
   paymentIds?: string[];
   adminIds?: string[];
@@ -50,13 +45,13 @@ export const PosCreate = ({
   const { updatePosSlots } = useUpdatePosSlots();
   const productGroupsRef = useRef<ProductGroup[]>([]);
   const slotsRef = useRef<CustomNode[]>([]);
+  const { t } = useTranslation('sales');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const methods = useForm<PosFormData>({
     defaultValues: {
       name: '',
       description: '',
-      type: '',
       branchId: '',
       paymentIds: [],
       adminIds: [],
@@ -70,15 +65,13 @@ export const PosCreate = ({
     register,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = methods;
 
-  const selectedType = watch('type');
   const selectedName = watch('name');
 
-  const isFormValid = selectedName?.trim().length >= 2 && selectedType;
+  const isFormValid = selectedName?.trim().length >= 2;
 
   const onSubmit = async (data: PosFormData) => {
     setIsSubmitting(true);
@@ -87,7 +80,6 @@ export const PosCreate = ({
         variables: {
           name: data.name,
           description: data.description,
-          type: data.type,
           branchId: data.branchId || undefined,
           paymentIds:
             data.paymentIds && data.paymentIds.length > 0
@@ -108,7 +100,7 @@ export const PosCreate = ({
         },
         onError: (e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -129,9 +121,8 @@ export const PosCreate = ({
               );
             } catch {
               toast({
-                title: 'Warning',
-                description:
-                  'POS created but failed to save product groups. You can add them later.',
+                title: t('warning'),
+                description: t('pos-create-product-groups-failed'),
                 variant: 'destructive',
               });
             }
@@ -170,17 +161,16 @@ export const PosCreate = ({
               });
             } catch {
               toast({
-                title: 'Warning',
-                description:
-                  'POS created but failed to save slots. You can add them later.',
+                title: t('warning'),
+                description: t('pos-create-slots-failed'),
                 variant: 'destructive',
               });
             }
           }
 
           toast({
-            title: 'Success',
-            description: 'POS created successfully.',
+            title: t('success'),
+            description: t('pos-create-success'),
           });
           reset();
           productGroupsRef.current = [];
@@ -192,8 +182,8 @@ export const PosCreate = ({
       });
     } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to create POS. Please try again.',
+        title: t('error'),
+        description: t('pos-create-failed'),
         variant: 'destructive',
       });
       setIsSubmitting(false);
@@ -220,7 +210,7 @@ export const PosCreate = ({
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <Sheet.View className="flex-col p-0 h-full max-h-screen sm:max-w-md">
         <Sheet.Header className="px-5 shrink-0">
-          <Sheet.Title className="text-lg font-bold">Create POS</Sheet.Title>
+          <Sheet.Title className="text-lg font-bold">{t('pos-create')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -232,16 +222,16 @@ export const PosCreate = ({
             <div className="overflow-y-auto flex-1 px-5 py-5 space-y-4 min-h-0">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
-                  Name <span className="text-destructive">*</span>
+                  {t('name')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder="Enter POS name"
+                  placeholder={t('pos-name-placeholder')}
                   {...register('name', {
-                    required: 'Name is required',
+                    required: t('name-required'),
                     minLength: {
                       value: 2,
-                      message: 'Name must be at least 2 characters',
+                      message: t('name-min-length'),
                     },
                   })}
                   className={errors.name ? 'border-destructive' : ''}
@@ -255,64 +245,17 @@ export const PosCreate = ({
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-sm font-medium">
-                  Description
+                  {t('description')}
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter POS description"
+                  placeholder={t('pos-description-placeholder')}
                   rows={3}
                   {...register('description')}
                   className="bg-background"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="type" className="text-sm font-medium">
-                  Type <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={selectedType}
-                  onValueChange={(value) =>
-                    setValue('type', value as PosType, { shouldValidate: true })
-                  }
-                >
-                  <Select.Trigger className="bg-background">
-                    <Select.Value placeholder="Select POS type" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {POS_TYPES.map((type) => (
-                      <Select.Item key={type.value} value={type.value}>
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-
-                {errors.type && (
-                  <p className="text-sm text-destructive">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-
-              {selectedType === 'ecommerce' && (
-                <EcommerceFields
-                  form={methods}
-                  productGroupsRef={productGroupsRef}
-                />
-              )}
-
-              {selectedType === 'pos' && (
-                <PosFields form={methods} productGroupsRef={productGroupsRef} />
-              )}
-
-              {selectedType === 'restaurant' && (
-                <RestaurantFields
-                  form={methods}
-                  productGroupsRef={productGroupsRef}
-                  slotsRef={slotsRef}
-                />
-              )}
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">
@@ -322,10 +265,10 @@ export const PosCreate = ({
                 onClick={handleCancel}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={isSubmitting || !isFormValid}>
-                {isSubmitting ? 'Creating...' : 'Create POS'}
+                {isSubmitting ? t('creating') : t('pos-create')}
               </Button>
             </Sheet.Footer>
           </form>

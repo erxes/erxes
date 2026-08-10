@@ -1,12 +1,16 @@
 import { useAutomationEmailTemplateDetail } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetail';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
+import { useEmailDocumentPlaceholder } from '@/automations/components/common/EmailDocumentPlaceholderPicker';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconDeviceFloppy } from '@tabler/icons-react';
 import { BlockEditor, Button, Input, Label, useBlockEditor } from 'erxes-ui';
+import { REACT_APP_API_URL, readImage } from 'erxes-ui/utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { z } from 'zod';
 
+import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
 import {
   useCreateAutomationEmailTemplate,
   useUpdateAutomationEmailTemplate,
@@ -24,6 +28,29 @@ interface EmailTemplateFormProps {
   templateId?: string;
 }
 
+const uploadEmailTemplateImage = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Only image files can be uploaded');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
+    method: 'post',
+    body: formData,
+    credentials: 'include',
+  });
+
+  const fileKey = await response.text();
+
+  if (!response.ok || !fileKey) {
+    throw new Error(fileKey || 'Failed to upload image');
+  }
+
+  return readImage(fileKey);
+};
+
 export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   const navigate = useNavigate();
   const isEditing = !!templateId;
@@ -36,7 +63,11 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   const { updateEmailTemplate, loading: updating } =
     useUpdateAutomationEmailTemplate();
 
-  const editor = useBlockEditor({});
+  const editor = useBlockEditor({
+    uploadFile: uploadEmailTemplateImage,
+  });
+  const { additionalSlashMenuItems, documentPlaceholderPicker } =
+    useEmailDocumentPlaceholder({ editor });
 
   const form = useForm<EmailTemplateFormData>({
     resolver: zodResolver(emailTemplateSchema),
@@ -111,7 +142,7 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
       } else {
         await createEmailTemplate(data);
       }
-      navigate('/settings/automations/email-templates');
+      navigate(AutomationSettingsPath.EmailTemplates);
     } catch (error) {
       console.error('Error saving email template:', error);
     }
@@ -128,28 +159,33 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
   }
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="flex items-center gap-4 p-6 border-b">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/settings/automations/email-templates">
-            <IconArrowLeft className="size-4 mr-2" />
-            Back to Templates
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-lg font-semibold">
-            {isEditing ? 'Edit Email Template' : 'Create Email Template'}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {isEditing
-              ? 'Update your email template'
-              : 'Create a new email template for automation'}
-          </p>
-        </div>
-      </div>
+    <div className="h-full w-full flex flex-col overflow-hidden">
+      <AutomationSettingsDetailHeader
+        title={isEditing ? 'Edit Email Template' : 'Create Email Template'}
+        description={
+          isEditing
+            ? 'Update your email template'
+            : 'Create a new email template for automation'
+        }
+        backTo={AutomationSettingsPath.EmailTemplates}
+        actions={
+          <Button type="submit" form="email-template-form" disabled={isLoading}>
+            <IconDeviceFloppy className="size-4 mr-2" />
+            {isLoading
+              ? 'Saving...'
+              : isEditing
+                ? 'Update Template'
+                : 'Create Template'}
+          </Button>
+        }
+      />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col">
-        <div className="flex-1 p-6 space-y-6">
+      <form
+        id="email-template-form"
+        onSubmit={handleSubmit(onSubmit)}
+        className="min-h-0 flex-1 flex flex-col"
+      >
+        <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Template Name *</Label>
@@ -178,8 +214,12 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
 
           <div className="space-y-2">
             <Label>Content *</Label>
-            <div className="border rounded-lg overflow-hidden">
-              <BlockEditor editor={editor} className="min-h-[400px] p-4" />
+            <div className="border rounded-lg max-h-[calc(100vh-360px)] min-h-[400px] overflow-y-auto overflow-x-hidden">
+              <BlockEditor
+                editor={editor}
+                className="min-h-[400px] p-4"
+                additionalSlashMenuItems={additionalSlashMenuItems}
+              />
             </div>
             {errors.content && (
               <p className="text-sm text-destructive">
@@ -188,26 +228,8 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
             )}
           </div>
         </div>
-
-        <div className="flex items-center justify-end gap-3 p-6 border-t bg-background">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/settings/automations/email-templates')}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            <IconDeviceFloppy className="size-4 mr-2" />
-            {isLoading
-              ? 'Saving...'
-              : isEditing
-              ? 'Update Template'
-              : 'Create Template'}
-          </Button>
-        </div>
       </form>
+      {documentPlaceholderPicker}
     </div>
   );
 }

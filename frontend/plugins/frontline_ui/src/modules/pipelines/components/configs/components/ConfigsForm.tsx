@@ -1,18 +1,13 @@
-import {
-  Combobox,
-  Form,
-  Input,
-  Popover,
-  PopoverScoped,
-  Separator,
-} from 'erxes-ui';
+import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 
 import { TPipelineConfig } from '@/pipelines/types';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useEffect, useState } from 'react';
 import { TicketBasicFields } from './TicketBasicFields';
+import { TicketPropertyFields } from './TicketPropertyFields';
 import { SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   form: UseFormReturn<TPipelineConfig>;
@@ -20,12 +15,16 @@ type Props = {
 };
 
 export const ConfigsForm = ({ form, defaultValues }: Props) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
   const { control } = form;
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset(defaultValues);
+      form.reset({
+        ...defaultValues,
+        propertyFields: defaultValues.propertyFields ?? [],
+      });
     }
   }, [defaultValues, form]);
 
@@ -40,7 +39,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
               <Input
                 {...field}
                 className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                placeholder="Configuration Name"
+                placeholder={t('configuration-name')}
               />
             </Form.Control>
             <Form.Message />
@@ -58,7 +57,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                 <SelectStatusTicket.FormItem
                   value={field.value as string}
                   onValueChange={field.onChange}
-                  form={form as any}
+                  form={form}
                 />
               </Form.Control>
               <Form.Message />
@@ -86,7 +85,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                     scope="configs"
                   >
                     <Combobox.Trigger className="w-full h-7 shadow-xs">
-                      <SelectTags.Value placeholder="Select tag group" />
+                      <SelectTags.Value placeholder={t('select-tag-group')} />
                     </Combobox.Trigger>
                     <Combobox.Content onClick={(e) => e.stopPropagation()}>
                       <SelectTags.GroupsCommand />
@@ -100,6 +99,8 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
       </div>
       <Separator />
       <TicketBasicFields form={form} />
+      <Separator />
+      <TicketPropertyFields form={form} />
     </>
   );
 };

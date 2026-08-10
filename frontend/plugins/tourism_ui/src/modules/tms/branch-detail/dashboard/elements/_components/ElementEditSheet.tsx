@@ -1,6 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -45,6 +46,7 @@ export const ElementEditSheet = ({
   showTrigger = true,
   children,
 }: ElementEditSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
   const sheetOpen = typeof open === 'boolean' ? open : internalOpen;
 
@@ -128,13 +130,13 @@ export const ElementEditSheet = ({
         },
       });
 
-      toast({ title: 'Success', description: 'Element updated successfully' });
+      toast({ title: t('success'), description: t('element-updated-successfully') });
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to update element',
+          error instanceof Error ? error.message : t('failed-to-update-element'),
         variant: 'destructive',
       });
     }
@@ -161,7 +163,7 @@ export const ElementEditSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>Edit element</Sheet.Title>
+              <Sheet.Title>{t('edit-element')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -213,10 +215,10 @@ export const ElementEditSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Updating...' : 'Update'}
+                {loading ? t('updating') : t('update')}
               </Button>
             </Sheet.Footer>
           </form>

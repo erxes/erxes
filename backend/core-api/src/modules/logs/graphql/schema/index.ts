@@ -8,6 +8,9 @@ export const types = `
       status:String,
       userId:String,
       cursor:String,
+      processId:String,
+      contentType:String,
+      name:String,
 
       user:User
       prevObject:JSON
@@ -35,6 +38,7 @@ export const types = `
         _id: String
         createdAt: Date
         activityType: String
+        sourcePlugin: String
         actorType: String
         actor: JSON
         targetType: String
@@ -44,6 +48,54 @@ export const types = `
         contextType: String
         changes: JSON
         metadata: JSON
+    }
+
+    type LogRevertField {
+        field: String!
+        revertValue: JSON
+        currentValue: JSON
+    }
+
+    type LogRevertConflict {
+        contentType: String!
+        docId: String!
+        mongooseName: String!
+        fields: [LogRevertField!]!
+    }
+
+    type LogRevertApplied {
+        contentType: String!
+        docId: String!
+        kind: String!
+    }
+
+    type LogRevertUnrevertable {
+        contentType: String
+        docId: String
+        action: String!
+        reason: String!
+    }
+
+    type LogRevertResult {
+        processId: String!
+        requestProcessId: String!
+        dryRun: Boolean!
+        alreadyReverted: Boolean!
+        reverted: [LogRevertApplied!]!
+        conflicts: [LogRevertConflict!]!
+        unrevertable: [LogRevertUnrevertable!]!
+    }
+
+    input LogRevertFieldResolutionInput {
+        field: String!
+        mode: String!
+        value: JSON
+    }
+
+    input LogRevertDocResolutionInput {
+        contentType: String!
+        docId: String!
+        fields: [LogRevertFieldResolutionInput!]!
     }
 `;
 
@@ -81,6 +133,10 @@ const activityLogQueryParams = `
     targetId: String!
     action: String
     variant: String
+    activityType: String
+    excludeActivityType: String
+    dateFrom: Date
+    dateTo: Date
 `;
 
 export const queries = `
@@ -88,5 +144,15 @@ export const queries = `
     logsMainList(${commonQueryParams}):MainLogsList
     logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
+    logsRevertPreview(processId: String!): LogRevertResult
 `;
-export default { types, queries };
+
+export const mutations = `
+    logsRevertProcess(
+      processId: String!
+      dryRun: Boolean
+      force: Boolean
+      skipConflicts: Boolean
+      resolutions: [LogRevertDocResolutionInput!]
+    ): LogRevertResult
+`;

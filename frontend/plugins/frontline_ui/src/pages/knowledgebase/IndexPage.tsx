@@ -1,7 +1,8 @@
 import { Breadcrumb, Button, PageContainer, Kbd, Separator } from 'erxes-ui';
 import { Link, useSearchParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
-import { IconLibraryPhoto, IconPlus, IconStar } from '@tabler/icons-react';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { IconLibraryPhoto, IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { KnowledgeBase } from '../../modules/knowledgebase/components/KnowledgeBase';
 import { useMemo, useState } from 'react';
 import { TopicDrawer } from '../../modules/knowledgebase/components/TopicDrawer';
@@ -11,6 +12,7 @@ import { useMutation } from '@apollo/client';
 import { REMOVE_TOPIC } from '../../modules/knowledgebase/graphql/mutations';
 
 const IndexPage = () => {
+  const { t } = useTranslation('frontline');
   const [isTopicDrawerOpen, setIsTopicDrawerOpen] = useState(false);
   const [isArticleDrawerOpen, setIsArticleDrawerOpen] = useState(false);
   const [editingTopic, setEditingTopic] = useState<any>(undefined);
@@ -32,7 +34,21 @@ const IndexPage = () => {
     return (cats || []).find((c: any) => c._id === categoryId);
   }, [currentTopic, categoryId]);
 
-  const lastLabel = categoryId ? 'Articles' : topicId ? 'Categories' : 'Knowledge Base';
+  let lastLabel = t('knowledge-base');
+
+  if (topicId) {
+    lastLabel = t('kb-categories');
+  }
+
+  if (categoryId) {
+    lastLabel = t('articles');
+  }
+
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('knowledge-base'),
+    topicId && (currentTopic?.title || t('unnamed-topic')),
+    categoryId && (currentCategory?.title || t('unnamed-category')),
+  );
 
   const handleEditTopic = (topic: any) => {
     setEditingTopic(topic);
@@ -63,7 +79,7 @@ const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/knowledgeBase">
                     <IconLibraryPhoto className="h-4 w-4" />
-                    Knowledge Base
+                    {t('knowledge-base')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -74,7 +90,7 @@ const IndexPage = () => {
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
                       <Link to={`/frontline/knowledgeBase?topicId=${topicId}`}>
-                        {currentTopic?.title || 'Unnamed topic'}
+                        {currentTopic?.title || t('unnamed-topic')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -86,8 +102,10 @@ const IndexPage = () => {
                   <Breadcrumb.Separator />
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
-                      <Link to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}>
-                        {currentCategory?.title || 'Unnamed category'}
+                      <Link
+                        to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
+                      >
+                        {currentCategory?.title || t('unnamed-category')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -102,18 +120,23 @@ const IndexPage = () => {
           </Breadcrumb>
 
           <Separator.Inline />
-          <Button variant="ghost" size="icon" type="button">
-            <IconStar className="h-4 w-4" />
-          </Button>
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconLibraryPhoto"
+          />
         </PageHeader.Start>
 
         <PageHeader.End>
-          <Button 
-            onClick={() => categoryId ? setIsArticleDrawerOpen(true) : setIsTopicDrawerOpen(true)} 
+          <Button
+            onClick={() =>
+              categoryId
+                ? setIsArticleDrawerOpen(true)
+                : setIsTopicDrawerOpen(true)
+            }
             className="h-7 py-1"
           >
             <IconPlus className="w-4 h-4" />
-            {categoryId ? 'New Article' : 'New Topic'}
+            {categoryId ? t('new-article') : t('kb-new-topic')}
             <Kbd>C</Kbd>
           </Button>
         </PageHeader.End>

@@ -6,13 +6,14 @@ import {
   addDeal,
   editDeal,
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
-import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
+import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 import {
   convertNestedDate,
   generateAmounts,
   generateProducts,
 } from '~/modules/sales/utils';
+import { replaceDealContent } from '~/modules/sales/documents/dealContent';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -33,17 +34,14 @@ const publishDealSubscription = t.procedure
       oldPipelineId,
     });
 
-    return { status: 'success' };
+    return null;
   });
 
 const createDealProcedure = t.procedure
   .input(z.any())
   .mutation(async ({ ctx, input }) => {
     const { models } = ctx;
-    return {
-      status: 'success',
-      data: await models.Deals.createDeal(input),
-    };
+    return await models.Deals.createDeal(input);
   });
 
 const updateDealProcedure = t.procedure
@@ -52,27 +50,25 @@ const updateDealProcedure = t.procedure
     const { models } = ctx;
     const { selector, modifier } = input;
 
+    if (!selector || !Object.keys(selector).length) {
+      return null;
+    }
+
     const updateDoc =
       modifier && Object.keys(modifier).some((key) => key.startsWith('$'))
         ? modifier
         : { $set: modifier };
 
-    return {
-      status: 'success',
-      data: await models.Deals.findOneAndUpdate(selector, updateDoc, {
-        new: true,
-      }),
-    };
+    return await models.Deals.findOneAndUpdate(selector, updateDoc, {
+      new: true,
+    });
   });
 
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
-      return {
-        status: 'success',
-        data: await models.Deals.findOne(input).lean(),
-      };
+      return await models.Deals.findOne(input).lean();
     }),
 
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -81,38 +77,26 @@ export const dealTrpcRouter = t.router({
       const { query, skip, limit, sort = {} } = input;
 
       if (!query) {
-        return {
-          status: 'success',
-          data: await models.Deals.find(input).lean(),
-        };
+        return await models.Deals.find(input).lean();
       }
 
-      return {
-        status: 'success',
-        data: await models.Deals.find(query)
-          .skip(skip || 0)
-          .limit(limit || 0)
-          .sort(sort)
-          .lean(),
-      };
+      return await models.Deals.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
     }),
 
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
 
-      return {
-        status: 'success',
-        data: await models.Deals.aggregate(convertNestedDate(input)),
-      };
+      return await models.Deals.aggregate(convertNestedDate(input));
     }),
 
     count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
 
-      return {
-        status: 'success',
-        data: await models.Deals.find(input).countDocuments(),
-      };
+      return await models.Deals.find(input).countDocuments();
     }),
 
     getLink: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -121,20 +105,14 @@ export const dealTrpcRouter = t.router({
       const item = await models.Deals.findOne({ _id });
 
       if (!item) {
-        return {
-          status: 'error',
-          errorMessage: 'Deal not found',
-        };
+        throw new Error('Deal not found');
       }
 
       const stage = await models.Stages.getStage(item.stageId);
       const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
       const board = await models.Boards.getBoard(pipeline.boardId);
 
-      return {
-        status: 'success',
-        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
-      };
+      return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
     }),
 
     findDealProductIds: t.procedure
@@ -147,28 +125,19 @@ export const dealTrpcRouter = t.router({
           'productsData.productId': { $in: _ids },
         }).distinct('productsData.productId');
 
-        return { data: dealProductIds, status: 'success' };
+        return dealProductIds;
       }),
 
     createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
       const { user, processId, ...doc } = input;
       if (!user || !processId) {
-        return {
-          status: 'error',
-          errorMessage: 'you must provide some params',
-        };
+        throw new Error('you must provide some params');
       }
       try {
-        return {
-          status: 'success',
-          data: await addDeal({ models, subdomain, user, doc }),
-        };
+        return await addDeal({ models, subdomain, user, doc });
       } catch (e) {
-        return {
-          status: 'error',
-          errorMessage: e.message,
-        };
+        throw new Error(e.message);
       }
     }),
 
@@ -178,29 +147,20 @@ export const dealTrpcRouter = t.router({
       const { itemId, processId, user, ...doc } = input;
 
       if (!itemId || !user || !processId) {
-        return {
-          status: 'error',
-          errorMessage: 'you must provide some params',
-        };
+        throw new Error('you must provide some params');
       }
 
       try {
-        return {
-          status: 'success',
-          data: await editDeal({
-            models,
-            subdomain,
-            _id: itemId,
-            doc,
-            processId,
-            user,
-          }),
-        };
+        return await editDeal({
+          models,
+          subdomain,
+          _id: itemId,
+          doc,
+          processId,
+          user,
+        });
       } catch (e) {
-        return {
-          status: 'error',
-          errorMessage: e.message,
-        };
+        throw new Error(e.message);
       }
     }),
 
@@ -208,10 +168,7 @@ export const dealTrpcRouter = t.router({
       const { models } = ctx;
       const { _ids } = input;
 
-      return {
-        status: 'success',
-        data: await models.Deals.removeDeals(_ids),
-      };
+      return await models.Deals.removeDeals(_ids);
     }),
 
     contentIds: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -220,12 +177,9 @@ export const dealTrpcRouter = t.router({
 
       const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
-      return {
-        status: 'success',
-        data: await models.Deals.find({ stageId: { $in: stageIds } }).distinct(
-          '_id',
-        ),
-      };
+      return await models.Deals.find({ stageId: { $in: stageIds } }).distinct(
+        '_id',
+      );
     }),
 
     generateInternalNoteNotif: t.procedure
@@ -248,10 +202,7 @@ export const dealTrpcRouter = t.router({
         // sendNotificationOfItems on and deal
         notifDoc.notifOfItems = true;
 
-        return {
-          status: 'success',
-          data: notifDoc,
-        };
+        return notifDoc;
       }),
 
     notifiedUserIds: t.procedure
@@ -271,10 +222,7 @@ export const dealTrpcRouter = t.router({
 
         userIds = userIds.concat(pipeline.watchedUserIds || []);
 
-        return {
-          status: 'success',
-          data: userIds,
-        };
+        return userIds;
       }),
 
     tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
@@ -296,10 +244,7 @@ export const dealTrpcRouter = t.router({
         response = await models.Deals.find({ _id: { $in: targetIds } }).lean();
       }
 
-      return {
-        status: 'success',
-        data: response,
-      };
+      return response;
     }),
 
     getFilterParams: t.procedure
@@ -307,28 +252,31 @@ export const dealTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { filter, userId } = input;
         const { models, subdomain } = ctx;
-        return {
-          status: 'success',
-          data: await generateFilter(models, subdomain, userId, filter),
-        };
+        return await generateFilter(models, subdomain, userId, filter);
       }),
 
     generateAmounts: t.procedure.input(z.any()).query(async ({ input }) => {
-      return {
-        status: 'success',
-        data: generateAmounts(input),
-      };
+      return generateAmounts(input);
     }),
 
     generateProducts: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
-        return {
-          status: 'success',
-          data: await generateProducts(subdomain, input),
-        };
+        return await generateProducts(subdomain, input);
       }),
+
+    replaceContent: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { replacerIds, content } = input || {};
+
+      return await replaceDealContent({
+        models,
+        subdomain,
+        replacerIds: replacerIds || [],
+        content,
+      });
+    }),
 
     createCommentActivityLog: t.procedure
       .input(z.any())
@@ -337,11 +285,9 @@ export const dealTrpcRouter = t.router({
         const { dealId, commentId, createdBy, userId, commentContent } = input;
 
         if (!dealId || !commentId || !createdBy) {
-          return {
-            status: 'error',
-            errorMessage:
-              'Missing required parameters: dealId, commentId, createdBy',
-          };
+          throw new Error(
+            'Missing required parameters: dealId, commentId, createdBy',
+          );
         }
         try {
           const salesEventHandlers = eventHandlers('sales');
@@ -372,15 +318,9 @@ export const dealTrpcRouter = t.router({
             userId || createdBy || '',
           );
 
-          return {
-            status: 'success',
-            data: { dealId, commentId },
-          };
+          return { dealId, commentId };
         } catch (error: any) {
-          return {
-            status: 'error',
-            errorMessage: error?.message || 'Failed to create activity log',
-          };
+          throw new Error(error?.message || 'Failed to create activity log');
         }
       }),
     subscriptionWrapper: publishDealSubscription,
@@ -393,36 +333,36 @@ export const dealTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
       const { subdomain, ...rest } = input;
-      return {
-        status: 'success',
-        data: await models.Stages.findOne(rest).lean(),
-      };
+      return await models.Stages.findOne(rest).lean();
     }),
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
       const { subdomain, ...rest } = input;
-      return {
-        status: 'success',
-        data: await models.Stages.find(rest).sort({ order: 1 }).lean(),
-      };
+      return await models.Stages.find(rest).sort({ order: 1 }).lean();
     }),
   },
   pipeline: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
-      const { stageId, ...rest } = input;
+      const { stageId, ...rest } = input || {};
       const { query, fields } = rest || {};
 
-      let pipeline = query && await models.Pipelines.findOne(query, fields);
+      let pipeline =
+        query && Object.keys(query).length
+          ? await models.Pipelines.findOne(query, fields).lean()
+          : null;
 
       if (!pipeline && stageId) {
         const stage = await models.Stages.findOne({ _id: stageId }).lean();
         if (stage) {
-          pipeline = await models.Pipelines.findOne({ _id: stage.pipelineId }, fields);
+          pipeline = await models.Pipelines.findOne(
+            { _id: stage.pipelineId },
+            fields,
+          ).lean();
         }
       }
 
-      return pipeline;
+      return pipeline || {};
     }),
   },
 });

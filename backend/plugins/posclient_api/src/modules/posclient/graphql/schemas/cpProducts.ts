@@ -31,6 +31,7 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
@@ -42,8 +43,16 @@ export const types = `
     soonIn: Float
     soonOut: Float
     remainders: [JSON]
+    discounts: JSON
+    discount(
+      branchId: String
+      departmentId: String
+      pipelineId: String
+      discountConditions: JSON
+    ): JSON
     isCheckRem: Boolean
     hasSimilarity: Boolean
+    similarity: JSON
     pdfAttachment: PdfAttachment
   }
 
@@ -75,10 +84,16 @@ const productsQueryParams = `
   groupedSimilarity: String,
   categoryMeta: String,
   image: String,
+  isSimilarity: Boolean,
   minRemainder: Float
   maxRemainder: Float
   minPrice: Float
   maxPrice: Float
+  minDiscountValue: Float
+  maxDiscountValue: Float
+  minDiscountPercent: Float
+  maxDiscountPercent: Float
+  discountConditions: JSON
 `;
 
 const productCategoriesParams = `

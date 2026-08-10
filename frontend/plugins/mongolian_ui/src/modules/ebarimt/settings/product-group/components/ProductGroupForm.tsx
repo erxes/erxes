@@ -2,19 +2,24 @@ import { UseFormReturn } from 'react-hook-form';
 import { Button, Checkbox, Dialog, Form, Input, Spinner } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 import { TProductGroupForm } from '@/ebarimt/settings/product-group/constants/productGroupSchema';
-import { SelectSubProduct } from '@/ebarimt/settings/product-group/components/selects/SelectSubProduct';
-import { SelectMainProduct } from '@/ebarimt/settings/product-group/components/selects/SelectMainProduct';
 import { useCallback } from 'react';
+import { SelectProduct } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const ProductGroupForm = ({
   form,
   onSubmit,
   loading,
+  isSheet = false,
+  formId,
 }: {
   form: UseFormReturn<TProductGroupForm>;
   onSubmit: (data: TProductGroupForm) => void;
   loading: boolean;
+  isSheet?: boolean;
+  formId?: string;
 }) => {
+  const { t } = useTranslation('mongolian');
   const handleNumberChange = useCallback(
     (value: string, onChange: (value: number) => void) => {
       let cleanedValue = '';
@@ -45,87 +50,89 @@ export const ProductGroupForm = ({
   return (
     <Form {...form}>
       <form
+        id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
         className="gap-5 flex flex-col py-3"
       >
-        <Form.Field
-          control={form.control}
-          name="mainProductId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Main Product</Form.Label>
-              <SelectMainProduct
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="subProductId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Sub Product</Form.Label>
-              <SelectSubProduct
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                }}
-                disabled={loading}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="sortNum"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Sort Number</Form.Label>
-              <Form.Control>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={field.value || ''}
-                  onChange={(e) =>
-                    handleNumberChange(e.target.value, field.onChange)
-                  }
-                  placeholder="Enter sort number"
+        <div className="grid grid-cols-2 gap-4">
+          <Form.Field
+            control={form.control}
+            name="mainProductId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('main-product')}</Form.Label>
+                <SelectProduct
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
                   disabled={loading}
                 />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="ratio"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Ratio</Form.Label>
-              <Form.Control>
-                <Input
-                  type="text"
-                  inputMode="decimal"
-                  value={field.value || ''}
-                  onChange={(e) =>
-                    handleNumberChange(e.target.value, field.onChange)
-                  }
-                  placeholder="Enter ratio"
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="subProductId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('sub-product')}</Form.Label>
+                <SelectProduct
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
                   disabled={loading}
                 />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Form.Field
+            control={form.control}
+            name="sortNum"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('sort-number')}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    value={field.value || ''}
+                    onChange={(e) =>
+                      handleNumberChange(e.target.value, field.onChange)
+                    }
+                    placeholder={t('enter-sort-number')}
+                    disabled={loading}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="ratio"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('ratio')}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={field.value || ''}
+                    onChange={(e) =>
+                      handleNumberChange(e.target.value, field.onChange)
+                    }
+                    placeholder={t('enter-ratio')}
+                    disabled={loading}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
+
         <Form.Field
           control={form.control}
           name="isActive"
@@ -138,20 +145,22 @@ export const ProductGroupForm = ({
                   disabled={loading}
                 />
               </Form.Control>
-              <Form.Label variant="peer">Is Active</Form.Label>
+              <Form.Label variant="peer">{t('is-active')}</Form.Label>
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 mt-3 gap-2">
-          <Dialog.Close asChild>
-            <Button variant="outline" size="lg" disabled={loading}>
-              Cancel
+        {!isSheet && (
+          <Dialog.Footer className="col-span-2 mt-3 gap-2">
+            <Dialog.Close asChild>
+              <Button variant="outline" size="lg" disabled={loading}>
+                {t('cancel')}
+              </Button>
+            </Dialog.Close>
+            <Button type="submit" disabled={loading} size="lg">
+              {loading ? <Spinner /> : t('save')}
             </Button>
-          </Dialog.Close>
-          <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Save'}
-          </Button>
-        </Dialog.Footer>
+          </Dialog.Footer>
+        )}
       </form>
     </Form>
   );

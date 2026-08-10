@@ -2,7 +2,6 @@ import {
   IconPackage,
   IconCategory,
   IconShieldCheck,
-  IconCalendar,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -12,30 +11,37 @@ import {
   Badge,
 } from 'erxes-ui';
 import { InsuranceProduct } from '~/modules/insurance/types';
+import { createCreatedAtColumn } from '../shared';
 import { ProductsMoreColumn } from './ProductsMoreColumn';
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
 
 export const createProductsColumns = (
   onEdit: (product: InsuranceProduct) => void,
   onDelete: (product: InsuranceProduct) => void,
+  labels: {
+    name: string;
+    insuranceType: string;
+    coveredRisks: string;
+    risks: string;
+    riskDetails: string;
+    createdAt: string;
+  },
 ): ColumnDef<InsuranceProduct>[] => [
   {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
       <ProductsMoreColumn cell={cell} onEdit={onEdit} onDelete={onDelete} />
     ),
-    size: 26,
+    size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<InsuranceProduct>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconPackage} label="Name" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label={labels.name} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -48,7 +54,10 @@ export const createProductsColumns = (
     id: 'insuranceType',
     accessorKey: 'insuranceType',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Insurance Type" />
+      <RecordTable.InlineHead
+        icon={IconCategory}
+        label={labels.insuranceType}
+      />
     ),
     cell: ({ cell }) => {
       return (
@@ -64,13 +73,18 @@ export const createProductsColumns = (
     id: 'coveredRisks',
     accessorKey: 'coveredRisks',
     header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label="Covered Risks" />
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.coveredRisks}
+      />
     ),
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} risks</Badge>
+          <Badge variant="secondary">
+            {risks.length} {labels.risks}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -79,7 +93,10 @@ export const createProductsColumns = (
     id: 'riskDetails',
     accessorKey: 'riskDetails',
     header: () => (
-      <RecordTable.InlineHead icon={IconShieldCheck} label="Risk Details" />
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.riskDetails}
+      />
     ),
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
@@ -96,18 +113,5 @@ export const createProductsColumns = (
       );
     },
   },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  createCreatedAtColumn<InsuranceProduct>(labels.createdAt),
 ];

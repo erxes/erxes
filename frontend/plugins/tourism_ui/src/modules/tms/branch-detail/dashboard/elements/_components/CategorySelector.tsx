@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 import { GET_ELEMENT_CATEGORIES } from '../graphql/categoryQueries';
@@ -14,6 +15,7 @@ export const CategorySelector = ({
   value,
   onChange,
 }: CategorySelectorProps) => {
+  const { t } = useTranslation('tourism');
   const { data, loading } = useQuery<{
     bmsElementCategories: IElementCategory[];
   }>(GET_ELEMENT_CATEGORIES);
@@ -59,7 +61,7 @@ export const CategorySelector = ({
   if (loading) {
     return (
       <Command.Item disabled className="h-8">
-        Loading...
+        {t('loading')}
       </Command.Item>
     );
   }

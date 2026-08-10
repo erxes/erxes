@@ -38,6 +38,10 @@ export interface IUser extends IUserInline {
   isActive: boolean;
   isOwner?: boolean;
   positionIds: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  unitId?: string;
+  permissionGroupIds?: string[];
 
   links?: object;
   isSubscribed?: string;
@@ -54,6 +58,7 @@ export interface IUserDetail extends IUser {
 
 export interface IUserEntry {
   email: string;
+  permissionGroupIds?: string[];
 }
 
 export type TUserInviteVars = {

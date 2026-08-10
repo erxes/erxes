@@ -17,6 +17,12 @@ export const types = `
     revoked
   }
 
+  enum OAuthClientAccessTokenLifetime {
+    year
+    half
+    trio
+  }
+
   type OAuthClientApp {
     _id: String
     name: String
@@ -24,6 +30,7 @@ export const types = `
     description: String
     clientId: String
     type: OAuthClientAppType
+    accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String]
     status: OAuthClientAppStatus
     lastUsedAt: Date
@@ -52,6 +59,7 @@ export const mutations = `
     logo: String
     description: String
     type: OAuthClientAppType!
+    accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String!]
   ): OAuthClientApp
   oauthClientAppsEdit(
@@ -60,6 +68,7 @@ export const mutations = `
     logo: String
     description: String
     type: OAuthClientAppType!
+    accessTokenLifetime: OAuthClientAccessTokenLifetime
     redirectUrls: [String!]
   ): OAuthClientApp
   oauthClientAppsRevoke(_id: String!): OAuthClientApp

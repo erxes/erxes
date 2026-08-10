@@ -12,51 +12,74 @@ export const baseCategoryFormSchema = z.object({
     .array(
       z.object({
         field: z.string(),
-        value: z.any().optional(),
+        value: z.unknown().optional(),
       }),
     )
     .default([]),
 });
 
+const isEmptyRequiredValue = (value: unknown): boolean => {
+  if (value === undefined || value === null) return true;
+  if (typeof value === 'string') return value.trim() === '';
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+};
+
+const isValidByFieldType = (value: unknown, type: string): boolean => {
+  switch (type) {
+    case 'checkbox':
+    case 'boolean':
+      return typeof value === 'boolean';
+    case 'multiSelect':
+    case 'file':
+      return Array.isArray(value) && value.every((v) => typeof v === 'string');
+    case 'number':
+      return typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)));
+    default:
+      return typeof value === 'string';
+  }
+};
+
 // Function to create dynamic schema with custom fields validation
 export const createCategoryFormSchema = (fields: FieldDefinition[]) => {
-  const customFieldValidations: Record<string, z.ZodTypeAny> = {};
+  const requiredFields = fields.filter((field) => field.isRequired);
 
-  // Add validation for each custom field (both required and optional)
-  fields.forEach((field) => {
-    const fieldName = `customFields.${field._id}`;
+  if (requiredFields.length === 0) {
+    return baseCategoryFormSchema;
+  }
 
-    // Create validation based on field type
-    switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'url':
-      case 'textarea':
-      case 'number':
-      case 'select':
-      case 'radio':
-      case 'date':
-        customFieldValidations[fieldName] = field.isRequired
-          ? z.string().min(1, `${field.label} is required`)
-          : z.string().optional();
-        break;
-      case 'multiSelect':
-        customFieldValidations[fieldName] = field.isRequired
-          ? z.array(z.string()).min(1, `${field.label} is required`)
-          : z.array(z.string()).optional();
-        break;
-      case 'checkbox':
-      case 'boolean':
-        customFieldValidations[fieldName] = z.boolean().optional();
-        break;
-      default:
-        customFieldValidations[fieldName] = field.isRequired
-          ? z.string().min(1, `${field.label} is required`)
-          : z.string().optional();
-    }
+  const customFieldsDataSchema = z
+    .array(
+      z.object({
+        field: z.string(),
+        value: z.unknown().optional(),
+      }),
+    )
+    .default([])
+    .superRefine((data, ctx) => {
+      for (const field of requiredFields) {
+        const item = data.find((item) => item.field === field._id);
+        const value = item?.value;
+
+        if (isEmptyRequiredValue(value)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.label} is required`,
+            path: [field._id],
+          });
+        } else if (!isValidByFieldType(value, field.type)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.label} has an invalid format`,
+            path: [field._id],
+          });
+        }
+      }
+    });
+
+  return baseCategoryFormSchema.extend({
+    customFieldsData: customFieldsDataSchema,
   });
-
-  return baseCategoryFormSchema.extend(customFieldValidations);
 };
 
 export type DynamicCategoryFormType = z.infer<
@@ -65,9 +88,9 @@ export type DynamicCategoryFormType = z.infer<
 
 export type CategoryFormType = z.infer<typeof baseCategoryFormSchema> & {
   [key: `customFields.${string}`]:
-    | string
-    | boolean
-    | string[]
-    | null
-    | undefined;
+  | string
+  | boolean
+  | string[]
+  | null
+  | undefined;
 };

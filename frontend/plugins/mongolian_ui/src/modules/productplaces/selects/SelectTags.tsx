@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const TAGS_QUERY = gql`
   query tagsQuery(
@@ -83,11 +84,12 @@ export const SelectTagsProvider = ({
 };
 
 const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, tags } = useSelectTagsContext();
   const selectedNames = useMemo(
     () =>
       value
-        .map((id) => tags?.find((t) => t._id === id)?.name)
+        .map((id) => tags?.find((tag) => tag._id === id)?.name)
         .filter(Boolean)
         .join(', '),
     [value, tags],
@@ -96,7 +98,7 @@ const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedNames) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose product tag'}
+        {placeholder || t('choose-product-tag')}
       </span>
     );
   }
@@ -134,13 +136,14 @@ const SelectTagsItem = ({ tag }: { tag: Tag }) => {
 };
 
 const SelectTagsContent = () => {
+  const { t } = useTranslation('mongolian');
   const { tags, loading, error } = useSelectTagsContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -148,19 +151,19 @@ const SelectTagsContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
 
-    return tags?.map((t) => <SelectTagsItem key={t._id} tag={t} />);
+    return tags?.map((tag) => <SelectTagsItem key={tag._id} tag={tag} />);
   };
 
   return (
     <Command>
-      <Command.Input placeholder="Search tag" />
+      <Command.Input placeholder={t('search-tag')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No tags found</span>
+        <span className="text-muted-foreground">{t('no-tags-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

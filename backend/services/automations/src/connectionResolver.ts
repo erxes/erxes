@@ -9,6 +9,18 @@ import {
   IAutomationMemoryDocument,
 } from './mongo/automationMemory';
 import {
+  IKnowledgeChunkDocument,
+  knowledgeChunkSchema,
+} from './mongo/knowledgeChunk';
+import {
+  aiAgentKnowledgeSourceBindingSchema,
+  IAiAgentKnowledgeSourceBindingDocument,
+} from './mongo/aiAgentKnowledgeSourceBinding';
+import {
+  aiAgentKnowledgeIndexRunSchema,
+  IAiAgentKnowledgeIndexRunDocument,
+} from './mongo/aiAgentKnowledgeIndexRun';
+import {
   AiAgentDocument,
   aiAgentSchema,
   automationExecutionSchema,
@@ -25,6 +37,9 @@ export interface IModels {
   WaitingActions: Model<IAutomationWaitingActionDocument>;
   AiAgents: Model<AiAgentDocument>;
   AutomationMemory: Model<IAutomationMemoryDocument>;
+  KnowledgeChunks: Model<IKnowledgeChunkDocument>;
+  AiAgentKnowledgeSourceBindings: Model<IAiAgentKnowledgeSourceBindingDocument>;
+  AiAgentKnowledgeIndexRuns: Model<IAiAgentKnowledgeIndexRunDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -59,6 +74,27 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     IAutomationMemoryDocument,
     Model<IAutomationMemoryDocument>
   >('automations_memory', automationMemorySchema);
+
+  models.KnowledgeChunks = db.model<
+    IKnowledgeChunkDocument,
+    Model<IKnowledgeChunkDocument>
+  >('automations_knowledge_chunks', knowledgeChunkSchema);
+
+  models.AiAgentKnowledgeSourceBindings = db.model<
+    IAiAgentKnowledgeSourceBindingDocument,
+    Model<IAiAgentKnowledgeSourceBindingDocument>
+  >(
+    'automations_ai_agent_knowledge_source_bindings',
+    aiAgentKnowledgeSourceBindingSchema,
+  );
+
+  models.AiAgentKnowledgeIndexRuns = db.model<
+    IAiAgentKnowledgeIndexRunDocument,
+    Model<IAiAgentKnowledgeIndexRunDocument>
+  >(
+    'automations_ai_agent_knowledge_index_runs',
+    aiAgentKnowledgeIndexRunSchema,
+  );
 
   return models;
 };

@@ -64,13 +64,27 @@ type BotPersistentMenuTypeMessenger = {
   type: string;
   text: string;
   link: string;
+  contentType: string;
   isEditing?: boolean;
+};
+type WebsiteApp = {
+  _id: string;
+  kind: string;
+  showInInbox: boolean;
+  credentials: {
+    integrationId: string;
+    description?: string;
+    buttonText?: string;
+    url: string;
+  };
+  scopeBrandIds: string[];
 };
 export interface IMessengerData {
   botEndpointUrl?: string;
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
+  automationId?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
   getStarted?: boolean;
   skillData?: {
@@ -99,6 +113,8 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   isReceiveWebCall?: boolean;
+  knowledgeBaseTopicId?: string;
+  websiteApps?: WebsiteApp[];
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
@@ -159,7 +175,11 @@ export interface IColorDefinition {
 }
 export interface IUiOptions {
   logo?: string;
+  launcherLogo?: string;
   primary?: IColorDefinition;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
+  navigationVariant?: string;
 }
 
 // subdocument schema for messenger UiOptions
@@ -180,7 +200,7 @@ export interface IIntegration {
   departmentIds?: string[];
   visibility?: string;
   configId?: string;
-  ticketConfigId?: string;
+  ticketConfigIds?: string[];
   brandId?: string;
 }
 

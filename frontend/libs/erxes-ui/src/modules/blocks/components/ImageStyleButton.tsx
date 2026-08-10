@@ -3,15 +3,27 @@ import {
   useComponentsContext,
   useSelectedBlocks,
 } from '@blocknote/react';
-import { IconCheck, IconPhoto } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconAlignRight,
+  IconArrowsMaximize,
+  IconCheck,
+  IconPhoto,
+  TablerIconsProps,
+} from '@tabler/icons-react';
 import { IMAGE_STYLE_PRESETS, ImageStyle } from './CustomImageBlock';
+
+type IconComponent = (props: TablerIconsProps) => JSX.Element;
 
 const IMAGE_STYLE_OPTIONS: Array<{
   label: string;
   value: ImageStyle;
+  Icon: IconComponent;
 }> = [
-  { label: 'Normal', value: 'normal' },
-  { label: 'Wide', value: 'wide' },
+  { label: 'Normal',      value: 'normal',      Icon: IconPhoto },
+  { label: 'Wide',        value: 'wide',        Icon: IconArrowsMaximize },
+  { label: 'Float Left',  value: 'float-left',  Icon: IconAlignLeft },
+  { label: 'Float Right', value: 'float-right', Icon: IconAlignRight },
 ];
 
 type ImageBlock = {
@@ -22,6 +34,8 @@ type ImageBlock = {
   };
 };
 
+const ALL_STYLES: ImageStyle[] = ['normal', 'wide', 'float-left', 'float-right'];
+
 export const ImageStyleButton = () => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
@@ -30,8 +44,10 @@ export const ImageStyleButton = () => {
     (selectedBlocks.find((block) => block.type === 'image') as
       | ImageBlock
       | undefined) ?? null;
-  const currentStyle: ImageStyle =
-    selectedBlock?.props?.imageStyle === 'wide' ? 'wide' : 'normal';
+  const rawStyle = selectedBlock?.props?.imageStyle ?? '';
+  const currentStyle: ImageStyle = ALL_STYLES.includes(rawStyle as ImageStyle)
+    ? (rawStyle as ImageStyle)
+    : 'normal';
 
   if (!Components || !editor || !selectedBlock) {
     return null;
@@ -62,15 +78,19 @@ export const ImageStyleButton = () => {
         />
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown className="bn-menu-dropdown bn-drag-handle-menu">
-        {IMAGE_STYLE_OPTIONS.map((option) => (
+        {IMAGE_STYLE_OPTIONS.map(({ value, label, Icon }) => (
           <Components.Generic.Menu.Item
-            key={option.value}
-            onClick={() => handleStyleChange(option.value)}
+            key={value}
+            onClick={() => handleStyleChange(value)}
           >
             <div className="flex items-center gap-2 w-full">
-              {currentStyle === option.value && <IconCheck size={14} />}
-              {currentStyle !== option.value && <span className="w-[14px]" />}
-              {option.label}
+              {currentStyle === value ? (
+                <IconCheck size={14} />
+              ) : (
+                <span className="w-[14px]" />
+              )}
+              <Icon size={14} />
+              {label}
             </div>
           </Components.Generic.Menu.Item>
         ))}

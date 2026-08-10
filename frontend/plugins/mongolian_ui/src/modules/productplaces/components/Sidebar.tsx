@@ -1,25 +1,27 @@
 import { Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const BASE = '/settings/mongolian/product-places';
 
 const SIDEBAR_ROUTES = {
-  [`${BASE}/stage`]: 'Stage in product places config',
-  [`${BASE}/split`]: 'Stage in product splits config',
-  [`${BASE}/print`]: 'Stage in product prints config',
-  [`${BASE}/product-filter`]: 'Products default filter by segment',
+  [`${BASE}/stage`]: 'stage-in-product-places-config',
+  [`${BASE}/split`]: 'stage-in-product-splits-config',
+  [`${BASE}/print`]: 'stage-in-product-prints-config',
+  [`${BASE}/product-filter`]: 'products-default-filter-by-segment',
 };
 
 const ProductPlacesSidebar = () => {
+  const { t } = useTranslation('mongolian');
   return (
     <Sidebar collapsible="none" className="border-r flex-none w-[300px]">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Product Places</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('product-places')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu className="capitalize">
             {Object.entries(SIDEBAR_ROUTES).map(([path, label]) => (
               <ProductPlacesSidebarItem key={path} to={path}>
-                {label}
+                {t(label)}
               </ProductPlacesSidebarItem>
             ))}
           </Sidebar.Menu>

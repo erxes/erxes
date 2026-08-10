@@ -11,6 +11,7 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
 import { IAssignmentItem } from '../types/assignment';
 
 const statusVariant = (status?: string) => {
@@ -38,12 +39,16 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
+export const assignmentColumns = (
+  t: TFunction<'loyalty'>,
+): ColumnDef<IAssignmentItem>[] => [
   RecordTable.checkboxColumn as ColumnDef<IAssignmentItem>,
   {
     id: 'campaign',
     accessorKey: 'campaign',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Campaign" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('campaign')} />
+    ),
     size: 180,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -54,7 +59,9 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
   {
     id: 'ownerId',
     accessorKey: 'ownerId',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Id" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('owner-id')} />
+    ),
     size: 180,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs">
@@ -66,7 +73,7 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label="Status" />
+      <RecordTable.InlineHead icon={IconToggleLeft} label={t('status')} />
     ),
     size: 100,
     cell: ({ cell }) => {
@@ -84,7 +91,7 @@ export const assignmentColumns: ColumnDef<IAssignmentItem>[] = [
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />
     ),
     size: 150,
     cell: ({ cell }) => (

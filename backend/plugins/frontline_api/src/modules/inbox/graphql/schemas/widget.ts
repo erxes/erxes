@@ -5,7 +5,7 @@ export const types = `
       uiOptions: JSON
       languageCode: String
       messengerData: JSON
-      ticketConfig: JSON
+      ticketConfigs: JSON
       customerId: String
       visitorId: String
       channel: Channel
@@ -119,6 +119,11 @@ export const mutations = `
       attachments: [AttachmentInput]
     ): String
   
+    widgetChangeOperatorStatus(
+      conversationId: String!
+      operatorStatus: String!
+    ): JSON
+
     widgetGetBotInitialMessage(integrationId: String): JSON
     widgetsLeadIncreaseViewCount(formId: String!): JSON
     widgetsSendTypingInfo(conversationId: String!, text: String): String
@@ -132,6 +137,7 @@ export const mutations = `
       statusId: String!
       customerIds: [String!]!
       tagIds: [String!]
+      propertiesData: JSON
     ): Ticket
     
     widgetTicketCommentAdd(

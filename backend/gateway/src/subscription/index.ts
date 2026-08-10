@@ -20,8 +20,45 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { apolloRouterPort } from '../apollo-router';
 import { gql } from '@apollo/client/core';
 import { getSubdomain } from '../util/subdomain';
+import * as jwt from 'jsonwebtoken';
 
 let disposable: Disposable | undefined;
+
+function readCookie(rawCookie: string | undefined, name: string) {
+  if (!rawCookie) {
+    return undefined;
+  }
+  for (const part of rawCookie.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) {
+      continue;
+    }
+    if (part.slice(0, eq).trim() === name) {
+      return decodeURIComponent(part.slice(eq + 1).trim());
+    }
+  }
+  return undefined;
+}
+
+function extractSubscriptionUser(request: any) {
+  try {
+    const token = readCookie(request?.headers?.cookie, 'auth-token');
+    if (!token) {
+      return undefined;
+    }
+    const decoded: any = jwt.verify(
+      token,
+      process.env.JWT_TOKEN_SECRET || 'SECRET',
+    );
+    const user = decoded?.user;
+    if (!user?._id) {
+      return undefined;
+    }
+    return user;
+  } catch (e) {
+    return undefined;
+  }
+}
 
 export async function stopSubscriptionServer() {
   if (disposable) {
@@ -83,7 +120,8 @@ export async function startSubscriptionServer(httpServer: http.Server) {
           ctx,
         );
         const subdomain = getSubdomain(ctx.extra.request);
-        return { dataSources: { gatewayDataSource }, subdomain };
+        const user = extractSubscriptionUser(ctx.extra.request);
+        return { dataSources: { gatewayDataSource }, subdomain, user };
       },
       onSubscribe: async (
         _ctx,

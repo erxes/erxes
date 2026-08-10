@@ -5,6 +5,7 @@ import {
   IconCalendar,
   IconClock,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { SelectMember } from 'ui-modules';
 import { CheckPosOrdersHotKeyScope } from '../types/checkPosOrdersHotKeyScope';
 import {
@@ -37,41 +38,42 @@ export const CheckPosOrdersFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
+  const { t } = useTranslation('mongolian');
 
   return (
     <>
       <Filter.Popover scope={CheckPosOrdersHotKeyScope.CheckPosOrdersPage}>
-        <Filter.Trigger isFiltered={hasFilters}>Filter</Filter.Trigger>
+        <Filter.Trigger isFiltered={hasFilters}>{t('filter')}</Filter.Trigger>
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="posToken" inDialog>
                   <IconKey />
-                  POS Token
+                  {t('pos-token')}
                 </Filter.Item>
                 <Filter.Item value="pos">
                   <IconCashRegister />
-                  POS
+                  {t('pos')}
                 </Filter.Item>
-                <SelectMember.FilterItem value="user" label="Assigned To" />
+                <SelectMember.FilterItem value="user" label={t('assigned-to')} />
                 <Command.Separator className="my-1" />
                 <Filter.Item value="number" inDialog>
                   <IconHash />
-                  Number
+                  {t('number')}
                 </Filter.Item>
                 <Filter.Item value="paidDateRange">
                   <IconCalendar />
-                  Paid Date Range
+                  {t('paid-date-range')}
                 </Filter.Item>
                 <Filter.Item value="createdDateRange">
                   <IconClock />
-                  Created Date Range
+                  {t('created-date-range')}
                 </Filter.Item>
               </Command.List>
             </Command>
@@ -108,6 +110,7 @@ export const CheckPosOrdersFilter = () => {
   const [posToken] = useFilterQueryState<string>('posToken');
   const [number] = useFilterQueryState<string>('number');
   const { sessionKey } = useCheckPosOrdersLeadSessionKey();
+  const { t } = useTranslation('mongolian');
   return (
     <Filter id="check-pos-orders-filter" sessionKey={sessionKey}>
       <Filter.Bar>
@@ -115,7 +118,7 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="posToken">
           <Filter.BarName>
             <IconKey />
-            POS Token
+            {t('pos-token')}
           </Filter.BarName>
           <Filter.BarButton filterKey="posToken" inDialog>
             {posToken}
@@ -124,7 +127,7 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="number">
           <Filter.BarName>
             <IconHash />
-            Number
+            {t('number')}
           </Filter.BarName>
           <Filter.BarButton filterKey="number" inDialog>
             {number}
@@ -133,19 +136,19 @@ export const CheckPosOrdersFilter = () => {
         <Filter.BarItem queryKey="paidDateRange">
           <Filter.BarName>
             <IconCalendar />
-            Paid Date Range
+            {t('paid-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="paidDateRange" />
         </Filter.BarItem>
         <Filter.BarItem queryKey="createdDateRange">
           <Filter.BarName>
             <IconClock />
-            Created Date Range
+            {t('created-date-range')}
           </Filter.BarName>
           <Filter.Date filterKey="createdDateRange" />
         </Filter.BarItem>
         <SelectPos.FilterBar />
-        <SelectMember.FilterBar queryKey="user" label="Assigned To" />
+        <SelectMember.FilterBar queryKey="user" label={t('assigned-to')} />
         <CheckPosOrdersTotalCount />
       </Filter.Bar>
     </Filter>

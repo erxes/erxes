@@ -17,3 +17,4 @@ export const internalNoteSchema = new Schema(
     timestamps: true,
   },
 );
+internalNoteSchema.index({ contentType: 1, contentTypeId: 1 });

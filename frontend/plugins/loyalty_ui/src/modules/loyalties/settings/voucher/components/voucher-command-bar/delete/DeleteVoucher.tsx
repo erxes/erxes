@@ -1,9 +1,11 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useDeleteVoucher } from '../../../hooks/useDeleteVoucher';
 
 export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
+  const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const { removeVoucher } = useDeleteVoucher();
   const { toast } = useToast();
@@ -13,20 +15,20 @@ export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${voucherIds.length} selected voucher(s)?`,
+          message: t('delete-voucher-confirm', { count: voucherIds.length }),
         }).then(() => {
           removeVoucher({
             variables: { _ids: voucherIds },
           })
             .then(() => {
               toast({
-                title: `${voucherIds.length} voucher(s) deleted successfully`,
+                title: t('vouchers-deleted', { count: voucherIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -35,7 +37,7 @@ export const DeleteVoucher = ({ voucherIds }: { voucherIds: string[] }) => {
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

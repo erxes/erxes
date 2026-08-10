@@ -1,4 +1,5 @@
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useCheckProduct } from '../hooks/useCheckProduct';
 
 interface CheckProductFilterProps {
@@ -10,6 +11,7 @@ export const CheckProductFilter = ({
 }: CheckProductFilterProps) => {
   const { selectedFilter, setSelectedFilter, toCheckProductsData } =
     useCheckProduct();
+  const { t } = useTranslation('mongolian');
 
   const handleFilterClick = (filter: 'create' | 'update' | 'delete') => {
     if (onFilterClick) {
@@ -28,19 +30,19 @@ export const CheckProductFilter = ({
         variant={selectedFilter === 'create' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('create')}
       >
-        Create Products ({getCount('create')})
+        {t('create-products')} ({getCount('create')})
       </Button>
       <Button
         variant={selectedFilter === 'update' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('update')}
       >
-        Update Products ({getCount('update')})
+        {t('update-products')} ({getCount('update')})
       </Button>
       <Button
         variant={selectedFilter === 'delete' ? 'default' : 'outline'}
         onClick={() => handleFilterClick('delete')}
       >
-        Delete Products ({getCount('delete')})
+        {t('delete-products')} ({getCount('delete')})
       </Button>
     </div>
   );

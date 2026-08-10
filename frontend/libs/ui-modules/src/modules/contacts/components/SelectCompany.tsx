@@ -11,7 +11,7 @@ import {
   SelectTriggerVariant,
   cn,
   useFilterContext,
-  useQueryState,
+  useFilterQueryState,
 } from 'erxes-ui';
 import { IconBuilding, IconPlus } from '@tabler/icons-react';
 import {
@@ -21,6 +21,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { CompaniesInline } from './CompaniesInline';
+import { AddCompany } from './AddCompany';
 import { ICompany } from '../types';
 import { useCompanies } from 'ui-modules/modules/contacts/hooks/useCompanies';
 import { useDebounce } from 'use-debounce';
@@ -42,10 +43,15 @@ const SelectCompanyProvider = ({
   hideAvatar,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
   const companyIds = companies.map((c) => c._id);
 
   const valueIds = useMemo(() => {
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value) ? value : [value];
   }, [value]);
 
   const { companies: fetchedCompanies } = useCompanies({
@@ -56,14 +62,10 @@ const SelectCompanyProvider = ({
   });
 
   useEffect(() => {
-    if (
-      fetchedCompanies &&
-      fetchedCompanies.length > 0 &&
-      companies.length === 0
-    ) {
+    if (fetchedCompanies?.length) {
       setCompanies(fetchedCompanies);
     }
-  }, [fetchedCompanies, companies.length]);
+  }, [fetchedCompanies]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
@@ -85,6 +87,26 @@ const SelectCompanyProvider = ({
     onValueChange?.(newSelectedCompanyIds);
   };
 
+  const onCreateSuccess = (companyId: string, company?: ICompany) => {
+    const newSelectedCompanyIds =
+      mode === 'single'
+        ? companyId
+        : Array.from(new Set([...valueIds, companyId]));
+
+    // Keep the created company around so it renders straight away instead of
+    // waiting for the list query to catch up.
+    if (company) {
+      setCompanies((prev) => {
+        if (mode === 'single') return [company];
+        return prev.some((c) => c._id === companyId)
+          ? prev
+          : [...prev, company];
+      });
+    }
+
+    onValueChange?.(newSelectedCompanyIds);
+  };
+
   return (
     <SelectCompanyContext.Provider
       value={{
@@ -96,9 +118,15 @@ const SelectCompanyProvider = ({
         error: null,
         hideAvatar,
         mode,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      <AddCompany
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={onCreateSuccess}
+      />
     </SelectCompanyContext.Provider>
   );
 };
@@ -106,7 +134,8 @@ const SelectCompanyProvider = ({
 const SelectCompanyContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { companyIds, companies } = useSelectCompanyContext();
+  const { companyIds, companies, openCreate } = useSelectCompanyContext();
+  const { t } = useTranslation('contact');
   const {
     companies: companiesData,
     loading,
@@ -118,6 +147,8 @@ const SelectCompanyContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    debouncedSearch.trim().length > 0 && !loading && !error && totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
@@ -129,6 +160,12 @@ const SelectCompanyContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.detail.add-company')}
+          </Command.Item>
+        )}
         {companies?.length > 0 && (
           <>
             {companies.map((company) => (
@@ -339,10 +376,11 @@ export const SelectCompanyFilterView = ({
   mode: 'single' | 'multiple';
   filterKey: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
+  const { resetFilterState, sessionKey } = useFilterContext();
+  const [query, setQuery] = useFilterQueryState<string[] | string | undefined>(
     filterKey,
+    sessionKey,
   );
-  const { resetFilterState } = useFilterContext();
 
   return (
     <Filter.View filterKey={filterKey}>
@@ -371,6 +409,7 @@ export const SelectCompanyFilterBar = ({
   value,
   onValueChange,
   hideAvatar,
+  cursorKey,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
@@ -382,13 +421,17 @@ export const SelectCompanyFilterBar = ({
   value?: string[];
   hideAvatar?: boolean;
   onValueChange?: (value: string[] | string) => void;
+  cursorKey?: string;
 }) => {
   const isCardVariant = variant === 'card';
 
   const [localQuery, setLocalQuery] = useState<string[]>(
     value || initialValue || [],
   );
-  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [urlQuery, setUrlQuery] = useFilterQueryState<string[] | string>(
+    filterKey,
+    cursorKey,
+  );
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -416,29 +459,57 @@ export const SelectCompanyFilterBar = ({
       setLocalQuery((value as string[]) || []);
     } else {
       if (value && value.length > 0) {
-        setUrlQuery(value as string[]);
+        setUrlQuery(value);
       } else {
         setUrlQuery(null);
       }
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectCompanyProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectCompany.Value />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectCompany.Content />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectCompanyProvider>
+    );
+  }
+
   return (
-    <SelectCompanyProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      hideAvatar={hideAvatar}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectCompany.Value />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectCompany.Content />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectCompanyProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconBuilding />
+        {label}
+      </Filter.BarName>
+      <SelectCompanyProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectCompany.Value />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectCompany.Content />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectCompanyProvider>
+    </Filter.BarItem>
   );
 };
 

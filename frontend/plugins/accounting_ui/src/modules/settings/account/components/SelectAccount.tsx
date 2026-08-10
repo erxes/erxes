@@ -252,6 +252,7 @@ const SelectAccountValue = ({ placeholder }: { placeholder?: string }) => {
       accounts={accounts}
       updateAccounts={setAccounts}
       placeholder={placeholder}
+      permissionMode="read"
     />
   );
 };
@@ -292,6 +293,7 @@ export const SelectAccountFilterView = ({
       <SelectAccountProvider
         mode={mode}
         value={account || (mode === 'single' ? '' : [])}
+        defaultFilter={{ permissionMode: 'read' }}
         onValueChange={(value) => {
           setAccount(value);
           resetFilterState();
@@ -336,6 +338,7 @@ export const SelectAccountFilterBar = ({
       <SelectAccountProvider
         mode={mode}
         value={account || (mode === 'single' ? '' : [])}
+        defaultFilter={{ permissionMode: 'read' }}
         onValueChange={(value) => {
           if (value.length > 0) {
             setAccount(value);

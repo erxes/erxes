@@ -4,10 +4,10 @@ import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { Stage } from '@/pos/components/deliveryConfig/Stage';
 import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface DeliveryConfigProps {
   posId?: string;
@@ -42,6 +42,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<DeliveryConfigFormData>({
@@ -71,8 +72,8 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     async (data: DeliveryConfigFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -98,14 +99,14 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
         });
 
         toast({
-          title: 'Success',
-          description: 'Delivery config saved successfully',
+          title: t('success'),
+          description: t('delivery-config-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save delivery config',
+          title: t('error'),
+          description: t('failed-to-save-delivery-config'),
           variant: 'destructive',
         });
       }
@@ -126,16 +127,13 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
 
     return () => onSaveActionChange(null);
   }, [isDirty, onSaveActionChange, saving]);
-
-  const canShowStage = isFieldVisible('deliveryAutomation', posType);
-  const canShowDealUsers = isFieldVisible('deliveryProduct', posType);
 
   const renderContent = () => {
     if (detailLoading) {
@@ -171,7 +169,7 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -184,31 +182,23 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canShowStage && (
-            <section className="space-y-4">
-              <Label>Stage</Label>
-              <Stage control={control} />
-            </section>
-          )}
+          <section className="space-y-4">
+            <Label>{t('stage')}</Label>
+            <Stage control={control} />
+          </section>
 
-          {canShowDealUsers && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Deal Users</Label>
-              <DealUsers control={control} />
-            </section>
-          )}
+          <section className="pt-6 space-y-4 border-t">
+            <Label>{t('deal-users')}</Label>
+            <DealUsers control={control} />
+          </section>
         </form>
       </Form>
     );
   };
 
-  if (!canShowStage && !canShowDealUsers) {
-    return null;
-  }
-
   return (
     <div className="p-6">
-      <InfoCard title="Delivery configuration">
+      <InfoCard title={t('delivery-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

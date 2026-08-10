@@ -1,4 +1,5 @@
 export * from './blocks';
+export * from './chat-viz';
 export * from './hotkey';
 export * from './select-tree';
 export * from './record-table';
@@ -17,3 +18,4 @@ export * from './navigation-menu';
 export * from './board';
 export * from './motion';
 export * from './select-operation';
+export * from './attachments';

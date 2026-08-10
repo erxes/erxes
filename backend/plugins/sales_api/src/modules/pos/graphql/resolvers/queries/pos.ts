@@ -2,19 +2,24 @@ import { getBranchesUtil } from '@/pos/utils';
 import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-const generateFilterQuery = async ({ isOnline }) => {
+const generateFilterQuery = async ({ isOnline, search }) => {
   const query: any = { status: { $ne: 'deleted' } };
   if (isOnline) {
     query.isOnline = isOnline === 'online';
   }
+
+  if (search) {
+    query.name = { $regex: search }
+  }
+
   return query;
 };
 
 const queries = {
   async posEnv() {
-    const { ALL_AUTO_INIT } = process.env;
+    const { ALLOW_OFFLINE_POS } = process.env;
     return {
-      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || ''),
+      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || ''),
     };
   },
 

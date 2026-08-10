@@ -21,15 +21,17 @@ interface Config {
   baseLineHeight?: string;
   baseColor?: string;
   maxWidth?: number;
+  resolveImageUrl?: (url: string) => string;
   wrapper?: {
     email?: boolean;
     unsubscribeUrl?: string;
+    postalAddress?: string;
   };
 }
 
 const DEFAULTS = {
   baseFont:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
   baseFontSize: '16px',
   baseLineHeight: '1.6',
   baseColor: '#000000',
@@ -127,7 +129,13 @@ const renderInlineContent = (content: any[], config?: Config): string => {
         )}" style="${linkStyles}">${children}</a>`;
       }
 
-      const escapedText = escapeHtml(text || '').replace(/\n/g, '<br />');
+      if (type === 'rawHtml') {
+        return item.props?.html || '';
+      }
+
+      const escapedText = escapeHtml(text || '')
+        .replace(/\n/g, '<br />')
+        .replace(/ {2,}/g, (spaces) => '&nbsp;'.repeat(spaces.length));
       const cssStyle = stylesToCss(styles, config);
 
       if (cssStyle) {
@@ -186,6 +194,9 @@ const mergeStyles = (baseStyle: string, customStyle?: string): string => {
   if (!customStyle) return baseStyle;
   return `${baseStyle}; ${customStyle}`;
 };
+
+const resolveSrc = (url: string, config?: Config): string =>
+  config?.resolveImageUrl ? config.resolveImageUrl(url) : url;
 
 const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
   const { type, props, content } = block as any;
@@ -246,11 +257,17 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
     case 'image': {
       const { url, caption, name, previewWidth } = props || {};
-      const width = Math.min(previewWidth, 600);
+
+      if (!url) {
+        return '';
+      }
+
+      const width = Math.min(previewWidth || 600, 600);
       const imgStyle = `max-width: 100%; height: auto; display: block; margin: 0`;
+      const src = resolveSrc(url, config);
 
       let html = `<div style="margin: 16px 0;">
-        <img src="${escapeHtml(url || '')}" alt="${escapeHtml(
+        <img src="${escapeHtml(src)}" alt="${escapeHtml(
           name || '',
         )}" width="${width}" style="${imgStyle}" />`;
 
@@ -264,24 +281,107 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
       return html;
     }
 
+    case 'documentPlaceholder': {
+      const { documentId } = props || {};
+
+      if (!documentId) {
+        return '';
+      }
+
+      return `<div class="erxes-document-placeholder" data-document-id="${escapeHtml(
+        documentId,
+      )}">{{ document.${escapeHtml(documentId)} }}</div>`;
+    }
+    case 'gallery': {
+      let images: { url?: string; caption?: string }[] = [];
+      try {
+        const parsed = JSON.parse(props?.images || '[]');
+        images = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        images = [];
+      }
+
+      images = images.filter((img) => img?.url);
+      if (images.length === 0) return '';
+
+      const columns = Math.max(2, Math.min(4, parseInt(props?.columns) || 3));
+      const cellWidth = `${Math.floor(100 / columns)}%`;
+      const imgStyle = `width: 100%; height: auto; display: block; border: 0`;
+
+      const rows: string[] = [];
+      const cellList = images.map((img) => {
+        const src = resolveSrc(img.url || '', config);
+        let cell = `<img src="${escapeHtml(src)}" alt="${escapeHtml(
+          img.caption || '',
+        )}" style="${imgStyle}" />`;
+
+        if (img.caption) {
+          cell += `<div style="margin-top: 4px; font-size: 12px; color: #666; font-style: italic;">${escapeHtml(
+            img.caption,
+          )}</div>`;
+        }
+
+        return `<td valign="top" width="${cellWidth}" style="padding: 4px; vertical-align: top;">${cell}</td>`;
+      });
+
+      for (let r = 0; r < cellList.length; r += columns) {
+        rows.push(`<tr>${cellList.slice(r, r + columns).join('')}</tr>`);
+      }
+
+      return `<table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin: 16px 0;"><tbody>${rows.join(
+        '',
+      )}</tbody></table>`;
+    }
+
     case 'table': {
-      const { rows } = content || {};
+      const { rows, columnWidths } = content || {};
       if (!rows || !Array.isArray(rows)) return '';
+
+      const widths: number[] = (columnWidths || []).map(
+        (columnWidth: unknown) => Number(columnWidth) || 0,
+      );
+
+      const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+
+      const colgroup =
+        totalWidth > 0 && widths.every((width) => width > 0)
+          ? `<colgroup>${widths
+              .map(
+                (width) =>
+                  `<col style="width: ${
+                    Math.round((width / totalWidth) * 10000) / 100
+                  }%" />`,
+              )
+              .join('')}</colgroup>`
+          : '';
 
       const tableRows = rows
         .map((row: any, rowIndex: number) => {
           const cells = (row.cells || [])
             .map((cell: any) => {
+              const cellData = Array.isArray(cell) ? { content: cell } : cell;
+
               const cellContent = renderInlineContent(
-                cell.content || [],
+                cellData?.content || [],
                 config,
               );
+
+              const colspan = Number(cellData?.props?.colspan) || 1;
+              const rowspan = Number(cellData?.props?.rowspan) || 1;
+
+              const spanAttrs = `${colspan > 1 ? ` colspan="${colspan}"` : ''}${
+                rowspan > 1 ? ` rowspan="${rowspan}"` : ''
+              }`;
+
               const cellStyle = `padding: 8px; border: 1px solid #ddd; ${
                 rowIndex === 0
                   ? 'font-weight: bold; background-color: #f4f4f4;'
                   : ''
               }`;
-              return `<td style="${cellStyle}">${cellContent || '&nbsp;'}</td>`;
+
+              return `<td${spanAttrs} style="${cellStyle}">${
+                cellContent || '&nbsp;'
+              }</td>`;
             })
             .join('');
           return `<tr>${cells}</tr>`;
@@ -289,7 +389,7 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         .join('');
 
       return `<table style="${mergeStyles(baseStyles.table, customStyle)}">
-        <tbody>${tableRows}</tbody>
+        ${colgroup}<tbody>${tableRows}</tbody>
       </table>`;
     }
 
@@ -299,6 +399,10 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
         baseStyles.blockquote,
         customStyle,
       )}">${html}</blockquote>`;
+    }
+
+    case 'rawHtml': {
+      return props?.html || '';
     }
 
     default: {
@@ -380,6 +484,7 @@ export const blocksToHtml = (
 export const emailHtmlWrapper = (html: string, config?: Config) => {
   const maxWidth = Math.min(config?.maxWidth || DEFAULTS.maxWidth, 600);
   const unsubscribeUrl = config?.wrapper?.unsubscribeUrl;
+  const postalAddress = config?.wrapper?.postalAddress;
 
   const unsubscribeRow = unsubscribeUrl
     ? `<tr>
@@ -387,6 +492,14 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
           You are receiving this email because you have signed up for our services.
           <br />
           <a style="text-decoration: underline; color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a>
+        </td>
+      </tr>`
+    : '';
+
+  const postalAddressRow = postalAddress
+    ? `<tr>
+        <td style="padding: 0 10px 10px; color: #ccc; text-align: center; font-size: 12px;">
+          ${postalAddress}
         </td>
       </tr>`
     : '';
@@ -409,6 +522,7 @@ export const emailHtmlWrapper = (html: string, config?: Config) => {
                   </td>
                 </tr>
                 ${unsubscribeRow}
+                ${postalAddressRow}
               </table>
             </td>
           </tr>

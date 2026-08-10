@@ -1,6 +1,7 @@
-import { IconCashBanknote } from '@tabler/icons-react';
+import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -36,6 +37,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'accounting',
+    defaultPath: 'accounting/main',
     icon: IconCashBanknote,
     content: () => (
       <Suspense fallback={<div />}>
@@ -56,4 +58,13 @@ export const CONFIG: IUIConfig = {
       path: 'accounting',
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'transactions',
+        icon: IconReceipt,
+      },
+    ],
+  },
+  searchProviders: SEARCH_PROVIDERS,
 };

@@ -32,11 +32,26 @@ export const Form = {
     return fields.filter((f) => !subFieldIds.includes(f._id));
   },
 
+  callout(form: IFormDocument) {
+    return form.leadData?.callout || null;
+  },
+
   async channel(form: IFormDocument, _params, { models }: IContext) {
     if (!form.channelId) {
       return null;
     }
 
     return models.Channels.findOne({ _id: form.channelId });
+  },
+};
+
+export const Submission = {
+  async __resolveReference({ _id }, { models }: IContext) {
+    return models.FormSubmissions.findOne({ _id });
+  },
+  async channelId(submission, _params, { models }: IContext) {
+    if (!submission.formId) return null;
+    const form = await models.Forms.findOne({ _id: submission.formId }).lean();
+    return form?.channelId || null;
   },
 };

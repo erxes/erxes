@@ -22,6 +22,11 @@ import {
   queries as FacebookQueries,
   types as FacebookTypes,
 } from '@/integrations/facebook/graphql/schema/facebook';
+import {
+  mutations as DiscordMutations,
+  queries as DiscordQueries,
+  types as DiscordTypes,
+} from '@/integrations/discord/graphql/schema/discord';
 
 import {
   mutations as InstagramMutations,
@@ -75,6 +80,12 @@ import {
 } from '@/reports/graphql/schema/ticket';
 
 import {
+  mutations as ReportChartMutations,
+  queries as ReportChartQueries,
+  types as ReportChartTypes,
+} from '@/reports/graphql/schema/chart';
+
+import {
   queries as KnowledgeBaseQueries,
   mutations as KnowledgeBaseMutations,
   types as KnowledgeBaseTypes,
@@ -86,11 +97,18 @@ import {
   types as TicketTypes,
 } from '@/ticket/graphql/schemas';
 
+import {
+  queries as CpInboxQueries,
+  mutations as CpInboxMutations,
+  subscriptions as CpInboxSubscriptions,
+} from '~/modules/inbox/graphql/schemas/clientPortal';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
     ${IntegrationsTypes}
     ${FacebookTypes}
+    ${DiscordTypes}
     ${InstagramTypes}
     ${CallTypes}
     ${ImapTypes}
@@ -99,6 +117,7 @@ export const types = `
     ${ResponseTemplateTypes}
     ${ReportInboxTypes}
     ${ReportTicketTypes}
+    ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
     ${KnowledgeBaseTypes}
@@ -109,6 +128,7 @@ export const queries = `
     ${ConversationsQueries}
     ${IntegrationsQueries}
     ${FacebookQueries}
+    ${DiscordQueries}
     ${InstagramQueries}
     ${CallQueries}
     ${ImapQueries}
@@ -117,9 +137,11 @@ export const queries = `
     ${ResponseTemplateQueries}
     ${ReportInboxQueries}
     ${ReportTicketQueries}
+    ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
     ${KnowledgeBaseQueries}
+    ${CpInboxQueries}
   `;
 
 export const mutations = `
@@ -127,6 +149,7 @@ export const mutations = `
    ${ConversationsMutations}
    ${IntegrationsMutations}
    ${FacebookMutations}
+   ${DiscordMutations}
    ${InstagramMutations}
    ${CallMutations}
    ${ImapMutations}
@@ -136,6 +159,8 @@ export const mutations = `
    ${FormMutations}
    ${FieldMutations}
    ${KnowledgeBaseMutations}
+   ${CpInboxMutations}
+   ${ReportChartMutations}
 `;
 
 export default { types, queries, mutations };

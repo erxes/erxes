@@ -1,9 +1,14 @@
-import fetch from 'node-fetch';
-import { AI_AGENT_DEFAULTS } from '../../aiAgent/constants';
+import { nativeFetch as fetch } from '../nativeFetch';
+import {
+  AI_AGENT_DEFAULTS,
+  AI_AGENT_REASONING_EFFORT,
+  AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS,
+} from '../../aiAgent/constants';
 import {
   TAiBridgeConnection,
   TAiBridgeMessage,
   TAiBridgeRuntime,
+  TAiBridgeToolDefinition,
 } from '../types';
 
 type TOpenAiCompatibleRequestParams = {
@@ -42,7 +47,9 @@ export const normalizeOpenAiCompatibleBaseUrl = (
 
 const buildHeaders = (connection: TAiBridgeConnection) => {
   return {
-    Authorization: `Bearer ${connection.config.apiKey}`,
+    ...(connection.config.apiKey?.trim()
+      ? { Authorization: `Bearer ${connection.config.apiKey}` }
+      : {}),
     'Content-Type': 'application/json',
     ...(connection.config.headers || {}),
   };
@@ -62,7 +69,7 @@ export const requestOpenAiCompatible = async <TJson = any>({
     () => controller.abort(),
     runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs,
   );
-
+  const timeoutMs = runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs;
   try {
     const response = await fetch(
       `${normalizeOpenAiCompatibleBaseUrl(connection)}${path}`,
@@ -93,37 +100,100 @@ export const requestOpenAiCompatible = async <TJson = any>({
       text,
       json,
     };
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      throw new Error(
+        `AI provider timed out after ${timeoutMs}ms before returning a response.`,
+      );
+    }
+
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
 };
 
-const usesDefaultOnlyTemperature = (model: string) => {
-  const normalizedModel = model.trim().toLowerCase();
+// gpt-5 models reason before emitting text, bill it against the completion
+// budget, and reject a custom temperature.
+const isReasoningModel = (model: string) =>
+  model.trim().toLowerCase().startsWith('gpt-5');
 
-  return normalizedModel.startsWith('gpt-5');
+const toOpenAiCompatibleMessage = (message: TAiBridgeMessage) => {
+  if (message.role === 'assistant' && message.toolCalls?.length) {
+    return {
+      role: 'assistant',
+      content: message.content || null,
+      tool_calls: message.toolCalls.map((call) => ({
+        id: call.id,
+        type: 'function',
+        function: {
+          name: call.name,
+          arguments: JSON.stringify(call.arguments || {}),
+        },
+      })),
+    };
+  }
+
+  if (message.role === 'tool') {
+    return {
+      role: 'tool',
+      tool_call_id: message.toolCallId,
+      content: message.content,
+    };
+  }
+
+  return { role: message.role, content: message.content };
 };
 
 export const buildOpenAiCompatibleChatBody = ({
   connection,
   runtime,
   messages,
+  responseFormat,
+  tools,
+  toolChoice,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
+  responseFormat?: 'json' | 'text';
+  tools?: TAiBridgeToolDefinition[];
+  toolChoice?: 'auto' | 'required';
 }) => {
+  const reasoningModel = isReasoningModel(connection.model);
   const body: Record<string, any> = {
     model: connection.model,
-    messages,
-    max_completion_tokens: runtime.maxTokens,
+    messages: messages.map(toOpenAiCompatibleMessage),
+    max_completion_tokens: reasoningModel
+      ? Math.max(runtime.maxTokens, AI_AGENT_REASONING_MODEL_MIN_MAX_TOKENS)
+      : runtime.maxTokens,
   };
 
-  if (
-    typeof runtime.temperature === 'number' &&
-    !usesDefaultOnlyTemperature(connection.model)
-  ) {
+  if (typeof runtime.temperature === 'number' && !reasoningModel) {
     body.temperature = runtime.temperature;
+  }
+
+  if (reasoningModel) {
+    body.reasoning_effort = AI_AGENT_REASONING_EFFORT;
+  }
+
+  if (responseFormat === 'json') {
+    body.response_format = { type: 'json_object' };
+  }
+
+  if (tools?.length) {
+    body.tools = tools.map((tool) => ({
+      type: 'function',
+      function: {
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parameters,
+      },
+    }));
+
+    if (toolChoice) {
+      body.tool_choice = toolChoice;
+    }
   }
 
   return body;

@@ -1,18 +1,36 @@
-import { useState } from 'react';
-import { TicketForm } from './ticket-form';
 import { TicketSubmissions } from './ticket-submissions';
 import { useCustomerData } from '../../hooks/useCustomerData';
 import { NotifyCustomerForm } from '../../components/notify-customer-form';
+import { useAtomValue } from 'jotai';
+import { selectedTicketConfigAtom, ticketTabAtom } from '../../states';
+import { SelectTicketForm } from './select-ticket-form';
+import { TicketForm } from './ticket-form';
 
 export const Ticket = () => {
   const { hasEmailOrPhone } = useCustomerData();
-  const [page, setPage] = useState<'submissions' | 'submit'>('submissions');
-  if (!hasEmailOrPhone) return <NotifyCustomerForm />;
+
+  const selectedTicketConfig = useAtomValue(selectedTicketConfigAtom);
+  const hasTicketFormSelected = !!selectedTicketConfig;
+  const page = useAtomValue(ticketTabAtom);
+
+  if (!hasEmailOrPhone)
+    return (
+      <div className="flex flex-col gap-3 p-4 w-full h-full overflow-y-auto styled-scroll">
+        <NotifyCustomerForm />
+      </div>
+    );
 
   const renderContent = () => {
-    if (page === 'submissions') return <TicketSubmissions setPage={setPage} />;
-    if (page === 'submit') return <TicketForm setPage={setPage} />;
-    return null;
+    switch (page) {
+      case 'submissions':
+        return <TicketSubmissions />;
+      case 'selection':
+        return (
+          (hasTicketFormSelected && <TicketForm />) || <SelectTicketForm />
+        );
+      default:
+        return null;
+    }
   };
 
   return (

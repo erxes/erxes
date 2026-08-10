@@ -74,6 +74,12 @@ const Menus = lazy(() =>
   })),
 );
 
+const Settings = lazy(() =>
+  import('~/modules/cms/settings/Settings').then((module) => ({
+    default: module.Settings,
+  })),
+);
+
 const PostsWrapper = () => {
   const { websiteId } = useParams();
   return <Posts clientPortalId={websiteId || ''} />;
@@ -112,6 +118,7 @@ const CmsMain = () => {
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
+          <Route path="cmssettings" element={<Settings />} />
         </Route>
         <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>

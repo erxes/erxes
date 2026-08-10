@@ -1,4 +1,5 @@
 export * from './components/Permissions';
+export * from './components/BeforeResolverAvailability';
 export * from './components/PermissionGate';
 export * from './hooks/useCurrentUserPermissions';
 export * from './hooks/usePermissionCheck';

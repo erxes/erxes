@@ -62,7 +62,7 @@ const mutations: Record<string, Resolver> = {
 
     await saveMenuTranslations(models, menu._id, translations || []);
 
-    return menu;
+    return models.MenuItems.hydrateMenuItem(menu);
   },
 
   async cmsEditMenu(_parent: any, args: any, context: IContext) {
@@ -91,7 +91,7 @@ const mutations: Record<string, Resolver> = {
 
         await saveMenuTranslations(models, _id, translations || [], language);
 
-        return menu;
+        return models.MenuItems.hydrateMenuItem(menu);
       }
     }
 
@@ -99,7 +99,7 @@ const mutations: Record<string, Resolver> = {
 
     await saveMenuTranslations(models, _id, translations || []);
 
-    return menu;
+    return models.MenuItems.hydrateMenuItem(menu);
   },
 
   async cmsRemoveMenu(_parent: any, args: any, context: IContext) {
@@ -148,7 +148,7 @@ const mutations: Record<string, Resolver> = {
 
     await saveMenuTranslations(models, menu._id, translations || []);
 
-    return menu;
+    return models.MenuItems.hydrateMenuItem(menu);
   },
 
   async cpCmsEditMenu(_parent: any, args: any, context: IContext) {
@@ -184,7 +184,7 @@ const mutations: Record<string, Resolver> = {
 
         await saveMenuTranslations(models, _id, translations || [], language);
 
-        return menu;
+        return models.MenuItems.hydrateMenuItem(menu);
       }
     }
 
@@ -195,7 +195,7 @@ const mutations: Record<string, Resolver> = {
 
     await saveMenuTranslations(models, _id, translations || []);
 
-    return menu;
+    return models.MenuItems.hydrateMenuItem(menu);
   },
 
   async cpCmsRemoveMenu(_parent: any, args: any, context: IContext) {

@@ -90,12 +90,18 @@ export const loadClasses = (
 
   models.ProductRules = db.model<IProductRuleDocument, IProductRuleModel>(
     'ebarimt_product_rules',
-    loadProductRuleClass(models),
+    loadProductRuleClass(
+      models,
+      mongolianEventHandlers('productRules', 'ebarimt_product_rules'),
+    ),
   );
 
   models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
     'ebarimt_product_groups',
-    loadProductGroupClass(models),
+    loadProductGroupClass(
+      models,
+      mongolianEventHandlers('productGroups', 'ebarimt_product_groups'),
+    ),
   );
 
   models.SyncLogs = db.model<IErkhetSyncLogDocument, IErkhetSyncLogModel>(

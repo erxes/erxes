@@ -2,6 +2,7 @@ import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import {
   IConversation,
   IConversationDocument,
+  TAutomatedReplyControl,
 } from '@/inbox/@types/conversations';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { conversationSchema } from '@/inbox/db/definitions/conversations';
@@ -13,6 +14,10 @@ export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): Promise<IConversationDocument>;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
+  setAutomatedReplyControl(
+    _id: string,
+    doc: TAutomatedReplyControl,
+  ): Promise<IConversationDocument | null>;
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
@@ -136,6 +141,32 @@ export const loadClass = (models: IModels) => {
       return models.Conversations.updateOne({ _id }, { $set: doc });
     }
 
+    public static async setAutomatedReplyControl(
+      _id: string,
+      doc: TAutomatedReplyControl,
+    ) {
+      await models.Conversations.updateOne(
+        { _id },
+        {
+          $set: {
+            automatedReplyControl: {
+              ...doc,
+              updatedAt: new Date(),
+            },
+          },
+        },
+      );
+
+      await graphqlPubsub.publish(`conversationChanged:${_id}`, {
+        conversationChanged: {
+          conversationId: _id,
+          type: 'automatedReplyControlChanged',
+        },
+      });
+
+      return models.Conversations.findOne({ _id });
+    }
+
     /*
      * Reopens conversation
      */
@@ -251,17 +282,19 @@ export const loadClass = (models: IModels) => {
       }
 
       const readUserIds = conversation.readUserIds || [];
-      // if current user is first one
-      if (!readUserIds || readUserIds.length === 0) {
-        await models.Conversations.updateConversation(_id, {
-          readUserIds: [userId],
-        });
-      }
 
-      // if current user is not in read users list then add it
+      // Not updateConversation: that stamps `updatedAt`, which the inbox sorts
+      // and shows its relative time from. Reading is not activity.
       if (!readUserIds.includes(userId)) {
-        readUserIds.push(userId);
-        await models.Conversations.updateConversation(_id, { readUserIds });
+        await models.Conversations.updateOne({ _id }, [
+          {
+            $set: {
+              readUserIds: {
+                $setUnion: [{ $ifNull: ['$readUserIds', []] }, [userId]],
+              },
+            },
+          },
+        ]);
       }
 
       graphqlPubsub.publish(`conversationChanged:${_id}`, {

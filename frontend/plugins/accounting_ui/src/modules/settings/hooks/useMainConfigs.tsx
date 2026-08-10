@@ -16,6 +16,8 @@ export const useMainConfigs = () => {
         'VatAfterReceivableAccount',
         'HasCtax',
         'CtaxPayableAccount',
+        'dominantReadAccountUsers',
+        'dominantWriteAccountUsers',
       ],
     },
   });

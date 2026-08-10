@@ -63,52 +63,118 @@ export function formatOnlineHours({
   onlineHours,
   timezone,
   showTimezone,
-}: FormatOnlineHoursOptions): string {
+}: FormatOnlineHoursOptions): {
+  result: string;
+  workHours: string;
+  formatedTimeZone: string;
+  onlineDays: string;
+} {
+  // Safe fallback object for early exits and errors
+  const emptyResult = {
+    result: '',
+    workHours: '',
+    formatedTimeZone: '',
+    onlineDays: '',
+  };
+
   if (!onlineHours || onlineHours.length === 0) {
-    return '';
+    return emptyResult;
   }
 
-  // Get the first online hour entry (assuming same hours for all days or using first as example)
   const firstHour = onlineHours[0];
 
   if (!firstHour?.from || !firstHour?.to) {
-    return '';
+    return emptyResult;
   }
 
   try {
     const formattedFrom = formatTimeTo12Hour(firstHour.from);
     const formattedTo = formatTimeTo12Hour(firstHour.to);
 
-    let result = `We're available between ${formattedFrom} and ${formattedTo}`;
+    const workHours = `${formattedFrom} and ${formattedTo}`;
+    let formatedTimeZone = '';
+    let result = `${formattedFrom} and ${formattedTo}`;
 
     if (showTimezone && timezone) {
       const timezoneLabel = formatTimeZoneLabel(timezone);
       // Extract GMT offset from timezone label (e.g., "(GMT+08:00)" -> "GMT +8")
       const gmtMatch = timezoneLabel.match(/\(GMT([+-])(\d{1,2}):?(\d{0,2})\)/);
+
       if (gmtMatch) {
         const sign = gmtMatch[1] === '+' ? '+' : '-';
         const hours = Number.parseInt(gmtMatch[2], 10);
-        // Only show minutes if they're not zero
         const minutes = gmtMatch[3] ? Number.parseInt(gmtMatch[3], 10) : 0;
-        if (minutes === 0) {
-          result += ` (GMT ${sign}${hours})`;
-        } else {
-          result += ` (GMT ${sign}${hours}:${minutes
-            .toString()
-            .padStart(2, '0')})`;
-        }
+
+        const tzString =
+          minutes === 0
+            ? ` (GMT ${sign}${hours})`
+            : ` (GMT ${sign}${hours}:${minutes.toString().padStart(2, '0')})`;
+
+        result += tzString;
+        formatedTimeZone = tzString.trim(); // Populates formatedTimeZone for GMT matches
       } else {
-        result += ` (${timezoneLabel})`;
+        const fallbackTz = ` (${timezoneLabel})`;
+        result += fallbackTz;
+        formatedTimeZone = fallbackTz.trim();
       }
     }
-    const onlineDays = onlineHours?.map((item) => item.day).join(', ');
+
+    const onlineDays = onlineHours.map((item) => item.day).join(', ');
     result += `, ${onlineDays}.`;
 
-    return result;
+    return {
+      result,
+      workHours,
+      formatedTimeZone,
+      onlineDays,
+    };
   } catch (error) {
-    // Fallback to original format if parsing fails
-    return `We're available between ${firstHour.from} and ${firstHour.to}${
-      showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : ''
-    }`;
+    // Fallback object structure if formatting throws an exception
+    const fallbackTz =
+      showTimezone && timezone ? ` (${formatTimeZoneLabel(timezone)})` : '';
+
+    return {
+      result: `We're available between <b>${firstHour.from} and ${firstHour.to}</b>${fallbackTz}`,
+      workHours: `${firstHour.from} and ${firstHour.to}`,
+      formatedTimeZone: fallbackTz.trim(),
+      onlineDays: onlineHours.map((item) => item.day).join(', '),
+    };
+  }
+}
+export function formatOnlineHoursShort({
+  onlineHours,
+  timezone,
+  showTimezone,
+}: FormatOnlineHoursOptions): string {
+  const firstHour = onlineHours?.[0];
+  if (!firstHour?.from || !firstHour?.to) return '';
+
+  try {
+    // 1. Get clean lowercase times (e.g., "9.00 am" -> "9am")
+    const from = formatTimeTo12Hour(firstHour.from)
+      .replace(/\s+/g, '')
+      .replace('.00', '');
+    const to = formatTimeTo12Hour(firstHour.to)
+      .replace(/\s+/g, '')
+      .replace('.00', '');
+
+    // 2. Parse compact Timezone
+    let tzSuffix = '';
+    if (showTimezone && timezone) {
+      const label = formatTimeZoneLabel(timezone);
+      const match = label.match(/\(GMT([+-])(\d{1,2}):?(\d{0,2})\)/);
+
+      if (match) {
+        const [_, sign, hrs, mins] = match;
+        const m = mins ? parseInt(mins, 10) : 0;
+        const formattedMins =
+          m === 0 ? '' : `:${m.toString().padStart(2, '0')}`;
+        tzSuffix = ` (GMT${sign}${parseInt(hrs, 10)}${formattedMins})`;
+      }
+    }
+
+    return `${from}-${to}${tzSuffix}`;
+  } catch {
+    return `${firstHour.from}-${firstHour.to}`;
   }
 }

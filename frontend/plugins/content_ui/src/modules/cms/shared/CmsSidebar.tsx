@@ -1,5 +1,6 @@
 import { Sidebar } from 'erxes-ui';
 import { IconFileDescription } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import {
   Link,
   useLocation,
@@ -14,6 +15,7 @@ import { useCustomTypes } from '../custom-types/hooks/useCustomTypes';
 import { PostsPath } from '../posts/types/path/PostsPath';
 
 export const CmsSidebar = () => {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const postsFieldTypes = usePostsFieldTypes();
   const { customTypes } = useCustomTypes({ clientPortalId: websiteId });
@@ -21,7 +23,7 @@ export const CmsSidebar = () => {
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>Content Management</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('content-management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {postsFieldTypes.map((item) =>

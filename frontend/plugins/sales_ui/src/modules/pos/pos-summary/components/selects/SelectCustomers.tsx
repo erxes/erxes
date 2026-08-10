@@ -18,6 +18,7 @@ import {
 } from 'erxes-ui';
 
 import { IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { POS_CUSTOMERS_QUERY } from '../../graphql/queries/posCustomerQuery';
 import { useQuery } from '@apollo/client';
 import {
@@ -119,6 +120,7 @@ const SelectCustomersValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const { value, customers } = useSelectCustomersContext();
   const selectedCustomer = customers?.find(
     (customer) => customer._id === value,
@@ -127,7 +129,7 @@ const SelectCustomersValue = ({
   if (!selectedCustomer) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select customer'}
+        {placeholder || t('select-customer')}
       </span>
     );
   }
@@ -139,7 +141,7 @@ const SelectCustomersValue = ({
     selectedCustomer.primaryEmail ||
     selectedCustomer.primaryPhone ||
     selectedCustomer.code ||
-    'Unknown';
+    t('unknown');
 
   return (
     <div className="flex items-center gap-2">
@@ -149,6 +151,7 @@ const SelectCustomersValue = ({
 };
 
 const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
+  const { t } = useTranslation('sales');
   const { onValueChange, value } = useSelectCustomersContext();
   const { _id, firstName, lastName, primaryEmail, primaryPhone, code } =
     customer || {};
@@ -159,7 +162,7 @@ const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
     primaryEmail ||
     primaryPhone ||
     code ||
-    'Unknown';
+    t('unknown');
 
   return (
     <Command.Item
@@ -177,15 +180,16 @@ const SelectCustomersCommandItem = ({ customer }: { customer: ICustomer }) => {
 };
 
 const SelectCustomersContent = () => {
+  const { t } = useTranslation('sales');
   const { customers, loading } = useSelectCustomersContext();
 
   if (loading) {
     return (
       <Command>
-        <Command.Input placeholder="Search customers" />
+        <Command.Input placeholder={t('search-customers')} />
         <Command.List>
           <div className="flex items-center justify-center py-4 h-32">
-            <span className="text-muted-foreground">Loading customers...</span>
+            <span className="text-muted-foreground">{t('loading-customers')}</span>
           </div>
         </Command.List>
       </Command>
@@ -194,9 +198,9 @@ const SelectCustomersContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search customers" />
+      <Command.Input placeholder={t('search-customers')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No customers found</span>
+        <span className="text-muted-foreground">{t('no-customers-found')}</span>
       </Command.Empty>
       <Command.List>
         {customers?.map((customer) => (
@@ -208,10 +212,11 @@ const SelectCustomersContent = () => {
 };
 
 export const SelectCustomersFilterItem = () => {
+  const { t } = useTranslation('sales');
   return (
     <Filter.Item value="customers">
       <IconUsers />
-      Customers
+      {t('customers')}
     </Filter.Item>
   );
 };
@@ -266,11 +271,12 @@ export const SelectCustomersFilterBar = ({
   );
   const [open, setOpen] = useState(false);
 
+  const { t } = useTranslation('sales');
   return (
     <Filter.BarItem queryKey={'customers'}>
       <Filter.BarName>
         <IconUsers />
-        Customers
+        {t('customers')}
       </Filter.BarName>
       <SelectCustomersProvider
         mode={mode}

@@ -4,7 +4,9 @@ import {
 } from '@/automations/components/settings/components/bots/hooks/useAutomationBots';
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
 import { AutomationBotsEmptyState } from '@/automations/components/settings/components/bots/components/AutomationBotsEmptyState';
-import { Card, cn, getPluginAssetsUrl, ScrollArea, Spinner } from 'erxes-ui';
+import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
+import { Card, cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 
 const BotCard = ({
@@ -20,7 +22,7 @@ const BotCard = ({
 
   return (
     <Card key={name} className="h-auto p-3 flex flex-col gap-2 rounded-lg">
-      <Link to={`/settings/automations/bots/${name}`}>
+      <Link to={`${AutomationSettingsPath.Bots}/${name}`}>
         <div className="flex gap-2 mb-2 items-center">
           <div
             className={cn(
@@ -64,21 +66,16 @@ export const AutomationsBotsSettings = () => {
   const { automationBotsConstants, isEmpty, loading } = useAutomationBots();
 
   return (
-    <ScrollArea className="w-full">
-      <div className="h-full w-full px-8 py-5 flex flex-col gap-8">
-        <div className="flex flex-col gap-2 px-1">
-          <h1 className="text-lg font-semibold">Automation bots</h1>
-          <span className="font-normal text-muted-foreground text-sm">
-            Set up your bots and start connecting with your customers
-          </span>
+    <AutomationSettingsPageShell
+      title="Automation bots"
+      description="Set up your bots and start connecting with your customers"
+    >
+      {isEmpty && <AutomationBotsEmptyState />}
+      {!isEmpty && (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <BotsList bots={automationBotsConstants} loading={loading} />
         </div>
-        {isEmpty && <AutomationBotsEmptyState />}
-        {!isEmpty && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <BotsList bots={automationBotsConstants} loading={loading} />
-          </div>
-        )}
-      </div>
-    </ScrollArea>
+      )}
+    </AutomationSettingsPageShell>
   );
 };

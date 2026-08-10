@@ -1,181 +1,77 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { format } from 'date-fns';
-import {
-  Skeleton,
-  Table,
-  ScrollArea,
-  TextOverflowTooltip,
-  IconComponent,
-  Button,
-  useConfirm,
-  Spinner,
-  Tooltip,
-} from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
-import { type IChannel } from '@/channels/types';
-import { IconBrandTrello, IconTrash } from '@tabler/icons-react';
-import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
-import { channelsMoreColumn } from './ChannelsMoreColumn';
+import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
+import { IChannelMember } from '@/channels/types';
+import { Empty, RecordTable, useQueryState } from 'erxes-ui';
+import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
+import { useMemo } from 'react';
+import { ChannelsCommandBar } from './ChannelsCommandBar';
+import { useChannelsColumns } from './ChannelsColumns';
+import { useTranslation } from 'react-i18next';
 
 export function Channels() {
-  const { channels, loading } = useGetChannels();
-  const navigate = useNavigate();
-  const onClick = (channelId: string) => {
-    navigate(`/settings/frontline/channels/${channelId}`);
-  };
+  const { t } = useTranslation('frontline');
+  const [searchValue] = useQueryState<string | null>('searchValue');
+  const { channels, loading } = useGetChannels({
+    variables: { name: searchValue || undefined },
+  });
+  const channelIds = useMemo(
+    () => (channels ?? []).map((channel) => channel._id),
+    [channels],
+  );
+  const { members } = useGetChannelMembers({ channelIds });
+
+  const membersByChannel = useMemo(() => {
+    const map: Record<string, IChannelMember[]> = {};
+    for (const member of members ?? []) {
+      (map[member.channelId] ||= []).push(member);
+    }
+    return map;
+  }, [members]);
+
+  const channelsColumns = useChannelsColumns(membersByChannel);
+
   if (!loading && (!channels || channels.length === 0)) {
     return (
-      <div className="overflow-hidden h-full px-8 flex flex-col">
-        <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-          <div className="size-full flex flex-col items-center justify-center">
-            <IconBrandTrello
-              size={64}
-              stroke={1.5}
-              className="text-muted-foreground"
-            />
-            <h2 className="text-lg font-semibold text-accent-foreground">
-              No channels found
-            </h2>
-            <p className="text-md text-muted-foreground mb-4">
-              Create a channel to start organizing your team.
-            </p>
-          </div>
-        </div>
-      </div>
+      <Empty className="bg-sidebar rounded-lg m-3">
+        <Empty.Header>
+          <Empty.Media>
+            {searchValue ? <IconSearchOff /> : <IconBrandTrello />}
+          </Empty.Media>
+          <Empty.Title>
+            {searchValue
+              ? t('no-results-found', 'No results found')
+              : t('no-channels-found', 'No channels found')}
+          </Empty.Title>
+          <Empty.Description>
+            {searchValue
+              ? t('try-different-search-term', 'Try a different search term')
+              : t(
+                  'no-channels-description',
+                  'Create a channel to start organizing your team.',
+                )}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
     );
   }
 
   return (
-    <div className="overflow-hidden h-full px-8">
-      <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-        <Table>
-          <Table.Header>
-            <Table.Row className="rounded-t-md">
-              <Table.Head className="w-10 rounded-tl-md"></Table.Head>
-              <Table.Head className="w-auto pl-2">Title</Table.Head>
-              <Table.Head className="w-20">Members</Table.Head>
-              <Table.Head className="w-32">Created At</Table.Head>
-              <Table.Head className="w-32">Updated At</Table.Head>
-            </Table.Row>
-          </Table.Header>
-        </Table>
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <Table>
-            <Table.Body>
-              {loading
-                ? Array.from({ length: 3 }).map((_, index) => (
-                    <TableRowSkeleton key={index} />
-                  ))
-                : channels?.map((channel: IChannel) => (
-                    <Table.Row
-                      key={channel._id}
-                      className="hover:cursor-pointer shadow-xs group/row"
-                    >
-                      <Table.Cell className="border-none px-2 w-10">
-                        <channelsMoreColumn.cell
-                          cell={
-                            {
-                              row: {
-                                original: channel,
-                              },
-                            } as any
-                          }
-                        />
-                      </Table.Cell>
-                      <Table.Cell
-                        className="font-medium border-none pl-2 w-auto "
-                        onClick={() => onClick(channel._id)}
-                      >
-                        <span className="w-full flex gap-2 text-base font-medium">
-                          <span className="[1lh] flex items-center">
-                            <IconComponent
-                              name={channel.icon}
-                              className="size-4"
-                            />
-                          </span>
-                          <TextOverflowTooltip value={channel.name} />
-                        </span>
-                      </Table.Cell>
-
-                      <Table.Cell className="border-none px-2 w-20 text-center">
-                        {channel.memberCount}
-                      </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={channel.createdAt} />
-                      </Table.Cell>
-                      <Table.Cell className="border-none px-2 w-32 text-muted-foreground">
-                        <DateDisplay date={channel.updatedAt} />
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-            </Table.Body>
-          </Table>
-        </ScrollArea>
-      </div>
-    </div>
+    <RecordTable.Provider
+      columns={channelsColumns}
+      data={channels ?? []}
+      stickyColumns={['more', 'checkbox', 'name']}
+      className="m-3"
+    >
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            {loading && <RecordTable.RowSkeleton rows={40} />}
+            <RecordTable.RowList />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+      <ChannelsCommandBar />
+    </RecordTable.Provider>
   );
 }
-
-const TableRowSkeleton = () => (
-  <Table.Row className="shadow-xs">
-    <Table.Cell className="w-10 border-none pl-2">
-      <Skeleton className="h-4 w-4" />
-    </Table.Cell>
-    <Table.Cell className="w-auto pl-2 border-none">
-      <Skeleton className="h-4 w-32" />
-    </Table.Cell>
-    <Table.Cell className="w-20 border-none">
-      <Skeleton className="h-4 w-5" />
-    </Table.Cell>
-    <Table.Cell className="w-32 border-none">
-      <Skeleton className="h-4 w-16" />
-    </Table.Cell>
-    <Table.Cell className="w-32 border-none">
-      <Skeleton className="h-4 w-16" />
-    </Table.Cell>
-  </Table.Row>
-);
-
-export const DeleteChannel = ({ channelId }: { channelId: string }) => {
-  const confirmationValue = 'delete';
-  const confirmationMessage = 'Are you sure you want to delete this channel?';
-  const { removeChannel, loading } = useChannelRemove();
-  const { confirm } = useConfirm();
-  const onDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    confirm({
-      message: confirmationMessage,
-      options: { confirmationValue },
-    }).then(() => {
-      removeChannel({ variables: { id: channelId } });
-    });
-  };
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="aspect-square text-muted-foreground hover:text-destructive hover:bg-transparent group-hover/row:visible invisible transition-all duration-50 ease-linear"
-      onClick={onDelete}
-      disabled={loading}
-    >
-      {loading ? <Spinner size={'sm'} /> : <IconTrash />}
-    </Button>
-  );
-};
-
-export const DateDisplay = ({ date }: { date: string }) => {
-  return (
-    <Tooltip.Provider>
-      <Tooltip>
-        <Tooltip.Trigger>
-          <div className="text-muted-foreground text-xs">
-            {date ? format(new Date(date), 'MMM d, yyyy') : ''}
-          </div>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          {format(new Date(date), 'MMM d, yyyy HH:mm')}
-        </Tooltip.Content>
-      </Tooltip>
-    </Tooltip.Provider>
-  );
-};

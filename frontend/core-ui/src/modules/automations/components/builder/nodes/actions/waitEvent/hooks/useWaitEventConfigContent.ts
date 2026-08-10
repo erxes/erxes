@@ -27,9 +27,12 @@ export function useWaitEventConfigContent(
   }
 
   const selectedAction = actions.find((a) => a.id === selectedNodeId);
-  const selectedActionType = actionsConst.find(
+  const selectedActionConst = actionsConst.find(
     (a) => a.type === selectedAction?.type,
-  )?.targetSourceType;
+  );
+  const selectedActionType =
+    selectedActionConst?.targetSourceType || selectedAction?.type;
+
   return {
     contentType: selectedActionType,
   };

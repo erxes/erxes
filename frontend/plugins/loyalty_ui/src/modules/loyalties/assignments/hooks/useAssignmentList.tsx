@@ -18,23 +18,31 @@ export const ASSIGNMENT_CURSOR_SESSION_KEY = 'assignments_cursor';
 export const useAssignmentList = () => {
   const setTotalCount = useSetAtom(assignmentTotalCountAtom);
 
-  const [{ assignmentCampaignId, assignmentStatus, assignmentOwnerId }] =
-    useMultiQueryState<{
-      assignmentCampaignId: string;
-      assignmentStatus: string;
-      assignmentOwnerId: string;
-    }>(['assignmentCampaignId', 'assignmentStatus', 'assignmentOwnerId']);
-
-  // SelectCustomer.FilterBar stores as string[] in URL; take first element
-  const ownerIdRaw = assignmentOwnerId as unknown as string | string[];
-  const ownerId = Array.isArray(ownerIdRaw) ? ownerIdRaw[0] : ownerIdRaw;
+  const [
+    {
+      assignmentCampaignId,
+      assignmentStatus,
+      assignmentOwnerType,
+      assignmentOwnerId,
+    },
+  ] = useMultiQueryState<{
+    assignmentCampaignId: string;
+    assignmentStatus: string;
+    assignmentOwnerType: string;
+    assignmentOwnerId: string;
+  }>([
+    'assignmentCampaignId',
+    'assignmentStatus',
+    'assignmentOwnerType',
+    'assignmentOwnerId',
+  ]);
 
   const variables = {
     limit: ASSIGNMENT_PER_PAGE,
     campaignId: assignmentCampaignId || undefined,
     status: assignmentStatus || undefined,
-    ownerId: ownerId || undefined,
-    ownerType: ownerId ? 'customer' : undefined,
+    ownerId: assignmentOwnerId || undefined,
+    ownerType: assignmentOwnerType || undefined,
   };
 
   const { cursor } = useRecordTableCursor({

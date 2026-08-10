@@ -1,3 +1,4 @@
+import { PIPELINE_TAB_SEGMENTS } from '@/pipelines/constants/pipelineTabs';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -51,7 +52,13 @@ export const FormCreatePage = lazy(() =>
 
 export const FormDetailPage = lazy(() =>
   import('~/pages/FormDetailPage').then((module) => ({
-    default: module.ChannelFormDetailPage,
+    default: module.default,
+  })),
+);
+
+const FormSubmissionIndexPage = lazy(() =>
+  import('~/pages/FormSubmissionsPage').then((module) => ({
+    default: module.default,
   })),
 );
 
@@ -73,15 +80,21 @@ export const ChannelMembersPage = lazy(() =>
   })),
 );
 
+export const PipelineLayoutPage = lazy(() =>
+  import('~/pages/PipelineLayoutPage').then((module) => ({
+    default: module.PipelineLayoutPage,
+  })),
+);
+
 export const PipelineDetailPage = lazy(() =>
   import('~/pages/PipelineDetailPage').then((module) => ({
     default: module.PipelineDetailPage,
   })),
 );
 
-export const PipielineConfigListPage = lazy(() =>
-  import('~/pages/PipielineConfigListPage').then((module) => ({
-    default: module.PipielineConfigListPage,
+export const PipelineConfigsPage = lazy(() =>
+  import('~/pages/PipelineConfigsPage').then((module) => ({
+    default: module.PipelineConfigsPage,
   })),
 );
 
@@ -140,20 +153,22 @@ const ChannelsSettings = () => {
           />
           <Route
             path={FrontlinePaths.PipelineDetail}
-            element={<PipelineDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsConfigs}
-            element={<PipielineConfigListPage />}
-          />
-          <Route
-            path={FrontlinePaths.PipelinePermissions}
-            element={<PipelinePermissionsPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsStatuses}
-            element={<TicketStatusesPage />}
-          />
+            element={<PipelineLayoutPage />}
+          >
+            <Route index element={<PipelineDetailPage />} />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.statuses}
+              element={<TicketStatusesPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.configs}
+              element={<PipelineConfigsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.permissions}
+              element={<PipelinePermissionsPage />}
+            />
+          </Route>
           <Route
             path={FrontlinePaths.ChannelResponsePage}
             element={<ChannelResponsePage />}
@@ -173,6 +188,10 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.FormDetail}
             element={<FormDetailPage />}
+          />
+          <Route
+            path={FrontlinePaths.FormSubmissions}
+            element={<FormSubmissionIndexPage />}
           />
         </Route>
       </Routes>

@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
@@ -36,7 +37,12 @@ const validVoucherCampaign = async (doc) => {
   }
 };
 
-export const loadVoucherCampaignClass = (models: IModels) => {
+export const loadVoucherCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class VoucherCampaign {
     public static async getVoucherCampaign(_id: string) {
       const voucherCampaign = await models.VoucherCampaigns.findOne({
@@ -63,7 +69,15 @@ export const loadVoucherCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.VoucherCampaigns.create(doc);
+      const created = await models.VoucherCampaigns.create(doc);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateVoucherCampaign(_id, doc) {
@@ -81,21 +95,21 @@ export const loadVoucherCampaignClass = (models: IModels) => {
         switch (voucherCampaignDB.voucherType) {
           case 'spin':
             usedVoucherCount = Number(
-              models.Spins.find({
+              await models.Spins.find({
                 campaignId: voucherCampaignDB.spinCampaignId,
               }).countDocuments(),
             );
             break;
           case 'lottery':
             usedVoucherCount = Number(
-              models.Lotteries.find({
+              await models.Lotteries.find({
                 campaignId: voucherCampaignDB.lotteryCampaignId,
               }).countDocuments(),
             );
             break;
           default:
             usedVoucherCount = Number(
-              models.Vouchers.find({
+              await models.Vouchers.find({
                 campaignId: voucherCampaignDB._id,
               }).countDocuments(),
             );
@@ -108,12 +122,22 @@ export const loadVoucherCampaignClass = (models: IModels) => {
         }
       }
 
+      const oldDoc = await models.VoucherCampaigns.findOne({ _id }).lean();
       doc = {
         ...doc,
         modifiedAt: new Date(),
       };
 
-      return models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
+      const result = await models.VoucherCampaigns.updateOne({ _id }, { $set: doc });
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: doc,
+        prevDocument: oldDoc,
+      });
+
+      return result;
     }
 
     public static async removeVoucherCampaigns(ids: string[]) {
@@ -140,21 +164,42 @@ export const loadVoucherCampaignClass = (models: IModels) => {
         ...atSpinCampaignIds,
       ];
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-
       const deleteCampaignIds = ids.filter(
         (id) => !usedCampaignIds.includes(id),
       );
 
       const now = new Date();
 
-      await models.VoucherCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      // For used ones, soft delete (status = TRASH)
+      if (usedCampaignIds.length) {
+        await models.VoucherCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.VoucherCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      // Hard delete unused ones
+      if (deleteCampaignIds.length) {
+        const result = await models.VoucherCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
   }
 

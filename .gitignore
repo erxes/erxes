@@ -48,8 +48,8 @@ Thumbs.db
 .nx
 .env
 
-# Agent skills and configuration
-.agents
+# Local personal notes (untracked)
+.personal/
 .claude
 
 storybook-static
@@ -60,3 +60,6 @@ dump.rdb
 
 # Local runtime upload artifacts
 backend/core-api/src/utils/private/uploads/
+
+# Sentry CLI local auth (token set via SENTRY_AUTH_TOKEN env var)
+.sentryclirc

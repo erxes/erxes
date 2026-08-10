@@ -35,8 +35,9 @@ export const assignmentQueries = {
   async assignments(
     _root: undefined,
     params: IAssignmentParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentView');
     const filter: FilterQuery<IAssignmentDocument> = generateFilter(params);
 
     return cursorPaginate({
@@ -49,16 +50,18 @@ export const assignmentQueries = {
   async assignmentDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentView');
     return models.Assignments.getAssignment(_id);
   },
 
   async checkAssignment(
     _root: undefined,
     params: { customerId: string; _ids?: string[] },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentView');
     const { _ids, customerId } = params;
 
     const now = new Date();
@@ -163,15 +166,14 @@ export const assignmentQueries = {
                     pluginName: 'core',
                     method: 'mutation',
                     module: 'customers',
-                    action: 'updateOne',
+                    action: 'updateMany',
                     input: {
                       selector: {
                         _id: customerId,
-                        'customFieldsData.field': assignmentCampaign.fieldId,
                       },
                       modifier: {
                         $set: {
-                          'customFieldsData.$.value':
+                          [`propertiesData.${assignmentCampaign.fieldId}`]:
                             currentValue - checkValue * count,
                         },
                       },

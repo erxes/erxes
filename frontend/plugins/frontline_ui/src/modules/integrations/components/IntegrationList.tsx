@@ -4,24 +4,37 @@ import { Link, useParams } from 'react-router-dom';
 import { IntegrationLogo } from './IntegrationLogo';
 import { IntegrationType } from '@/types/Integration';
 import { gql, useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
-export const IntegrationList = () => {
+export const IntegrationList = ({
+  channelId,
+  heading,
+}: {
+  // Defaults to the `:id` route param; pass it explicitly on routes that do not
+  // carry a channel id, such as the personal channel page.
+  channelId?: string;
+  heading?: string;
+} = {}) => {
+  const { t } = useTranslation('frontline');
+
+  // Every channel offers the same integrations, personal or team.
+  const entries = Object.entries(INTEGRATIONS);
+
   return (
     <Command>
       <Command.Group
-        heading="Integrations"
+        heading={heading ?? t('integrations')}
         className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
       >
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {Object.entries(INTEGRATIONS).map(
-            ([integrationType, integration]) => (
-              <IntegrationCard
-                key={integrationType}
-                integration={integration}
-                integrationType={integrationType as IntegrationType}
-              />
-            ),
-          )}
+          {entries.map(([integrationType, integration]) => (
+            <IntegrationCard
+              key={integrationType}
+              integration={integration}
+              integrationType={integrationType as IntegrationType}
+              channelId={channelId}
+            />
+          ))}
         </div>
       </Command.Group>
     </Command>
@@ -31,11 +44,14 @@ export const IntegrationList = () => {
 export const IntegrationCard = ({
   integration,
   integrationType,
+  channelId: channelIdProp,
 }: {
   integration: (typeof INTEGRATIONS)[keyof typeof INTEGRATIONS];
   integrationType: IntegrationType;
+  channelId?: string;
 }) => {
-  const { id: channelId } = useParams();
+  const { id } = useParams();
+  const channelId = channelIdProp ?? id;
   return (
     <Command.Primitive.Item asChild key={integrationType}>
       <Link
@@ -62,6 +78,7 @@ export const IntegrationIntro = ({
   integrationType: IntegrationType;
   channelId?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   if (!integration) {
     return null;
   }
@@ -84,7 +101,7 @@ export const IntegrationIntro = ({
         </div>
       </div>
       <div className="text-sm text-muted-foreground font-medium">
-        {integration.description}
+        {t(integration.descriptionKey)}
       </div>
     </>
   );

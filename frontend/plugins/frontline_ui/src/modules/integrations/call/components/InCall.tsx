@@ -8,9 +8,10 @@ import {
   IconFileText,
   IconMicrophone,
   IconMicrophoneOff,
-  IconUser,
+  IconPlayerPause,
+  IconPlayerPlay,
 } from '@tabler/icons-react';
-import { Button, ButtonProps, cn } from 'erxes-ui';
+import { Button, ButtonProps, cn, Popover } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { useSip } from '@/integrations/call/components/SipProvider';
@@ -29,6 +30,7 @@ import { ICustomer } from '@/integrations/call/types/callTypes';
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
 import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/callUtils';
 import { useCustomerDetail } from '@/integrations/call/hooks/useCustomerDetail';
+import { useTranslation } from 'react-i18next';
 
 export const InCall = ({
   customer,
@@ -39,6 +41,7 @@ export const InCall = ({
   channels: any;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -64,10 +67,10 @@ export const InCall = ({
       <Transfer />
       <div className="grid grid-cols-5 p-1 gap-1 items-stretch border-b-0">
         <Mute />
+        <Hold />
         <TransferTrigger />
         <Detail />
         <KeypadTrigger />
-        <SelectCustomer />
       </div>
       <div className="px-3 pb-6">
         <Button
@@ -75,7 +78,7 @@ export const InCall = ({
           variant="secondary"
           onClick={stopCall}
         >
-          End Call
+          {t('end-call')}
         </Button>
       </div>
     </>
@@ -100,6 +103,7 @@ export const InCallActionButton = React.forwardRef<
 });
 
 export const Mute = () => {
+  const { t } = useTranslation('frontline');
   const { mute, isMuted, unmute } = useSip();
   const [isMutedState, setIsMutedState] = useState(isMuted());
   const [checkIsMuted, setCheckIsMuted] = useState(false);
@@ -124,12 +128,13 @@ export const Mute = () => {
       className={cn(isMutedState && 'text-destructive hover:text-destructive')}
     >
       {isMutedState ? <IconMicrophoneOff /> : <IconMicrophone />}
-      {isMutedState ? 'Unmute' : 'Mute'}
+      {isMutedState ? t('unmute') : t('mute')}
     </InCallActionButton>
   );
 };
 
 export const Detail = () => {
+  const { t } = useTranslation('frontline');
   const sip = useAtomValue(sipStateAtom);
   const currentCallConversationId = useAtomValue(currentCallConversationIdAtom);
   const setRefetchNewMessages = useSetAtom(refetchNewMessagesState);
@@ -150,25 +155,76 @@ export const Detail = () => {
       }}
     >
       <IconFileText />
-      Detail
+      {t('detail')}
     </InCallActionButton>
   );
 };
+
+const DTMF_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
 export const KeypadTrigger = () => {
+  const { t } = useTranslation('frontline');
+  const { sendDtmf } = useSip();
+  const sip = useAtomValue(sipStateAtom);
+  const [sentTones, setSentTones] = useState('');
+
+  const handleKey = (key: string) => {
+    sendDtmf(key);
+    setSentTones((prev) => (prev + key).slice(-20));
+  };
+
   return (
-    <InCallActionButton>
-      <IconDialpad />
-      Keypad
-    </InCallActionButton>
+    <Popover onOpenChange={(open) => !open && setSentTones('')}>
+      <Popover.Trigger asChild>
+        <InCallActionButton disabled={sip.callStatus !== CallStatusEnum.ACTIVE}>
+          <IconDialpad />
+          {t('keypad')}
+        </InCallActionButton>
+      </Popover.Trigger>
+      <Popover.Content className="w-48 p-2" align="center">
+        <div className="h-7 mb-1 text-center font-medium leading-7 tracking-widest truncate">
+          {sentTones}
+        </div>
+        <div className="grid grid-cols-3 gap-1">
+          {DTMF_KEYS.map((key) => (
+            <Button
+              key={key}
+              variant="secondary"
+              className="h-9 text-base font-semibold"
+              onClick={() => handleKey(key)}
+            >
+              {key}
+            </Button>
+          ))}
+        </div>
+      </Popover.Content>
+    </Popover>
   );
 };
 
-export const SelectCustomer = () => {
+export const Hold = () => {
+  const { t } = useTranslation('frontline');
+  const { hold, unhold, isHeld } = useSip();
+  const sip = useAtomValue(sipStateAtom);
+  const [isHeldState, setIsHeldState] = useState(!!isHeld().localHold);
+
+  const handleClick = () => {
+    if (isHeld().localHold) {
+      unhold();
+    } else {
+      hold();
+    }
+    setTimeout(() => setIsHeldState(!!isHeld().localHold), 100);
+  };
+
   return (
-    <InCallActionButton>
-      <IconUser />
-      Select <br /> Customer
+    <InCallActionButton
+      onClick={handleClick}
+      disabled={sip.callStatus !== CallStatusEnum.ACTIVE}
+      className={cn(isHeldState && 'text-warning hover:text-warning')}
+    >
+      {isHeldState ? <IconPlayerPlay /> : <IconPlayerPause />}
+      {isHeldState ? t('unhold') : t('hold')}
     </InCallActionButton>
   );
 };
@@ -186,6 +242,7 @@ const CallInfo = ({
   phoneNumber: string;
   loading: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const sip = useAtomValue(sipStateAtom);
   const setStartDate = useSetAtom(callDurationAtom);
   const time = useCallDuration();
@@ -202,14 +259,14 @@ const CallInfo = ({
   return (
     <>
       <div className="text-accent-foreground text-sm text-center font-medium">
-        {sip.callStatus === CallStatusEnum.STARTING && 'Calling...'}
-        {sip.callStatus === CallStatusEnum.ACTIVE && 'In call'}
+        {sip.callStatus === CallStatusEnum.STARTING && t('calling')}
+        {sip.callStatus === CallStatusEnum.ACTIVE && t('in-call')}
       </div>
       {!loading && renderUserInfo(customer, customerDetail, phoneNumber)}
 
       {sip.callStatus === CallStatusEnum.ACTIVE && (
         <div className="text-center text-accent-foreground text-sm">
-          Duration: {time}
+          {t('duration')}: {time}
         </div>
       )}
     </>

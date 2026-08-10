@@ -5,7 +5,7 @@ import {
   mutations as PricingMutations,
   queries as PricingQueries,
   types as PricingTypes,
-} from '@/pricing/graphql/schemas/pricing';
+} from '@/pricing/graphql/schemas/pricingPlan';
 
 /* -------------------- Agent -------------------- */
 import {

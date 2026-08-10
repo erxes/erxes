@@ -11,6 +11,7 @@ export const activityLogRouter = t.router({
         z.array(
           z.object({
             activityType: z.string(),
+            sourcePlugin: z.string().optional(),
             target: z.any(),
             context: z.any().optional(),
             action: z.object({
@@ -51,6 +52,7 @@ export const activityLogRouter = t.router({
 
         for (const {
           activityType,
+          sourcePlugin,
           target,
           context,
           action,
@@ -68,6 +70,7 @@ export const activityLogRouter = t.router({
 
           await models.ActivityLogs.createActivityLog(subdomain, {
             activityType,
+            sourcePlugin,
             targetType,
             target,
             context,

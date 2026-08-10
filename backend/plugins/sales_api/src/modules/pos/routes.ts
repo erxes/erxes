@@ -2,7 +2,7 @@ import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
-import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories } from './utils';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -11,7 +11,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.adminIds) {
     data.adminUsers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -29,7 +28,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.cashierIds) {
     data.cashiers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -43,23 +41,57 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     });
   }
 
-  if (pos.erkhetConfig?.isSyncErkhet) {
-    const configs = await getConfig(subdomain, 'ERKHET', {});
+  // collect ebarimtConfig from mongolian/ebarimt
+  const ebarimtConfigs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'find',
+    input: {
+      query: {
+        $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }],
+      },
+    },
+    defaultValue: [],
+  });
 
-    // Added null check for configs
-    if (configs) {
-      data.pos.erkhetConfig = {
-        ...pos.erkhetConfig,
-        getRemainderApiUrl: configs.getRemainderApiUrl || '',
-        apiKey: configs.apiKey || '',
-        apiSecret: configs.apiSecret || '',
-        apiToken: configs.apiToken || '',
-      };
-    } else {
-      // If no configs found, keep the existing erkhetConfig
-      data.pos.erkhetConfig = pos.erkhetConfig;
-    }
-  }
+  const ebarimtMain = ebarimtConfigs.find((conf) => conf.code === 'EBARIMT');
+  const ebarimtPos = ebarimtConfigs.find(
+    (conf) => conf.code === 'posInEbarimt' && conf.subId === pos._id,
+  );
+
+  data.pos.ebarimtConfig = {
+    ...ebarimtMain?.value,
+    ...ebarimtPos?.value,
+    ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
+    companyName:
+      ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
+  };
+
+  const erkhetConfigs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'find',
+    input: {
+      query: {
+        $or: [
+          { code: 'ERKHET' },
+          { code: 'posOrderErkhetConfig', subId: pos._id },
+        ],
+      },
+    },
+    defaultValue: [],
+  });
+  const erkhetMain = erkhetConfigs.find((conf) => conf.code === 'ERKHET');
+  const posOrderErkhetConfig = erkhetConfigs.find(
+    (conf) => conf.code === 'posOrderErkhetConfig' && conf.subId === pos._id,
+  );
+
+  data.pos.erkhetConfig = {
+    ...erkhetMain?.value,
+    ...posOrderErkhetConfig?.value,
+  };
 
   return data;
 };
@@ -81,6 +113,15 @@ export const getProductsData = async (
 
   const productGroups: any = [];
 
+  const ebarimtConfig = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'getConfig',
+    input: { code: 'posInEbarimt', subId: pos._id },
+    defaultValue: [],
+  });
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
@@ -97,7 +138,6 @@ export const getProductsData = async (
 
     const productCategories = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
@@ -107,10 +147,12 @@ export const getProductsData = async (
       },
       defaultValue: [],
     });
+
     const categories: any[] = [];
 
     for (const category of productCategories) {
       categories.push({
+        ...category,
         _id: category._id,
         name: category.name,
         description: category.description,
@@ -119,6 +161,7 @@ export const getProductsData = async (
         order: category.order,
         attachment: category.attachment,
         meta: category.meta,
+        status: category.status,
         isSimilarity: category.isSimilarity,
         similarities: category.similarities,
       });
@@ -129,7 +172,6 @@ export const getProductsData = async (
 
     const products: any[] = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'products',
       action: 'find',
@@ -145,7 +187,7 @@ export const getProductsData = async (
 
     const productsById = await calcProductsTaxRule(
       subdomain,
-      pos.ebarimtConfig,
+      ebarimtConfig,
       products,
     );
 
@@ -172,6 +214,8 @@ export const getProductsData = async (
 
     for (const productId of Object.keys(productsById)) {
       const product = productsById[productId];
+
+      product.similarityId = product.similarityId || null;
 
       const discount = pricing[productId] || {};
 
@@ -303,25 +347,25 @@ export const posSyncConfig = async (req, res) => {
   return res.send({ error: 'wrong type' });
 };
 
-export const unfetchOrderInfo = async (req, res) => {
+export const getPosToken = async (req, res) => {
+  const token = req.query.GET_CP_TOKEN as string;
+
+  if (!token) {
+    return res.status(400).json({ error: 'GET_CP_TOKEN is required' });
+  }
+
+  if (token !== process.env.GET_CP_TOKEN) {
+    return res.status(401).json({ error: 'Invalid GET_CP_TOKEN' });
+  }
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const { orderId, token } = req.body;
-  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  const pos = await models.Pos.findOne({ isOnline: true }).lean();
 
-  if (erkhetConfig?.apiToken !== token) {
-    return res.send({ error: 'not found token' });
+  if (!pos) {
+    return res.status(404).json({ error: 'POS not found' });
   }
 
-  const order = await models.PosOrders.findOne({ _id: orderId }).lean();
-  if (!order) {
-    return res.send({ error: 'not found order' });
-  }
-
-  await models.PosOrders.updateOne(
-    { _id: orderId },
-    { $set: { syncedErkhet: false } },
-  );
-  return res.send({ status: 'done' });
+  return res.status(200).json({ token: pos.token });
 };

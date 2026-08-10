@@ -1,5 +1,6 @@
 import { Form, Input, MultipleSelector, Button } from 'erxes-ui';
 import { IconPlus, IconCheck } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { useInlineCategory } from './hooks/useInlineCategory';
 
 interface CategoryFieldProps {
@@ -8,11 +9,23 @@ interface CategoryFieldProps {
   websiteId: string;
 }
 
+const normalizeOptionText = (text: string) => text.toLowerCase().trim();
+
+const getSearchableCommandProps = (options: any[]) => ({
+  filter: (value: string, search: string) => {
+    const option = options.find((item) => item.value === value);
+    const text = normalizeOptionText(`${option?.label || ''} ${value}`);
+
+    return text.includes(normalizeOptionText(search)) ? 1 : -1;
+  },
+});
+
 export const CategoryField = ({
   form,
   categories,
   websiteId,
 }: CategoryFieldProps) => {
+  const { t } = useTranslation('content');
   const options = categories || [];
   const {
     newCategoryName,
@@ -29,7 +42,7 @@ export const CategoryField = ({
       name="categoryIds"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Category</Form.Label>
+          <Form.Label>{t('category')}</Form.Label>
 
           <Form.Control>
             <div className="flex gap-2">
@@ -38,9 +51,10 @@ export const CategoryField = ({
                   (field.value || []).includes(o.value),
                 )}
                 options={options}
-                placeholder="Select"
+                placeholder={t('select')}
                 hidePlaceholderWhenSelected={true}
-                emptyIndicator="Empty"
+                emptyIndicator={t('empty')}
+                commandProps={getSearchableCommandProps(options)}
                 onChange={(opts) => field.onChange(opts.map((o) => o.value))}
               />
               <Button
@@ -62,7 +76,7 @@ export const CategoryField = ({
             <div className="flex gap-2 mb-1">
               <Input
                 autoFocus
-                placeholder="Category name"
+                placeholder={t('category-name')}
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 onKeyDown={async (e) => {

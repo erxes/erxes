@@ -5,6 +5,10 @@ import { getTempId } from '../components/utils';
 import {
   TBankJournal,
   TCashJournal,
+  TFxaIncomeJournal,
+  TFxaMoveJournal,
+  TFxaOutJournal,
+  TFxaSaleJournal,
   TInvIncomeJournal,
   TInvMoveJournal,
   TInvOutJournal,
@@ -32,12 +36,13 @@ const trDetailWrapper = (detail?: ITrDetail) => {
     _id: detail?._id ?? getTempId(),
     account: detail?.account,
     accountId: detail?.accountId ?? '',
+    fixedAssetId: detail?.fixedAssetId ?? '',
     amount: detail?.amount ?? 0,
     checked: false,
   };
 };
 
-export const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
+const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     hasVat: doc?.hasVat ?? false,
     isHandleVat: doc?.isHandleVat ?? false,
@@ -46,7 +51,7 @@ export const DEFAULT_VAT_VALUES = (doc?: Partial<ITransaction>) => {
   };
 };
 
-export const DEFAULT_CTAX_VALUES = (doc?: Partial<ITransaction>) => {
+const DEFAULT_CTAX_VALUES = (doc?: Partial<ITransaction>) => {
   return {
     hasCtax: doc?.hasCtax ?? false,
     isHandleCtax: doc?.isHandleCtax ?? false,
@@ -54,7 +59,7 @@ export const DEFAULT_CTAX_VALUES = (doc?: Partial<ITransaction>) => {
   };
 };
 
-export const MAIN_JOURNAL_DEFAULT_VALUES = (
+const MAIN_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TMainJournal> => {
   return {
@@ -68,7 +73,7 @@ export const MAIN_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const CASH_JOURNAL_DEFAULT_VALUES = (
+const CASH_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TCashJournal> => {
   return {
@@ -84,7 +89,7 @@ export const CASH_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const BANK_JOURNAL_DEFAULT_VALUES = (
+const BANK_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TBankJournal> => {
   return {
@@ -100,7 +105,7 @@ export const BANK_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const RECEIVABLE_JOURNAL_DEFAULT_VALUES = (
+const RECEIVABLE_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TReceivableJournal> => {
   return {
@@ -116,7 +121,7 @@ export const RECEIVABLE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const PAYABLE_JOURNAL_DEFAULT_VALUES = (
+const PAYABLE_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TPayableJournal> => {
   return {
@@ -132,7 +137,7 @@ export const PAYABLE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const TAX_JOURNAL_DEFAULT_VALUES = (
+const TAX_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TTaxJournal> => {
   return {
@@ -146,7 +151,7 @@ export const TAX_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
+const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvIncomeJournal> => {
   return {
@@ -176,7 +181,7 @@ export const INV_INCOME_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
+const INV_OUT_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvOutJournal> => {
   return {
@@ -204,7 +209,7 @@ export const INV_OUT_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
+const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvMoveJournal> => {
   return {
@@ -232,7 +237,7 @@ export const INV_MOVE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
+const INV_SALE_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvSaleJournal> => {
   return {
@@ -260,7 +265,7 @@ export const INV_SALE_JOURNAL_DEFAULT_VALUES = (
   };
 };
 
-export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
+const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
   doc?: Partial<ITransaction>,
 ): Partial<TInvSaleReturnJournal> => {
   return {
@@ -285,6 +290,112 @@ export const INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES = (
             amount: 0,
           },
         ],
+  };
+};
+
+const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
+  return {
+    fixedAssetAccountId: doc?.followInfos?.fixedAssetAccountId,
+    accumulatedDepreciationAccountId:
+      doc?.followInfos?.accumulatedDepreciationAccountId,
+    depreciationExpenseAccountId:
+      doc?.followInfos?.depreciationExpenseAccountId,
+    gainAccountId: doc?.followInfos?.gainAccountId,
+    lossAccountId: doc?.followInfos?.lossAccountId,
+    revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
+    deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
+    deferredTaxLiabilityAccountId:
+      doc?.followInfos?.deferredTaxLiabilityAccountId,
+    incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
+    moveInBranchId: doc?.followInfos?.moveInBranchId,
+    moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
+    responsibleUserId: doc?.followInfos?.responsibleUserId,
+  };
+};
+
+const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
+  doc?.details?.length
+    ? doc?.details.map((det) => ({
+        ...trDetailWrapper(det),
+        fixedAssetId: det.fixedAssetId || '',
+        count: det.count ?? 0,
+        unitPrice: det.unitPrice ?? 0,
+        amount: det.amount ?? 0,
+      }))
+    : [
+        {
+          ...trDetailWrapper(),
+          fixedAssetId: '',
+          count: 0,
+          unitPrice: 0,
+          amount: 0,
+        },
+      ];
+
+const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => ({
+  ...doc?.extraData,
+  fxaInstances: doc?.extraData?.fxaInstances || [],
+  fxaInstanceIds: doc?.extraData?.fxaInstanceIds || [],
+  fxaInstanceIdsByDetailId: doc?.extraData?.fxaInstanceIdsByDetailId || {},
+});
+
+const FXA_INCOME_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaIncomeJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_INCOME,
+    side: TR_SIDES.DEBIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_OUT_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaOutJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_OUT,
+    side: TR_SIDES.CREDIT,
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_MOVE_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaMoveJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_MOVE,
+    side: TR_SIDES.CREDIT,
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
+  };
+};
+
+const FXA_SALE_JOURNAL_DEFAULT_VALUES = (
+  doc?: Partial<ITransaction>,
+): Partial<TFxaSaleJournal> => {
+  return {
+    ...trDataWrapper(doc),
+    journal: TrJournalEnum.FXA_SALE,
+    side: TR_SIDES.CREDIT,
+    ...DEFAULT_VAT_VALUES(doc),
+    ...DEFAULT_CTAX_VALUES(doc),
+    followInfos: FXA_FOLLOW_INFOS_DEFAULT_VALUES(doc),
+    followExtras: doc?.followExtras,
+    extraData: FXA_EXTRA_DATA_DEFAULT_VALUES(doc),
+    details: fxaDetailsDefaultValues(doc),
   };
 };
 
@@ -337,6 +448,22 @@ export const JOURNALS_BY_JOURNAL = (
 
     case TrJournalEnum.INV_SALE_RETURN:
       result = INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_INCOME:
+      result = FXA_INCOME_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_OUT:
+      result = FXA_OUT_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_MOVE:
+      result = FXA_MOVE_JOURNAL_DEFAULT_VALUES(doc);
+      break;
+
+    case TrJournalEnum.FXA_SALE:
+      result = FXA_SALE_JOURNAL_DEFAULT_VALUES(doc);
       break;
 
     default: // MAIN

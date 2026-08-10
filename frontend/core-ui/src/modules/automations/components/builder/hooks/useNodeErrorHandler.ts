@@ -1,21 +1,14 @@
-import { ReactFlowInstance, Node, Edge, EdgeProps } from '@xyflow/react';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { NodeData } from '@/automations/types';
-
-interface UseNodeErrorHandlerProps {
-  reactFlowInstance: ReactFlowInstance<Node<NodeData>, Edge<EdgeProps>> | null;
-  getNodes: () => Node<NodeData>[];
-  setNodes: (nodes: Node<NodeData>[]) => void;
-}
+import { Node, useReactFlow } from '@xyflow/react';
 
 interface NodeErrorMap {
   [nodeId: string]: string;
 }
 
-export const useNodeErrorHandler = ({
-  reactFlowInstance,
-  getNodes,
-  setNodes,
-}: UseNodeErrorHandlerProps) => {
+export const useNodeErrorHandler = () => {
+  const { reactFlowInstance } = useAutomation();
+  const { getNodes, setNodes } = useReactFlow<Node<NodeData>>();
   /**
    * Updates nodes with error information and focuses on the first error node
    * @param nodeErrorMap - Object mapping node IDs to error messages

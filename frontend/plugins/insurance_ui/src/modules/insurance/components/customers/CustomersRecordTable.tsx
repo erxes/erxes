@@ -2,8 +2,10 @@ import { IconUsers } from '@tabler/icons-react';
 import { customersColumns } from './CustomersColumns';
 import { useCustomers } from '~/modules/insurance/hooks';
 import { GenericRecordTable } from '../shared';
+import { useTranslation } from 'react-i18next';
 
 export const CustomersRecordTable = () => {
+  const { t } = useTranslation('insurance');
   const { customers, loading } = useCustomers();
 
   return (
@@ -12,11 +14,12 @@ export const CustomersRecordTable = () => {
       data={customers || []}
       loading={loading}
       sessionKey="customers-cursor"
+      tableId="insurance_customers_record_table"
       stickyColumns={['more', 'checkbox', 'fullName']}
       emptyState={{
         icon: <IconUsers size={64} />,
-        title: 'No customers yet',
-        description: 'Get started by creating your first customer',
+        title: t('no-customers-yet'),
+        description: t('no-customers-description'),
       }}
     />
   );

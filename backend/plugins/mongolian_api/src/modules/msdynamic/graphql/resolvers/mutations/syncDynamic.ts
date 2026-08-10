@@ -18,7 +18,12 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
     return acc;
   }, {});
 
-  const config = map[brandId || 'noBrand'];
+  const key = brandId || 'noBrand';
+  let config = map[key];
+
+  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
+    config = map['noBrand'][key];
+  }
 
   if (!config) {
     throw new Error('MS Dynamic config not found.');
@@ -40,8 +45,10 @@ export const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
 
@@ -69,8 +76,10 @@ export const msdynamicSyncMutations = {
       action,
       customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
 
@@ -93,58 +102,72 @@ export const msdynamicSyncMutations = {
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
 
-    const order = await sendTRPCMessage({
+    const orders = await sendTRPCMessage({
       subdomain,
-      pluginName: 'pos',
+      pluginName: 'sales',
       module: 'orders',
-      action: 'findOne',
-      input: { _id: { $in: orderIds } },
-      defaultValue: {},
+      action: 'find',
+      input: {
+        query: {
+          _id: { $in: orderIds },
+        },
+      },
+      defaultValue: [],
     });
 
-    if (!order?._id) {
-      throw new Error('Order not found');
+    if (!Array.isArray(orders)) {
+      throw new Error(
+        `Expected orders to be an array but got ${typeof orders}`,
+      );
     }
 
-    const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
+    const results: any[] = [];
 
-    const syncLog = await models.SyncLogsMSD.syncLogsAdd({
-      contentType: 'pos:order',
-      contentId: order._id,
-      createdAt: new Date(),
-      createdBy: user?._id,
-      consumeData: order,
-      consumeStr: JSON.stringify(order),
-    });
+    for (const order of orders) {
+      try {
+        const config = await getDynamicConfig(models, order.scopeBrandIds?.[0]);
 
-    let response;
+        const syncLog = await models.SyncLogsMSD.syncLogsAdd({
+          contentType: 'pos:order',
+          contentId: order._id,
+          createdAt: new Date(),
+          createdBy: user?._id,
+          consumeData: order,
+          consumeStr: JSON.stringify(order),
+        });
 
-    try {
-      response = await orderToDynamic(
-        subdomain,
-        models,
-        syncLog,
-        order,
-        config,
-      );
-    } catch (e: any) {
-      await models.SyncLogsMSD.updateOne(
-        { _id: syncLog._id },
-        { $set: { error: e?.message } },
-      );
-      throw e;
+        const response = await orderToDynamic(
+          subdomain,
+          models,
+          syncLog,
+          order,
+          config,
+        );
+
+        results.push({
+          _id: order._id,
+          isSynced: true,
+          syncedDate: response?.Order_Date,
+          syncedBillNumber: response?.No,
+          syncedCustomer: response?.Sell_to_Customer_No,
+        });
+      } catch (e: any) {
+        console.error(`[MSD] Failed to sync order ${order._id}`, e);
+
+        results.push({
+          _id: order._id,
+          isSynced: false,
+          error: e?.message || 'Unknown error',
+        });
+      }
     }
 
-    return {
-      _id: order._id,
-      isSynced: true,
-      syncedDate: response?.Order_Date,
-      syncedBillNumber: response?.No,
-      syncedCustomer: response?.Sell_to_Customer_No,
-    };
+    return results;
   },
 };

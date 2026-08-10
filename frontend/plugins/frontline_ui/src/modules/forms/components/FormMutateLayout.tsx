@@ -1,10 +1,18 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { Button, Form, ScrollArea, Sheet } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { formSetupStepAtom } from '../states/formSetupStates';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+  formSetupStepAtom,
+  resetFormSetupAtom,
+} from '../states/formSetupStates';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { useNavigate, useParams } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import {
+  FORM_SETUP_STEPS,
+  FORM_SETUP_STEPS_LENGTH,
+} from '@/forms/constants/formStatesDefaultValues';
 
 export const FormMutateLayout = ({
   children,
@@ -21,16 +29,29 @@ export const FormMutateLayout = ({
   onSubmit?: (values: z.infer<any>) => void;
   isLoading?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
+
+  const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const navigate = useNavigate();
+
+  const handleCancel = () => {
+    resetFormSetup();
+    if (!id) {
+      navigate('/frontline/forms');
+    } else navigate(`/settings/frontline/channels/${id}/forms`);
+    return;
+  };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit((values) => {
           onSubmit?.(values);
-          setStep((prev) => (prev === 3 ? prev : prev + 1));
+          setStep((prev) =>
+            prev === FORM_SETUP_STEPS.CONFIRMATION ? prev : prev + 1,
+          );
         })}
         className="flex-auto flex flex-col h-full overflow-hidden bg-sidebar"
       >
@@ -39,7 +60,7 @@ export const FormMutateLayout = ({
             <IntegrationSteps
               step={step}
               title={title}
-              stepsLength={3}
+              stepsLength={FORM_SETUP_STEPS_LENGTH}
               description={description}
             />
             <div className="px-5">{children}</div>
@@ -49,21 +70,21 @@ export const FormMutateLayout = ({
           <Button
             variant="secondary"
             className="mr-auto bg-border"
-            onClick={() => navigate(`/settings/frontline/channels/${id}/forms`)}
+            onClick={handleCancel}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? id
-                ? 'Updating form...'
-                : 'Creating form...'
-              : step === 3
+                ? t('updating-form')
+                : t('creating-form')
+              : step === FORM_SETUP_STEPS.CONFIRMATION
                 ? id
-                  ? 'Update form'
-                  : 'Create form'
-                : 'Next step'}
+                  ? t('update-form')
+                  : t('create-form')
+                : t('next-step')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -72,15 +93,16 @@ export const FormMutateLayout = ({
 };
 
 export const FormMutateLayoutPreviousStepButton = () => {
+  const { t } = useTranslation('frontline');
   const [step, setStep] = useAtom(formSetupStepAtom);
   return (
     <Button
       variant="secondary"
       className="bg-border"
       onClick={() => setStep(step - 1)}
-      disabled={step === 1}
+      disabled={step === FORM_SETUP_STEPS.GENERAL}
     >
-      Previous step
+      {t('previous-step')}
     </Button>
   );
 };

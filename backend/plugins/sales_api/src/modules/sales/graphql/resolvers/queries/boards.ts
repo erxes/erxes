@@ -18,6 +18,14 @@ export const boardQueries = {
     return models.Boards.find({}).lean();
   },
 
+  async cpSalesBoards(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return models.Boards.find({}).lean();
+  },
+
   /**
    *  Boards count
    */
@@ -59,6 +67,14 @@ export const boardQueries = {
    *  Board detail
    */
   async salesBoardDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Boards.findOne({ _id }).lean();
+  },
+
+  async cpSalesBoardDetail(
     _root: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -191,8 +207,9 @@ export const boardQueries = {
       }
     }
 
-    const assignedUserIds =
-      await models.Deals.find(filter).distinct('assignedUserIds');
+    const assignedUserIds = await models.Deals.find(filter).distinct(
+      'assignedUserIds',
+    );
 
     if (assignedUserIds.length === 0) {
       return {};
@@ -358,8 +375,8 @@ export const boardQueries = {
 
         pluginName: 'core',
         method: 'query',
-        module: 'forms',
-        action: 'fieldsGroups.find',
+        module: 'fieldsGroups',
+        action: 'find',
         input: {
           query: {
             contentType: `sales:${ct}`,
@@ -376,8 +393,8 @@ export const boardQueries = {
 
           pluginName: 'core',
           method: 'query',
-          module: 'forms',
-          action: 'fields.find',
+          module: 'fields',
+          action: 'find',
           input: {
             query: {
               contentType: `sales:${ct}`,
@@ -494,4 +511,28 @@ export const boardQueries = {
 
     return intervals;
   },
+
+  async cpSalesCheckFreeTimes(
+    _root,
+    { pipelineId, intervals },
+    context: IContext,
+  ) {
+    return boardQueries.salesCheckFreeTimes(
+      _root,
+      { pipelineId, intervals },
+      context,
+    );
+  },
+};
+
+(boardQueries.cpSalesBoardDetail as any).wrapperConfig = {
+  forClientPortal: true,
+};
+
+(boardQueries.cpSalesBoards as any).wrapperConfig = {
+  forClientPortal: true,
+};
+
+(boardQueries.cpSalesCheckFreeTimes as any).wrapperConfig = {
+  forClientPortal: true,
 };

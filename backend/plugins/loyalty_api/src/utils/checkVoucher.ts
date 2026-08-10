@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IProductD } from './common';
+import { getChildCategories, getChildTags } from './utils';
 
 const availableVoucherTypes = ['bonus', 'discount'];
 
@@ -37,40 +38,6 @@ export const calculateDiscount = ({ kind, value, product, totalAmount }) => {
     console.error('Error calculating discount:', error.message);
     return 0;
   }
-};
-
-export const getChildCategories = async (subdomain: string, categoryIds) => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'categories',
-    action: 'withChilds',
-    input: {
-      ids: categoryIds,
-    },
-    defaultValue: [],
-  });
-
-  const catIds: string[] = (childs || []).map((ch) => ch._id) || [];
-
-  return Array.from(new Set(catIds));
-};
-
-export const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'tags',
-    action: 'withChilds',
-    input: {
-      query: { _id: { $in: tagIds } },
-    },
-    defaultValue: [],
-  });
-
-  const allTagIds: string[] = (childs || []).map((ch) => ch._id) || [];
-
-  return Array.from(new Set(allTagIds));
 };
 
 export const applyRestriction = async ({
@@ -279,17 +246,26 @@ export const checkVouchersSale = async (
   }
 
   if (ownerType === 'customer') {
-    const customerRelatedClientPortalUser = await sendTRPCMessage({
+    const customerRelatedClientPortalUserById = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'clientPortalUsers',
-      action: 'findOne',
-      input: {
-        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
-      },
+      module: 'cpUsers',
+      action: 'get',
+      input: { id: ownerId },
       defaultValue: null,
     });
+    const customerRelatedClientPortalUser =
+      customerRelatedClientPortalUserById ||
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'cpUsers',
+        action: 'get',
+        input: { erxesCustomerId: ownerId },
+        defaultValue: null,
+      }));
 
     if (customerRelatedClientPortalUser) {
       ownerId = customerRelatedClientPortalUser._id;

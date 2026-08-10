@@ -1,14 +1,20 @@
 import { useState } from 'react';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconSandbox, IconBuilding, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VendorForm } from '../VendorForm';
 import { useVendors } from '~/modules/insurance/hooks';
 
 export const VendorsHeader = () => {
+  const { t } = useTranslation('insurance');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { refetch } = useVendors();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('vendors'),
+  );
 
   const handleCreate = () => {
     setIsFormOpen(true);
@@ -32,7 +38,7 @@ export const VendorsHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/insurance/products">
                     <IconSandbox />
-                    Insurance
+                    {t('insurance')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -40,18 +46,21 @@ export const VendorsHeader = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost">
                   <IconBuilding />
-                  Vendors
+                  {t('vendors')}
                 </Button>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleCreate}>
             <IconPlus size={16} />
-            New Vendor
+            {t('new-vendor')}
           </Button>
         </PageHeader.End>
       </PageHeader>

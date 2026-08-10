@@ -1,4 +1,4 @@
-import { PageHeader, Export } from 'ui-modules';
+import { Can, PageHeader, Export } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
@@ -35,12 +35,14 @@ export const PosItemsPage = () => {
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <PosItemsFilter />
-            <Export
-              pluginName="sales"
-              moduleName="pos"
-              collectionName="posItems"
-              getFilters={getFilters}
-            />
+            <Can action="posItemsExportManage">
+              <Export
+                pluginName="sales"
+                moduleName="pos"
+                collectionName="posItems"
+                getFilters={getFilters}
+              />
+            </Can>
           </PageSubHeader>
           <PosItemsRecordTable posId={posId} />
         </div>

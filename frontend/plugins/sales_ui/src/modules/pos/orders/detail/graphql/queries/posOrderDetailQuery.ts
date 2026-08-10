@@ -12,6 +12,7 @@ export const POS_ORDER_DETAIL_QUERY = gql`
         lastName
       }
       _id
+      accountingResponse
       billId
       billType
       branch
@@ -21,6 +22,9 @@ export const POS_ORDER_DETAIL_QUERY = gql`
       createdAt
       customerId
       customerType
+      brokerId
+      brokerType
+      brokerName
       deal
       dealLink
       deliveryInfo

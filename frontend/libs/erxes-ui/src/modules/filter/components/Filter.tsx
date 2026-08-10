@@ -13,6 +13,7 @@ import {
 } from 'erxes-ui/components';
 import {
   IconFilter2,
+  IconChevronLeft,
   IconChevronRight,
   IconSearch,
   IconX,
@@ -201,6 +202,24 @@ const FilterCommandItem = React.forwardRef<
   );
 });
 
+const FilterBackButton = () => {
+  const { id } = useFilterContext();
+  const setView = useSetAtom(filterPopoverViewState(id));
+
+  return (
+    <button
+      type="button"
+      onClick={() => setView('root')}
+      className="flex h-8 w-full items-center gap-1 border-b px-2 text-sm text-muted-foreground hover:text-foreground"
+    >
+      <IconChevronLeft className="size-4" />
+      Back
+    </button>
+  );
+};
+
+const FilterViewNesting = React.createContext(false);
+
 const FilterView = ({
   children,
   filterKey = 'root',
@@ -213,11 +232,22 @@ const FilterView = ({
   const { id } = useFilterContext();
   const view = useAtomValue(filterPopoverViewState(id));
   const dialogView = useAtomValue(filterDialogViewState(id));
+  const isNested = React.useContext(FilterViewNesting);
 
   if (inDialog ? dialogView !== filterKey : view !== filterKey) {
     return null;
   }
-  return children;
+
+  if (inDialog || filterKey === 'root' || isNested) {
+    return children;
+  }
+
+  return (
+    <FilterViewNesting.Provider value={true}>
+      <FilterBackButton />
+      {children}
+    </FilterViewNesting.Provider>
+  );
 };
 
 const FilterDialog = (props: React.ComponentPropsWithoutRef<typeof Dialog>) => {
@@ -406,15 +436,27 @@ const FilterDialogStringView = ({
   );
 };
 
-const FilterPopoverDateView = ({ filterKey }: { filterKey: string }) => {
-  const { resetFilterState } = useFilterContext();
+const FilterPopoverDateView = ({
+  filterKey,
+  label,
+}: {
+  filterKey: string;
+  label?: string;
+}) => {
+  const { resetFilterState, sessionKey } = useFilterContext();
 
-  const [query, setQuery] = useFilterQueryState<string>(filterKey, filterKey);
+  // Reset the table cursor keyed by sessionKey (not filterKey) so picking a date
+  // preset clears pagination — consistent with FilterBarDate / DialogDateView.
+  const [query, setQuery] = useFilterQueryState<string>(
+    filterKey,
+    sessionKey ?? '',
+  );
 
   return (
     <DateFilterCommand
       focusOnMount
       value={filterKey}
+      label={label}
       selected={query ?? ''}
       onSelect={(value) => {
         setQuery(value);
@@ -428,8 +470,9 @@ const FilterBarDate = React.forwardRef<
   React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     filterKey: string;
+    label?: string;
   }
->(({ filterKey, className, ...props }, ref) => {
+>(({ filterKey, label, className, ...props }, ref) => {
   const { sessionKey } = useFilterContext();
   const [query, setQuery] = useFilterQueryState<string>(
     filterKey,
@@ -452,6 +495,7 @@ const FilterBarDate = React.forwardRef<
       <Combobox.Content>
         <DateFilterCommand
           value={filterKey}
+          label={label}
           selected={query ?? ''}
           onSelect={(val) => {
             setQuery(val);

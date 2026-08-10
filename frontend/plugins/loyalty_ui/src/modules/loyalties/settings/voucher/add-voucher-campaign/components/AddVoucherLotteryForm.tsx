@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Form, Input, Select } from 'erxes-ui';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { QUERY_LOTTERY_CAMPAIGNS } from '../../../lottery/add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 
@@ -12,6 +13,7 @@ interface AddVoucherLotteryFormProps {
 export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
   form,
 }) => {
+  const { t } = useTranslation('loyalty');
   const { data: campaignsData } = useQuery(QUERY_LOTTERY_CAMPAIGNS);
 
   const lotteryCampaigns = campaignsData?.getCampaigns?.list || [];
@@ -23,7 +25,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
         name="lottery"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Lottery</Form.Label>
+            <Form.Label>{t('lottery')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
@@ -31,7 +33,7 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
                 >
                   {lotteryCampaigns.find(
                     (campaign: any) => campaign._id === field.value,
-                  )?.title || 'Select lottery'}
+                  )?.title || t('select-lottery')}
                 </Select.Trigger>
                 <Select.Content>
                   {lotteryCampaigns.map((campaign: any) => (
@@ -51,11 +53,11 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
         name="lotteryCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Lottery Count</Form.Label>
+            <Form.Label>{t('lottery-count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder="Enter Lottery Count"
+                placeholder={t('enter-lottery-count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

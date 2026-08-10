@@ -1,12 +1,26 @@
 import { AutomationNodesType, AutomationNodeType } from '@/automations/types';
+import {
+  IconArrowsSplit2,
+  IconBolt,
+  IconPointerBolt,
+} from '@tabler/icons-react';
 
 export const CANVAS_FIT_VIEW_OPTIONS = { padding: 4, minZoom: 0.8 };
+
+// Canvas zoom bounds. Shared so the ReactFlow instance and the zoom slider in
+// the canvas controls can never drift apart.
+export const CANVAS_MIN_ZOOM = 0.1;
+export const CANVAS_MAX_ZOOM = 2;
 
 export const PROPERTY_OPERATOR = {
   String: [
     {
       value: 'set',
       label: 'Set',
+    },
+    {
+      value: 'clear',
+      label: 'Clear',
     },
     {
       value: 'concat',
@@ -17,6 +31,10 @@ export const PROPERTY_OPERATOR = {
     {
       value: 'set',
       label: 'Set',
+    },
+    {
+      value: 'clear',
+      label: 'Clear',
     },
     {
       value: 'addDay',
@@ -48,11 +66,45 @@ export const PROPERTY_OPERATOR = {
       value: 'set',
       label: 'Set',
     },
+    {
+      value: 'clear',
+      label: 'Clear',
+    },
+  ],
+  Array: [
+    {
+      value: 'set',
+      label: 'Set',
+    },
+    {
+      value: 'clear',
+      label: 'Clear',
+    },
+    {
+      value: 'split',
+      label: 'Split',
+    },
+    {
+      value: 'push',
+      label: 'Push',
+    },
+    {
+      value: 'addToSet',
+      label: 'Add unique',
+    },
+    {
+      value: 'pull',
+      label: 'Pull',
+    },
   ],
   Default: [
     {
       value: 'set',
       label: 'Set',
+    },
+    {
+      value: 'clear',
+      label: 'Clear',
     },
   ],
 };
@@ -70,10 +122,23 @@ export const AUTOMATION_HISTORIES_CURSOR_SESSION_KEY =
 export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
   'automation-record-table-filters-cursor';
 
+export const AUTOMATION_APPROVAL_CONTENT_TYPES = {
+  AUTOMATION: 'core:automation',
+  AUTOMATION_AI_AGENT: 'core:automation_ai_agent',
+} as const;
+
 export const AUTOMATION_LIBRARY_TABS = [
-  { value: AutomationNodeType.Trigger, label: 'Triggers' },
-  { value: AutomationNodeType.Action, label: 'Actions' },
-  // { value: AutomationNodeType.Workflow, label: 'Automations' },
+  {
+    value: AutomationNodeType.Trigger,
+    label: 'Triggers',
+    icon: IconPointerBolt,
+  },
+  { value: AutomationNodeType.Action, label: 'Actions', icon: IconBolt },
+  {
+    value: AutomationNodeType.Workflow,
+    label: 'Workflows',
+    icon: IconArrowsSplit2,
+  },
 ];
 type ConnectionPropertyName = 'nextActionId' | 'actionId' | 'workflowId';
 

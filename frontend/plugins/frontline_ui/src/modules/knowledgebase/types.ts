@@ -1,6 +1,10 @@
 import type { IAttachment, IPdfAttachment } from 'erxes-ui';
 
-export type { IUser, ICategory, ITopic } from '../../../../content_ui/src/modules/cms/types';
+export type {
+  IUser,
+  ICategory,
+  ITopic,
+} from '../../../../content_ui/src/modules/cms/types';
 
 export interface IArticleCustomFormField {
   id: string;
@@ -26,7 +30,7 @@ export interface IKnowledgeBaseArticle {
   fileDuration?: number;
   fileName?: string;
   fileType?: string;
-  customForms?: IArticleCustomFormField[];
+  // customForms?: IArticleCustomFormField[];
 }
 
 export interface ArticleFormData {
@@ -45,10 +49,55 @@ export interface ArticleFormData {
   fileDuration?: number;
   fileName?: string;
   fileType?: string;
-  customForms: IArticleCustomFormField[];
+  // customForms: IArticleCustomFormField[];
 }
 
 export type ArticleInput = Omit<
   ArticleFormData,
   'fileUrl' | 'fileSize' | 'fileDuration' | 'fileName' | 'fileType'
 >;
+
+export interface IKnowledgeBaseImage {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+  duration: number;
+}
+
+export interface IKnowledgeBaseFirstTopic {
+  _id: string;
+  title: string;
+  code: string;
+  color: string;
+  backgroundImage: string;
+}
+
+export interface IKnowledgeBaseTopicCategory {
+  _id: string;
+  title: string;
+  description: string;
+  numOfArticles: number;
+  countArticles: number;
+  parentCategoryId: string;
+  icon: string;
+  color: string;
+  backgroundImage: string;
+  code: string;
+  firstTopic?: IKnowledgeBaseFirstTopic;
+  articles: IKnowledgeBaseArticle[];
+}
+
+export interface IKnowledgeBaseTopic {
+  _id: string;
+  title: string;
+  description: string;
+  color: string;
+  code: string;
+  categories: IKnowledgeBaseTopicCategory[];
+  parentCategories: (IKnowledgeBaseTopicCategory & {
+    childrens?: {
+      _id: string;
+    }[];
+  })[];
+}

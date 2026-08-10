@@ -1,29 +1,29 @@
 import { Form, Select } from 'erxes-ui';
 
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { IPropertyCondtion } from '../../types';
+import { useSegmentGroupField } from '../../context/SegmentGroupField';
 import { FieldWithError } from '../FieldWithError';
 
-export const PropertyOperator = ({
-  currentField,
-  operators,
-  parentFieldName,
-  defaultValue,
-  loading,
-  onBeforeFieldChange,
-}: IPropertyCondtion) => {
+export const PropertyOperator = () => {
   const { form } = useSegment();
   const { control } = form;
+  const {
+    selectedField,
+    operators = [],
+    conditionFieldName,
+    loading,
+    onBeforeFieldChange,
+  } = useSegmentGroupField();
 
   return (
     <Form.Field
       control={control}
-      name={`${parentFieldName}.propertyOperator`}
+      name={`${conditionFieldName}.propertyOperator`}
       render={({ field, fieldState }) => (
         <FieldWithError error={fieldState.error}>
           <Select
             value={field.value}
-            disabled={!currentField || loading}
+            disabled={!selectedField || loading}
             onValueChange={(selectedValue) => {
               onBeforeFieldChange?.('propertyOperator');
               field.onChange(selectedValue);

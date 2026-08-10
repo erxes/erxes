@@ -23,6 +23,12 @@ const StageInErkhetConfig = lazy(() =>
   })),
 );
 
+const PosOrderErkhetConfig = lazy(() =>
+  import('~/pages/PosOrderErkhetConfigPage').then((module) => ({
+    default: module.PosOrderErkhetConfig,
+  })),
+);
+
 const PipelineRemainderConfig = lazy(() =>
   import('~/pages/PipelineRemainderConfigPage').then((module) => ({
     default: module.PipelineRemainderConfig,
@@ -59,9 +65,9 @@ const StageInErkhetConfigAddSheetConnected = lazy(() =>
   })),
 );
 
-const StageInErkhetIncomeConfig = lazy(() =>
-  import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
-    default: module.StageInErkhetIncomeConfig,
+const PosOrderErkhetConfigAddSheetConnected = lazy(() =>
+  import('~/pages/PosOrderErkhetConfigPage').then((module) => ({
+    default: module.PosOrderErkhetConfigAddSheetConnected,
   })),
 );
 
@@ -71,6 +77,7 @@ const ErkhetSettingsHeader = () => {
   const isRemainder = pathname.endsWith('/remainder');
   const isReturn = pathname.endsWith('/return');
   const isStageIn = pathname.endsWith('/stage-in');
+  const isPosOrder = pathname.endsWith('/pos-order');
 
   return (
     <SettingsHeader breadcrumbs={<ErkhetSyncBreadcrumb />}>
@@ -95,6 +102,11 @@ const ErkhetSettingsHeader = () => {
           <StageInErkhetConfigAddSheetConnected />
         </Suspense>
       )}
+      {isPosOrder && (
+        <Suspense fallback={null}>
+          <PosOrderErkhetConfigAddSheetConnected />
+        </Suspense>
+      )}
     </SettingsHeader>
   );
 };
@@ -116,13 +128,13 @@ const ErkhetSettings = () => {
             <Routes>
               <Route path="/" element={<ErkhetSyncGeneralConfig />} />
               <Route path="/stage-in" element={<StageInErkhetConfig />} />
+              <Route path="/pos-order" element={<PosOrderErkhetConfig />} />
               <Route path="/return" element={<StageInReturnErkhetConfig />} />
               <Route path="/remainder" element={<PipelineRemainderConfig />} />
               <Route
                 path="/movement"
                 element={<StageInErkhetMovementConfig />}
               />
-              <Route path="/income" element={<StageInErkhetIncomeConfig />} />
             </Routes>
           </Suspense>
         </div>

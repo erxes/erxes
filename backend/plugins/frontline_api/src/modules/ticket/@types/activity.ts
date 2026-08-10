@@ -1,8 +1,18 @@
 import { Document } from 'mongoose';
 
+interface IActivityFormSubmissionField {
+  label: string;
+  value: unknown;
+}
+
 interface IActivityMetaData {
   newValue?: string;
   previousValue?: string;
+  conversationId?: string;
+  ticketId?: string;
+  formId?: string;
+  formTitle?: string;
+  submissions?: IActivityFormSubmissionField[];
 }
 
 export interface IActivity {

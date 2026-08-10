@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { VoucherFormValues } from '../../constants/voucherFormSchema';
 import { QUERY_SPIN_CAMPAIGNS } from '../../../spin/add-spin-campaign/graphql/queries/getCampaignsQuery';
 
@@ -12,6 +13,7 @@ interface AddVoucherSpinFormProps {
 export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
   form,
 }) => {
+  const { t } = useTranslation('loyalty');
   const { data: campaignsData } = useQuery(QUERY_SPIN_CAMPAIGNS);
   const spinCampaigns = campaignsData?.spinCampaigns?.list || [];
 
@@ -22,7 +24,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
         name="spinCampaignId"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Spin Campaign</Form.Label>
+            <Form.Label>{t('spin-campaign')}</Form.Label>
             <Form.Control>
               <Select onValueChange={field.onChange} value={field.value}>
                 <Select.Trigger
@@ -30,7 +32,7 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
                 >
                   {spinCampaigns.find(
                     (campaign: any) => campaign._id === field.value,
-                  )?.title || 'Select spin campaign'}
+                  )?.title || t('select-spin-campaign')}
                 </Select.Trigger>
                 <Select.Content>
                   {spinCampaigns.map((campaign: any) => (
@@ -50,11 +52,11 @@ export const AddVoucherSpinForm: React.FC<AddVoucherSpinFormProps> = ({
         name="spinCount"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Spin Count</Form.Label>
+            <Form.Label>{t('spin-count')}</Form.Label>
             <Form.Control>
               <Input
                 type="number"
-                placeholder="Enter spin count"
+                placeholder={t('enter-spin-count')}
                 value={field.value ?? ''}
                 onChange={(e) =>
                   field.onChange(

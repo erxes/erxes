@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { InfoCard, Button } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import {
   RepeatRuleSheet,
@@ -37,6 +38,7 @@ const isoToTime = (isoString?: string): string | null => {
 };
 
 export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
+  const { t } = useTranslation('loyalty');
   const [rules, setRules] = useState<RepeatRuleConfig[]>([]);
   const [editingRule, setEditingRule] = useState<RepeatRuleConfig | null>(null);
 
@@ -78,7 +80,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
 
   return (
     <div className="p-6 space-y-4">
-      <InfoCard title="Repeat">
+      <InfoCard title={t('repeat')}>
         <InfoCard.Content className="space-y-4">
           <div className="flex justify-end">
             <RepeatRuleSheet
@@ -91,7 +93,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
 
           {rules.length === 0 ? (
             <div className="py-6 text-sm text-center text-muted-foreground">
-              No repeat rules yet. Click "Add rule" to add one.
+              {t('no-repeat-rules')}
             </div>
           ) : (
             <div className="space-y-2">
@@ -106,7 +108,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                     <Button
                       variant="outline"
                       size="icon"
-                      aria-label="Edit repeat rule"
+                      aria-label={t('edit-repeat-rule')}
                       onClick={() => setEditingRule(rule)}
                     >
                       <IconEdit size={14} />
@@ -115,7 +117,7 @@ export const RepeatInfo: React.FC<RepeatInfoProps> = ({ pricingDetail }) => {
                       variant="outline"
                       size="icon"
                       className="text-destructive"
-                      aria-label="Delete repeat rule"
+                      aria-label={t('delete-repeat-rule')}
                       onClick={() => handleRuleDelete(rule)}
                     >
                       <IconTrash size={14} />

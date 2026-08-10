@@ -34,29 +34,26 @@ export const adminMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpUsersEdit(
     _root: unknown,
     { _id, ...params }: CpUsersEditParams,
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('clientPortalManage');
     return models.CPUser.updateUser(_id, params, models);
   },
 
   async cpUsersRemove(
     _root: unknown,
-    { _id }: { _id: string },
+    { ids }: { ids: string[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('clientPortalManage');
 
-    await models.CPUser.removeUser(_id, models);
-    return { _id };
+    return models.CPUser.removeUsers(ids, models);
   },
 
   async cpUsersSetPassword(
     _root: unknown,
     { _id, newPassword }: CpUsersSetPasswordParams,
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('clientPortalManage');
     await getCPUserByIdOrThrow(_id, models);
 
     validatePassword(newPassword);

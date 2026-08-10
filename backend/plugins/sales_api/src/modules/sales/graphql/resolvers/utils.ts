@@ -10,7 +10,11 @@ import {
   IStageDocument,
 } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
-import { getNewOrder } from '~/modules/sales/utils';
+import {
+  generateAmounts,
+  generateProducts,
+  getNewOrder,
+} from '~/modules/sales/utils';
 
 export const subscriptionWrapper = async (
   models: IModels,
@@ -64,6 +68,91 @@ export const subscriptionWrapper = async (
       oldDeal,
     },
   });
+};
+
+export const resolveDealSubscriptionItem = async (
+  models: IModels,
+  subdomain: string,
+  deal: IDealDocument,
+) => {
+  const dealDoc =
+    typeof deal.toObject === 'function' ? deal.toObject() : { ...deal };
+
+  const labels = await models.PipelineLabels.find({
+    _id: { $in: deal.labelIds || [] },
+  }).lean();
+
+  // Match Deal.products GraphQL shape used by board cards: { _id, name }
+  // (not generateProducts line-item shape with nested `product`)
+  const generatedProducts = await generateProducts(
+    subdomain,
+    deal.productsData,
+  );
+  const products = generatedProducts
+    .map(
+      (row: {
+        productId?: string;
+        product?: { _id?: string; name?: string };
+      }) => {
+        const productId = row.product?._id || row.productId;
+        if (!productId) {
+          return null;
+        }
+
+        return {
+          _id: productId,
+          name: row.product?.name,
+        };
+      },
+    )
+    .filter(
+      (product): product is { _id: string; name?: string } => product !== null,
+    );
+
+  const amount = generateAmounts(deal.productsData || []);
+  const unUsedAmount = generateAmounts(deal.productsData || [], false);
+
+  return {
+    ...dealDoc,
+    labels,
+    products,
+    amount,
+    unUsedAmount,
+  };
+};
+
+export const publishPipelineOrderUpdated = async ({
+  pipelineIds,
+  processId,
+  item,
+  aboveItemId,
+  destinationStageId,
+  oldStageId,
+}: {
+  pipelineIds: string[];
+  processId?: string;
+  item: Record<string, unknown>;
+  aboveItemId?: string;
+  destinationStageId: string;
+  oldStageId?: string;
+}) => {
+  const uniquePipelineIds = [...new Set(pipelineIds.filter(Boolean))];
+
+  for (const pipelineId of uniquePipelineIds) {
+    await graphqlPubsub.publish(`salesPipelinesChanged:${pipelineId}`, {
+      salesPipelinesChanged: {
+        _id: pipelineId,
+        processId,
+        action: 'orderUpdated',
+        data: {
+          item,
+          aboveItemId: aboveItemId || '',
+          destinationStageId,
+          oldStageId,
+        },
+      },
+    });
+  }
 };
 
 /**
@@ -365,18 +454,23 @@ export const changeItemStatus = async (
   const aboveItemId = aboveItems[0]?._id || '';
 
   // maybe, recovered order includes to oldOrders
+  const recoveredOrder = await getNewOrder({
+    collection: models.Deals,
+    stageId: item.stageId,
+    aboveItemId,
+  });
+
   await models.Deals.updateOne(
     {
       _id: item._id,
     },
     {
-      order: await getNewOrder({
-        collection: models.Deals,
-        stageId: item.stageId,
-        aboveItemId,
-      }),
+      order: recoveredOrder,
     },
   );
+
+  // Publish the persisted order when restoring the deal.
+  item.order = recoveredOrder;
 
   // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
   //   salesPipelinesChanged: {

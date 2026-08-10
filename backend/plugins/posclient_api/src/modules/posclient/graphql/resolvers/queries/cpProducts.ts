@@ -19,8 +19,35 @@ import {
 import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
+  getDiscountSortedProducts,
   getRemBranchId,
+  isDiscountSortField,
+  pushDiscountRangeFilters,
+  type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
+
+const getPropertyFieldId = (field: string) =>
+  field.replace('propertiesData.', '');
+
+const getProductPropertyValue = (product: any, fieldId: string) =>
+  product?.propertiesData?.[fieldId];
+
+const getProductPropertyIds = (product: any) =>
+  Object.keys(product.propertiesData || {});
+
+const isPropertyField = (field: string) => field.includes('propertiesData.');
+
+const propertyExistsFilter = (fieldIds: string[]) => ({
+  $or: [
+    ...fieldIds.map((fieldId) => ({
+      [`propertiesData.${fieldId}`]: { $exists: true },
+    })),
+  ],
+});
+
+const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
+  [`propertiesData.${fieldId}`]: { $regex: regex },
+});
 
 export interface ICommonParams {
   sortField?: string;
@@ -48,11 +75,16 @@ export interface IProductParams extends ICommonParams {
   groupedSimilarity?: string;
   categoryMeta?: string;
   image?: string;
-
+  isSimilarity?: boolean;
   minRemainder?: number;
   maxRemainder?: number;
   minPrice?: number;
   maxPrice?: number;
+  minDiscountValue?: number;
+  maxDiscountValue?: number;
+  minDiscountPercent?: number;
+  maxDiscountPercent?: number;
+  discountConditions?: Record<string, unknown>;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -88,10 +120,16 @@ const generateFilter = async (
     categoryMeta,
     isKiosk,
     image,
+    isSimilarity,
     minRemainder,
     maxRemainder,
     minPrice,
     maxPrice,
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -102,6 +140,25 @@ const generateFilter = async (
     status: { $ne: PRODUCT_STATUSES.DELETED },
     tokens: { $in: [token] },
   };
+
+  if (isSimilarity) {
+    const similarityGroups = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'similarities.find',
+      input: { query: { status: { $ne: 'deleted' } } },
+      defaultValue: [],
+    });
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
+    $and.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (type) {
     filter.type = type;
@@ -123,13 +180,6 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
 
@@ -150,13 +200,6 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
 
@@ -281,6 +324,14 @@ const generateFilter = async (
     });
   }
 
+  pushDiscountRangeFilters($and, config, branchId, {
+    minDiscountValue,
+    maxDiscountValue,
+    minDiscountPercent,
+    maxDiscountPercent,
+    discountConditions,
+  });
+
   const lastFilter = { ...filter, $and };
 
   if (isKiosk) {
@@ -373,7 +424,7 @@ const cpProductQueries: Record<string, Resolver> = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
@@ -396,6 +447,23 @@ const cpProductQueries: Record<string, Resolver> = {
         groupedSimilarity,
         ...paginationArgs,
       });
+    }
+
+    if (isDiscountSortField(sortField)) {
+      const products = await getDiscountSortedProducts({
+        models,
+        filter,
+        config,
+        params,
+      });
+
+      return checkRemainders(
+        subdomain,
+        models,
+        config,
+        products,
+        branchId || '',
+      );
     }
 
     const paginatedProducts = await paginate(
@@ -457,21 +525,18 @@ const cpProductQueries: Record<string, Resolver> = {
         await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
-      const customFieldIds = (product.customFieldsData || []).map(
-        (cf) => cf.field,
-      );
+      const customFieldIds = getProductPropertyIds(product);
 
       const matchedMasks = codeMasks.filter((cm) => {
         const mask = similarityGroups[cm];
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (filterFieldDef.includes('customFieldsData.')) {
+        if (isPropertyField(filterFieldDef)) {
+          const fieldId = getPropertyFieldId(filterFieldDef);
           if (
-            !(product.customFieldsData || []).find(
-              (cfd) =>
-                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
-                cfd.stringValue?.match(regexer),
+            !String(getProductPropertyValue(product, fieldId) || '').match(
+              regexer,
             )
           ) {
             return false;
@@ -509,22 +574,13 @@ const cpProductQueries: Record<string, Resolver> = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (filterFieldDef.includes('customFieldsData.')) {
-          codeRegexs.push({
-            $and: [
-              {
-                'customFieldsData.field': filterFieldDef.replace(
-                  'customFieldsData.',
-                  '',
-                ),
-              },
-              {
-                'customFieldsData.stringValue': {
-                  $in: [getRegex(matchedMask)],
-                },
-              },
-            ],
-          });
+        if (isPropertyField(filterFieldDef)) {
+          codeRegexs.push(
+            propertyRegexFilter(
+              getPropertyFieldId(filterFieldDef),
+              getRegex(matchedMask),
+            ),
+          );
         } else {
           codeRegexs.push({
             [filterFieldDef]: { $in: [getRegex(matchedMask)] },
@@ -545,13 +601,13 @@ const cpProductQueries: Record<string, Resolver> = {
           {
             $or: codeRegexs,
           },
-          {
-            'customFieldsData.field': { $in: fieldIds },
-          },
+          propertyExistsFilter(fieldIds),
         ],
       };
 
-      let products = await models.Products.find(filters).sort({ code: 1 });
+      let products: ProductWithRemainder[] = await models.Products.find(
+        filters,
+      ).sort({ code: 1 });
       if (!products.length) {
         products = await checkRemainders(
           subdomain,
@@ -587,7 +643,7 @@ const cpProductQueries: Record<string, Resolver> = {
       $and: [
         {
           categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds },
+          ...propertyExistsFilter(fieldIds),
         },
       ],
     };

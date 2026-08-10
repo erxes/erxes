@@ -2,6 +2,10 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 import { INPUT_TYPE } from 'erxes-api-shared/core-modules';
 import { ILocationOption } from 'erxes-api-shared/core-types';
+import {
+  fieldValidatorSchema,
+  IFieldValidator,
+} from './fieldValidator';
 
 export interface ISubmission {
   _id: string;
@@ -85,6 +89,7 @@ export interface IField extends IVisibility {
   lastUpdatedUserId?: string;
   associatedFieldId?: string;
   code?: string;
+  allowSearch?: boolean;
 
   logics?: ILogic[];
   logicAction?: string;
@@ -98,6 +103,8 @@ export interface IField extends IVisibility {
   relationType?: string;
 
   subFieldIds?: string[];
+
+  validator?: IFieldValidator;
 }
 
 export interface IFieldDocument extends IField, Document {
@@ -216,6 +223,12 @@ export const fieldSchema = schemaWrapper(
       label:
         'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled',
     }),
+    allowSearch: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Allow search field in options',
+    }),
     content: field({
       type: String,
       optional: true,
@@ -253,6 +266,10 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Is Disabled',
     }),
+    validator: {
+      type: fieldValidatorSchema,
+      optional: true,
+    },
   }),
 );
 

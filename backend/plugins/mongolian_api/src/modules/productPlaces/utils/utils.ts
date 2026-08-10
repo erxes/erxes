@@ -4,15 +4,23 @@ import { generateModels } from '../../../connectionResolvers';
 
 // OLD function - keep for backward compatibility
 export const getConfig = async (subdomain, code, defaultValue?) => {
-  return sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'configs',
-    action: 'getConfig',
-    method: 'query',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 // NEW function for mnConfigs (direct model access)
@@ -37,7 +45,7 @@ export const getMnConfig = async (
       }, {});
     }
 
-    return defaultValue;
+    return result?.value ?? defaultValue;
   } catch {
     return defaultValue;
   }
@@ -69,7 +77,7 @@ export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
           }, {});
         }
 
-        return null;
+        return config?.value ?? null;
       }),
     );
 
@@ -87,9 +95,8 @@ export const getChildCategories = async (
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'withChilds',
-      method: 'query',
       input: { ids: categoryIds },
       defaultValue: [],
     })) || [];
@@ -104,8 +111,7 @@ export const getChildTags = async (subdomain: string, tagIds: string[]) => {
       subdomain,
       pluginName: 'core',
       module: 'tags',
-      action: 'tagWithChilds',
-      method: 'query',
+      action: 'findWithChild',
       input: {
         query: { _id: { $in: tagIds } },
         fields: { _id: 1 },
@@ -224,7 +230,6 @@ export const checkCondition = async (
         pluginName: 'core',
         module: 'segment',
         action: 'isInSegment',
-        method: 'query',
         input: {
           segmentId,
           idToCheck: pdata.productId,
@@ -281,9 +286,8 @@ export const getCustomer = async (subdomain, deal) => {
         pluginName: 'core',
         module: 'companies',
         action: 'findActiveCompanies',
-        method: 'query',
         input: {
-          selector: { _id: { $in: companyIds } },
+          query: { _id: { $in: companyIds } },
           fields: { _id: 1, code: 1, primaryName: 1 },
         },
         defaultValue: [],
@@ -320,9 +324,8 @@ export const getCustomer = async (subdomain, deal) => {
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: {
             _id: 1,
             code: 1,

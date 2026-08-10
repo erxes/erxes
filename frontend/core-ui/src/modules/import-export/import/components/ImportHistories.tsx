@@ -21,38 +21,32 @@ export function ImportHistories() {
 
   return (
     <ImportHistoriesRecordTableProvider value={providerValue}>
-      <div className="min-w-0 w-full space-y-4">
-        <ImportHistoriesRecordTableHeader />
+      <ImportHistoriesRecordTableHeader />
 
-        <RecordTable.Provider
-          columns={columns}
-          data={list}
-          className="min-w-0 overflow-hidden rounded-xl border bg-background"
+      <RecordTable.Provider columns={columns} data={list}>
+        <RecordTable.CursorProvider
+          hasPreviousPage={hasPreviousPage}
+          hasNextPage={hasNextPage}
+          dataLength={list.length}
+          sessionKey={RECORD_TABLE_SESSION_KEY}
         >
-          <RecordTable.CursorProvider
-            hasPreviousPage={hasPreviousPage}
-            hasNextPage={hasNextPage}
-            dataLength={list.length}
-            sessionKey={RECORD_TABLE_SESSION_KEY}
-          >
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.CursorBackwardSkeleton
-                  handleFetchMore={handleFetchMore}
-                />
-                {loading && <RecordTable.RowSkeleton rows={20} />}
-                {error && <ImportHistoriesErrorState />}
-                <RecordTable.RowList />
-                <RecordTable.CursorForwardSkeleton
-                  handleFetchMore={handleFetchMore}
-                />
-                {isEmpty && <ImportHistoriesEmptyState />}
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.CursorProvider>
-        </RecordTable.Provider>
-      </div>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.CursorBackwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              {loading && <RecordTable.RowSkeleton rows={20} />}
+              {error && <ImportHistoriesErrorState />}
+              <RecordTable.RowList />
+              <RecordTable.CursorForwardSkeleton
+                handleFetchMore={handleFetchMore}
+              />
+              {isEmpty && <ImportHistoriesEmptyState />}
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.CursorProvider>
+      </RecordTable.Provider>
     </ImportHistoriesRecordTableProvider>
   );
 }

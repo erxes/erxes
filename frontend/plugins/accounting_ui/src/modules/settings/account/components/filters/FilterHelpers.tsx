@@ -1,7 +1,10 @@
 import {
   IconCoins,
+  IconHash,
+  IconLabelFilled,
   IconLayoutGridAdd,
   IconNotebook,
+  IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import {
@@ -12,6 +15,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   SelectAccountCatCommand,
   SelectAccountCategory,
@@ -30,6 +34,10 @@ import {
 } from './AccountsJournal';
 import { AccountsKindCommand, SelectAccountKindCommand } from './AccountsKind';
 import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../../hooks/useCurrencyConfigs';
+import {
   AccountsStatusCommand,
   SelectAccountStatusCommand,
 } from './AccountsStatus';
@@ -37,6 +45,10 @@ import {
   AccountsTrJournalCommand,
   SelectAccountTrJournalCommand,
 } from './AccountsTrJournal';
+import {
+  AccountsTrStatusCommand,
+  SelectAccountTrStatusCommand,
+} from './AccountsTrStatus';
 
 // category helper
 export const AccountsFilterCategory = () => {
@@ -62,6 +74,7 @@ export const AccountsFilterCategory = () => {
 };
 
 export const FilterBarCategory = () => {
+  const { t } = useTranslation('accounting');
   const [categoryId, setCategoryId] = useQueryState<string | null>(
     'categoryId',
   );
@@ -70,7 +83,7 @@ export const FilterBarCategory = () => {
     <Filter.BarItem queryKey="categoryId">
       <Filter.BarName>
         <IconLayoutGridAdd />
-        Category
+        {t('category')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountCategory
@@ -89,11 +102,17 @@ export const FilterBarCategory = () => {
 export const AccountsFilterCurrency = () => {
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
   const { resetFilterState } = useFilterContext();
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+
   return (
     <Filter.View filterKey="currency">
       <CurrencyField.SelectCurrencyCommand
         focusOnMount
-        value={currency ?? undefined}
+        value={getCurrencyCodeFromOptions(
+          currency ?? undefined,
+          dealCurrencyOptions,
+        )}
+        currencies={dealCurrencyOptions}
         onSelect={(code) => {
           setCurrency(code);
           resetFilterState();
@@ -104,20 +123,26 @@ export const AccountsFilterCurrency = () => {
 };
 
 export const FilterBarCurrency = () => {
+  const { t } = useTranslation('accounting');
   const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
+  const { dealCurrencyOptions } = useCurrencyConfigs();
 
   return (
     <Filter.BarItem queryKey="currency">
       <Filter.BarName>
         <IconCoins />
-        Currency
+        {t('currency')}
       </Filter.BarName>
       <Filter.BarButton>
         <CurrencyField.SelectCurrency
-          value={currency ?? undefined}
+          value={getCurrencyCodeFromOptions(
+            currency ?? undefined,
+            dealCurrencyOptions,
+          )}
           onChange={(value) => setCurrency(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
+          currencies={dealCurrencyOptions}
         />
       </Filter.BarButton>
     </Filter.BarItem>
@@ -140,13 +165,14 @@ export const AccountsFilterKind = () => {
 };
 
 export const FilterBarKind = () => {
+  const { t } = useTranslation('accounting');
   const [kind, setKind] = useQueryState<string | null>('kind');
 
   return (
     <Filter.BarItem queryKey="kind">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Kind
+        {t('kind')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountKindCommand
@@ -180,13 +206,14 @@ export const AccountsFilterJournal = () => {
 };
 
 export const FilterBarJournal = () => {
+  const { t } = useTranslation('accounting');
   const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
       <Filter.BarName>
         <IconNotebook />
-        Journal
+        {t('journal')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountJournalCommand
@@ -220,13 +247,14 @@ export const AccountsFilterIsTemp = () => {
 };
 
 export const FilterBarIsTemp = () => {
+  const { t } = useTranslation('accounting');
   const [isTemp, setIsTemp] = useQueryState<string | null>('isTemp');
 
   return (
     <Filter.BarItem queryKey="isTemp">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Temp
+        {t('is-temp')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsTempCommand
@@ -344,13 +372,14 @@ export const AccountsFilterTrJournal = () => {
 };
 
 export const FilterBarTrJournal = () => {
+  const { t } = useTranslation('accounting');
   const [journal, setJournal] = useQueryState<string | null>('journal');
 
   return (
     <Filter.BarItem queryKey="journal">
       <Filter.BarName>
         <IconNotebook />
-        TrJournal
+        {t('tr-journal')}
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountTrJournalCommand
@@ -361,5 +390,115 @@ export const FilterBarTrJournal = () => {
         />
       </Filter.BarButton>
     </Filter.BarItem>
+  );
+};
+
+// tr status filter helper
+export const AccountsFilterTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  const handleSelect = (value: string[] | null) => {
+    setStatuses(value);
+  };
+
+  return (
+    <AccountsTrStatusCommand
+      focusOnMount
+      selected={statuses}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export const FilterBarTrStatus = () => {
+  const { t } = useTranslation('accounting');
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  return (
+    <Filter.BarItem queryKey="statuses">
+      <Filter.BarName>
+        <IconNotebook />
+        {t('tr-status')}
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountTrStatusCommand
+          selected={statuses}
+          onSelect={(value) => setStatuses(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+const FILTER_BAR_STRING_ICONS = {
+  searchValue: IconSearch,
+  code: IconHash,
+  name: IconLabelFilled,
+} as const;
+
+const FILTER_BAR_STRING_LABEL_KEYS = {
+  searchValue: 'search',
+  code: 'code',
+  name: 'name',
+} as const;
+
+type FilterBarStringKey = keyof typeof FILTER_BAR_STRING_ICONS;
+
+export const FilterBarStringItem = ({
+  queryKey,
+  value,
+}: {
+  queryKey: FilterBarStringKey;
+  value?: string | null;
+}) => {
+  const { t } = useTranslation('accounting');
+  const Icon = FILTER_BAR_STRING_ICONS[queryKey];
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {t(FILTER_BAR_STRING_LABEL_KEYS[queryKey])}
+      </Filter.BarName>
+      <Filter.BarButton filterKey={queryKey} inDialog>
+        {value}
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+export const FilterStringDialogViews = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => (
+      <Filter.View key={filterKey} filterKey={filterKey} inDialog>
+        <Filter.DialogStringView filterKey={filterKey} />
+      </Filter.View>
+    ))}
+  </>
+);
+
+export const FilterPopoverStringItems = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => {
+  const { t } = useTranslation('accounting');
+  return (
+    <>
+      {filterKeys.map((filterKey) => {
+        const Icon = FILTER_BAR_STRING_ICONS[filterKey];
+        return (
+          <Filter.Item key={filterKey} value={filterKey} inDialog>
+            <Icon />
+            {t(FILTER_BAR_STRING_LABEL_KEYS[filterKey])}
+          </Filter.Item>
+        );
+      })}
+    </>
   );
 };

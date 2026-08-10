@@ -40,6 +40,7 @@ export const inputs = `
         parentId: String
         status: String
         clientPortalId: String
+        language: String
         customFieldsData: JSON
         translations: [TranslationInput]
     }
@@ -50,7 +51,7 @@ export const queries = `
     cmsCategories(clientPortalId: String, language: String, searchValue: String, status: CategoryStatus, ${GQL_CURSOR_PARAM_DEFS}, sortField: String, sortDirection: String): PostCategoryListResponse
     cmsCategory(_id: String, slug: String, language: String, clientPortalId: String): PostCategory
 
-    cpCategories(clientPortalId: String, language: String): PostCategoryListResponse
+    cpCategories(clientPortalId: String, language: String, searchValue: String, status: CategoryStatus, ${GQL_CURSOR_PARAM_DEFS}, sortField: String, sortDirection: String): PostCategoryListResponse
     cpCmsCategoryDetail(_id: String, slug: String, language: String): PostCategory
 `;
 

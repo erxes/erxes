@@ -134,6 +134,26 @@ export const categoriesToPrintAtom = atomWithStorage<string[][]>(
   }
 )
 
+// QZ Tray
+export const qzTrayEnabledAtom = atomWithStorage<boolean>(
+  "qzTrayEnabled",
+  false
+)
+
+export const qzMainPrinterAtom = atomWithStorage<string>("qzMainPrinter", "")
+
+export const qzCategoryPrintersAtom = atomWithStorage<string[]>(
+  "qzCategoryPrinters",
+  []
+)
+
+export type ThermalPaperWidth = "48" | "58" | "72"
+
+export const thermalPaperWidthAtom = atomWithStorage<ThermalPaperWidth>(
+  "thermalPaperWidth",
+  "72"
+)
+
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",
   "products"

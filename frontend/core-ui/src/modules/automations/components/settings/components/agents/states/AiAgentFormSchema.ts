@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  aiAgentConnectionSchema,
+  normalizeAiAgentConnection,
+  TAiAgentConnection,
+} from '@/automations/components/settings/components/agents/states/AiAgentConnectionSchema';
+import { TAiAgentProvider } from '@/automations/components/settings/components/agents/constants/providers';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string(),
@@ -15,29 +21,56 @@ const aiAgentFileSchema = z.object({
   size: z.number().optional(),
   type: z.string().optional(),
   uploadedAt: z.string().optional(),
+  purpose: z.enum(['core', 'knowledge', 'policy', 'examples']).optional(),
+  status: z.enum(['uploaded', 'indexing', 'indexed', 'failed']).optional(),
+  chunkCount: z.number().int().nonnegative().optional(),
+  indexedAt: z.string().optional(),
+  contentHash: z.string().optional(),
+  indexError: z.string().optional(),
   versions: z.array(aiAgentFileVersionSchema).default([]),
+});
+
+const aiAgentKnowledgeSourceSchema = z.object({
+  pluginName: z.string(),
+  moduleName: z.string(),
+  key: z.string(),
+  scope: z.enum(['all', 'selected']).optional(),
+  sourceIds: z.array(z.string()).max(1000).default([]),
+  config: z.record(z.unknown()).default({}),
+});
+
+const aiAgentToolSchema = z.object({
+  pluginName: z.string(),
+  moduleName: z.string(),
+  key: z.string(),
+  enabled: z.boolean().default(true),
+  config: z.record(z.unknown()).default({}),
 });
 
 const baseAiAgentFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().max(500).default(''),
-  connection: z.object({
-    provider: z.enum(['openai']),
-    model: z.string().trim().min(1, 'Model is required'),
-    config: z.object({
-      apiKey: z.string().optional().default(''),
-      baseUrl: z.string().trim().url('Enter a valid base URL'),
-      headers: z.record(z.string(), z.string()).default({}),
-    }),
-  }),
+  connection: aiAgentConnectionSchema,
   runtime: z.object({
     temperature: z.number().min(0).max(2),
-    maxTokens: z.number().int().min(1).max(4000),
+    maxTokens: z.number().int().min(1).max(32768),
     timeoutMs: z.number().int().min(1000).max(30000),
   }),
   context: z.object({
     systemPrompt: z.string().max(4000).default(''),
+    retrieval: z
+      .object({
+        enabled: z.boolean().default(true),
+        mode: z.enum(['prompt', 'tool']).default('prompt'),
+        strategy: z.enum(['keyword', 'vector', 'hybrid']).default('keyword'),
+        topK: z.number().int().min(1).max(20).default(5),
+        maxContextBytes: z.number().int().min(500).max(50000).default(8000),
+        minScore: z.number().optional(),
+      })
+      .default({}),
     files: z.array(aiAgentFileSchema).max(10).default([]),
+    knowledgeSources: z.array(aiAgentKnowledgeSourceSchema).max(20).default([]),
+    tools: z.array(aiAgentToolSchema).max(20).default([]),
   }),
 });
 
@@ -71,7 +104,13 @@ export const buildAiAgentFormSchema = ({
   requireApiKey?: boolean;
 } = {}) =>
   baseAiAgentFormSchema.superRefine((value, ctx) => {
-    if (requireApiKey && !value.connection.config.apiKey?.trim()) {
+    if (
+      requireApiKey &&
+      ['grok', 'kimi', 'kimi-code', 'openai'].includes(
+        value.connection.provider,
+      ) &&
+      !value.connection.config.apiKey?.trim()
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['connection', 'config', 'apiKey'],
@@ -93,7 +132,30 @@ type TAiAgentFormFileVersionInput = {
 
 type TAiAgentFormFileInput = TAiAgentFormFileVersionInput & {
   id?: unknown;
+  purpose?: unknown;
+  status?: unknown;
+  chunkCount?: unknown;
+  indexedAt?: unknown;
+  contentHash?: unknown;
+  indexError?: unknown;
   versions?: unknown;
+};
+
+type TAiAgentKnowledgeSourceInput = {
+  pluginName?: unknown;
+  moduleName?: unknown;
+  key?: unknown;
+  scope?: unknown;
+  sourceIds?: unknown;
+  config?: unknown;
+};
+
+type TAiAgentToolInput = {
+  pluginName?: unknown;
+  moduleName?: unknown;
+  key?: unknown;
+  enabled?: unknown;
+  config?: unknown;
 };
 
 export type TAiAgentFormDetail = {
@@ -101,13 +163,9 @@ export type TAiAgentFormDetail = {
   name?: string;
   description?: string;
   connection?: {
-    provider?: 'openai';
+    provider?: TAiAgentConnection['provider'];
     model?: string;
-    config?: {
-      apiKey?: string;
-      baseUrl?: string;
-      headers?: string;
-    };
+    config?: Partial<TAiAgentConnection['config']> & Record<string, unknown>;
   };
   runtime?: {
     temperature?: number;
@@ -116,7 +174,17 @@ export type TAiAgentFormDetail = {
   };
   context?: {
     systemPrompt?: string;
+    retrieval?: {
+      enabled?: boolean;
+      mode?: 'prompt' | 'tool';
+      strategy?: 'keyword' | 'vector' | 'hybrid';
+      topK?: number;
+      maxContextBytes?: number;
+      minScore?: number;
+    };
     files?: unknown;
+    knowledgeSources?: unknown;
+    tools?: unknown;
   };
 };
 
@@ -153,6 +221,40 @@ const normalizeAiAgentFileVersions = (versions: unknown[] = []) =>
     })
     .filter((version) => version.key && version.name);
 
+type TAiAgentFilePurpose = NonNullable<
+  TAiAgentForm['context']['files'][number]['purpose']
+>;
+
+type TAiAgentFileStatus = NonNullable<
+  TAiAgentForm['context']['files'][number]['status']
+>;
+
+const normalizeAiAgentFilePurpose = (value: unknown): TAiAgentFilePurpose => {
+  if (
+    value === 'core' ||
+    value === 'knowledge' ||
+    value === 'policy' ||
+    value === 'examples'
+  ) {
+    return value;
+  }
+
+  return 'knowledge';
+};
+
+const normalizeAiAgentFileStatus = (value: unknown): TAiAgentFileStatus => {
+  if (
+    value === 'uploaded' ||
+    value === 'indexing' ||
+    value === 'indexed' ||
+    value === 'failed'
+  ) {
+    return value;
+  }
+
+  return 'uploaded';
+};
+
 const normalizeAiAgentFiles = (files: unknown[] = []) =>
   files
     .map((file, index) => {
@@ -182,6 +284,21 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
             ? current.type.trim()
             : undefined,
         uploadedAt: normalizeUploadedAt(current.uploadedAt),
+        purpose: normalizeAiAgentFilePurpose(current.purpose),
+        status: normalizeAiAgentFileStatus(current.status),
+        chunkCount:
+          typeof current.chunkCount === 'number' && current.chunkCount >= 0
+            ? current.chunkCount
+            : undefined,
+        indexedAt: normalizeUploadedAt(current.indexedAt),
+        contentHash:
+          typeof current.contentHash === 'string'
+            ? current.contentHash
+            : undefined,
+        indexError:
+          typeof current.indexError === 'string'
+            ? current.indexError
+            : undefined,
         versions: normalizeAiAgentFileVersions(
           Array.isArray(current.versions) ? current.versions : [],
         ),
@@ -189,26 +306,84 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
     })
     .filter((file) => file.key && file.name);
 
+const normalizeAiAgentKnowledgeSources = (sources: unknown[] = []) =>
+  sources
+    .map((source) => {
+      const current = isRecord(source)
+        ? (source as TAiAgentKnowledgeSourceInput)
+        : {};
+      const pluginName =
+        typeof current.pluginName === 'string' ? current.pluginName.trim() : '';
+      const moduleName =
+        typeof current.moduleName === 'string' ? current.moduleName.trim() : '';
+      const key = typeof current.key === 'string' ? current.key.trim() : '';
+      const sourceIds = Array.isArray(current.sourceIds)
+        ? [
+            ...new Set(
+              current.sourceIds.filter(
+                (id): id is string => typeof id === 'string' && !!id.trim(),
+              ),
+            ),
+          ]
+        : [];
+
+      const scope: 'all' | 'selected' | undefined =
+        current.scope === 'all' || current.scope === 'selected'
+          ? current.scope
+          : undefined;
+
+      return {
+        pluginName,
+        moduleName,
+        key,
+        ...(scope ? { scope } : {}),
+        sourceIds,
+        config: isRecord(current.config) ? { ...current.config } : {},
+      };
+    })
+    .filter((source) => source.pluginName && source.moduleName && source.key);
+
+const normalizeAiAgentTools = (tools: unknown[] = []) =>
+  tools
+    .map((tool) => {
+      const current = isRecord(tool) ? (tool as TAiAgentToolInput) : {};
+      const pluginName =
+        typeof current.pluginName === 'string' ? current.pluginName.trim() : '';
+      const moduleName =
+        typeof current.moduleName === 'string' ? current.moduleName.trim() : '';
+      const key = typeof current.key === 'string' ? current.key.trim() : '';
+
+      return {
+        pluginName,
+        moduleName,
+        key,
+        enabled: typeof current.enabled === 'boolean' ? current.enabled : true,
+        config: isRecord(current.config) ? { ...current.config } : {},
+      };
+    })
+    .filter((tool) => tool.pluginName && tool.moduleName && tool.key);
+
 export const normalizeAiAgentFormValues = (
   detail?: TAiAgentFormDetail,
+  defaultProvider?: TAiAgentProvider,
 ): TAiAgentForm => ({
   name: detail?.name || '',
   description: detail?.description || '',
   connection: {
-    provider: detail?.connection?.provider || 'openai',
-    model: detail?.connection?.model || '',
-    config: {
-      apiKey: '',
-      baseUrl:
-        detail?.connection?.config?.baseUrl || 'https://api.openai.com/v1',
-      headers: isRecord(detail?.connection?.config?.headers)
-        ? Object.fromEntries(
-            Object.entries(detail.connection.config.headers).map(
-              ([key, value]) => [key, String(value ?? '')],
-            ),
-          )
-        : {},
-    },
+    ...normalizeAiAgentConnection({
+      provider: detail?.connection?.provider || defaultProvider,
+      model: detail?.connection?.model,
+      config: {
+        ...(detail?.connection?.config || {}),
+        headers: isRecord(detail?.connection?.config?.headers)
+          ? Object.fromEntries(
+              Object.entries(detail.connection.config.headers).map(
+                ([key, value]) => [key, String(value ?? '')],
+              ),
+            )
+          : {},
+      },
+    } as Partial<TAiAgentConnection>),
   },
   runtime: {
     temperature: detail?.runtime?.temperature ?? 0.2,
@@ -217,8 +392,24 @@ export const normalizeAiAgentFormValues = (
   },
   context: {
     systemPrompt: detail?.context?.systemPrompt || '',
+    retrieval: {
+      enabled: detail?.context?.retrieval?.enabled ?? true,
+      mode: detail?.context?.retrieval?.mode === 'tool' ? 'tool' : 'prompt',
+      strategy: detail?.context?.retrieval?.strategy || 'keyword',
+      topK: detail?.context?.retrieval?.topK ?? 5,
+      maxContextBytes: detail?.context?.retrieval?.maxContextBytes ?? 8000,
+      minScore: detail?.context?.retrieval?.minScore,
+    },
     files: normalizeAiAgentFiles(
       Array.isArray(detail?.context?.files) ? detail.context.files : [],
+    ),
+    knowledgeSources: normalizeAiAgentKnowledgeSources(
+      Array.isArray(detail?.context?.knowledgeSources)
+        ? detail.context.knowledgeSources
+        : [],
+    ),
+    tools: normalizeAiAgentTools(
+      Array.isArray(detail?.context?.tools) ? detail.context.tools : [],
     ),
   },
 });

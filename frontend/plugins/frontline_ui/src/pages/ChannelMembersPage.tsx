@@ -2,8 +2,10 @@ import { Members } from '@/channels/components/settings/members/Members';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ChannelMembersPage = () => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
   return (
     <>
@@ -18,7 +20,7 @@ export const ChannelMembersPage = () => {
                   onClick={() => navigate(-1)}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  Channel Settings
+                  {t('channel-settings')}
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>

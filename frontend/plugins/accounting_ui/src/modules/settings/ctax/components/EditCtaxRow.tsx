@@ -1,29 +1,16 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
-import { useCtaxRowDetail } from '../hooks/useCtaxRowDetail';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { CtaxRowForm } from './CtaxRowForm';
 import { TCtaxRowForm } from '../types/CtaxRow';
+import { ctaxFormSchema } from '../constants/ctaxFormSchema';
+import { useCtaxRowDetail } from '../hooks/useCtaxRowDetail';
+import { useCtaxRowEdit } from '../hooks/useCtaxRowEdit';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ctaxFormSchema } from '../constants/ctaxFormSchema';
-import { useEffect } from 'react';
-import { useCtaxRowEdit } from '../hooks/useCtaxRowEdit';
-import { CtaxRowForm } from './CtaxRowForm';
-import { AccountingDialog } from '@/layout/components/Dialog';
 
-export const EditCtaxRow = () => {
-  const [open, setOpen] = useQueryState<string>('ctax_row_id');
-  return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog
-        title="НХАТ-ын мөр засах"
-        description="НХАТ-ын мөр засах"
-      >
-        <EditCtaxRowForm />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
-
-export const EditCtaxRowForm = () => {
+export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   const { ctaxRowDetail, closeDetail, loading } = useCtaxRowDetail();
   const { editCtaxRow, loading: editLoading } = useCtaxRowEdit();
   const form = useForm<TCtaxRowForm>({
@@ -45,7 +32,7 @@ export const EditCtaxRowForm = () => {
 
     if (isDeeplyEqual(newData, initialData)) {
       reset();
-      return closeDetail();
+      return onClose ? onClose() : closeDetail();
     }
     editCtaxRow({
       variables: {
@@ -53,7 +40,7 @@ export const EditCtaxRowForm = () => {
         ...data,
       },
       onCompleted: () => {
-        closeDetail();
+        onClose ? onClose() : closeDetail();
         reset();
       },
     });
@@ -68,5 +55,21 @@ export const EditCtaxRowForm = () => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditCtaxRow = () => {
+  const [open, setOpen] = useQueryState<string>('ctax_row_id');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="НХАТ-ын мөр засах">
+        <EditCtaxRowForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

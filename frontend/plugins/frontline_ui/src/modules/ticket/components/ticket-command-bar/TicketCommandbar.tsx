@@ -1,6 +1,7 @@
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, useQueryState } from 'erxes-ui';
 import { TicketDelete } from './delete/TicketDelete';
+import { Can } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
@@ -19,14 +20,16 @@ export const TicketCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Separator.Inline />
-        <Export
-          pluginName="frontline"
-          moduleName="ticket"
-          collectionName="ticket"
-          buttonVariant="secondary"
-          ids={ticketIds}
-        />
+        <Can action="ticketsExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="frontline"
+            moduleName="ticket"
+            collectionName="ticket"
+            buttonVariant="secondary"
+            ids={ticketIds}
+          />
+        </Can>
         {canDeleteTicket && (
           <TicketDelete ticketIds={ticketIds} rows={selectedRows} />
         )}

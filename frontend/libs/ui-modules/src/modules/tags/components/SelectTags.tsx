@@ -8,7 +8,6 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  ScrollArea,
   SelectOperationContent,
   SelectTree,
   SelectTriggerOperation,
@@ -31,6 +30,33 @@ import { useTags } from '../hooks/useTags';
 import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
 import { TagBadge } from './TagBadge';
 
+const getTagIds = (value?: string[] | string) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+};
+
+const isTagSelected = (value: string[] | string | undefined, tagId: string) =>
+  getTagIds(value).includes(tagId);
+
+const cacheSelectedTag = (
+  tag: ITag | undefined,
+  selectedTagIds: string[],
+  setSelectedTags: React.Dispatch<React.SetStateAction<ITag[]>>,
+) => {
+  if (!tag || !selectedTagIds.includes(tag._id)) return;
+
+  setSelectedTags((previousTags) => {
+    if (previousTags.some(({ _id }) => _id === tag._id)) {
+      return previousTags;
+    }
+
+    return [...previousTags, tag];
+  });
+};
+
 export const SelectTagsProvider = ({
   children,
   tagType,
@@ -48,20 +74,20 @@ export const SelectTagsProvider = ({
     if (!tag) return;
 
     const isSingleMode = mode === 'single';
-    const multipleValue = (value as string[]) || [];
+    const multipleValue = getTagIds(value);
     const isSelected = !isSingleMode && multipleValue.includes(tag._id);
 
-    const newSelectedTagIds = isSingleMode
-      ? [tag._id]
-      : isSelected
-        ? multipleValue.filter((t) => t !== tag._id)
-        : [...multipleValue, tag._id];
+    let newSelectedTagIds = [tag._id];
+    let newSelectedTags = [tag];
 
-    const newSelectedTags = isSingleMode
-      ? [tag]
-      : isSelected
-        ? selectedTags.filter((t) => t._id !== tag._id)
+    if (!isSingleMode) {
+      newSelectedTagIds = isSelected
+        ? multipleValue.filter((tagId) => tagId !== tag._id)
+        : [...multipleValue, tag._id];
+      newSelectedTags = isSelected
+        ? selectedTags.filter(({ _id }) => _id !== tag._id)
         : [...selectedTags, tag];
+    }
 
     setSelectedTags(newSelectedTags);
     onValueChange?.(isSingleMode ? tag._id : newSelectedTagIds);
@@ -327,8 +353,8 @@ export const SelectTagsItem = ({
 }: {
   tag: ITag & { hasChildren: boolean };
 }) => {
-  const { onSelect, selectedTags } = useSelectTagsContext();
-  const isSelected = selectedTags.some((t) => t._id === tag._id);
+  const { onSelect, value } = useSelectTagsContext();
+  const isSelected = isTagSelected(value, tag._id);
 
   return (
     <Command.Item onSelect={() => onSelect(tag)}>
@@ -372,15 +398,9 @@ export const TagList = ({
           tag={selectedTags.find((t) => t._id === tagId)}
           renderAsPlainText={renderAsPlainText}
           variant="secondary"
-          onCompleted={(tag) => {
-            if (!tag) return;
-            if (selectedTagIds.includes(tag._id)) {
-              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-            }
-            if (!selectedTags.includes(tag)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
-          }}
+          onCompleted={(tag) =>
+            cacheSelectedTag(tag, selectedTagIds, setSelectedTags)
+          }
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
           }
@@ -392,13 +412,14 @@ export const TagList = ({
 };
 
 export const SelectTagsValue = ({ placeholder }: { placeholder?: string }) => {
-  const { selectedTags, mode } = useSelectTagsContext();
+  const { value, mode } = useSelectTagsContext();
 
-  if ((selectedTags || []).length !== 0) {
+  const tagIds = getTagIds(value);
+
+  if (tagIds.length !== 0) {
     return (
       <span className="flex gap-1 items-center -ml-1 text-muted-foreground">
-        <IconTag className="w-4 h-4 text-gray-400" /> Tag +
-        {(selectedTags || []).length}
+        <IconTag className="w-4 h-4 text-gray-400" /> Tag +{tagIds.length}
       </span>
     );
   }
@@ -546,15 +567,9 @@ export const ConversationTagList = ({
           renderAsPlainText={renderAsPlainText}
           variant="secondary"
           className="max-w-24 shrink truncate"
-          onCompleted={(tag) => {
-            if (!tag) return;
-            if (selectedTagIds.includes(tag._id)) {
-              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-            }
-            if (!selectedTags.includes(tag)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
-          }}
+          onCompleted={(tag) =>
+            cacheSelectedTag(tag, selectedTagIds, setSelectedTags)
+          }
           onClose={() =>
             onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
           }
@@ -761,22 +776,23 @@ export const SelectTagsFilterItem = ({
 export const SelectTagsFilterView = ({
   mode,
   filterKey,
+  tagType,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
+  tagType?: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
-    filterKey,
-  );
+  const [query, setQuery] = useQueryState<string[] | string>(filterKey);
   const { resetFilterState } = useFilterContext();
 
   return (
     <Filter.View filterKey={filterKey}>
       <SelectTagsProvider
         mode={mode}
+        tagType={tagType}
         value={query || []}
         onValueChange={(value) => {
-          setQuery(value as any);
+          setQuery(Array.isArray(value) && value.length === 0 ? null : value);
           resetFilterState();
         }}
       >
@@ -792,7 +808,6 @@ export const SelectTagsFilterBar = ({
   label,
   variant,
   scope,
-  targetId,
   initialValue,
   onValueChange,
   tagType,
@@ -802,7 +817,6 @@ export const SelectTagsFilterBar = ({
   label: string;
   variant?: `${SelectTriggerVariant}`;
   scope?: string;
-  targetId?: string;
   initialValue?: string[];
   tagType?: string;
   onValueChange?: (value: string[] | string) => void;
@@ -810,7 +824,7 @@ export const SelectTagsFilterBar = ({
   const isCardVariant = variant === 'card';
 
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
-  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -832,9 +846,9 @@ export const SelectTagsFilterBar = ({
 
     if (value && value.length > 0) {
       if (isCardVariant) {
-        setLocalQuery(value as string[]);
+        setLocalQuery(Array.isArray(value) ? value : [value]);
       } else {
-        setUrlQuery(value as string[]);
+        setUrlQuery(value);
       }
     } else {
       if (isCardVariant) {
@@ -845,22 +859,50 @@ export const SelectTagsFilterBar = ({
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectTagsValue />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectTagsContent />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectTagsProvider>
+    );
+  }
+
   return (
-    <SelectTagsProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      tagType={tagType}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectTagsValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectTagsContent />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectTagsProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconTag />
+        {label}
+      </Filter.BarName>
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectTagsValue />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectTagsContent />
+          </Combobox.Content>
+        </Popover>
+      </SelectTagsProvider>
+    </Filter.BarItem>
   );
 };
 

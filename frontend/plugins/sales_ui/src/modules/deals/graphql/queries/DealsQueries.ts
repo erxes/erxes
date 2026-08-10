@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const commonParams = `
-  $_ids: [String]
+  $_ids: [String],
   $companyIds: [String],
   $customerIds: [String],
   $assignedUserIds: [String],
@@ -15,22 +15,23 @@ const commonParams = `
   $closeDateType: String,
   $userIds: [String],
   $segment: String,
-  $segmentData:String,
+  $segmentData: String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
   $tagIds: [String],
-  $noSkipArchive: Boolean
-  $branchIds:[String]
-  $departmentIds:[String]
+  $noSkipArchive: Boolean,
+  $status: String,
+  $branchIds: [String],
+  $departmentIds: [String],
   $createdStartDate: Date,
   $createdEndDate: Date,
-  $stateChangedStartDate: Date
-  $stateChangedEndDate: Date
-  $startDateStartDate: Date
-  $startDateEndDate: Date
-  $closeDateStartDate: Date
-  $closeDateEndDate: Date
+  $stageChangedStartDate: Date,
+  $stageChangedEndDate: Date,
+  $startDateStartDate: Date,
+  $startDateEndDate: Date,
+  $closeDateStartDate: Date,
+  $closeDateEndDate: Date,
 `;
 
 const commonParamDefs = `
@@ -53,17 +54,18 @@ const commonParamDefs = `
   startDate: $startDate,
   endDate: $endDate,
   tagIds: $tagIds,
-  noSkipArchive: $noSkipArchive
+  noSkipArchive: $noSkipArchive,
+  status: $status,
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   createdStartDate: $createdStartDate,
   createdEndDate: $createdEndDate,
-  stateChangedStartDate: $stateChangedStartDate
-  stateChangedEndDate: $stateChangedEndDate
-  startDateStartDate: $startDateStartDate
-  startDateEndDate: $startDateEndDate
-  closeDateStartDate: $closeDateStartDate
-  closeDateEndDate: $closeDateEndDate
+  stageChangedStartDate: $stageChangedStartDate,
+  stageChangedEndDate: $stageChangedEndDate,
+  startDateStartDate: $startDateStartDate,
+  startDateEndDate: $startDateEndDate,
+  closeDateStartDate: $closeDateStartDate,
+  closeDateEndDate: $closeDateEndDate,
 `;
 
 export const commonListFields = `
@@ -101,10 +103,12 @@ export const commonListFields = `
   stage {
     _id
     name
+    pipelineId
     defaultTick
     age
   }
   stageId
+  pipelineId
   order
   isComplete
   isWatched
@@ -130,6 +134,46 @@ export const commonListFields = `
   departmentIds
 `;
 
+export const GET_DEALS_SEARCH_DROPDOWN = gql`
+  query Deals(
+    $limit: Int,
+    $cursor: String,
+    $direction: CURSOR_DIRECTION,
+    $orderBy: JSON,
+    ${commonParams}
+  ) {
+    deals(
+      limit: $limit, 
+      orderBy: $orderBy,
+      cursor: $cursor,
+      direction: $direction,
+      ${commonParamDefs}
+    ) {
+        list {
+          _id
+          name
+          number
+          status
+          pipeline {
+            _id
+            name
+            boardId
+          }
+          boardId
+        }
+
+        pageInfo {
+          startCursor
+          endCursor
+          hasNextPage
+          hasPreviousPage
+        }
+
+        totalCount
+      }
+  }
+`;
+
 export const GET_DEALS = gql`
   query Deals(
     $initialStageId: String,
@@ -137,6 +181,7 @@ export const GET_DEALS = gql`
     $limit: Int, 
     $cursor: String, 
     $cursorMode: CURSOR_MODE,
+    $direction: CURSOR_DIRECTION,
     $orderBy: JSON,
     ${commonParams}
   ) {
@@ -146,6 +191,7 @@ export const GET_DEALS = gql`
       limit: $limit, 
       cursor: $cursor, 
       cursorMode: $cursorMode,
+      direction: $direction,
       orderBy: $orderBy, 
       ${commonParamDefs}
     ) {
@@ -170,6 +216,7 @@ export const GET_DEALS = gql`
           pipeline {
             _id
             name
+            boardId
           }
           boardId
         }
@@ -221,6 +268,7 @@ export const GET_DEAL_DETAIL = gql`
         _id
         name
         code
+        type
         unitPrice
         category {
           _id
@@ -233,11 +281,16 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      mobileAmount
+      mobileAmounts
       paymentsData
+      brokerType
+      brokerId
       relations
       pipeline {
         _id
         name
+        boardId
         paymentTypes
         paymentIds
       }

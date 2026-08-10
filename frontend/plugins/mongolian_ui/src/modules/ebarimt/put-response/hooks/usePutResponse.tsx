@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
@@ -7,9 +9,11 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { putResponseQueries } from '~/modules/ebarimt/put-response/graphql/queries/PutResopnseQueries';
+import { putResponseQueries } from '~/modules/ebarimt/put-response/graphql/queries/PutResponseQueries';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
+import { putResponseTotalCountAtom } from '~/modules/ebarimt/put-response/states/usePutResponseCounts';
+
 export const PUT_RESPONSE_PER_PAGE = 30;
 
 export const usePutResponseVariables = (
@@ -39,7 +43,7 @@ export const usePutResponseVariables = (
       dateRange,
     },
   ] = useMultiQueryState<{
-    billId: string;
+    billId: string | number;
     contentType: string;
     dealName: string;
     boardId: string;
@@ -83,7 +87,7 @@ export const usePutResponseVariables = (
     },
     createdStartDate: parseDateRangeFromString(dateRange)?.from,
     createdEndDate: parseDateRangeFromString(dateRange)?.to,
-    search: billId || undefined,
+    search: billId ? String(billId) : undefined,
     contentType: contentType && contentType !== 'all' ? contentType : undefined,
     boardId: boardId || undefined,
     pipelineId: pipelineId || undefined,
@@ -117,11 +121,21 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     },
   });
 
+  const setPutResponseTotalCount = useSetAtom(putResponseTotalCountAtom);
+
   const {
     list: putResponses = [],
     totalCount = 0,
     pageInfo,
   } = data?.putResponses || {};
+
+  useEffect(() => {
+    if (loading && !data) {
+      setPutResponseTotalCount(null);
+    } else if (totalCount !== undefined && totalCount !== null) {
+      setPutResponseTotalCount(totalCount);
+    }
+  }, [totalCount, loading, data, setPutResponseTotalCount]);
 
   const handleFetchMore = ({
     direction,

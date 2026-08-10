@@ -4,8 +4,10 @@ import {
   TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { processCustomerRows } from './customers/processCustomerRows';
+import { getCustomPropertyHeaders } from '~/meta/import-export/utils';
 import { processCompanyRows } from './companies/processCompanyRows';
+import { processCustomerRows } from './customers/processCustomerRows';
+
 const contactImportMap = {
   customers: {
     fileName: 'customers-template.csv',
@@ -26,6 +28,7 @@ const contactImportMap = {
       { label: 'Email Validation Status', key: 'emailValidationStatus' },
       { label: 'Phone Validation Status', key: 'phoneValidationStatus' },
     ],
+    propertiesType: 'core:customer',
     processRows: (models: IModels, rows: any[]) =>
       processCustomerRows(models, rows, 'customer'),
   },
@@ -45,6 +48,7 @@ const contactImportMap = {
       { label: 'Birth Date', key: 'birthDate' },
       { label: 'Status', key: 'status' },
     ],
+    propertiesType: 'core:lead',
     processRows: (models: IModels, rows: any[]) =>
       processCustomerRows(models, rows, 'lead'),
   },
@@ -66,15 +70,23 @@ const contactImportMap = {
       { label: 'Code', key: 'code' },
       { label: 'Location', key: 'location' },
     ],
+    propertiesType: 'core:company',
     processRows: processCompanyRows,
   },
 };
 
 export const contactImportHandlers = {
-  getImportHeaders: async ({
-    collectionName,
-  }: TInsertImportRowsInput): Promise<TGetImportHeadersOutput> => {
-    return contactImportMap[collectionName].headers;
+  getImportHeaders: async (
+    { collectionName }: TInsertImportRowsInput,
+    { models }: TCoreModuleProducerContext<IModels>,
+  ): Promise<TGetImportHeadersOutput> => {
+    const { headers = [], propertiesType } =
+      contactImportMap[collectionName] || {};
+
+    return [
+      ...headers,
+      ...(await getCustomPropertyHeaders(models, propertiesType)),
+    ];
   },
   insertImportRows: async (
     { collectionName, rows }: TInsertImportRowsInput,

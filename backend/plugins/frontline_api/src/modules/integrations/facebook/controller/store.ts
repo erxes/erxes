@@ -153,25 +153,32 @@ export const getOrCreateComment = async (
     content: commentParams.message,
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id,
+    integrationId: integration.erxesApiId,
   };
-  if (parentConversation) {
-    await models.FacebookCommentConversationReply.create({
-      ...doc,
-    });
-  } else {
-    await models.FacebookCommentConversation.create({
-      ...doc,
-    });
-  }
+
   let conversation;
-  conversation = await models.FacebookCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
-  });
-  if (conversation === null) {
-    conversation = await models.FacebookCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
-    });
+  let createdReply;
+  let automationTarget;
+
+  if (parentConversation) {
+    createdReply = await models.FacebookCommentConversationReply.create(doc);
+    conversation = parentConversation;
+    automationTarget = {
+      ...createdReply.toObject(),
+      postId: doc.postId,
+      parentId: doc.parentId,
+      integrationId: doc.integrationId,
+      erxesApiId: parentConversation.erxesApiId,
+    };
+  } else {
+    conversation = await models.FacebookCommentConversation.create(doc);
+    automationTarget = conversation.toObject();
   }
+
+  if (!conversation) {
+    throw new Error('Comment conversation not found');
+  }
+
   try {
     const data = {
       action: 'create-or-update-conversation',
@@ -197,24 +204,36 @@ export const getOrCreateComment = async (
       );
     }
   } catch (error) {
-    await models.FacebookCommentConversation.deleteOne({
-      _id: conversation?._id,
-    });
+    if (createdReply) {
+      await models.FacebookCommentConversationReply.deleteOne({
+        _id: createdReply._id,
+      });
+    } else {
+      await models.FacebookCommentConversation.deleteOne({
+        _id: conversation?._id,
+      });
+    }
+
     throw new Error(error.message);
   }
   try {
-    const doc = {
+    const conversationDoc = {
       ...conversation?.toObject(),
       conversationId: conversation.erxesApiId,
     };
-    await pConversationClientMessageInserted(subdomain, doc);
+    const automationDoc = {
+      ...automationTarget,
+      erxesApiId: conversation.erxesApiId,
+      conversationId: conversation.erxesApiId,
+    };
+
+    await pConversationClientMessageInserted(subdomain, conversationDoc);
 
     await graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          ...conversation?.toObject(),
-          conversationId: conversation.erxesApiId,
+          ...conversationDoc,
         },
       },
     );
@@ -223,7 +242,7 @@ export const getOrCreateComment = async (
       subdomain,
       {
         type: 'frontline:facebook.comments',
-        targets: [doc],
+        targets: [automationDoc],
         // repeatOptions,
       },
       { transport: 'trpc' },
@@ -312,8 +331,9 @@ export const getOrCreatePostConversation = async (
 
     const facebookPost = await fetchFacebookPostDetails(pageId, models, params);
     if (!postConversation) {
-      postConversation =
-        await models.FacebookPostConversations.create(facebookPost);
+      postConversation = await models.FacebookPostConversations.create(
+        facebookPost,
+      );
       return postConversation;
     } else {
       const hasPostContentChanged =

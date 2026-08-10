@@ -22,7 +22,7 @@ const commentTriggerBaseSchema = {
 export const commentTriggerSchema = z.discriminatedUnion('postType', [
   z.object({
     postType: z.literal('specific'),
-    postId: z.string().min(1),
+    postId: z.string().min(1, { message: 'You should select a post' }),
     ...commentTriggerBaseSchema,
   }),
   z.object({

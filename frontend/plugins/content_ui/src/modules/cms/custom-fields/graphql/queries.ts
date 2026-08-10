@@ -7,6 +7,7 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
         _id
         label
         code
+        order
         clientPortalId
         customPostTypeIds
         customPostTypes {
@@ -15,6 +16,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
           label
           pluralLabel
         }
+        enabledPageIds
+        enabledCategoryIds
+        enabledPostIds
         fields
       }
     }

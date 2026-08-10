@@ -1,4 +1,4 @@
-import { IconUser } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { LotteryHotKeyScope } from '../types/path/LotteryHotKeyScope';
 import { LotteryTotalCount } from './LotteryTotalCount';
@@ -7,23 +7,22 @@ import { SelectStatus } from './selects/SelectStatus';
 import { SelectLotteryCampaign } from './selects/SelectLotteryCampaign';
 import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectVoucherCampaign';
-import { SelectCustomer, SelectMember } from 'ui-modules';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const LotteryFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     lotteryCampaign: string;
     ownerType: string;
     status: string;
     voucherCampaignId: string;
     ownerId: string;
-    userId: string;
   }>([
     'lotteryCampaign',
     'ownerType',
     'status',
     'voucherCampaignId',
     'ownerId',
-    'userId',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -38,7 +37,7 @@ const LotteryFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
@@ -46,8 +45,7 @@ const LotteryFilterPopover = () => {
                 <SelectLotteryCampaign.FilterItem />
                 <SelectVoucherCampaign.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectOwner.FilterItem queryKey="ownerId" />
                 <SelectStatus.FilterItem />
               </Command.List>
             </Command>
@@ -55,8 +53,7 @@ const LotteryFilterPopover = () => {
           <SelectLotteryCampaign.FilterView />
           <SelectVoucherCampaign.FilterView />
           <SelectOwnerType.FilterView />
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
           <SelectStatus.FilterView />
         </Combobox.Content>
       </Filter.Popover>
@@ -71,10 +68,7 @@ const LotteryFilterPopover = () => {
           <SelectOwnerType.FilterView />
         </Filter.View>
         <Filter.View filterKey="ownerId" inDialog>
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-        </Filter.View>
-        <Filter.View filterKey="userId" inDialog>
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
         <Filter.View filterKey="status" inDialog>
           <SelectStatus.FilterView />
@@ -85,6 +79,7 @@ const LotteryFilterPopover = () => {
 };
 
 export const LotteryFilter = () => {
+  const { t } = useTranslation('loyalty');
   const { sessionKey } = useLotteryLeadSessionKey();
 
   return (
@@ -93,22 +88,7 @@ export const LotteryFilter = () => {
         <SelectLotteryCampaign.FilterBar />
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
-        <Filter.BarItem queryKey="ownerId">
-          <Filter.BarName>
-            <IconUser />
-            Customer
-          </Filter.BarName>
-          <SelectCustomer.FilterBar
-            filterKey="ownerId"
-            label="Customer"
-            mode="single"
-          />
-        </Filter.BarItem>
-        <SelectMember.FilterBar
-          queryKey="userId"
-          label="Team Member"
-          mode="single"
-        />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
         <LotteryFilterPopover />
         <LotteryTotalCount />

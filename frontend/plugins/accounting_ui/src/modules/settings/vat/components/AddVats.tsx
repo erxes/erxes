@@ -1,33 +1,14 @@
-import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Sheet } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
-import { vatFormSchema } from '../constants/vatFormSchema';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { VatRowForm } from './VatRowForm';
-import { IconPlus } from '@tabler/icons-react';
-import { useAddVatRow } from '../hooks/useVatRowAdd';
 
-export const AddVats = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <Button>
-          <IconPlus />
-          НӨАТ нэмэх
-        </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="НӨАТ нэмэх"
-        description="Шинэ НӨАТ нэмэх"
-        className="sm:max-w-2xl"
-      >
-        <AddVatForm setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
-  );
-};
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { IconPlus } from '@tabler/icons-react';
+import { VatRowForm } from './VatRowForm';
+import { useAddVatRow } from '../hooks/useVatRowAdd';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { vatFormSchema } from '../constants/vatFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const AddVatForm = ({
   setOpen,
@@ -48,11 +29,29 @@ export const AddVatForm = ({
     addVat({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
+        setOpen(false);
       },
     });
   };
 
   return <VatRowForm form={form} onSubmit={onSubmit} loading={loading} />;
+};
+
+export const AddVats = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet.Trigger asChild>
+        <Button>
+          <IconPlus />
+          НӨАТ нэмэх
+        </Button>
+      </Sheet.Trigger>
+      <AccountingSheet title="НӨАТ нэмэх">
+        <AddVatForm setOpen={setOpen} />
+      </AccountingSheet>
+    </Sheet>
+  );
 };

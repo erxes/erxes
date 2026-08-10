@@ -4,11 +4,12 @@ import {
   sendTRPCMessage,
   redis,
   getActivePlugins,
+  ExpectedError,
 } from '../../utils';
 
 export const checkLogin = (user?: IUserDocument) => {
   if (!user?._id) {
-    throw new Error('Login required');
+    throw new ExpectedError('Login required', 'UNAUTHORIZED');
   }
 };
 
@@ -197,7 +198,7 @@ const checkOAuthScope = async (action: string, user?: IUserDocument) => {
     actionScopes.length === 0 ||
     !actionScopes.some((scope) => oauthScopes.includes(scope))
   ) {
-    throw new Error('OAuth scope required');
+    throw new ExpectedError('OAuth scope required', 'FORBIDDEN');
   }
 };
 
@@ -211,7 +212,7 @@ export const checkPermissionGroup = (
     const allowed = await canGroup(subdomain, action, user);
 
     if (!allowed) {
-      throw new Error('Permission required');
+      throw new ExpectedError('Permission required', 'FORBIDDEN');
     }
 
     await checkOAuthScope(action, user);
@@ -224,11 +225,11 @@ export const wrapPublicResolver = (resolver: Resolver, wrapperConfig: any) => {
 
     if (forClientPortal) {
       if (!context.clientPortal) {
-        throw new Error('Client portal required');
+        throw new ExpectedError('Client portal required', 'UNAUTHORIZED');
       }
 
       if (cpUserRequired && !context.cpUser) {
-        throw new Error('Client portal user required');
+        throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
       }
     }
 

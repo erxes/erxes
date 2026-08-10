@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { AddGroupForm } from '@/pos/components/products/AddGroupForm';
 import { useProductGroups } from '@/pos/hooks/useProductGroups';
@@ -20,6 +21,7 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
   posId,
   onSaveStateChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { productGroups, loading, error } = useProductGroups(posId);
   const { productGroupSave, loading: saving } = usePosEditProductGroup();
   const [isDirty, setIsDirty] = useState(false);
@@ -76,7 +78,7 @@ export const ProductGroupsList: React.FC<ProductGroupsListProps> = ({
     return (
       <div className="p-6 text-center">
         <p className="text-destructive">
-          Failed to load product group: {error.message}
+          {t('failed-to-load-product-group')}: {error.message}
         </p>
       </div>
     );

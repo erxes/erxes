@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ScrollArea, Sheet, Tabs } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponFormValues } from '../../constants/couponFormSchema';
 import { CouponDefaultCodeRuleField } from './coupon-code-rule-field/CouponDefaultCodeRuleField';
 import { CouponStaticCodeRuleField } from './coupon-code-rule-field/CouponStaticCodeRuleField';
@@ -10,6 +11,7 @@ export function AddCouponCodeRuleForm({
 }: Readonly<{
   form: UseFormReturn<CouponFormValues>;
 }>) {
+  const { t } = useTranslation('loyalty');
   const [activeSubTab, setActiveSubTab] = useState('default');
 
   return (
@@ -23,9 +25,9 @@ export function AddCouponCodeRuleForm({
           >
             <Tabs.List className="grid w-full grid-cols-2 border-0">
               <Tabs.Trigger className="" value="default">
-                Default
+                {t('default')}
               </Tabs.Trigger>
-              <Tabs.Trigger value="static">Static</Tabs.Trigger>
+              <Tabs.Trigger value="static">{t('static')}</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="default" className="mt-4">
               <CouponDefaultCodeRuleField form={form} />

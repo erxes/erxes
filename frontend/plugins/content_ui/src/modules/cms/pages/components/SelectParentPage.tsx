@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Badge,
   cn,
@@ -179,6 +180,7 @@ const SelectParentPageProvider = ({
 // --- Item ---
 
 const SelectParentPageItem = ({ page }: { page: IPageItem }) => {
+  const { t } = useTranslation('content');
   const { onSelect, value, currentPageId } = useSelectParentPageContext();
   const isSelected = value === page._id;
   const isCurrent = currentPageId === page._id;
@@ -201,7 +203,7 @@ const SelectParentPageItem = ({ page }: { page: IPageItem }) => {
         value={page.name}
         className="flex-auto w-auto font-medium"
       />
-      {isCurrent && <Badge className="ml-auto text-xs shrink-0">Current</Badge>}
+      {isCurrent && <Badge className="ml-auto text-xs shrink-0">{t('current')}</Badge>}
     </SelectTree.Item>
   );
 };
@@ -209,6 +211,7 @@ const SelectParentPageItem = ({ page }: { page: IPageItem }) => {
 // --- Command ---
 
 const NoneOption = () => {
+  const { t } = useTranslation('content');
   const { onSelect, value } = useSelectParentPageContext();
   return (
     <Command.Item
@@ -218,7 +221,7 @@ const NoneOption = () => {
         !value && 'text-primary',
       )}
     >
-      <span className="font-medium">None</span>
+      <span className="font-medium">{t('none')}</span>
       <Combobox.Check checked={!value} />
     </Command.Item>
   );
@@ -240,6 +243,7 @@ const PageTreeList = ({
 );
 
 const SelectParentPageCommand = ({ websiteId }: { websiteId: string }) => {
+  const { t } = useTranslation('content');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
 
@@ -250,7 +254,7 @@ const SelectParentPageCommand = ({ websiteId }: { websiteId: string }) => {
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder="Search pages"
+        placeholder={t('search-pages')}
         focusOnMount
       />
       <Command.List>
@@ -270,10 +274,11 @@ const SelectParentPageContent = ({ websiteId }: { websiteId: string }) => {
 // --- Value Display ---
 
 const SelectParentPageValue = ({ pages }: { pages?: IPageItem[] }) => {
+  const { t } = useTranslation('content');
   const { value, selectedPage } = useSelectParentPageContext();
 
   if (!value) {
-    return <Combobox.Value placeholder="Select parent page" />;
+    return <Combobox.Value placeholder={t('select-parent-page')} />;
   }
 
   const page = selectedPage || pages?.find((p) => p._id === value);
@@ -286,7 +291,7 @@ const SelectParentPageValue = ({ pages }: { pages?: IPageItem[] }) => {
     );
   }
 
-  return <Combobox.Value placeholder="Select parent page" />;
+  return <Combobox.Value placeholder={t('select-parent-page')} />;
 };
 
 // --- FormItem ---

@@ -1,8 +1,8 @@
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import { Command } from 'cmdk';
-import { Combobox, Filter, PageSubHeader } from 'erxes-ui';
+import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { SelectBranches } from 'ui-modules';
 import { BranchesTotalCount } from './BranchesTotalCount';
+import { SelectStructureStatus } from '../SelectStructureStatus';
 
 export const BranchesFilter = () => {
   return (
@@ -14,17 +14,23 @@ export const BranchesFilter = () => {
             <Combobox.Content>
               <Filter.View>
                 <Command>
-                  <Filter.CommandInput />
-                  <Command.List>
+                  <Filter.CommandInput
+                    placeholder="Filter"
+                    variant="secondary"
+                    className="bg-background"
+                  />
+                  <Command.List className="p-1">
                     <Filter.SearchValueTrigger />
                     <SelectBranches.FilterItem
                       value="parentId"
                       label="By Parent"
                     />
+                    <SelectStructureStatus.FilterItem />
                   </Command.List>
                 </Command>
               </Filter.View>
               <SelectBranches.FilterView mode="single" filterKey="parentId" />
+              <SelectStructureStatus.FilterView />
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
@@ -36,6 +42,7 @@ export const BranchesFilter = () => {
             filterKey="parentId"
             label="By Parent"
           />
+          <SelectStructureStatus.FilterBar />
           <BranchesTotalCount />
         </Filter.Bar>
       </Filter>

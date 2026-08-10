@@ -170,7 +170,7 @@ export const loadClasses = (
   // pos section - without event dispatchers
   models.Pos = db.model<IPosDocument, IPosModel>(
     'pos',
-    loadPosClass(models, subdomain),
+    loadPosClass(models, subdomain, salesEventHandlers('pos', 'pos')),
   );
   models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
     'product_groups',
@@ -179,7 +179,7 @@ export const loadClasses = (
 
   models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
     'pos_orders',
-    loadPosOrderClass(models, subdomain),
+    loadPosOrderClass(models, subdomain, salesEventHandlers('pos', 'orders')),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slots',

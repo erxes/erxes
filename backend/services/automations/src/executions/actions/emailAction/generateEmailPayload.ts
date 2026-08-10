@@ -1,15 +1,19 @@
 import {
   IAutomationExecutionDocument,
-  splitType,
-  TAutomationProducers,
+  replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { getEnv, sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { getEnv, resolveDefaultSenderEmail } from 'erxes-api-shared/utils';
+import { assertSenderAllowed } from '../../../utils/emailSender';
+import { getConfig } from '../../../utils/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
+import { renderEmailContent } from './renderEmailContent';
 import { replaceDocuments } from './replaceDocuments';
 import {
   filterOutSenderEmail,
   formatFromEmail,
+  formatIsoDatesInText,
   normalizeEmailActionPlaceholders,
+  stripDeadLinks,
 } from './utils';
 
 export const generateEmailPayload = async ({
@@ -27,14 +31,12 @@ export const generateEmailPayload = async ({
   config: any;
 }) => {
   const { fromEmailPlaceHolder, sender, type: senderType } = config;
-  const [pluginName, moduleName] = splitType(targetType);
   const version = getEnv({ name: 'VERSION' });
-  const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
+  const DEFAULT_FROM_EMAIL = getEnv({ name: 'DEFAULT_FROM_EMAIL' });
 
-  const template = { content: config?.html || '' };
   const isSaasVersion = version === 'saas';
-  const isProduction = getEnv({ name: 'NODE_ENV' }) === 'production';
   const isDefaultSender = senderType === 'default' || !senderType;
+  const isPickedSender = senderType === 'custom' || senderType === 'verified';
   const normalizedFromEmailPlaceHolder = normalizeEmailActionPlaceholders(
     fromEmailPlaceHolder || '',
     targetType,
@@ -45,14 +47,18 @@ export const generateEmailPayload = async ({
   );
   let fromUserEmail = '';
 
-  if (isSaasVersion || isDefaultSender || !isProduction) {
-    fromUserEmail = DEFAULT_AWS_EMAIL;
+  if (isDefaultSender) {
+    fromUserEmail = resolveDefaultSenderEmail({
+      isSaas: isSaasVersion,
+      companyEmailFrom: await getConfig(subdomain, 'COMPANY_EMAIL_FROM', ''),
+      fallbackEmail: DEFAULT_FROM_EMAIL,
+    });
   }
 
-  if (senderType === 'custom' || (!isSaasVersion && !fromUserEmail)) {
+  if (isPickedSender) {
     const emails = await collectEmails(normalizedFromEmailPlaceHolder, {
       subdomain,
-      target,
+      execution,
       targetType,
     });
     if (!emails?.length) {
@@ -61,45 +67,50 @@ export const generateEmailPayload = async ({
     fromUserEmail = emails[0];
   }
 
+  await assertSenderAllowed(subdomain, fromUserEmail);
+
+  const templateContent = renderEmailContent(config?.content, config?.html);
+
   let replacedContent = normalizeEmailActionPlaceholders(
-    template?.content || '',
+    templateContent,
     targetType,
   );
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
-  const { subject, content = '' } = await sendCoreModuleProducer({
-    moduleName: 'automations',
+  const replacedValues = await replaceOutputPlaceholders({
     subdomain,
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target,
-      config: {
-        subject: normalizedSubject,
-        content: replacedContent,
-      },
+    execution,
+    values: {
+      subject: normalizedSubject,
+      content: replacedContent,
     },
-    defaultValue: {},
   });
+  const subject = formatIsoDatesInText(
+    String(replacedValues.subject ?? normalizedSubject),
+  );
+  const content = formatIsoDatesInText(String(replacedValues.content ?? ''));
 
   const [toEmails, ccEmails] = await getRecipientEmails({
     subdomain,
     config,
+    execution,
     targetType,
-    target,
   });
 
-  if (!toEmails?.length && ccEmails?.length) {
-    throw new Error('"Recieving emails not found"');
+  const filteredToEmails = filterOutSenderEmail(toEmails, fromUserEmail);
+  const filteredCcEmails = filterOutSenderEmail(ccEmails, fromUserEmail);
+
+  if (!filteredToEmails?.length) {
+    throw new Error('"Receiving emails not found"');
   }
 
   return {
     title: subject,
     fromEmail: formatFromEmail(sender, fromUserEmail),
-    toEmails: filterOutSenderEmail(toEmails, fromUserEmail),
-    ccEmails: filterOutSenderEmail(ccEmails, fromUserEmail),
-    customHtml: content.replace(/{{\s*([^}]+)\s*}}/g, '-'),
+    replyTo: config.replyToEmail || undefined,
+    toEmails: filteredToEmails,
+    ccEmails: filteredCcEmails,
+    customHtml: stripDeadLinks(content.replace(/{{\s*([^}]+)\s*}}/g, '-')),
   };
 };

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@apollo/client';
 import { SelectCustomer } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { ASSIGNMENTS_ADD_MUTATION } from '../graphql/mutations';
 import { SelectAssignmentCampaignFormItem } from './selects/SelectAssignmentCampaign';
 
@@ -15,6 +16,7 @@ interface AssignmentAddFormValues {
 export const AssignmentAddModal = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation('loyalty');
 
   const [addAssignment, { loading }] = useMutation(ASSIGNMENTS_ADD_MUTATION, {
     refetchQueries: ['AssignmentsMain'],
@@ -35,15 +37,15 @@ export const AssignmentAddModal = () => {
         },
       });
       toast({
-        title: 'Success',
-        description: 'Assignment created successfully',
+        title: t('success'),
+        description: t('assignment-created'),
         variant: 'default',
       });
       setOpen(false);
       form.reset();
     } catch (e: unknown) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: e instanceof Error ? e.message : String(e),
         variant: 'destructive',
       });
@@ -55,12 +57,12 @@ export const AssignmentAddModal = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add assignment
+          {t('add-assignment')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-md p-0">
         <Sheet.Header className="border-b gap-3 px-6 py-4">
-          <Sheet.Title>New Assignment</Sheet.Title>
+          <Sheet.Title>{t('new-assignment')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-6">
@@ -72,14 +74,14 @@ export const AssignmentAddModal = () => {
               <Form.Field
                 control={form.control}
                 name="campaignId"
-                rules={{ required: 'Campaign is required' }}
+                rules={{ required: t('campaign-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Campaign</Form.Label>
+                    <Form.Label>{t('campaign')}</Form.Label>
                     <SelectAssignmentCampaignFormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Choose assignment campaign"
+                      placeholder={t('choose-assignment-campaign')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -89,10 +91,10 @@ export const AssignmentAddModal = () => {
               <Form.Field
                 control={form.control}
                 name="ownerId"
-                rules={{ required: 'Owner is required' }}
+                rules={{ required: t('owner-required') }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Owner *</Form.Label>
+                    <Form.Label>{t('owner-label')}</Form.Label>
                     <Form.Control>
                       <SelectCustomer
                         value={field.value ? [field.value] : []}
@@ -113,10 +115,10 @@ export const AssignmentAddModal = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Close
+                  {t('close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

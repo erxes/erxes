@@ -3,6 +3,9 @@ import { IContext } from '~/connectionResolvers';
 
 const resolvers = {
   category: async (posProduct, _, { subdomain }: IContext) => {
+    if (!posProduct.categoryId) {
+      return null;
+    }
     return await sendTRPCMessage({
       subdomain,
 
@@ -11,7 +14,7 @@ const resolvers = {
       module: 'productCategories',
       action: 'findOne',
       input: {
-        _id: posProduct.categoryId,
+        query: { _id: posProduct.categoryId },
       },
     });
   },

@@ -1,7 +1,7 @@
 import { Form, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { type Control } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
-import { SelectCategory } from '@/pos/hooks/SelectCategory';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 import { type ProductsFormData } from '@/pos/components/products/Products';
 
 interface KioskExcludeProductsProps {
@@ -11,6 +11,7 @@ interface KioskExcludeProductsProps {
 export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
   control,
 }) => {
+  const { t } = useTranslation('sales');
   return (
     <div className="space-y-4">
       <Form.Field
@@ -18,14 +19,14 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
         name="kioskExcludeCategoryIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>Categories</Label>
+            <Label>{t('category')}</Label>
 
             <Form.Control>
               <SelectCategory
                 mode="multiple"
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder="Select categories to exclude"
+                placeholder={t('select-categories-to-exclude')}
               />
             </Form.Control>
           </Form.Item>
@@ -37,7 +38,7 @@ export const KioskExcludeProducts: React.FC<KioskExcludeProductsProps> = ({
         name="kioskExcludeProductIds"
         render={({ field }) => (
           <Form.Item>
-            <Label>Products</Label>
+            <Label>{t('products')}</Label>
 
             <Form.Control>
               <SelectProduct

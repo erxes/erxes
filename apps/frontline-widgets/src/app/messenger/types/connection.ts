@@ -5,7 +5,7 @@ export interface IConnectionInfo {
 
 export interface IWidgetData {
   messengerData?: IMessengerData;
-  ticketConfig?: ITicketConfig;
+  ticketConfigs?: ITicketConfig[];
   languageCode?: string;
   uiOptions?: IWidgetUiOptions;
   customerId?: string;
@@ -18,6 +18,7 @@ export interface IPersistentMenu {
   text: string;
   type: 'button' | 'link';
   link?: string;
+  contentType: string;
 }
 
 export interface IMessengerData {
@@ -70,6 +71,10 @@ export interface IWidgetUiOptions {
     foreground?: string;
   };
   logo?: string;
+  launcherLogo?: string;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
+  navigationVariant?: 'pill' | 'fluid';
 }
 
 export interface IBrowserInfo {
@@ -110,6 +115,22 @@ export interface ITicketFormFields {
   tags?: ITicketFormField;
 }
 
+export interface ITicketPropertyFieldOption {
+  label: string;
+  value: string;
+}
+
+export interface ITicketPropertiesFields {
+  fieldId: string;
+  groupId: string;
+  label: string;
+  placeholder: string;
+  order: number;
+  isRequired: boolean;
+  type?: string;
+  options?: ITicketPropertyFieldOption[];
+}
+
 export interface ITicketConfig {
   _id: string;
   name: string;
@@ -119,6 +140,7 @@ export interface ITicketConfig {
   channelId: string;
   selectedStatusId: string;
   formFields: ITicketFormFields;
+  propertyFields?: ITicketPropertiesFields[];
   parentId?: string;
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
@@ -6,7 +5,7 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket, TicketHotKeyScope } from '@/ticket/types';
 import {
   IconAlertSquareRounded,
@@ -15,7 +14,7 @@ import {
   IconProgressCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { CellContext, ColumnDef } from '@tanstack/table-core';
 import clsx from 'clsx';
 import {
   Input,
@@ -24,11 +23,64 @@ import {
   RecordTableInlineCell,
   Tooltip,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ticketsMoreColumn } from './TicketsMoreColumn';
 
-export const ticketsColumns = (): ColumnDef<ITicket>[] => {
+const TicketNameCell = ({ cell }: CellContext<ITicket, unknown>) => {
+  const name = cell.getValue() as string;
+  const [value, setValue] = useState(name);
+  const { updateTicket } = useUpdateTicket();
+  const [, setActiveTicket] = useTicketDetailSheet();
+
+  const handleUpdate = () => {
+    if (value !== name) {
+      updateTicket({
+        variables: { _id: cell.row.original._id, name: value },
+      });
+    }
+  };
+
+  return (
+    <PopoverScoped
+      closeOnEnter
+      onOpenChange={(open) => {
+        if (!open) {
+          handleUpdate();
+        }
+      }}
+      scope={clsx(
+        TicketHotKeyScope.TicketTableCell,
+        cell.row.original._id,
+        'Name',
+      )}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Anchor
+          onClick={() => setActiveTicket(cell.row.original._id)}
+        >
+          {name}
+        </RecordTableInlineCell.Anchor>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content className="min-w-72">
+        <Input
+          value={value || ''}
+          onChange={(e) => setValue(e.target.value)}
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleUpdate();
+            }
+          }}
+        />
+      </RecordTableInlineCell.Content>
+    </PopoverScoped>
+  );
+};
+
+export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
+  const { t } = useTranslation('frontline');
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
 
   return [
@@ -38,59 +90,9 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label="Name" icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
       ),
-      cell: ({ cell }) => {
-        const name = cell.getValue() as string;
-        const [value, setValue] = useState(name);
-        const { updateTicket } = useUpdateTicket();
-        const setActiveTicket = useSetAtom(ticketDetailSheetState);
-
-        const handleUpdate = () => {
-          if (value !== name) {
-            updateTicket({
-              variables: { _id: cell.row.original._id, name: value },
-            });
-          }
-        };
-
-        return (
-          <PopoverScoped
-            closeOnEnter
-            onOpenChange={(open) => {
-              if (!open) {
-                handleUpdate();
-              }
-            }}
-            scope={clsx(
-              TicketHotKeyScope.TicketTableCell,
-              cell.row.original._id,
-              'Name',
-            )}
-          >
-            <RecordTableInlineCell.Trigger>
-              <RecordTableInlineCell.Anchor
-                onClick={() => setActiveTicket(cell.row.original._id)}
-              >
-                {name}
-              </RecordTableInlineCell.Anchor>
-            </RecordTableInlineCell.Trigger>
-            <RecordTableInlineCell.Content className="min-w-72">
-              <Input
-                value={value || ''}
-                onChange={(e) => setValue(e.target.value)}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleUpdate();
-                  }
-                }}
-              />
-            </RecordTableInlineCell.Content>
-          </PopoverScoped>
-        );
-      },
+      cell: TicketNameCell,
       size: 240,
     },
 
@@ -98,7 +100,7 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label="Status" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -121,14 +123,14 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'channel',
       accessorKey: 'channel',
       header: () => (
-        <RecordTable.InlineHead label="Channel" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('channel')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>Channel cannot be changed</Tooltip.Content>
+              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
               <SelectChannel
                 variant="table"
                 value={cell.row.original.channelId}
@@ -149,14 +151,14 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'pipeline',
       accessorKey: 'pipeline',
       header: () => (
-        <RecordTable.InlineHead label="Pipeline" icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('pipeline')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>Pipeline cannot be changed</Tooltip.Content>
+              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
               <SelectPipeline
                 variant="table"
                 value={cell.row.original.pipelineId}
@@ -176,7 +178,7 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
     },
     {
       id: 'assigneeId',
-      header: () => <RecordTable.InlineHead label="Assignee" icon={IconUser} />,
+      header: () => <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />,
       cell: ({ cell }) => {
         return (
           <SelectAssigneeTicket
@@ -198,7 +200,7 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label="Priority"
+          label={t('priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -222,7 +224,7 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label="Start Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -240,7 +242,7 @@ export const ticketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label="Target Date" icon={IconCalendarFilled} />
+        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

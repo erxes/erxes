@@ -53,7 +53,8 @@ const mainQueryParams = `
 
 export const queries = `
   donates(${queryParams}): DonateListResponse
-  donatesMain(${mainQueryParams}): DonateMainResponse
+  donatesMain(${mainQueryParams}, clientPortal:String): DonateMainResponse
+  cpDonatesMain(${mainQueryParams}, clientPortal:String): DonateMainResponse
 `;
 
 const mutationParams = `

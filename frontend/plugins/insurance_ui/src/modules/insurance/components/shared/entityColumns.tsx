@@ -4,25 +4,36 @@ import {
   Icon,
   IconProps,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { Cell, ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { formatDate } from './formatters';
-import { ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 
+function CreatedAtHeader({ label }: Readonly<{ label?: string }>) {
+  const { t } = useTranslation('insurance');
+  return (
+    <RecordTable.InlineHead
+      icon={IconCalendar}
+      label={label ?? t('created-at')}
+    />
+  );
+}
+
 // Generic more column factory
 export const createEntityMoreColumn = <T,>(
-  MoreComponent: React.ComponentType<{ cell: any }>,
-  size: number = 26,
+  MoreComponent: React.ComponentType<{ cell: Cell<T, unknown> }>,
+  size = 33,
 ): ColumnDef<T> => ({
   id: 'more',
   accessorKey: 'more',
-  header: '',
+  header: () => <RecordTable.ColumnSelector />,
   cell: ({ cell }) => <MoreComponent cell={cell} />,
   size,
 });
@@ -30,11 +41,14 @@ export const createEntityMoreColumn = <T,>(
 // Generic name column factory
 export const createNameColumn = <T,>(
   icon: TablerIcon,
-  label: string = 'Name',
+  label = 'name',
 ): ColumnDef<T> => ({
   id: 'name',
   accessorKey: 'name',
-  header: () => <RecordTable.InlineHead icon={icon} label={label} />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={cell.getValue() as string} />
@@ -48,7 +62,10 @@ export const createDescriptionColumn = <T,>(
 ): ColumnDef<T> => ({
   id: 'description',
   accessorKey: 'description',
-  header: () => <RecordTable.InlineHead icon={icon} label="Description" />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={icon} label={t('description')} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
@@ -57,12 +74,10 @@ export const createDescriptionColumn = <T,>(
 });
 
 // Created at column
-export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
+export const createCreatedAtColumn = <T,>(label?: string): ColumnDef<T> => ({
   id: 'createdAt',
   accessorKey: 'createdAt',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCalendar} label="Created At" />
-  ),
+  header: () => <CreatedAtHeader label={label} />,
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
@@ -74,9 +89,12 @@ export const createCreatedAtColumn = <T,>(): ColumnDef<T> => ({
 export const createUpdatedAtColumn = <T,>(): ColumnDef<T> => ({
   id: 'updatedAt',
   accessorKey: 'updatedAt',
-  header: () => (
-    <RecordTable.InlineHead icon={IconCalendar} label="Updated At" />
-  ),
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return (
+      <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at')} />
+    );
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
@@ -90,14 +108,19 @@ export const createTextColumn = <T,>(
   accessorKey: string,
   icon: TablerIcon,
   label: string,
-  defaultValue: string = '-',
+  defaultValue = '-',
 ): ColumnDef<T> => ({
   id,
   accessorKey,
-  header: () => <RecordTable.InlineHead icon={icon} label={label} />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={icon} label={t(label)} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
-      <TextOverflowTooltip value={(cell.getValue() as string) || defaultValue} />
+      <TextOverflowTooltip
+        value={(cell.getValue() as string) || defaultValue}
+      />
     </RecordTableInlineCell>
   ),
 });
@@ -110,7 +133,10 @@ export const createDateColumn = <T,>(
 ): ColumnDef<T> => ({
   id,
   accessorKey,
-  header: () => <RecordTable.InlineHead icon={IconCalendar} label={label} />,
+  header: () => {
+    const { t } = useTranslation('insurance');
+    return <RecordTable.InlineHead icon={IconCalendar} label={t(label)} />;
+  },
   cell: ({ cell }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />

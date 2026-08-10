@@ -1,16 +1,8 @@
 import { IModels } from '~/connectionResolvers';
-import {
-  cfRecordUrl,
-  createOrUpdateErxesConversation,
-  getPureDate,
-  sendToGrandStream,
-  toCamelCase,
-} from './utils';
-import { IOrignalCallCdr } from '@/integrations/call/@types/cdrs';
-import { ICallCustomer } from '@/integrations/call/@types/customers';
+import { cfRecordUrl, sendToGrandStream } from './utils';
+import { formatCdrApiDate } from './services/cdrUtils';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -26,6 +18,8 @@ export const getOrCreateCustomer = async (
     primaryPhone: { $eq: primaryPhone },
   });
 
+  let createdNow = false;
+
   if (!customer) {
     try {
       customer = await models.CallCustomers.create({
@@ -34,18 +28,24 @@ export const getOrCreateCustomer = async (
         primaryPhone,
         status: 'pending',
       });
+      createdNow = true;
     } catch (e: any) {
-      if (e.message.includes('duplicate')) {
-        // just fetch and return existing one
+      if (e.message?.includes('duplicate')) {
         customer = await models.CallCustomers.findOne({
           primaryPhone: { $eq: primaryPhone },
         });
-        return await getOrCreateCustomer(models, subdomain, callAccount);
+        if (!customer) {
+          throw new Error(
+            `CallCustomer duplicate for ${primaryPhone} but re-fetch found nothing`,
+          );
+        }
       } else {
-        throw new Error(e);
+        throw e;
       }
     }
+  }
 
+  if (customer && !customer.erxesApiId) {
     try {
       const data = {
         action: 'get-create-update-customer',
@@ -58,25 +58,22 @@ export const getOrCreateCustomer = async (
       };
       const apiCustomerResponse = await receiveInboxMessage(subdomain, data);
 
-      if (apiCustomerResponse?.status === 'success') {
-        if (customer && apiCustomerResponse.data?._id) {
-          customer.erxesApiId = apiCustomerResponse.data._id;
-          customer.status = 'completed';
-          await customer.save();
-        } else {
-          throw new Error(
-            `API success but no customer ID returned: ${JSON.stringify(
-              apiCustomerResponse,
-            )}`,
-          );
-        }
+      if (
+        apiCustomerResponse?.status === 'success' &&
+        apiCustomerResponse.data?._id
+      ) {
+        customer.erxesApiId = apiCustomerResponse.data._id;
+        customer.status = 'completed';
+        await customer.save();
       } else {
         throw new Error(
           `Customer creation failed: ${JSON.stringify(apiCustomerResponse)}`,
         );
       }
     } catch (e: any) {
-      await models.CallCustomers.deleteOne({ _id: customer?._id });
+      if (createdNow) {
+        await models.CallCustomers.deleteOne({ _id: customer._id });
+      }
       throw new Error(`Failed to sync with API: ${e.stack || e.message || e}`);
     }
   }
@@ -131,119 +128,6 @@ export const getOrCreateCustomer = async (
   return customer;
 };
 
-export const getOrCreateCdr = async (
-  models: IModels,
-  subdomain: string,
-  cdrParams: IOrignalCallCdr,
-  inboxId: string,
-  customer: ICallCustomer,
-  operatorPhone: string,
-) => {
-  const { AcctId: acctId } = cdrParams;
-
-  if (!acctId) {
-    throw new Error('AcctId is required');
-  }
-
-  const cdr = await models.CallCdrs.findOne({
-    acctId,
-  });
-
-  if (cdr) {
-    if (
-      cdr.recordUrl &&
-      !['null', '', 'invalid file type'].includes(cdr.recordUrl)
-    ) {
-      await saveRecordUrl(cdr, models, inboxId, subdomain);
-      return 'successfully saved record url';
-    }
-    return cdr;
-  }
-
-  const camelCase = toCamelCase(cdrParams);
-  const { AcctId, ...filteredCamelCase } = camelCase as any;
-
-  const createdCdr = new models.CallCdrs({
-    acctId,
-    ...filteredCamelCase,
-    inboxIntegrationId: inboxId,
-    createdAt: new Date(),
-  });
-  await createdCdr.save();
-
-  if (cdrParams?.lastapp !== 'ForkCDR') {
-    try {
-      const { userfield, dst, src, action_type } = cdrParams;
-
-      const primaryPhone =
-        userfield === 'Outbound' && !action_type.includes('FOLLOWME')
-          ? dst
-          : src;
-
-      // Find existing conversation for this phone number
-      const existingConversation = await models.CallCdrs.findOne({
-        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
-        conversationId: { $exists: true, $ne: '' },
-        inboxIntegrationId: inboxId,
-      }).sort({ createdAt: -1 });
-
-      let conversationId = '';
-
-      if (existingConversation?.conversationId) {
-        // Use existing conversation
-        conversationId = existingConversation.conversationId;
-      }
-
-      // Create new conversation only if none exists for this phone number
-      const conversationPayload = {
-        customerId: customer?.erxesApiId,
-        integrationId: inboxId,
-        content: cdrParams.disposition || '',
-        conversationId,
-        updatedAt: new Date(),
-        owner: operatorPhone || '',
-      };
-
-      const payload = JSON.stringify(conversationPayload);
-
-      const apiConversationResponse = await createOrUpdateErxesConversation(
-        subdomain,
-        payload,
-      );
-
-      if (apiConversationResponse.status === 'success') {
-        createdCdr.conversationId = apiConversationResponse.data._id;
-        await createdCdr.save();
-      } else {
-        throw new Error(
-          `Conversation creation failed: ${JSON.stringify(
-            apiConversationResponse,
-          )}`,
-        );
-      }
-
-      const cdrMessage = {
-        ...createdCdr?.toObject(),
-        conversationId: createdCdr.conversationId,
-      };
-
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${createdCdr.conversationId}`,
-        { conversationMessageInserted: cdrMessage },
-      );
-
-      await pConversationClientMessageInserted(subdomain, cdrMessage);
-
-      await saveRecordUrl(createdCdr, models, inboxId, subdomain);
-    } catch (error) {
-      await models.CallCdrs.deleteOne({ _id: createdCdr._id });
-      throw new Error(`Failed to update conversation: ${error.message}`);
-    }
-  }
-
-  return createdCdr;
-};
-
 export async function saveRecordUrl(
   createdCdr,
   models: IModels,
@@ -295,14 +179,8 @@ export async function saveRecordUrl(
 
 const fetchRecordUrl = async (models, inboxIntegrationId, params) => {
   const { src, dst, start, end } = params;
-  const startTime =
-    typeof start === 'string' && start.includes(' ')
-      ? start.replace(' ', 'T')
-      : getPureDate(start, 0);
-  const endTime =
-    typeof end === 'string' && end.includes(' ')
-      ? end.replace(' ', 'T')
-      : getPureDate(end, 0);
+  const startTime = formatCdrApiDate(start);
+  const endTime = formatCdrApiDate(end);
 
   const cdrData = await sendToGrandStream(
     models,

@@ -16,7 +16,10 @@ import {
   adjustInventoriesSchema,
 } from '../definitions/adjustInventory';
 
-export interface IAdjustInventoriesModel extends Model<IAdjustInventoryDocument> {
+const inventoryKey = (id?: string) => id || '_';
+
+export interface IAdjustInventoriesModel
+  extends Model<IAdjustInventoryDocument> {
   getAdjustInventory(_id: string): Promise<IAdjustInventoryDocument>;
   createAdjustInventory(doc: IAdjustInventory): Promise<IAdjustInventory>;
   updateAdjustInventory(
@@ -80,7 +83,8 @@ export const loadAdjustInventoriesClass = (
   return adjustInventoriesSchema;
 };
 
-export interface IAdjustInvDetailsModel extends Model<IAdjustInvDetailDocument> {
+export interface IAdjustInvDetailsModel
+  extends Model<IAdjustInvDetailDocument> {
   getAdjustInvDetail(
     args: IAdjustInvDetailParamsId,
   ): Promise<IAdjustInvDetailDocument>;
@@ -124,12 +128,14 @@ export const loadAdjustInvDetailsClass = (
       branchId,
       adjustId,
     }: IAdjustInvDetailParamsId) {
+      const branchKey = inventoryKey(branchId);
+      const departmentKey = inventoryKey(departmentId);
       const detail = await models.AdjustInvDetails.findOne({
         adjustId,
         productId,
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchKey,
+        departmentId: departmentKey,
       }).lean();
 
       if (detail) {
@@ -140,8 +146,8 @@ export const loadAdjustInvDetailsClass = (
         adjustId,
         productId,
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchKey,
+        departmentId: departmentKey,
         remainder: 0,
         cost: 0,
         unitCost: 0,
@@ -209,17 +215,25 @@ export const loadAdjustInvDetailsClass = (
         departmentId,
         hasResp,
       } = args;
+      const branchKey = inventoryKey(branchId);
+      const departmentKey = inventoryKey(departmentId);
       const oldDetail = await models.AdjustInvDetails.findOne({
         adjustId,
         productId,
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchKey,
+        departmentId: departmentKey,
       }).lean();
       if (oldDetail) {
         await models.AdjustInvDetails.updateOne(
           { _id: oldDetail._id },
-          { $set: { ...args } },
+          {
+            $set: {
+              ...args,
+              branchId: branchKey,
+              departmentId: departmentKey,
+            },
+          },
         );
         if (hasResp) {
           return await models.AdjustInvDetails.findOne({ _id: oldDetail._id });
@@ -227,7 +241,11 @@ export const loadAdjustInvDetailsClass = (
         return;
       }
 
-      const newDetail = await models.AdjustInvDetails.create({ ...args });
+      const newDetail = await models.AdjustInvDetails.create({
+        ...args,
+        branchId: branchKey,
+        departmentId: departmentKey,
+      });
       if (hasResp) {
         return newDetail;
       }
@@ -308,14 +326,17 @@ export const loadAdjustInvDetailsClass = (
       branchId,
       adjustId,
     }: IAdjustInvDetailParamsId) {
+      const branchKey = inventoryKey(branchId);
+      const departmentKey = inventoryKey(departmentId);
+
       // let adjusting = await models.AdjustInvDetails.getAdjustInvDetail({ adjustId, productId, accountId, departmentId, branchId });
       if (adjustId) {
         return await models.AdjustInvDetails.getAdjustInvDetail({
           adjustId,
           productId,
           accountId,
-          branchId,
-          departmentId,
+          branchId: branchKey,
+          departmentId: departmentKey,
         });
       }
 
@@ -331,8 +352,8 @@ export const loadAdjustInvDetailsClass = (
           adjustId,
           productId,
           accountId,
-          branchId,
-          departmentId,
+          branchId: branchKey,
+          departmentId: departmentKey,
         });
       }
 
@@ -342,8 +363,8 @@ export const loadAdjustInvDetailsClass = (
             journal: { $in: JOURNALS.ALL_REAL_INV },
             'details.productId': productId,
             'details.accountId': accountId,
-            branchId,
-            departmentId,
+            branchId: branchId ? branchKey : { $in: [null, ''] },
+            departmentId: departmentId ? departmentKey : { $in: [null, ''] },
           },
         },
         { $sort: { date: 1 } },
@@ -378,8 +399,8 @@ export const loadAdjustInvDetailsClass = (
         adjustId: '',
         productId,
         accountId,
-        branchId,
-        departmentId,
+        branchId: branchKey,
+        departmentId: departmentKey,
         remainder,
         cost,
         unitCost: fixNum(cost / (remainder || 1)),

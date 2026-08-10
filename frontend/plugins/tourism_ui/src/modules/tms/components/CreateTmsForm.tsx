@@ -8,6 +8,7 @@ import { TmsInformationFields } from '@/tms/components/TmsInformationFields';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { useBranchSubmit } from '@/tms/hooks/useBranchSubmit';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { tmsFormAtom } from '@/tms/atoms/formAtoms';
 import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
@@ -31,6 +32,7 @@ const CreateTmsForm = ({
   refetch?: () => Promise<any>;
   isOpen?: boolean;
 }) => {
+  const { t } = useTranslation('tourism');
   const { branchDetail, loading: detailLoading } = useBranchDetail({
     id: branchId || '',
   });
@@ -146,7 +148,7 @@ const CreateTmsForm = ({
     <Sheet.View className="h-full p-0 w-175 md:w-175 sm:max-w-175">
       {isEditMode ? (
         <Sheet.Header>
-          <Sheet.Title>Edit Tour Management System</Sheet.Title>
+          <Sheet.Title>{t('edit-tms')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
       ) : (

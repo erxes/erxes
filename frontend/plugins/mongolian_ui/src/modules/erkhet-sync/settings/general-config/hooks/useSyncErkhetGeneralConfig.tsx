@@ -2,15 +2,18 @@ import { useQuery, useMutation } from '@apollo/client';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { GET_ERKHET_SYNC_GENERAL_CONFIG } from '../graphql/queries/syncErkhetGeneralConfigQueries';
-import { UPDATE_ERKHET_SYNC_GENERAL_CONFIG } from '../graphql/mutations/syncErkhetGeneralConfigMutations';
+import {
+  CREATE_ERKHET_SYNC_GENERAL_CONFIG,
+  UPDATE_ERKHET_SYNC_GENERAL_CONFIG,
+} from '../graphql/mutations/syncErkhetGeneralConfigMutations';
 import { SyncErkhetGeneralConfigFormData } from '../types/SyncErkhetGeneralConfigTypes';
 
 export const DEFAULT_VALUES: SyncErkhetGeneralConfigFormData = {
   apiKey: '',
   apiSecret: '',
   apiToken: '',
-  getRemainderUrl: '',
   costAccount: '',
   salesAccount: '',
   productCategoryCode: '',
@@ -30,29 +33,41 @@ export const useSyncErkhetGeneralConfig = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedFieldGroup, setSelectedFieldGroup] = useState('empty');
   const { toast } = useToast();
+  const { t } = useTranslation('mongolian');
 
-  const [updateConfig] = useMutation(UPDATE_ERKHET_SYNC_GENERAL_CONFIG, {
+  const mutationOptions = {
     onCompleted: () => {
       toast({
-        title: 'Success',
-        description: 'Erkhet sync general config updated successfully',
+        title: t('success'),
+        description: t('erkhet-sync-general-config-updated-successfully'),
         variant: 'default',
       });
       setIsUpdating(false);
     },
-    onError: (err) => {
+    onError: (err: Error) => {
       toast({
-        title: 'Error',
+        title: t('error'),
         description: err.message,
         variant: 'destructive',
       });
       setIsUpdating(false);
     },
-  });
+  };
+
+  const [createConfig] = useMutation(
+    CREATE_ERKHET_SYNC_GENERAL_CONFIG,
+    mutationOptions,
+  );
+  const [updateConfig] = useMutation(
+    UPDATE_ERKHET_SYNC_GENERAL_CONFIG,
+    mutationOptions,
+  );
 
   const { data, loading } = useQuery(GET_ERKHET_SYNC_GENERAL_CONFIG, {
     variables: { code: 'ERKHET' },
   });
+
+  const config = data?.mnConfigs?.[0];
 
   const form = useForm<SyncErkhetGeneralConfigFormData>({
     defaultValues: DEFAULT_VALUES,
@@ -70,7 +85,6 @@ export const useSyncErkhetGeneralConfig = () => {
       apiKey: formData.apiKey,
       apiSecret: formData.apiSecret,
       apiToken: formData.apiToken,
-      getRemainderUrl: formData.getRemainderUrl,
       costAccount: formData.costAccount,
       salesAccount: formData.salesAccount,
       productCategoryCode: formData.productCategoryCode,
@@ -84,39 +98,48 @@ export const useSyncErkhetGeneralConfig = () => {
       defaultCustomer: formData.defaultCustomer,
     };
 
-    await updateConfig({
-      variables: { configsMap: { ERKHET: payload } },
-    });
+    if (config?._id) {
+      await updateConfig({
+        variables: {
+          id: config._id,
+          subId: config.subId || '',
+          value: payload,
+        },
+      });
+    } else {
+      await createConfig({
+        variables: { code: 'ERKHET', subId: '', value: payload },
+      });
+    }
   };
 
   useEffect(() => {
-    if (loading || !data?.configsGetValue?.value) return;
+    if (loading || !config?.value) return;
 
-    const raw = data.configsGetValue.value;
-    const config = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const raw = config.value;
+    const value = typeof raw === 'string' ? JSON.parse(raw) : raw;
 
-    const fieldGroup = toFormValue(config.fieldGroup);
+    const fieldGroup = toFormValue(value.fieldGroup);
 
     setSelectedFieldGroup(fieldGroup);
 
     form.reset({
-      apiKey: config.apiKey || '',
-      apiSecret: config.apiSecret || '',
-      apiToken: config.apiToken || '',
-      getRemainderUrl: config.getRemainderUrl || '',
-      costAccount: config.costAccount || '',
-      salesAccount: config.salesAccount || '',
-      productCategoryCode: config.productCategoryCode || '',
-      customerDefaultName: config.customerDefaultName || '',
-      checkCompanyUrl: config.checkCompanyUrl || '',
-      customerCategoryCode: config.customerCategoryCode || '',
-      companyCategoryCode: config.companyCategoryCode || '',
-      consumeDescription: config.consumeDescription || '',
-      debtAccounts: config.debtAccounts || '',
-      userEmail: config.userEmail || '',
-      defaultCustomer: config.defaultCustomer || '',
+      apiKey: value.apiKey || '',
+      apiSecret: value.apiSecret || '',
+      apiToken: value.apiToken || '',
+      costAccount: value.costAccount || '',
+      salesAccount: value.salesAccount || '',
+      productCategoryCode: value.productCategoryCode || '',
+      customerDefaultName: value.customerDefaultName || '',
+      checkCompanyUrl: value.checkCompanyUrl || '',
+      customerCategoryCode: value.customerCategoryCode || '',
+      companyCategoryCode: value.companyCategoryCode || '',
+      consumeDescription: value.consumeDescription || '',
+      debtAccounts: value.debtAccounts || '',
+      userEmail: value.userEmail || '',
+      defaultCustomer: value.defaultCustomer || '',
     });
-  }, [data?.configsGetValue?.value, loading, form]);
+  }, [config?.value, loading, form]);
 
   return {
     form,

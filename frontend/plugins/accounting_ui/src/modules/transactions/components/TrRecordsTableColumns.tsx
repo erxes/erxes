@@ -18,10 +18,17 @@ import {
   RecordTableInlineCell,
   useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
+import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
-import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TR_SIDES,
+  TR_STATUS_LABELS,
+  TrJournalEnum,
+} from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 
 const NumberCell = ({ row }: any) => {
@@ -63,9 +70,9 @@ const CreditCell = ({ row }: any) => {
   return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
-const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
+const AmountItemCell = ({ row, value }: { row: any; value: number }) => {
   const { details } = row.original;
-  if (!details?.productId) {
+  if (!details?.productId && !details?.fixedAssetId) {
     return undefined;
   }
 
@@ -101,12 +108,23 @@ const DepartmentCell = ({ row }: any) => {
   );
 };
 
+const StatusCell = ({ row }: any) => {
+  const { status } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_STATUS_LABELS[status] || status}
+    </RecordTableInlineCell>
+  );
+};
+
 const JournalCell = ({ row }: any) => {
+  const { t } = useTranslation('accounting');
   const { journal } = row.original;
 
   return (
     <RecordTableInlineCell>
-      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || 'Main'}
+      {TR_JOURNAL_LABELS[journal as TrJournalEnum] || t('main')}
     </RecordTableInlineCell>
   );
 };
@@ -131,6 +149,21 @@ const AccountCell = ({ row }: any) => {
 
 const ProductCell = ({ row }: any) => {
   const { details } = row.original;
+
+  if (details?.fixedAssetId) {
+    return (
+      <RecordTableInlineCell>
+        <SelectFixedAsset.Provider
+          mode="single"
+          value={details.fixedAssetId}
+          placeholder="-"
+        >
+          <SelectFixedAsset.Value placeholder="-" />
+        </SelectFixedAsset.Provider>
+      </RecordTableInlineCell>
+    );
+  }
+
   if (!details?.productId) {
     return undefined;
   }
@@ -150,6 +183,7 @@ const TransactionMoreColumnCell = ({
 }: {
   cell: Cell<ITrRecord, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const { parentId, trId, originId } = cell.row.original;
   const navigate = useNavigate();
   const { confirm } = useConfirm();
@@ -165,10 +199,10 @@ const TransactionMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete this transaction record?',
+      message: t('are-you-sure-delete-tr-record'),
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
       },
     }).then(() => {
       removeTrRecords(parentId);
@@ -183,10 +217,10 @@ const TransactionMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -197,6 +231,7 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
   size: 33,
 };
@@ -225,8 +260,22 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     size: 100,
   },
   {
+    id: 'status',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    accessorKey: 'status',
+    cell: ({ row }) => <StatusCell row={row} />,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+  },
+  {
     id: 'product-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бараа/Хөрөнгө" />
+    ),
     accessorKey: 'product-inv',
     cell: ({ row }) => <ProductCell row={row} />,
   },
@@ -237,7 +286,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'unitPrice-inv',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.details?.unitPrice ?? 0} />
+      <AmountItemCell row={row} value={row.original?.details?.unitPrice ?? 0} />
     ),
   },
   {
@@ -247,7 +296,7 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     ),
     accessorKey: 'count-inv',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.details?.count ?? 0} />
+      <AmountItemCell row={row} value={row.original?.details?.count ?? 0} />
     ),
   },
   {
@@ -282,11 +331,5 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
-  },
-  {
-    id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
-    accessorKey: 'journal',
-    cell: ({ row }) => <JournalCell row={row} />,
   },
 ];

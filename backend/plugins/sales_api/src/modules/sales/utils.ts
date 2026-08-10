@@ -501,6 +501,10 @@ export const checkItemPermByUser = async (
   return deal;
 };
 
+type GetItemListOptions = {
+  formatter?: Record<string, 'date' | 'number' | 'boolean'>;
+};
+
 export const getItemList = async (
   models: IModels,
   subdomain: string,
@@ -508,6 +512,7 @@ export const getItemList = async (
   args: IDealQueryParams,
   user: IUserDocument,
   getExtraFields?: (item: any) => { [key: string]: any },
+  options?: GetItemListOptions,
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
@@ -518,6 +523,7 @@ export const getItemList = async (
     model: models.Deals,
     params: args,
     query: filter,
+    formatter: options?.formatter,
   });
 
   const updatedList: any[] = [];
@@ -554,7 +560,7 @@ export const getItemList = async (
 
     updatedList.push({
       ...item,
-      isWatched: (item.watchedUserIds || []).includes(user._id),
+      isWatched: (item.watchedUserIds || []).includes(user?._id),
       // hasNotified: notification ? false : true,
       ...(getExtraFields ? getExtraFields(item) : {}),
     });
@@ -605,6 +611,30 @@ export const generateProducts = async (
     defaultValue: [],
   });
 
+  const fieldIds = Array.from(
+    new Set(
+      allProducts.flatMap((product) =>
+        Object.keys(product.propertiesData || {}),
+      ),
+    ),
+  );
+  const fields: Array<{ _id: string; text?: string }> = fieldIds.length
+    ? await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'fields',
+        action: 'find',
+        input: {
+          query: {
+            _id: { $in: fieldIds },
+          },
+        },
+        defaultValue: [],
+      })
+    : [];
+  const fieldsById = new Map(fields.map((field) => [field._id, field]));
+
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
@@ -619,28 +649,12 @@ export const generateProducts = async (
 
     const properties: any = {};
 
-    const fieldIds: string[] = Object.keys(propertiesData || {});
-
-    const fields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'find',
-      input: {
-        query: {
-          _id: { $in: fieldIds },
-        },
-      },
-      defaultValue: [],
-    });
-
-    for (const fieldId of fieldIds || []) {
-      const field = fields.find((f) => f._id === fieldId);
+    for (const fieldId of Object.keys(propertiesData || {})) {
+      const field = fieldsById.get(fieldId);
 
       if (field) {
         properties[fieldId] = {
-          text: field.text,
+          text: field.text || '',
           data: propertiesData[fieldId],
         };
       }
@@ -820,14 +834,11 @@ export const getNewOrder = async ({
   return order;
 };
 
-export const checkMovePermission = (
-  stage: IStageDocument,
-  user: IUserDocument,
-) => {
+export const checkMovePermission = (stage: IStageDocument, userId: string) => {
   if (
     stage.canMoveMemberIds &&
     stage.canMoveMemberIds.length > 0 &&
-    !stage.canMoveMemberIds.includes(user._id)
+    !stage.canMoveMemberIds.includes(userId)
   ) {
     throw new Error('Permission denied');
   }
@@ -995,7 +1006,7 @@ export const convertNestedDate = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Check if the key is one of the target comparison operators
       if (
         ['$gte', '$lte', '$gt', '$lt'].includes(key) &&
@@ -1025,9 +1036,8 @@ export const sendNotification = async ({
     message: string;
     type?: 'info' | 'success' | 'warning' | 'error';
     fromUserId?: string;
-    contentType: string; // 'frontline:conversation', 'sales:deal', etc.
-    contentTypeId?: string; // target object ID
-    // Additional data
+    contentType: string;
+    contentTypeId?: string;
     priority?: 'low' | 'medium' | 'high' | 'urgent';
     priorityLevel?: 1 | 2 | 3 | 4;
     metadata?: any; // plugin-specific data
@@ -1106,15 +1116,19 @@ export const sendNotifications = async (
     user._id,
   ];
 
-  // exclude current user, invited user and removed users
-  const receivers = (
-    await notifiedUserIds(models, item, stage, pipeline)
-  ).filter((id) => {
-    return usersToExclude.indexOf(id) < 0;
-  });
+  const allNotified = await notifiedUserIds(models, item, stage, pipeline);
+  // keep only assigned + watched, exclude pipeline watchers
+  const pipelineWatchers = pipeline.watchedUserIds || [];
+  const receivers = allNotified
+    .filter(
+      (id) =>
+        !pipelineWatchers.includes(id) || item.assignedUserIds?.includes(id),
+    ) // keep if assigned (already in list) but not pure pipeline watchers
+    .filter((id) => usersToExclude.indexOf(id) < 0);
 
   const notificationDoc = {
     createdUser: user,
+    fromUserId: user._id,
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
@@ -1123,7 +1137,8 @@ export const sendNotifications = async (
     link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
   };
 
-  if (removedUsers && removedUsers.length > 0) {
+  // removed users
+  if (removedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: removedUsers.filter((id) => id !== user._id),
@@ -1132,28 +1147,39 @@ export const sendNotifications = async (
         action: `removed you from deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  if (invitedUsers && invitedUsers.length > 0) {
+  // invited users
+  if (invitedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: invitedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
-        action: `invited you to the deal: `,
+        action: `invited you to the deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  sendNotification({
-    subdomain,
-    userIds: receivers,
-    data: {
-      ...notificationDoc,
-    },
-  });
+  const excludedSet = new Set([...(removedUsers || []), user._id]);
+
+  const invitedSet = new Set(invitedUsers || []);
+
+  const filteredReceivers = receivers.filter(
+    (id) => !invitedSet.has(id) && !excludedSet.has(id),
+  );
+
+  if (filteredReceivers.length > 0) {
+    sendNotification({
+      subdomain,
+      userIds: filteredReceivers,
+      data: notificationDoc,
+    });
+  }
 };
 
 export const itemsAdd = async (
@@ -1191,7 +1217,7 @@ export const itemsAdd = async (
       pluginName: 'core',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }
@@ -1207,7 +1233,7 @@ export const PERMISSION_MAP = {
     dealsRemove: 'dealsRemove',
     dealsWatch: 'dealsWatch',
     dealsArchive: 'dealsArchive',
-    dealsCopy: 'dealsAdd', 
+    dealsCopy: 'dealsAdd',
     dealsCreateProductsData: 'dealsEdit',
     dealsEditProductData: 'dealsEdit',
     dealsDeleteProductData: 'dealsEdit',

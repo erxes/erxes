@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const CLEAR_VALUE = '__clear__';
 
@@ -70,6 +71,7 @@ export default function SelectUsers({
   status,
   disabled,
 }: Props) {
+  const { t } = useTranslation('mongolian');
   const { data, loading } = useQuery(USERS_QUERY, {
     variables: {
       status,
@@ -102,13 +104,13 @@ export default function SelectUsers({
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">
-        <Select.Value placeholder={loading ? 'Loading...' : 'Choose user'}>
+        <Select.Value placeholder={loading ? t('loading') : t('choose-user')}>
           {value ? label : null}
         </Select.Value>
       </Select.Trigger>
 
       <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
+        <Select.Item value={CLEAR_VALUE}>{t('clear')}</Select.Item>
 
         {users.map((u) => {
           const name = u.details?.fullName || u.username || u.email || u._id;

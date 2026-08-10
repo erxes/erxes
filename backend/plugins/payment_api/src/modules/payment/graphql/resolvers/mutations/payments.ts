@@ -36,6 +36,14 @@ async function handleQPaySetup(input: any) {
   const api = new QPayQuickQrAPI(input.config);
   const { isCompany } = input.config;
 
+  // Fallback for missing name (for company registration)
+  if (isCompany && !input.config.name) {
+    input.config.name =
+      input.config.companyName ||
+      input.config.businessName ||
+      'Default Contact';
+  }
+
   const response = isCompany
     ? await api.createCompany(input.config)
     : await api.createCustomer(input.config);
@@ -106,10 +114,7 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // 1️⃣ Authorize first (multi-tenant safe)
     await authorizePayment(payment, models, subdomain);
-
-    // 2️⃣ Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
 
     return payment;
@@ -127,7 +132,15 @@ const mutations = {
 
   async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
-    const { name, status, kind, config, currency } = input;
+    const {
+      name,
+      status,
+      kind,
+      config,
+      currency,
+      sendEmailOnPayment,
+      dealConfig,
+    } = input;
 
     const paymentConfig = validatePaymentKind(kind);
 
@@ -137,19 +150,40 @@ const mutations = {
           config.isCompany = config.type === 'company';
           delete config.type;
         }
-
-        const api = new QPayQuickQrAPI(config);
-        const { isCompany } = config;
-
-        const response = isCompany
-          ? await api.updateCompany(config)
-          : await api.updateCustomer(config);
-
-        if (!response?.id) {
-          throw new Error('QPay update did not return merchant id');
+        if (config.isCompany && !config.name) {
+          config.name =
+            config.companyName || config.businessName || 'Default Contact';
         }
 
-        config.merchantId = response.id;
+        const existing = await models.PaymentMethods.getPayment(_id);
+        const existingConfig = existing?.config || {};
+
+        const stableConfig = (cfg: Record<string, any> = {}) =>
+          JSON.stringify(
+            Object.entries(cfg)
+              .filter(([key]) => key !== 'merchantId')
+              .sort(([a], [b]) => a.localeCompare(b)),
+          );
+
+        if (
+          existingConfig.merchantId &&
+          stableConfig(config) === stableConfig(existingConfig)
+        ) {
+          config.merchantId = existingConfig.merchantId;
+        } else {
+          const api = new QPayQuickQrAPI(config);
+          const { isCompany } = config;
+
+          const response = isCompany
+            ? await api.updateCompany(config)
+            : await api.updateCustomer(config);
+
+          if (!response?.id) {
+            throw new Error('QPay update did not return merchant id');
+          }
+
+          config.merchantId = response.id;
+        }
       } catch (e: any) {
         throw new Error(extractErrorMessage(e));
       }
@@ -163,6 +197,8 @@ const mutations = {
       acceptedCurrencies: currency
         ? [currency]
         : paymentConfig.acceptedCurrencies,
+      ...(sendEmailOnPayment !== undefined && { sendEmailOnPayment }),
+      ...(dealConfig !== undefined && { dealConfig }),
     };
 
     return await models.PaymentMethods.updatePayment(_id, doc);

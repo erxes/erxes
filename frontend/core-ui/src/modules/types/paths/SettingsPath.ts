@@ -13,8 +13,10 @@ export enum SettingsWorkspacePath {
   General = 'general',
   FileUpload = 'file-upload',
   MailConfig = 'mail-config',
+  EmailDeliveries = 'email-deliveries',
   ImportExport = 'import-export',
   ImportExportCatchAll = `${ImportExport}/*`,
+  ApprovalRequests = 'approval-requests',
   Permissions = 'permissions',
   TeamMember = 'team',
   TeamMemberCatchAll = `${TeamMember}/*`,
@@ -35,6 +37,7 @@ export enum SettingsWorkspacePath {
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
   Broadcast = 'broadcast',
+  MessagePro = 'message-pro',
 }
 
 export type TSettingPath = {

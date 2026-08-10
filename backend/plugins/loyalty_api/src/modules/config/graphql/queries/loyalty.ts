@@ -14,8 +14,9 @@ export const loyaltyQueries = {
       ownerId,
       products,
     }: { ownerType: string; ownerId: string; products: IProductD[] },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCheck');
     return checkVouchersSale(models, subdomain, ownerType, ownerId, products);
   },
 
@@ -26,8 +27,9 @@ export const loyaltyQueries = {
       ownerId: string;
       ownerType: string;
     } & ICommonParams,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyView');
     const score = (await getLoyaltyOwner(subdomain, {
       ownerType: params.ownerType,
       ownerId: params.ownerId,

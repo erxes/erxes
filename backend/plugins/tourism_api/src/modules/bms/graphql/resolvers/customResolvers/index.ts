@@ -4,6 +4,7 @@ import Tour, { PricingOption, PricingOptionTranslation } from './tourResolver';
 import BmsBranch from './branchResolver';
 import TourCategory from './tourCategoryResolver';
 import Element from './element';
+import { CustomTourFieldGroup } from './customTourFieldGroup';
 
 export default {
   ElementItem,
@@ -12,6 +13,7 @@ export default {
   PricingOption,
   PricingOptionTranslation,
   TourCategory,
+  CustomTourFieldGroup,
   Itinerary,
   BmsBranch,
 };

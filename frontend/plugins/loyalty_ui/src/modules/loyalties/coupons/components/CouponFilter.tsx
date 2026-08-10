@@ -1,5 +1,6 @@
 import { IconCalendar } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { CouponTotalCount } from './CouponTotalCount';
 import {
   SelectCouponCampaignFilterItem,
@@ -14,12 +15,15 @@ import {
 import { SelectOwnerType } from '../../vouchers/components/selects/SelectOwnerType';
 import { SelectSortField } from '../../vouchers/components/selects/SelectSortField';
 import { SelectOrderType } from '../../vouchers/components/selects/SelectOrderType';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const CouponFilterPopover = () => {
+  const { t } = useTranslation('loyalty');
   const [queries] = useMultiQueryState<{
     couponCampaignId: string;
     couponStatus: string;
     ownerType: string;
+    ownerId: string;
     couponDate: string;
     sortField: string;
     orderType: string;
@@ -27,6 +31,7 @@ const CouponFilterPopover = () => {
     'couponCampaignId',
     'couponStatus',
     'ownerType',
+    'ownerId',
     'couponDate',
     'sortField',
     'orderType',
@@ -42,25 +47,27 @@ const CouponFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder={t('filter')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <SelectCouponCampaignFilterItem />
                 <SelectOwnerType.FilterItem />
+                <SelectOwner.FilterItem queryKey="ownerId" />
                 <SelectSortField.FilterItem />
                 <SelectOrderType.FilterItem />
                 <SelectCouponStatusFilterItem />
                 <Filter.Item value="couponDate">
                   <IconCalendar />
-                  Date
+                  {t('date')}
                 </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
           <SelectCouponCampaignFilterView />
           <SelectOwnerType.FilterView queryKey="ownerType" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
           <SelectSortField.FilterView queryKey="sortField" />
           <SelectOrderType.FilterView queryKey="orderType" />
           <SelectCouponStatusFilterView />
@@ -75,6 +82,9 @@ const CouponFilterPopover = () => {
         </Filter.View>
         <Filter.View filterKey="ownerType" inDialog>
           <SelectOwnerType.FilterView queryKey="ownerType" />
+        </Filter.View>
+        <Filter.View filterKey="ownerId" inDialog>
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
         <Filter.View filterKey="sortField" inDialog>
           <SelectSortField.FilterView queryKey="sortField" />
@@ -94,18 +104,20 @@ const CouponFilterPopover = () => {
 };
 
 export const CouponFilter = () => {
+  const { t } = useTranslation('loyalty');
   return (
     <Filter id="coupon-filter" sessionKey="coupons_cursor">
       <Filter.Bar>
         <SelectCouponCampaignFilterBar />
         <SelectOwnerType.FilterBar />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectSortField.FilterBar />
         <SelectOrderType.FilterBar />
         <SelectCouponStatusFilterBar />
         <Filter.BarItem queryKey="couponDate">
           <Filter.BarName>
             <IconCalendar />
-            Date
+            {t('date')}
           </Filter.BarName>
           <Filter.Date filterKey="couponDate" />
         </Filter.BarItem>

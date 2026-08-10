@@ -1,1369 +1,494 @@
-# AGENTS.md - AI Assistant Guide for erxes
+# erxes — Agent & Contributor Guide
 
-This document provides comprehensive information about the erxes codebase structure, development workflows, and key conventions for AI assistants working on this project.
+Operating rules and codebase reference for anyone (human or AI) changing code in
+this repository. Preserve existing architecture, local patterns, and product
+behavior. Keep changes small and scoped to the request.
 
-## Table of Contents
+## Instruction Scope and Nested `AGENTS.md` Files
 
-1. [Project Overview](#project-overview)
-2. [Architecture & Technology Stack](#architecture--technology-stack)
-3. [Repository Structure](#repository-structure)
-4. [Development Workflows](#development-workflows)
-5. [Plugin System](#plugin-system)
-6. [Code Conventions](#code-conventions)
-7. [Testing](#testing)
-8. [CI/CD](#cicd)
-9. [Common Tasks](#common-tasks)
-10. [Important Patterns](#important-patterns)
+This root file is the repository-wide entry point. It delegates local details
+to nested `AGENTS.md` files when a directory needs stricter or more specific
+rules.
 
-## Project Overview
+Before changing any file:
 
-**erxes** (pronounced 'erk-sis') is a secure, self-hosted, and scalable source-available Experience Operating System (XOS) that enables businesses to manage marketing, sales, operations, and support in one unified platform.
+1. Identify the exact target path and owning project.
+2. Read this root `AGENTS.md`.
+3. Walk from the repository root to the target directory and read every
+   `AGENTS.md` on that path.
+4. Apply all of those files together while working in that subtree.
 
-### Key Characteristics
+The closest `AGENTS.md` to a changed file governs local implementation details.
+It may add constraints or choose among repository-approved patterns, but it may
+not weaken the root non-negotiable rules, plugin scope boundary, security
+requirements, or tenant isolation. All non-conflicting root and intermediate
+rules still apply.
 
-- **Architecture**: Nx-powered pnpm monorepo with microservices architecture
-- **License**: AGPLv3 (core) with Enterprise Edition plugins
-- **Package Manager**: pnpm (v9.12.3) - **REQUIRED**
-- **Build System**: Nx (v20.0.8) with intelligent caching and task orchestration
-- **Version**: TypeScript 5.7.3, Node.js 18+
+Plugins keep local guides at `backend/plugins/<name>_api/AGENTS.md` and
+`frontend/plugins/<name>_ui/AGENTS.md`. A plugin guide is loaded on demand:
+read it whenever that plugin is in scope, and do not load guides for unrelated
+plugins. Every plugin implementation change must create the applicable guide if
+it is absent and update it before delivery. Beyond the bounded recent-change
+metadata required below, keep only durable facts and rules in a
+plugin guide; never use it as a task journal or backlog.
 
-### Core Philosophy
+---
 
-- 100% customizable through plugin architecture
-- Self-hosted for data privacy
-- Microservices with GraphQL Federation
-- Micro-frontends with Module Federation
+## Working Principles
 
-## Architecture & Technology Stack
+- Search for a similar implementation before writing new code.
+- Reuse existing components, hooks, GraphQL documents, utilities, and state
+  patterns before adding new ones.
+- Keep changes minimal and scoped. Do not refactor unrelated files.
+- Do not add dependencies unless the task explicitly requires it.
+- Prefer repository consistency over personal preference.
+- When unsure whether a change violates a rule below, **ask** rather than guess.
 
-### Backend Stack
+### Priority order when deciding
 
-```
-┌─────────────────────────────────────────┐
-│         API Gateway (Port 4000)         │
-│    Apollo Router + Service Discovery    │
-└─────────────────────────────────────────┘
-                    │
-      ┌─────────────┼─────────────┐
-      ▼             ▼             ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│ Core API │  │ Plugin   │  │ Plugin   │
-│ (3300)   │  │ APIs     │  │ APIs     │
-└──────────┘  └──────────┘  └──────────┘
-      │             │             │
-      └─────────────┴─────────────┘
-                    │
-      ┌─────────────┼─────────────┐
-      ▼             ▼             ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│ MongoDB  │  │  Redis   │  │Elasticsea│
-│          │  │  +BullMQ │  │   rch    │
-└──────────┘  └──────────┘  └──────────┘
-```
+1. Existing repository patterns
+2. Local plugin consistency
+3. Minimal changes
+4. Clear behavior and maintainability
+5. Reusability
+6. Performance
+7. Personal preference
 
-**Technologies:**
+---
 
-- **Runtime**: Node.js with TypeScript 5.7.3
-- **Framework**: Express.js
-- **GraphQL**: Apollo Server v4, Apollo Federation (@apollo/subgraph)
-- **API**: tRPC v11 for type-safe endpoints
-- **Database**: MongoDB with Mongoose (v8.13.2)
-- **Cache/Queue**: Redis (ioredis) + BullMQ v5.40.0
-- **Search**: Elasticsearch 7
-- **Real-time**: GraphQL Subscriptions (graphql-redis-subscriptions)
-- **Authentication**: JWT (jsonwebtoken), WorkOS for SSO
+## Non-Negotiable Rules
 
-### Frontend Stack
+These must hold in any new or modified code.
 
-```
-┌─────────────────────────────────────────┐
-│    Core UI (Host - Port 3001)           │
-│   Module Federation Host Application    │
-└─────────────────────────────────────────┘
-                    │
-      ┌─────────────┼─────────────┐
-      ▼             ▼             ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│ Plugin   │  │ Plugin   │  │ Plugin   │
-│ UI (3005)│  │ UI (3006)│  │ UI (3007)│
-└──────────┘  └──────────┘  └──────────┘
-```
+1. **UI components** — In frontend code, use components from `erxes-ui` (and
+   `ui-modules`). Do not import `@radix-ui/*` directly or hand-roll new UI
+   primitives. Prefer composed components (`Form.Field`, `RecordTable.Provider`,
+   `Sheet.Content`, …).
+2. **Real-time data** — After any create/update/delete mutation, the UI must
+   update immediately via Apollo cache update, refetch, or `subscribeToMore`.
+   Never require a manual refresh.
+3. **Completeness** — No button without a handler, no page without content or an
+   empty state, no form without validation, no mutation without success/error
+   feedback, no list without loading state, no placeholder ("Coming soon") code.
+4. **Exports** — Use named exports in application code. A default export is
+   allowed only in a tool configuration where Nx, Rspack, or another external
+   tool contract requires it.
+5. **Type safety** — No `any` in new or modified code. No `as any` / unnecessary
+   casts except at unavoidable external-library boundaries. Type all props and
+   hook returns.
+6. **GraphQL** — Operation names must be unique repo-wide, never anonymous, and
+   prefixed with the plugin/module (`cmsPageList`, `salesDealCreate`). Keep
+   operations near the feature they serve.
+7. **Backend schema** — Do not introduce new `schemaWrapper` usage. Define
+   schemas with `new Schema(...)` and explicit fields. Never modify backend
+   contracts from a frontend-only task.
+8. **Plugin isolation and scope** — A plugin change must stay inside that
+   plugin. No cross-plugin imports and no edits to core, shared libraries, or
+   another plugin to make the feature work. Shared code may be consumed only
+   through existing public interfaces in `erxes-ui`, `ui-modules` (frontend),
+   or `erxes-api-shared` (backend).
+9. **Code quality** — No leftover `console.log`/`debugger`, no commented-out
+   dead code, no unused imports/variables, no untracked `TODO`s.
 
-**Technologies:**
+### Before declaring a task done
 
-- **Framework**: React 18.3.1
-- **Bundler**: Rspack v1.0.5 (Rust-based, faster than Webpack)
-- **Module Federation**: @module-federation/enhanced v0.6.6
-- **Styling**: TailwindCSS v4.1.17 + PostCSS
-- **UI Components**: Radix UI primitives + custom design system (erxes-ui)
-- **State Management**: Jotai (atomic state) + Apollo Client
-- **Routing**: React Router v7
-- **Forms**: React Hook Form + Zod validation
-- **i18n**: react-i18next
-- **Rich Text**: Blocknote editor
-- **Icons**: @tabler/icons-react
-- **Data Visualization**: Recharts
+- `pnpm nx lint <project>` passes
+- `pnpm nx build <project>` passes
+- `pnpm nx test <project>` passes (when tests exist or are touched)
+- TypeScript compiles with no errors and no new lint/Sonar warnings
+- The diff contains no unrelated edits
 
-### Apps
+### Forbidden
 
-**Standalone Applications:**
+- Introducing a new UI system or replacing existing patterns with preferences.
+- Renaming public APIs, GraphQL operation names, routes, or Module Federation
+  exposes casually.
+- Large refactors without an explicit request.
+- Moving Module Federation exposes without updating host references.
+- Changing core, shared libraries, root infrastructure, or another plugin as an
+  implicit part of plugin development.
 
-1. **client-portal-template**: Next.js 16 customer portal
-2. **posclient-front**: Next.js 14 POS with PWA support
-3. **frontline-widgets**: Customer-facing widgets (chat, forms)
+---
+
+## Architecture & Stack
+
+**erxes** is a self-hosted Experience Operating System: an Nx-powered pnpm
+monorepo of microservices (backend) and Module Federation micro-frontends
+(frontend), licensed AGPLv3 (core) with Enterprise plugins.
+
+- **Package manager:** pnpm ≥ 8 (required) · **Node:** 22 in CI · **TS:** 5.7.3
+- **Build:** Nx 20 with caching and affected-graph task orchestration
+
+### Backend
+
+- Node.js + TypeScript on Express; Apollo Server v4 with Apollo Federation
+  (`@apollo/subgraph`); tRPC v11 for type-safe service-to-service calls
+- MongoDB + Mongoose; Redis (ioredis) + BullMQ; Elasticsearch 7
+- GraphQL subscriptions over Redis; JWT / WorkOS auth
+- API Gateway (Apollo Router) on **4000**; Core API on **3300**; plugin APIs on
+  **3305+**. Plugins register with the gateway via Redis service discovery.
+
+### Frontend
+
+- React 18 bundled with Rspack; `@module-federation/enhanced`
+- TailwindCSS v4 + Radix-based `erxes-ui` design system
+- State: Jotai (atomic) + Apollo Client; React Router v7; React Hook Form + Zod;
+  `react-i18next`
+- Core UI host on **3001**; plugin UIs on **3002–3011**
+
+---
 
 ## Repository Structure
 
-```
-erxes/
-├── backend/                    # Backend microservices
-│   ├── gateway/               # API Gateway (Port 4000)
-│   │   └── src/main.ts       # Gateway entry point
-│   ├── core-api/             # Core business logic (Port 3300)
-│   │   ├── src/
-│   │   │   ├── main.ts       # Core API entry point
-│   │   │   ├── apollo/       # GraphQL schema & resolvers
-│   │   │   ├── trpc/         # tRPC router
-│   │   │   ├── modules/      # Business logic modules
-│   │   │   │   ├── contacts/
-│   │   │   │   ├── products/
-│   │   │   │   ├── segments/
-│   │   │   │   ├── automations/
-│   │   │   │   └── documents/
-│   │   │   ├── meta/         # Automation, segment configs
-│   │   │   └── routes.ts     # Express routes
-│   │   ├── Dockerfile
-│   │   ├── project.json      # Nx configuration
-│   │   └── tsconfig.json
-│   ├── erxes-api-shared/     # Shared library for all services
-│   │   └── src/
-│   │       ├── utils/        # Service discovery, Redis, MQ
-│   │       ├── core-types/   # TypeScript type definitions
-│   │       └── core-modules/ # Reusable business logic
-│   ├── plugins/              # Plugin microservices
-│   │   ├── sales_api/        # Sales plugin (Port 3305)
-│   │   ├── operation_api/    # Operations plugin
-│   │   ├── frontline_api/    # Customer service plugin
-│   │   ├── accounting_api/   # Accounting plugin (EE)
-│   │   ├── content_api/      # Content management (EE)
-│   │   └── ...
-│   └── services/             # Background services
-│       ├── automations/      # Automation execution engine
-│       └── logs/             # Logging service
-├── frontend/                  # Frontend applications
-│   ├── core-ui/              # Module federation host (Port 3001)
-│   │   ├── src/
-│   │   │   ├── main.ts       # Entry point
-│   │   │   └── bootstrap.tsx # App bootstrap
-│   │   └── module-federation.config.ts
-│   ├── libs/                 # Shared UI libraries
-│   │   ├── erxes-ui/         # Core UI components & state
-│   │   └── ui-modules/       # Reusable UI modules
-│   └── plugins/              # Frontend plugin remotes
-│       ├── sales_ui/         # Sales UI plugin (Port 3005)
-│       │   ├── src/
-│       │   │   ├── config.tsx           # Plugin configuration
-│       │   │   ├── modules/             # Module components
-│       │   │   ├── pages/               # Page components
-│       │   │   └── widgets/             # Widget components
-│       │   ├── module-federation.config.ts
-│       │   └── rspack.config.ts
-│       └── ...
-├── apps/                      # Standalone applications
-│   ├── client-portal-template/  # Next.js 16 customer portal
-│   ├── posclient-front/         # Next.js 14 POS client
-│   └── frontline-widgets/       # Customer-facing widgets
-├── scripts/                   # Development scripts
-│   ├── create-plugin.js       # Plugin generator
-│   ├── start-api-dev.js       # Start all API services
-│   └── start-ui-dev.js        # Start all UI plugins
-├── .github/workflows/         # CI/CD pipelines (26+ workflows)
-├── nx.json                    # Nx configuration
-├── pnpm-workspace.yaml        # pnpm workspace config
-├── package.json               # Root package.json
-├── tsconfig.base.json         # Base TypeScript config
-└── AGENTS.md                  # This file
+```text
+backend/
+  gateway/             API gateway (4000)
+  core-api/            Core business logic (3300): apollo/, trpc/, modules/, meta/
+  erxes-api-shared/    Shared lib: utils/, core-types/, core-modules/
+  plugins/<name>_api/  Plugin microservices
+  services/            Background services (automations, logs)
+frontend/
+  core-ui/             Module Federation host (3001)
+  libs/erxes-ui/       Core UI primitives + state
+  libs/ui-modules/     Reusable business/UI modules
+  plugins/<name>_ui/   Plugin remotes: config.tsx, modules/, pages/, widgets/
+apps/                  Standalone apps (client-portal, posclient-front, widgets)
+scripts/               Dev scripts (create-plugin.js, start-*-dev.js)
+.github/workflows/     CI/CD pipelines
 ```
 
-### Path Aliases (TypeScript)
+### Path aliases
 
-All backend services use consistent path aliases:
+Frontend plugins: `~/*` → `src`, `@/*` → `src/modules`, plus `erxes-ui`,
+`ui-modules`. Backend services: `~/*` → `src`, `@/*` → `src/modules`,
+`erxes-api-shared/*` → the shared lib. Do not import across frontend plugins.
 
-```typescript
-"paths": {
-  "~/*": ["./src/*"],              // Service root
-  "@/*": ["./src/modules/*"],      // Modules directory
-  "erxes-api-shared/*": ["../erxes-api-shared/src/*"]  // Shared lib
-}
-```
+---
 
-## Development Workflows
-
-### Prerequisites
-
-- **pnpm** ≥ 8 (enforced in package.json)
-- **Node.js** 18.16.9+ (see `.nvmrc` if exists)
-- **MongoDB** 27017
-- **Redis** (default port)
-- **Elasticsearch** 7 (optional, for search)
-
-### Initial Setup
+## Development Workflow
 
 ```bash
-# Clone repository
-git clone https://github.com/erxes/erxes.git
-cd erxes
+pnpm install                 # MUST use pnpm
+cp .env.sample .env          # then edit
 
-# Install dependencies (MUST use pnpm)
-pnpm install
+pnpm dev:core-api            # Gateway + Core API
+pnpm dev:apis                # all backend services in ENABLED_PLUGINS
+pnpm dev:uis                 # all frontend plugins
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your configuration
+pnpm nx serve <project>      # run one service/plugin (e.g. sales_api, sales_ui)
+pnpm nx build <project>
+pnpm nx test  <project>
+pnpm nx affected --target=build   # only changed projects
 ```
 
-### Running Development Environment
+Key env vars: `MONGO_URL`, `REDIS_HOST`/`REDIS_PORT`, `ENABLED_PLUGINS`,
+`DOMAIN`, `REACT_APP_API_URL`. Backend shared lib must be rebuilt
+(`pnpm nx build erxes-api-shared`) after changing `erxes-api-shared`.
 
-**Option 1: Run Core Only**
+---
 
-```bash
-# Runs Gateway + Core API
-pnpm dev:core-api
+## Plugin Development
+
+Backend plugins are independently deployable microservices registered with the
+gateway through Redis. Frontend plugins are independently buildable Module
+Federation remotes. A complete plugin may own both of these paired projects:
+
+- `backend/plugins/<name>_api`
+- `frontend/plugins/<name>_ui`
+
+### Hard scope boundary
+
+Plugin development must stay inside the plugin being changed.
+
+- A backend-only task may write only under
+  `backend/plugins/<name>_api/**`.
+- A frontend-only task may write only under
+  `frontend/plugins/<name>_ui/**`.
+- A full-stack plugin task may write only under those two matching plugin
+  directories.
+- Never edit `core-api`, `core-ui`, another plugin, a shared library, or root
+  infrastructure to make a plugin feature work.
+- Never import source code, models, state, or components from another plugin.
+- Consume shared packages and platform contracts through their existing public
+  APIs; do not alter those APIs as an implicit part of plugin work.
+- If the requested behavior cannot be implemented within the plugin boundary,
+  stop and report the missing platform capability. A shared or core change is a
+  separate task requiring explicit scope.
+
+Files outside the plugin may change only when the user explicitly names that
+repository-level work, such as a shared contract or CI change. Do not infer it
+from a plugin request. Local `.env` activation is setup, not plugin source code.
+
+This boundary is architectural, not organizational. A plugin must remain
+functional, buildable, testable, deployable, and removable without requiring
+private implementation details from another plugin.
+
+### Mandatory plugin guide maintenance
+
+Every change to plugin source, configuration, schema, migration, dependency,
+test, route, or user-visible behavior must update the `AGENTS.md` at the root of
+each changed plugin project.
+
+- Backend changes update `backend/plugins/<name>_api/AGENTS.md`.
+- Frontend changes update `frontend/plugins/<name>_ui/AGENTS.md`.
+- Full-stack changes update both files with side-specific facts.
+- If the applicable file does not exist, create it as part of the change.
+- Do not update another plugin's guide.
+- A change only to a plugin's `AGENTS.md` does not recursively require another
+  maintenance edit.
+
+The guide is a compact current-state contract with only a bounded recent-change
+history. Before implementation, read it. Before delivery, synchronize paths,
+capabilities, contracts, invariants, validation commands, and the
+`Recent Changes` section with the final code. Add the newest entry first, keep
+at most ten entries, and remove the oldest entry when adding an eleventh.
+
+Use this exact section order:
+
+```markdown
+# `<project-name>` Plugin Guide
+
+## Identity
+
+- **Plugin:** `<plugin-name>`
+- **Project:** `<project-name>`
+- **Layer:** `<Backend API | Frontend UI>`
+- **Path:** `<repository-relative plugin root>`
+- **Last synchronized:** `<YYYY-MM-DD>`
+
+## Scope
+
+### Owns
+
+- `<business capabilities and data or UI surfaces owned here>`
+
+### Does not own
+
+- `<explicit boundaries that prevent scope leakage>`
+
+## Current Capabilities
+
+- `<behaviors that are implemented and usable now>`
+
+## Architecture
+
+| Area     | Path                         | Responsibility             |
+| -------- | ---------------------------- | -------------------------- |
+| `<area>` | `<repository-relative path>` | `<current responsibility>` |
+
+## Contracts
+
+### Provides
+
+- `<GraphQL, tRPC, HTTP, event, federation, route, or widget contract>`
+
+### Consumes
+
+- `<public platform contract or shared package API>`
+
+## Data and State
+
+- `<tenant-owned collections, migrations, Apollo cache, atoms, or local state>`
+
+## Local Invariants
+
+- `<plugin-specific rule that must remain true after future changes>`
+
+## Validation
+
+- `pnpm nx lint <project-name>`
+- `pnpm nx build <project-name>`
+- `pnpm nx test <project-name>` (when `project.json` defines a test target)
+- `<plugin-specific smoke scenario>`
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `<YYYY-MM-DD>` — `<short title>`
+
+- **Summary:** `<one sentence describing the delivered behavior>`
+- **Affected areas:** `<paths or capabilities>`
+- **Contracts changed:** `<None | exact contract changes>`
 ```
 
-**Option 2: Run All APIs**
+Replace every placeholder with a verified fact. Use `None` only when it is
+factually correct. Keep each recent-change entry concise, prepend exactly one
+entry per delivered plugin change, and delete all entries beyond the newest ten.
+Do not expand entries into task logs. Remove stale current-state facts instead
+of preserving them as history. Validation commands must match targets that
+actually exist in the plugin's `project.json`.
 
-```bash
-# Starts all backend services defined in ENABLED_PLUGINS
-pnpm dev:apis
-```
+### Creating a plugin
 
-**Option 3: Run All UIs**
+Before generating code, choose:
 
-```bash
-# Starts all frontend plugins
-pnpm dev:uis
-```
+1. A unique plugin name describing the business capability.
+2. The first module owned by that plugin.
+3. Whether the request needs the backend, frontend, or both.
+4. Unique backend and frontend development ports.
 
-**Option 4: Run Specific Service (Nx)**
-
-```bash
-# Backend service
-pnpm nx serve core-api
-pnpm nx serve sales_api
-
-# Frontend plugin
-pnpm nx serve sales_ui
-
-# Build specific project
-pnpm nx build sales_api
-
-# Run tests
-pnpm nx test sales_api
-
-# Run affected commands (only changed projects)
-pnpm nx affected:build
-pnpm nx affected:test
-```
-
-### Important Environment Variables
-
-```bash
-# Required
-MONGO_URL=mongodb://localhost:27017/erxes
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Plugin Management
-ENABLED_PLUGINS=operation,sales,frontline,accounting
-
-# API Configuration
-DOMAIN=http://localhost:3000
-REACT_APP_API_URL=http://localhost:4000
-
-# Feature Flags
-DISABLE_CHANGE_STREAM=true  # Disable MongoDB change streams in dev
-
-# SAAS Mode (optional)
-SAAS_MODE=true
-```
-
-### Port Allocation
-
-```
-Gateway:       4000
-Core API:      3300
-Core UI:       3001
-
-Plugin APIs:   3305+ (sales=3305, operation=3306, etc.)
-Plugin UIs:    3005+ (sales=3005, operation=3006, etc.)
-
-BullMQ Board:  4000/bullmq-board
-```
-
-## Plugin System
-
-### Architecture Overview
-
-erxes uses a **plugin-based architecture** for both backend and frontend:
-
-- **Backend Plugins**: Microservices registered with the gateway via Redis
-- **Frontend Plugins**: Module Federation remotes dynamically loaded at runtime
-
-### Backend Plugin Structure
-
-**Standard Plugin Entry Point** (`src/main.ts`):
-
-```typescript
-import { startPlugin } from 'erxes-api-shared/utils';
-import { appRouter } from './trpc/init-trpc';
-import resolvers from './apollo/resolvers';
-import { typeDefs } from './apollo/typeDefs';
-import { generateModels } from './connectionResolvers';
-import { router } from './routes';
-import automations from './meta/automations';
-import segments from './meta/segments';
-
-startPlugin({
-  name: 'sales',
-  port: 3305,
-  graphql: async () => ({
-    typeDefs: await typeDefs(),
-    resolvers,
-  }),
-  expressRouter: router,
-  hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(__dirname, 'apollo', process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts'),
-  apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain, context);
-    context.models = models;
-    return context;
-  },
-  trpcAppRouter: {
-    router: appRouter,
-    createContext: async (subdomain, context) => {
-      const models = await generateModels(subdomain);
-      context.models = models;
-      return context;
-    },
-  },
-  onServerInit: async () => {
-    // Initialize workers, cron jobs, etc.
-  },
-  meta: {
-    automations,
-    segments,
-    notificationModules: [
-      /* ... */
-    ],
-  },
-});
-```
-
-**Key Files in Backend Plugin:**
-
-- `main.ts` - Entry point using `startPlugin()`
-- `connectionResolvers.ts` - Database models
-- `apollo/` - GraphQL schema, resolvers, subscriptions
-- `trpc/` - tRPC router and procedures
-- `modules/` - Business logic organized by feature
-- `meta/` - Automations, segments, exports configuration
-- `routes.ts` - Express routes
-- `Dockerfile` - Container configuration
-- `project.json` - Nx build configuration
-
-### Frontend Plugin Structure
-
-**Plugin Configuration** (`src/config.tsx`):
-
-```typescript
-import { IconBriefcase } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
-
-const MainNavigation = lazy(() =>
-  import('./modules/MainNavigation').then((module) => ({
-    default: module.MainNavigation,
-  })),
-);
-
-export const CONFIG: IUIConfig = {
-  name: 'sales',
-  icon: IconBriefcase,
-  navigationGroup: {
-    name: 'sales',
-    icon: IconBriefcase,
-    content: () => (
-      <Suspense fallback={<div />}>
-        <MainNavigation />
-      </Suspense>
-    ),
-  },
-  modules: [
-    {
-      name: 'sales',
-      icon: IconBriefcase,
-      path: 'sales',
-      hasSettings: false,
-      hasRelationWidget: true,
-      hasFloatingWidget: false,
-    },
-  ],
-  widgets: {
-    relationWidgets: [
-      {
-        name: 'deals',
-        icon: IconBriefcase,
-      },
-    ],
-  },
-};
-```
-
-**Module Federation Configuration** (`module-federation.config.ts`):
-
-```typescript
-import { ModuleFederationConfig } from '@nx/rspack/module-federation';
-
-const coreLibraries = new Set(['react', 'react-dom', 'react-router', 'react-router-dom', 'erxes-ui', '@apollo/client', 'jotai', 'ui-modules', 'react-i18next']);
-
-const config: ModuleFederationConfig = {
-  name: 'sales_ui',
-  exposes: {
-    './config': './src/config.tsx',
-    './sales': './src/modules/Main.tsx',
-    './dealsSettings': './src/pages/SettingsPage.tsx',
-    './Widgets': './src/widgets/Widgets.tsx',
-    './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
-  },
-  shared: (libraryName, defaultConfig) => {
-    if (coreLibraries.has(libraryName)) {
-      return defaultConfig;
-    }
-    return false;
-  },
-};
-
-export default config;
-```
-
-### Creating a New Plugin
-
-**Using the Plugin Generator:**
+From the repository root, run the interactive generator:
 
 ```bash
 pnpm create-plugin
 ```
 
-This will prompt for:
-
-- **Plugin name**: e.g., "inventory"
-- **Module name**: e.g., "products"
-
-The script creates:
-
-- Backend: `backend/plugins/inventory_api/`
-- Frontend: `frontend/plugins/inventory_ui/`
-
-Both with complete boilerplate including:
-
-- GraphQL/tRPC setup
-- Module Federation configuration
-- Example components and routes
-- Nx project configuration
-
-**Plugin Activation:**
-
-Add to `.env`:
+For a repeatable non-interactive run:
 
 ```bash
-ENABLED_PLUGINS=operation,sales,frontline,inventory
+pnpm create-plugin --plugin-name=inventory --module-name=items
 ```
 
-### Service Discovery (Backend)
+Names must begin with a letter and contain only letters and numbers. The
+generator creates:
 
-Plugins register with the gateway using Redis:
+- `backend/plugins/inventory_api`
+- `frontend/plugins/inventory_ui`
 
-```typescript
-// From erxes-api-shared/utils
-await joinErxesGateway({
-  name: 'sales',
-  address: 'http://localhost:3305',
-  config: {
-    typeDefs,
-    hasSubscriptions: true,
-    meta: { automations, segments },
-  },
-});
-```
+It also creates Nx projects named `inventory_api` and `inventory_ui`. Enable
+the plugin locally through `ENABLED_PLUGINS` in `.env`.
 
-Gateway dynamically routes requests to plugins:
+The generator always creates both projects. If the approved plugin is
+intentionally backend-only or frontend-only, remove the unused generated
+project immediately; never retain an inactive project or placeholder surface.
 
-- GraphQL: Federated via Apollo Router
-- REST: Proxy via `/pl:{serviceName}/*`
-- tRPC: Proxy via `/trpc/`
+Before adding feature behavior, compare the generated projects with one current
+plugin that has the same shape. Reuse its local structure and public platform
+integration patterns without importing its source.
 
-## Code Conventions
+### The scaffold is not a deliverable
 
-### TypeScript
+Generated code is only a directory and configuration starting point. Review
+every generated file before treating the plugin as usable.
 
-**Configuration:**
+At minimum:
 
-- Strict null checks: enabled
-- No implicit any: disabled (legacy code compatibility)
-- Target: ES2017
-- Module: CommonJS (backend), ESNext (frontend)
+- Replace sample pages, widgets, models, schemas, resolvers, and placeholder
+  text with complete behavior or remove them.
+- Replace hard-coded generated ports with unused plugin-specific ports.
+- Make the plugin name, module name, routes, navigation paths, and Module
+  Federation exposes consistent.
+- Ensure each `config.tsx` path maps to a real route and each expose maps to a
+  real named export.
+- Remove unused generated files and imports.
+- Fix generated types, validation, loading states, empty states, error states,
+  and mutation feedback.
+- Use named exports, except where a tool configuration has an unavoidable
+  external default-export contract.
+- Add only dependencies owned by the plugin, and do not add a dependency when
+  an existing public platform package already provides the capability.
 
-**Naming Conventions:**
+Do not describe generated boilerplate as an MVP, scaffold, foundation, or
+follow-up when the request expects a working plugin.
 
-```typescript
-// Interfaces & Types
-interface IUser { ... }
-type UserRole = 'admin' | 'user';
+### Backend plugin requirements
 
-// Classes (PascalCase)
-class UserService { ... }
+The backend project owns its runtime, data model, API, permissions, and
+plugin-specific integrations.
 
-// Functions & Variables (camelCase)
-const getUserById = (id: string) => { ... };
+- Start through `startPlugin({...})` with a unique plugin name and port.
+- Generate models from the request `subdomain`; preserve tenant isolation in
+  every resolver, service, model operation, worker, and route.
+- Keep GraphQL schema and resolvers inside the plugin. Prefix every operation
+  with the plugin or module name and keep operation names unique repository-wide.
+- Check authentication and permissions before sensitive reads or mutations.
+- Define Mongoose schemas with `new Schema(...)` and explicit fields. Do not
+  introduce `schemaWrapper`.
+- Validate inputs at the API boundary and return actionable errors.
+- Keep resolvers thin; place business rules in the plugin's established service
+  or model layer.
+- Register plugin-owned automation, segment, import/export, notification, and
+  subscription behavior through the platform extension points exposed to the
+  plugin.
+- Own plugin migrations inside the plugin. Never read or mutate another
+  plugin's collections directly.
+- Communicate with platform or plugin services only through published GraphQL,
+  tRPC, HTTP, event, or federation contracts. Never import another service's
+  implementation.
 
-// Constants (UPPER_SNAKE_CASE for globals)
-const MAX_RETRY_COUNT = 3;
+### Frontend plugin requirements
 
-// Files
-// - Components: PascalCase (UserProfile.tsx)
-// - Utils/Services: camelCase (authService.ts)
-// - Config: kebab-case (module-federation.config.ts)
-```
+The frontend project owns its routes, navigation, pages, widgets, GraphQL
+documents, state, translations, and user feedback.
 
-### Code Style (Prettier)
+- Use `erxes-ui` and `ui-modules`; do not import Radix primitives directly or
+  build a competing UI system.
+- Keep GraphQL documents next to the feature and prefix operation names with
+  the plugin or module.
+- Use Apollo Client for server state, Jotai only for plugin-wide client state,
+  and local React state for component-local behavior.
+- Use React Hook Form with Zod validation for forms.
+- Provide loading, empty, success, and error states. Every button must have a
+  working handler.
+- After create, update, or delete mutations, update Apollo cache, refetch the
+  affected query, or subscribe to changes so the UI never requires a manual
+  refresh.
+- Lazy-load exposed modules and wrap them in `Suspense`.
+- Keep Module Federation exposes, `config.tsx` paths, and actual routes exactly
+  aligned.
+- Keep plugin-specific assets, translations, components, hooks, and utilities
+  inside the plugin.
+- Use only public types and components from shared packages. Never import from
+  another plugin or from an internal path inside a shared package.
 
-```json
-{
-  "singleQuote": true,
-  "trailingComma": "all",
-  "endOfLine": "auto"
-}
-```
+### Independence check
 
-**Key Rules:**
+Before considering plugin work complete, verify:
 
-- Single quotes for strings
-- Trailing commas in arrays/objects
-- 2-space indentation (inferred)
-- No semicolons (inferred)
+- The plugin builds and tests without another optional plugin's source.
+- Disabling the plugin does not break core or other plugins.
+- Removing another optional plugin does not break this plugin.
+- Backend data access remains tenant-scoped and owned by this plugin.
+- Frontend imports resolve only within the plugin or through public shared
+  packages.
+- All routes and federation exposes load directly.
+- All create, update, and delete flows update the UI immediately.
+- No source changes escaped the plugin's allowed directories.
 
-### React Patterns
-
-**Component Structure:**
-
-```typescript
-// Prefer functional components with hooks
-export const UserList: React.FC<Props> = ({ users, onSelect }) => {
-  // State
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  // Queries (Apollo)
-  const { data, loading, error } = useQuery(GET_USERS);
-
-  // Mutations
-  const [updateUser] = useMutation(UPDATE_USER);
-
-  // Effects
-  useEffect(() => {
-    // Side effects
-  }, [dependency]);
-
-  // Handlers
-  const handleSelect = (id: string) => {
-    setSelectedId(id);
-    onSelect(id);
-  };
-
-  // Render
-  if (loading) return <Loading />;
-  if (error) return <Error message={error.message} />;
-
-  return (
-    <div>
-      {users.map(user => (
-        <UserCard key={user.id} user={user} onClick={handleSelect} />
-      ))}
-    </div>
-  );
-};
-```
-
-**State Management:**
-
-- **Local State**: `useState` for component-local state
-- **Global State**: Jotai atoms for app-wide state
-- **Server State**: Apollo Client for GraphQL data
-- **Form State**: React Hook Form with Zod validation
-
-**Lazy Loading (Module Federation):**
-
-```typescript
-// Always lazy load federation modules
-const RemoteModule = lazy(() => import('remote/Module'));
-
-// Always wrap in Suspense
-<Suspense fallback={<Loading />}>
-  <RemoteModule />
-</Suspense>
-```
-
-### GraphQL Conventions
-
-**Schema Naming:**
-
-```graphql
-# Types: PascalCase
-type User {
-  _id: String!
-  email: String
-  details: UserDetails
-}
-
-# Queries: camelCase with descriptive names
-type Query {
-  users(page: Int, perPage: Int): [User]
-  userDetail(_id: String!): User
-  usersTotalCount: Int
-}
-
-# Mutations: camelCase verb + noun
-type Mutation {
-  usersAdd(email: String!, details: UserDetailsInput): User
-  usersEdit(_id: String!, doc: UserDetailsInput): User
-  usersRemove(_id: String!): JSON
-}
-
-# Subscriptions: noun + past tense verb
-type Subscription {
-  userChanged(_id: String!): User
-}
-```
-
-**Resolver Structure:**
-
-```typescript
-const resolvers = {
-  Query: {
-    users: async (_, { page, perPage }, { models, subdomain }) => {
-      return models.Users.find({})
-        .skip((page - 1) * perPage)
-        .limit(perPage);
-    },
-  },
-  Mutation: {
-    usersAdd: async (_, doc, { models, subdomain, user }) => {
-      // Permission check
-      if (!user) throw new Error('Unauthorized');
-
-      // Business logic
-      return models.Users.createUser(doc);
-    },
-  },
-  User: {
-    // Field resolver for computed fields
-    fullName: (user) => `${user.firstName} ${user.lastName}`,
-  },
-};
-```
-
-### Backend Patterns
-
-**Service Layer Pattern:**
-
-```typescript
-// modules/users/services.ts
-export const userService = {
-  async createUser(models, doc) {
-    // Validation
-    if (!doc.email) throw new Error('Email required');
-
-    // Business logic
-    const user = await models.Users.create(doc);
-
-    // Side effects
-    await sendWelcomeEmail(user.email);
-
-    return user;
-  },
-};
-```
-
-**Model Layer (Mongoose):**
-
-```typescript
-// connectionResolvers.ts
-export const generateModels = (subdomain: string) => {
-  const Users = loadUsersClass(subdomain);
-
-  return {
-    Users,
-  };
-};
-
-// models/definitions/users.ts
-export const userSchema = new Schema({
-  email: { type: String, unique: true, required: true },
-  details: {
-    firstName: String,
-    lastName: String,
-  },
-  createdAt: { type: Date, default: Date.now },
-});
-
-// models/Users.ts
-export class UserModel {
-  static async createUser(doc) {
-    // Business logic
-    return this.create(doc);
-  }
-}
-```
-
-**Error Handling:**
-
-```typescript
-// Always throw descriptive errors
-throw new Error('User with this email already exists');
-
-// Use custom error classes for API responses
-export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ValidationError';
-  }
-}
-```
-
-### Multi-tenancy (Subdomains)
-
-Every request includes a `subdomain` for tenant isolation:
-
-```typescript
-// Context includes subdomain
-const resolver = async (_, args, { subdomain, models, user }) => {
-  // Models are scoped to subdomain automatically
-  const users = await models.Users.find({
-    /* tenant-specific */
-  });
-};
-
-// MongoDB collections are prefixed with subdomain
-// Example: subdomain_users, subdomain_products
-```
-
-## Testing
-
-### Test Structure
-
-```
-src/
-├── modules/
-│   └── users/
-│       ├── __tests__/
-│       │   ├── users.test.ts       # Unit tests
-│       │   └── queries.test.ts     # GraphQL query tests
-│       ├── services.ts
-│       └── models.ts
-```
-
-### Running Tests
+Run focused validation for every side changed:
 
 ```bash
-# Run all tests
-pnpm nx test <project-name>
+pnpm nx lint <name>_api
+pnpm nx build <name>_api
+pnpm nx test <name>_api
 
-# Run tests in watch mode
-pnpm nx test <project-name> --watch
-
-# Run tests with coverage
-pnpm nx test <project-name> --coverage
-
-# Run affected tests (only changed projects)
-pnpm nx affected:test
+pnpm nx lint <name>_ui
+pnpm nx build <name>_ui
+pnpm nx test <name>_ui
 ```
 
-### Test Configuration (Jest)
-
-```typescript
-// jest.config.ts
-export default {
-  displayName: 'sales-api',
-  preset: '../../jest.preset.js',
-  testEnvironment: 'node',
-  transform: {
-    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
-  },
-  moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/backend/plugins/sales_api',
-};
-```
-
-### Example Tests
-
-**Backend Service Test:**
-
-```typescript
-import { generateModels } from '../connectionResolvers';
-
-describe('User Service', () => {
-  let models;
-
-  beforeEach(async () => {
-    models = await generateModels('test');
-  });
-
-  afterEach(async () => {
-    await models.Users.deleteMany({});
-  });
-
-  it('should create a user', async () => {
-    const user = await models.Users.createUser({
-      email: 'test@example.com',
-    });
-
-    expect(user.email).toBe('test@example.com');
-    expect(user._id).toBeDefined();
-  });
-});
-```
-
-**Frontend Component Test:**
-
-```typescript
-import { render, screen } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
-import { UserList } from './UserList';
-
-describe('UserList', () => {
-  it('renders user list', async () => {
-    const mocks = [
-      {
-        request: {
-          query: GET_USERS,
-        },
-        result: {
-          data: {
-            users: [{ _id: '1', email: 'test@example.com' }],
-          },
-        },
-      },
-    ];
-
-    render(
-      <MockedProvider mocks={mocks}>
-        <UserList />
-      </MockedProvider>
-    );
-
-    expect(await screen.findByText('test@example.com')).toBeInTheDocument();
-  });
-});
-```
-
-## CI/CD
-
-### GitHub Actions Workflows
-
-Located in `.github/workflows/` with 26+ workflow files:
-
-**Naming Convention:**
-
-- `ci-api-core.yml` - Core API CI
-- `ci-plugin-sales.yml` - Sales plugin CI
-- `ci-ui-sales.yml` - Sales UI CI
-
-**Workflow Pattern:**
-
-```yaml
-name: CI plugin--sales-api
-
-on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'backend/plugins/sales_api/**'
-      - 'backend/erxes-api-shared/**'
-      - '.github/workflows/ci-plugin-sales.yml'
-  pull_request:
-    paths:
-      - 'backend/plugins/sales_api/**'
-      - 'backend/erxes-api-shared/**'
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - uses: actions/setup-node@v4
-
-      - run: pnpm install
-      - run: pnpm nx build erxes-api-shared # Build shared lib first
-      - run: pnpm nx build sales_api
-
-      # Docker multi-platform build
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
-        with:
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            erxes/erxes-next-sales-api:latest
-            erxes/erxes-next-sales-api:${{ env.DATE }}-${{ env.SHORT_SHA }}
-```
-
-**Key Features:**
-
-- **Path-based triggers**: Only builds affected services
-- **Nx caching**: Leverages Nx build cache
-- **Multi-platform**: Builds for AMD64 and ARM64
-- **Tagging**: `latest` + `YYYYMMDD-{sha}`
-- **Shared lib**: Always builds `erxes-api-shared` first for backend
-
-### Docker Configuration
-
-**Each service has its own Dockerfile:**
-
-```dockerfile
-# Example: backend/plugins/sales_api/Dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy shared dependencies
-COPY backend/erxes-api-shared/dist ./erxes-api-shared/dist
-COPY backend/plugins/sales_api/dist ./sales_api/dist
-COPY backend/plugins/sales_api/package.json ./sales_api/
-
-RUN cd sales_api && npm install --production
-
-WORKDIR /app/sales_api
-CMD ["node", "dist/main.js"]
-```
-
-**Docker Images:**
-
-- Registry: Docker Hub
-- Org: `erxes`
-- Naming: `erxes-next-{service-name}`
-- Example: `erxes/erxes-next-sales-api:latest`
-
-### Deployment
-
-Services are typically deployed as:
-
-1. **Docker Compose** (development/self-hosted)
-2. **Kubernetes** (production/scaled)
-3. **Cloud Platforms** (AWS, GCP, Azure)
-
-## Common Tasks
-
-### Adding a New Backend Feature
-
-1. **Identify the service** (core-api or plugin)
-2. **Define GraphQL schema** in `apollo/typeDefs/`
-3. **Create resolvers** in `apollo/resolvers/`
-4. **Add service logic** in `modules/{feature}/`
-5. **Create models** if needed in `models/`
-6. **Add tRPC endpoints** (optional) in `trpc/`
-7. **Write tests** in `__tests__/`
-8. **Update meta** if automation/segment related
-
-### Adding a New Frontend Feature
-
-1. **Identify the plugin** (e.g., sales_ui)
-2. **Create component** in `modules/{feature}/`
-3. **Define routes** if needed
-4. **Add GraphQL queries** using Apollo Client
-5. **Update config.tsx** to expose in navigation
-6. **Update module-federation.config.ts** to expose module
-7. **Add translations** in locales
-8. **Write tests** in `__tests__/`
-
-### Modifying Shared Code
-
-**Backend Shared (`erxes-api-shared`):**
-
-1. Make changes in `backend/erxes-api-shared/src/`
-2. Build: `pnpm nx build erxes-api-shared`
-3. Rebuild dependent services (they reference dist/)
-
-**Frontend Shared (`erxes-ui`):**
-
-1. Make changes in `frontend/libs/erxes-ui/src/`
-2. No build needed (imported directly)
-3. Hot reload works across plugins
-
-### Database Migrations
-
-**Mongoose migrations pattern:**
-
-```typescript
-// scripts/migration-{feature}.ts
-import { connect } from '../db/connection';
-
-const migrate = async () => {
-  const db = await connect();
-
-  // Migration logic
-  await db.collection('users').updateMany({ role: { $exists: false } }, { $set: { role: 'user' } });
-
-  console.log('Migration complete');
-  process.exit(0);
-};
-
-migrate();
-```
-
-Run via: `tsx scripts/migration-{feature}.ts`
-
-### Debugging
-
-**Backend:**
-
-```bash
-# Enable debug logs
-DEBUG=* pnpm nx serve sales_api
-
-# Node inspector
-node --inspect dist/main.js
-```
-
-**Frontend:**
-
-```bash
-# React DevTools
-# Apollo DevTools (browser extension)
-# Redux DevTools for Jotai (jotai-devtools)
-
-# Rspack dev server provides source maps
-pnpm nx serve sales_ui
-```
-
-**Common Issues:**
-
-- **Port conflicts**: Check if services are already running
-- **Module Federation errors**: Clear cache, restart dev servers
-- **GraphQL errors**: Check gateway logs, verify service registration
-- **Shared lib not found**: Rebuild `erxes-api-shared`
-
-## Important Patterns
-
-### Subdomain Context (Multi-tenancy)
-
-```typescript
-// Always use subdomain for data access
-const { subdomain, models } = context;
-
-// Models are automatically scoped
-const users = await models.Users.find({}); // Only tenant's users
-
-// Manual subdomain in collection names
-const collectionName = `${subdomain}_users`;
-```
-
-### Service Communication
-
-**Via GraphQL Federation:**
-
-```typescript
-// Reference other service types
-type Deal @key(fields: "_id") {
-  _id: ID!
-  customer: Contact @provides(fields: "email")  # From contacts service
-}
-```
-
-**Via tRPC:**
-
-```typescript
-// backend/plugins/sales_api/src/trpc/routers/deals.ts
-export const dealsRouter = t.router({
-  list: t.procedure.input(z.object({ customerId: z.string() })).query(async ({ input, ctx }) => {
-    return ctx.models.Deals.find({ customerId: input.customerId });
-  }),
-});
-
-// From another service
-import { trpc } from '@/lib/trpc';
-const deals = await trpc.deals.list.query({ customerId: '123' });
-```
-
-### Redis Patterns
-
-**Caching:**
-
-```typescript
-import { redis } from 'erxes-api-shared/utils';
-
-// Set with expiration
-await redis.set(`user:${id}`, JSON.stringify(user), 'EX', 3600);
-
-// Get
-const cached = await redis.get(`user:${id}`);
-const user = cached ? JSON.parse(cached) : null;
-
-// Delete
-await redis.del(`user:${id}`);
-```
-
-**PubSub (Real-time):**
-
-```typescript
-import { RedisPubSub } from 'graphql-redis-subscriptions';
-
-const pubsub = new RedisPubSub({
-  /* redis config */
-});
-
-// Publish
-await pubsub.publish('USER_CHANGED', { userChanged: user });
-
-// Subscribe (GraphQL)
-const subscriptions = {
-  userChanged: {
-    subscribe: () => pubsub.asyncIterator(['USER_CHANGED']),
-  },
-};
-```
-
-### BullMQ (Job Queue)
-
-```typescript
-import { Queue, Worker } from 'bullmq';
-
-// Create queue
-const emailQueue = new Queue('emails', {
-  connection: { host: 'localhost', port: 6379 },
-});
-
-// Add job
-await emailQueue.add('send', {
-  to: 'user@example.com',
-  subject: 'Welcome',
-});
-
-// Process jobs
-const worker = new Worker(
-  'emails',
-  async (job) => {
-    const { to, subject } = job.data;
-    await sendEmail(to, subject);
-  },
-  {
-    connection: { host: 'localhost', port: 6379 },
-  },
-);
-
-// View dashboard at http://localhost:4000/bullmq-board
-```
-
-### Automation System
-
-Plugins can register automation actions/triggers:
-
-```typescript
-// meta/automations.ts
-export default {
-  constants: {
-    actions: [
-      {
-        type: 'sales:createDeal',
-        icon: 'file-plus',
-        label: 'Create deal',
-        description: 'Create a new deal',
-      },
-    ],
-    triggers: [
-      {
-        type: 'sales:dealCreated',
-        icon: 'file-check',
-        label: 'Deal created',
-        description: 'Triggered when deal is created',
-      },
-    ],
-  },
-
-  actions: async ({ subdomain, data }) => {
-    const { action, execution } = data;
-
-    if (action.type === 'sales:createDeal') {
-      // Execute action
-      const models = await generateModels(subdomain);
-      return models.Deals.createDeal(execution.target);
-    }
-  },
-
-  triggers: async ({ subdomain, data }) => {
-    // Emit trigger events
-    await emitTrigger('sales:dealCreated', deal);
-  },
-};
-```
-
-### Segment System
-
-Dynamic user/customer segmentation:
-
-```typescript
-// meta/segments.ts
-export default {
-  contentTypes: [
-    {
-      type: 'sales:deal',
-      description: 'Deals',
-      fields: [
-        {
-          key: 'name',
-          label: 'Name',
-          type: 'string',
-        },
-        {
-          key: 'amount',
-          label: 'Amount',
-          type: 'number',
-        },
-      ],
-    },
-  ],
-
-  esTypes: ['deal'],
-
-  associationTypes: [
-    {
-      name: 'deal',
-      label: 'Deal',
-    },
-  ],
-};
-```
-
-### Import/Export System
-
-```typescript
-// meta/import-export.ts
-export default {
-  importTypes: [
-    {
-      text: 'Deals',
-      contentType: 'deal',
-      icon: 'file-plus',
-    },
-  ],
-
-  exporter: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const deals = await models.Deals.find(data.filter);
-
-    return {
-      data: deals.map((deal) => ({
-        Name: deal.name,
-        Amount: deal.amount,
-      })),
-    };
-  },
-};
-```
-
-## Additional Resources
-
-### Documentation
-
-- **Main Docs**: https://erxes.io/docs
-- **Local Setup**: https://erxes.io/docs/local-setup
-- **Contributing**: See CONTRIBUTING.md
-- **Roadmap**: https://erxes.io/roadmap
-- **Changelog**: https://erxes.io/changelog
-
-### Community
-
-- **Discord**: https://discord.com/invite/aaGzy3gQK5
-- **GitHub Issues**: https://github.com/erxes/erxes/issues
-- **Transifex (i18n)**: https://explore.transifex.com/erxes-inc/erxesxos/
-
-### Code Exploration Tips
-
-**Finding Features:**
-
-```bash
-# Find GraphQL type definition
-pnpm nx run-many -t grep -p 'type Deal'
-
-# Find component usage
-pnpm nx run-many -t grep -p 'UserList'
-
-# Find API endpoint
-pnpm nx run-many -t grep -p '/api/deals'
-```
-
-**Understanding Plugin Flow:**
-
-1. Start at `main.ts` - entry point
-2. Check `apollo/typeDefs.ts` - GraphQL schema
-3. Look at `apollo/resolvers/` - query/mutation logic
-4. Explore `modules/` - business logic
-5. Review `models/` - data layer
-
-**Understanding Frontend Plugin:**
-
-1. Start at `config.tsx` - plugin configuration
-2. Check `module-federation.config.ts` - exposed modules
-3. Look at `modules/` - main components
-4. Check `pages/` - route components
-5. Review `widgets/` - reusable widgets
-
-## Best Practices for AI Assistants
-
-### Code Analysis
-
-- Always read existing code before making changes
-- Understand the plugin architecture before modifications
-- Check both GraphQL and tRPC endpoints when working with APIs
-- Review module-federation.config.ts for exposed modules
-
-### Making Changes
-
-- **Backend**: Rebuild `erxes-api-shared` if shared code changed
-- **Frontend**: Check if changes affect module federation exports
-- Always maintain TypeScript types
-- Follow existing patterns in the same service/plugin
-- Test multi-tenancy (subdomain) implications
-
-### Common Pitfalls
-
-- Don't bypass plugin system - use proper extension points
-- Don't break module federation shared dependencies
-- Don't modify core without considering plugin impacts
-- Always consider subdomain context for data access
-- Remember port allocation when adding new services
-
-### Testing Your Changes
-
-1. Run Nx affected commands to see what's impacted
-2. Test in development mode first
-3. Verify GraphQL schema still federates correctly
-4. Check module federation loads properly
-5. Test with different subdomains if multi-tenant
-
-### Git Workflow
-
-- Branch naming: `feat/`, `fix/`, `docs/`
-- Reference issues in commits
-- Keep commits focused and atomic
-- Run affected tests before pushing
-- See CONTRIBUTING.md for full guidelines
+Run only targets defined by the project, but never skip its build or relevant
+tests before delivery.
 
 ---
 
-**Last Updated**: 2026-01-15
-**Version**: 1.0.0
-**Maintainer**: erxes Team
+## Conventions
 
-For questions or clarifications, please open an issue or join our Discord community.
+- **Formatting:** match the touched project — 2-space indent, single quotes,
+  trailing commas. Let local lint/Prettier/TS settings win.
+- **Naming:** PascalCase React components, camelCase functions/vars,
+  `UPPER_SNAKE_CASE` global constants, kebab-case config files. `IUser`-style
+  interface prefixes and class-based Mongoose models follow local convention.
+- **GraphQL:** `type` PascalCase; queries/mutations/subscriptions named
+  `{plugin}{Resolver}{Purpose}` in camelCase. Resolvers receive
+  `(_, args, { models, subdomain, user })`; check permissions before mutating.
+- **Multi-tenancy:** every request carries a `subdomain`; models are scoped to
+  it. Always honor subdomain context for data access.
+- **State:** `useState` local, Jotai global, Apollo for server data, React Hook
+  Form + Zod for forms.
+
+### Tests
+
+Co-locate under `__tests__/`. Backend service/model tests use
+`generateModels('test')` with cleanup in `afterEach`. Frontend tests use
+`@testing-library/react` with Apollo `MockedProvider`. Run via
+`pnpm nx test <project>` (or `pnpm nx affected --target=test`).
+
+---
+
+## Git
+
+- Branch prefixes: `feat/`, `fix/`, `docs/`. Reference issues in commits.
+- Keep commits focused; run affected lint/build/test before pushing.
+- See `CONTRIBUTING.md` and https://erxes.io/docs for more.

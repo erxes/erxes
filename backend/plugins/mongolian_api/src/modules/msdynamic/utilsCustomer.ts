@@ -55,8 +55,11 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
   let sendPostCode;
   let getCompanyName;
 
-  if (customer && customer.customFieldsData.length > 0) {
-    for (const field of customer.customFieldsData) {
+  const propertiesData = customer?.propertiesData || {};
+  const fieldIds = Object.keys(propertiesData);
+
+  if (customer && fieldIds.length > 0) {
+    for (const fieldId of fieldIds) {
       foundfield = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -64,22 +67,22 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
         action: 'findOne',
         input: {
           query: {
-            _id: field.field,
+            _id: fieldId,
           },
         },
         defaultValue: {},
       });
 
       if (foundfield.text === 'VAT') {
-        sendVAT = field.value;
+        sendVAT = propertiesData[fieldId];
       }
 
       if (foundfield.text === 'city') {
-        sendCity = field.value;
+        sendCity = propertiesData[fieldId];
       }
 
       if (foundfield.text === 'post code') {
-        sendPostCode = field.value;
+        sendPostCode = propertiesData[fieldId];
       }
     }
   }
@@ -400,7 +403,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
       phones: [doc?.Phone_No],
       location: doc?.Country_Region_Code === 'MN' ? 'Mongolia' : '',
       businessType: doc?.Partner_Type === 'Person' ? 'Customer' : 'Partner',
-      customFieldsData: updateCustomFieldData,
+      propertiesData: updateCustomFieldData?.propertiesData || {},
       scopeBrandIds: brandIds,
     };
 
@@ -532,7 +535,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         code: doc.No,
         primaryPhone: doc?.Mobile_Phone_No,
         phones: [{ phone: doc?.Mobile_Phone_No, type: 'other' }],
-        customFieldsData: updateCustomFieldData,
+        propertiesData: updateCustomFieldData?.propertiesData || {},
         scopeBrandIds: brandIds,
         state: 'customer',
       };

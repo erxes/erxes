@@ -1,4 +1,8 @@
-import { PRODUCT_STATUSES, PRODUCT_TYPES } from '@/products/constants';
+import {
+  PRODUCT_DURATION_TYPES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES,
+} from '@/products/constants';
 import {
   attachmentSchema,
   customFieldSchema,
@@ -53,6 +57,7 @@ export const productSchema = schemaWrapper(
       },
       attachment: { type: attachmentSchema },
       attachmentMore: { type: [attachmentSchema] },
+      videos: { type: [attachmentSchema], label: 'Videos' },
       status: {
         type: String,
         enum: PRODUCT_STATUSES.ALL,
@@ -96,7 +101,26 @@ export const productSchema = schemaWrapper(
       },
 
       inventories: { type: Object, optional: true },
-      discounts: { type: Object, optional: true },
+      discounts: { type: [Object], optional: true },
+      duration: {
+        type: Number,
+        optional: true,
+        min: 1,
+        label: 'Duration',
+      },
+      durationType: {
+        type: String,
+        enum: PRODUCT_DURATION_TYPES.ALL,
+        optional: true,
+        label: 'Duration type',
+      },
+
+      similarityId: {
+        type: String,
+        optional: true,
+        label: 'Similarity',
+        index: true,
+      },
     },
     {
       timestamps: true,
@@ -105,3 +129,16 @@ export const productSchema = schemaWrapper(
 );
 
 productSchema.index({ _id: 1, createdAt: 1 });
+productSchema.index({ categoryId: 1, status: 1, code: 1 });
+productSchema.index(
+  {
+    name: 'text',
+    shortName: 'text',
+    code: 'text',
+    barcodes: 'text',
+    description: 'text',
+  },
+  { name: 'products_ai_lookup_text' },
+);
+productSchema.index({ similarityId: 1 });
+productSchema.index({ similarityId: 1, code: 1 });

@@ -1,5 +1,6 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Collapsible,
@@ -78,6 +79,7 @@ export function TicketNavigations() {
 }
 
 const PipelineItem = ({ channelId }: { channelId: string }) => {
+  const { t } = useTranslation('frontline');
   const { pipelines } = useGetPipelines({
     variables: { filter: { channelId, applyVisibilityFilter: true } },
   });
@@ -86,7 +88,7 @@ const PipelineItem = ({ channelId }: { channelId: string }) => {
       <Sidebar.GroupContent>
         <Sidebar.Menu>
           <span className="font-sans text-xs font-semibold normal-case text-accent-foreground pl-6 px-4">
-            Pipelines
+            {t('pipelines')}
           </span>
           <div className="pl-2">
             {pipelines?.map((pipeline) => (

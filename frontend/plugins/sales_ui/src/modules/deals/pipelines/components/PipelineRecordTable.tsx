@@ -1,4 +1,16 @@
 import {
+  IconArchive,
+  IconArrowBack,
+  IconCalendarTime,
+  IconCopy,
+  IconEdit,
+  IconSandbox,
+  IconSettings,
+  IconTrash,
+  IconUser,
+} from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import {
   Badge,
   Combobox,
   Command,
@@ -11,18 +23,14 @@ import {
   RelativeDateDisplay,
   useConfirm,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  IconArchive,
-  IconArrowBack,
-  IconCalendarTime,
-  IconCopy,
-  IconEdit,
-  IconSettings,
-  IconTrash,
-  IconUser,
-} from '@tabler/icons-react';
+import { TFunction } from 'i18next';
+import { useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+
 import {
   usePipelineArchive,
   usePipelineCopy,
@@ -30,9 +38,8 @@ import {
   usePipelineRemove,
   usePipelines,
 } from '@/deals/boards/hooks/usePipelines';
+import { PipelineCommandBar } from '@/deals/pipelines/components/PipelineCommandBar';
 import { IPipeline } from '@/deals/types/pipelines';
-import { PipelineCommandBar } from './PipelineCommandBar';
-import React from 'react';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -45,15 +52,22 @@ export const PipelineMoreColumnCell = ({
     pipelineId: string;
     tab: string;
   }>(['pipelineId', 'tab']);
+  const [activeBoardId] = useQueryState('activeBoardId');
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
-
   const { _id, status } = cell.row.original;
+  const { t } = useTranslation('sales');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const runAction = (action: () => void) => {
+    setMenuOpen(false);
+    action();
+  };
 
   const onRemove = () => {
     confirm({
-      message: 'Are you sure you want to remove the selected?',
+      message: t('confirm-remove-selected'),
       options: confirmOptions,
     }).then(async () => {
       try {
@@ -70,8 +84,7 @@ export const PipelineMoreColumnCell = ({
 
   const onDuplicate = () => {
     confirm({
-      message:
-        'This will duplicate the current pipeline. Are you absolutely sure?',
+      message: t('duplicate-pipeline-confirm'),
     }).then(async () => {
       try {
         copyPipeline({
@@ -87,9 +100,10 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: `This will ${
-        status === 'active' ? 'archive' : 'unarchive'
-      } the current pipeline. Are you absolutely sure?`,
+      message:
+        status === 'active'
+          ? t('archive-pipeline-confirm')
+          : t('unarchive-pipeline-confirm'),
     }).then(async () => {
       try {
         archivePipeline({
@@ -103,8 +117,9 @@ export const PipelineMoreColumnCell = ({
     });
   };
 
+  const navigate = useNavigate();
   return (
-    <Popover>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
@@ -113,38 +128,58 @@ export const PipelineMoreColumnCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => setOpen({ pipelineId: _id, tab: null })}
+              onSelect={() =>
+                runAction(() => {
+                  setOpen({ pipelineId: _id, tab: null });
+                })
+              }
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
-            <Command.Item value="duplicate" onSelect={onDuplicate}>
-              <IconCopy /> Duplicate
+            <Command.Item
+              value="duplicate"
+              onSelect={() => runAction(onDuplicate)}
+            >
+              <IconCopy /> {t('duplicate')}
             </Command.Item>
-            <Command.Item value="archive" onSelect={onArchive}>
+            <Command.Item value="archive" onSelect={() => runAction(onArchive)}>
               {status === 'active' ? (
                 <>
-                  <IconArchive /> Archive
+                  <IconArchive /> {t('archive')}
                 </>
               ) : (
                 <>
-                  <IconArrowBack /> Unarchive
+                  <IconArrowBack /> {t('unarchive')}
                 </>
               )}
             </Command.Item>
             <Command.Item
               value="productConfig"
-              onSelect={() => {
-                setOpen({ pipelineId: _id, tab: 'productConfig' });
-              }}
+              onSelect={() =>
+                runAction(() => {
+                  setOpen({ pipelineId: _id, tab: 'productConfig' });
+                })
+              }
             >
-              <IconSettings /> Product config
+              <IconSettings /> {t('product-config')}
+            </Command.Item>
+            <Command.Item
+              onSelect={() =>
+                runAction(() => {
+                  navigate(
+                    `/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`,
+                  );
+                })
+              }
+            >
+              <IconSandbox /> {t('go-to-pipeline')}
             </Command.Item>
             <Command.Item
               disabled={removeLoading}
               value="remove"
-              onSelect={onRemove}
+              onSelect={() => runAction(onRemove)}
             >
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -153,76 +188,78 @@ export const PipelineMoreColumnCell = ({
   );
 };
 
-export const pipelinesColumns: ColumnDef<
-  IPipeline & { hasChildren: boolean; type?: string }
->[] = [
-  RecordTable.checkboxColumn as ColumnDef<
-    IPipeline & { hasChildren: boolean; type?: string }
-  >,
+const PipelineNameColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IPipeline & { hasChildren: boolean; type?: string }, unknown>;
+}) => {
+  const { pipelineEdit, loading } = usePipelineEdit();
+  const { _id, name, type } = cell.row.original;
+  const [open, setOpen] = useState(false);
+  const [editedName, setEditedName] = useState(name);
+
+  const onSave = () => {
+    if (name !== editedName) {
+      pipelineEdit({
+        variables: {
+          id: _id,
+          type,
+          name: editedName,
+        },
+      });
+    }
+  };
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setEditedName(event.currentTarget.value);
+  };
+
+  return (
+    <Popover
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          onSave();
+        }
+      }}
+    >
+      <RecordTableInlineCell.Trigger>
+        <RecordTableTree.Trigger
+          order=""
+          name={cell.getValue() as string}
+          hasChildren={cell.row.original.hasChildren}
+        >
+          {cell.getValue() as string}
+        </RecordTableTree.Trigger>
+      </RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Content>
+        <Input value={editedName} onChange={onChange} disabled={loading} />
+      </RecordTableInlineCell.Content>
+    </Popover>
+  );
+};
+
+export const pipelinesColumns: (
+  t: TFunction,
+) => ColumnDef<IPipeline & { hasChildren: boolean; type?: string }>[] = (t) => [
   {
     id: 'more',
     cell: PipelineMoreColumnCell,
     size: 33,
   },
+  RecordTable.checkboxColumn as ColumnDef<
+    IPipeline & { hasChildren: boolean; type?: string }
+  >,
   {
     id: 'name',
-    header: 'Name',
+    header: () => t('name'),
     accessorKey: 'name',
-    cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { pipelineEdit, loading } = usePipelineEdit();
-      const { _id, name, type } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [open, setOpen] = React.useState<boolean>(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [_name, setName] = React.useState<string>(name);
-
-      const onSave = () => {
-        if (name !== _name) {
-          pipelineEdit({
-            variables: {
-              id: _id,
-              type: type,
-              name: _name,
-            },
-          });
-        }
-      };
-
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
-      };
-
-      return (
-        <Popover
-          open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            if (!open) {
-              onSave();
-            }
-          }}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              // order={cell.row.original.order || ''}
-              order=""
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
-          </RecordTableInlineCell.Content>
-        </Popover>
-      );
-    },
+    cell: PipelineNameColumnCell,
     size: 300,
   },
   {
-    header: 'Status',
+    header: () => t('status'),
     accessorKey: 'status',
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
@@ -231,8 +268,8 @@ export const pipelinesColumns: ColumnDef<
         status === 'active'
           ? 'success'
           : status === 'archived'
-            ? 'warning'
-            : 'default';
+          ? 'warning'
+          : 'default';
 
       return (
         <RecordTableInlineCell>
@@ -245,7 +282,7 @@ export const pipelinesColumns: ColumnDef<
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
+      <RecordTable.InlineHead icon={IconCalendarTime} label={t('created-at')} />
     ),
     cell: ({ cell }) => {
       return (
@@ -260,7 +297,9 @@ export const pipelinesColumns: ColumnDef<
   {
     id: 'createdBy',
     accessorKey: 'createdUser.details.fullName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconUser} label={t('created-by')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -272,6 +311,7 @@ export const pipelinesColumns: ColumnDef<
 ];
 
 const PipelineRecordTable = () => {
+  const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
     contentType: string;
     searchValue: string;
@@ -286,22 +326,25 @@ const PipelineRecordTable = () => {
         type: contentType || '',
         searchValue: searchValue ?? undefined,
         boardId: queries.activeBoardId || '',
+        isAll: true,
       },
     });
 
   return (
     <>
-      <PageSubHeader>Pipelines ({totalCount})</PageSubHeader>
+      <PageSubHeader>
+        {t('pipelines-with-count', { count: totalCount })}
+      </PageSubHeader>
       <RecordTable.Provider
-        columns={pipelinesColumns}
+        columns={pipelinesColumns(t)}
         data={pipelines || []}
         className="m-3"
-        stickyColumns={['checkbox', 'more', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
           <RecordTable.Scroll>
-            <RecordTable className="w-full">
+            <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.RowList Row={RecordTableTree.Row} />

@@ -1,8 +1,13 @@
-import { INSTAGRAM_BOT_DETAIL } from '@/integrations/instagram/graphql/queries/instagramBots';
+import {
+  INSTAGRAM_BOTS_LIST,
+  INSTAGRAM_BOTS_TOTAL_COUNT,
+  INSTAGRAM_BOT_DETAIL,
+} from '@/integrations/instagram/graphql/queries/instagramBots';
 import { resetInstagramAddStateAtom } from '@/integrations/instagram/states/instagramStates';
 import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -10,11 +15,19 @@ import {
   UPDATE_INSTAGRAM_BOT,
 } from '~/widgets/automations/modules/instagram/components/bots/graphql/automationBotsMutations';
 import { instagramBotFormSchema } from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotForm';
+import {
+  isOpenInstagramBotSecondarySheet,
+  isOpenInstagramBotSheet,
+} from '~/widgets/automations/modules/instagram/components/bots/states/instagramBotStates';
 import { InstagramBotDetailQueryResponse } from '~/widgets/automations/modules/instagram/components/bots/types/instagramBotTypes';
 
 export const useInstagramBotSave = () => {
-  const [instagramBotId] = useQueryState<string>('instagramBotId');
+  const { t } = useTranslation('frontline');
+  const [instagramBotId, setInstagramBotId] =
+    useQueryState<string>('instagramBotId');
   const resetForm = useSetAtom(resetInstagramAddStateAtom);
+  const setOpenSheet = useSetAtom(isOpenInstagramBotSheet);
+  const setOpenSecondarySheet = useSetAtom(isOpenInstagramBotSecondarySheet);
 
   const [save, { loading: onSaveloading }] = useMutation(
     instagramBotId ? UPDATE_INSTAGRAM_BOT : ADD_INSTAGRAM_BOT,
@@ -27,21 +40,29 @@ export const useInstagramBotSave = () => {
     };
     save({
       variables,
+      refetchQueries: [
+        { query: INSTAGRAM_BOTS_LIST },
+        { query: INSTAGRAM_BOTS_TOTAL_COUNT },
+      ],
+      awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
-          title: 'Save successful',
+          title: t('save-successful'),
         });
+
+        setOpenSecondarySheet(false);
+        setOpenSheet(false);
+        setInstagramBotId(null);
+        resetForm();
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: 'Something went wrong',
+          title: t('something-went-wrong'),
           description: error?.message,
         });
       },
     });
-
-    resetForm();
   };
 
   return {

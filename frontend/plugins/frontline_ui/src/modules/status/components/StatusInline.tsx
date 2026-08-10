@@ -1,6 +1,4 @@
-import {
-  TICKET_STATUS_TYPE_NAMES,
-} from '@/status/constants';
+import { TICKET_STATUS_TYPE_NAMES } from '@/status/constants';
 import {
   type Icon,
   IconCircle,
@@ -12,6 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const StatusInlineIcon = ({
   statusType = 0,
@@ -21,8 +20,9 @@ export const StatusInlineIcon = ({
   ...props
 }: React.ComponentProps<Icon> & { statusType?: number | string }) => {
   const numericType =
-    (typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType) -
-    1;
+    (typeof statusType === 'string'
+      ? Number.parseInt(statusType, 10)
+      : statusType) - 1;
   const StatusIconComponent = [
     IconCircle,
     IconCircleDot,
@@ -60,9 +60,14 @@ export const StatusInlineLabel = ({
 }: {
   statusType?: number | string;
 }) => {
+  const { t } = useTranslation('frontline');
   const numericType =
-    typeof statusType === 'string' ? Number.parseInt(statusType, 10) : statusType;
+    typeof statusType === 'string'
+      ? Number.parseInt(statusType, 10)
+      : statusType;
   return (
-    <span className="capitalize">{TICKET_STATUS_TYPE_NAMES[numericType]}</span>
+    <span className="capitalize">
+      {t(TICKET_STATUS_TYPE_NAMES[numericType])}
+    </span>
   );
 };

@@ -4,8 +4,10 @@ import { useConversationContext } from '@/inbox/conversations/hooks/useConversat
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { useAtomValue } from 'jotai';
 import { refetchConversationsAtom } from '../../states/refetchConversationState';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationActions = () => {
+  const { t } = useTranslation('frontline');
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
 
@@ -31,7 +33,7 @@ export const ConversationActions = () => {
       onPressedChange={handleChangeConversationStatus}
       disabled={loading}
     >
-      {status === ConversationStatus.CLOSED ? 'Open' : 'Resolve'}
+      {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
     </Toggle>
   );
 };

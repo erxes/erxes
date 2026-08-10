@@ -11,6 +11,7 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
+import { AddCustomer } from './AddCustomer';
 import { CustomersInline } from './CustomersInline';
 import { ICustomer } from '../types/Customer';
 import { useCustomers } from '../hooks/useCustomers';
@@ -101,7 +102,14 @@ const SelectCustomersBulkContent = ({
         />
       </Sheet.Content>
 
-      <Sheet.Footer className="sm:justify-end">
+      <Sheet.Footer className="sm:justify-between">
+        <AddCustomer
+          onSuccess={(id) =>
+            setSelectedCustomerIds((prev) =>
+              prev.includes(id) ? prev : [...prev, id],
+            )
+          }
+        />
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">

@@ -1,3 +1,4 @@
+import './sentry-instrument';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -21,13 +22,24 @@ import type {
   IPropertyMeta,
   LogsConfigs,
   SegmentConfigs,
+  TRecordReferencesConfig,
 } from '../core-modules';
-import { initSegmentProducers, startAutomations } from '../core-modules';
+import {
+  initRecordReferences,
+  initSegmentProducers,
+  startAutomations,
+} from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
 import { IMainContext, IPermissionConfig } from '../core-types';
-import { generateApolloContext, wrapApolloResolvers } from './apollo';
+import {
+  generateApolloContext,
+  startBeforeResolvers,
+  wrapApolloResolvers,
+  expectedErrorPlugin,
+} from './apollo';
+import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -38,6 +50,7 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { applyTrustProxy, getSubdomain } from './utils';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
 
@@ -59,8 +72,20 @@ type IMeta = {
   payments?: any;
   notifications?: any;
   tags?: any;
+  documents?: {
+    types: {
+      label: string;
+      contentType: string;
+    }[];
+  };
   properties?: IPropertyMeta;
+  references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
+  beforeResolvers?: BeforeResolversConfig;
+  importExport?: ImportExportConfigs;
+  relations?: {
+    subscribedTypes: string[];
+  };
 };
 
 type ApiHandler = {
@@ -96,7 +121,6 @@ type ConfigTypes = {
   hasSubscriptions?: boolean;
   corsOptions?: any;
   subscriptionPluginPath?: any;
-  importExport?: ImportExportConfigs;
   trpcAppRouter?: {
     router: any;
     createContext: <TContext>(
@@ -128,9 +152,13 @@ export async function startPlugin(
     onServerInit,
     // meta
     meta,
-    importExport,
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
+
+  Sentry.getGlobalScope().setTags({
+    plugin: name,
+    service: name,
+  });
 
   const app = express();
   applyTrustProxy(app);
@@ -139,6 +167,9 @@ export async function startPlugin(
   app.use(
     express.json({
       limit: '15mb',
+      verify: (req: any, _res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
     }),
   );
   app.use(cookieParser());
@@ -146,6 +177,10 @@ export async function startPlugin(
   // for health check
   app.get('/health', async (_req, res) => {
     res.end('ok');
+  });
+
+  app.get('/debug-sentry', () => {
+    throw new Error('Sentry test error: ' + new Date().toISOString());
   });
 
   if (expressRouter) {
@@ -230,11 +265,13 @@ export async function startPlugin(
   }
 
   app.use((req: any, _res, next) => {
-    req.rawBody = '';
+    if (req.rawBody === undefined) {
+      req.rawBody = '';
 
-    req.on('data', (chunk: any) => {
-      req.rawBody += chunk.toString();
-    });
+      req.on('data', (chunk: any) => {
+        req.rawBody += chunk.toString();
+      });
+    }
 
     next();
   });
@@ -305,7 +342,10 @@ export async function startPlugin(
       ]),
 
       // for graceful shutdown
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        expectedErrorPlugin,
+      ],
     });
   };
 
@@ -327,9 +367,36 @@ export async function startPlugin(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
+  await joinErxesGateway({
+    name,
+    port: PORT,
+    hasSubscriptions,
+    meta,
+  });
+
   if (meta) {
-    const { automations, segments, afterProcess, notifications, payments } =
-      meta || {};
+    const {
+      automations,
+      segments,
+      afterProcess,
+      notifications,
+      payments,
+      beforeResolvers,
+      references,
+      importExport,
+    } = meta || {};
+
+    if (beforeResolvers) {
+      await startBeforeResolvers(app, name, beforeResolvers);
+    }
+
+    if (afterProcess) {
+      await startAfterProcess(app, name, afterProcess);
+    }
+
+    if (references) {
+      await initRecordReferences(app, name, references);
+    }
 
     if (automations) {
       await startAutomations(app, name, automations);
@@ -339,35 +406,22 @@ export async function startPlugin(
       await initSegmentProducers(app, name, segments);
     }
 
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
     if (notifications) {
       await initializePluginConfig(name, 'notifications', notifications);
+    }
+
+    if (importExport) {
+      startImportExportWorker({
+        pluginName: name,
+        config: importExport,
+        app,
+      });
     }
 
     if (payments) {
       await startPayments(name, payments);
     }
   } // end meta if
-
-  await joinErxesGateway({
-    name: name,
-    port: PORT,
-    hasSubscriptions: hasSubscriptions,
-    meta: meta,
-  });
-
-  if (importExport) {
-    startImportExportWorker({
-      pluginName: name,
-      config: {
-        ...importExport,
-      },
-      app,
-    });
-  }
 
   if (onServerInit) {
     onServerInit(app);
@@ -376,6 +430,8 @@ export async function startPlugin(
   //   applyInspectorEndpoints(name);
 
   //   debugInfo(`${name} server is running on port: ${PORT}`);
+
+  Sentry.setupExpressErrorHandler(app);
 
   return app;
 }

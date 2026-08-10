@@ -6,6 +6,7 @@ import { IFacebookPageResponse } from '@/integrations/facebook/@types/integratio
 import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
 import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
 import { instagramStatus } from '@/integrations/instagram/messageBroker';
+import { discordStatus } from '@/integrations/discord/messageBroker';
 import { debugError } from '~/modules/inbox/utils';
 
 const getServiceName = (kind: string): string => {
@@ -24,6 +25,8 @@ export const integrationStatus = async (
       return facebookStatus({ subdomain, data });
     case 'instagram':
       return instagramStatus({ subdomain, data });
+    case 'discord':
+      return discordStatus({ subdomain, data });
     default:
       return null;
   }
@@ -69,8 +72,15 @@ export default {
     }));
   },
 
-  async websiteMessengerApps(_args) {
-    return [];
+  async websiteMessengerApps(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    return models.MessengerApps.find({
+      kind: 'website',
+      'credentials.integrationId': integration._id,
+    });
   },
 
   async knowledgeBaseMessengerApps(_args) {
@@ -182,7 +192,7 @@ export default {
 
       if (!igIntegration) return null;
 
-      const instagramPageId = igIntegration.instagramPageIds?.[0];
+      const instagramPageId = igIntegration.instagramPageId;
       if (!instagramPageId) return null;
 
       const account = await models.InstagramAccounts.findOne({

@@ -2,11 +2,12 @@ import crypto from 'crypto';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
+import type {
+  OAuthClientAccessTokenLifetime,
   IOAuthClientAppDocument,
   OAuthClientAppType,
-  oauthClientAppSchema,
 } from '@/auth/db/definitions/oauthClientApps';
+import { oauthClientAppSchema } from '@/auth/db/definitions/oauthClientApps';
 
 type OAuthClientAppDoc = {
   name: string;
@@ -14,6 +15,7 @@ type OAuthClientAppDoc = {
   description?: string;
   redirectUrls?: string[];
   type: OAuthClientAppType;
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
 };
 
 const normalizeRedirectUrls = (redirectUrls?: string[]) => {
@@ -39,6 +41,12 @@ const generateClientId = () => {
 
 const generateSecret = () => {
   return `ocs_${crypto.randomBytes(24).toString('hex')}`;
+};
+
+const getConfidentialAccessTokenLifetime = (
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime,
+) => {
+  return accessTokenLifetime || 'year';
 };
 
 const hashSecret = (secret: string): string => {
@@ -87,6 +95,10 @@ export const loadOAuthClientAppClass = (
             description: doc.description?.trim() || undefined,
             clientId,
             type: doc.type,
+            accessTokenLifetime:
+              doc.type === 'confidential'
+                ? getConfidentialAccessTokenLifetime(doc.accessTokenLifetime)
+                : undefined,
             redirectUrls,
             secretHash: secret ? hashSecret(secret) : undefined,
             status: 'active',
@@ -125,13 +137,20 @@ export const loadOAuthClientAppClass = (
           ? generateSecret()
           : undefined;
 
-      const updateDoc = {
+      const updateDoc: OAuthClientAppDoc = {
         name: doc.name.trim(),
         logo: doc.logo?.trim() || undefined,
         description: doc.description?.trim() || undefined,
         type: nextType,
         redirectUrls: normalizeRedirectUrls(doc.redirectUrls),
       };
+
+      if (nextType === 'confidential') {
+        updateDoc.accessTokenLifetime = getConfidentialAccessTokenLifetime(
+          doc.accessTokenLifetime || existing.accessTokenLifetime,
+        );
+      }
+
       const updateOperation: Record<string, any> = {
         $set: updateDoc,
       };
@@ -148,6 +167,7 @@ export const loadOAuthClientAppClass = (
 
       if (nextType === 'public') {
         unsetFields.secretHash = 1;
+        unsetFields.accessTokenLifetime = 1;
       } else if (nextSecret) {
         updateOperation.$set.secretHash = hashSecret(nextSecret);
       }

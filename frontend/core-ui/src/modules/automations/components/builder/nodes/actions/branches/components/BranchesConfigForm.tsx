@@ -1,4 +1,5 @@
 import { useAutomationTrigger } from '@/automations/components/builder/hooks/useAutomationTrigger';
+import { AutomationSegmentForm } from '@/automations/components/common/AutomationSegmentForm';
 import { TAutomationActionProps, SegmentForm } from 'ui-modules';
 
 export const BranchesConfigForm = ({
@@ -8,8 +9,8 @@ export const BranchesConfigForm = ({
   const { trigger } = useAutomationTrigger(currentAction.id);
 
   return (
-    <div className="w-[650px] h-full">
-      <SegmentForm
+    <div className="h-full w-full">
+      <AutomationSegmentForm
         contentType={trigger?.type || ''}
         segmentId={currentAction?.config?.contentId}
         callback={(contentId) => handleSave({ contentId })}

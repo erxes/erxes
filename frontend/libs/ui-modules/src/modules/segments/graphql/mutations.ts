@@ -29,6 +29,8 @@ export const SEGMENT_ADD = gql`
     segmentsAdd(contentType: $contentType, ${PARAMS}) {
       _id
       count
+      conditions
+      conditionsConjunction
     }
   }
 `;
@@ -38,6 +40,8 @@ export const SEGMENT_EDIT = gql`
     segmentsEdit(_id: $_id, ${PARAMS}) {
       _id
       count
+      conditions
+      conditionsConjunction
     }
   }
 `;

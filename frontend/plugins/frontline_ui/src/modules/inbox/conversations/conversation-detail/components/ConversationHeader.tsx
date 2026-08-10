@@ -1,27 +1,38 @@
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
+import { useConversationAutomatedReplyControl } from '@/inbox/conversations/hooks/useConversationAutomatedReplyControl';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
+import { useDiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
+import { IntegrationType } from '@/types/Integration';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
 import { refetchConversationsAtom } from '../../states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
-import { IconArrowLeft, IconDots } from '@tabler/icons-react';
 import {
+  IconArrowLeft,
+  IconDots,
+  IconPlayerPause,
+  IconPlayerPlay,
+} from '@tabler/icons-react';
+import {
+  Avatar,
   Button,
   DropdownMenu,
   ScrollArea,
   Separator,
   Skeleton,
+  cn,
   toast,
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from './ConversationActions';
+import { useTranslation } from 'react-i18next';
 
 export const ConversationHeader = () => {
-  const { customerId, loading, customer } = useConversationContext();
+  const { loading } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useAtomValue(inboxLayoutState);
   const isSideWidgetOpen = useAtomValue(sideWidgetOpenState);
@@ -40,17 +51,14 @@ export const ConversationHeader = () => {
           </Button>
         )}
         {!loading ? (
-          <CustomersInline
-            customers={customer ? [customer] : undefined}
-            customerIds={customerId ? [customerId] : undefined}
-            className="text-sm text-foreground flex-none"
-            placeholder="anonymous customer"
-          />
+          // skipcq: JS-0357
+          <ConversationHeaderProfile />
         ) : (
           <Skeleton className="w-32 h-4 ml-2" />
         )}
         <Separator.Inline />
         <AssignConversation />
+        <AutomatedReplyStatusBadge />
         {isSideWidgetOpen ? (
           <div className="ml-auto flex-none">
             <ConversationActionsDropdown />
@@ -68,7 +76,118 @@ export const ConversationHeader = () => {
   );
 };
 
+const ConversationHeaderProfile = () => {
+  const { _id, integration, customer, customerId } = useConversationContext();
+  const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const { channel, loading } = useDiscordConversationChannel(
+    _id,
+    !_id || !isDiscord,
+  );
+
+  if (isDiscord && loading && !channel?.channelName) {
+    return (
+      <div className="flex items-center gap-2 flex-none">
+        <Skeleton className="size-6 rounded-full" />
+        <Skeleton className="w-32 h-4" />
+      </div>
+    );
+  }
+
+  if (isDiscord && channel?.channelName) {
+    const letter = channel.channelName.trim().charAt(0).toUpperCase();
+    return (
+      <div className="flex items-center gap-2 flex-none">
+        <Avatar size="lg">
+          <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
+            {letter}
+          </Avatar.Fallback>
+        </Avatar>
+        <span
+          className="text-sm text-foreground"
+          title={`Discord channel: #${channel.channelName}`}
+        >
+          #{channel.channelName}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <CustomersInline
+      customers={customer ? [customer] : undefined}
+      customerIds={customerId ? [customerId] : undefined}
+      className="text-sm text-foreground flex-none"
+      placeholder="anonymous customer"
+    />
+  );
+};
+
+const AutomatedReplyStatusBadge = () => {
+  const { _id, automatedReplyControl } = useConversationContext();
+  const { setAutomatedReplyControl, loading } =
+    useConversationAutomatedReplyControl();
+  const status = automatedReplyControl?.status;
+
+  if (!status) {
+    return null;
+  }
+
+  const isActive = status === 'active';
+  const label = isActive
+    ? 'Automation active'
+    : status === 'human_active' &&
+      automatedReplyControl?.reason === 'operator_reply'
+    ? 'Automation paused: operator active'
+    : 'Automation paused';
+  const nextStatus = isActive ? 'human_active' : 'active';
+  const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
+  const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
+  const ActionIcon = isActive ? IconPlayerPause : IconPlayerPlay;
+
+  const handleToggleAutomation = () => {
+    setAutomatedReplyControl({
+      variables: {
+        _id,
+        status: nextStatus,
+        reason: 'manual',
+      },
+      onCompleted: () => {
+        toast({
+          title: isActive ? 'Automation paused' : 'Automation resumed',
+        });
+      },
+    });
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="ghost"
+          className={cn(
+            'h-7 flex-none gap-1.5 rounded-md border px-2 text-xs font-medium shadow-none',
+            isActive
+              ? 'border-border bg-muted/50 text-muted-foreground hover:bg-muted'
+              : 'border-primary/20 bg-primary/10 text-primary hover:bg-primary/15',
+          )}
+          disabled={loading}
+        >
+          <Icon className="size-3.5 flex-none" />
+          <span className="max-w-[280px] truncate">{label}</span>
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start" className="min-w-[220px]">
+        <DropdownMenu.Item disabled={loading} onClick={handleToggleAutomation}>
+          <ActionIcon className="size-4" />
+          {actionLabel}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
 const AssignConversation = () => {
+  const { t } = useTranslation('frontline');
   const { assignedUserId, _id } = useConversationContext();
   const { assignConversations } = useAssignConversations();
 
@@ -82,7 +201,7 @@ const AssignConversation = () => {
       },
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -105,6 +224,7 @@ const AssignConversation = () => {
 };
 
 export const ConversationTags = () => {
+  const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
 
   if (!_id) return null;
@@ -126,13 +246,13 @@ export const ConversationTags = () => {
         options={(newTagIds: string[]) => ({
           onCompleted: () => {
             toast({
-              title: 'Tag updated',
+              title: t('tag-updated'),
               variant: 'default',
             });
           },
           onError: (error: Error) => {
             toast({
-              title: 'Failed to update tags',
+              title: t('failed-to-update-tags'),
               description: error.message,
               variant: 'destructive',
             });
@@ -144,6 +264,7 @@ export const ConversationTags = () => {
 };
 
 const ConversationActionsDropdown = () => {
+  const { t } = useTranslation('frontline');
   const { _id, status } = useConversationContext();
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
@@ -180,7 +301,7 @@ const ConversationActionsDropdown = () => {
         </div>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onSelect={handleStatusChange} disabled={loading}>
-          {status === ConversationStatus.CLOSED ? 'Open' : 'Resolve'}
+          {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

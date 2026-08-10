@@ -1,17 +1,27 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IAccount, JournalEnum } from '../types/Account';
 import {
-  CurrencyCode,
   ITextFieldContainerProps,
   RecordTable,
   CurrencyField,
   TextField,
   useQueryState,
   RecordTableInlineCell,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
+import { useAccountsRemove } from '../hooks/useAccountsRemove';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import {
+  getCurrencyCodeFromOptions,
+  useCurrencyConfigs,
+} from '../../hooks/useCurrencyConfigs';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { original } = cell.row;
@@ -64,12 +74,16 @@ const AccountTextField = ({
 
 const AccountCurrencyCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
   const { editAccount } = useAccountEdit();
+  const { dealCurrencyOptions } = useCurrencyConfigs();
+  const value = cell.getValue<string>();
+
   return (
     <CurrencyField.SelectCurrency
-      value={cell.getValue() as CurrencyCode}
+      value={getCurrencyCodeFromOptions(value, dealCurrencyOptions)}
       variant="ghost"
       className="w-full focus-visible:relative focus-visible:z-10 font-normal"
       hideChevron
+      currencies={dealCurrencyOptions}
       onChange={(value) => {
         editAccount({ variables: { ...cell.row.original, currency: value } }, [
           'currency',
@@ -84,19 +98,52 @@ export const AccountMoreColumnCell = ({
 }: {
   cell: Cell<IAccount, unknown>;
 }) => {
+  const { t } = useTranslation('accounting');
   const [, setOpen] = useQueryState('accountId');
+  const { confirm } = useConfirm();
+  const { removeAccounts } = useAccountsRemove();
+
+  const handleEdit = () => {
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: t('are-you-sure-delete-this-account'),
+      options: {
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+      },
+    }).then(() => {
+      removeAccounts({
+        variables: { accountIds: [cell.row.original._id] },
+      });
+    });
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> {t('edit')}
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
 export const accountMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: AccountMoreColumnCell,
   size: 33,
 };

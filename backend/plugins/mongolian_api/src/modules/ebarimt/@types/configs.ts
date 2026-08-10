@@ -11,10 +11,11 @@ export interface IEbarimtConfig {
 
   hasVat: boolean;
   hasCitytax: boolean;
-  defaultGSCode: string;
+  defaultUnitedCode: string;
   vatPercent: number;
   cityTaxPercent: number;
-  skipPutData: boolean;
+  skipEbarimt: boolean;
+  sendEmail?: boolean;
 
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];

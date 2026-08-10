@@ -15,21 +15,19 @@ export const ticketQueries = {
     { filter }: { filter: ITicketFilter & ICursorPaginateParams },
     { models, user }: IContext,
   ) => {
-    const filterQuery: FilterQuery<ITicketDocument> = await generateFilter(
+    const query: FilterQuery<ITicketDocument> = await generateFilter(
       filter,
       user,
       models,
     );
+
     return await cursorPaginate<ITicketDocument>({
       model: models.Ticket,
       params: {
         ...filter,
-        orderBy: {
-          statusId: 'asc',
-          createdAt: 'asc',
-        },
+        orderBy: filter.orderBy ?? { updatedAt: -1 },
       },
-      query: filterQuery,
+      query,
     });
   },
 };

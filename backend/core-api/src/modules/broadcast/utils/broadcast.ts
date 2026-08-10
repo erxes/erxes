@@ -1,11 +1,11 @@
 import { ICustomer, ICustomerDocument } from 'erxes-api-shared/core-types';
-import { getEnv } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import validator from 'validator';
+import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { IModels } from '~/connectionResolvers';
-import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { getValueAsString } from '~/modules/organization/settings/db/models/Configs';
 import { IEngageMessageDocument } from '../@types';
+import { generateCustomerSelector, resolveCampaignFromEmail } from './engage';
 import { addBroadcastWorkerQueue } from './worker';
 
 const CUSTOMER_BATCH_SIZE = 1000;
@@ -43,10 +43,6 @@ const traceExcludedCustomers = async ({
     $or: [
       { primaryEmail: { $in: [null, '', undefined] } },
       { primaryEmail: { $exists: false } },
-      {
-        primaryEmail: { $exists: true, $nin: [null, '', undefined] },
-        emailValidationStatus: { $nin: [EMAIL_VALIDATION_STATUSES.VALID] },
-      },
       { isSubscribed: 'No' },
     ],
   };
@@ -55,25 +51,23 @@ const traceExcludedCustomers = async ({
     query.tagIds = { $in: targetIds };
   }
 
-  const cursor = models.Customers.find(query, { _id: 1, primaryEmail: 1, emailValidationStatus: 1, isSubscribed: 1 })
+  const cursor = models.Customers.find(query, {
+    _id: 1,
+    primaryEmail: 1,
+    isSubscribed: 1,
+  })
     .batchSize(CUSTOMER_BATCH_SIZE)
     .lean();
 
   for await (const customer of cursor) {
-    let reason: string;
-
-    if (!customer.primaryEmail) {
-      reason = 'no email address';
-    } else if (customer.isSubscribed === 'No') {
-      reason = 'unsubscribed';
-    } else {
-      reason = `email validation status is "${customer.emailValidationStatus || 'not validated'}"`;
-    }
+    const reason = customer.primaryEmail ? 'unsubscribed' : 'no email address';
 
     await models.BroadcastTraces.createTrace(
       engageMessageId,
       'regular',
-      `Skipped customer ${customer._id}: ${reason} (${customer.primaryEmail || 'none'})`,
+      `Skipped customer ${customer._id}: ${reason} (${
+        customer.primaryEmail || 'none'
+      })`,
     );
   }
 };
@@ -89,7 +83,6 @@ const prepareCustomers = ({
 }) => {
   const query: FilterQuery<ICustomer> = {
     primaryEmail: { $exists: true, $nin: [null, '', undefined] },
-    emailValidationStatus: EMAIL_VALIDATION_STATUSES.VALID,
     $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
   };
 
@@ -109,12 +102,12 @@ const sendBroadcastEmail = async ({
   subdomain: string;
   engageMessage: IEngageMessageDocument;
 }) => {
-  const { _id, targetType, targetIds, method, fromUserId } = engageMessage;
+  const { _id, targetType, targetIds, method } = engageMessage;
 
-  const fromUser = await models.Users.findOne({ _id: fromUserId }).lean();
+  const fromEmail = await resolveCampaignFromEmail(models, engageMessage);
 
-  if (!fromUser?.email) {
-    throw new Error('Invalid from user');
+  if (!fromEmail) {
+    throw new Error('Invalid from sender');
   }
 
   const configSet = await getValueAsString(
@@ -147,7 +140,12 @@ const sendBroadcastEmail = async ({
     targetIds,
   });
 
-  await traceExcludedCustomers({ models, targetType, targetIds, engageMessageId: _id });
+  await traceExcludedCustomers({
+    models,
+    targetType,
+    targetIds,
+    engageMessageId: _id,
+  });
 
   const batches: ICustomerDocument[][] = [];
   let currentBatch: ICustomerDocument[] = [];
@@ -161,7 +159,9 @@ const sendBroadcastEmail = async ({
       await models.BroadcastTraces.createTrace(
         _id,
         'regular',
-        `Skipped customer ${customer?._id}: missing or invalid email (${customer?.primaryEmail || 'none'})`,
+        `Skipped customer ${customer?._id}: missing or invalid email (${
+          customer?.primaryEmail || 'none'
+        })`,
       );
       continue;
     }
@@ -193,6 +193,155 @@ const sendBroadcastEmail = async ({
   }
 
   // Write totalBatches BEFORE queuing so workers always see the correct value
+  const started = await models.EngageMessages.findOneAndUpdate(
+    { _id },
+    {
+      $set: {
+        lastRunAt: new Date(),
+        totalCustomersCount,
+        'progress.totalBatches': batches.length,
+      },
+      $inc: {
+        runCount: 1,
+      },
+    },
+    { new: true },
+  );
+
+  const queuedRun = started?.runCount;
+
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    await addBroadcastWorkerQueue({
+      queueName: 'broadcast_processor',
+      data: {
+        method,
+        payload: {
+          customers: batches[batchIndex],
+          engageMessage,
+          fromEmail,
+          configSet,
+          subdomain,
+          queuedRun,
+          batchIndex,
+        },
+      },
+      jobId: `${_id}_run${queuedRun}_batch${batchIndex}`,
+    });
+  }
+};
+
+const sendBroadcastNotification = async ({
+  models,
+  subdomain,
+  engageMessage,
+}: {
+  models: IModels;
+  subdomain: string;
+  engageMessage: IEngageMessageDocument;
+}) => {
+  const { _id, targetType, targetIds, method, cpId } = engageMessage;
+
+  if (!cpId) {
+    throw new Error(
+      'Please select "Clientportal" in the notification campaign',
+    );
+  }
+
+  const clientPortal = await models.ClientPortal.findOne({ _id: cpId }).lean();
+
+  if (!clientPortal) {
+    throw new Error('Client portal not found');
+  }
+
+  await models.EngageMessages.updateOne(
+    { _id },
+    {
+      $set: {
+        status: 'sending',
+        'progress.processedBatches': 0,
+        'progress.totalBatches': 0,
+        'progress.successCount': 0,
+        'progress.failureCount': 0,
+        'progress.lastUpdated': new Date(),
+      },
+    },
+  );
+
+  const customersSelector = await generateCustomerSelector(subdomain, models, {
+    engageId: _id,
+    targetType,
+    targetIds,
+  });
+
+  const totalCustomersCount =
+    await models.Customers.countDocuments(customersSelector);
+
+  const erxesCustomerIds = await models.Customers.find(customersSelector)
+    .distinct('_id')
+    .lean();
+
+  const cpUsers = await models.CPUser.find({
+    clientPortalId: cpId,
+    erxesCustomerId: { $in: erxesCustomerIds },
+  }).lean();
+
+  const linkedCustomerIds = new Set(
+    cpUsers.map((cpUser) => cpUser.erxesCustomerId).filter(Boolean),
+  );
+
+  for (const customerId of erxesCustomerIds) {
+    if (!linkedCustomerIds.has(customerId)) {
+      await models.BroadcastTraces.createTrace(
+        _id,
+        'regular',
+        `Skipped customer ${customerId}: no linked client portal user`,
+      );
+    }
+  }
+
+  const batches: ICPUserDocument[][] = [];
+  let currentBatch: ICPUserDocument[] = [];
+
+  for (const cpUser of cpUsers) {
+    currentBatch.push(cpUser as ICPUserDocument);
+
+    if (currentBatch.length >= CUSTOMER_BATCH_SIZE) {
+      batches.push(currentBatch);
+      currentBatch = [];
+    }
+  }
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+
+  if (batches.length === 0) {
+    await models.EngageMessages.updateOne(
+      { _id },
+      {
+        $set: {
+          lastRunAt: new Date(),
+          totalCustomersCount,
+          status: 'completed',
+          'progress.totalBatches': 0,
+          'progress.processedBatches': 0,
+          'progress.lastUpdated': new Date(),
+        },
+        $inc: {
+          runCount: 1,
+        },
+      },
+    );
+
+    await models.BroadcastTraces.createTrace(
+      _id,
+      'regular',
+      'No linked client portal users found for the selected targets',
+    );
+
+    return;
+  }
+
   await models.EngageMessages.updateOne(
     { _id },
     {
@@ -208,15 +357,14 @@ const sendBroadcastEmail = async ({
   );
 
   for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-    addBroadcastWorkerQueue({
+    await addBroadcastWorkerQueue({
       queueName: 'broadcast_processor',
       data: {
         method,
         payload: {
-          customers: batches[batchIndex],
+          cpUsers: batches[batchIndex],
           engageMessage,
-          fromEmail: fromUser.email,
-          configSet,
+          clientPortal,
           subdomain,
         },
       },
@@ -238,5 +386,9 @@ export const sendBroadcast = async ({
 
   if (method === 'email') {
     return sendBroadcastEmail({ models, subdomain, engageMessage });
+  }
+
+  if (method === 'notification') {
+    return sendBroadcastNotification({ models, subdomain, engageMessage });
   }
 };

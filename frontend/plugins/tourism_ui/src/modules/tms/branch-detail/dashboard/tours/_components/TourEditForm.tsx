@@ -2,11 +2,14 @@ import { Form, Sheet, Button, Tabs, useToast, Spinner } from 'erxes-ui';
 import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { nanoid } from 'nanoid';
 import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useEditTour } from '../hooks/useEditTour';
+import { useCreateTour } from '../hooks/useCreateTour';
 import { useTourDetail } from '../hooks/useTourDetail';
 import { useTourLanguage } from '../hooks/useTourLanguage';
 import { TourFieldLanguageSwitch } from '../../_components/TourFieldLanguageSwitch';
@@ -17,6 +20,11 @@ import {
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
+import { filterCustomFieldsData } from '../utils/customFields';
+import {
+  useTourCustomFieldGroups,
+  useTourCustomTypes,
+} from '../hooks/useTourCustomFields';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
@@ -42,7 +50,12 @@ import {
   TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
+  TourGuidesField,
 } from './TourFormFields';
+import {
+  TourCustomFieldsSection,
+  TourTypeField,
+} from './TourCustomFieldsSection';
 
 interface Props {
   tourId: string;
@@ -65,6 +78,9 @@ const isSameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
   left.getMonth() === right.getMonth() &&
   left.getDate() === right.getDate();
+
+const sortDates = (dates: Date[]) =>
+  [...dates].sort((a, b) => a.getTime() - b.getTime());
 
 const getDateStatus = (
   startDate?: Date,
@@ -92,10 +108,13 @@ export const TourEditForm = ({
   sideTab: sideTabProp,
   onSideTabChange,
 }: Props) => {
+  const { t } = useTranslation('tourism');
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
+  const { createTour, loading: createLoading } = useCreateTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
   const [sideTabLocal, setSideTabLocal] = useState<TourSideTab | null>(null);
+  const previousTypeRef = useRef<string | undefined>();
 
   const sideTab = sideTabProp ?? sideTabLocal;
   const setSideTab = onSideTabChange ?? setSideTabLocal;
@@ -113,6 +132,7 @@ export const TourEditForm = ({
       name: '',
       refNumber: '',
       status: 'draft',
+      customTourTypeId: 'tour',
       content: '',
       itineraryId: '',
       categoryIds: [],
@@ -138,6 +158,7 @@ export const TourEditForm = ({
       guides: [],
       pricingOptions: [],
       translations: [],
+      customFieldsData: [],
     },
   });
 
@@ -202,6 +223,32 @@ export const TourEditForm = ({
     name: 'duration',
   });
 
+  const selectedType = useWatch({
+    control: form.control,
+    name: 'customTourTypeId',
+  });
+
+  const { customTypes } = useTourCustomTypes(branchId ?? tourDetail?.branchId);
+
+  const { fieldGroups } = useTourCustomFieldGroups({
+    branchId: branchId ?? tourDetail?.branchId,
+    selectedType,
+    tourId,
+  });
+
+  useEffect(() => {
+    if (!selectedType) return;
+
+    if (
+      previousTypeRef.current &&
+      previousTypeRef.current !== selectedType
+    ) {
+      form.setValue('customFieldsData', []);
+    }
+
+    previousTypeRef.current = selectedType;
+  }, [selectedType, form]);
+
   const { data } = useQuery(GET_ITINERARIES, {
     variables: { branchId, limit: 100, orderBy: { createdAt: -1 } },
     skip: !branchId,
@@ -219,12 +266,15 @@ export const TourEditForm = ({
     if (!tourDetail?._id) return;
 
     const tour = tourDetail;
+    const resolvedCustomTourTypeId = tour.customTourTypeId ?? 'tour';
+    previousTypeRef.current = resolvedCustomTourTypeId;
 
     form.reset(
       {
         name: resolveMainLanguageName(tour, mainLanguage),
         refNumber: tour.refNumber ?? '',
         status: tour.status ?? 'draft',
+        customTourTypeId: resolvedCustomTourTypeId,
         content: tour.content ?? '',
         itineraryId: tour.itineraryId ?? '',
         categoryIds: tour.categoryIds ?? [],
@@ -241,7 +291,14 @@ export const TourEditForm = ({
         images: tour.images ?? [],
         imageThumbnail: tour.imageThumbnail ?? '',
         attachment: tour.attachment ?? null,
-        guides: [],
+        guides: (tour.guides ?? [])
+          .filter((g): g is { guideId: string; type: string } =>
+            Boolean(g?.guideId),
+          )
+          .map((g) => ({
+            guideId: g.guideId,
+            type: g.type ?? 'guide',
+          })),
         pricingOptions: (tour.pricingOptions ?? []).map((option) => {
           const { prices, pricePerPerson, ...rest } = option;
 
@@ -264,6 +321,7 @@ export const TourEditForm = ({
           : undefined,
         availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
         translations: buildTranslationsFromTour(tour, translationLanguages),
+        customFieldsData: tour.customFieldsData ?? [],
       },
       { keepDirty: false, keepTouched: false },
     );
@@ -288,8 +346,8 @@ export const TourEditForm = ({
   const handleSubmit = async (values: TourFormValues) => {
     if (!tourId) {
       toast({
-        title: 'Error',
-        description: 'Tour ID required',
+        title: t('error'),
+        description: t('tour-id-required'),
         variant: 'destructive',
       });
       return;
@@ -297,8 +355,8 @@ export const TourEditForm = ({
 
     if (!values.pricingOptions || values.pricingOptions.length === 0) {
       toast({
-        title: 'Error',
-        description: 'At least one pricing option is required',
+        title: t('error'),
+        description: t('at-least-one-pricing'),
         variant: 'destructive',
       });
       return;
@@ -314,6 +372,7 @@ export const TourEditForm = ({
         isGroupTour: _isGroupTour,
         pricingOptions,
         translations: rawTranslations,
+        customFieldsData,
         ...restValues
       } = values;
 
@@ -326,46 +385,105 @@ export const TourEditForm = ({
 
       const isFlexible = values.isFlexibleDate;
 
-      const normalizedStartDate = Array.isArray(values.startDate)
-        ? values.startDate?.[0]
-        : values.startDate;
+      const normalizedStartDates =
+        !isFlexible && values.startDate
+          ? Array.isArray(values.startDate)
+            ? sortDates(values.startDate)
+            : [values.startDate]
+          : [];
+
+      const primaryStartDate = normalizedStartDates[0];
+      const additionalDates = values.isGroupTour
+        ? normalizedStartDates.slice(1)
+        : [];
+
+      const targetBranchId = branchId ?? tourDetail?.branchId;
+
+      if (additionalDates.length > 0 && !targetBranchId) {
+        toast({
+          title: t('error'),
+          description: t('branch-id-required-dates'),
+          variant: 'destructive',
+        });
+        return;
+      }
 
       await editTour({
         id: tourId,
         language: resolvedPrimaryLanguage || undefined,
         ...restValues,
+        customFieldsData: filterCustomFieldsData(customFieldsData),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizedTranslations,
         dateType: isFlexible ? 'flexible' : 'fixed',
-        startDate: isFlexible ? undefined : normalizedStartDate,
+        startDate: isFlexible ? undefined : primaryStartDate,
         endDate: isFlexible
           ? undefined
-          : normalizedStartDate && values.duration
-          ? calculateEndDate(normalizedStartDate, values.duration)
+          : primaryStartDate && values.duration
+          ? calculateEndDate(primaryStartDate, values.duration)
           : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible
           ? 'unscheduled'
-          : getDateStatus(normalizedStartDate),
+          : getDateStatus(primaryStartDate),
       });
 
+      if (additionalDates.length > 0 && targetBranchId) {
+        const groupCode = tourDetail?.groupCode || nanoid(8);
+
+        await Promise.all(
+          additionalDates.map((selectedDate, idx) => {
+            const computedEndDate = calculateEndDate(
+              selectedDate,
+              values.duration,
+            );
+
+            const refNumber = `${restValues.refNumber}-${String(
+              idx + 2,
+            ).padStart(2, '0')}`;
+
+            return createTour({
+              variables: {
+                branchId: targetBranchId,
+                language: resolvedPrimaryLanguage || undefined,
+                ...restValues,
+                customFieldsData: filterCustomFieldsData(customFieldsData),
+                refNumber,
+                pricingOptions: normalizedPricingOptions,
+                dateType: 'fixed',
+                startDate: selectedDate,
+                endDate: computedEndDate,
+                availableFrom: undefined,
+                availableTo: undefined,
+                date_status: getDateStatus(selectedDate),
+                groupCode,
+                translations: sanitizedTranslations,
+              },
+            });
+          }),
+        );
+      }
+
       toast({
-        title: 'Success',
-        description: 'Tour updated successfully',
+        title: t('success'),
+        description:
+          additionalDates.length > 0
+            ? t('tour-updated-and-created', { count: additionalDates.length })
+            : t('tour-updated-successfully'),
       });
 
       onSuccess?.();
     } catch (error) {
       toast({
-        title: 'Error',
+        title: t('error'),
         description:
-          error instanceof Error ? error.message : 'Failed to update tour',
+          error instanceof Error ? error.message : t('failed-to-update-tour'),
         variant: 'destructive',
       });
     }
   };
-  const loading = editLoading || tourLoading;
+  const loading = editLoading || createLoading || tourLoading;
 
   return (
     <Form {...form}>
@@ -374,7 +492,7 @@ export const TourEditForm = ({
         className="flex flex-col h-full"
       >
         <Sheet.Header>
-          <Sheet.Title>Edit tour</Sheet.Title>
+          <Sheet.Title>{t('edit-tour')}</Sheet.Title>
           {allLanguages.length > 1 && (
             <div className="flex items-center gap-2 ml-auto">
               <TourFieldLanguageSwitch
@@ -412,6 +530,13 @@ export const TourEditForm = ({
 
                   <div className="grid grid-cols-2 gap-4">
                     <TourStatusField control={form.control} />
+                    <TourTypeField
+                      control={form.control}
+                      customTypes={customTypes}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <TourItineraryIdField
                       control={form.control}
                       branchId={branchId}
@@ -431,11 +556,41 @@ export const TourEditForm = ({
                     name={fieldPaths.content}
                     labelSuffix={labelSuffix}
                   />
+
+                  <TourCustomFieldsSection
+                    fieldGroups={fieldGroups}
+                    getCustomFieldValue={(fieldId) => {
+                      const currentData = form.watch('customFieldsData') || [];
+                      return (
+                        currentData.find((item) => item.field === fieldId)
+                          ?.value ?? ''
+                      );
+                    }}
+                    updateCustomFieldValue={(fieldId, value) => {
+                      const currentData =
+                        form.getValues('customFieldsData') || [];
+                      const existingIndex = currentData.findIndex(
+                        (item) => item.field === fieldId,
+                      );
+                      const updated = [...currentData];
+
+                      if (existingIndex >= 0) {
+                        updated[existingIndex] = { field: fieldId, value };
+                      } else {
+                        updated.push({ field: fieldId, value });
+                      }
+
+                      form.setValue('customFieldsData', updated, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      });
+                    }}
+                  />
                 </div>
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">Duration Info</Form.Label>
+                  <Form.Label className="mx-2">{t('duration-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -453,7 +608,15 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">Pricing Info</Form.Label>
+                  <Form.Label className="mx-2">{t('crew')}</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <TourGuidesField control={form.control} />
+
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">{t('pricing-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -478,7 +641,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">More Info</Form.Label>
+                  <Form.Label className="mx-2">{t('more-info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -491,13 +654,13 @@ export const TourEditForm = ({
                 <div className="space-y-4">
                   <Tabs defaultValue="info1" className="w-full">
                     <Tabs.List className="grid w-full grid-cols-5">
-                      <Tabs.Trigger value="info1">Included</Tabs.Trigger>
-                      <Tabs.Trigger value="info2">Not Included</Tabs.Trigger>
-                      <Tabs.Trigger value="info3">Highlights</Tabs.Trigger>
+                      <Tabs.Trigger value="info1">{t('included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info2">{t('not-included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info3">{t('highlights')}</Tabs.Trigger>
                       <Tabs.Trigger value="info4">
-                        Additional Information
+                        {t('additional-information')}
                       </Tabs.Trigger>
-                      <Tabs.Trigger value="info5">Notes</Tabs.Trigger>
+                      <Tabs.Trigger value="info5">{t('notes')}</Tabs.Trigger>
                     </Tabs.List>
 
                     <Tabs.Content value="info1" className="pt-4">
@@ -558,11 +721,11 @@ export const TourEditForm = ({
             disabled={loading}
             onClick={onSuccess}
           >
-            Cancel
+            {t('cancel')}
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? 'Updating...' : 'Update'}
+            {loading ? t('updating') : t('update')}
           </Button>
         </Sheet.Footer>
       </form>

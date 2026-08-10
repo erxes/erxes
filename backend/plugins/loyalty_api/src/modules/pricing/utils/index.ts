@@ -6,120 +6,150 @@ import {
   calculateQuantityRule,
   calculateDiscountValue,
   calculateExpiryRule,
-  calculatePriceAdjust
+  calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
+import { planMatchesContext, EligibilityCache } from './eligibility';
 import { CalculatedRule, OrderItem } from '../types';
 
+type ParticipantKind = 'customer' | 'company' | 'user';
+
 export const getMainConditions = ({
-  branchId, departmentId, pipelineId, date
+  branchId,
+  departmentId,
+  pipelineId,
+  date,
 }: {
-  branchId?: string, departmentId?: string, pipelineId?: string, date?: Date
+  branchId?: string;
+  departmentId?: string;
+  pipelineId?: string;
+  date?: Date;
 }): Record<string, any> => {
   const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
 
-  const andConditions: Record<string, any>[] = [];
-
-  // Build branch/department OR conditions
-  const branchDeptOr: Record<string, any>[] = [];
-
-  if (branchId) {
-    branchDeptOr.push({
-      branchIds: { $in: [branchId] },
-      departmentIds: { $size: 0 }
-    });
-  }
-
-  if (departmentId) {
-    branchDeptOr.push({
-      departmentIds: { $in: [departmentId] },
-      branchIds: { $size: 0 }
-    });
-  }
-
-  // Always include the case with no branch or department
-  branchDeptOr.push({
-    branchIds: { $size: 0 },
-    departmentIds: { $size: 0 }
-  });
-
-  if (branchId && departmentId) {
-    branchDeptOr.push({
-      departmentIds: { $in: [departmentId] },
-      branchIds: { $in: [branchId] }
-    });
-  }
-
-  if (branchDeptOr.length > 0) {
-    andConditions.push({ $or: branchDeptOr });
-  }
-
-  // Add pipeline condition if provided
-  if (pipelineId) {
-    andConditions.push({
-      $or: [
-        { pipelineId },
-        { pipelineId: { $exists: false } },
-        { pipelineId: '' }
-      ]
-    });
-  }
-
-  // Add date conditions
-  const dateOr = [
-    {
-      isStartDateEnabled: false,
-      isEndDateEnabled: false
-    },
-    {
-      isStartDateEnabled: true,
-      isEndDateEnabled: false,
-      startDate: {
-        $lt: nowISO
-      }
-    },
-    {
-      isStartDateEnabled: false,
-      isEndDateEnabled: true,
-      endDate: {
-        $gt: nowISO
-      }
-    },
-    {
-      isStartDateEnabled: true,
-      isEndDateEnabled: true,
-      startDate: {
-        $lt: nowISO
+  const dateFilter = {
+    $or: [
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: false,
       },
-      endDate: {
-        $gt: nowISO
-      }
-    }
-  ];
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: false,
+        startDate: {
+          $lt: nowISO,
+        },
+      },
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: true,
+        endDate: {
+          $gt: nowISO,
+        },
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: true,
+        startDate: {
+          $lt: nowISO,
+        },
+        endDate: {
+          $gt: nowISO,
+        },
+      },
+    ],
+  };
 
-  andConditions.push({ status: 'active', $or: dateOr });
+  const pipelineFilter = pipelineId
+    ? { $or: [{ pipelineId }, { pipelineId: { $in: [null, ''] } }] }
+    : { pipelineId: { $in: [null, ''] } };
+
+  const branchFilter = branchId
+    ? { $or: [{ branchIds: { $in: [branchId] } }, { branchIds: { $size: 0 } }] }
+    : { branchIds: { $size: 0 } };
+
+  const departmentFilter = departmentId
+    ? {
+        $or: [
+          { departmentIds: { $in: [departmentId] } },
+          { departmentIds: { $size: 0 } },
+        ],
+      }
+    : { departmentIds: { $size: 0 } };
 
   return {
-    $and: andConditions
+    status: 'active',
+    $and: [dateFilter, pipelineFilter, branchFilter, departmentFilter],
   };
 };
 
+const applyPriorityConditions = (
+  conditions: Record<string, any>,
+  prioritizeRule?: string,
+) => {
+  if (prioritizeRule === 'only') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: 'posBase' }],
+      },
+    ];
+    return;
+  }
+
+  if (prioritizeRule === 'exclude') {
+    conditions.$and = [
+      ...(conditions.$and || []),
+      {
+        $or: [{ priority: { $ne: 'posBase' } }],
+      },
+    ];
+  }
+};
+
 // Helper function to calculate default discount value
-const calculateDefaultDiscount = (plan: any, item: any): number => {
+const calculateDefaultDiscount = async (
+  plan: any,
+  item: any,
+  models: IModels,
+): Promise<number> => {
+  if (plan.type === 'fixed') {
+    const fixedValue = await models.PricingFixedValues.findOne({
+      pricingPlanId: plan._id.toString(),
+      productId: item.productId,
+    });
+
+    if (fixedValue?.newPrice == null) {
+      return 0;
+    }
+
+    const discount = item.price - fixedValue.newPrice;
+    return calculatePriceAdjust(
+      item.price,
+      discount,
+      plan.priceAdjustType,
+      plan.priceAdjustFactor,
+    );
+  }
+
   let defaultValue = calculateDiscountValue(plan.type, plan.value, item.price);
   defaultValue = calculatePriceAdjust(
     item.price,
     defaultValue,
     plan.priceAdjustType,
-    plan.priceAdjustFactor
+    plan.priceAdjustFactor,
   );
   return defaultValue;
 };
 
 // Helper function to check if any rule has bonus products
 // Helper function to check if any rule has bonus products
-const hasBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): boolean => {
+const hasBonusProducts = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): boolean => {
   return !!(
     (priceRule.type === 'bonus' && priceRule.bonusProducts?.length) ||
     (quantityRule.type === 'bonus' && quantityRule.bonusProducts?.length) ||
@@ -127,25 +157,36 @@ const hasBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRul
   );
 };
 // Helper function to collect bonus products from all rules
-const collectBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): any[] => {
+const collectBonusProducts = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): any[] => {
   return [
     ...(priceRule.bonusProducts || []),
     ...(quantityRule.bonusProducts || []),
-    ...(expiryRule.bonusProducts || [])
+    ...(expiryRule.bonusProducts || []),
   ];
 };
 
 // Helper function to find the max value rule (excluding bonus type)
-const findMaxValueRule = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): CalculatedRule => {
+const findMaxValueRule = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): CalculatedRule => {
   const rules = [priceRule, quantityRule, expiryRule];
-  return rules.reduce((prev, current) => {
-    if (prev.value > current.value && prev.type !== 'bonus') {
+  return rules.reduce(
+    (prev, current) => {
+      if (prev.value > current.value && prev.type !== 'bonus') {
+        return prev;
+      } else if (current.type !== 'bonus') {
+        return current;
+      }
       return prev;
-    } else if (current.type !== 'bonus') {
-      return current;
-    }
-    return prev;
-  }, { type: '', value: 0 } as CalculatedRule);
+    },
+    { type: '', value: 0 } as CalculatedRule,
+  );
 };
 
 // Helper function to process a single item against a plan
@@ -154,8 +195,13 @@ const processItemWithPlan = (
   plan: any,
   totalAmount: number,
   defaultValue: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
-): { type: string; value: number; bonusProducts: any[]; shouldApply: boolean } => {
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
+): {
+  type: string;
+  value: number;
+  bonusProducts: any[];
+  shouldApply: boolean;
+} => {
   const priceRule = calculatePriceRule(plan, item, totalAmount, defaultValue);
   const quantityRule = calculateQuantityRule(plan, item, defaultValue);
   const expiryRule = calculateExpiryRule(plan, item, defaultValue);
@@ -201,11 +247,11 @@ const updateResultWithCalculations = (
   value: number,
   bonusProducts: any[],
   plan: any,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].value += value;
     } else if (
       (value > 0 && result[itemId].value < value) ||
@@ -216,10 +262,10 @@ const updateResultWithCalculations = (
   }
 
   if (type === 'bonus') {
-    if (plan.isPriority) {
+    if (plan.priority === 'posBase') {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
-        ...bonusProducts
+        ...bonusProducts,
       ];
     } else {
       result[itemId].bonusProducts = bonusProducts;
@@ -232,17 +278,55 @@ const applyBundleCalculation = (
   plan: any,
   appliedBundleItems: any[],
   appliedBundleCounts: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): void => {
   if (plan.applyType !== 'bundle') return;
 
   appliedBundleItems.forEach((item: any) => {
     if (result[item.itemId].type !== 'bonus') {
       result[item.itemId].value = Math.floor(
-        (result[item.itemId].value / item.quantity) * appliedBundleCounts
+        (result[item.itemId].value / item.quantity) * appliedBundleCounts,
       );
     }
   });
+};
+
+const typedParticipantContext = ({
+  type,
+  id,
+  prefix = '',
+}: {
+  type?: ParticipantKind;
+  id?: string;
+  prefix?: 'broker' | '';
+}) => {
+  if (!id) {
+    return {};
+  }
+
+  const participantType = type || 'customer';
+
+  if (prefix === 'broker') {
+    if (participantType === 'company') {
+      return { brokerCompanyIds: [id] };
+    }
+
+    if (participantType === 'user') {
+      return { brokerUserIds: [id] };
+    }
+
+    return { brokerCustomerIds: [id] };
+  }
+
+  if (participantType === 'company') {
+    return { companyIds: [id] };
+  }
+
+  if (participantType === 'user') {
+    return { userIds: [id] };
+  }
+
+  return { customerIds: [id] };
 };
 
 // Main function with reduced complexity
@@ -251,10 +335,14 @@ export const checkPricing = async (params: {
   subdomain: string;
   prioritizeRule: string;
   totalAmount: number;
-  departmentId: string;
-  branchId: string;
-  pipelineId: string;
+  departmentId?: string;
+  branchId?: string;
+  pipelineId?: string;
   orderItems: OrderItem[];
+  customerType?: ParticipantKind;
+  customerId?: string;
+  brokerType?: ParticipantKind;
+  brokerId?: string;
 }) => {
   const {
     models,
@@ -264,35 +352,38 @@ export const checkPricing = async (params: {
     departmentId,
     branchId,
     pipelineId,
-    orderItems
+    orderItems,
+    customerType,
+    customerId,
+    brokerType,
+    brokerId,
   } = params;
 
-  const productIds = orderItems.map(p => p.productId);
-  const result: Record<string, { type: string; value: number; bonusProducts: any[] }> = {};
+  const productIds = orderItems.map((p) => p.productId);
+  const result: Record<
+    string,
+    { type: string; value: number; bonusProducts: any[] }
+  > = {};
 
   // Initialize result structure
-  orderItems.forEach(item => {
+  orderItems.forEach((item) => {
     if (!result[item.itemId]) {
       result[item.itemId] = {
         type: '',
         value: 0,
-        bonusProducts: []
+        bonusProducts: [],
       };
     }
   });
 
   // Prepare query conditions
   const conditions = getMainConditions({ branchId, departmentId, pipelineId });
-  if (prioritizeRule === 'only') {
-    conditions.isPriority = true;
-  } else if (prioritizeRule === 'exclude') {
-    conditions.isPriority = false;
-  }
+  applyPriorityConditions(conditions, prioritizeRule);
 
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
-    isPriority: 1,
-    value: 1
+    priority: 1,
+    value: 1,
   };
 
   const plans = await models.PricingPlans.find(conditions).sort(sortArgs);
@@ -301,9 +392,40 @@ export const checkPricing = async (params: {
     return;
   }
 
+  // Memoize segment + entity-fact lookups across every plan in this request.
+  const eligibilityCache: EligibilityCache = new Map();
+  const customerContext = typedParticipantContext({
+    type: customerType,
+    id: customerId,
+  });
+  const brokerContext = typedParticipantContext({
+    type: brokerType,
+    id: brokerId,
+    prefix: 'broker',
+  });
+
   // Process each plan
   for (const plan of plans) {
-    const allowedProductIds = await getAllowedProducts(subdomain, plan, productIds || []);
+    // Customer + broker eligibility gate (product targeting is handled below).
+    if (
+      !(await planMatchesContext(
+        subdomain,
+        plan,
+        {
+          ...customerContext,
+          ...brokerContext,
+        },
+        eligibilityCache,
+      ))
+    ) {
+      continue;
+    }
+
+    const allowedProductIds = await getAllowedProducts(
+      subdomain,
+      plan,
+      productIds || [],
+    );
 
     if (!checkRepeatRule(plan)) {
       continue;
@@ -324,7 +446,7 @@ export const checkPricing = async (params: {
       }
 
       // Calculate discount
-      const defaultValue = calculateDefaultDiscount(plan, item);
+      const defaultValue = await calculateDefaultDiscount(plan, item, models);
 
       // Process item with plan rules
       const { type, value, bonusProducts, shouldApply } = processItemWithPlan(
@@ -332,18 +454,30 @@ export const checkPricing = async (params: {
         plan,
         totalAmount,
         defaultValue,
-        result
+        result,
       );
 
       if (shouldApply) {
         // Update result with calculated values
-        updateResultWithCalculations(item.itemId, type, value, bonusProducts, plan, result);
+        updateResultWithCalculations(
+          item.itemId,
+          type,
+          value,
+          bonusProducts,
+          plan,
+          result,
+        );
         appliedBundleItems.push(item);
       }
     }
 
     // Apply bundle calculation if needed
-    applyBundleCalculation(plan, appliedBundleItems, appliedBundleCounts, result);
+    applyBundleCalculation(
+      plan,
+      appliedBundleItems,
+      appliedBundleCounts,
+      result,
+    );
   }
 
   return result;

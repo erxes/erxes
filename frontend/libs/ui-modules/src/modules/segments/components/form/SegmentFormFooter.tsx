@@ -7,12 +7,14 @@ import { useTranslation } from 'react-i18next';
 
 export const SegmentFormFooter = ({
   callback,
+  onCreateSuccess,
 }: {
   callback?: (contentId: string) => void;
+  onCreateSuccess?: (contentId: string) => void;
 }) => {
   const { form } = useSegment();
   const { stats, handleCalculateStats, loading } = useSegmentStats();
-  const { handleSave } = useSegmentActions({ callback });
+  const { handleSave } = useSegmentActions({ callback, onCreateSuccess });
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   return (

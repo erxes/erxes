@@ -1,6 +1,7 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { InstagramGetAccounts } from './InstagramGetAccounts';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -21,6 +22,7 @@ export const InstagramIntegrationFormSheet = ({
 }: {
   isPost?: boolean;
 }) => {
+  const { t } = useTranslation('frontline');
   const [instagramFormSheet, setInstagramFormSheet] = useAtom(
     instagramFormSheetAtom,
   );
@@ -32,8 +34,7 @@ export const InstagramIntegrationFormSheet = ({
           <Sheet.Trigger asChild>
             <Button>
               <IconPlus />
-              Add Instagram{' '}
-              {isPost ? 'Post Integration' : 'Messenger integration'}
+              {isPost ? t('add-instagram-post-integration') : t('add-instagram-messenger-integration')}
             </Button>
           </Sheet.Trigger>
           <Sheet.View>
@@ -64,13 +65,14 @@ export const InstagramIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
+  const { t } = useTranslation('frontline');
   const resetForm = useSetAtom(resetInstagramAddStateAtom);
   const { isPost } = useIgIntegrationContext();
 
   return (
     <>
       <Sheet.Header>
-        <Sheet.Title>Add Instagram {isPost ? 'Post' : 'Messenger'}</Sheet.Title>
+        <Sheet.Title>{isPost ? t('add-instagram-post') : t('add-instagram-messenger')}</Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
@@ -83,7 +85,7 @@ export const InstagramIntegrationFormLayout = ({
             variant="ghost"
             onClick={resetForm}
           >
-            Cancel
+            {t('cancel')}
           </Button>
         </Sheet.Close>
         {actions}
@@ -93,6 +95,7 @@ export const InstagramIntegrationFormLayout = ({
 };
 
 export const InstagramIntegrationFormSteps = ({
+  title,
   step,
   description,
 }: {
@@ -103,7 +106,7 @@ export const InstagramIntegrationFormSteps = ({
   return (
     <IntegrationSteps
       step={step}
-      title="Connect accounts"
+      title={title}
       stepsLength={3}
       description={description}
     />

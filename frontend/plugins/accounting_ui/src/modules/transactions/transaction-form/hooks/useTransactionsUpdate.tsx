@@ -1,13 +1,16 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_UPDATE } from '../graphql/mutations/accTransactionsUpdate';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   TRANSACTIONS_QUERY,
   TR_RECORDS_QUERY,
 } from '../../graphql/transactionQueries';
-import { TRANSACTIONS_DETAIL_QUERY } from '../graphql/queries/accTransactionsDetail';
+import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
 export const useTransactionsUpdate = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
+  const variables = useTransactionsVariables();
   const [_updateTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_UPDATE,
     options,
@@ -18,7 +21,7 @@ export const useTransactionsUpdate = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,23 +29,20 @@ export const useTransactionsUpdate = (options?: OperationVariables) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Transactions updated successfully',
+          title: t('success'),
+          description: t('transactions-updated-successfully'),
         });
         options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
           query: TRANSACTIONS_QUERY,
-          variables: {
-            page: 1,
-            perPage: 20,
-          },
+          variables,
         },
         {
           query: TR_RECORDS_QUERY,
+          variables,
         },
-        TRANSACTIONS_DETAIL_QUERY,
       ],
       awaitRefetchQueries: true,
     });

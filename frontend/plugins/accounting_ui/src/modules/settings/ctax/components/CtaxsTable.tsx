@@ -1,116 +1,69 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useCtaxRows } from '../hooks/useCtaxRows';
-import { ctaxRowDetailAtom } from '../states/ctaxRowStates';
-import { ICtaxRow } from '../types/CtaxRow';
+import {
+  MoreActionsCell,
+  SettingsRowsTable,
+  getSharedRowColumns,
+  moreColumn,
+} from '~/modules/settings/components/SettingsRowsTable';
+import { useConfirm, useQueryState } from 'erxes-ui';
+
 import { CtaxRowsCommandbar } from './CtaxRowsCommandbar';
-
-export const CtaxRowsTable = () => {
-  const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
-
-  return (
-    <RecordTable.Provider columns={ctaxRowsColumns} data={ctaxRows || []}>
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.RowList />
-            {!loading && (totalCount ?? 0) > (ctaxRows?.length ?? 0) && (
-              <RecordTable.RowSkeleton
-                rows={4}
-                handleInView={handleFetchMore}
-              />
-            )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-      <CtaxRowsCommandbar />
-    </RecordTable.Provider>
-  );
-};
-
-export const CtaxRowMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<ICtaxRow, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('ctax_row_id');
-  const setCtaxRowDetail = useSetAtom(ctaxRowDetailAtom);
-  return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setCtaxRowDetail(cell.row.original);
-        setOpen(cell.row.original._id);
-      }}
-    />
-  );
-};
-
-export const ctaxRowMoreColumn = {
-  id: 'more',
-  cell: CtaxRowMoreColumnCell,
-  size: 33,
-};
-
-export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
-  ctaxRowMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ICtaxRow>,
-  {
-    id: 'number',
-    accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Дугаар" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
-    size: 250,
-  },
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Нэр" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
-    size: 250,
-  },
-  {
-    id: 'kind',
-    accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Төрөл" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
-  },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Төлөв" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
-  },
-  {
-    id: 'percent',
-    accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Хувь" />,
-    cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>;
-    },
-  },
-];
+import { ICtaxRow } from '../types/CtaxRow';
+import { useCtaxRows } from '../hooks/useCtaxRows';
+import { useCtaxRowsRemove } from '../hooks/useCtaxRowsRemove';
+import { useTranslation } from 'react-i18next';
 
 export const CtaxMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<ICtaxRow, unknown>;
 }) => {
-  return <RecordTable.MoreButton />;
+  const { t } = useTranslation('accounting');
+  const [, setOpen] = useQueryState('ctax_row_id');
+  const { confirm } = useConfirm();
+  const { removeCtaxRows } = useCtaxRowsRemove();
+
+  const handleEdit = () => {
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: t('are-you-sure-delete-this-account'),
+      options: {
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+      },
+    }).then(() => {
+      removeCtaxRows({
+        variables: { ctaxRowIds: [cell.row.original._id] },
+      });
+    });
+
+  return <MoreActionsCell onEdit={handleEdit} onDelete={handleDelete} />;
 };
 
-export const ctaxMoreColumn = {
-  id: 'more',
+export const ctaxRowMoreColumn = {
+  ...moreColumn,
   cell: CtaxMoreColumnCell,
-  size: 33,
+};
+
+export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = getSharedRowColumns(
+  ctaxRowMoreColumn as ColumnDef<ICtaxRow>,
+);
+
+export const CtaxRowsTable = () => {
+  const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
+
+  return (
+    <SettingsRowsTable
+      columns={ctaxRowsColumns}
+      data={ctaxRows || []}
+      loading={loading}
+      totalCount={totalCount}
+      handleFetchMore={handleFetchMore}
+      Commandbar={CtaxRowsCommandbar}
+      tableId="accounting_ctax_rows_record_table"
+    />
+  );
 };

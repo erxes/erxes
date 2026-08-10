@@ -1,3 +1,4 @@
+// lottery.ts (queries)
 import { ILotteryDocument, ILotteryParams } from '@/lottery/@types/lottery';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -38,8 +39,9 @@ export const lotteryQueries = {
   async lotteries(
     _root: undefined,
     params: ILotteryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryView');
     const filter: FilterQuery<ILotteryDocument> = generateFilter(params);
 
     return cursorPaginate({
@@ -52,8 +54,9 @@ export const lotteryQueries = {
   async lotteriesMain(
     _root: undefined,
     params: ILotteryMainParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryView');
     const {
       page = 1,
       perPage = 20,

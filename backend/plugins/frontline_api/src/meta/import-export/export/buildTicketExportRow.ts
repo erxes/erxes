@@ -66,10 +66,23 @@ export const buildTicketExportRow = (
     updatedAt: formatValue(ticket.updatedAt ? new Date(ticket.updatedAt) : ''),
   };
 
+  if (ticket.propertiesData && typeof ticket.propertiesData === 'object') {
+    for (const [fieldId, value] of Object.entries(ticket.propertiesData)) {
+      if (value !== undefined && value !== null) {
+        allFields[`propertiesData.${fieldId}`] = formatValue(value);
+      }
+    }
+  }
+
   if (selectedFields?.length) {
     const result: Record<string, any> = { _id: String(ticket._id || '') };
     for (const key of selectedFields) {
-      result[key] = allFields[key] ?? '';
+      if (key.startsWith('propertiesData.')) {
+        const fieldId = key.replace('propertiesData.', '');
+        result[key] = formatValue(ticket.propertiesData?.[fieldId]);
+      } else {
+        result[key] = allFields[key] ?? '';
+      }
     }
     return result;
   }

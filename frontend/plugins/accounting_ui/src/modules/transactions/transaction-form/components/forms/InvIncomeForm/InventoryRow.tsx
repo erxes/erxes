@@ -13,17 +13,24 @@ import {
   Table,
 } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo, useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { type Path, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import { useGetAccLastIncomePrice } from '../../../hooks/useGetInvCostInfo';
 import {
   showAdvancedViewState,
   taxPercentsState,
 } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
+  TAddTransactionGroup,
+  TInvDetail,
   TInvIncomeJournal,
 } from '../../../types/JournalForms';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  hasDuplicateProductId,
+} from '../../utils';
 
 export const InventoryRow = ({
   detailIndex,
@@ -64,20 +71,42 @@ export const InventoryRow = ({
     detail.excludeCtax,
   ]);
 
-  const [taxAmounts, setTaxAmounts] = useState({
-    unitPriceWithTax: ((detail.unitPrice ?? 0) / 100) * (100 + rowPercent),
-    amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
-  });
-
   const { unitPrice, count, _id } = detail;
+  const initProductId = useRef(detail.productId);
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
-  const getFieldName = (name: string) => {
-    return `trDocs.${journalIndex}.details.${detailIndex}.${name}`;
+  const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
+    const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
+
+    return {
+      unitPriceWithTax,
+      amountWithTax: unitPriceWithTax * (pCount ?? 0),
+    };
+  };
+
+  const [taxAmounts, setTaxAmounts] = useState(
+    calcTaxAmounts(count, unitPrice),
+  );
+
+  useEffect(() => {
+    if (!(trDoc.hasVat || trDoc.hasCtax)) {
+      return;
+    }
+
+    setTaxAmounts(calcTaxAmounts(count, unitPrice));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
+
+  const getFieldName = (name: keyof TInvDetail): Path<TAddTransactionGroup> => {
+    return `trDocs.${journalIndex}.details.${detailIndex}.${name}` as Path<TAddTransactionGroup>;
   };
 
   const handleAmountChange = (value: number) => {
     const newUnitPrice = count ? value / count : 0;
-    form.setValue(getFieldName('unitPrice') as any, newUnitPrice);
+    form.setValue(getFieldName('unitPrice'), newUnitPrice);
     if (trDoc.hasVat || trDoc.hasCtax) {
       setTaxAmounts({
         unitPriceWithTax: (newUnitPrice / 100) * (100 + rowPercent),
@@ -88,7 +117,7 @@ export const InventoryRow = ({
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
-    form.setValue(getFieldName('amount') as any, newAmount);
+    form.setValue(getFieldName('amount'), newAmount);
 
     if (trDoc.hasVat || trDoc.hasCtax) {
       setTaxAmounts({
@@ -97,6 +126,26 @@ export const InventoryRow = ({
       });
     }
   };
+
+  const { lastIncomePriceInfo, loading: loadingLastIncomePrice } =
+    useGetAccLastIncomePrice({
+      variables: {
+        productIds: [detail.productId],
+      },
+      skip:
+        !detail.productId ||
+        (initProductId.current && detail.productId === initProductId.current),
+    });
+
+  useEffect(() => {
+    if (loadingLastIncomePrice || !lastIncomePriceInfo || !detail.productId) {
+      return;
+    }
+
+    const nextUnitPrice = lastIncomePriceInfo[detail.productId] ?? 0;
+    calcAmount(count ?? 0, nextUnitPrice);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+  }, [detail.productId, loadingLastIncomePrice]);
 
   const handleCountChange = (
     value: number,
@@ -121,7 +170,7 @@ export const InventoryRow = ({
     setTaxAmounts({ unitPriceWithTax, amountWithTax });
 
     form.setValue(
-      getFieldName('unitPrice') as any,
+      getFieldName('unitPrice'),
       (unitPriceWithTax / (100 + rowPercent)) * 100,
     );
   };
@@ -204,7 +253,10 @@ export const InventoryRow = ({
                 onValueChange={(accountId) => {
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -217,7 +269,9 @@ export const InventoryRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}

@@ -1,7 +1,10 @@
 import { ITaskDocument } from '@/task/@types/task';
 import { ITeamDocument, ITeamMemberDocument } from '@/team/@types/team';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
+import {
+  createGenerateModels,
+  ScopedEventHandlers,
+} from 'erxes-api-shared/utils';
 
 import mongoose from 'mongoose';
 
@@ -33,7 +36,20 @@ import { IMilestoneDocument } from '@/milestone/types';
 import { ITriageModel, loadTriageClass } from '@/task/db/models/Triage';
 import { ITriageDocument } from './modules/task/@types/triage';
 import { IOperationTemplateDocument } from '@/template/@types/template';
-import { IOperationTemplateModel, loadTemplateClass } from '@/template/db/models/Template';
+import {
+  IOperationTemplateModel,
+  loadTemplateClass,
+} from '@/template/db/models/Template';
+import {
+  IGithubConfigModel,
+  loadGithubConfigClass,
+} from '@/githubIntegration/db/models/GithubConfig';
+import { IGithubConfigDocument } from './modules/githubIntegration/@types/githubConfig';
+import {
+  IGithubConnectionModel,
+  loadGithubConnectionClass,
+} from './modules/githubIntegration/db/models/GithubConnection';
+import { IGithubConnectionDocument } from './modules/githubIntegration/@types/githubConnection';
 
 export interface IModels {
   Task: ITaskModel;
@@ -47,6 +63,8 @@ export interface IModels {
   Milestone: IMilestoneModel;
   Triage: ITriageModel;
   OperationTemplate: IOperationTemplateModel;
+  GithubConfig: IGithubConfigModel;
+  GithubConnection: IGithubConnectionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -57,12 +75,15 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
 
+  const operationEventHandlers = eventHandlers('operation');
+
   models.Task = db.model<ITaskDocument, ITaskModel>(
     'operation_tasks',
-    loadTaskClass(models),
+    loadTaskClass(models, operationEventHandlers('task', 'tasks')),
   );
 
   models.Team = db.model<ITeamDocument, ITeamModel>(
@@ -82,7 +103,11 @@ export const loadClasses = (
 
   models.Project = db.model<IProjectDocument, IProjectModel>(
     'operation_projects',
-    loadProjectClass(models, subdomain),
+    loadProjectClass(
+      models,
+      subdomain,
+      operationEventHandlers('project', 'projects'),
+    ),
   );
 
   models.Note = db.model<INoteDocument, INoteModel>(
@@ -110,10 +135,20 @@ export const loadClasses = (
     loadTriageClass(models),
   );
 
-  models.OperationTemplate = db.model<IOperationTemplateDocument, IOperationTemplateModel>(
-    'operation_templates',
-    loadTemplateClass(models),
+  models.OperationTemplate = db.model<
+    IOperationTemplateDocument,
+    IOperationTemplateModel
+  >('operation_templates', loadTemplateClass(models));
+
+  models.GithubConfig = db.model<IGithubConfigDocument, IGithubConfigModel>(
+    'operation_github_configs',
+    loadGithubConfigClass(models),
   );
+
+  models.GithubConnection = db.model<
+    IGithubConnectionDocument,
+    IGithubConnectionModel
+  >('operation_github_connections', loadGithubConnectionClass(models));
 
   return models;
 };

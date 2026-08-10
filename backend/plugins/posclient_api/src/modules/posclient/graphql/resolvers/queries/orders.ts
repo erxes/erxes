@@ -128,7 +128,7 @@ const generateFilter = (config: IConfig, params: ISearchParams) => {
   return { $and: [{ ...mustFilter }, { ...filter }] };
 };
 
-const filterOrders = (params: ISearchParams, models, config) => {
+export const filterOrders = (params: ISearchParams, models, config) => {
   const filter = generateFilter(config, params);
   const { sortField, sortDirection, page, perPage } = params;
   const sort: { [key: string]: any } = {};
@@ -162,10 +162,8 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
   async cpCurrentOrder(
     _root,
     params: ISearchParams,
-    { models, config, posUser }: IContext,
+    { models, config }: IContext,
   ) {
-    assertPosUser(posUser);
-
     return filterOrders(params, models, config);
   },
 
@@ -435,7 +433,7 @@ orderQueries.cpAddresses.wrapperConfig = {
   forClientPortal: true,
 };
 orderQueries.cpCurrentOrder.wrapperConfig = {
-  forClientPortal: true,
+  skipPermission: true,
 };
 orderQueries.cpFullOrders.wrapperConfig = {
   forClientPortal: true,

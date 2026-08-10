@@ -1,8 +1,10 @@
 import { IChannel } from '@/channels/types';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const MemberSection = ({ channel }: { channel: IChannel }) => {
+  const { t } = useTranslation('frontline');
   const navigate = useNavigate();
 
   return (
@@ -14,12 +16,11 @@ export const MemberSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage channel members</p>
+          <p>{t('manage-channel-members')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {channel.memberCount}{' '}
-              {channel.memberCount === 1 ? 'member' : 'members'}
+              {t('member', { count: channel.memberCount })}
             </p>
             <IconChevronRight className="w-4 h-4" />
           </div>

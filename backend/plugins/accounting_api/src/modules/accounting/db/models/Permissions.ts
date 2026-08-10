@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { permissionSchema } from '../definitions/permission';
+import { accountPermissionSchema as permissionSchema } from '../definitions/permission';
 import { IPermission, IPermissionDocument } from '../../@types/permission';
 
 export interface IPermissionModel extends Model<IPermissionDocument> {

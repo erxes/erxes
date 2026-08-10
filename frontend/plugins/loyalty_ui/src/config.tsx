@@ -3,6 +3,7 @@ import { IUIConfig } from 'erxes-ui';
 import { LoyaltySettingsNavigation } from './LoyaltySettingsNavigation';
 import { Suspense } from 'react';
 import { MainNavigation } from './modules/navigation/MainNavigation';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 export const CONFIG: IUIConfig = {
   name: 'loyalty',
@@ -14,6 +15,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'loyalty',
+    defaultPath: 'loyalty/vouchers',
     icon: IconAward,
     content: () => (
       <Suspense fallback={<div />}>
@@ -31,6 +33,16 @@ export const CONFIG: IUIConfig = {
       name: 'loyalty',
       icon: IconAward,
       path: 'loyalty',
+      hasAutomation: true,
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'loyalty',
+        icon: IconAward,
+      },
+    ],
+  },
+  searchProviders: SEARCH_PROVIDERS,
 };

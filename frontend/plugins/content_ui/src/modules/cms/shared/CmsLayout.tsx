@@ -1,5 +1,6 @@
 import { Button, Breadcrumb, Sidebar, Separator } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import {
   IconFileText,
   IconPlus,
@@ -9,6 +10,7 @@ import {
   IconLayout,
   IconMenu,
   IconAlignJustified,
+  IconSettings,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { ReactNode, useEffect } from 'react';
@@ -36,6 +38,7 @@ export function CmsLayout({
   breadcrumbItems,
   headerActions,
 }: CmsLayoutProps) {
+  const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const location = useLocation();
 
@@ -72,38 +75,38 @@ export function CmsLayout({
   const navigationItems = [
     {
       id: 'posts',
-      label: 'Posts',
+      label: t('posts'),
       icon: <IconFileText className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/posts` : '/content/cms',
     },
     {
       id: 'pages',
-      label: 'Pages',
+      label: t('pages'),
       icon: <IconFile className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/pages` : '/content/cms',
     },
     {
       id: 'categories',
-      label: 'Categories',
+      label: t('categories'),
       icon: <IconFolder className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/categories` : '/content/cms',
     },
     {
       id: 'tags',
-      label: 'Tags',
+      label: t('tags'),
       icon: <IconTag className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/tags` : '/content/cms',
     },
 
     {
       id: 'menus',
-      label: 'Menus',
+      label: t('menus'),
       icon: <IconMenu className="w-4 h-4" />,
       href: websiteId ? `/content/cms/${websiteId}/menus` : '/content/cms',
     },
     {
       id: 'custom-fields',
-      label: 'Custom Fields',
+      label: t('custom-fields'),
       icon: <IconAlignJustified className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-fields`
@@ -111,10 +114,18 @@ export function CmsLayout({
     },
     {
       id: 'custom-types',
-      label: 'Custom Post Types',
+      label: t('custom-post-types'),
       icon: <IconLayout className="w-4 h-4" />,
       href: websiteId
         ? `/content/cms/${websiteId}/custom-types`
+        : '/content/cms',
+    },
+    {
+      id: 'settings',
+      label: t('settings'),
+      icon: <IconSettings className="w-4 h-4" />,
+      href: websiteId
+        ? `/content/cms/${websiteId}/cmssettings`
         : '/content/cms',
     },
   ];
@@ -127,6 +138,18 @@ export function CmsLayout({
   };
 
   const currentActiveNav = activeNav || getCurrentActiveNav();
+  const currentNavLabel =
+    navigationItems.find((item) => item.id === currentActiveNav)?.label ||
+    t('posts');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    ...(breadcrumbItems
+      ? breadcrumbItems.map((item) => item.label)
+      : [
+          t('cms'),
+          websiteId && (websiteName || t('website')),
+          currentNavLabel,
+        ]),
+  );
 
   return (
     <div className="flex h-full">
@@ -162,7 +185,7 @@ export function CmsLayout({
                       <Button variant="ghost" asChild>
                         <Link to="/content/cms">
                           <IconFileText />
-                          CMS
+                          {t('cms')}
                         </Link>
                       </Button>
                     </Breadcrumb.Item>
@@ -172,7 +195,7 @@ export function CmsLayout({
                         <Breadcrumb.Item>
                           <Button variant="ghost" asChild>
                             <Link to="/content/cms">
-                              {websiteName || 'Website'}
+                              {websiteName || t('website')}
                             </Link>
                           </Button>
                         </Breadcrumb.Item>
@@ -181,7 +204,7 @@ export function CmsLayout({
                           <Button variant="ghost">
                             {navigationItems.find(
                               (item) => item.id === currentActiveNav,
-                            )?.label || 'Posts'}
+                            )?.label || t('posts')}
                           </Button>
                         </Breadcrumb.Item>
                       </>
@@ -191,7 +214,10 @@ export function CmsLayout({
               </Breadcrumb.List>
             </Breadcrumb>
             <Separator.Inline />
-            <PageHeader.FavoriteToggleButton />
+            <PageHeader.FavoriteToggleButton
+              breadcrumb={favoriteBreadcrumb}
+              icon="IconBooks"
+            />
           </PageHeader.Start>
           <PageHeader.End>
             {headerActions || (
@@ -199,7 +225,7 @@ export function CmsLayout({
                 <Button asChild>
                   <Link to={`/content/cms/${websiteId || ''}/posts/add`}>
                     <IconPlus className="mr-2 h-4 w-4" />
-                    Create Post
+                    {t('create-post')}
                   </Link>
                 </Button>
               </div>
@@ -211,7 +237,9 @@ export function CmsLayout({
           {showSidebar && (
             <Sidebar collapsible="none" className="border-r flex-none">
               <Sidebar.Group>
-                <Sidebar.GroupLabel>Content Management</Sidebar.GroupLabel>
+                <Sidebar.GroupLabel>
+                  {t('content-management')}
+                </Sidebar.GroupLabel>
                 <Sidebar.GroupContent>
                   {navigationItems.map((item) => (
                     <Sidebar.Menu key={item.id}>

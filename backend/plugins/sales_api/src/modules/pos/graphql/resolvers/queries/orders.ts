@@ -1,5 +1,6 @@
 import { SUBSCRIPTION_INFO_STATUS } from '@/pos/db/definitions/constants';
 import {
+  cursorPaginate,
   escapeRegExp,
   getPureDate,
   getToday,
@@ -49,7 +50,12 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     excludeStatuses,
     hasPaidDate,
     brandId,
+    dealId,
   } = params;
+
+  if (dealId) {
+    query.convertDealId = dealId;
+  }
 
   if (search) {
     query.$or = [
@@ -132,7 +138,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     query.paidDate = { $exists: true };
   }
 
-  if (paidDate === 'today' || !Object.keys(query).length) {
+  if (paidDate === 'today') {
     const now = new Date();
 
     const startDate = getToday(now);
@@ -219,7 +225,7 @@ export const posOrderRecordsQuery = async (
     pluginName: 'core',
     module: 'departments',
     action: 'find',
-    input: { _id: { $in: departmentIds } },
+    input: { query: { _id: { $in: departmentIds } } },
   });
 
   const departmentById = {};
@@ -287,7 +293,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
 
@@ -304,7 +310,7 @@ export const posOrderRecordsQuery = async (
       pluginName: 'core',
       module: 'companies',
       action: 'find',
-      input: { _id: { $in: companyIds } },
+      input: { query: { _id: { $in: companyIds } } },
       defaultValue: [],
     });
 
@@ -416,11 +422,15 @@ export const posOrderRecordsCountQuery = async (
 };
 
 const queries = {
-  posOrders: async (_root, params, { models, user, checkPermission }: IContext) => {
+  posOrders: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
-    let sort: any = { number: 1 };
+    let sort: any = { number: -1 };
     if (params.sortField && params.sortDirection) {
       sort = {
         [params.sortField]: params.sortDirection,
@@ -433,13 +443,21 @@ const queries = {
     });
   },
 
-  posOrdersTotalCount: async (_root, params, { models, user, checkPermission }: IContext) => {
+  posOrdersTotalCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
     return models.PosOrders.find(query).countDocuments();
   },
 
-  posOrderDetail: async (_root, { _id }, { models, subdomain, checkPermission }: IContext) => {
+  posOrderDetail: async (
+    _root,
+    { _id },
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
@@ -470,13 +488,58 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = productById[item.productId]?.name || 'unknown';
+      const product = productById[item.productId];
+      item.productName = product
+        ? [product.code, product.name].filter(Boolean).join(' - ')
+        : 'unknown';
     }
 
     return orderDetail;
   },
 
-  posOrdersSummary: async (_root, params, { models, user, checkPermission }: IContext) => {
+  posOrderLink: async (
+    _root,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    if (!_id) {
+      return null;
+    }
+
+    const order = await models.PosOrders.findOne({ _id }).lean();
+
+    if (!order) {
+      return null;
+    }
+
+    const pos = order.posToken
+      ? await models.Pos.findOne({ token: order.posToken }).select('_id').lean()
+      : null;
+    const posId = order.posId || pos?._id;
+
+    if (!posId || !order.number) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:order',
+      contentId: order._id,
+      orderId: order._id,
+      posId,
+      number: order.number,
+      href: `/sales/pos/${posId}/orders?number=${encodeURIComponent(
+        order.number,
+      )}`,
+    };
+  },
+
+  posOrdersSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
@@ -556,7 +619,11 @@ const queries = {
     return ordersAmount;
   },
 
-  posOrdersGroupSummary: async (_root, params, { models, user, checkPermission}: IContext) => {
+  posOrdersGroupSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(
       models,
@@ -685,8 +752,12 @@ const queries = {
     return { amounts, columns };
   },
 
-  posProducts: async (_root, params, { models, user, subdomain, checkPermission }: IContext) => {
-    await checkPermission('posOrderRead'); 
+  posProducts: async (
+    _root,
+    params,
+    { models, user, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const orderQuery = await generateFilterPosQuery(models, params, user._id);
 
     const page = Math.max(1, Number(params.page) || 1);
@@ -704,11 +775,20 @@ const queries = {
         module: 'productCategories',
         action: 'findOne',
         input: {
-          _id: params.categoryId,
-          status: { $in: [null, 'active'] },
+          query: {
+            _id: params.categoryId,
+            status: { $in: [null, 'active'] },
+          },
         },
         defaultValue: {},
       });
+
+      if (!category?.order) {
+        return {
+          totalCount: 0,
+          products: [],
+        };
+      }
 
       const productCategories = await sendTRPCMessage({
         subdomain,
@@ -717,6 +797,7 @@ const queries = {
         module: 'productCategories',
         action: 'find',
         input: {
+          query: {},
           regData: category.order,
         },
         defaultValue: [],
@@ -811,10 +892,32 @@ const queries = {
       (p) => !(p.status === 'deleted' && !p.count && !p.amount),
     );
 
-    const totalCount = filteredProducts.length;
+    // ❗ STEP 5: filter out products with zero sales when user-applied filters are active
+    // (posId/posToken are contextual scope, not user-applied filters)
+    const hasOrderFilter =
+      params.search ||
+      params.paidStartDate ||
+      params.paidEndDate ||
+      params.createdStartDate ||
+      params.createdEndDate ||
+      params.paidDate ||
+      params.userId ||
+      params.customerId ||
+      params.customerType ||
+      params.types?.length ||
+      params.statuses?.length ||
+      params.excludeStatuses?.length ||
+      params.hasPaidDate !== undefined ||
+      params.brandId;
 
-    // ❗ STEP 5: apply pagination LAST (correct place)
-    const paginatedProducts = filteredProducts.slice(skip, skip + limit);
+    const resultProducts = hasOrderFilter
+      ? filteredProducts.filter((p) => p.count > 0 || p.amount > 0)
+      : filteredProducts;
+
+    const totalCount = resultProducts.length;
+
+    // ❗ STEP 6: apply pagination LAST
+    const paginatedProducts = resultProducts.slice(skip, skip + limit);
 
     return {
       totalCount,
@@ -827,16 +930,24 @@ const queries = {
     params,
     { models, user, subdomain, checkPermission }: IContext,
   ) => {
-    await checkPermission('posOrderRead');  
+    await checkPermission('posOrderRead');
     return posOrderRecordsQuery(models, subdomain, params, user);
   },
 
-  posOrderRecordsCount: async (_root, params, { models, user, checkPermission }: IContext) => {
-    await checkPermission('posOrderRead'); 
+  posOrderRecordsCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     return posOrderRecordsCountQuery(models, params, user);
   },
 
-  posOrderCustomers: async (_root, params, { models, checkPermission }: IContext) => {
+  posOrderCustomers: async (
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) => {
     await checkPermission('posOrderRead');
     return paginate(
       models.PosOrders.aggregate([
@@ -869,9 +980,9 @@ const queries = {
   posOrderCustomersTotalCount: async (
     _root,
     params,
-    { subdomain, models, checkPermission}: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
-    await checkPermission('posOrderRead');    
+    await checkPermission('posOrderRead');
     const [{ totalDocuments }] = await models.PosOrders.aggregate([
       {
         $group: {
@@ -921,7 +1032,7 @@ const queries = {
     { page, perPage, ...params },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('posOrderRead'); 
+    await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
     const _page = Number(page || '1');
@@ -961,7 +1072,11 @@ const queries = {
       .limit(_limit);
   },
 
-  async posOrderBySubscriptionsTotalCount(_root, params, { models, checkPermission }: IContext) {
+  async posOrderBySubscriptionsTotalCount(
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
@@ -980,6 +1095,28 @@ const queries = {
     ]);
 
     return result?.totalCount || 0;
+  },
+
+  posOrdersList: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+    const query = await generateFilterPosQuery(models, params, user._id);
+
+    const orderBy = params.orderBy || { number: -1 };
+
+    const { list, totalCount, pageInfo } = await cursorPaginate({
+      model: models.PosOrders,
+      params: {
+        orderBy,
+        ...params,
+      },
+      query,
+    });
+
+    return { list, totalCount, pageInfo };
   },
 };
 

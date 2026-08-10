@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, cn, Empty, Skeleton } from 'erxes-ui';
@@ -81,9 +82,12 @@ export function FrontlineCardRoot({
     >
       <Card
         ref={setNodeRef}
-        style={style}
+        style={{
+          ...style,
+          boxShadow: 'var(--shadow-card)',
+        }}
         className={cn(
-          'w-full border-none h-full bg-sidebar p-3 flex flex-col',
+          'w-full h-full bg-card border rounded-xl p-5 flex flex-col',
           colSpan === 6 ? 'col-span-6' : 'col-span-12',
           isDragging && 'opacity-50 shadow-lg',
           className,
@@ -96,6 +100,7 @@ export function FrontlineCardRoot({
 }
 
 export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
+  const { t } = useTranslation('frontline');
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
 
@@ -104,27 +109,30 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
   };
 
   return (
-    <Card.Header className="flex items-center justify-between flex-row overflow-x-hidden p-0 pb-2 flex-none">
-      <div className="flex items-center gap-2 flex-1">
+    <Card.Header className="flex items-center justify-between flex-row overflow-x-hidden p-0 pt-1 pb-3 flex-none">
+      {/* Accent bar + title — matches SectionCard style */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
         <button
           type="button"
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded"
+          className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded shrink-0"
           {...dragHandleProps}
         >
-          <IconGripVertical className="h-4 w-4 text-muted-foreground" />
+          <IconGripVertical className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
-        <Card.Title className="text-sm font-medium font-mono uppercase">
+        <div className="h-4 w-1 rounded-full bg-(--primary) shrink-0" />
+        <Card.Title className="text-sm font-semibold leading-tight truncate">
           {title}
         </Card.Title>
       </div>
-      <div className="flex items-center gap-2 [&_button]:h-7">
+
+      <div className="flex items-center gap-1 shrink-0 [&_button]:h-7">
         {filter}
         <button
           type="button"
           onClick={toggleColSpan}
           className="p-1 hover:bg-accent rounded"
           title={
-            colSpan === 6 ? 'Switch to half width' : 'Switch to full width'
+            colSpan === 6 ? t('expand-to-full-width') : t('collapse-to-half-width')
           }
         >
           {colSpan === 6 ? (
@@ -139,6 +147,7 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
 }
 
 export function FrontlineCardEmpty() {
+  const { t } = useTranslation('frontline');
   const { description } = useFrontlineCardContext();
   return (
     <Empty>
@@ -146,7 +155,7 @@ export function FrontlineCardEmpty() {
         <IconChartHistogram className="size-10" />
       </Empty.Media>
       <Empty.Header>
-        <Empty.Title>No data available</Empty.Title>
+        <Empty.Title>{t('no-data-available')}</Empty.Title>
         <Empty.Description>{description}</Empty.Description>
       </Empty.Header>
     </Empty>
@@ -158,14 +167,16 @@ type FrontlineCardContentProps = {
 
 export function FrontlineCardContent({ children }: FrontlineCardContentProps) {
   return (
-    <Card.Content className="rounded-md p-0 flex-1">{children}</Card.Content>
+    <Card.Content className="rounded-md p-0 flex-1 min-h-0 flex flex-col">
+      {children}
+    </Card.Content>
   );
 }
 
 export function FrontlineCardSkeleton() {
   return (
-    <Card.Content className="bg-background rounded-md p-0 flex-1">
-      <Skeleton className="w-full h-48" />
+    <Card.Content className="rounded-md p-0 flex-1">
+      <div className="rounded-lg bg-muted/30 animate-pulse w-full h-48" />
     </Card.Content>
   );
 }

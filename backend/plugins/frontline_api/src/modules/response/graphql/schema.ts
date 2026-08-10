@@ -16,6 +16,7 @@ input ResponseTemplatesFilter {
   content: String
   channelId: String
   files: [String]
+  searchValue: String
   ${GQL_CURSOR_PARAM_DEFS}
   }
   type ResponseTemplateList {

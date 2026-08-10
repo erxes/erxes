@@ -46,7 +46,7 @@ const queryArgs = `
   brandId: $brandId
 `;
 
-const POS_ORDERS_QUERY = gql`
+export const POS_ORDERS_QUERY = gql`
   query PosOrders(${queryParams}) {
     posOrders(${queryArgs}) {
       _id
@@ -55,6 +55,9 @@ const POS_ORDERS_QUERY = gql`
       cashAmount
       createdAt
       customerType
+      brokerId
+      brokerType
+      brokerName
       finalAmount
       items
       mobileAmount
@@ -66,6 +69,7 @@ const POS_ORDERS_QUERY = gql`
       status
       totalAmount
       type
+      description
       user {
         username
         status
@@ -74,7 +78,3 @@ const POS_ORDERS_QUERY = gql`
     posOrdersTotalCount(${queryArgs})
   }
 `;
-
-export default {
-  POS_ORDERS_QUERY,
-};

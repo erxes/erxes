@@ -125,7 +125,6 @@ export const useProductsVariables = (
       ? Number(sortDirection)
       : undefined;
 
-  console.log(minRemainder, 'rrrrrrrr');
   return {
     ...variables, // allow caller overrides first (cursor, etc.)
 

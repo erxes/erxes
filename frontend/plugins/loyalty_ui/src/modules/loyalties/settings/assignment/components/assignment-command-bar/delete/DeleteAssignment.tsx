@@ -1,6 +1,7 @@
 import { Button, useConfirm, useToast } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import { useDeleteAssignment } from '../../../hooks/useDeleteAssignment';
 
 export const DeleteAssignment = ({
@@ -8,6 +9,7 @@ export const DeleteAssignment = ({
 }: {
   assignmentIds: string[];
 }) => {
+  const { t } = useTranslation('loyalty');
   const { confirm } = useConfirm();
   const { removeAssignment } = useDeleteAssignment();
   const { toast } = useToast();
@@ -17,20 +19,20 @@ export const DeleteAssignment = ({
       className="text-destructive"
       onClick={() =>
         confirm({
-          message: `Are you sure you want to delete the ${assignmentIds.length} selected assignment(s)?`,
+          message: t('delete-assignment-confirm', { count: assignmentIds.length }),
         }).then(() => {
           removeAssignment({
             variables: { _ids: assignmentIds },
           })
             .then(() => {
               toast({
-                title: `${assignmentIds.length} assignment(s) deleted successfully`,
+                title: t('assignments-deleted', { count: assignmentIds.length }),
                 variant: 'success',
               });
             })
             .catch((e: ApolloError) => {
               toast({
-                title: 'Error',
+                title: t('error'),
                 description: e.message,
                 variant: 'destructive',
               });
@@ -39,7 +41,7 @@ export const DeleteAssignment = ({
       }
     >
       <IconTrash />
-      Delete
+      {t('delete')}
     </Button>
   );
 };

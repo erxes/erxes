@@ -12,7 +12,18 @@ export const EM_INTEGRATION_DETAIL_QUERY = gql`
         name
       }
       messengerData
-      ticketConfigId
+      ticketConfigIds
+      websiteMessengerApps {
+        _id
+        kind
+        showInInbox
+        credentials {
+          integrationId
+          description
+          buttonText
+          url
+        }
+      }
       callData {
         header
         description

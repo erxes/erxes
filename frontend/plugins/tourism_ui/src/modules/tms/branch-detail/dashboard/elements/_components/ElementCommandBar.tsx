@@ -9,9 +9,11 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useRemoveElements } from '../hooks/useRemoveElements';
 
 export const ElementCommandBar = () => {
+  const { t } = useTranslation('tourism');
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue: 'delete' };
@@ -23,21 +25,21 @@ export const ElementCommandBar = () => {
 
   const onRemove = () => {
     confirm({
-      message: `Are you sure you want to delete the ${selectedCount} selected elements?`,
+      message: t('confirm-delete-elements', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeElements(elementIds)
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: 'Success',
+            title: t('success'),
             variant: 'success',
-            description: 'Elements deleted successfully',
+            description: t('elements-deleted-successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: 'Error',
+            title: t('error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -48,7 +50,7 @@ export const ElementCommandBar = () => {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{selectedCount} selected</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -57,7 +59,7 @@ export const ElementCommandBar = () => {
           onClick={onRemove}
         >
           {loading ? <Spinner /> : <IconTrash />}
-          Delete
+          {t('delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

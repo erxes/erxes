@@ -1,18 +1,20 @@
 import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react';
 
 import { Button } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAttachmentContext } from './AttachmentContext';
 import { IAttachment } from '@/ticket/types/attachments';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 
 const FileAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
+  const { t } = useTranslation('frontline');
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
 
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        File Attachments
+        {t('file-attachments')}
       </h4>
       <div className="relative">
         <div className="overflow-x-auto flex gap-4">

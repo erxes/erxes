@@ -2,6 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { IAccountDocument } from '../../@types/account';
+import { ActivityLogInput } from 'erxes-api-shared/core-modules';
 
 const getAccountIdsOnTr = async (
   models: IModels,
@@ -150,4 +151,93 @@ export const setPtrStatus = async (
   }
 
   return resultStatus;
+};
+
+export const generateTrStatusActivityLog = (param: {
+  parentId: string;
+  userId: string;
+  status?: string;
+  mentionOwnerId?: string;
+  mentionUserIds?: string[];
+  oldStatus?: string;
+  oldMentionOwnerId?: string;
+  oldMentionUserIds?: string[];
+}): ActivityLogInput | undefined => {
+  const {
+    parentId,
+    userId,
+    status,
+    mentionOwnerId,
+    mentionUserIds = [],
+    oldStatus,
+    oldMentionOwnerId,
+    oldMentionUserIds = [],
+  } = param;
+
+  const isCreate = oldStatus === undefined;
+  const statusChanged = oldStatus !== undefined && oldStatus !== status;
+  const mentionOwnerChanged = oldMentionOwnerId !== mentionOwnerId;
+  const normalizeIds = (ids: string[] = []) =>
+    [...new Set(ids.filter(Boolean))];
+  const currentMentionUserIds = normalizeIds(mentionUserIds);
+  const previousMentionUserIds = normalizeIds(oldMentionUserIds);
+  const mentionUsersChanged =
+    JSON.stringify(currentMentionUserIds) !==
+    JSON.stringify(previousMentionUserIds);
+
+  if (
+    !isCreate &&
+    !statusChanged &&
+    !mentionOwnerChanged &&
+    !mentionUsersChanged
+  ) {
+    return;
+  }
+
+  let actionType = 'mention_changed';
+  let description = 'changed transaction mention';
+
+  if (isCreate) {
+    actionType = 'created';
+    description = `created transaction with ${status || 'unknown'} status`;
+  } else if (statusChanged) {
+    actionType = 'status_changed';
+    description = `changed transaction status from ${oldStatus || 'unknown'} to ${status || 'unknown'}`;
+  }
+
+  return {
+    activityType: `transaction.${actionType}`,
+    target: {
+      _id: parentId,
+      moduleName: 'accounting',
+      collectionName: 'transactions',
+      text: parentId,
+    },
+    action: {
+      type: actionType,
+      description,
+    },
+    changes: {
+      prev: {
+        status: oldStatus,
+        mentionOwnerId: oldMentionOwnerId,
+        mentionUserIds: previousMentionUserIds,
+      },
+      current: {
+        status,
+        mentionOwnerId,
+        mentionUserIds: currentMentionUserIds,
+      },
+    },
+    metadata: {
+      parentId,
+      userId,
+      status,
+      oldStatus,
+      mentionOwnerId,
+      mentionUserIds: currentMentionUserIds,
+      oldMentionOwnerId,
+      oldMentionUserIds: previousMentionUserIds,
+    },
+  };
 };

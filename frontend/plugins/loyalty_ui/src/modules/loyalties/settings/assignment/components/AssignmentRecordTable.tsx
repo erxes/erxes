@@ -1,22 +1,22 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { assignmentColumns } from './AssignmentColumns';
 import { AssignmentCommandBar } from './assignment-command-bar/AssignmentCommandBar';
 import { useAssignments } from '../hooks/useAssignments';
-import { useAssignmentStatusEdit } from '../hooks/useAssignmentStatusEdit';
 import { ASSIGNMENTS_CURSOR_SESSION_KEY } from '../constants/assignmentsCursorSessionKey';
 
 import { IconTicket } from '@tabler/icons-react';
 import { LoyaltyAssignmentAddSheet } from './AssignmentAddSheet';
 
 export const AssignmentRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { assignments, handleFetchMore, loading, pageInfo } = useAssignments();
-  const { editStatus } = useAssignmentStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={assignmentColumns(editStatus)}
+      columns={assignmentColumns(t)}
       data={assignments || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
@@ -50,10 +50,10 @@ export const AssignmentRecordTable = () => {
                     className="text-muted-foreground mx-auto mb-4"
                   />
                   <h3 className="text-xl font-semibold mb-2">
-                    No assignment yet
+                    {t('no-assignments-yet')}
                   </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first assignment.
+                    {t('get-started-assignment')}
                   </p>
                 </div>
                 <LoyaltyAssignmentAddSheet />

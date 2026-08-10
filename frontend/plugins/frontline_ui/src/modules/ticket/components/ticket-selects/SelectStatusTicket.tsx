@@ -8,7 +8,7 @@ import {
   useQueryState,
   useFilterContext,
 } from 'erxes-ui';
-import { addTicketSchema } from '@/ticket/types';
+import { useTranslation } from 'react-i18next';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
@@ -19,8 +19,7 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
-import { UseFormReturn, useWatch } from 'react-hook-form';
-import { z } from 'zod';
+import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
 
 interface SelectStatusContextType {
   value: string;
@@ -87,13 +86,14 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { value, statuses } = useSelectStatusContext();
   const selectedStatus = statuses?.find((status) => status.value === value);
 
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -136,13 +136,14 @@ const SelectStatusCommandItem = ({
 };
 
 const SelectStatusContent = () => {
+  const { t } = useTranslation('frontline');
   const { statuses, pipelineId } = useSelectStatusContext();
   return (
     <Command>
-      <Command.Input placeholder="Search status" />
+      <Command.Input placeholder={t('search-status')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {pipelineId ? 'No status found' : 'Pipeline not selected'}
+          {pipelineId ? t('no-status-found') : t('pipeline-not-selected')}
         </span>
       </Command.Empty>
       <Command.List>
@@ -235,6 +236,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 
@@ -249,7 +251,7 @@ export const SelectStatusTicketFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey="statusId">
-          <SelectStatusValue placeholder="Status" />
+          <SelectStatusValue placeholder={t('status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />
@@ -259,16 +261,24 @@ export const SelectStatusTicketFilterBar = ({
   );
 };
 
-export const SelectStatusTicketFormItem = ({
+export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
   value,
   onValueChange,
   form,
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
+  form?: UseFormReturn<TFieldValues>;
 }) => {
-  const pipelineId = useWatch({ name: 'pipelineId', control: form?.control });
+  // The caller must hand over its own control: this remote and `erxes-ui` hold
+  // separate react-hook-form instances, so `useFormContext` here cannot see the
+  // provider `erxes-ui`'s `Form` renders. The cast is the react-hook-form
+  // generic boundary — `Control<T>` is invariant across schemas.
+  const control = form?.control as Control<FieldValues> | undefined;
+  const pipelineId: string | undefined = useWatch({
+    name: 'pipelineId',
+    control,
+  });
   const { statuses } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,

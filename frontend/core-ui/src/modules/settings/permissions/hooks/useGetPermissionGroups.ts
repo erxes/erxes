@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   GET_PERMISSION_DEFAULT_GROUPS,
   GET_PERMISSION_GROUPS,
@@ -9,10 +9,14 @@ import {
   IPermissionGroup,
 } from '@/settings/permissions/types';
 
-export const useGetPermissionDefaultGroups = () => {
+export const useGetPermissionDefaultGroups = (
+  options?: QueryHookOptions<{
+    permissionDefaultGroups: IDefaultPermissionGroup[];
+  }>,
+) => {
   const { data, loading, error } = useQuery<{
     permissionDefaultGroups: IDefaultPermissionGroup[];
-  }>(GET_PERMISSION_DEFAULT_GROUPS);
+  }>(GET_PERMISSION_DEFAULT_GROUPS, options);
 
   return {
     defaultGroups: data?.permissionDefaultGroups || [],
@@ -21,10 +25,14 @@ export const useGetPermissionDefaultGroups = () => {
   };
 };
 
-export const useGetPermissionGroups = () => {
+export const useGetPermissionGroups = (
+  options?: QueryHookOptions<{
+    permissionGroups: IPermissionGroup[];
+  }>,
+) => {
   const { data, loading, error } = useQuery<{
     permissionGroups: IPermissionGroup[];
-  }>(GET_PERMISSION_GROUPS);
+  }>(GET_PERMISSION_GROUPS, options);
 
   return {
     permissionGroups: data?.permissionGroups || [],

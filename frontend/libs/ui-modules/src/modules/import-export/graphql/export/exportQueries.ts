@@ -27,8 +27,8 @@ export const GET_ACTIVE_EXPORTS = gql`
 `;
 
 export const GET_EXPORT_HEADERS = gql`
-  query GetExportHeaders($entityType: String!) {
-    exportHeaders(entityType: $entityType) {
+  query GetExportHeaders($entityType: String!, $filters: JSON) {
+    exportHeaders(entityType: $entityType, filters: $filters) {
       label
       key
       isDefault

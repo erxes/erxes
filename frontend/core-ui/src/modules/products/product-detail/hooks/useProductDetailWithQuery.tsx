@@ -9,7 +9,7 @@ export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
   const queryProductId = _id ?? undefined;
   const shouldSkip = !queryProductId || !!options?.skip;
 
-  const { productDetail, productId, loading, error } = useProductDetail({
+  const { productDetail, productId, loading, error, refetch } = useProductDetail({
     ...options,
     variables: {
       ...options?.variables,
@@ -28,5 +28,5 @@ export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
     }
   }, [error]);
 
-  return { productDetail, productId, loading, error };
+  return { productDetail, productId, loading, error, refetch };
 };

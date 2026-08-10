@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 const GET_PIPELINE_DETAIL = gql`
   query SalesPipelineDetail($_id: String!) {
@@ -14,7 +14,6 @@ const GET_PIPELINE_DETAIL = gql`
       excludeProductIds
       paymentIds
       paymentTypes
-      erxesAppToken
       visibility
       memberIds
       departmentIds
@@ -74,8 +73,4 @@ const GET_PIPELINES = gql`
   }
 `;
 
-export {
-  GET_PIPELINE_DETAIL,
-  GET_PIPELINES,
-}
-    
+export { GET_PIPELINE_DETAIL, GET_PIPELINES };

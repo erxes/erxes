@@ -1,4 +1,5 @@
 import { Sheet, Spinner } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { AutomationIgBotFormContent } from '~/widgets/automations/modules/instagram/components/bots/components/AutomationIgBotFormContent';
 import { useInstagramBotForm } from '~/widgets/automations/modules/instagram/components/bots/hooks/useInstagramBotForm';
 import { IgBotFormProvider } from '../context/IgBotFormContext';
@@ -8,6 +9,7 @@ export const AutomationBotForm = ({
 }: {
   instagramBotId: string | null;
 }) => {
+  const { t } = useTranslation('frontline');
   const { loadingDetail, instagramMessengerBot } =
     useInstagramBotForm(instagramBotId);
 
@@ -19,7 +21,7 @@ export const AutomationBotForm = ({
     <>
       <Sheet.Header>
         <Sheet.Title className="capitalize">
-          {instagramBotId ? 'Edit' : 'Add new'} instagram bot
+          {instagramBotId ? t('edit') : t('add-new')} {t('instagram-bot')}
         </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>

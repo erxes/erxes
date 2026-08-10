@@ -30,6 +30,7 @@ export const types = `
   input InvitationEntry {
     email: String
     password: String
+    permissionGroupIds: [String!]
   }
 
   enum UserChatStatus{
@@ -106,6 +107,7 @@ export const types = `
     branches: [Branch]
     positionIds: [String]
     positions: [Position]
+    unitId: String
     score: Float
     leaderBoardPosition: Int
     employeeId: String
@@ -144,6 +146,7 @@ const commonParams = `
   branchIds: [String]
   positionIds: [String]
   departmentIds: [String]
+  unitId: String
   propertiesData: JSON
   employeeId: String
   password: String

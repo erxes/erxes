@@ -67,8 +67,9 @@ const adjustInventoryQueries = {
   async adjustInventories(
     _root,
     params: IQueryParams,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
     const filter = await generateFilter(models, params, user);
 
     const { sortField, sortDirection, page, perPage } = params;

@@ -18,11 +18,32 @@ export type TAutomationManagePropertyOperator = {
 
 export type TAutomationManagePropertyRule = {
   field: string;
+  fieldLabel?: string;
   operator: string;
   value?: any;
+  fallbackValue?: string;
+  isExpression?: boolean;
+};
+
+export type TAutomationManagePropertyTarget = {
+  label?: string;
+  type?: string;
+  source?: 'target' | 'relation' | 'resolver' | 'targetField';
+  cardinality?: 'one' | 'many';
+  sourceType?: string;
+  relation?: {
+    contentType: string;
+    relatedContentType: string;
+  };
+  resolverKey?: string;
+  targetPath?: string;
+  pluginName?: string;
+  value?: string;
+  description?: string;
 };
 
 export type TAutomationManagePropertyConfig = {
   module?: string;
+  setPropertyTarget?: TAutomationManagePropertyTarget;
   rules: TAutomationManagePropertyRule[];
 };

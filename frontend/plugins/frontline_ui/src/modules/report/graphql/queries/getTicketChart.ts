@@ -23,6 +23,18 @@ export const GET_TICKET_TAGS = gql`
   }
 `;
 
+export const GET_TICKET_CUSTOM_PROPERTIES = gql`
+  query ReportTicketCustomProperties($filters: TicketReportFilter) {
+    reportTicketCustomProperties(filters: $filters) {
+      _id
+      name
+      group
+      count
+      percentage
+    }
+  }
+`;
+
 export const GET_TICKET_DATE = gql`
   query ReportTicketDate($filters: TicketReportFilter) {
     reportTicketDate(filters: $filters) {
@@ -48,6 +60,12 @@ export const GET_TICKET_LIST = gql`
         _id
         name
         statusId
+        status {
+          _id
+          name
+          color
+          type
+        }
         state
         priority
         assigneeId
@@ -73,8 +91,10 @@ export const GET_TICKET_TOTAL_COUNT = gql`
 export const GET_TICKET_STATUS_SUMMARY = gql`
   query ReportTicketStatusSummary($filters: TicketReportFilter) {
     reportTicketStatusSummary(filters: $filters) {
+      _id
       statusType
       name
+      group
       color
       count
       percentage

@@ -21,6 +21,7 @@ export const types = `
   input ColorDefinitionInput {
     DEFAULT: String
     foreground: String
+    navigationVariant: String
   }
   input MessengerColorThemeInput {
     primary: ColorDefinitionInput
@@ -40,6 +41,20 @@ export const types = `
     isReceiveWebCall: Boolean
   }
 
+  type MessengerAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  type MessengerApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: MessengerAppCredentials
+  }
+
   type Integration @key(fields: "_id") {
    _id: String!
     kind: String!
@@ -53,7 +68,7 @@ export const types = `
     brandId: String
     leadData: JSON
     messengerData: JSON
-    ticketConfigId: JSON
+    ticketConfigIds: [String]
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -62,6 +77,7 @@ export const types = `
 
     channel: Channel
 
+    websiteMessengerApps: [MessengerApp]
 
     healthStatus: JSON
     form : Form
@@ -93,11 +109,22 @@ export const types = `
     name: String
   }
 
+  # A used integration kind inside the caller's channels. The counts cover the
+  # conversations held by that kind's integrations across the matched channels;
+  # unreadConversationCount is per-viewer.
+  type integrationsGetUsedTypesByChannel {
+    _id: String
+    name: String
+    conversationCount: Int
+    unreadConversationCount: Int
+  }
+
   input BotPersistentMenuTypeMessenger {
     _id: String
     type: String
     text: String
     link: String
+    contentType: String
     isEditing: Boolean
   }
   input MessengerOnlineHoursSchema {
@@ -118,6 +145,21 @@ export const types = `
     url: String
   }
 
+  input WebsiteAppCredentials {
+    integrationId: String
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  input WebsiteApp {
+    _id: String
+    kind: String
+    showInInbox: Boolean
+    credentials: WebsiteAppCredentials
+    scopeBrandIds: [String]
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -126,6 +168,7 @@ export const types = `
     botShowInitialMessage: Boolean
     botCheck: Boolean
     botGreetMessage: String
+    automationId: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String
@@ -145,11 +188,16 @@ export const types = `
     forceLogoutWhenResolve: Boolean
     showVideoCallRequest: Boolean
     hideWhenOffline: Boolean
+    websiteApps: [WebsiteApp]
   }
 
   input MessengerUiOptions {
     logo: String
+    launcherLogo: String
     primary: ColorDefinitionInput
+    backgroundColor: String
+    heroStyleVariant: String
+    navigationVariant: String
   }
 
   input OperatorInput {
@@ -191,6 +239,7 @@ export const queries = `
 
   allLeadIntegrations: [Integration]
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
+  integrationsGetUsedTypesByChannel(channelId: String, scope: String): [integrationsGetUsedTypesByChannel]
   integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount(kind: String, tag: String, channelId: String!, status: String, formLoadType: String): integrationsTotalCount
@@ -250,7 +299,7 @@ export const mutations = `
 
   integrationsCreateExternalIntegration(
     kind: String!,
-    channelId: String!,
+    channelId: String,
     name: String!,
     accountId: String,
     brandId: String!,
@@ -278,7 +327,5 @@ export const mutations = `
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
 
-  integrationsSaveMessengerTicketData(
-    _id: String!,
-    configId: String!): Integration
+  integrationsSaveMessengerTicketData(_id: String!, configIds: [String]): Integration
 `;

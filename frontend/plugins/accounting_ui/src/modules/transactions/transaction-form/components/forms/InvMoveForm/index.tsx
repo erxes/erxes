@@ -50,7 +50,10 @@ export const InvMoveForm = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                  defaultFilter={{
+                    journals: [JournalEnum.INVENTORY],
+                    permissionMode: 'write',
+                  }}
                   onCallback={(account) => onChangeInAccount(account)}
                 />
               </Form.Control>

@@ -1,5 +1,13 @@
 import { Filter, PageSubHeader, useMultiQueryState } from 'erxes-ui';
-import { Export, Import, SelectBrands } from 'ui-modules';
+import {
+  Can,
+  Export,
+  Import,
+  SelectBranches,
+  SelectBrands,
+  SelectDepartments,
+  SelectUnit,
+} from 'ui-modules';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
@@ -14,7 +22,7 @@ export const TeamMemberFilterBar = () => {
     brandIds: string[];
   }>(['branchIds', 'departmentIds', 'unitId', 'isActive', 'brandIds']);
 
-  const { brandIds } = queries;
+  const { brandIds, branchIds, departmentIds } = queries;
 
   const variables = useTeamMemberVariables();
 
@@ -46,20 +54,42 @@ export const TeamMemberFilterBar = () => {
             />
           )}
 
+          {!!branchIds?.length && (
+            <SelectBranches.FilterBar
+              mode="multiple"
+              filterKey="branchIds"
+              label="Branches"
+            />
+          )}
+
+          {!!departmentIds?.length && (
+            <SelectDepartments.FilterBar
+              mode="multiple"
+              filterKey="departmentIds"
+              label="Departments"
+            />
+          )}
+
+          <SelectUnit.FilterBar />
+
           <TeamMemberCounts />
         </Filter.Bar>
       </Filter>
-      <Import
-        pluginName="core"
-        moduleName="organization"
-        collectionName="users"
-      />
-      <Export
-        pluginName="core"
-        moduleName="organization"
-        collectionName="users"
-        getFilters={getFilters}
-      />
+      <Can action="teamMembersImportManage">
+        <Import
+          pluginName="core"
+          moduleName="organization"
+          collectionName="users"
+        />
+      </Can>
+      <Can action="teamMembersExportManage">
+        <Export
+          pluginName="core"
+          moduleName="organization"
+          collectionName="users"
+          getFilters={getFilters}
+        />
+      </Can>
     </PageSubHeader>
   );
 };

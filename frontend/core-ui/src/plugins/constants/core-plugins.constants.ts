@@ -4,11 +4,9 @@ import {
   IconBrandDatabricks,
   IconBroadcast,
   IconBuilding,
-  IconCategory,
   IconChartPie,
   IconFile,
   IconMagnet,
-  IconShoppingCart,
   IconSpiral,
   IconUser,
 } from '@tabler/icons-react';
@@ -41,7 +39,7 @@ export const GET_CORE_MODULES = (
           icon: IconBuilding,
         },
         {
-          name: 'Client Portal Users',
+          name: t('client-portal-users'),
           path: 'contacts/client-portal-users',
           icon: IconUser,
         },
@@ -77,21 +75,19 @@ export const GET_CORE_MODULES = (
       icon: IconBroadcast,
       path: 'broadcasts',
     },
+    {
+      name: t('documents'),
+      icon: IconFile,
+      path: 'documents',
+    },
   ];
 
   if (version) {
-    MODULES?.push(
-      {
-        name: t('documents'),
-        icon: IconFile,
-        path: 'documents',
-      },
-      {
-        name: t('templates'),
-        icon: IconBrandDatabricks,
-        path: 'templates',
-      },
-    );
+    MODULES?.push({
+      name: t('templates'),
+      icon: IconBrandDatabricks,
+      path: 'templates',
+    });
   }
 
   return MODULES;

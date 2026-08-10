@@ -1,10 +1,13 @@
 import { useFormContext } from 'react-hook-form';
 import { Form, Input, Select, StringArrayInput, Textarea } from 'erxes-ui';
 import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
+import { OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS } from '../types';
 import { OAuthClientLogoUpload } from './OAuthClientLogoUpload';
 
 export const OAuthClientForm = () => {
   const form = useFormContext<TOAuthClientsForm>();
+  const clientType = form.watch('type');
+  const showAccessTokenLifetime = clientType === 'confidential';
 
   return (
     <div className="flex flex-col gap-3">
@@ -64,7 +67,27 @@ export const OAuthClientForm = () => {
         render={({ field }) => (
           <Form.Item>
             <Form.Label>Client type</Form.Label>
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+
+                if (value === 'public') {
+                  form.setValue('accessTokenLifetime', undefined, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  return;
+                }
+
+                if (!form.getValues('accessTokenLifetime')) {
+                  form.setValue('accessTokenLifetime', 'year', {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
+              }}
+            >
               <Form.Control>
                 <Select.Trigger>
                   <Select.Value placeholder="Choose a type" />
@@ -83,6 +106,36 @@ export const OAuthClientForm = () => {
           </Form.Item>
         )}
       />
+
+      {showAccessTokenLifetime && (
+        <Form.Field
+          control={form.control}
+          name="accessTokenLifetime"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Access token lifetime</Form.Label>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value placeholder="Choose a lifetime" />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  {OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS.map((option) => (
+                    <Select.Item key={option.value} value={option.value}>
+                      {option.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+              <Form.Description>
+                Choose how long issued access tokens stay valid.
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
 
       <Form.Field
         control={form.control}

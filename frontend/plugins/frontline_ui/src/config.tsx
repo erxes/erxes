@@ -1,6 +1,12 @@
-import { IconMail, IconStackFront, IconTicket, IconBook } from '@tabler/icons-react';
-import { IUIConfig } from 'erxes-ui';
+import {
+  IconMail,
+  IconStackFront,
+  IconTicket,
+  IconBook,
+} from '@tabler/icons-react';
+import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const FrontlineNavigation = lazy(() =>
   import('./modules/FrontlineNavigation').then((module) => ({
@@ -20,6 +26,20 @@ const FrontlineSettingsNavigation = lazy(() =>
   })),
 );
 
+const TicketStatusPropertyInput = lazy(() =>
+  import('./modules/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
+    (module) => ({
+      default: module.TicketStatusPropertyInput,
+    }),
+  ),
+);
+
+const FormSubmissionActivityRow = lazy(() =>
+  import('./widgets/activity/FormSubmissionActivityRow').then((module) => ({
+    default: module.FormSubmissionActivityRow,
+  })),
+);
+
 export const CONFIG: IUIConfig = {
   name: 'frontline',
   path: 'frontline',
@@ -31,6 +51,7 @@ export const CONFIG: IUIConfig = {
   ),
   navigationGroup: {
     name: 'frontline',
+    defaultPath: 'frontline/inbox',
     icon: IconStackFront,
     content: () => (
       <Suspense fallback={<div />}>
@@ -48,12 +69,28 @@ export const CONFIG: IUIConfig = {
       {
         name: 'conversation',
         icon: IconMail,
+        label: 'Conversations',
       },
       {
         name: 'ticket',
         icon: IconTicket,
+        label: 'Tickets',
       },
     ],
+    propertyInputs: {
+      ticketStatus: (props: TPropertyInputProps) => (
+        <Suspense fallback={<div />}>
+          <TicketStatusPropertyInput {...props} />
+        </Suspense>
+      ),
+    },
+    activityRows: {
+      formSubmission: (props: TActivityRowProps) => (
+        <Suspense fallback={<div />}>
+          <FormSubmissionActivityRow {...props} />
+        </Suspense>
+      ),
+    },
   },
   modules: [
     {
@@ -80,4 +117,5 @@ export const CONFIG: IUIConfig = {
       path: 'frontline/knowledgebase',
     },
   ],
+  searchProviders: SEARCH_PROVIDERS,
 };

@@ -1,6 +1,20 @@
 import { Schema } from 'mongoose';
 import { nanoid } from 'nanoid';
 
+// One uploaded file usually mixes three kinds of text: rules that shape how the
+// agent answers, examples it should imitate, and facts it may quote. Only the
+// last may ever reach retrieval, so the split is per section, not per file.
+export type TAiAgentFileSectionRole = 'behavior' | 'content' | 'example';
+
+export interface IAiAgentFileSection {
+  // Derived from the section's heading path, so it survives content edits.
+  key: string;
+  name: string;
+  role: TAiAgentFileSectionRole;
+  // Set once by the indexer; a human edit clears it and is never overwritten.
+  detected?: boolean;
+}
+
 export interface IAiAgentFile {
   id: string;
   key: string;
@@ -8,6 +22,13 @@ export interface IAiAgentFile {
   size?: number;
   type?: string;
   uploadedAt?: Date | string;
+  purpose?: 'core' | 'knowledge' | 'policy' | 'examples';
+  sections?: IAiAgentFileSection[];
+  status?: 'uploaded' | 'indexing' | 'indexed' | 'failed';
+  chunkCount?: number;
+  indexedAt?: Date | string;
+  contentHash?: string;
+  indexError?: string;
   versions?: IAiAgentFileVersion[];
 }
 
@@ -20,16 +41,69 @@ export interface IAiAgentFileVersion {
 }
 
 export interface IAiAgentConnectionConfig {
-  apiKey: string;
+  apiKey?: string;
   baseUrl?: string;
   headers?: Record<string, string>;
   [key: string]: any;
 }
 
-export interface IAiAgentConnection {
-  provider: string;
+export interface ICloudflareAiGatewayAgentConnection {
+  provider: 'cloudflare-ai-gateway';
+  model: string;
+  config: IAiAgentConnectionConfig & {
+    accountId?: string;
+    gatewayId?: string;
+    gatewayToken?: string;
+    mode?: 'compat' | 'openai-provider';
+  };
+}
+
+export interface IOpenAIAgentConnection {
+  provider: 'openai';
   model: string;
   config: IAiAgentConnectionConfig;
+}
+
+export interface IKimiAgentConnection {
+  provider: 'kimi';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
+export interface IKimiCodingAgentConnection {
+  provider: 'kimi-code';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
+export interface IGrokAgentConnection {
+  provider: 'grok';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
+export type IAiAgentConnection =
+  | ICloudflareAiGatewayAgentConnection
+  | IOpenAIAgentConnection
+  | IKimiAgentConnection
+  | IKimiCodingAgentConnection
+  | IGrokAgentConnection;
+
+export interface ILegacyAiAgentConnectionConfig {
+  apiKey?: string;
+  baseUrl?: string;
+  headers?: Record<string, string>;
+  accountId?: string;
+  gatewayId?: string;
+  gatewayToken?: string;
+  mode?: 'compat' | 'openai-provider';
+  cloudflare?: {
+    accountId?: string;
+    gatewayId?: string;
+    gatewayToken?: string;
+    mode?: 'compat' | 'openai-provider';
+  };
+  [key: string]: any;
 }
 
 export interface IAiAgentRuntime {
@@ -38,9 +112,38 @@ export interface IAiAgentRuntime {
   timeoutMs: number;
 }
 
+export interface IAiAgentRetrieval {
+  enabled: boolean;
+  mode: 'prompt' | 'tool';
+  strategy: 'keyword' | 'vector' | 'hybrid';
+  topK: number;
+  maxContextBytes: number;
+  minScore?: number;
+}
+
+export interface IAiAgentKnowledgeSource {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  scope?: 'all' | 'selected';
+  sourceIds: string[];
+  config?: Record<string, unknown>;
+}
+
+export interface IAiAgentTool {
+  pluginName: string;
+  moduleName: string;
+  key: string;
+  enabled?: boolean;
+  config?: Record<string, unknown>;
+}
+
 export interface IAiAgentContext {
   systemPrompt: string;
+  retrieval?: IAiAgentRetrieval;
   files: IAiAgentFile[];
+  knowledgeSources?: IAiAgentKnowledgeSource[];
+  tools?: IAiAgentTool[];
 }
 
 export interface IAiAgent {
@@ -68,6 +171,20 @@ const aiAgentFileVersionSchema = new Schema<IAiAgentFileVersion>(
   { _id: false },
 );
 
+const aiAgentFileSectionSchema = new Schema<IAiAgentFileSection>(
+  {
+    key: { type: String, required: true },
+    name: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ['behavior', 'content', 'example'],
+      required: true,
+    },
+    detected: { type: Boolean },
+  },
+  { _id: false },
+);
+
 const aiAgentFileSchema = new Schema<IAiAgentFile>(
   {
     id: { type: String, required: true },
@@ -76,6 +193,24 @@ const aiAgentFileSchema = new Schema<IAiAgentFile>(
     size: { type: Number },
     type: { type: String },
     uploadedAt: { type: Date },
+    purpose: {
+      type: String,
+      enum: ['core', 'knowledge', 'policy', 'examples'],
+      default: 'knowledge',
+    },
+    sections: {
+      type: [aiAgentFileSectionSchema],
+      default: () => [],
+    },
+    status: {
+      type: String,
+      enum: ['uploaded', 'indexing', 'indexed', 'failed'],
+      default: 'uploaded',
+    },
+    chunkCount: { type: Number },
+    indexedAt: { type: Date },
+    contentHash: { type: String },
+    indexError: { type: String },
     versions: {
       type: [aiAgentFileVersionSchema],
       default: () => [],
@@ -89,9 +224,10 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
     provider: {
       type: String,
       required: true,
-      enum: ['openai'],
+      enum: ['cloudflare-ai-gateway', 'openai', 'kimi', 'kimi-code', 'grok'],
+      default: 'cloudflare-ai-gateway',
     },
-    model: { type: String, required: true },
+    model: { type: String, required: true, default: 'openai/gpt-5-mini' },
     config: {
       type: Object,
       default: () => ({}),
@@ -103,8 +239,37 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
 const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
   {
     temperature: { type: Number, default: 0.2 },
-    maxTokens: { type: Number, default: 500 },
+    maxTokens: { type: Number, default: 2000 },
     timeoutMs: { type: Number, default: 15000 },
+  },
+  { _id: false },
+);
+
+const aiAgentKnowledgeSourceSchema = new Schema<IAiAgentKnowledgeSource>(
+  {
+    pluginName: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    key: { type: String, required: true },
+    scope: { type: String, enum: ['all', 'selected'] },
+    sourceIds: { type: [String], default: () => [] },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  { _id: false },
+);
+
+const aiAgentToolSchema = new Schema<IAiAgentTool>(
+  {
+    pluginName: { type: String, required: true },
+    moduleName: { type: String, required: true },
+    key: { type: String, required: true },
+    enabled: { type: Boolean, default: true },
+    config: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   { _id: false },
 );
@@ -112,8 +277,32 @@ const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
 const aiAgentContextSchema = new Schema<IAiAgentContext>(
   {
     systemPrompt: { type: String, default: '' },
+    retrieval: {
+      enabled: { type: Boolean, default: true },
+      mode: {
+        type: String,
+        enum: ['prompt', 'tool'],
+        default: 'prompt',
+      },
+      strategy: {
+        type: String,
+        enum: ['keyword', 'vector', 'hybrid'],
+        default: 'keyword',
+      },
+      topK: { type: Number, default: 5 },
+      maxContextBytes: { type: Number, default: 8000 },
+      minScore: { type: Number },
+    },
     files: {
       type: [aiAgentFileSchema],
+      default: () => [],
+    },
+    knowledgeSources: {
+      type: [aiAgentKnowledgeSourceSchema],
+      default: () => [],
+    },
+    tools: {
+      type: [aiAgentToolSchema],
       default: () => [],
     },
   },
@@ -142,4 +331,13 @@ export const aiAgentSchema = new Schema<AiAgentDocument>(
     },
   },
   { timestamps: true },
+);
+
+aiAgentSchema.index(
+  {
+    'context.knowledgeSources.pluginName': 1,
+    'context.knowledgeSources.moduleName': 1,
+    'context.knowledgeSources.key': 1,
+  },
+  { name: 'ai_agent_knowledge_source_config_lookup' },
 );

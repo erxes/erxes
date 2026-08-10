@@ -61,6 +61,35 @@ export const putResponsesTrpcRouter = t.router({
         );
       }),
 
+    syncPutResponses: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { putResponses = [] } = input;
+
+        const bulkOps: any[] = [];
+
+        for (const putResponse of putResponses) {
+          const { _id, ...doc } = putResponse;
+          bulkOps.push({
+            updateOne: {
+              filter: { _id },
+              update: {
+                $set: {
+                  ...doc,
+                },
+              },
+              upsert: true,
+            },
+          });
+        }
+        if (bulkOps.length) {
+          await models.PutResponses.bulkWrite(bulkOps);
+        }
+
+        return await models.PutResponses.findOne({ _id: { $in: putResponses.map(pr => pr._id) } })
+      }),
+
     putHistory: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models } = ctx;
       const { contentType, contentId } = input;
@@ -77,12 +106,6 @@ export const putResponsesTrpcRouter = t.router({
           contentId,
         });
       }),
-
-    bulkWrite: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { bulkOps } = input;
-      return await models.PutResponses.bulkWrite(bulkOps);
-    }),
 
     getCompany: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;

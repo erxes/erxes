@@ -1,37 +1,105 @@
 import { useQuery } from '@apollo/client';
 import { FIELDS_QUERY } from '../graphql/fieldsQueries';
-import { ICursorListResponse } from 'erxes-ui';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 import { IField } from '../types/fieldsTypes';
+
+type FieldsQueryResponse = {
+  fields: {
+    list: IField[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+};
 
 export const useFields = ({
   groupId,
   contentType,
+  limit,
 }: {
   groupId?: string;
   contentType: string;
+  limit?: number;
 }) => {
-  const { data, loading, refetch } = useQuery<ICursorListResponse<IField>>(
+  const { data, loading, refetch, fetchMore } = useQuery<FieldsQueryResponse>(
     FIELDS_QUERY,
     {
       variables: {
         params: {
           groupId,
           contentType,
+          limit,
         },
       },
     },
   );
 
+  const pageInfo = data?.fields?.pageInfo;
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) {
+      return;
+    }
+
+    fetchMore({
+      variables: {
+        params: {
+          groupId,
+          contentType,
+          limit,
+          direction,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          fields: {
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.fields,
+              prevResult: prev.fields,
+            }),
+            totalCount: fetchMoreResult.fields.totalCount,
+          },
+        };
+      },
+    });
+  };
+
   const fields = (data?.fields?.list || []).map((field) => {
-    const type = field.type?.startsWith('relation') ? 'relation' : field.type;
+    const type = field.type?.startsWith('relation:') ? 'relation' : field.type;
     const relationType =
       type === 'relation' ? field.type?.replace('relation:', '') : undefined;
 
-    const logics = Object.fromEntries(
-      Object.entries(field.logics || {}).filter(([key]) => key !== 'multiple'),
-    );
+    const isLogicRules = Array.isArray(field.logics);
 
-    const multiple = field.logics?.multiple;
+    const logics = isLogicRules
+      ? field.logics
+      : Object.fromEntries(
+          Object.entries(field.logics || {}).filter(
+            ([key]) => key !== 'multiple',
+          ),
+        );
+
+    const multiple = isLogicRules
+      ? undefined
+      : (field.logics as { multiple?: boolean } | undefined)?.multiple;
 
     return {
       ...field,
@@ -44,7 +112,10 @@ export const useFields = ({
 
   return {
     fields: fields,
+    totalCount: data?.fields?.totalCount || 0,
     loading,
     refetch,
+    handleFetchMore,
+    pageInfo,
   };
 };

@@ -1,26 +1,42 @@
-import { IconTag, IconToggleLeft, IconLabelFilled } from '@tabler/icons-react';
+import {
+  IconLabelFilled,
+  IconListNumbers,
+  IconTag,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Switch,
 } from 'erxes-ui';
+import { TFunction } from 'i18next';
+import { settingsStatusSwitchColumn } from '~/modules/loyalties/components/LoyaltyCampaignColumnHelpers';
 import { ScoreNameCell } from '../score-detail/components/ScoreNameCell';
 import { IScore } from '../types/loyaltyScoreTypes';
 import { scoreMoreColumn } from './LoyaltyScoreMoreColumn';
 
-export const scoreColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<IScore>[] = (editStatus) => [
+interface ScoreStatusMutationOptions {
+  variables: {
+    _id: string;
+    kind: 'score';
+    status: string;
+  };
+}
+
+export const scoreColumns = (
+  t: TFunction<'loyalty'>,
+  editStatus: (options: ScoreStatusMutationOptions) => unknown,
+): ColumnDef<IScore>[] => [
   scoreMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IScore>,
 
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
-    cell: ({ cell }: { cell: any }) => {
+    header: () => (
+      <RecordTable.InlineHead icon={IconTag} label={t('title')} />
+    ),
+    cell: ({ cell }) => {
       return (
         <ScoreNameCell
           score={cell.row.original}
@@ -31,12 +47,27 @@ export const scoreColumns: (
     size: 150,
   },
   {
+    id: 'order',
+    accessorKey: 'order',
+    header: () => (
+      <RecordTable.InlineHead icon={IconListNumbers} label={t('order')} />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={`${cell.getValue() ?? ''}`} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 80,
+  },
+  {
     id: 'ownerType',
     accessorKey: 'ownerType',
     header: () => (
-      <RecordTable.InlineHead icon={IconLabelFilled} label="Owner Type" />
+      <RecordTable.InlineHead icon={IconLabelFilled} label={t('owner-type')} />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -45,35 +76,12 @@ export const scoreColumns: (
     },
     size: 150,
   },
-  {
-    id: 'status',
-    accessorKey: 'status',
-    header: () => (
-      <RecordTable.InlineHead icon={IconToggleLeft} label="Status" />
-    ),
-    cell: ({ cell }) => {
-      const { _id } = cell.row.original || {};
-      const currentStatus = cell.getValue() as string;
-      const isActive = currentStatus === 'active';
-
-      return (
-        <RecordTableInlineCell>
-          <Switch
-            className="mx-auto"
-            checked={isActive}
-            onCheckedChange={() => {
-              editStatus({
-                variables: {
-                  _id,
-                  kind: 'score',
-                  status: isActive ? 'inactive' : 'active',
-                },
-              });
-            }}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
+  settingsStatusSwitchColumn<IScore>(t, (_id, status) =>
+    editStatus({
+      variables: {
+        _id,
+        kind: 'score',
+        status,
+      },
+    })),
 ];

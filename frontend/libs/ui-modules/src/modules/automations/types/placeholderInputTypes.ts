@@ -1,13 +1,26 @@
-export type SuggestionType =
-  | 'attribute'
-  | 'option'
-  | 'date'
-  | 'emoji'
-  | 'call_user'
-  | 'call_tag'
-  | 'call_product'
-  | 'call_company'
-  | 'call_customer';
+export enum TPlaceholderInputSuggestion {
+  Attribute = 'attribute',
+  Emoji = 'emoji',
+  Date = 'date',
+  Option = 'option',
+  CallUser = 'call_user',
+  CallTag = 'call_tag',
+  CallProduct = 'call_product',
+  CallCompany = 'call_company',
+  CallCustomer = 'call_customer',
+}
+export type TPlaceholderInputSuggestions = `${TPlaceholderInputSuggestion}`;
+
+export type TPlaceholderInputSuggestionType =
+  | TPlaceholderInputSuggestion.Attribute
+  | TPlaceholderInputSuggestion.Option
+  | TPlaceholderInputSuggestion.Date
+  | TPlaceholderInputSuggestion.Emoji
+  | TPlaceholderInputSuggestion.CallUser
+  | TPlaceholderInputSuggestion.CallTag
+  | TPlaceholderInputSuggestion.CallProduct
+  | TPlaceholderInputSuggestion.CallCustomer
+  | TPlaceholderInputSuggestion.CallCompany;
 
 export interface SuggestionItem {
   id: string;
@@ -24,13 +37,12 @@ export interface SuggestionConfig {
   // Controls how the popover renders for this type
   mode?: 'command' | 'custom';
   render?: (props: CustomRendererProps) => React.ReactNode;
-  options?: SuggestionsOption;
+  options?: TPlaceholderInputSuggestionsOption;
 }
 
-// Dynamic enabling config
-export interface EnabledSuggestions extends Partial<Record<string, boolean>> {}
+export type EnabledSuggestions = readonly TPlaceholderInputSuggestionType[];
 
-export interface DisabledSuggestions extends Partial<Record<string, boolean>> {}
+export type DisabledSuggestions = readonly TPlaceholderInputSuggestionType[];
 
 type CustomRendererProps = {
   searchValue: string;
@@ -38,7 +50,7 @@ type CustomRendererProps = {
   selectField: string;
 };
 
-export type SuggestionsOption = {
+export type TPlaceholderInputSuggestionsOption = {
   selectFieldName?: string;
   formatSelection?: (value: string) => string;
   options?: { label: string; value: string }[];
@@ -47,67 +59,66 @@ export type SuggestionsOption = {
   attributesConfig?: any;
 };
 
-export type PlaceholderInputProps = {
-  propertyType?: string;
-  value?: string;
-  onChange: (value: string) => void;
-  isDisabled?: boolean;
+type InputMode = 'expression' | 'fixed';
+
+type PlaceholderBehaviorConfig = {
+  // How many tokens are allowed to be selected/inserted
+  selectMode?: 'one' | 'many';
+  // Delimiter for many tokens
+  delimiter?: string;
+  // Wrap selected/composed text before insertion
+  wrap?: (text: string) => string;
+  // If true, when suggestions are not open, only trigger characters are allowed to be typed
+  allowOnlyTriggers?: boolean;
+};
+
+type PlaceholderSuggestionProps = {
   // Dynamic enablement API (preferred)
-  variant?: 'fixed' | 'expression';
   enabled?: EnabledSuggestions;
   disabled?: DisabledSuggestions;
   suggestionGroups?: string[];
-  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
+  suggestionsOptions?: Partial<
+    Record<TPlaceholderInputSuggestions, TPlaceholderInputSuggestionsOption>
+  >;
   enableAll?: boolean;
-  onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
   // Selection-only mode: restrict input to suggestions
-  selectionType?: SuggestionType; // which suggestion list to show when selection-only
+  selectionType?: TPlaceholderInputSuggestionType;
   // Dynamic: add/override triggers and renderers
   extraSuggestionConfigs?: SuggestionConfig[];
+};
+
+type PlaceholderModeProps = {
+  variant?: InputMode;
+  isExpression?: boolean;
+  onChangeInputMode?: (mode: InputMode) => void;
+};
+
+type CommonPlaceholderInputProps = PlaceholderSuggestionProps &
+  PlaceholderModeProps & {
+    value?: string;
+    onChange?: (value: string) => void;
+    // Unified behavior configuration for composing tokens and typing rules
+    placeholderConfig?: PlaceholderBehaviorConfig;
+  };
+
+export type PlaceholderInputProps = Omit<
+  CommonPlaceholderInputProps,
+  'onChange'
+> & {
+  propertyType?: string;
+  onChange: (value: string) => void;
+  isDisabled?: boolean;
   // Popover positioning
   popoverPosition?: 'left' | 'right' | 'top' | 'bottom';
   children?: React.ReactNode;
-  // Unified behavior configuration for composing tokens and typing rules
-  placeholderConfig?: {
-    // How many tokens are allowed to be selected/inserted
-    selectMode?: 'one' | 'many';
-    // Delimiter for many tokens
-    delimiter?: string;
-    // Wrap a single selected token before insertion
-    wrap?: (text: string) => string;
-    // If true, when suggestions are not open, only trigger characters are allowed to be typed
-    allowOnlyTriggers?: boolean;
-  };
 };
 
-export type UsePlaceHolderInputProps = {
-  // New dynamic configuration: supply explicit per-type enables
-  enabled?: EnabledSuggestions;
-  disabled?: DisabledSuggestions;
-  // Optional suggestionGroups to toggle in bulk: e.g., ['common'], ['calls'], ['all']
-  suggestionGroups?: string[];
-  // Backward-compat toggles; prefer using `enabled` or `suggestionGroups`
-  enableAll?: boolean;
+export type UsePlaceHolderInputProps = CommonPlaceholderInputProps & {
   ref: React.ForwardedRef<HTMLInputElement | HTMLTextAreaElement>;
-  onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
-  // selection-only controls
-  selectionType?: SuggestionType;
-  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
-
-  value?: string;
-  onChange?: (value: string) => void;
-  // Dynamic suggestion configs: add or override trigger/type/format/mode
-  extraSuggestionConfigs?: SuggestionConfig[];
-  // Custom renderers per type when mode === 'custom'
-  variant?: 'fixed' | 'expression';
   // Unified behavior configuration for composing tokens and typing rules
-  placeholderConfig?: {
-    selectMode?: 'one' | 'many';
-    delimiter?: string;
-    // Wrap whole composed value: either via prefix/suffix or a function
+  placeholderConfig?: PlaceholderBehaviorConfig & {
+    // Wrap whole composed value with prefix/suffix
     wrapPrefix?: string;
     wrapSuffix?: string;
-    wrap?: (text: string) => string;
-    allowOnlyTriggers?: boolean;
   };
 };

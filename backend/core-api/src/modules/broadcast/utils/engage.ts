@@ -1,7 +1,7 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
-import { awsRequests } from '@/broadcast/trackers';
 import { isUsingElk } from '@/broadcast/utils';
+import { isSenderAllowed } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -170,11 +170,31 @@ export const checkCustomerExists = async (
   return customers.length > 0;
 };
 
+export const resolveCampaignFromEmail = async (
+  models: IModels,
+  campaign: Pick<IEngageMessage, 'fromEmail' | 'fromUserId'>,
+) => {
+  if (campaign.fromEmail) {
+    return campaign.fromEmail;
+  }
+
+  if (!campaign.fromUserId) {
+    return undefined;
+  }
+
+  const user = await models.Users.findOne({ _id: campaign.fromUserId }).lean();
+
+  return user?.email;
+};
+
+const isEmailAddress = (value: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
 export const checkCampaignDoc = async (
   models: IModels,
   doc: IEngageMessage,
 ) => {
-  const { method, targetIds = [], fromUserId } = doc;
+  const { method, targetIds = [] } = doc;
 
   if (!CAMPAIGN_METHODS.ALL.includes(method)) {
     throw new Error(`Unsupported broadcast method: ${method}`);
@@ -185,21 +205,20 @@ export const checkCampaignDoc = async (
   }
 
   if (method === CAMPAIGN_METHODS.EMAIL) {
-    const user = await models.Users.findOne({ _id: fromUserId }).lean();
+    const fromEmail = await resolveCampaignFromEmail(models, doc);
 
-    if (!user) {
-      throw new Error('From user must be specified');
+    if (!fromEmail) {
+      throw new Error('From sender must be specified');
     }
 
-    if (!user.email) {
-      throw new Error(`From user email is not specified: ${user.username}`);
+    if (!(await isSenderAllowed(models, fromEmail, 'broadcast'))) {
+      throw new Error(`"${fromEmail}" is not a verified sender`);
     }
 
-    const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+    const { replyTo } = doc.email || {};
 
-    if (!verifiedEmails.includes(user.email)) {
-      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+    if (replyTo && !isEmailAddress(replyTo)) {
+      throw new Error(`"${replyTo}" is not a valid reply-to address`);
     }
   }
 

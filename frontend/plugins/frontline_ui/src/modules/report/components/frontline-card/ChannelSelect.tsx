@@ -3,6 +3,7 @@ import { IChannel } from '@/inbox/types/Channel';
 import { IconCheck } from '@tabler/icons-react';
 import { Combobox, Command, PopoverScoped, Skeleton } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ChannelSelectProps {
   value?: string[];
@@ -13,6 +14,7 @@ export const ChannelSelect = ({
   value = [],
   onValueChange,
 }: ChannelSelectProps) => {
+  const { t } = useTranslation('frontline');
   const { channels, loading } = useGetChannels();
   const [open, setOpen] = useState(false);
 
@@ -28,17 +30,17 @@ export const ChannelSelect = ({
   if (!channels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        No channels found
+        {t('no-channels-found')}
       </div>
     );
 
   const getDisplayLabel = () => {
-    if (!value || value.length === 0) return 'All Channels';
+    if (!value || value.length === 0) return t('all-channels');
     if (value.length === 1) {
       const channel = channels.find((c: IChannel) => c._id === value[0]);
-      return channel?.name || 'All Channels';
+      return channel?.name || t('all-channels');
     }
-    return `${value.length} Channels`;
+    return t('n-channels', { count: value.length });
   };
 
   const handleValueChange = (selectedValue: string) => {
@@ -78,7 +80,7 @@ export const ChannelSelect = ({
                   {(!value || value.length === 0) && (
                     <IconCheck className="size-4" />
                   )}
-                  <span>All Channels</span>
+                  <span>{t('all-channels')}</span>
                 </div>
               </Command.Item>
 

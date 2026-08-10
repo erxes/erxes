@@ -40,7 +40,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
           relation: {
             entities: [
               {
-                contentType: 'core:cp.user',
+                contentType: 'core:customer',
                 contentId: userId,
               },
               {
@@ -67,6 +67,24 @@ export const cpTicketMutations: Record<string, Resolver> = {
       doc: params,
       userId: `cp:${userId}`,
       subdomain,
+    });
+  },
+
+  cpTicketCreateNote: async (
+    _parent: undefined,
+    { content, contentId },
+    { models, cpUser, clientPortal, subdomain }: IContext,
+  ) => {
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
+
+    return models.Note.createNote({
+      doc: {
+        content,
+        contentId,
+        createdBy: `cp:${userId}`,
+      },
+      subdomain,
+      userId: `cp:${userId}`,
     });
   },
 };

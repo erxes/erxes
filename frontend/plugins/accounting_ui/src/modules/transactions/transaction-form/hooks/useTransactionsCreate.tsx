@@ -1,12 +1,15 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCreate';
 import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-import { ACC_TRS__PER_PAGE } from '../../types/constants';
+import { useTransactionsVariables } from '../../hooks/useTransactionVars';
 
 export const useTransactionsCreate = (options?: OperationVariables) => {
+  const { t } = useTranslation('accounting');
   const navigate = useNavigate();
+  const variables = useTransactionsVariables();
 
   const [_createTransaction, { loading }] = useMutation(
     ACC_TRANSACTIONS_CREATE,
@@ -18,7 +21,7 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
       ...options,
       onError: (error: Error) => {
         toast({
-          title: 'Error',
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -26,21 +29,15 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
       },
       onCompleted: () => {
         toast({
-          title: 'Success',
-          description: 'Transactions created successfully',
+          title: t('success'),
+          description: t('transactions-created-successfully'),
         });
         options?.onCompleted();
       },
       refetchQueries: [
         {
           query: TRANSACTIONS_QUERY,
-          variables: {
-            limit: ACC_TRS__PER_PAGE,
-            orderBy: {
-              date: 1,
-            },
-            cursor: '',
-          },
+          variables,
         },
       ],
       awaitRefetchQueries: true,

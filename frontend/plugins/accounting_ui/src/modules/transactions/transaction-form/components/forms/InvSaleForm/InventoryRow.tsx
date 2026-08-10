@@ -19,7 +19,10 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
+import {
+  useGetAccountingProductUnitPrice,
+  useGetAccCurrentCost,
+} from '../../../hooks/useGetInvCostInfo';
 import {
   followTrDocsState,
   showAdvancedViewState,
@@ -29,7 +32,12 @@ import {
   ITransactionGroupForm,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
-import { fixSumDtCt, getTempId } from '../../utils';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  fixSumDtCt,
+  getTempId,
+  hasDuplicateProductId,
+} from '../../utils';
 
 const findFollowTr = (
   followTrDocs: ITransaction[],
@@ -96,6 +104,10 @@ export const InventoryRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   });
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
   const followTrDocs = useAtomValue(followTrDocsState);
   const setFollowTrDocs = useSetAtom(followTrDocsState);
@@ -209,10 +221,27 @@ export const InventoryRow = ({
     detail.excludeCtax,
   ]);
 
-  const [taxAmounts, setTaxAmounts] = useState({
-    unitPriceWithTax: ((detail.unitPrice ?? 0) / 100) * (100 + rowPercent),
-    amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
-  });
+  const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
+    const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
+
+    return {
+      unitPriceWithTax,
+      amountWithTax: unitPriceWithTax * (pCount ?? 0),
+    };
+  };
+
+  const [taxAmounts, setTaxAmounts] = useState(
+    calcTaxAmounts(count, unitPrice),
+  );
+
+  useEffect(() => {
+    if (!(trDoc.hasVat || trDoc.hasCtax)) {
+      return;
+    }
+
+    setTaxAmounts(calcTaxAmounts(count, unitPrice));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
@@ -223,17 +252,25 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initOutAccountId.current &&
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
+  });
+
+  const {
+    unitPrice: selectedProductUnitPrice,
+    loading: loadingSelectedProductUnitPrice,
+  } = useGetAccountingProductUnitPrice({
+    variables: {
+      _id: detail.productId,
+    },
+    skip:
+      !detail.productId ||
+      (initProductId.current && detail.productId === initProductId.current),
   });
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
@@ -241,9 +278,8 @@ export const InventoryRow = ({
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
-    if (costInfo === undefined) return;
 
-    setUnitCost(fixNum(costInfo.unitCost ?? 0));
+    setUnitCost(fixNum(costInfo?.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);
@@ -255,12 +291,35 @@ export const InventoryRow = ({
     onChange(value);
     const newUnitPrice = count ? value / count : 0;
     form.setValue(getFieldName('unitPrice'), newUnitPrice);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: (newUnitPrice / 100) * (100 + rowPercent),
+        amountWithTax: (value / 100) * (100 + rowPercent),
+      });
+    }
   };
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
     form.setValue(getFieldName('amount'), newAmount);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: ((pUnitPrice ?? 0) / 100) * (100 + rowPercent),
+        amountWithTax: (newAmount / 100) * (100 + rowPercent),
+      });
+    }
   };
+
+  useEffect(() => {
+    if (loadingSelectedProductUnitPrice || !detail.productId) {
+      return;
+    }
+
+    calcAmount(count ?? 0, selectedProductUnitPrice);
+    form.setValue(getFieldName('unitPrice'), selectedProductUnitPrice);
+  }, [detail.productId, loadingSelectedProductUnitPrice]);
 
   const handleCountChange = (
     value: number,
@@ -376,7 +435,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                defaultFilter={{
+                  journals: [JournalEnum.MAIN],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -389,7 +451,9 @@ export const InventoryRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}

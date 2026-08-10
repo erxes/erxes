@@ -60,6 +60,18 @@ export const types = `
     messageCount: Int
   }
 
+  type ConversationExportItem {
+    _id: String
+    content: String
+    status: String
+    assignedUserName: String
+    customerName: String
+    integrationName: String
+    tagNames: [String]
+    createdAt: Date
+    closedAt: Date
+  }
+
   type ConversationMemberProgress {
     assigneeId: String!
     new: Int!
@@ -108,10 +120,10 @@ export const types = `
 `;
 
 export const queries = `
-  conversationProgressChart(customerId:String!): ConversationProgressChart
-  conversationMemberProgress(customerId:String!):[ConversationMemberProgress]
-  conversationSourceProgress(customerId:String!): ConversationSourceProgress
-  conversationTagProgress(customerId:String!): ConversationTagProgress
+  conversationProgressChart(customerId:String!, fromDate:String, toDate:String): ConversationProgressChart
+  conversationMemberProgress(customerId:String!, fromDate:String, toDate:String):[ConversationMemberProgress]
+  conversationSourceProgress(customerId:String!, fromDate:String, toDate:String): ConversationSourceProgress
+  conversationTagProgress(customerId:String!, fromDate:String, toDate:String): ConversationTagProgress
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult
@@ -121,4 +133,5 @@ export const queries = `
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
   reportConversationTags(filters: ConversationReportFilter): [ReportTag]
   reportConversationSources(filters: ConversationReportFilter): [ReportSource]
+  reportConversationExport(filters: ConversationReportFilter): [ConversationExportItem]
 `;

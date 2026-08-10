@@ -2,6 +2,7 @@ import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { Calendar, CalendarProps, Combobox, Popover, cn } from 'erxes-ui';
 import { DateRange } from 'react-day-picker';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
 type Mode = 'single' | 'multiple';
@@ -30,6 +31,7 @@ const TourDatePicker = ({
   isDisabled = false,
   ...props
 }: TourDatePickerProps) => {
+  const { t } = useTranslation('tourism');
   const [isOpen, setIsOpen] = React.useState(false);
 
   const renderButtonContent = () => {
@@ -42,7 +44,7 @@ const TourDatePicker = ({
         const selectedDays = value.length;
 
         if (selectedDays) {
-          return `${selectedDays} ${selectedDays > 1 ? 'Days' : 'Day'}`;
+          return t('days-selected', { count: selectedDays });
         }
       }
 

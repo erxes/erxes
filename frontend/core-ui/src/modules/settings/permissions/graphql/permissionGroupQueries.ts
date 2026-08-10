@@ -12,6 +12,15 @@ export const GET_PERMISSION_DEFAULT_GROUPS = gql`
         actions
         scope
       }
+      members {
+        _id
+        email
+        details {
+          firstName
+          lastName
+          avatar
+        }
+      }
     }
   }
 `;
@@ -26,6 +35,15 @@ export const GET_PERMISSION_GROUPS = gql`
         module
         actions
         scope
+      }
+      members {
+        _id
+        email
+        details {
+          firstName
+          lastName
+          avatar
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 import { TAutomationActionConfigFieldPrefix } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { TAutomationVariableSourceNode } from '@/automations/components/builder/components/AutomationVariableBrowser';
+import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationNodeType, AutomationNodesType } from '@/automations/types';
 import {
@@ -34,7 +34,9 @@ export const useSendEmailSidebarForm = (
   const form = useForm<TAutomationSendEmailConfig>({
     resolver: zodResolver(sendEmailConfigFormSchema),
     defaultValues: {
+      sender: config?.sender || '',
       fromEmailPlaceHolder: config?.fromEmailPlaceHolder || '',
+      replyToEmail: config?.replyToEmail || '',
       toEmailsPlaceHolders: config?.toEmailsPlaceHolders || '',
       ccEmailsPlaceHolders: config?.ccEmailsPlaceHolders || '',
       subject: config?.subject || '',
@@ -57,7 +59,7 @@ export const useSendEmailSidebarForm = (
 
   const availableVariableSourceNodes = useMemo<TAutomationVariableSourceNode[]>(
     () => [
-      ...triggers.map((trigger) => ({
+      ...triggers.map((trigger: any) => ({
         id: trigger.id,
         type: trigger.type,
         label: trigger.label,

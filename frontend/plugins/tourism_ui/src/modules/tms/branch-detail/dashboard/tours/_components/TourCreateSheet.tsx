@@ -1,4 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { Button, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { TourCreateForm } from './TourCreateForm';
@@ -20,6 +21,7 @@ export const TourCreateSheet = ({
   onOpenChange,
   showTrigger = true,
 }: TourCreateSheetProps) => {
+  const { t } = useTranslation('tourism');
   const [internalOpen, setInternalOpen] = useState(false);
 
   const isControlled = typeof open === 'boolean';
@@ -39,7 +41,7 @@ export const TourCreateSheet = ({
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Create tour
+            {t('create-tour')}
           </Button>
         </Sheet.Trigger>
       )}

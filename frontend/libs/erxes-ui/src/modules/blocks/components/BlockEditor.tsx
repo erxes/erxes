@@ -10,11 +10,18 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
+import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
+
+const isEmptyBlock = (block?: any) =>
+  !!block &&
+  Array.isArray(block.content) &&
+  !block.content.length &&
+  !block.children?.length;
 
 export const BlockEditor = ({
   editor,
@@ -29,6 +36,8 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = false,
+  linkToolbar = true,
+  additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
@@ -62,11 +71,63 @@ export const BlockEditor = ({
       } satisfies DefaultReactSuggestionItem);
     }
 
+    if ('gallery' in editor.schema.blockSchema) {
+      items.push({
+        title: 'Gallery',
+        subtext: 'Insert a multi-image gallery grid',
+        aliases: ['gallery', 'images', 'grid'],
+        badge: undefined,
+        group: editor.dictionary.slash_menu.image.group,
+        icon: <IconPhoto size={18} />,
+        onItemClick: () => {
+          const currentBlock = editor.getTextCursorPosition().block;
+          editor.insertBlocks(
+            [{ type: 'gallery' as any }],
+            currentBlock,
+            'after',
+          );
+        },
+      } satisfies DefaultReactSuggestionItem);
+    }
+
+    const customItems =
+      typeof additionalSlashMenuItems === 'function'
+        ? additionalSlashMenuItems(editor)
+        : additionalSlashMenuItems;
+
+    if (customItems?.length) {
+      items.push(...customItems);
+    }
+
     return Promise.resolve(filterSuggestionItems(items, query));
+  };
+
+  const handleKeyDownCapture = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (readonly || disabled || (e.key !== 'Backspace' && e.key !== 'Delete')) {
+      return;
+    }
+
+    const { block, prevBlock, nextBlock, parentBlock } =
+      editor.getTextCursorPosition();
+
+    if (parentBlock || !nextBlock || !isEmptyBlock(block)) {
+      return;
+    }
+
+    if (e.key === 'Backspace' && prevBlock) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    editor.removeBlocks([block]);
+    editor.setTextCursorPosition(nextBlock, 'start');
   };
 
   return (
     <div
+      onKeyDownCapture={handleKeyDownCapture}
       className={cn(
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
@@ -78,6 +139,7 @@ export const BlockEditor = ({
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
+        linkToolbar={linkToolbar}
         onFocus={() => {
           setFocus(true);
           onFocus?.();

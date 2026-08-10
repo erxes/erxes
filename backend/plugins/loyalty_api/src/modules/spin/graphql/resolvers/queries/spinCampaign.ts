@@ -2,7 +2,7 @@ import {
   ISpinCampaignDocument,
   ISpinCampaignParams,
 } from '@/spin/@types/spinCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -11,7 +11,7 @@ const generateFilter = (params: ISpinCampaignParams) => {
   const filter: FilterQuery<ISpinCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.title = new RegExp(params.searchValue);
+    filter.title = new RegExp(escapeRegExp(params.searchValue), 'i');
   }
 
   if (params.status) {
@@ -27,9 +27,10 @@ export const spinCampaignQueries = {
   async spinCampaigns(
     _root: undefined,
     params: ISpinCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    const filter: FilterQuery<ISpinCampaignDocument> = generateFilter(params);
+    await checkPermission('loyaltyCampaignView');
+    const filter = generateFilter(params);
 
     return cursorPaginate({
       model: models.SpinCampaigns,
@@ -41,16 +42,18 @@ export const spinCampaignQueries = {
   async spinCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     return models.SpinCampaigns.getSpinCampaign(_id);
   },
 
   async cpSpinCampaigns(
     _root: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.SpinCampaigns.find({

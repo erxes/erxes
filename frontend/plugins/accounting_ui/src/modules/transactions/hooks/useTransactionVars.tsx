@@ -65,6 +65,8 @@ export const useTransactionsQueryParams = () => {
     currency: string;
     journal: string;
     statuses: string;
+    mentionOwnerId: string;
+    mentionUserId: string;
     createdUserId: string;
     modifiedUserId: string;
     date: string;
@@ -95,6 +97,8 @@ export const useTransactionsQueryParams = () => {
     'currency',
     'journal',
     'statuses',
+    'mentionOwnerId',
+    'mentionUserId',
     'createdUserId',
     'modifiedUserId',
     'date',

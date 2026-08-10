@@ -12,10 +12,26 @@ import {
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 
+export interface IProgressArgs {
+  customerId: string;
+  fromDate?: string;
+  toDate?: string;
+}
+
+const buildDateFilter = (fromDate?: string, toDate?: string) => {
+  if (!fromDate && !toDate) return {};
+  return {
+    createdAt: {
+      ...(fromDate ? { $gte: new Date(fromDate) } : {}),
+      ...(toDate ? { $lte: new Date(toDate) } : {}),
+    },
+  };
+};
+
 export const reportInboxQueries = {
   async conversationProgressChart(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = ['new', 'open', 'closed', 'resolved'];
@@ -25,6 +41,7 @@ export const reportInboxQueries = {
         $match: {
           customerId,
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
 
@@ -103,7 +120,7 @@ export const reportInboxQueries = {
 
   async conversationMemberProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = ['new', 'open', 'closed', 'resolved'];
@@ -114,6 +131,7 @@ export const reportInboxQueries = {
           customerId,
           assignedUserId: { $exists: true, $ne: null },
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       {
@@ -154,7 +172,7 @@ export const reportInboxQueries = {
 
   async conversationSourceProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = [
@@ -166,7 +184,7 @@ export const reportInboxQueries = {
 
     const facet: Record<string, any[]> = {};
 
-  statuses.forEach((status) => {
+    statuses.forEach((status) => {
       facet[status.toLowerCase()] = [
         { $match: { status } },
 
@@ -209,6 +227,7 @@ export const reportInboxQueries = {
         $match: {
           customerId,
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       { $facet: facet },
@@ -219,7 +238,7 @@ export const reportInboxQueries = {
 
   async conversationTagProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = [
@@ -267,6 +286,7 @@ export const reportInboxQueries = {
           customerId,
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       { $facet: facet },
@@ -310,18 +330,23 @@ export const reportInboxQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    const pipeline = await buildConversationPipeline(filters, models, {
-      withPagination: true,
-    });
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 20;
 
-    pipeline.push({ $sort: { updatedAt: -1 } });
+    const basePipeline = await buildConversationPipeline(filters, models);
+    basePipeline.push({ $sort: { updatedAt: -1, _id: -1 } });
 
-    const matchPipeline = await buildConversationPipeline(filters, models);
-    const countPipeline = [...matchPipeline, { $count: 'total' as const }];
+    const pipeline = [
+      ...basePipeline,
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ];
+
+    const countPipeline = [...basePipeline, { $count: 'total' as const }];
 
     const [list, countResult] = await Promise.all([
-      models.Conversations.aggregate(pipeline),
-      models.Conversations.aggregate(countPipeline),
+      models.Conversations.aggregate(pipeline, { allowDiskUse: true }),
+      models.Conversations.aggregate(countPipeline, { allowDiskUse: true }),
     ]);
 
     const totalCount = countResult[0]?.total ?? 0;
@@ -329,8 +354,8 @@ export const reportInboxQueries = {
     return {
       list,
       totalCount,
-      page: filters.page ?? 1,
-      totalPages: Math.ceil(totalCount / (filters.limit ?? 20)),
+      page,
+      totalPages: Math.ceil(totalCount / limit),
     };
   },
 
@@ -415,7 +440,7 @@ export const reportInboxQueries = {
       { $unwind: '$tagIds' },
       { $group: { _id: '$tagIds', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 10 },
+      { $limit: filters.limit ?? 100 },
     );
 
     const tagCounts: Array<{ _id: any; count: number }> =
@@ -466,35 +491,157 @@ export const reportInboxQueries = {
     });
   },
 
+  async reportConversationExport(
+    _parent: undefined,
+    { filters = {} }: { filters?: IReportFilters },
+    { models, subdomain }: IContext,
+  ) {
+    const pipeline = await buildConversationPipeline(filters, models);
+    pipeline.push({ $sort: { createdAt: -1 } });
+
+    const conversations = await models.Conversations.aggregate(pipeline);
+
+    if (!conversations.length) {
+      return [];
+    }
+
+    const assigneeIds = [
+      ...new Set(
+        conversations.map((c: any) => c.assignedUserId).filter(Boolean),
+      ),
+    ];
+    const customerIds = [
+      ...new Set(conversations.map((c: any) => c.customerId).filter(Boolean)),
+    ];
+    const integrationIds = [
+      ...new Set(
+        conversations.map((c: any) => c.integrationId).filter(Boolean),
+      ),
+    ];
+    const allTagIds = [
+      ...new Set(conversations.flatMap((c: any) => c.tagIds || [])),
+    ];
+
+    const [members, customers, integrations, tags] = await Promise.all([
+      assigneeIds.length
+        ? sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'users',
+            action: 'find',
+            input: { query: { _id: { $in: assigneeIds } } },
+            defaultValue: [],
+          })
+        : [],
+      customerIds.length
+        ? sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'customers',
+            action: 'find',
+            input: { query: { _id: { $in: customerIds } } },
+            defaultValue: [],
+          })
+        : [],
+      integrationIds.length
+        ? models.Integrations.find({ _id: { $in: integrationIds } }).lean()
+        : [],
+      allTagIds.length
+        ? sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'tags',
+            action: 'find',
+            input: { query: { _id: { $in: allTagIds } } },
+            defaultValue: [],
+          })
+        : [],
+    ]);
+
+    const memberMap = new Map(
+      (members as any[]).map((m: any) => [
+        m._id.toString(),
+        m.details?.fullName || m.email || 'Unknown',
+      ]),
+    );
+    const customerMap = new Map(
+      (customers as any[]).map((c: any) => [
+        c._id.toString(),
+        c.firstName
+          ? `${c.firstName} ${c.lastName || ''}`.trim()
+          : c.primaryEmail || c.primaryPhone || 'Unknown',
+      ]),
+    );
+    const integrationMap = new Map(
+      (integrations as any[]).map((i: any) => [i._id.toString(), i.name]),
+    );
+    const tagMap = new Map(
+      (tags as any[]).map((t: any) => [t._id.toString(), t.name]),
+    );
+
+    return conversations.map((c: any) => ({
+      _id: c._id,
+      content: c.content || '',
+      status: c.status || '',
+      assignedUserName: c.assignedUserId
+        ? memberMap.get(c.assignedUserId.toString()) || 'Unknown'
+        : 'Unassigned',
+      customerName: c.customerId
+        ? customerMap.get(c.customerId.toString()) || 'Unknown'
+        : '',
+      integrationName: c.integrationId
+        ? integrationMap.get(c.integrationId.toString()) || 'Unknown'
+        : '',
+      tagNames: (c.tagIds || []).map(
+        (id: string) => tagMap.get(id.toString()) || 'Unknown',
+      ),
+      createdAt: c.createdAt,
+      closedAt: c.closedAt,
+    }));
+  },
+
   async reportConversationSources(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    const pipeline = await buildConversationPipeline(filters, models);
+    const integrations = await models.Integrations.find(
+      {},
+      { _id: 1, kind: 1, name: 1 },
+    ).lean();
 
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'integrations',
-          localField: 'integrationId',
-          foreignField: '_id',
-          as: 'integration',
-        },
-      },
-      { $unwind: '$integration' },
-      {
-        $group: {
-          _id: '$integration.kind',
-          name: { $first: '$integration.name' },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 10 },
+    const integrationById = new Map(
+      (integrations as any[]).map((i) => [i._id.toString(), i]),
     );
 
-    const sources = await models.Conversations.aggregate(pipeline);
+    const pipeline = await buildConversationPipeline(filters, models);
+
+    pipeline.push({ $group: { _id: '$integrationId', count: { $sum: 1 } } });
+
+    const rows = await models.Conversations.aggregate(pipeline);
+
+    const kindMap = new Map<string, { name: string; count: number }>();
+    for (const row of rows) {
+      const integration = integrationById.get(row._id?.toString());
+      if (!integration) continue;
+      const kind = integration.kind as string;
+      const existing = kindMap.get(kind);
+      if (existing) {
+        existing.count += row.count;
+      } else {
+        kindMap.set(kind, { name: integration.name || kind, count: row.count });
+      }
+    }
+
+    const limit = filters.limit ?? 100;
+    const sources = [...kindMap.entries()]
+      .map(([kind, { name, count }]) => ({ _id: kind, name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+
     const total = sources.reduce((s, i) => s + i.count, 0);
 
     return sources.map((s) => ({

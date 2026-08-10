@@ -97,6 +97,7 @@ export interface IChannelData {
 
   message?: {
     mid: string;
+    is_echo?: boolean;
     text?: string;
     attachments?: Array<{
       type: string;

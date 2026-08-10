@@ -17,10 +17,15 @@ const GET_CHANNELS = gql`
       icon
       name
       description
+      scope
       createdAt
       updatedAt
       memberCount
       pipelineCount
+      responseTemplateCount
+      formCount
+      integrationCount
+      integrationKinds
     }
   }
 `;
@@ -50,6 +55,7 @@ const GET_CHANNEL_MEMBERS = gql`
         _id
         email
         username
+        isActive
         details {
           firstName
           lastName
@@ -62,4 +68,49 @@ const GET_CHANNEL_MEMBERS = gql`
   }
 `;
 
-export { GET_CHANNELS, GET_CHANNEL, GET_CHANNEL_MEMBERS };
+const GET_MY_CHANNELS = gql`
+  query GetMyChannels($name: String, $sortField: String, $sortDirection: Int) {
+    getMyChannels(
+      name: $name
+      sortField: $sortField
+      sortDirection: $sortDirection
+    ) {
+      _id
+      icon
+      name
+      description
+      scope
+      createdAt
+      updatedAt
+      memberCount
+      pipelineCount
+      unreadConversationCount
+    }
+  }
+`;
+
+// Reading this provisions the caller's personal channel on the API side if they
+// do not have one yet, so it is safe to call from the settings page directly.
+const GET_PERSONAL_CHANNEL = gql`
+  query GetPersonalChannel {
+    getPersonalChannel {
+      _id
+      icon
+      name
+      description
+      scope
+      createdAt
+      updatedAt
+      memberCount
+      integrationCount
+    }
+  }
+`;
+
+export {
+  GET_CHANNELS,
+  GET_CHANNEL,
+  GET_CHANNEL_MEMBERS,
+  GET_MY_CHANNELS,
+  GET_PERSONAL_CHANNEL,
+};

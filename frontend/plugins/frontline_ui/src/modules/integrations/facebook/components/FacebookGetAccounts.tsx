@@ -11,6 +11,7 @@ import {
 import { useFacebookAccounts } from '../hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import {
   activeFacebookFormStepAtom,
   selectedFacebookAccountAtom,
@@ -21,7 +22,7 @@ import {
 } from './FacebookIntegrationForm';
 import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
-
+import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
 
 const FacebookAccountRow = ({
   account,
@@ -32,7 +33,9 @@ const FacebookAccountRow = ({
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
-  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(account._id);
+  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(
+    account._id,
+  );
   return (
     <Command.Item
       key={account._id}
@@ -62,7 +65,11 @@ const FacebookAccountRow = ({
 };
 
 export const FacebookGetAccounts = () => {
-  const { facebookGetAccounts, loading, refetch } = useFacebookAccounts();
+  const { t } = useTranslation('frontline');
+  const { isPost } = useFbIntegrationContext();
+  const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
+  const { facebookGetAccounts, loading, refetch } =
+    useFacebookAccounts(integrationKind);
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -78,7 +85,7 @@ export const FacebookGetAccounts = () => {
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
     popupWindow(
-      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin`,
+      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${integrationKind}`,
       'Facebook Login',
       660,
       750,
@@ -96,18 +103,18 @@ export const FacebookGetAccounts = () => {
       actions={
         <>
           <Button variant="secondary" className="bg-border" disabled>
-            Previous step
+            {t('previous-step')}
           </Button>
           <Button onClick={onNext} disabled={!selectedAccount}>
-            Next step
+            {t('next-step')}
           </Button>
         </>
       }
     >
       <FacebookIntegrationFormSteps
-        title="Connect accounts"
+        title={t('connect-accounts')}
         step={1}
-        description="Select the accounts where you want to integrate its pages with."
+        description={t('ig-select-accounts-description')}
       />
 
       <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col">
@@ -115,7 +122,7 @@ export const FacebookGetAccounts = () => {
           <div className="p-1">
             <Command.Primitive.Input asChild>
               <Input
-                placeholder="Search for an account"
+                placeholder={t('search-for-an-account')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -127,10 +134,10 @@ export const FacebookGetAccounts = () => {
               {loading ? (
                 <>
                   <Spinner className="w-3 h-3" />
-                  Loading accounts...
+                  {t('loading-accounts')}
                 </>
               ) : (
-                `${filteredAccounts.length} accounts found`
+                t('accounts-found', { count: filteredAccounts.length })
               )}
             </div>
 
@@ -143,12 +150,12 @@ export const FacebookGetAccounts = () => {
               {isLoggingIn ? (
                 <>
                   <Spinner className="w-4 h-4 mr-2" />
-                  Connecting to Facebook...
+                  {t('connecting-to-facebook')}
                 </>
               ) : (
                 <>
                   <IconBrandFacebook className="w-4 h-4 mr-2 text-blue-600" />
-                  Connect Facebook Account
+                  {t('connect-facebook-account')}
                 </>
               )}
             </Button>

@@ -7,11 +7,15 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  calloutPassedAtom,
+  customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
-import { postMessage } from '@libs/utils';
+import { getVisitorId, postMessage } from '@libs/utils';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
+import { ErxesFormCallout } from './components/ErxesFormCallout';
+import { isCalloutVisible } from './utils/formUtils';
 
 export const Form = () => {
   const [settings, setSettings] = useState<any>({});
@@ -20,16 +24,35 @@ export const Form = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const calloutPassed = useAtomValue(calloutPassedAtom);
+  const customerId = useAtomValue(customerIdAtom);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const loadType = form?.leadData?.loadType;
   const isPopup = loadType === 'popup';
 
   useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia?.(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.fromPublisher) {
         if (event.data.settings) {
           setSettings(event.data.settings);
+        }
+        if (event.data.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (event.data.theme === 'light') {
+          document.documentElement.classList.remove('dark');
         }
         if (event.data.message === 'sendingBrowserInfo') {
           setBrowserInfo(event.data.browserInfo || {});
@@ -53,14 +76,19 @@ export const Form = () => {
 
   useEffect(() => {
     if (settings.form_id && settings.channel_id) {
-      connectMutation({
-        variables: {
-          channelId: settings.channel_id,
-          formCode: settings.form_id,
-        },
-      });
+      const connect = async () => {
+        const cachedCustomerId = customerId || (await getVisitorId());
+        connectMutation({
+          variables: {
+            channelId: settings.channel_id,
+            formCode: settings.form_id,
+            cachedCustomerId,
+          },
+        });
+      };
+      connect();
     }
-  }, [connectMutation, settings]);
+  }, [connectMutation, settings, customerId]);
 
   useEffect(() => {
     if (form?.leadData?.primaryColor) {
@@ -87,7 +115,9 @@ export const Form = () => {
   useEffect(() => {
     if (!isPopup || !settings.form_id) return;
     postMessage('fromForms', 'changeContainerClass', {
-      className: isPopupOpen ? 'erxes-modal-iframe' : 'erxes-modal-iframe hidden',
+      className: isPopupOpen
+        ? 'erxes-modal-iframe'
+        : 'erxes-modal-iframe hidden',
       settings,
     });
   }, [isPopup, isPopupOpen, settings.form_id]);
@@ -104,10 +134,14 @@ export const Form = () => {
     return null;
   }
 
+  const showCallout = isCalloutVisible(form.callout) && !calloutPassed;
+
   const formContent = (
     <ErxesFormProvider form={form}>
       {showConfirmation ? (
         <ErxesFormFinal />
+      ) : showCallout ? (
+        <ErxesFormCallout />
       ) : (
         !loading &&
         form &&
@@ -136,7 +170,14 @@ export const Form = () => {
   if (isPopup) {
     return (
       <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
-        <Dialog.Content className='p-0'>{formContent}</Dialog.Content>
+        <Dialog.Content className="p-0 shadow-none border-none bg-transparent">
+          {formContent}
+          <div className="flex items-center gap-0.5 justify-center mt-1 text-primary-foreground text-[10px]">
+            <span>
+              Powered by <strong>Erxes</strong>
+            </span>
+          </div>
+        </Dialog.Content>
       </Dialog>
     );
   }

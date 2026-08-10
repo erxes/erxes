@@ -23,37 +23,30 @@ export const AddDetailRowButton = ({
 
   const lastDetail = preDetails[preDetails.length - 1];
 
-  const detailDefaultValues = {
+  const getDetailDefaultValues = (productId = '') => ({
     ...lastDetail,
     _id: getTempId(),
     amount: 0,
-    productId: '',
+    productId,
     count: 0,
     unitPrice: 0,
-  };
+  });
 
   return (
     <>
       <Button
         variant="secondary"
         className="bg-border"
-        onClick={() => append(detailDefaultValues)}
+        onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
         Шинэ мөр
       </Button>
       <SelectProductsBulk
-        productIds={
-          preDetails
-            .map((det) => det.productId ?? '')
-            .filter((prodId) => !!prodId) || []
-        }
+        productIds={[]}
         onSelect={(productIds) => {
           append(
-            productIds.map((productId) => ({
-              ...detailDefaultValues,
-              productId,
-            })),
+            productIds.map((productId) => getDetailDefaultValues(productId)),
           );
         }}
       >

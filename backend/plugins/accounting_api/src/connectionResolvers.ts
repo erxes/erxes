@@ -10,8 +10,15 @@ import {
 } from './modules/accounting/@types/adjustInventory';
 import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
+import {
+  IAdjustFixedAssetDocument,
+  IAdjustFxaDetailDocument,
+} from './modules/accounting/@types/adjustFixedAsset';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
-import { ITransactionDocument } from './modules/accounting/@types/transaction';
+import {
+  ITransactionCounterDocument,
+  ITransactionDocument,
+} from './modules/accounting/@types/transaction';
 import { IVatRowDocument } from './modules/accounting/@types/vatRow';
 import {
   IAccountCategoryModel,
@@ -36,6 +43,12 @@ import {
   loadCtaxRowClass,
 } from './modules/accounting/db/models/CtaxRows';
 import {
+  IAdjustFixedAssetModel,
+  IAdjustFxaDetailModel,
+  loadAdjustFixedAssetClass,
+  loadAdjustFxaDetailClass,
+} from './modules/accounting/db/models/FixedAssets';
+import {
   IPermissionModel,
   loadPermissionClass,
 } from './modules/accounting/db/models/Permissions';
@@ -43,6 +56,7 @@ import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
+import { transactionCounterSchema } from './modules/accounting/db/definitions/transaction';
 import {
   IAdjustClosingEntryModel,
   loadAdjustClosingClass,
@@ -53,9 +67,39 @@ import {
   loadVatRowClass,
 } from './modules/accounting/db/models/VatRows';
 import {
+  IAdjustFundRatesModels,
+  loadAdjustRatesClass,
+} from './modules/accounting/db/models/AdjustFundRate';
+import { IAdjustDebtRateDocument } from './modules/accounting/@types/adjustDebtRate';
+import { IAdjustFundRateDocument } from './modules/accounting/@types/adjustRateFundDetails';
+import {
+  IAdjustDebtRatesModels,
+  loadAdjustDebtRatesClass,
+} from './modules/accounting/db/models/AdjustDebtRate';
+import {
   IReserveRemModel,
   loadReserveRemClass,
 } from './modules/inventories/db/models/ReserveRems';
+import { IFixedAssetCategoryDocument } from './modules/fixedAssets/@types/fixedAssetCategory';
+import { IFixedAssetDocument } from './modules/fixedAssets/@types/fixedAsset';
+import { IFxaInstanceDocument } from './modules/fixedAssets/@types/fxaInstance';
+import { IFxaInstanceLogDocument } from './modules/fixedAssets/@types/fxaInstanceLog';
+import {
+  IFixedAssetCategoryModel,
+  loadFixedAssetCategoryClass,
+} from './modules/fixedAssets/db/models/FixedAssetCategories';
+import {
+  IFixedAssetModel,
+  loadFixedAssetClass,
+} from './modules/fixedAssets/db/models/FixedAssets';
+import {
+  IFxaInstanceModel,
+  loadFxaInstanceClass,
+} from './modules/fixedAssets/db/models/FxaInstances';
+import {
+  IFxaInstanceLogModel,
+  loadFxaInstanceLogClass,
+} from './modules/fixedAssets/db/models/FxaInstanceLogs';
 import {
   ISafeRemainderItemModel,
   loadSafeRemainderItemClass,
@@ -67,7 +111,6 @@ import {
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
-
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -76,9 +119,18 @@ export interface IModels {
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
+
+  AdjustDebtRates: IAdjustDebtRatesModels;
+  AdjustFundRates: IAdjustFundRatesModels;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
-  AdjustClosingEntries: IAdjustClosingEntryModel;
+  FixedAssetCategories: IFixedAssetCategoryModel;
+  FixedAssets: IFixedAssetModel;
+  FxaInstances: IFxaInstanceModel;
+  FxaInstanceLogs: IFxaInstanceLogModel;
+  AdjustFixedAssets: IAdjustFixedAssetModel;
+  AdjustFxaDetails: IAdjustFxaDetailModel;
+  TransactionCounters: mongoose.Model<ITransactionCounterDocument>;
 
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
@@ -130,6 +182,16 @@ export const loadClasses = (
     ),
   );
 
+  models.AdjustDebtRates = db.model<
+    IAdjustDebtRateDocument,
+    IAdjustDebtRatesModels
+  >('adjust_debt_rates', loadAdjustDebtRatesClass(models));
+
+  models.AdjustFundRates = db.model<
+    IAdjustFundRateDocument,
+    IAdjustFundRatesModels
+  >('adjust_fund_rates', loadAdjustRatesClass(models));
+
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,
     IAdjustInventoriesModel
@@ -140,6 +202,36 @@ export const loadClasses = (
     IAdjustInvDetailsModel
   >('adjust_inv_details', loadAdjustInvDetailsClass(models, subdomain));
 
+  models.FixedAssetCategories = db.model<
+    IFixedAssetCategoryDocument,
+    IFixedAssetCategoryModel
+  >('fixed_asset_categories', loadFixedAssetCategoryClass());
+
+  models.FixedAssets = db.model<IFixedAssetDocument, IFixedAssetModel>(
+    'fixed_assets',
+    loadFixedAssetClass(),
+  );
+
+  models.FxaInstances = db.model<IFxaInstanceDocument, IFxaInstanceModel>(
+    'fxa_instances',
+    loadFxaInstanceClass(),
+  );
+
+  models.FxaInstanceLogs = db.model<
+    IFxaInstanceLogDocument,
+    IFxaInstanceLogModel
+  >('fxa_instance_logs', loadFxaInstanceLogClass());
+
+  models.AdjustFixedAssets = db.model<
+    IAdjustFixedAssetDocument,
+    IAdjustFixedAssetModel
+  >('adjust_fixed_assets', loadAdjustFixedAssetClass(models));
+
+  models.AdjustFxaDetails = db.model<
+    IAdjustFxaDetailDocument,
+    IAdjustFxaDetailModel
+  >('adjust_fxa_details', loadAdjustFxaDetailClass(models));
+
   models.Permissions = db.model<IPermissionDocument, IPermissionModel>(
     'accounting_permissions',
     loadPermissionClass(models, subdomain),
@@ -147,7 +239,17 @@ export const loadClasses = (
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'accountings_transactions',
-    loadTransactionClass(models, subdomain),
+    loadTransactionClass(
+      models,
+      subdomain,
+      accountingEventHandlers('accounting', 'transactions'),
+    ),
+  );
+
+  models.TransactionCounters = db.model<ITransactionCounterDocument>(
+    'accountings_transaction_counters',
+    transactionCounterSchema,
+    'accountings_transaction_counters',
   );
 
   models.VatRows = db.model<IVatRowDocument, IVatRowModel>(

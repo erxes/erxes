@@ -3,10 +3,10 @@ import { defineConfig } from 'vite';
 import * as path from 'path';
 
 export default defineConfig({
-  base: '/pl:payment/widget/',
+  base: '/__PAYMENT_WIDGET_BASE__/',
   server: {
     port: 5173,
-    hmr: true
+    hmr: true,
   },
   plugins: [react()],
   root: __dirname, // This is /app/backend/plugins/payment_api/src/widget

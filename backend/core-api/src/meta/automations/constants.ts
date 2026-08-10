@@ -8,10 +8,13 @@ import {
 import {
   AI_AGENT_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
+  MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
   SEND_EMAIL_ACTION_OUTPUT,
+  TRANSFORM_ACTION_OUTPUT,
 } from './actionOutputs';
 import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
+import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
   COMPANY_TRIGGER_OUTPUT,
   CUSTOMER_TRIGGER_OUTPUT,
@@ -20,9 +23,42 @@ import {
   WEBHOOK_TRIGGER_OUTPUT,
 } from './triggerOutputs';
 
-export const coreAutomationConstants: AutomationConstants = {
+const CORE_ACTION_GROUPS = {
+  LOGIC_AND_DECISIONS: 'Logic & Decisions',
+  DATA_OPERATIONS: 'Data Operations',
+  COMMUNICATION_AND_INTEGRATIONS: 'Communication & Integrations',
+  TIMING_AND_DELAYS: 'Timing & Delays',
+};
+
+export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
+  ai: {
+    knowledgeSources: [
+      {
+        key: CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY,
+        label: 'Products',
+        moduleName: 'products',
+        sourceSelector: 'local',
+        supportsFullScope: true,
+      },
+    ],
+  },
   triggers: [
+    {
+      type: AUTOMATION_CORE_TRIGGER_TYPES.SCHEDULE,
+      moduleName: 'schedules',
+      collectionName: 'recurring',
+      icon: 'IconCalendarClock',
+      label: 'Recurring schedule',
+      description: 'Run an automation on a recurring cron schedule',
+      isCustom: true,
+      output: {
+        variables: [
+          { key: 'scheduledAt', label: 'Scheduled at' },
+          { key: 'timezone', label: 'Timezone' },
+        ],
+      },
+    },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.INCOMING_WEBHOOK,
       moduleName: 'webhooks',
@@ -43,6 +79,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off team members',
       output: TEAM_MEMBER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Team member',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.USER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
@@ -53,6 +97,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Customers',
       output: CUSTOMER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Customer',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
@@ -63,6 +115,14 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Leads',
       output: LEAD_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Lead',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
@@ -73,38 +133,45 @@ export const coreAutomationConstants: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off company',
       output: COMPANY_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Company',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
   ],
   actions: [
-    {
-      type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
-      moduleName: 'automation',
-      collectionName: 'outgoingWebhook',
-      icon: 'IconWebhook',
-      label: 'Outgoing webhook',
-      description: 'Outgoing webhook',
-      allowTargetFromActions: true,
-      output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
-    },
+    // Logic & Decisions
     {
       type: AUTOMATION_CORE_ACTIONS.IF,
-      moduleName: 'automation',
-      collectionName: 'branch',
       icon: 'IconSitemap',
       label: 'Branches',
       description: 'Create simple or if/then branches',
+      group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
       folks: [
         { key: 'yes', label: 'Yes', type: TAutomationActionFolks.SUCCESS },
         { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
       ],
     },
     {
+      type: AUTOMATION_CORE_ACTIONS.SPLIT,
+      icon: 'IconArrowsSplit',
+      label: 'Split',
+      description:
+        'Create conditional branches to route workflows based on criteria',
+      group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
+      allowTargetFromActions: true,
+    },
+    // Data Operations
+    {
       type: AUTOMATION_CORE_ACTIONS.FIND_OBJECT,
-      moduleName: 'automation',
-      collectionName: 'findObject',
       icon: 'IconSearch',
       label: 'Find object',
       description: 'Find object',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       folks: [
         {
           key: 'isExists',
@@ -121,14 +188,63 @@ export const coreAutomationConstants: AutomationConstants = {
       output: FIND_OBJECT_ACTION_OUTPUT,
     },
     {
+      type: AUTOMATION_CORE_ACTIONS.TRANSFORM,
+      icon: 'IconArrowMerge',
+      label: 'Transform',
+      description:
+        'Create structured data from trigger or previous action output.',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
+      allowTargetFromActions: true,
+      output: TRANSFORM_ACTION_OUTPUT,
+      isTargetSource: true,
+    },
+    {
       type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
-      moduleName: 'automation',
-      collectionName: 'setProperty',
       icon: 'IconFlask',
       label: 'Manage properties',
       description: 'Update record properties.',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       allowTargetFromActions: true,
     },
+    // Communication & Integrations
+    {
+      type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,
+      icon: 'IconMailFast',
+      label: 'Send Email',
+      description: 'Send Email',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+      allowTargetFromActions: true,
+      output: SEND_EMAIL_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
+      icon: 'IconWebhook',
+      label: 'Outgoing webhook',
+      description: 'Outgoing webhook',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      allowTargetFromActions: true,
+      output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.MESSAGE_PRO,
+      icon: 'IconFileText',
+      label: 'Message Pro',
+      description: 'Render a selected document with the target record.',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      allowTargetFromActions: true,
+      output: MESSAGE_PRO_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
+      icon: 'IconBrain',
+      label: 'AI Agent',
+      description:
+        'Use a configured AI agent to generate text, route topics, or classify structured data.',
+      group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
+      output: AI_AGENT_ACTION_OUTPUT,
+    },
+    // Timing & Delays
     {
       type: AUTOMATION_CORE_ACTIONS.DELAY,
       moduleName: 'automation',
@@ -136,17 +252,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconHourglass',
       label: 'Delay',
       description: 'Delay the next action.',
-    },
-    {
-      type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,
-      moduleName: 'automation',
-      collectionName: 'sendEmail',
-      icon: 'IconMailFast',
-      label: 'Send Email',
-      description: 'Send Email',
-      emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
-      allowTargetFromActions: true,
-      output: SEND_EMAIL_ACTION_OUTPUT,
+      group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
@@ -155,16 +261,7 @@ export const coreAutomationConstants: AutomationConstants = {
       icon: 'IconClockPlay',
       label: 'Wait event',
       description: 'Delay until event is triggered',
-    },
-    {
-      type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
-      moduleName: 'automation',
-      collectionName: 'aiAgent',
-      icon: 'IconAi',
-      label: 'AI Agent',
-      description:
-        'Use a configured AI agent to generate text, route topics, or classify structured data.',
-      output: AI_AGENT_ACTION_OUTPUT,
+      group: CORE_ACTION_GROUPS.TIMING_AND_DELAYS,
     },
   ],
 };

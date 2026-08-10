@@ -118,7 +118,29 @@ const normalizeWebhookTargetId = (value: unknown): string | null => {
     return String(value);
   }
 
+  if (value && typeof value === 'object' && 'toString' in value) {
+    const stringValue = value.toString();
+
+    if (stringValue && stringValue !== '[object Object]') {
+      return stringValue;
+    }
+  }
+
   return null;
+};
+
+const stringifyWebhookHashPart = (value: unknown): string => {
+  const normalized = normalizeWebhookTargetId(value);
+
+  if (normalized) {
+    return normalized;
+  }
+
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  return JSON.stringify(value);
 };
 
 const buildDeterministicWebhookTargetId = (
@@ -135,9 +157,9 @@ const buildDeterministicWebhookTargetId = (
 
   hash.update(req.method || '');
   hash.update('\n');
-  hash.update(automationId || '');
+  hash.update(stringifyWebhookHashPart(automationId));
   hash.update('\n');
-  hash.update(triggerId || '');
+  hash.update(stringifyWebhookHashPart(triggerId));
   hash.update('\n');
   hash.update(JSON.stringify(req.query ?? {}));
   hash.update('\n');

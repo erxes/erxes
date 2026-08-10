@@ -3,8 +3,21 @@ import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
 import { useState, useCallback, useRef } from 'react';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  buildPostsListPath,
+  getPostsReturnPath,
+} from '~/modules/cms/posts/utils/postsNavigation';
+
+interface PostHeaderFormState {
+  form: UseFormReturn<FieldValues>;
+  onSubmit: (data?: FieldValues) => void | Promise<void>;
+  creating: boolean;
+  saving: boolean;
+  handleLanguageChange: (lang: string) => void;
+}
 
 export const PostsAddPage = ({
   clientPortalId,
@@ -13,16 +26,17 @@ export const PostsAddPage = ({
   clientPortalId: string;
   postId?: string;
 }) => {
-  const [formState, setFormState] = useState<any>(null);
+  const [formState, setFormState] = useState<PostHeaderFormState | null>(null);
   const { post, loading } = usePostDetail(postId || '');
   const navigate = useNavigate();
+  const location = useLocation();
   const { websiteId } = useParams();
 
   const languageChangeRef = useRef<(lang: string) => void>();
 
-  const handleFormReady = useCallback((formState: any) => {
-    setFormState(formState);
-    languageChangeRef.current = formState.handleLanguageChange;
+  const handleFormReady = useCallback((state: PostHeaderFormState) => {
+    setFormState(state);
+    languageChangeRef.current = state.handleLanguageChange;
   }, []);
 
   const handleHeaderLanguageChange = useCallback((lang: string) => {
@@ -32,11 +46,17 @@ export const PostsAddPage = ({
   }, []);
 
   const handleClose = useCallback(() => {
-    const typeCode = new URLSearchParams(window.location.search).get('type');
-    const typeParam =
-      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
-    navigate(`/content/cms/${websiteId}/posts${typeParam}`);
-  }, [navigate, websiteId]);
+    const returnTo = getPostsReturnPath(location.state, postId);
+
+    navigate(
+      returnTo ||
+        buildPostsListPath({
+          websiteId,
+          search: location.search,
+          postId,
+        }),
+    );
+  }, [location.search, location.state, navigate, postId, websiteId]);
 
   return (
     <PageContainer>

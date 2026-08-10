@@ -1,4 +1,4 @@
-import { IconGitBranch } from '@tabler/icons-react';
+import { IconFilePlus } from '@tabler/icons-react';
 import { useDocuments } from '../hooks/useDocuments';
 import { DocumentsGrid } from './DocumentsGrid';
 import { DocumentsList } from './DocumentsList';
@@ -26,19 +26,16 @@ export const Documents = ({ viewType }: Props) => {
       <Component documents={documents} />
 
         {!loading && documents?.length === 0 && (
-          <div className="h-full w-full px-8 flex justify-center">
-            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-              <div className="mb-6">
-                <IconGitBranch
-                  size={64}
-                  className="text-muted-foreground mx-auto mb-4"
-                />
-                <h3 className="text-xl font-semibold mb-2">{t('no-document-title')}</h3>
-                <p className="text-muted-foreground max-w-md">
-                  {t('no-document-description')}
-                </p>
-              </div>
+          <div className="flex h-full min-h-[400px] w-full flex-col items-center justify-center px-8 text-center">
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-muted">
+              <IconFilePlus size={28} className="text-muted-foreground" />
             </div>
+            <h3 className="mb-1 text-lg font-semibold">
+              {t('no-document-title')}
+            </h3>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              {t('no-document-description')}
+            </p>
           </div>
       )}
     </div>

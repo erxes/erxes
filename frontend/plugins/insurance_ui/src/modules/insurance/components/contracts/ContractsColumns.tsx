@@ -2,7 +2,7 @@ import { createContractColumns } from '../shared';
 
 // Contracts uses the default contract columns with product before customer
 export const contractsColumns = createContractColumns({
-  moreColumnSize: 26,
+  moreColumnSize: 33,
   columnOrder: [
     'more',
     'checkbox',

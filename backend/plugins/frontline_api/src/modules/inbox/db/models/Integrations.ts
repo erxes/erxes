@@ -24,7 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelId: string;
+  channelId?: string;
 }
 
 interface IIntegrationBasicInfo {
@@ -103,7 +103,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    configId: string,
+    configIds?: string[],
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -293,23 +293,46 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      configId: string,
+      configIds?: string[],
     ) {
-      const integration = await models.Integrations.findOne({
-        _id: _id,
-      });
+      const integration = await models.Integrations.findOne({ _id });
       if (!integration) {
         throw new Error('Integration not found');
       }
-      const config = await models.TicketConfig.findOne({ _id: configId });
-      if (!config) {
-        throw new Error('Config not found');
+
+      if (!configIds || configIds.length === 0) {
+        const result = await models.Integrations.updateOne(
+          { _id },
+          // Note: Assuming you rename the field in your schema to plural.
+          { $unset: { ticketConfigIds: 1 } },
+          { runValidators: true },
+        );
+
+        if (!result.acknowledged) {
+          throw new Error('Failed to update ticket data');
+        }
+
+        return models.Integrations.findOne({ _id });
       }
+
+      // Remove duplicates just in case the client sent duplicate IDs
+      const uniqueConfigIds = [...new Set(configIds)];
+
+      // 2. Validate that ALL provided configs exist
+      const configs = await models.TicketConfig.find({
+        _id: { $in: uniqueConfigIds },
+      });
+
+      if (configs.length !== uniqueConfigIds.length) {
+        throw new Error('One or more Configs not found');
+      }
+
+      // 3. Save the array to the database
       const result = await models.Integrations.updateOne(
         { _id },
         {
           $set: {
-            ticketConfigId: configId,
+            ticketConfigIds: uniqueConfigIds,
           },
         },
         { runValidators: true },
@@ -327,11 +350,29 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerAppearanceData(
       _id: string,
-      { logo, primary }: IUiOptions,
+      {
+        logo,
+        launcherLogo,
+        primary,
+        backgroundColor,
+        heroStyleVariant,
+        navigationVariant,
+      }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { logo, primary } } },
+        {
+          $set: {
+            uiOptions: {
+              logo,
+              launcherLogo,
+              primary,
+              backgroundColor,
+              heroStyleVariant,
+              navigationVariant,
+            },
+          },
+        },
         { runValidators: true },
       );
 

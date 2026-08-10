@@ -1,18 +1,33 @@
 import { z } from 'zod';
 
+const stringArrayField = z.preprocess((value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}, z.array(z.string()));
+
 export const productRulesOnTaxSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
-  productCategoryIds: z.string().optional(),
+  productCategoryIds: stringArrayField,
   taxType: z.string().min(1, 'Select a tax type'),
-  excludeCategoryIds: z.string().optional(),
-  taxCode: z.string().min(1, 'Select a tax code'),
-  productIds: z.string().optional(),
-  excludeProductIds: z.string().optional(),
+  excludeCategoryIds: stringArrayField,
+  taxCode: z.string(),
+  productIds: stringArrayField,
+  excludeProductIds: stringArrayField,
   kind: z.string().min(1, 'Select a kind'),
-  percent: z.number().min(0, 'Percent must be at least 0'),
-  tagIds: z.string().optional(),
-  excludeTagIds: z.string().optional(),
+  taxPercent: z.number(),
+  tagIds: stringArrayField,
+  excludeTagIds: stringArrayField,
   status: z.string().optional(),
 });
 

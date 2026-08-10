@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { IconAlertSquareRounded, IconChevronRight } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
@@ -8,6 +9,7 @@ export const TasksEditPriorityTrigger = ({
 }: {
   setCurrentContent: (currentContent: string) => void;
 }) => {
+  const { t } = useTranslation('operation');
   return (
     <Command.Item
       className="flex justify-between"
@@ -17,7 +19,7 @@ export const TasksEditPriorityTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconAlertSquareRounded className="size-4" />
-        Change Priority
+        {t('change-priority')}
       </div>
       <IconChevronRight />
     </Command.Item>

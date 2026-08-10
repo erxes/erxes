@@ -63,11 +63,11 @@ export const SAVE_EM_APPEARANCE_MUTATION = gql`
 export const SAVE_EM_TICKET_CONFIG_MUTATION = gql`
   mutation IntegrationsSaveMessengerTicketData(
     $_id: String!
-    $configId: String!
+    $configIds: [String]
   ) {
-    integrationsSaveMessengerTicketData(_id: $_id, configId: $configId) {
+    integrationsSaveMessengerTicketData(_id: $_id, configIds: $configIds) {
       _id
-      ticketConfigId
+      ticketConfigIds
     }
   }
 `;

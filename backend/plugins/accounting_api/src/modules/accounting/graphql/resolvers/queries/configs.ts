@@ -7,40 +7,45 @@ const configQueries = {
   accountingsConfigDetail: async (
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('readAccountingConfigs');
     return await models.Configs.getConfigDetail(_id);
   },
 
   accountingsConfig: async (
     _root,
     { code, subId }: { code: string; subId?: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('readAccountingConfigs');
     return await models.Configs.getConfig(code, subId);
   },
 
   accountingsConfigs: async (
     _root,
     { code }: { code: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('readAccountingConfigs');
     return await models.Configs.getConfigs(code);
   },
 
   accountingsConfigsCount: async (
     _root,
     code: string,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('readAccountingConfigs');
     return await models.Configs.find({ code }).countDocuments();
   },
 
   async accountingsConfigsByCode(
     _root,
     params: { codes: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountingConfigs');
     // TODO: remove code, like migration
     await models.Configs.updateMany(
       { subId: { $exists: false } },

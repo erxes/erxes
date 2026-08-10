@@ -248,7 +248,9 @@ function GenericBoardInner<
           if (overIndex !== -1) insertIndex = overIndex;
         }
 
-        overItems.splice(insertIndex, 0, activeId);
+        if (!overItems.includes(activeId)) {
+          overItems.splice(insertIndex, 0, activeId);
+        }
 
         const updatedItem = { ...prev.items[activeId], columnId: overColumnId };
 
@@ -361,7 +363,10 @@ function GenericBoardInner<
           strategy={horizontalListSortingStrategy}
         >
           {state.columns.map((column) => {
-            const items = (state.columnItems[column._id] || [])
+            const itemIds = [
+              ...new Set(state.columnItems[column._id] || []),
+            ];
+            const items = itemIds
               .map((id) => state.items[id])
               .filter(Boolean);
 
@@ -398,7 +403,7 @@ function GenericBoardInner<
           </div>
         )}
         {activeItem && (
-          <div className="bg-white rounded-lg border-2 border-primary shadow-2xl p-3 rotate-3">
+          <div className="bg-background rounded-lg border-2 border-primary shadow-2xl p-3 rotate-3">
             {renderCard(activeItem, true)}
           </div>
         )}

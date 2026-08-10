@@ -94,7 +94,6 @@ export const pipelineSchema = new Schema(
     },
     paymentIds: { type: [String], label: 'Online Payments' },
     paymentTypes: { type: [Object], label: 'Other Payments' },
-    erxesAppToken: { type: String, label: 'Erxes App token' },
 
     userId: { type: String, label: 'Created by' },
     order: { type: Number, label: 'Order' },

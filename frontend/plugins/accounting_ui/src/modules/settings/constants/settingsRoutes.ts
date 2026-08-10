@@ -1,12 +1,16 @@
 export const SETTINGS_ROUTES = {
-  '/settings/accounting': 'Үндсэн тохиргоо',
-  '/settings/accounting/accounts': 'Данс',
-  '/settings/accounting/account-categories': 'Дансны ангилал',
-  '/settings/accounting/vat-rows': 'НӨАТ-ын мөр',
-  '/settings/accounting/ctax-rows': 'НХАТ-ын мөр',
-  '/settings/accounting/sync-deal': 'Deal синк',
-  '/settings/accounting/sync-deal-return': 'Deal буцаалтын синк',
-  '/settings/accounting/sync-order': 'Захиалгын синк',
+  '/settings/accounting/config': 'Ерөнхий тохиргоо',
+  account: '',
+  '/settings/accounting/config/accounts': 'Данс',
+  '/settings/accounting/config/account-categories': 'Дансны ангилал',
+  '/settings/accounting/config/permissions': 'Дансны эрх',
+  tax: '',
+  '/settings/accounting/config/vat-rows': 'НӨАТ-ын мөр',
+  '/settings/accounting/config/ctax-rows': 'НХАТ-ын мөр',
+  sync: '',
+  '/settings/accounting/config/sync-deal': 'Deal дүрэм',
+  '/settings/accounting/config/sync-deal-return': 'Deal буцаалтын дүрэм',
+  '/settings/accounting/config/sync-order': 'Pos order дүрэм',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

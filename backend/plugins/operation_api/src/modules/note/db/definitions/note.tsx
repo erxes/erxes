@@ -6,6 +6,7 @@ export const noteSchema = new Schema(
     contentId: { type: Schema.Types.ObjectId },
     createdBy: { type: String },
     mentions: { type: [String], default: [] },
+    statusId: { type: String },
   },
   {
     timestamps: true,

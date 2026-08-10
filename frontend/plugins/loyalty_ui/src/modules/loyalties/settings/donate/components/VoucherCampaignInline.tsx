@@ -5,6 +5,7 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useVoucherCampaignInlineContext,
   VoucherCampaignInlineContext,
@@ -30,6 +31,7 @@ const VoucherCampaignInlineProvider = ({
   placeholder,
   updateVoucherCampaigns,
 }: VoucherCampaignInlineProps & { children?: React.ReactNode }) => {
+  const { t } = useTranslation('loyalty');
   const [selectedVoucherCampaigns, setSelectedVoucherCampaigns] = useState<
     IVoucherCampaign[]
   >(voucherCampaigns || []);
@@ -44,7 +46,7 @@ const VoucherCampaignInlineProvider = ({
       loading: false,
       voucherCampaignId: normalizedVoucherCampaignId,
       placeholder: isUndefinedOrNull(placeholder)
-        ? 'Select voucher campaigns'
+        ? t('choose-voucher-campaign')
         : placeholder,
       updateVoucherCampaigns:
         updateVoucherCampaigns || setSelectedVoucherCampaigns,
@@ -103,6 +105,7 @@ const VoucherCampaignInlineEffectComponent = ({
 };
 
 const VoucherCampaignInlineTitle = () => {
+  const { t } = useTranslation('loyalty');
   const { voucherCampaigns, loading, placeholder } =
     useVoucherCampaignInlineContext();
 
@@ -118,7 +121,7 @@ const VoucherCampaignInlineTitle = () => {
     return (
       <TextOverflowTooltip
         value={voucherCampaigns
-          .map((c) => c.title || 'Unnamed Campaign')
+          .map((c) => c.title || t('unnamed-campaign'))
           .join(', ')}
       />
     );
@@ -128,11 +131,11 @@ const VoucherCampaignInlineTitle = () => {
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger asChild>
-          <span>{`${voucherCampaigns.length} voucher campaigns`}</span>
+          <span>{t('voucher-campaigns-count', { count: voucherCampaigns.length })}</span>
         </Tooltip.Trigger>
         <Tooltip.Content>
           {voucherCampaigns
-            .map((c) => c.title || 'Unnamed Campaign')
+            .map((c) => c.title || t('unnamed-campaign'))
             .join(', ')}
         </Tooltip.Content>
       </Tooltip>

@@ -3,7 +3,7 @@ export const STATUS_TYPES = {
   ARCHIVED: 'archived',
   DRAFT: 'draft',
   COMPLETED: 'completed',
-  ALL: ['active', 'draft', 'archived', 'completed'] as const
+  ALL: ['active', 'draft', 'archived', 'completed'] as const,
 };
 
 export const DISCOUNT_TYPES = {
@@ -12,7 +12,15 @@ export const DISCOUNT_TYPES = {
   SUBTRACTION: 'subtraction',
   PERCENTAGE: 'percentage',
   BONUS: 'bonus',
-  ALL: ['default', 'fixed', 'subtraction', 'percentage', 'bonus'] as const
+  ALL: ['default', 'fixed', 'subtraction', 'percentage', 'bonus'] as const,
+};
+
+export const RULE_DISCOUNT_TYPES = {
+  DEFAULT: 'default',
+  SUBTRACTION: 'subtraction',
+  PERCENTAGE: 'percentage',
+  BONUS: 'bonus',
+  ALL: ['default', 'subtraction', 'percentage', 'bonus'] as const,
 };
 
 export const PRICE_ADJUST_TYPES = {
@@ -22,7 +30,14 @@ export const PRICE_ADJUST_TYPES = {
   FLOOR: 'floor',
   CEIL: 'ceil',
   ENDSWITH9: 'endsWith9',
-  ALL: ['none', 'default', 'round', 'floor', 'ceil', 'endsWith9'] as const
+  ALL: ['none', 'default', 'round', 'floor', 'ceil', 'endsWith9'] as const,
+};
+
+export const PRIORITY_TYPES = {
+  NONE: '',
+  PUBLIC: 'public',
+  POS_BASE: 'posBase',
+  ALL: ['', 'public', 'posBase'] as const,
 };
 
 export const APPLY_TYPES = {
@@ -32,14 +47,14 @@ export const APPLY_TYPES = {
   SEGMENT: 'segment',
   VENDOR: 'vendor',
   TAG: 'tag',
-  ALL: ['product', 'category', 'bundle', 'segment', 'vendor', 'tag'] as const
+  ALL: ['product', 'category', 'bundle', 'segment', 'vendor', 'tag'] as const,
 };
 
 export const RULE_TYPES = {
   MINIMUM: 'minimum',
   EXACT: 'exact',
   EVERY: 'every',
-  ALL: ['minimum', 'exact', 'every'] as const
+  ALL: ['minimum', 'exact', 'every'] as const,
 };
 
 export const EXPIRY_TYPES = {
@@ -48,5 +63,5 @@ export const EXPIRY_TYPES = {
   WEEK: 'week',
   MONTH: 'month',
   YEAR: 'year',
-  ALL: ['hour', 'day', 'week', 'month', 'year'] as const
+  ALL: ['hour', 'day', 'week', 'month', 'year'] as const,
 };

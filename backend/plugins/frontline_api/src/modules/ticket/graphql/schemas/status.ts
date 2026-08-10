@@ -32,7 +32,8 @@ export const queries = `
   getAccessibleTicketStatuses(pipelineId: String!): JSON
   getTicketStatusesChoicesPipeline(pipelineId: String!): JSON
   getTicketStatusesByType(pipelineId: String! , type: Int!): [TicketStatus]
-`;
+  cpGetTicketStatus(_id: String!): TicketStatus
+  `;
 
 const statusParams = `
   visibilityType: String

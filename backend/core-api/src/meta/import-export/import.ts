@@ -18,23 +18,28 @@ const importModules = {
 const coreImportTypes = [
   {
     label: 'Customer',
-    contentType: 'core:contact.customer',
+    contentType: 'core:contacts.customers',
+    permissions: ['customersImportManage'],
   },
   {
     label: 'Lead',
-    contentType: 'core:contact.lead',
+    contentType: 'core:contacts.leads',
+    permissions: ['customersImportManage'],
   },
   {
     label: 'Company',
-    contentType: 'core:contact.company',
+    contentType: 'core:contacts.companies',
+    permissions: ['companiesImportManage'],
   },
   {
     label: 'Product',
     contentType: 'core:product.product',
+    permissions: ['productsImportManage'],
   },
   {
     label: 'Team member',
-    contentType: 'core:user.user',
+    contentType: 'core:organization.users',
+    permissions: ['teamMembersImportManage'],
   },
 ];
 

@@ -51,6 +51,7 @@ COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 COPY backend/plugins/payment_api/dist ./dist
+COPY backend/plugins/payment_api/src/public/widget ./dist/src/public/widget
 
 ENV NODE_ENV=production
 USER 1000

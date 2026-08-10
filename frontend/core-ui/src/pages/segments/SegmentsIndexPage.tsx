@@ -1,9 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { PageContainer, Spinner, useQueryState } from 'erxes-ui';
+import { PageContainer, Separator, Spinner, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { SegmentsRecordTable } from '@/segments/components/SegmentRecordTable';
 import { SegmentListSidebar } from '@/segments/components/SegmentsSidebar';
-import { PageHeader, SEGMENTS_GET_TYPES } from 'ui-modules';
+import {
+  PageHeader,
+  SEGMENTS_GET_TYPES,
+  createFavoriteBreadcrumb,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { IconChartPie } from '@tabler/icons-react';
 import { SegmentDetail } from '@/segments/components/SegmentDetail';
@@ -28,6 +32,13 @@ export default function SegmentsIndexPage() {
   }
 
   const { segmentsGetTypes = [] } = data || {};
+  const selectedSegmentType =
+    segmentsGetTypes.find((type) => type.contentType === contentType) ||
+    segmentsGetTypes[0];
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    'Segments',
+    selectedSegmentType?.description,
+  );
 
   return (
     <PageContainer className="flex flex-col h-full">
@@ -35,6 +46,11 @@ export default function SegmentsIndexPage() {
         <PageHeader.Start>
           <IconChartPie className="size-4" />
           <span className="font-medium">{t('segment')}</span>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconChartPie"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <SegmentDetail onRefresh={handleRefresh} />

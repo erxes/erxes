@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
 
 export const AddTicketSheet = ({
@@ -20,6 +21,7 @@ export const AddTicketSheet = ({
   onComplete?: (ticketId: string) => void;
   isRelation?: boolean;
 } & ButtonProps) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useAtom(ticketCreateSheetState);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -49,7 +51,7 @@ export const AddTicketSheet = ({
       <Sheet.Trigger asChild>
         <Button {...props}>
           <IconPlus />
-          Add ticket
+          {t('add-ticket')}
           {!isRelation && <Kbd>C</Kbd>}
         </Button>
       </Sheet.Trigger>
@@ -66,11 +68,12 @@ export const AddTicketSheet = ({
 };
 
 export const AddTicketSheetHeader = () => {
+  const { t } = useTranslation('frontline');
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>Add ticket</Sheet.Title>
+      <Sheet.Title>{t('add-ticket')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        Add a new ticket to your organization.
+        {t('add-ticket-description')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

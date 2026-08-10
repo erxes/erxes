@@ -12,9 +12,10 @@ import {
   TicketStatusSummaryItem,
 } from '@/report/hooks/useTicketStatusSummary';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
-import { ResponsesChartType } from '@/report/types';
-import { memo, useMemo, useState, useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { ReportChart, ResponsesChartType } from '@/report/types';
+import { memo, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   Bar,
   BarChart,
@@ -30,69 +31,56 @@ import {
   YAxis,
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
-import { getFilters } from '@/report/utils/dateFilters';
+import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
-import {
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom, reportChartTypeState } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import { type LegendPayload } from 'recharts';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 interface TicketStatusSummaryProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const TicketStatusSummary = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 12,
   onColSpanChange,
 }: TicketStatusSummaryProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
-  }, [dateValue]);
+  const { t } = useTranslation('frontline');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
+  const setChartType = useSetAtom(getReportChartTypeAtom(id));
+  const chartType =
+    useAtomValue(reportChartTypeState)[id] ?? ResponsesChartType.Table;
 
   const { statusSummary, loading, error } = useTicketStatusSummary({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
-      },
-    },
+    skip: !filtersRestored,
+    variables: { filters: queryFilters },
   });
 
   const data = useMemo(() => statusSummary || [], [statusSummary]);
+  const {
+    pagedData: statuses,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(data);
 
   const exportColumns = useMemo(
     () => [
@@ -111,6 +99,13 @@ export const TicketStatusSummary = ({
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType={TICKET_CHART_TYPES.statusSummary}
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={data}
         columns={exportColumns}
@@ -119,7 +114,7 @@ export const TicketStatusSummary = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -147,7 +142,7 @@ export const TicketStatusSummary = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>Error loading data</Alert.Title>
+            <Alert.Title>{t('error-loading-data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -164,7 +159,7 @@ export const TicketStatusSummary = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -189,25 +184,35 @@ export const TicketStatusSummary = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <StatusBarChart data={data} />
+            <StatusBarChart data={statuses} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <StatusLineChart data={data} />
+            <StatusLineChart data={statuses} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <StatusPieChart data={data} />
+            <StatusPieChart data={statuses} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <StatusBarChart data={data} />
+            <StatusBarChart data={statuses} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <StatusTableChart data={data} />
+            <StatusTableChart data={statuses} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
 };
+
+const truncateStatusName = (value: string) =>
+  value.length > 18 ? `${value.slice(0, 17)}…` : value;
 
 const StatusBarChart = memo(function StatusBarChart({
   data,
@@ -235,7 +240,12 @@ const StatusBarChart = memo(function StatusBarChart({
         margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis dataKey="name" tickLine={false} axisLine={false} />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={truncateStatusName}
+        />
         <YAxis tickLine={false} axisLine={false} />
         <Bar dataKey="count" name="Count">
           {chartData.map((entry, i) => (
@@ -273,8 +283,17 @@ const StatusLineChart = memo(function StatusLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="tk-status-primary" color="var(--primary)" />
+          <AreaGradient id="tk-status-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis dataKey="name" tickLine={false} axisLine={false} />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          tickFormatter={truncateStatusName}
+        />
         <YAxis yAxisId="count" tickLine={false} axisLine={false} />
         <YAxis
           yAxisId="percentage"
@@ -287,18 +306,20 @@ const StatusLineChart = memo(function StatusLineChart({
           dataKey="count"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#tk-status-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Area
           yAxisId="percentage"
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#tk-status-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
@@ -386,11 +407,21 @@ const StatusTableChart = memo(function StatusTableChart({
       id: 'name',
       header: 'Status',
       accessorKey: 'name',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell className="px-4 text-xs capitalize">
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
+      cell: ({ cell }) => {
+        const { name, group } = cell.row.original;
+        return (
+          <RecordTableInlineCell className="px-4 text-xs">
+            <span className={cn('truncate', !group && 'capitalize')}>
+              {name}
+            </span>
+            {group && (
+              <span className="text-muted-foreground ml-2 shrink-0 capitalize">
+                {group}
+              </span>
+            )}
+          </RecordTableInlineCell>
+        );
+      },
     },
     {
       id: 'count',

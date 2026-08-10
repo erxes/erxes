@@ -2,11 +2,25 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { similaritiesTrpcRouter } from '@/products/trpc/similarity';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
+const inventoryKey = (id?: string) => id || '_';
+
+const discountValueSchema = z.object({
+  planId: z.string(),
+  discount: z.number(),
+  discountPercent: z.number(),
+  prefixes: z.array(z.string()),
+  conditions: z.record(z.any()),
+});
+
+const discountsSchema = z.array(discountValueSchema);
+
 export const productsTrpcRouter = t.router({
   products: t.router({
+    similarities: similaritiesTrpcRouter,
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const {
         query: rawQuery,
@@ -65,8 +79,11 @@ export const productsTrpcRouter = t.router({
     }),
 
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
       return models.Products.findOne(query).lean();
     }),
@@ -77,7 +94,7 @@ export const productsTrpcRouter = t.router({
         const { doc } = input;
         const { models } = ctx;
 
-        return models.Products.createProduct(doc);
+        return await models.Products.createProduct(doc);
       }),
 
     updateProduct: t.procedure
@@ -95,7 +112,7 @@ export const productsTrpcRouter = t.router({
         const { query, doc } = input;
         const { models } = ctx;
 
-        return models.Products.updateMany(query, doc);
+        return models.Products.updateProducts(query, doc);
       }),
 
     removeProducts: t.procedure
@@ -129,12 +146,24 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+    rules: t.router({
+      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _ids = [] } = input || {};
+
+        if (!_ids.length) {
+          return [];
+        }
+
+        return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+      }),
+    }),
 
     setInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string(),
-          departmentId: z.string(),
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -149,7 +178,9 @@ export const productsTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { branchId, departmentId, productsInfo } = input;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => {
@@ -198,8 +229,8 @@ export const productsTrpcRouter = t.router({
     increaseInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string(),
-          departmentId: z.string(),
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -214,7 +245,9 @@ export const productsTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { branchId, departmentId, productsInfo } = input;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => ({
@@ -233,6 +266,44 @@ export const productsTrpcRouter = t.router({
                 },
               },
               upsert: true,
+            },
+          })),
+        );
+      }),
+
+    replaceDiscounts: t.procedure
+      .input(
+        z.object({
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              discounts: discountsSchema,
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+
+        await models.Products.updateMany(
+          { discounts: { $exists: true } },
+          { $unset: { discounts: 1 } },
+        );
+
+        if (!productsInfo.length) {
+          return;
+        }
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $set: {
+                  discounts: info.discounts,
+                },
+              },
             },
           })),
         );

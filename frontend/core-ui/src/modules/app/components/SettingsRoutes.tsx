@@ -40,6 +40,14 @@ const GeneralSettings = lazy(() =>
   })),
 );
 
+const MessageProSettings = lazy(() =>
+  import('~/pages/settings/workspace/MessageProSettingsPage').then(
+    (module) => ({
+      default: module.MessageProSettingsPage,
+    }),
+  ),
+);
+
 const TagsPage = lazy(() =>
   import('~/pages/settings/workspace/tags/TagsPage').then((module) => ({
     default: module.TagsPage,
@@ -93,6 +101,12 @@ const LogsRoutes = lazy(() =>
   })),
 );
 
+const EmailDeliveries = lazy(() =>
+  import('~/pages/settings/workspace/EmailDeliveriesPage').then((module) => ({
+    default: module.EmailDeliveriesPage,
+  })),
+);
+
 const BroadcastSettings = lazy(() =>
   import('~/pages/settings/workspace/BroadcastSettingsPage').then((module) => ({
     default: module.BroadcastSettingsPage,
@@ -105,6 +119,12 @@ const ImportExportSettingsRoutes = lazy(() =>
       default: module.ImportExportSettingsRoutes,
     }),
   ),
+);
+
+const ApprovalRequestsPage = lazy(() =>
+  import('~/pages/settings/approval/ApprovalRequestsPage').then((module) => ({
+    default: module.ApprovalRequestsPage,
+  })),
 );
 
 const SettingsNotificationRoutes = lazy(() =>
@@ -163,6 +183,10 @@ export function SettingsRoutes() {
           element={<GeneralSettings />}
         />
         <Route
+          path={SettingsWorkspacePath.MessagePro}
+          element={<MessageProSettings />}
+        />
+        <Route
           path={SettingsWorkspacePath.TeamMemberCatchAll}
           element={<TeamMemberSettingsRoutes />}
         />
@@ -177,8 +201,16 @@ export function SettingsRoutes() {
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
         <Route
+          path={SettingsWorkspacePath.EmailDeliveries}
+          element={<EmailDeliveries />}
+        />
+        <Route
           path={SettingsWorkspacePath.ImportExportCatchAll}
           element={<ImportExportSettingsRoutes />}
+        />
+        <Route
+          path={SettingsWorkspacePath.ApprovalRequests}
+          element={<ApprovalRequestsPage />}
         />
         <Route
           path={SettingsWorkspacePath.StructureCatchAll}

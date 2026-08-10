@@ -103,6 +103,7 @@ const queryParams = `
   sex:Int
   birthDate: Date
   dateFilters: String
+  propertiesData: String
   segmentData: String
   emailValidationStatus:String
   status: CONTACT_STATUS
@@ -118,6 +119,7 @@ export const queries = `
   contactsLogs(action: String, content:JSON, contentType: String): JSON
   
   cpCustomers(${queryParams}): CustomersListResponse
+  cpCustomerDetail(_id: String!): Customer
   `;
 
 const fields = `

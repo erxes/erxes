@@ -1,9 +1,12 @@
 import { RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '../constants/syncErkhetHistoryCursorSessoinKey';
+import { useTranslation } from 'react-i18next';
+import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '../constants/syncErkhetHistoryCursorSessionKey';
 import { syncErkhetHistoryColumns } from './SyncErkhetHistoryColumns';
 import { useSyncErkhetHistory } from '../hooks/useSyncErkhetHistory';
+import { SyncErkhetHistoryDetailSheet } from './SyncErkhetHistoryDetailSheet';
 export const SyncErkhetHistoryRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { SyncHistories, handleFetchMore, loading, pageInfo } =
     useSyncErkhetHistory();
 
@@ -14,7 +17,8 @@ export const SyncErkhetHistoryRecordTable = () => {
       columns={syncErkhetHistoryColumns}
       data={SyncHistories || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'createdAt']}
+      stickyColumns={['more', 'createdAt']}
+      tableId="mongolian_erkhet_sync_history_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -44,15 +48,18 @@ export const SyncErkhetHistoryRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No sync yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-sync-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first sync.
+                    {t('create-first-sync')}
                   </p>
                 </div>
               </div>
             </div>
           </div>
         )}
+        <SyncErkhetHistoryDetailSheet histories={SyncHistories || []} />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

@@ -2,6 +2,7 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type PostActionsProps = {
   post: any;
@@ -9,6 +10,7 @@ type PostActionsProps = {
 };
 
 export function PostActions({ post, onDelete }: PostActionsProps) {
+  const { t } = useTranslation('content');
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { websiteId } = useParams();
@@ -29,17 +31,17 @@ export function PostActions({ post, onDelete }: PostActionsProps) {
                 })
               }
             >
-              <IconEdit /> Edit
+              <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item
               value="remove"
               onSelect={() =>
-                confirm({ message: 'Delete this post?' })
+                confirm({ message: t('confirm-delete-this-post') })
                   .then(onDelete)
                   .catch(console.error)
               }
             >
-              <IconTrash /> Delete
+              <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>
         </Command>

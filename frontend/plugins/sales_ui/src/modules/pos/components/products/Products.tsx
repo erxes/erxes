@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { ProductGroupsList } from '@/pos/components/products/ProductGroupsList';
 import { InitialProductCategories } from '@/pos/components/products/InitialProductCategories';
@@ -9,7 +10,6 @@ import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndC
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
 import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
@@ -33,6 +33,7 @@ export interface ProductsFormData {
   catProdMappings: CatProd[];
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
+  saveRemainder: boolean;
   banFractions: boolean;
   serviceCharge: string;
   serviceChargeApplicableProductId: string;
@@ -47,6 +48,7 @@ const DEFAULT_FORM_VALUES: ProductsFormData = {
   catProdMappings: [],
   isCheckRemainder: false,
   checkExcludeCategoryIds: [],
+  saveRemainder: false,
   banFractions: false,
   serviceCharge: '',
   serviceChargeApplicableProductId: '',
@@ -77,6 +79,7 @@ const Products: React.FC<ProductsProps> = ({
   posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const [showMore, setShowMore] = useState(false);
   const [productGroupSaveState, setProductGroupSaveState] =
     useState<ProductGroupSaveState | null>(null);
@@ -89,24 +92,6 @@ const Products: React.FC<ProductsProps> = ({
   const { isDirty } = formState;
 
   const isRestaurant = posType === 'restaurant';
-  const canEditProductGroups = isFieldVisible('productGroups', posType);
-  const canEditInitialCategories = isFieldVisible(
-    'initialProductCategories',
-    posType,
-  );
-  const canEditKioskExcludes = isFieldVisible('kioskExcludeProducts', posType);
-  const canEditCategoryMapping = isFieldVisible(
-    'productCategoryMapping',
-    posType,
-  );
-  const canEditRemainderConfigs = isFieldVisible('remainderConfigs', posType);
-  const canEditServiceCharge = isFieldVisible('serviceCharge', posType);
-  const hasMoreOptions =
-    isRestaurant &&
-    (canEditKioskExcludes ||
-      canEditCategoryMapping ||
-      canEditRemainderConfigs ||
-      canEditServiceCharge);
 
   const catProdMappings = watch('catProdMappings');
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
@@ -125,10 +110,11 @@ const Products: React.FC<ProductsProps> = ({
       catProdMappings: posDetail.catProdMappings || [],
       isCheckRemainder: posDetail.isCheckRemainder || false,
       checkExcludeCategoryIds: posDetail.checkExcludeCategoryIds || [],
+      saveRemainder: posDetail.saveRemainder || false,
       banFractions: posDetail.banFractions || false,
       serviceCharge:
         posDetail.serviceCharge === undefined ||
-        posDetail.serviceCharge === null
+          posDetail.serviceCharge === null
           ? ''
           : String(posDetail.serviceCharge),
       serviceChargeApplicableProductId:
@@ -164,17 +150,8 @@ const Products: React.FC<ProductsProps> = ({
     async (data: ProductsFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (canEditInitialCategories && !data.initialCategoryIds.length) {
-        toast({
-          title: 'Error',
-          description: 'Please select categories',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -184,55 +161,40 @@ const Products: React.FC<ProductsProps> = ({
         await posEdit({
           variables: {
             _id: posId,
-            ...(canEditInitialCategories
-              ? { initialCategoryIds: data.initialCategoryIds }
-              : {}),
-            ...(canEditKioskExcludes
-              ? {
-                  kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
-                  kioskExcludeProductIds: data.kioskExcludeProductIds,
-                }
-              : {}),
-            ...(canEditCategoryMapping
-              ? { catProdMappings: sanitizeMappings(data.catProdMappings) }
-              : {}),
-            ...(canEditRemainderConfigs
-              ? {
-                  isCheckRemainder: data.isCheckRemainder,
-                  checkExcludeCategoryIds: data.checkExcludeCategoryIds,
-                  banFractions: data.banFractions,
-                }
-              : {}),
-            ...(canEditServiceCharge
-              ? {
-                  serviceCharge: parseServiceCharge(data.serviceCharge),
-                  serviceChargeApplicableProductId:
-                    data.serviceChargeApplicableProductId || null,
-                }
-              : {}),
+            initialCategoryIds: data.initialCategoryIds,
+
+            kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
+            kioskExcludeProductIds: data.kioskExcludeProductIds,
+
+            catProdMappings: sanitizeMappings(data.catProdMappings),
+
+            isCheckRemainder: data.isCheckRemainder,
+            checkExcludeCategoryIds: data.checkExcludeCategoryIds,
+            saveRemainder: data.saveRemainder,
+            banFractions: data.banFractions,
+
+
+            serviceCharge: parseServiceCharge(data.serviceCharge),
+            serviceChargeApplicableProductId:
+              data.serviceChargeApplicableProductId || null,
           },
-          refetchQueries: canEditServiceCharge ? ['posDetail'] : undefined,
+          refetchQueries: ['posDetail'],
         });
 
         toast({
-          title: 'Success',
-          description: 'Product settings saved successfully',
+          title: t('success'),
+          description: t('product-settings-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save product settings',
+          title: t('error'),
+          description: t('product-settings-save-failed'),
           variant: 'destructive',
         });
       }
     },
     [
-      canEditCategoryMapping,
-      canEditInitialCategories,
-      canEditKioskExcludes,
-      canEditRemainderConfigs,
-      canEditServiceCharge,
       posEdit,
       posId,
       reset,
@@ -262,7 +224,7 @@ const Products: React.FC<ProductsProps> = ({
           disabled={isSaving}
           onClick={handleHeaderSaveChanges}
         >
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -288,7 +250,7 @@ const Products: React.FC<ProductsProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details')}: {error.message}
           </p>
         </div>
       );
@@ -301,53 +263,41 @@ const Products: React.FC<ProductsProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canEditInitialCategories && (
-            <section className="space-y-4">
-              <Label>Initial product categories</Label>
-              <InitialProductCategories control={control} />
-            </section>
-          )}
+          <section className="space-y-4">
+            <Label>{t('initial-product-categories')}</Label>
+            <InitialProductCategories control={control} />
+          </section>
 
           <div className="flex justify-center">
-            {hasMoreOptions && (
-              <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
-            )}
+            <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
           </div>
 
           {(!isRestaurant || showMore) && (
             <>
-              {canEditKioskExcludes && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Kiosk exclude products</Label>
-                  <KioskExcludeProducts control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>{t('kiosk-exclude-products')}</Label>
+                <KioskExcludeProducts control={control} />
+              </section>
 
-              {canEditCategoryMapping && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Product & category mapping</Label>
-                  <ProductAndCategoryMapping
-                    mappings={catProdMappings}
-                    onMappingAdded={handleMappingAdded}
-                    onMappingUpdated={handleMappingUpdated}
-                    onMappingDeleted={handleMappingDeleted}
-                  />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>{t('product-category-mapping')}</Label>
+                <ProductAndCategoryMapping
+                  mappings={catProdMappings}
+                  onMappingAdded={handleMappingAdded}
+                  onMappingUpdated={handleMappingUpdated}
+                  onMappingDeleted={handleMappingDeleted}
+                />
+              </section>
 
-              {canEditRemainderConfigs && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Remainder configs</Label>
-                  <RemainderConfigs control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>{t('remainder-configs')}</Label>
+                <RemainderConfigs control={control} />
+              </section>
 
-              {canEditServiceCharge && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Service charge</Label>
-                  <ServiceCharge control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>{t('service-charge')}</Label>
+                <ServiceCharge control={control} />
+              </section>
             </>
           )}
         </form>
@@ -357,19 +307,16 @@ const Products: React.FC<ProductsProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Product configuration">
+      <InfoCard title={t('product-config')}>
         <InfoCard.Content>
           <div className="space-y-8">
-            {canEditProductGroups && (
-              <section className="space-y-4">
-                <Label>Product Groups</Label>
-                <ProductGroupsList
-                  posId={posId}
-                  onSaveStateChange={setProductGroupSaveState}
-                />
-              </section>
-            )}
-
+            <section className="space-y-4">
+              <Label>{t('product-groups')}</Label>
+              <ProductGroupsList
+                posId={posId}
+                onSaveStateChange={setProductGroupSaveState}
+              />
+            </section>
             {renderProductSettings()}
           </div>
         </InfoCard.Content>

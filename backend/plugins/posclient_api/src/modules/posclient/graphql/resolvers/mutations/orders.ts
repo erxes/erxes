@@ -275,7 +275,7 @@ export const ordersAdd = async (
   }
 };
 
-const ordersEdit = async (
+export const ordersEdit = async (
   doc: IOrderEditParams,
   {
     posUser,
@@ -319,6 +319,8 @@ const ordersEdit = async (
     subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
+    brokerId: doc.brokerId,
+    brokerType: doc.brokerType,
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
@@ -480,7 +482,10 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-async function cancelPosOrder(models: IModels, _id: string) {
+export async function cancelPosOrder(
+  models: IModels,
+  _id: string,
+): Promise<any> {
   const order = await models.Orders.getOrder(_id);
 
   checkOrderStatus(order);
@@ -943,6 +948,83 @@ const orderMutations: Record<string, Resolver> = {
     return newOrder;
   },
 
+  async cpOrdersAddPayment(
+    _root,
+    {
+      _id,
+      cashAmount,
+      paidAmounts,
+    }: {
+      _id: string;
+      cashAmount?: number;
+      paidAmounts?: IPaidAmount[];
+    },
+    { models, config, subdomain }: IContext,
+  ) {
+    const order = await models.Orders.getOrder(_id);
+
+    const amount =
+      (cashAmount || 0) +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
+
+    checkOrderStatus(order);
+    checkOrderAmount(order, amount);
+    await checkScoreAviableSubtractScoreCampaign(
+      subdomain,
+      models,
+      order,
+      paidAmounts,
+    );
+    await checkCouponCode({ subdomain, order });
+
+    const modifier: any = {
+      $set: {
+        cashAmount: cashAmount
+          ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
+          : order.cashAmount || 0,
+        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || []),
+        saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+      },
+    };
+
+    await models.Orders.updateOne({ _id: order._id }, modifier);
+
+    const newOrder = await models.Orders.getOrder(order._id);
+
+    if (newOrder?.isPre) {
+      const items = await models.OrderItems.find({ orderId: newOrder._id });
+      if (config.isOnline) {
+        const products = await models.Products.find({
+          _id: { $in: items.map((i) => i.productId) },
+        }).lean();
+        for (const item of items) {
+          const product = products.find((p) => p._id === item.productId);
+          item.productName = `${product?.code} - ${product?.name}`;
+        }
+      }
+
+      try {
+        await sendTRPCMessage({
+          subdomain,
+          method: 'mutation',
+          pluginName: 'sales',
+          module: 'pos',
+          action: 'createOrUpdateOrders',
+          input: {
+            posToken: config.token,
+            action: 'makePayment',
+            order,
+            items,
+          },
+        });
+      } catch (e) {
+        debugError(`Error occurred while sending data to erxes: ${e.message}`);
+      }
+    }
+
+    return newOrder;
+  },
+
   async ordersCancel(_root, { _id }, { models, posUser, config }: IContext) {
     assertPosUser(posUser);
 
@@ -964,6 +1046,34 @@ const orderMutations: Record<string, Resolver> = {
     { config, models, subdomain, posUser }: IContext,
   ) {
     assertPosUser(posUser);
+
+    const order = await models.Orders.getOrder(_id);
+
+    if (!ORDER_TYPES.SALES.includes(order.type || '')) {
+      throw new Error(
+        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
+      );
+    }
+
+    return await prepareSettlePayment(
+      subdomain,
+      models,
+      order,
+      config,
+      {
+        _id,
+        billType,
+        registerNumber,
+      },
+      posUser,
+    );
+  }, // end ordersSettlePayment()
+
+    async cpOrdersSettlePayment(
+    _root,
+    { _id, billType, registerNumber }: ISettlePaymentParams,
+    { config, models, subdomain, posUser }: IContext,
+  ) {
 
     const order = await models.Orders.getOrder(_id);
 
@@ -1028,7 +1138,7 @@ const orderMutations: Record<string, Resolver> = {
           defaultValue: null,
         });
 
-        throw new Error(`Already converted: ${dealLink?.data || ''}`);
+        throw new Error(`Already converted: ${dealLink || ''}`);
       }
     }
 
@@ -1054,27 +1164,19 @@ const orderMutations: Record<string, Resolver> = {
 
     if (order.deliveryInfo && cardConfig.deliveryMapField) {
       const { description, marker } = order.deliveryInfo;
+      const fieldId = cardConfig.deliveryMapField.replace(
+        'propertiesData.',
+        '',
+      );
+
       dealData.description = description;
-      dealData.customFieldsData = [
-        {
-          field: cardConfig.deliveryMapField.replace('customFieldsData.', ''),
-          locationValue: {
-            type: 'Point',
-            coordinates: [
-              marker.longitude || marker.lng,
-              marker.latitude || marker.lat,
-            ],
-          },
-          value: {
-            lat: marker.latitude || marker.lat,
-            lng: marker.longitude || marker.lng,
-            description: 'location',
-          },
-          stringValue: `${marker.longitude || marker.lng},${
-            marker.latitude || marker.lat
-          }`,
+      dealData.propertiesData = {
+        [fieldId]: {
+          lat: marker.latitude || marker.lat,
+          lng: marker.longitude || marker.lng,
+          description: 'location',
         },
-      ];
+      };
     }
     const deal = await sendTRPCMessage({
       subdomain,
@@ -1090,18 +1192,6 @@ const orderMutations: Record<string, Resolver> = {
         deal._id &&
         ['customer', 'company'].includes(order.customerType || 'customer')
       ) {
-        // await sendCoreMessage({
-        //   subdomain,
-        //   action: 'conformities.addConformity',
-        //   data: {
-        //     mainType: 'deal',
-        //     mainTypeId: deal._id,
-        //     relType: order.customerType || 'customer',
-        //     relTypeId: order.customerId,
-        //   },
-        //   isRPC: true,
-        // });
-
         // conformity to relation
         await sendTRPCMessage({
           subdomain,
@@ -1110,16 +1200,18 @@ const orderMutations: Record<string, Resolver> = {
           module: 'relation',
           action: 'createRelation',
           input: {
-            entities: [
-              {
-                contentType: 'sales:deal',
-                contentId: deal._id,
-              },
-              {
-                contentType: `core:${order.customerType || 'customer'}`,
-                contentId: order.customerId,
-              },
-            ],
+            relation: {
+              entities: [
+                {
+                  contentType: 'sales:deal',
+                  contentId: deal._id,
+                },
+                {
+                  contentType: `core:${order.customerType || 'customer'}`,
+                  contentId: order.customerId,
+                },
+              ],
+            },
           },
           defaultValue: null,
         });
@@ -1433,4 +1525,12 @@ orderMutations.cpOrderChangeSaleStatus.wrapperConfig = {
 orderMutations.cpOrdersCancel.wrapperConfig = {
   forClientPortal: true,
 };
+
+orderMutations.cpOrdersAddPayment.wrapperConfig = {
+  forClientPortal: true,
+};
+orderMutations.cpOrdersSettlePayment.wrapperConfig = {
+  forClientPortal: true,
+};
+
 export default orderMutations;

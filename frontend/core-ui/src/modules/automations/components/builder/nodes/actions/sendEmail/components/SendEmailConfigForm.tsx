@@ -1,15 +1,53 @@
 import { useSendEmailSidebarForm } from '@/automations/components/builder/nodes/actions/sendEmail/hooks/useSendEmailSidebarForm';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
-import { FormProvider } from 'react-hook-form';
+import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
+import {
+  Collapsible,
+  Form,
+  Input,
+  Label,
+  RadioGroup,
+  Separator,
+  Skeleton,
+} from 'erxes-ui';
+import { Control, FormProvider } from 'react-hook-form';
 import {
   PlaceholderInput,
   TAutomationActionProps,
+  TPlaceholderInputSuggestion,
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 import { useTranslation } from 'react-i18next';
+
+const ReplyToField = ({
+  control,
+  name,
+  label,
+  placeholder,
+}: {
+  control: Control<TAutomationSendEmailConfig>;
+  name: 'fromEmailPlaceHolder' | 'replyToEmail';
+  label: string;
+  placeholder: string;
+}) => (
+  <Form.Field
+    name={name}
+    control={control}
+    render={({ field }) => (
+      <Form.Item>
+        <Form.Label>{label}</Form.Label>
+        <SelectVerifiedSender
+          value={field.value}
+          onChange={field.onChange}
+          placeholder={placeholder}
+        />
+      </Form.Item>
+    )}
+  />
+);
 
 export const SendEmailConfigForm = ({
   currentActionIndex,
@@ -21,73 +59,153 @@ export const SendEmailConfigForm = ({
   });
   const { form, contentType, availableVariableSourceNodes } =
     useSendEmailSidebarForm(currentActionIndex, currentAction);
+  const {
+    supportsSenderVerification,
+    defaultSenderEmail,
+    alignedFrom,
+    loading: senderOptionsLoading,
+  } = useSenderOptions();
   const { t } = useTranslation('automations');
+  const senderName = form.watch('sender');
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
         onSave={form.handleSubmit(handleSave, handleValidationErrors)}
       >
         <Form.Field
-          name="type"
+          name="sender"
           control={form.control}
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {t('sender')}
+                {t('sender-name')}
                 <span className="text-destructive">*</span>
               </Form.Label>
-              <RadioGroup
-                value={field.value}
-                onValueChange={(value) => field.onChange(value)}
-              >
-                <label className="flex space-x-2 items-center">
-                  <RadioGroup.Item value="default" id="env-sender" />
-                  <Label htmlFor="env-sender">{t('use-company-email')}</Label>
-                </label>
-                <label className="flex space-x-2 items-center">
-                  <RadioGroup.Item value="custom" id="custom-sender" />
-                  <Label htmlFor="custom-sender">
-                    {t('custom-sender-email')}
-                  </Label>
-                </label>
-              </RadioGroup>
+              <Form.Control>
+                <Input {...field} placeholder="Sales team" />
+              </Form.Control>
+              {alignedFrom && (
+                <Form.Description>
+                  {senderName
+                    ? `${senderName} <${alignedFrom}>`
+                    : `<${alignedFrom}>`}
+                </Form.Description>
+              )}
+              <Form.Message />
             </Form.Item>
           )}
         />
-        <Form.Field
-          name="type"
-          control={form.control}
-          render={({ field }) => {
-            if (field.value === 'custom') {
-              return (
-                <Form.Field
-                  name="fromEmailPlaceHolder"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Form.Item className="py-4">
-                      <PlaceholderInput
-                        propertyType={contentType || ''}
-                        {...field}
-                        disabled={{ attribute: true }}
-                        enabled={{
-                          attribute: true,
-                          call_user: true,
-                        }}
-                        suggestionsOptions={{
-                          call_user: {
-                            selectFieldName: 'email',
-                            formatSelection: (value) => value,
-                          },
-                        }}
-                      />
-                    </Form.Item>
-                  )}
-                />
-              );
-            }
 
-            return <></>;
-          }}
+        {senderOptionsLoading ? (
+          <Skeleton className="h-5 w-40" />
+        ) : alignedFrom ? null : (
+          <>
+            <Form.Field
+              name="type"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {t('from')}
+                    <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
+                  >
+                    <label className="flex space-x-2 items-center">
+                      <RadioGroup.Item value="default" id="env-sender" />
+                      <Label htmlFor="env-sender">
+                        {t('use-company-email')}
+                        {defaultSenderEmail && (
+                          <span className="ml-1 text-muted-foreground font-normal">
+                            ({defaultSenderEmail})
+                          </span>
+                        )}
+                      </Label>
+                    </label>
+                    {supportsSenderVerification && (
+                      <label className="flex space-x-2 items-center">
+                        <RadioGroup.Item
+                          value="verified"
+                          id="verified-sender"
+                        />
+                        <Label htmlFor="verified-sender">
+                          {t('verified-sender-email')}
+                        </Label>
+                      </label>
+                    )}
+                    <label className="flex space-x-2 items-center">
+                      <RadioGroup.Item value="custom" id="custom-sender" />
+                      <Label htmlFor="custom-sender">
+                        {t('custom-sender-email')}
+                      </Label>
+                    </label>
+                  </RadioGroup>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="type"
+              control={form.control}
+              render={({ field }) => {
+                if (field.value === 'verified') {
+                  return (
+                    <Form.Field
+                      name="fromEmailPlaceHolder"
+                      control={form.control}
+                      render={({ field: senderField }) => (
+                        <Form.Item className="py-4">
+                          <SelectVerifiedSender
+                            value={senderField.value}
+                            onChange={senderField.onChange}
+                          />
+                        </Form.Item>
+                      )}
+                    />
+                  );
+                }
+
+                if (field.value === 'custom') {
+                  return (
+                    <Form.Field
+                      name="fromEmailPlaceHolder"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Form.Item className="py-4">
+                          <PlaceholderInput
+                            propertyType={contentType || ''}
+                            {...field}
+                            disabled={[TPlaceholderInputSuggestion.Attribute]}
+                            enabled={[
+                              TPlaceholderInputSuggestion.Attribute,
+                              TPlaceholderInputSuggestion.CallUser,
+                            ]}
+                            suggestionsOptions={{
+                              call_user: {
+                                selectFieldName: 'email',
+                                formatSelection: (value) => value,
+                              },
+                            }}
+                          />
+                        </Form.Item>
+                      )}
+                    />
+                  );
+                }
+
+                return <></>;
+              }}
+            />
+          </>
+        )}
+
+        <ReplyToField
+          control={form.control}
+          name={alignedFrom ? 'fromEmailPlaceHolder' : 'replyToEmail'}
+          key={alignedFrom ? 'aligned' : 'plain'}
+          label={t('reply-to')}
+          placeholder={t('no-reply-to')}
         />
 
         <Separator className="space-y-2" />
@@ -112,11 +230,11 @@ export const SendEmailConfigForm = ({
                 <PlaceholderInput
                   propertyType={contentType || ''}
                   {...field}
-                  disabled={{ attribute: true }}
-                  enabled={{
-                    attribute: true,
-                    call_user: true,
-                  }}
+                  disabled={[TPlaceholderInputSuggestion.Attribute]}
+                  enabled={[
+                    TPlaceholderInputSuggestion.Attribute,
+                    TPlaceholderInputSuggestion.CallUser,
+                  ]}
                   suggestionsOptions={{
                     call_user: {
                       selectFieldName: 'email',
@@ -136,11 +254,11 @@ export const SendEmailConfigForm = ({
                   <PlaceholderInput
                     propertyType={contentType || ''}
                     {...field}
-                    disabled={{ attribute: true }}
-                    enabled={{
-                      attribute: true,
-                      call_user: true,
-                    }}
+                    disabled={[TPlaceholderInputSuggestion.Attribute]}
+                    enabled={[
+                      TPlaceholderInputSuggestion.Attribute,
+                      TPlaceholderInputSuggestion.CallUser,
+                    ]}
                     suggestionsOptions={{
                       call_user: {
                         selectFieldName: 'email',
@@ -165,7 +283,7 @@ export const SendEmailConfigForm = ({
               </Form.Label>
               <PlaceholderInput
                 propertyType={contentType || ''}
-                disabled={{ attribute: true }}
+                disabled={[TPlaceholderInputSuggestion.Attribute]}
                 {...field}
               />
             </Form.Item>

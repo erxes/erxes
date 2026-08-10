@@ -4,10 +4,15 @@ import { useParams } from 'react-router-dom';
 import { AddMembers } from './AddMembers';
 import { MemberCommandBar } from './MemberCommandBar';
 import columns from './MembersColumn';
+import { useTranslation } from 'react-i18next';
 
 export function Members() {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });
+  const activeMembers = members?.filter(
+    (member) => member.member?.isActive !== false,
+  );
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;
@@ -16,19 +21,19 @@ export function Members() {
   return (
     <div className="overflow-auto h-full px-8 hide-scroll styled-scroll scroll-smooth">
       <div className="ml-auto flex justify-between py-6">
-        <h1 className="text-xl font-semibold">Members</h1>
+        <h1 className="text-xl font-semibold">{t('members-title')}</h1>
         <AddMembers />
       </div>
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <RecordTable.Provider
           columns={columns()}
-          data={members || []}
+          data={activeMembers || []}
           stickyColumns={['more', 'checkbox', 'name']}
           className="mt-1.5"
         >
           <RecordTableTree id="members" ordered>
             <RecordTable.Scroll>
-              <RecordTable className="w-full">
+              <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
                   <RecordTable.RowList Row={RecordTableTree.Row} />

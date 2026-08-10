@@ -1,13 +1,17 @@
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { useAtom, useAtomValue } from 'jotai';
 import SipProvider from './SipProvider';
-import { useAddCallHistory } from '@/integrations/call/hooks/useAddCallHistory';
-import { useUpdateCallHistory } from '@/integrations/call/hooks/useEditCallHistory';
 import { useCallCreateSession } from '@/integrations/call/hooks/useCallCreateSession';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { useCallGetConfigs } from '@/integrations/call/hooks/useCallGetConfigs';
+import { useCurrentCallSession } from '@/integrations/call/hooks/useCurrentCallSession';
 import { CallSelectConfig } from '@/integrations/call/components/CallSelectConfig';
 import { historyIdAtom } from '@/integrations/call/states/callStates';
+
+const CallSessionBridge = () => {
+  useCurrentCallSession();
+  return null;
+};
 
 export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   const [callConfig] = useAtom(callConfigAtom);
@@ -15,10 +19,10 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
 
   const { callUserIntegrations, loading: callUserIntegrationLoading } =
     useCallUserIntegration();
-  const { callConfigs, loading: callConfigLoading } = useCallGetConfigs();
+  const { callConfigs, loading: callConfigLoading } = useCallGetConfigs({
+    skip: callUserIntegrationLoading || Boolean(!callUserIntegrations?.length),
+  });
 
-  const { addHistory } = useAddCallHistory();
-  const { updateHistory } = useUpdateCallHistory();
   const { createActiveSession } = useCallCreateSession();
 
   if (
@@ -65,11 +69,10 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   return (
     <SipProvider
       createSession={createActiveSession}
-      updateHistory={updateHistory}
-      addHistory={addHistory}
       historyId={historyId}
       {...sipConfig}
     >
+      <CallSessionBridge />
       {children}
     </SipProvider>
   );

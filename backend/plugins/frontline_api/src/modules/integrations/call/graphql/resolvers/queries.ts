@@ -4,7 +4,27 @@ import {
   ICallHistory,
   ICallHistoryFilterOptions,
 } from '@/integrations/call/@types/histories';
-import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
+import {
+  CALLBACK_WINDOW_MS,
+  CDR_REPORT_FIELDS,
+  ICallReportArgs,
+  ICdrLeg,
+  buildCarrierBreakdown,
+  buildCdrFilter,
+  buildHeatmap,
+  buildTopNumbers,
+  buildVolumeSeries,
+  foldLegsIntoCalls,
+  summariseAgentStats,
+  summariseCallbackStats,
+  summariseQueueStats,
+} from '@/integrations/call/services/callReportService';
+import {
+  averageSpeedOfAnswer,
+  deriveCallStatusFromLegs,
+  getPbxDayRange,
+  selectRelevantCdr,
+} from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
@@ -15,21 +35,40 @@ import {
 } from '@/integrations/call/statistics';
 import {
   mapCdrToCallHistory,
+  mapSessionToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { XMLParser } from 'fast-xml-parser';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
 
 const callQueries = {
-  async callsIntegrationDetail(_root, { integrationId }, { models }: IContext) {
-    return models.CallIntegrations.findOne({ inboxId: integrationId });
+  async callsIntegrationDetail(
+    _root,
+    { integrationId },
+    { models, user }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
+    const integration = await models.CallIntegrations.findOne({
+      inboxId: integrationId,
+    }).lean();
+
+    if (!integration) {
+      return null;
+    }
+
+    const { token, ...safe } = integration as any;
+    return safe;
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    // return models.CallIntegrations.getIntegrations(user._id, isAdmin);
     const res = models.CallIntegrations.getIntegrations(user._id);
-
     return res;
   },
 
@@ -79,6 +118,8 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
+    // const isAdmin =
+    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
@@ -109,6 +150,7 @@ const callQueries = {
       },
       user,
     )) as any;
+    console.log(queueData, 'extension list queueData');
 
     if (queueData?.response) {
       const { account } = queueData.response;
@@ -131,162 +173,64 @@ const callQueries = {
     return 'request failed';
   },
   async callQueueList(_root, { integrationId }, { models, user }: IContext) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-
-    const formattedDate = `${year}-${month}-${day}`;
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
     );
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        data: {
-          request: {
-            action: 'queueapi',
-            startTime: formattedDate,
-            endTime: formattedDate,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: false,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
 
-    if (!queueData.ok) {
-      throw new Error(`HTTP error! Status: ${queueData.status}`);
-    }
+    // `CallQueueStatistics` is a cache of live PBX counters and only exists for
+    // queues the PBX has reported on, so the queues configured on the
+    // integration are the authoritative list.
+    const statistics = await models.CallQueueStatistics.find(
+      { integrationId },
+      { _id: 0, __v: 0 },
+    ).lean<Record<string, unknown>[]>();
 
-    const xmlData = await queueData.text();
-    try {
-      const parsedData = JSON.parse(xmlData);
+    const statisticsByQueue = new Map(
+      statistics.map((stat) => [String(stat.queue), stat]),
+    );
 
-      if (parsedData.status === -6) {
-        console.log('Status -6 detected. Clearing redis callCookie.');
-        await redis.del('callCookie');
-        const statistics = await models.CallQueueStatistics.find({
-          integrationId,
-        });
-        if (statistics) {
-          return statistics;
-        }
-        return [];
-      }
-    } catch (error) {
-      console.error(error.message);
-    }
-
-    try {
-      const parser = new XMLParser();
-      const jsonObject = parser.parse(xmlData);
-
-      const rootStatistics = jsonObject.root_statistics || {};
-      const queues = (rootStatistics.queue as any) || [];
-
-      if (queues && queues.length > 0) {
-        const normalizedQueues = queues?.map((q) => ({
-          queueChairman: q.queuechairman,
-          queue: q.queue,
-          totalCalls: q.total_calls,
-          answeredCalls: q.answered_calls,
-          answeredRate: q.answered_rate,
-          abandonedCalls: q.abandoned_calls,
-          avgWait: q.avg_wait,
-          avgTalk: q.avg_talk,
-          vqTotalCalls: q.vq_total_calls,
-          slaRate: q.sla_rate,
-          vqSlaRate: q.vq_sla_rate,
-          transferOutCalls: q.transfer_out_calls,
-          transferOutRate: q.transfer_out_rate,
-          abandonedRate: q.abandoned_rate,
-          integrationId,
-        }));
-
-        if (integration.queues && normalizedQueues.length > 0) {
-          const filteredQueues = normalizedQueues.filter((q) =>
-            integration.queues.includes(q.queue.toString()),
-          );
-
-          for (const queue of filteredQueues) {
-            await models.CallQueueStatistics.findOneAndUpdate(
-              { integrationId, queue: queue.queue },
-              { $set: queue },
-              { upsert: true, new: true },
-            );
-          }
-
-          return filteredQueues;
-        }
-        const stats = await models.CallQueueStatistics.find({ integrationId });
-        if (stats) {
-          return stats;
-        }
-        return [];
-      }
-    } catch (error) {
-      const stats = await models.CallQueueStatistics.find({ integrationId });
-      if (stats) {
-        return stats;
-      }
-      return [];
-    }
+    return (integration.queues || []).map(
+      (queue) =>
+        statisticsByQueue.get(String(queue)) || { queue, integrationId },
+    );
   },
 
-  async callQueueInitialList(_root, { queue }) {
+  async callQueueInitialList(
+    _root,
+    { queue },
+    { models, user, subdomain }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
     try {
-      const redisKey = `callRealtimeHistory:${queue}:aggregate`;
+      let owns = false;
+      try {
+        const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+          user._id,
+        );
+        owns = queues.map(String).includes(String(queue));
+      } catch (e) {
+        owns = false;
+      }
+
+      if (!owns) {
+        console.warn(
+          `[call] callQueueInitialList: user ${user._id} is not an operator on queue ${queue}`,
+        );
+        if (process.env.CALL_SUBSCRIPTION_REQUIRE_AUTH === 'true') {
+          return '{}';
+        }
+      }
+
+      const redisKey = `callRealtimeHistory:${subdomain}:${queue}:aggregate`;
       return (await redis.get(redisKey)) || `{}`;
     } catch (error) {
       console.error(`Failed to fetch queue data for ${queue}:`, error);
       return '{}';
     }
-  },
-
-  async callQueueMemberList(
-    _root,
-    { integrationId, queue },
-    { models, user }: IContext,
-  ) {
-    const queueData = (await sendToGrandStream(
-      models,
-      {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-          request: {
-            action: 'getCallQueuesMemberMessage',
-            extension: queue,
-          },
-        },
-        integrationId: integrationId,
-        retryCount: 3,
-        isConvertToJson: true,
-        isAddExtention: false,
-      },
-      user,
-    )) as any;
-
-    if (queueData?.response) {
-      const { CallQueueMembersMessage } = queueData.response;
-
-      if (CallQueueMembersMessage) {
-        return CallQueueMembersMessage;
-      }
-      return [];
-    }
-    return 'request failed';
   },
 
   async callTodayStatistics(
@@ -297,17 +241,7 @@ const callQueries = {
     const DEFAULT_VALUE = 0;
 
     try {
-      const now = new Date();
-      const dateFrom = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-      );
-      const dateTo = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-      );
+      const { dateFrom, dateTo } = getPbxDayRange();
 
       const todayCdrs = await models.CallCdrs.find({
         actionType: { $regex: queue },
@@ -585,7 +519,16 @@ const callQueries = {
       if (_id) {
         const cdr = await models.CallCdrs.findOne({ _id });
         if (cdr) {
-          return mapCdrToCallHistory(cdr);
+          const history = mapCdrToCallHistory(cdr);
+          if (cdr.uniqueid) {
+            const legs = await models.CallCdrs.find({
+              uniqueid: cdr.uniqueid,
+            });
+            if (legs.length) {
+              history.callStatus = deriveCallStatusFromLegs(legs);
+            }
+          }
+          return history;
         }
 
         result = await models.CallHistory.findOne({ _id });
@@ -602,12 +545,19 @@ const callQueries = {
         const selected = selectRelevantCdr(histories);
 
         if (selected) {
-          return mapCdrToCallHistory(selected);
+          const history = mapCdrToCallHistory(selected);
+          history.callStatus = deriveCallStatusFromLegs(histories);
+          return history;
         }
 
         result = await models.CallHistory.findOne({ conversationId });
         if (result) {
           return result;
+        }
+
+        const session = await models.CallSessions.findOne({ conversationId });
+        if (session) {
+          return mapSessionToCallHistory(session);
         }
       }
 
@@ -625,644 +575,214 @@ const callQueries = {
 
   async callGetQueueStats(
     _args,
-    { startDate, endDate, queueId, direction },
+    { startDate, endDate, queueId, direction }: ICallReportArgs,
     { models, user }: IContext,
   ) {
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
     );
 
-    const isContainsQueue = true;
-    const matchStage: any = {
-      start: { $gte: new Date(startDate) },
-      end: { $lte: new Date(endDate) },
-    };
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
 
-    if (direction) {
-      matchStage.userfield = direction;
-    }
+    const allowedQueues = queueId ? [queueId] : queues.map(String);
 
-    return await models.CallCdrs.aggregate([
-      {
-        $match: matchStage,
-      },
+    const calls = foldLegsIntoCalls(cdrs).filter(
+      (call) => call.queue && allowedQueues.includes(call.queue),
+    );
 
-      {
-        $addFields: {
-          queue: {
-            $cond: [
-              {
-                $regexMatch: {
-                  input: { $ifNull: ['$actionType', ''] },
-                  regex: /QUEUE\[/,
-                },
-              },
-              {
-                $arrayElemAt: [
-                  {
-                    $split: [
-                      {
-                        $arrayElemAt: [
-                          { $split: ['$actionType', 'QUEUE['] },
-                          1,
-                        ],
-                      },
-                      ']',
-                    ],
-                  },
-                  0,
-                ],
-              },
-              null,
-            ],
-          },
-        },
-      },
-
-      {
-        $match: {
-          queue: isContainsQueue ? queueId : { $in: queues },
-        },
-      },
-
-      {
-        $group: {
-          _id: { queue: '$queue', uniqueid: '$uniqueid' },
-          dispositions: { $addToSet: '$disposition' },
-          billsec: { $max: '$billsec' },
-          duration: { $max: '$duration' },
-          waitTime: { $max: '$waittime' },
-          lastapp: { $last: '$lastapp' },
-          dst: { $last: '$dst' },
-        },
-      },
-
-      {
-        $project: {
-          queue: '$_id.queue',
-          isAnswered: {
-            $and: [
-              { $in: ['ANSWERED', '$dispositions'] },
-              { $gt: ['$billsec', 0] },
-              {
-                $or: [
-                  { $eq: ['$lastapp', 'Queue'] },
-                  { $eq: ['$lastapp', 'Playback'] },
-                ],
-              },
-            ],
-          },
-          isAbandoned: {
-            $or: [
-              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
-              {
-                $and: [
-                  { $in: ['ANSWERED', '$dispositions'] },
-                  { $eq: ['$billsec', 0] },
-                ],
-              },
-            ],
-          },
-
-          billsec: 1,
-          waitTime: { $ifNull: ['$waitTime', 0] },
-        },
-      },
-
-      {
-        $group: {
-          _id: '$queue',
-          totalCalls: { $sum: 1 },
-          answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
-          abandonedCalls: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
-          totalWaitTime: {
-            $sum: {
-              $cond: ['$isAnswered', '$waitTime', 0],
-            },
-          },
-          totalTalkTime: {
-            $sum: {
-              $cond: ['$isAnswered', '$billsec', 0],
-            },
-          },
-        },
-      },
-
-      {
-        $project: {
-          queue: '$_id',
-          totalCalls: 1,
-          answeredCalls: 1,
-          answeredRate: {
-            $cond: [
-              { $gt: ['$totalCalls', 0] },
-              {
-                $round: [
-                  {
-                    $multiply: [
-                      { $divide: ['$answeredCalls', '$totalCalls'] },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-          abandonedCalls: 1,
-          abandonedRate: {
-            $cond: [
-              { $gt: ['$totalCalls', 0] },
-              {
-                $round: [
-                  {
-                    $multiply: [
-                      { $divide: ['$abandonedCalls', '$totalCalls'] },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-
-          averageWaitTime: {
-            $cond: [
-              { $gt: ['$answeredCalls', 0] },
-              {
-                $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2],
-              },
-              0,
-            ],
-          },
-          averageTalkTime: {
-            $cond: [
-              { $gt: ['$answeredCalls', 0] },
-              {
-                $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2],
-              },
-              0,
-            ],
-          },
-        },
-      },
-
-      { $sort: { queue: 1 } },
-    ]);
+    return summariseQueueStats(calls);
   },
+
   async callGetAgentStats(
     _args,
-    { startDate, endDate, queueId, agentId = null, direction },
+    {
+      startDate,
+      endDate,
+      queueId,
+      agentId = null,
+      direction,
+    }: ICallReportArgs & { agentId?: string | null },
     { models, user }: IContext,
   ) {
     if (!queueId) {
       return [];
     }
+
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
     );
 
-    const isContainsQueue = queueId && queues.includes(queueId);
-    if (!isContainsQueue && queueId) {
+    if (!queues.map(String).includes(queueId)) {
       return [];
     }
 
-    const matchStage: any = {
-      start: { $gte: new Date(startDate) },
-      end: { $lte: new Date(endDate) },
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({ startDate, endDate, queueId, direction }),
       lastapp: 'Queue',
-    };
+    })
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
 
-    if (direction) {
-      matchStage.userfield = direction;
-    }
-
-    const data = await models.CallCdrs.aggregate([
-      {
-        $match: matchStage,
-      },
-
-      {
-        $addFields: {
-          queue: {
-            $cond: [
-              {
-                $regexMatch: {
-                  input: { $ifNull: ['$actionType', ''] },
-                  regex: /QUEUE\[/,
-                },
-              },
-              {
-                $arrayElemAt: [
-                  {
-                    $split: [
-                      {
-                        $arrayElemAt: [
-                          { $split: ['$actionType', 'QUEUE['] },
-                          1,
-                        ],
-                      },
-                      ']',
-                    ],
-                  },
-                  0,
-                ],
-              },
-              null,
-            ],
-          },
-          agent: { $toString: '$dst' },
-        },
-      },
-
-      {
-        $match: {
-          queue: queueId ? queueId : { $ne: null },
-          agent: agentId ? agentId : { $nin: [null, ''] },
-          $expr: {
-            $and: [
-              { $gte: [{ $strLenCP: '$agent' }, 4] },
-              { $lte: [{ $strLenCP: '$agent' }, 4] },
-              { $regexMatch: { input: '$agent', regex: /^[0-9]{4}$/ } },
-            ],
-          },
-        },
-      },
-
-      {
-        $group: {
-          _id: { queue: '$queue', agent: '$agent', uniqueid: '$uniqueid' },
-          dispositions: { $addToSet: '$disposition' },
-          billsec: { $max: '$billsec' },
-          waitTime: { $max: '$waittime' },
-          lastapp: { $last: '$lastapp' },
-        },
-      },
-
-      {
-        $project: {
-          queue: '$_id.queue',
-          agent: '$_id.agent',
-          isAnswered: {
-            $and: [
-              { $in: ['ANSWERED', '$dispositions'] },
-              { $gt: ['$billsec', 0] },
-            ],
-          },
-          isMissed: {
-            $or: [
-              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
-              {
-                $and: [
-                  { $in: ['ANSWERED', '$dispositions'] },
-                  { $eq: ['$billsec', 0] },
-                ],
-              },
-            ],
-          },
-          billsec: 1,
-          waitTime: { $ifNull: ['$waitTime', 0] },
-        },
-      },
-
-      {
-        $group: {
-          _id: '$agent',
-          totalCalls: { $sum: 1 },
-          answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
-          missedCalls: { $sum: { $cond: ['$isMissed', 1, 0] } },
-          totalTalkTime: {
-            $sum: {
-              $cond: ['$isAnswered', '$billsec', 0],
-            },
-          },
-          totalWaitTime: {
-            $sum: {
-              $cond: ['$isAnswered', '$waitTime', 0],
-            },
-          },
-          shortestCall: {
-            $min: {
-              $cond: [
-                { $and: ['$isAnswered', { $gt: ['$billsec', 0] }] },
-                '$billsec',
-                null,
-              ],
-            },
-          },
-          longestCall: {
-            $max: {
-              $cond: ['$isAnswered', '$billsec', null],
-            },
-          },
-        },
-      },
-
-      {
-        $project: {
-          agent: '$_id',
-          totalCalls: 1,
-          answeredCalls: 1,
-          answeredRate: {
-            $cond: [
-              { $gt: ['$totalCalls', 0] },
-              {
-                $round: [
-                  {
-                    $multiply: [
-                      { $divide: ['$answeredCalls', '$totalCalls'] },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-          missedCalls: 1,
-          missedRate: {
-            $cond: [
-              { $gt: ['$totalCalls', 0] },
-              {
-                $round: [
-                  {
-                    $multiply: [
-                      { $divide: ['$missedCalls', '$totalCalls'] },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-          totalTalkTime: 1,
-          averageTalkTime: {
-            $cond: [
-              { $gt: ['$answeredCalls', 0] },
-              {
-                $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2],
-              },
-              0,
-            ],
-          },
-          totalWaitTime: 1,
-          averageWaitTime: {
-            $cond: [
-              { $gt: ['$answeredCalls', 0] },
-              {
-                $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2],
-              },
-              0,
-            ],
-          },
-          shortestCall: { $ifNull: ['$shortestCall', 0] },
-          longestCall: { $ifNull: ['$longestCall', 0] },
-        },
-      },
-
-      { $sort: { agent: 1 } },
-    ]);
-
-    return data;
+    return summariseAgentStats(foldLegsIntoCalls(cdrs), agentId);
   },
+
   async getCallbackStats(
     _args,
-    { startDate, endDate, queueId },
+    { startDate, endDate, queueId }: ICallReportArgs,
     { models }: IContext,
   ) {
-    const data = await models.CallCdrs.aggregate([
-      {
-        $match: {
-          userfield: 'Inbound',
-          start: { $gte: new Date(startDate) },
-          end: { $lte: new Date(endDate) },
-        },
-      },
+    const inboundCdrs = await models.CallCdrs.find(
+      buildCdrFilter({
+        startDate,
+        endDate,
+        queueId,
+        direction: 'Inbound',
+      }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
 
-      {
-        $addFields: {
-          queue: {
-            $cond: [
-              {
-                $regexMatch: {
-                  input: { $ifNull: ['$actionType', ''] },
-                  regex: /QUEUE\[/,
-                },
-              },
-              {
-                $arrayElemAt: [
-                  {
-                    $split: [
-                      {
-                        $arrayElemAt: [
-                          { $split: ['$actionType', 'QUEUE['] },
-                          1,
-                        ],
-                      },
-                      ']',
-                    ],
-                  },
-                  0,
-                ],
-              },
-              null,
-            ],
-          },
-        },
-      },
+    // A callback can land after the reported range, so widen the outbound
+    // search by the callback window itself.
+    const outboundCdrs = await models.CallCdrs.find(
+      buildCdrFilter({
+        startDate,
+        endDate: new Date(
+          new Date(endDate).getTime() + CALLBACK_WINDOW_MS,
+        ).toISOString(),
+        queueId,
+        direction: 'Outbound',
+      }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
 
-      {
-        $match: {
-          queue: queueId ? queueId : { $ne: null },
-        },
-      },
+    return summariseCallbackStats(
+      foldLegsIntoCalls(inboundCdrs),
+      foldLegsIntoCalls(outboundCdrs),
+      queueId || 'all',
+    );
+  },
 
-      {
-        $group: {
-          _id: { queue: '$queue', uniqueid: '$uniqueid' },
-          src: { $first: '$src' },
-          dispositions: { $addToSet: '$disposition' },
-          billsec: { $max: '$billsec' },
-          start: { $first: '$start' },
-          end: { $max: '$end' },
-        },
-      },
+  /**
+   * KPI scorecard for the selected queue, date range, and direction.
+   *
+   * Five of the six figures come from the shared helpers in `statistics.ts`,
+   * the same ones behind `callTodayStatistics` and the `callCalculate*`
+   * queries, so every surface reports a metric the same way.
+   *
+   * Average Speed of Answer is the exception: it is folded per call by
+   * `averageSpeedOfAnswer`, because the ring time sits on the queue leg the
+   * caller waited on rather than on the leg stamped `ANSWERED`, and a
+   * leg-by-leg average reads the wrong field and reports 0.
+   */
+  async callKpiScorecard(
+    _args,
+    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { models }: IContext,
+  ) {
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(`${CDR_REPORT_FIELDS} answer`)
+      .lean<ICdrLeg[]>();
 
-      {
-        $project: {
-          queue: '$_id.queue',
-          uniqueid: '$_id.uniqueid',
-          src: 1,
-          start: 1,
-          end: 1,
-          isMissed: {
-            $or: [
-              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
-              {
-                $and: [
-                  { $in: ['ANSWERED', '$dispositions'] },
-                  { $eq: ['$billsec', 0] },
-                ],
-              },
-            ],
-          },
-        },
-      },
-
-      {
-        $match: { isMissed: true },
-      },
-
-      {
-        $lookup: {
-          from: 'callcdrs',
-          let: {
-            missedSrc: '$src',
-            missedTime: '$end',
-            missedQueue: '$queue',
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$userfield', 'Outbound'] },
-                    { $eq: ['$dst', '$$missedSrc'] },
-                    { $gte: ['$start', '$$missedTime'] },
-                    {
-                      $lte: [
-                        '$start',
-                        { $add: ['$$missedTime', 24 * 60 * 60 * 1000] },
-                      ],
-                    },
-                  ],
-                },
-              },
-            },
-            {
-              $project: {
-                disposition: 1,
-                billsec: 1,
-                start: 1,
-              },
-            },
-          ],
-          as: 'callbacks',
-        },
-      },
-
-      {
-        $addFields: {
-          callbackAttempted: { $gt: [{ $size: '$callbacks' }, 0] },
-          successfulCallback: {
-            $anyElementTrue: {
-              $map: {
-                input: '$callbacks',
-                as: 'cb',
-                in: {
-                  $and: [
-                    { $eq: ['$$cb.disposition', 'ANSWERED'] },
-                    { $gt: ['$$cb.billsec', 0] },
-                  ],
-                },
-              },
-            },
-          },
-          callbackTime: {
-            $cond: [
-              { $gt: [{ $size: '$callbacks' }, 0] },
-              {
-                $divide: [
-                  {
-                    $subtract: [{ $min: '$callbacks.start' }, '$end'],
-                  },
-                  60000,
-                ],
-              },
-              null,
-            ],
-          },
-        },
-      },
-
-      {
-        $group: {
-          _id: '$queue',
-          totalMissedCalls: { $sum: 1 },
-          callbackAttempts: {
-            $sum: { $cond: ['$callbackAttempted', 1, 0] },
-          },
-          successfulCallbacks: {
-            $sum: { $cond: ['$successfulCallback', 1, 0] },
-          },
-          pendingCallbacks: {
-            $sum: {
-              $cond: [{ $not: ['$callbackAttempted'] }, 1, 0],
-            },
-          },
-          totalCallbackTime: {
-            $sum: { $ifNull: ['$callbackTime', 0] },
-          },
-          callbackCount: {
-            $sum: {
-              $cond: [{ $ne: ['$callbackTime', null] }, 1, 0],
-            },
-          },
-        },
-      },
-
-      {
-        $project: {
-          queue: '$_id',
-          totalMissedCalls: 1,
-          callbackAttempts: 1,
-          successfulCallbacks: 1,
-          callbackRate: {
-            $cond: [
-              { $gt: ['$totalMissedCalls', 0] },
-              {
-                $round: [
-                  {
-                    $multiply: [
-                      {
-                        $divide: ['$successfulCallbacks', '$totalMissedCalls'],
-                      },
-                      100,
-                    ],
-                  },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-          pendingCallbacks: 1,
-          averageCallbackTime: {
-            $cond: [
-              { $gt: ['$callbackCount', 0] },
-              {
-                $round: [
-                  { $divide: ['$totalCallbackTime', '$callbackCount'] },
-                  2,
-                ],
-              },
-              0,
-            ],
-          },
-        },
-      },
-
-      { $sort: { queue: 1 } },
+    const [
+      serviceLevel,
+      abandonment,
+      averageAnsweredTime,
+      firstCallResolution,
+      occupancy,
+    ] = await Promise.all([
+      calculateServiceLevel(cdrs),
+      calculateAbandonmentRate(cdrs),
+      calculateAverageHandlingTime(cdrs),
+      calculateFirstCallResolution(cdrs),
+      calculateOccupancyRate(cdrs),
     ]);
 
-    return data;
+    const averageSpeed = averageSpeedOfAnswer(
+      cdrs.filter(({ userfield }) => userfield === 'Inbound'),
+    );
+
+    return {
+      // One call spans several CDR legs, so count distinct calls, not rows.
+      callstotal: new Set(cdrs.map(({ uniqueid }) => uniqueid)).size,
+      serviceLevel,
+      abandonment,
+      averageSpeed,
+      averageAnsweredTime,
+      firstCallResolution,
+      occupancy,
+    };
   },
+
+  async callVolumeSeries(
+    _args,
+    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { models }: IContext,
+  ) {
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildVolumeSeries(foldLegsIntoCalls(cdrs));
+  },
+
+  async callCarrierBreakdown(
+    _args,
+    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { models }: IContext,
+  ) {
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildCarrierBreakdown(foldLegsIntoCalls(cdrs));
+  },
+
+  async callHeatmap(
+    _args,
+    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { models }: IContext,
+  ) {
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildHeatmap(foldLegsIntoCalls(cdrs));
+  },
+
+  async callTopNumbers(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+      limit = 12,
+    }: ICallReportArgs & { limit?: number },
+    { models }: IContext,
+  ) {
+    const cdrs = await models.CallCdrs.find(
+      buildCdrFilter({ startDate, endDate, queueId, direction }),
+    )
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildTopNumbers(foldLegsIntoCalls(cdrs), limit);
+  },
+
   async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
     return await models.CallCdrs.aggregate([
       {

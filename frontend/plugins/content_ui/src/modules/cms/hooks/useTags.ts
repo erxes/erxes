@@ -1,74 +1,270 @@
-import { useQuery } from '@apollo/client';
-import { useAtomValue } from 'jotai';
+import { ApolloError, useQuery } from '@apollo/client';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CMS_TAGS } from '../graphql/queries';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  useRecordTableCursor,
+  validateFetchMore,
+} from 'erxes-ui';
+import { TAGS_CURSOR_SESSION_KEY } from '../tags/constants/tagsCursorSessionKey';
+import { tagsTotalCountAtom } from '../tags/states/tagsCounts';
 
 export interface CmsTag {
   _id: string;
   name: string;
+  slug: string;
+  clientPortalId: string;
   colorCode: string;
   createdAt: string;
+  updatedAt?: string;
+  translations?: { language: string; title?: string }[];
 }
 
 export interface UseTagsProps {
   clientPortalId?: string;
   type?: string;
   searchValue?: string;
-  limit?: number;
   cursor?: string;
+  limit?: number;
+  fetchAll?: boolean;
   cursorMode?: string;
   direction?: 'forward' | 'backward';
   sortField?: string;
   sortMode?: string;
   sortDirection?: string;
+  skip?: boolean;
 }
 
 interface UseTagsResult {
   tags: CmsTag[];
+  totalCount: number;
+  pageInfo?: IRecordTableCursorPageInfo;
   loading: boolean;
-  error?: any;
+  error?: ApolloError;
   refetch: () => void;
+  handleFetchMore: ({ direction }: { direction: EnumCursorDirection }) => void;
+}
+
+export const TAGS_PER_PAGE = 30;
+
+interface CmsTagsQueryResult {
+  cmsTags?: {
+    tags?: CmsTag[];
+    totalCount?: number;
+    pageInfo?: IRecordTableCursorPageInfo;
+  };
 }
 
 export function useTags({
   clientPortalId,
   type,
   searchValue,
-  limit = 20,
   cursor,
+  limit = TAGS_PER_PAGE,
+  fetchAll = false,
   cursorMode,
   direction,
   sortField,
   sortMode,
   sortDirection,
+  skip = false,
 }: UseTagsProps): UseTagsResult {
   const language = useAtomValue(cmsLanguageAtom);
+  const setTagsTotalCount = useSetAtom(tagsTotalCountAtom);
+  const fetchedCursorsRef = useRef<Set<string>>(new Set());
+  const fetchingMoreRef = useRef(false);
+  const { cursor: tableCursor } = useRecordTableCursor({
+    sessionKey: TAGS_CURSOR_SESSION_KEY,
+  });
 
-  const { data, loading, error, refetch } = useQuery(CMS_TAGS, {
-    variables: {
+  const variables = useMemo(
+    () => ({
       clientPortalId,
       type,
       searchValue,
+      cursor: cursor ?? (fetchAll ? undefined : tableCursor),
       limit,
+      cursorMode,
+      direction,
+      sortField: sortField || 'createdAt',
+      sortMode,
+      sortDirection: sortDirection || '-1',
+      language,
+    }),
+    [
+      clientPortalId,
+      type,
+      searchValue,
       cursor,
+      tableCursor,
+      limit,
+      fetchAll,
       cursorMode,
       direction,
       sortField,
       sortMode,
       sortDirection,
       language,
+    ],
+  );
+
+  const { data, loading, error, refetch, fetchMore } =
+    useQuery<CmsTagsQueryResult>(CMS_TAGS, {
+      variables,
+      skip,
+      errorPolicy: 'all',
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
+    });
+
+  useEffect(() => {
+    fetchedCursorsRef.current.clear();
+  }, [variables]);
+
+  useEffect(() => {
+    if (!skip) return;
+
+    fetchedCursorsRef.current.clear();
+    fetchingMoreRef.current = false;
+  }, [skip]);
+
+  const pageInfo = data?.cmsTags?.pageInfo;
+
+  const fetchRemainingTags = useCallback(async () => {
+    const endCursor = pageInfo?.endCursor;
+
+    if (
+      !pageInfo?.hasNextPage ||
+      !endCursor ||
+      fetchingMoreRef.current ||
+      fetchedCursorsRef.current.has(endCursor)
+    ) {
+      return;
+    }
+
+    fetchingMoreRef.current = true;
+    fetchedCursorsRef.current.add(endCursor);
+
+    try {
+      await fetchMore({
+        variables: {
+          ...variables,
+          cursor: endCursor,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.cmsTags) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            cmsTags: {
+              ...fetchMoreResult.cmsTags,
+              tags: [
+                ...(prev.cmsTags?.tags || []),
+                ...(fetchMoreResult.cmsTags.tags || []),
+              ],
+            },
+          };
+        },
+      });
+    } finally {
+      fetchingMoreRef.current = false;
+    }
+  }, [fetchMore, pageInfo?.endCursor, pageInfo?.hasNextPage, variables]);
+
+  useEffect(() => {
+    if (!fetchAll || skip) return;
+    fetchRemainingTags();
+  }, [fetchAll, fetchRemainingTags, skip]);
+
+  const handleFetchMore = useCallback(
+    ({ direction }: { direction: EnumCursorDirection }) => {
+      if (
+        fetchAll ||
+        !validateFetchMore({
+          direction,
+          pageInfo,
+        })
+      ) {
+        return;
+      }
+
+      fetchMore({
+        variables: {
+          ...variables,
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+          limit: TAGS_PER_PAGE,
+          direction,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.cmsTags) return prev;
+
+          const isForward = direction === EnumCursorDirection.FORWARD;
+          const fetchPageInfo = fetchMoreResult.cmsTags?.pageInfo || {};
+          const prevPageInfo = prev.cmsTags?.pageInfo || {};
+          const fetchTags = fetchMoreResult.cmsTags?.tags || [];
+          const prevTags = prev.cmsTags?.tags || [];
+
+          return {
+            ...prev,
+            cmsTags: {
+              ...fetchMoreResult.cmsTags,
+              tags: isForward
+                ? [...prevTags, ...fetchTags]
+                : [...fetchTags, ...prevTags],
+              pageInfo: {
+                endCursor: isForward
+                  ? fetchPageInfo.endCursor
+                  : prevPageInfo.endCursor,
+                hasNextPage: isForward
+                  ? fetchPageInfo.hasNextPage
+                  : prevPageInfo.hasNextPage,
+                hasPreviousPage: isForward
+                  ? prevPageInfo.hasPreviousPage
+                  : fetchPageInfo.hasPreviousPage,
+                startCursor: isForward
+                  ? prevPageInfo.startCursor
+                  : fetchPageInfo.startCursor,
+              },
+            },
+          };
+        },
+      });
     },
-    errorPolicy: 'all',
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  });
+    [fetchAll, fetchMore, pageInfo, variables],
+  );
+
+  const refetchTags = useCallback(() => {
+    fetchedCursorsRef.current.clear();
+    return refetch(variables);
+  }, [refetch, variables]);
 
   const tags = data?.cmsTags?.tags || [];
+  const totalCount = data?.cmsTags?.totalCount || 0;
+
+  useEffect(() => {
+    setTagsTotalCount(null);
+  }, [variables, setTagsTotalCount]);
+
+  useEffect(() => {
+    if (skip) return;
+    setTagsTotalCount(data?.cmsTags?.totalCount ?? null);
+  }, [skip, data?.cmsTags?.totalCount, setTagsTotalCount]);
 
   return {
     tags,
+    totalCount,
+    pageInfo,
     loading,
     error,
-    refetch,
+    refetch: refetchTags,
+    handleFetchMore,
   };
 }

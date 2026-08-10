@@ -205,11 +205,6 @@ const SelectBrandContent = () => {
             Create "{search}"
           </Command.Item>
         )}
-        {brands
-          .filter((brand) => !brandIds.includes(brand._id))
-          .map((brand) => (
-            <SelectBrandCommandItem key={brand._id} brand={brand} />
-          ))}
         <Combobox.FetchMore
           fetchMore={handleFetchMore}
           totalCount={totalCount}
@@ -364,7 +359,7 @@ export const SelectBrandFormItem = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Form.Control>
-          <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <Combobox.Trigger className={cn('w-full h-8 font-medium', className)}>
             <SelectBrandValue placeholder={placeholder} />
           </Combobox.Trigger>
         </Form.Control>

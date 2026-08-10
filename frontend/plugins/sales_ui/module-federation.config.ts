@@ -20,6 +20,7 @@ const config: ModuleFederationConfig = {
     './dealsSettings': './src/pages/SalesSettingsIndexPage.tsx',
     './salesSettings': './src/pages/SalesSettingsIndexPage.tsx',
     './Widgets': './src/widgets/Widgets.tsx',
+    './notificationWidget': './src/widgets/notifications/NotificationsWidgets.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './pos': './src/modules/pos/Main.tsx',
     './posSettings': './src/modules/pos/pos/Main.tsx',

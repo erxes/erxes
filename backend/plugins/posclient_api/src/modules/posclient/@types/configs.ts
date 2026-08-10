@@ -13,7 +13,7 @@ export interface IEbarimtConfig {
 
   hasVat: boolean;
   hasCitytax: boolean;
-  defaultGSCode: string;
+  defaultUnitedCode: string;
   vatPercent: number;
   cityTaxPercent: number;
   reverseVatRules?: string[];
@@ -21,6 +21,17 @@ export interface IEbarimtConfig {
   footerText?: string;
   hasCopy: boolean;
   isCleanTaxPrice?: boolean;
+}
+
+export interface IErkhetConfig {
+  apiKey?: string;
+  apiSecret?: string;
+  getRemainderApiUrl?: string;
+  useRemainder?: boolean;
+  accounts?: string;
+  locations?: string;
+  account?: string;
+  location?: string;
 }
 
 interface IConfigColors {
@@ -65,7 +76,7 @@ export interface IConfig {
   token: string;
   uiOptions: IUIOptions;
   ebarimtConfig?: IEbarimtConfig;
-  erkhetConfig?: any;
+  erkhetConfig?: IErkhetConfig;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
   kioskExcludeCategoryIds?: string[];
@@ -78,7 +89,6 @@ export interface IConfig {
   branchId?: string;
   departmentId?: string;
   allowBranchIds?: string[];
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
   isCheckRemainder: boolean;
@@ -91,11 +101,6 @@ export interface IConfigDocument extends Document, IConfig {
   _id: string;
 }
 
-export interface IProductGroup {}
-
-export interface IProductGroupDocument extends Document, IProductGroup {
-  _id: string;
-}
 // products config
 export interface IProductsConfig {
   code: string;

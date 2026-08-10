@@ -17,10 +17,12 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MembersInline, SelectTags } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 import { useFormsList } from '../hooks/useFormsList';
 import { IForm } from '../types/formTypes';
 import { FormInstallScript } from './actions/install-form';
@@ -28,13 +30,25 @@ import { RemoveForm } from './actions/remove-form';
 import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
+import { OpenLiveForm } from './actions/open-live-form';
+import { OpenSubmissionsAction } from './actions/open-submissions';
+import { DownloadResponsesAction } from './actions/download-responses';
 
 export const FormsList = () => {
+  const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
+  const [{ searchValue, status, tagId }] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    tagId?: string;
+  }>(['searchValue', 'status', 'tagId']);
 
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
       channelId: channelId || undefined,
+      searchValue: searchValue || undefined,
+      status: status || undefined,
+      tagId: tagId || undefined,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -46,8 +60,8 @@ export const FormsList = () => {
           <Empty.Media>
             <IconForms />
           </Empty.Media>
-          <Empty.Title>No forms found</Empty.Title>
-          <Empty.Description>Create a form to get started</Empty.Description>
+          <Empty.Title>{t('no-forms-found')}</Empty.Title>
+          <Empty.Description>{t('forms-empty-description')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <FormsCreateButton />
@@ -61,6 +75,7 @@ export const FormsList = () => {
       columns={formsColumns as unknown as ColumnDef<IForm>[]}
       data={forms || []}
       className="m-3"
+      tableId="frontline_channel_forms_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -95,40 +110,50 @@ export const FormsMoreColumnCell = ({
 }: {
   cell: Cell<IForm, unknown>;
 }) => {
-  const { _id, status, code, channelId } = cell.row.original;
+  const { t } = useTranslation('frontline');
+  const { _id, status, code, channelId, name } = cell.row.original;
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content side="bottom" align="start">
-        <FormInstallScript
-          formId={code}
-          channelId={channelId}
-          inActionBar={true}
-        />
-        <DropdownMenu.Item
-          onSelect={() => {
-            navigate(
-              `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
-            );
-          }}
-        >
-          <IconEdit /> Edit
-        </DropdownMenu.Item>
-        <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
-        <RemoveForm formId={_id} title={cell.row.original.name} />
-      </DropdownMenu.Content>
-    </DropdownMenu>
+    <DownloadResponsesAction formId={_id} formName={name}>
+      {(downloadResponsesAction) => (
+        <DropdownMenu open={open} onOpenChange={setOpen}>
+          <DropdownMenu.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content side="bottom" align="start">
+            <FormInstallScript
+              formId={code}
+              channelId={channelId as string}
+              inActionBar
+            />
+            <DropdownMenu.Item
+              onSelect={() => {
+                navigate(
+                  `/settings/frontline/channels/${cell.row.original.channelId}/forms/${cell.row.original._id}`,
+                );
+              }}
+            >
+              <IconEdit /> {t('edit')}
+            </DropdownMenu.Item>
+            <OpenLiveForm formId={_id} channelId={channelId as string} />
+            <OpenSubmissionsAction formId={_id} />
+            {downloadResponsesAction}
+            <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
+            <RemoveForm formId={_id} title={cell.row.original.name} />
+          </DropdownMenu.Content>
+        </DropdownMenu>
+      )}
+    </DownloadResponsesAction>
   );
 };
 
 export const MoreColumn: ColumnDef<IForm> = {
   id: 'more',
-  size: 30,
+  header: () => <RecordTable.ColumnSelector />,
+  size: 33,
   cell: FormsMoreColumnCell,
 };
 
@@ -138,7 +163,10 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'name',
     id: 'name',
-    header: () => <RecordTable.InlineHead label="Name" icon={IconLabel} />,
+    header: function FormNameHeader() {
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('col-name')} icon={IconLabel} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -157,9 +185,12 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'status',
     id: 'status',
-    header: () => (
-      <RecordTable.InlineHead label="Status" icon={IconToggleRight} />
-    ),
+    header: function FormStatusHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead label={t('status')} icon={IconToggleRight} />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -175,13 +206,19 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'channelId',
     id: 'channelId',
-    header: () => <RecordTable.InlineHead label="Channel" icon={IconCircles} />,
-    cell: ({ cell }) => {
+    header: function FormChannelHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead label={t('channel-label')} icon={IconCircles} />
+      );
+    },
+    cell: function FormChannelCell({ cell }) {
+      const { t } = useTranslation('frontline');
       return (
         <RecordTableInlineCell>
           <ChannelsInline
             channelIds={[cell.getValue() as string]}
-            placeholder="No channel"
+            placeholder={t('no-channel')}
           />
         </RecordTableInlineCell>
       );
@@ -190,7 +227,10 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'tagIds',
     id: 'tagIds',
-    header: () => <RecordTable.InlineHead label="Tags" icon={IconTag} />,
+    header: function FormTagsHeader() {
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('tags')} icon={IconTag} />;
+    },
     cell: ({ cell }) => {
       return (
         <SelectTags.InlineCell
@@ -206,7 +246,10 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdUserId',
     id: 'createdUserId',
-    header: () => <RecordTable.InlineHead label="Created By" icon={IconUser} />,
+    header: function FormCreatedByHeader() {
+      const { t } = useTranslation('frontline');
+      return <RecordTable.InlineHead label={t('created-by')} icon={IconUser} />;
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -218,9 +261,15 @@ const formsColumns: ColumnDef<IForm>[] = [
   {
     accessorKey: 'createdDate',
     id: 'createdDate',
-    header: () => (
-      <RecordTable.InlineHead label="Created At" icon={IconCalendarEvent} />
-    ),
+    header: function FormCreatedAtHeader() {
+      const { t } = useTranslation('frontline');
+      return (
+        <RecordTable.InlineHead
+          label={t('created-at')}
+          icon={IconCalendarEvent}
+        />
+      );
+    },
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>

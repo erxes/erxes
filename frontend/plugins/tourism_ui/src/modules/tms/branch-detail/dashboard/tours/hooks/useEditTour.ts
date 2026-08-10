@@ -7,6 +7,7 @@ import {
 } from '../graphql/queries';
 import { ITourTranslationInput } from '../utils/translationHelpers';
 import type { PricingOptionInput } from '../utils/pricingOptions';
+import type { TourCustomFieldData } from '../utils/customFields';
 
 export interface IEditTourVariables {
   id: string;
@@ -31,10 +32,11 @@ export interface IEditTourVariables {
   joinPercent?: number;
   advanceCheck?: boolean;
   status?: string;
+  customTourTypeId?: string;
   cost?: number;
   guides?: Array<{
     guideId: string;
-    name?: string;
+    type: string;
   }>;
   refNumber?: string;
   info1?: string;
@@ -49,6 +51,7 @@ export interface IEditTourVariables {
   categoryIds?: string[];
   pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
+  customFieldsData?: TourCustomFieldData[];
 }
 
 interface IEditTourResponse {

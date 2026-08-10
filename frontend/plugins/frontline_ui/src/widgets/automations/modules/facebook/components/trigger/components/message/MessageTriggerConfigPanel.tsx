@@ -1,6 +1,7 @@
 import { IconChevronLeft } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useMessageTriggerFormContext } from '../../context/MessageTriggerFormContext';
 import { useMessageTriggerConditions } from '../../hooks/useMessageTriggerConditions';
 import { TMessageTriggerForm } from '../../types/messageTrigger';
@@ -9,6 +10,7 @@ import { OpenThreadTriggerEditor } from './OpenThreadTriggerEditor';
 import { PersistentMenuSelector } from './PersistentMenuSelector';
 
 export const MessageTriggerConfigPanel = () => {
+  const { t } = useTranslation('frontline');
   const { watch } = useFormContext<TMessageTriggerForm>();
   const { activeConditionType, setActiveConditionType } =
     useMessageTriggerFormContext();
@@ -27,7 +29,7 @@ export const MessageTriggerConfigPanel = () => {
     <div className="m-4 border border-md px-4 py-2">
       <Button variant="ghost" onClick={() => setActiveConditionType('')}>
         <IconChevronLeft />
-        Back to conditions
+        {t('back-to-conditions')}
       </Button>
 
       {activeConditionType === 'direct' ? (

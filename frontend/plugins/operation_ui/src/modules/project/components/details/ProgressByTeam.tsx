@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ProgressDot } from '@/project/components/details/Progress';
 import { useGetProjectProgressByTeam } from '@/project/hooks/useGetProjectProgressByTeam';
 import { IProjectProgressByTeam } from '@/project/types';
@@ -6,6 +7,7 @@ import { Button, ChartConfig, ChartContainer, HoverCard } from 'erxes-ui';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 
 export const ProgressByTeam = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   const { projectProgressByTeam } = useGetProjectProgressByTeam({
     variables: { _id: projectId },
     skip: !projectId,
@@ -81,21 +83,21 @@ export const ProgressByTeam = ({ projectId }: { projectId: string }) => {
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                total:
+                {t('total')}
                 <span className="text-foreground ml-auto">
                   {item.totalScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="completed" />
-                completed:
+                {t('completed-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalCompletedScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="started" />
-                started:
+                {t('started-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalStartedScope}
                 </span>

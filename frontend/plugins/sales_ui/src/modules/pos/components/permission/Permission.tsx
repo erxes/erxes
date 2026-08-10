@@ -4,10 +4,10 @@ import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { AdminPermissions } from '@/pos/components/permission/AdminPermissions';
 import { CashierPermissions } from '@/pos/components/permission/CashierPermissions';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
+import { useTranslation } from 'react-i18next';
 
 interface PermissionProps {
   posId?: string;
@@ -46,9 +46,9 @@ const parseLimit = (value: string): number => {
 
 const Permission: React.FC<PermissionProps> = ({
   posId,
-  posType,
   onSaveActionChange,
 }) => {
+  const { t } = useTranslation('sales');
   const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
   const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
   const form = useForm<PermissionFormData>({
@@ -56,9 +56,6 @@ const Permission: React.FC<PermissionProps> = ({
   });
   const { control, handleSubmit, reset, formState } = form;
   const { isDirty } = formState;
-
-  const canEditAdmins = isFieldVisible('admin', posType);
-  const canEditCashiers = isFieldVisible('cashier', posType);
 
   useEffect(() => {
     if (!posDetail) {
@@ -86,8 +83,8 @@ const Permission: React.FC<PermissionProps> = ({
     async (data: PermissionFormData) => {
       if (!posId) {
         toast({
-          title: 'Error',
-          description: 'POS ID is required',
+          title: t('error'),
+          description: t('pos-id-required'),
           variant: 'destructive',
         });
         return;
@@ -101,52 +98,42 @@ const Permission: React.FC<PermissionProps> = ({
         await posEdit({
           variables: {
             _id: posId,
-            ...(canEditAdmins ? { adminIds: data.adminIds } : {}),
-            ...(canEditCashiers ? { cashierIds: data.cashierIds } : {}),
+            adminIds: data.adminIds,
+            cashierIds: data.cashierIds,
             permissionConfig: {
               ...currentPermissionConfig,
-              ...(canEditAdmins
-                ? {
-                    admins: {
-                      isTempBill: data.adminIsPrintTempBill,
-                      directDiscount: data.adminDirectDiscount,
-                      directDiscountLimit: parseLimit(
-                        data.adminDirectDiscountLimit,
-                      ),
-                    },
-                  }
-                : {}),
-              ...(canEditCashiers
-                ? {
-                    cashiers: {
-                      isTempBill: data.cashierIsPrintTempBill,
-                      directDiscount: data.cashierDirectDiscount,
-                      directDiscountLimit: parseLimit(
-                        data.cashierDirectDiscountLimit,
-                      ),
-                    },
-                  }
-                : {}),
+              admins: {
+                isTempBill: data.adminIsPrintTempBill,
+                directDiscount: data.adminDirectDiscount,
+                directDiscountLimit: parseLimit(
+                  data.adminDirectDiscountLimit,
+                ),
+              },
+              cashiers: {
+                isTempBill: data.cashierIsPrintTempBill,
+                directDiscount: data.cashierDirectDiscount,
+                directDiscountLimit: parseLimit(
+                  data.cashierDirectDiscountLimit,
+                ),
+              },
             },
           },
         });
 
         toast({
-          title: 'Success',
-          description: 'Permissions saved successfully',
+          title: t('success'),
+          description: t('permissions-saved'),
         });
         reset(data);
       } catch {
         toast({
-          title: 'Error',
-          description: 'Failed to save permissions',
+          title: t('error'),
+          description: t('failed-to-save-permissions'),
           variant: 'destructive',
         });
       }
     },
     [
-      canEditAdmins,
-      canEditCashiers,
       posDetail?.permissionConfig,
       posEdit,
       posId,
@@ -167,7 +154,7 @@ const Permission: React.FC<PermissionProps> = ({
           size="sm"
           disabled={saving}
         >
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('saving') : t('save-changes')}
         </Button>
       ) : null,
     );
@@ -190,7 +177,7 @@ const Permission: React.FC<PermissionProps> = ({
       return (
         <div className="p-6 text-center">
           <p className="text-destructive">
-            Failed to load POS details: {error.message}
+            {t('failed-to-load-pos-details', { message: error.message })}
           </p>
         </div>
       );
@@ -203,21 +190,17 @@ const Permission: React.FC<PermissionProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canEditAdmins && (
-            <section className="space-y-4">
-              <Label>Admins</Label>
+          <section className="space-y-4">
+            <Label>{t('admins')}</Label>
 
-              <AdminPermissions control={control} />
-            </section>
-          )}
+            <AdminPermissions control={control} />
+          </section>
 
-          {canEditCashiers && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Cashiers</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>{t('cashiers')}</Label>
 
-              <CashierPermissions control={control} />
-            </section>
-          )}
+            <CashierPermissions control={control} />
+          </section>
         </form>
       </Form>
     );
@@ -225,7 +208,7 @@ const Permission: React.FC<PermissionProps> = ({
 
   return (
     <div className="p-6">
-      <InfoCard title="Permission configuration">
+      <InfoCard title={t('permission-configuration')}>
         <InfoCard.Content>{renderContent()}</InfoCard.Content>
       </InfoCard>
     </div>

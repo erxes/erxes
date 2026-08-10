@@ -17,6 +17,7 @@ export const DepartmentTypes = `
         userCount: Int
         userIds: [String]
         workhours:JSON
+        status: String
     }
 
     type DepartmentsListResponse {
@@ -34,6 +35,7 @@ const commonDepartmentParams = `
     parentId: String
     userIds: [String]
     workhours: JSON
+    status: String
 `;
 
 export const mutations = `
@@ -46,4 +48,5 @@ export const queries = `
     departments(${commonParams},withoutUserFilter:Boolean): [Department]
     departmentsMain(${commonParams},withoutUserFilter:Boolean): DepartmentsListResponse
     departmentDetail(_id: String!): Department
+    cpDepartments(${commonParams},withoutUserFilter:Boolean): [Department]
 `;

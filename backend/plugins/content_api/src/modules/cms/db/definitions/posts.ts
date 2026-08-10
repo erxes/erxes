@@ -44,6 +44,9 @@ export const postSchema = new Schema<IPostDocument>(
     scheduledDate: { type: Date },
     autoArchiveDate: { type: Date },
 
+    seoTitle: { type: String, optional: true },
+    seoDescription: { type: String, optional: true },
+
     reactions: [
       {
         type: String,
@@ -77,7 +80,7 @@ export const postCategorySchema = new Schema<IPostCategoryDocument>(
     _id: mongooseStringRandomId,
     clientPortalId: { type: String, required: true },
     name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, required: true },
     description: { type: String },
     parentId: { type: String },
     status: { type: String, default: 'active', enum: ['active', 'inactive'] },
@@ -86,7 +89,10 @@ export const postCategorySchema = new Schema<IPostCategoryDocument>(
   { timestamps: true },
 );
 
-postCategorySchema.index({ slug: 1, clientPortalId: 1 }, { sparse: true });
+postCategorySchema.index(
+  { slug: 1, clientPortalId: 1 },
+  { unique: true, sparse: true },
+);
 
 export const postTagSchema = new Schema<IPostTagDocument>(
   {

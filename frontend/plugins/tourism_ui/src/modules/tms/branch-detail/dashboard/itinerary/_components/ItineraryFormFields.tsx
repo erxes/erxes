@@ -8,6 +8,7 @@ import {
   Editor,
   ColorPicker,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { ItineraryCreateFormType } from '../constants/formSchema';
 import { LANGUAGES } from '@/tms/constants/languages';
@@ -48,6 +49,7 @@ export const ItineraryNameField = ({
   name = 'name',
   labelSuffix = '',
 }: ItineraryNameFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -55,12 +57,12 @@ export const ItineraryNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Name<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder="Itinerary name"
+              placeholder={t('itinerary-name')}
               {...field}
               value={field.value || ''}
             />
@@ -77,13 +79,14 @@ export const ItineraryColorField = ({
 }: {
   control: Control<ItineraryCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
       name="color"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Color</Form.Label>
+          <Form.Label>{t('color')}</Form.Label>
           <Form.Control>
             <ColorPicker
               value={field.value}
@@ -105,6 +108,7 @@ export const ItineraryContentField = ({
   name = 'content',
   labelSuffix = '',
 }: ItineraryContentFieldProps) => {
+  const { t } = useTranslation('tourism');
   return (
     <Form.Field
       control={control}
@@ -112,7 +116,7 @@ export const ItineraryContentField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Content<span className="text-primary">{labelSuffix}</span>
+            {t('content')}<span className="text-primary">{labelSuffix}</span>
           </Form.Label>
           <Form.Control>
             <Editor
@@ -133,6 +137,7 @@ export const ItineraryGuideCostField = ({
   name = 'guideCost',
   currencySymbol,
 }: ItineraryCostFieldProps) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -142,7 +147,7 @@ export const ItineraryGuideCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Guide's daily wage</Form.Label>
+          <Form.Label>{t('guides-daily-wage')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -171,6 +176,7 @@ export const ItineraryDriverCostField = ({
   name = 'driverCost',
   currencySymbol,
 }: ItineraryCostFieldProps) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -180,7 +186,7 @@ export const ItineraryDriverCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Driver's daily wage</Form.Label>
+          <Form.Label>{t('drivers-daily-wage')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -209,6 +215,7 @@ export const ItineraryFoodCostField = ({
   name = 'foodCost',
   currencySymbol,
 }: ItineraryCostFieldProps) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -218,7 +225,7 @@ export const ItineraryFoodCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Daily cost of food per person</Form.Label>
+          <Form.Label>{t('daily-cost-of-food')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -247,6 +254,7 @@ export const ItineraryGasCostField = ({
   name = 'gasCost',
   currencySymbol,
 }: ItineraryCostFieldProps) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -256,7 +264,7 @@ export const ItineraryGasCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Gasoline fee per car</Form.Label>
+          <Form.Label>{t('gasoline-fee-per-car')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -285,6 +293,7 @@ export const ItineraryGuideCostExtraField = ({
   name = 'guideCostExtra',
   currencySymbol,
 }: ItineraryCostFieldProps) => {
+  const { t } = useTranslation('tourism');
   const lang = useAtomValue(activeLangAtom);
   const symbol =
     currencySymbol ?? LANGUAGES.find((l) => l.value === lang)?.symbol ?? '$';
@@ -294,7 +303,7 @@ export const ItineraryGuideCostExtraField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Total price of a additive assistant</Form.Label>
+          <Form.Label>{t('total-price-additive-assistant')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
@@ -323,6 +332,7 @@ export const ItineraryImageField = ({
 }: {
   control: Control<ItineraryCreateFormType>;
 }) => {
+  const { t } = useTranslation('tourism');
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -334,7 +344,7 @@ export const ItineraryImageField = ({
 
         return (
           <Form.Item>
-            <Form.Label>Itinerary Image</Form.Label>
+            <Form.Label>{t('itinerary-image')}</Form.Label>
 
             <Form.Control>
               <Upload.Root
@@ -369,11 +379,11 @@ export const ItineraryImageField = ({
                   {!imageUrl && (
                     <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
                       {isLoading ? (
-                        <span>Uploading...</span>
+                        <span>{t('uploading')}</span>
                       ) : (
                         <>
                           <IconUpload size={22} />
-                          <span>Upload itinerary image</span>
+                          <span>{t('upload-itinerary-image')}</span>
                         </>
                       )}
                     </div>
@@ -382,7 +392,7 @@ export const ItineraryImageField = ({
                   {imageUrl && (
                     <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
                       <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 bg-black/70 group-hover:opacity-100">
-                        Change image
+                        {t('change-image')}
                       </span>
                     </div>
                   )}
@@ -423,9 +433,10 @@ export const ItineraryPersonCostField = ({
   control: Control<ItineraryCreateFormType>;
   duration: number;
 }) => {
+  const { t } = useTranslation('tourism');
   return (
     <div className="space-y-3">
-      <Form.Label>The daily cost per person</Form.Label>
+      <Form.Label>{t('daily-cost-per-person')}</Form.Label>
       <div className="grid grid-cols-1 gap-2">
         {Array.from({ length: duration }, (_, i) => {
           const dayKey = `day${i + 1}`;
@@ -439,7 +450,7 @@ export const ItineraryPersonCostField = ({
                   <Form.Control className="flex-1">
                     <Input
                       type="number"
-                      placeholder={`Cost for day ${i + 1}`}
+                      placeholder={t('cost-for-day', { day: i + 1 })}
                       value={field.value || 0}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />

@@ -31,11 +31,11 @@ export const AutomationHistories = () => {
           <IconRefresh />
         </Button>
       </PageSubHeader>
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 min-h-0 pt-1.5">
         <RecordTable.Provider
           columns={automationHistoriesColumns}
           data={list}
-          className="mt-1.5 flex-1 h-fit "
+          className="h-full min-h-0"
           stickyColumns={['more']}
         >
           <RecordTable.CursorProvider
@@ -44,7 +44,7 @@ export const AutomationHistories = () => {
             dataLength={list?.length}
             sessionKey={AUTOMATION_HISTORIES_CURSOR_SESSION_KEY}
           >
-            <RecordTable className="w-full">
+            <RecordTable>
               <RecordTable.Header />
               <RecordTable.Body>
                 <RecordTable.CursorBackwardSkeleton

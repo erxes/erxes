@@ -1,16 +1,28 @@
+import { ApolloError } from '@apollo/client';
+import {
+  Badge,
+  cn,
+  Combobox,
+  Command,
+  Form,
+  PopoverScoped,
+  Tooltip,
+} from 'erxes-ui';
 import React, { useState } from 'react';
-import { cn, Combobox, Command, Form, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { useGetTicketConfigs, IConfig } from '../hooks/useGetTicketConfigs';
+import { IConfig, useGetTicketConfigs } from '../hooks/useGetTicketConfigs';
 
 interface SelectTicketConfigContextType {
-  value: string;
-  onValueChange: (configId: string) => void;
+  value: string[];
+  onValueChange: (configIds: string[]) => void;
   loading?: boolean;
-  error?: any;
+  error?: ApolloError;
   configs?: IConfig[];
   channelId?: string;
 }
+
+const MAX_VISIBLE_CONFIG_NAMES = 3;
 
 const SelectTicketConfigContext =
   React.createContext<SelectTicketConfigContextType | null>(null);
@@ -31,29 +43,27 @@ export const SelectTicketConfigProvider = ({
   channelId,
   children,
 }: {
-  value: string;
-  onValueChange: (configId: string) => void;
+  value?: string[] | null;
+  onValueChange: (configIds: string[]) => void;
   children: React.ReactNode;
   channelId?: string;
 }) => {
   const { id: routeChannelId } = useParams<{ id: string }>();
   const effectiveChannelId = channelId || routeChannelId;
 
-  const handleValueChange = (configId: string) => {
-    if (!configId) return;
-    onValueChange?.(configId);
-  };
-  const { ticketConfigs, loading } = useGetTicketConfigs({
+  const { ticketConfigs, loading, error } = useGetTicketConfigs({
     variables: { channelId: effectiveChannelId as string },
     skip: !effectiveChannelId,
   });
+
   return (
     <SelectTicketConfigContext.Provider
       value={{
-        value: value || '',
-        onValueChange: handleValueChange,
+        value: value || [],
+        onValueChange,
         configs: ticketConfigs,
         loading,
+        error,
         channelId: effectiveChannelId,
       }}
     >
@@ -69,56 +79,115 @@ const SelectTicketConfigValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { value, configs } = useSelectTicketConfigContext();
-  const selectedConfig = configs?.find((config) => config.id === value);
+  const selectedConfigs = (configs || []).filter((config) =>
+    value.includes(config.id),
+  );
 
-  if (!selectedConfig) {
+  if (value.length === 0) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select config'}
+        {placeholder || t('search-config')}
       </span>
     );
   }
 
+  if (value.length === 1 && selectedConfigs.length === 1) {
+    return (
+      <div className="flex items-center gap-1 overflow-hidden">
+        <p
+          className={cn(
+            'font-medium truncate',
+            value.length > 1 ? 'text-xs' : 'text-sm',
+            className,
+          )}
+        >
+          {selectedConfigs[0].name}
+        </p>
+      </div>
+    );
+  }
+
+  if (
+    selectedConfigs.length === value.length &&
+    value.length <= MAX_VISIBLE_CONFIG_NAMES
+  ) {
+    return (
+      <div className="flex items-center gap-1 overflow-hidden">
+        {selectedConfigs.map((config) => (
+          <Badge
+            key={config.id}
+            className={cn(
+              'font-medium truncate',
+              value.length > 1 ? 'text-xs' : 'text-sm',
+              className,
+            )}
+          >
+            {config.name}
+          </Badge>
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      <p className={cn('font-medium text-sm', className)}>
-        {selectedConfig.name}
-      </p>
-    </div>
+    <Tooltip>
+      <Tooltip.Provider>
+        <Tooltip.Trigger>
+          <Badge className={cn('font-medium text-sm', className)}>
+            {t('n-selected', { count: value.length })}
+          </Badge>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {selectedConfigs.map((config) => config.name).join(', ')}
+        </Tooltip.Content>
+      </Tooltip.Provider>
+    </Tooltip>
   );
 };
 
 const SelectTicketConfigCommandItem = ({ config }: { config: IConfig }) => {
   const { onValueChange, value } = useSelectTicketConfigContext();
   const { name, id } = config || {};
+  const isSelected = value.includes(id);
 
   return (
     <Command.Item
       value={id}
+      keywords={[name]}
       onSelect={() => {
-        onValueChange(id);
+        onValueChange(
+          isSelected
+            ? value.filter((configId) => configId !== id)
+            : [...value, id],
+        );
       }}
     >
       <div className="flex items-center gap-2 flex-1">
         <span className="font-medium">{name}</span>
       </div>
-      <Combobox.Check checked={value === id} />
+      <Combobox.Check checked={isSelected} />
     </Command.Item>
   );
 };
 
 const SelectTicketConfigContent = () => {
-  const { configs, channelId } = useSelectTicketConfigContext();
+  const { t } = useTranslation('frontline');
+  const { configs, channelId, loading, error } = useSelectTicketConfigContext();
   return (
     <Command>
-      <Command.Input placeholder="Search config" />
-      <Command.Empty>
-        <span className="text-muted-foreground">
-          {channelId ? 'No config found' : 'Channel not selected'}
-        </span>
-      </Command.Empty>
+      <Command.Input placeholder={t('search-config')} />
       <Command.List>
+        {loading || error ? (
+          <Combobox.Empty loading={loading} error={error} />
+        ) : (
+          <Command.Empty>
+            <span className="text-muted-foreground">
+              {channelId ? t('no-config-found') : t('channel-not-selected')}
+            </span>
+          </Command.Empty>
+        )}
         {configs?.map((config) => (
           <SelectTicketConfigCommandItem key={config.id} config={config} />
         ))}
@@ -133,27 +202,22 @@ const SelectTicketConfigRoot = ({
   scope,
   onValueChange,
 }: {
-  value: string;
+  value?: string[] | null;
   channelId: string;
   scope?: string;
-  onValueChange?: (value: string) => void;
+  onValueChange: (configIds: string[]) => void;
 }) => {
   const [open, setOpen] = useState(false);
-
-  const handleValueChange = (value: string) => {
-    onValueChange?.(value);
-    setOpen(false);
-  };
 
   return (
     <SelectTicketConfigProvider
       channelId={channelId}
       value={value}
-      onValueChange={handleValueChange}
+      onValueChange={onValueChange}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Form.Control>
-          <Combobox.TriggerBase className="w-full h-7 font-medium max-w-64">
+          <Combobox.TriggerBase className="w-full h-8 font-medium">
             <SelectTicketConfigValue />
           </Combobox.TriggerBase>
         </Form.Control>
@@ -170,8 +234,8 @@ export const SelectTicketConfigFormItem = ({
   onValueChange,
   channelId,
 }: {
-  value: string;
-  onValueChange: (value: string) => void;
+  value?: string[] | null;
+  onValueChange: (configIds: string[]) => void;
   channelId?: string;
 }) => {
   const { id: routeChannelId } = useParams<{ id: string }>();
@@ -181,15 +245,12 @@ export const SelectTicketConfigFormItem = ({
   return (
     <SelectTicketConfigProvider
       value={value}
-      onValueChange={(value) => {
-        onValueChange(value);
-        setOpen(false);
-      }}
+      onValueChange={onValueChange}
       channelId={effectiveChannelId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Form.Control>
-          <Combobox.TriggerBase className="w-full h-7 font-medium max-w-64">
+          <Combobox.TriggerBase className="w-full h-8 font-medium">
             <SelectTicketConfigValue />
           </Combobox.TriggerBase>
         </Form.Control>

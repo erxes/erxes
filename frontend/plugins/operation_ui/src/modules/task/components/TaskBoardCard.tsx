@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
 import { SelectEstimatedPoint } from '@/task/components/task-selects/SelectEstimatedPointTask';
@@ -6,7 +7,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { allTasksMapState } from '@/task/components/TasksBoard';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
 import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
@@ -18,6 +19,7 @@ export const taskBoardItemAtom = atom(
 );
 
 export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
+  const { t } = useTranslation('operation');
   const {
     startDate,
     targetDate,
@@ -31,7 +33,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
     _id,
     createdAt,
   } = useAtomValue(taskBoardItemAtom)(id);
-  const setActiveTask = useSetAtom(taskDetailSheetState);
+  const [, setActiveTask] = useTaskDetailSheet();
   const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
   return (
@@ -54,7 +56,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
       <div className="p-3 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
           <h5 className="font-semibold">{name}</h5>
-          <div className="text-accent-foreground uppercase">Task #{number}</div>
+          <div className="text-accent-foreground uppercase">{t('task-number', { number })}</div>
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectStatusTask
@@ -89,7 +91,7 @@ export const TaskBoardCard = ({ id, column }: BoardCardProps) => {
           className="text-muted-foreground px-1 hover:bg-background"
         >
           <IconCalendarEventFilled />
-          Created on: {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
+          {t('created-on')} {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
         </Button>
         <SelectAssigneeTask
           variant="card"

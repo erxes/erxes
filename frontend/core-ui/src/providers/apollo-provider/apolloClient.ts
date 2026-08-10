@@ -13,6 +13,48 @@ import { createClient } from 'graphql-ws';
 
 import { REACT_APP_API_URL } from 'erxes-ui';
 
+const SESSION_CODE_STORAGE_KEY = 'sessioncode';
+
+const generateSessionCode = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+const wasOpenedByAnotherTab = () => {
+  if (globalThis.window === undefined) {
+    return false;
+  }
+
+  try {
+    return (
+      Boolean(globalThis.window.opener) &&
+      globalThis.window.opener !== globalThis.window
+    );
+  } catch {
+    return false;
+  }
+};
+
+if (globalThis.window !== undefined && wasOpenedByAnotherTab()) {
+  sessionStorage.removeItem(SESSION_CODE_STORAGE_KEY);
+}
+
+const getSessionCode = () => {
+  const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
+
+  if (existingSessionCode) {
+    return existingSessionCode;
+  }
+
+  const sessionCode = generateSessionCode();
+  sessionStorage.setItem(SESSION_CODE_STORAGE_KEY, sessionCode);
+
+  return sessionCode;
+};
+
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
@@ -20,12 +62,15 @@ const httpLink = createHttpLink({
 });
 
 // Error handler
-const errorLink = onError(({ graphQLErrors }) => {
+const errorLink = onError(({ graphQLErrors, operation }) => {
   if (graphQLErrors && graphQLErrors.length > 0) {
     const [error] = graphQLErrors;
 
-    if (error.message === 'Login required') {
-      window.location.reload();
+    if (
+      error.message === 'Login required' &&
+      operation.operationName !== 'GlobalSearch'
+    ) {
+      globalThis.window.location.reload();
     }
   }
 });
@@ -34,7 +79,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      sessioncode: sessionStorage.getItem('sessioncode') || '',
+      sessioncode: getSessionCode(),
     },
   };
 });

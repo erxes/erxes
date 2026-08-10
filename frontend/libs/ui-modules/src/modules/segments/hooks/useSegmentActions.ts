@@ -6,16 +6,19 @@ import {
   SEGMENT_EDIT,
 } from 'ui-modules/modules/segments/graphql/mutations';
 import {
+  SegmentFormMode,
   TConditionsConjunction,
   TSegmentForm,
 } from 'ui-modules/modules/segments/types';
 
 export const useSegmentActions = ({
   callback,
+  onCreateSuccess,
 }: {
   callback?: (id: string) => void;
+  onCreateSuccess?: (id: string) => void;
 }) => {
-  const { form, contentType, segment } = useSegment();
+  const { form, contentType, segment, mode } = useSegment();
   const [segmentId, setSegmentId] = useQueryState<string>('segmentId');
 
   const [segmentAdd] = useMutation(SEGMENT_ADD);
@@ -85,7 +88,9 @@ export const useSegmentActions = ({
       description: data.description,
       config: data.config || {},
       conditionsConjunction: data.conditionsConjunction,
-      conditionSegments: data?.conditionSegments,
+      conditions: mode === SegmentFormMode.SINGLE ? data.conditions : undefined,
+      conditionSegments:
+        mode === SegmentFormMode.SINGLE ? undefined : data.conditionSegments,
     };
 
     mutation({
@@ -108,8 +113,14 @@ export const useSegmentActions = ({
           callback(_id);
         }
 
+        form.reset(form.getValues());
+
         if (!segmentId) {
-          setSegmentId(_id);
+          if (onCreateSuccess) {
+            onCreateSuccess(_id);
+          } else {
+            setSegmentId(_id);
+          }
         }
       },
     });

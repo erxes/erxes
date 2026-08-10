@@ -2,6 +2,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, DatePicker, Form, Input, Sheet, Checkbox } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAddAgent } from '../hooks/useAddAgent';
 import { SelectAgentStatus } from './selects/SelectAgentStatus';
 import { SelectProductRules } from './selects/SelectProductRules';
@@ -31,6 +32,7 @@ interface AgentAddFormValues {
 export const AgentAddSheet = () => {
   const [open, setOpen] = useState(false);
   const { agentAdd, loading } = useAddAgent();
+  const { t } = useTranslation('loyalty');
 
   const form = useForm<AgentAddFormValues>({
     defaultValues: {
@@ -100,12 +102,12 @@ export const AgentAddSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add agent
+          {t('add-agent')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>New agent</Sheet.Title>
+          <Sheet.Title>{t('new-agent')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-5 overflow-y-auto">
@@ -118,12 +120,12 @@ export const AgentAddSheet = () => {
                 <Form.Field
                   control={form.control}
                   name="number"
-                  rules={{ required: 'Number is required' }}
+                  rules={{ required: t('number-required') }}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Number *</Form.Label>
+                      <Form.Label>{t('number-label')}</Form.Label>
                       <Form.Control>
-                        <Input placeholder="Number" {...field} />
+                        <Input placeholder={t('number')} {...field} />
                       </Form.Control>
                       <Form.Message />
                     </Form.Item>
@@ -133,10 +135,10 @@ export const AgentAddSheet = () => {
                 <Form.Field
                   control={form.control}
                   name="status"
-                  rules={{ required: 'Status is required' }}
+                  rules={{ required: t('status-required') }}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Status *</Form.Label>
+                      <Form.Label>{t('status-label')}</Form.Label>
                       <SelectAgentStatus.FormItem
                         value={field.value}
                         onValueChange={field.onChange}
@@ -153,7 +155,7 @@ export const AgentAddSheet = () => {
                 name="customerIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Relevant Customers</Form.Label>
+                    <Form.Label>{t('relevant-customers')}</Form.Label>
                     <Form.Control>
                       <SelectCustomer
                         value={field.value}
@@ -171,7 +173,7 @@ export const AgentAddSheet = () => {
                 name="companyIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Relevant Companies</Form.Label>
+                    <Form.Label>{t('relevant-companies')}</Form.Label>
                     <Form.Control>
                       <SelectCompany
                         value={field.value}
@@ -195,7 +197,7 @@ export const AgentAddSheet = () => {
                         onCheckedChange={field.onChange}
                       />
                     </Form.Control>
-                    <Form.Label className="mb-2">Has Return</Form.Label>
+                    <Form.Label className="mb-2">{t('has-return')}</Form.Label>
                   </Form.Item>
                 )}
               />
@@ -207,7 +209,7 @@ export const AgentAddSheet = () => {
                     name="returnAmount"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Return Amount</Form.Label>
+                        <Form.Label>{t('return-amount')}</Form.Label>
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
@@ -225,7 +227,7 @@ export const AgentAddSheet = () => {
                     name="returnPercent"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Return Percent</Form.Label>
+                        <Form.Label>{t('return-percent')}</Form.Label>
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
@@ -246,7 +248,7 @@ export const AgentAddSheet = () => {
                     name="prepaidPercent"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Prepaid Percent</Form.Label>
+                        <Form.Label>{t('prepaid-percent')}</Form.Label>
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
@@ -264,7 +266,7 @@ export const AgentAddSheet = () => {
                     name="discountPercent"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Discount Percent</Form.Label>
+                        <Form.Label>{t('discount-percent')}</Form.Label>
                         <Input.Number
                           placeholder="0"
                           value={field.value ? Number(field.value) : undefined}
@@ -286,11 +288,11 @@ export const AgentAddSheet = () => {
                   name="startDate"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Start Date</Form.Label>
+                      <Form.Label>{t('start-date')}</Form.Label>
                       <DatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Start Date"
+                        placeholder={t('start-date')}
                       />
                     </Form.Item>
                   )}
@@ -300,11 +302,11 @@ export const AgentAddSheet = () => {
                   name="endDate"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>End Date</Form.Label>
+                      <Form.Label>{t('end-date')}</Form.Label>
                       <DatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="End Date"
+                        placeholder={t('end-date')}
                       />
                     </Form.Item>
                   )}
@@ -317,11 +319,11 @@ export const AgentAddSheet = () => {
                   name="startMonth"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Start Month</Form.Label>
+                      <Form.Label>{t('start-month')}</Form.Label>
                       <MonthPicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Start Month"
+                        placeholder={t('start-month')}
                       />
                     </Form.Item>
                   )}
@@ -331,11 +333,11 @@ export const AgentAddSheet = () => {
                   name="endMonth"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>End Month</Form.Label>
+                      <Form.Label>{t('end-month')}</Form.Label>
                       <MonthPicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="End Month"
+                        placeholder={t('end-month')}
                       />
                     </Form.Item>
                   )}
@@ -348,11 +350,11 @@ export const AgentAddSheet = () => {
                   name="startDay"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Start Day</Form.Label>
+                      <Form.Label>{t('start-day')}</Form.Label>
                       <DatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Start Day"
+                        placeholder={t('start-day')}
                       />
                     </Form.Item>
                   )}
@@ -362,11 +364,11 @@ export const AgentAddSheet = () => {
                   name="endDay"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>End Day</Form.Label>
+                      <Form.Label>{t('end-day')}</Form.Label>
                       <DatePicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="End Day"
+                        placeholder={t('end-day')}
                       />
                     </Form.Item>
                   )}
@@ -378,11 +380,11 @@ export const AgentAddSheet = () => {
                 name="productRuleIds"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>Choose Product Rules</Form.Label>
+                    <Form.Label>{t('choose-product-rules')}</Form.Label>
                     <SelectProductRules
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Choose product rule"
+                      placeholder={t('choose-product-rule')}
                     />
                     <Form.Message />
                   </Form.Item>
@@ -395,10 +397,10 @@ export const AgentAddSheet = () => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                 >
-                  Close
+                  {t('close')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

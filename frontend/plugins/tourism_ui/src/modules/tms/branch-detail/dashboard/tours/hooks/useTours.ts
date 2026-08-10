@@ -49,9 +49,9 @@ export const useTours = (
 ) => {
   const setTourTotalCount = useSetAtom(tourTotalCountAtom);
 
-  const [{ searchValue, status, date_status, categoryIds }] =
+  const [{ tourSearchValue, status, date_status, categoryIds }] =
     useMultiQueryState<{
-      searchValue: string;
+      tourSearchValue: string;
       status: string;
       date_status:
         | 'running'
@@ -60,16 +60,20 @@ export const useTours = (
         | 'cancelled'
         | 'unscheduled';
       categoryIds: string;
-    }>(['searchValue', 'status', 'date_status', 'categoryIds']);
+    }>(['tourSearchValue', 'status', 'date_status', 'categoryIds']);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: TOURS_CURSOR_SESSION_KEY,
   });
 
+  const normalizedTourSearchValue = tourSearchValue
+    ? String(tourSearchValue)
+    : undefined;
+
   const variables: ToursQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
-    name: searchValue || undefined,
+    name: normalizedTourSearchValue,
     status: status || undefined,
     date_status: date_status || undefined,
     categoryIds: categoryIds

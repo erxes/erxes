@@ -19,7 +19,7 @@ export const types = `
     hasCitytax: Boolean
     districtCode: String
     companyRD: String
-    defaultGSCode: String
+    defaultUnitedCode: String
     vatPercent: Int
     cityTaxPercent: Int
     footerText: String
@@ -27,6 +27,14 @@ export const types = `
     hasCopy: Boolean
     hasSumQty: Boolean
     isCleanTaxPrice: Boolean
+  }
+
+  type ErkhetConfig {
+    useRemainder: Boolean
+    accounts: String
+    locations: String
+    account: String
+    location: String
   }
 
   type PoscCatProd {
@@ -71,9 +79,9 @@ export const types = `
     kioskMachine: JSON
     kitchenScreen: JSON
     token: String
-    erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
+    erkhetConfig: ErkhetConfig
     catProdMappings: [PoscCatProd]
     initialCategoryIds: [String]
     kioskExcludeCategoryIds: [String]
@@ -81,7 +89,6 @@ export const types = `
     deliveryConfig: JSON
     branchId: String
     departmentId: String
-    checkRemainder: Boolean
     permissionConfig: JSON
     allowTypes: [String]
     isCheckRemainder: Boolean

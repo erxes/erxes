@@ -17,7 +17,7 @@ export const initMQWorkers = async (redis: any) => {
   await schedulerQueue.upsertJobScheduler(
     'tourism-hourly-tour-date-status-sync',
     {
-      pattern: '0 * * * *',
+      pattern: '0 0 * * *',
       tz: 'UTC',
     },
     {

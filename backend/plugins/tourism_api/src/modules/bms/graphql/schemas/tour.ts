@@ -162,6 +162,10 @@ export const types = `
     categoriesObject: [TourCategory]
     tagIds: [String]
     categoryIds: [String]
+    customTourTypeId: String
+    customTourType: CustomTourType
+    customFieldsData: JSON
+    customFieldsMap: JSON
     info1: String
     info2: String
     info3: String
@@ -306,6 +310,8 @@ const params = `
   refNumber: String,
   tagIds: [String],
   categoryIds: [String],
+  customTourTypeId: String,
+  customFieldsData: JSON,
   viewCount: Int,
   info1: String,
   info2: String,

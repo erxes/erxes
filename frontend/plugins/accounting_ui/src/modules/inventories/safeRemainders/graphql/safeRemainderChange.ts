@@ -82,3 +82,17 @@ export const SAFE_REMAINDER_ITEMS_REMOVE = gql`
     safeRemainderItemsRemove(ids: $ids)
   }
 `;
+
+export const SAFE_REMAINDER_ITEMS_BULK_EDIT = gql`
+  mutation SafeRemainderItemsBulkEdit(
+    $safeRemainderId: String!
+    $productsData: JSON
+    $duplicateRule: String
+  ) {
+    safeRemainderItemsBulkEdit(
+      safeRemainderId: $safeRemainderId
+      productsData: $productsData
+      duplicateRule: $duplicateRule
+    )
+  }
+`;

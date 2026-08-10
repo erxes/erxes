@@ -9,6 +9,7 @@ export interface ICategory {
   status?: string;
   parentId?: string;
   parent?: ICategory;
+  translations?: { language: string; title?: string; content?: string }[];
   customFieldsData?: { field: string; value: CustomFieldValue }[];
   customFieldsMap?: Record<string, CustomFieldValue>;
   createdAt?: string;
@@ -31,5 +32,6 @@ export interface PostCategoryInput {
   status?: string;
   parentId?: string;
   clientPortalId?: string;
+  language?: string;
   customFieldsData?: { field: string; value: CustomFieldValue }[];
 }

@@ -17,8 +17,16 @@ export const pmsBranchAdd = gql`
     $permissionConfig: JSON
     $uiOptions: JSON
     $pipelineConfig: JSON
-    $extraProductCategories: JSON
-    $roomCategories: JSON
+    $extraProductCategories: [String]
+    $excludeExtraProductCategoryIds: [String]
+    $excludeExtraProductIds: [String]
+    $roomCategories: [String]
+    $excludeRoomCategoryIds: [String]
+    $excludeRoomIds: [String]
+    $hasAppointment: Boolean
+    $appointmentCategories: [String]
+    $excludeAppointmentCategoryIds: [String]
+    $excludeAppointmentIds: [String]
     $websiteReservationLock: Boolean
     $time: String
     $discount: JSON
@@ -44,7 +52,15 @@ export const pmsBranchAdd = gql`
       uiOptions: $uiOptions
       pipelineConfig: $pipelineConfig
       extraProductCategories: $extraProductCategories
+      excludeExtraProductCategoryIds: $excludeExtraProductCategoryIds
+      excludeExtraProductIds: $excludeExtraProductIds
       roomCategories: $roomCategories
+      excludeRoomCategoryIds: $excludeRoomCategoryIds
+      excludeRoomIds: $excludeRoomIds
+      hasAppointment: $hasAppointment
+      appointmentCategories: $appointmentCategories
+      excludeAppointmentCategoryIds: $excludeAppointmentCategoryIds
+      excludeAppointmentIds: $excludeAppointmentIds
       websiteReservationLock: $websiteReservationLock
       time: $time
       discount: $discount
@@ -72,7 +88,15 @@ export const pmsBranchAdd = gql`
       uiOptions
       pipelineConfig
       extraProductCategories
+      excludeExtraProductCategoryIds
+      excludeExtraProductIds
       roomCategories
+      excludeRoomCategoryIds
+      excludeRoomIds
+      hasAppointment
+      appointmentCategories
+      excludeAppointmentCategoryIds
+      excludeAppointmentIds
       websiteReservationLock
       time
       discount
@@ -100,8 +124,16 @@ export const PmsBranchEdit = gql`
     $uiOptions: JSON
     $permissionConfig: JSON
     $pipelineConfig: JSON
-    $extraProductCategories: JSON
-    $roomCategories: JSON
+    $extraProductCategories: [String]
+    $excludeExtraProductCategoryIds: [String]
+    $excludeExtraProductIds: [String]
+    $roomCategories: [String]
+    $excludeRoomCategoryIds: [String]
+    $excludeRoomIds: [String]
+    $hasAppointment: Boolean
+    $appointmentCategories: [String]
+    $excludeAppointmentCategoryIds: [String]
+    $excludeAppointmentIds: [String]
     $discount: JSON
     $websiteReservationLock: Boolean
     $time: String
@@ -126,7 +158,15 @@ export const PmsBranchEdit = gql`
       permissionConfig: $permissionConfig
       pipelineConfig: $pipelineConfig
       extraProductCategories: $extraProductCategories
+      excludeExtraProductCategoryIds: $excludeExtraProductCategoryIds
+      excludeExtraProductIds: $excludeExtraProductIds
       roomCategories: $roomCategories
+      excludeRoomCategoryIds: $excludeRoomCategoryIds
+      excludeRoomIds: $excludeRoomIds
+      hasAppointment: $hasAppointment
+      appointmentCategories: $appointmentCategories
+      excludeAppointmentCategoryIds: $excludeAppointmentCategoryIds
+      excludeAppointmentIds: $excludeAppointmentIds
       discount: $discount
       websiteReservationLock: $websiteReservationLock
       time: $time
@@ -160,7 +200,15 @@ export const PmsBranchEdit = gql`
       permissionConfig
       pipelineConfig
       extraProductCategories
+      excludeExtraProductCategoryIds
+      excludeExtraProductIds
       roomCategories
+      excludeRoomCategoryIds
+      excludeRoomIds
+      hasAppointment
+      appointmentCategories
+      excludeAppointmentCategoryIds
+      excludeAppointmentIds
       discount
       websiteReservationLock
       time

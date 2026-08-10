@@ -2,10 +2,12 @@ import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Sheet, useQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AutomationBotForm } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
 export const AutomationBotSheetForm = () => {
+  const { t } = useTranslation('frontline');
   const [facebookBotId, setFacebookBotId] =
     useQueryState<string>('facebookBotId');
   const [isOpen, setOpen] = useState(false);
@@ -31,7 +33,7 @@ export const AutomationBotSheetForm = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Add Bot
+            {t('add-bot')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View

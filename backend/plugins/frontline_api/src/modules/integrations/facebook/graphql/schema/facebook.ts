@@ -18,7 +18,10 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
-  greetText:String
+  greetText:String,
+  handoffMessage:String,
+  automationActiveMessage:String,
+  handoffPauseMinutes:Int,
   tag:String,
   isEnabledBackBtn:Boolean,
   backButtonText:String
@@ -64,6 +67,8 @@ export const types = `
     attachments: [Attachment]
     fromBot: Boolean
     botData: JSON
+    source: JSON
+    relatedMessage: JSON
     customerId: String
     userId: String
     createdAt: Date
@@ -134,6 +139,9 @@ export const types = `
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
     greetText:String
+    handoffMessage:String
+    automationActiveMessage:String
+    handoffPauseMinutes:Int
     tag:String
     isEnabledBackBtn:Boolean
     backButtonText:String
@@ -142,7 +150,7 @@ export const types = `
 `;
 
 export const queries = `
-  facebookGetAccounts(kind: String): JSON
+  facebookGetAccounts(kind: String, integrationKind: String): JSON
   facebookGetIntegrations(kind: String): JSON
   facebookGetIntegrationDetail(erxesApiId: String): JSON
   facebookGetConfigs: JSON
@@ -167,6 +175,7 @@ export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
+  facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): JSON
   facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerUpdateBot(_id:String,${commonBotMutationParams}):FacebookMessengerBot
   facebookMessengerRemoveBot(_id:String):JSON

@@ -20,6 +20,8 @@ export const types = `
   }
 `;
 
+export const inputTypes = ``;
+
 const safeRemainderItemsFilterParams = `
   remainderId: String!,
   productCategoryIds: [String],
@@ -41,4 +43,9 @@ export const mutations = `
     trInfo: JSON,
   ): SafeRemainderItem
   safeRemainderItemsRemove(ids: [String]): JSON
+    safeRemainderItemsBulkEdit(                                                                                                                                                                               
+    safeRemainderId: String!,                                                                                                                                                                               
+    productsData: JSON,                                                                                                                                                                                     
+    duplicateRule: String,                                                                                                                                                                                  
+  ): Int 
 `;

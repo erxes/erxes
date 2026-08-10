@@ -61,6 +61,10 @@ export const FIELD_ADD = gql`
     $validations: JSON
     $logics: JSON
     $icon: String
+    $isVisible: Boolean
+    $isVisibleToCreate: Boolean
+    $isRequired: Boolean
+    $isVisibleInCard: Boolean
   ) {
     fieldAdd(
       name: $name
@@ -72,6 +76,10 @@ export const FIELD_ADD = gql`
       validations: $validations
       logics: $logics
       icon: $icon
+      isVisible: $isVisible
+      isVisibleToCreate: $isVisibleToCreate
+      isRequired: $isRequired
+      isVisibleInCard: $isVisibleInCard
     ) {
       _id
     }
@@ -91,6 +99,10 @@ export const FIELD_EDIT = gql`
     $validations: JSON
     $logics: JSON
     $icon: String
+    $isVisible: Boolean
+    $isVisibleToCreate: Boolean
+    $isRequired: Boolean
+    $isVisibleInCard: Boolean
   ) {
     fieldEdit(
       _id: $id
@@ -104,8 +116,16 @@ export const FIELD_EDIT = gql`
       validations: $validations
       logics: $logics
       icon: $icon
+      isVisible: $isVisible
+      isVisibleToCreate: $isVisibleToCreate
+      isRequired: $isRequired
+      isVisibleInCard: $isVisibleInCard
     ) {
       _id
+      isVisible
+      isVisibleToCreate
+      isRequired
+      isVisibleInCard
     }
   }
 `;

@@ -20,6 +20,9 @@ export type CurrentOrganization = {
   orgShortDescription?: string;
   orgShortName?: string;
   orgCustomOnboarding?: boolean;
+  bundle?: {
+    type?: string;
+  };
 };
 
 export const currentOrganizationState = atom<CurrentOrganization | null>(null);

@@ -2,6 +2,7 @@ import { Command, Filter, ToggleGroup, useQueryState } from 'erxes-ui';
 import {
   IconCalendar,
   IconEyeUp,
+  IconLock,
   IconNotification,
   IconUserUp,
 } from '@tabler/icons-react';
@@ -56,6 +57,11 @@ export const NotificationFilterMenu = () => {
           <Filter.Item value="priority">
             <IconEyeUp />
             Priority
+          </Filter.Item>
+
+          <Filter.Item value="module">
+            <IconLock />
+            Approval
           </Filter.Item>
 
           <Filter.Item value="createdAt">

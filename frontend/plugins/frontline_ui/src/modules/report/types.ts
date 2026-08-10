@@ -36,6 +36,7 @@ export interface ReportCardProps {
 export interface TagData {
   _id: string;
   name: string;
+  group?: string;
   count: number;
   percentage: number;
 }
@@ -45,6 +46,39 @@ export interface SourceData {
   name: string;
   count: number;
   percentage: number;
+}
+
+export interface TicketPropertyFilter {
+  propertyId: string;
+  type?: string;
+  values: string[];
+}
+
+export interface ReportChartFilters {
+  date?: string;
+  fromDate?: string;
+  toDate?: string;
+  state?: string;
+  frequency?: string;
+  groupPropertyId?: string;
+  channelIds?: string[];
+  memberIds?: string[];
+  pipelineIds?: string[];
+  tagIds?: string[];
+  customerIds?: string[];
+  companyIds?: string[];
+  propertyIds?: string[];
+  priority?: number[];
+  propertyValueFilters?: TicketPropertyFilter[];
+}
+
+export interface ReportChart {
+  _id: string;
+  name: string;
+  chartType: string;
+  visualType?: ResponsesChartType;
+  colSpan?: number;
+  filters?: ReportChartFilters;
 }
 
 export interface ConversationListItem {

@@ -17,10 +17,12 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { facebookConfigSchema } from '../constants/FbConfigSchema';
 import { useFacebookGetConfigs } from '../hooks/useFacebookGetConfigs';
 import { useFacebookUpdateConfigs } from '../hooks/useFacebookUpdateConfigs';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const FacebookConfigUpdateCollapse = () => {
   return (
@@ -49,6 +51,7 @@ export const FacebookConfigUpdateCollapse = () => {
 };
 
 export const FacebookConfigUpdate = () => {
+  const { t } = useTranslation('frontline');
   const confirmationValue = 'update';
   const { confirm } = useConfirm();
   const confirmOptions = { confirmationValue };
@@ -75,7 +78,7 @@ export const FacebookConfigUpdate = () => {
 
   const onSubmit = (data: z.infer<typeof facebookConfigSchema>) => {
     confirm({
-      message: 'Are you sure you want to update the Facebook configs?',
+      message: t('confirm-update-facebook-configs'),
       options: confirmOptions,
     }).then(() => {
       updateConfigs({
@@ -84,7 +87,7 @@ export const FacebookConfigUpdate = () => {
         },
         onCompleted: () => {
           toast({
-            title: 'Facebook configs updated successfully',
+            title: t('facebook-configs-updated'),
             variant: 'success',
           });
         },
@@ -112,7 +115,7 @@ export const FacebookConfigUpdate = () => {
           name="FACEBOOK_APP_ID"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Facebook App Id</Form.Label>
+              <Form.Label>{t('facebook-app-id')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -124,9 +127,9 @@ export const FacebookConfigUpdate = () => {
           name="FACEBOOK_APP_SECRET"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Facebook App Secret</Form.Label>
+              <Form.Label>{t('facebook-app-secret')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -136,9 +139,9 @@ export const FacebookConfigUpdate = () => {
           name="FACEBOOK_VERIFY_TOKEN"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Facebook Verify Token</Form.Label>
+              <Form.Label>{t('facebook-verify-token')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -148,7 +151,7 @@ export const FacebookConfigUpdate = () => {
           name="FACEBOOK_PERMISSIONS"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Facebook Permissions</Form.Label>
+              <Form.Label>{t('facebook-permissions')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -158,7 +161,7 @@ export const FacebookConfigUpdate = () => {
         />
         <Dialog.Footer className="col-span-2 items-center">
           <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : 'Save'}
+            {loading ? <Spinner /> : t('save')}
           </Button>
         </Dialog.Footer>
       </form>

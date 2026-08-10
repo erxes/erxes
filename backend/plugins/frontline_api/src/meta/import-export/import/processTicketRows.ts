@@ -3,6 +3,7 @@ import {
   TICKET_PRIORITY_TYPES,
   TICKET_DEFAULT_STATUSES,
 } from '@/ticket/constants/types';
+import { extractTicketPropertiesData } from '../utils';
 
 const priorityByName = new Map(
   TICKET_PRIORITY_TYPES.map((p) => [p.name.toLowerCase(), p.type]),
@@ -12,7 +13,7 @@ const statusByName = new Map(
   TICKET_DEFAULT_STATUSES.map((s) => [s.name.toLowerCase(), s.type]),
 );
 
-function prepareTicketDoc(row: any): any {
+async function prepareTicketDoc(subdomain: string, row: any): Promise<any> {
   const doc: any = {
     name: row.name || row.Name || '',
     description: row.description || row.Description || '',
@@ -69,10 +70,19 @@ function prepareTicketDoc(row: any): any {
       .filter(Boolean);
   }
 
+  for (const key of Object.keys(row)) {
+    if (key.startsWith('propertiesData.')) {
+      doc[key] = row[key];
+    }
+  }
+
+  await extractTicketPropertiesData(subdomain, doc);
+
   return doc;
 }
 
 export async function processTicketRows(
+  subdomain: string,
   models: IModels,
   rows: any[],
 ): Promise<{ successRows: any[]; errorRows: any[] }> {
@@ -85,7 +95,7 @@ export async function processTicketRows(
 
     for (const row of rows) {
       try {
-        const doc = prepareTicketDoc(row);
+        const doc = await prepareTicketDoc(subdomain, row);
 
         if (!doc.name) {
           errorRows.push({ ...row, error: 'Name is required' });

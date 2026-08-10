@@ -8,9 +8,12 @@ import {
 import {
   authCookieOptions,
   getEnv,
+  getPlugin,
+  getPlugins,
   getSaasOrganizationDetail,
+  graphqlPubsub,
 } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
@@ -19,6 +22,66 @@ export interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
 }
+
+const publishUserStatusChanged = (
+  subdomain: string,
+  userId: string,
+  updatedUser: IUser,
+) => {
+  const payload = { userStatusChanged: updatedUser };
+
+  return Promise.all([
+    graphqlPubsub.publish(`userStatusChanged:${subdomain}:${userId}`, payload),
+    graphqlPubsub.publish(`userStatusChanged:${subdomain}`, payload),
+  ]);
+};
+
+const validatePermissionGroupIds = async (
+  models: IModels,
+  permissionGroupIds: string[],
+) => {
+  const validPermissionGroupIds = new Set<string>();
+  const plugins = await getPlugins();
+
+  for (const name of plugins) {
+    const service = await getPlugin(name);
+    const defaultGroups = service?.config?.meta?.permissions?.defaultGroups;
+
+    if (!defaultGroups) continue;
+
+    for (const group of defaultGroups) {
+      validPermissionGroupIds.add(group.id);
+    }
+  }
+
+  const customPermissionGroupIds = permissionGroupIds.filter(
+    (id) => !validPermissionGroupIds.has(id),
+  );
+
+  if (customPermissionGroupIds.length > 0) {
+    const permissionGroups = await models.PermissionGroups.find({
+      _id: { $in: customPermissionGroupIds },
+    })
+      .select('_id')
+      .lean();
+
+    for (const group of permissionGroups) {
+      validPermissionGroupIds.add(String(group._id));
+    }
+  }
+
+  const invalidPermissionGroupIds = permissionGroupIds.filter(
+    (id) => !validPermissionGroupIds.has(id),
+  );
+
+  if (invalidPermissionGroupIds.length > 0) {
+    throw new Error(
+      `One or more permission groups are invalid: ${invalidPermissionGroupIds.join(
+        ', ',
+      )}`,
+    );
+  }
+};
 
 export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersCreateOwner(
@@ -104,10 +167,10 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
    */
   async usersEdit(
     _parent: undefined,
-    args: IUsersEdit,
+    args: IUsersEdit & { unitId?: string },
     { user, models, checkPermission }: IContext,
   ) {
-    const { _id, ...doc } = args;
+    const { _id, unitId, ...doc } = args as any;
 
     if (user._id !== _id) {
       await checkPermission('teamMembersUpdate', _id);
@@ -133,6 +196,19 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       await models.UserMovements.manageUserMovement({
         user: updatedUser,
       });
+    }
+
+    if (unitId !== undefined) {
+      await models.Units.updateMany(
+        { userIds: _id },
+        { $pull: { userIds: _id } },
+      );
+      if (unitId) {
+        await models.Units.updateOne(
+          { _id: unitId },
+          { $addToSet: { userIds: _id } },
+        );
+      }
     }
 
     return updatedUser;
@@ -183,7 +259,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersSetActiveStatus(
     _parent: undefined,
     { _id }: { _id: string },
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersRemove');
 
@@ -193,13 +269,15 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
 
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
+    await publishUserStatusChanged(subdomain, _id, updatedUser);
+
     return updatedUser;
   },
 
   async usersSetActiveStatusBatch(
     _parent: undefined,
     { _ids }: { _ids: string[] },
-    { user, models, checkPermission }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersRemove');
 
@@ -213,7 +291,9 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       const targetUser = await models.Users.findOne({ _id });
 
       if (targetUser && targetUser.isActive !== false) {
-        await models.Users.setUserActiveOrInactive(_id);
+        const updatedUser = await models.Users.setUserActiveOrInactive(_id);
+
+        await publishUserStatusChanged(subdomain, _id, updatedUser);
       }
     }
 
@@ -231,11 +311,26 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       entries: Array<{
         email: string;
         password: string;
+        permissionGroupIds?: string[];
       }>;
     },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('teamMembersInvite');
+
+    const permissionGroupIds = [
+      ...new Set(
+        entries.reduce<string[]>(
+          (ids, entry) => ids.concat(entry.permissionGroupIds || []),
+          [],
+        ),
+      ),
+    ];
+
+    if (permissionGroupIds.length > 0) {
+      await checkPermission('permissionsManage');
+      await validatePermissionGroupIds(models, permissionGroupIds);
+    }
 
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });

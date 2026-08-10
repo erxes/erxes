@@ -11,6 +11,7 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
+import { AddCompany } from './AddCompany';
 import { CompaniesInline } from './CompaniesInline';
 import { ICompany } from '../types/Company';
 import { useCompanies } from '../hooks/useCompanies';
@@ -97,7 +98,19 @@ const SelectCompaniesBulkContent = ({
           setSelectedCompanies={setSelectedCompanies}
         />
       </Sheet.Content>
-      <Sheet.Footer className="sm:justify-end">
+      <Sheet.Footer className="sm:justify-between">
+        <AddCompany
+          onSuccess={(id, company) => {
+            setSelectedCompanyIds((prev) =>
+              prev.includes(id) ? prev : [...prev, id],
+            );
+            if (company) {
+              setSelectedCompanies((prev) =>
+                prev.some((c) => c._id === id) ? prev : [...prev, company],
+              );
+            }
+          }}
+        />
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">
@@ -142,14 +155,15 @@ const CompaniesList = ({
   };
 
   const getCompanyTitle = (company: ICompany) => {
-    const { primaryName, primaryEmail, primaryPhone } = company;
-    return (
-      (primaryName || primaryEmail || primaryPhone
-        ? `${primaryName || ''} ${primaryEmail || ''} ${
-            primaryPhone || ''
-          }`.trim()
-        : primaryEmail || primaryPhone) || 'anonymous company'
-    );
+    const { primaryName, code, primaryEmail, primaryPhone } = company;
+    const title = [primaryName, primaryEmail, primaryPhone]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+
+    if (title) return title;
+
+    return code ? '' : 'anonymous company';
   };
 
   return (
@@ -172,6 +186,7 @@ const CompaniesList = ({
           <Tooltip.Provider>
             {companies.map((company) => {
               const isSelected = selectedCompanyIds.includes(company._id);
+              const title = getCompanyTitle(company);
 
               return (
                 <Tooltip key={company._id}>
@@ -179,12 +194,20 @@ const CompaniesList = ({
                     <Button
                       variant="ghost"
                       className={cn(
-                        'min-h-9 h-auto justify-start font-normal',
+                        'min-h-9 h-auto w-full justify-start font-normal ',
                         isSelected && 'bg-primary/10',
                       )}
                       onClick={() => handleCompanySelect(company)}
                     >
-                      {getCompanyTitle(company)}
+                      <div className="flex flex-1 gap-2 items-center">
+                        {company?.code && (
+                          <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+                            {company.code}
+                          </span>
+                        )}
+                        {title && <span className="truncate">{title}</span>}
+                      </div>
+
                       {isSelected ? (
                         <IconCheck className="ml-auto" />
                       ) : (
@@ -232,6 +255,7 @@ const SelectedCompaniesList = ({
       <div className="p-4 flex flex-col gap-1">
         <div className="text-accent-foreground text-xs px-3 mb-1">Added</div>
         {selectedCompanyIds.map((companyId) => {
+          const company = selectedCompanies.find((c) => c._id === companyId);
           return (
             <Button
               key={companyId}
@@ -239,7 +263,10 @@ const SelectedCompaniesList = ({
               className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
               onClick={() => handleRemoveCompany(companyId)}
             >
-              <CompaniesInline companyIds={[companyId]} />
+              <CompaniesInline
+                companies={company ? [company] : undefined}
+                companyIds={[companyId]}
+              />
               <IconX className="ml-auto" />
             </Button>
           );

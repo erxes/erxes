@@ -1,25 +1,23 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
-import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInReturnErkhetConfigQuery';
-import { CREATE_STAGE_IN_RETURN_ERKHET_CONFIG } from '../graphql/mutations/createStageInReturnErkhetConfigMutations';
+import {
+  CREATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+  REMOVE_STAGE_IN_RETURN_ERKHET_CONFIG,
+  UPDATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+} from '../graphql/mutations/createStageInReturnErkhetConfigMutations';
 import { TReturnErkhetConfig } from '../types';
 
-const CONFIG_CODE = 'returnErkhetConfigs';
+const CONFIG_CODE = 'returnEbarimtConfig';
 
 export type TReturnErkhetConfigRow = TReturnErkhetConfig & { _id: string };
 
-const parseConfigs = (value: any): TReturnErkhetConfigRow[] => {
-  if (!value) return [];
-  try {
-    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
+const parseConfigValue = (value: any) =>
+  typeof value === 'string' ? JSON.parse(value) : value || {};
 
 export const useReturnErkhetConfigs = () => {
+  const { t } = useTranslation('mongolian');
   const { toast } = useToast();
 
   const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
@@ -27,42 +25,68 @@ export const useReturnErkhetConfigs = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const configs: TReturnErkhetConfigRow[] = parseConfigs(data?.configsGetValue?.value);
-
-  const [saveConfigs, { loading: saveLoading }] = useMutation(
-    CREATE_STAGE_IN_RETURN_ERKHET_CONFIG,
-    {
-      onError: (e) => {
-        toast({ title: 'Error', description: e.message, variant: 'destructive' });
-      },
-    },
+  const configs: TReturnErkhetConfigRow[] = (data?.mnConfigs || []).map(
+    (config: any) => ({
+      _id: config._id,
+      subId: config.subId,
+      ...parseConfigValue(config.value),
+    }),
   );
 
-  const persist = async (list: TReturnErkhetConfigRow[]) => {
-    await saveConfigs({ variables: { configsMap: { [CONFIG_CODE]: list } } });
-    await refetch();
+  const mutationOptions = {
+    onError: (e: Error) => {
+      toast({ title: t('error'), description: e.message, variant: 'destructive' });
+    },
   };
 
+  const [createConfig, { loading: createLoading }] = useMutation(
+    CREATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    mutationOptions,
+  );
+  const [updateConfig, { loading: updateLoading }] = useMutation(
+    UPDATE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    mutationOptions,
+  );
+  const [removeConfig, { loading: removeLoading }] = useMutation(
+    REMOVE_STAGE_IN_RETURN_ERKHET_CONFIG,
+    mutationOptions,
+  );
+
   const addConfig = async (data: TReturnErkhetConfig) => {
-    await persist([...configs, { ...data, _id: nanoid() }]);
-    toast({ title: 'Success', description: 'Config created successfully' });
+    await createConfig({
+      variables: { code: CONFIG_CODE, subId: data.stageId, value: data },
+    });
+    await refetch();
+    toast({ title: t('success'), description: t('config-created-successfully') });
   };
 
   const editConfig = async (id: string, data: TReturnErkhetConfig) => {
-    await persist(configs.map((c) => (c._id === id ? { ...data, _id: id } : c)));
-    toast({ title: 'Success', description: 'Config updated successfully' });
+    await updateConfig({
+      variables: { id, subId: data.stageId, value: data },
+    });
+    await refetch();
+    toast({ title: t('success'), description: t('config-updated-successfully') });
   };
 
   const deleteConfig = async (id: string) => {
-    await persist(configs.filter((c) => c._id !== id));
-    toast({ title: 'Success', description: 'Config deleted successfully' });
+    await removeConfig({ variables: { id } });
+    await refetch();
+    toast({ title: t('success'), description: t('config-deleted-successfully') });
   };
 
   const deleteManyConfigs = async (ids: string[]) => {
-    const idSet = new Set(ids);
-    await persist(configs.filter((c) => !idSet.has(c._id)));
-    toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
+    await Promise.all(ids.map((id) => removeConfig({ variables: { id } })));
+    await refetch();
+    toast({ title: t('success'), description: t('configs-deleted', { count: ids.length }) });
   };
 
-  return { configs, loading, saveLoading, addConfig, editConfig, deleteConfig, deleteManyConfigs };
+  return {
+    configs,
+    loading,
+    saveLoading: createLoading || updateLoading || removeLoading,
+    addConfig,
+    editConfig,
+    deleteConfig,
+    deleteManyConfigs,
+  };
 };

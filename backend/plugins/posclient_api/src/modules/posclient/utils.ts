@@ -257,7 +257,12 @@ export const updateMobileAmount = async (
   ) {
     billType = BILL_TYPES.INNER;
   }
-
+  console.log('[SETTLE CHECK]', {
+    totalAmount,
+    sumMobileAmount,
+    billType,
+    registerNumber,
+  });
   if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
@@ -436,23 +441,14 @@ export const prepareSettlePayment = async (
       let uoms: any[] = [];
 
       if (products.find((product) => product?.type === 'subscription')) {
-        // uoms = await sendCoreMessage({
-        //   subdomain,
-        //   action: 'uoms.find',
-        //   data: {
-        //     code: { $in: products.map((product) => product?.uom) },
-        //   },
-        //   isRPC: true,
-        //   defaultValue: [],
-        // });
         uoms = await sendTRPCMessage({
           subdomain,
 
           pluginName: 'core',
-          module: 'product',
-          action: 'uoms.find',
+          module: 'productUoms',
+          action: 'find',
           input: {
-            data: {
+            query: {
               code: { $in: products.map((product) => product?.uom) },
             },
           },
@@ -528,24 +524,20 @@ export const prepareSettlePayment = async (
       }
     }
 
-    try {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'sales',
-        module: 'pos',
-        action: 'createOrUpdateOrders',
-        input: {
-          posToken: config.token,
-          action: 'makePayment',
-          responses: ebarimtResponses,
-          order,
-          items,
-        },
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'createOrUpdateOrders',
+      input: {
+        posToken: config.token,
+        action: 'makePayment',
+        responses: ebarimtResponses,
+        order,
+        items,
+      },
+    });
 
     return ebarimtResponses;
   } catch (e) {

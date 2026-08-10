@@ -2,12 +2,13 @@ import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
+  IPropertyField,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 import {
   getEnv,
   graphqlPubsub,
-  isEnabled,
   markResolvers,
   redis,
   sendTRPCMessage,
@@ -168,34 +169,36 @@ export const getMessengerData = async (
     'credentials.integrationId': integration._id,
   });
   let getStartedCondition: { isSelected?: boolean } | false = false;
-  const isServiceAvailable = await isEnabled('automations');
+  const { automationId } = (messengerData || {}) as any;
 
-  if (isServiceAvailable) {
-    const getStarted = await sendTRPCMessage({
+  if (automationId) {
+    const automations = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'automations',
-      action: 'trigger.find',
+      module: 'automation',
+      action: 'find',
       input: {
         query: {
-          triggerType: 'inbox:messages',
-          botId: integration._id,
+          triggerType: 'frontline:inbox.messages',
         },
       },
-    }).catch((error) => {
-      throw error;
-    });
+    }).catch(() => []);
 
-    getStartedCondition = (
-      getStarted[0]?.triggers[0]?.config?.conditions || []
-    ).find((condition) => condition.type === 'getStarted');
+    const automation = (automations || []).find(
+      (a: any) => String(a._id) === String(automationId),
+    );
+
+    getStartedCondition =
+      (automation?.triggers || [])
+        .flatMap((t: any) => t.config?.conditions || [])
+        .find((c: any) => c.type === 'getStarted') || false;
   }
 
   return {
     ...messengerData,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
-    knowledgeBaseTopicId: topicId,
+    knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
   };
@@ -226,7 +229,58 @@ export interface ITicketWidget {
   type: string;
   customerIds: string[];
   tagIds: string[];
+  propertiesData?: IPropertyField;
 }
+
+/*
+ * Keeps only the property fields the ticket form of that pipeline exposes,
+ * enforces the required ones and validates the values against their definition
+ */
+const buildTicketPropertiesData = async (
+  models: IModels,
+  subdomain: string,
+  pipelineId: string,
+  propertiesData?: IPropertyField,
+): Promise<IPropertyField | undefined> => {
+  const config = await models.TicketConfig.findOne({ pipelineId }).lean();
+  const propertyFields = config?.propertyFields || [];
+
+  if (!propertyFields.length) {
+    return undefined;
+  }
+
+  const filteredData: IPropertyField = {};
+
+  for (const propertyField of propertyFields) {
+    const value = propertiesData?.[propertyField.fieldId];
+    const isEmpty = value === undefined || value === null || value === '';
+
+    if (isEmpty) {
+      if (propertyField.isRequired) {
+        throw new Error(
+          `${propertyField.label || 'Property field'} is required`,
+        );
+      }
+      continue;
+    }
+
+    filteredData[propertyField.fieldId] = value;
+  }
+
+  if (!Object.keys(filteredData).length) {
+    return undefined;
+  }
+
+  return await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'fields',
+    action: 'validateFieldValues',
+    input: { data: filteredData },
+    defaultValue: filteredData,
+  });
+};
 
 export const widgetMutations: Record<string, Resolver> = {
   async widgetsLeadIncreaseViewCount(
@@ -351,7 +405,7 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      const { propertiesData } = await sendTRPCMessage({
+      const fieldData = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
@@ -365,7 +419,7 @@ export const widgetMutations: Record<string, Resolver> = {
         },
       });
 
-      companyData.propertiesData = propertiesData;
+      companyData.propertiesData = fieldData?.propertiesData || {};
 
       // trackData note: trackedData is not used for now
       // companyData.trackedData = trackedData;
@@ -465,10 +519,10 @@ export const widgetMutations: Record<string, Resolver> = {
         { $set: { isConnected: true } },
       );
     }
-    let ticketConfig;
-    if (integration.ticketConfigId) {
-      ticketConfig = await models.TicketConfig.findOne({
-        _id: integration.ticketConfigId,
+    let ticketConfigs = [];
+    if (integration.ticketConfigIds && integration.ticketConfigIds.length > 0) {
+      ticketConfigs = await models.TicketConfig.find({
+        _id: { $in: integration.ticketConfigIds },
       });
     }
 
@@ -476,7 +530,7 @@ export const widgetMutations: Record<string, Resolver> = {
       integrationId: integration._id,
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
-      ticketConfig: ticketConfig || {},
+      ticketConfigs: ticketConfigs || [],
       messengerData: await getMessengerData(models, subdomain, integration),
       customerId: customer?._id,
       visitorId: customer ? null : visitorId,
@@ -572,7 +626,8 @@ export const widgetMutations: Record<string, Resolver> = {
       (await models.Integrations.findOne({ _id: integrationId })) ||
       ({} as any);
     const messengerData = integration.messengerData || {};
-    const { botEndpointUrl, botShowInitialMessage, botCheck } = messengerData;
+    const { botEndpointUrl, botShowInitialMessage, botCheck, automationId } =
+      messengerData;
     let botId;
     if (botCheck === true) {
       botId = integration?._id;
@@ -599,13 +654,47 @@ export const widgetMutations: Record<string, Resolver> = {
         customerId,
         integrationId,
         visitorId,
-        operatorStatus: HAS_BOTENDPOINT_URL
-          ? CONVERSATION_OPERATOR_STATUS.BOT
-          : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        operatorStatus:
+          HAS_BOTENDPOINT_URL || !!botId
+            ? CONVERSATION_OPERATOR_STATUS.BOT
+            : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: CONVERSATION_STATUSES.OPEN,
         content: conversationContent,
         ...(skillId ? { skillId } : {}),
       });
+    }
+
+    let parsedPayload: Record<string, string> | undefined;
+    let ticketFormWidgetData:
+      | {
+          _id: string;
+          type: string;
+          text: string;
+          value: string;
+          column: number;
+        }[]
+      | undefined;
+    if (contentType === MESSAGE_TYPES.TICKET_FORM_SUBMISSION && payload) {
+      try {
+        parsedPayload = JSON.parse(payload);
+      } catch (_e) {
+        // ignore malformed payload
+      }
+      if (parsedPayload) {
+        const TICKET_FIELD_LABELS: Record<string, string> = {
+          'ticket:name': 'Ticket name',
+          'ticket:description': 'Description',
+        };
+        ticketFormWidgetData = Object.entries(parsedPayload).map(
+          ([key, value]) => ({
+            _id: key,
+            type: key === 'ticket:description' ? 'textarea' : 'input',
+            text: TICKET_FIELD_LABELS[key] || key,
+            value: String(value),
+            column: 6,
+          }),
+        );
+      }
     }
 
     const msg = await models.ConversationMessages.createMessage({
@@ -615,6 +704,7 @@ export const widgetMutations: Record<string, Resolver> = {
       contentType,
       content: message,
       botId: botId,
+      ...(ticketFormWidgetData ? { formWidgetData: ticketFormWidgetData } : {}),
     });
 
     await models.Conversations.updateOne(
@@ -649,6 +739,63 @@ export const widgetMutations: Record<string, Resolver> = {
     graphqlPubsub.publish(`conversationMessageInserted:${msg.conversationId}`, {
       conversationMessageInserted: msg,
     });
+
+    console.log('[widgetsInsertMessage] trigger gate', {
+      contentType,
+      botId,
+      HAS_BOTENDPOINT_URL,
+      operatorStatus: conversation.operatorStatus,
+      parsedPayload,
+      willSendTrigger: !!(
+        botId &&
+        !HAS_BOTENDPOINT_URL &&
+        conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+      ),
+    });
+
+    if (
+      botId &&
+      !HAS_BOTENDPOINT_URL &&
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+    ) {
+      graphqlPubsub.publish(
+        `conversationBotTypingStatus:${msg.conversationId}`,
+        {
+          conversationBotTypingStatus: {
+            conversationId: msg.conversationId,
+            typing: true,
+          },
+        },
+      );
+
+      console.log('[widgetsInsertMessage] sendAutomationTrigger', {
+        contentType,
+        msgContentType: msg.contentType,
+        automationId,
+        parsedPayload,
+      });
+
+      sendAutomationTrigger(
+        subdomain,
+        {
+          type: 'frontline:inbox.messages',
+          targets: [
+            {
+              ...msg.toObject(),
+              ...(parsedPayload || {}),
+              automationId: automationId || undefined,
+            },
+          ],
+        },
+        {
+          jobOptions: {
+            priority: 1,
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        },
+      );
+    }
 
     if (
       HAS_BOTENDPOINT_URL &&
@@ -695,7 +842,9 @@ export const widgetMutations: Record<string, Resolver> = {
           customerId,
           contentType,
           botData,
+          fromBot: true,
         });
+        console.log('[botContentType]', botMessage);
 
         graphqlPubsub.publish(
           `conversationBotTypingStatus:${msg.conversationId}`,
@@ -1035,6 +1184,33 @@ export const widgetMutations: Record<string, Resolver> = {
     return msg;
   },
 
+  async widgetChangeOperatorStatus(
+    _root,
+    {
+      conversationId,
+      operatorStatus,
+    }: { conversationId: string; operatorStatus: string },
+    { models }: IContext,
+  ) {
+    if (operatorStatus === CONVERSATION_OPERATOR_STATUS.OPERATOR) {
+      const message = await models.ConversationMessages.createMessage({
+        conversationId,
+        botData: [{ type: 'text', text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR }],
+        fromBot: true,
+      });
+
+      graphqlPubsub.publish(
+        `conversationMessageInserted:${message.conversationId}`,
+        { conversationMessageInserted: message },
+      );
+    }
+
+    return models.Conversations.updateOne(
+      { _id: conversationId },
+      { $set: { operatorStatus } },
+    );
+  },
+
   async widgetGetBotInitialMessage(
     _root,
     { integrationId }: { integrationId: string },
@@ -1073,7 +1249,7 @@ export const widgetMutations: Record<string, Resolver> = {
     doc: ITicketWidget,
     { models, subdomain, user }: IContext,
   ) {
-    const { statusId, ...restFields } = doc;
+    const { statusId, propertiesData, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
     if (!status) {
       throw new Error('Status not found');
@@ -1096,9 +1272,17 @@ export const widgetMutations: Record<string, Resolver> = {
     });
     const validCustomerIds = customers.map((c: any) => c._id);
 
+    const validatedPropertiesData = await buildTicketPropertiesData(
+      models,
+      subdomain,
+      status.pipelineId,
+      propertiesData,
+    );
+
     try {
       const ticket = await models.Ticket.create({
         ...restFields,
+        propertiesData: validatedPropertiesData,
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,

@@ -1,27 +1,14 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
-import { useVatRowDetail } from '../hooks/useVatRowDetail';
-import { TVatRowForm } from '../types/VatRow';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { vatFormSchema } from '../constants/vatFormSchema';
-import { useEffect } from 'react';
-import { useVatRowEdit } from '../hooks/useVatRowEdit';
-import { VatRowForm } from './VatRowForm';
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
 
-export const EditVatRow = () => {
-  const [open, setOpen] = useQueryState<string>('vat_row_id');
-  return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog
-        title="НӨАТ-ын мөр засах"
-        description="НӨАТ-ын мөр засах"
-      >
-        <EditVatRowForm />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { TVatRowForm } from '../types/VatRow';
+import { VatRowForm } from './VatRowForm';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useVatRowDetail } from '../hooks/useVatRowDetail';
+import { useVatRowEdit } from '../hooks/useVatRowEdit';
+import { vatFormSchema } from '../constants/vatFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EditVatRowForm = () => {
   const { vatRowDetail, closeDetail, loading } = useVatRowDetail();
@@ -68,5 +55,21 @@ export const EditVatRowForm = () => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditVatRow = () => {
+  const [open, setOpen] = useQueryState<string>('vat_row_id');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="НӨАТ-ын үзүүлэлт засах">
+        <EditVatRowForm />
+      </AccountingSheet>
+    </Sheet>
   );
 };

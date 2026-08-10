@@ -58,7 +58,8 @@ const mainQueryParams = `
 export const queries = `
   vouchers(${queryParams}): VoucherListRepsponse
   vouchersMain(${mainQueryParams}): VoucherMainResponse
-  ownerVouchers(ownerId: String!): JSON
+  ownerVouchers(ownerId: String!, ownerType: String): JSON
+  cpOwnerVouchers(ownerId: String!, ownerType: String): JSON
 `;
 
 const mutationParams = `

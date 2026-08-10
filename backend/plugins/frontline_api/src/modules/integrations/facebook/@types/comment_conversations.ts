@@ -7,6 +7,8 @@ export interface IFacebookCommentConversation {
   content: string;
   erxesApiId?: string;
   customerId?: string;
+  parentId?: string;
+  integrationId?: string;
   createdAt?: Date;
   updatedAt?: Date;
   attachments?: any;

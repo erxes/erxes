@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { Combobox, Command, PopoverScoped } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const BRANCHES_QUERY = gql`
   query branches(
@@ -98,13 +99,14 @@ export const SelectBranchesProvider = ({
 };
 
 const SelectBranchesValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('mongolian');
   const { value, branches } = useSelectBranchesContext();
   const selectedBranch = branches?.find((b) => b._id === value);
 
   if (!selectedBranch) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Choose branch'}
+        {placeholder || t('choose-branch')}
       </span>
     );
   }
@@ -133,13 +135,14 @@ const SelectBranchesItem = ({ branch }: { branch: Branch }) => {
 };
 
 const SelectBranchesContent = () => {
+  const { t } = useTranslation('mongolian');
   const { branches, loading, error } = useSelectBranchesContext();
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex items-center justify-center h-24">
-          <span className="text-muted-foreground">Loading...</span>
+          <span className="text-muted-foreground">{t('loading')}</span>
         </div>
       );
     }
@@ -147,7 +150,7 @@ const SelectBranchesContent = () => {
     if (error) {
       return (
         <div className="flex items-center justify-center h-24 text-destructive">
-          Error: {error.message}
+          {t('error-colon', { message: error.message })}
         </div>
       );
     }
@@ -159,9 +162,9 @@ const SelectBranchesContent = () => {
 
   return (
     <Command>
-      <Command.Input placeholder="Search branch" />
+      <Command.Input placeholder={t('search-branch')} />
       <Command.Empty>
-        <span className="text-muted-foreground">No branches found</span>
+        <span className="text-muted-foreground">{t('no-branches-found')}</span>
       </Command.Empty>
       <Command.List>{renderContent()}</Command.List>
     </Command>

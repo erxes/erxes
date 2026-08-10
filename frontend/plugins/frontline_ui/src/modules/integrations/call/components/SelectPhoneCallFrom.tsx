@@ -2,8 +2,10 @@ import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserInt
 import { callConfigAtom } from '@/integrations/call/states/sipStates';
 import { Label, Select, formatPhoneNumber } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 export const SelectPhoneCallFrom = () => {
+  const { t } = useTranslation('frontline');
   const { callUserIntegrations } = useCallUserIntegration();
   const [callConfig, setCallConfig] = useAtom(callConfigAtom);
 
@@ -19,10 +21,10 @@ export const SelectPhoneCallFrom = () => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="call-from">Call from</Label>
+      <Label htmlFor="call-from">{t('call-from')}</Label>
       <Select value={callConfig?.phone} onValueChange={handleSelectPhone}>
         <Select.Trigger id="call-from" type="button">
-          <Select.Value placeholder="Select a phone" />
+          <Select.Value placeholder={t('select-a-phone')} />
         </Select.Trigger>
         <Select.Content>
           {callUserIntegrations?.map((integration) => (

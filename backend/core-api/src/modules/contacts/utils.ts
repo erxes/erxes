@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
+import { withPropertyConditions } from '@/properties/utils';
 
 export const generateFilter = async (
   subdomain: string,
@@ -14,6 +15,7 @@ export const generateFilter = async (
     tagWithRelated,
     type,
     dateFilters,
+    propertiesData,
     brandIds,
     integrationIds,
     integrationTypes,
@@ -22,14 +24,16 @@ export const generateFilter = async (
     excludeIds,
   } = params;
 
-  const filter = {};
+  const filter: any = {
+    status: { $ne: CONTACT_STATUSES.deleted },
+  };
 
   if (type) {
     filter['state'] = { $eq: type };
   }
 
   if (status) {
-    filter['status'] = { $eq: CONTACT_STATUSES[status] };
+    filter.status = { $eq: CONTACT_STATUSES[status] };
   }
 
   if (searchValue) {
@@ -131,6 +135,14 @@ export const generateFilter = async (
     }
   }
 
+  if (propertiesData) {
+    const propertyConditions = withPropertyConditions(propertiesData);
+
+    if (propertyConditions.length) {
+      filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
+    }
+  }
+
   return filter;
 };
 
@@ -209,7 +221,7 @@ export const customersCount = async ({
   const counts = {};
 
   switch (type) {
-    case 'tag':
+    case 'tag': {
       const tagIds = await models.Tags.find({ type: 'core:customer' }).distinct(
         '_id',
       );
@@ -221,7 +233,8 @@ export const customersCount = async ({
       }
 
       break;
-    case 'brand':
+    }
+    case 'brand': {
       const brandIds = await models.Brands.find({}).distinct('_id');
 
       const integrations = await findIntegrations(subdomain, {
@@ -239,6 +252,7 @@ export const customersCount = async ({
       }
 
       break;
+    }
   }
 
   return counts;

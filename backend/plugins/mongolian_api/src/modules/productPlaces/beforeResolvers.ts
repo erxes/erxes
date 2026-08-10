@@ -1,14 +1,13 @@
 import { IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
-  products: ['products', 'productsTotalCount']
+  products: ['products', 'productsTotalCount'],
 };
 
 export const beforeResolverHandlers = async (
-  _models: IModels,
+  models: IModels,
   subdomain: string,
-  params
+  params,
 ) => {
   const { args, user } = params;
   const { segment } = args;
@@ -17,23 +16,27 @@ export const beforeResolverHandlers = async (
     return args;
   }
 
-  const configs = await sendTRPCMessage({
-  subdomain,
-  pluginName: 'core',
-  module: 'configs',
-  action: 'getConfig',
-  method: 'query',
-  input: {
-    code: 'dealsProductsDefaultFilter',
-    defaultValue: [],
-  },
-  defaultValue: [],
-});
+  const configValue = await models.Configs.getConfigValue(
+    'dealsProductsDefaultFilter',
+    '',
+    null,
+  );
+  let configs = Array.isArray(configValue)
+    ? configValue
+    : Object.values(configValue || {});
 
+  if (!configs?.length) {
+    configs = (await models.Configs.getConfigs('dealsProductsDefaultFilter'))
+      .map((config) => config.value)
+      .flat();
+  }
 
   if (!configs?.length) {
     return args;
   }
 
-  return { ...args, segment: configs.find(c => c.userIds?.includes(user._id))?.segmentId };
+  return {
+    ...args,
+    segment: configs.find((c) => c.userIds?.includes(user._id))?.segmentId,
+  };
 };

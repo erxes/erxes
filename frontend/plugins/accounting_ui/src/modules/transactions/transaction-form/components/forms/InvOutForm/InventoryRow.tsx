@@ -22,6 +22,10 @@ import {
 import { useEffect, useRef } from 'react';
 import { showAdvancedViewState } from '../../../states/trStates';
 import { useAtomValue } from 'jotai';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  hasDuplicateProductId,
+} from '../../utils';
 
 export const InventoryRow = ({
   detailIndex,
@@ -42,6 +46,10 @@ export const InventoryRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   });
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
   const { unitPrice, count, _id } = detail;
 
@@ -63,14 +71,10 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !detail.accountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initAccountId.current &&
         detail.accountId === initAccountId.current),
@@ -81,10 +85,10 @@ export const InventoryRow = ({
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
+    const nextUnitPrice = costInfo?.unitCost ?? 0;
 
-    if (costInfo === undefined) return;
-
-    form.setValue(getFieldName('unitPrice'), costInfo.unitCost);
+    form.setValue(getFieldName('unitPrice'), nextUnitPrice);
+    form.setValue(getFieldName('amount'), (count ?? 0) * nextUnitPrice);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);
@@ -182,7 +186,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -195,7 +202,9 @@ export const InventoryRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}

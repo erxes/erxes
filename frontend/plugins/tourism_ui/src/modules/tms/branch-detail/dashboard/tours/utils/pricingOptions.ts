@@ -35,6 +35,19 @@ type PricingOptionSource = Omit<IPricingOption, 'prices'> &
     prices?: PricingOptionPriceSource[];
   };
 
+const toOptionalNumber = (value: number | string | undefined) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+};
+
 export const buildPricingOptionPrices = ({
   adultPrice,
   childPrice,
@@ -43,16 +56,18 @@ export const buildPricingOptionPrices = ({
   PricingOptionFormValue,
   'adultPrice' | 'childPrice' | 'infantPrice'
 >): PricingOptionPriceInput[] => {
-  const prices: PricingOptionPriceInput[] = [
-    { type: 'adult', price: adultPrice },
-  ];
+  const adult = toOptionalNumber(adultPrice);
+  const child = toOptionalNumber(childPrice);
+  const infant = toOptionalNumber(infantPrice);
+  const prices: PricingOptionPriceInput[] =
+    typeof adult === 'number' ? [{ type: 'adult', price: adult }] : [];
 
-  if (typeof childPrice === 'number') {
-    prices.push({ type: 'child', price: childPrice });
+  if (typeof child === 'number') {
+    prices.push({ type: 'child', price: child });
   }
 
-  if (typeof infantPrice === 'number') {
-    prices.push({ type: 'infant', price: infantPrice });
+  if (typeof infant === 'number') {
+    prices.push({ type: 'infant', price: infant });
   }
 
   return prices;
@@ -75,6 +90,8 @@ export const normalizePricingOptionsForApi = (
       accommodationType: rest.accommodationType
         ? rest.accommodationType.trim().toLowerCase()
         : rest.accommodationType,
+      domesticFlightPerPerson: toOptionalNumber(rest.domesticFlightPerPerson),
+      singleSupplement: toOptionalNumber(rest.singleSupplement),
     };
   });
 

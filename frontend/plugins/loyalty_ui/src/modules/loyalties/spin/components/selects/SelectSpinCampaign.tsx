@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconTicket } from '@tabler/icons-react';
 import { ISpinCampaign } from '../../types/spinCampaignType';
 import {
@@ -106,6 +107,7 @@ const SelectSpinCampaignCommandItem = ({
 }: {
   spinCampaign: ISpinCampaign;
 }) => {
+  const { t } = useTranslation('loyalty');
   const { onSelect, spinCampaignId } = useSelectSpinCampaignContext();
 
   return (
@@ -116,7 +118,7 @@ const SelectSpinCampaignCommandItem = ({
       <SpinCampaignInline
         spinCampaigns={[spinCampaign]}
         spinCampaignId={spinCampaign._id}
-        placeholder="Unnamed campaign"
+        placeholder={t('unnamed-campaign')}
       />
       <Combobox.Check checked={spinCampaignId.includes(spinCampaign._id)} />
     </Command.Item>
@@ -124,6 +126,7 @@ const SelectSpinCampaignCommandItem = ({
 };
 
 const SelectSpinCampaignContent = () => {
+  const { t } = useTranslation('loyalty');
   const [search, setSearch] = React.useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { spinCampaigns: selectedSpinCampaigns } =
@@ -145,7 +148,7 @@ const SelectSpinCampaignContent = () => {
         onValueChange={setSearch}
         variant="secondary"
         wrapperClassName="flex-auto"
-        placeholder="Search spin campaigns..."
+        placeholder={t('search-spin-campaigns')}
         className="h-9"
       />
       <Command.List>
@@ -181,12 +184,15 @@ const SelectSpinCampaignContent = () => {
   );
 };
 
-export const SelectSpinCampaignFilterItem = () => (
-  <Filter.Item value="spinCampaign">
-    <IconTicket />
-    Spin Campaign
-  </Filter.Item>
-);
+export const SelectSpinCampaignFilterItem = () => {
+  const { t } = useTranslation('loyalty');
+  return (
+    <Filter.Item value="spinCampaign">
+      <IconTicket />
+      {t('spin-campaign')}
+    </Filter.Item>
+  );
+};
 
 export const SelectSpinCampaignFilterView = ({
   onValueChange,
@@ -230,6 +236,7 @@ export const SelectSpinCampaignFilterBar = ({
   queryKey?: string;
   mode?: 'single' | 'multiple';
 }) => {
+  const { t } = useTranslation('loyalty');
   const [spinCampaign, setSpinCampaign] = useQueryState<string | string[]>(
     queryKey || 'spinCampaign',
   );
@@ -239,7 +246,7 @@ export const SelectSpinCampaignFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'spinCampaign'}>
       <Filter.BarName>
         <IconTicket />
-        {!iconOnly && 'Spin Campaign'}
+        {!iconOnly && t('spin-campaign')}
       </Filter.BarName>
 
       <SelectSpinCampaignProvider

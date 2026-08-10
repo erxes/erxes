@@ -4,15 +4,17 @@ import { useMultiQueryState } from 'erxes-ui';
 import { IPositionListItem } from '../types/position';
 
 export const usePositionsList = (options?: OperationVariables) => {
-  const [{ searchValue, parentId }] = useMultiQueryState<{
+  const [{ searchValue, parentId, status }] = useMultiQueryState<{
     searchValue: string;
     parentId: string;
-  }>(['searchValue', 'parentId']);
+    status: string;
+  }>(['searchValue', 'parentId', 'status']);
   const { data, loading, error } = useQuery(GET_POSITIONS_LIST, {
     variables: {
       ...options?.variables,
       parentId: parentId ?? undefined,
       searchValue,
+      status,
     },
     ...options,
   });

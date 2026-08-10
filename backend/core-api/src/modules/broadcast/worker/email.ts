@@ -1,13 +1,89 @@
 import dayjs from 'dayjs';
 import * as _ from 'lodash';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 import { replaceContent } from '~/modules/documents/utils';
-import { createTransporter, prepareEmailParams } from '../utils';
+import { deliverEmail, normalizeEmail } from 'erxes-api-shared/utils';
+import {
+  formatPostalAddress,
+  getPostalAddress,
+} from '~/utils/email/postalAddress';
+import { unsubscribeUrl } from '~/utils/email/links';
+import { claim } from '~/utils/email/ramp';
+import {
+  createDeliveryLogPort,
+  createSuppressionPort,
+} from '~/utils/email/ports';
+import { addBroadcastWorkerQueue } from '../utils/worker';
+import { prepareEmailParams, readFileUrl } from '../utils';
+import {
+  getBroadcastAlignedFrom,
+  getBroadcastCacheKey,
+  getBroadcastEmailConfig,
+  toOutboundEmail,
+} from '../utils/outboundEmail';
 
 const CHUNK_SIZE = 50; // Send 50 emails at a time
 const CHUNK_DELAY = 2000; // 2 second delay between each chunk
 const FAILURE_THRESHOLD = 0.8; // Mark as failed if 80% of emails fail
+
+const listUnsubscribed = async (models: IModels, chunk: any[]) => {
+  const ids = await models.Customers.find({
+    _id: { $in: chunk.map((customer) => customer._id) },
+    isSubscribed: { $exists: true, $ne: 'Yes' },
+  }).distinct('_id');
+
+  return new Set(ids.map(String));
+};
+
+const claimChunk = async (models: IModels, chunk: any[]) => {
+  const proven = await models.EmailAddresses.listProven(
+    chunk.map((customer) => customer.primaryEmail),
+  );
+
+  const allowed = new Set<string>();
+  const unproven: any[] = [];
+
+  for (const customer of chunk) {
+    if (proven.has(normalizeEmail(customer.primaryEmail || ''))) {
+      allowed.add(String(customer._id));
+    } else {
+      unproven.push(customer);
+    }
+  }
+
+  const granted = await claim(models, unproven.length);
+
+  for (const customer of unproven.slice(0, granted)) {
+    allowed.add(String(customer._id));
+  }
+
+  return allowed;
+};
+
+const untilTomorrow = () => {
+  const next = new Date();
+
+  next.setUTCHours(24, 0, 0, 0);
+
+  return next.getTime() - Date.now();
+};
+
+const isStillCurrent = async (
+  models: IModels,
+  engageMessageId: string,
+  queuedRun?: number,
+) => {
+  if (queuedRun === undefined) {
+    return true;
+  }
+
+  const campaign = await models.EngageMessages.findOne({
+    _id: engageMessageId,
+  });
+
+  return !!campaign && campaign.runCount === queuedRun;
+};
 
 export const handleEmailProcessor = async (payload) => {
   const { subdomain, customers, engageMessage, fromEmail, configSet } =
@@ -15,7 +91,20 @@ export const handleEmailProcessor = async (payload) => {
 
   const models = await generateModels(subdomain);
 
-  const transporter = await createTransporter(models);
+  if (!(await isStillCurrent(models, engageMessage._id, payload.queuedRun))) {
+    console.log(
+      `Skipped a deferred batch for ${engageMessage._id}: the campaign has moved on`,
+    );
+
+    return;
+  }
+
+  const providerConfig = await getBroadcastEmailConfig(models);
+  const cacheKey = getBroadcastCacheKey(models);
+  const log = createDeliveryLogPort(models);
+  const suppression = createSuppressionPort(models);
+  const postalAddress = formatPostalAddress(await getPostalAddress(models));
+  const alignedFrom = await getBroadcastAlignedFrom(models);
 
   await models.Stats.findOneAndUpdate(
     { engageMessageId: engageMessage._id },
@@ -24,12 +113,34 @@ export const handleEmailProcessor = async (payload) => {
   );
 
   const STATS = { validCustomersCount: 0, failureCount: 0 };
+  const deferred: any[] = [];
 
   try {
     for (let i = 0; i < customers.length; i += CHUNK_SIZE) {
       const chunk = customers.slice(i, i + CHUNK_SIZE);
+      const unsubscribed = await listUnsubscribed(models, chunk);
+      const allowed = await claimChunk(
+        models,
+        chunk.filter((customer) => !unsubscribed.has(String(customer._id))),
+      );
 
       for (const customer of chunk) {
+        if (unsubscribed.has(String(customer._id))) {
+          await models.BroadcastTraces.createTrace(
+            engageMessage._id,
+            'regular',
+            `Skipped customer ${customer._id}: unsubscribed after the campaign started`,
+          );
+
+          continue;
+        }
+
+        if (!allowed.has(String(customer._id))) {
+          deferred.push(customer);
+
+          continue;
+        }
+
         try {
           const replacedContent = await replaceContent({
             replacer: customer,
@@ -49,28 +160,49 @@ export const handleEmailProcessor = async (payload) => {
             },
           });
 
-          const DOMAIN = (
-            process.env.DOMAIN || 'http://localhost:4000'
-          ).replace('<subdomain>', subdomain);
-
-          const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
+          const link = unsubscribeUrl(subdomain, { cid: customer._id });
 
           const htmlContent = blocksToHtml(replacedContent, {
-            wrapper: { email: true, unsubscribeUrl },
+            wrapper: { email: true, unsubscribeUrl: link, postalAddress },
+            resolveImageUrl: (url) => readFileUrl(url, subdomain),
           });
 
-          await transporter.sendMail(
-            prepareEmailParams(
-              subdomain,
-              customer,
-              {
-                ...engageMessage,
-                email: { ...engageMessage.email, content: htmlContent },
-              },
-              fromEmail,
-              configSet,
+          const outcome = await deliverEmail({
+            cacheKey,
+            config: providerConfig,
+            message: toOutboundEmail(
+              prepareEmailParams(
+                subdomain,
+                customer,
+                {
+                  ...engageMessage,
+                  email: { ...engageMessage.email, content: htmlContent },
+                },
+                fromEmail,
+                configSet,
+              ),
+              { unsubscribeUrl: link, alignedFrom },
             ),
-          );
+            log,
+            suppression,
+            meta: {
+              source: 'broadcast',
+              sourceId: engageMessage._id,
+              subdomain,
+            },
+          });
+
+          if (outcome.skipped) {
+            await models.BroadcastTraces.createTrace(
+              engageMessage._id,
+              'regular',
+              `Skipped customer ${customer._id}: ${outcome.suppressed?.join(
+                ', ',
+              )} is suppressed`,
+            );
+
+            continue;
+          }
 
           STATS.validCustomersCount++;
 
@@ -98,6 +230,42 @@ export const handleEmailProcessor = async (payload) => {
       if (i + CHUNK_SIZE < customers.length) {
         await new Promise((resolve) => setTimeout(resolve, CHUNK_DELAY));
       }
+    }
+
+    if (deferred.length) {
+      await models.EngageMessages.updateOne(
+        { _id: engageMessage._id },
+        { $inc: { 'progress.totalBatches': 1 } },
+      );
+
+      const campaign = await models.EngageMessages.findOne({
+        _id: engageMessage._id,
+      });
+
+      const resumeCount = (payload.resumeCount || 0) + 1;
+
+      await addBroadcastWorkerQueue({
+        queueName: 'broadcast_processor',
+        data: {
+          method: 'email',
+          payload: {
+            ...payload,
+            customers: deferred,
+            resumeCount,
+            queuedRun: campaign?.runCount ?? payload.queuedRun,
+          },
+        },
+        jobId: `${engageMessage._id}_run${campaign?.runCount ?? 0}_batch${
+          payload.batchIndex ?? 0
+        }_resume${resumeCount}`,
+        delay: untilTomorrow(),
+      });
+
+      await models.BroadcastTraces.createTrace(
+        engageMessage._id,
+        'regular',
+        `Deferred ${deferred.length} recipients to tomorrow: today's sending allowance is spent`,
+      );
     }
 
     await models.EngageMessages.updateOne(

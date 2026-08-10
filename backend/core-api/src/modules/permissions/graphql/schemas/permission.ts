@@ -49,6 +49,7 @@ export const types = `
     description: String
     plugin: String!
     permissions: [PermissionGroupPermission]!
+    members: [User]
   }
 
   type PermissionGroup {
@@ -56,6 +57,7 @@ export const types = `
     name: String!
     description: String
     permissions: [PermissionGroupPermission]!
+    members: [User]
     createdAt: Date
     updatedAt: Date
   }
@@ -106,6 +108,7 @@ export const mutations = `
   permissionGroupRemove(_id: String!): JSON
 
   userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
+  usersUpdatePermissionGroups(userIds: [String]!, groupIds: [String]!): JSON
   userAddCustomPermission(userId: String!, permission: PermissionInput!): User
   userRemoveCustomPermission(userId: String!, module: String!): User
 

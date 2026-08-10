@@ -8,6 +8,10 @@ import {
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
 } from '../../../../graphql/queries';
+import { createSlug } from '../../../../utils/createSlug';
+
+// A single custom-field value as stored on the form and in translation snapshots.
+type CustomFieldEntry = { field: string; value: CustomFieldValue };
 
 interface PostFormData {
   title: string;
@@ -34,6 +38,80 @@ interface PostFormData {
   customFieldsData?: { field: string; value: CustomFieldValue }[];
 }
 
+// Loosely-typed shape of a post as loaded from the API (list row or cmsPost).
+type TLoadedPost = {
+  _id?: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  description?: string;
+  content?: string;
+  type?: string;
+  status?: NonNullable<PostFormData['status']>;
+  categoryIds?: string[];
+  categories?: { _id: string }[];
+  tagIds?: string[];
+  tags?: { _id: string }[];
+  featured?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  thumbnail?: NonNullable<PostFormData['thumbnail']>;
+  images?: { url: string }[];
+  videoUrl?: string;
+  documents?: { url: string }[];
+  attachments?: { url: string }[];
+  pdf?: string | null;
+  publishedDate?: string | Date | null;
+  scheduledDate?: string | Date | null;
+  autoArchiveDate?: string | Date | null;
+  customFieldsData?: CustomFieldEntry[];
+};
+
+/** Converts an API date value to a Date for the form, or null when absent. */
+const toDate = (value: string | Date | null | undefined) =>
+  value ? new Date(value) : null;
+
+/** Extracts the attachment URLs from a loaded post's attachment list. */
+const toUrls = (items?: { url: string }[]) =>
+  (items || []).map((item) => item.url).filter(Boolean);
+
+/** Maps a loaded post's media fields to their form values. */
+const buildMediaFormValues = (fullPost: TLoadedPost) => ({
+  thumbnail: fullPost.thumbnail || null,
+  gallery: toUrls(fullPost.images),
+  videoUrl: fullPost.videoUrl || '',
+  documents: toUrls(fullPost.documents),
+  attachments: toUrls(fullPost.attachments),
+  pdf: fullPost.pdf || null,
+});
+
+/** Maps a loaded post's scheduling fields to their form values. */
+const buildScheduleFormValues = (fullPost: TLoadedPost) => ({
+  publishDate: toDate(fullPost.publishedDate),
+  scheduledDate: toDate(fullPost.scheduledDate),
+  autoArchiveDate: toDate(fullPost.autoArchiveDate),
+  enableAutoArchive: Boolean(fullPost.autoArchiveDate),
+});
+
+/** Maps a loaded post to the full set of form values used on reset. */
+const buildPostFormValues = (fullPost: TLoadedPost): PostFormData => ({
+  title: fullPost.title || '',
+  slug: fullPost.slug || '',
+  description: fullPost.excerpt || fullPost.description || '',
+  content: fullPost.content || '',
+  type: fullPost.type || undefined,
+  status: fullPost.status || undefined,
+  categoryIds:
+    fullPost.categoryIds || fullPost.categories?.map((c) => c._id) || [],
+  tagIds: fullPost.tagIds || fullPost.tags?.map((t) => t._id) || [],
+  featured: Boolean(fullPost.featured),
+  seoTitle: fullPost.seoTitle || '',
+  seoDescription: fullPost.seoDescription || '',
+  customFieldsData: fullPost.customFieldsData || [],
+  ...buildMediaFormValues(fullPost),
+  ...buildScheduleFormValues(fullPost),
+});
+
 export const usePostForm = (editingPost?: { _id: string }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [translations, setTranslations] = useState<
@@ -43,7 +121,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
         title: string;
         content: string;
         excerpt: string;
-        customFieldsData: CustomFieldValue[];
+        customFieldsData: CustomFieldEntry[];
       }
     >
   >({});
@@ -51,9 +129,10 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     title: string;
     content: string;
     excerpt: string;
-    customFieldsData: CustomFieldValue[];
+    customFieldsData: CustomFieldEntry[];
   } | null>(null);
   const previousTypeRef = useRef<string | undefined>();
+  const lastResetKeyRef = useRef<string | undefined>();
 
   const form = useForm<PostFormData>({
     defaultValues: {
@@ -86,12 +165,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     form.setValue('content', value, { shouldDirty: true, shouldTouch: true });
   };
 
-  const generateSlug = (text: string) =>
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
   const { data: fullPostData } = useQuery(CMS_POST, {
     variables: { id: editingPost?._id },
     skip: !editingPost?._id,
@@ -99,12 +172,14 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost as any) || editingPost;
+  const fullPost = (fullPostData?.cmsPost || editingPost) as
+    | TLoadedPost
+    | undefined;
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: false,
   });
 
@@ -118,7 +193,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }
       > = {};
       translationsData.cmsTranslations.forEach(
@@ -127,7 +202,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
           title: string;
           content: string;
           excerpt: string;
-          customFieldsData: CustomFieldValue[];
+          customFieldsData: CustomFieldEntry[];
         }) => {
           translationsMap[t.language] = {
             title: t.title || '',
@@ -143,48 +218,23 @@ export const usePostForm = (editingPost?: { _id: string }) => {
 
   useEffect(() => {
     if (fullPost) {
-      const toDate = (v: string | Date | null | undefined) =>
-        v ? new Date(v) : null;
-      form.reset({
-        title: fullPost.title || '',
-        slug: fullPost.slug || '',
-        description: fullPost.excerpt || fullPost.description || '',
-        content: fullPost.content || '',
-        type: fullPost.type || undefined,
-        status: fullPost.status || undefined,
-        categoryIds:
-          fullPost.categoryIds ||
-          fullPost.categories?.map((c: { _id: string }) => c._id) ||
-          [],
-        tagIds:
-          fullPost.tagIds ||
-          fullPost.tags?.map((t: { _id: string }) => t._id) ||
-          [],
-        featured: !!fullPost.featured,
-        seoTitle: fullPost.seoTitle || '',
-        seoDescription: fullPost.seoDescription || '',
-        thumbnail: fullPost.thumbnail || null,
-        gallery: (fullPost.images || [])
-          .map((i: { url: string }) => i.url)
-          .filter(Boolean),
-        videoUrl: fullPost.videoUrl || '',
-        documents: (fullPost.documents || [])
-          .map((d: { url: string }) => d.url)
-          .filter(Boolean),
-        attachments: (fullPost.attachments || [])
-          .map((a: { url: string }) => a.url)
-          .filter(Boolean),
-        pdf: fullPost.pdf || null,
-        publishDate: toDate(fullPost.publishedDate) || null,
-        scheduledDate: toDate(fullPost.scheduledDate) || null,
-        autoArchiveDate: toDate(fullPost.autoArchiveDate) || null,
-        enableAutoArchive: !!fullPost.autoArchiveDate,
-        customFieldsData: fullPost.customFieldsData || [],
-      });
+      // Reset only when the loaded post (or its load phase: partial list row →
+      // full cmsPost) changes. Refetches triggered by saves return a new object
+      // with the same data — resetting on those would clobber in-flight typing.
+      const resetKey = `${fullPost._id}:${
+        fullPost === fullPostData?.cmsPost ? 'full' : 'partial'
+      }`;
+
+      if (lastResetKeyRef.current === resetKey) {
+        return;
+      }
+      lastResetKeyRef.current = resetKey;
+
+      form.reset(buildPostFormValues(fullPost));
     } else {
       const title = form.getValues('title');
       if (title && !form.getValues('slug')) {
-        form.setValue('slug', generateSlug(title));
+        form.setValue('slug', createSlug(title));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -227,7 +277,6 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     setDefaultLangData,
     previousTypeRef,
     handleEditorChange,
-    generateSlug,
     fullPost,
     saveTranslation,
     updateCustomFieldValue,

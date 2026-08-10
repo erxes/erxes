@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { MultipleSelector, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CMS_POSTS_EDIT } from '../graphql/queries';
 import { useTags } from '../hooks/useTags';
 
@@ -15,15 +16,17 @@ export function InlineTagsEditor({
   websiteId,
   initialTags = [],
 }: InlineTagsEditorProps) {
+  const { t } = useTranslation('content');
   const [tags, setTags] = useState(initialTags);
   const { tags: allTags, loading: loadingTags } = useTags({
     clientPortalId: websiteId || '',
+    fetchAll: true,
   });
   const [updatePost] = useMutation(CMS_POSTS_EDIT, {
     onError: (error) => {
       toast({
-        title: 'Error',
-        description: `Error updating tags: ${error.message}`,
+        title: t('error'),
+        description: t('error-updating-tags', { message: error.message }),
         variant: 'destructive',
       });
 
@@ -50,7 +53,7 @@ export function InlineTagsEditor({
   };
 
   if (loadingTags) {
-    return <div>Loading tags...</div>;
+    return <div>{t('loading-tags')}</div>;
   }
 
   return (
@@ -61,7 +64,7 @@ export function InlineTagsEditor({
       }))}
       value={tags.map((tag) => tag._id)}
       onChange={handleTagChange}
-      placeholder="Select tags..."
+      placeholder={t('select-tags')}
       className="w-full"
     />
   );

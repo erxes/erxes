@@ -8,21 +8,6 @@ import {
   IconPhone,
 } from '@tabler/icons-react';
 import { CustomNode } from '../slot/types';
-import { isStepVisible } from './fieldConfig';
-
-export {
-  FIELD_VISIBILITY_CONFIG,
-  isFieldVisible,
-  isStepVisible,
-  posTypeToContext,
-  STEP_VISIBILITY_CONFIG,
-} from './fieldConfig';
-export type {
-  CategoryFieldConfig,
-  FieldConfig,
-  FieldContext,
-  PosTypeValue,
-} from './fieldConfig';
 
 export type AllowedPosType =
   | 'eat'
@@ -101,31 +86,19 @@ export const CANVAS = {
   HEIGHT: 1000,
 } as const;
 
-export const getSteps = (posType: string | null) => {
-  const baseSteps = [
-    { value: 'properties', title: 'General information' },
-    { value: 'slots', title: 'Slots' },
-    { value: 'payments', title: 'Payments' },
-    { value: 'permission', title: 'Permission' },
-    { value: 'product', title: 'Product & Service' },
-    { value: 'appearance', title: 'Brand Color & Logo' },
-    { value: 'screen', title: 'Screen' },
-    { value: 'delivery', title: 'Delivery' },
-    { value: 'sync', title: 'Sync card' },
+export const getSteps = () => {
+  return [
+    { value: 'properties', title: 'general-information' },
+    { value: 'slots', title: 'slots' },
+    { value: 'payments', title: 'payments' },
+    { value: 'permission', title: 'permission' },
+    { value: 'product', title: 'product-and-service' },
+    { value: 'appearance', title: 'brand-color-and-logo' },
+    { value: 'screen', title: 'screen' },
+    { value: 'delivery', title: 'delivery' },
+    { value: 'sync', title: 'sync-card' },
   ];
-
-  return baseSteps.filter((step) =>
-    isStepVisible(step.value, posType || undefined),
-  );
 };
-
-export type PosType = 'ecommerce' | 'restaurant' | 'pos';
-
-export const POS_TYPES = [
-  { value: 'ecommerce', label: 'E-commerce' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'pos', label: 'POS' },
-] as const;
 
 interface PaymentIconProps {
   iconType: string;

@@ -8,7 +8,10 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
+export const customerQueries: Record<
+  string,
+  Resolver<undefined, unknown, IContext>
+> = {
   /**
    * Customers list
    */
@@ -57,7 +60,15 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Get one customer
    */
-  async customerDetail(
+  customerDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Customers.getCustomer(_id);
+  },
+
+  cpCustomerDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -88,6 +99,8 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
             _id: { $in: content },
           }).lean();
           break;
+        default:
+          break;
       }
 
       return result;
@@ -98,10 +111,10 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
 
   async customersCount(
     _parent: undefined,
-    params: { types: string[] },
+    params: { types?: string[] },
     { models, subdomain }: IContext,
   ) {
-    const { types } = params;
+    const types = params.types || [];
 
     const counts = {};
 
@@ -120,5 +133,9 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
 };
 
 customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};
+
+customerQueries.cpCustomerDetail.wrapperConfig = {
   forClientPortal: true,
 };

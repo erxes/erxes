@@ -9,6 +9,11 @@ import {
   types as accountingsConfigTypes,
 } from '@/accounting/graphql/schemas/config';
 import {
+  mutations as checkSyncedMutations,
+  queries as checkSyncedQueries,
+  types as checkSyncedTypes,
+} from '@/accounting/graphql/schemas/checkSynced';
+import {
   mutations as ctaxRowMutations,
   queries as ctaxRowQueries,
   types as ctaxRowTypes,
@@ -23,6 +28,11 @@ import {
   queries as journalReportQueries,
   types as journalReportTypes,
 } from '@/accounting/graphql/schemas/journalReports';
+import {
+  mutations as adjustFixedAssetMutations,
+  queries as adjustFixedAssetQueries,
+  types as adjustFixedAssetTypes,
+} from '@/accounting/graphql/schemas/adjustFixedAsset';
 import {
   mutations as transactionMutations,
   queries as transactionQueries,
@@ -44,6 +54,16 @@ import {
   types as adjustClosingTypes,
 } from '~/modules/accounting/graphql/schemas/adjustClosing';
 import {
+  mutations as adjustFundRateMutations,
+  queries as adjustFundRateQueries,
+  types as adjustFundRateTypes,
+} from '~/modules/accounting/graphql/schemas/adjustFundRate';
+import {
+  mutations as adjustDebtRateMutations,
+  queries as adjustDebtRateQueries,
+  types as adjustDebtRateTypes,
+} from '~/modules/accounting/graphql/schemas/adjustDebtRate';
+import {
   mutations as remainderMutations,
   queries as remainderQueries,
   types as remainderTypes,
@@ -62,7 +82,28 @@ import {
   mutations as safeRemainderItemMutations,
   queries as safeRemainderItemQueries,
   types as safeRemainderItemTypes,
+  inputTypes as safeRemainderItemInputTypes,
 } from '~/modules/inventories/graphql/schemas/safeRemainderItem';
+import {
+  mutations as fixedAssetMutations,
+  queries as fixedAssetQueries,
+  types as fixedAssetTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fixedAsset';
+import {
+  mutations as fixedAssetCategoryMutations,
+  queries as fixedAssetCategoryQueries,
+  types as fixedAssetCategoryTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fixedAssetCategory';
+import {
+  mutations as fxaInstanceMutations,
+  queries as fxaInstanceQueries,
+  types as fxaInstanceTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fxaInstance';
+import {
+  mutations as fxaInstanceLogMutations,
+  queries as fxaInstanceLogQueries,
+  types as fxaInstanceLogTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fxaInstanceLog';
 
 export const types = `
   enum CacheControlScope {
@@ -84,27 +125,44 @@ export const types = `
   ${vatRowTypes()}
   ${ctaxRowTypes()}
   ${accountingsConfigTypes}
+  ${checkSyncedTypes}
   ${transactionTypes()}
   ${accInventoryTypes}
   ${adjustInventoryTypes}
+  ${adjustFundRateTypes()}
+  ${adjustDebtRateTypes()}
   ${journalReportTypes}
   ${adjustClosingTypes}
+  ${fixedAssetCategoryTypes}
+  ${fixedAssetTypes}
+  ${fxaInstanceTypes}
+  ${fxaInstanceLogTypes}
+  ${adjustFixedAssetTypes}
   ${remainderTypes}
   ${reserveRemsTypes}
   ${safeRemainderTypes}
   ${safeRemainderItemTypes}
+  ${safeRemainderItemInputTypes}
 `;
 
 export const queries = `
   ${accountQueries}
   ${accountingsConfigQueries}
+  ${checkSyncedQueries}
   ${vatRowQueries}
   ${ctaxRowQueries}
   ${transactionQueries}
   ${accInventoryQueries}
   ${adjustInventoryQueries}
+  ${adjustFundRateQueries}
+  ${adjustDebtRateQueries}
   ${journalReportQueries}
   ${adjustClosingQueries}
+  ${fixedAssetCategoryQueries}
+  ${fixedAssetQueries}
+  ${fxaInstanceQueries}
+  ${fxaInstanceLogQueries}
+  ${adjustFixedAssetQueries}
   ${remainderQueries}
   ${reserveRemsQueries}
   ${safeRemainderQueries}
@@ -114,12 +172,20 @@ export const queries = `
 export const mutations = `
   ${accountMutations}
   ${accountingsConfigMutations}
+  ${checkSyncedMutations}
   ${vatRowMutations}
   ${ctaxRowMutations}
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
   ${adjustClosingMutations}
+  ${adjustFundRateMutations}
+  ${adjustDebtRateMutations}
+  ${fixedAssetCategoryMutations}
+  ${fixedAssetMutations}
+  ${fxaInstanceMutations}
+  ${fxaInstanceLogMutations}
+  ${adjustFixedAssetMutations}
   ${remainderMutations}
   ${reserveRemsMutations}
   ${safeRemainderMutations}

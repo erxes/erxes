@@ -2,7 +2,7 @@ import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useGetExchangeRate } from '../../hooks/useGetExchangeRate';
 import { CurrencyField, Form } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect, useMemo, useState } from 'react';
+import { type MutableRefObject, useEffect, useMemo, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
 import { followTrDocsState } from '../../states/trStates';
@@ -10,12 +10,26 @@ import { ITransactionGroupForm } from '../../types/JournalForms';
 import { getTempId, getTrSide } from '../utils';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 
+type TAmountChangeHandler = (value: number) => void;
+export type TAmountChangeRef = MutableRefObject<TAmountChangeHandler>;
+type TChangingField = 'amount' | 'currencyAmount' | null;
+
+const isSameAmount = (first?: number, second?: number) =>
+  Math.abs((first || 0) - (second || 0)) < 0.000001;
+
+export const useCurrencyAmountSync = (): TAmountChangeRef =>
+  useRef<TAmountChangeHandler>(() => undefined);
+
 const CurrencyFormBody = ({
   form,
   journalIndex,
+  amountChangeRef,
+  mainCurrency,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  amountChangeRef?: TAmountChangeRef;
+  mainCurrency: string;
 }) => {
   const date = useWatch({
     control: form.control,
@@ -26,16 +40,28 @@ const CurrencyFormBody = ({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   });
+  const changingFieldRef = useRef<TChangingField>(null);
+
+  const setChangingField = (field: TChangingField) => {
+    changingFieldRef.current = field;
+  };
+
+  const resetChangingField = (field: TChangingField) => {
+    Promise.resolve().then(() => {
+      if (changingFieldRef.current === field) {
+        setChangingField(null);
+      }
+    });
+  };
 
   const detail = trDoc.details[0];
-  const amount = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details.0.amount`,
-  });
-  const [changingAmount, setChangingAmount] = useState(true);
-
-  const { configs } = useMainConfigs();
-  const mainCurrency = 'MNT';
+  const accountKind = detail.account?.kind;
+  const currencyAmount = detail.currencyAmount || 0;
+  const currencyDiffAccountId =
+    detail.followInfos && 'currencyDiffAccountId' in detail.followInfos
+      ? detail.followInfos.currencyDiffAccountId
+      : '';
+  const customRate = detail.customRate || 0;
 
   const { spotRate } = useGetExchangeRate({
     variables: { date, currency: detail.account?.currency },
@@ -48,14 +74,70 @@ const CurrencyFormBody = ({
     name: `trDocs.${journalIndex}.side`,
   });
 
-  const diffAmount: number = useMemo(() => {
-    const multipler = detail.account?.kind === 'active' ? 1 : -1;
-    return (
-      ((detail.customRate || 0) - spotRate) *
-      (detail.currencyAmount || 0) *
-      multipler
+  useEffect(() => {
+    if (!amountChangeRef) {
+      return;
+    }
+
+    amountChangeRef.current = (value: number) => {
+      if (!spotRate) {
+        return;
+      }
+
+      if (changingFieldRef.current === 'currencyAmount') {
+        return;
+      }
+
+      setChangingField('amount');
+      const nextCurrencyAmount = value / spotRate;
+      const currentCurrencyAmount = form.getValues(
+        `trDocs.${journalIndex}.details.0.currencyAmount`,
+      );
+
+      if (!isSameAmount(currentCurrencyAmount, nextCurrencyAmount)) {
+        form.setValue(
+          `trDocs.${journalIndex}.details.0.currencyAmount`,
+          nextCurrencyAmount,
+        );
+      }
+
+      resetChangingField('amount');
+    };
+
+    return () => {
+      amountChangeRef.current = () => undefined;
+    };
+  }, [amountChangeRef, form, journalIndex, spotRate]);
+
+  useEffect(() => {
+    if (!currencyAmount || !spotRate) {
+      return;
+    }
+
+    if (changingFieldRef.current === 'amount') {
+      return;
+    }
+
+    const nextAmount = spotRate * currencyAmount;
+    const currentAmount = form.getValues(
+      `trDocs.${journalIndex}.details.0.amount`,
     );
-  }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
+
+    if (isSameAmount(currentAmount, nextAmount)) {
+      return;
+    }
+
+    form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
+  }, [currencyAmount, form, journalIndex, spotRate]);
+
+  const diffAmount: number = useMemo(() => {
+    if (!customRate || !spotRate) {
+      return 0;
+    }
+
+    const multipler = accountKind === 'active' ? 1 : -1;
+    return (customRate - spotRate) * currencyAmount * multipler;
+  }, [accountKind, currencyAmount, customRate, spotRate]);
 
   const side = useMemo(() => {
     if (diffAmount < 0) {
@@ -70,40 +152,40 @@ const CurrencyFormBody = ({
     value: number,
     onChange: (value: number) => void,
   ) => {
-    if (changingAmount) {
-      return setChangingAmount(false);
+    if (changingFieldRef.current === 'amount') {
+      return;
     }
-    form.setValue(`trDocs.${journalIndex}.details.0.amount`, spotRate * value);
+
+    setChangingField('currencyAmount');
     onChange(value);
+
+    if (!spotRate) {
+      resetChangingField('currencyAmount');
+      return;
+    }
+
+    const nextAmount = spotRate * value;
+    const currentAmount = form.getValues(
+      `trDocs.${journalIndex}.details.0.amount`,
+    );
+
+    if (!isSameAmount(currentAmount, nextAmount)) {
+      form.setValue(`trDocs.${journalIndex}.details.0.amount`, nextAmount);
+    }
+    resetChangingField('currencyAmount');
   };
 
   useEffect(() => {
-    form.setValue(
-      `trDocs.${journalIndex}.details.0.amount`,
-      spotRate * (detail.currencyAmount ?? 0),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spotRate]);
-
-  useEffect(() => {
-    if (spotRate) {
-      setChangingAmount(true);
-      form.setValue(
-        `trDocs.${journalIndex}.details.0.currencyAmount`,
-        amount / spotRate,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount]);
-
-  useEffect(() => {
     if (!diffAmount) {
-      setFollowTrDocs((prev) =>
-        (prev || []).filter(
+      setFollowTrDocs((prev) => {
+        const current = prev || [];
+        const next = current.filter(
           (ftr) =>
             !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
-        ),
-      );
+        );
+
+        return next.length === current.length ? prev : next;
+      });
       return;
     }
 
@@ -113,7 +195,8 @@ const CurrencyFormBody = ({
         : { sumDt: 0, sumCt: diffAmount };
 
     setFollowTrDocs((prev) => {
-      const curr = (prev || []).find(
+      const current = prev || [];
+      const curr = current.find(
         (ftr) =>
           ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff',
       );
@@ -128,8 +211,7 @@ const CurrencyFormBody = ({
         details: [
           {
             ...(curr?.details || [{}])[0],
-            accountId:
-              (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
+            accountId: currencyDiffAccountId,
             amount: diffAmount,
           },
         ],
@@ -138,21 +220,32 @@ const CurrencyFormBody = ({
         sumCt,
       };
 
+      if (
+        curr?.side === currencyDiffFtr.side &&
+        curr?.sumDt === currencyDiffFtr.sumDt &&
+        curr?.sumCt === currencyDiffFtr.sumCt &&
+        curr?.details?.[0]?.accountId ===
+          currencyDiffFtr.details[0].accountId &&
+        curr?.details?.[0]?.amount === currencyDiffFtr.details[0].amount
+      ) {
+        return prev;
+      }
+
       return [
-        ...(prev || []).filter(
+        ...current.filter(
           (ftr) =>
             !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
         ),
         currencyDiffFtr,
       ];
     });
-  }, [detail, diffAmount, side, trDoc._id, setFollowTrDocs]);
+  }, [currencyDiffAccountId, diffAmount, side, trDoc._id, setFollowTrDocs]);
 
   return (
     <>
       <Form.Item>
         <Form.Label>Спот ханш</Form.Label>
-        <CurrencyField.ValueInput value={spotRate} disabled />
+        <CurrencyField.ValueInput value={spotRate || 0} disabled />
         <Form.Message />
       </Form.Item>
 
@@ -207,7 +300,10 @@ const CurrencyFormBody = ({
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ['exchangeDiff'] }}
+                  defaultFilter={{
+                    journals: ['exchangeDiff'],
+                    permissionMode: 'write',
+                  }}
                 />
               </Form.Control>
               <Form.Message />
@@ -222,20 +318,30 @@ const CurrencyFormBody = ({
 export const CurrencyForm = ({
   form,
   journalIndex,
+  amountChangeRef,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
+  amountChangeRef?: TAmountChangeRef;
 }) => {
   const account = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.0.account`,
   });
 
-  const mainCurrency = 'MNT';
+  const { configs } = useMainConfigs();
+  const mainCurrency = configs?.MainCurrency || 'MNT';
 
   if (!account?.currency || account?.currency === mainCurrency) {
     return null;
   }
 
-  return <CurrencyFormBody form={form} journalIndex={journalIndex} />;
+  return (
+    <CurrencyFormBody
+      form={form}
+      journalIndex={journalIndex}
+      amountChangeRef={amountChangeRef}
+      mainCurrency={mainCurrency}
+    />
+  );
 };

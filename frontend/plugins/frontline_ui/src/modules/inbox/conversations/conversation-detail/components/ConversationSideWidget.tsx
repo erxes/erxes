@@ -1,5 +1,5 @@
 import { SideMenu, useSideMenuContext } from 'erxes-ui';
-import { useRelationWidget } from 'ui-modules';
+import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
@@ -49,7 +49,7 @@ export const ConversationSideWidget = ({
             <SideMenu.Trigger
               key={module.name}
               value={module.name}
-              label={module.name}
+              label={getRelationWidgetLabel(module)}
               Icon={module.icon}
             />
           );

@@ -1,11 +1,15 @@
-import { RecordTable } from 'erxes-ui';
+import { IconArticle } from '@tabler/icons-react';
+import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
-import { createCategoriesColumns } from './CategoriesColumn';
+import { useTranslation } from 'react-i18next';
+import { EmptyState } from '../../shared/EmptyState';
+import { useCategoriesColumns } from './CategoriesColumn';
 
-import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 import { useCategories } from '../hooks/useCategoriesEnhanced';
 import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommandbar';
 import { ICategory } from '@/cms/categories/types';
+import { CategoriesFilter } from './CategoriesFilter';
+import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
@@ -39,17 +43,23 @@ function sortCategoriesAsTree(
 
 interface CategoriesRecordTableProps {
   clientPortalId: string;
-  onEdit?: (category: any) => void;
-  onRemove?: (id: string) => void;
+  onAdd?: () => void;
+  onEdit?: (category: ICategory) => void;
   onBulkDelete?: (ids: string[]) => Promise<void>;
 }
 
 export const CategoriesRecordTable = ({
   clientPortalId,
+  onAdd,
   onEdit,
-  onRemove,
   onBulkDelete,
 }: CategoriesRecordTableProps) => {
+  const { t } = useTranslation('content');
+  const [{ searchValue, status }] = useMultiQueryState<{
+    searchValue: string;
+    status: string;
+  }>(['searchValue', 'status']);
+  const isFiltered = !!searchValue || !!status;
   const { categories, loading, refetch, pageInfo, handleFetchMore } =
     useCategories({
       variables: {
@@ -63,40 +73,65 @@ export const CategoriesRecordTable = ({
     [categories],
   );
 
-  const columns = createCategoriesColumns(
-    clientPortalId,
-    onEdit || (() => {}),
-    refetch,
-  );
+  const columns = useCategoriesColumns(clientPortalId, onEdit, refetch);
 
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={treeCategories}
-      className="h-full"
-      stickyColumns={['more', 'checkbox', 'name']}
-    >
-      <RecordTable.CursorProvider
-        hasPreviousPage={hasPreviousPage}
-        hasNextPage={hasNextPage}
-        dataLength={categories?.length}
-        sessionKey={CATEGORIES_CURSOR_SESSION_KEY}
-      >
-        <RecordTable>
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
+    <>
+      <div className="px-4 pt-2">
+        <CategoriesFilter />
+      </div>
+      {!loading && categories.length === 0 ? (
+        <div className="rounded-lg overflow-hidden">
+          {isFiltered ? (
+            <EmptyState icon={IconArticle} title={t('no-categories-found')} />
+          ) : (
+            <EmptyState
+              icon={IconArticle}
+              title={t('no-categories-yet')}
+              description={t('no-categories-yet-desc')}
+              actionLabel={t('add-category')}
+              onAction={onAdd}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.CursorProvider>
-      {onBulkDelete && <CategoriesCommandBar onBulkDelete={onBulkDelete} />}
-    </RecordTable.Provider>
+          )}
+        </div>
+      ) : (
+        <div className="overflow-hidden flex-auto p-3">
+          <div className="h-full">
+            <RecordTable.Provider
+              columns={columns}
+              data={treeCategories}
+              className="h-full"
+              stickyColumns={['more', 'checkbox', 'name']}
+              tableId="content_categories_record_table"
+            >
+              <RecordTable.CursorProvider
+                hasPreviousPage={hasPreviousPage}
+                hasNextPage={hasNextPage}
+                dataLength={categories?.length}
+                sessionKey={CATEGORIES_CURSOR_SESSION_KEY}
+              >
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.CursorBackwardSkeleton
+                      handleFetchMore={handleFetchMore}
+                    />
+                    {loading && <RecordTable.RowSkeleton rows={40} />}
+                    <RecordTable.RowList />
+                    <RecordTable.CursorForwardSkeleton
+                      handleFetchMore={handleFetchMore}
+                    />
+                  </RecordTable.Body>
+                </RecordTable>
+              </RecordTable.CursorProvider>
+              <CategoriesCommandBar
+                clientPortalId={clientPortalId}
+                onBulkDelete={onBulkDelete}
+              />
+            </RecordTable.Provider>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

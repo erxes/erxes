@@ -18,7 +18,7 @@ export interface MovementErkhetConfig {
   pipelineId: string;
   stageId: string;
   userEmail?: string;
-  chooseResponseField: string;
+  responseField: string;
   defaultCustomer?: string;
   details?: IMovementDetail[];
 }
@@ -26,3 +26,5 @@ export interface MovementErkhetConfig {
 export type TMovementErkhetConfig = z.infer<
   typeof addStageInMovementErkhetConfigSchema
 >;
+
+export type TMovementConfigRow = TMovementErkhetConfig & { _id: string };

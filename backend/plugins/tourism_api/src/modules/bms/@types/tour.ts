@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 import { ILocation } from '@/bms/@types/itinerary';
 import { IPageInfo } from 'erxes-api-shared/src/core-types';
-import { IAttachment } from 'erxes-api-shared/core-types';
+import { IAttachment, ICustomField } from 'erxes-api-shared/core-types';
 
 export interface IGuideItem {
   guideId: string;
@@ -51,6 +51,8 @@ export interface ITour {
   branchId: string;
   tagIds?: string[];
   categoryIds?: string[];
+  customTourTypeId?: string;
+  customFieldsData?: ICustomField[];
   viewCount: number;
   advancePercent?: number;
   joinPercent?: number;

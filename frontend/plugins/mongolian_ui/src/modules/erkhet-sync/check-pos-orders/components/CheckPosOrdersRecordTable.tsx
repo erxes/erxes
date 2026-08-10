@@ -1,11 +1,14 @@
 import { RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { checkPosOrdersColumns } from './CheckPosOrdersColumn';
 
 import { CHECK_POS_ORDERS_CURSOR_SESSION_KEY } from '../constants/checkPosOrdersCursorSessionKey';
 import { useCheckPosOrders } from '../hooks/useCheckPosOrders';
+import { CheckPosOrdersCommandBar } from './CheckPosOrdersCommandBar';
 
 export const CheckPosOrdersRecordTable = () => {
+  const { t } = useTranslation('mongolian');
   const { checkPosOrders, handleFetchMore, loading, pageInfo } =
     useCheckPosOrders();
 
@@ -13,10 +16,11 @@ export const CheckPosOrdersRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={checkPosOrdersColumns || []}
-      data={checkPosOrders || [{}]}
+      columns={checkPosOrdersColumns}
+      data={checkPosOrders || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'createdAt']}
+      stickyColumns={['checkbox', 'toSync', 'createdAt']}
+      tableId="mongolian_erkhet_check_pos_orders_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -25,7 +29,7 @@ export const CheckPosOrdersRecordTable = () => {
         sessionKey={CHECK_POS_ORDERS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
@@ -46,9 +50,11 @@ export const CheckPosOrdersRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No orders yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-orders-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first order.
+                    {t('create-first-order')}
                   </p>
                 </div>
               </div>
@@ -56,6 +62,7 @@ export const CheckPosOrdersRecordTable = () => {
           </div>
         )}
       </RecordTable.CursorProvider>
+      <CheckPosOrdersCommandBar />
     </RecordTable.Provider>
   );
 };

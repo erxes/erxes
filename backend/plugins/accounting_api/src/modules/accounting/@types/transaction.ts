@@ -23,6 +23,8 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
+
+  fixedAssetId?: string;
 }
 
 export interface ITransaction {
@@ -31,9 +33,12 @@ export interface ITransaction {
   fullDate?: Date;
   description?: string;
   status?: string;
+  mentionOwnerId?: string;
+  mentionUserIds?: string[];
   ptrId?: string;
   parentId?: string;
   number?: string;
+  ptrNumber?: string;
   journal: string;
   ptrStatus?: string;
 
@@ -98,6 +103,18 @@ export interface ITransactionDocument extends ITransaction, Document {
   permission?: string;
 }
 
+export interface ITransactionCounter {
+  _id: string;
+  seq: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ITransactionCounterDocument
+  extends ITransactionCounter, Document {
+  _id: string;
+}
+
 export interface ITrRecord extends Omit<ITransaction, 'details'> {
   details: ITrDetail;
   trId: string;
@@ -108,6 +125,9 @@ export interface IHiddenTransaction extends Document {
   parentId: string;
   ptrId: string;
   ptrStatus: string;
+  journal?: string;
+  number?: string;
+  ptrNumber?: string;
   originId?: string;
   originType?: string;
   originSubId?: string;

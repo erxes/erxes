@@ -3,7 +3,11 @@ import { createContext, useContext, useEffect, useMemo } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { segmentFormSchema } from 'ui-modules/modules/segments/states/segmentFormSchema';
-import { ISegment, TSegmentForm } from 'ui-modules/modules/segments/types';
+import {
+  ISegment,
+  SegmentFormMode,
+  TSegmentForm,
+} from 'ui-modules/modules/segments/types';
 import { getSegmentFormDefaultValues } from 'ui-modules/modules/segments/utils/segmentFormUtils';
 
 interface SegmentFormContextType {
@@ -11,6 +15,7 @@ interface SegmentFormContextType {
   form: UseFormReturn<TSegmentForm>;
   segment?: ISegment;
   hasMetadataForm?: boolean;
+  mode: SegmentFormMode;
 }
 
 const SegmentFormContext = createContext<SegmentFormContextType | null>(null);
@@ -20,14 +25,16 @@ export const SegmentProvider = ({
   contentType,
   segment,
   hasMetadataForm = false,
+  mode = SegmentFormMode.DEFAULT,
 }: {
   children: React.ReactNode;
   contentType: string;
   segment?: ISegment;
   hasMetadataForm?: boolean;
+  mode?: SegmentFormMode.DEFAULT | SegmentFormMode.SINGLE;
 }) => {
   const defaultValues = contentType
-    ? getSegmentFormDefaultValues(contentType, segment || {})
+    ? getSegmentFormDefaultValues(contentType, segment || {}, mode)
     : undefined;
 
   const validationSchema = useMemo(() => {
@@ -46,11 +53,15 @@ export const SegmentProvider = ({
 
   useEffect(() => {
     if (contentType) {
-      const newValues = getSegmentFormDefaultValues(contentType, segment || {});
+      const newValues = getSegmentFormDefaultValues(
+        contentType,
+        segment || {},
+        mode,
+      );
       form.reset(newValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentType, segment?._id]);
+  }, [contentType, segment?._id, mode]);
 
   return (
     <SegmentFormContext.Provider
@@ -59,6 +70,7 @@ export const SegmentProvider = ({
         contentType,
         segment,
         hasMetadataForm,
+        mode,
       }}
     >
       {children}

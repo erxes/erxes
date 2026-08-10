@@ -95,6 +95,7 @@ export const cursorPaginate = async <T extends Document>({
   model,
   params,
   query,
+  formatter,
 }: CursorPaginateParams<T>): Promise<CursorResult<T>> => {
   const { limit = 20, cursor, direction = 'forward', orderBy = {} } = params;
 
@@ -102,12 +103,14 @@ export const cursorPaginate = async <T extends Document>({
     throw new Error('Limit must be between 1 and 100');
   }
 
-  const baseQuery = { ...query };
-
-  if (cursor) {
-    const cursorQuery = buildCursorQuery(cursor, orderBy, direction);
-    Object.assign(baseQuery, cursorQuery);
-  }
+  const baseQuery: FilterQuery<T> = cursor
+    ? {
+        $and: [
+          query || {},
+          buildCursorQuery(cursor, orderBy, direction, formatter),
+        ],
+      }
+    : { ...(query || {}) };
 
   const sortFields = Object.keys(orderBy);
   const sortOrder: Record<string, 1 | -1> = {};

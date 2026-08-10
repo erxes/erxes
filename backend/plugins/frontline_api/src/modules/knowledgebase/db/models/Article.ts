@@ -47,7 +47,9 @@ export const loadArticleClass = (models: IModels) => {
 
       // Auto-generate code if not provided
       if (!docFields.code) {
-        docFields.code = `ART-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        docFields.code = `ART-${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
       }
 
       // Ensure content is not empty (only if content is being updated)
@@ -122,7 +124,11 @@ export const loadArticleClass = (models: IModels) => {
         doc.publishedAt = undefined;
       }
 
-      return await models.Article.findOneAndUpdate({ _id }, { $set: doc });
+      return await models.Article.findOneAndUpdate(
+        { _id },
+        { $set: doc },
+        { new: true, runValidators: true },
+      );
     }
 
     public static async removeDoc(_id: string) {

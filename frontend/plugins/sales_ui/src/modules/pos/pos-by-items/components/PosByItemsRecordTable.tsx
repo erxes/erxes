@@ -2,19 +2,24 @@ import { RecordTable, Spinner } from 'erxes-ui';
 import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
 import { IconShoppingCartX } from '@tabler/icons-react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const PosByItemsRecordTable = () => {
+  const { t } = useTranslation('sales');
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
     usePosByItemsList();
+  const columns = useMemo(() => PosByItemsColumns(t), [t]);
 
   if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={PosByItemsColumns}
+      columns={columns}
       data={posByItemsList}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'code', 'name']}
+      tableId="pos_by_items_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo?.hasPreviousPage}
@@ -23,7 +28,7 @@ export const PosByItemsRecordTable = () => {
         sessionKey="pos_by_items_cursor"
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
@@ -41,10 +46,10 @@ export const PosByItemsRecordTable = () => {
                 <IconShoppingCartX size={48} className="text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900">
-                No pos by items yet
+                {t('no-pos-by-items-yet')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Get started by creating your first pos by items.
+                {t('create-first-pos-by-items')}
               </p>
             </div>
           </div>

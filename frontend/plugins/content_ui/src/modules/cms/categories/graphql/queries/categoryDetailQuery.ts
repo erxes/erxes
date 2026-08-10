@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const CMS_CATEGORY_DETAIL = gql`
-  query CmsCategoryDetail($_id: String!) {
-    cmsCategoryDetail(_id: $_id) {
+  query CmsCategoryDetail($_id: String!, $clientPortalId: String) {
+    cmsCategory(_id: $_id, clientPortalId: $clientPortalId) {
       _id
       clientPortalId
       createdAt
@@ -11,6 +11,11 @@ export const CMS_CATEGORY_DETAIL = gql`
       slug
       status
       customFieldsData
+      translations {
+        language
+        title
+        content
+      }
       parent {
         _id
         clientPortalId

@@ -84,13 +84,23 @@ export const getAiAgentHealth = async (
     }
   }
 
-  const providerHealth = await checkAiProviderHealth(agent);
+  try {
+    const providerHealth = await checkAiProviderHealth(agent, subdomain);
 
-  health.checks.credentials = providerHealth.checks.credentials;
-  health.checks.endpoint = providerHealth.checks.endpoint;
-  health.checks.model = providerHealth.checks.model;
-  health.errors.push(...providerHealth.errors);
-  health.warnings.push(...providerHealth.warnings);
+    health.checks.credentials = providerHealth.checks.credentials;
+    health.checks.endpoint = providerHealth.checks.endpoint;
+    health.checks.model = providerHealth.checks.model;
+    health.errors.push(...providerHealth.errors);
+    health.warnings.push(...providerHealth.warnings);
+  } catch (error) {
+    health.checks.credentials = 'error';
+    health.checks.endpoint = 'error';
+    health.errors.push(
+      `Failed to resolve AI provider configuration: ${
+        (error as Error).message
+      }`,
+    );
+  }
 
   health.ready = health.errors.length === 0;
 

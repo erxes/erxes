@@ -1,24 +1,31 @@
-import { splitType } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getEnv, sendWorkerMessage } from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
+import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice } from '~/modules/payment/@types/invoices';
+import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
+import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
+import {
+  enqueuePaidInvoiceCallback,
+  resolvePaymentForInvoice,
+  sendPaidInvoiceQrEmail,
+} from '~/modules/payment/services/paidInvoiceCallback';
 
-const mutations: Record<string, Resolver> = {
+const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
     _root,
     { input }: { input: IInvoice },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const domain = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
 
-    const invoice = await models.Invoices.createInvoice({
-      ...input,
-    });
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async invoiceCreate(
@@ -33,6 +40,23 @@ const mutations: Record<string, Resolver> = {
       subdomain,
     );
     return invoice;
+  },
+
+  async cpGenerateInvoiceUrl(
+    _root,
+    { input }: { input: IInvoice },
+    { models, subdomain }: IContext,
+  ) {
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
+
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
+
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async cpInvoiceCreate(
@@ -59,39 +83,15 @@ const mutations: Record<string, Resolver> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+      const payment = await resolvePaymentForInvoice(models, invoice);
 
-        // Fire worker message – do not await
-        sendWorkerMessage({
-          subdomain,
-          pluginName,
-          queueName: 'payments',
-          jobName: 'callback',
-          data: {
-            ...invoice,
-            status: 'paid',
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-          defaultValue: null,
-          timeout: 30000, // keep increased timeout
-          options: {
-            //  added this to enable retries
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 2000 },
-          },
-        })
-          .then(() => {})
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
-            );
-          });
-      }
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        models,
+        invoice,
+        payment,
+        'invoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -137,39 +137,15 @@ const mutations: Record<string, Resolver> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
+      const payment = await resolvePaymentForInvoice(models, invoice);
 
-        // Fire worker message – do not await
-        sendWorkerMessage({
-          subdomain,
-          pluginName: 'payment',
-          queueName: 'payments',
-          jobName: 'paymentCallback',
-          data: {
-            ...invoice,
-            status: 'paid',
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-          defaultValue: null,
-          timeout: 30000, // keep increased timeout
-          options: {
-            //  added this to enable retries
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 2000 },
-          },
-        })
-          .then(() => {})
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
-            );
-          });
-      }
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        models,
+        invoice,
+        payment,
+        'cpInvoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -204,6 +180,24 @@ const mutations: Record<string, Resolver> = {
     return status;
   },
 
+  async invoiceScanBarcode(
+    _root,
+    { code }: { code: string },
+    { models }: IContext,
+  ) {
+    const scanned = await models.Invoices.scanBarcode(code);
+
+    graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
+      invoiceUpdated: scanned,
+    });
+
+    graphqlPubsub.publish('invoiceScanned', {
+      invoiceScanned: scanned,
+    });
+
+    return scanned;
+  },
+
   async invoicesRemove(
     _root,
     { _ids }: { _ids: string[] },
@@ -219,13 +213,112 @@ const mutations: Record<string, Resolver> = {
   ) {
     const DOMAIN = getEnv({ name: 'DOMAIN' })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : 'http://localhost:5173';
+      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
+
     const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     return models.Invoices.updateInvoice(_id, {
       selectedPaymentId: paymentId,
       domain,
     });
+  },
+
+  async invoiceEdit(
+    _root,
+    { _id, input }: { _id: string; input: IInvoiceEditInput },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('paymentInvoiceEdit');
+
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    const doc: IInvoiceEditInput & { resolvedAt?: Date } = {};
+
+    if (input.description !== undefined) {
+      doc.description = input.description;
+    }
+
+    if (input.amount !== undefined) {
+      if (!(input.amount > 0)) {
+        throw new Error('Amount must be greater than 0');
+      }
+
+      doc.amount = input.amount;
+    }
+
+    if (input.currency !== undefined) {
+      if (!CURRENCIES.includes(input.currency)) {
+        throw new Error(`Unsupported currency: ${input.currency}`);
+      }
+
+      doc.currency = input.currency;
+    }
+
+    if (input.status !== undefined) {
+      if (!PAYMENT_STATUS.ALL.includes(input.status)) {
+        throw new Error(`Unsupported status: ${input.status}`);
+      }
+
+      doc.status = input.status;
+
+      if (input.status === PAYMENT_STATUS.PAID && !invoice.resolvedAt) {
+        doc.resolvedAt = new Date();
+      }
+    }
+
+    if (Object.keys(doc).length === 0) {
+      throw new Error('Nothing to update');
+    }
+
+    const updated = await models.Invoices.updateInvoice(_id, doc);
+
+    if (doc.status && doc.status !== invoice.status) {
+      graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
+        invoiceUpdated: {
+          _id,
+          status: updated.status,
+        },
+      });
+
+      if (doc.status === PAYMENT_STATUS.PAID) {
+        const paidInvoice = await models.Invoices.getInvoice({ _id }, true);
+        const payment = await resolvePaymentForInvoice(models, paidInvoice);
+
+        sendPaidInvoiceQrEmail(
+          subdomain,
+          models,
+          paidInvoice,
+          payment,
+          'invoiceEdit',
+        );
+      }
+    }
+
+    return updated;
+  },
+
+  async cpInvoiceUpdate(
+    _root,
+    {
+      _id,
+      contentType,
+      contentTypeId,
+    }: { _id: string; contentType: string; contentTypeId: string },
+    { models }: IContext,
+  ) {
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    if (invoice.contentType && invoice.contentTypeId) {
+      throw new Error('Content type and ID already set for this invoice');
+    }
+
+    return models.Invoices.updateOne(
+      { _id },
+      {
+        contentType: contentType || invoice.contentType,
+        contentTypeId: contentTypeId || invoice.contentTypeId,
+      },
+    );
   },
 };
 
@@ -243,9 +336,20 @@ mutations.invoicesCheck.wrapperConfig = {
 
 mutations.cpInvoiceCreate.wrapperConfig = {
   skipPermission: true,
-  forClientPortal: true,
+};
+
+mutations.invoiceScanBarcode.wrapperConfig = {
+  skipPermission: true,
 };
 
 mutations.cpInvoicesCheck.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpGenerateInvoiceUrl.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpInvoiceUpdate.wrapperConfig = {
   forClientPortal: true,
 };

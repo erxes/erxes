@@ -31,13 +31,14 @@ export const responseTemplateQueries = {
 
     { models }: IContext,
   ) {
-    const filterQuery: any = {
-      channelId: { $exists: true, $ne: null },
-    };
+    const filterQuery = generateFilter(filter);
+
+    filterQuery.channelId = { $exists: true, $ne: null };
 
     if (filter.channelId) {
       filterQuery.channelId = filter.channelId;
     }
+
     return await cursorPaginate<IResponseTemplateDocument>({
       model: models.ResponseTemplates,
       params: {

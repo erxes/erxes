@@ -67,6 +67,9 @@ export const TicketsBoard = () => {
       return;
     }
     const activeItem = allTicketsMap[active.id as string];
+    if (!activeItem) {
+      return;
+    }
     const overItem = allTicketsMap[over.id as string];
     const overColumn =
       overItem?.statusId ||
@@ -115,6 +118,8 @@ export const TicketsBoard = () => {
           <TicketsBoardCards
             column={column}
             canCreateTicket={permissions.canCreateTicket}
+            pipelineId={pipelineId || undefined}
+            channelId={channelId || undefined}
           />
         </Board>
       )}
@@ -125,22 +130,21 @@ export const TicketsBoard = () => {
 export const TicketsBoardCards = ({
   column,
   canCreateTicket,
+  pipelineId,
+  channelId,
 }: {
   column: BoardColumnProps;
   canCreateTicket: boolean;
+  pipelineId?: string;
+  channelId?: string;
 }) => {
   const [ticketCards, setTicketCards] = useAtom(fetchedTicketsState);
   const [ticketCountByBoard, setTicketCountByBoard] = useAtom(
     ticketCountByBoardAtom,
   );
-  const boardCards = ticketCards
-    .filter((ticket) => ticket.column === column.id)
-    .sort((a, b) => {
-      if (a.sort && b.sort) {
-        return b.sort.toString().localeCompare(a.sort.toString());
-      }
-      return 0;
-    });
+  const boardCards = ticketCards.filter(
+    (ticket) => ticket.column === column.id,
+  );
   const { tickets, totalCount, loading, handleFetchMore } = useTickets({
     variables: {
       statusId: column.id,
@@ -151,7 +155,9 @@ export const TicketsBoardCards = ({
     if (tickets) {
       setTicketCards((prev) => {
         const previoustickets = prev.filter(
-          (ticket) => !tickets.some((t) => t._id === ticket.id),
+          (ticket) =>
+            ticket.column !== column.id &&
+            !tickets.some((t) => t._id === ticket.id),
         );
         return [
           ...previoustickets,
@@ -198,7 +204,13 @@ export const TicketsBoardCards = ({
             )}
           </span>
         </h4>
-        {canCreateTicket && <TicketCreateSheetTrigger statusId={column.id} />}
+        {canCreateTicket && (
+          <TicketCreateSheetTrigger
+            statusId={column.id}
+            pipelineId={pipelineId}
+            channelId={channelId}
+          />
+        )}
       </Board.Header>
       <Board.Cards id={column.id} items={boardCards.map((ticket) => ticket.id)}>
         {loading ? (
@@ -254,12 +266,20 @@ export const TicketCardsFetchMore = ({
   );
 };
 
-const TicketCreateSheetTrigger = ({ statusId }: { statusId: string }) => {
+const TicketCreateSheetTrigger = ({
+  statusId,
+  pipelineId,
+  channelId,
+}: {
+  statusId: string;
+  pipelineId?: string;
+  channelId?: string;
+}) => {
   const setOpenCreateticket = useSetAtom(ticketCreateSheetState);
   const setDefaultValues = useSetAtom(ticketCreateDefaultValuesState);
 
   const handleClick = () => {
-    setDefaultValues({ statusId });
+    setDefaultValues({ statusId, pipelineId, channelId });
     setOpenCreateticket(true);
   };
 

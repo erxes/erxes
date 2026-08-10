@@ -28,7 +28,6 @@ export const erxesMessengerSetSetupAtom = atom(
   null,
   (_, set, payload: MessengerSetupPayload) => {
     try {
-      // Set appearance
       const appearance = {
         primary: {
           DEFAULT:
@@ -38,6 +37,11 @@ export const erxesMessengerSetSetupAtom = atom(
             DEFAULT_COLORS.FOREGROUND,
         },
         logo: payload?.uiOptions?.logo,
+        launcherLogo: payload?.uiOptions?.launcherLogo,
+        backgroundColor:
+          payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+        heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
+        navigationVariant: payload?.uiOptions?.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
@@ -50,7 +54,8 @@ export const erxesMessengerSetSetupAtom = atom(
         name: payload?.name || '',
         channelId,
         brandId: payload?.brandId,
-        ticketConfigId: payload?.ticketConfigId,
+        ticketConfigIds: payload?.ticketConfigIds,
+        knowledgeBaseTopicId: payload?.messengerData?.knowledgeBaseTopicId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
           persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
@@ -60,19 +65,29 @@ export const erxesMessengerSetSetupAtom = atom(
               text?: string;
               type?: string;
               link?: string;
+              contentType?: string;
             }) => ({
               text: menu.text ?? menu.name ?? '',
               type: (menu.type === 'link' ? 'link' : 'button') as
                 | 'button'
                 | 'link',
               link: menu.link ?? '',
+              contentType: menu.contentType ?? 'text',
             }),
           ),
           botCheck: payload?.messengerData?.botCheck,
+          botShowInitialMessage: payload?.messengerData?.botShowInitialMessage,
+          automationId: payload?.messengerData?.automationId,
         },
       };
 
       set(erxesMessengerSetupConfigAtom, config);
+
+      const messagesObj = payload?.messengerData?.messages;
+      const languageCode =
+        payload?.languageCode ||
+        (messagesObj ? Object.keys(messagesObj)[0] : undefined) ||
+        DEFAULT_LANGUAGE;
 
       // Set greeting with processed links
       const greetingLinks = processGreetingLinks(
@@ -82,47 +97,48 @@ export const erxesMessengerSetSetupAtom = atom(
 
       const greetings = {
         supporterIds: payload?.messengerData?.supporterIds,
-        title:
-          payload?.messengerData?.messages?.[
-            payload?.languageCode || DEFAULT_LANGUAGE
-          ]?.greetings?.title || '',
-        message:
-          payload?.messengerData?.messages?.[
-            payload?.languageCode || DEFAULT_LANGUAGE
-          ]?.greetings?.message || '',
+        title: messagesObj?.[languageCode]?.greetings?.title || '',
+        message: messagesObj?.[languageCode]?.greetings?.message || '',
         links: greetingLinks,
       };
 
       set(erxesMessengerSetupGreetingAtom, greetings);
 
-      // Set hours with improved processing
       const defaultHours = createDefaultOnlineHours();
       const processedHours = processOnlineHours(
         payload?.messengerData?.onlineHours,
       );
 
+      const rawResponseRate = payload?.messengerData?.responseRate
+        ?.replace('few ', '')
+        ?.toLowerCase();
+      const responseRate = (
+        Object.values(EnumResponseRate) as string[]
+      ).includes(rawResponseRate ?? '')
+        ? (rawResponseRate as EnumResponseRate)
+        : EnumResponseRate.MINUTES;
+
       const hours = {
-        availabilityMethod:
-          payload?.messengerData?.availabilityMethod || 'manual',
-        responseRate: payload?.messengerData?.responseRate?.replace(
-          'few ',
-          '',
-        ) as EnumResponseRate,
-        isOnline: payload?.messengerData?.isOnline,
+        availabilityMethod: (payload?.messengerData?.availabilityMethod ===
+        'auto'
+          ? 'auto'
+          : 'manual') as 'auto' | 'manual',
+        responseRate,
+        isOnline: payload?.messengerData?.isOnline ?? false,
         onlineHours: {
           ...defaultHours,
           ...processedHours,
         },
-        timezone: payload?.messengerData?.timezone,
-        displayOperatorTimezone: payload?.messengerData?.showTimezone,
+        timezone: payload?.messengerData?.timezone ?? undefined,
+        displayOperatorTimezone: payload?.messengerData?.showTimezone ?? false,
         hideMessengerDuringOfflineHours:
-          payload?.messengerData?.hideWhenOffline,
+          payload?.messengerData?.hideWhenOffline ?? false,
       };
 
       set(erxesMessengerSetupHoursAtom, hours);
 
       const settings = {
-        languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
+        languageCode,
         requireAuth: payload?.messengerData?.requireAuth ?? false,
         showChat: payload?.messengerData?.showChat ?? true,
         showLauncher: payload?.messengerData?.showLauncher ?? true,
@@ -131,15 +147,22 @@ export const erxesMessengerSetSetupAtom = atom(
         notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
         showVideoCallRequest:
           payload?.messengerData?.showVideoCallRequest ?? false,
+        websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
+          _id: app._id,
+          kind: app.kind ?? 'webstite',
+          showInInbox: app.showInInbox ?? false,
+          credentials: {
+            integrationId: app.credentials?.integrationId ?? '',
+            description: app.credentials?.description,
+            buttonText: app.credentials?.buttonText,
+            url: app.credentials?.url ?? '',
+          },
+          scopeBrandIds: [],
+        })),
       };
-      // Set settings
       set(erxesMessengerSetupSettingsAtom, settings);
 
-      // Set intro messages
-      const messages =
-        payload?.messengerData?.messages?.[
-          payload?.languageCode || DEFAULT_LANGUAGE
-        ];
+      const messages = messagesObj?.[languageCode];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',
@@ -150,7 +173,6 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupStepAtom, 1);
     } catch (error) {
       console.error('Error setting up messenger configuration:', error);
-      // Optionally, you could throw the error or set an error state
     }
   },
 );

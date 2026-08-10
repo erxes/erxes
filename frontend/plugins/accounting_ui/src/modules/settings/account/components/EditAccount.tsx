@@ -1,25 +1,15 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
+import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
 import { AccountForm } from './AccountForm';
-import { AccountingDialog } from '@/layout/components/Dialog';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { TAccountForm } from '../types/accountForm';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { accountSchema } from '../constants/accountSchema';
 import { useAccountDetail } from '../hooks/useAccountDetail';
-import { useEffect } from 'react';
 import { useAccountEdit } from '../hooks/useAccountEdit';
-import { ACCOUNT_DEFAULT_VALUES } from '../constants/accountDefaultValues';
-
-export const EditAccount = () => {
-  const [open, setOpen] = useQueryState<string>('accountId');
-  return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Данс засах" description="Данс засах">
-        <EditAccountForm />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EditAccountForm = () => {
   const { accountDetail, closeDetail, loading } = useAccountDetail();
@@ -76,5 +66,21 @@ export const EditAccountForm = () => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditAccount = () => {
+  const [open, setOpen] = useQueryState<string>('accountId');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="Данс засах">
+        <EditAccountForm />
+      </AccountingSheet>
+    </Sheet>
   );
 };

@@ -1,11 +1,12 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Checkbox, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { addStageInErkhetConfigSchema } from '../constants/addStageInErkhetConfigSchema';
-import { CHOOSE_RESPONSE_FIELD_DATA } from '../constants/chooseResponseFieldData';
+import { DEFAULT_PAY_DATA } from '../constants/defaultPayData';
 import { PaymentFields } from './PaymentFields';
 import { SelectAnotherRulesOfProductsOnCityTax } from './selects/SelectAnotherRulesOfProductsOnCityTax';
 import { useGetSalesPipelinePaymentTypes } from '../hooks/useGetSalesPipelinePaymentTypes';
@@ -17,17 +18,12 @@ const defaultValues: TErkhetConfig = {
   pipelineId: '',
   stageId: '',
   userEmail: '',
-  chooseResponseField: '',
+  responseField: '',
   hasVat: false,
-  hasCityTax: false,
-  anotherRulesOfProductsOnCitytax: '',
-  anotherRulesOfProductsOnVat: '',
-  defaultPay: '',
-  нэхэмжлэх: '',
-  хаанБанкданс: '',
-  голомтБанкданс: '',
-  barter: '',
-  paymentTypes: {},
+  hasCitytax: false,
+  reverseCtaxRules: [],
+  reverseVatRules: [],
+  defaultPay: 'debtAmount',
 };
 
 interface Props {
@@ -36,6 +32,7 @@ interface Props {
 }
 
 export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
+  const { t } = useTranslation('mongolian');
   const [open, setOpen] = useState(false);
 
   const form = useForm<TErkhetConfig>({
@@ -46,13 +43,30 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
   const hasVat = form.watch('hasVat');
-  const hasCityTax = form.watch('hasCityTax');
-  const paymentTypesValue = form.watch('paymentTypes') || {};
+  const hasCitytax = form.watch('hasCitytax');
 
   const { paymentTypes } = useGetSalesPipelinePaymentTypes(selectedPipelineId);
 
+  const normalizeRuleIds = (value?: string | string[]) => {
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value)
+      ? value.filter(Boolean)
+      : [value].filter(Boolean);
+  };
+
   const handleSubmit = async (data: TErkhetConfig) => {
-    await onSubmit(data);
+    await onSubmit({
+      ...data,
+      reverseVatRules: data.hasVat
+        ? normalizeRuleIds(data.reverseVatRules)
+        : [],
+      reverseCtaxRules: data.hasCitytax
+        ? []
+        : normalizeRuleIds(data.reverseCtaxRules),
+    });
     setOpen(false);
     form.reset();
   };
@@ -62,12 +76,12 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          New Config
+          {t('new-config')}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="sm:max-w-5xl">
         <Sheet.Header>
-          <Sheet.Title>New Stage In Erkhet Config</Sheet.Title>
+          <Sheet.Title>{t('new-stage-in-erkhet-config')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -84,9 +98,9 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     control={form.control}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Title</Form.Label>
+                        <Form.Label>{t('title')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder="Title" />
+                          <Input {...field} placeholder={t('title')} />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -97,9 +111,9 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     control={form.control}
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>User Email</Form.Label>
+                        <Form.Label>{t('user-email')}</Form.Label>
                         <Form.Control>
-                          <Input {...field} placeholder="User Email" />
+                          <Input {...field} placeholder={t('user-email')} />
                         </Form.Control>
                         <Form.Message />
                       </Form.Item>
@@ -115,7 +129,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       name="boardId"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Board</Form.Label>
+                          <Form.Label>{t('board')}</Form.Label>
                           <SelectBoard
                             mode="single"
                             value={field.value}
@@ -124,7 +138,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                               form.setValue('pipelineId', '');
                               form.setValue('stageId', '');
                             }}
-                            placeholder="Select board"
+                            placeholder={t('select-board')}
                           />
                           <Form.Message />
                         </Form.Item>
@@ -135,7 +149,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       name="pipelineId"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Pipeline</Form.Label>
+                          <Form.Label>{t('pipeline')}</Form.Label>
                           <SelectPipeline
                             mode="single"
                             value={field.value}
@@ -144,7 +158,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                               form.setValue('stageId', '');
                             }}
                             boardId={selectedBoardId || undefined}
-                            placeholder="Select pipeline"
+                            placeholder={t('select-pipeline')}
                           />
                           <Form.Message />
                         </Form.Item>
@@ -155,13 +169,15 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       name="stageId"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Stage</Form.Label>
+                          <Form.Label>{t('stage')}</Form.Label>
                           <SelectStage
                             mode="single"
                             value={field.value}
-                            onValueChange={(value) => field.onChange(value as string)}
+                            onValueChange={(value) =>
+                              field.onChange(value as string)
+                            }
                             pipelineId={selectedPipelineId || undefined}
-                            placeholder="Select stage"
+                            placeholder={t('select-stage')}
                           />
                           <Form.Message />
                         </Form.Item>
@@ -169,20 +185,21 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     />
                     <Form.Field
                       control={form.control}
-                      name="chooseResponseField"
+                      name="responseField"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Choose Response Field</Form.Label>
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Form.Label>{t('choose-response-field')}</Form.Label>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <Select.Trigger className="w-full">
-                              <Select.Value placeholder="Choose Response Field" />
+                              <Select.Value placeholder={t('choose-response-field')} />
                             </Select.Trigger>
                             <Select.Content>
-                              {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                                <Select.Item key={type.value} value={type.value}>
-                                  {type.label}
-                                </Select.Item>
-                              ))}
+                              <Select.Item value="propertiesData.erkhetResponse">
+                                {t('erkhet-response')}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                           <Form.Message />
@@ -199,22 +216,31 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         render={({ field }) => (
                           <Form.Item className="flex items-center gap-2 space-y-0">
                             <Form.Control>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
                             </Form.Control>
-                            <Form.Label className="cursor-pointer font-medium">Has Vat</Form.Label>
+                            <Form.Label className="cursor-pointer font-medium">
+                              {t('has-vat')}
+                            </Form.Label>
                           </Form.Item>
                         )}
                       />
                       {hasVat && (
                         <Form.Field
                           control={form.control}
-                          name="anotherRulesOfProductsOnVat"
+                          name="reverseVatRules"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Another rules of products on vat</Form.Label>
-                              <Form.Control>
-                                <Input {...field} placeholder="Another rules of products on vat" />
-                              </Form.Control>
+                              <Form.Label>
+                                {t('another-rules-of-products-on-vat')}
+                              </Form.Label>
+                              <SelectAnotherRulesOfProductsOnCityTax
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                kind="vat"
+                              />
                               <Form.Message />
                             </Form.Item>
                           )}
@@ -224,26 +250,34 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     <div className="rounded-md border p-3 flex flex-col gap-3">
                       <Form.Field
                         control={form.control}
-                        name="hasCityTax"
+                        name="hasCitytax"
                         render={({ field }) => (
                           <Form.Item className="flex items-center gap-2 space-y-0">
                             <Form.Control>
-                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
                             </Form.Control>
-                            <Form.Label className="cursor-pointer font-medium">Has City Tax</Form.Label>
+                            <Form.Label className="cursor-pointer font-medium">
+                              {t('has-citytax')}
+                            </Form.Label>
                           </Form.Item>
                         )}
                       />
-                      {hasCityTax && (
+                      {!hasCitytax && (
                         <Form.Field
                           control={form.control}
-                          name="anotherRulesOfProductsOnCitytax"
+                          name="reverseCtaxRules"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>Another rules of products on city tax</Form.Label>
+                              <Form.Label>
+                                {t('another-rules-of-products-on-citytax')}
+                              </Form.Label>
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                kind="ctax"
                               />
                               <Form.Message />
                             </Form.Item>
@@ -261,23 +295,20 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     <div key={pt._id} className="flex flex-col gap-1">
                       <label className="text-sm font-medium">{pt.title}</label>
                       <Select
-                        value={paymentTypesValue[pt.type] || ''}
-                        onValueChange={(val) =>
-                          form.setValue('paymentTypes', {
-                            ...paymentTypesValue,
-                            [pt.type]: val,
-                          })
-                        }
+                        value={form.watch(pt.type) || ''}
+                        onValueChange={(val) => form.setValue(pt.type, val)}
                       >
                         <Select.Trigger className="w-full">
                           <Select.Value placeholder={`Select ${pt.title}`} />
                         </Select.Trigger>
                         <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((opt) => (
-                            <Select.Item key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </Select.Item>
-                          ))}
+                          {DEFAULT_PAY_DATA.filter((opt) => opt.value).map(
+                            (opt) => (
+                              <Select.Item key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </Select.Item>
+                            ),
+                          )}
                         </Select.Content>
                       </Select>
                     </div>
@@ -286,11 +317,15 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
               </div>
 
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? t('saving') : t('save')}
                 </Button>
               </div>
             </form>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input } from 'erxes-ui';
 import { useCreateVendor, useUpdateVendor } from '../hooks';
@@ -16,6 +17,7 @@ export const VendorForm = ({
   vendor,
   onSuccess,
 }: VendorFormProps) => {
+  const { t } = useTranslation('insurance');
   const { createVendor, loading: creating } = useCreateVendor();
   const { updateVendor, loading: updating } = useUpdateVendor();
 
@@ -61,18 +63,18 @@ export const VendorForm = ({
       <Dialog.Content className="max-w-md">
         <Dialog.Header>
           <Dialog.Title>
-            {vendor ? 'Edit Vendor' : 'Create New Vendor'}
+            {vendor ? t('edit-vendor') : t('create-new-vendor')}
           </Dialog.Title>
         </Dialog.Header>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Vendor Name *</Label>
+            <Label htmlFor="name">{t('vendor-name-required')}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., ABC Insurance Company"
+              placeholder={t('vendor-name-placeholder')}
               required
             />
           </div>
@@ -84,14 +86,14 @@ export const VendorForm = ({
               onClick={() => onOpenChange(false)}
               disabled={creating || updating}
             >
-              Cancel
+              {t('cancel')}
             </Button>
             <Button type="submit" disabled={creating || updating}>
               {creating || updating
-                ? 'Saving...'
+                ? t('saving')
                 : vendor
-                ? 'Update'
-                : 'Create'}
+                ? t('update')
+                : t('create')}
             </Button>
           </Dialog.Footer>
         </form>

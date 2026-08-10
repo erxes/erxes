@@ -1,3 +1,17 @@
+export type FieldValidatorType = 'PRESET' | 'CUSTOM' | 'NONE';
+export type FieldValidatorPresetKey =
+  | 'EMAIL'
+  | 'PHONE_INTL'
+  | 'POSTAL_CODE'
+  | 'ALPHANUMERIC';
+
+export interface IFieldValidator {
+  type: FieldValidatorType;
+  presetKey?: FieldValidatorPresetKey;
+  customRegex?: string;
+  errorMessage?: string;
+}
+
 export interface IFormStep {
   name: string;
   description: string;
@@ -25,6 +39,8 @@ export interface IFormField {
   type: string;
   logics?: IFormFieldLogic[];
   logicAction?: string;
+  allowSearch?: boolean;
+  validator?: IFieldValidator;
 }
 
 export interface IFormFieldLogic {
@@ -39,9 +55,17 @@ export interface IRule {
   value: string;
 }
 
+export interface ICallout {
+  title?: string | null;
+  body?: string | null;
+  buttonText?: string | null;
+  featuredImage?: string | null;
+  skip?: boolean | null;
+}
+
 export interface LeadData {
   adminEmails: string[];
-  thankImage?: string;
+  successImage?: string;
   thankTitle: string;
   thankContent: string;
   viewCount: number;
@@ -68,9 +92,18 @@ export interface IFormData {
   fields: IFormField[];
   visibility: string | null;
   leadData: LeadData;
+  callout: ICallout | null;
   languageCode: string | null;
   departmentIds: string[];
   tagIds: string[];
   channelId: string;
   integrationId: string | null;
 }
+
+export type IAttachment = {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  duration?: number;
+};

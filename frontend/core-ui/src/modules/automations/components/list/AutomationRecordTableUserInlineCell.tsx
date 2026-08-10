@@ -18,7 +18,7 @@ export const AutomationRecordTableUserInlineCell = ({
   const user = (cell.getValue() || {}) as IUser;
   const { details } = user;
   return (
-    <Link to={`/settings/team-member?user_id=${user._id}`}>
+    <Link to={`/settings/team/members?user_id=${user._id}`}>
       <RecordTableInlineCell>
         <Avatar className="h-6 w-6 rounded-full">
           <Avatar.Image

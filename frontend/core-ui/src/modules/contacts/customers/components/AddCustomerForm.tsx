@@ -1,100 +1,25 @@
-import { CustomerAddGeneralInformationFields } from '@/contacts/customers/components/CustomerAddGeneralInformationFields';
-import { CustomerAddSheetHeader } from '@/contacts/customers/components/CustomerAddSheet';
-import {
-  customerFormSchema,
-  CustomerFormType,
-} from '@/contacts/customers/constants/formSchema';
-import { useAddCustomer } from '@/contacts/customers/hooks/useAddCustomer';
-import { ContactsPath } from '@/types/paths/ContactsPath';
-import { ApolloError } from '@apollo/client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, ScrollArea, Sheet, useQueryState, useToast } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { recordTableCursorAtomFamily, useQueryState } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { AddCustomerForm as AddCustomerFormBase } from 'ui-modules';
+import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
 
 export function AddCustomerForm({
   onOpenChange,
 }: {
   onOpenChange?: (open: boolean) => void;
 }) {
-  const { pathname } = useLocation();
-
-  const { customersAdd } = useAddCustomer();
-  const form = useForm<CustomerFormType>({
-    resolver: zodResolver(customerFormSchema),
-    defaultValues: {
-      emailValidationStatus: '',
-    },
-  });
-  const { toast } = useToast();
+  const { isLead, sessionKey } = useIsCustomerLeadSessionKey();
+  const setCursor = useSetAtom(recordTableCursorAtomFamily(sessionKey));
   const [, setCustomerId] = useQueryState('contactId');
-  const { t } = useTranslation('contact');
-  const onSubmit = (data: CustomerFormType) => {
-    const state = pathname.includes(ContactsPath.Leads) ? 'lead' : 'customer';
-
-    customersAdd({
-      variables: {
-        ...data,
-        state,
-      },
-      onError: (e: ApolloError) => {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
-      onCompleted: (data) => {
-        form.reset();
-        onOpenChange?.(false);
-        setCustomerId(data?.customersAdd._id);
-        toast({
-          title: t('success'),
-          variant: 'success',
-          description: state === 'lead' ? t('lead.add.success-message') : t('customer.add.success-message'),
-        });
-      },
-    });
-  };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
-      >
-        <CustomerAddSheetHeader />
-        <Sheet.Content>
-          <AddCustomerFormTabs>
-            <CustomerAddGeneralInformationFields form={form} />
-          </AddCustomerFormTabs>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
-          <Button
-            type="button"
-            variant="ghost"
-            className="bg-background hover:bg-background/90"
-            onClick={() => onOpenChange?.(false)}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            type="submit"
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {t('save')}
-          </Button>
-        </Sheet.Footer>
-      </form>
-    </Form>
+    <AddCustomerFormBase
+      onOpenChange={(open: boolean) => onOpenChange?.(open)}
+      state={isLead ? 'lead' : 'customer'}
+      onSuccess={(id: string) => {
+        setCursor('');
+        setCustomerId(id);
+      }}
+    />
   );
 }
-
-const AddCustomerFormTabs = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ScrollArea className="flex-auto">
-      <div className="p-5">{children}</div>
-    </ScrollArea>
-  );
-};

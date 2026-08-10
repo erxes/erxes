@@ -150,6 +150,7 @@ const userEditParams = `
 const clientPortalCustomerEditParams = `
   firstName: String,
   lastName: String,
+  avatar: String,
   primaryEmail: String,
   emails: [String],
   primaryPhone: String,
@@ -204,12 +205,13 @@ const cpUsersEditParams = `
   companyName: String,
   companyRegistrationNumber: String,
   erxesCustomerId: String,
+  erxesCompanyId: String,
 `;
 
 export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
-  cpUsersRemove(_id: String!): CPUserRemoveResponse
+  cpUsersRemove(ids: [String!]!): [String]
   cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
   clientPortalUserEdit(${userEditParams}): CPUser
@@ -219,7 +221,7 @@ export const mutations = `
   clientPortalUserLoginWithCredentials(email: String, phone: String, password: String): JSON
   clientPortalLogout: String
   clientPortalUserForgotPassword(identifier: String!): String
-  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): String
+  clientPortalUserResetPassword(token: String, identifier: String, code: String, newPassword: String!): JSON
   clientPortalUserRequestOTP(identifier: String!): String
   clientPortalUserLoginWithOTP(identifier: String!, otp: String!): JSON
   clientPortalUserRegisterWithSocial(provider: SocialAuthProvider!, token: String!): CPUser
@@ -233,6 +235,11 @@ export const mutations = `
   clientPortalUserConfirmChangeEmail(code: String!): CPUser
   clientPortalUserRequestChangePhone(newPhone: String!): String
   clientPortalUserConfirmChangePhone(code: String!): CPUser
+  clientPortalUserDelete: CPUserRemoveResponse
+  clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): CPUser
+  clientPortalUserLoginWithToki(token: String!): JSON
+  checkTokiUserLegalAge(token: String!): Boolean
+
 `;
 
 export const queries = `

@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import type { IPricingOptionPrice, PassengerType } from '@/bms/@types/tour';
+import { buildCustomFieldsMap } from '@/bms/utils/customFields';
 
 export interface PricingOptionPriceSource {
   type?: string | null;
@@ -81,6 +82,47 @@ const item = {
       (touritem.categoryId ? [touritem.categoryId] : []);
 
     return models.BmsTourCategories.find({ _id: { $in: ids } });
+  },
+
+  async customTourType(touritem: any, _args, { models }: IContext) {
+    const customTourTypeId = touritem.customTourTypeId || 'tour';
+
+    if (customTourTypeId === 'tour') {
+      return {
+        _id: 'tour',
+        code: 'tour',
+        name: 'tour',
+        branchId: touritem.branchId,
+        label: 'Tour',
+        pluralLabel: 'Tours',
+        isActive: true,
+      };
+    }
+
+    return models.CustomTourTypes.findOne({
+      _id: customTourTypeId,
+      branchId: touritem.branchId,
+    });
+  },
+
+  async customFieldsMap(touritem: any, _args, { models, subdomain }: IContext) {
+    const tourType = touritem.customTourTypeId || 'tour';
+    const query: any = {
+      branchId: touritem.branchId,
+      $or: [
+        { customTourTypeIds: { $size: 0 } },
+        { customTourTypeIds: tourType },
+        { enabledTourIds: touritem._id },
+      ],
+    };
+
+    const fieldGroups = await models.CustomTourFieldGroups.find(query).lean();
+
+    return buildCustomFieldsMap(
+      subdomain,
+      fieldGroups,
+      touritem.customFieldsData,
+    );
   },
 
   async guides(touritem: any, _args, { models, subdomain }: IContext) {

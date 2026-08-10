@@ -1,7 +1,9 @@
 export interface IScore {
   _id: string;
   name: string;
+  title?: string;
   description?: string;
+  order?: number;
   startDate: string;
   endDate: string;
   status: string;

@@ -1,4 +1,5 @@
 import { RecordTable } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 import { couponColumns } from './CouponColumns';
 import { CouponCommandBar } from './coupon-command-bar/CouponCommandBar';
@@ -10,16 +11,18 @@ import { IconTicket } from '@tabler/icons-react';
 import { LoyaltyCouponAddSheet } from './CouponAddSheet';
 
 export const CouponRecordTable = () => {
+  const { t } = useTranslation('loyalty');
   const { coupons, handleFetchMore, loading, pageInfo } = useCoupons();
   const { editStatus } = useCouponStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={couponColumns(editStatus)}
+      columns={couponColumns(t, editStatus)}
       data={coupons || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}
+      tableId="loyalty_coupon_campaigns_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -49,9 +52,11 @@ export const CouponRecordTable = () => {
                     size={64}
                     className="text-muted-foreground mx-auto mb-4"
                   />
-                  <h3 className="text-xl font-semibold mb-2">No coupon yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('no-coupons-yet')}
+                  </h3>
                   <p className="text-muted-foreground max-w-md">
-                    Get started by creating your first coupon.
+                    {t('get-started-coupon')}
                   </p>
                 </div>
                 <LoyaltyCouponAddSheet />

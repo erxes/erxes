@@ -12,6 +12,7 @@ import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
 import { TokiAPI } from './toki/api';
+import { TDBAPI } from './tdb/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
@@ -22,6 +23,11 @@ class ErxesPayment {
   private readonly api: any;
 
   constructor(payment: IPaymentDocument, subdomain?: string) {
+    console.log('[ErxesPayment] constructor', {
+      paymentKind: payment.kind,
+      paymentName: payment.name,
+      paymentId: payment._id,
+    });
     this.payment = payment;
 
     const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -53,6 +59,7 @@ class ErxesPayment {
         this.api = new WechatPayAPI(payment.config, this.domain);
         break;
       case 'qpayQuickqr':
+        console.log('[ErxesPayment] Using QPayQuickQrAPI');
         this.api = new QPayQuickQrAPI(payment.config, this.domain);
         break;
       case 'pocket':
@@ -71,7 +78,11 @@ class ErxesPayment {
         this.api = new KhanbankAPI(payment.config, subdomain || '');
         break;
       case 'toki':
+        console.log('[ErxesPayment] Using TokiAPI');
         this.api = new TokiAPI(payment.config, this.domain);
+        break;
+      case 'tdb':
+        this.api = new TDBAPI(payment.config, this.domain);
         break;
       default:
         this.api = null;
@@ -104,14 +115,28 @@ class ErxesPayment {
       ? Math.max(transaction.amount - details.monpayCoupon, 0)
       : transaction.amount;
 
-    // clone transaction safely instead of mutating
     const invoicePayload = {
       ...transaction,
+      _id: transaction._id,
       amount: invoiceAmount,
     };
 
+    // 🔽 ADD THIS
+    console.log('[PAYMENT] About to call createInvoice', {
+      transactionId: transaction._id,
+      paymentKind: this.payment.kind,
+    });
+
     try {
-      return await this.api.createInvoice(invoicePayload, this.payment);
+      const response = await this.api.createInvoice(
+        invoicePayload,
+        this.payment,
+      );
+
+      // 🔽 ADD THIS
+      console.log('[PAYMENT] createInvoice returned', response);
+
+      return response;
     } catch (e: any) {
       return { error: extractErrorMessage(e) };
     }

@@ -23,13 +23,13 @@ const SOURCE_MODE_OPTIONS: Array<{
 }> = [
   {
     value: 'all',
-    label: 'All send message entries',
-    description: 'Trigger on any open thread entry point',
+    label: 'all-send-message-entries',
+    description: 'trigger-on-any-open-thread',
   },
   {
     value: 'specific',
-    label: 'Specific sources',
-    description: 'Match only selected ad or post source ids',
+    label: 'specific-sources',
+    description: 'match-only-selected-sources',
   },
 ];
 
@@ -41,13 +41,14 @@ export const OpenThreadTriggerEditor = ({
   onSourceIdsChange,
 }: Props) => {
   const { t } = useTranslation('automations');
+  const { t: tf } = useTranslation('frontline');
   const { selectedSourceId, handleSourceIdChange, isSpecificMode } =
     useOpenThreadTriggerEditor({ sourceIds, onSourceIdsChange });
 
   return (
     <div className="space-y-4 p-4">
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">Type</Label>
+        <Label className="text-sm font-semibold">{tf('type')}</Label>
         <Select
           value={sourceMode}
           onValueChange={(value) =>
@@ -60,7 +61,7 @@ export const OpenThreadTriggerEditor = ({
           <Select.Content>
             {SOURCE_MODE_OPTIONS.map(({ value, label }) => (
               <Select.Item key={value} value={value}>
-                {label}
+                {tf(label)}
               </Select.Item>
             ))}
           </Select.Content>
@@ -97,7 +98,7 @@ export const OpenThreadTriggerEditor = ({
 
       {isSpecificMode(sourceMode) ? (
         <div className={cn('space-y-2', { blur: !botId })}>
-          <Label className="text-sm font-semibold">Post</Label>
+          <Label className="text-sm font-semibold">{tf('post')}</Label>
           <FacebookPostSelector
             botId={botId}
             selectedPostId={selectedSourceId}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Button, ChartContainer, HoverCard, useQueryState } from 'erxes-ui';
 import { MembersInline } from 'ui-modules';
 
@@ -15,6 +16,7 @@ export const CycleProgressByMember = ({
   isCompleted: boolean;
   statistics: any;
 }) => {
+  const { t } = useTranslation('operation');
   const [assignee, setAssignee] = useQueryState<string | null>('assignee');
 
   const { cycleProgressByMember } = useGetCycleProgressByMember({
@@ -55,7 +57,7 @@ export const CycleProgressByMember = ({
               >
                 <MembersInline
                   memberIds={[item.assigneeId]}
-                  placeholder="No Assignee"
+                  placeholder={t('no-assignee')}
                 />
               </Button>
 
@@ -99,21 +101,21 @@ export const CycleProgressByMember = ({
             <div className="flex flex-col gap-1 text-muted-foreground">
               <p className="text-sm flex items-center gap-1">
                 <ProgressDot status="total" />
-                total:
+                {t('total')}
                 <span className="text-foreground ml-auto">
                   {item.totalScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="completed" />
-                completed:
+                {t('completed-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalCompletedScope}
                 </span>
               </p>
               <p className="text-sm flex items-center gap-1 ">
                 <ProgressDot status="started" />
-                started:
+                {t('started-label')}
                 <span className="text-foreground ml-auto">
                   {item.totalStartedScope}
                 </span>

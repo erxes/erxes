@@ -1,4 +1,5 @@
 import { IModels } from '~/connectionResolvers';
+import { extractPropertiesData } from '~/meta/import-export/utils';
 
 const toArray = (val: any) => {
   if (!val) return [];
@@ -43,18 +44,26 @@ const mapNamesToIdsStrict = async (
 const parseBool = (v: any) => {
   if (v === true || v === 1) return true;
   if (v === false || v === 0) return false;
-  const s = String(v ?? '').toLowerCase().trim();
+  const s = String(v ?? '')
+    .toLowerCase()
+    .trim();
   return ['true', '1', 'yes', 'y'].includes(s);
 };
 
 export async function prepareUserDoc(models: IModels, row: any) {
   const doc: any = {};
 
+  await extractPropertiesData(models, doc);
+
   if (row.username) doc.username = String(row.username).trim();
   if (row.email) doc.email = String(row.email).toLowerCase().trim();
   if (row.employeeId) doc.employeeId = String(row.employeeId).trim();
 
-  if (row.isActive !== undefined && row.isActive !== null && row.isActive !== '') {
+  if (
+    row.isActive !== undefined &&
+    row.isActive !== null &&
+    row.isActive !== ''
+  ) {
     doc.isActive = parseBool(row.isActive);
   }
 
@@ -88,22 +97,39 @@ export async function prepareUserDoc(models: IModels, row: any) {
 
   const brandNames = toArray(row.brands || row.Brands);
   if (brandNames.length) {
-    const { ids, missing } = await mapNamesToIdsStrict(models.Brands, 'name', brandNames, 'Brands');
+    const { ids, missing } = await mapNamesToIdsStrict(
+      models.Brands,
+      'name',
+      brandNames,
+      'Brands',
+    );
     if (missing.length) errors.push(`Brands not found: ${missing.join(', ')}`);
     else doc.brandIds = ids;
   }
 
   const departmentNames = toArray(row.departments || row.Departments);
   if (departmentNames.length) {
-    const { ids, missing } = await mapNamesToIdsStrict(models.Departments, 'title', departmentNames, 'Departments');
-    if (missing.length) errors.push(`Departments not found: ${missing.join(', ')}`);
+    const { ids, missing } = await mapNamesToIdsStrict(
+      models.Departments,
+      'title',
+      departmentNames,
+      'Departments',
+    );
+    if (missing.length)
+      errors.push(`Departments not found: ${missing.join(', ')}`);
     else doc.departmentIds = ids;
   }
 
   const branchNames = toArray(row.branches || row.Branches);
   if (branchNames.length) {
-    const { ids, missing } = await mapNamesToIdsStrict(models.Branches, 'title', branchNames, 'Branches');
-    if (missing.length) errors.push(`Branches not found: ${missing.join(', ')}`);
+    const { ids, missing } = await mapNamesToIdsStrict(
+      models.Branches,
+      'title',
+      branchNames,
+      'Branches',
+    );
+    if (missing.length)
+      errors.push(`Branches not found: ${missing.join(', ')}`);
     else doc.branchIds = ids;
   }
 

@@ -13,6 +13,10 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
+import {
+  facebookAppSelector,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -28,24 +32,114 @@ const buildSelector = async (conversationId: string, model: any) => {
   return query;
 };
 
+const COMMENT_PRIVATE_REPLY_SOURCE_TYPE = 'facebook_comment_private_reply';
+
+type TFacebookMessageSource = {
+  type?: string;
+  conversationId?: string;
+  messageId?: string;
+  targetConversationId?: string;
+  content?: string;
+};
+
+type TMessageWithToObject = Record<string, unknown> & {
+  toObject?: () => Record<string, unknown>;
+};
+
+const toPlainObject = (message: TMessageWithToObject) =>
+  message.toObject ? message.toObject() : message;
+
+const appendRelatedMessengerMessages = async (
+  models: IContext['models'],
+  conversationId: string,
+  messages: TMessageWithToObject[],
+) => {
+  const messageIds = messages
+    .map((message) => String(toPlainObject(message)._id || ''))
+    .filter(Boolean);
+
+  if (!messageIds.length) {
+    return messages.map(toPlainObject);
+  }
+
+  const relatedMessages = await models.FacebookConversationMessages.find({
+    'source.type': COMMENT_PRIVATE_REPLY_SOURCE_TYPE,
+    'source.conversationId': conversationId,
+    'source.messageId': { $in: messageIds },
+  }).lean();
+
+  const relatedBySourceMessageId = new Map<string, Record<string, unknown>>();
+
+  for (const relatedMessage of relatedMessages) {
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    if (source?.messageId) {
+      relatedBySourceMessageId.set(String(source.messageId), relatedMessage);
+    }
+  }
+
+  return messages.map((message) => {
+    const messageObject = toPlainObject(message);
+    const relatedMessage = relatedBySourceMessageId.get(
+      String(messageObject._id || ''),
+    );
+
+    if (!relatedMessage) {
+      return messageObject;
+    }
+
+    const source = relatedMessage.source as TFacebookMessageSource | undefined;
+
+    return {
+      ...messageObject,
+      relatedMessage: {
+        conversationId: source?.targetConversationId,
+        messageId: relatedMessage._id,
+        content: relatedMessage.content,
+      },
+    };
+  });
+};
+
 export const facebookQueries = {
-  async facebookGetConfigs(_root, _args, { models }: IContext) {
+  async facebookGetConfigs(
+    _root,
+    _args,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
     return await models.FacebookConfigs.find({});
   },
-  async facebookGetAccounts(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookAccounts.find({ kind });
+  async facebookGetAccounts(
+    _root,
+    { kind, integrationKind }: IKind & { integrationKind?: string },
+    { models }: IContext,
+  ) {
+    const app = await resolveFacebookApp(models, integrationKind);
+
+    return models.FacebookAccounts.find(
+      { kind, ...facebookAppSelector(app) },
+      { token: 0, tokenSecret: 0 },
+    );
   },
 
-  async facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
-    return models.FacebookIntegrations.find({ kind });
+  facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
+    return models.FacebookIntegrations.find(
+      { kind },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
-  async facebookGetIntegrationDetail(
+  facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext,
   ) {
-    return models.FacebookIntegrations.findOne({ erxesApiId });
+    return models.FacebookIntegrations.findOne(
+      { erxesApiId },
+      { facebookPageTokensMap: 0 },
+    );
   },
 
   async facebookGetComments(
@@ -263,10 +357,19 @@ export const facebookQueries = {
         const combinedResult = [...comment, ...search].sort((a, b) =>
           a.createdAt > b.createdAt ? 1 : -1,
         );
-        return combinedResult;
-      } else {
-        return comment;
+
+        return await appendRelatedMessengerMessages(
+          models,
+          conversationId,
+          combinedResult,
+        );
       }
+
+      return await appendRelatedMessengerMessages(
+        models,
+        conversationId,
+        comment,
+      );
     }
   },
   /**

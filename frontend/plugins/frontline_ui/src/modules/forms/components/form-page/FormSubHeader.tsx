@@ -9,6 +9,7 @@ import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
 
 export const FormSubHeader = () => {
   const { t } = useTranslation('common');
+  const { t: tf } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{
     channelId: string;
     tagId: string;
@@ -46,7 +47,7 @@ export const FormSubHeader = () => {
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem value="tagId" label="By Tag" />
+                  <SelectTags.FilterItem value="tagId" label={tf('by-tag')} />
                   <FormStatus.Item />
                   <SelectChannel.FilterItem />
                 </Command.List>
@@ -77,6 +78,7 @@ export const FormSubHeader = () => {
   );
 };
 export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
+  const { t: tf } = useTranslation('frontline');
   const [query, setQuery] = useQueryState<string | null>(queryKey);
   return (
     <Filter.BarItem queryKey={queryKey}>
@@ -88,7 +90,7 @@ export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
         filterKey={queryKey}
         tagType="frontline:form"
         variant="filter"
-        label="By Tag"
+        label={tf('by-tag')}
         initialValue={[query as string]}
         onValueChange={(value) => setQuery(value as string)}
       />

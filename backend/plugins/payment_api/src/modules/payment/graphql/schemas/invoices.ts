@@ -12,7 +12,7 @@ export const types = `
     amount: Float
     currency: String
     remainingAmount: Float
-    
+
     phone: String
     email: String
     description: String
@@ -26,9 +26,12 @@ export const types = `
 
     createdAt: Date
     resolvedAt: Date
+    scannedAt: Date
+    scannedCount: Int
+    ticketCount: Int
     redirectUri: String
     paymentIds: [String]
-    
+
     data: JSON
     warningText: String
 
@@ -59,17 +62,28 @@ export const inputs = `
     callback: String
     currency: String
   }
+
+  input InvoiceEditInput {
+    description: String
+    amount: Float
+    currency: String
+    status: String
+  }
 `;
 
 export const mutations = `
   generateInvoiceUrl(input: InvoiceInput!): String
   invoiceCreate(input: InvoiceInput!): Invoice
   invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
+  invoiceEdit(_id: String!, input: InvoiceEditInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
+  invoiceScanBarcode(code: String!): Invoice
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
   cpInvoicesCheck(_id:String!): String
+  cpInvoiceUpdate(_id: String!, contentType: String, contentTypeId: String): Invoice
+  cpGenerateInvoiceUrl(input: InvoiceInput!): String
 `;
 
 const cursorParams = `
@@ -82,7 +96,7 @@ const queryParams = `
   searchValue: String
   kind: String
   status: String
-  
+
   contentType: String
   contentTypeId: String
   ${cursorParams}
@@ -93,7 +107,6 @@ export const queries = `
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
-
   cpInvoices(${queryParams}): InvoicesListResponse
   cpInvoiceDetail(_id: String!): Invoice
 `;

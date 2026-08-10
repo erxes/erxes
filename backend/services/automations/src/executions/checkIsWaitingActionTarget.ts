@@ -1,6 +1,7 @@
 import { IModels } from '../connectionResolver';
 import { IAutomationWaitingActionDocument } from '../mongo/waitingActionsToExecute';
 import { isInSegment } from '../utils/isInSegment';
+import { getExecutionActionsMap } from '../utils/utils';
 import { EXECUTE_WAIT_TYPES } from 'erxes-api-shared/core-modules';
 
 function accessNestedObject(obj: any, keys: string[]) {
@@ -31,11 +32,26 @@ const handleCheckObjectCondition = async (
       ? accessNestedObject(target, propertyName.split('.'))
       : undefined;
 
-    const automation = await models.Automations.findOne({
-      _id: waitingAction.automationId,
-    });
+    const [automation, execution] = await Promise.all([
+      models.Automations.findOne({ _id: waitingAction.automationId }),
+      models.Executions.findOne({ _id: waitingAction.executionId }),
+    ]);
 
-    for (const action of automation?.actions || []) {
+    // Stale wait record: its automation/execution no longer exists. Drop it
+    // so it stops shadowing fresh waits on the same conversation.
+    if (!automation || (waitingAction.executionId && !execution)) {
+      await models.WaitingActions.deleteOne({ _id: waitingAction._id });
+      return null;
+    }
+
+    // The waiting action may live inside a workflow snapshot (child
+    // execution), so the connects must be looked up in the execution's own
+    // action scope, not just the root actions.
+    const actions = execution
+      ? Object.values(await getExecutionActionsMap(automation, execution))
+      : automation.actions || [];
+
+    for (const action of actions) {
       const connects = action.config?.optionalConnects || [];
 
       const optionalConnect = connects.find(
@@ -61,7 +77,9 @@ export const checkIsWaitingAction = async (
   targets: any[],
 ): Promise<IAutomationWaitingActionDocument | null> => {
   for (const target of targets) {
-    const waitingAction = await models.WaitingActions.findOne({
+    // Several waits can match (e.g. stale records on the same conversation):
+    // evaluate every candidate instead of trusting the first one
+    const waitingActions = await models.WaitingActions.find({
       $or: [
         {
           conditionType: EXECUTE_WAIT_TYPES.IS_IN_SEGMENT,
@@ -72,38 +90,47 @@ export const checkIsWaitingAction = async (
           'conditionConfig.contentType': { $regex: `^${type}\\..*` },
         },
       ],
-    });
+    })
+      .sort({ createdAt: -1 })
+      .limit(20);
 
-    if (!waitingAction) {
-      continue;
-    }
+    for (const waitingAction of waitingActions) {
+      const { conditionType } = waitingAction;
 
-    const { conditionType } = waitingAction;
+      if (conditionType === EXECUTE_WAIT_TYPES.CHECK_OBJECT) {
+        const matched = await handleCheckObjectCondition(
+          models,
+          waitingAction,
+          target,
+        );
 
-    if (conditionType === EXECUTE_WAIT_TYPES.CHECK_OBJECT) {
-      return await handleCheckObjectCondition(models, waitingAction, target);
-    }
-
-    if (conditionType === EXECUTE_WAIT_TYPES.IS_IN_SEGMENT) {
-      const { targetId, segmentId } = waitingAction.conditionConfig || {};
-      const execution = await models.Executions.findOne({
-        _id: waitingAction.executionId,
-      });
-      const lastExecutedAction =
-        execution?.actions?.[execution?.actions?.length - 1];
-      const lastActionTime = lastExecutedAction?.createdAt
-        ? new Date(lastExecutedAction.createdAt).getTime()
-        : 0;
-      const now = Date.now();
-      if (
-        lastExecutedAction?.result?.targetId === target?._id &&
-        now - lastActionTime < 2000
-      ) {
+        if (matched) {
+          return matched;
+        }
         continue;
       }
-      if (targetId === target._id) {
-        if (await isInSegment(subdomain, segmentId, targetId)) {
-          return waitingAction;
+
+      if (conditionType === EXECUTE_WAIT_TYPES.IS_IN_SEGMENT) {
+        const { targetId, segmentId } = waitingAction.conditionConfig || {};
+        const execution = await models.Executions.findOne({
+          _id: waitingAction.executionId,
+        });
+        const lastExecutedAction =
+          execution?.actions?.[execution?.actions?.length - 1];
+        const lastActionTime = lastExecutedAction?.createdAt
+          ? new Date(lastExecutedAction.createdAt).getTime()
+          : 0;
+        const now = Date.now();
+        if (
+          lastExecutedAction?.result?.targetId === target?._id &&
+          now - lastActionTime < 2000
+        ) {
+          continue;
+        }
+        if (targetId === target._id) {
+          if (await isInSegment(subdomain, segmentId, targetId)) {
+            return waitingAction;
+          }
         }
       }
     }

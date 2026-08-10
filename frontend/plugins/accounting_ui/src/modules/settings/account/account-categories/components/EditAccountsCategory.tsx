@@ -1,30 +1,21 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
-import { AccountingDialog } from '@/layout/components/Dialog';
-import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
+import { Sheet, Spinner, isDeeplyEqual, useQueryState } from 'erxes-ui';
+
+import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
+import { AccountCategoryForm } from './AccountCategoryForm';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 import { TAccountCategoryForm } from '../types/AccountCategory';
+import { accountCategorySchema } from '../constants/accountCategorySchema';
+import { useAccountCategoryDetail } from '../hooks/useAccountCategoryDetail';
+import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { accountCategorySchema } from '../constants/accountCategorySchema';
-import { ACCOUNT_CATEGORY_DEFAULT_VALUES } from '../constants/accountCategoryDefaultValues';
-import { useEffect } from 'react';
-import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
-import { AccountCategoryForm } from './AccountCategoryForm';
 
-export const EditAccountCategory = () => {
-  const [open, setOpen] = useQueryState<string>('accountCategoryId');
-  return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog
-        title="Дансны ангилал засах"
-        description="Дансны ангилал засах"
-      >
-        <EditAccountCategoryForm />
-      </AccountingDialog>
-    </Dialog>
-  );
-};
-
-export const EditAccountCategoryForm = () => {
+export const EditAccountCategoryForm = ({
+  onClose,
+}: {
+  onClose?: () => void;
+}) => {
   const { accountCategoryDetail, closeDetail, loading } =
     useAccountCategoryDetail();
   const { editAccountCategory, loading: editLoading } =
@@ -70,6 +61,7 @@ export const EditAccountCategoryForm = () => {
         form={form}
         handleSubmit={handleSubmit}
         loading={editLoading}
+        onClose={onClose || closeDetail}
       />
       {loading && (
         <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
@@ -77,5 +69,21 @@ export const EditAccountCategoryForm = () => {
         </div>
       )}
     </>
+  );
+};
+
+export const EditAccountCategory = () => {
+  const [open, setOpen] = useQueryState<string>('accountCategoryId');
+  return (
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <AccountingSheet title="Дансны ангилал засах">
+        <EditAccountCategoryForm onClose={() => setOpen(null)} />
+      </AccountingSheet>
+    </Sheet>
   );
 };

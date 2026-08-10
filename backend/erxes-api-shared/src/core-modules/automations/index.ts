@@ -4,5 +4,6 @@ export * from './constants';
 export * from './types';
 export * from './definitions';
 export * from './outputResolvers';
+export * from './workflowValidation';
 export * from './zodTypes';
 export * from './sendAutomationMessage';

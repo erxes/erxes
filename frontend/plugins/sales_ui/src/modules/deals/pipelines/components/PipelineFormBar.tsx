@@ -2,28 +2,25 @@ import {
   Button,
   Form,
   Sheet,
-  useConfirm,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useToast,
 } from 'erxes-ui';
 import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import { PipelineHotKeyScope, TPipelineForm } from '@/deals/types/pipelines';
+import { PipelineHotKeyScope } from '@/deals/types/pipelines';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  usePipelineAdd,
-  usePipelineDetail,
-  usePipelineEdit,
-} from '@/deals/boards/hooks/usePipelines';
+import { usePipelineDetail } from '@/deals/boards/hooks/usePipelines';
 
 import { PipelineForm } from './PipelineForm';
-import { SubmitHandler } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { usePipelineForm } from '@/deals/boards/hooks/usePipelineForm';
 import { useStages } from '@/deals/stage/hooks/useStages';
+import { usePipelineFormSubmit } from '@/deals/pipelines/hooks/usePipelineFormSubmit';
+import { usePipelineFormSync } from '@/deals/pipelines/hooks/usePipelineFormSync';
 
 export function PipelineFormBar() {
+  const { t } = useTranslation('sales');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,7 +30,7 @@ export function PipelineFormBar() {
 
   const {
     methods,
-    methods: { reset, handleSubmit },
+    methods: { reset },
   } = usePipelineForm();
 
   const { stages: initialStages, loading: stagesLoading } = useStages({
@@ -43,7 +40,6 @@ export function PipelineFormBar() {
     },
   });
 
-  const { toast } = useToast();
   const [open, setOpen] = useState<boolean>(false);
 
   const setHotkeyScope = useSetHotkeyScope();
@@ -51,34 +47,20 @@ export function PipelineFormBar() {
 
   const { pipelineDetail } = usePipelineDetail();
 
-  useEffect(() => {
-    if (initialStages?.length) {
-      const mappedStages = initialStages.map((stage) => ({
-        _id: stage._id || '',
-        code: stage.code || '',
-        name: stage.name || '',
-        type: stage.type || '',
-        visibility: stage.visibility || 'public',
-        status: stage.status || 'active',
-        age: stage.age || 0,
-        canMoveMemberIds: stage.canMoveMemberIds ?? [],
-        canEditMemberIds: stage.canEditMemberIds ?? [],
-        probability: stage.probability || '',
-      }));
+  usePipelineFormSync({
+    boardId,
+    initialStages,
+    methods,
+    pipelineDetail,
+    pipelineId,
+  });
 
-      methods.setValue('stages', mappedStages, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [initialStages, methods]);
-
-  const onOpen = () => {
+  const onOpen = useCallback(() => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PipelineHotKeyScope.PipelineAddSheet,
     );
-  };
+  }, [setHotkeyScopeAndMemorizePreviousScope]);
 
   const onClose = useCallback(() => {
     setHotkeyScope(PipelineHotKeyScope.PipelineSettingsPage);
@@ -93,49 +75,17 @@ export function PipelineFormBar() {
     });
   }, [location, navigate, reset, setHotkeyScope]);
 
-  const { addPipeline, loading: addLoading } = usePipelineAdd();
-  const { pipelineEdit, loading: editLoading } = usePipelineEdit();
-  const { confirm } = useConfirm();
-
-  const submitHandler: SubmitHandler<TPipelineForm> = useCallback(
-    async (data) => {
-      const managePipeline = pipelineId ? pipelineEdit : addPipeline;
-      const successTitle = pipelineId
-        ? 'Pipeline updated successfully'
-        : 'Pipeline added successfully';
-
-      const { paymentTypes, erxesAppToken, paymentIds, ...rest } = data;
-
-      const variables = {
-        ...(pipelineId && { _id: pipelineId }),
-        ...rest,
-        paymentTypes: paymentTypes || [],
-        erxesAppToken: erxesAppToken || '',
-        paymentIds: paymentIds || [],
-      };
-
-      confirm({
-        message: `Are you absolutely sure to continue?`,
-      }).then(() => {
-        managePipeline({
-          variables,
-          onCompleted: () => {
-            toast({ title: successTitle });
-            onClose();
-          },
-        });
-      });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addPipeline, pipelineEdit, pipelineId, toast, onClose],
-  );
+  const { handleFormSubmit, loading: submitLoading } = usePipelineFormSubmit({
+    methods,
+    onCompleted: onClose,
+    pipelineId,
+  });
 
   useEffect(() => {
     if (pipelineId) {
       onOpen();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, pipelineId]);
+  }, [location.search, onOpen, pipelineId]);
 
   useScopedHotkeys(
     `c`,
@@ -148,59 +98,7 @@ export function PipelineFormBar() {
     PipelineHotKeyScope.PipelineAddSheet,
   );
 
-  const title = pipelineId ? 'Edit Pipeline' : 'Add Pipeline';
-
-  useEffect(() => {
-    if (pipelineId && pipelineDetail) {
-      reset({
-        name: pipelineDetail?.name || '',
-        visibility: pipelineDetail?.visibility || 'public',
-        boardId: pipelineDetail?.boardId || boardId || '',
-        tagId: pipelineDetail?.tagId || '',
-        departmentIds: pipelineDetail?.departmentIds || [],
-        branchIds: pipelineDetail?.branchIds || [],
-        memberIds: pipelineDetail?.memberIds || [],
-        stages: methods.getValues('stages') || [],
-        numberConfig: pipelineDetail?.numberConfig || '',
-        numberSize: pipelineDetail?.numberSize || '',
-        nameConfig: pipelineDetail?.nameConfig || '',
-        isCheckDate: pipelineDetail?.isCheckDate || false,
-        isCheckUser: pipelineDetail?.isCheckUser || false,
-        isCheckDepartment: pipelineDetail?.isCheckDepartment || false,
-        initialCategoryIds: pipelineDetail?.initialCategoryIds || [],
-        excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
-        excludeProductIds: pipelineDetail?.excludeProductIds || [],
-        excludeCheckUserIds: pipelineDetail?.excludeCheckUserIds || [],
-        erxesAppToken: pipelineDetail?.erxesAppToken || '',
-        paymentIds: pipelineDetail?.paymentIds || [],
-        paymentTypes: pipelineDetail?.paymentTypes || [],
-      });
-    } else {
-      reset({
-        name: '',
-        visibility: 'public',
-        boardId: boardId || '',
-        tagId: '',
-        departmentIds: [],
-        branchIds: [],
-        memberIds: [],
-        stages: [],
-        numberConfig: '',
-        numberSize: '',
-        nameConfig: '',
-        isCheckDate: false,
-        isCheckUser: false,
-        isCheckDepartment: false,
-        initialCategoryIds: [],
-        excludeCategoryIds: [],
-        excludeProductIds: [],
-        excludeCheckUserIds: [],
-        erxesAppToken: '',
-        paymentIds: [],
-        paymentTypes: [],
-      });
-    }
-  }, [pipelineId, pipelineDetail, reset, boardId, methods]);
+  const title = pipelineId ? t('edit-pipeline') : t('add-pipeline');
 
   return (
     <div className="ml-auto flex items-center gap-3">
@@ -218,7 +116,7 @@ export function PipelineFormBar() {
         >
           <Form {...methods}>
             <form
-              onSubmit={handleSubmit(submitHandler)}
+              onSubmit={handleFormSubmit}
               className=" flex flex-col gap-0 w-full h-full"
             >
               <Sheet.Header>
@@ -233,10 +131,10 @@ export function PipelineFormBar() {
               </Sheet.Content>
               <Sheet.Footer>
                 <Button variant={'ghost'} onClick={onClose}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
-                <Button type="submit" disabled={addLoading || editLoading}>
-                  {pipelineId ? 'Update' : 'Create'}
+                <Button type="submit" disabled={submitLoading}>
+                  {pipelineId ? t('update') : t('create')}
                 </Button>
               </Sheet.Footer>
             </form>

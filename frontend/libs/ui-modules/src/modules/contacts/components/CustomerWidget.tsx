@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { CustomersInline } from './CustomersInline';
 import { SelectCustomersBulk } from './SelectCustomersBulk';
 import { useCustomerDetail } from '../hooks';
+import { IRelationWidgetProps } from 'ui-modules/modules/widget';
 
 const CustomerWidgetItem = ({
   customerId,
@@ -39,23 +40,23 @@ const CustomerWidgetItem = ({
     <CustomersInline.Provider
       customers={customerDetail ? [customerDetail] : []}
     >
-      <div className="bg-background rounded-lg shadow-xs">
-        <div className="p-3 space-y-2">
+      <div className="bg-background shadow-xs rounded-lg">
+        <div className="space-y-2 p-3">
           <div className="flex items-center gap-2">
             <CustomersInline.Avatar size="xl" />
             <CustomersInline.Title />
           </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+          <div className="flex justify-between items-center gap-2 text-sm text-accent-foreground">
             Customer phone
             <span className="text-foreground">{primaryPhone || '-'}</span>
           </div>
-          <div className="text-sm text-accent-foreground flex items-center gap-2 justify-between">
+          <div className="flex justify-between items-center gap-2 text-sm text-accent-foreground">
             Customer email
             <span className="text-foreground">{primaryEmail || '-'}</span>
           </div>
         </div>
         <Separator />
-        <div className="py-1 px-3">
+        <div className="px-3 py-1">
           <Button
             variant="ghost"
             size="sm"
@@ -77,16 +78,19 @@ export const CustomerWidget = ({
   customerIds,
   scope,
   onManageCustomers,
+  access,
 }: {
   customerIds: string[];
   scope: string;
   onManageCustomers?: (customerIds: string[]) => void;
+  access: IRelationWidgetProps['access'];
 }) => {
   return (
     <SideMenu.Content value="customer" className="bg-sidebar">
       <CustomerWidgetHeader
         customerIds={customerIds}
         onManageCustomers={onManageCustomers}
+        access={access}
       />
       <CustomerWidgetContent customerIds={customerIds} scope={scope} />
     </SideMenu.Content>
@@ -100,12 +104,14 @@ export const CustomerWidgetTrigger = () => (
 const CustomerWidgetHeader = ({
   customerIds,
   onManageCustomers,
+  access,
 }: {
   customerIds?: string[];
   onManageCustomers?: (customerIds: string[]) => void;
+  access: IRelationWidgetProps['access'];
 }) => {
   return (
-    <div className="flex items-center justify-between bg-background border-b">
+    <div className="flex justify-between items-center bg-background border-b">
       <div>
         <SideMenu.Header label="Customers" Icon={IconUser} hideSeparator />
       </div>
@@ -114,9 +120,11 @@ const CustomerWidgetHeader = ({
           onSelect={onManageCustomers}
           customerIds={customerIds}
         >
-          <Button variant="ghost" size="sm">
-            <IconUserCog className="h-4 w-4" />
-          </Button>
+          {access === 'write' && (
+            <Button variant="ghost" size="sm">
+              <IconUserCog className="w-4 h-4" />
+            </Button>
+          )}
         </SelectCustomersBulk>
       )}
     </div>
@@ -137,7 +145,7 @@ const CustomerWidgetContent = ({
   }
 
   return (
-    <div className="p-4 space-y-2 overflow-y-auto">
+    <div className="space-y-2 p-4 overflow-y-auto">
       {customerIds.map((customerId: string) => {
         return (
           <CustomerWidgetItem

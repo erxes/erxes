@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { EBarimtSidebar } from '@/ebarimt/settings/components/EBarimtSidebar';
 import { EBarimtBreadcrumb } from '@/ebarimt/settings/components/EBarimtBreadcrumb';
+import { EBarimtTopbar } from '@/ebarimt/settings/components/EBarimtTopbar';
 import { SettingsLayout } from '~/modules/SettingsLayout';
 
 export const EBarimtMainConfig = lazy(() =>
@@ -28,6 +29,12 @@ export const StageInEBarimtConfig = lazy(() =>
   })),
 );
 
+export const PosInEBarimtConfig = lazy(() =>
+  import('~/pages/PosInEBarimtConfigPage').then((m) => ({
+    default: m.PosInEBarimtConfig,
+  })),
+);
+
 export const ProductGroupPage = lazy(() =>
   import('~/pages/ProductGroupPage').then((m) => ({
     default: m.ProductGroupPage,
@@ -39,11 +46,13 @@ const EBarimtSettings = () => {
     <SettingsLayout
       sidebar={<EBarimtSidebar />}
       breadcrumbs={<EBarimtBreadcrumb />}
+      actions={<EBarimtTopbar />}
     >
       <Routes>
         <Route index element={<EBarimtMainConfig />} />
         <Route path="/stage-in" element={<StageInEBarimtConfig />} />
-        <Route path="/return" element={<ReturnEbarimtConfig />} />
+        <Route path="/stage-return" element={<ReturnEbarimtConfig />} />
+        <Route path="/pos-in" element={<PosInEBarimtConfig />} />
         <Route
           path="/product-rules-on-tax"
           element={<AddProductRulesOnTaxPage />}
