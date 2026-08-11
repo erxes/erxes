@@ -28,12 +28,12 @@
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
 - Provides closing adjustment navigation and pages for temporary account closing.
-- Opens fund and debt rate adjustment create/edit forms in `AccountingSheet` panels.
+- Opens fund, debt, and closing adjustment create/edit forms in `AccountingSheet` panels where those forms exist.
 - Uses system `dealCurrency` options for fund/debt adjustment main and foreign currency fields plus account currency selectors; rate adjustment main currency defaults from system `mainCurrency`.
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
 - Fund rate detail can calculate, show validation state, show account balances grouped by branch/department, run linked transactions, and display linked transaction rows.
 - Debt rate detail can calculate, show validation state, show account/customer balances grouped by branch/department, run linked transactions, and display linked transaction ids.
-- Closing adjustment detail can calculate temporary-account balances grouped by branch/department, show validation state, edit tax percentage per row, run closing transactions, publish, cancel, and show tax impact.
+- Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
 
@@ -83,6 +83,9 @@
 - Create/update/remove/calculate/run mutations must show success/error feedback and refresh or subscribe so users do not need a manual reload.
 - Fund/debt adjustment transaction execution is separate from calculation; UI must expose both states and not run transactions before details are calculated.
 - Closing adjustment transaction execution is separate from calculation; UI must let users edit row tax percentages before running transactions.
+- Closing adjustment generated transactions must be shown in a separate tab using the transaction balance table pattern.
+- Closing adjustment detail group headers must display branch and department as read-only `code - title` labels, not selector triggers.
+- Closing adjustment create form does not expose `beginDate`; the backend calculates it from the previous closing or first temporary-account transaction.
 - Adjustment create/edit forms must use sheet layout consistent with accounting settings and adjustment forms.
 - Fund/debt adjustment main and foreign currency selectors must use system `dealCurrency`; default main currency comes from `mainCurrency`.
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
@@ -102,6 +105,48 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-11` — `Closing Transactions Tab`
+
+- **Summary:** Closing adjustment detail now has calculation and transactions tabs, with generated transactions rendered through the transaction balance table columns.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Closing Group Read-Only Labels`
+
+- **Summary:** Closing adjustment detail group headers now display branch and department as read-only `code - title` labels instead of selector inline cells.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Closing List Inline Accounts`
+
+- **Summary:** Closing adjustment list account columns now render through `AccountsInline` instead of displaying raw account ids.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingColumns.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Closing Detail Header Spacing`
+
+- **Summary:** Closing adjustment detail header no longer expands vertically, keeping grouped detail tables directly below the status row.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Closing Detail Inline Groups`
+
+- **Summary:** Closing adjustment detail groups now collapse by branch/department and render entries in common `RecordTable` tables with inline branch, department, and account names.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Hide Closing Begin Date`
+
+- **Summary:** The closing adjustment create sheet no longer exposes `beginDate`; users select only the closing date and account fields.
+- **Affected areas:** `src/modules/adjustments/closing/components/AddAdjustClosing.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-11` — `Closing Adjustment Sheet Form`
+
+- **Summary:** The closing adjustment create form now opens in an `AccountingSheet` panel consistent with other accounting adjustment forms.
+- **Affected areas:** `src/modules/adjustments/closing/components/AddAdjustClosing.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-11` — `Temporary Account Closing`
 

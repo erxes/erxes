@@ -1,29 +1,30 @@
-import { ColumnDef } from '@tanstack/table-core';
-import { IAdjustClosing } from '../types/AdjustClosing';
-import {
-  Input,
-  PopoverScoped,
-  RecordTable,
-  RecordTableInlineCell,
-} from 'erxes-ui';
 import {
   IconBuildingBank,
   IconCalendar,
   IconFile,
   IconFlag,
 } from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import { useState } from 'react';
-import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
-import { useSetAtom } from 'jotai';
+import {
+  Input,
+  PopoverScoped,
+  RecordTable,
+  RecordTableInlineCell,
+} from 'erxes-ui';
 import { TFunction } from 'i18next';
+import { useSetAtom } from 'jotai';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
+import { renderingAdjustClosingDetailAtom } from '../types/adjustClosingDetailStates';
+import { IAdjustClosing } from '../types/AdjustClosing';
 import { AdjustClosingMoreColumn } from './AdjustClosingMoreColumn';
 
-const StatusCell = ({ row }: { row: any }) => {
+const StatusCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
   const navigate = useNavigate();
   const setRenderingDetail = useSetAtom(renderingAdjustClosingDetailAtom);
-  const { _id, status } = row.original;
+  const { _id, status } = cell.row.original;
 
   return (
     <RecordTableInlineCell.Anchor
@@ -37,14 +38,17 @@ const StatusCell = ({ row }: { row: any }) => {
   );
 };
 
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const _id = row?.original?._id;
+const DescriptionCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
+  const value = cell.getValue();
+  const [description, setDescription] = useState(
+    typeof value === 'string' ? value : '',
+  );
+  const _id = cell.row.original._id;
 
   return (
     <PopoverScoped scope={`transaction-${_id}-description`}>
       <RecordTableInlineCell.Trigger>
-        {getValue() as string}
+        {typeof value === 'string' && value ? value : '-'}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Input
@@ -56,18 +60,32 @@ const DescriptionCell = ({ getValue, row }: any) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
-  const date = getValue();
+const DateCell = ({ cell }: { cell: Cell<IAdjustClosing, unknown> }) => {
+  const date = cell.getValue();
   return (
     <RecordTableInlineCell>
-      {date ? dayjs(date).format('YYYY-MM-DD') : '-'}
+      {date ? dayjs(date as Date).format('YYYY-MM-DD') : '-'}
     </RecordTableInlineCell>
   );
 };
 
-const TextCell = ({ getValue }: any) => {
-  const value = getValue();
-  return <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>;
+const AccountInlineCell = ({
+  cell,
+}: {
+  cell: Cell<IAdjustClosing, unknown>;
+}) => {
+  const value = cell.getValue();
+  const accountId = typeof value === 'string' ? value : undefined;
+
+  return (
+    <RecordTableInlineCell>
+      <AccountsInline
+        accountIds={accountId ? [accountId] : []}
+        permissionMode="read"
+        placeholder={accountId || '-'}
+      />
+    </RecordTableInlineCell>
+  );
 };
 
 const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IAdjustClosing>;
@@ -82,7 +100,7 @@ export const adjustClosingTableColumns: (
       id: 'status',
       accessorKey: 'status',
       header: () => <RecordTable.InlineHead icon={IconFlag} label="Status" />,
-      cell: ({ cell }) => <StatusCell row={cell.row} />,
+      cell: StatusCell,
       size: 120,
     },
     {
@@ -91,7 +109,7 @@ export const adjustClosingTableColumns: (
         <RecordTable.InlineHead icon={IconCalendar} label={t('Date')} />
       ),
       accessorKey: 'date',
-      cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+      cell: DateCell,
     },
     {
       id: 'beginDate',
@@ -99,7 +117,7 @@ export const adjustClosingTableColumns: (
         <RecordTable.InlineHead icon={IconCalendar} label={t('Begin date')} />
       ),
       accessorKey: 'beginDate',
-      cell: ({ getValue }) => <DateCell getValue={getValue} />,
+      cell: DateCell,
     },
     {
       id: 'description',
@@ -107,9 +125,7 @@ export const adjustClosingTableColumns: (
         <RecordTable.InlineHead icon={IconFile} label={t('Description')} />
       ),
       accessorKey: 'description',
-      cell: ({ getValue, row }) => (
-        <DescriptionCell getValue={getValue} row={row} />
-      ),
+      cell: DescriptionCell,
     },
     {
       id: 'integrateAccountId',
@@ -120,7 +136,7 @@ export const adjustClosingTableColumns: (
         />
       ),
       accessorKey: 'integrateAccountId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+      cell: AccountInlineCell,
     },
 
     {
@@ -132,7 +148,7 @@ export const adjustClosingTableColumns: (
         />
       ),
       accessorKey: 'periodGLAccountId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+      cell: AccountInlineCell,
     },
 
     {
@@ -144,7 +160,7 @@ export const adjustClosingTableColumns: (
         />
       ),
       accessorKey: 'earningAccountId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+      cell: AccountInlineCell,
     },
 
     {
@@ -156,7 +172,7 @@ export const adjustClosingTableColumns: (
         />
       ),
       accessorKey: 'taxPayableAccountId',
-      cell: ({ getValue }) => <TextCell getValue={getValue} />,
+      cell: AccountInlineCell,
     },
   ];
 };

@@ -1,13 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  DatePicker,
-  Dialog,
-  Form,
-  Spinner,
-  Textarea,
-  useQueryState,
-} from 'erxes-ui';
+import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { TAdjustClosingForm } from '../types/adjustClosingForm';
 import { useForm } from 'react-hook-form';
@@ -15,26 +7,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { adjustClosingSchema } from '../types/adjustClosingSchema';
 import { useAdjustClosingAdd } from '../hooks/useAdjustClosingAdd';
 import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
+import { AccountingSheet } from '~/modules/layout/components/Sheet';
 
 export const AddAdjustClosing = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet open={open} onOpenChange={setOpen} modal>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           Add Closing Adjustment
         </Button>
-      </Dialog.Trigger>
+      </Sheet.Trigger>
 
-      <Dialog.Content>
-        <Dialog.Header>
-          <Dialog.Title>Add Closing Adjustment</Dialog.Title>
-        </Dialog.Header>
+      <AccountingSheet title="Create Closing Adjustment">
         <AddAdjustClosingForm setOpen={setOpen} />
-      </Dialog.Content>
-    </Dialog>
+      </AccountingSheet>
+    </Sheet>
   );
 };
 
@@ -49,7 +39,6 @@ export const AddAdjustClosingForm = ({
   });
 
   const { addAdjustClosing, loading } = useAdjustClosingAdd();
-  const [id] = useQueryState<string>('id');
 
   const onSubmit = (data: TAdjustClosingForm) => {
     addAdjustClosing({
@@ -64,20 +53,18 @@ export const AddAdjustClosingForm = ({
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
+        className="flex flex-col flex-1 min-h-0 bg-background"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <h3 className="text-lg font-bold">
-          {id ? `Edit` : `Create`} Adjust Inventory
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
           <Form.Field
             control={form.control}
             name="date"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Date</Form.Label>
+                <Form.Label>
+                  Date <span className="text-destructive">*</span>
+                </Form.Label>
                 <Form.Control>
                   <DatePicker
                     value={field.value}
@@ -92,28 +79,12 @@ export const AddAdjustClosingForm = ({
 
           <Form.Field
             control={form.control}
-            name="beginDate"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Begin date</Form.Label>
-                <Form.Control>
-                  <DatePicker
-                    value={field.value ?? undefined}
-                    onChange={field.onChange}
-                    className="h-8 flex w-full"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
             name="integrateAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Integrate account</Form.Label>
+                <Form.Label>
+                  Integrate account <span className="text-destructive">*</span>
+                </Form.Label>
                 <SelectAccountFormItem
                   value={field.value ?? undefined}
                   onValueChange={field.onChange}
@@ -129,7 +100,9 @@ export const AddAdjustClosingForm = ({
             name="periodGLAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Period GL account</Form.Label>
+                <Form.Label>
+                  Period GL account <span className="text-destructive">*</span>
+                </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
@@ -147,7 +120,9 @@ export const AddAdjustClosingForm = ({
             name="earningAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Earning account</Form.Label>
+                <Form.Label>
+                  Earning account <span className="text-destructive">*</span>
+                </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
@@ -165,7 +140,10 @@ export const AddAdjustClosingForm = ({
             name="taxPayableAccountId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Tax payable account</Form.Label>
+                <Form.Label>
+                  Tax payable account{' '}
+                  <span className="text-destructive">*</span>
+                </Form.Label>
                 <Form.Control>
                   <SelectAccountFormItem
                     value={field.value ?? undefined}
@@ -177,23 +155,27 @@ export const AddAdjustClosingForm = ({
               </Form.Item>
             )}
           />
+
+          <Form.Field
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Description</Form.Label>
+                <Form.Control>
+                  <Textarea
+                    placeholder="Enter description"
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
         </div>
 
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-
-        <div className="col-span-2 mt-4 flex justify-end gap-2">
+        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
           <Button
             variant="outline"
             type="button"
@@ -207,7 +189,7 @@ export const AddAdjustClosingForm = ({
             {loading && <Spinner />}
             Save
           </Button>
-        </div>
+        </Sheet.Footer>
       </form>
     </Form>
   );
