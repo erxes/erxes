@@ -1237,6 +1237,7 @@
   "save-chart-description": "Save the filters selected right now as a new chart. The default chart stays as it is.",
   "chart-name": "Chart name",
   "chart-name-placeholder": "e.g. High Priority Open Tickets",
+  "conversation-chart-name-placeholder": "e.g. High Priority Open Conversation",
   "chart-saved": "Chart saved",
   "chart-deleted": "Chart deleted",
   "delete-chart": "Delete chart",

@@ -27,22 +27,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ResponsesChartType, SourceData } from '@/report/types';
+import { ReportChart, ResponsesChartType, SourceData } from '@/report/types';
 import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom } from '@/report/states';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ColumnDef } from '@tanstack/table-core';
 import { DataKey } from 'recharts/types/util/types';
-import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { ReportFilter } from '../filter-popover/report-filter';
@@ -52,9 +44,13 @@ import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 interface ConversationSourceProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -65,37 +61,19 @@ interface SourceChartProps {
 
 export const ConversationSource = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationSourceProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
-  }, [dateValue]);
 
   const { conversationSources, loading, error } = useConversationSources({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
+    variables: { filters: queryFilters },
+    skip: !filtersRestored,
   });
 
   const allSources = useMemo(
@@ -128,6 +106,13 @@ export const ConversationSource = ({
     <>
       <ReportFilter cardId={id} />
       <SelectChartType onValueChange={setChartType} value={chartType} />
+      <ReportChartActions
+        chartType="conversation-source"
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allSources}
         columns={sourceExportColumns}
@@ -136,7 +121,7 @@ export const ConversationSource = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -183,7 +168,7 @@ export const ConversationSource = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -397,7 +382,8 @@ export const SourceLineChart = memo(function SourceLineChart({
           type="monotone"
           stroke="var(--primary)"
           fill="url(#fl-source-primary)"
-          fillOpacity={0.3}
+          fillOpacity={0.3 * countOpacity}
+          strokeOpacity={countOpacity}
           strokeWidth={2}
           strokeLinecap="round"
         />
@@ -407,7 +393,8 @@ export const SourceLineChart = memo(function SourceLineChart({
           type="monotone"
           stroke="var(--success)"
           fill="url(#fl-source-success)"
-          fillOpacity={0.3}
+          fillOpacity={0.3 * percentageOpacity}
+          strokeOpacity={percentageOpacity}
           strokeWidth={2}
           strokeLinecap="round"
         />
