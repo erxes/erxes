@@ -248,7 +248,9 @@ export const FrontlineReportsList = () => {
         <KpiCard
           title={t('open-conversations')}
           value={String(conversationOpen?.count ?? 0)}
-          subtitle={t('percent-of-total', { percent: conversationOpen?.percentage ?? 0 })}
+          subtitle={t('percent-of-total', {
+            percent: conversationOpen?.percentage ?? 0,
+          })}
           icon={<IconInbox className="h-5 w-5" />}
           valueClass="text-[var(--chart-1)]"
           iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
@@ -256,7 +258,9 @@ export const FrontlineReportsList = () => {
         <KpiCard
           title={t('closed-conversations')}
           value={String(conversationClosed?.count ?? 0)}
-          subtitle={t('percent-resolved', { percent: conversationClosed?.percentage ?? 0 })}
+          subtitle={t('percent-resolved', {
+            percent: conversationClosed?.percentage ?? 0,
+          })}
           icon={<IconCircleCheck className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
@@ -267,8 +271,15 @@ export const FrontlineReportsList = () => {
           subtitle={
             INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', { name: INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name, percent: topPerformingSource?.percentage ?? 0 })
-              : t('percent-share', { percent: topPerformingSource?.percentage ?? 0 })
+              ? t('source-name-percent', {
+                  name: INTEGRATIONS[
+                    topPerformingSource._id as keyof typeof INTEGRATIONS
+                  ].name,
+                  percent: topPerformingSource?.percentage ?? 0,
+                })
+              : t('percent-share', {
+                  percent: topPerformingSource?.percentage ?? 0,
+                })
           }
           icon={<IconTrophyFilled className="h-5 w-5" />}
           valueClass="text-[var(--chart-2)]"
@@ -280,8 +291,15 @@ export const FrontlineReportsList = () => {
           subtitle={
             INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', { name: INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name, percent: topConvertingSource?.percentage ?? 0 })
-              : t('percent-share', { percent: topConvertingSource?.percentage ?? 0 })
+              ? t('source-name-percent', {
+                  name: INTEGRATIONS[
+                    topConvertingSource._id as keyof typeof INTEGRATIONS
+                  ].name,
+                  percent: topConvertingSource?.percentage ?? 0,
+                })
+              : t('percent-share', {
+                  percent: topConvertingSource?.percentage ?? 0,
+                })
           }
           icon={<IconChartArcs className="h-5 w-5" />}
           valueClass="text-[var(--chart-3)]"

@@ -139,10 +139,7 @@ export const ConversationList = ({
     } finally {
       setExporting(false);
     }
-  }, [
-    fetchExport,
-    queryFilters,
-  ]);
+  }, [fetchExport, queryFilters]);
 
   const filterEl = useMemo(
     () => (
