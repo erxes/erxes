@@ -2,16 +2,15 @@ import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
+  IAdjustClosing,
+  IAdjustClosingDetail,
+} from '../@types/adjustClosingEntry';
+import {
   ACCOUNT_KINDS,
   JOURNALS,
   TR_SIDES,
   TR_STATUSES,
 } from '../@types/constants';
-import {
-  IAdjustClosing,
-  IAdjustClosingDetail,
-  IClosingDetailEntry,
-} from '../@types/adjustClosingEntry';
 import { ITransaction, ITrDetail } from '../@types/transaction';
 
 type TAccountMeta = {

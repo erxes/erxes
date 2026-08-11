@@ -12,7 +12,7 @@ import {
   IconRotateClockwise2,
   IconTrashX,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
+import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { format } from 'date-fns-tz';
 import {
@@ -72,6 +72,12 @@ type TStructureLabelMap = Record<
   string,
   { _id?: string; code?: string; title?: string; order?: string }
 >;
+
+type TPercentChangeHandler = (
+  detailId: string,
+  entryId: string,
+  value: string,
+) => void;
 
 const formatAmount = (amount?: number) =>
   typeof amount === 'number' ? amount.toLocaleString() : '-';
@@ -150,6 +156,202 @@ const makeLinkedTransactionRows = (
       journalIndex: transactionIndex.toString(),
     })),
   );
+
+const ClosingAccountHead = () => <RecordTable.InlineHead label="Account" />;
+
+const ClosingBalanceHead = () => <RecordTable.InlineHead label="Balance" />;
+
+const ClosingPercentHead = () => <RecordTable.InlineHead label="Tax percent" />;
+
+const ClosingMainTransactionHead = () => (
+  <RecordTable.InlineHead label="Main transaction" />
+);
+
+const ClosingIntegrateTransactionHead = () => (
+  <RecordTable.InlineHead label="Integrate transaction" />
+);
+
+const ClosingAccountCell = ({
+  row,
+}: CellContext<TClosingEntryRow, unknown>) => (
+  <RecordTableInlineCell>
+    <AccountsInline
+      accountIds={[row.original.accountId]}
+      permissionMode="read"
+      placeholder={row.original.accountId || '-'}
+    />
+  </RecordTableInlineCell>
+);
+
+const ClosingBalanceCell = ({
+  row,
+}: CellContext<TClosingEntryRow, unknown>) => (
+  <RecordTableInlineCell className="justify-end font-mono">
+    {formatAmount(row.original.balance)}
+  </RecordTableInlineCell>
+);
+
+const ClosingPercentCell = ({
+  onPercentChange,
+  row,
+}: CellContext<TClosingEntryRow, unknown> & {
+  onPercentChange: TPercentChangeHandler;
+}) => (
+  <RecordTableInlineCell className="justify-center">
+    <Input
+      type="number"
+      className="h-8 w-24 text-center"
+      defaultValue={row.original.percent}
+      onBlur={(event) =>
+        onPercentChange(
+          row.original.detailId,
+          row.original._id,
+          event.target.value,
+        )
+      }
+    />
+  </RecordTableInlineCell>
+);
+
+const ClosingMainTransactionCell = ({
+  row,
+}: CellContext<TClosingEntryRow, unknown>) => (
+  <RecordTableInlineCell>
+    {row.original.mainAccTrId || '-'}
+  </RecordTableInlineCell>
+);
+
+const ClosingIntegrateTransactionCell = ({
+  row,
+}: CellContext<TClosingEntryRow, unknown>) => (
+  <RecordTableInlineCell>
+    {row.original.integrateTrId || '-'}
+  </RecordTableInlineCell>
+);
+
+const createClosingEntryColumns = (
+  onPercentChange: TPercentChangeHandler,
+): ColumnDef<TClosingEntryRow>[] => [
+  {
+    id: 'accountId',
+    accessorKey: 'accountId',
+    header: ClosingAccountHead,
+    cell: ClosingAccountCell,
+    size: 320,
+  },
+  {
+    id: 'balance',
+    accessorKey: 'balance',
+    header: ClosingBalanceHead,
+    cell: ClosingBalanceCell,
+    size: 160,
+  },
+  {
+    id: 'percent',
+    accessorKey: 'percent',
+    header: ClosingPercentHead,
+    cell: (context) => (
+      <ClosingPercentCell {...context} onPercentChange={onPercentChange} />
+    ),
+    size: 140,
+  },
+  {
+    id: 'mainAccTrId',
+    accessorKey: 'mainAccTrId',
+    header: ClosingMainTransactionHead,
+    cell: ClosingMainTransactionCell,
+    size: 220,
+  },
+  {
+    id: 'integrateTrId',
+    accessorKey: 'integrateTrId',
+    header: ClosingIntegrateTransactionHead,
+    cell: ClosingIntegrateTransactionCell,
+    size: 220,
+  },
+];
+
+const ClosingActionButtons = ({
+  calculateLoading,
+  error,
+  onCalculate,
+  onCancel,
+  onDelete,
+  onPublish,
+  onRun,
+  runLoading,
+  status,
+}: {
+  calculateLoading: boolean;
+  error?: string;
+  onCalculate: () => void;
+  onCancel: () => void;
+  onDelete: () => void;
+  onPublish: () => void;
+  onRun: () => void;
+  runLoading: boolean;
+  status?: string;
+}) => {
+  const currentStatus = status || ADJ_INV_STATUSES.DRAFT;
+
+  switch (currentStatus) {
+    case ADJ_INV_STATUSES.DRAFT:
+    case ADJ_INV_STATUSES.PROCESS:
+      return (
+        <>
+          <Button onClick={onCalculate} disabled={calculateLoading}>
+            {calculateLoading ? <Spinner /> : <IconCalculator />}
+            Calculate
+          </Button>
+          {currentStatus === ADJ_INV_STATUSES.PROCESS && !error && (
+            <Button onClick={onRun} disabled={runLoading}>
+              {runLoading ? <Spinner /> : <IconPlayerPlay />}
+              Do Transaction
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={onDelete}
+          >
+            <IconTrashX />
+            Delete
+          </Button>
+        </>
+      );
+
+    case ADJ_INV_STATUSES.PUBLISH:
+      return (
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          onClick={onCancel}
+        >
+          <IconTrashX />
+          Draft
+        </Button>
+      );
+
+    case ADJ_INV_STATUSES.COMPLETE:
+      return (
+        <Button onClick={onPublish}>
+          <IconGavel />
+          PUBLISH
+        </Button>
+      );
+
+    case ADJ_INV_STATUSES.RUNNING:
+      return (
+        <Button onClick={onRun}>
+          <IconCrane />
+          Stop
+        </Button>
+      );
+
+    default:
+      return null;
+  }
+};
 
 export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
@@ -260,8 +462,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
 
   const handlePercentChange = useCallback(
     (detailId: string, entryId: string, value: string) => {
-      const percent = parseFloat(value);
-      if (isNaN(percent) || !id) return;
+      const percent = Number(value) || 0;
 
       adjustClosingEdit({
         variables: { _id: id, detailId, entryId, percent },
@@ -270,79 +471,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     [adjustClosingEdit, id],
   );
 
-  const columns = useMemo<ColumnDef<TClosingEntryRow>[]>(
-    () => [
-      {
-        id: 'accountId',
-        accessorKey: 'accountId',
-        header: () => <RecordTable.InlineHead label="Account" />,
-        cell: ({ row }) => (
-          <RecordTableInlineCell>
-            <AccountsInline
-              accountIds={[row.original.accountId]}
-              permissionMode="read"
-              placeholder={row.original.accountId || '-'}
-            />
-          </RecordTableInlineCell>
-        ),
-        size: 320,
-      },
-      {
-        id: 'balance',
-        accessorKey: 'balance',
-        header: () => <RecordTable.InlineHead label="Balance" />,
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="justify-end font-mono">
-            {formatAmount(row.original.balance)}
-          </RecordTableInlineCell>
-        ),
-        size: 160,
-      },
-      {
-        id: 'percent',
-        accessorKey: 'percent',
-        header: () => <RecordTable.InlineHead label="Tax percent" />,
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="justify-center">
-            <Input
-              type="number"
-              className="h-8 w-24 text-center"
-              defaultValue={row.original.percent}
-              onBlur={(event) =>
-                handlePercentChange(
-                  row.original.detailId,
-                  row.original._id,
-                  event.target.value,
-                )
-              }
-            />
-          </RecordTableInlineCell>
-        ),
-        size: 140,
-      },
-      {
-        id: 'mainAccTrId',
-        accessorKey: 'mainAccTrId',
-        header: () => <RecordTable.InlineHead label="Main transaction" />,
-        cell: ({ row }) => (
-          <RecordTableInlineCell>
-            {row.original.mainAccTrId || '-'}
-          </RecordTableInlineCell>
-        ),
-        size: 220,
-      },
-      {
-        id: 'integrateTrId',
-        accessorKey: 'integrateTrId',
-        header: () => <RecordTable.InlineHead label="Integrate transaction" />,
-        cell: ({ row }) => (
-          <RecordTableInlineCell>
-            {row.original.integrateTrId || '-'}
-          </RecordTableInlineCell>
-        ),
-        size: 220,
-      },
-    ],
+  const columns = useMemo(
+    () => createClosingEntryColumns(handlePercentChange),
     [handlePercentChange],
   );
 
@@ -353,79 +483,6 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   if (!id) {
     return null;
   }
-
-  const renderEvents = () => {
-    const status = adjustClosingDetail?.status || ADJ_INV_STATUSES.DRAFT;
-
-    switch (status) {
-      case ADJ_INV_STATUSES.DRAFT:
-      case ADJ_INV_STATUSES.PROCESS:
-        return (
-          <>
-            <Button onClick={handleCalculate} disabled={calculateLoading}>
-              {calculateLoading ? <Spinner /> : <IconCalculator />}
-              Calculate
-            </Button>
-            {adjustClosingDetail?.status === ADJ_INV_STATUSES.PROCESS &&
-              !adjustClosingDetail.error && (
-                <Button onClick={handleRun} disabled={runLoading}>
-                  {runLoading ? <Spinner /> : <IconPlayerPlay />}
-                  Do Transaction
-                </Button>
-              )}
-            <Button
-              variant="secondary"
-              className="text-destructive"
-              onClick={handleDelete}
-            >
-              <IconTrashX />
-              Delete
-            </Button>
-          </>
-        );
-
-      case ADJ_INV_STATUSES.PUBLISH:
-        return (
-          <Button
-            variant="secondary"
-            className="text-destructive"
-            onClick={handleCancel}
-          >
-            <IconTrashX />
-            Draft
-          </Button>
-        );
-
-      case ADJ_INV_STATUSES.COMPLETE:
-        return (
-          <Button onClick={handlePublish}>
-            <IconGavel />
-            PUBLISH
-          </Button>
-        );
-
-      case ADJ_INV_STATUSES.RUNNING:
-        return (
-          <Button onClick={handleRun}>
-            <IconCrane />
-            Stop
-          </Button>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const renderDetailTable = (detail: IAdjustClosingDetailItem) => (
-    <ClosingDetailGroup
-      key={detail._id}
-      branchMap={branchMap}
-      columns={columns}
-      departmentMap={departmentMap}
-      detail={detail}
-    />
-  );
 
   return (
     <>
@@ -453,7 +510,19 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
             </span>
           )}
 
-          <div className="flex gap-2">{renderEvents()}</div>
+          <div className="flex gap-2">
+            <ClosingActionButtons
+              calculateLoading={calculateLoading}
+              error={adjustClosingDetail?.error}
+              onCalculate={handleCalculate}
+              onCancel={handleCancel}
+              onDelete={handleDelete}
+              onPublish={handlePublish}
+              onRun={handleRun}
+              runLoading={runLoading}
+              status={adjustClosingDetail?.status}
+            />
+          </div>
         </div>
       </div>
 
@@ -464,7 +533,15 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
         </Tabs.List>
         <Tabs.Content value="calculation" className="space-y-4">
           {closingDetails.length > 0 ? (
-            closingDetails.map(renderDetailTable)
+            closingDetails.map((detail) => (
+              <ClosingDetailGroup
+                key={detail._id}
+                branchMap={branchMap}
+                columns={columns}
+                departmentMap={departmentMap}
+                detail={detail}
+              />
+            ))
           ) : (
             <div className="p-10 text-center border-2 border-dashed rounded-lg text-muted-foreground">
               No entries found. Please check your process.
@@ -653,6 +730,28 @@ const ClosingDetailGroup = ({
   );
 };
 
+const getClosingStatusIcon = (day: Date, current: Date, status?: string) => {
+  if (isSameDay(day, current)) {
+    if (status === ADJ_INV_STATUSES.RUNNING) {
+      return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
+    }
+    if (status === ADJ_INV_STATUSES.PROCESS) {
+      return <IconClockEdit className="w-5 h-5 text-orange-500" />;
+    }
+    return <IconBinoculars className="w-5 h-5 text-green-500" />;
+  }
+
+  if (isBefore(day, current)) {
+    return <IconCircleCheck className="w-5 h-5 text-green-500" />;
+  }
+
+  if (isAfter(day, current)) {
+    return <IconHelpSquareRounded className="w-5 h-5 text-blue-400" />;
+  }
+
+  return null;
+};
+
 export const AdjustClosingStatusBar = ({
   adjustClosing,
 }: {
@@ -665,28 +764,6 @@ export const AdjustClosingStatusBar = ({
   const current = new Date();
 
   const days = start <= end ? eachDayOfInterval({ start, end }) : [start];
-
-  const renderIcon = (day: Date) => {
-    if (isSameDay(day, current)) {
-      if (status === ADJ_INV_STATUSES.RUNNING) {
-        return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
-      }
-      if (status === ADJ_INV_STATUSES.PROCESS) {
-        return <IconClockEdit className="w-5 h-5 text-orange-500" />;
-      }
-      return <IconBinoculars className="w-5 h-5 text-green-500" />;
-    }
-
-    if (isBefore(day, current)) {
-      return <IconCircleCheck className="w-5 h-5 text-green-500" />;
-    }
-
-    if (isAfter(day, current)) {
-      return <IconHelpSquareRounded className="w-5 h-5 text-blue-400" />;
-    }
-
-    return null;
-  };
 
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
@@ -704,7 +781,9 @@ export const AdjustClosingStatusBar = ({
 
       {days.map((day) => (
         <Tooltip key={day.toString()} delayDuration={0}>
-          <Tooltip.Trigger asChild>{renderIcon(day)}</Tooltip.Trigger>
+          <Tooltip.Trigger asChild>
+            {getClosingStatusIcon(day, current, status)}
+          </Tooltip.Trigger>
           <Tooltip.Content sideOffset={12}>
             <span>{format(day, 'yyyy-MM-dd (EEE)')}</span>
           </Tooltip.Content>

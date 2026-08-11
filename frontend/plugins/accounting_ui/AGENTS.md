@@ -106,6 +106,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-11` — `Closing Detail Renderer Extraction`
+
+- **Summary:** Closing adjustment detail table cell renderers and action controls were moved out of the parent component to satisfy static analysis.
+- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-11` — `Closing Transactions Tab`
 
 - **Summary:** Closing adjustment detail now has calculation and transactions tabs, with generated transactions rendered through the transaction balance table columns.
