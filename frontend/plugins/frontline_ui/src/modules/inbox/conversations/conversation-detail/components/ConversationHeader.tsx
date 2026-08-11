@@ -167,9 +167,9 @@ const AutomatedReplyStatusBadge = () => {
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-      automatedReplyControl?.reason === 'operator_reply'
-    ? 'Automation paused: operator active'
-    : 'Automation paused';
+        automatedReplyControl?.reason === 'operator_reply'
+      ? 'Automation paused: operator active'
+      : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;

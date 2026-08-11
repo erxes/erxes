@@ -73,7 +73,10 @@ export const ConversationItem = ({
                 {channelInfoPending ? (
                   <Skeleton className="w-40 h-4" />
                 ) : channelProfileName ? (
-                  <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
+                  <span
+                    className="truncate text-sm font-medium"
+                    title={`#${channelProfileName}`}
+                  >
                     #{channelProfileName}
                   </span>
                 ) : (

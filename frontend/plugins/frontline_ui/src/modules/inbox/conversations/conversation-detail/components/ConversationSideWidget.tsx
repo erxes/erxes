@@ -35,8 +35,7 @@ const SideWidgetOutsideClose = ({
 
     document.addEventListener('pointerdown', handlePointerDown);
 
-    return () =>
-      document.removeEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, [activeTab, boundaryRef, containerRef, setActiveTab]);
 
   return null;
