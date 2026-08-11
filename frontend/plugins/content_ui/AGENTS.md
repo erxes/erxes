@@ -1,6 +1,60 @@
-# content_ui Rules
+# `content_ui` Plugin Guide
+
+## Identity
+
+- **Plugin:** `content`
+- **Project:** `content_ui`
+- **Layer:** `Frontend UI`
+- **Path:** `frontend/plugins/content_ui`
+- **Last synchronized:** `2026-08-11`
+
+## Scope
+
+### Owns
+
+- CMS and Web Builder routes, navigation, pages, widgets, GraphQL documents,
+  client state, translations, and user feedback.
+
+### Does not own
+
+- Backend CMS data, GraphQL contracts, core UI primitives, or other plugins.
+
+## Current Capabilities
+
+- Provides CMS content, category, page, menu, custom-field, and media workflows.
+- Provides Web Builder configuration and editing surfaces.
+- Allows individual CMS custom-field file uploads up to 630 MiB through the
+  platform's chunked-upload contract.
 
 ## Architecture
+
+| Area          | Path                                                  | Responsibility                            |
+| ------------- | ----------------------------------------------------- | ----------------------------------------- |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules. |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.           |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                      |
+| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.               |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.           |
+
+## Contracts
+
+### Provides
+
+- Module Federation exposes `./config` and `./content`.
+- Routes mounted under `/content`, including `/content/cms` and
+  `/content/web-builder`.
+
+### Consumes
+
+- Public `erxes-ui` and `ui-modules` APIs.
+- Content plugin GraphQL APIs through Apollo Client.
+
+## Data and State
+
+- Apollo Client owns server state, Jotai owns shared client state, and local
+  React state owns component-local interactions.
+
+## Local Invariants
 
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
@@ -19,7 +73,7 @@
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
 
-## UI Conventions
+### UI Conventions
 
 - Match existing CMS page structure: header, optional CMS sidebar, content area,
   and drawers.
@@ -34,7 +88,7 @@
 - Do not introduce a new visual style, spacing system, UI library, or icon
   library.
 
-## Data and GraphQL
+### Data and GraphQL
 
 - Use Apollo Client hooks already used in this plugin.
 - GraphQL operations should live in the feature's `graphql` folder when one
@@ -49,7 +103,7 @@
 - Do not change backend GraphQL contracts from this frontend plugin unless
   explicitly requested.
 
-## State and Routing
+### State and Routing
 
 - Add routes in `src/modules/cms/Main.tsx` using lazy imports and `Suspense`.
 - Preserve existing route params such as `websiteId`, `postId`, and `pageId`.
@@ -60,7 +114,7 @@
   already do.
 - Keep hooks single-purpose and avoid hidden side effects.
 
-## Good References
+### Good References
 
 - Route entry:
   `src/modules/cms/Main.tsx`
@@ -80,7 +134,7 @@
 - Web Builder entry:
   `src/modules/web-builder/WebBuilderPage.tsx`
 
-## Forbidden
+### Forbidden
 
 - Do not modify backend contracts for a frontend-only task.
 - Do not create duplicate GraphQL operations without searching existing shared
@@ -91,7 +145,7 @@
 - Do not replace existing cursor pagination with offset pagination unless the
   backend contract requires it.
 
-## Before Coding
+### Before Coding
 
 1. Search for similar implementation
 2. Reuse nearby patterns
@@ -101,14 +155,12 @@
 
 ## Validation
 
-- For documentation-only edits, verify referenced paths exist.
-- For code changes, run `pnpm nx lint content_ui` and
-  `pnpm nx build content_ui`.
-- Run `pnpm nx test content_ui` when tests, test setup, or tested behavior were
-  touched.
-- Fix TypeScript, lint, build, and Sonar warnings introduced by the change.
+- `pnpm nx lint content_ui` (when a lint target is defined)
+- `pnpm nx build content_ui`
+- Directly select a CMS file custom field and verify a file no larger than
+  630 MiB is accepted while a larger file is rejected.
 
-## Common Mistakes
+### Common Mistakes
 
 - Using stale paths copied from another plugin.
 - Adding one-off GraphQL documents while equivalent operations already exist.
@@ -118,3 +170,15 @@
 - Adding shared CMS UI to `src/widgets` instead of `src/modules/cms/shared`.
 - Changing backend schema or API assumptions from the UI layer.
 - Writing React or TypeScript tutorial content in this file instead of local rules.
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-11` — Increase custom-field upload limit
+
+- **Summary:** Raised the CMS custom-field file upload ceiling from 20 MiB to
+  630 MiB, routed large files through chunked upload, and synchronized its
+  helper text.
+- **Affected areas:** `src/modules/cms/posts/CustomFieldInput.tsx`
+- **Contracts changed:** None
