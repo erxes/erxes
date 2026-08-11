@@ -187,6 +187,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   something the report queries accept; the persisted subset is narrowed by
   `pickReportChartFilters`. Saving never touches the default charts — they are
   a frontend constant, not rows in this collection.
+- `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
+  (multi-select). `buildTicketMatch` turns a non-empty list into
+  `statusId: { $in: filters.statusIds }`. This is distinct from the older,
+  unused-by-the-frontend `status: String` single-value field on the same
+  input, which `buildTicketMatch` still honors first if present — never merge
+  the two or repurpose `status` for multi-select.
 - Automation constants (`triggers`, `actions`, `bots`, AI knowledge sources) and
   worker producers exported from `src/meta/automations.ts`.
 - Permissions, notification types, segment definitions, references, and
@@ -439,6 +445,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-10` — Multi-select real pipeline status filter for ticket reports
+
+- **Summary:** Added `statusIds: [String]` to `TicketReportFilter` /
+  `ReportChartFilters`, so ticket reports can filter by any number of real
+  pipeline statuses (as opposed to `state`, the active/archived/deleted
+  lifecycle flag, and distinct from the pre-existing, frontend-unused
+  single-value `status` field). `buildTicketMatch` matches
+  `statusId: { $in: filters.statusIds }`; the persisted-chart filter
+  whitelist (`REPORT_CHART_FILTER_KEYS` / `pickReportChartFilters`) and the
+  chart schema (`reportChartFiltersSchema`) both gained the field so it
+  round-trips through save/restore like every other ticket filter.
+- **Affected areas:**
+  `src/modules/reports/{@types/reportFilters.ts,utils.ts,
+graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
+- **Contracts changed:** `TicketReportFilter` and `ReportChartFilters` both
+  gained `statusIds: [String]`. `status: String` is unchanged and still
+  takes precedence if a caller sends both.
+
 ### `2026-08-10` — Ticket property values from the messenger widget
 
 - **Summary:** `widgetTicketCreated` accepts `propertiesData: JSON`
@@ -585,15 +609,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
   `ReportChartPropertyValueFilter` types; two new queries and three new
   mutations. No existing report query changed.
-
-### `2026-08-07` — Indexed knowledge base articles carry their category name
-
-- **Summary:** Article documents sent for AI indexing are now titled
-  `Category › Article` and carry the category title as a keyword, so articles
-  named only `1`, `2`, `3` are still reachable by the subject that lives on
-  their category. Categories are resolved in one batched query per document
-  batch.
-- **Affected areas:** `src/modules/knowledgebase/meta/automations.ts`
-- **Contracts changed:** `None` (same `TKnowledgeDocument` shape; `title` and
-  `metadata.keywords` are richer). Existing chunks keep their old titles until
-  the source is re-indexed.

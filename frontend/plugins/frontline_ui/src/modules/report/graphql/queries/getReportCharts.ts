@@ -12,6 +12,7 @@ export const REPORT_CHART_FIELDS = gql`
       fromDate
       toDate
       state
+      statusIds
       frequency
       groupPropertyId
       channelIds

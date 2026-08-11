@@ -16,6 +16,7 @@ const reportChartFiltersSchema = new Schema(
     fromDate: { type: String },
     toDate: { type: String },
     status: { type: String },
+    statusIds: { type: [String], default: undefined },
     source: { type: String },
     state: { type: String },
     frequency: { type: String },

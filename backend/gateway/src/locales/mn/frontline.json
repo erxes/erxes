@@ -1241,5 +1241,6 @@
   "chart-deleted": "Чарт устгагдлаа",
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
-  "without-priority": "{{value}} нь priority-гүй"
+  "without-priority": "{{value}} нь priority-гүй",
+  "ticket-status": "Тасалбарын төлөв"
 }

@@ -1241,5 +1241,6 @@
   "chart-deleted": "Chart deleted",
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
-  "without-priority": "{{value}} without priority"
+  "without-priority": "{{value}} without priority",
+  "ticket-status": "Ticket status"
 }
