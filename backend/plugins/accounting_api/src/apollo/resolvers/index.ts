@@ -15,8 +15,10 @@ import {
   VatRows as MutationsVatRow,
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
-  AdjustFixedAssets as MutationsAdjustFixedAssets,
   AdjustInventories as MutationsAdjustInventories,
+  AdjustFundRates as MutationsAdjustFundRates,
+  AdjustDebtRates as MutationsAdjustDebtRates,
+  AdjustFixedAssets as MutationsAdjustFixedAssets,
   AccountPermissions as MutationsAccountPermissions,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
@@ -30,6 +32,9 @@ import {
   AdjustFixedAssets as QueriesAdjustFixedAssets,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AdjustClosing as QueriesAdjustClosing,
+  AdjustFundRates as QueriesAdjustFundRates,
+  AdjustDebtRates as QueriesAdjustDebtRates,
   AccountPermissions as QueriesAccountPermissions,
 } from '@/accounting/graphql/resolvers/queries';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
@@ -47,6 +52,7 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
 import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
@@ -75,12 +81,15 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
+    ...MutationsAdjustFundRates,
+    ...MutationsAdjustDebtRates,
     ...MutationsAdjustFixedAssets,
     ...MutationsAccountPermissions,
     ...MutationsRemainder,
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...adjustClosingEntryMutations,
     ...MutationsFixedAssets,
   },
   Query: {
@@ -94,6 +103,9 @@ const resolvers: any = {
     ...QueriesAdjustInventories,
     ...QueriesAdjustFixedAssets,
     ...QueriesJournalReport,
+    ...QueriesAdjustClosing,
+    ...QueriesAdjustFundRates,
+    ...QueriesAdjustDebtRates,
     ...QueriesAccountPermissions,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,

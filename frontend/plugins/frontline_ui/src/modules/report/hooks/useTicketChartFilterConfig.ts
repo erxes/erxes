@@ -13,6 +13,7 @@ import {
   getReportPriorityFilterAtom,
   getReportPropertyFilterAtom,
   getReportStateFilterAtom,
+  getReportTicketStatusFilterAtom,
   getReportTicketTagFilterAtom,
 } from '@/report/states';
 import {
@@ -36,6 +37,7 @@ export const useTicketChartFilterConfig = (
 ): ReportChartFilters => {
   const date = useAtomValue(getReportDateFilterAtom(cardId));
   const state = useAtomValue(getReportStateFilterAtom(cardId));
+  const statusIds = useAtomValue(getReportTicketStatusFilterAtom(cardId));
   const frequency = useAtomValue(getReportFrequencyFilterAtom(cardId));
   const groupPropertyId = useAtomValue(
     getReportGroupPropertyFilterAtom(cardId),
@@ -54,6 +56,7 @@ export const useTicketChartFilterConfig = (
       dropEmptyFilters({
         date,
         state,
+        statusIds,
         frequency: frequency === DEFAULT_FREQUENCY ? '' : frequency,
         groupPropertyId,
         channelIds,
@@ -71,6 +74,7 @@ export const useTicketChartFilterConfig = (
     [
       date,
       state,
+      statusIds,
       frequency,
       groupPropertyId,
       channelIds,
@@ -130,6 +134,7 @@ export const useRestoreTicketChartFilters = (
 
     set(getReportDateFilterAtom, filters.date || '');
     set(getReportStateFilterAtom, filters.state || DEFAULT_STATE);
+    set(getReportTicketStatusFilterAtom, filters.statusIds || []);
     set(getReportFrequencyFilterAtom, filters.frequency || DEFAULT_FREQUENCY);
     set(getReportGroupPropertyFilterAtom, filters.groupPropertyId || '');
     set(getReportChannelFilterAtom, filters.channelIds || []);

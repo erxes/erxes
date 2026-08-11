@@ -479,8 +479,6 @@ export const loadScoreCampaignClass = (
         status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
 
-      console.log({ campaign, owner });
-
       if (!campaign) {
         throw new Error('Campaign not found');
       }

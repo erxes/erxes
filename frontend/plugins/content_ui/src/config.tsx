@@ -1,6 +1,7 @@
 import { IconBooks, IconLibraryPhoto } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const ContentNavigation = lazy(() =>
   import('./modules/ContentNavigation').then((module) => ({
@@ -28,4 +29,5 @@ export const CONFIG: IUIConfig = {
       path: 'content/cms',
     },
   ],
+  searchProviders: SEARCH_PROVIDERS,
 };

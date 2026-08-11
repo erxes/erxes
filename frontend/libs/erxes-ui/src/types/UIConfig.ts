@@ -1,3 +1,59 @@
+export type TSearchPayload = Readonly<Record<string, unknown>>;
+
+export type TSearchResultItem = {
+  id: string;
+  title: string;
+  description?: string;
+  path: string;
+};
+
+export type TSearchSelection = {
+  /** Globally unique alias. MUST start with `gs_<pluginName>_`. */
+  alias: string;
+  /** Root Query field, e.g. `customers`. Used for quarantine + diagnostics. */
+  field: string;
+  /** Arg body without parens, e.g. `searchValue: $searchValue, limit: $limit`. */
+  args?: string;
+  /** Selection set incl. braces. Omit for scalar fields like `productsTotalCount`. */
+  body?: string;
+  /** When true, an error on this alias does not fail the whole group. */
+  optional?: boolean;
+};
+
+export type TSearchGroupResult = {
+  items: TSearchResultItem[];
+  totalCount: number;
+  countMode: 'exact' | 'approximate';
+};
+
+export type TSearchProviderDefinition<TNode> = {
+  /** Repo-unique, kebab-case, e.g. `sales-deals`. */
+  key: string;
+  /** English source of truth. */
+  label: string;
+  labelKey?: string;
+  labelNamespace?: string;
+  icon?: React.ElementType;
+  order?: number;
+  selections: TSearchSelection[];
+  select: (payload: TSearchPayload) => {
+    nodes: TNode[];
+    totalCount?: number;
+  };
+  toItem: (node: TNode) => TSearchResultItem | null;
+};
+
+export type ISearchProvider = {
+  key: string;
+  label: string;
+  labelKey?: string;
+  labelNamespace?: string;
+  icon?: React.ElementType;
+  order?: number;
+  selections: TSearchSelection[];
+  resolve: (payload: TSearchPayload, limit: number) => TSearchGroupResult;
+};
+
 export type TPropertyInputMeta = Record<string, unknown>;
 
 export type TActivityRowProps = {
@@ -61,6 +117,7 @@ export type IUIConfig = {
     hasFloatingWidget?: boolean;
     hasSegmentConfigWidget?: boolean;
   }[];
+  searchProviders?: ISearchProvider[];
 };
 
 export type ICoreModule = {

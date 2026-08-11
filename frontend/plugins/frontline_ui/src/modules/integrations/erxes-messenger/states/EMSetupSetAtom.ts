@@ -54,7 +54,7 @@ export const erxesMessengerSetSetupAtom = atom(
         name: payload?.name || '',
         channelId,
         brandId: payload?.brandId,
-        ticketConfigId: payload?.ticketConfigId,
+        ticketConfigIds: payload?.ticketConfigIds,
         knowledgeBaseTopicId: payload?.messengerData?.knowledgeBaseTopicId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
@@ -83,7 +83,6 @@ export const erxesMessengerSetSetupAtom = atom(
 
       set(erxesMessengerSetupConfigAtom, config);
 
-
       const messagesObj = payload?.messengerData?.messages;
       const languageCode =
         payload?.languageCode ||
@@ -104,7 +103,6 @@ export const erxesMessengerSetSetupAtom = atom(
       };
 
       set(erxesMessengerSetupGreetingAtom, greetings);
-
 
       const defaultHours = createDefaultOnlineHours();
       const processedHours = processOnlineHours(
