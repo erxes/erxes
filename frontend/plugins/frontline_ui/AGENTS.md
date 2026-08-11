@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-11`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -136,7 +136,6 @@
 | Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells  |
 | Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                         |
 | Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
-| Softphone          | `src/modules/integrations/call/components/{SipProvider,CallWidget,IncomingCall,InCall}.tsx`                                                   | JsSIP user agent, SIP/call state atoms, and the floating call widget's incoming and in-call UI    |
 | Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                      |
 
 ## Contracts
@@ -292,13 +291,6 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
   metric. Both currently arrive as numbers from the CDR pipelines, so the dash
   is a fallback, not the common case.
-- Answering an incoming call is asynchronous: `rtcSession.answer()` marks the
-  JsSIP session answered immediately, but `sipState.callStatus` only becomes
-  `ACTIVE` once the session emits `accepted` (after `getUserMedia` and the
-  `200 OK`). `IncomingCall` therefore stays mounted with a live button during
-  that window, so it must keep its own pending flag, and `answerCall` must stay
-  idempotent by returning early unless `rtcSessionState.isInProgress()`. A
-  second `answer()` on the same session throws `INVALID_STATE_ERROR`.
 - `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
   service, which is what actually labels the report data — the UI helper only
   covers phone numbers the plugin classifies itself. Change both together.
@@ -421,21 +413,6 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-08-11` — Answering an incoming call no longer throws `INVALID_STATE_ERROR`
-
-- **Summary:** Clicking "Answer" again while the first answer was still
-  negotiating media called `rtcSession.answer()` on an already-answered JsSIP
-  session, which threw `INVALID_STATE_ERROR: Invalid status: 5`. `answerCall`
-  now returns early unless the session `isInProgress()`, reports whether it
-  actually answered, and no longer throws on a wrong call state; the incoming
-  screen disables its answer button and shows `connecting` until the session is
-  accepted.
-- **Affected areas:** `src/modules/integrations/call/components/SipProvider.tsx`,
-  `src/modules/integrations/call/components/IncomingCall.tsx`,
-  `src/modules/integrations/call/types/sipTypes.ts`.
-- **Contracts changed:** `SipContextValue.answerCall` returns `boolean` instead
-  of `void` (plugin-internal context, no federation or GraphQL surface).
 
 ### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
 
@@ -582,3 +559,17 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `useReportChartMutations` no longer take a chart type;
   `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
   component gained optional `cardId` and `savedChart`.
+
+### `2026-08-10` — Status summary lists the pipeline's own statuses
+
+- **Summary:** The Ticket Status Summary card now shows one row per pipeline
+  status, named as it is in ticket status settings, with its default category
+  beside it, instead of six built-in category names. Axis ticks truncate because
+  status names are full sentences.
+- **Affected areas:**
+  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
+  `src/modules/report/hooks/useTicketStatusSummary.ts`,
+  `src/modules/report/graphql/queries/getTicketChart.ts`.
+- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
+  `group`; the card can now render an empty state, where six zero rows always
+  came back before.
