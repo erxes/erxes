@@ -14,7 +14,7 @@ const useResizeEffect = (
     const element = ref.current;
 
     if (!element) {
-      return;
+      return undefined;
     }
 
     const observer = new ResizeObserver(onResize);

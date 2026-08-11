@@ -18,7 +18,8 @@ export const InboxLayout = ({
   }
 
   // The toggle lives in the conversation header, and CSS keeps the list mounted.
-  const collapseConversations = isHidden && !!conversationId && 'hidden';
+  const collapseConversations =
+    isHidden && Boolean(conversationId) && 'hidden';
 
   return (
     <Resizable.PanelGroup

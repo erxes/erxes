@@ -34,63 +34,20 @@ import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from './ConversationActions';
 import { useTranslation } from 'react-i18next';
 
-export const ConversationHeader = () => {
-  const { loading } = useConversationContext();
-  const [, setConversationId] = useQueryState<string>('conversationId');
-  const view = useInboxLayout();
-  const { ref: headerRef, isCompact } = useOverflowCompact<HTMLDivElement>();
-
-  return (
-    <div
-      ref={headerRef}
-      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
-    >
-      {view === 'list' ? (
-        <Button
-          variant="secondary"
-          size="icon"
-          className="[&>svg]:size-4 text-foreground flex-none"
-          onClick={() => setConversationId(null)}
-        >
-          <IconArrowLeft />
-        </Button>
-      ) : (
-        <ConversationListToggle />
-      )}
-      {!loading ? (
-        <ConversationHeaderProfile />
-      ) : (
-        <Skeleton className="w-32 h-4 ml-2" />
-      )}
-      <Separator.Inline />
-      <AssignConversation />
-      <AutomatedReplyStatusBadge />
-      {isCompact ? (
-        <div className="ml-auto flex-none">
-          <ConversationActionsDropdown />
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 pr-px ml-auto flex-none">
-          <ConversationTags />
-          <IntegrationActions />
-          <ConversationActions />
-        </div>
-      )}
-    </div>
-  );
-};
-
 const ConversationListToggle = () => {
+  const { t } = useTranslation('frontline');
   const { isHidden, toggle } = useConversationListVisibility();
   const Icon = isHidden
     ? IconLayoutSidebarLeftExpand
     : IconLayoutSidebarLeftCollapse;
+  const label = t(isHidden ? 'show-conversations' : 'hide-conversations');
 
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={0}>
         <Tooltip.Trigger asChild>
           <Button
+            aria-label={label}
             variant="secondary"
             size="icon"
             className="[&>svg]:size-4 text-foreground flex-none"
@@ -99,9 +56,7 @@ const ConversationListToggle = () => {
             <Icon />
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>
-          {isHidden ? 'Show conversations' : 'Hide conversations'}
-        </Tooltip.Content>
+        <Tooltip.Content>{label}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );
@@ -338,5 +293,52 @@ const ConversationActionsDropdown = () => {
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
+  );
+};
+
+export const ConversationHeader = () => {
+  const { loading } = useConversationContext();
+  const [, setConversationId] = useQueryState<string>('conversationId');
+  const view = useInboxLayout();
+  const { ref: headerRef, isCompact } = useOverflowCompact<HTMLDivElement>();
+
+  return (
+    <div
+      ref={headerRef}
+      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
+    >
+      {view === 'list' ? (
+        <Button
+          variant="secondary"
+          size="icon"
+          className="[&>svg]:size-4 text-foreground flex-none"
+          onClick={() => setConversationId(null)}
+        >
+          <IconArrowLeft />
+        </Button>
+      ) : (
+        <ConversationListToggle />
+      )}
+      {!loading ? (
+        <ConversationHeaderProfile />
+      ) : (
+        <Skeleton className="w-32 h-4 ml-2" />
+      )}
+      <Separator.Inline />
+      <AssignConversation />
+      <AutomatedReplyStatusBadge />
+      {isCompact ? (
+        <div className="flex items-center gap-3 ml-auto flex-none">
+          <IntegrationActions />
+          <ConversationActionsDropdown />
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 pr-px ml-auto flex-none">
+          <ConversationTags />
+          <IntegrationActions />
+          <ConversationActions />
+        </div>
+      )}
+    </div>
   );
 };

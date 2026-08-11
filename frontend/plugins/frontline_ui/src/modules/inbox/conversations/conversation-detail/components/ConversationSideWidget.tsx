@@ -14,23 +14,23 @@ const SideWidgetOutsideClose = ({
 
   useEffect(() => {
     if (!activeTab) {
-      return;
+      return undefined;
     }
 
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node | null;
       const container = containerRef.current;
       const boundary = boundaryRef.current;
+      const isOutside =
+        !!target &&
+        !!container &&
+        !!boundary &&
+        boundary.contains(target) &&
+        !container.contains(target);
 
-      if (!target || !container || !boundary) {
-        return;
+      if (isOutside) {
+        setActiveTab();
       }
-
-      if (!boundary.contains(target) || container.contains(target)) {
-        return;
-      }
-
-      setActiveTab(undefined);
     };
 
     document.addEventListener('pointerdown', handlePointerDown);
