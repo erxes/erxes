@@ -53,7 +53,7 @@ async function prepareTicketDoc(subdomain: string, row: any): Promise<any> {
 
   if (assigneeCell) {
     doc.assigneeIds = String(assigneeCell)
-      .split(',')
+      .split(/[,;]/)
       .map((id: string) => id.trim())
       .filter(Boolean);
   }

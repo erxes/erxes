@@ -155,7 +155,7 @@ export const createActivity = async (args: {
       if (!oldValue && newValue) action = Action.CREATED;
       else if (newValue !== oldValue)
         action = newValue ? Action.CHANGED : Action.REMOVED;
-    } else if (newValue !== oldValue) {
+    } else if (toStr(newValue) !== toStr(oldValue)) {
       action = Action.CHANGED;
     }
 

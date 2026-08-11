@@ -171,7 +171,7 @@ export const TicketAssignee = ({
   assignees?: IUser[];
   assigneeIds?: string[];
 }) => {
-  if (!assigneeIds?.length && !assignees?.length)
+  if (!assigneeIds?.length || !assignees?.length)
     return <IconUserCancel className="size-4 text-muted-foreground" />;
   return (
     <Tooltip.Provider>

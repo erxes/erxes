@@ -23,7 +23,7 @@ export async function getTicketExportData(
     if (filters.name) {
       query.name = { $regex: filters.name, $options: 'i' };
     }
-    if (filters.assigneeIds) {
+    if (Array.isArray(filters.assigneeIds) && filters.assigneeIds.length) {
       query.assigneeIds = { $in: filters.assigneeIds };
     }
     if (filters.priority) {

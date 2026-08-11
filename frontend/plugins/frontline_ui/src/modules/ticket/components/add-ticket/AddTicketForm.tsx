@@ -235,8 +235,8 @@ export const AddTicketForm = ({
                       {t('assignee-label')}
                     </Form.Label>
                     <SelectAssigneeTicket.FormItem
-                      value={(field.value as string[]) || []}
-                      onValueChange={(value: any) => {
+                      value={Array.isArray(field.value) ? field.value : []}
+                      onValueChange={(value: string[]) => {
                         field.onChange(value);
                       }}
                     />

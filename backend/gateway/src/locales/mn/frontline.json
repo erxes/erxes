@@ -273,6 +273,8 @@
   "no-conversation-source-data": "Харилцааны эх сурвалжийн өгөгдөл байхгүй",
   "no-tag-data": "Шошгоны өгөгдөл байхгүй",
   "assignee": "Хариуцагч",
+  "assignees-count_one": "{{count}} хариуцагч",
+  "assignees-count_other": "{{count}} хариуцагч",
   "source": "Эх сурвалж",
   "tag": "Шошго",
   "uploading-file": "Файл байршуулж байна...",

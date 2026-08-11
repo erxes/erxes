@@ -17,6 +17,7 @@ import {
   MembersInline,
 } from 'ui-modules';
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import {
@@ -34,6 +35,7 @@ const SelectAssigneeValue = ({
   placeholder?: string;
   variant?: `${SelectTriggerVariant}`;
 }) => {
+  const { t } = useTranslation('frontline');
   const { memberIds, members, setMembers } = useSelectMemberContext();
   if (variant === SelectTriggerVariant.CARD) {
     return (
@@ -59,7 +61,12 @@ const SelectAssigneeValue = ({
         size="lg"
       >
         <MembersInline.Avatar />
-        <span className="truncate">{selectedCount} assignees</span>
+        <span className="truncate">
+          {t('assignees-count', {
+            defaultValue: '{{count}} assignees',
+            count: selectedCount,
+          })}
+        </span>
       </MembersInline.Provider>
     );
   }

@@ -273,6 +273,8 @@
   "no-conversation-source-data": "No conversation source data available",
   "no-tag-data": "No tag data available",
   "assignee": "Assignee",
+  "assignees-count_one": "{{count}} assignee",
+  "assignees-count_other": "{{count}} assignees",
   "source": "Source",
   "tag": "Tag",
   "uploading-file": "Uploading file...",
