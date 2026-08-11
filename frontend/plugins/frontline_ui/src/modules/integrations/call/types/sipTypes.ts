@@ -89,7 +89,7 @@ export interface SipContextValue {
   registerSip: () => void;
   unregisterSip: () => void;
   reconnectSip: () => void;
-  answerCall: () => void;
+  answerCall: () => boolean;
   startCall: (destination: string) => void;
   stopCall: () => void;
   isMuted: () => boolean;

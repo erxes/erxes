@@ -127,17 +127,24 @@ const SipProvider = ({
   }, [autoRegister, sipState.sipStatus]);
 
   // Call control functions
-  const answerCall = useCallback(() => {
+  const answerCall = useCallback((): boolean => {
     if (
       sipState.callStatus !== CallStatusEnum.STARTING ||
       sipState.callDirection !== CallDirectionEnum.INCOMING
     ) {
-      throw new Error(
-        `Calling answerCall() is not allowed when call status is ${sipState.callStatus} and call direction is ${sipState.callDirection}`,
+      loggerRef.current?.debug(
+        `answerCall() skipped: call status is ${sipState.callStatus} and call direction is ${sipState.callDirection}`,
       );
+      return false;
+    }
+    if (!rtcSessionState?.isInProgress()) {
+      loggerRef.current?.debug(
+        'answerCall() skipped: session is not waiting for an answer',
+      );
+      return false;
     }
     try {
-      rtcSessionState?.answer({
+      rtcSessionState.answer({
         mediaConstraints: {
           audio: true,
           video: false,
@@ -146,8 +153,10 @@ const SipProvider = ({
           iceServers,
         },
       });
+      return true;
     } catch (error) {
-      console.error(error);
+      loggerRef.current?.error(error);
+      return false;
     }
   }, [
     sipState.callStatus,
