@@ -1,5 +1,20 @@
 
 
+## [3.0.76](https://github.com/erxes/erxes/compare/3.0.75...3.0.76) (2026-08-11)
+
+
+### Bug Fixes
+
+* **frontline:** prevent duplicate answer on incoming call ([45e24e3](https://github.com/erxes/erxes/commit/45e24e3b9bf37b97bb9d86b4efb76453158c0fed))
+* **loyalty:** discounted row exclude score logic ([46cb63e](https://github.com/erxes/erxes/commit/46cb63e30435b294a31b869c739e4e9b165abb90))
+
+
+### Features
+
+* accounting adjust rate fund and debt ([#6811](https://github.com/erxes/erxes/issues/6811)) ([b8e48fa](https://github.com/erxes/erxes/commit/b8e48fa4063efbfe9cd89336cb4f7f8707019b84))
+* **frontline:** multi-select real pipeline status filter for ticket reports  ([a743b9f](https://github.com/erxes/erxes/commit/a743b9fc6279a287e7874bbe0e0a0596d2dfc052))
+* global search across contacts, conversations and deals ([#8917](https://github.com/erxes/erxes/issues/8917)) ([a7b3fb7](https://github.com/erxes/erxes/commit/a7b3fb77cdf6ed1eff9901837e4c44828f5b76cd))
+
 ## [3.0.75](https://github.com/erxes/erxes/compare/3.0.74...3.0.75) (2026-08-10)
 
 
