@@ -146,7 +146,12 @@ export default {
               return false;
             if (filter.createdBy && ticket.createdBy !== filter.createdBy)
               return false;
-            if (filter.assigneeId && ticket.assigneeId !== filter.assigneeId)
+            if (
+              filter.assigneeIds?.length &&
+              !filter.assigneeIds.some((id) =>
+                (ticket.assigneeIds || []).includes(id),
+              )
+            )
               return false;
             if (filter.channelId && ticket.channelId !== filter.channelId)
               return false;
@@ -154,8 +159,8 @@ export default {
             if (
               filter.userId &&
               !filter.pipelineId &&
-              !filter.assigneeId &&
-              ticket.assigneeId !== filter.userId
+              !filter.assigneeIds?.length &&
+              !(ticket.assigneeIds || []).includes(filter.userId)
             ) {
               return false;
             }

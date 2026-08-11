@@ -68,7 +68,7 @@ export const GET_TICKET_LIST = gql`
         }
         state
         priority
-        assigneeId
+        assigneeIds
         createdAt
         targetDate
         startDate

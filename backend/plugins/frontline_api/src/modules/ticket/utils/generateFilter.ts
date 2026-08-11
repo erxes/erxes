@@ -62,14 +62,14 @@ export const generateFilter = async (
       (pipeline.excludeCheckUserIds || []).includes(user._id)
     ) {
       ownershipOrCondition = [
-        { assigneeId: user._id },
+        { assigneeIds: user._id },
         { createdBy: user._id },
       ];
     }
   }
 
   if (filter.myTicketsOnly) {
-    ownershipOrCondition = [{ assigneeId: user._id }, { createdBy: user._id }];
+    ownershipOrCondition = [{ assigneeIds: user._id }, { createdBy: user._id }];
   }
 
   if (filter.searchValue) {
@@ -105,14 +105,14 @@ export const generateFilter = async (
     filterQuery.createdAt = { $gte: filter.createdAt };
   }
 
-  if (filter.assigneeId) {
-    filterQuery.assigneeId = filter.assigneeId;
+  if (filter.assigneeIds?.length) {
+    filterQuery.assigneeIds = { $in: filter.assigneeIds };
   }
 
   if (filter.channelId) filterQuery.channelId = filter.channelId;
   if (filter.pipelineId) filterQuery.pipelineId = filter.pipelineId;
-  if (filter.userId && !filter.channelId && !filter.assigneeId) {
-    filterQuery.assigneeId = filter.userId;
+  if (filter.userId && !filter.channelId && !filter.assigneeIds?.length) {
+    filterQuery.assigneeIds = filter.userId;
   }
 
   let stateCondition: FilterQuery<ITicketDocument> | null = null;

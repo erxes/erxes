@@ -11,7 +11,7 @@ export const UPDATE_TICKET_MUTATION = gql`
     $priority: Int
     $labelIds: [String]
     $tagIds: [String]
-    $assigneeId: String
+    $assigneeIds: [String]
     $assignedMembers: [String]
     $startDate: Date
     $targetDate: Date
@@ -30,7 +30,7 @@ export const UPDATE_TICKET_MUTATION = gql`
       priority: $priority
       labelIds: $labelIds
       tagIds: $tagIds
-      assigneeId: $assigneeId
+      assigneeIds: $assigneeIds
       assignedMembers: $assignedMembers
       startDate: $startDate
       targetDate: $targetDate
@@ -46,7 +46,7 @@ export const UPDATE_TICKET_MUTATION = gql`
       priority
       labelIds
       tagIds
-      assigneeId
+      assigneeIds
       assignedMembers
       startDate
       targetDate

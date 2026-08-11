@@ -10,7 +10,7 @@ export const GET_TICKET = gql`
       priority
       labelIds
       tagIds
-      assigneeId
+      assigneeIds
       assignedMembers
       userId
       startDate

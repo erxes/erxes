@@ -33,7 +33,7 @@ type TPlaceholderFieldName =
   | 'name'
   | 'description'
   | 'priority'
-  | 'assigneeId'
+  | 'assigneeIds'
   | 'startDate'
   | 'targetDate'
   | 'labelIds'
@@ -263,7 +263,7 @@ export const CreateTicketActionConfigForm = ({
         />
         <PlaceholderFormField
           control={control}
-          name="assigneeId"
+          name="assigneeIds"
           label={t('assignee')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.CallUser]}

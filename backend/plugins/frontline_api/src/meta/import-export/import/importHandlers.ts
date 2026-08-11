@@ -16,7 +16,7 @@ const TICKET_SYSTEM_HEADERS = [
   { label: 'State', key: 'state' },
   { label: 'Pipeline ID', key: 'pipelineId' },
   { label: 'Channel ID', key: 'channelId' },
-  { label: 'Assignee ID', key: 'assigneeId' },
+  { label: 'Assignee IDs', key: 'assigneeIds' },
   { label: 'Start Date', key: 'startDate' },
   { label: 'Due Date', key: 'targetDate' },
   { label: 'Tags', key: 'tags' },

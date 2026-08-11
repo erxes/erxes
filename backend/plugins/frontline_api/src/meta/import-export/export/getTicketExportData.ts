@@ -23,8 +23,8 @@ export async function getTicketExportData(
     if (filters.name) {
       query.name = { $regex: filters.name, $options: 'i' };
     }
-    if (filters.assigneeId) {
-      query.assigneeId = filters.assigneeId;
+    if (filters.assigneeIds) {
+      query.assigneeIds = { $in: filters.assigneeIds };
     }
     if (filters.priority) {
       query.priority = Number(filters.priority);
@@ -61,7 +61,7 @@ export async function getTicketExportData(
   const allTagIds = new Set<string>();
 
   for (const t of tickets) {
-    if (t.assigneeId) allAssigneeIds.add(t.assigneeId);
+    (t.assigneeIds || []).forEach((id: string) => allAssigneeIds.add(id));
     if (t.pipelineId) allPipelineIds.add(t.pipelineId);
     (t.tagIds || []).forEach((id: string) => allTagIds.add(id));
   }

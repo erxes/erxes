@@ -65,10 +65,10 @@ const TICKET_OUTPUT: TAutomationRuntimeOutputDefinition<ITicket> = {
     { key: 'statusType', label: 'Status type' },
     { key: 'priority', label: 'Priority' },
     {
-      key: 'assigneeId',
-      label: 'Assignee',
+      key: 'assigneeIds',
+      label: 'Assignees',
       exposure: 'reference',
-      field: 'assigneeId',
+      field: 'assigneeIds',
       referenceType: 'core:user',
     },
     {

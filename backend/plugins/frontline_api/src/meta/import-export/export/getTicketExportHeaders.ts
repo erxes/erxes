@@ -16,7 +16,7 @@ export async function getTicketExportHeaders(
     { label: 'Priority', key: 'priority', isDefault: true },
     { label: 'Status', key: 'statusType', isDefault: true },
     { label: 'State', key: 'state', isDefault: true },
-    { label: 'Assignee', key: 'assigneeId', isDefault: true },
+    { label: 'Assignees', key: 'assigneeIds', isDefault: true },
     { label: 'Pipeline', key: 'pipelineId', isDefault: true },
     { label: 'Tags', key: 'tagIds' },
     { label: 'Number', key: 'number' },

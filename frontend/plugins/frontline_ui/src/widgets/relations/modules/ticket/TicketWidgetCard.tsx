@@ -26,7 +26,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
     name,
     number,
     priority,
-    assigneeId,
+    assigneeIds,
     _id,
     statusId,
     pipelineId,
@@ -79,7 +79,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
             <IconCalendarEventFilled />
             {createdAt && format(new Date(createdAt), 'MMM dd, yyyy')}
           </Button>
-          <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
+          <SelectAssigneeTicket variant="card" value={assigneeIds} id={_id} />
         </div>
       </Card>
       <Suspense>

@@ -12,7 +12,7 @@ export const TICKET_LIST_CHANGED = gql`
         priority
         labelIds
         tagIds
-        assigneeId
+        assigneeIds
         userId
         startDate
         targetDate

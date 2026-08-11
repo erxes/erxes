@@ -10,7 +10,7 @@ export interface ITicket {
   priority: number;
   labelIds: string[];
   tagIds: string[];
-  assigneeId: string;
+  assigneeIds: string[];
   assignedMembers?: string[];
   userId: string;
   startDate: string;

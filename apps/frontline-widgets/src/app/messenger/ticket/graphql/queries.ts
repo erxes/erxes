@@ -35,7 +35,7 @@ const GET_TICKET_PROGRESS = gql`
       priority
       labelIds
       tagIds
-      assigneeId
+      assigneeIds
       createdBy
       userId
       startDate
@@ -67,7 +67,7 @@ const GET_TICKETS_BY_CUSTOMER_ID = gql`
       priority
       labelIds
       tagIds
-      assigneeId
+      assigneeIds
       createdBy
       userId
       startDate
@@ -84,7 +84,7 @@ const GET_TICKETS_BY_CUSTOMER_ID = gql`
         description
         type
       }
-      assignee {
+      assignees {
         _id
         details {
           avatar

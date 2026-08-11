@@ -12,7 +12,7 @@ export const CREATE_TICKET = gql`
     $tagIds: [String]
     $startDate: Date
     $targetDate: Date
-    $assigneeId: String
+    $assigneeIds: [String]
     $assignedMembers: [String]
     $attachments: [AttachmentInput]
   ) {
@@ -27,7 +27,7 @@ export const CREATE_TICKET = gql`
       tagIds: $tagIds
       startDate: $startDate
       targetDate: $targetDate
-      assigneeId: $assigneeId
+      assigneeIds: $assigneeIds
       assignedMembers: $assignedMembers
       attachments: $attachments
     ) {
@@ -38,7 +38,7 @@ export const CREATE_TICKET = gql`
       priority
       labelIds
       tagIds
-      assigneeId
+      assigneeIds
       assignedMembers
       userId
       startDate

@@ -12,7 +12,7 @@ const LABELS: Partial<Record<keyof TTicketActionConfigForm, string>> = {
   name: 'name',
   description: 'description',
   priority: 'priority-label',
-  assigneeId: 'assignee',
+  assigneeIds: 'assignee',
   startDate: 'start-date',
   targetDate: 'target-date',
   labelIds: 'labels',

@@ -23,7 +23,7 @@ export interface ITicketPermissions {
 interface UseTicketPermissionsParams {
   pipeline?: IPipeline;
   status?: IStatusPermissions;
-  assigneeId?: string;
+  assigneeIds?: string[];
 }
 
 const resolveStatusPermissions = (
@@ -63,7 +63,7 @@ const DENIED: ITicketPermissions = {
 export const useTicketPermissions = ({
   pipeline,
   status,
-  assigneeId,
+  assigneeIds,
 }: UseTicketPermissionsParams): ITicketPermissions => {
   const currentUser = useAtomValue(currentUserState);
 
@@ -73,7 +73,7 @@ export const useTicketPermissions = ({
 
   const userId = currentUser._id;
   const isPipelineOwner = pipeline.userId === userId;
-  const isAssignedUser = !!assigneeId && assigneeId === userId;
+  const isAssignedUser = !!assigneeIds?.includes(userId);
 
   let canViewPipeline = true;
 

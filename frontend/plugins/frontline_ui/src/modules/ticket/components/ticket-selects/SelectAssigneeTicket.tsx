@@ -47,6 +47,23 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
+  const selectedCount = memberIds?.length ?? 0;
+
+  if (selectedCount > 1) {
+    return (
+      <MembersInline.Provider
+        memberIds={memberIds}
+        members={members}
+        updateMembers={setMembers}
+        allowUnassigned
+        size="lg"
+      >
+        <MembersInline.Avatar />
+        <span className="truncate">{selectedCount} assignees</span>
+      </MembersInline.Provider>
+    );
+  }
+
   return <SelectMember.Value placeholder={placeholder || 'Select assignee'} />;
 };
 
@@ -161,7 +178,7 @@ const SelectAssigneeTicketRoot = ({
   id,
   disabled,
 }: {
-  value: string;
+  value?: string[];
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
@@ -175,24 +192,24 @@ const SelectAssigneeTicketRoot = ({
       updateTicket({
         variables: {
           _id: id,
-          assigneeId: value,
+          assigneeIds: value || [],
         },
       });
     }
-    setOpen(false);
   };
 
   return (
     <SelectAssigneeProvider
-      value={value}
+      value={value || []}
       onValueChange={handleValueChange}
-      mode="single"
+      mode="multiple"
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <SelectTriggerTicket
           variant={variant === 'card' ? 'icon' : variant}
           disabled={disabled}
+          className={variant === 'card' ? 'w-auto min-w-7 px-1' : undefined}
         >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerTicket>
@@ -209,19 +226,18 @@ export const SelectAssigneeTicketFormItem = ({
   onValueChange,
   scope,
 }: {
-  value: string;
-  onValueChange: (value: string) => void;
+  value?: string[];
+  onValueChange: (value: string[]) => void;
   scope?: string;
 }) => {
   const [open, setOpen] = useState(false);
   return (
     <SelectAssigneeProvider
-      value={value}
+      value={value || []}
       onValueChange={(value) => {
-        onValueChange(value as string);
-        setOpen(false);
+        onValueChange((value as string[]) || []);
       }}
-      mode="single"
+      mode="multiple"
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>

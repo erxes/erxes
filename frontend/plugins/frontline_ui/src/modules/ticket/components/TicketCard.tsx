@@ -39,7 +39,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
     _id,
     createdAt,
     pipelineId,
-    assigneeId,
+    assigneeIds,
   } = ticket;
 
   return (
@@ -96,7 +96,7 @@ export const TicketCard = ({ id, column }: BoardCardProps) => {
           <IconCalendarEventFilled />
           {createdAt && format(new Date(createdAt), 'MMM d, yyyy HH:mm')}
         </Button>
-        <SelectAssigneeTicket variant="card" value={assigneeId} id={_id} />
+        <SelectAssigneeTicket variant="card" value={assigneeIds} id={_id} />
       </div>
     </div>
   );

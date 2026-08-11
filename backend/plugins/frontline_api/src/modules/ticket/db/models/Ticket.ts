@@ -51,11 +51,13 @@ export const loadTicketClass = (
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
       if (params.name) query.name = { $regex: params.name, $options: 'i' };
-      if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assigneeIds?.length)
+        query.assigneeIds = { $in: params.assigneeIds };
       if (params.channelId) query.channelId = params.channelId;
       if (params.pipelineId) query.pipelineId = params.pipelineId;
       if (params.statusId) query.statusId = params.statusId;
-      if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assigneeIds?.length)
+        query.assigneeIds = { $in: params.assigneeIds };
       if (params.assignedMembers)
         query.assignedMembers = { $in: params.assignedMembers };
       if (params.priority) query.priority = params.priority;
@@ -83,7 +85,7 @@ export const loadTicketClass = (
       return models.Ticket.find(query)
         .populate('pipelineId')
         .populate('statusId')
-        .populate('assigneeId', 'name email')
+        .populate('assigneeIds', 'name email')
         .sort({ createdAt: -1 })
         .lean();
     }
@@ -110,14 +112,18 @@ export const loadTicketClass = (
         subscribedUserIds: [userId],
         number: new Date().getTime().toString(),
       });
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      const notifiedAssigneeIds = (doc.assigneeIds || []).filter(
+        (id) => id !== userId,
+      );
+
+      if (notifiedAssigneeIds.length) {
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: ticket._id,
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
-          userIds: [doc.assigneeId],
+          userIds: notifiedAssigneeIds,
           action: 'assignee',
         });
       }
@@ -207,14 +213,18 @@ export const loadTicketClass = (
         contentId: ticket._id,
       });
 
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      const assigneeIds = (doc.assigneeIds || []).filter(
+        (id) => id !== userId,
+      );
+
+      if (assigneeIds.length) {
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: ticket._id,
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
-          userIds: [doc.assigneeId],
+          userIds: assigneeIds,
           action: 'assignee',
         });
       }
@@ -247,7 +257,7 @@ export const loadTicketClass = (
       if (detail?.subscribedUserIds?.length) {
         const userIds =
           detail.subscribedUserIds.filter(
-            (id) => id !== userId && id !== doc.assigneeId,
+            (id) => id !== userId && !assigneeIds.includes(id),
           ) || [];
         await createNotifications({
           contentType: 'ticket',

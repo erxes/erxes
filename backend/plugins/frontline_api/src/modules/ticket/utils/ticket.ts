@@ -65,6 +65,7 @@ enum Module {
 
 const FIELD_TO_MODULE: Record<string, Module> = {
   assigneeId: Module.ASSIGNEE,
+  assigneeIds: Module.ASSIGNEE,
   pipelineId: Module.PIPELINE,
   pipelineIds: Module.PIPELINE,
   startDate: Module.START_DATE,

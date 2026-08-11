@@ -59,7 +59,7 @@ export interface ITicketCheckProgress {
   priority: string;
   labelIds: string[];
   tagIds: string[];
-  assigneeId: string;
+  assigneeIds: string[];
   createdBy: string;
   userId: string;
   startDate: string;
@@ -70,7 +70,7 @@ export interface ITicketCheckProgress {
   statusChangedDate: string;
   number: string;
   status: ITicketStatus;
-  assignee: IUser;
+  assignees: IUser[];
 }
 
 export interface ITicketStatus {

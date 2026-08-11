@@ -36,7 +36,7 @@ const ticketSchema = new Schema(
       default: 'ticket',
     },
     priority:          { type: Number, label: 'Priority', default: 0 },
-    assigneeId:        { type: String, label: 'Assignee' },
+    assigneeIds:       { type: [String], label: 'Assignees' },
     createdBy:         { type: String, label: 'Created By' },
     attachments:       { type: [attachmentSchema], label: 'Attachments' },
     labelIds:          { type: [String], label: 'Label IDs' },
@@ -87,7 +87,7 @@ export const loadTicketClass = (models: IModels) => {
       const query = {} as FilterQuery<ITicketDocument>;
 
       if (params.name)       query.name       = { $regex: params.name, $options: 'i' };
-      if (params.assigneeId) query.assigneeId = params.assigneeId;
+      if (params.assigneeIds?.length) query.assigneeIds = { $in: params.assigneeIds };
       if (params.channelId)  query.channelId  = params.channelId;
       if (params.pipelineId) query.pipelineId = params.pipelineId;
       if (params.statusId)   query.statusId   = params.statusId;
@@ -157,14 +157,18 @@ export const loadTicketClass = (models: IModels) => {
         }
       }
 
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      const notifiedAssigneeIds = (doc.assigneeIds || []).filter(
+        (id) => id !== userId,
+      );
+
+      if (notifiedAssigneeIds.length) {
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: ticket._id,
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
-          userIds: [doc.assigneeId],
+          userIds: notifiedAssigneeIds,
           action: 'assignee',
         });
       }
@@ -262,14 +266,18 @@ export const loadTicketClass = (models: IModels) => {
         contentId: ticket._id,
       });
 
-      if (doc.assigneeId && doc.assigneeId !== userId) {
+      const assigneeIds = (doc.assigneeIds || []).filter(
+        (id) => id !== userId,
+      );
+
+      if (assigneeIds.length) {
         await createNotifications({
           contentType: 'ticket',
           contentTypeId: ticket._id,
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
-          userIds: [doc.assigneeId],
+          userIds: assigneeIds,
           action: 'assignee',
         });
       }
@@ -286,7 +294,7 @@ export const loadTicketClass = (models: IModels) => {
 
       if (updated.subscribedUserIds?.length) {
         const notifyIds = updated.subscribedUserIds.filter(
-          (id) => id !== userId && id !== doc.assigneeId,
+          (id) => id !== userId && !assigneeIds.includes(id),
         );
         if (notifyIds.length) {
           await createNotifications({

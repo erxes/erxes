@@ -13,7 +13,7 @@ export interface TicketListItem {
   };
   state?: string;
   priority: number;
-  assigneeId: string;
+  assigneeIds: string[];
   createdAt: string;
   targetDate?: string;
   startDate?: string;

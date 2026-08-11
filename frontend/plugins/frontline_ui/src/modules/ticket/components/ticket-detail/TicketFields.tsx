@@ -42,7 +42,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const {
     _id: ticketId,
     priority,
-    assigneeId,
+    assigneeIds,
     assignedMembers,
     name: _name,
     targetDate,
@@ -350,7 +350,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             />
             <SelectAssigneeTicket
               variant="detail"
-              value={assigneeId}
+              value={assigneeIds}
               id={ticketId}
               disabled={!canEditTicket}
             />

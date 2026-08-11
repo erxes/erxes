@@ -36,9 +36,10 @@ export const buildTicketExportRow = (
 ): Record<string, any> => {
   const formatValue = (v: any) => (v == null ? '' : String(v));
 
-  const assigneeName = ticket.assigneeId
-    ? maps?.assigneeMap?.get(String(ticket.assigneeId)) || ''
-    : '';
+  const assigneeName = joinNames(
+    ticket.assigneeIds,
+    maps?.assigneeMap || new Map(),
+  );
 
   const pipelineName = ticket.pipelineId
     ? maps?.pipelineMap?.get(String(ticket.pipelineId)) || ''
@@ -54,7 +55,7 @@ export const buildTicketExportRow = (
     priority: formatValue(getPriorityLabel(ticket.priority)),
     statusType: formatValue(getStatusLabel(ticket.statusType)),
     state: formatValue(ticket.state),
-    assigneeId: formatValue(assigneeName),
+    assigneeIds: formatValue(assigneeName),
     pipelineId: formatValue(pipelineName),
     tagIds: formatValue(tagNames),
     number: formatValue(ticket.number),

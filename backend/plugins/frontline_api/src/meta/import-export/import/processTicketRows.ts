@@ -45,8 +45,17 @@ async function prepareTicketDoc(subdomain: string, row: any): Promise<any> {
     doc.pipelineId = row.pipelineId || row['Pipeline ID'];
   }
 
-  if (row.assigneeId || row['Assignee ID']) {
-    doc.assigneeId = row.assigneeId || row['Assignee ID'];
+  const assigneeCell =
+    row.assigneeIds ||
+    row['Assignee IDs'] ||
+    row.assigneeId ||
+    row['Assignee ID'];
+
+  if (assigneeCell) {
+    doc.assigneeIds = String(assigneeCell)
+      .split(',')
+      .map((id: string) => id.trim())
+      .filter(Boolean);
   }
 
   if (row.channelId || row['Channel ID']) {

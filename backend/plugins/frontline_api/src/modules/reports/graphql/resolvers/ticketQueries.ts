@@ -881,7 +881,9 @@ export const reportTicketQueries = {
     }
 
     const assigneeIds = [
-      ...new Set(tickets.map((t: any) => t.assigneeId).filter(Boolean)),
+      ...new Set(
+        tickets.flatMap((t: any) => t.assigneeIds || []).filter(Boolean),
+      ),
     ];
     const pipelineIds = [
       ...new Set(tickets.map((t: any) => t.pipelineId).filter(Boolean)),
@@ -942,8 +944,10 @@ export const reportTicketQueries = {
       state: ticket.state || 'active',
       priorityLabel: priorityMap.get(ticket.priority) || 'No Priority',
       statusLabel: statusMap.get(ticket.statusType) || 'Unknown',
-      assigneeName: ticket.assigneeId
-        ? memberMap.get(ticket.assigneeId.toString()) || 'Unknown'
+      assigneeName: ticket.assigneeIds?.length
+        ? ticket.assigneeIds
+            .map((id: string) => memberMap.get(id.toString()) || 'Unknown')
+            .join(', ')
         : 'Unassigned',
       pipelineName: ticket.pipelineId
         ? pipelineMap.get(ticket.pipelineId.toString()) || 'Unknown'

@@ -184,7 +184,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
           <SelectAssigneeTicket
             variant="table"
             id={cell.row.original._id}
-            value={cell.row.original.assigneeId}
+            value={cell.row.original.assigneeIds}
             scope={clsx(
               TicketHotKeyScope.TicketTableCell,
               cell.row.original._id,

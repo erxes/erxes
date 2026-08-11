@@ -346,10 +346,10 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   {
     id: 'assigneeId',
     header: 'Assigned',
-    accessorKey: 'assigneeId',
+    accessorKey: 'assigneeIds',
     cell: ({ cell }) => {
-      const assigneeId = cell.getValue() as string;
-      if (!assigneeId)
+      const assigneeIds = (cell.getValue() as string[]) || [];
+      if (!assigneeIds.length)
         return (
           <RecordTableInlineCell className="text-xs text-muted-foreground">
             Unassigned
@@ -357,7 +357,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
         );
       return (
         <RecordTableInlineCell>
-          <MembersInline.Provider memberIds={[assigneeId]}>
+          <MembersInline.Provider memberIds={assigneeIds}>
             <MembersInline.Avatar size="sm" />
             <MembersInline.Title className="text-xs text-muted-foreground" />
           </MembersInline.Provider>

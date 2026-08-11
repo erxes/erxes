@@ -21,10 +21,12 @@ export const SelectTriggerTicket = ({
   children,
   variant,
   disabled,
+  className,
 }: {
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
   disabled?: boolean;
+  className?: string;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
     return (
@@ -71,6 +73,7 @@ export const SelectTriggerTicket = ({
         <Button
           variant="ghost"
           size="icon"
+          className={className}
           onClick={(e) => {
             e.stopPropagation();
           }}

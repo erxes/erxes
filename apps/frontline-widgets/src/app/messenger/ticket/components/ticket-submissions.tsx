@@ -103,8 +103,8 @@ export const TicketSubmissionItem = ({
             <IconChevronUp className="size-4" />
           ) : (
             <TicketAssignee
-              assignee={ticket.assignee}
-              assigneeId={ticket.assigneeId}
+              assignees={ticket.assignees}
+              assigneeIds={ticket.assigneeIds}
             />
           )}
         </div>
@@ -154,8 +154,8 @@ export const TicketSubmissionItem = ({
           </span>
           <div>
             <TicketAssignee
-              assignee={ticket.assignee}
-              assigneeId={ticket.assigneeId}
+              assignees={ticket.assignees}
+              assigneeIds={ticket.assigneeIds}
             />
           </div>
         </div>
@@ -165,32 +165,36 @@ export const TicketSubmissionItem = ({
 };
 
 export const TicketAssignee = ({
-  assignee,
-  assigneeId,
+  assignees,
+  assigneeIds,
 }: {
-  assignee: IUser;
-  assigneeId?: string;
+  assignees?: IUser[];
+  assigneeIds?: string[];
 }) => {
-  if (!assigneeId && !assignee)
+  if (!assigneeIds?.length && !assignees?.length)
     return <IconUserCancel className="size-4 text-muted-foreground" />;
   return (
     <Tooltip.Provider>
-      <Tooltip>
-        <Tooltip.Trigger asChild>
-          <Avatar>
-            <Avatar.Image
-              src={readImage(assignee.details?.avatar as string, 200)}
-              alt={assignee.details?.fullName as string}
-            />
-            <Avatar.Fallback>
-              {assignee.details?.fullName?.charAt(0) || ''}
-            </Avatar.Fallback>
-          </Avatar>
-        </Tooltip.Trigger>
-        <Tooltip.Content>
-          <p>{assignee.details?.fullName}</p>
-        </Tooltip.Content>
-      </Tooltip>
+      <div className="flex items-center -space-x-2">
+        {(assignees || []).map((assignee) => (
+          <Tooltip key={assignee._id}>
+            <Tooltip.Trigger asChild>
+              <Avatar>
+                <Avatar.Image
+                  src={readImage(assignee.details?.avatar as string, 200)}
+                  alt={assignee.details?.fullName as string}
+                />
+                <Avatar.Fallback>
+                  {assignee.details?.fullName?.charAt(0) || ''}
+                </Avatar.Fallback>
+              </Avatar>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              <p>{assignee.details?.fullName}</p>
+            </Tooltip.Content>
+          </Tooltip>
+        ))}
+      </div>
     </Tooltip.Provider>
   );
 };

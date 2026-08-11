@@ -11,7 +11,7 @@ export const addTicketSchema = z.object({
   targetDate: z.date().optional(),
   labelIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
-  assigneeId: z.string().optional(),
+  assigneeIds: z.array(z.string()).optional(),
   userId: z.string().optional(),
   attachments: z
     .array(

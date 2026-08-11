@@ -54,7 +54,8 @@ export const AddTicketForm = ({
     statusId: defaultValuesState?.statusId || undefined,
     name: '',
     priority: 0,
-    assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
+    assigneeIds:
+      resolvedPipelineId || !currentUser?._id ? undefined : [currentUser._id],
     startDate: undefined,
     targetDate: undefined,
   };
@@ -219,13 +220,13 @@ export const AddTicketForm = ({
                 )}
               />
               <Form.Field
-                name="assigneeId"
+                name="assigneeIds"
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label className="sr-only">{t('assignee-label')}</Form.Label>
                     <SelectAssigneeTicket.FormItem
-                      value={field.value || ''}
+                      value={(field.value as string[]) || []}
                       onValueChange={(value: any) => {
                         field.onChange(value);
                       }}

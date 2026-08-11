@@ -208,7 +208,7 @@ const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
     stageId: getString(data, 'stageId') || '',
     description: getString(data, 'description'),
     priority: getNumber(data, 'priority'),
-    assigneeId: getString(data, 'assigneeId') || getString(data, 'assignedTo'),
+    assigneeIds: toStringArray(data.assigneeIds) || toStringArray(data.assignedTo),
     userId: getString(data, 'userId'),
     labelIds: toStringArray(data.labelIds),
     tagIds: toStringArray(data.tagIds),
@@ -269,6 +269,6 @@ export const createTicketAction = async ({
     pipelineId: ticket.pipelineId,
     statusId: ticket.statusId,
     priority: ticket.priority,
-    assigneeId: ticket.assigneeId,
+    assigneeIds: ticket.assigneeIds,
   };
 };

@@ -7,7 +7,7 @@ export const ticketActionConfigFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   priority: z.string().optional(),
-  assigneeId: z.string().optional(),
+  assigneeIds: z.string().optional(),
   startDate: z.string().optional(),
   targetDate: z.string().optional(),
   labelIds: z.string().optional(),

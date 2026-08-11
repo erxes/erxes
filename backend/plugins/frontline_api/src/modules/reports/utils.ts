@@ -355,7 +355,7 @@ export function buildTicketMatch(filters: IReportFilters) {
   }
 
   if (filters.memberIds?.length) {
-    match.assigneeId = { $in: filters.memberIds };
+    match.assigneeIds = { $in: filters.memberIds };
   }
 
   if (filters.pipelineIds?.length) {

@@ -14,7 +14,7 @@ export const types = `
     priority: Int
     labelIds: [String]
     tagIds: [String]
-    assigneeId: String
+    assigneeIds: [String]
     assignedMembers: [String]
     createdBy: String
     userId: String
@@ -26,7 +26,7 @@ export const types = `
     statusChangedDate: Date
     number: String
     status: TicketStatus
-    assignee: User
+    assignees: [User]
     isSubscribed: Boolean
     propertiesData: JSON
     state: String
@@ -50,7 +50,7 @@ export const types = `
     statusId: String
     priority: Int
     pipelineId: String
-    assigneeId: String
+    assigneeIds: [String]
     assignedMembers: [String]
     createdBy: String
     labelIds: [String]
@@ -70,7 +70,7 @@ export const types = `
     statusId: String
     priority: Int
     pipelineId: String
-    assigneeId: String
+    assigneeIds: [String]
     assignedMembers: [String]
     createdBy: String
     labelIds: [String]
@@ -103,7 +103,7 @@ const createTicketParams = `
   tagIds: [String]
   startDate: Date
   targetDate: Date
-  assigneeId: String
+  assigneeIds: [String]
   assignedMembers: [String]
   state: String
   propertiesData: JSON
@@ -123,7 +123,7 @@ const updateTicketParams = `
   priority: Int
   labelIds: [String]
   tagIds: [String]
-  assigneeId: String
+  assigneeIds: [String]
   assignedMembers: [String]
   startDate: Date
   targetDate: Date
