@@ -130,7 +130,9 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>{t('channel-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('channel-cannot-be-changed')}
+              </Tooltip.Content>
               <SelectChannel
                 variant="table"
                 value={cell.row.original.channelId}
@@ -151,14 +153,19 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'pipeline',
       accessorKey: 'pipeline',
       header: () => (
-        <RecordTable.InlineHead label={t('pipeline')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('pipeline')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
           <Tooltip>
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
-              <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
+              <Tooltip.Content>
+                {t('pipeline-cannot-be-changed')}
+              </Tooltip.Content>
               <SelectPipeline
                 variant="table"
                 value={cell.row.original.pipelineId}
@@ -178,7 +185,9 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
     },
     {
       id: 'assigneeId',
-      header: () => <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />
+      ),
       cell: ({ cell }) => {
         return (
           <SelectAssigneeTicket
@@ -224,7 +233,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('start-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -242,7 +254,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('target-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;

@@ -1,5 +1,8 @@
 import { Schema, Document, FilterQuery, FlattenMaps, Model } from 'mongoose';
-import { mongooseStringRandomId, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  mongooseStringRandomId,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
@@ -22,35 +25,47 @@ import {
 
 const ticketSchema = new Schema(
   {
-    _id:               mongooseStringRandomId,
-    name:              { type: String },
-    channelId:         { type: String },
-    stageId:           { type: String },
-    pipelineId:        { type: String, label: 'pipelineId' },
-    statusId:          { type: String, label: 'statusId' },
-    state:             { type: String, label: 'state' },
-    description:       { type: String, label: 'Description' },
+    _id: mongooseStringRandomId,
+    name: { type: String },
+    channelId: { type: String },
+    stageId: { type: String },
+    pipelineId: { type: String, label: 'pipelineId' },
+    statusId: { type: String, label: 'statusId' },
+    state: { type: String, label: 'state' },
+    description: { type: String, label: 'Description' },
     type: {
       type: String,
       enum: ['bug', 'ticket', 'feature', 'question', 'incident'],
       default: 'ticket',
     },
-    priority:          { type: Number, label: 'Priority', default: 0 },
-    assigneeIds:       { type: [String], label: 'Assignees' },
-    createdBy:         { type: String, label: 'Created By' },
-    attachments:       { type: [attachmentSchema], label: 'Attachments' },
-    labelIds:          { type: [String], label: 'Label IDs' },
-    tagIds:            { type: [String], label: 'Tag IDs' },
-    userId:            { type: String, label: 'userId' },
-    statusChangedDate: { type: Date, label: 'Completed Date', default: Date.now },
-    startDate:         { type: Date, label: 'Start Date' },
-    targetDate:        { type: Date, label: 'Target Date' },
-    number:            { type: String, label: 'Number' },
-    statusType:        { type: Number, label: 'Status Type', default: 0 },
+    priority: { type: Number, label: 'Priority', default: 0 },
+    assigneeIds: { type: [String], label: 'Assignees' },
+    createdBy: { type: String, label: 'Created By' },
+    attachments: { type: [attachmentSchema], label: 'Attachments' },
+    labelIds: { type: [String], label: 'Label IDs' },
+    tagIds: { type: [String], label: 'Tag IDs' },
+    userId: { type: String, label: 'userId' },
+    statusChangedDate: {
+      type: Date,
+      label: 'Completed Date',
+      default: Date.now,
+    },
+    startDate: { type: Date, label: 'Start Date' },
+    targetDate: { type: Date, label: 'Target Date' },
+    number: { type: String, label: 'Number' },
+    statusType: { type: Number, label: 'Status Type', default: 0 },
     subscribedUserIds: { type: [String], label: 'subscribed user IDs' },
-    propertiesData:    { type: Schema.Types.Mixed, optional: true, label: 'Properties data' },
-    companyIds:        { type: [String], label: 'Company IDs' },
-    customerFieldData: { type: Schema.Types.Mixed, optional: true, label: 'Customer field data' },
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
+    companyIds: { type: [String], label: 'Company IDs' },
+    customerFieldData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Customer field data',
+    },
   },
   { timestamps: true },
 );
@@ -59,8 +74,15 @@ const ticketSchema = new Schema(
 
 export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
-  getTickets(params: ITicketFilter): Promise<FlattenMaps<ITicketDocument>[] | Document[]>;
-  addTicket(doc: ITicket, userId: string, subdomain: string, user?: IUserDocument): Promise<ITicketDocument>;
+  getTickets(
+    params: ITicketFilter,
+  ): Promise<FlattenMaps<ITicketDocument>[] | Document[]>;
+  addTicket(
+    doc: ITicket,
+    userId: string,
+    subdomain: string,
+    user?: IUserDocument,
+  ): Promise<ITicketDocument>;
   updateTicket(args: {
     doc: ITicketUpdate;
     userId: string;
@@ -72,7 +94,6 @@ export interface ITicketModel extends Model<ITicketDocument> {
 
 export const loadTicketClass = (models: IModels) => {
   class Ticket {
-
     // ─── Queries ─────────────────────────────────────────────────────────────
 
     public static async getTicket(_id: string): Promise<ITicketDocument> {
@@ -86,22 +107,29 @@ export const loadTicketClass = (models: IModels) => {
     ): Promise<FlattenMaps<ITicketDocument>[] | Document[]> {
       const query = {} as FilterQuery<ITicketDocument>;
 
-      if (params.name)       query.name       = { $regex: params.name, $options: 'i' };
-      if (params.assigneeIds?.length) query.assigneeIds = { $in: params.assigneeIds };
-      if (params.channelId)  query.channelId  = params.channelId;
+      if (params.name) query.name = { $regex: params.name, $options: 'i' };
+      if (params.assigneeIds?.length)
+        query.assigneeIds = { $in: params.assigneeIds };
+      if (params.channelId) query.channelId = params.channelId;
       if (params.pipelineId) query.pipelineId = params.pipelineId;
-      if (params.statusId)   query.statusId   = params.statusId;
+      if (params.statusId) query.statusId = params.statusId;
       if (params.priority !== undefined) query.priority = params.priority;
       if (params.labelIds?.length) query.labelIds = { $in: params.labelIds };
-      if (params.tagIds?.length)   query.tagIds   = { $in: params.tagIds };
-      if (params.startDate)  query.startDate  = { $gte: params.startDate };
+      if (params.tagIds?.length) query.tagIds = { $in: params.tagIds };
+      if (params.startDate) query.startDate = { $gte: params.startDate };
       if (params.targetDate) query.targetDate = { $lte: params.targetDate };
-      if (params.createdAt)  query.createdAt  = { $gte: params.createdAt };
+      if (params.createdAt) query.createdAt = { $gte: params.createdAt };
 
       switch (params.state) {
-        case 'archived': query.state = 'archived'; break;
-        case 'deleted':  query.state = 'deleted';  break;
-        default: query.$or = [{ state: 'active' }, { state: { $exists: false } }]; break;
+        case 'archived':
+          query.state = 'archived';
+          break;
+        case 'deleted':
+          query.state = 'deleted';
+          break;
+        default:
+          query.$or = [{ state: 'active' }, { state: { $exists: false } }];
+          break;
       }
 
       return models.Ticket.find(query).sort({ createdAt: -1 }).lean();
@@ -138,12 +166,16 @@ export const loadTicketClass = (models: IModels) => {
       });
 
       if (ticketNumber && pipeline?.numberConfig !== undefined) {
-        await updatePipelineLastNum(models, pipeline.numberConfig, ticketNumber);
+        await updatePipelineLastNum(
+          models,
+          pipeline.numberConfig,
+          ticketNumber,
+        );
       }
 
       if (pipeline?.nameConfig) {
         const customerIds: string[] = doc.customerFieldData?.customerIds || [];
-        const companyIds: string[]  = doc.companyIds || [];
+        const companyIds: string[] = doc.companyIds || [];
         const resolvedName = await applyNameConfig(
           subdomain,
           pipeline.nameConfig,
@@ -152,7 +184,10 @@ export const loadTicketClass = (models: IModels) => {
           user,
         );
         if (resolvedName && resolvedName !== pipeline.nameConfig) {
-          await models.Ticket.updateOne({ _id: ticket._id }, { $set: { name: resolvedName } });
+          await models.Ticket.updateOne(
+            { _id: ticket._id },
+            { $set: { name: resolvedName } },
+          );
           ticket.name = resolvedName;
         }
       }
@@ -228,7 +263,10 @@ export const loadTicketClass = (models: IModels) => {
         }
 
         if (user) {
-          await permissionValidator.validatePipelineAccess(doc.pipelineId, user);
+          await permissionValidator.validatePipelineAccess(
+            doc.pipelineId,
+            user,
+          );
         }
 
         const currentStatus = await models.Status.getStatus(ticket.statusId);
@@ -238,19 +276,33 @@ export const loadTicketClass = (models: IModels) => {
         });
 
         if (!matchingStatus) {
-          throw new Error(`No matching status in new pipeline for type ${currentStatus.type}`);
+          throw new Error(
+            `No matching status in new pipeline for type ${currentStatus.type}`,
+          );
         }
 
-        await models.Activity.deleteMany({ contentId: ticket._id, module: 'STATUS' });
+        await models.Activity.deleteMany({
+          contentId: ticket._id,
+          module: 'STATUS',
+        });
 
         rest.statusId = matchingStatus._id;
 
-        const newPipeline = await models.Pipeline.findOne({ _id: doc.pipelineId }).lean();
+        const newPipeline = await models.Pipeline.findOne({
+          _id: doc.pipelineId,
+        }).lean();
         if (newPipeline?.numberSize && newPipeline.numberConfig !== undefined) {
-          const newNumber = await generateTicketNumber(models, newPipeline as any);
+          const newNumber = await generateTicketNumber(
+            models,
+            newPipeline as any,
+          );
           if (newNumber) {
             rest.number = newNumber;
-            await updatePipelineLastNum(models, newPipeline.numberConfig, newNumber);
+            await updatePipelineLastNum(
+              models,
+              newPipeline.numberConfig,
+              newNumber,
+            );
           }
         } else {
           rest.number = new Date().getTime().toString();
@@ -266,9 +318,7 @@ export const loadTicketClass = (models: IModels) => {
         contentId: ticket._id,
       });
 
-      const assigneeIds = (doc.assigneeIds || []).filter(
-        (id) => id !== userId,
-      );
+      const assigneeIds = (doc.assigneeIds || []).filter((id) => id !== userId);
 
       if (assigneeIds.length) {
         await createNotifications({
@@ -289,7 +339,9 @@ export const loadTicketClass = (models: IModels) => {
         update.$pull = { subscribedUserIds: userId };
       }
 
-      const updated = await models.Ticket.findOneAndUpdate({ _id }, update, { new: true });
+      const updated = await models.Ticket.findOneAndUpdate({ _id }, update, {
+        new: true,
+      });
       if (!updated) throw new Error('Ticket not found after update');
 
       if (updated.subscribedUserIds?.length) {

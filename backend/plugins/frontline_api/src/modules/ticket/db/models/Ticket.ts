@@ -213,9 +213,7 @@ export const loadTicketClass = (
         contentId: ticket._id,
       });
 
-      const assigneeIds = (doc.assigneeIds || []).filter(
-        (id) => id !== userId,
-      );
+      const assigneeIds = (doc.assigneeIds || []).filter((id) => id !== userId);
 
       if (assigneeIds.length) {
         await createNotifications({

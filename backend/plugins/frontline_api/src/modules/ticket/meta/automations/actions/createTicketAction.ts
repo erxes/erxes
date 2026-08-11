@@ -208,7 +208,8 @@ const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
     stageId: getString(data, 'stageId') || '',
     description: getString(data, 'description'),
     priority: getNumber(data, 'priority'),
-    assigneeIds: toStringArray(data.assigneeIds) || toStringArray(data.assignedTo),
+    assigneeIds:
+      toStringArray(data.assigneeIds) || toStringArray(data.assignedTo),
     userId: getString(data, 'userId'),
     labelIds: toStringArray(data.labelIds),
     tagIds: toStringArray(data.tagIds),

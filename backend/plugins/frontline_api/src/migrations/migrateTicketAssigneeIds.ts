@@ -16,9 +16,9 @@ async function migrate() {
   await client.connect();
   const db = client.db();
 
-  const result = await db.collection('frontline_tickets').updateMany(
-    { assigneeIds: { $exists: false } },
-    [
+  const result = await db
+    .collection('frontline_tickets')
+    .updateMany({ assigneeIds: { $exists: false } }, [
       {
         $set: {
           assigneeIds: {
@@ -26,8 +26,7 @@ async function migrate() {
           },
         },
       },
-    ],
-  );
+    ]);
 
   console.log(
     `Migration done ✅ matched=${result.matchedCount} modified=${result.modifiedCount}`,

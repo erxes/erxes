@@ -47,7 +47,8 @@ export const AddTicketForm = ({
     ticketCreateDefaultValuesState,
   );
 
-  const resolvedPipelineId = defaultValuesState?.pipelineId || pipelineId || undefined;
+  const resolvedPipelineId =
+    defaultValuesState?.pipelineId || pipelineId || undefined;
   const defaultValues = {
     channelId: defaultValuesState?.channelId || channelId || undefined,
     pipelineId: resolvedPipelineId,
@@ -170,7 +171,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('pipeline-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('pipeline-label')}
+                    </Form.Label>
                     <SelectPipeline.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => {
@@ -192,7 +195,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('status-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('status-label')}
+                    </Form.Label>
                     <SelectStatusTicket.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => field.onChange(value)}
@@ -211,7 +216,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('priority-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('priority-label')}
+                    </Form.Label>
                     <SelectPriorityTicket.FormItem
                       value={field.value || 0}
                       onValueChange={(value) => field.onChange(value)}
@@ -224,7 +231,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('assignee-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('assignee-label')}
+                    </Form.Label>
                     <SelectAssigneeTicket.FormItem
                       value={(field.value as string[]) || []}
                       onValueChange={(value: any) => {
@@ -240,7 +249,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('start-date-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('start-date-label')}
+                    </Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       placeholder={t('start-date-label')}
@@ -254,7 +265,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('due-date-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('due-date-label')}
+                    </Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       onValueChange={(value) => field.onChange(value)}
@@ -270,7 +283,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={() => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('tags-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('tags-label')}
+                    </Form.Label>
                     <Form.Control>
                       <TagsSelect.Trigger variant="ICON" />
                     </Form.Control>
