@@ -17,7 +17,6 @@ export interface ITicket {
   tagIds?: string[];
   status?: string;
   assigneeIds?: string[];
-  assigneeId?: string;
   assignedMembers?: string[];
   createdBy?: string;
   userId?: string;
