@@ -3,8 +3,10 @@ import { NavigationActivityRail } from '@/navigation/components/NavigationActivi
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
-import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import {
+  findNavigationActivityByPath,
+  getRailNavigationActivities,
+} from '@/navigation/utils/navigationActivities';
 import { AppPath } from '@/types/paths/AppPath';
 import { activePluginState, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -13,14 +15,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
   const activities = useNavigationActivities();
-  const navigationGroups = usePluginsNavigationGroups();
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { isMobile } = Sidebar.useSidebar();
+  const { isMobile, setOpenMobile } = Sidebar.useSidebar();
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
   const isInboxActive =
     pathname === `/${AppPath.MyInbox}` ||
@@ -30,15 +31,12 @@ export const MainNavigationBar = () => {
     routeActivity ||
     activities.find((activity) => activity.id === activeActivityId) ||
     activities[0];
-  const activeNavigationGroup =
-    routeActivity?.kind === 'plugin'
-      ? navigationGroups[routeActivity.id]
-      : undefined;
-  const hasNavigationPanel = Boolean(
-    isSettings ||
-    activeNavigationGroup?.contents.length ||
-    activeNavigationGroup?.subGroups.length,
-  );
+  const railActivities = getRailNavigationActivities({
+    activities,
+    visibleActivities,
+    activeActivityId: routeActivity?.id,
+  });
+  const hasNavigationPanel = isSettings;
 
   useEffect(() => {
     if (isSettings) {
@@ -63,6 +61,12 @@ export const MainNavigationBar = () => {
     routeActivity,
     setActiveActivityId,
   ]);
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, pathname, setOpenMobile]);
 
   useEffect(() => {
     const handleOpenPalette = (event: KeyboardEvent) => {
@@ -105,7 +109,7 @@ export const MainNavigationBar = () => {
           onSearch={() => setPaletteOpen(true)}
           onSelectInbox={handleSelectInbox}
           onSelectActivity={handleSelectActivity}
-          visibleActivities={visibleActivities}
+          visibleActivities={railActivities}
         />
         {isMobile && hasNavigationPanel && <NavigationPanel />}
       </div>

@@ -180,6 +180,102 @@
   scrollbar-color: var(--border) transparent;
 }
 
+@utility auto-hide-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 999px;
+  }
+
+  &[data-scrolling='true'] {
+    scrollbar-color: var(--border) transparent;
+  }
+
+  &[data-scrolling='true']::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+  }
+}
+
+@keyframes navigation-dropdown-open {
+  from {
+    height: 0;
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navigation-dropdown-close {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    height: 0;
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+.activity-dropdown-content[data-state='open'],
+.activity-navigation-tree
+  [data-sidebar='group']
+  > [data-state='open']:last-child {
+  overflow: hidden;
+  animation: navigation-dropdown-open 160ms ease-out;
+}
+
+.activity-dropdown-content[data-state='closed'],
+.activity-navigation-tree
+  [data-sidebar='group']
+  > [data-state='closed']:last-child {
+  overflow: hidden;
+  animation: navigation-dropdown-close 120ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-dropdown-content,
+  .activity-navigation-tree
+    [data-sidebar='group']
+    > [data-state]:last-child {
+    animation: none;
+  }
+}
+
+.activity-navigation-tree
+  :is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='group'] button:not([data-sidebar='group-label'])
+  ),
+.activity-navigation-tree
+  :is(
+    [data-sidebar='menu-button'],
+    [data-sidebar='group'] button:not([data-sidebar='group-label'])
+  )
+  span {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+
 @utility block-child {
   & > * {
     @apply block!;

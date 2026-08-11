@@ -68,3 +68,23 @@ export const findNavigationActivityByPath = (
         getLongestMatchingPathLength(left, normalizedPathname),
     )[0];
 };
+
+export const getRailNavigationActivities = ({
+  activities,
+  visibleActivities,
+  activeActivityId,
+}: {
+  activities: INavigationActivity[];
+  visibleActivities: INavigationActivity[];
+  activeActivityId?: string;
+}) => {
+  const visibleActivityIds = new Set(
+    visibleActivities.map((activity) => activity.id),
+  );
+
+  if (activeActivityId) {
+    visibleActivityIds.add(activeActivityId);
+  }
+
+  return activities.filter((activity) => visibleActivityIds.has(activity.id));
+};
