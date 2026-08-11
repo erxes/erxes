@@ -1,5 +1,5 @@
-const { MongoClient } = require('mongodb');
 import * as dotenv from 'dotenv';
+import { MongoClient } from 'mongodb';
 dotenv.config();
 
 const MONGO_URL =

@@ -22,56 +22,79 @@ import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
 import { TicketStatusInlineValue } from './ticket-check-progress';
 import { IUser } from '../../types';
 
-export const TicketSubmissions = ({
-  setPage,
+export const TicketAssignee = ({
+  assignees,
+  assigneeIds,
 }: {
-  setPage: (page: 'submissions' | 'submit') => void;
+  assignees?: IUser[];
+  assigneeIds?: string[];
 }) => {
-  const { tickets, error } = useGetTicketsByCustomer();
+  if (!assigneeIds?.length || !assignees?.length)
+    return <IconUserCancel className="size-4 text-muted-foreground" />;
+  return (
+    <Tooltip.Provider>
+      <div className="flex items-center -space-x-2">
+        {(assignees || []).map((assignee) => (
+          <Tooltip key={assignee._id}>
+            <Tooltip.Trigger asChild>
+              <Avatar>
+                <Avatar.Image
+                  src={readImage(assignee.details?.avatar as string, 200)}
+                  alt={assignee.details?.fullName as string}
+                />
+                <Avatar.Fallback>
+                  {assignee.details?.fullName?.charAt(0) || ''}
+                </Avatar.Fallback>
+              </Avatar>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              <p>{assignee.details?.fullName}</p>
+            </Tooltip.Content>
+          </Tooltip>
+        ))}
+      </div>
+    </Tooltip.Provider>
+  );
+};
 
-  if (error || tickets?.length === 0) {
+export function parseTicketDescription(description: string) {
+  try {
+    const parsed = JSON.parse(description);
+    return parsed?.[0]?.content?.[0]?.text || '';
+  } catch {
+    return description || '';
+  }
+}
+
+export const TicketDateDisplay = ({
+  value,
+  placeholder = 'Not specified',
+}: {
+  value?: Date | string;
+  placeholder?: string;
+}) => {
+  if (!value) {
     return (
-      <div className="w-full h-full flex flex-col gap-3 p-3">
-        <div className="flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto styled-scroll">
-          <div className="flex-1 flex flex-col items-center justify-center gap-1">
-            <IconCircleMinus size={64} className="text-scroll" stroke={1} />
-            <div className="text-lg font-medium mt-5 text-muted-foreground">
-              No tickets found
-            </div>
-            <div className="text-accent-foreground mt-2 text-xs">
-              Please create a ticket to get started.
-            </div>
-            <Button
-              type="button"
-              className="bg-primary flex-none shadow-2xs my-2"
-              onClick={() => setPage('submit')}
-            >
-              <IconPlus size={16} />
-              Issue new ticket
-            </Button>
-          </div>
-        </div>
+      <div className="flex m-0 items-center gap-2 text-muted-foreground px-1">
+        <IconCalendarPlus className="size-4" />
+        <span className="text-xs font-medium">{placeholder}</span>
       </div>
     );
   }
+
+  const date = typeof value === 'string' ? new Date(value) : value;
+
   return (
-    <div className="w-full h-full flex flex-col gap-3 p-3">
-      <div className="flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto styled-scroll">
-        {tickets?.map((ticket: ITicketCheckProgress) => (
-          <TicketSubmissionItem key={ticket._id} ticket={ticket} />
-        ))}
-      </div>
-      <div className="shrink-0">
-        <Button
-          type="button"
-          variant={'secondary'}
-          className="bg-primary hover:bg-primary/70 text-primary-foreground flex-none shadow-2xs my-2 w-full"
-          onClick={() => setPage('submit')}
-        >
-          <IconPlus size={16} />
-          Issue a new ticket
-        </Button>
-      </div>
+    <div className="flex items-center gap-2">
+      <IconCalendarTime className="size-4 text-muted-foreground" />
+      <span className="text-xs font-medium">
+        {format(
+          date,
+          date.getFullYear() === new Date().getFullYear()
+            ? 'MMM d, yyyy'
+            : 'MMM d',
+        )}
+      </span>
     </div>
   );
 };
@@ -164,79 +187,56 @@ export const TicketSubmissionItem = ({
   );
 };
 
-export const TicketAssignee = ({
-  assignees,
-  assigneeIds,
+export const TicketSubmissions = ({
+  setPage,
 }: {
-  assignees?: IUser[];
-  assigneeIds?: string[];
+  setPage: (page: 'submissions' | 'submit') => void;
 }) => {
-  if (!assigneeIds?.length || !assignees?.length)
-    return <IconUserCancel className="size-4 text-muted-foreground" />;
-  return (
-    <Tooltip.Provider>
-      <div className="flex items-center -space-x-2">
-        {(assignees || []).map((assignee) => (
-          <Tooltip key={assignee._id}>
-            <Tooltip.Trigger asChild>
-              <Avatar>
-                <Avatar.Image
-                  src={readImage(assignee.details?.avatar as string, 200)}
-                  alt={assignee.details?.fullName as string}
-                />
-                <Avatar.Fallback>
-                  {assignee.details?.fullName?.charAt(0) || ''}
-                </Avatar.Fallback>
-              </Avatar>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <p>{assignee.details?.fullName}</p>
-            </Tooltip.Content>
-          </Tooltip>
-        ))}
-      </div>
-    </Tooltip.Provider>
-  );
-};
+  const { tickets, error } = useGetTicketsByCustomer();
 
-export function parseTicketDescription(description: string) {
-  try {
-    const parsed = JSON.parse(description);
-    return parsed?.[0]?.content?.[0]?.text || '';
-  } catch {
-    return description || '';
-  }
-}
-
-export const TicketDateDisplay = ({
-  value,
-  placeholder = 'Not specified',
-}: {
-  value?: Date | string;
-  placeholder?: string;
-}) => {
-  if (!value) {
+  if (error || tickets?.length === 0) {
     return (
-      <div className="flex m-0 items-center gap-2 text-muted-foreground px-1">
-        <IconCalendarPlus className="size-4" />
-        <span className="text-xs font-medium">{placeholder}</span>
+      <div className="w-full h-full flex flex-col gap-3 p-3">
+        <div className="flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto styled-scroll">
+          <div className="flex-1 flex flex-col items-center justify-center gap-1">
+            <IconCircleMinus size={64} className="text-scroll" stroke={1} />
+            <div className="text-lg font-medium mt-5 text-muted-foreground">
+              No tickets found
+            </div>
+            <div className="text-accent-foreground mt-2 text-xs">
+              Please create a ticket to get started.
+            </div>
+            <Button
+              type="button"
+              className="bg-primary flex-none shadow-2xs my-2"
+              onClick={() => setPage('submit')}
+            >
+              <IconPlus size={16} />
+              Issue new ticket
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
-
-  const date = typeof value === 'string' ? new Date(value) : value;
-
   return (
-    <div className="flex items-center gap-2">
-      <IconCalendarTime className="size-4 text-muted-foreground" />
-      <span className="text-xs font-medium">
-        {format(
-          date,
-          date.getFullYear() === new Date().getFullYear()
-            ? 'MMM d, yyyy'
-            : 'MMM d',
-        )}
-      </span>
+    <div className="w-full h-full flex flex-col gap-3 p-3">
+      <div className="flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto styled-scroll">
+        {tickets?.map((ticket: ITicketCheckProgress) => (
+          <TicketSubmissionItem key={ticket._id} ticket={ticket} />
+        ))}
+      </div>
+      <div className="shrink-0">
+        <Button
+          type="button"
+          variant={'secondary'}
+          className="bg-primary hover:bg-primary/70 text-primary-foreground flex-none shadow-2xs my-2 w-full"
+          onClick={() => setPage('submit')}
+        >
+          <IconPlus size={16} />
+          Issue a new ticket
+        </Button>
+      </div>
     </div>
   );
 };
