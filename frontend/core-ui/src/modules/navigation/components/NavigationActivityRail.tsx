@@ -179,7 +179,8 @@ const NavigationActivityButton = ({
             Boolean(onPinnedChange) !== Boolean(onChildrenOpenChange) &&
             'pr-8',
           expanded && onPinnedChange && onChildrenOpenChange && 'pr-14',
-          active && !onChildrenOpenChange &&
+          active &&
+            !onChildrenOpenChange &&
             'bg-primary/10 text-primary hover:bg-primary/10',
           active && onChildrenOpenChange && 'text-primary',
         )}
@@ -440,7 +441,7 @@ export const NavigationActivityRail = ({
       activity.kind === 'plugin'
         ? Boolean(
             navigationGroups[activity.id]?.contents.length ||
-              navigationGroups[activity.id]?.subGroups.length,
+            navigationGroups[activity.id]?.subGroups.length,
           )
         : activity.modules.some((module) => module.submenus?.length);
 
