@@ -4,14 +4,17 @@ import { useConversationContext } from '@/inbox/conversations/hooks/useConversat
 import { useDiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
 import { IntegrationType } from '@/types/Integration';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
-import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
+import { useConversationListVisibility } from '@/inbox/hooks/useConversationListVisibility';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
+import { useOverflowCompact } from '@/inbox/hooks/useCompactWidth';
 import { refetchConversationsAtom } from '../../states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
 import {
   IconArrowLeft,
   IconDots,
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
   IconPlayerPause,
   IconPlayerPlay,
 } from '@tabler/icons-react';
@@ -19,9 +22,9 @@ import {
   Avatar,
   Button,
   DropdownMenu,
-  ScrollArea,
   Separator,
   Skeleton,
+  Tooltip,
   cn,
   toast,
   useQueryState,
@@ -34,45 +37,73 @@ import { useTranslation } from 'react-i18next';
 export const ConversationHeader = () => {
   const { loading } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
-  const view = useAtomValue(inboxLayoutState);
-  const isSideWidgetOpen = useAtomValue(sideWidgetOpenState);
+  const view = useInboxLayout();
+  const { ref: headerRef, isCompact } = useOverflowCompact<HTMLDivElement>();
 
   return (
-    <ScrollArea className="flex-none">
-      <div className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap">
-        {view === 'list' && (
+    <div
+      ref={headerRef}
+      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
+    >
+      {view === 'list' ? (
+        <Button
+          variant="secondary"
+          size="icon"
+          className="[&>svg]:size-4 text-foreground flex-none"
+          onClick={() => setConversationId(null)}
+        >
+          <IconArrowLeft />
+        </Button>
+      ) : (
+        <ConversationListToggle />
+      )}
+      {!loading ? (
+        <ConversationHeaderProfile />
+      ) : (
+        <Skeleton className="w-32 h-4 ml-2" />
+      )}
+      <Separator.Inline />
+      <AssignConversation />
+      <AutomatedReplyStatusBadge />
+      {isCompact ? (
+        <div className="ml-auto flex-none">
+          <ConversationActionsDropdown />
+        </div>
+      ) : (
+        <div className="flex items-center gap-3 pr-px ml-auto flex-none">
+          <ConversationTags />
+          <IntegrationActions />
+          <ConversationActions />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ConversationListToggle = () => {
+  const { isHidden, toggle } = useConversationListVisibility();
+  const Icon = isHidden
+    ? IconLayoutSidebarLeftExpand
+    : IconLayoutSidebarLeftCollapse;
+
+  return (
+    <Tooltip.Provider>
+      <Tooltip delayDuration={0}>
+        <Tooltip.Trigger asChild>
           <Button
             variant="secondary"
             size="icon"
-            className="[&>svg]:size-4 text-foreground"
-            onClick={() => setConversationId(null)}
+            className="[&>svg]:size-4 text-foreground flex-none"
+            onClick={toggle}
           >
-            <IconArrowLeft />
+            <Icon />
           </Button>
-        )}
-        {!loading ? (
-          // skipcq: JS-0357
-          <ConversationHeaderProfile />
-        ) : (
-          <Skeleton className="w-32 h-4 ml-2" />
-        )}
-        <Separator.Inline />
-        <AssignConversation />
-        <AutomatedReplyStatusBadge />
-        {isSideWidgetOpen ? (
-          <div className="ml-auto flex-none">
-            <ConversationActionsDropdown />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 pr-px ml-auto min-w-0 overflow-hidden">
-            <ConversationTags />
-            <IntegrationActions />
-            <ConversationActions />
-          </div>
-        )}
-      </div>
-      <ScrollArea.Bar orientation="horizontal" />
-    </ScrollArea>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {isHidden ? 'Show conversations' : 'Hide conversations'}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };
 
@@ -301,7 +332,9 @@ const ConversationActionsDropdown = () => {
         </div>
         <DropdownMenu.Separator />
         <DropdownMenu.Item onSelect={handleStatusChange} disabled={loading}>
-          {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
+          {status === ConversationStatus.CLOSED
+            ? t('open-label')
+            : t('resolve')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
