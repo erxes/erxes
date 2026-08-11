@@ -7,5 +7,5 @@ export const useConversationListVisibility = (): {
 } => {
   const [isHidden, setIsHidden] = useAtom(conversationListHiddenState);
 
-  return { isHidden, toggle: () => setIsHidden(!isHidden) };
+  return { isHidden, toggle: () => setIsHidden((hidden) => !hidden) };
 };

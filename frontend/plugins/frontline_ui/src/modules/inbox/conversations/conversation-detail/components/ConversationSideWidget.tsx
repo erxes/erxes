@@ -22,9 +22,9 @@ const SideWidgetOutsideClose = ({
       const container = containerRef.current;
       const boundary = boundaryRef.current;
       const isOutside =
-        !!target &&
-        !!container &&
-        !!boundary &&
+        target !== null &&
+        container !== null &&
+        boundary !== null &&
         boundary.contains(target) &&
         !container.contains(target);
 
