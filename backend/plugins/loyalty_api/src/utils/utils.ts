@@ -784,7 +784,13 @@ export const doScoreCampaign = async (models: IModels, data) => {
   }
 };
 
-const generateTargetTotalAmount = (productsData: any[] = []) =>
+export const generateTargetTotalAmountDeal = (productsData: any[] = []) =>
+  productsData
+    .filter(pdata => pdata.tickUsed)
+    .filter(pdata => Math.abs(Number(pdata.discount) || 0) < 0.005)
+    .reduce((sum, product) => sum + (Number(product?.amount) || 0), 0);
+
+const generateTargetTotalAmountOrder = (productsData: any[] = []) =>
   productsData.reduce((sum, product) => sum + (product?.amount || 0), 0);
 
 const getPaymentScoreCampaignId = (paymentType: any) =>
@@ -810,7 +816,7 @@ const normalizeDealTarget = ({
       type,
       ...(obj ?? {}),
     })),
-    totalAmount: generateTargetTotalAmount(target?.productsData || []),
+    totalAmount: generateTargetTotalAmountDeal(target?.productsData || []),
     excludeAmount: paymentEntries
       .filter(([type]) => !scorePaymentTypes.has(type))
       .map(([type, obj]) => ({
@@ -837,7 +843,7 @@ const normalizePosOrderTarget = ({ target }: { target: any }) => {
     totalAmount:
       Number(target?.totalAmount) ||
       Number(target?.finalAmount) ||
-      generateTargetTotalAmount(target?.items || []),
+      generateTargetTotalAmountOrder(target?.items || []),
     excludeAmount: paymentEntries.reduce(
       (sum, [, payment]: any) => sum + (payment?.amount || 0),
       0,

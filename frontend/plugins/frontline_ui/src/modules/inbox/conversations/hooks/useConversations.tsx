@@ -8,7 +8,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '../graphql/subscriptions/inboxSubscriptions';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { currentUserState } from 'ui-modules';
@@ -19,6 +19,16 @@ import {
 } from '@/inbox/conversations/states/newMessagesCountState';
 import { refetchConversationsAtom } from '../states/refetchConversationState';
 import { activeConversationState } from '../states/activeConversationState';
+
+const getRecency = (conversation: IConversation) => {
+  const time = Date.parse(conversation.updatedAt || conversation.createdAt);
+  return Number.isNaN(time) ? 0 : time;
+};
+
+// Live cache writes only patch fields, so re-apply the server's order
+// (updatedAt desc, ascending _id) to keep the newest conversation on top.
+const compareByRecency = (a: IConversation, b: IConversation) =>
+  getRecency(b) - getRecency(a) || a._id.localeCompare(b._id);
 
 export const useConversations = (
   options?: QueryHookOptions<ICursorListResponse<IConversation>>,
@@ -31,7 +41,11 @@ export const useConversations = (
   const { _id: userId } = useAtomValue(currentUserState) || {};
 
   const { conversations } = data || {};
-  const { list = [], totalCount = 0, pageInfo } = conversations || {};
+  const { totalCount = 0, pageInfo } = conversations || {};
+  const sortedList = useMemo(
+    () => [...(conversations?.list ?? [])].sort(compareByRecency),
+    [conversations?.list],
+  );
   const setNewMessagesCount = useSetAtom(newMessagesCountState);
   const [refetchNewMessages, resetNewMessagesStates] = useAtom(
     resetNewMessagesState,
@@ -44,7 +58,7 @@ export const useConversations = (
 
   useEffect(() => {
     setRefetch(() => refetch);
-  }, [setRefetch]);
+  }, [refetch, setRefetch]);
 
   useEffect(() => {
     if (refetchNewMessages) {
@@ -86,7 +100,12 @@ export const useConversations = (
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
-      conversationClientMessageInserted: { _id: string; conversationId: string; content: string };
+      conversationClientMessageInserted: {
+        _id: string;
+        conversationId: string;
+        content: string;
+        createdAt: string;
+      };
     }>({
       document: CONVERSATION_CLIENT_MESSAGE_INSERTED,
       variables: {
@@ -96,7 +115,8 @@ export const useConversations = (
         if (subscriptionData.data) {
           setNewMessagesCount((prev) => prev + 1);
           const incomingConversationId =
-            subscriptionData.data.conversationClientMessageInserted.conversationId;
+            subscriptionData.data.conversationClientMessageInserted
+              .conversationId;
           if (incomingConversationId !== activeConversationRef.current?._id) {
             playNotificationSound();
           }
@@ -108,19 +128,26 @@ export const useConversations = (
         const index = prev.conversations.list.findIndex(
           (conversation) => conversation._id === conversationId,
         );
-        const list = [...prev.conversations.list];
-        if (index === -1) {
-          // New conversation not yet in list — refetch to load the full entry
+        // Not in the list yet, or nothing to order it by — let the server say.
+        if (index === -1 || !newMessage.createdAt) {
           setTimeout(() => refetchRef.current(), 0);
           return prev;
-        } else {
-          list.splice(index, 1, {
-            ...list[index],
-            readUserIds: list[index].readUserIds?.filter((id) => id !== userId),
-            status: ConversationStatus.OPEN,
-            content: newMessage.content,
-          });
         }
+
+        const list = [...prev.conversations.list];
+        const [conversation] = list.splice(index, 1);
+        list.unshift({
+          ...conversation,
+          readUserIds: conversation.readUserIds?.filter((id) => id !== userId),
+          status: ConversationStatus.OPEN,
+          content: newMessage.content,
+          // Events can arrive out of order; recency must never move backwards.
+          updatedAt:
+            Date.parse(newMessage.createdAt) >= getRecency(conversation)
+              ? newMessage.createdAt
+              : conversation.updatedAt,
+        });
+
         return { ...prev, conversations: { ...prev.conversations, list } };
       },
     });
@@ -128,11 +155,11 @@ export const useConversations = (
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [playNotificationSound, setNewMessagesCount, subscribeToMore, userId]);
 
   return {
     totalCount,
-    conversations: list,
+    conversations: sortedList,
     loading,
     handleFetchMore,
     pageInfo,

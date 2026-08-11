@@ -186,7 +186,7 @@ export const getReportTicketTagFilterAtom = (cardId: string) =>
 export const getReportStateFilterAtom = (cardId: string) =>
   getOrCreate(stateFilterAtomCache, cardId, () =>
     atom(
-      (get) => get(reportStateFilterState)[cardId] || '',
+      (get) => get(reportStateFilterState)[cardId] || 'active',
       (get, set, newValue: string) => {
         set(reportStateFilterState, {
           ...get(reportStateFilterState),
@@ -297,6 +297,26 @@ export const getReportGroupPropertyFilterAtom = (cardId: string) =>
       (get, set, newValue: string) => {
         set(reportGroupPropertyFilterState, {
           ...get(reportGroupPropertyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportTicketStatusFilterState = atom<Record<string, string[]>>({});
+
+const ticketStatusFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportTicketStatusFilterAtom = (cardId: string) =>
+  getOrCreate(ticketStatusFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportTicketStatusFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportTicketStatusFilterState, {
+          ...get(reportTicketStatusFilterState),
           [cardId]: newValue,
         });
       },

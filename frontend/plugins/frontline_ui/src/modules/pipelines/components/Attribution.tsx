@@ -1,6 +1,6 @@
-import { Combobox, Command, Popover, toast } from 'erxes-ui';
+import { Button, Combobox, Command, Popover, toast } from 'erxes-ui';
 
-import { IconArrowDown } from '@tabler/icons-react';
+import { IconBraces } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +10,7 @@ type Props = {
   onChange: (value: string) => void;
 };
 
-const Attribution = ({ config, value, onChange }: Props) => {
+export const Attribution = ({ config, value, onChange }: Props) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
@@ -25,20 +25,26 @@ const Attribution = ({ config, value, onChange }: Props) => {
     }
 
     const characters = ['_', '-', '/', ' '];
-    const newValue = characters.includes(val) ? value + val : value + `{${val}}`;
+    const token = characters.includes(val) ? val : `{${val}}`;
 
-    onChange(newValue);
+    onChange(`${value}${token}`);
     setOpen(false);
   };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <span className="text-sm text-foreground/50 font-semibold flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors duration-200">
-          Attribution <IconArrowDown size={13} />
-        </span>
+        <Button
+          aria-label={t('insert-attribute')}
+          className="size-8 flex-none"
+          size="icon"
+          type="button"
+          variant="outline"
+        >
+          <IconBraces />
+        </Button>
       </Popover.Trigger>
-      <Popover.Content className="p-1">
+      <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List className="p-1">
             <Combobox.Empty />
@@ -49,14 +55,12 @@ const Attribution = ({ config, value, onChange }: Props) => {
                 className="cursor-pointer text-xs"
                 onSelect={() => handleSelect(val)}
               >
-                {label}
+                {t(label)}
               </Command.Item>
             ))}
           </Command.List>
         </Command>
-      </Popover.Content>
+      </Combobox.Content>
     </Popover>
   );
 };
-
-export default Attribution;

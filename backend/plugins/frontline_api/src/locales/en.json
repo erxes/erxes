@@ -1,4 +1,7 @@
 {
+  "confirm-form-responses-export": "Create a CSV export of the responses submitted to \"{{formName}}\"?",
+  "download-responses": "Download responses",
+  "form-responses-export-label": "{{formName}} responses",
   "inbox": "inbox",
   "login": "Login",
   "logout": "Logout",

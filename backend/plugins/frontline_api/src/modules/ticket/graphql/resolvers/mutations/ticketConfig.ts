@@ -1,13 +1,20 @@
 import { IContext } from '~/connectionResolvers';
 import { ITicketSaveConfigArgs } from '~/modules/ticket/@types/ticketConfig';
+import { validateTicketPropertyFields } from '@/ticket/utils/ticketConfig';
 
 export const ticketConfigMutations = {
   ticketSaveConfig: async (
     _parent: undefined,
     doc: ITicketSaveConfigArgs,
-    { models, user }: IContext,
+    { models, subdomain, user }: IContext,
   ) => {
     const { input } = doc;
+
+    const propertyFields = await validateTicketPropertyFields(
+      subdomain,
+      input.propertyFields,
+    );
+
     const ticketConfig = await models.TicketConfig.findOne({
       pipelineId: input.pipelineId,
     });
@@ -27,12 +34,15 @@ export const ticketConfigMutations = {
     }
 
     if (ticketConfig) {
-      return models.TicketConfig.findByIdAndUpdate(ticketConfig._id, input, {
-        new: true,
-      });
+      return models.TicketConfig.findByIdAndUpdate(
+        ticketConfig._id,
+        { ...input, propertyFields },
+        { new: true },
+      );
     }
     return models.TicketConfig.create({
       ...input,
+      propertyFields,
       createdBy: user?._id,
       createAt: new Date(),
     });

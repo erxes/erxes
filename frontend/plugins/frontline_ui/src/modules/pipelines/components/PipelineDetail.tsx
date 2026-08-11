@@ -4,23 +4,20 @@ import { CreatePipelineForm } from '@/pipelines/components/CreatePipelineForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UPDATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
-import { Form, Button, Skeleton, Spinner } from 'erxes-ui';
+import { Button, Form, Spinner, toast } from 'erxes-ui';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TUpdatePipelineForm } from '@/pipelines/types';
-import { PipelineConfigs } from './configs/components/PipelineConfigs';
-import { TicketStatusesButton } from '@/status/components/TicketStatusesButton';
-import { PipelinePermissions } from '@/pipelines/components/permissions/components/PipelinePermissions';
-import PipelineConfig from './PipelineConfig';
+import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
   const { t } = useTranslation('frontline');
   const { pipelineId } = useParams<{
     pipelineId: string;
   }>();
-  const { pipeline, loading } = useGetPipeline(pipelineId);
-  const { updatePipeline } = useUpdatePipeline();
+  const { pipeline } = useGetPipeline(pipelineId);
+  const { updatePipeline, loading: updating } = useUpdatePipeline();
 
   const form = useForm<TUpdatePipelineForm>({
     resolver: zodResolver(UPDATE_PIPELINE_FORM_SCHEMA),
@@ -28,6 +25,7 @@ export const PipelineDetail = () => {
       _id: pipelineId,
     },
   });
+
   useEffect(() => {
     form.reset({
       name: pipeline?.name || '',
@@ -37,42 +35,32 @@ export const PipelineDetail = () => {
       numberSize: pipeline?.numberSize || '',
       nameConfig: pipeline?.nameConfig || '',
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pipeline]);
-  if (loading) {
-    <Spinner />;
-  }
+  }, [form, pipeline, pipelineId]);
+
   return (
-    <div className="w-full px-4 sm:px-8 lg:px-16">
-      <span className="flex justify-between">
-        <h1 className="text-2xl font-semibold">
-          {loading ? <Skeleton className="w-32 h-5" /> : pipeline?.name}
-        </h1>
-      </span>
-      <main className="space-y-6 pb-10">
-        <section className="mt-4 w-full border border-muted-foreground/15 rounded-md">
-          <div className="w-full p-4">
-            <form
-              onSubmit={form.handleSubmit((data) => {
-                updatePipeline({ variables: data });
-              })}
-            >
-              <Form {...form}>
-                <div className="flex flex-col gap-2 ">
-                  <CreatePipelineForm form={form} />
-                  <PipelineConfig form={form} />
-                  <span className="flex justify-end">
-                    <Button type="submit">{t('update')}</Button>
-                  </span>
-                </div>
-              </Form>
-            </form>
-          </div>
-        </section>
-        <TicketStatusesButton />
-        <PipelinePermissions />
-        <PipelineConfigs />
-      </main>
-    </div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((data) => {
+          updatePipeline({
+            variables: data,
+            onCompleted: () => {
+              toast({ title: t('success'), variant: 'success' });
+            },
+          });
+        })}
+      >
+        <div className="flex flex-col divide-y">
+          <section className="py-5 first:pt-0">
+            <CreatePipelineForm form={form} />
+          </section>
+          <PipelineConfig form={form} />
+        </div>
+        <div className="mt-5 flex justify-end border-t pt-5">
+          <Button disabled={updating} type="submit">
+            {updating ? <Spinner /> : t('update')}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
