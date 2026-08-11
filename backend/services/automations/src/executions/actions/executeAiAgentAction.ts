@@ -14,6 +14,7 @@ import {
 import { generateModels } from '../../connectionResolver';
 import { buildAiAgentTools } from './aiAgentTools';
 import {
+  AUTOMATION_ERROR_CODES,
   getContentType,
   getModuleName,
   getPluginName,
@@ -23,6 +24,7 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { AutomationActionError } from '../errorCodes';
 
 type TAiAgentActionWorkerResponse = {
   result: TAiActionExecutionResult;
@@ -60,13 +62,19 @@ export const executeAiAgentAction = async (
     const aiAgentId = parsedActionConfig.aiAgentId;
 
     if (!aiAgentId) {
-      throw new Error('AI action config is missing aiAgentId.');
+      throw new AutomationActionError(
+        'AI action config is missing aiAgentId.',
+        AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+      );
     }
 
     const agent = await models.AiAgents.findById({ _id: aiAgentId }).lean();
 
     if (!agent) {
-      throw new Error('AI Agent not found.');
+      throw new AutomationActionError(
+        'AI Agent not found.',
+        AUTOMATION_ERROR_CODES.NOT_FOUND,
+      );
     }
     const parsedAgent = parseAiAgentInput(agent);
     // Two registries meet here: action tools come from the canvas node, the
@@ -103,7 +111,10 @@ export const executeAiAgentAction = async (
     });
     console.timeEnd(timerLabel);
     if (!response) {
-      throw new Error('AI agent returned an empty response.');
+      throw new AutomationActionError(
+        'AI agent returned an empty response.',
+        AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
+      );
     }
 
     const attributesEmpty = isAiClassificationResultEmpty(response.result);
@@ -133,7 +144,16 @@ export const executeAiAgentAction = async (
       attributesEmpty,
     };
   } catch (error) {
-    throw new Error(`AI Agent Action failed: ${error.message}`);
+    // Keep an already classified failure (config, not found) as it is instead
+    // of flattening every cause into one code.
+    if (error instanceof AutomationActionError) {
+      throw error;
+    }
+
+    throw new AutomationActionError(
+      `AI Agent Action failed: ${error.message}`,
+      AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
+    );
   }
 };
 

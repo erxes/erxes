@@ -1,3 +1,5 @@
+export const TICKET_PROPERTY_CONTENT_TYPE = 'frontline:ticket';
+
 export enum TICKET_FORM_FIELDS_KEY {
   NAME = 'name',
   DESCRIPTION = 'description',

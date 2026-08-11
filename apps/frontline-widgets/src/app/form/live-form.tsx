@@ -6,11 +6,14 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  calloutPassedAtom,
   customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
+import { ErxesFormCallout } from './components/ErxesFormCallout';
+import { isCalloutVisible } from './utils/formUtils';
 import { useParams } from 'react-router-dom';
 import { getVisitorId } from '@libs/utils';
 
@@ -21,6 +24,7 @@ export const LiveForm = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const calloutPassed = useAtomValue(calloutPassedAtom);
   const customerId = useAtomValue(customerIdAtom);
 
   useEffect(() => {
@@ -81,10 +85,14 @@ export const LiveForm = () => {
     return null;
   }
 
+  const showCallout = isCalloutVisible(form.callout) && !calloutPassed;
+
   const formContent = (
     <ErxesFormProvider form={form}>
       {showConfirmation ? (
         <ErxesFormFinal />
+      ) : showCallout ? (
+        <ErxesFormCallout />
       ) : (
         stepsArray.length > 0 &&
         stepsArray

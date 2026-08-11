@@ -32,6 +32,7 @@ import {
   AdjustFixedAssets as QueriesAdjustFixedAssets,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AdjustClosing as QueriesAdjustClosing,
   AdjustFundRates as QueriesAdjustFundRates,
   AdjustDebtRates as QueriesAdjustDebtRates,
   AccountPermissions as QueriesAccountPermissions,
@@ -51,6 +52,7 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 import MutationsFixedAssets from '~/modules/fixedAssets/graphql/resolvers/mutations/fixedAssets';
 import QueriesFixedAssets from '~/modules/fixedAssets/graphql/resolvers/queries/fixedAssets';
 
@@ -87,6 +89,7 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...adjustClosingEntryMutations,
     ...MutationsFixedAssets,
   },
   Query: {
@@ -100,6 +103,7 @@ const resolvers: any = {
     ...QueriesAdjustInventories,
     ...QueriesAdjustFixedAssets,
     ...QueriesJournalReport,
+    ...QueriesAdjustClosing,
     ...QueriesAdjustFundRates,
     ...QueriesAdjustDebtRates,
     ...QueriesAccountPermissions,

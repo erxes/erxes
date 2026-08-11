@@ -10,7 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import { fmtDur, fmtNum, fmtPct } from '../../utils';
+import {
+  fmtDur,
+  fmtDurOrDash,
+  fmtNum,
+  fmtPct,
+  fmtPctOrDash,
+} from '../../utils';
 
 /** 6-card KPI scorecard row. */
 export function KpiSection() {
@@ -31,8 +37,7 @@ export function KpiSection() {
     );
   }
 
-  const answerRate =
-    kpi?.serviceLevel != null ? 100 - (kpi.abandonment ?? 0) : null;
+  const answerRate = kpi ? 100 - (kpi.abandonment ?? 0) : null;
 
   const cards = [
     {
@@ -45,7 +50,7 @@ export function KpiSection() {
     },
     {
       title: t('kpi-service-level'),
-      value: fmtPct(kpi?.serviceLevel),
+      value: fmtPctOrDash(kpi?.serviceLevel),
       subtitle: t('kpi-service-level-subtitle'),
       icon: <IconShieldCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-2)]',
@@ -61,7 +66,7 @@ export function KpiSection() {
     },
     {
       title: t('kpi-avg-speed-of-answer'),
-      value: fmtDur(kpi?.averageSpeed),
+      value: fmtDurOrDash(kpi?.averageSpeed),
       subtitle: t('kpi-avg-speed-of-answer-subtitle'),
       icon: <IconClock className="h-5 w-5" />,
       valueClass: 'text-[var(--warn)]',
@@ -77,8 +82,11 @@ export function KpiSection() {
     },
     {
       title: t('kpi-answer-rate'),
-      value: fmtPct(answerRate),
-      subtitle: direction !== 'all' ? t('kpi-direction-only', { direction }) : t('kpi-all-directions'),
+      value: fmtPctOrDash(answerRate),
+      subtitle:
+        direction !== 'all'
+          ? t('kpi-direction-only', { direction })
+          : t('kpi-all-directions'),
       icon: <IconPercentage className="h-5 w-5" />,
       valueClass: 'text-[var(--chart-3)]',
       iconClass: 'bg-[var(--chart-3)]/10 text-[var(--chart-3)]',

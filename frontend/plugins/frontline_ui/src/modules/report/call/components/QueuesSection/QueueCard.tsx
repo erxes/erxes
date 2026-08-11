@@ -52,7 +52,7 @@ export function QueueCard({ stat, label }: QueueCardProps) {
       {/* Answer-rate progress bar */}
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-[var(--pos)] transition-all"
+          className="h-full rounded-full bg-primary transition-all"
           style={{ width: `${Math.min(answerRate, 100)}%` }}
         />
       </div>

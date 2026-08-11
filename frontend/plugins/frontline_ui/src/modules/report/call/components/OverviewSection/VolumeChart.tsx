@@ -53,12 +53,12 @@ export const VolumeChart = memo(function VolumeChart({
       >
         <defs>
           <linearGradient id="cr-vol-incoming" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="cr-vol-outgoing" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="var(--chart-3)" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--chart-5)" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="var(--chart-5)" stopOpacity={0} />
           </linearGradient>
         </defs>
 
@@ -82,7 +82,7 @@ export const VolumeChart = memo(function VolumeChart({
           type="monotone"
           dataKey="incoming"
           name={t('inbound')}
-          stroke="var(--chart-2)"
+          stroke="var(--chart-1)"
           fill="url(#cr-vol-incoming)"
           strokeWidth={2}
           dot={false}
@@ -91,7 +91,7 @@ export const VolumeChart = memo(function VolumeChart({
           type="monotone"
           dataKey="outgoing"
           name={t('outbound')}
-          stroke="var(--chart-3)"
+          stroke="var(--chart-5)"
           fill="url(#cr-vol-outgoing)"
           strokeWidth={2}
           dot={false}
@@ -100,7 +100,7 @@ export const VolumeChart = memo(function VolumeChart({
           type="monotone"
           dataKey="answered"
           name="Answered"
-          stroke="var(--pos)"
+          stroke="var(--success)"
           fill="none"
           strokeWidth={1.5}
           strokeDasharray="4 2"

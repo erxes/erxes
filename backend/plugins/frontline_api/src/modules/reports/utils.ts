@@ -338,6 +338,10 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.statusId = filters.status;
   }
 
+  if (filters.statusIds?.length) {
+    match.statusId = { $in: filters.statusIds };
+  }
+
   const state = filters.state || 'active';
 
   if (state !== 'all') {
@@ -568,6 +572,7 @@ const REPORT_CHART_FILTER_KEYS = [
   'fromDate',
   'toDate',
   'status',
+  'statusIds',
   'source',
   'state',
   'frequency',
