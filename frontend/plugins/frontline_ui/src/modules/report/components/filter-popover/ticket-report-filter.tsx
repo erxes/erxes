@@ -179,9 +179,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
                 <Filter.Item value="member">{t('assigned-user')}</Filter.Item>
                 <Filter.Item value="pipeline">{t('pipelines')}</Filter.Item>
-                <Filter.Item value="ticketStatus">
-                  {t('status')}
-                </Filter.Item>
+                <Filter.Item value="ticketStatus">{t('status')}</Filter.Item>
                 <Filter.Item value="state">{t('state-label')}</Filter.Item>
                 <Filter.Item value="priority">
                   {t('priority-label')}

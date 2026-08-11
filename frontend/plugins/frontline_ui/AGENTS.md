@@ -433,7 +433,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/report/states.ts`, `src/modules/report/types.ts`,
   `src/modules/report/graphql/queries/getReportCharts.ts`; backend (see
   `frontline_api`'s guide) — `src/modules/reports/{@types/reportFilters.ts,
-  utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
+utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
 - **Contracts changed:** `TicketReportFilter` and `ReportChartFilters`
   (backend GraphQL) gained `statusIds: [String]`; `ReportChartFilters`

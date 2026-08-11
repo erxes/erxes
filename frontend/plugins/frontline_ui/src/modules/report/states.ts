@@ -303,11 +303,7 @@ export const getReportGroupPropertyFilterAtom = (cardId: string) =>
     ),
   );
 
-
-
-export const reportTicketStatusFilterState = atom<Record<string, string[]>>(
-  {},
-);
+export const reportTicketStatusFilterState = atom<Record<string, string[]>>({});
 
 const ticketStatusFilterAtomCache = new Map<
   string,

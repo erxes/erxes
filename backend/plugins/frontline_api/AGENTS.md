@@ -458,7 +458,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   round-trips through save/restore like every other ticket filter.
 - **Affected areas:**
   `src/modules/reports/{@types/reportFilters.ts,utils.ts,
-  graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
+graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
 - **Contracts changed:** `TicketReportFilter` and `ReportChartFilters` both
   gained `statusIds: [String]`. `status: String` is unchanged and still
   takes precedence if a caller sends both.
@@ -609,4 +609,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
   `ReportChartPropertyValueFilter` types; two new queries and three new
   mutations. No existing report query changed.
-
