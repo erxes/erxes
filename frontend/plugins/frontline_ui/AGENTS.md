@@ -358,6 +358,21 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   real value meaning "include archived and deleted", not the absence of a
   filter — so `hasFilters` ignores `active` rather than treating any value as a
   filter, and Clear resets to `active`, not to an empty string.
+- `state` (menu label "State") and `statusIds` (menu label "Status") are two
+  unrelated ticket filters that sit next to each other in the same menu:
+  `state` (`getReportStateFilterAtom`) is the active/archived/deleted
+  lifecycle flag; `statusIds` (`getReportTicketStatusFilterAtom`, multi-select)
+  is a set of real pipeline `Status._id` values from Settings → Channels →
+  Pipelines → Ticket statuses, fetched per-pipeline via
+  `useGetAccessibleTicketStatuses`. Never conflate the two atoms or their
+  query variables — the backend also keeps a separate, frontend-unused
+  single-value `status: String` field on `TicketReportFilter`, so never wire
+  `statusIds` through that field either. Ticket statuses are pipeline-scoped
+  (`getAccessibleTicketStatuses(pipelineId: String!)` takes exactly one), so
+  — matching `PipelineFilterView`'s existing `channelIds[0]` convention —
+  `TicketStatusFilterView` reads only the first selected pipeline and shows
+  "Pipeline not selected" until at least one is picked; it does not attempt
+  to merge statuses across multiple selected pipelines.
 - A report card must take its identity from the `cardId` prop, never from its
   translated `title`. Deriving the id from the title made filter atoms, the
   filter popover's session key, and the drag-and-drop id change with the
@@ -398,6 +413,35 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
+
+- **Summary:** The ticket report filter gained a "Status" filter, separate
+  from the existing active/archived/deleted filter (relabelled "State" so the
+  two are no longer both called "Status"), that multi-selects the actual
+  configurable statuses (New/Open/In Progress/... plus any custom
+  sub-statuses) from the first selected pipeline via
+  `getAccessibleTicketStatuses`, matching what Settings → Channels →
+  Pipelines → Ticket statuses shows. The backend `TicketReportFilter`/
+  `ReportChartFilters` gained a new `statusIds: [String]` field alongside the
+  existing single-value `status: String` (left untouched — unused by the
+  frontend, so no reason to repurpose it), and `buildTicketMatch` matches
+  `statusId: { $in: filters.statusIds }`.
+- **Affected areas:** frontend —
+  `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
+  `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
+  `src/modules/report/states.ts`, `src/modules/report/types.ts`,
+  `src/modules/report/graphql/queries/getReportCharts.ts`; backend (see
+  `frontline_api`'s guide) — `src/modules/reports/{@types/reportFilters.ts,
+  utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- **Contracts changed:** `TicketReportFilter` and `ReportChartFilters`
+  (backend GraphQL) gained `statusIds: [String]`; `ReportChartFilters`
+  (frontend TS type) gained matching optional `statusIds?: string[]`. A saved
+  chart's `filters.statusIds` now round-trips through save/restore like every
+  other ticket filter. The `state` filter's menu item switched from the
+  shared `status` label to the existing `state-label` key; no atom, value, or
+  query variable changed for `state`.
 
 ### `2026-08-10` — Ticket property fields carry their type and options
 
@@ -529,19 +573,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
   `group`; the card can now render an empty state, where six zero rows always
   came back before.
-
-### `2026-08-10` — Ticket KPI row shows the real total
-
-- **Summary:** "Total Tickets" now sums every priority bucket, including the new
-  `priority: 0` row, so it matches the percentages beside it instead of counting
-  only triaged tickets; the untriaged count moved into that card's subtitle and
-  the row still renders four priority cards. The state filter now defaults to
-  `active` with `all` as the explicit opt-in to archived and deleted tickets.
-- **Affected areas:**
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
-  `src/modules/report/states.ts`,
-  `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `None` on this side; consumes the extra
-  `reportTicketPriority` row and the `state: 'all'` value from `frontline_api`.

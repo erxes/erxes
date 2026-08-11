@@ -59,6 +59,7 @@ export interface ReportChartFilters {
   fromDate?: string;
   toDate?: string;
   state?: string;
+  statusIds?: string[];
   frequency?: string;
   groupPropertyId?: string;
   channelIds?: string[];
