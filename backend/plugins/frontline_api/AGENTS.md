@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-07`
+- **Last synchronized:** `2026-08-10`
 
 ## Scope
 
@@ -75,6 +75,9 @@
   keeps the shared app.
 - Runs Facebook/Instagram/Discord/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
+- Logs Facebook Graph delivery failures with provider error metadata and request
+  context while excluding outbound message content; comment-triggered bot flows
+  do not send Messenger typing indicators.
 - Boots the Call app, the IMAP poller, and the Discord gateway client from
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
@@ -239,6 +242,8 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - A Page may send exactly one private reply per comment, and that reply does not
   open the 24-hour messaging window. Any message after it needs a user
   interaction, an already-open window, or a valid tag.
+- Comment-triggered Facebook automations never send `typing_on`, including bot
+  sequence steps after the initial private reply.
 - In `sendReply`, request-level Graph error codes (`1`, `10`, `100`, `10900`)
   must not flip `FacebookIntegrations.healthStatus` to a token state — only
   genuine token and permission failures may.
@@ -282,6 +287,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-10` — Improve Facebook delivery diagnostics
+
+- **Summary:** Suppressed typing indicators throughout comment-triggered bot flows and added privacy-safe Graph error metadata logging.
+- **Affected areas:** `src/modules/integrations/facebook/utils.ts`, Facebook automation messages
+- **Contracts changed:** None
 
 ### `2026-08-07` — Indexed knowledge base articles carry their category name
 
@@ -398,43 +409,3 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `scope: String` argument and its `channelId` relaxed from `String!` to
   `String`; the query itself was already declared and previously returned
   `undefined`.
-
-### `2026-08-04` — Drop the unreachable `imageUrls` path from page posting
-
-- **Summary:** `facebookCreatePost` only accepts uploaded image keys, so the
-  never-called URL variant (`uploadUnpublishedPhoto`, its https-only check, and
-  the `imageUrls` argument) is gone, along with a write-only `accountId` in the
-  login middleware.
-- **Affected areas:** `src/modules/integrations/facebook/postService.ts`,
-  `.../utils.ts`, `.../graphql/schema/facebook.ts`,
-  `.../middlewares/loginMiddleware.ts`
-- **Contracts changed:** `facebookCreatePost` no longer accepts `imageUrls`
-
-### `2026-08-04` — Extract the page-post publishing pipeline out of the resolver
-
-- **Summary:** `facebookCreatePost` now delegates to `publishPagePost` in
-  `postService.ts`, which owns image validation, unpublished-photo staging with
-  cleanup, permalink lookup, and audit logging; account queries share one
-  app-scope selector.
-- **Affected areas:**
-  `src/modules/integrations/facebook/postService.ts` (new),
-  `.../graphql/resolvers/mutations.ts`, `.../graphql/resolvers/queries.ts`,
-  `.../commonUtils.ts`, `.../db/definitions/accounts.ts`
-- **Contracts changed:** `None`
-
-### `2026-08-04` — Stop message-level Graph errors from marking integrations unhealthy
-
-- **Summary:** Request-level Facebook Graph error codes no longer set
-  `FacebookIntegrations.healthStatus` to `account-token`, which was showing a
-  false token failure whenever an automation sent an invalid payload.
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`sendReply`)
-- **Contracts changed:** `None`
-
-### `2026-08-03` — Lazy personal-channel provisioning
-
-- **Summary:** Added the `getPersonalChannel` query so a personal channel is
-  created the first time it is read, replacing any need to choose a scope at
-  channel-creation time.
-- **Affected areas:** `src/modules/channel/graphql/{schemas,resolvers/queries}/channel.ts`.
-- **Contracts changed:** New query `getPersonalChannel: Channel` with
-  get-or-create semantics.
