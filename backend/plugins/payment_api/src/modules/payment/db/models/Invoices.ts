@@ -14,7 +14,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
-  scanBarcode(code: string): Promise<IInvoiceDocument>;
+  scanBarcode(code: string, eventSlug?: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -197,7 +197,7 @@ export const loadInvoiceClass = (models: IModels) => {
       return 'removed';
     }
 
-    public static async scanBarcode(code: string) {
+    public static async scanBarcode(code: string, eventSlug?: string) {
       const invoice =
         (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
         (await models.Invoices.findOne({ invoiceNumber: code }));
@@ -210,6 +210,21 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Invoice is not paid');
       }
 
+      const expectedEventSlug = eventSlug?.trim();
+      if (expectedEventSlug) {
+        const invoiceEventSlug =
+          typeof invoice.data?.eventSlug === 'string'
+            ? invoice.data.eventSlug.trim()
+            : '';
+        if (invoiceEventSlug !== expectedEventSlug) {
+          throw new Error('Ticket belongs to a different event');
+        }
+      }
+
+      const eventFilter = expectedEventSlug
+        ? { 'data.eventSlug': expectedEventSlug }
+        : {};
+
       const hasTicketCodes =
         Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
 
@@ -217,6 +232,7 @@ export const loadInvoiceClass = (models: IModels) => {
         const scanned = await models.Invoices.findOneAndUpdate(
           {
             _id: invoice._id,
+            ...eventFilter,
             ticketCodes: { $elemMatch: { code, scannedAt: null } },
           },
           {
@@ -236,7 +252,7 @@ export const loadInvoiceClass = (models: IModels) => {
       }
 
       const scanned = await models.Invoices.findOneAndUpdate(
-        { _id: invoice._id, scannedAt: null },
+        { _id: invoice._id, ...eventFilter, scannedAt: null },
         { $set: { scannedAt: new Date() } },
         { new: true },
       );
