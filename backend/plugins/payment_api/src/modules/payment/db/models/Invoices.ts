@@ -211,18 +211,19 @@ export const loadInvoiceClass = (models: IModels) => {
       }
 
       const expectedEventSlug = eventSlug?.trim();
+      let storedEventSlug: string | undefined;
       if (expectedEventSlug) {
-        const invoiceEventSlug =
+        storedEventSlug =
           typeof invoice.data?.eventSlug === 'string'
-            ? invoice.data.eventSlug.trim()
-            : '';
-        if (invoiceEventSlug !== expectedEventSlug) {
+            ? invoice.data.eventSlug
+            : undefined;
+        if (storedEventSlug?.trim() !== expectedEventSlug) {
           throw new Error('Ticket belongs to a different event');
         }
       }
 
-      const eventFilter = expectedEventSlug
-        ? { 'data.eventSlug': expectedEventSlug }
+      const eventFilter = storedEventSlug
+        ? { 'data.eventSlug': storedEventSlug }
         : {};
 
       const hasTicketCodes =
