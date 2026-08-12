@@ -106,5 +106,26 @@
     "plugins": "Plugins",
     "exit": "Exit {{name}}",
     "modules": "{{name}} modules"
+  },
+  "global-search": {
+    "placeholder": "Search",
+    "loading": "Loading...",
+    "no-results": "No results",
+    "results-count_one": "{{count}} result",
+    "results-count_other": "{{count}} results",
+    "contacts": "Contacts",
+    "companies": "Companies",
+    "conversations": "Conversations",
+    "tickets": "Tickets",
+    "unnamed": "Unnamed",
+    "deals": "Deals",
+    "products": "Products",
+    "team-members": "Team members",
+    "channels": "Channels",
+    "forms": "Forms",
+    "hint": "Search contacts, conversations, tickets, deals, products and more",
+    "load-error": "Couldn't load {{label}}",
+    "search-failed": "Couldn't load search results",
+    "retry": "Retry"
   }
 }

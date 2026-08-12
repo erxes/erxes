@@ -4,8 +4,10 @@ import { notifyParentExecution } from './startWorkflowExecution';
 import { markExecActionStarted } from './executionActionMetrics';
 import { handleExecutionActionResponse } from './handleExecutionActionResponse';
 import { handleExecutionError } from './handleExecutionError';
+import { AutomationActionError } from './errorCodes';
 import {
   AUTOMATION_CORE_ACTIONS,
+  AUTOMATION_ERROR_CODES,
   AUTOMATION_EXECUTION_STATUS,
   IAutomationAction,
   IAutomationActionsMap,
@@ -121,7 +123,10 @@ export const executeActions = async (
       const isRemoteAction = (await getPlugins()).includes(serviceName);
 
       if (!isRemoteAction) {
-        throw new Error(ERROR_MESSAGES.PLUGIN_NOT_ENABLED);
+        throw new AutomationActionError(
+          ERROR_MESSAGES.PLUGIN_NOT_ENABLED,
+          AUTOMATION_ERROR_CODES.PLUGIN_NOT_ENABLED,
+        );
       }
 
       if (method === ACTION_METHODS.CREATE) {

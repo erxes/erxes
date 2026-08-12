@@ -13,7 +13,7 @@ import {
   normalizeAutomationConstantsForTransport,
   splitType,
 } from 'erxes-api-shared/core-modules';
-import { IListArgs } from '../queries';
+import { IListArgs, IStatsParams } from '../queries';
 import {
   getPlugin,
   getPlugins,
@@ -168,6 +168,29 @@ export const generateAutomationHistoriesFilter = (params: any) => {
     filter.parentExecutionId = params.parentExecutionId;
   } else {
     filter.parentExecutionId = { $exists: false };
+  }
+
+  return filter;
+};
+
+/**
+ * Stats match one automation over a date range. Workflow child executions stay
+ * in, so node stats cover actions that run inside a workflow; the branches that
+ * count whole runs narrow to root executions themselves.
+ */
+export const generateAutomationStatsFilter = ({
+  automationId,
+  beginDate,
+  endDate,
+}: IStatsParams) => {
+  const filter: any = { automationId };
+
+  if (beginDate) {
+    filter.createdAt = { $gte: beginDate };
+  }
+
+  if (endDate) {
+    filter.createdAt = { ...(filter.createdAt || {}), $lte: endDate };
   }
 
   return filter;

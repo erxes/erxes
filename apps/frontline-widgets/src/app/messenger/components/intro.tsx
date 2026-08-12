@@ -7,6 +7,9 @@ import { useCustomerData } from '../hooks/useCustomerData';
 import {
   connectionAtom,
   hasTicketConfigAtom,
+  selectedTicketConfigAtom,
+  ticketConfigsAtom,
+  ticketTabAtom,
   webAppCredentialsUrlAtom,
 } from '../states';
 import { NotifyCustomerForm } from './notify-customer-form';
@@ -29,6 +32,9 @@ export const Intro = () => {
     useGetMessengerSupporters();
   const [connection] = useAtom(connectionAtom);
   const setWebAppCredentialsUrl = useSetAtom(webAppCredentialsUrlAtom);
+  const ticketForms = useAtomValue(ticketConfigsAtom);
+  const setPage = useSetAtom(ticketTabAtom);
+  const setSelectedTicketConfig = useSetAtom(selectedTicketConfigAtom);
   const hasTicketConfig = useAtomValue(hasTicketConfigAtom);
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
@@ -98,31 +104,6 @@ export const Intro = () => {
       <div className="flex flex-col gap-2 pt-2 px-2">
         <HeaderIntro />
 
-        {hasTicketConfig && (
-          <div className="flex">
-            <button
-              onClick={() => switchToTab('ticket')}
-              className="w-full bg-background rounded-2xl shadow-xs p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-all duration-300 hover:shadow-sm"
-            >
-              <div className="bg-muted rounded-full p-2.5 flex-none">
-                <IconSend size={20} className="text-muted-foreground" />
-              </div>
-              <div className="flex-1 text-left min-w-0">
-                <div className="text-xs font-semibold text-foreground uppercase tracking-wide">
-                  tickets
-                </div>
-                <div className="text-sm font-normal text-accent-foreground truncate">
-                  Issue a ticket
-                </div>
-              </div>
-              <IconArrowRight
-                size={16}
-                className="text-muted-foreground flex-none"
-              />
-            </button>
-          </div>
-        )}
-
         {knowledgeBaseTopicId && (
           <div
             className="w-full bg-background rounded-2xl shadow-xs p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-all duration-300 hover:shadow-sm"
@@ -148,9 +129,45 @@ export const Intro = () => {
           </div>
         )}
 
+        {hasTicketConfig && (
+          <div className="flex flex-col">
+            <span className="font-mono uppercase ps-2 mb-2 text-muted-foreground font-semibold text-sm">
+              Tickets
+            </span>
+            <div className="flex flex-col gap-3">
+              {ticketForms?.map((form) => (
+                <button
+                  key={form._id}
+                  onClick={() => {
+                    setSelectedTicketConfig(form);
+                    switchToTab('ticket');
+                  }}
+                  className="w-full bg-background rounded-2xl shadow-xs p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-all duration-300 hover:shadow-sm"
+                >
+                  <div className="bg-muted rounded-full p-2.5 flex-none">
+                    <IconSend size={20} className="text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                      {form.name}
+                    </div>
+                    <div className="text-sm font-normal text-accent-foreground truncate">
+                      Issue a ticket
+                    </div>
+                  </div>
+                  <IconArrowRight
+                    size={16}
+                    className="text-muted-foreground flex-none"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {websiteApps && websiteApps?.length > 0 && (
-          <div>
-            <span className="font-mono uppercase ps-2 mb-4 text-muted-foreground font-semibold text-sm">
+          <div className="flex flex-col">
+            <span className="font-mono uppercase ps-2 mb-2 text-muted-foreground font-semibold text-sm">
               Web apps
             </span>
             {websiteApps.map((app) => (

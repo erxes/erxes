@@ -23,6 +23,7 @@ import {
   getReportPipelineFilterAtom,
   getReportPriorityFilterAtom,
   getReportStateFilterAtom,
+  getReportTicketStatusFilterAtom,
   getReportTicketTagFilterAtom,
   getReportCustomerFilterAtom,
   getReportCompanyFilterAtom,
@@ -34,8 +35,12 @@ import {
   SelectMember,
   SelectCustomer,
   SelectCompany,
+  SelectTags,
   useFields,
 } from 'ui-modules';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
+import { StatusInlineIcon } from '@/status/components/StatusInline';
+import { ITicketStatusChoice } from '@/status/types';
 import { type IField } from 'ui-modules/modules/properties';
 import {
   getReportDisplayValue,
@@ -96,6 +101,9 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
   const [stateFilter, setStateFilter] = useAtom(
     getReportStateFilterAtom(cardId),
   );
+  const [ticketStatusFilter, setTicketStatusFilter] = useAtom(
+    getReportTicketStatusFilterAtom(cardId),
+  );
   const [priorityFilter, setPriorityFilter] = useAtom(
     getReportPriorityFilterAtom(cardId),
   );
@@ -128,16 +136,17 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      (pipelineFilter && pipelineFilter.length > 0) ||
-      (ticketTagFilter && ticketTagFilter.length > 0) ||
-      stateFilter ||
-      (priorityFilter && priorityFilter.length > 0) ||
-      (customerFilter && customerFilter.length > 0) ||
-      (companyFilter && companyFilter.length > 0) ||
-      (propertyFilter && propertyFilter.length > 0) ||
-      Boolean(groupPropertyFilter),
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    (pipelineFilter && pipelineFilter.length > 0) ||
+    (ticketTagFilter && ticketTagFilter.length > 0) ||
+    (stateFilter && stateFilter !== 'active') ||
+    (ticketStatusFilter && ticketStatusFilter.length > 0) ||
+    (priorityFilter && priorityFilter.length > 0) ||
+    (customerFilter && customerFilter.length > 0) ||
+    (companyFilter && companyFilter.length > 0) ||
+    (propertyFilter && propertyFilter.length > 0) ||
+    Boolean(groupPropertyFilter),
   );
 
   const handleClear = () => {
@@ -146,7 +155,8 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setDateValue('');
     setPipelineFilter([]);
     setTicketTagFilter([]);
-    setStateFilter('');
+    setStateFilter('active');
+    setTicketStatusFilter([]);
     setPriorityFilter([]);
     setFrequency('day');
     setCustomerFilter([]);
@@ -169,10 +179,12 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
                 <Filter.Item value="member">{t('assigned-user')}</Filter.Item>
                 <Filter.Item value="pipeline">{t('pipelines')}</Filter.Item>
-                <Filter.Item value="state">{t('status')}</Filter.Item>
+                <Filter.Item value="ticketStatus">{t('status')}</Filter.Item>
+                <Filter.Item value="state">{t('state-label')}</Filter.Item>
                 <Filter.Item value="priority">
                   {t('priority-label')}
                 </Filter.Item>
+                <Filter.Item value="tag">{t('tags-label')}</Filter.Item>
                 <Filter.Item value="customer">
                   {t('customer-label')}
                 </Filter.Item>
@@ -231,6 +243,16 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
             </Command>
           </Filter.View>
 
+          <Filter.View filterKey="ticketStatus">
+            <Command shouldFilter={false}>
+              <TicketStatusFilterView
+                value={ticketStatusFilter}
+                onValueChange={setTicketStatusFilter}
+                pipelineId={pipelineFilter[0]}
+              />
+            </Command>
+          </Filter.View>
+
           <Filter.View filterKey="state">
             <Command shouldFilter={false}>
               <StateFilterView
@@ -246,6 +268,22 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 value={priorityFilter}
                 onValueChange={setPriorityFilter}
               />
+            </Command>
+          </Filter.View>
+
+          <Filter.View filterKey="tag">
+            <Command shouldFilter={false}>
+              <Command.List>
+                <BackButton />
+              </Command.List>
+              <SelectTags.Provider
+                mode="multiple"
+                tagType="frontline:ticket"
+                value={ticketTagFilter}
+                onValueChange={(val) => setTicketTagFilter(val as string[])}
+              >
+                <SelectTags.Content />
+              </SelectTags.Provider>
             </Command>
           </Filter.View>
 
@@ -482,6 +520,72 @@ const PipelineFilterView = ({
   );
 };
 
+const TicketStatusFilterView = ({
+  value,
+  onValueChange,
+  pipelineId,
+}: {
+  value: string[];
+  onValueChange: (value: string[]) => void;
+  pipelineId?: string;
+}) => {
+  const { t } = useTranslation('frontline');
+  const { statuses, loading } = useGetAccessibleTicketStatuses({
+    variables: { pipelineId },
+    skip: !pipelineId,
+  });
+
+  const handleSelect = (statusId: string) => {
+    const isSelected = value.includes(statusId);
+    onValueChange(
+      isSelected ? value.filter((id) => id !== statusId) : [...value, statusId],
+    );
+  };
+
+  return (
+    <Command.List className="max-h-[500px] overflow-y-auto">
+      <BackButton />
+      {!pipelineId ? (
+        <Command.Empty>{t('pipeline-not-selected')}</Command.Empty>
+      ) : loading ? (
+        <Command.Empty>{t('loading')}</Command.Empty>
+      ) : (
+        <>
+          <Command.Item value="all" onSelect={() => onValueChange([])}>
+            <div className="flex items-center gap-2">
+              {value.length === 0 && <IconCheck className="size-4" />}
+              <span>{t('all-statuses')}</span>
+            </div>
+          </Command.Item>
+          {statuses.length === 0 && (
+            <Command.Empty>{t('no-status-found')}</Command.Empty>
+          )}
+          {(statuses as ITicketStatusChoice[]).map((status) => (
+            <Command.Item
+              key={status.value}
+              value={status.value}
+              onSelect={() => handleSelect(status.value)}
+            >
+              <div className="flex items-center gap-2">
+                {value.includes(status.value) ? (
+                  <IconCheck className="size-4" />
+                ) : (
+                  <StatusInlineIcon
+                    statusType={status.type}
+                    color={status.color}
+                    className="size-4"
+                  />
+                )}
+                <span className="capitalize">{status.label}</span>
+              </div>
+            </Command.Item>
+          ))}
+        </>
+      )}
+    </Command.List>
+  );
+};
+
 const StateFilterView = ({
   value,
   onValueChange,
@@ -493,9 +597,9 @@ const StateFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       <BackButton />
-      <Command.Item value="all" onSelect={() => onValueChange('')}>
+      <Command.Item value="all" onSelect={() => onValueChange('all')}>
         <div className="flex items-center gap-2">
-          {!value && <IconCheck className="size-4" />}
+          {value === 'all' && <IconCheck className="size-4" />}
           <span>{t('all-states')}</span>
         </div>
       </Command.Item>

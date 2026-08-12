@@ -78,12 +78,15 @@ export const ItineraryRecordTable = ({
   );
   const columns = useMemo(
     () =>
-      itineraryColumns({
-        onEditClick: handleEditClick,
-        branchId,
-        branchLanguages,
-        mainLanguage,
-      }, t),
+      itineraryColumns(
+        {
+          onEditClick: handleEditClick,
+          branchId,
+          branchLanguages,
+          mainLanguage,
+        },
+        t,
+      ),
     [branchId, branchLanguages, handleEditClick, mainLanguage, t],
   );
   const rowData = itineraries || [];
@@ -105,6 +108,7 @@ export const ItineraryRecordTable = ({
         data={rowData}
         className="h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="tourism_itineraries_record_table"
       >
         <ItineraryCommandBar
           branchId={branchId}

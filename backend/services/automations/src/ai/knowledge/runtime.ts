@@ -6,17 +6,18 @@ import type { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiAgentActionConfig } from '../aiAction/contract';
 import { extractKnowledgeTerms } from './normalize';
 import {
-  fitChunksWithinBytes,
   formatAiKnowledgeChunksForPrompt,
   retrieveAiKnowledgeChunks,
 } from './retrieve';
 import { TAiKnowledgeChunk } from './types';
+import {
+  AI_SEARCH_HISTORY_LIMIT,
+  buildAiInputFromContext,
+} from '../aiAction/context';
 import { type TAiContext } from 'erxes-api-shared/core-modules';
 import {
   AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
-  PRODUCT_KNOWLEDGE_SOURCE,
-  PRODUCT_KNOWLEDGE_SOURCE_TYPE,
-  isProductKnowledgeSource,
+  resolveKnowledgeSourceScope,
 } from './sourceConfig';
 
 type TAiKnowledgeRuntimeParams = {
@@ -30,69 +31,8 @@ type TAiKnowledgeRuntimeParams = {
 };
 
 const MAX_CANDIDATE_CHUNKS = 300;
-const MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS = 50;
-
-const stringifyRuntimeValue = (value: unknown) => {
-  if (typeof value === 'string') {
-    return value.trim();
-  }
-
-  if (value == null) {
-    return '';
-  }
-
-  if (
-    typeof value === 'number' ||
-    typeof value === 'boolean' ||
-    typeof value === 'bigint'
-  ) {
-    return String(value);
-  }
-
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch (_error) {
-    return String(value);
-  }
-};
-
-const buildRuntimeInputText = ({
-  inputData,
-  aiContext,
-}: {
-  inputData: unknown;
-  aiContext?: TAiContext | null;
-}) => {
-  const explicitInput = stringifyRuntimeValue(inputData);
-  const latestUserMessage = stringifyRuntimeValue(aiContext?.input?.text);
-  const actionInput =
-    explicitInput && explicitInput !== latestUserMessage ? explicitInput : '';
-  const history = (aiContext?.history || [])
-    .filter((item) => item.text?.trim())
-    .slice(-5)
-    .map((item) => `${item.role || item.type || 'context'}: ${item.text}`)
-    .join('\n');
-  const facts = stringifyRuntimeValue(aiContext?.facts);
-
-  return [
-    latestUserMessage ? `Latest user message:\n${latestUserMessage}` : '',
-    history ? `Relevant history:\n${history}` : '',
-    facts && facts !== '{}' ? `Known facts:\n${facts}` : '',
-    actionInput ? `Action input:\n${actionInput}` : '',
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-};
-
-const buildLatestUserText = ({
-  inputData,
-  aiContext,
-}: {
-  inputData: unknown;
-  aiContext?: TAiContext | null;
-}) =>
-  stringifyRuntimeValue(aiContext?.input?.text) ||
-  stringifyRuntimeValue(inputData);
+const MIN_CANDIDATE_CHUNKS_PER_SOURCE = 25;
+const ALWAYS_INCLUDED_CHUNKS_PER_SOURCE = 20;
 
 const buildActionSearchText = (actionConfig: TAiAgentActionConfig) => {
   if (actionConfig.goalType === 'generateText') {
@@ -183,9 +123,14 @@ const getCandidateChunks = async ({
         $or: [
           { topics: { $in: terms } },
           { keywords: { $in: terms } },
-          { title: { $regex: terms.join('|'), $options: 'i' } },
+          {
+            title: { $regex: terms.map(escapeRegex).join('|'), $options: 'i' },
+          },
         ],
       })
+        // No relevance signal on this path, so prefer the freshest content
+        // instead of natural collection order.
+        .sort({ sourceUpdatedAt: -1 })
         .limit(MAX_CANDIDATE_CHUNKS)
         .lean<IKnowledgeChunkDocument[]>(),
     );
@@ -207,17 +152,6 @@ const getCandidateChunks = async ({
     } catch (error) {
       console.error('AI knowledge text search failed:', error);
     }
-  }
-
-  if (!chunksById.size) {
-    collect(
-      await models.KnowledgeChunks.find({
-        agentId,
-        sourceType: AI_AGENT_FILE_KNOWLEDGE_SOURCE_TYPE,
-      })
-        .limit(MAX_CANDIDATE_CHUNKS)
-        .lean<IKnowledgeChunkDocument[]>(),
-    );
   }
 
   return Array.from(chunksById.values()).map(mapSharedKnowledgeDocumentToChunk);
@@ -242,18 +176,18 @@ const getSharedKnowledgeCandidateChunks = async ({
         key: source.key,
       });
 
-      if (source.sourceIds.length) {
-        return {
-          sourceType,
-          sourceId: { $in: source.sourceIds },
-        };
+      // A plugin marks its staff-only documents internal, and a reply may be
+      // customer-facing. Agent-owned files carry the same flag for a different
+      // reason and are gathered on their own path.
+      const base = { sourceType, visibility: { $ne: 'internal' } };
+
+      if (resolveKnowledgeSourceScope(source) === 'all') {
+        return base;
       }
 
-      if (isProductKnowledgeSource(source)) {
-        return { sourceType };
-      }
-
-      return null;
+      return source.sourceIds.length
+        ? { ...base, sourceId: { $in: source.sourceIds } }
+        : null;
     })
     .filter((filter): filter is NonNullable<typeof filter> => !!filter);
 
@@ -261,85 +195,79 @@ const getSharedKnowledgeCandidateChunks = async ({
     return [];
   }
 
-  const sourceFilter = { $or: sourceFilters };
   const terms = extractKnowledgeTerms(searchText, 32);
   const chunksById = new Map<string, TAiKnowledgeChunk>();
-  const collect = (docs: TAiKnowledgeChunk[]) => {
-    for (const doc of docs) {
+  const collect = (docs: IKnowledgeChunkDocument[]) => {
+    for (const doc of docs.map(mapSharedKnowledgeDocumentToChunk)) {
       chunksById.set(String(doc.id), doc);
     }
   };
-  const mapDocuments = (docs: IKnowledgeChunkDocument[]) =>
-    docs.map(mapSharedKnowledgeDocumentToChunk);
-
-  collect(
-    mapDocuments(
-      await models.KnowledgeChunks.find({
-        $and: [sourceFilter, { priority: 'always' }],
-      })
-        .limit(20)
-        .lean<IKnowledgeChunkDocument[]>(),
-    ),
-  );
-
-  if (!terms.length) {
-    return filterSharedKnowledgeChunksByAgentBindings({
+  const finish = () =>
+    filterSharedKnowledgeChunksByAgentBindings({
       models,
       agentId,
       chunks: Array.from(chunksById.values()),
     });
-  }
+  // A shared pool lets a large source crowd every other one out of the
+  // candidate window before scoring ever runs.
+  const perSourceLimit = Math.max(
+    Math.ceil(MAX_CANDIDATE_CHUNKS / sourceFilters.length),
+    MIN_CANDIDATE_CHUNKS_PER_SOURCE,
+  );
+  const titleMatcher = terms.length
+    ? new RegExp(terms.map(escapeRegex).join('|'), 'i')
+    : null;
 
-  const titleMatcher = new RegExp(terms.map(escapeRegex).join('|'), 'i');
-
-  collect(
-    mapDocuments(
+  for (const sourceFilter of sourceFilters) {
+    collect(
       await models.KnowledgeChunks.find({
-        $and: [
-          sourceFilter,
-          {
-            $or: [
-              { topics: { $in: terms } },
-              { keywords: { $in: terms } },
-              { title: titleMatcher },
-            ],
-          },
+        ...sourceFilter,
+        priority: 'always',
+      })
+        .limit(ALWAYS_INCLUDED_CHUNKS_PER_SOURCE)
+        .lean<IKnowledgeChunkDocument[]>(),
+    );
+
+    if (!titleMatcher) {
+      continue;
+    }
+
+    collect(
+      await models.KnowledgeChunks.find({
+        ...sourceFilter,
+        $or: [
+          { topics: { $in: terms } },
+          { keywords: { $in: terms } },
+          { title: titleMatcher },
         ],
       })
-        .limit(MAX_CANDIDATE_CHUNKS)
+        // No relevance signal on this path, so prefer the freshest content
+        // instead of natural collection order.
+        .sort({ sourceUpdatedAt: -1 })
+        .limit(perSourceLimit)
         .lean<IKnowledgeChunkDocument[]>(),
-    ),
-  );
+    );
 
-  try {
-    collect(
-      mapDocuments(
+    try {
+      collect(
         await models.KnowledgeChunks.find(
-          {
-            $and: [sourceFilter, { $text: { $search: searchText } }],
-          },
+          { ...sourceFilter, $text: { $search: searchText } },
           { score: { $meta: 'textScore' } },
         )
           .sort({ score: { $meta: 'textScore' } })
-          .limit(MAX_CANDIDATE_CHUNKS)
+          .limit(perSourceLimit)
           .lean<IKnowledgeChunkDocument[]>(),
-      ),
-    );
-  } catch (_error) {
-    return filterSharedKnowledgeChunksByAgentBindings({
-      models,
-      agentId,
-      chunks: Array.from(chunksById.values()),
-    });
+      );
+    } catch (_error) {
+      return finish();
+    }
   }
 
-  return filterSharedKnowledgeChunksByAgentBindings({
-    models,
-    agentId,
-    chunks: Array.from(chunksById.values()),
-  });
+  return finish();
 };
 
+// A shared chunk is only visible to agents that actually bound its source,
+// since the chunk store is shared across agents in the tenant.
 const filterSharedKnowledgeChunksByAgentBindings = async ({
   models,
   agentId,
@@ -349,222 +277,72 @@ const filterSharedKnowledgeChunksByAgentBindings = async ({
   agentId: string;
   chunks: TAiKnowledgeChunk[];
 }) => {
-  const productSourceIds = [
+  const sourceIds = [
     ...new Set(
       chunks
-        .filter((chunk) => chunk.sourceType === PRODUCT_KNOWLEDGE_SOURCE_TYPE)
         .map((chunk) => chunk.sourceId)
         .filter((sourceId): sourceId is string => !!sourceId),
     ),
   ];
 
-  if (!productSourceIds.length) {
+  if (!sourceIds.length) {
     return chunks;
   }
 
   const bindings = await models.AiAgentKnowledgeSourceBindings.find(
-    {
-      agentId,
-      pluginName: PRODUCT_KNOWLEDGE_SOURCE.pluginName,
-      moduleName: PRODUCT_KNOWLEDGE_SOURCE.moduleName,
-      sourceKey: PRODUCT_KNOWLEDGE_SOURCE.key,
-      sourceId: { $in: productSourceIds },
-      status: 'indexed',
-    },
+    { agentId, sourceId: { $in: sourceIds }, status: 'indexed' },
     { sourceId: 1 },
   ).lean<Array<{ sourceId: string }>>();
-  const allowedProductSourceIds = new Set(
-    bindings.map((binding) => binding.sourceId),
-  );
+  const allowedSourceIds = new Set(bindings.map((binding) => binding.sourceId));
 
   return chunks.filter(
-    (chunk) =>
-      chunk.sourceType !== PRODUCT_KNOWLEDGE_SOURCE_TYPE ||
-      (chunk.sourceId && allowedProductSourceIds.has(chunk.sourceId)),
+    (chunk) => chunk.sourceId && allowedSourceIds.has(chunk.sourceId),
   );
 };
 
-const getSelectedProductSourceIds = (sources: TAiAgentKnowledgeSource[]) => [
-  ...new Set(
-    sources
-      .filter(isProductKnowledgeSource)
-      .flatMap((source) => source.sourceIds)
-      .filter(Boolean),
-  ),
-];
-
-const getSearchableKnowledgeSources = ({
-  sources,
-  alwaysIncludedProductSourceIds,
-}: {
-  sources: TAiAgentKnowledgeSource[];
-  alwaysIncludedProductSourceIds: string[];
-}) => {
-  if (!alwaysIncludedProductSourceIds.length) {
-    return sources;
-  }
-
-  return sources.filter((source) => !isProductKnowledgeSource(source));
-};
-
-const getAlwaysIncludedProductCatalogChunks = async ({
+// The one place that turns a search string into ranked chunks. Both the
+// prompt-mode retrieval and the search_knowledge tool go through here.
+export const searchAiAgentKnowledge = async ({
   models,
   agentId,
-  sources,
+  agent,
+  searchText,
 }: {
   models: IModels;
   agentId: string;
-  sources: TAiAgentKnowledgeSource[];
-}) => {
-  const hasProductKnowledgeScope = sources.some(isProductKnowledgeSource);
+  agent: TAiAgentInput;
+  searchText: string;
+}): Promise<TAiKnowledgeChunk[]> => {
+  const retrieval = agent.context.retrieval;
 
-  if (!hasProductKnowledgeScope) {
+  if (!retrieval?.enabled || !searchText.trim()) {
     return [];
   }
 
-  const selectedProductSourceIds = getSelectedProductSourceIds(sources);
-  const materializedBindings = await models.AiAgentKnowledgeSourceBindings.find(
-    {
+  const [agentCandidates, sharedCandidates] = await Promise.all([
+    getCandidateChunks({ models, agentId, searchText }),
+    getSharedKnowledgeCandidateChunks({
+      models,
       agentId,
-      pluginName: PRODUCT_KNOWLEDGE_SOURCE.pluginName,
-      moduleName: PRODUCT_KNOWLEDGE_SOURCE.moduleName,
-      sourceKey: PRODUCT_KNOWLEDGE_SOURCE.key,
-      materialized: true,
-      status: 'indexed',
-    },
-    { sourceId: 1 },
-  )
-    .limit(MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS + 1)
-    .lean<Array<{ sourceId: string }>>();
-  const productSourceIds = [
-    ...new Set([
-      ...selectedProductSourceIds,
-      ...materializedBindings.map((binding) => binding.sourceId),
-    ]),
-  ].filter(Boolean);
-
-  if (
-    !productSourceIds.length ||
-    productSourceIds.length > MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS
-  ) {
-    return [];
-  }
-
-  return (
-    await models.KnowledgeChunks.find({
-      sourceType: PRODUCT_KNOWLEDGE_SOURCE_TYPE,
-      sourceId: { $in: productSourceIds },
-    })
-      .sort({ title: 1, chunkIndex: 1 })
-      .limit(MAX_ALWAYS_INCLUDED_PRODUCT_CHUNKS)
-      .lean<IKnowledgeChunkDocument[]>()
-  ).map(mapSharedKnowledgeDocumentToChunk);
-};
-
-const normalizeProductMatchText = (value: string) =>
-  value.toLowerCase().replace(/\s+/g, ' ').trim();
-
-const extractProductFact = (content: string, field: string) => {
-  const match = content.match(new RegExp(`(?:^|\\n)${field}:\\s*([^\\n]+)`));
-
-  return match?.[1]?.trim();
-};
-
-const getMatchedProductCatalogChunks = ({
-  chunks,
-  latestUserText,
-}: {
-  chunks: TAiKnowledgeChunk[];
-  latestUserText: string;
-}) => {
-  const normalizedUserText = normalizeProductMatchText(latestUserText);
-  const terms = extractKnowledgeTerms(normalizedUserText);
-
-  if (!normalizedUserText) {
-    return [];
-  }
-
-  return chunks.filter((chunk) => {
-    const name = extractProductFact(chunk.content, 'Name');
-    const shortName = extractProductFact(chunk.content, 'Short name');
-    const code = extractProductFact(chunk.content, 'Code');
-
-    return [name, shortName, code]
-      .filter(Boolean)
-      .map((value) => normalizeProductMatchText(value || ''))
-      .some(
-        (value) =>
-          normalizedUserText.includes(value) ||
-          value.includes(normalizedUserText) ||
-          terms.some((term) => value.includes(term)),
-      );
-  });
-};
-
-const formatProductMatchSummary = (chunks: TAiKnowledgeChunk[]) => {
-  if (!chunks.length) {
-    return '';
-  }
-
-  return [
-    'Current product catalog match for the latest user message:',
-    ...chunks.map((chunk) => {
-      const name = extractProductFact(chunk.content, 'Name') || chunk.title;
-      const code = extractProductFact(chunk.content, 'Code');
-      const price = extractProductFact(chunk.content, 'Price');
-      const status = extractProductFact(chunk.content, 'Status');
-
-      return [
-        `- ${name}`,
-        code ? `  Code: ${code}` : '',
-        price ? `  Price: ${price}` : '',
-        status ? `  Status: ${status}` : '',
-      ]
-        .filter(Boolean)
-        .join('\n');
+      searchText,
+      sources: agent.context.knowledgeSources || [],
     }),
-    'Instruction: if the customer asks whether they can buy or order one of these matched products, do not say it is unavailable. Say it is listed in the configured product catalog and use only the explicit facts above.',
-    '',
-  ].join('\n');
-};
+  ]);
+  const candidates = [...agentCandidates, ...sharedCandidates];
 
-const buildProductCatalogContextFile = ({
-  chunks,
-  latestUserText,
-  maxContextBytes,
-}: {
-  chunks: TAiKnowledgeChunk[];
-  latestUserText: string;
-  maxContextBytes: number;
-}): TAiAgentLoadedContextFile | null => {
-  if (!chunks.length) {
-    return null;
+  if (!candidates.length) {
+    return [];
   }
 
-  const cappedChunks = fitChunksWithinBytes(chunks, maxContextBytes).chunks;
-
-  const matchedChunks = getMatchedProductCatalogChunks({
-    chunks: cappedChunks,
-    latestUserText,
-  });
-  const content = [
-    'Authority: indexed product catalog.',
-    'These are selected active products from the configured product knowledge scope.',
-    'For product existence and explicit product facts, this catalog context has priority over uploaded files and knowledge base articles.',
-    'Absence from uploaded files or knowledge base articles does not mean these products are unavailable.',
-    'Do not deny products listed here unless this catalog context explicitly says they are deleted or inactive.',
-    '',
-    formatProductMatchSummary(matchedChunks),
-    formatAiKnowledgeChunksForPrompt(cappedChunks),
-  ].join('\n');
-
-  return {
-    id: 'selected-product-catalog',
-    key: 'selected-product-catalog',
-    name: 'Product catalog',
-    bytes: Buffer.byteLength(content, 'utf8'),
-    content,
-  };
+  return retrieveAiKnowledgeChunks({
+    chunks: candidates,
+    query: { text: searchText },
+    config: {
+      topK: retrieval.topK,
+      maxContextBytes: retrieval.maxContextBytes,
+      minScore: retrieval.minScore,
+    },
+  }).chunks;
 };
 
 export const retrieveAiAgentKnowledgeContextFiles = async ({
@@ -575,85 +353,33 @@ export const retrieveAiAgentKnowledgeContextFiles = async ({
   inputData,
   aiContext,
 }: TAiKnowledgeRuntimeParams): Promise<TAiAgentLoadedContextFile[]> => {
-  const retrieval = agent.context.retrieval;
+  const inputText = buildAiInputFromContext({
+    inputData,
+    aiContext,
+    historyLimit: AI_SEARCH_HISTORY_LIMIT,
+  });
+  const actionText = buildActionSearchText(actionConfig);
+  const chunks = await searchAiAgentKnowledge({
+    models,
+    agentId,
+    agent,
+    searchText:
+      actionConfig.goalType === 'generateText'
+        ? inputText
+        : [actionText, inputText].filter(Boolean).join('\n\n'),
+  });
 
-  if (!retrieval?.enabled) {
+  if (!chunks.length) {
     return [];
   }
 
-  const inputText = buildRuntimeInputText({ inputData, aiContext });
-  const latestUserText = buildLatestUserText({ inputData, aiContext });
-  const actionText = buildActionSearchText(actionConfig);
-  const searchText =
-    actionConfig.goalType === 'generateText'
-      ? inputText
-      : [actionText, inputText].filter(Boolean).join('\n\n');
-  const knowledgeSources = agent.context.knowledgeSources || [];
-  const productCatalogChunks = await getAlwaysIncludedProductCatalogChunks({
-    models,
-    agentId,
-    sources: knowledgeSources,
-  });
-  const productCatalogContext = buildProductCatalogContextFile({
-    chunks: productCatalogChunks,
-    latestUserText,
-    maxContextBytes: retrieval.maxContextBytes,
-  });
-  const searchableKnowledgeSources = getSearchableKnowledgeSources({
-    sources: knowledgeSources,
-    alwaysIncludedProductSourceIds: productCatalogChunks
-      .map((chunk) => chunk.sourceId)
-      .filter((sourceId): sourceId is string => !!sourceId),
-  });
-  const productContextFiles = [
-    ...(productCatalogContext ? [productCatalogContext] : []),
-  ];
-
-  if (!searchText.trim()) {
-    return productContextFiles;
-  }
-
-  const [agentCandidates, sharedCandidates] = await Promise.all([
-    getCandidateChunks({
-      models,
-      agentId,
-      searchText,
-    }),
-    getSharedKnowledgeCandidateChunks({
-      models,
-      agentId,
-      searchText,
-      sources: searchableKnowledgeSources,
-    }),
-  ]);
-  const candidates = [...agentCandidates, ...sharedCandidates];
-
-  if (!candidates.length) {
-    return productContextFiles;
-  }
-
-  const result = retrieveAiKnowledgeChunks({
-    chunks: candidates,
-    query: { text: searchText },
-    config: {
-      topK: retrieval.topK,
-      maxContextBytes: retrieval.maxContextBytes,
-      minScore: retrieval.minScore,
-    },
-  });
-
-  if (!result.chunks.length) {
-    return productContextFiles;
-  }
-
   return [
-    ...productContextFiles,
     {
       id: `retrieved-knowledge:${agentId}`,
       key: `retrieved-knowledge:${agentId}`,
       name: 'Retrieved knowledge',
-      bytes: result.totalBytes,
-      content: formatAiKnowledgeChunksForPrompt(result.chunks),
+      bytes: chunks.reduce((sum, chunk) => sum + chunk.byteSize, 0),
+      content: formatAiKnowledgeChunksForPrompt(chunks),
     },
   ];
 };

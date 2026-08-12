@@ -1,184 +1,86 @@
-# loyalty_api — Plugin Rules & Notes
+# `loyalty_api` Plugin Guide
 
-Backend microservice for loyalty features. **Pricing lives here** as a module
-(`src/modules/pricing`), not as a standalone plugin.
+## Identity
 
-## Pricing module map
+- **Plugin:** `loyalty`
+- **Project:** `loyalty_api`
+- **Layer:** `Backend API`
+- **Path:** `backend/plugins/loyalty_api`
+- **Last synchronized:** `2026-08-10`
 
-| Concern     | Path                                                                                                             |
-| ----------- | ---------------------------------------------------------------------------------------------------------------- |
-| Data model  | `src/modules/pricing/db/definitions/*` (`pricingPlan.ts` + `priceRule`/`quantityRule`/`expiryRule`/`repeatRule`) |
-| Types       | `src/modules/pricing/@types/pricingPlan.ts`                                                                      |
-| Calc engine | `src/modules/pricing/utils/index.ts` (`checkPricing`, `getMainConditions`), `utils/rule.ts`, `utils/product.ts`  |
-| Eligibility | `src/modules/pricing/utils/eligibility.ts` (customer + broker gate)                                              |
-| GraphQL     | `src/modules/pricing/graphql/{schemas,resolvers}/pricingPlan*`                                                   |
-| tRPC entry  | `src/trpc/init-trpc.ts` → `pricing.checkPricing`                                                                 |
+## Scope
 
-A **PricingPlan** is a discount rule. `checkPricing` finds the plans that apply
-to a cart and returns, per line item, `{ type, value, bonusProducts }`. Callers
-(sales_api, posclient_api, mongolian_api) reach it over tRPC.
+### Owns
 
----
+- Loyalty score, voucher, coupon, lottery, spin, reward, agent, and pricing API behavior.
+- Plugin-owned GraphQL, tRPC, Mongoose models, commands, metadata, and event handlers under `backend/plugins/loyalty_api`.
 
-## Feature: Customer & broker targeting ("dynamic conditions")
+### Does not own
 
-Historically a plan could target **products** (products/categories/tags/vendors/
-product-segments/bundle) and **location/time** (branch/department/pipeline/dates).
-It could **not** target _who_ is involved. This feature adds two who-dimensions:
+- Core API, gateway, shared libraries, frontend plugin code, sales deal persistence, POS order persistence, or other plugins.
+- Direct source imports from another plugin; cross-service access must use published GraphQL, tRPC, HTTP, event, or federation contracts.
 
-- **Buyer** — the purchaser side of the sale.
-- **Broker** — the intermediary side of the sale.
+## Current Capabilities
 
-A plan applies only when **all enabled dimensions pass**:
-`customer ✓ AND broker ✓ AND product ✓` — the product leg is unchanged.
+- Score campaigns can add, subtract, set, refund, repair, and expose owner score balances.
+- Deal score campaign totals count only deal `productsData` rows with `tickUsed === true` and no meaningful product discount.
+- POS order score campaign totals use order item amounts without deal-specific discount filtering.
+- Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
+- Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
 
-### Data model (additive, on `IPricingPlan` + the Mongoose schema)
+## Architecture
 
-Buyer and broker each have customer/company/user sub-dimensions. There is no
-type selector: customer and company constraints can be set at the same time, and
-any constrained sub-dimension must match.
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Runtime | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts` | Start the plugin, load tenant-scoped models, and expose tRPC procedures. |
+| Score models | `src/modules/score/db` | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields. |
+| Score orchestration | `src/utils/utils.ts`, `src/modules/score/utils.ts`, `src/meta/automations/score` | Normalize sales/POS targets, trigger score campaigns, and support score reporting helpers. |
+| Pricing | `src/modules/pricing` | Store pricing plans and calculate eligible discount rules. |
+| GraphQL | `src/apollo`, `src/modules/*/graphql` | Provide plugin-owned schemas, queries, mutations, and custom resolvers. |
+| Commands | `src/commands` | Run bounded maintenance and recovery scripts for loyalty-owned data. |
 
-```
-# buyer: customer dimension
-customerIds          string[]   // include: match any
-customerTags         string[]   // include: shares any tag
-customerExcludeTags  string[]   // disqualify if the buyer carries any
-customerSegmentIds   string[]   // member of any (core segment over customers)
+## Contracts
 
-# buyer: company dimension
-companyIds           string[]
-companyTags          string[]
-companyExcludeTags   string[]
-companySegmentIds    string[]
+### Provides
 
-# buyer: user dimension
-userIds              string[]
-userPositions        string[]   // holds any of these positionIds
-userSegmentIds       string[]   // member of any (segment over team-members / core:user)
+- GraphQL contracts for loyalty modules registered through `src/apollo`.
+- tRPC procedures in `src/trpc/init-trpc.ts`, including `score.scoreCampaign`, `pricing.checkPricing`, and `doScoreCampaign`.
+- Metadata, permission, automation, and after-process handlers under `src/meta`.
 
-# broker: customer dimension
-brokerCustomerIds          string[]
-brokerCustomerTags         string[]
-brokerCustomerExcludeTags  string[]
-brokerCustomerSegmentIds   string[]
+### Consumes
 
-# broker: company dimension
-brokerCompanyIds           string[]
-brokerCompanyTags          string[]
-brokerCompanyExcludeTags   string[]
-brokerCompanySegmentIds    string[]
+- `erxes-api-shared` core types, utilities, and core module extension points.
+- Core service tRPC contracts for products, tags, categories, customers, companies, users, segments, and client portal users.
+- Sales deal and POS order target payloads passed over plugin/public service boundaries.
 
-# broker: user dimension
-brokerUserIds        string[]
-brokerUserPositions  string[]   // holds any of these positionIds
-brokerUserSegmentIds string[]   // member of any (segment over team-members / core:user)
-```
+## Data and State
 
-**Empty fields = no constraint.** Every pre-existing plan keeps behaving exactly
-as before — this is fully backwards-compatible. There are intentionally **no
-`is…Enabled` flags** (we follow the existing `segments`/`vendors`/`tags`
-convention, not the rule-engine convention).
+- Tenant-scoped Mongo collections are loaded through `generateModels(subdomain)` and plugin connection resolvers.
+- Score balance state is persisted in `score_logs` plus owner score/cache updates through `scoreLedger`.
+- Score campaign target normalization derives calculation-only fields such as `totalAmount`, `paymentsData`, and `excludeAmount`.
+- Pricing plans and rules are plugin-owned loyalty collections.
 
-Location fields follow the same convention: a plan with `pipelineId` applies
-only to that pipeline, while an empty `pipelineId` applies to every pipeline. A
-plan with `branchIds` applies only to those branches, while an empty `branchIds`
-array applies to every branch.
+## Local Invariants
 
-### Eligibility semantics (`utils/eligibility.ts`)
+- Preserve tenant isolation by using the request `subdomain` for every model and service access.
+- Deal score totals must exclude discounted `productsData` rows and rows where `tickUsed` is not exactly `true`.
+- Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
+- Pricing eligibility must fail closed when required core lookups are unavailable.
+- Do not introduce new `schemaWrapper` usage in backend schemas.
 
-`planMatchesContext(subdomain, plan, { customerId, customerIds, companyId, companyIds, userId, userIds, brokerCustomerId, brokerCustomerIds, brokerCompanyId, brokerCompanyIds, brokerUserId, brokerUserIds }, cache?)`
-→ `boolean`. The buyer dimensions evaluate `customerId` + `customer*`,
-`companyId` + `company*`, and `userId` + `user*` independently. Broker
-dimensions evaluate `brokerCustomerId` + `brokerCustomer*`, `brokerCompanyId` +
-`brokerCompany*`, and `brokerUserId` + `brokerUser*` independently.
-Per dimension (`matchesDimension`):
+## Validation
 
-1. no id/tag/excludeTag/segment/position values → **unconstrained, passes**;
-2. constrained but the caller supplied no entity id → **fails closed**;
-3. an excluded tag (entity carries it) **always disqualifies**;
-4. only exclusion set → "everyone except", passes otherwise;
-5. otherwise pass if the id is in the include list **OR** shares any tag **OR**
-   holds any position **OR** is a member of any segment.
+- `pnpm nx build loyalty_api`
+- `pnpm nx test loyalty_api`
+- `pnpm nx test loyalty_api --testPathPattern scoreTarget`
+- Smoke scenario: trigger a sales deal score campaign with mixed `productsData`; only ticked, undiscounted rows should contribute to `totalAmount`.
 
-Every constrained buyer/broker sub-dimension is combined with **AND**. Empty
-sub-dimensions are unconstrained and pass.
+## Recent Changes
 
-Membership lookups, all **fail closed** if the core service is unreachable:
+<!-- Newest first. Keep at most 10 entries. -->
 
-- segments → `segment.isInSegment(segmentId, idToCheck)` tRPC (Elasticsearch —
-  the same dependency the product-segment path already relies on);
-- tags / positions → `{customers,companies,users}.findOne` tRPC, reading
-  `tagIds` / `positionIds` off the entity doc.
+### `2026-08-10` — `Deal score product eligibility`
 
-Pass a single `Map` (`EligibilityCache`) across all plans in one `checkPricing`
-call. It memoizes both segment checks (`seg:${segmentId}:${entityId}`) and
-entity-fact fetches (`doc:${kind}:${entityId}` → `{tagIds, positionIds}`), so N
-plans referencing the same segment/entity fan out at most one tRPC call each.
-
-### Wiring the gate into `checkPricing` (the remaining step)
-
-`checkPricing` accepts typed participant input
-(`customerType + customerId`, `brokerType + brokerId`) and normalizes that into
-dimension-specific ids before the eligibility gate:
-
-```ts
-const cache = new Map<string, unknown>(); // once per checkPricing call
-const customerContext = typedParticipantContext({ type: customerType, id: customerId });
-const brokerContext = typedParticipantContext({
-  type: brokerType,
-  id: brokerId,
-  prefix: 'broker',
-});
-// ...
-for (const plan of plans) {
-  if (
-    !(await planMatchesContext(
-      subdomain,
-      plan,
-      {
-        ...customerContext,
-        ...brokerContext,
-      },
-      cache,
-    ))
-  ) {
-    continue;
-  }
-  // ... existing getAllowedProducts + rule calc (unchanged)
-}
-```
-
-The tRPC contract accepts typed participant input:
-`customerType + customerId` and `brokerType + brokerId`, where type is
-`customer | company | user`. For example, `customerType: 'company'` means the
-`customerId` value is a company id, and `customerType: 'user'` means it is a
-user id. Loyalty normalizes that single id into the internal dimension-specific
-arrays. GraphQL `checkDiscountParams` carries the same typed participant input.
-
-### Implementation status
-
-| Piece                                                                                             | Status                                                                                                                              |
-| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `IPricingPlan` + Mongoose schema fields                                                           | ✅ landed (additive)                                                                                                                |
-| `utils/eligibility.ts` + unit tests                                                               | ✅ landed, green                                                                                                                    |
-| `checkPricing` gate wiring                                                                        | ✅ landed                                                                                                                           |
-| tRPC `checkPricingInput` + GraphQL inputs / `PricingPlan` type / `checkDiscountParams` + resolver | ✅ landed                                                                                                                           |
-| Caller threading                                                                                  | ✅ typed participant input is normalized inside `checkPricing`; callers provide `customerType/customerId` and `brokerType/brokerId` |
-| Frontend form (`loyalty_ui`)                                                                      | ✅ Participants tab — simultaneous buyer (customer/company/user) + broker (customer/company/user) conditions                        |
-
-> Cleanup done while wiring: removed stray `console.log` debug lines from
-> `utils/index.ts`, `graphql/resolvers/queries/pricingPlan.ts`, and the sales
-> caller `loyaltyUtils.ts`. One remains in `utils/product.ts` (`:118`) — left
-> untouched to keep this change scoped.
-
-## Testing
-
-```bash
-pnpm nx test loyalty_api                                  # all
-pnpm nx test loyalty_api --testPathPattern eligibility    # this feature
-```
-
-Jest setup mirrors `erxes-agent_api` (`jest.config.ts` + `tsconfig.spec.json`,
-`@nx/jest` target). Tests live in `__tests__/` next to the code. ts-jest runs in
-`isolatedModules` (transpile-only) — **types are enforced by `pnpm build`/tsc**,
-which lets test-first specs reference not-yet-wired code without breaking the run.
+- **Summary:** Deal score campaign totals now explicitly count only ticked, undiscounted product rows and cover the rule with unit tests.
+- **Affected areas:** `src/utils/scoreTarget.ts`, `src/utils/utils.ts`, `src/utils/__tests__/scoreTarget.test.ts`
+- **Contracts changed:** `None`
