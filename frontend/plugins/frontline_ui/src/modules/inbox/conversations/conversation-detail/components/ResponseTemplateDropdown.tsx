@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Popover } from 'erxes-ui';
+import { Kbd, Popover, cn } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
 import { useTranslation } from 'react-i18next';
 
@@ -55,19 +55,15 @@ export const ResponseTemplateDropdown = ({
               e.preventDefault();
               onSelect(suggestion.content);
             }}
-            className={`
-              px-4 py-3 cursor-pointer group hover:bg-accent
-              ${isSelected ? 'bg-info/70 ring-inset ring-1 ring-info/20' : ''}
-            `}
+            className={cn(
+              'group cursor-pointer px-4 py-3 hover:bg-accent',
+              isSelected && 'bg-accent',
+            )}
           >
             <div className="flex items-start justify-between gap-2 w-full">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span
-                    className={`font-medium truncate group-hover:text-info ${
-                      isSelected ? 'text-info' : 'text-foreground'
-                    }`}
-                  >
+                  <span className="font-medium truncate text-foreground">
                     {suggestion.name}
                   </span>
                   {suggestion.channelId && (
@@ -89,7 +85,7 @@ export const ResponseTemplateDropdown = ({
                     </div>
                   )}
               </div>
-              <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs text-muted-foreground group-hover:bg-accent transition-colors">
+              <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs text-muted-foreground group-hover:bg-background transition-colors">
                 {index + 1}
               </div>
             </div>
@@ -99,11 +95,7 @@ export const ResponseTemplateDropdown = ({
 
       <div className="sticky bottom-0 bg-linear-to-t from-primary/10 to-background border-t border-border px-4 py-2">
         <div className="text-xs text-center text-muted-foreground">
-          {t('press')}{' '}
-          <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">
-            Enter
-          </kbd>{' '}
-          {t('to-select')}
+          {t('press')} <Kbd variant="foreground">Enter</Kbd> {t('to-select')}
         </div>
       </div>
     </Popover.Content>

@@ -1,6 +1,7 @@
 import {
   BlockEditor,
   Button,
+  IAttachment,
   Input,
   Kbd,
   Spinner,
@@ -29,7 +30,7 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
 import { useMutation } from '@apollo/client';
 import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
@@ -53,6 +54,10 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { PollComposer, PollDraft } from './PollComposer';
+import {
+  MessageInputAttachments,
+  PendingAttachment,
+} from './MessageInputAttachments';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
@@ -165,8 +170,10 @@ export const MessageInput = ({
   });
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [attachmentPreview, setAttachmentPreview] =
+    useState<PendingAttachment | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -222,9 +229,12 @@ export const MessageInput = ({
         beforeUpload: () =>
           toast({ title: t('uploading-file'), variant: 'default' }),
         afterRead: ({ result, fileInfo }) =>
-          setAttachmentPreview({ ...fileInfo, data: result }),
+          setAttachmentPreview({ ...fileInfo, data: result as string }),
         afterUpload: ({ response, fileInfo }) => {
-          setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
+          setAttachments((prev) => [
+            ...prev,
+            { ...fileInfo, url: response as string },
+          ]);
           setAttachmentPreview(null);
           toast({ title: t('file-uploaded-successfully'), variant: 'default' });
         },
@@ -471,8 +481,8 @@ export const MessageInput = ({
         onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
-          isInternalNote && 'bg-warning/20',
+          'mx-auto flex h-full max-w-2xl flex-col gap-2 overflow-hidden rounded-lg bg-sidebar py-3 shadow-xs transition-colors duration-150',
+          isInternalNote && 'bg-info/20',
         )}
       >
         {showSuggestions && !isInternalNote && (
@@ -488,21 +498,22 @@ export const MessageInput = ({
         )}
 
         {isDiscord && !isInternalNote && discordReplyTo && (
-          <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
+          <div className="mx-6 flex shrink-0 items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
               <span className="truncate">
                 Replying to: {discordReplyTo.preview}
               </span>
             </div>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon"
               aria-label="Cancel reply"
               onClick={() => setDiscordReplyTo(null)}
-              className="flex-none text-muted-foreground hover:text-foreground"
+              className="size-6 shrink-0 text-muted-foreground hover:text-foreground"
             >
               <IconX size={14} aria-hidden="true" />
-            </button>
+            </Button>
           </div>
         )}
 
@@ -510,10 +521,7 @@ export const MessageInput = ({
           editor={editor}
           onChange={handleChange}
           disabled={loading}
-          className={cn(
-            'h-full w-full overflow-y-auto',
-            isInternalNote && 'internal-note',
-          )}
+          className="min-h-0 w-full flex-1 overflow-y-auto"
           onFocus={() =>
             setHotkeyScopeAndMemorizePreviousScope(
               InboxHotkeyScope.MessageInput,
@@ -535,45 +543,18 @@ export const MessageInput = ({
           )}
         </BlockEditor>
 
-        {attachmentPreview && (
-          <div className="px-6 mb-2">
-            <p className="text-sm">{attachmentPreview.name}</p>
-            {attachmentPreview.type.startsWith('image/') && (
-              <img
-                src={attachmentPreview.data}
-                alt="preview"
-                className="max-w-[400px] max-h-[300px] rounded-lg shadow-sm mt-1"
-              />
-            )}
-          </div>
-        )}
+        <MessageInputAttachments
+          pending={attachmentPreview}
+          attachments={attachments}
+          onRemove={handleDeleteAttachment}
+        />
 
-        {attachments.length > 0 && (
-          <div className="px-6 mt-2 text-sm text-muted-foreground space-y-1">
-            {attachments.map((file, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between bg-muted px-3 py-1 rounded-md"
-              >
-                <span role="img" aria-label="file">
-                  📁 {file.name} ({Math.round(file.size / 1024)} KB)
-                </span>
-                <button
-                  onClick={() => handleDeleteAttachment(file.name)}
-                  className="text-destructive hover:text-red-700"
-                >
-                  <IconX size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex px-6 gap-4 items-center mt-2">
+        <div className="flex shrink-0 items-center gap-2 px-6">
           <Toggle
             pressed={isInternalNote}
             size="lg"
             variant="outline"
+            className="shrink-0 cursor-pointer"
             onPressedChange={() =>
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
@@ -595,17 +576,17 @@ export const MessageInput = ({
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            onClick={() => document.getElementById('file-upload')?.click()}
+            onClick={() => fileInputRef.current?.click()}
           >
             <IconPaperclip className="h-4 w-4" />
-            <Input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              onChange={handleFileInput}
-              multiple
-            />
           </Button>
+          <Input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileInput}
+            multiple
+          />
 
           {isDiscord && !isInternalNote && (
             <PollComposer onSubmit={handleSendPoll} loading={loading} />
@@ -613,7 +594,7 @@ export const MessageInput = ({
 
           <Button
             size="lg"
-            className="ml-auto"
+            className="ml-auto shrink-0"
             disabled={
               loading ||
               isLoading ||

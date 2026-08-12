@@ -9,13 +9,23 @@ export const ConversationDetailLayout = ({
 }) => {
   return (
     <Resizable.PanelGroup direction="vertical">
-      <Resizable.Panel defaultSize={input ? 70 : 100}>
+      <Resizable.Panel
+        defaultSize={input ? 70 : 100}
+        minSize={30}
+        className="min-h-0"
+      >
         <div className="relative h-full overflow-hidden">{children}</div>
       </Resizable.Panel>
       {input && (
         <>
           <Resizable.Handle className="bg-transparent hover:bg-border" />
-          <Resizable.Panel defaultSize={30}>{input}</Resizable.Panel>
+          <Resizable.Panel
+            defaultSize={30}
+            minSize={20}
+            className="min-h-56"
+          >
+            {input}
+          </Resizable.Panel>
         </>
       )}
     </Resizable.PanelGroup>

@@ -13,14 +13,18 @@ export const InboxLayout = ({
   const [conversationId] = useQueryState('conversationId');
 
   if (inboxLayout === 'list') {
-    return conversationId ? conversationDetail : conversations;
+    return (
+      <div className="flex-auto min-h-0">
+        {conversationId ? conversationDetail : conversations}
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-auto overflow-hidden">
+    <div className="flex flex-auto min-h-0 overflow-hidden">
       <div className="flex-none w-72">{conversations}</div>
       <Separator orientation="vertical" />
-      <div className="flex-auto">{conversationDetail}</div>
+      <div className="flex-auto min-h-0">{conversationDetail}</div>
     </div>
   );
 };

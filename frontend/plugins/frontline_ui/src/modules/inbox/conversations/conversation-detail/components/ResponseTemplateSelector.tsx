@@ -1,12 +1,13 @@
 import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
+import { Popover, Skeleton, Spinner, Command, ToggleGroup, cn, EnumCursorDirection } from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
+import { useInView } from 'react-intersection-observer';
+import { IconLayoutGrid, IconList } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import type { TViewMode as ViewMode } from '../types';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { responseListViewAtom } from '../states/responseTemplate';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
@@ -26,20 +27,6 @@ interface ResponseTemplateSelectorProps {
   children: ReactNode;
 }
 
-const ViewModeIcon = (): JSX.Element => {
-  const viewMode = useAtomValue(responseListViewAtom);
-  switch (viewMode) {
-    case 'grid':
-      return <IconLayoutGrid size={16} />;
-    default:
-      return <IconList size={16} />;
-  }
-};
-
-const getViewModeTitle = (viewMode: ViewMode): string => {
-  return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
-};
-
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
@@ -49,8 +36,7 @@ export const ResponseTemplateSelector: React.FC<
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const isFetchingRef = useRef(false);
 
   const { channels, loading: channelsLoading } = useGetChannels();
@@ -102,37 +88,23 @@ export const ResponseTemplateSelector: React.FC<
 
   useEffect(() => {
     isFetchingRef.current = false;
+    setIsFetchingMore(false);
   }, [responses]);
 
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    const scrollContainer = containerRef.current?.querySelector(
-      '[cmdk-list]',
-    ) as Element | null;
-
-    if (!sentinel || !scrollContainer || !pageInfo?.hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isFetchingRef.current) {
-          isFetchingRef.current = true;
-          handleFetchMore({ direction: EnumCursorDirection.FORWARD });
-        }
-      },
-      { root: scrollContainer, rootMargin: '0px 0px 80px 0px', threshold: 0 },
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [pageInfo?.hasNextPage, handleFetchMore, filteredTemplates.length]);
+  const { ref: sentinelRef } = useInView({
+    skip: !pageInfo?.hasNextPage,
+    rootMargin: '80px 0px',
+    onChange: (inView) => {
+      if (!inView || isFetchingRef.current || !pageInfo?.hasNextPage) return;
+      isFetchingRef.current = true;
+      setIsFetchingMore(true);
+      handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+    },
+  });
 
   const handleSelectTemplate = (content: string): void => {
     onSelect(content);
     setIsOpen(false);
-  };
-
-  const toggleViewMode = (): void => {
-    setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
   const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
@@ -141,35 +113,39 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b pb-2">
+      <Popover.Content className="w-full max-w-md min-w-sm p-3 shadow-xl border">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2">
             <h3 className="font-semibold text-sm">{t('response-templates')}</h3>
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={toggleViewMode}
-                variant={'ghost'}
-                size="icon"
-                className="h-8 w-8 rounded hover:bg-muted"
-                title={viewMode === 'grid' ? t('switch-to-list-view') : t('switch-to-grid-view')}
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              size="sm"
+              value={viewMode}
+              onValueChange={(value) => value && setViewMode(value as ViewMode)}
+            >
+              <ToggleGroup.Item
+                value="list"
+                aria-label={t('switch-to-list-view')}
+                title={t('switch-to-list-view')}
               >
-                <ViewModeIcon />
-              </Button>
-            </div>
+                <IconList size={14} />
+              </ToggleGroup.Item>
+              <ToggleGroup.Item
+                value="grid"
+                aria-label={t('switch-to-grid-view')}
+                title={t('switch-to-grid-view')}
+              >
+                <IconLayoutGrid size={14} />
+              </ToggleGroup.Item>
+            </ToggleGroup>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2 bg-muted/30 p-1 rounded">
-              <IconFilter size={14} className="text-muted-foreground ml-1" />
-              <div className="flex-1">
-                <SelectChannel.CommandBar
-                  mode="single"
-                  value={selectedChannel}
-                  onValueChange={(value) => setSelectedChannel(value as string)}
-                />
-              </div>
-            </div>
-          </div>
+          <SelectChannel.CommandBar
+            mode="single"
+            value={selectedChannel}
+            onValueChange={(value) => setSelectedChannel(value as string)}
+          />
 
           <Command className="border rounded-md shadow-sm">
             <Command.Input
@@ -246,19 +222,13 @@ export const ResponseTemplateSelector: React.FC<
                     </Command.Item>
                   ))}
                   {pageInfo?.hasNextPage && (
-                    <div className="col-span-2 pt-2 text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full text-xs text-muted-foreground"
-                        onClick={() =>
-                          handleFetchMore({
-                            direction: EnumCursorDirection.FORWARD,
-                          })
-                        }
-                      >
-                        {t('load-more')}
-                      </Button>
+                    <div
+                      ref={sentinelRef}
+                      className="col-span-2 flex items-center justify-center py-3"
+                    >
+                      {isFetchingMore && (
+                        <Spinner size="sm" className="text-muted-foreground" />
+                      )}
                     </div>
                   )}
                 </>

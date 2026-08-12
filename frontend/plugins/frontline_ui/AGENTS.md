@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -386,6 +386,49 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - New user-visible strings go through `useTranslation('frontline')` with keys
   added to both `en` and `mn` gateway-owned locale files; that is a
   repository-level change and must be requested explicitly.
+- `MessageInput.tsx`'s scrollable region (the discord reply banner, the
+  `BlockEditor`, and `MessageInputAttachments`) must stay `flex-1 min-h-0
+  overflow-y-auto`, never a plain `h-full`. The input `Resizable.Panel` clips
+  overflow, so a `h-full` editor with no `min-h-0` grows past the panel and
+  silently hides the toolbar (Internal Note toggle, Send button) below the
+  clipped edge instead of scrolling — that was the "input view is out of
+  screen" bug. The toolbar row itself stays `shrink-0` so it is never the
+  thing that gets compressed.
+- `ConversationDetailLayout`'s two `Resizable.Panel`s must keep both a
+  `minSize` (percentage, messages `30` / input `20`, guards manual dragging)
+  and a `min-h-*` className (`min-h-0` messages / `min-h-56` input, a hard
+  pixel floor). The percentage alone is not enough: `minSize={20}` is 20% of
+  whatever height the panel group actually has, and a real windowed browser
+  (title bar + tabs + address bar + bookmarks bar, not just the CSS
+  `innerHeight` a headless test assumes) can leave that group short enough
+  that 20% is still fewer pixels than the toolbar needs. The `min-h-56`
+  (224px) on the input panel is a real CSS `min-height`, which flexbox always
+  honors over the computed flex-basis — confirmed by testing real windowed
+  heights (not just viewport size) down to 480px and still seeing the full
+  toolbar. Don't drop either guard; they cover different failure modes (drag
+  vs. genuinely short window).
+- "Internal" content — the composer, sent-message bubbles, call notes, and
+  Facebook/Instagram message bot preview blocks — is tinted `bg-info`
+  (a blue "private note" read), not `bg-warning` (amber/"caution"). Keep
+  compose-time and rendered colors identical across every `internal &&` /
+  `isInternalNote &&` conditional in the plugin; don't reintroduce
+  `bg-warning` for this concept even in one spot, or typing a note and seeing
+  it land will show two different colors.
+- `ResponseTemplateSelector.tsx`'s infinite scroll is `useInView`
+  (`react-intersection-observer`, no explicit `root`) on a sentinel div
+  rendered only while `pageInfo?.hasNextPage`, guarded by a synchronous
+  `isFetchingRef` so an in-flight `fetchMore` can't be re-triggered before
+  `pageInfo`/`responses` update. If you touch this again: the sentinel must
+  actually render (a ref alone does nothing), and any new bottom-of-list
+  element must carry `col-span-2` or it becomes a stray 1-column cell in grid
+  view, since `Command.List`'s `[cmdk-list-sizer]` puts every child — items
+  and sentinel alike — in the same CSS grid.
+- `MessageInputAttachments.tsx` renders both the in-flight upload preview and
+  finished `attachments` as chips, reusing `getFileIcon` / `formatBytes` /
+  `readImage` from `erxes-ui` for icons, sizes, and image thumbnails. It is a
+  presentational component only — `MessageInput.tsx` still owns the upload
+  (`useUpload`) and removal state; do not move that state into the
+  presentational component or hand-roll a new attachment tile style here.
 
 ## Validation
 
@@ -413,6 +456,84 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-12` — Response template popover: clearer view toggle, tighter channel filter, real infinite scroll
+
+- **Summary:** Restyled `ResponseTemplateSelector.tsx` (the popover opened from
+  the composer's template icon). The grid/list switch was a single button that
+  swapped its own icon depending on the current mode — you could never see
+  both options at once, so the active state was invisible. Replaced it with a
+  `ToggleGroup` (`variant="outline"`), the same segmented-control component
+  `EmailDeliveryViewToggle`/`DealsViewControl` use elsewhere, so both icons are
+  always visible and the active one gets the standard highlighted treatment.
+  Stripped the "Select channels" row's redundant `bg-muted/30 p-1 rounded`
+  wrapper and stray filter icon — it's now a bare `SelectChannel.CommandBar`
+  (already a bordered, self-contained `h-8` combobox), cutting its footprint
+  without touching the underlying single-select filter logic. Replaced the
+  "Load more" button with real infinite scroll: an inert `sentinelRef` +
+  hand-rolled `IntersectionObserver` already existed but the sentinel div was
+  never rendered, so it was dead code silently backstopped by the button. Swapped
+  it for `useInView` (`react-intersection-observer`, already a dependency via
+  `Combobox.FetchMore`) with an `isFetchingRef` guard against duplicate
+  `fetchMore` calls and a `skip` once `pageInfo.hasNextPage` is false. Verified
+  live against 30 seeded templates (since seeded and removed): scrolling near
+  the bottom fires exactly one `fetchMore`, five more scroll events while it
+  resolves fire zero additional ones, all appended items stay unique, and the
+  list never jumps since new items are appended below the fold. No change to
+  `useGetResponses`, the cursor-pagination hook, or the client-side
+  search/channel filtering.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ResponseTemplateSelector.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-12` — Message composer visual consistency and overflow fix
+
+- **Summary:** Restyled the inbox message composer (`MessageInput.tsx`),
+  including Internal Note mode: consolidated the mixed margin utilities into a
+  single flex `gap`, moved the editor to `flex-1 min-h-0 overflow-y-auto`
+  (was a plain `h-full`) so long content scrolls internally instead of
+  pushing the toolbar past the input `Resizable.Panel`'s clipped bounds —
+  fixing a bug where the Internal Note toggle and Send button could render
+  entirely below the visible viewport. Extracted the ad hoc attachment
+  list/preview markup (emoji file icon, raw `<button>`s, no hover affordance)
+  into `MessageInputAttachments.tsx`, a chip list reusing `getFileIcon` /
+  `formatBytes` / `readImage` from `erxes-ui` with a hover-and-focus-reveal
+  remove button matching `DiscordMessageActions`' destructive-hover pattern,
+  and capped it at `max-h-40` with its own internal scroll so a long
+  attachment list can't reproduce the same overflow bug. Also swapped the
+  hidden file `<input>` from an `id` + `document.getElementById` lookup to a
+  `useRef`, avoiding a cross-instance id collision if more than one
+  `MessageInput` is mounted at once. Lightly restyled
+  `ResponseTemplateDropdown.tsx` (the typing-triggered template autosuggest)
+  to use `cn()`, the shared `Kbd` component for its "press Enter" hint, and
+  the standard `bg-accent` hover/selected treatment instead of a one-off
+  `bg-info` tint, so it reads consistently with `ResponseTemplateSelector`'s
+  popover. Follow-up 1: the input `Resizable.Panel` in `ConversationDetailLayout`
+  had no `minSize`, so dragging the handle (or a short window) could still
+  squeeze the toolbar out of view even with the flex fix above — both panels
+  now carry a `minSize` (messages `30`, input `20`) so the input can't be
+  collapsed smaller than the toolbar needs. Follow-up 2: `minSize` alone still
+  wasn't enough on a real windowed browser — a percentage of a short group is
+  still short, and a headless test's `viewport` height overstates what a
+  titlebar-plus-tabs-plus-toolbars browser actually leaves for content. Added
+  a real CSS floor, `min-h-56` (224px) on the input panel and `min-h-0` on the
+  messages panel, which flexbox enforces regardless of the percentage split;
+  confirmed the toolbar renders in full down to a 480px-tall window. Also
+  recolored every "internal
+  note" tint in the plugin from the warning/amber token to `bg-info` (the
+  composer, `ConversationMessage`/`MessageItem` bubbles, call `InternalNotes`,
+  `FbMessengerMessages`/`IgMessengerMessages`, and the three
+  `FbMessengerBotMessageBlocks` preview blocks) so compose-time color matches
+  the sent/rendered color everywhere internal notes appear — a blue "private
+  note" tint rather than an amber "caution" one. No functional/behavioral
+  change to sending, uploading, templates, or Internal Note toggling.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{MessageInput.tsx,MessageInputAttachments.tsx (new),ResponseTemplateDropdown.tsx,ConversationDetailLayout.tsx}`,
+  `src/modules/inbox/conversation-messages/components/{ConversationMessage.tsx,MessageItem.tsx}`,
+  `src/modules/integrations/call/components/InternalNotes.tsx`,
+  `src/modules/integrations/facebook/components/{FbMessengerMessages.tsx,FbMessengerBotMessageBlocks/*.tsx}`,
+  `src/modules/integrations/instagram/components/IgMessengerMessages.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
 
@@ -541,35 +662,4 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
 - **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
 - **Contracts changed:** None.
 
-### `2026-08-10` — Save chart on every ticket report card
 
-- **Summary:** Status summary, date, source, tags, and list gained the Save (and
-  for a saved card, delete) action that only custom properties had. Each card
-  now takes its filters from the shared `useTicketChartCard` hook instead of
-  reading eleven atoms itself, and the board reads every saved chart in one
-  query, keeping it to the chart types it can render.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/Ticket{StatusSummary,OpenDate,Source,Tags,List,CustomProperties}.tsx`,
-  `src/modules/report/hooks/{useTicketChartCard.ts,useReportCharts.ts}`,
-  `src/modules/report/components/report-chart/ReportChartActions.tsx`,
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/types/component-registry.ts`.
-- **Contracts changed:** `TICKET_CUSTOM_PROPERTIES_CHART_TYPE` replaced by
-  `TICKET_CHART_TYPES` (same string values); `useReportCharts` and
-  `useReportChartMutations` no longer take a chart type;
-  `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
-  component gained optional `cardId` and `savedChart`.
-
-### `2026-08-10` — Status summary lists the pipeline's own statuses
-
-- **Summary:** The Ticket Status Summary card now shows one row per pipeline
-  status, named as it is in ticket status settings, with its default category
-  beside it, instead of six built-in category names. Axis ticks truncate because
-  status names are full sentences.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
-  `src/modules/report/hooks/useTicketStatusSummary.ts`,
-  `src/modules/report/graphql/queries/getTicketChart.ts`.
-- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
-  `group`; the card can now render an empty state, where six zero rows always
-  came back before.
