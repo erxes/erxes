@@ -660,8 +660,8 @@ export const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-success'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-destructive'
-                : ''
+                  ? 'text-destructive'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}

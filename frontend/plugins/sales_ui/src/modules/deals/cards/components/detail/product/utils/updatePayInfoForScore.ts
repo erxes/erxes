@@ -30,8 +30,8 @@ export const updatePayInfoForScore = (
   const current = previous[type];
   const validQr = Boolean(
     current?.validQr &&
-      current.scoreOwnerId === scoreOwnerId &&
-      current.scoreCampaignId === scoreCampaignId,
+    current.scoreOwnerId === scoreOwnerId &&
+    current.scoreCampaignId === scoreCampaignId,
   );
   const availableAmount = score + initialAmount;
   let maxVal = availableAmount;
