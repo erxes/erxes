@@ -116,6 +116,10 @@ export const updateIntegration = async ({
   data: { integrationId, doc },
 }) => {
   try {
+    if (!doc.data) {
+      return { status: 'success' };
+    }
+
     const details = JSON.parse(doc.data);
     const models = await generateModels(subdomain);
 
