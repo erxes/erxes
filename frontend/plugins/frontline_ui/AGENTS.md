@@ -427,6 +427,14 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-12` — Select ticket properties by group
+
+- **Summary:** Pipeline property configuration now selects an entire Core
+  ticket property group with one checkbox instead of selecting fields one by
+  one; the stored contract remains the group's field ids.
+- **Affected areas:** `src/modules/pipelines/components/PipelinePropertySelector.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-12` — Pipeline-scoped ticket properties
 
 - **Summary:** Ticket pipelines now choose grouped Core ticket properties, and
