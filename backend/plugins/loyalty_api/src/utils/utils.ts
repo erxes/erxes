@@ -784,10 +784,20 @@ export const doScoreCampaign = async (models: IModels, data) => {
   }
 };
 
-export const generateTargetTotalAmountDeal = (productsData: any[] = []) =>
+export const generateTargetTotalAmountDeal = (
+  productsData: Array<{
+    amount?: number | string | null;
+    discount?: number | string | null;
+    tickUsed?: boolean | null;
+  }> = [],
+  discountCheck = false,
+) =>
   productsData
-    .filter(pdata => pdata.tickUsed)
-    .filter(pdata => Math.abs(Number(pdata.discount) || 0) < 0.005)
+    .filter((pdata) => pdata.tickUsed === true)
+    .filter(
+      (pdata) =>
+        !discountCheck || Math.abs(Number(pdata.discount) || 0) < 0.005,
+    )
     .reduce((sum, product) => sum + (Number(product?.amount) || 0), 0);
 
 const generateTargetTotalAmountOrder = (productsData: any[] = []) =>

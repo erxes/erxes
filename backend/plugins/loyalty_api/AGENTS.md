@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -23,7 +23,7 @@
 ## Current Capabilities
 
 - Score campaigns can add, subtract, set, refund, repair, and expose owner score balances.
-- Deal score campaign totals count only deal `productsData` rows with `tickUsed === true` and no meaningful product discount.
+- Deal score campaign totals always count only deal `productsData` rows with `tickUsed === true`; discounted rows are skipped only when the campaign has `additionalConfig.discountCheck === true`.
 - POS order score campaign totals use order item amounts without deal-specific discount filtering.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
@@ -63,7 +63,7 @@
 ## Local Invariants
 
 - Preserve tenant isolation by using the request `subdomain` for every model and service access.
-- Deal score totals must exclude discounted `productsData` rows and rows where `tickUsed` is not exactly `true`.
+- Deal score totals must exclude rows where `tickUsed` is not exactly `true`; discounted rows are excluded only when `additionalConfig.discountCheck === true`.
 - Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
@@ -73,14 +73,14 @@
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
-- Smoke scenario: trigger a sales deal score campaign with mixed `productsData`; only ticked, undiscounted rows should contribute to `totalAmount`.
+- Smoke scenario: trigger a sales deal score campaign with mixed `productsData`; only ticked rows should contribute to `totalAmount`, and discounted ticked rows should be skipped only when `additionalConfig.discountCheck` is enabled.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-10` — `Deal score product eligibility`
+### `2026-08-12` — `Campaign-specific deal discount check`
 
-- **Summary:** Deal score campaign totals now explicitly count only ticked, undiscounted product rows and cover the rule with unit tests.
-- **Affected areas:** `src/utils/scoreTarget.ts`, `src/utils/utils.ts`, `src/utils/__tests__/scoreTarget.test.ts`
+- **Summary:** Deal score campaign totals now always require `tickUsed` and apply discounted-product skipping only for campaigns with `additionalConfig.discountCheck`.
+- **Affected areas:** `src/modules/score/db/models/ScoreCampaign.ts`, `src/utils/utils.ts`, `src/utils/__tests__/scoreTarget.test.ts`
 - **Contracts changed:** `None`
