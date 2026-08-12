@@ -56,7 +56,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   } = ticket || {};
   const startDate = (ticket as any)?.startDate;
   const description = (ticket as any)?.description;
-  const isFirstRun = React.useRef(true);
   const isRemovedRef = React.useRef(false);
   const [state, setState] = useState(ticketState || 'active');
   const { confirm } = useConfirm();
@@ -152,6 +151,28 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     }
   };
 
+  const handleSubscribeToggle = (currentValue: boolean) => {
+    if (isRemovedRef.current || !ticketId) return;
+
+    const newValue = !currentValue;
+    setSubscribe(newValue);
+
+    updateTicket({
+      variables: {
+        _id: ticketId,
+        isSubscribed: newValue,
+      },
+      onError: (error) => {
+        setSubscribe(currentValue);
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
   const FieldSubscribeSwitch = ({
     isSubscribed,
   }: {
@@ -161,7 +182,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
       <div
         className="space-x-2 flex items-center gap-2"
         onClick={() => {
-          setSubscribe(!isSubscribed);
+          handleSubscribeToggle(isSubscribed);
         }}
       >
         <Button variant="ghost">
@@ -268,23 +289,6 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedDescriptionContent]);
 
-  useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
-    }
-    if (isRemovedRef.current || !ticketId) return;
-    if (isSubscribed === _isSubscribed) return;
-    if (isSubscribed !== undefined) {
-      updateTicket({
-        variables: {
-          _id: ticketId,
-          isSubscribed: isSubscribed,
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubscribed, _isSubscribed, ticketId]);
   return (
     <AttachmentProvider
       ticketId={ticketId}
