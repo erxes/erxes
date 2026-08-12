@@ -36,6 +36,7 @@
 | Models              | `backend/plugins/sales_api/src/modules/sales/db`                          | Sales Mongoose schemas and models                 |
 | GraphQL             | `backend/plugins/sales_api/src/modules/sales/graphql`                     | Sales schemas and resolvers                       |
 | Pipeline validation | `backend/plugins/sales_api/src/modules/sales/utils/pipelineProperties.ts` | Validates pipeline property ids through Core tRPC |
+
 - Sales deal, pipeline, board, stage, ecommerce, and POS API behavior implemented under `backend/plugins/sales_api`.
 - Sales-owned GraphQL, tRPC, Mongoose models, metadata, reference resolvers, documents, and after-process handlers.
 
@@ -133,6 +134,7 @@
 - **Contracts changed:** `SalesPipeline`, `salesPipelinesAdd`, and
   `salesPipelinesEdit` gained optional `propertyIds: [String]`;
   `SalesPipeline` exposes `isPropertySelectionConfigured: Boolean`.
+
 ### `2026-08-12` — `Exclude loyalty amount reference`
 
 - **Summary:** `excludeLoyaltyAmount` now returns deal total minus score-campaign payment amounts instead of summing non-score payments.

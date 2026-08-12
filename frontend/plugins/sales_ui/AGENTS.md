@@ -36,6 +36,7 @@
 | Pipeline editor | `frontend/plugins/sales_ui/src/modules/deals/pipelines`               | Pipeline form, stages, product config, and property selection |
 | Deal detail     | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail` | Deal overview, properties, activity, and products             |
 | GraphQL         | `frontend/plugins/sales_ui/src/modules/deals/graphql`                 | Sales client operations                                       |
+
 - POS, deal, order, cover, item, product, payment, appearance, delivery, and permission management screens for the sales frontend.
 
 ### Does not own
@@ -50,11 +51,11 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| ---- | ---- | -------------- |
-| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission` | Manages admin and cashier POS permission controls. |
-| POS GraphQL | `frontend/plugins/sales_ui/src/modules/pos/graphql` | Provides POS queries and mutations used by settings screens. |
-| POS types | `frontend/plugins/sales_ui/src/modules/pos/types` | Describes POS configuration data consumed by the UI. |
+| Area                | Path                                                              | Responsibility                                               |
+| ------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------ |
+| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission` | Manages admin and cashier POS permission controls.           |
+| POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`               | Provides POS queries and mutations used by settings screens. |
+| POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                 | Describes POS configuration data consumed by the UI.         |
 
 ## Contracts
 
@@ -124,6 +125,7 @@
 - **Affected areas:** `src/modules/deals/{pipelines,cards,graphql,types,schemas}`.
 - **Contracts changed:** Pipeline GraphQL reads and mutations now include
   `propertyIds`.
+
 ### `2026-08-12` — `Cashier report permission`
 
 - **Summary:** Added a cashier report visibility switch to POS permission settings and persisted it in `permissionConfig.cashiers.seeReport`.

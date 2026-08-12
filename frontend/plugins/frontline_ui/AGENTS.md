@@ -436,6 +436,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/ticket/components/ticket-detail/**`, `src/pages/PipelinePropertiesPage.tsx`.
 - **Contracts changed:** Ticket pipeline GraphQL reads and updates now include
   `propertyIds`.
+
 ### `2026-08-12` — Comment-trigger message limit applies only before a button
 
 - **Summary:** The one-message cap for Facebook message actions under a comment
