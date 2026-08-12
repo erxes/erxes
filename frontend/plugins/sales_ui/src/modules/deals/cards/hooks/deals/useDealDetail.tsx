@@ -35,16 +35,16 @@ export const useDealDetail = (
   const finalId = passedId || salesItemId || activeDealId;
 
   const { data, loading, error, subscribeToMore, refetch } = useQuery<{
-      dealDetail: IDeal;
-    }>(GET_DEAL_DETAIL, {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: finalId,
-      },
-      skip: !finalId,
-      fetchPolicy: options?.fetchPolicy || 'cache-and-network',
-    });
+    dealDetail: IDeal;
+  }>(GET_DEAL_DETAIL, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id: finalId,
+    },
+    skip: !finalId,
+    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
+  });
 
   useEffect(() => {
     if (!salesItemId) return;
@@ -111,8 +111,7 @@ export const useDealDetail = (
               ...prevDeal.pipeline,
               ...changedDeal.pipeline,
               paymentIds:
-                changedDeal.pipeline.paymentIds ??
-                prevDeal.pipeline.paymentIds,
+                changedDeal.pipeline.paymentIds ?? prevDeal.pipeline.paymentIds,
               paymentTypes:
                 changedDeal.pipeline.paymentTypes ??
                 prevDeal.pipeline.paymentTypes,

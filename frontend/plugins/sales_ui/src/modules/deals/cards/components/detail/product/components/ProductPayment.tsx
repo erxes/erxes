@@ -110,10 +110,7 @@ const OwnerScoreCampaignScore = ({
   paymentType: PaymentConfigItem;
   customers: ICustomer[];
   dealId: string;
-  onScoreFetched?: (
-    score: number,
-    paymentType: PaymentConfigItem,
-  ) => void;
+  onScoreFetched?: (score: number, paymentType: PaymentConfigItem) => void;
 }) => {
   const [customer] = customers || [];
   const { refundScoreCampaign, loading: refundLoading } =
@@ -479,13 +476,7 @@ export const ProductsPayment = ({
       const initialAmount = getInitialPaymentAmount(typeName);
 
       setPayInfoByType((prev) =>
-        updatePayInfoForScore(
-          prev,
-          typeName,
-          score,
-          initialAmount,
-          requiresQr,
-        ),
+        updatePayInfoForScore(prev, typeName, score, initialAmount, requiresQr),
       );
     },
     [getInitialPaymentAmount],
@@ -607,9 +598,7 @@ export const ProductsPayment = ({
 
   const incomingPaymentTypes =
     deal.pipeline?.paymentTypes || EMPTY_PAYMENT_TYPES;
-  const lastPaymentTypesRef = useRef<PaymentConfigItem[]>(
-    incomingPaymentTypes,
-  );
+  const lastPaymentTypesRef = useRef<PaymentConfigItem[]>(incomingPaymentTypes);
 
   useEffect(() => {
     if (!saving) {
@@ -643,8 +632,8 @@ export const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-success'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-destructive'
-                : ''
+                  ? 'text-destructive'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
