@@ -28,6 +28,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { generateTargetTotalAmountDeal } from '~/utils/utils';
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -493,6 +494,14 @@ export const loadScoreCampaignClass = (
         ...target,
         [ownerType]: owner,
       };
+
+      if (Array.isArray(target?.productsData)) {
+        calculationTarget.totalAmount = generateTargetTotalAmountDeal(
+          target.productsData,
+          campaign.additionalConfig?.discountCheck === true,
+        );
+      }
+
       const oldStageStatus = getCampaignStageStatus(
         campaign,
         oldTarget?.stageId,
