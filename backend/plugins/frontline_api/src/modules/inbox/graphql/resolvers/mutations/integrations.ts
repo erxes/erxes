@@ -67,6 +67,13 @@ interface UpdateIntegrationData {
   doc: UpdateIntegrationDoc;
 }
 
+const SERVICES_WITHOUT_UPDATE_ADAPTER = [
+  'messenger',
+  'lead',
+  'webhook',
+  'discord',
+];
+
 export const sendCreateIntegration = async (
   subdomain: string,
   serviceName: string,
@@ -560,20 +567,23 @@ export const integrationMutations = {
     const updated = await models.Integrations.getIntegration({ _id });
 
     const serviceName = integration.kind.split('-')[0];
-    const result = await sendUpdateIntegration(subdomain, serviceName, {
-      kind,
-      integrationId: integration._id,
-      doc: {
-        accountId: doc.accountId,
-        kind: kind,
-        integrationId: integration._id,
-        channelId: doc.channelId,
-        data: details ? JSON.stringify(details) : '',
-      },
-    });
 
-    if (result?.status === 'error') {
-      throw new Error(result.errorMessage || 'Failed to update integration');
+    if (!SERVICES_WITHOUT_UPDATE_ADAPTER.includes(serviceName)) {
+      const result = await sendUpdateIntegration(subdomain, serviceName, {
+        kind,
+        integrationId: integration._id,
+        doc: {
+          accountId: doc.accountId,
+          kind: kind,
+          integrationId: integration._id,
+          channelId: doc.channelId,
+          data: details ? JSON.stringify(details) : '',
+        },
+      });
+
+      if (result?.status === 'error') {
+        throw new Error(result.errorMessage || 'Failed to update integration');
+      }
     }
 
     return updated;
