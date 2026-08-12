@@ -239,6 +239,7 @@ const NameField = ({
         'name',
       )}
       closeOnEnter
+      dependencies={[name]}
     >
       <RecordTableInlineCell.Trigger>{name}</RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
