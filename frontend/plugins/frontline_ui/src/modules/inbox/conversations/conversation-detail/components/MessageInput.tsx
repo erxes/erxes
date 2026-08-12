@@ -319,17 +319,16 @@ export const MessageInput = ({
           editor.removeBlocks(existingBlocks.map((b) => b.id));
         }
 
-        editor.insertBlocks(
-          blocksToInsert,
-          editor.document[0]?.id,
-          'before',
-        );
+        editor.insertBlocks(blocksToInsert, editor.document[0]?.id, 'before');
 
         editor.focus();
         setShowSuggestions(false);
         setResponseTemplateId(templateId || null);
       } catch {
-        toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
+        toast({
+          title: t('failed-to-insert-template'),
+          variant: 'destructive',
+        });
       }
     },
     [editor, t],

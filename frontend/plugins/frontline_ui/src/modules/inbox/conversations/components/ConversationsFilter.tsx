@@ -142,7 +142,10 @@ export const FilterConversationsPopover = () => {
                 <IconUsersGroup />
                 {t('participated')}
                 <span className="ml-auto flex items-center gap-2">
-                  <FilterCount count={counts?.participating} loading={loading} />
+                  <FilterCount
+                    count={counts?.participating}
+                    loading={loading}
+                  />
                   {participated && <IconCheck />}
                 </span>
               </Filter.CommandItem>
