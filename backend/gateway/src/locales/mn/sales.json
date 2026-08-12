@@ -283,7 +283,7 @@
   "visa": "Виза",
   "mastercard": "Мастеркард",
   "sign-alt": "Гарын үсэг",
-  "type-must-use-latin": "Төрөлд латин эсвэл кирилл үсгийг зайгүй ашиглаж болно. Зарим анхдагч төрөл: golomtCard, khaanCard, TDBCard",
+  "type-must-use-latin": "Төрөл Unicode үсгээр эхэлж, дараа нь үсэг, тоо, зураас эсвэл доогуур зураасыг зайгүй ашиглана. Зарим анхдагч төрөл: golomtCard, khaanCard, TDBCard",
   "payments": "Төлбөрүүд",
   "PAYMENTS": "ТӨЛБӨРҮҮД",
   "payment-title": "Төлбөрийн гарчиг",

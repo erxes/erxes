@@ -47,8 +47,9 @@ export const loadStageClass = (
       pipelineId: string,
       _id?: string,
     ) {
+      const normalizedCode = code.trim();
       const filter: FilterQuery<IStageDocument> = {
-        code,
+        code: normalizedCode,
         pipelineId,
       };
       if (_id) filter._id = { $ne: _id };
@@ -62,11 +63,19 @@ export const loadStageClass = (
       userId?: string,
       skipCodeDuplication = false,
     ) {
-      if (doc.code && !skipCodeDuplication) {
-        await this.checkCodeDuplication(doc.code, doc.pipelineId);
+      const normalizedDoc = {
+        ...doc,
+        ...(doc.code !== undefined ? { code: doc.code.trim() } : {}),
+      };
+
+      if (normalizedDoc.code && !skipCodeDuplication) {
+        await this.checkCodeDuplication(
+          normalizedDoc.code,
+          normalizedDoc.pipelineId,
+        );
       }
 
-      const stage = await models.Stages.create({ ...doc, userId });
+      const stage = await models.Stages.create({ ...normalizedDoc, userId });
 
       sendDbEventLog?.({
         action: 'create',
@@ -81,15 +90,23 @@ export const loadStageClass = (
       const prevStage = await models.Stages.findOne({ _id });
       if (!prevStage) throw new Error('Stage not found');
 
-      if (doc.code) {
+      const normalizedDoc = {
+        ...doc,
+        ...(doc.code !== undefined ? { code: doc.code.trim() } : {}),
+      };
+
+      if (normalizedDoc.code) {
         await this.checkCodeDuplication(
-          doc.code,
-          doc.pipelineId || prevStage.pipelineId,
+          normalizedDoc.code,
+          normalizedDoc.pipelineId ?? prevStage.pipelineId,
           _id,
         );
       }
 
-      await models.Stages.updateOne({ _id }, { $set: { ...doc, userId } });
+      await models.Stages.updateOne(
+        { _id },
+        { $set: { ...normalizedDoc, userId } },
+      );
 
       const updatedStage = await models.Stages.findOne({ _id });
       if (!updatedStage) throw new Error('Stage not found after update');

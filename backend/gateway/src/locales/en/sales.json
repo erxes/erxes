@@ -283,7 +283,7 @@
   "visa": "Visa",
   "mastercard": "Mastercard",
   "sign-alt": "Sign Alt",
-  "type-must-use-latin": "Type may use Latin or Cyrillic letters without spaces. Some default types: golomtCard, khaanCard, TDBCard",
+  "type-must-use-latin": "Type must start with a Unicode letter, followed by letters, numbers, hyphens, or underscores without spaces. Some default types: golomtCard, khaanCard, TDBCard",
   "payments": "Payments",
   "PAYMENTS": "PAYMENTS",
   "payment-title": "Payment title",

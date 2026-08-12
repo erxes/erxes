@@ -328,6 +328,10 @@ export const createOrUpdatePipelineStages = async (
   for (const stage of stages) {
     const code = stage.code?.trim();
 
+    if (code !== undefined) {
+      stage.code = code;
+    }
+
     if (!code) {
       continue;
     }
