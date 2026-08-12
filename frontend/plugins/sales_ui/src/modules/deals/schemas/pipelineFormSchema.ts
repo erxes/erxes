@@ -9,6 +9,7 @@ import {
 export type TPipelineValidationMessages = {
   boardRequired: string;
   duplicatePaymentType: string;
+  duplicateStageCode: string;
   invalidPipelineVisibility: string;
   invalidStageProbability: string;
   invalidStageStatus: string;
@@ -27,7 +28,7 @@ const PIPELINE_VISIBILITIES = VISIBILITIES.map(({ value }) => value);
 // Existing pipelines can contain backend-supported terminal probabilities.
 const STAGE_PROBABILITIES = [...PROBABILITY_DEAL, 'Done', 'Resolved'];
 const STAGE_STATUSES = BOARD_STATUSES_OPTIONS.map(({ value }) => value);
-const PAYMENT_TYPE_PATTERN = /^[A-Za-z][A-Za-z0-9_-]*$/;
+const PAYMENT_TYPE_PATTERN = /^\p{L}[\p{L}\p{N}_-]*$/u;
 
 const isAllowedValue = (value: string, allowedValues: string[]) =>
   allowedValues.includes(value);
@@ -125,6 +126,27 @@ export const createPipelineFormSchema = (
             defaultTick: z.boolean().optional(),
           }),
         )
+        .superRefine((stages, context) => {
+          const existingCodes = new Set<string>();
+
+          stages.forEach(({ code }, index) => {
+            const normalizedCode = code?.trim();
+
+            if (!normalizedCode) {
+              return;
+            }
+
+            if (existingCodes.has(normalizedCode)) {
+              context.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: messages.duplicateStageCode,
+                path: [index, 'code'],
+              });
+            }
+
+            existingCodes.add(normalizedCode);
+          });
+        })
         .optional(),
     })
     .superRefine(({ numberConfig, numberSize }, context) => {

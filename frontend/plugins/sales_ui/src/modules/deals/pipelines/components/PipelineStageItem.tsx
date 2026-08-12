@@ -11,14 +11,14 @@ import {
   IconTrashX,
 } from '@tabler/icons-react';
 
-import { Controller, type Control } from 'react-hook-form';
+import { Controller, type Control, useFormState } from 'react-hook-form';
 import { IStage } from '@/deals/types/stages';
 import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type TPipelineStageForm = Omit<TPipelineForm, 'stages'> & {
   stages?: Array<
@@ -72,6 +72,17 @@ export const PipelineStageItem = (props: Props) => {
 
   const [showExtraFields, setShowExtraFields] = useState(false);
   const { t } = useTranslation('sales');
+  const { errors } = useFormState({
+    control,
+    name: `stages.${index}.code`,
+  });
+  const codeError = errors.stages?.[index]?.code;
+
+  useEffect(() => {
+    if (codeError) {
+      setShowExtraFields(true);
+    }
+  }, [codeError]);
 
   return (
     <div
@@ -241,24 +252,24 @@ export const PipelineStageItem = (props: Props) => {
             </div>
             {showExtraFields && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-                <Form.Item>
-                  <Form.Label>{t('code')}</Form.Label>
-                  <Form.Control>
-                    <Controller
-                      name={`stages.${index}.code`}
-                      control={control}
-                      defaultValue={stage?.code || ''}
-                      render={({ field }) => (
+                <Form.Field
+                  name={`stages.${index}.code`}
+                  control={control}
+                  defaultValue={stage?.code || ''}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('code')}</Form.Label>
+                      <Form.Control>
                         <Input
                           {...field}
                           placeholder={t('enter-code')}
                           className="input"
                         />
-                      )}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
 
                 <Form.Item>
                   <Form.Label>{t('age')}</Form.Label>
