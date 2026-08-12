@@ -1,4 +1,21 @@
+# Changelog
 
+## [3.0.77](https://github.com/erxes/erxes/compare/3.0.76...3.0.77) (2026-08-12)
+
+
+### Bug Fixes
+
+* **content:** allow 630 MiB custom field uploads ([#8990](https://github.com/erxes/erxes/issues/8990)) ([920f6a4](https://github.com/erxes/erxes/commit/920f6a44c397b93d626fee4fa2aab344b2aebbce))
+* posclient report with permission ([#8997](https://github.com/erxes/erxes/issues/8997)) ([6ce4857](https://github.com/erxes/erxes/commit/6ce48575262930562aa96e989803d0bf39e8ee2d))
+* **saas-migrations:**  tags ([f0ff030](https://github.com/erxes/erxes/commit/f0ff0302f73d0078b17a4b58959b88e38c665df2))
+
+
+### Features
+
+* accounting adjust closing transaction ([#7389](https://github.com/erxes/erxes/issues/7389)) ([38368f4](https://github.com/erxes/erxes/commit/38368f4063c048f2003a0d9d295b81f6f56edc96))
+* add automation stats components and hooks ([52abd36](https://github.com/erxes/erxes/commit/52abd36a5920678af669277b049c3756d4d204ba))
+* enhance message action limits under comment triggers with optional connects ([f4d5268](https://github.com/erxes/erxes/commit/f4d52683a069fbef6876b922a0064beb5c4b66bd))
+* tdb expired payment status (logs for testing); fix: multiple transactions for 1 invoice ([1004882](https://github.com/erxes/erxes/commit/1004882f0559c8dab085033edb791890023e938d))
 
 ## [3.0.76](https://github.com/erxes/erxes/compare/3.0.75...3.0.76) (2026-08-11)
 
@@ -55,7 +72,7 @@
 * **frontline:** drop the SIP status guards on outgoing calls ([5e8b3a8](https://github.com/erxes/erxes/commit/5e8b3a8fc7369ffdace0a1f3370f5c97f3b77330))
 * **frontline:** restore throwing registerSip/unregisterSip guards ([67b7f9f](https://github.com/erxes/erxes/commit/67b7f9f2a2c122feb0928e66d7193ac7258efdb4))
 
-# Changelog
+
 
 ## [3.0.73](https://github.com/erxes/erxes/compare/3.0.72...3.0.73) (2026-08-07)
 
