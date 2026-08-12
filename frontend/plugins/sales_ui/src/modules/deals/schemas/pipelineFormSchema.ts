@@ -90,6 +90,7 @@ export const createPipelineFormSchema = (
       excludeCategoryIds: z.array(z.string()).optional(),
       excludeProductIds: z.array(z.string()).optional(),
       paymentIds: z.array(z.string()).optional(),
+      propertyIds: z.array(z.string()).optional(),
       paymentTypes: paymentTypesSchema.optional().default([]),
       stages: z
         .array(

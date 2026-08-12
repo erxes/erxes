@@ -46,6 +46,11 @@
 
 ## Current Capabilities
 
+- Ticket pipeline settings include a Properties route that lists only Core
+  `frontline:ticket` properties, grouped by their Core field group. Checked
+  fields are stored on the pipeline, and ticket detail renders only that
+  pipeline's selected fields. Legacy pipelines continue rendering all fields
+  until their Properties selection is saved for the first time.
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
 - The messenger ticket form builder lives on a pipeline's configuration sheet
   (`src/modules/pipelines/components/configs/`): a configuration picks a status
@@ -421,6 +426,16 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-12` — Pipeline-scoped ticket properties
+
+- **Summary:** Ticket pipelines now choose grouped Core ticket properties, and
+  ticket detail shows only the selected fields after configuration while
+  legacy pipelines retain the previous show-all behavior until first save.
+- **Affected areas:** `src/modules/pipelines/**`,
+  `src/modules/ticket/components/ticket-detail/**`, `src/pages/PipelinePropertiesPage.tsx`.
+- **Contracts changed:** Ticket pipeline GraphQL reads and updates now include
+  `propertyIds`.
 
 ### `2026-08-12` — Comment-trigger message limit applies only before a button
 

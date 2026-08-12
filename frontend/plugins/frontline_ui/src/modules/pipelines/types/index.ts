@@ -15,6 +15,8 @@ export interface PermissionState {
   selectedUsers: string[];
   visibility: 'public' | 'private';
   memberIds: string[];
+  propertyIds: string[];
+  isPropertySelectionConfigured: boolean;
 }
 
 export interface IPipeline {

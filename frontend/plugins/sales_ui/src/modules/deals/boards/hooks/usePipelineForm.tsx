@@ -44,6 +44,7 @@ export const usePipelineForm = () => {
       excludeCheckUserIds: [],
       paymentIds: [],
       paymentTypes: [],
+      propertyIds: [],
       stages: [],
     },
     resolver: zodResolver(schema),
