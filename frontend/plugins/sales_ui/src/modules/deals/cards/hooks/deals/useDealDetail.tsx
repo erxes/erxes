@@ -129,9 +129,7 @@ export const useDealDetail = (
           dealDetail: {
             ...prevDeal,
             ...changedDeal,
-            customers: changedDeal.customers?.length
-              ? changedDeal.customers
-              : prevDeal.customers,
+            customers: changedDeal.customers ?? prevDeal.customers,
             isWatched: changedDeal.isWatched ?? prevDeal.isWatched,
             pipeline,
             pipelineId,
@@ -155,18 +153,31 @@ export const useDealDetail = (
   const currentDeal = data?.dealDetail;
   const lastCompleteDealRef = useRef<IDeal>();
 
-  if (lastCompleteDealRef.current?._id !== finalId) {
-    lastCompleteDealRef.current = undefined;
-  }
+  useEffect(() => {
+    if (!finalId) {
+      lastCompleteDealRef.current = undefined;
+      return;
+    }
 
-  if (currentDeal?._id === finalId && currentDeal.pipeline) {
-    lastCompleteDealRef.current = currentDeal;
-  }
+    if (currentDeal?._id === finalId && currentDeal.pipeline) {
+      lastCompleteDealRef.current = currentDeal;
+      return;
+    }
+
+    if (lastCompleteDealRef.current?._id !== finalId) {
+      lastCompleteDealRef.current = undefined;
+    }
+  }, [currentDeal, finalId]);
+
+  const lastCompleteDeal =
+    lastCompleteDealRef.current?._id === finalId
+      ? lastCompleteDealRef.current
+      : undefined;
 
   const deal =
     currentDeal?.pipeline && currentDeal._id === finalId
       ? currentDeal
-      : lastCompleteDealRef.current;
+      : lastCompleteDeal;
 
   return { deal, loading: loading && !deal, error, refetch };
 };

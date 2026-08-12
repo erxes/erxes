@@ -110,7 +110,12 @@ const OwnerScoreCampaignScore = ({
   paymentType: PaymentConfigItem;
   customers: ICustomer[];
   dealId: string;
-  onScoreFetched?: (score: number, paymentType: PaymentConfigItem) => void;
+  onScoreFetched?: (
+    score: number,
+    paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
+    scoreOwnerId: string,
+    scoreCampaignId: string,
+  ) => void;
 }) => {
   const [customer] = customers || [];
   const { refundScoreCampaign, loading: refundLoading } =
@@ -137,14 +142,24 @@ const OwnerScoreCampaignScore = ({
       customer?._id &&
       onScoreFetched
     ) {
-      onScoreFetched(checkOwnerScore, paymentType);
+      onScoreFetched(
+        checkOwnerScore,
+        {
+          type: paymentType.type,
+          config: paymentType.config,
+        },
+        customer._id,
+        paymentType.scoreCampaignId,
+      );
     }
   }, [
     checkLoading,
     checkOwnerScore,
     customer?._id,
     onScoreFetched,
-    paymentType,
+    paymentType.config,
+    paymentType.scoreCampaignId,
+    paymentType.type,
   ]);
 
   const { t } = useTranslation('sales');
@@ -469,14 +484,27 @@ export const ProductsPayment = ({
   );
 
   const handleScoreFetched = useCallback(
-    (score: number, paymentType: PaymentConfigItem) => {
+    (
+      score: number,
+      paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
+      scoreOwnerId: string,
+      scoreCampaignId: string,
+    ) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
       const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
 
       setPayInfoByType((prev) =>
-        updatePayInfoForScore(prev, typeName, score, initialAmount, requiresQr),
+        updatePayInfoForScore(
+          prev,
+          typeName,
+          score,
+          initialAmount,
+          requiresQr,
+          scoreOwnerId,
+          scoreCampaignId,
+        ),
       );
     },
     [getInitialPaymentAmount],
@@ -632,8 +660,8 @@ export const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-success'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                  ? 'text-destructive'
-                  : ''
+                ? 'text-destructive'
+                : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
