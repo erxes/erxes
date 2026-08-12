@@ -29,14 +29,14 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Runtime | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc` | Start the plugin, load tenant-scoped models, and expose tRPC procedures. |
-| Sales models | `src/modules/sales/db` | Store deals, boards, pipelines, stages, labels, and sales metadata. |
-| Sales GraphQL | `src/modules/sales/graphql`, `src/apollo` | Provide sales schemas, resolvers, mutations, queries, and subscriptions. |
-| References and automations | `src/modules/sales/meta` | Provide sales reference values, automation constants, and after-process behavior. |
-| Documents | `src/modules/sales/documents` | Generate sales document content and amount mappings. |
-| POS and ecommerce | `src/modules/pos`, `src/modules/ecommerce` | Provide sales-owned POS and ecommerce behavior. |
+| Area                       | Path                                                    | Responsibility                                                                    |
+| -------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc` | Start the plugin, load tenant-scoped models, and expose tRPC procedures.          |
+| Sales models               | `src/modules/sales/db`                                  | Store deals, boards, pipelines, stages, labels, and sales metadata.               |
+| Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`               | Provide sales schemas, resolvers, mutations, queries, and subscriptions.          |
+| References and automations | `src/modules/sales/meta`                                | Provide sales reference values, automation constants, and after-process behavior. |
+| Documents                  | `src/modules/sales/documents`                           | Generate sales document content and amount mappings.                              |
+| POS and ecommerce          | `src/modules/pos`, `src/modules/ecommerce`              | Provide sales-owned POS and ecommerce behavior.                                   |
 
 ## Contracts
 

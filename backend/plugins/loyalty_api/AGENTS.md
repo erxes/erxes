@@ -30,14 +30,14 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Runtime | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts` | Start the plugin, load tenant-scoped models, and expose tRPC procedures. |
-| Score models | `src/modules/score/db` | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields. |
-| Score orchestration | `src/utils/utils.ts`, `src/modules/score/utils.ts`, `src/meta/automations/score` | Normalize sales/POS targets, trigger score campaigns, and support score reporting helpers. |
-| Pricing | `src/modules/pricing` | Store pricing plans and calculate eligible discount rules. |
-| GraphQL | `src/apollo`, `src/modules/*/graphql` | Provide plugin-owned schemas, queries, mutations, and custom resolvers. |
-| Commands | `src/commands` | Run bounded maintenance and recovery scripts for loyalty-owned data. |
+| Area                | Path                                                                             | Responsibility                                                                               |
+| ------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Runtime             | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts`             | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                     |
+| Score models        | `src/modules/score/db`                                                           | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields. |
+| Score orchestration | `src/utils/utils.ts`, `src/modules/score/utils.ts`, `src/meta/automations/score` | Normalize sales/POS targets, trigger score campaigns, and support score reporting helpers.   |
+| Pricing             | `src/modules/pricing`                                                            | Store pricing plans and calculate eligible discount rules.                                   |
+| GraphQL             | `src/apollo`, `src/modules/*/graphql`                                            | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                      |
+| Commands            | `src/commands`                                                                   | Run bounded maintenance and recovery scripts for loyalty-owned data.                         |
 
 ## Contracts
 

@@ -51,7 +51,7 @@ export const getChildTags = async (subdomain: string, tagIds) => {
     action: 'findWithChild',
     input: {
       query: { _id: { $in: tagIds } },
-      field: { _id: 1 }
+      field: { _id: 1 },
     },
     defaultValue: [],
   });
