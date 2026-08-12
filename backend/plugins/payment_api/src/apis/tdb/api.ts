@@ -145,6 +145,7 @@ export class TDBAPI extends BaseAPI {
       },
       data: { order: payload },
     }).then((r) => r.json());
+    console.log('[TDB createInvoice] response:', response);
     return response;
   }
 
