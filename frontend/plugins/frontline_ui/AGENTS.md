@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -94,8 +94,10 @@
 - Facebook bot message action supports a drag-orderable message sequence of
   text, card, quick replies, input, image, attachments, audio, and video, with
   postback/link buttons and optional connects.
-- Caps the Facebook message sequence at one message when the action is attached
-  to a comment trigger, and explains why in the sequence header.
+- Caps the Facebook message sequence at one message under a comment trigger only
+  until the customer clicks a button: an action reached through an optional
+  connect gets the full five, one reached through `nextActionId` stays at one.
+  The sequence header explains the cap whenever it applies.
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
@@ -325,13 +327,19 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   filter to it.
 - Any mutation that changes channel membership or channel lists must refetch or
   update `GetMyChannels`, otherwise the sidebar goes stale.
-- A Facebook message action attached to a comment trigger may hold exactly one
-  message. The limit is derived in `getMaxMessagesForTrigger` and enforced in
-  both `ReplyMessageProvider.addMessage` and the `MessageSequenceHeader` add
-  buttons — keep the two in sync.
-- The trigger type reaches the action form through the `trigger` prop already
-  present on `AutomationActionFormProps`; do not add a shared-library field to
-  obtain it.
+- Under a comment trigger, only a message action that is **not** behind an
+  optional connect may hold exactly one message; a private reply does not open
+  the messaging window. A button click does, so every action downstream of an
+  optional connect gets the normal five. `getMaxMessagesForAction` decides this
+  from `trigger`, `currentAction.id` and `previousActions`, and the result is
+  enforced in both `ReplyMessageProvider.addMessage` and the
+  `MessageSequenceHeader` add buttons — keep the two in sync.
+- `nextActionId` is not a customer response, so chaining message actions with it
+  under a comment trigger keeps the one-message limit. Only
+  `config.optionalConnects` lifts it.
+- The trigger and the connected ancestor actions reach the action form through
+  the `trigger` and `previousActions` props on `AutomationActionFormProps`; do
+  not re-derive the automation graph inside the plugin.
 - Remote entries must switch on the node type via `splitAutomationNodeType` and
   return `null` for unknown content types.
 - A post carries images or a link preview, never both; only files whose storage
@@ -413,6 +421,21 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-12` — Comment-trigger message limit applies only before a button
+
+- **Summary:** The one-message cap for Facebook message actions under a comment
+  trigger no longer applies to the whole automation; `getMaxMessagesForAction`
+  now reads the connected ancestor actions and lifts the cap to five for any
+  action reached through an `optionalConnects` edge, since the customer's button
+  click opens the messaging window. Actions reached only through `nextActionId`
+  keep the one-message cap.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
+  `src/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageActionForm.tsx`
+- **Contracts changed:** Consumes the new optional `previousActions` prop on the
+  shared `AutomationActionFormProps` (`ui-modules`), populated by the core
+  automation builder sidebar.
 
 ### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
 
