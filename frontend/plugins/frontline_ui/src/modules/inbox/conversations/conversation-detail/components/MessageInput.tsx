@@ -1,5 +1,6 @@
 import {
   BlockEditor,
+  Badge,
   Button,
   Input,
   Kbd,
@@ -7,7 +8,7 @@ import {
   Toggle,
   cn,
   getBlockAttachments,
-  getMentionedUserIds,
+  IAttachment,
   toast,
   useBlockEditor,
   usePreviousHotkeyScope,
@@ -20,6 +21,7 @@ import {
   IconCommand,
   IconCornerDownLeft,
   IconMessage2,
+  IconNote,
   IconPaperclip,
   IconX,
 } from '@tabler/icons-react';
@@ -42,7 +44,6 @@ import {
   EditorMentionItem,
   MentionInEditor,
 } from 'ui-modules';
-import { Block } from '@blocknote/core';
 import {
   useDiscordChannelMemberSearch,
   useDiscordConversationParticipants,
@@ -58,23 +59,64 @@ import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { IResponseTemplate } from '@/responseTemplate/types';
 
-const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
+type AttachmentPreview = Omit<IAttachment, 'url'> & { data: string };
+type TemplateSuggestion = IResponseTemplate & { preview: string };
+type MessageEditorBlock = ReturnType<typeof useBlockEditor>['document'][number];
+
+const stripHtml = (html: string): string => {
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  return container.textContent || container.innerText || '';
+};
+
+const getMentionId = (inline: unknown): string | undefined => {
+  if (
+    !inline ||
+    typeof inline !== 'object' ||
+    !('type' in inline) ||
+    inline.type !== 'mention' ||
+    !('props' in inline) ||
+    !inline.props ||
+    typeof inline.props !== 'object' ||
+    !('_id' in inline.props) ||
+    typeof inline.props._id !== 'string'
+  ) {
+    return undefined;
+  }
+
+  return inline.props._id;
+};
+
+const getMessageMentionedUserIds = (blocks: MessageEditorBlock[]): string[] =>
+  blocks.flatMap((block) =>
+    Array.isArray(block.content)
+      ? block.content.flatMap((inline) => {
+          const mentionId = getMentionId(inline);
+          return mentionId ? [mentionId] : [];
+        })
+      : [],
+  );
+
+const encodeDiscordMentions = (
+  blocks?: MessageEditorBlock[],
+): MessageEditorBlock[] | undefined =>
   blocks?.map((block) =>
     Array.isArray(block?.content)
       ? ({
           ...block,
-          content: block.content.map(
-            (inline: { type?: string; props?: { _id?: string } }) =>
-              inline?.type === 'mention'
-                ? {
-                    type: 'text',
-                    text: `{@discord:${inline.props?._id}}`,
-                    styles: {},
-                  }
-                : inline,
-          ),
-        } as Block)
+          content: block.content.map((inline) => {
+            const mentionId = getMentionId(inline);
+            return mentionId
+              ? {
+                  type: 'text',
+                  text: `{@discord:${mentionId}}`,
+                  styles: {},
+                }
+              : inline;
+          }),
+        } as MessageEditorBlock)
       : block,
   );
 
@@ -163,10 +205,11 @@ export const MessageInput = ({
       },
     },
   });
-  const [content, setContent] = useState<Block[]>();
+  const [content, setContent] = useState<MessageEditorBlock[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [attachmentPreview, setAttachmentPreview] =
+    useState<AttachmentPreview | null>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -197,7 +240,7 @@ export const MessageInput = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<TemplateSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
@@ -230,7 +273,7 @@ export const MessageInput = ({
         },
       });
     },
-    [upload],
+    [t, upload],
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,55 +293,47 @@ export const MessageInput = ({
     toast({ title: t('attachment-removed'), variant: 'default' });
   };
 
-  const stripHtml = (html: string): string => {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-  };
+  const handleTemplateSelect = useCallback(
+    (templateContent: string, templateId?: string) => {
+      if (!editor) {
+        return toast({ title: t('editor-not-ready'), variant: 'destructive' });
+      }
 
-  const handleTemplateSelect = async (
-    templateContent: string,
-    templateId?: string,
-  ) => {
-    if (!editor) {
-      return toast({ title: t('editor-not-ready'), variant: 'destructive' });
-    }
+      const parseTemplateToBlocks = (content: string) => {
+        try {
+          const parsed = JSON.parse(content);
+          return Array.isArray(parsed)
+            ? parsed
+            : [{ type: 'paragraph', content, props: {} }];
+        } catch {
+          const clean = stripHtml(content).trim();
+          return [{ type: 'paragraph', content: clean, props: {} }];
+        }
+      };
 
-    const parseTemplateToBlocks = (content: string) => {
       try {
-        const parsed = JSON.parse(content);
-        return Array.isArray(parsed)
-          ? parsed
-          : [{ type: 'paragraph', content, props: {} }];
-      } catch (e) {
-        console.warn('Template JSON parse failed, fallback to plain text:', e);
-        const clean = stripHtml(content).trim();
-        return [{ type: 'paragraph', content: clean, props: {} }];
+        const blocksToInsert = parseTemplateToBlocks(templateContent);
+
+        const existingBlocks = editor.document;
+        if (existingBlocks?.length) {
+          editor.removeBlocks(existingBlocks.map((b) => b.id));
+        }
+
+        editor.insertBlocks(
+          blocksToInsert,
+          editor.document[0]?.id,
+          'before',
+        );
+
+        editor.focus();
+        setShowSuggestions(false);
+        setResponseTemplateId(templateId || null);
+      } catch {
+        toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
       }
-    };
-
-    try {
-      const blocksToInsert = parseTemplateToBlocks(templateContent);
-
-      const existingBlocks = editor.document;
-      if (existingBlocks?.length) {
-        await editor.removeBlocks(existingBlocks.map((b) => b.id));
-      }
-
-      await editor.insertBlocks(
-        blocksToInsert,
-        editor.topLevelBlocks[0]?.id,
-        'before',
-      );
-
-      await editor.focus();
-      setShowSuggestions(false);
-      setResponseTemplateId(templateId || null);
-    } catch (error) {
-      console.error('Error inserting template:', error);
-      toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
-    }
-  };
+    },
+    [editor, t],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -331,7 +366,7 @@ export const MessageInput = ({
           break;
       }
     },
-    [showSuggestions, selectedIndex, suggestions],
+    [handleTemplateSelect, showSuggestions, selectedIndex, suggestions],
   );
 
   useEffect(() => {
@@ -354,9 +389,9 @@ export const MessageInput = ({
   }, [preparedResponses, debouncedSearchValue]);
 
   const handleChange = useCallback(async () => {
-    const blocks = await editor?.document;
+    const blocks = editor?.document;
     blocks?.pop();
-    setContent(blocks as Block[]);
+    setContent(blocks);
 
     const html = await editor?.blocksToHTMLLossy(blocks);
     const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
@@ -370,7 +405,7 @@ export const MessageInput = ({
       setShowSuggestions(false);
     }
 
-    setMentionedUserIds(getMentionedUserIds(blocks));
+    setMentionedUserIds(getMessageMentionedUserIds(blocks || []));
   }, [editor, pingAgentTyping]);
 
   const handleSubmit = useCallback(async () => {
@@ -437,6 +472,7 @@ export const MessageInput = ({
     addConversationMessage,
     setIsInternalNote,
     responseTemplateId,
+    t,
   ]);
 
   const handleSendPoll = useCallback(
@@ -465,16 +501,45 @@ export const MessageInput = ({
   if (hideInput) return null;
 
   return (
-    <div className="p-2 h-full">
+    <div className="h-full p-3">
       <div
         onDrop={handleDrop}
         onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
-          isInternalNote && 'bg-warning/20',
+          'mx-auto flex h-full max-w-2xl flex-col overflow-hidden rounded-xl border bg-background shadow-sm transition-colors duration-150',
+          isInternalNote && 'border-warning/40 bg-warning/5',
         )}
       >
+        <div className="flex items-center gap-3 border-b px-4 py-2.5">
+          <div
+            className={cn(
+              'flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary',
+              isInternalNote && 'bg-warning/15 text-warning',
+            )}
+          >
+            {isInternalNote ? (
+              <IconNote className="size-4" />
+            ) : (
+              <IconMessage2 className="size-4" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold">
+              {isInternalNote ? t('internal-note') : t('reply')}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {isInternalNote ? t('private') : t('customer')}
+            </p>
+          </div>
+          <Badge
+            variant={isInternalNote ? 'warning' : 'default'}
+            className="ml-auto"
+          >
+            {isInternalNote ? t('internal-note') : t('reply')}
+          </Badge>
+        </div>
+
         {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
@@ -511,7 +576,7 @@ export const MessageInput = ({
           onChange={handleChange}
           disabled={loading}
           className={cn(
-            'h-full w-full overflow-y-auto',
+            'h-full min-h-32 w-full overflow-y-auto px-2 py-1',
             isInternalNote && 'internal-note',
           )}
           onFocus={() =>
@@ -536,7 +601,7 @@ export const MessageInput = ({
         </BlockEditor>
 
         {attachmentPreview && (
-          <div className="px-6 mb-2">
+          <div className="mx-4 mb-2 rounded-lg border bg-muted/30 p-3">
             <p className="text-sm">{attachmentPreview.name}</p>
             {attachmentPreview.type.startsWith('image/') && (
               <img
@@ -549,16 +614,18 @@ export const MessageInput = ({
         )}
 
         {attachments.length > 0 && (
-          <div className="px-6 mt-2 text-sm text-muted-foreground space-y-1">
-            {attachments.map((file, i) => (
+          <div className="mx-4 mt-2 space-y-1 text-sm text-muted-foreground">
+            {attachments.map((file) => (
               <div
-                key={i}
+                key={file.url}
                 className="flex items-center justify-between bg-muted px-3 py-1 rounded-md"
               >
                 <span role="img" aria-label="file">
                   📁 {file.name} ({Math.round(file.size / 1024)} KB)
                 </span>
                 <button
+                  type="button"
+                  aria-label={t('attachment-removed')}
                   onClick={() => handleDeleteAttachment(file.name)}
                   className="text-destructive hover:text-red-700"
                 >
@@ -569,10 +636,10 @@ export const MessageInput = ({
           </div>
         )}
 
-        <div className="flex px-6 gap-4 items-center mt-2">
+        <div className="mt-auto flex items-center gap-2 border-t bg-muted/20 px-4 py-3">
           <Toggle
             pressed={isInternalNote}
-            size="lg"
+            size="sm"
             variant="outline"
             onPressedChange={() =>
               !onlyInternal && setIsInternalNote(!isInternalNote)
@@ -583,6 +650,7 @@ export const MessageInput = ({
 
           <ResponseTemplateSelector onSelect={handleTemplateSelect}>
             <Button
+              type="button"
               variant="ghost"
               size="icon"
               className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -592,6 +660,7 @@ export const MessageInput = ({
           </ResponseTemplateSelector>
 
           <Button
+            type="button"
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -612,6 +681,7 @@ export const MessageInput = ({
           )}
 
           <Button
+            type="button"
             size="lg"
             className="ml-auto"
             disabled={

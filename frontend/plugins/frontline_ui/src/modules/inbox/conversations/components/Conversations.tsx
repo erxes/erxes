@@ -73,6 +73,8 @@ export const Conversations = () => {
     integrationId,
     integrationType,
     unassigned,
+    awaitingResponse,
+    participated,
     status,
     created,
     brandId,
@@ -82,6 +84,8 @@ export const Conversations = () => {
     integrationId: string;
     integrationType: string;
     unassigned: string;
+    awaitingResponse: string;
+    participated: string;
     status: string;
     conversationId: string;
     created: string;
@@ -92,6 +96,8 @@ export const Conversations = () => {
     'integrationId',
     'integrationType',
     'unassigned',
+    'awaitingResponse',
+    'participated',
     'status',
     'conversationId',
     'created',
@@ -109,6 +115,8 @@ export const Conversations = () => {
         integrationId,
         integrationType: integrationType,
         unassigned,
+        awaitingResponse,
+        participating: participated,
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,

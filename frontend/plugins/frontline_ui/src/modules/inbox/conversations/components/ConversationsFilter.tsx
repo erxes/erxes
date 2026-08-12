@@ -2,6 +2,8 @@ import {
   Combobox,
   Command,
   Filter,
+  Skeleton,
+  parseDateRangeFromString,
   useMultiQueryState,
   useNonNullMultiQueryState,
   useQueryState,
@@ -27,6 +29,22 @@ import {
 import { useAtomValue } from 'jotai';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { useTranslation } from 'react-i18next';
+import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
+
+const FilterCount = ({
+  count,
+  loading,
+}: {
+  count?: number;
+  loading: boolean;
+}) =>
+  loading ? (
+    <Skeleton className="ml-auto size-4 rounded-full" />
+  ) : (
+    <span className="ml-auto tabular-nums text-xs text-muted-foreground">
+      {count ?? 0}
+    </span>
+  );
 
 export const FilterConversationsPopover = () => {
   const { t } = useTranslation('frontline');
@@ -36,8 +54,34 @@ export const FilterConversationsPopover = () => {
     awaitingResponse: boolean;
     participated: boolean;
     channelId: string;
-  }>(['status', 'unassigned', 'awaitingResponse', 'participated', 'channelId']);
+    integrationId: string;
+    integrationType: string;
+    brandId: string;
+    created: string;
+    searchValue: string;
+  }>([
+    'status',
+    'unassigned',
+    'awaitingResponse',
+    'participated',
+    'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
+    'created',
+    'searchValue',
+  ]);
   const { status, unassigned, awaitingResponse, participated } = queries || {};
+  const parsedDate = parseDateRangeFromString(queries.created || '');
+  const { counts, loading } = useConversationFilterCounts({
+    channelId: queries.channelId,
+    integrationId: queries.integrationId,
+    integrationType: queries.integrationType,
+    brandId: queries.brandId,
+    startDate: parsedDate?.from,
+    endDate: parsedDate?.to,
+    searchValue: queries.searchValue,
+  });
 
   return (
     <Filter.Popover scope={InboxHotkeyScope.MainPage}>
@@ -56,7 +100,10 @@ export const FilterConversationsPopover = () => {
               <Filter.CommandItem onSelect={() => setQueries({ status: null })}>
                 <IconSquare />
                 {t('unresolved')}
-                {status === null && <IconCheck className="ml-auto" />}
+                <span className="ml-auto flex items-center gap-2">
+                  <FilterCount count={counts?.unresolved} loading={loading} />
+                  {status === null && <IconCheck />}
+                </span>
               </Filter.CommandItem>
               <Filter.CommandItem
                 onSelect={() =>
@@ -65,9 +112,10 @@ export const FilterConversationsPopover = () => {
               >
                 <IconCheckbox />
                 {t('resolved')}
-                {status === ConversationStatus.CLOSED && (
-                  <IconCheck className="ml-auto" />
-                )}
+                <span className="ml-auto flex items-center gap-2">
+                  <FilterCount count={counts?.resolved} loading={loading} />
+                  {status === ConversationStatus.CLOSED && <IconCheck />}
+                </span>
               </Filter.CommandItem>
               <Command.Separator className="my-1" />
               <Filter.CommandItem
@@ -79,7 +127,10 @@ export const FilterConversationsPopover = () => {
               >
                 <IconUserX />
                 {t('unassigned')}
-                {unassigned && <IconCheck className="ml-auto" />}
+                <span className="ml-auto flex items-center gap-2">
+                  <FilterCount count={counts?.unassigned} loading={loading} />
+                  {unassigned && <IconCheck />}
+                </span>
               </Filter.CommandItem>
               <Filter.CommandItem
                 onSelect={() => {
@@ -90,7 +141,10 @@ export const FilterConversationsPopover = () => {
               >
                 <IconUsersGroup />
                 {t('participated')}
-                {participated && <IconCheck className="ml-auto" />}
+                <span className="ml-auto flex items-center gap-2">
+                  <FilterCount count={counts?.participating} loading={loading} />
+                  {participated && <IconCheck />}
+                </span>
               </Filter.CommandItem>
               <Command.Separator className="my-1" />
               <Filter.CommandItem
@@ -102,7 +156,13 @@ export const FilterConversationsPopover = () => {
               >
                 <IconLoader />
                 {t('awaiting-response')}
-                {awaitingResponse && <IconCheck className="ml-auto" />}
+                <span className="ml-auto flex items-center gap-2">
+                  <FilterCount
+                    count={counts?.awaitingResponse}
+                    loading={loading}
+                  />
+                  {awaitingResponse && <IconCheck />}
+                </span>
               </Filter.CommandItem>
               <SelectChannel.FilterItem />
               <IntegrationTypeFilterItem />
