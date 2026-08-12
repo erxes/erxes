@@ -67,8 +67,8 @@ export const PipelinePropertySelector = ({ value, onChange }: Props) => {
           selectedCount === fieldIds.length
             ? true
             : selectedCount > 0
-            ? 'indeterminate'
-            : false;
+              ? 'indeterminate'
+              : false;
 
         return (
           <div
