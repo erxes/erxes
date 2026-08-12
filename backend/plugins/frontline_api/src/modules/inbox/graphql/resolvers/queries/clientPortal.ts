@@ -1,5 +1,6 @@
 import { markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { widgetQueries } from './widget';
 
 export const cpInboxQueries = {
   async cpIntegrations(
@@ -42,6 +43,32 @@ export const cpInboxQueries = {
     { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
+  },
+
+  async cpConversations(
+    _root,
+    args: { integrationId: string; customerId?: string; visitorId?: string },
+    context: IContext,
+    info,
+  ) {
+    const customerId =
+      args.customerId || context.cpUser?.erxesCustomerId || context.cpUser?._id;
+
+    return widgetQueries.widgetsConversations(
+      _root,
+      { ...args, customerId },
+      context,
+      info,
+    );
+  },
+
+  async cpMessengerConversationDetail(
+    _root,
+    args: { _id?: string; integrationId: string },
+    context: IContext,
+    info,
+  ) {
+    return widgetQueries.widgetsConversationDetail(_root, args, context, info);
   },
 };
 
