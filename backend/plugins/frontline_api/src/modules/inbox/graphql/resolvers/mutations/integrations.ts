@@ -67,13 +67,6 @@ interface UpdateIntegrationData {
   doc: UpdateIntegrationDoc;
 }
 
-const SERVICES_WITHOUT_UPDATE_ADAPTER = [
-  'messenger',
-  'lead',
-  'webhook',
-  'discord',
-];
-
 export const sendCreateIntegration = async (
   subdomain: string,
   serviceName: string,
@@ -553,22 +546,9 @@ export const integrationMutations = {
     if (kind === 'instagram-messenger' || kind === 'instagram-post') {
       kind = 'instagram';
     }
-    await models.Integrations.updateOne(
-      { _id },
-      {
-        $set: {
-          ...doc,
-          ...(channelId && { channelId }),
-          ...(brandId && { brandId }),
-        },
-      },
-    );
-
-    const updated = await models.Integrations.getIntegration({ _id });
-
     const serviceName = integration.kind.split('-')[0];
 
-    if (!SERVICES_WITHOUT_UPDATE_ADAPTER.includes(serviceName)) {
+    if (!['lead', 'messenger', 'webhook', 'discord'].includes(serviceName)) {
       const result = await sendUpdateIntegration(subdomain, serviceName, {
         kind,
         integrationId: integration._id,
@@ -585,6 +565,19 @@ export const integrationMutations = {
         throw new Error(result.errorMessage || 'Failed to update integration');
       }
     }
+
+    await models.Integrations.updateOne(
+      { _id },
+      {
+        $set: {
+          ...doc,
+          ...(channelId && { channelId }),
+          ...(brandId && { brandId }),
+        },
+      },
+    );
+
+    const updated = await models.Integrations.getIntegration({ _id });
 
     return updated;
   },
