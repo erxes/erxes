@@ -20,6 +20,10 @@ export const imapCreateIntegration = withErrorHandling(
 
 export const imapUpdateIntegration = withErrorHandling(
   async ({ subdomain, data }): Promise<any> => {
+    if (!data.doc.data) {
+      return { status: 'success' };
+    }
+
     const models = await generateModels(subdomain);
     const parsedData = JSON.parse(data.doc.data);
 
