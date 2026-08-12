@@ -6,7 +6,7 @@ import { IDeal } from '@/deals/types/deals';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQueryState } from 'erxes-ui';
 
 interface ISalesProductsDataChangedPayload {
@@ -34,8 +34,7 @@ export const useDealDetail = (
   const passedId = options?.variables?._id;
   const finalId = passedId || salesItemId || activeDealId;
 
-  const { data, previousData, loading, error, subscribeToMore, refetch } =
-    useQuery<{
+  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
       dealDetail: IDeal;
     }>(GET_DEAL_DETAIL, {
       ...options,
@@ -107,20 +106,37 @@ export const useDealDetail = (
           refetch();
         }
 
+        const pipeline = changedDeal.pipeline
+          ? {
+              ...prevDeal.pipeline,
+              ...changedDeal.pipeline,
+              paymentIds:
+                changedDeal.pipeline.paymentIds ??
+                prevDeal.pipeline.paymentIds,
+              paymentTypes:
+                changedDeal.pipeline.paymentTypes ??
+                prevDeal.pipeline.paymentTypes,
+            }
+          : prevDeal.pipeline;
+
         const pipelineId =
           changedDeal.stage?.pipelineId ||
           changedDeal.pipelineId ||
-          prevDeal?.pipelineId ||
-          prevDeal?.stage?.pipelineId;
+          prevDeal.pipelineId ||
+          prevDeal.stage?.pipelineId;
 
         return {
           ...prev,
           dealDetail: {
             ...prevDeal,
             ...changedDeal,
-            pipeline: changedDeal.pipeline || prevDeal?.pipeline,
+            customers: changedDeal.customers?.length
+              ? changedDeal.customers
+              : prevDeal.customers,
+            isWatched: changedDeal.isWatched ?? prevDeal.isWatched,
+            pipeline,
             pipelineId,
-            stage: changedDeal.stage || prevDeal?.stage,
+            stage: changedDeal.stage || prevDeal.stage,
           },
         };
       },
@@ -137,8 +153,21 @@ export const useDealDetail = (
     subscribeToMore,
   ]);
 
+  const currentDeal = data?.dealDetail;
+  const lastCompleteDealRef = useRef<IDeal>();
+
+  if (lastCompleteDealRef.current?._id !== finalId) {
+    lastCompleteDealRef.current = undefined;
+  }
+
+  if (currentDeal?._id === finalId && currentDeal.pipeline) {
+    lastCompleteDealRef.current = currentDeal;
+  }
+
   const deal =
-    data?.dealDetail || (!finalId ? previousData?.dealDetail : undefined);
+    currentDeal?.pipeline && currentDeal._id === finalId
+      ? currentDeal
+      : lastCompleteDealRef.current;
 
   return { deal, loading: loading && !deal, error, refetch };
 };
