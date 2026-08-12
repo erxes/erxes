@@ -1,10 +1,14 @@
 import { EDIT_INTEGRATION } from '@/integrations/graphql/mutations/EditIntegration';
 import { useMutation, MutationFunctionOptions } from '@apollo/client';
+import { useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const useIntegrationEdit = () => {
+  const { t } = useTranslation('frontline');
+  const { toast } = useToast();
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
-  const mutate = (options: MutationFunctionOptions) => {
+  const mutate = (options: MutationFunctionOptions) =>
     editIntegration({
       ...options,
       update: (cache, { data }) => {
@@ -20,8 +24,13 @@ export const useIntegrationEdit = () => {
         });
       },
       refetchQueries: ['Integrations', 'IntegrationDetail'],
+    }).catch((error) => {
+      toast({
+        title: t('error'),
+        description: error.message,
+        variant: 'destructive',
+      });
     });
-  };
 
   return {
     editIntegration: mutate,
