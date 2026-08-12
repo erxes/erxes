@@ -23,8 +23,8 @@
 ## Current Capabilities
 
 - Score campaigns can add, subtract, set, refund, repair, and expose owner score balances.
-- Deal score campaign totals always count only deal `productsData` rows with `tickUsed === true`; discounted rows are skipped only when the campaign has `additionalConfig.discountCheck === true`.
-- POS order score campaign totals use order item amounts without deal-specific discount filtering.
+- Deal score campaign totals count only deal `productsData` rows that pass campaign product/category/tag restrictions and have `tickUsed === true`; discounted rows are skipped only when the campaign has `additionalConfig.discountCheck === true`.
+- POS order score campaign totals count only order item rows that pass campaign product/category/tag restrictions and use item amount or `count * unitPrice` without deal-specific discount filtering.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
 
@@ -63,7 +63,7 @@
 ## Local Invariants
 
 - Preserve tenant isolation by using the request `subdomain` for every model and service access.
-- Deal score totals must exclude rows where `tickUsed` is not exactly `true`; discounted rows are excluded only when `additionalConfig.discountCheck === true`.
+- Deal score totals must exclude rows where `tickUsed` is not exactly `true`; discounted rows are excluded only when `additionalConfig.discountCheck === true`; product/category/tag restrictions must also filter deal and POS order rows that contribute to `totalAmount`.
 - Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
@@ -73,14 +73,14 @@
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
-- Smoke scenario: trigger a sales deal score campaign with mixed `productsData`; only ticked rows should contribute to `totalAmount`, and discounted ticked rows should be skipped only when `additionalConfig.discountCheck` is enabled.
+- Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-12` — `Campaign-specific deal discount check`
+### `2026-08-12` — `Campaign-specific product totals`
 
-- **Summary:** Deal score campaign totals now always require `tickUsed` and apply discounted-product skipping only for campaigns with `additionalConfig.discountCheck`.
+- **Summary:** Deal and POS order score campaign totals now apply product/category/tag restrictions, with deal-only `tickUsed` and discount-check handling preserved.
 - **Affected areas:** `src/modules/score/db/models/ScoreCampaign.ts`, `src/utils/utils.ts`, `src/utils/__tests__/scoreTarget.test.ts`
 - **Contracts changed:** `None`
