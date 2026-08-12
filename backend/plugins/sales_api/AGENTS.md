@@ -26,13 +26,13 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Bootstrap | `backend/plugins/sales_api/src/main.ts` | Starts and registers the plugin runtime |
-| Models | `backend/plugins/sales_api/src/connectionResolvers.ts` | Creates tenant-scoped models |
-| Sales | `backend/plugins/sales_api/src/modules/sales` | Owns deal, board, pipeline, and stage behavior |
-| POS | `backend/plugins/sales_api/src/modules/pos` | Owns POS behavior |
-| E-commerce | `backend/plugins/sales_api/src/modules/ecommerce` | Owns sales e-commerce behavior |
+| Area       | Path                                                   | Responsibility                                 |
+| ---------- | ------------------------------------------------------ | ---------------------------------------------- |
+| Bootstrap  | `backend/plugins/sales_api/src/main.ts`                | Starts and registers the plugin runtime        |
+| Models     | `backend/plugins/sales_api/src/connectionResolvers.ts` | Creates tenant-scoped models                   |
+| Sales      | `backend/plugins/sales_api/src/modules/sales`          | Owns deal, board, pipeline, and stage behavior |
+| POS        | `backend/plugins/sales_api/src/modules/pos`            | Owns POS behavior                              |
+| E-commerce | `backend/plugins/sales_api/src/modules/ecommerce`      | Owns sales e-commerce behavior                 |
 
 ## Contracts
 

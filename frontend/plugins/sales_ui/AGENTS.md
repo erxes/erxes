@@ -26,13 +26,13 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Registration | `frontend/plugins/sales_ui/src/config.tsx` | Registers routes, navigation, widgets, and search |
-| Deals | `frontend/plugins/sales_ui/src/modules/deals` | Owns deal and pipeline UI |
-| Validation | `frontend/plugins/sales_ui/src/modules/deals/schemas/pipelineFormSchema.ts` | Validates pipeline, stage, and payment values |
-| Payments | `frontend/plugins/sales_ui/src/modules/payments` | Edits platform and custom payment configuration |
-| POS | `frontend/plugins/sales_ui/src/modules/pos` | Owns POS UI |
+| Area         | Path                                                                        | Responsibility                                    |
+| ------------ | --------------------------------------------------------------------------- | ------------------------------------------------- |
+| Registration | `frontend/plugins/sales_ui/src/config.tsx`                                  | Registers routes, navigation, widgets, and search |
+| Deals        | `frontend/plugins/sales_ui/src/modules/deals`                               | Owns deal and pipeline UI                         |
+| Validation   | `frontend/plugins/sales_ui/src/modules/deals/schemas/pipelineFormSchema.ts` | Validates pipeline, stage, and payment values     |
+| Payments     | `frontend/plugins/sales_ui/src/modules/payments`                            | Edits platform and custom payment configuration   |
+| POS          | `frontend/plugins/sales_ui/src/modules/pos`                                 | Owns POS UI                                       |
 
 ## Contracts
 
