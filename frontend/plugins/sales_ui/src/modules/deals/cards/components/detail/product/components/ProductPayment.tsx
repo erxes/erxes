@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { gql, useMutation } from '@apollo/client';
@@ -33,6 +34,11 @@ import { useRefundScoreCampaign } from '../hooks/payment/useRefundScoreCampaign'
 import { useCheckOwnerScore } from '../hooks/payment/useCheckOwnerScore';
 import { useTranslation } from 'react-i18next';
 import type { PaymentConfigItem } from '@/payments';
+import {
+  selectPaymentTypesForRender,
+  type PayInfo,
+  updatePayInfoForScore,
+} from '../utils/updatePayInfoForScore';
 
 type PaymentConfig = {
   require?: string;
@@ -42,14 +48,7 @@ type PaymentConfig = {
   preTax?: boolean;
 };
 
-type PayInfo = {
-  score?: number;
-  maxVal?: number;
-  hasPopup: boolean;
-  validQr: boolean;
-  scoreOwnerId?: string;
-  scoreCampaignId?: string;
-};
+const EMPTY_PAYMENT_TYPES: PaymentConfigItem[] = [];
 
 const GENERATE_INVOICE_URL = gql`
   mutation SalesDealGenerateInvoiceUrl($input: InvoiceInput!) {
@@ -111,12 +110,7 @@ const OwnerScoreCampaignScore = ({
   paymentType: PaymentConfigItem;
   customers: ICustomer[];
   dealId: string;
-  onScoreFetched?: (
-    score: number,
-    paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
-    scoreOwnerId: string,
-    scoreCampaignId: string,
-  ) => void;
+  onScoreFetched?: (score: number, paymentType: PaymentConfigItem) => void;
 }) => {
   const [customer] = customers || [];
   const { refundScoreCampaign, loading: refundLoading } =
@@ -143,24 +137,14 @@ const OwnerScoreCampaignScore = ({
       customer?._id &&
       onScoreFetched
     ) {
-      onScoreFetched(
-        checkOwnerScore,
-        {
-          type: paymentType.type,
-          config: paymentType.config,
-        },
-        customer._id,
-        paymentType.scoreCampaignId,
-      );
+      onScoreFetched(checkOwnerScore, paymentType);
     }
   }, [
     checkLoading,
     checkOwnerScore,
     customer?._id,
     onScoreFetched,
-    paymentType.config,
-    paymentType.scoreCampaignId,
-    paymentType.type,
+    paymentType,
   ]);
 
   const { t } = useTranslation('sales');
@@ -485,56 +469,15 @@ export const ProductsPayment = ({
   );
 
   const handleScoreFetched = useCallback(
-    (
-      score: number,
-      paymentType: Pick<PaymentConfigItem, 'type' | 'config'>,
-      scoreOwnerId: string,
-      scoreCampaignId: string,
-    ) => {
+    (score: number, paymentType: PaymentConfigItem) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
       const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
 
-      setPayInfoByType((prev) => {
-        const current = prev[typeName];
-        const validQr = Boolean(
-          current?.validQr &&
-          current.scoreOwnerId === scoreOwnerId &&
-          current.scoreCampaignId === scoreCampaignId,
-        );
-        const availableAmount = score + initialAmount;
-        let maxVal = availableAmount;
-
-        if (requiresQr && !validQr) {
-          maxVal = 0;
-        }
-
-        const next: PayInfo = {
-          hasPopup: requiresQr,
-          score,
-          maxVal,
-          validQr,
-          scoreOwnerId,
-          scoreCampaignId,
-        };
-
-        if (
-          current?.hasPopup === next.hasPopup &&
-          current.score === next.score &&
-          current.maxVal === next.maxVal &&
-          current.validQr === next.validQr &&
-          current.scoreOwnerId === next.scoreOwnerId &&
-          current.scoreCampaignId === next.scoreCampaignId
-        ) {
-          return prev;
-        }
-
-        return {
-          ...prev,
-          [typeName]: next,
-        };
-      });
+      setPayInfoByType((prev) =>
+        updatePayInfoForScore(prev, typeName, score, initialAmount, requiresQr),
+      );
     },
     [getInitialPaymentAmount],
   );
@@ -653,7 +596,21 @@ export const ProductsPayment = ({
     }
   };
 
-  const paymentTypes = deal.pipeline?.paymentTypes || [];
+  const incomingPaymentTypes =
+    deal.pipeline?.paymentTypes || EMPTY_PAYMENT_TYPES;
+  const lastPaymentTypesRef = useRef<PaymentConfigItem[]>(incomingPaymentTypes);
+
+  useEffect(() => {
+    if (!saving) {
+      lastPaymentTypesRef.current = incomingPaymentTypes;
+    }
+  }, [incomingPaymentTypes, saving]);
+
+  const paymentTypes = selectPaymentTypesForRender(
+    incomingPaymentTypes,
+    lastPaymentTypesRef.current,
+    saving,
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col pb-4">
