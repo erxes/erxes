@@ -1242,5 +1242,14 @@
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
   "without-priority": "{{value}} without priority",
+  "assign-to": "Assign to",
+  "change-status": "Change status",
+  "change-priority": "Change priority",
+  "change-tags": "Change tags",
+  "change-assigned-members": "Change assigned members",
+  "move-to-pipeline": "Move to pipeline",
+  "tickets-moved-successfully": "Tickets moved successfully",
+  "tickets-updated-successfully": "Tickets updated successfully",
+  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest."
   "ticket-status": "Ticket status"
 }
