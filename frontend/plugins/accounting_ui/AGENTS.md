@@ -28,13 +28,13 @@
 
 ## Architecture
 
-| Area              | Path                                           | Responsibility                                                  |
-| ----------------- | ---------------------------------------------- | --------------------------------------------------------------- |
-| Runtime           | `src/main.ts`                                  | Starts the accounting UI remote.                                |
-| Plugin config     | `src/config.tsx`                               | Registers routes and navigation with the host.                  |
-| Transactions      | `src/modules/transactions`                     | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
-| Inventory pages   | `src/modules/inventories`, `src/pages/inventories` | Own inventory remainder and reserve/safe remainder screens.     |
-| Settings          | `src/modules/settings`, `src/pages`            | Owns accounting account, tax, permission, and sync settings UI. |
+| Area            | Path                                               | Responsibility                                                                 |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Runtime         | `src/main.ts`                                      | Starts the accounting UI remote.                                               |
+| Plugin config   | `src/config.tsx`                                   | Registers routes and navigation with the host.                                 |
+| Transactions    | `src/modules/transactions`                         | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
+| Inventory pages | `src/modules/inventories`, `src/pages/inventories` | Own inventory remainder and reserve/safe remainder screens.                    |
+| Settings        | `src/modules/settings`, `src/pages`                | Owns accounting account, tax, permission, and sync settings UI.                |
 
 ## Contracts
 
