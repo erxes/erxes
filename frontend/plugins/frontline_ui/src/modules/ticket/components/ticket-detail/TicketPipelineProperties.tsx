@@ -78,7 +78,7 @@ export const TicketPipelineProperties = (props: Props) => {
   });
   const selectedIds = new Set(pipeline?.propertyIds || []);
 
-  if (!pipelineLoading && pipeline?.isPropertySelectionConfigured === false) {
+  if (!pipelineLoading && pipeline?.isPropertySelectionConfigured !== true) {
     return (
       <FieldsInDetail
         fieldContentType={CONTENT_TYPE}
