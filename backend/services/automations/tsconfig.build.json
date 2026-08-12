@@ -7,11 +7,5 @@
     },
     "types": ["node"]
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*spec.ts",
-    "**/*.test.ts",
-    "**/__tests__/**"
-  ]
+  "exclude": ["node_modules", "dist", "**/*spec.ts"]
 }
