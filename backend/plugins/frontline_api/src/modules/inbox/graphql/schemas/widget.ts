@@ -5,7 +5,7 @@ export const types = `
       uiOptions: JSON
       languageCode: String
       messengerData: JSON
-      ticketConfig: JSON
+      ticketConfigs: JSON
       customerId: String
       visitorId: String
       channel: Channel
@@ -137,6 +137,7 @@ export const mutations = `
       statusId: String!
       customerIds: [String!]!
       tagIds: [String!]
+      propertiesData: JSON
     ): Ticket
     
     widgetTicketCommentAdd(

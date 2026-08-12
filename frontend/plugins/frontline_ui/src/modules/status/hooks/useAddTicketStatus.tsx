@@ -28,7 +28,10 @@ export const useAddTicketStatus = () => {
       refetchQueries: [
         {
           query: GET_TICKET_STATUS_BY_TYPE,
-          variables: { type: options?.variables?.type, pipelineId: options?.variables?.pipelineId },
+          variables: {
+            type: options?.variables?.type,
+            pipelineId: options?.variables?.pipelineId,
+          },
         },
       ],
     });

@@ -5,6 +5,7 @@ import { VisitedPageTabs } from '@/navigation/components/VisitedPageTabs';
 import { VisitedPageTabsOpenButton } from '@/navigation/components/VisitedPageTabsOpenButton';
 import { navigationSidebarOpenState } from '@/navigation/states/navigationPanelState';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
+import { GlobalSearch } from '@/search/components/GlobalSearch';
 import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 import { cn, Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
@@ -25,7 +26,7 @@ const NavigationWorkspace = () => {
         {!isMobile && <NavigationPanel />}
         <div
           className={cn(
-            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
+            'relative flex min-w-0 flex-1 flex-col overflow-hidden peer-data-[state=collapsed]:[--navigation-panel-toggle-space:2.5rem] peer-data-[state=collapsed]:[--navigation-top-controls-space:2rem]',
             isMobile &&
               '[--navigation-panel-toggle-space:2.5rem] [--navigation-top-controls-space:2.25rem]',
             !tabsVisible &&
@@ -61,6 +62,7 @@ export const DefaultLayout = () => {
       sidebarWidthIcon="3rem"
     >
       <VisitedPageTabs />
+      <GlobalSearch />
       <Sidebar
         collapsible="icon"
         variant="sidebar"

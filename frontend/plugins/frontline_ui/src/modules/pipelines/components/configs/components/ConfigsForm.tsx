@@ -1,17 +1,11 @@
-import {
-  Combobox,
-  Form,
-  Input,
-  Popover,
-  PopoverScoped,
-  Separator,
-} from 'erxes-ui';
+import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 
 import { TPipelineConfig } from '@/pipelines/types';
 import { UseFormReturn } from 'react-hook-form';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { useEffect, useState } from 'react';
 import { TicketBasicFields } from './TicketBasicFields';
+import { TicketPropertyFields } from './TicketPropertyFields';
 import { SelectTags } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +21,10 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
 
   useEffect(() => {
     if (defaultValues) {
-      form.reset(defaultValues);
+      form.reset({
+        ...defaultValues,
+        propertyFields: defaultValues.propertyFields ?? [],
+      });
     }
   }, [defaultValues, form]);
 
@@ -60,7 +57,7 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
                 <SelectStatusTicket.FormItem
                   value={field.value as string}
                   onValueChange={field.onChange}
-                  form={form as any}
+                  form={form}
                 />
               </Form.Control>
               <Form.Message />
@@ -102,6 +99,8 @@ export const ConfigsForm = ({ form, defaultValues }: Props) => {
       </div>
       <Separator />
       <TicketBasicFields form={form} />
+      <Separator />
+      <TicketPropertyFields form={form} />
     </>
   );
 };

@@ -242,6 +242,7 @@ export const FixedAssetAccountConfigsTable = () => {
         stickyColumns={['more', 'checkbox', 'accountId']}
         className="m-3"
         Commandbar={FixedAssetAccountConfigsCommandbar}
+        tableId="accounting_fixed_asset_account_configs_record_table"
       />
       <Sheet
         open={Boolean(selectedConfig)}

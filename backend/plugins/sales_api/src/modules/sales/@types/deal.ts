@@ -82,12 +82,14 @@ export interface IDeal {
   parentId?: string;
 
   productsData?: IProductData[];
+  totalAmount?: number;
   mobileAmount?: number;
   mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
+  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {

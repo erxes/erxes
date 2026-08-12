@@ -1,10 +1,12 @@
 import {
+  FORM_SETUP_STEPS,
   FORM_STATES_DEFAULT_VALUES,
   FORM_STORAGE_KEYS,
 } from '@/forms/constants/formStatesDefaultValues';
 import { atomWithStorage } from 'jotai/utils';
 import {
   FORM_GENERAL_SCHEMA,
+  FORM_CALLOUT_SCHEMA,
   FORM_CONTENT_SCHEMA,
   FORM_CONFIRMATION_SCHEMA,
 } from '../constants/formSchema';
@@ -20,6 +22,12 @@ export const formSetupStepAtom = atomWithStorage<number>(
 export const formSetupGeneralAtom = atomWithStorage<
   z.infer<typeof FORM_GENERAL_SCHEMA>
 >(FORM_STORAGE_KEYS.GENERAL, FORM_STATES_DEFAULT_VALUES.GENERAL, undefined, {
+  getOnInit: true,
+});
+
+export const formSetupCalloutAtom = atomWithStorage<
+  z.infer<typeof FORM_CALLOUT_SCHEMA>
+>(FORM_STORAGE_KEYS.CALLOUT, FORM_STATES_DEFAULT_VALUES.CALLOUT, undefined, {
   getOnInit: true,
 });
 
@@ -44,6 +52,7 @@ export const settedFormDetailAtom = atomWithStorage('settedFormDetail', false);
 
 export const formSetupValuesAtom = atom((get) => {
   const general = get(formSetupGeneralAtom);
+  const callout = get(formSetupCalloutAtom);
   const content = get(formSetupContentAtom);
 
   return (confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>) => ({
@@ -57,6 +66,13 @@ export const formSetupValuesAtom = atom((get) => {
       leadData: {
         appearance: general.appearance,
         loadType: general.loadType,
+        callout: {
+          title: callout.title,
+          body: callout.body,
+          buttonText: callout.buttonText,
+          featuredImage: callout.featuredImage,
+          skip: callout.skip,
+        },
         thankTitle: confirmation.title,
         thankContent: confirmation.description,
         thankImage: confirmation.image,
@@ -114,8 +130,9 @@ export const formSetupValuesAtom = atom((get) => {
 });
 
 export const resetFormSetupAtom = atom(null, (_, set) => {
-  set(formSetupStepAtom, 1);
+  set(formSetupStepAtom, FORM_SETUP_STEPS.GENERAL);
   set(formSetupGeneralAtom, FORM_STATES_DEFAULT_VALUES.GENERAL);
+  set(formSetupCalloutAtom, FORM_STATES_DEFAULT_VALUES.CALLOUT);
   set(formSetupContentAtom, FORM_STATES_DEFAULT_VALUES.CONTENT);
   set(formSetupConfirmationAtom, FORM_STATES_DEFAULT_VALUES.CONFIRMATION);
   set(settedFormDetailAtom, false);
@@ -131,6 +148,14 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
     primaryColor: payload.leadData.primaryColor ?? '',
     appearance: payload.leadData.appearance ?? 'iframe',
     loadType: payload.leadData.loadType ?? 'embedded',
+  };
+
+  const callout = {
+    title: payload.leadData.callout?.title ?? '',
+    body: payload.leadData.callout?.body ?? '',
+    buttonText: payload.leadData.callout?.buttonText ?? '',
+    featuredImage: payload.leadData.callout?.featuredImage ?? null,
+    skip: payload.leadData.callout?.skip ?? false,
   };
 
   const content = {
@@ -171,8 +196,9 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
     image: payload.leadData.thankImage ?? null,
   };
 
-  set(formSetupStepAtom, 1);
+  set(formSetupStepAtom, FORM_SETUP_STEPS.GENERAL);
   set(formSetupGeneralAtom, general);
+  set(formSetupCalloutAtom, callout);
   set(formSetupContentAtom, content);
   set(formSetupConfirmationAtom, confirmation);
   set(settedFormDetailAtom, true);

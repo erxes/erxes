@@ -11,9 +11,10 @@ import { basename, extname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { Db } from 'mongodb';
-import { nanoid } from 'nanoid';
 import { Agent, fetch, type Response } from 'undici';
 
+import { generateId } from './generateId';
+import { createStorageUpload } from './storage';
 import {
   ErxesAttachment,
   MediaImportFailure,
@@ -46,6 +47,9 @@ interface UploadRuntime {
   disconnect?: () => void;
 }
 
+
+const PROGRESS_INTERVAL = 25;
+
 const MIME_BY_EXTENSION: Record<string, string> = {
   '.avif': 'image/avif',
   '.doc': 'application/msword',
@@ -72,25 +76,22 @@ const createLocalUpload = async (): Promise<UploadFile> => {
   await mkdir(uploadsDirectory, { recursive: true });
 
   return async ({ filePath, fileName }) => {
-    const storedFileName = `${nanoid()}-${fileName}`;
+    const storedFileName = `${generateId()}-${fileName}`;
     await copyFile(filePath, join(uploadsDirectory, storedFileName));
     return storedFileName;
   };
 };
 
-const createUploadRuntime = async (): Promise<UploadRuntime> => {
+const createUploadRuntime = async (db: Db): Promise<UploadRuntime> => {
   if (process.env.UPLOAD_SERVICE_TYPE?.toLowerCase() === 'local') {
     return { uploadFile: await createLocalUpload() };
   }
 
-  const [redisModule, uploadModule] = await Promise.all([
-    import('erxes-api-shared/utils/redis'),
-    import('erxes-api-shared/utils/file/upload'),
-  ]);
+  const upload = await createStorageUpload(db);
 
   return {
-    uploadFile: uploadModule.uploadFileToStorage,
-    disconnect: () => redisModule.redis.disconnect(),
+    uploadFile: ({ filePath, fileName, mimetype }) =>
+      upload({ filePath, fileName, mimetype }),
   };
 };
 
@@ -592,9 +593,30 @@ export const importWordPressMedia = async ({
     return { attachments, failures };
   }
 
-  const uploadRuntime = await createUploadRuntime();
+  const uploadRuntime = await createUploadRuntime(db);
   const directory = await mkdtemp(join(tmpdir(), 'erxes-wordpress-'));
   let nextIndex = 0;
+  let completed = 0;
+
+  const alreadyImported = plan.media.length - pending.length;
+
+  console.log(
+    `Media: transferring ${pending.length} file(s) with concurrency ${concurrency}${
+      alreadyImported > 0 ? `, ${alreadyImported} already imported` : ''
+    }`,
+  );
+
+  const reportProgress = (): void => {
+    completed += 1;
+
+    if (completed % PROGRESS_INTERVAL !== 0 && completed !== pending.length) {
+      return;
+    }
+
+    console.log(
+      `Media: ${completed}/${pending.length} transferred, ${failures.length} failed`,
+    );
+  };
 
   const worker = async (): Promise<void> => {
     while (nextIndex < pending.length) {
@@ -647,6 +669,8 @@ export const importWordPressMedia = async ({
           message: formatMediaImportError(error),
         });
       }
+
+      reportProgress();
     }
   };
 

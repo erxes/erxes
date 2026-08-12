@@ -75,6 +75,7 @@ export interface IKitchenScreen {
 
 export interface IPermissionConfig {
   isTempBill?: boolean
+  seeReport?: boolean
   directDiscount?: boolean
   directDiscountLimit?: number
 }

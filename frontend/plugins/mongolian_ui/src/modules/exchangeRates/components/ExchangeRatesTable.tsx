@@ -23,6 +23,7 @@ export const ExchangeRatesTable = () => {
       data={rows}
       className="m-3"
       stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_exchange_rates_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -30,45 +31,43 @@ export const ExchangeRatesTable = () => {
         dataLength={rows.length}
         sessionKey={EXCHANGE_RATES_CURSOR_SESSION_KEY}
       >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && rows.length === 0 && (
-                <RecordTable.RowSkeleton rows={40} />
-              )}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && rows.length === 0 && (
+              <RecordTable.RowSkeleton rows={40} />
+            )}
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+          </RecordTable.Body>
+        </RecordTable>
 
-          {!isInitialLoading && totalCount === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center text-center">
-                <IconArrowsExchange
-                  size={48}
-                  className="text-muted-foreground/40 mb-4"
-                />
-                <h3 className="text-lg font-semibold text-foreground">
-                  {searchValue
-                    ? t('no-matching-exchange-rates')
-                    : t('no-exchange-rates-yet')}
-                </h3>
-                <p className="mt-1 mb-4 text-sm text-muted-foreground">
-                  {searchValue
-                    ? t('try-different-currency')
-                    : t('create-first-exchange-rate')}
-                </p>
-                {!searchValue && <AddExchangeRate />}
-              </div>
+        {!isInitialLoading && totalCount === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center text-center">
+              <IconArrowsExchange
+                size={48}
+                className="text-muted-foreground/40 mb-4"
+              />
+              <h3 className="text-lg font-semibold text-foreground">
+                {searchValue
+                  ? t('no-matching-exchange-rates')
+                  : t('no-exchange-rates-yet')}
+              </h3>
+              <p className="mt-1 mb-4 text-sm text-muted-foreground">
+                {searchValue
+                  ? t('try-different-currency')
+                  : t('create-first-exchange-rate')}
+              </p>
+              {!searchValue && <AddExchangeRate />}
             </div>
-          )}
-        </RecordTable.Scroll>
+          </div>
+        )}
       </RecordTable.CursorProvider>
       <ExchangeRatesCommandbar />
     </RecordTable.Provider>

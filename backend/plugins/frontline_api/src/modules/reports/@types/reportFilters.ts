@@ -6,6 +6,7 @@ export type IReportFilters = {
   toDate?: string;
   limit?: number;
   status?: string;
+  statusIds?: string[];
   source?: string;
   callStatus?: string;
   page?: number;

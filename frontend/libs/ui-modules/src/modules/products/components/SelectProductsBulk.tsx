@@ -6,11 +6,11 @@ import {
   Sheet,
   Separator,
   ScrollArea,
-  Spinner,
+  SkeletonArray,
   useQueryState,
   fixNum,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import { useProducts } from '../hooks/useProducts';
 import { useInView } from 'react-intersection-observer';
@@ -40,7 +40,8 @@ interface SelectProductsProps {
 }
 
 interface SelectProductsBulkContentProps
-  extends Pick<
+  extends
+    Pick<
       SelectProductsProps,
       | 'onSelect'
       | 'productIds'
@@ -61,6 +62,44 @@ interface ProductsListProps {
   setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
   selectionLimit?: number;
 }
+
+interface ProductListItemProps {
+  product: IProduct;
+  disabled: boolean;
+  onSelect: (product: IProduct) => void;
+}
+
+const ProductListItem = ({
+  product,
+  disabled,
+  onSelect,
+}: ProductListItemProps) => (
+  <Button
+    variant="ghost"
+    className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
+    disabled={disabled}
+    onClick={() => onSelect(product)}
+  >
+    <div className="flex flex-1 gap-2 items-center">
+      <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
+        {product.code}
+      </span>
+      <span className="truncate">{product.name}</span>
+      <span className="ml-auto flex items-center gap-2 shrink-0">
+        <span className="text-xs tabular-nums font-medium">
+          <span className="text-muted-foreground font-normal mr-0.5">
+            {product.currency ?? ''}
+          </span>
+          {fixNum(product.unitPrice).toLocaleString()}
+        </span>
+        <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
+          {product.remainder.remainder ?? 0} {product.uom ?? ''}
+        </span>
+      </span>
+    </div>
+    <IconPlus className="ml-2 shrink-0" />
+  </Button>
+);
 
 export const SelectProductsBulk = ({
   onSelect,
@@ -225,31 +264,22 @@ const ProductsList = ({
   setSelectedProductIds,
   selectionLimit,
 }: ProductsListProps) => {
-  const [search, setSearch] = useState(
-    () => localStorage.getItem('search') || '',
-  );
+  const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const [companyId, setCompanyId] = useState<string>(
-    () => localStorage.getItem('companyId') || '',
-  );
-  const [categoryId, setCategoryId] = useState<string>(
-    () => localStorage.getItem('categoryId') || '',
-  );
+  const [companyId, setCompanyId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [pipelineId] = useQueryState<string>('pipelineId');
 
-  useEffect(() => {
-    localStorage.setItem('search', debouncedSearch);
-    localStorage.setItem('companyId', companyId);
-    localStorage.setItem('categoryId', categoryId);
-  }, [debouncedSearch, companyId, categoryId]);
-  const { products, handleFetchMore, totalCount } = useProducts({
-    variables: {
-      searchValue: debouncedSearch,
-      vendorId: companyId || undefined,
-      categoryIds: categoryId ? [categoryId] : undefined,
-      pipelineId: pipelineId || undefined,
-    },
-  });
+  const { products, handleFetchMore, totalCount, loading, fetchingMore } =
+    useProducts({
+      fetchPolicy: 'network-only',
+      variables: {
+        searchValue: debouncedSearch,
+        vendorId: companyId || undefined,
+        categoryIds: categoryId ? [categoryId] : undefined,
+        pipelineId: pipelineId || undefined,
+      },
+    });
 
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
@@ -268,11 +298,22 @@ const ProductsList = ({
 
   const selectionLimitReached =
     selectionLimit !== undefined && selectedProductIds.length >= selectionLimit;
-  const unselectedProducts = products
-    .filter((p) => !selectedProductIds.includes(p._id))
-    .sort(
-      (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
-    );
+  const initialLoading = loading && !products.length;
+  const unselectedProducts = products.filter(
+    (product) => !selectedProductIds.includes(product._id),
+  );
+  const selectedResultCount = products.filter((product) =>
+    selectedProductIds.includes(product._id),
+  ).length;
+  const availableTotalCount = Math.max(totalCount - selectedResultCount, 0);
+
+  // with a pipeline the server already orders its initial categories first,
+  // so re-sorting here would scatter them back into the rest of the list
+  const availableProducts = pipelineId
+    ? unselectedProducts
+    : [...unselectedProducts].sort(
+        (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
+      );
 
   return (
     <div className="flex overflow-hidden flex-col border-r">
@@ -309,49 +350,30 @@ const ProductsList = ({
           </div>
         </div>
         <div className="mt-4 text-xs text-accent-foreground">
-          {totalCount} results
+          {!initialLoading && `${availableTotalCount} results`}
         </div>
       </div>
       <Separator />
       <div className="overflow-auto flex-1">
         <div className="flex flex-col gap-1 p-4 min-w-max">
-          {unselectedProducts.map((product) => {
-            return (
-              <Button
+          {initialLoading ? (
+            <SkeletonArray count={8} className="w-full h-9" />
+          ) : (
+            availableProducts.map((product) => (
+              <ProductListItem
                 key={product._id}
-                variant="ghost"
-                className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
+                product={product}
                 disabled={selectionLimitReached}
-                onClick={() => handleProductSelect(product)}
-              >
-                <div className="flex flex-1 gap-2 items-center">
-                  <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
-                    {product.code}
-                  </span>
-                  <span className="truncate">{product.name}</span>
-                  <span className="ml-auto flex items-center gap-2 shrink-0">
-                    <span className="text-xs tabular-nums font-medium">
-                      <span className="text-muted-foreground font-normal mr-0.5">
-                        {product.currency ?? ''}
-                      </span>
-                      {fixNum(product.unitPrice).toLocaleString()}
-                    </span>
-                    <span className="text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground tabular-nums">
-                      {product.remainder.remainder ?? 0} {product.uom ?? ''}
-                    </span>
-                  </span>
-                </div>
-                <IconPlus className="ml-2 shrink-0" />
-              </Button>
-            );
-          })}
+                onSelect={handleProductSelect}
+              />
+            ))
+          )}
 
           {products.length < totalCount && (
-            <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
-              <Spinner containerClassName="flex-none" />
-              <span className="animate-pulse text-accent-foreground">
-                Loading more products...
-              </span>
+            <div className="flex min-h-px flex-col gap-1" ref={bottomRef}>
+              {fetchingMore && (
+                <SkeletonArray count={3} className="w-full h-9" />
+              )}
             </div>
           )}
         </div>

@@ -10,15 +10,18 @@ import { useAutomationVariableList } from '../context/AutomationVariableListCont
 export const useAutomationVariableCardProps = ({
   variableKey,
   label,
+  isLink,
 }: {
   variableKey: string;
   label: string;
+  isLink?: boolean;
 }) => {
   const {
     buildVariablePath,
     buildVariablePayload,
     buildVariableToken,
     onInsertVariable,
+    onInsertVariableAsLink,
   } = useAutomationVariableList();
 
   const path = buildVariablePath(variableKey);
@@ -35,6 +38,10 @@ export const useAutomationVariableCardProps = ({
     path,
     token,
     onClick: onInsertVariable ? () => onInsertVariable(payload) : undefined,
+    onInsertLink:
+      isLink && onInsertVariableAsLink
+        ? () => onInsertVariableAsLink(payload)
+        : undefined,
     onDragStart: (event: React.DragEvent<HTMLDivElement>) => {
       setAutomationVariableDragData(event.dataTransfer, payload);
     },

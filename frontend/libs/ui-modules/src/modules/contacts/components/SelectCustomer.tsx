@@ -31,6 +31,7 @@ interface SelectCustomerProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   hideAvatar?: boolean;
+  loadSelectedCustomers?: boolean;
 }
 
 const SelectCustomerProvider = ({
@@ -39,10 +40,10 @@ const SelectCustomerProvider = ({
   onValueChange,
   mode = 'single',
   hideAvatar,
+  loadSelectedCustomers = true,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
-  const customerIds = customers.map((c) => c._id);
 
   const valueIds = useMemo(() => {
     if (!value) {
@@ -51,12 +52,13 @@ const SelectCustomerProvider = ({
 
     return Array.isArray(value) ? value : [value];
   }, [value]);
+  const customerIds = valueIds;
 
   const { customers: fetchedCustomers } = useCustomers({
     variables: {
       ids: valueIds,
     },
-    skip: valueIds.length === 0,
+    skip: valueIds.length === 0 || !loadSelectedCustomers,
   });
 
   useEffect(() => {
@@ -440,6 +442,7 @@ export const SelectCustomerFilterBar = ({
       value={query || []}
       onValueChange={handleValueChange}
       hideAvatar={hideAvatar}
+      loadSelectedCustomers={!isCardVariant || !hideAvatar || open}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>

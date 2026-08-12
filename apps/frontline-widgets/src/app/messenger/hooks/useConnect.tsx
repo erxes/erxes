@@ -16,7 +16,7 @@ import {
   hasTicketConfigAtom,
   integrationIdAtom,
   messengerDataAtom,
-  ticketConfigAtom,
+  ticketConfigsAtom,
   uiOptionsAtom,
 } from '../states';
 import {
@@ -36,8 +36,8 @@ export const useConnect = ({ integrationId }: connectionProps) => {
   const setIntegrationId = useSetAtom(integrationIdAtom);
   const messengerData = useAtomValue(messengerDataAtom);
   const setUiOptions = useSetAtom(uiOptionsAtom);
-  const setTicketConfig = useSetAtom(ticketConfigAtom);
   const setHasTicketConfig = useSetAtom(hasTicketConfigAtom);
+  const setTicketConfigs = useSetAtom(ticketConfigsAtom);
   const setHasKnowledgeBaseTopic = useSetAtom(hasKnowledgeBaseTopicAtom);
   const setCustomerId = useSetAtom(customerIdAtom);
   const [customerData, setCustomerData] = useAtom(customerDataAtom);
@@ -77,8 +77,8 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         }
         setIntegrationId(connectionData.integrationId);
         setUiOptions(uiOptions as IWidgetUiOptions);
-        setTicketConfig(connectionData.ticketConfig as ITicketConfig);
-        setHasTicketConfig(!!connectionData.ticketConfig);
+        setTicketConfigs(connectionData.ticketConfigs as ITicketConfig[]);
+        setHasTicketConfig(!!connectionData.ticketConfigs);
         setHasKnowledgeBaseTopic(
           !!connectionData.messengerData?.knowledgeBaseTopicId,
         );

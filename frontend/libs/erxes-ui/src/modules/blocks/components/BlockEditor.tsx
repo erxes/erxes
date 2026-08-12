@@ -36,6 +36,7 @@ export const BlockEditor = ({
   disabled,
   variant = 'default',
   sideMenu = false,
+  linkToolbar = true,
   additionalSlashMenuItems,
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
@@ -138,6 +139,7 @@ export const BlockEditor = ({
         editor={editor}
         slashMenu={false}
         sideMenu={sideMenu}
+        linkToolbar={linkToolbar}
         onFocus={() => {
           setFocus(true);
           onFocus?.();

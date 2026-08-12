@@ -27,6 +27,8 @@ export const types = `
     createdAt: Date
     resolvedAt: Date
     scannedAt: Date
+    scannedCount: Int
+    ticketCount: Int
     redirectUri: String
     paymentIds: [String]
 
@@ -60,12 +62,20 @@ export const inputs = `
     callback: String
     currency: String
   }
+
+  input InvoiceEditInput {
+    description: String
+    amount: Float
+    currency: String
+    status: String
+  }
 `;
 
 export const mutations = `
   generateInvoiceUrl(input: InvoiceInput!): String
   invoiceCreate(input: InvoiceInput!): Invoice
   invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
+  invoiceEdit(_id: String!, input: InvoiceEditInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
   invoiceScanBarcode(code: String!): Invoice

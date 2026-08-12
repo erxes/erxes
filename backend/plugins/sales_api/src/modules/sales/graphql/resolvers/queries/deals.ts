@@ -31,6 +31,61 @@ const isListEmpty = (value) => {
   return value.length === 1 && value[0].length === 0;
 };
 
+const getDealIdsByCustomerPhone = async (
+  subdomain: string,
+  search: string,
+): Promise<string[]> => {
+  const trimmedSearch = search.trim();
+  const phoneDigits = trimmedSearch.replace(/\D/g, '');
+
+  // Do not treat alphanumeric identifiers as phone searches.
+  const isPhoneSearch =
+    phoneDigits.length >= 4 && /^[\d\s+()-]+$/.test(trimmedSearch);
+
+  if (!isPhoneSearch) {
+    return [];
+  }
+
+  const phonePattern = phoneDigits.split('').join('\\D*');
+  const customers: Array<{ _id: unknown }> = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findActiveCustomers',
+    input: {
+      query: {
+        $or: [
+          { primaryPhone: { $regex: phonePattern } },
+          { phones: { $regex: phonePattern } },
+        ],
+      },
+      fields: { _id: 1 },
+      skip: 0,
+      limit: 0,
+    },
+    defaultValue: [],
+  });
+
+  if (!customers.length) {
+    return [];
+  }
+
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'filterRelationIds',
+    input: {
+      contentType: 'core:customer',
+      contentIds: customers.map(({ _id }) => String(_id)),
+      relatedContentType: 'sales:deal',
+    },
+    defaultValue: [],
+  });
+};
+
 export const generateFilter = async (
   models: IModels,
   subdomain: string,
@@ -301,10 +356,13 @@ export const generateFilter = async (
 
   if (search) {
     const escaped = escapeRegExp(search);
+    const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+
     Object.assign(filter, {
       $or: [
         { name: { $regex: escaped, $options: 'i' } },
         { number: { $regex: escaped, $options: 'i' } },
+        ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
       ],
     });
   }

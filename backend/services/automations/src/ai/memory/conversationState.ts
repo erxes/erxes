@@ -5,7 +5,12 @@ import {
 import { IModels } from '../../connectionResolver';
 import { TAiAgentLoadedContextFile } from '../aiAgent/context';
 import { TAiAgentActionConfig } from '../aiAction/contract';
-import { stringifyAiContextValue } from '../aiAction/context';
+import {
+  AI_PROMPT_HISTORY_LIMIT,
+  buildAiHistorySection,
+  getLatestUserText,
+  stringifyAiContextValue,
+} from '../aiAction/context';
 import type { TAiBridgeMessage } from '../bridge';
 import { resolveAiMemoryScopeKey } from './store';
 
@@ -94,26 +99,6 @@ const normalizeConversationState = (state?: unknown): TAiConversationState => {
   };
 };
 
-const getLatestUserText = ({
-  inputData,
-  aiContext,
-}: {
-  inputData: unknown;
-  aiContext?: TAiContext | null;
-}) =>
-  stringifyAiContextValue(aiContext?.input?.text) ||
-  stringifyAiContextValue(inputData);
-
-const buildHistorySection = (aiContext?: TAiContext | null) => {
-  const history = (aiContext?.history || [])
-    .filter((item) => item.text?.trim())
-    .slice(-12)
-    .map((item) => `${item.role || item.type || 'context'}: ${item.text}`)
-    .join('\n');
-
-  return history ? `Recent conversation history:\n${history}` : '';
-};
-
 const buildContextSection = (contextFiles: TAiAgentLoadedContextFile[]) => {
   let remainingBytes = MAX_STATE_CONTEXT_BYTES;
   const sections: string[] = [];
@@ -197,7 +182,11 @@ export const buildAiConversationStateUpdateMessages = ({
         'Current conversation state:',
         JSON.stringify(normalizeConversationState(currentState), null, 2),
         '',
-        buildHistorySection(aiContext),
+        buildAiHistorySection({
+          aiContext,
+          limit: AI_PROMPT_HISTORY_LIMIT,
+          heading: 'Recent conversation history:',
+        }),
         latestUserText ? `Latest user message:\n${latestUserText}` : '',
         buildContextSection(contextFiles),
         '',
