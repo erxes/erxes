@@ -1,6 +1,6 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage, updateOrder } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IStage, IStageDocument } from '../../@types';
 import { removeStageItems } from '~/modules/sales/graphql/resolvers/utils';
@@ -9,7 +9,11 @@ import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IStageModel extends Model<IStageDocument> {
   getStage(_id: string): Promise<IStageDocument>;
-  createStage(doc: IStage, userId?: string): Promise<IStageDocument>;
+  createStage(
+    doc: IStage,
+    userId?: string,
+    skipCodeDuplication?: boolean,
+  ): Promise<IStageDocument>;
   updateStage(
     _id: string,
     doc: IStage,
@@ -17,7 +21,11 @@ export interface IStageModel extends Model<IStageDocument> {
   ): Promise<IStageDocument>;
   removeStage(_id: string): Promise<IStageDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IStageDocument[]>;
-  checkCodeDuplication(code: string, _id?: string): Promise<void>;
+  checkCodeDuplication(
+    code: string,
+    pipelineId: string,
+    _id?: string,
+  ): Promise<void>;
 }
 
 export const loadStageClass = (
@@ -34,17 +42,28 @@ export const loadStageClass = (
       return stage;
     }
 
-    public static async checkCodeDuplication(code: string, _id?: string) {
-      const filter: any = { code };
+    public static async checkCodeDuplication(
+      code: string,
+      pipelineId: string,
+      _id?: string,
+    ) {
+      const filter: FilterQuery<IStageDocument> = {
+        code,
+        pipelineId,
+      };
       if (_id) filter._id = { $ne: _id };
 
       const stage = await models.Stages.findOne(filter);
       if (stage) throw new Error('Code must be unique');
     }
 
-    public static async createStage(doc: IStage, userId?: string) {
-      if (doc.code) {
-        await this.checkCodeDuplication(doc.code);
+    public static async createStage(
+      doc: IStage,
+      userId?: string,
+      skipCodeDuplication = false,
+    ) {
+      if (doc.code && !skipCodeDuplication) {
+        await this.checkCodeDuplication(doc.code, doc.pipelineId);
       }
 
       const stage = await models.Stages.create({ ...doc, userId });
@@ -63,7 +82,11 @@ export const loadStageClass = (
       if (!prevStage) throw new Error('Stage not found');
 
       if (doc.code) {
-        await this.checkCodeDuplication(doc.code, _id);
+        await this.checkCodeDuplication(
+          doc.code,
+          doc.pipelineId || prevStage.pipelineId,
+          _id,
+        );
       }
 
       await models.Stages.updateOne({ _id }, { $set: { ...doc, userId } });

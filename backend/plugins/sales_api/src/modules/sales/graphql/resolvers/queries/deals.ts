@@ -35,9 +35,14 @@ const getDealIdsByCustomerPhone = async (
   subdomain: string,
   search: string,
 ): Promise<string[]> => {
-  const phoneDigits = search.replace(/\D/g, '');
+  const trimmedSearch = search.trim();
+  const phoneDigits = trimmedSearch.replace(/\D/g, '');
 
-  if (phoneDigits.length < 4) {
+  // Do not treat alphanumeric identifiers as phone searches.
+  const isPhoneSearch =
+    phoneDigits.length >= 4 && /^[\d\s+()-]+$/.test(trimmedSearch);
+
+  if (!isPhoneSearch) {
     return [];
   }
 
