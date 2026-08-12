@@ -1,7 +1,7 @@
-import { Checkbox, Collapsible, Label, Spinner } from 'erxes-ui';
+import { Checkbox, Label, Spinner } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IField, useFieldGroups, useFields } from 'ui-modules';
+import { useFieldGroups, useFields } from 'ui-modules';
 
 const CONTENT_TYPE = 'frontline:ticket';
 const PROPERTY_LIMIT = 100;
@@ -46,38 +46,54 @@ export const PipelinePropertySelector = ({ value, onChange }: Props) => {
     );
   }
 
-  const toggle = (field: IField, checked: boolean) => {
+  const toggleGroup = (fieldIds: string[], checked: boolean) => {
+    const groupFieldIds = new Set(fieldIds);
+
     onChange(
       checked
-        ? [...new Set([...value, field._id])]
-        : value.filter((id) => id !== field._id),
+        ? [...new Set([...value, ...fieldIds])]
+        : value.filter((id) => !groupFieldIds.has(id)),
     );
   };
 
   return (
     <div className="flex flex-col gap-3">
-      {groups.map((group) => (
-        <Collapsible key={group._id} defaultOpen>
-          <Collapsible.TriggerButton type="button">
-            <Collapsible.TriggerIcon className="size-3" />
-            {group.name}
-          </Collapsible.TriggerButton>
-          <Collapsible.Content className="grid gap-3 pt-3 pl-5 sm:grid-cols-2">
-            {group.fields.map((field) => (
-              <div key={field._id} className="flex items-center gap-2">
-                <Checkbox
-                  id={`pipeline-property-${field._id}`}
-                  checked={value.includes(field._id)}
-                  onCheckedChange={(checked) => toggle(field, checked === true)}
-                />
-                <Label htmlFor={`pipeline-property-${field._id}`}>
-                  {field.name}
-                </Label>
-              </div>
-            ))}
-          </Collapsible.Content>
-        </Collapsible>
-      ))}
+      {groups.map((group) => {
+        const fieldIds = group.fields.map((field) => field._id);
+        const selectedCount = fieldIds.filter((id) =>
+          value.includes(id),
+        ).length;
+        const checked =
+          selectedCount === fieldIds.length
+            ? true
+            : selectedCount > 0
+            ? 'indeterminate'
+            : false;
+
+        return (
+          <div
+            key={group._id}
+            className="flex items-center gap-3 rounded-md border p-3"
+          >
+            <Checkbox
+              id={`pipeline-property-group-${group._id}`}
+              checked={checked}
+              onCheckedChange={(nextChecked) =>
+                toggleGroup(fieldIds, nextChecked === true)
+              }
+            />
+            <Label
+              htmlFor={`pipeline-property-group-${group._id}`}
+              className="flex min-w-0 flex-1 items-center justify-between gap-3"
+            >
+              <span className="truncate">{group.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {group.fields.length}
+              </span>
+            </Label>
+          </div>
+        );
+      })}
     </div>
   );
 };
