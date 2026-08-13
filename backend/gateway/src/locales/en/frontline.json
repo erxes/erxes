@@ -1254,6 +1254,6 @@
   "move-to-pipeline": "Move to pipeline",
   "tickets-moved-successfully": "Tickets moved successfully",
   "tickets-updated-successfully": "Tickets updated successfully",
-  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest."
+  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest.",
   "ticket-status": "Ticket status"
 }
