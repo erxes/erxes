@@ -74,15 +74,25 @@ export const PipelineStageItem = (props: Props) => {
   const { t } = useTranslation('sales');
   const { errors } = useFormState({
     control,
-    name: `stages.${index}.code`,
+    name: `stages.${index}`,
   });
-  const codeError = errors.stages?.[index]?.code;
+  const stageErrors = errors.stages?.[index];
+  const hasExtraFieldError = Boolean(
+    stageErrors?.code ||
+      stageErrors?.age ||
+      stageErrors?.canMoveMemberIds ||
+      stageErrors?.canEditMemberIds ||
+      stageErrors?.memberIds ||
+      stageErrors?.departmentIds ||
+      stageErrors?.defaultTick,
+  );
+  const extraFieldsVisible = showExtraFields || hasExtraFieldError;
 
   useEffect(() => {
-    if (codeError) {
+    if (hasExtraFieldError) {
       setShowExtraFields(true);
     }
-  }, [codeError]);
+  }, [hasExtraFieldError]);
 
   return (
     <div
@@ -250,7 +260,7 @@ export const PipelineStageItem = (props: Props) => {
                 )}
               />
             </div>
-            {showExtraFields && (
+            {extraFieldsVisible && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                 <Form.Field
                   name={`stages.${index}.code`}
@@ -401,9 +411,9 @@ export const PipelineStageItem = (props: Props) => {
               p-2 rounded bg-primary/10 hover:bg-primary/20 transition-colors duration-150
               select-none
             `}
-              onClick={() => setShowExtraFields(!showExtraFields)}
+              onClick={() => setShowExtraFields(!extraFieldsVisible)}
             >
-              {showExtraFields
+              {extraFieldsVisible
                 ? showTooltip(
                     <IconChevronUp size={16} />,
                     t('hide-extra-fields'),
