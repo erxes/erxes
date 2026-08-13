@@ -2,10 +2,7 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { IGroupCommon } from '.';
 import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
-import {
-  buildJournalReportRecords,
-  generateReportFilters,
-} from './maps';
+import { buildJournalReportRecords, generateReportFilters } from './maps';
 
 export const handleMainAC = async (
   subdomain: string,

@@ -235,10 +235,7 @@ const getDateMatch = (
 };
 
 const mergeMatch = (...matches: ReportQuery[]) =>
-  matches.reduce<ReportQuery>(
-    (result, match) => ({ ...result, ...match }),
-    {},
-  );
+  matches.reduce<ReportQuery>((result, match) => ({ ...result, ...match }), {});
 
 const getGroupNames = (baseGroups: string[], groupRules: IGroupCommon[]) => {
   const names = new Set(baseGroups);
