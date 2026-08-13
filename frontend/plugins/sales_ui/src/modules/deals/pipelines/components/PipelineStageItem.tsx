@@ -79,12 +79,12 @@ export const PipelineStageItem = (props: Props) => {
   const stageErrors = errors.stages?.[index];
   const hasExtraFieldError = Boolean(
     stageErrors?.code ||
-      stageErrors?.age ||
-      stageErrors?.canMoveMemberIds ||
-      stageErrors?.canEditMemberIds ||
-      stageErrors?.memberIds ||
-      stageErrors?.departmentIds ||
-      stageErrors?.defaultTick,
+    stageErrors?.age ||
+    stageErrors?.canMoveMemberIds ||
+    stageErrors?.canEditMemberIds ||
+    stageErrors?.memberIds ||
+    stageErrors?.departmentIds ||
+    stageErrors?.defaultTick,
   );
   const extraFieldsVisible = showExtraFields || hasExtraFieldError;
 
