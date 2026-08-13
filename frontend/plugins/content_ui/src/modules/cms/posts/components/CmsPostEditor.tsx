@@ -50,6 +50,7 @@ export const CmsPostEditor = ({
     }
 
     let isActive = true;
+    const syncRevision = ++outputRevisionRef.current;
 
     const syncContent = async () => {
       const structuredBlocks =
@@ -58,7 +59,7 @@ export const CmsPostEditor = ({
       const blocks =
         structuredBlocks || (await editor.tryParseHTMLToBlocks(initialContent));
 
-      if (!isActive) {
+      if (!isActive || syncRevision !== outputRevisionRef.current) {
         return;
       }
 
@@ -66,7 +67,6 @@ export const CmsPostEditor = ({
       const nextSerialized = JSON.stringify(blocks);
 
       if (currentSerialized !== nextSerialized) {
-        outputRevisionRef.current += 1;
         skipNextOnChangeRef.current = true;
         editor.replaceBlocks(editor.document, blocks);
       }

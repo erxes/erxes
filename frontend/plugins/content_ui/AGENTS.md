@@ -82,6 +82,8 @@
   plus the non-lossy editor document before the existing submission boundary.
 - CMS post serialization must invalidate stale asynchronous HTML output after
   edits, external document replacement, and editor unmount.
+- Asynchronous legacy HTML restoration must capture a revision before parsing
+  and must not replace editor blocks after a newer user edit.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
@@ -170,6 +172,7 @@
 
 - `pnpm nx lint content_ui` (when a lint target is defined)
 - `pnpm nx build content_ui`
+- `pnpm nx test content_ui`
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than
@@ -189,6 +192,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Guard asynchronous post restoration
+
+- **Summary:** Prevented delayed legacy HTML parsing from replacing newer CMS
+  post editor changes.
+- **Affected areas:** `src/modules/cms/posts/components/CmsPostEditor.tsx`
+- **Contracts changed:** None
 
 ### `2026-08-13` — Validate embedded post structure
 
