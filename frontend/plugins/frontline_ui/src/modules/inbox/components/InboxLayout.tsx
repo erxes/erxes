@@ -18,9 +18,11 @@ export const InboxLayout = ({
 
   return (
     <div className="flex flex-auto overflow-hidden">
-      <div className="flex-none w-72">{conversations}</div>
+      <div className="min-w-0 w-72 flex-none overflow-hidden">
+        {conversations}
+      </div>
       <Separator orientation="vertical" />
-      <div className="flex-auto">{conversationDetail}</div>
+      <div className="min-w-0 flex-auto">{conversationDetail}</div>
     </div>
   );
 };

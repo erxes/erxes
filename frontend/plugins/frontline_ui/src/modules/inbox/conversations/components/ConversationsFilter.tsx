@@ -26,8 +26,6 @@ import {
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
-import { useAtomValue } from 'jotai';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { useTranslation } from 'react-i18next';
 import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
 
@@ -194,7 +192,6 @@ export const ConversationFilterBar = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
-  const inboxLayout = useAtomValue(inboxLayoutState);
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
@@ -219,7 +216,7 @@ export const ConversationFilterBar = ({
 
   return (
     <Filter.Bar
-      className={inboxLayout === 'list' ? 'pl-2' : 'pt-1'}
+      className="w-full min-w-0 overflow-hidden pl-2 pt-1 [&>div]:min-w-0 [&>div]:max-w-full [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0"
       id="conversations-filter-bar"
     >
       <Filter.SearchValueBarItem />

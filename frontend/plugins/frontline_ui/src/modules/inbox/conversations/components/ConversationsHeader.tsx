@@ -10,7 +10,7 @@ export const ConversationsHeader = ({
 }) => {
   return (
     <Filter id="conversations-filter-bar">
-      <div className="pl-6 pr-4 py-2 space-y-1 bg-sidebar">
+      <div className="min-w-0 space-y-1 overflow-hidden bg-sidebar py-2 pl-6 pr-4">
         <div className="flex items-center justify-between">
           {children}
           <ConversationCount />
