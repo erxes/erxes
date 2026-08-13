@@ -75,7 +75,7 @@
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.
 - Embedded CMS post documents are accepted only when every block has a
-  non-empty ID, a type supported by `BLOCK_SCHEMA`, and recursively valid child
+  non-empty ID, schema-valid props and content, and recursively valid child
   arrays; malformed metadata must fall back to legacy HTML parsing.
 - The CMS post editor adapter composes the public `useBlockEditor` and
   `BlockEditor` APIs, restores embedded structure on load, and emits public HTML
@@ -192,6 +192,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Validate complete embedded block payloads
+
+- **Summary:** Validated embedded CMS block props, content, styles, tables, and
+  children against the active editor schema before restoring them.
+- **Affected areas:** `src/modules/cms/posts/utils/blockStructureHTML.ts`
+- **Contracts changed:** None
 
 ### `2026-08-13` — Guard asynchronous post restoration
 
