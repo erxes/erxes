@@ -25,7 +25,9 @@ import {
 import {
   Avatar,
   Button,
+  Combobox,
   DropdownMenu,
+  PopoverScoped,
   Separator,
   Skeleton,
   Tooltip,
@@ -36,6 +38,11 @@ import {
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import { type SyntheticEvent, useState } from 'react';
+
+const stopEventPropagation = (event: SyntheticEvent) => {
+  event.stopPropagation();
+};
 
 const ConversationListToggle = () => {
   const { t } = useTranslation('frontline');
@@ -175,10 +182,15 @@ const AutomatedReplyStatusBadge = () => {
   );
 };
 
-const AssignConversation = () => {
+const AssignConversation = ({
+  withinDropdown = false,
+}: {
+  withinDropdown?: boolean;
+}) => {
   const { t } = useTranslation('frontline');
   const { assignedUserId, _id } = useConversationContext();
   const { assignConversations } = useAssignConversations();
+  const [open, setOpen] = useState(false);
 
   const handleAssignConversations = (value: null | string | string[]) => {
     const result = Array.isArray(value) ? value[value.length - 1] : value;
@@ -201,21 +213,41 @@ const AssignConversation = () => {
 
   return (
     <div className="flex">
-      <SelectMember
+      <SelectMember.Provider
         mode="single"
         value={assignedUserId}
-        onValueChange={handleAssignConversations}
-        className="text-foreground shadow-none px-2"
-        size="lg"
-      />
+        onValueChange={(value) => {
+          handleAssignConversations(value);
+          setOpen(false);
+        }}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen}>
+          <Combobox.Trigger
+            className="text-foreground shadow-none px-2"
+            variant="outline"
+            onPointerDown={
+              withinDropdown ? stopEventPropagation : undefined
+            }
+            onClick={withinDropdown ? stopEventPropagation : undefined}
+            onKeyDown={withinDropdown ? stopEventPropagation : undefined}
+          >
+            <SelectMember.Value size="lg" />
+          </Combobox.Trigger>
+          <Combobox.Content>
+            <SelectMember.Content />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectMember.Provider>
     </div>
   );
 };
 
 export const ConversationTags = ({
   showAllTags = false,
+  withinDropdown = false,
 }: {
   showAllTags?: boolean;
+  withinDropdown?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
@@ -254,6 +286,9 @@ export const ConversationTags = ({
             });
           },
         })}
+        onPointerDown={withinDropdown ? stopEventPropagation : undefined}
+        onClick={withinDropdown ? stopEventPropagation : undefined}
+        onKeyDown={withinDropdown ? stopEventPropagation : undefined}
       />
     </div>
   );
@@ -308,13 +343,8 @@ const ConversationActionsDropdown = ({
               <IconUser className="size-4" />
               {t('assignee')}
             </DropdownMenu.Label>
-            <div
-              className="px-1 pb-2"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-            >
-              <AssignConversation />
+            <div className="px-1 pb-2">
+              <AssignConversation withinDropdown />
             </div>
             <DropdownMenu.Separator />
           </>
@@ -323,13 +353,8 @@ const ConversationActionsDropdown = ({
           <IconTags className="size-4" />
           {t('tags')}
         </DropdownMenu.Label>
-        <div
-          className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
-          <ConversationTags showAllTags />
+        <div className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1">
+          <ConversationTags showAllTags withinDropdown />
         </div>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
