@@ -4,6 +4,7 @@ import {
   TOutgoinWebhookActionConfig,
 } from '../../../../types';
 import {
+  AUTOMATION_ERROR_CODES,
   IAutomationAction,
   IAutomationExecutionDocument,
   replaceOutputPlaceholders,
@@ -16,6 +17,7 @@ import {
   toHeadersObject,
 } from './utils';
 import { outgoingWebhookDoFetch } from './outgoingWebhookDoFetch';
+import { AutomationActionError } from '../../../errorCodes';
 
 const RETRYABLE_STATUS_CODES = new Set([408, 425, 429, 500, 502, 503, 504]);
 
@@ -205,7 +207,10 @@ export async function executeOutgoingWebhook({
   const bodyValue = body ?? (bodyMode === 'text' ? '' : '{}');
 
   if (!url) {
-    throw new Error('Outgoing webhook url is required');
+    throw new AutomationActionError(
+      'Outgoing webhook url is required',
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
   }
 
   const timeoutMs = options.timeout ?? 10000;

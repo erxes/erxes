@@ -33,6 +33,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
       console.log('[createInvoice] called');
+
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -48,7 +49,7 @@ export const loadInvoiceClass = (models: IModels) => {
           throw new Error('Payment not found');
         }
 
-        const transaction = await models.Transactions.createTransaction({
+        await models.Transactions.createTransaction({
           invoiceId: invoice._id,
           paymentId: payment._id,
           subdomain: subdomain || '',
@@ -56,19 +57,7 @@ export const loadInvoiceClass = (models: IModels) => {
           description: invoice.description,
         });
 
-        const api = new ErxesPayment(payment, subdomain);
-
-        try {
-          const response = await api.createInvoice(transaction.toObject());
-          transaction.response = response;
-          await transaction.save();
-
-          return invoice;
-        } catch (e) {
-          await models.Invoices.deleteOne({ _id: invoice._id });
-          await models.Transactions.deleteOne({ _id: transaction._id });
-          throw new Error(`Error creating invoice: ${e.message}`);
-        }
+        return invoice;
       }
 
       return invoice;

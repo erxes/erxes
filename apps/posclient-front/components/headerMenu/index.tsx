@@ -1,7 +1,11 @@
 import Link from "next/link"
 import Logout from "@/modules/auth/components/logout"
 import { modeAtom } from "@/store"
-import { configAtom, currentUserAtom } from "@/store/config.store"
+import {
+  configAtom,
+  currentUserAtom,
+  permissionConfigAtom,
+} from "@/store/config.store"
 import { useAtomValue } from "jotai"
 import {
   FileBarChart2Icon,
@@ -27,19 +31,20 @@ import {
 const HeaderMenu = () => {
   const mode = useAtomValue(modeAtom)
   const user = useAtomValue(currentUserAtom)
+  const permissionConfig = useAtomValue(permissionConfigAtom)
   const { waitingScreen, kitchenScreen, adminIds } =
     useAtomValue(configAtom) || {}
 
   const getMenu = () => {
     if (mode === "market") return supermarketMenu
-    let menu = [...supermarketMenu]
+    const menu = [...supermarketMenu]
     if (kitchenScreen?.isActive) {
       menu.push(progressMenu)
     }
     if (waitingScreen?.isActive) {
       menu.push(waitingMenu)
     }
-    if (adminIds?.includes(user?._id || "")) {
+    if (adminIds?.includes(user?._id || "") || permissionConfig?.seeReport) {
       menu.push(reportMenu)
     }
 

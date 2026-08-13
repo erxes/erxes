@@ -1,6 +1,7 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
+import { SEARCH_PROVIDERS } from './searchProviders';
 
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
@@ -101,4 +102,5 @@ export const CONFIG: IUIConfig = {
       path: 'mongolian/exchange-rates',
     },
   ],
+  searchProviders: SEARCH_PROVIDERS,
 };

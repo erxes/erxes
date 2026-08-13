@@ -16,6 +16,7 @@ export const UPDATE_PIPELINE = gql`
     $numberConfig: String
     $numberSize: String
     $nameConfig: String
+    $propertyIds: [String]
   ) {
     updatePipeline(
       _id: $_id
@@ -32,6 +33,7 @@ export const UPDATE_PIPELINE = gql`
       numberConfig: $numberConfig
       numberSize: $numberSize
       nameConfig: $nameConfig
+      propertyIds: $propertyIds
     ) {
       _id
       name
@@ -51,6 +53,8 @@ export const UPDATE_PIPELINE = gql`
       numberConfig
       numberSize
       nameConfig
+      propertyIds
+      isPropertySelectionConfigured
     }
   }
 `;

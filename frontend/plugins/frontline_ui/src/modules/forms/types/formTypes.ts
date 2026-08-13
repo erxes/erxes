@@ -42,9 +42,18 @@ export interface IForm {
   integrationId?: string;
 }
 
+export interface ICallout {
+  title?: string;
+  body?: string;
+  buttonText?: string;
+  featuredImage?: string | null;
+  skip?: boolean;
+}
+
 export interface ILeadData {
   appearance: string;
   loadType: string;
+  callout?: ICallout;
   thankTitle: string;
   thankContent: string;
   thankImage: IAttachment;

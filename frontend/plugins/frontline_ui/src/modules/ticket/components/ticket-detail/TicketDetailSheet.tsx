@@ -10,10 +10,11 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
+import { RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
+import { TicketPipelineProperties } from './TicketPipelineProperties';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -71,8 +72,8 @@ export const TicketDetailSheet = ({
                 </Tabs.Content>
 
                 <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="frontline:ticket"
+                  <TicketPipelineProperties
+                    pipelineId={ticket?.pipelineId || ''}
                     propertiesData={ticket?.propertiesData || {}}
                     mutateHook={useTicketCustomFieldEdit}
                     id={ticket?._id || ''}

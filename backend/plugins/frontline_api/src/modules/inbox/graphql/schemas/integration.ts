@@ -68,7 +68,7 @@ export const types = `
     brandId: String
     leadData: JSON
     messengerData: JSON
-    ticketConfigId: JSON
+    ticketConfigIds: [String]
     uiOptions: JSON
     isActive: Boolean
     isConnected: Boolean
@@ -327,7 +327,5 @@ export const mutations = `
   ): Integration
   integrationsCopyLeadIntegration(_id: String!): Integration
 
-  integrationsSaveMessengerTicketData(
-    _id: String!,
-    configId: String): Integration
+  integrationsSaveMessengerTicketData(_id: String!, configIds: [String]): Integration
 `;

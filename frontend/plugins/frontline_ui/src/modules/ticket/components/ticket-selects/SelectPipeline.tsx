@@ -307,6 +307,8 @@ const SelectPipelineFormItem = ({
 };
 
 export const SelectPipeline = Object.assign(SelectPipelineRoot, {
+  Provider: SelectPipelineProvider,
+  Content: SelectPipelineContent,
   FilterBar: SelectPipelineFilterBar,
   FilterView: SelectPipelineFilterView,
   FormItem: SelectPipelineFormItem,

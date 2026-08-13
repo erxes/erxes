@@ -16,6 +16,7 @@ const PIPELINE_FORM_BASE_SCHEMA = z.object({
       message: `${MIN_TICKET_NUMBER_SIZE}-${MAX_TICKET_NUMBER_SIZE}`,
     }),
   nameConfig: z.string().optional(),
+  propertyIds: z.array(z.string()).optional(),
 });
 
 export const CREATE_PIPELINE_FORM_SCHEMA = PIPELINE_FORM_BASE_SCHEMA.extend({

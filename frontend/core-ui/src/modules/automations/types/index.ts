@@ -175,7 +175,60 @@ export enum AutomationNodesType {
 export enum AutomationBuilderTabsType {
   Builder = 'builder',
   History = 'history',
+  Stats = 'stats',
 }
+
+export enum AutomationHistoryViewMode {
+  Sheet = 'sheet',
+  Split = 'split',
+}
+
+export enum AutomationHistorySplitDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}
+
+export type TAutomationStatsCount = {
+  key: string;
+  count: number;
+};
+
+export type TAutomationStatsBucket = {
+  date: string;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+};
+
+export type TAutomationStatsNode = {
+  actionId: string;
+  actionType?: string;
+  total: number;
+  success: number;
+  error: number;
+  waiting: number;
+  avgDurationMs?: number;
+  maxDurationMs?: number;
+  errorCodes: TAutomationStatsCount[];
+};
+
+export type TAutomationStatsErrorMessage = {
+  message: string;
+  errorCode: string;
+  actionTypes: string[];
+  count: number;
+  lastAt?: string;
+};
+
+export type TAutomationStats = {
+  total: number;
+  byStatus: TAutomationStatsCount[];
+  byErrorCode: TAutomationStatsCount[];
+  timeSeries: TAutomationStatsBucket[];
+  nodes: TAutomationStatsNode[];
+  errorMessages: TAutomationStatsErrorMessage[];
+};
 
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
