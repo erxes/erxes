@@ -1,17 +1,56 @@
-import type { Block } from '@blocknote/core';
+import type { BLOCK_SCHEMA } from 'erxes-ui';
 
 const BLOCK_STRUCTURE_ATTRIBUTE = 'data-erxes-editor-document';
 
-const isValidBlocks = (blocks: unknown): blocks is Block[] =>
-  Array.isArray(blocks) &&
-  blocks.length > 0 &&
-  blocks.every(
-    (block) =>
-      typeof block === 'object' &&
-      block !== null &&
-      'id' in block &&
-      'type' in block,
-  );
+type CmsEditorBlock = typeof BLOCK_SCHEMA.Block;
+
+const SUPPORTED_BLOCK_TYPES: ReadonlySet<string> = new Set([
+  'paragraph',
+  'heading',
+  'quote',
+  'codeBlock',
+  'toggleListItem',
+  'bulletListItem',
+  'numberedListItem',
+  'checkListItem',
+  'table',
+  'file',
+  'image',
+  'video',
+  'audio',
+  'gallery',
+  'documentPlaceholder',
+]);
+
+const isValidBlock = (block: unknown): block is CmsEditorBlock => {
+  if (typeof block !== 'object' || block === null) {
+    return false;
+  }
+
+  if (!('id' in block) || typeof block.id !== 'string' || !block.id.trim()) {
+    return false;
+  }
+
+  if (
+    !('type' in block) ||
+    typeof block.type !== 'string' ||
+    !SUPPORTED_BLOCK_TYPES.has(block.type)
+  ) {
+    return false;
+  }
+
+  if (
+    'children' in block &&
+    (!Array.isArray(block.children) || !block.children.every(isValidBlock))
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const isValidBlocks = (blocks: unknown): blocks is CmsEditorBlock[] =>
+  Array.isArray(blocks) && blocks.length > 0 && blocks.every(isValidBlock);
 
 const encodeUtf8Base64 = (value: string): string => {
   const binary = encodeURIComponent(value).replace(

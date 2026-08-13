@@ -74,6 +74,9 @@
 - CMS posts store interoperable HTML with the non-lossy BlockNote document in
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.
+- Embedded CMS post documents are accepted only when every block has a
+  non-empty ID, a type supported by `BLOCK_SCHEMA`, and recursively valid child
+  arrays; malformed metadata must fall back to legacy HTML parsing.
 - The CMS post editor adapter composes the public `useBlockEditor` and
   `BlockEditor` APIs, restores embedded structure on load, and emits public HTML
   plus the non-lossy editor document before the existing submission boundary.
@@ -186,6 +189,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Validate embedded post structure
+
+- **Summary:** Rejected malformed, unsupported, and recursively invalid block
+  metadata so CMS posts safely fall back to legacy HTML parsing.
+- **Affected areas:** `src/modules/cms/posts/utils/blockStructureHTML.ts`
+- **Contracts changed:** None
 
 ### `2026-08-13` — Guard asynchronous post serialization
 
