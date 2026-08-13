@@ -93,6 +93,7 @@ export const tdbCallbackHandler = async (
       { _id: transaction._id },
       {
         status,
+        response: transaction.response,
         updatedAt: new Date(),
       },
     );
@@ -144,7 +145,7 @@ export class TDBAPI extends BaseAPI {
       },
       data: { order: payload },
     }).then((r) => r.json());
-
+    console.log('[TDB createInvoice] response:', response);
     return response;
   }
 
@@ -162,6 +163,10 @@ export class TDBAPI extends BaseAPI {
       },
     }).then((r) => r.json());
 
+    console.log('[TDB checkInvoice] response:', response);
+
+    transaction.response = response;
+
     const status = (response?.order?.status || '').toUpperCase();
     switch (status) {
       case 'FULLYPAID':
@@ -175,8 +180,9 @@ export class TDBAPI extends BaseAPI {
       case 'REFUSED':
       case 'REJECTED':
       case 'VOIDED':
-      case 'EXPIRED':
         return PAYMENT_STATUS.FAILED;
+      case 'EXPIRED':
+        return PAYMENT_STATUS.EXPIRED;
 
       default:
         return PAYMENT_STATUS.PENDING;

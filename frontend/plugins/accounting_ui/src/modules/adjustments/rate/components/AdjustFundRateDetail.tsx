@@ -11,6 +11,8 @@ import {
 import {
   Button,
   DatePicker,
+  RecordTable,
+  RecordTableInlineCell,
   Spinner,
   Tabs,
   Tooltip,
@@ -38,6 +40,7 @@ import type {
 import { useAccountsInline } from '@/settings/account/hooks/useAccounts';
 import type { IAccount } from '@/settings/account/types/Account';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { ColumnDef } from '@tanstack/react-table';
 
 const DetailField = ({ label, value }: { label: string; value: string }) => (
   <div className="min-w-0">
@@ -66,6 +69,184 @@ type TLinkedTransactionRow = {
   transaction: ITransaction;
   detail: ITransaction['details'][number];
 };
+
+const FundRateAccountCell = ({ detail }: { detail: IAdjustFundRateDetail }) => (
+  <RecordTableInlineCell>
+    <div className="min-w-0">
+      <div className="truncate font-medium">
+        {detail.accountCode || detail.accountId}
+      </div>
+      <div className="truncate text-xs text-muted-foreground">
+        {detail.accountName || '-'}
+      </div>
+    </div>
+  </RecordTableInlineCell>
+);
+
+const AmountCell = ({ amount }: { amount?: number }) => (
+  <RecordTableInlineCell className="justify-end font-mono">
+    {formatAmount(amount)}
+  </RecordTableInlineCell>
+);
+
+const TextCell = ({ value }: { value?: string }) => (
+  <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>
+);
+
+const BranchCell = ({ branchId }: { branchId?: string }) => (
+  <RecordTableInlineCell>
+    {branchId ? <SelectBranches.InlineCell branchIds={[branchId]} /> : '-'}
+  </RecordTableInlineCell>
+);
+
+const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
+  <RecordTableInlineCell>
+    {departmentId ? (
+      <SelectDepartments.InlineCell departmentIds={[departmentId]} />
+    ) : (
+      '-'
+    )}
+  </RecordTableInlineCell>
+);
+
+const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => (
+  <RecordTableInlineCell>
+    <div className="min-w-0">
+      <div className="truncate font-medium">
+        {[row.detail.account?.code, row.detail.account?.name]
+          .filter(Boolean)
+          .join(' - ') ||
+          row.detail.accountId ||
+          '-'}
+      </div>
+      <div className="truncate text-xs text-muted-foreground">
+        {row.transaction.journal}
+      </div>
+    </div>
+  </RecordTableInlineCell>
+);
+
+const fundRateDetailColumns: ColumnDef<IAdjustFundRateDetail>[] = [
+  {
+    id: 'account',
+    header: () => <RecordTable.InlineHead label="Account" />,
+    cell: ({ row }) => <FundRateAccountCell detail={row.original} />,
+    size: 260,
+  },
+  {
+    id: 'mainBalance',
+    header: () => <RecordTable.InlineHead label="Main Balance" />,
+    accessorKey: 'mainBalance',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 160,
+  },
+  {
+    id: 'currencyBalance',
+    header: () => <RecordTable.InlineHead label="Currency Balance" />,
+    accessorKey: 'currencyBalance',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 180,
+  },
+  {
+    id: 'diff',
+    header: () => <RecordTable.InlineHead label="Difference" />,
+    accessorKey: 'diff',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 160,
+  },
+  {
+    id: 'transactionId',
+    header: () => <RecordTable.InlineHead label="Transaction" />,
+    accessorKey: 'transactionId',
+    cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
+    size: 220,
+  },
+];
+
+const linkedTransactionColumns: ColumnDef<TLinkedTransactionRow>[] = [
+  {
+    id: 'account',
+    header: () => <RecordTable.InlineHead label="Account" />,
+    cell: ({ row }) => <TransactionAccountCell row={row.original} />,
+    size: 260,
+  },
+  {
+    id: 'number',
+    header: () => <RecordTable.InlineHead label="Number" />,
+    cell: ({ row }) => (
+      <TextCell
+        value={
+          row.original.transaction.number || row.original.transaction.ptrNumber
+        }
+      />
+    ),
+    size: 160,
+  },
+  {
+    id: 'date',
+    header: () => <RecordTable.InlineHead label="Date" />,
+    cell: ({ row }) => (
+      <TextCell
+        value={
+          row.original.transaction.date
+            ? dayjs(row.original.transaction.date).format('YYYY-MM-DD')
+            : undefined
+        }
+      />
+    ),
+    size: 140,
+  },
+  {
+    id: 'debit',
+    header: () => <RecordTable.InlineHead label="Debit" />,
+    cell: ({ row }) => (
+      <AmountCell
+        amount={
+          row.original.transaction.side === 'dt'
+            ? row.original.detail.amount
+            : 0
+        }
+      />
+    ),
+    size: 140,
+  },
+  {
+    id: 'credit',
+    header: () => <RecordTable.InlineHead label="Credit" />,
+    cell: ({ row }) => (
+      <AmountCell
+        amount={
+          row.original.transaction.side === 'ct'
+            ? row.original.detail.amount
+            : 0
+        }
+      />
+    ),
+    size: 140,
+  },
+  {
+    id: 'branch',
+    header: () => <RecordTable.InlineHead label="Branch" />,
+    cell: ({ row }) => <BranchCell branchId={row.original.detail.branchId} />,
+    size: 180,
+  },
+  {
+    id: 'department',
+    header: () => <RecordTable.InlineHead label="Department" />,
+    cell: ({ row }) => (
+      <DepartmentCell departmentId={row.original.detail.departmentId} />
+    ),
+    size: 180,
+  },
+  {
+    id: 'description',
+    header: () => <RecordTable.InlineHead label="Description" />,
+    cell: ({ row }) => (
+      <TextCell value={row.original.transaction.description} />
+    ),
+    size: 320,
+  },
+];
 
 export const AdjustFundRateDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -246,7 +427,14 @@ export const AdjustFundRateDetail = () => {
       <StatusBar adjustFundRate={adjustFundRate} />
       {adjustFundRate.error && (
         <div className="text-sm text-destructive">
-          {`${adjustFundRate.checkedAt ? format(new Date(adjustFundRate.checkedAt), 'yyyy-MM-dd HH:mm:ss') : ''}: ${adjustFundRate.error}`}
+          {`${
+            adjustFundRate.checkedAt
+              ? format(
+                  new Date(adjustFundRate.checkedAt),
+                  'yyyy-MM-dd HH:mm:ss',
+                )
+              : ''
+          }: ${adjustFundRate.error}`}
         </div>
       )}
 
@@ -296,9 +484,11 @@ const CalculationGroups = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {groupedDetails.map((group) => (
+      {groupedDetails.map((group, index) => (
         <div
-          key={`${group.branchId || 'no-branch'}:${group.departmentId || 'no-department'}`}
+          key={`${group.branchId || 'no-branch'}:${
+            group.departmentId || 'no-department'
+          }`}
           className="rounded-md border"
         >
           <div className="flex flex-wrap items-center gap-6 border-b bg-muted/30 px-3 py-2 text-sm">
@@ -321,47 +511,20 @@ const CalculationGroups = ({
               )}
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="p-2 text-left font-medium">Account</th>
-                  <th className="p-2 text-right font-medium">Main Balance</th>
-                  <th className="p-2 text-right font-medium">
-                    Currency Balance
-                  </th>
-                  <th className="p-2 text-right font-medium">Difference</th>
-                  <th className="p-2 text-center font-medium">Transaction</th>
-                </tr>
-              </thead>
-              <tbody>
-                {group.details.map((detail) => (
-                  <tr key={detail._id} className="border-b last:border-0">
-                    <td className="p-2">
-                      <div className="font-medium">
-                        {detail.accountCode || detail.accountId}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {detail.accountName || '-'}
-                      </div>
-                    </td>
-                    <td className="p-2 text-right font-mono">
-                      {formatAmount(detail.mainBalance)}
-                    </td>
-                    <td className="p-2 text-right font-mono">
-                      {formatAmount(detail.currencyBalance)}
-                    </td>
-                    <td className="p-2 text-right font-mono">
-                      {formatAmount(detail.diff)}
-                    </td>
-                    <td className="p-2 text-center text-xs text-muted-foreground">
-                      {detail.transactionId || '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecordTable.Provider
+            columns={fundRateDetailColumns}
+            data={group.details}
+            tableId={`accounting_adjust_fund_rate_detail_group_${index}`}
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  <RecordTable.RowList />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.Scroll>
+          </RecordTable.Provider>
         </div>
       ))}
     </div>
@@ -392,80 +555,21 @@ const LinkedTransactionsTable = ({
   }
 
   return (
-    <div className="overflow-x-auto rounded-md border">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b">
-            <th className="p-2 text-left font-medium">Account</th>
-            <th className="p-2 text-left font-medium">Number</th>
-            <th className="p-2 text-left font-medium">Date</th>
-            <th className="p-2 text-right font-medium">Debit</th>
-            <th className="p-2 text-right font-medium">Credit</th>
-            <th className="p-2 text-left font-medium">Branch</th>
-            <th className="p-2 text-left font-medium">Department</th>
-            <th className="p-2 text-left font-medium">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ transaction, detail }) => (
-            <tr
-              key={`${transaction._id}:${detail._id || detail.accountId}`}
-              className="border-b last:border-0"
-            >
-              <td className="p-2">
-                <div className="font-medium">
-                  {[detail.account?.code, detail.account?.name]
-                    .filter(Boolean)
-                    .join(' - ') ||
-                    detail.accountId ||
-                    '-'}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {transaction.journal}
-                </div>
-              </td>
-              <td className="p-2 text-xs text-muted-foreground">
-                {transaction.number || transaction.ptrNumber || '-'}
-              </td>
-              <td className="p-2">
-                {transaction.date
-                  ? dayjs(transaction.date).format('YYYY-MM-DD')
-                  : '-'}
-              </td>
-              <td className="p-2 text-right font-mono">
-                {transaction.side === 'dt'
-                  ? formatAmount(detail.amount)
-                  : formatAmount(0)}
-              </td>
-              <td className="p-2 text-right font-mono">
-                {transaction.side === 'ct'
-                  ? formatAmount(detail.amount)
-                  : formatAmount(0)}
-              </td>
-              <td className="p-2 text-sm text-muted-foreground">
-                {detail.branchId ? (
-                  <SelectBranches.InlineCell branchIds={[detail.branchId]} />
-                ) : (
-                  '-'
-                )}
-              </td>
-              <td className="p-2 text-sm text-muted-foreground">
-                {detail.departmentId ? (
-                  <SelectDepartments.InlineCell
-                    departmentIds={[detail.departmentId]}
-                  />
-                ) : (
-                  '-'
-                )}
-              </td>
-              <td className="max-w-80 truncate p-2 text-muted-foreground">
-                {transaction.description || '-'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <RecordTable.Provider
+      columns={linkedTransactionColumns}
+      data={rows}
+      tableId="accounting_adjust_fund_rate_linked_transactions"
+      className="rounded-md border"
+    >
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
+    </RecordTable.Provider>
   );
 };
 

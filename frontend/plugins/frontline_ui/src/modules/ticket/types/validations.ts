@@ -7,6 +7,8 @@ export const addTicketSchema = z.object({
   pipelineId: z.string().min(1, 'Pipeline is required'),
   statusId: z.string().min(1, 'Status is required'),
   priority: z.number().optional(),
+  branchId: z.string().optional(),
+  departmentId: z.string().optional(),
   startDate: z.date().optional(),
   targetDate: z.date().optional(),
   labelIds: z.array(z.string()).optional(),

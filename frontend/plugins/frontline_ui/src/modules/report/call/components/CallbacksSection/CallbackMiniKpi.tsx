@@ -1,11 +1,10 @@
 interface CallbackMiniKpiProps {
   label: string;
   value: string;
-  /** Optional accent CSS variable name, e.g. 'var(--pos)' */
+
   accentVar?: string;
 }
 
-/** Small KPI chip used inside the Callbacks section. */
 export function CallbackMiniKpi({
   label,
   value,

@@ -34,6 +34,7 @@ export const PipelineDetail = () => {
       numberConfig: pipeline?.numberConfig || '',
       numberSize: pipeline?.numberSize || '',
       nameConfig: pipeline?.nameConfig || '',
+      propertyIds: pipeline?.propertyIds || [],
     });
   }, [form, pipeline, pipelineId]);
 

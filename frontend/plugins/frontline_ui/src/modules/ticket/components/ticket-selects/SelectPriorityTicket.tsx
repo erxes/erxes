@@ -248,6 +248,8 @@ export const SelectPriorityFormItem = ({
 };
 
 export const SelectPriorityTicket = Object.assign(SelectPriorityRoot, {
+  Provider: SelectPriorityProvider,
+  Content: SelectPriorityContent,
   FilterBar: SelectPriorityFilterBar,
   FormItem: SelectPriorityFormItem,
   FilterView: SelectPriorityFilterView,

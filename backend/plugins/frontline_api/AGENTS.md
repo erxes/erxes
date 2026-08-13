@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -50,6 +50,10 @@
 
 ## Current Capabilities
 
+- Ticket pipelines persist an ordered unique `propertyIds` selection. Create
+  and update validate every id against Core `frontline:ticket` fields before
+  writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
+  pipelines from an intentional empty selection.
 - Runs as a federated subgraph plus tRPC service on port `3304`, with GraphQL
   subscriptions enabled.
 - Multi-channel inbox with membership-scoped conversation visibility.
@@ -450,6 +454,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-12` — Pipeline-scoped ticket properties
+
+- **Summary:** Ticket pipelines now persist only validated Core ticket property
+  ids for pipeline-specific detail forms.
+- **Affected areas:** `src/modules/ticket/{@types,db,graphql,utils}`.
+- **Contracts changed:** `Pipeline`, `createPipeline`, and `updatePipeline`
+  gained optional `propertyIds: [String]`; `Pipeline` also exposes
+  `isPropertySelectionConfigured: Boolean` for backward-compatible rendering.
+
 ### `2026-08-10` — Improve Facebook delivery diagnostics
 
 - **Summary:** Suppressed typing indicators throughout comment-triggered bot flows and added privacy-safe Graph error metadata logging.
@@ -457,6 +470,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None
 
 ### `2026-08-07` — Indexed knowledge base articles carry their category name
+
 ### `2026-08-10` — Multi-select real pipeline status filter for ticket reports
 
 - **Summary:** Added `statusIds: [String]` to `TicketReportFilter` /
