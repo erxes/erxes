@@ -43,7 +43,9 @@ export const SelectPricingPlan = ({
 
   const renderTriggerValue = () => {
     if (selectedPlan) {
-      return <TextOverflowTooltip value={selectedPlan.name} className="max-w-40" />;
+      return (
+        <TextOverflowTooltip value={selectedPlan.name} className="max-w-40" />
+      );
     }
 
     if (value && loading) {

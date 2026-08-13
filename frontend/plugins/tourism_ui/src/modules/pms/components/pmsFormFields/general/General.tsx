@@ -38,7 +38,10 @@ const General = ({ form }: { form: UseFormReturn<PmsBranchFormType> }) => {
                 <Form.Item>
                   <Form.Label>{t('description')}</Form.Label>
                   <Form.Control>
-                    <Textarea {...field} placeholder={t('description-placeholder')} />
+                    <Textarea
+                      {...field}
+                      placeholder={t('description-placeholder')}
+                    />
                   </Form.Control>
                   <Form.Message className="text-destructive" />
                 </Form.Item>
