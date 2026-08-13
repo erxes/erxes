@@ -21,6 +21,7 @@ export const CmsPostEditor = ({
   const skipNextOnChangeRef = useRef(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastEditorOutputRef = useRef('');
+  const outputRevisionRef = useRef(0);
   const parsedInitialContent = useMemo(
     () =>
       parseBlockStructureFromHTML(initialContent) ||
@@ -35,6 +36,8 @@ export const CmsPostEditor = ({
 
   useEffect(() => {
     return () => {
+      outputRevisionRef.current += 1;
+
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
@@ -63,6 +66,7 @@ export const CmsPostEditor = ({
       const nextSerialized = JSON.stringify(blocks);
 
       if (currentSerialized !== nextSerialized) {
+        outputRevisionRef.current += 1;
         skipNextOnChangeRef.current = true;
         editor.replaceBlocks(editor.document, blocks);
       }
@@ -76,6 +80,8 @@ export const CmsPostEditor = ({
   }, [editor, initialContent]);
 
   const handleChange = useCallback(() => {
+    const outputRevision = ++outputRevisionRef.current;
+
     if (skipNextOnChangeRef.current) {
       skipNextOnChangeRef.current = false;
       return;
@@ -86,8 +92,14 @@ export const CmsPostEditor = ({
     }
 
     debounceTimerRef.current = setTimeout(async () => {
-      const html = await editor.blocksToHTMLLossy(editor.document);
-      const content = embedBlockStructureInHTML(html, editor.document);
+      const blocks = editor.document;
+      const html = await editor.blocksToHTMLLossy(blocks);
+
+      if (outputRevision !== outputRevisionRef.current) {
+        return;
+      }
+
+      const content = embedBlockStructureInHTML(html, blocks);
 
       lastEditorOutputRef.current = content;
       onChange(content);

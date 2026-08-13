@@ -77,6 +77,8 @@
 - The CMS post editor adapter composes the public `useBlockEditor` and
   `BlockEditor` APIs, restores embedded structure on load, and emits public HTML
   plus the non-lossy editor document before the existing submission boundary.
+- CMS post serialization must invalidate stale asynchronous HTML output after
+  edits, external document replacement, and editor unmount.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
@@ -184,6 +186,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Guard asynchronous post serialization
+
+- **Summary:** Prevented stale in-flight HTML serialization from overwriting
+  newer CMS post editor content.
+- **Affected areas:** `src/modules/cms/posts/components/CmsPostEditor.tsx`
+- **Contracts changed:** None
 
 ### `2026-08-13` — Restore structured post content
 
