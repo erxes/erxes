@@ -364,6 +364,7 @@ export const createProductsData = async ({
   docs: IProductData[];
 }) => {
   const deal = await models.Deals.getDeal(dealId);
+  const stage = await models.Stages.getStage(deal.stageId);
 
   const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
 
@@ -391,7 +392,9 @@ export const createProductsData = async ({
     }
   }
 
-  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed: true }));
+  // undefined or null then true
+  const tickUsed = !(stage.defaultTick === false);
+  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed }));
   const productsData: IProductData[] = (deal.productsData || []).concat(
     addDocs,
   );
@@ -420,7 +423,7 @@ export const createProductsData = async ({
       action: 'create',
       data: {
         dataIds,
-        docs: addDocs,
+        docs,
         productsData,
       },
     },
