@@ -46,7 +46,21 @@
 
 ## Current Capabilities
 
+- Ticket pipeline settings include a Properties route that lists only Core
+  `frontline:ticket` properties, grouped by their Core field group. Checked
+  fields are stored on the pipeline, and ticket detail renders only that
+  pipeline's selected fields. Legacy pipelines continue rendering all fields
+  until their Properties selection is saved for the first time.
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
+- The messenger ticket form builder lives on a pipeline's configuration sheet
+  (`src/modules/pipelines/components/configs/`): a configuration picks a status
+  and a tag group, toggles the four built-in ticket fields, and now also selects
+  ticket custom properties out of the `frontline:ticket` field groups. Both
+  lists are drag-reorderable and each entry carries its own label and
+  placeholder; property entries add a required toggle.
+- A messenger integration attaches **several** ticket configs. The erxes
+  messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
+  a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
 - Inbox navigation splits into **Me** — the integration types in use by the
@@ -85,8 +99,10 @@
 - Facebook bot message action supports a drag-orderable message sequence of
   text, card, quick replies, input, image, attachments, audio, and video, with
   postback/link buttons and optional connects.
-- Caps the Facebook message sequence at one message when the action is attached
-  to a comment trigger, and explains why in the sequence header.
+- Caps the Facebook message sequence at one message under a comment trigger only
+  until the customer clicks a button: an action reached through an optional
+  connect gets the full five, one reached through `nextActionId` stays at one.
+  The sequence header explains the cap whenever it applies.
 - Composes Facebook page posts from the integrations sidebar: channel and page
   selection, message, optional link, drag-and-drop image upload (max 10), and a
   permalink to the published post.
@@ -129,6 +145,7 @@
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                                 |
 | FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                               |
 | FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                                             |
+| Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                  |
 | Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                         |
 | Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                 |
 | Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                      |
@@ -208,6 +225,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `Provider`/`Value`/`Content` drive `SelectTagsTicket`; `useGetTags` reads the
   full `frontline:ticket` tag catalogue for the board card's overflow pill
   list.
+- `frontline_api` GraphQL `TicketConfigs`, `TicketConfigDetail`, `TicketConfig`,
+  `TicketSaveConfig` — the messenger ticket form configuration, including
+  `propertyFields` (chosen ticket custom properties, each carrying the source
+  property's `type` and `options` so the messenger widget can render it).
+- `ui-modules` properties hooks `useFieldGroups` / `useFields` with
+  `contentType: 'frontline:ticket'` — the ticket property groups and their
+  fields, read straight from core; this UI never defines property metadata.
 - `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
   `reportChartRemove` — saved report charts. The board reads **all** saved
   charts in one query and filters them to the chart types it can render, and
@@ -243,6 +267,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   such as `channelId`; component-local state stays in `useState`. `Team inbox`
   has no sort control and holds no sort state — the order is whatever
   `getMyChannels` returns.
+- `PIPELINE_CONFIG_SCHEMA.propertyFields` is a `useFieldArray` list whose array
+  position is the display order — the API renumbers `order` from that position
+  on save, so reordering means `move`, never rewriting `order` values. Each
+  entry also carries the source property's `type` and `options`, taken from
+  `useFields` when the property is toggled on; the API overwrites both from the
+  current core definition on save, so never edit them in this UI.
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
@@ -257,6 +287,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- The theme's semantic colour tokens are `--success`, `--warning`, `--info`, and
+  `--destructive` (each also exposed to Tailwind as `bg-success`,
+  `text-destructive`, …). `--pos`, `--neg`, and `--warn` are **not defined
+  anywhere** — call report code still references them in places, and those rules
+  silently resolve to nothing, which is why some badges render untinted. Never
+  add a new use; the fix is the real token, not a new variable in `core-ui`
+  (out of plugin scope).
+- Call report tables compose `ReportTable`, never `erxes-ui`'s `Table`
+  directly. `Table` is tuned for the record grids — `table-fixed` columns and
+  `p-0` cells against `px-2` heads — which in a seven-column report gives the
+  label column the same width as a two-digit count and misaligns every header
+  from its values. `ReportTable` re-establishes `table-auto`, symmetric padding,
+  and a horizontal scroll container; fix density there, not per table, and never
+  by editing `erxes-ui` (out of plugin scope, and the record grids depend on
+  those defaults).
+- `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
+  Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
+  shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
+  metric. Both currently arrive as numbers from the CDR pipelines, so the dash
+  is a fallback, not the common case.
+- `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
+  service, which is what actually labels the report data — the UI helper only
+  covers phone numbers the plugin classifies itself. Change both together.
 - Channel scope is presentation-only here; the server is the authority. Never
   infer privacy from the UI, and never offer a members/invite affordance on a
   channel whose `scope` is `personal`.
@@ -288,13 +341,19 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   filter to it.
 - Any mutation that changes channel membership or channel lists must refetch or
   update `GetMyChannels`, otherwise the sidebar goes stale.
-- A Facebook message action attached to a comment trigger may hold exactly one
-  message. The limit is derived in `getMaxMessagesForTrigger` and enforced in
-  both `ReplyMessageProvider.addMessage` and the `MessageSequenceHeader` add
-  buttons — keep the two in sync.
-- The trigger type reaches the action form through the `trigger` prop already
-  present on `AutomationActionFormProps`; do not add a shared-library field to
-  obtain it.
+- Under a comment trigger, only a message action that is **not** behind an
+  optional connect may hold exactly one message; a private reply does not open
+  the messaging window. A button click does, so every action downstream of an
+  optional connect gets the normal five. `getMaxMessagesForAction` decides this
+  from `trigger`, `currentAction.id` and `previousActions`, and the result is
+  enforced in both `ReplyMessageProvider.addMessage` and the
+  `MessageSequenceHeader` add buttons — keep the two in sync.
+- `nextActionId` is not a customer response, so chaining message actions with it
+  under a comment trigger keeps the one-message limit. Only
+  `config.optionalConnects` lifts it.
+- The trigger and the connected ancestor actions reach the action form through
+  the `trigger` and `previousActions` props on `AutomationActionFormProps`; do
+  not re-derive the automation graph inside the plugin.
 - Remote entries must switch on the node type via `splitAutomationNodeType` and
   return `null` for unknown content types.
 - A post carries images or a link preview, never both; only files whose storage
@@ -321,6 +380,21 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   real value meaning "include archived and deleted", not the absence of a
   filter — so `hasFilters` ignores `active` rather than treating any value as a
   filter, and Clear resets to `active`, not to an empty string.
+- `state` (menu label "State") and `statusIds` (menu label "Status") are two
+  unrelated ticket filters that sit next to each other in the same menu:
+  `state` (`getReportStateFilterAtom`) is the active/archived/deleted
+  lifecycle flag; `statusIds` (`getReportTicketStatusFilterAtom`, multi-select)
+  is a set of real pipeline `Status._id` values from Settings → Channels →
+  Pipelines → Ticket statuses, fetched per-pipeline via
+  `useGetAccessibleTicketStatuses`. Never conflate the two atoms or their
+  query variables — the backend also keeps a separate, frontend-unused
+  single-value `status: String` field on `TicketReportFilter`, so never wire
+  `statusIds` through that field either. Ticket statuses are pipeline-scoped
+  (`getAccessibleTicketStatuses(pipelineId: String!)` takes exactly one), so
+  — matching `PipelineFilterView`'s existing `channelIds[0]` convention —
+  `TicketStatusFilterView` reads only the first selected pipeline and shows
+  "Pipeline not selected" until at least one is picked; it does not attempt
+  to merge statuses across multiple selected pipelines.
 - A report card must take its identity from the `cardId` prop, never from its
   translated `title`. Deriving the id from the title made filter atoms, the
   filter popover's session key, and the drag-and-drop id change with the
@@ -386,134 +460,139 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - **Contracts changed:** None — `TagsSelectProps`/`TagsSelectContextType` are
   unchanged; only the popover's close timing in multi mode changed.
 
-### `2026-08-10` — Ticket tag selector matches Sales' count-based trigger
+### `2026-08-12` — Select ticket properties by group
 
-- **Summary:** Ticket tag selection (board card, detail sheet, create form) now
-  shows a single "Tag +N" / placeholder trigger via the new `SelectTagsTicket`
-  instead of an icon plus the full chained `TagsSelect.SelectedList`, mirroring
-  Sales' `DealTagsChip` behavior. The board card also gained the trigger in its
-  status/priority row plus a new `TicketCardTags` list that shows up to 5 tag
-  pills with a "+N" overflow badge, matching Sales' `DealCardDetails` pattern.
-- **Affected areas:**
-  `src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx` (new),
-  `src/modules/ticket/components/TicketCard.tsx`,
-  `src/modules/ticket/components/ticket-detail/TicketFields.tsx`,
-  `src/modules/ticket/components/add-ticket/AddTicketForm.tsx`.
-- **Contracts changed:** None — reuses `ui-modules`' existing `TagsSelect`
-  (tags-new) and `useGetTags` public exports.
-
-### `2026-08-10` — Form preview number fields drop the thousands separator
-
-- **Summary:** `Input.Number` from `erxes-ui` formats with a `,` thousands
-  separator by default, so a phone number typed into a `number` form field
-  previewed as `00,000,000`. The form preview now passes
-  `thousandsSeparator=""` for these fields.
-- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
+- **Summary:** Pipeline property configuration now selects an entire Core
+  ticket property group with one checkbox instead of selecting fields one by
+  one; the stored contract remains the group's field ids.
+- **Affected areas:** `src/modules/pipelines/components/PipelinePropertySelector.tsx`.
 - **Contracts changed:** None.
 
-### `2026-08-10` — Save chart on every ticket report card
+### `2026-08-12` — Pipeline-scoped ticket properties
 
-- **Summary:** Status summary, date, source, tags, and list gained the Save (and
-  for a saved card, delete) action that only custom properties had. Each card
-  now takes its filters from the shared `useTicketChartCard` hook instead of
-  reading eleven atoms itself, and the board reads every saved chart in one
-  query, keeping it to the chart types it can render.
+- **Summary:** Ticket pipelines now choose grouped Core ticket properties, and
+  ticket detail shows only the selected fields after configuration while
+  legacy pipelines retain the previous show-all behavior until first save.
+- **Affected areas:** `src/modules/pipelines/**`,
+  `src/modules/ticket/components/ticket-detail/**`, `src/pages/PipelinePropertiesPage.tsx`.
+- **Contracts changed:** Ticket pipeline GraphQL reads and updates now include
+  `propertyIds`.
+
+### `2026-08-12` — Comment-trigger message limit applies only before a button
+
+- **Summary:** The one-message cap for Facebook message actions under a comment
+  trigger no longer applies to the whole automation; `getMaxMessagesForAction`
+  now reads the connected ancestor actions and lifts the cap to five for any
+  action reached through an `optionalConnects` edge, since the customer's button
+  click opens the messaging window. Actions reached only through `nextActionId`
+  keep the one-message cap.
 - **Affected areas:**
-  `src/modules/report/components/ticket-charts/Ticket{StatusSummary,OpenDate,Source,Tags,List,CustomProperties}.tsx`,
-  `src/modules/report/hooks/{useTicketChartCard.ts,useReportCharts.ts}`,
-  `src/modules/report/components/report-chart/ReportChartActions.tsx`,
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/types/component-registry.ts`.
-- **Contracts changed:** `TICKET_CUSTOM_PROPERTIES_CHART_TYPE` replaced by
-  `TICKET_CHART_TYPES` (same string values); `useReportCharts` and
-  `useReportChartMutations` no longer take a chart type;
-  `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
-  component gained optional `cardId` and `savedChart`.
+  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
+  `src/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageActionForm.tsx`
+- **Contracts changed:** Consumes the new optional `previousActions` prop on the
+  shared `AutomationActionFormProps` (`ui-modules`), populated by the core
+  automation builder sidebar.
 
-### `2026-08-10` — Status summary lists the pipeline's own statuses
+### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
 
-- **Summary:** The Ticket Status Summary card now shows one row per pipeline
-  status, named as it is in ticket status settings, with its default category
-  beside it, instead of six built-in category names. Axis ticks truncate because
-  status names are full sentences.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
-  `src/modules/report/hooks/useTicketStatusSummary.ts`,
-  `src/modules/report/graphql/queries/getTicketChart.ts`.
-- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
-  `group`; the card can now render an empty state, where six zero rows always
-  came back before.
-
-### `2026-08-10` — Ticket KPI row shows the real total
-
-- **Summary:** "Total Tickets" now sums every priority bucket, including the new
-  `priority: 0` row, so it matches the percentages beside it instead of counting
-  only triaged tickets; the untriaged count moved into that card's subtitle and
-  the row still renders four priority cards. The state filter now defaults to
-  `active` with `all` as the explicit opt-in to archived and deleted tickets.
-- **Affected areas:**
-  `src/modules/report/components/TicketReportsList.tsx`,
+- **Summary:** The ticket report filter gained a "Status" filter, separate
+  from the existing active/archived/deleted filter (relabelled "State" so the
+  two are no longer both called "Status"), that multi-selects the actual
+  configurable statuses (New/Open/In Progress/... plus any custom
+  sub-statuses) from the first selected pipeline via
+  `getAccessibleTicketStatuses`, matching what Settings → Channels →
+  Pipelines → Ticket statuses shows. The backend `TicketReportFilter`/
+  `ReportChartFilters` gained a new `statusIds: [String]` field alongside the
+  existing single-value `status: String` (left untouched — unused by the
+  frontend, so no reason to repurpose it), and `buildTicketMatch` matches
+  `statusId: { $in: filters.statusIds }`.
+- **Affected areas:** frontend —
   `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
-  `src/modules/report/states.ts`,
   `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
+  `src/modules/report/states.ts`, `src/modules/report/types.ts`,
+  `src/modules/report/graphql/queries/getReportCharts.ts`; backend (see
+  `frontline_api`'s guide) — `src/modules/reports/{@types/reportFilters.ts,
+utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `None` on this side; consumes the extra
-  `reportTicketPriority` row and the `state: 'all'` value from `frontline_api`.
+- **Contracts changed:** `TicketReportFilter` and `ReportChartFilters`
+  (backend GraphQL) gained `statusIds: [String]`; `ReportChartFilters`
+  (frontend TS type) gained matching optional `statusIds?: string[]`. A saved
+  chart's `filters.statusIds` now round-trips through save/restore like every
+  other ticket filter. The `state` filter's menu item switched from the
+  shared `status` label to the existing `state-label` key; no atom, value, or
+  query variable changed for `state`.
 
-### `2026-08-09` — Save a filtered Ticket Custom Properties chart
+### `2026-08-10` — Ticket property fields carry their type and options
 
-- **Summary:** The Ticket Custom Properties card gained a Save action that names
-  the current filter selection and stores it as a new chart through
-  `reportChartAdd`; the ticket reports board renders every saved chart beside
-  the defaults, restores its filters on open, and offers a delete action. Report
-  cards now take their identity from an explicit `cardId` prop instead of
-  deriving it from the translated title.
+- **Summary:** Toggling a ticket property into a messenger ticket form now
+  stores the source property's `type` and `options` alongside its label,
+  placeholder, required flag, and order, and the four ticket-config documents
+  select both back. The messenger widget uses them to render the matching input
+  instead of a text box; the API rewrites both from the current core field
+  definition on every save, so nothing here edits them.
 - **Affected areas:**
-  `src/modules/report/components/{TicketReportsList.tsx,ticket-charts/TicketCustomProperties.tsx,report-chart/*}`,
-  `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig}.ts`,
-  `src/modules/report/graphql/{queries/getReportCharts.ts,mutations/reportChartMutations.ts}`,
-  `src/modules/report/{types.ts,types/component-registry.ts}`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `ReportComponentProps` gained optional `cardId` and
-  `savedChart`; new exported `TICKET_CUSTOM_PROPERTIES_CHART_TYPE`,
-  `ReportChart`, and `ReportChartFilters`. Consumes the new `reportCharts`,
-  `reportChartAdd`, and `reportChartRemove` operations from `frontline_api`.
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`,
+  `.../configs/schema.ts`, `.../configs/graphql/**`.
+- **Contracts changed:** `None` on the UI side; the ticket-config documents now
+  select the new optional `type` and `options` fields from `frontline_api`.
 
-### `2026-08-08` — Call widget stays clickable above modal surfaces
+### `2026-08-10` — Ticket config picker is multi-select
 
-- **Summary:** The floating call trigger and the popover that holds the
-  incoming-call `Answer`/`Decline` buttons now render at `z-100` with
-  `pointer-events-auto`, so an open `Sheet`/`Dialog` (Radix `modal`, which sets
-  `pointer-events: none` on `body` and paints a `z-50` overlay) no longer
-  swallows clicks on the widget.
+- **Summary:** `SelectTicketConfig` now selects many ticket configs instead of
+  one: its context is `value: string[]` / `onValueChange: (configIds: string[])`,
+  items toggle in and out of the array, the popover stays open across toggles,
+  the trigger shows the single config's name or `n-selected`, and the list gained
+  loading and error states. Also repointed the messenger preview's two ticket
+  gates from the removed `ticketConfigId` to `ticketConfigIds`.
 - **Affected areas:**
-  `src/modules/integrations/call/components/{CallWidget.tsx,CallWidgetDraggable.tsx}`.
+  `src/modules/pipelines/components/configs/components/SelectTicketConfig.tsx`,
+  `.../configs/hooks/useGetTicketConfigs.ts`,
+  `src/modules/integrations/erxes-messenger/components/EMPreviewIntro.tsx`.
+- **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
+  take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
+  returns `error`.
+
+### `2026-08-10` — Current Mongolian carrier prefixes
+
+- **Summary:** `detectCarrier` now uses the current allocation — Skytel `90`,
+  `91`, `92`, `96` and `696XXXXX`; Mobicom `85`, `94`, `95`, `99`; Unitel `80`,
+  `86`, `88`, `89`; G-Mobile `83`, `93`, `97`, `98`; Ondo `60`, `66` — with the
+  unallocated ranges falling through to `Unknown`. The country-code strip is now
+  length-aware so a legitimate 8-digit `976XXXXX` G-Mobile number keeps its
+  prefix.
+- **Affected areas:** `src/modules/report/call/utils.ts`.
 - **Contracts changed:** `None`
 
-### `2026-08-06` — Live unread counts on team channel rows
+### `2026-08-10` — Ticket property fields in the messenger config builder
 
-- **Summary:** `Team inbox` rows now show `Channel.unreadConversationCount`
-  instead of the channel's open-conversation count, kept current by a
-  `conversationClientMessageInserted` subscription that refetches
-  `GetMyChannels`, and by a refetch when a conversation is marked read. The
-  quiet/busy split follows the same number, and the now-unused
-  `useConversationCountsByChannel` hook was removed.
+- **Summary:** The pipeline configuration sheet gained a "Select ticket property
+  fields" section: ticket custom properties are listed per `frontline:ticket`
+  field group, toggling one adds it to the form, and selected properties get
+  drag-ordered cards with label, placeholder, and required controls, saved as
+  `propertyFields` on the ticket config.
 - **Affected areas:**
-  `src/modules/inbox/channel/{components/TeamChannelsNav.tsx,hooks/useChannelUnreadUpdates.tsx}`,
-  `src/modules/inbox/conversations/{hooks/useConversationCounts.tsx,conversation-detail/hooks/useConversationMarkAsRead.tsx}`,
-  `src/modules/channels/{graphql/queries.ts,types/index.ts,hooks/useGetMyChannels.tsx}`.
-- **Contracts changed:** `useGetMyChannels` also returns `refetch`;
-  `useConversationCountsByChannel` removed; `IChannel` gained optional
-  `conversationCount` and `unreadConversationCount`.
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`
+  (new), `.../components/ConfigsForm.tsx`, `.../schema.ts`, `.../constant.ts`,
+  `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
+- **Contracts changed:** `None` on the UI side; the four ticket-config documents
+  now select the new optional `propertyFields` field from `frontline_api`.
 
-### `2026-08-06` — Personal channel offers the full integration catalogue
+### `2026-08-10` — Denser, scannable call report tables
 
-- **Summary:** Dropped `PERSONAL_INTEGRATION_TYPES` and the `integrationTypes`
-  filter on `IntegrationList`, so the personal channel page lists the same
-  integration cards as a team channel.
-- **Affected areas:**
-  `src/modules/integrations/{components/IntegrationList.tsx,constants/integrations.ts}`,
-  `src/modules/channels/components/settings/personal-channel/PersonalChannelDetails.tsx`.
-- **Contracts changed:** `IntegrationList` lost its optional `integrationTypes`
-  prop; `channelId` and `heading` are unchanged.
-
+- **Summary:** The Agents, Callbacks, and Top Numbers tables now compose a
+  shared `ReportTable` wrapper that replaces `erxes-ui`'s `table-fixed` /
+  `p-0` defaults with content-sized columns, real cell padding, aligned heads,
+  and horizontal scrolling. Added proportional `Meter` bars for call volume,
+  answer rate, and callback recovery; an agent row now shows name over
+  extension with its leaderboard rank; the expander is a real button with
+  `aria-expanded`; and the drilldown became a labelled grid. Fixed a missing
+  React `key` on the agent row fragment, and repointed these three tables'
+  colours from the undefined `--pos` / `--neg` / `--warn` variables to the
+  theme's real `--success` / `--destructive` / `--warning`, so the count pills
+  are actually tinted.
+- **Affected areas:** `src/modules/report/call/components/ReportTable.tsx`
+  (new), `.../components/Meter.tsx` (new),
+  `.../components/AgentsSection/{AgentTable,AgentDrilldown}.tsx`,
+  `.../components/CallbacksSection/CallbacksSection.tsx`,
+  `.../components/TopNumbersSection/TopNumbersSection.tsx`.
+- **Contracts changed:** `None`

@@ -48,8 +48,11 @@ export const commonFields = `
   pipeline {
     _id
     name
+    boardId
     tagId
     isCheckDate
+    paymentIds
+    paymentTypes
 
     tag {
       order

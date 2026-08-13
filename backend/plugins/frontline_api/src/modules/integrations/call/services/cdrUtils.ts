@@ -233,6 +233,84 @@ export const isHumanAnsweredLeg = (leg: any): boolean => {
   );
 };
 
+/** The CDR leg fields the wait-time helpers read. */
+export interface ICdrLegTiming {
+  uniqueid?: string;
+  lastapp?: string;
+  disposition?: string;
+  billsec?: number;
+  actionType?: string;
+  start?: Date | string | null;
+  answer?: Date | string | null;
+}
+
+/** The apps that hold the caller while the PBX looks for an agent. */
+const WAITING_LASTAPPS = ['Queue', 'Dial'];
+
+/** Seconds the caller waited on this leg before it answered. */
+export const legRingSeconds = (leg: ICdrLegTiming): number => {
+  const start = parseCdrDate(leg.start);
+  const answer = parseCdrDate(leg.answer);
+
+  if (!start || !answer) return 0;
+
+  const seconds = (answer.getTime() - start.getTime()) / 1000;
+
+  return seconds > 0 ? seconds : 0;
+};
+
+/**
+ * Seconds the caller waited before an agent picked up, or `null` when no agent
+ * ever did. Every leg passed in must belong to the same call (one `uniqueid`).
+ *
+ * The ring time lives on the leg that actually held the caller. A queue call
+ * sits on its `Queue` leg — stamped `NO ANSWER` with no talk time, because the
+ * caller left it the moment the agent bridged — while the leg carrying
+ * `ANSWERED` is often a `ForkCDR` copy whose `answer` equals its `start`. So
+ * read the answered leg first and fall back to the waiting legs when it
+ * recorded no ring of its own.
+ */
+export const callSpeedOfAnswer = (legs: ICdrLegTiming[]): number | null => {
+  const answeredLeg = legs.find(isHumanAnsweredLeg);
+
+  if (!answeredLeg) return null;
+
+  const ring = legRingSeconds(answeredLeg);
+  if (ring > 0) return ring;
+
+  const waits = legs
+    .filter(
+      (leg) =>
+        leg !== answeredLeg && WAITING_LASTAPPS.includes(leg.lastapp ?? ''),
+    )
+    .map(legRingSeconds);
+
+  return waits.length ? Math.max(...waits) : 0;
+};
+
+/**
+ * Average speed of answer, in seconds, over the answered calls in `legs`.
+ *
+ * Legs are folded into calls by `uniqueid` first, so a call spread over several
+ * legs counts once and contributes the wait it actually recorded.
+ */
+export const averageSpeedOfAnswer = (legs: ICdrLegTiming[]): number => {
+  const byCall = new Map<string, ICdrLegTiming[]>();
+
+  for (const leg of legs) {
+    if (!leg.uniqueid) continue;
+    byCall.set(leg.uniqueid, [...(byCall.get(leg.uniqueid) ?? []), leg]);
+  }
+
+  const waits = [...byCall.values()]
+    .map(callSpeedOfAnswer)
+    .filter((wait): wait is number => wait !== null);
+
+  if (!waits.length) return 0;
+
+  return waits.reduce((sum, wait) => sum + wait, 0) / waits.length;
+};
+
 export const deriveCallStatusFromLegs = (legs: any[]): string => {
   const actionTypeOf = (leg: any) => leg.actionType ?? leg.action_type ?? '';
 

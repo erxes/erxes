@@ -1,6 +1,8 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -55,6 +57,8 @@ export const AddTicketForm = ({
     name: '',
     priority: 0,
     assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
+    branchId: undefined,
+    departmentId: undefined,
     startDate: undefined,
     targetDate: undefined,
   };
@@ -231,6 +235,42 @@ export const AddTicketForm = ({
                     onValueChange={(value: any) => {
                       field.onChange(value);
                     }}
+                  />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              name="branchId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">
+                    {t('branch-label', 'Branch')}
+                  </Form.Label>
+                  <SelectBranchTicket.FormItem
+                    value={field.value || ''}
+                    onValueChange={(value) =>
+                      field.onChange(value || undefined)
+                    }
+                  />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              name="departmentId"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="sr-only">
+                    {t('department-label', 'Department')}
+                  </Form.Label>
+                  <SelectDepartmentTicket.FormItem
+                    value={field.value || ''}
+                    onValueChange={(value) =>
+                      field.onChange(value || undefined)
+                    }
                   />
                 </Form.Item>
               )}

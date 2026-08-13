@@ -27,6 +27,38 @@ export const types = `
     tags: TicketFormFieldInput
   }
 
+  type TicketPropertyFieldOption {
+    label: String!
+    value: String!
+  }
+
+  input TicketPropertyFieldOptionInput {
+    label: String!
+    value: String!
+  }
+
+  type TicketPropertyField {
+    fieldId: String!
+    groupId: String
+    label: String
+    placeholder: String
+    order: Int
+    isRequired: Boolean
+    type: String
+    options: [TicketPropertyFieldOption]
+  }
+
+  input TicketPropertyFieldInput {
+    fieldId: String!
+    groupId: String
+    label: String
+    placeholder: String
+    order: Int
+    isRequired: Boolean
+    type: String
+    options: [TicketPropertyFieldOptionInput]
+  }
+
   type TicketConfig {
     id: ID!
     name: String!
@@ -37,6 +69,7 @@ export const types = `
     updatedAt: String
     parentId: String
     formFields: TicketFormFields
+    propertyFields: [TicketPropertyField]
   }
 
   input TicketConfigInput {
@@ -46,7 +79,8 @@ export const types = `
     channelId: String!
     parentId: String
     formFields: TicketFormFieldsInput
-  } 
+    propertyFields: [TicketPropertyFieldInput]
+  }
 `;
 
 export const queries = `

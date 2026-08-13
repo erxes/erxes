@@ -1,4 +1,8 @@
-import { AutomationBuilderTabsType } from '@/automations/types';
+import {
+  AutomationBuilderTabsType,
+  AutomationHistorySplitDirection,
+  AutomationHistoryViewMode,
+} from '@/automations/types';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
@@ -42,6 +46,23 @@ export const toggleAutomationBuilderSecondarySidebar = atom(
 export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',
   true,
+);
+
+export const automationHistoryViewModeState =
+  atomWithStorage<AutomationHistoryViewMode>(
+    'automationHistoryViewMode',
+    AutomationHistoryViewMode.Sheet,
+  );
+
+export const automationHistorySplitDirectionState =
+  atomWithStorage<AutomationHistorySplitDirection>(
+    'automationHistorySplitDirection',
+    AutomationHistorySplitDirection.Vertical,
+  );
+
+// Only meaningful in split view; the sheet keeps its own open state.
+export const automationHistorySelectedExecutionState = atom<string | null>(
+  null,
 );
 
 // export const automationBuilder

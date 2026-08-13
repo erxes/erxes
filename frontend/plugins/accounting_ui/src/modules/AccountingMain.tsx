@@ -114,6 +114,18 @@ const TransactionPrint = lazy(() =>
   })),
 );
 
+const AdjustClosingList = lazy(() =>
+  import('~/pages/AdjustClosingPage').then((module) => ({
+    default: module.AdjustClosingListPage,
+  })),
+);
+
+const AdjustClosingDetail = lazy(() =>
+  import('~/pages/AdjustClosingDetailPage').then((module) => ({
+    default: module.AdjustClosingDetailPage,
+  })),
+);
+
 const AccountingCheckSync = lazy(() =>
   import('~/modules/check-synced/AccountingCheckSync').then((module) => ({
     default: module.AccountingCheckSync,
@@ -179,6 +191,11 @@ const PluginAccounting = () => {
         <Route
           path="/inventories/reserve-remainders"
           element={<InventoryReserveRemainders />}
+        />
+        <Route path="adjustment/closing" element={<AdjustClosingList />} />
+        <Route
+          path="adjustment/closing/:id"
+          element={<AdjustClosingDetail />}
         />
       </Routes>
       <PageChangeEffect />

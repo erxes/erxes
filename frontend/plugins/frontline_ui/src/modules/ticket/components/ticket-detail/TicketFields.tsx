@@ -3,17 +3,18 @@ import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import { useTicketRemove } from '@/ticket/hooks/useRemoveTicket';
-import { useRemoveTicketsFromView } from '@/ticket/hooks/useRemoveTicketsFromView';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import { useToggleTicketArchive } from '@/ticket/hooks/useToggleTicketArchive';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { ITicket } from '@/ticket/types';
 import { IAttachment } from '@/ticket/types/attachments';
 import { Block } from '@blocknote/core';
@@ -27,7 +28,6 @@ import {
   Tooltip,
   useBlockEditor,
   useConfirm,
-  useQueryState,
   useToast,
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
@@ -48,6 +48,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     statusId,
     channelId,
+    branchId,
+    departmentId,
     tagIds,
     isSubscribed: _isSubscribed,
     state: ticketState,
@@ -136,8 +138,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const { updateTicket } = useUpdateTicket();
   const { removeTicket } = useTicketRemove();
-  const { removeTicketsFromView } = useRemoveTicketsFromView();
-  const [stateFilter] = useQueryState<string>('state');
+  const { toggleArchive } = useToggleTicketArchive();
   const [name, setName] = useState(_name);
   const [isSubscribed, setSubscribe] = useState<boolean>(
     _isSubscribed || false,
@@ -177,38 +178,13 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
   const [debouncedName, nameDebounce] = useDebounce(name, 1000);
 
   const handleArchiveToggle = () => {
-    const newState = state === 'active' ? 'archived' : 'active';
     const previousState = state;
 
     // Optimistically update the UI
-    setState(newState);
+    setState(state === 'active' ? 'archived' : 'active');
 
-    updateTicket({
-      variables: {
-        _id: ticketId,
-        state: newState,
-      },
-      refetchQueries: [GET_TICKETS],
-      onCompleted: () => {
-        if (newState !== (stateFilter || 'active')) {
-          removeTicketsFromView([ticketId]);
-        }
-        toast({
-          title: t('success'),
-          description:
-            newState === 'archived'
-              ? t('ticket-archived-successfully')
-              : t('ticket-restored-successfully'),
-        });
-      },
-      onError: (error) => {
-        setState(previousState);
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
+    toggleArchive([ticketId], state === 'archived', {
+      onError: () => setState(previousState),
     });
   };
 
@@ -316,6 +292,35 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               />
             </div>
             <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <SelectBranchTicket
+                value={branchId || ''}
+                variant="detail"
+                disabled
+              />
+            </div>
+            <Tooltip.Content>
+              {t('branch-cannot-be-changed', 'Branch cannot be changed')}
+            </Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <div className="relative">
+              <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+              <SelectDepartmentTicket
+                value={departmentId || ''}
+                variant="detail"
+                disabled
+              />
+            </div>
+            <Tooltip.Content>
+              {t(
+                'department-cannot-be-changed',
+                'Department cannot be changed',
+              )}
+            </Tooltip.Content>
           </Tooltip>
           <SelectStatusTicket
             variant="detail"

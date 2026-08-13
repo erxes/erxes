@@ -2,6 +2,8 @@ export const queries = `
   cpIntegrations(kind: String, integrationId: String, channelId: String): [Integration]
   cpConversation(customerId: String, integrationId: String, limit: Int, skip: Int): [Conversation]
   cpConversationDetail(_id: String!): Conversation
+  cpConversations(integrationId: String!, customerId: String, visitorId: String): [Conversation]
+  cpMessengerConversationDetail(_id: String, integrationId: String!): ConversationDetailResponse
 `;
 
 export const mutations = `
@@ -29,6 +31,8 @@ export const mutations = `
     contentType: String
     payload: String
   ): ConversationMessage
+
+  cpReadConversationMessages(conversationId: String): JSON
 `;
 
 export const subscriptions = `

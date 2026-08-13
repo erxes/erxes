@@ -9,6 +9,8 @@ import { InboxMessageTriggerForm } from './trigger/InboxMessageTriggerForm';
 import { MessengerMessageTriggerNodeContent } from './trigger/MessengerMessageTriggerNodeContent';
 import { InboxMessageActionForm } from './action/InboxMessageActionForm';
 import { InboxMessageActionConfig } from './action/InboxMessageActionConfig';
+import { AutomationHistoryName } from './AutomationHistoryName';
+import { AutomationHistoryResult } from './AutomationHistoryResult';
 
 const ConversationEventTriggerForm = lazy(() =>
   import('./trigger/ConversationEventTriggerForm').then((module) => ({
@@ -31,6 +33,8 @@ export const InboxRemoteEntry = (props: AutomationRemoteEntryProps) => {
         triggerConfigContent: renderTriggerConfigContent,
         actionForm: renderActionForm,
         actionNodeConfiguration: InboxMessageActionConfig,
+        historyName: AutomationHistoryName,
+        historyActionResult: AutomationHistoryResult,
       }}
     />
   );

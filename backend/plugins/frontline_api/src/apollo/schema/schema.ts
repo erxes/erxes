@@ -70,6 +70,11 @@ import {
 } from '~/modules/form/graphql/schema/field';
 
 import {
+  queries as ReportCallQueries,
+  types as ReportCallTypes,
+} from '@/reports/graphql/schema/call';
+
+import {
   queries as ReportInboxQueries,
   types as ReportInboxTypes,
 } from '@/reports/graphql/schema/inbox';
@@ -115,6 +120,7 @@ export const types = `
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
+    ${ReportCallTypes}
     ${ReportInboxTypes}
     ${ReportTicketTypes}
     ${ReportChartTypes}
@@ -135,6 +141,7 @@ export const queries = `
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
+    ${ReportCallQueries}
     ${ReportInboxQueries}
     ${ReportTicketQueries}
     ${ReportChartQueries}

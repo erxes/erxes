@@ -1,5 +1,53 @@
 
 
+## [3.0.78](https://github.com/erxes/erxes/compare/3.0.77...3.0.78) (2026-08-12)
+
+
+### Bug Fixes
+
+* calc excludeAmount and totalAmount with additionalconfig.discountCheck ([#9000](https://github.com/erxes/erxes/issues/9000)) ([682e25c](https://github.com/erxes/erxes/commit/682e25c58ef093d3671f455deefcda84e2f3c38a))
+* calc score with scoreCampaigns product filter ([#9003](https://github.com/erxes/erxes/issues/9003)) ([0e868ae](https://github.com/erxes/erxes/commit/0e868aefe3307c0585758035d1df2f1336c908c4))
+
+
+### Features
+
+* **frontline:** add client portal messenger conversation operations ([2b74435](https://github.com/erxes/erxes/commit/2b744350217bb0d602e57773d9022d8567be27a8))
+* **pipelines:** add scoped property selection ([#9001](https://github.com/erxes/erxes/issues/9001)) ([2561cf8](https://github.com/erxes/erxes/commit/2561cf8e68d9b7e23b1223a89dc7a0ff66f3f526))
+
+# Changelog
+
+## [3.0.77](https://github.com/erxes/erxes/compare/3.0.76...3.0.77) (2026-08-12)
+
+
+### Bug Fixes
+
+* **content:** allow 630 MiB custom field uploads ([#8990](https://github.com/erxes/erxes/issues/8990)) ([920f6a4](https://github.com/erxes/erxes/commit/920f6a44c397b93d626fee4fa2aab344b2aebbce))
+* posclient report with permission ([#8997](https://github.com/erxes/erxes/issues/8997)) ([6ce4857](https://github.com/erxes/erxes/commit/6ce48575262930562aa96e989803d0bf39e8ee2d))
+* **saas-migrations:**  tags ([f0ff030](https://github.com/erxes/erxes/commit/f0ff0302f73d0078b17a4b58959b88e38c665df2))
+
+
+### Features
+
+* accounting adjust closing transaction ([#7389](https://github.com/erxes/erxes/issues/7389)) ([38368f4](https://github.com/erxes/erxes/commit/38368f4063c048f2003a0d9d295b81f6f56edc96))
+* add automation stats components and hooks ([52abd36](https://github.com/erxes/erxes/commit/52abd36a5920678af669277b049c3756d4d204ba))
+* enhance message action limits under comment triggers with optional connects ([f4d5268](https://github.com/erxes/erxes/commit/f4d52683a069fbef6876b922a0064beb5c4b66bd))
+* tdb expired payment status (logs for testing); fix: multiple transactions for 1 invoice ([1004882](https://github.com/erxes/erxes/commit/1004882f0559c8dab085033edb791890023e938d))
+
+## [3.0.76](https://github.com/erxes/erxes/compare/3.0.75...3.0.76) (2026-08-11)
+
+
+### Bug Fixes
+
+* **frontline:** prevent duplicate answer on incoming call ([45e24e3](https://github.com/erxes/erxes/commit/45e24e3b9bf37b97bb9d86b4efb76453158c0fed))
+* **loyalty:** discounted row exclude score logic ([46cb63e](https://github.com/erxes/erxes/commit/46cb63e30435b294a31b869c739e4e9b165abb90))
+
+
+### Features
+
+* accounting adjust rate fund and debt ([#6811](https://github.com/erxes/erxes/issues/6811)) ([b8e48fa](https://github.com/erxes/erxes/commit/b8e48fa4063efbfe9cd89336cb4f7f8707019b84))
+* **frontline:** multi-select real pipeline status filter for ticket reports  ([a743b9f](https://github.com/erxes/erxes/commit/a743b9fc6279a287e7874bbe0e0a0596d2dfc052))
+* global search across contacts, conversations and deals ([#8917](https://github.com/erxes/erxes/issues/8917)) ([a7b3fb7](https://github.com/erxes/erxes/commit/a7b3fb77cdf6ed1eff9901837e4c44828f5b76cd))
+
 ## [3.0.75](https://github.com/erxes/erxes/compare/3.0.74...3.0.75) (2026-08-10)
 
 
@@ -40,7 +88,7 @@
 * **frontline:** drop the SIP status guards on outgoing calls ([5e8b3a8](https://github.com/erxes/erxes/commit/5e8b3a8fc7369ffdace0a1f3370f5c97f3b77330))
 * **frontline:** restore throwing registerSip/unregisterSip guards ([67b7f9f](https://github.com/erxes/erxes/commit/67b7f9f2a2c122feb0928e66d7193ac7258efdb4))
 
-# Changelog
+
 
 ## [3.0.73](https://github.com/erxes/erxes/compare/3.0.72...3.0.73) (2026-08-07)
 

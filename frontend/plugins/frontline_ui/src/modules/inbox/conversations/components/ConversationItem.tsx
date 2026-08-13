@@ -32,7 +32,7 @@ import {
   selectConversationsState,
   setSelectConversationsState,
 } from '../states/selectConversationsState';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationItem = ({
@@ -45,7 +45,7 @@ export const ConversationItem = ({
   channelInfoPending?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-  const inboxLayout = useAtomValue(inboxLayoutState);
+  const inboxLayout = useInboxLayout();
 
   const { createdAt, updatedAt, customer, integration } =
     useConversationContext();
@@ -73,7 +73,10 @@ export const ConversationItem = ({
                 {channelInfoPending ? (
                   <Skeleton className="w-40 h-4" />
                 ) : channelProfileName ? (
-                  <span className="truncate text-sm font-medium" title={`#${channelProfileName}`}>
+                  <span
+                    className="truncate text-sm font-medium"
+                    title={`#${channelProfileName}`}
+                  >
                     #{channelProfileName}
                   </span>
                 ) : (
@@ -145,7 +148,7 @@ export const ConversationItem = ({
 
 export const ConversationItemContent = () => {
   const { t } = useTranslation('frontline');
-  const inboxLayout = useAtomValue(inboxLayoutState);
+  const inboxLayout = useInboxLayout();
   const { content, assignedUserId, assignedUser, integration } =
     useConversationContext();
   if (!content) return null;
