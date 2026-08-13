@@ -5,7 +5,6 @@ interface AgentDrilldownProps {
   stat: AgentStat;
 }
 
-/** Inline expanded row shown when an agent row is clicked. */
 export function AgentDrilldown({ stat }: AgentDrilldownProps) {
   const totalTalk = stat.averageTalkTime * stat.answeredCalls;
 

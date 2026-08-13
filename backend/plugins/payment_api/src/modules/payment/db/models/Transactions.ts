@@ -3,7 +3,7 @@ import ErxesPayment from '~/apis/ErxesPayment';
 import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
-
+import { PAYMENT_STATUS } from '~/constants';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
@@ -175,6 +175,18 @@ export const loadTransactionClass = (models: IModels) => {
       const api = new ErxesPayment(payment, subdomain);
 
       const status = await api.manualCheck(transaction);
+      if (
+        [
+          PAYMENT_STATUS.PAID,
+          PAYMENT_STATUS.FAILED,
+          PAYMENT_STATUS.CANCELLED,
+          PAYMENT_STATUS.REJECTED,
+          PAYMENT_STATUS.EXPIRED,
+        ].includes(status)
+      ) {
+        transaction.status = status;
+        await transaction.save();
+      }
 
       if (status === 'paid') {
         transaction.status = status;

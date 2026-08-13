@@ -13,7 +13,7 @@ import { ResolveAll } from './ResolveAll';
 export const ConversationActions = () => {
   return (
     <>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-none">
         <ConversationSelectAll />
         <FilterConversationsPopover />
         <ConversationDisplay />

@@ -31,6 +31,9 @@ export const SaveReportChartButton = ({
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const { addReportChart, adding } = useReportChartMutations();
+  const namePlaceholderKey = chartType.startsWith('conversation-')
+    ? 'conversation-chart-name-placeholder'
+    : 'chart-name-placeholder';
 
   const form = useForm<SaveChartForm>({
     resolver: zodResolver(saveChartSchema),
@@ -93,7 +96,7 @@ export const SaveReportChartButton = ({
                     <Input
                       {...field}
                       autoFocus
-                      placeholder={t('chart-name-placeholder')}
+                      placeholder={t(namePlaceholderKey)}
                     />
                   </Form.Control>
                   <Form.Message />

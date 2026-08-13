@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-11`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -33,6 +33,7 @@
 - Fetches spot rate from the existing exchange-rate hook when adjustment date, main currency, and foreign currency are selected.
 - Fund rate detail can calculate, show validation state, show account balances grouped by branch/department, run linked transactions, and display linked transaction rows.
 - Debt rate detail can calculate, show validation state, show account/customer balances grouped by branch/department, run linked transactions, and display linked transaction ids.
+- Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
@@ -106,6 +107,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-13` — `Adjustment Detail Record Tables`
+
+- **Summary:** Fund and debt rate adjustment detail result grids now use accounting `RecordTable` columns instead of raw HTML tables.
+- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/debt/components/AdjustDebtRateDetail.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-11` — `Closing Detail Renderer Extraction`
 
 - **Summary:** Closing adjustment detail table cell renderers and action controls were moved out of the parent component to satisfy static analysis.
@@ -159,9 +166,3 @@
 - **Summary:** Closing adjustment UI now routes to detail screens, separates calculation from transaction execution, supports per-row tax percent edits, and shows validation/tax-impact state.
 - **Affected areas:** `src/modules/AccountingMain.tsx`, `src/pages/AdjustClosingDetailPage.tsx`, `src/modules/adjustments/closing`.
 - **Contracts changed:** Consumes closing adjustment calculate, do-transaction, publish, cancel, detail validation, grouped details, and tax impact fields.
-
-### `2026-08-10` — `Rate Adjustment Current State`
-
-- **Summary:** Fund and debt rate adjustment UI is implemented with sheet forms, configured currency selectors, calculation/run actions, subscriptions, grouped result tables, and linked transaction display.
-- **Affected areas:** `src/modules/adjustments/rate`, `src/modules/adjustments/debt`, `src/modules/settings/hooks/useCurrencyConfigs.tsx`, account currency selectors, and transaction currency form helpers.
-- **Contracts changed:** Consumes fund/debt rate adjustment GraphQL contracts, `accountingAdjust*RateChanged` subscriptions, and core `configsByCode(codes)` for currency options.

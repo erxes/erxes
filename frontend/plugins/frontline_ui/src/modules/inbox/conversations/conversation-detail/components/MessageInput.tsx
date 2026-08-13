@@ -549,33 +549,35 @@ export const MessageInput = ({
           onRemove={handleDeleteAttachment}
         />
 
-        <div className="flex shrink-0 items-center gap-2 px-6">
+        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-1 px-2 mt-2 sm:gap-4 sm:px-6">
           <Toggle
             pressed={isInternalNote}
             size="lg"
             variant="outline"
-            className="shrink-0 cursor-pointer"
+            className="shrink-0 cursor-pointer min-w-20 max-w-full px-2 sm:px-5"
             onPressedChange={() =>
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
           >
-            {t('internal-note')}
+            <span className="truncate">{t('internal-note')}</span>
           </Toggle>
 
-          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <IconMessage2 className="h-4 w-4" />
-            </Button>
-          </ResponseTemplateSelector>
+          {!isInternalNote && (
+            <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <IconMessage2 className="h-4 w-4" />
+              </Button>
+            </ResponseTemplateSelector>
+          )}
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={() => fileInputRef.current?.click()}
           >
             <IconPaperclip className="h-4 w-4" />
@@ -594,7 +596,7 @@ export const MessageInput = ({
 
           <Button
             size="lg"
-            className="ml-auto shrink-0"
+            className="ml-auto flex-none"
             disabled={
               loading ||
               isLoading ||
@@ -604,7 +606,7 @@ export const MessageInput = ({
           >
             {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
             {t('send')}
-            <Kbd className="ml-1">
+            <Kbd className="ml-1 hidden sm:flex">
               <IconCommand size={12} />
               <IconCornerDownLeft size={12} />
             </Kbd>

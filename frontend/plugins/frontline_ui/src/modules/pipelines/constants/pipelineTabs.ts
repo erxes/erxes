@@ -3,6 +3,7 @@ export const PIPELINE_TAB_SEGMENTS = {
   statuses: 'statuses',
   configs: 'configs',
   permissions: 'permissions',
+  properties: 'properties',
 } as const;
 
 export type TPipelineTabSegment =
@@ -16,6 +17,7 @@ export const PIPELINE_TABS: {
   { segment: PIPELINE_TAB_SEGMENTS.statuses, labelKey: 'ticket-statuses' },
   { segment: PIPELINE_TAB_SEGMENTS.configs, labelKey: 'configuration' },
   { segment: PIPELINE_TAB_SEGMENTS.permissions, labelKey: 'permissions' },
+  { segment: PIPELINE_TAB_SEGMENTS.properties, labelKey: 'properties' },
 ];
 
 export const getPipelinePath = (

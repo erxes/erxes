@@ -8,7 +8,6 @@ interface CarrierDonutProps {
   data: CarrierSlice[];
 }
 
-/** Donut chart showing call distribution by Mongolian carrier. */
 export const CarrierDonut = memo(function CarrierDonut({
   data,
 }: CarrierDonutProps) {
@@ -29,7 +28,6 @@ export const CarrierDonut = memo(function CarrierDonut({
 
   return (
     <div className="flex items-center gap-4">
-      {/* Donut */}
       <ResponsiveContainer width={160} height={160}>
         <PieChart>
           <Pie
@@ -55,7 +53,6 @@ export const CarrierDonut = memo(function CarrierDonut({
         </PieChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
       <ul className="flex flex-col gap-1.5 min-w-0 flex-1">
         {data.map((slice, i) => (
           <li key={slice.name} className="flex items-center gap-2 text-xs">
