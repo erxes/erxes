@@ -18,6 +18,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Line,
   LineChart,
   Pie,
@@ -340,7 +341,7 @@ export const ResponseBarChart = memo(function ResponseBarChart({
   }
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={scaledChartData}>
+      <BarChart data={scaledChartData} margin={{ top: 24 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="user" tickLine={false} axisLine={false} />
         <YAxis
@@ -353,12 +354,27 @@ export const ResponseBarChart = memo(function ResponseBarChart({
           dataKey="messageCount"
           fill="var(--primary)"
           name="Message Count"
-        />
+        >
+          <LabelList
+            dataKey="messageCount"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
           name="Percentage"
-        />
+        >
+          <LabelList
+            dataKey="percentage"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+            formatter={(value) => `${value}%`}
+          />
+        </Bar>
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}

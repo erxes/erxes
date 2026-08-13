@@ -20,6 +20,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -307,7 +308,7 @@ export const TagBarChart = memo(function TagBarChart({
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={scaledChartData}>
+      <BarChart data={scaledChartData} margin={{ top: 24 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -316,12 +317,27 @@ export const TagBarChart = memo(function TagBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
           name="Percentage"
-        />
+        >
+          <LabelList
+            dataKey="percentage"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+            formatter={(value) => `${value}%`}
+          />
+        </Bar>
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}

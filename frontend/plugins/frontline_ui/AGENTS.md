@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -114,6 +114,9 @@
   immediately and reopens with those filters restored. The default charts are a
   frontend constant and are never modified by saving; a saved card additionally
   carries a delete action.
+- Conversation and ticket report bar charts render each raw count directly
+  above its bar; charts with a percentage series also render the actual
+  percentage with a `%` suffix while retaining the tooltip for full detail.
 
 ## Architecture
 
@@ -394,6 +397,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
   and shows its skeleton, otherwise the card flashes unfiltered data before the
   saved filters land.
+- Keep a bar chart's raw count label attached to the count series and reserve
+  enough top margin for the largest label. A scaled percentage bar must label
+  its original `percentage`, never expose `percentageScaled` to the user.
 - Exposed modules stay lazy-loaded and wrapped in `Suspense`.
 - Routed pages use `h-full`, never `h-dvh`/`h-screen`.
 - New user-visible strings go through `useTranslation('frontline')` with keys
@@ -426,6 +432,20 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Percentages visible on report bars
+
+- **Summary:** Ticket Tags, Conversation Tags, and Conversation Response bar
+  charts now show the actual percentage above each percentage bar.
+- **Affected areas:** `src/modules/report/components/{conversation-charts/Conversation{Tag,Response},ticket-charts/TicketTags}.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-13` — Values visible on report bars
+
+- **Summary:** Conversation and ticket report bar charts now show each raw
+  count above its bar without requiring hover.
+- **Affected areas:** `src/modules/report/components/{conversation-charts,ticket-charts}/`.
+- **Contracts changed:** None.
 
 ### `2026-08-12` — Select ticket properties by group
 
@@ -543,79 +563,3 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
 - **Contracts changed:** `None` on the UI side; the four ticket-config documents
   now select the new optional `propertyFields` field from `frontline_api`.
-
-### `2026-08-10` — Denser, scannable call report tables
-
-- **Summary:** The Agents, Callbacks, and Top Numbers tables now compose a
-  shared `ReportTable` wrapper that replaces `erxes-ui`'s `table-fixed` /
-  `p-0` defaults with content-sized columns, real cell padding, aligned heads,
-  and horizontal scrolling. Added proportional `Meter` bars for call volume,
-  answer rate, and callback recovery; an agent row now shows name over
-  extension with its leaderboard rank; the expander is a real button with
-  `aria-expanded`; and the drilldown became a labelled grid. Fixed a missing
-  React `key` on the agent row fragment, and repointed these three tables'
-  colours from the undefined `--pos` / `--neg` / `--warn` variables to the
-  theme's real `--success` / `--destructive` / `--warning`, so the count pills
-  are actually tinted.
-- **Affected areas:** `src/modules/report/call/components/ReportTable.tsx`
-  (new), `.../components/Meter.tsx` (new),
-  `.../components/AgentsSection/{AgentTable,AgentDrilldown}.tsx`,
-  `.../components/CallbacksSection/CallbacksSection.tsx`,
-  `.../components/TopNumbersSection/TopNumbersSection.tsx`.
-- **Contracts changed:** `None`
-
-### `2026-08-10` — Unmeasured call KPIs render as `—`
-
-- **Summary:** Service Level and Avg Speed of Answer now show `—` instead of
-  `0.0%` / `00:00:00` when the backend has no ring time to measure them from,
-  via new `fmtPctOrDash` / `fmtDurOrDash` helpers. Answer Rate was also gated on
-  `serviceLevel != null`, so it disappeared whenever service level was
-  unmeasured; it now derives from `abandonment` alone.
-- **Affected areas:** `src/modules/report/call/utils.ts`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/report/call/components/KpiSection/KpiSection.tsx`.
-- **Contracts changed:** `KpiScorecard.serviceLevel` and
-  `KpiScorecard.averageSpeed` are typed `number | null` (the GraphQL fields were
-  already nullable `Float`).
-
-### `2026-08-10` — Form preview number fields drop the thousands separator
-
-- **Summary:** `Input.Number` from `erxes-ui` formats with a `,` thousands
-  separator by default, so a phone number typed into a `number` form field
-  previewed as `00,000,000`. The form preview now passes
-  `thousandsSeparator=""` for these fields.
-- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-10` — Save chart on every ticket report card
-
-- **Summary:** Status summary, date, source, tags, and list gained the Save (and
-  for a saved card, delete) action that only custom properties had. Each card
-  now takes its filters from the shared `useTicketChartCard` hook instead of
-  reading eleven atoms itself, and the board reads every saved chart in one
-  query, keeping it to the chart types it can render.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/Ticket{StatusSummary,OpenDate,Source,Tags,List,CustomProperties}.tsx`,
-  `src/modules/report/hooks/{useTicketChartCard.ts,useReportCharts.ts}`,
-  `src/modules/report/components/report-chart/ReportChartActions.tsx`,
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/types/component-registry.ts`.
-- **Contracts changed:** `TICKET_CUSTOM_PROPERTIES_CHART_TYPE` replaced by
-  `TICKET_CHART_TYPES` (same string values); `useReportCharts` and
-  `useReportChartMutations` no longer take a chart type;
-  `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
-  component gained optional `cardId` and `savedChart`.
-
-### `2026-08-10` — Status summary lists the pipeline's own statuses
-
-- **Summary:** The Ticket Status Summary card now shows one row per pipeline
-  status, named as it is in ticket status settings, with its default category
-  beside it, instead of six built-in category names. Axis ticks truncate because
-  status names are full sentences.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
-  `src/modules/report/hooks/useTicketStatusSummary.ts`,
-  `src/modules/report/graphql/queries/getTicketChart.ts`.
-- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
-  `group`; the card can now render an empty state, where six zero rows always
-  came back before.
