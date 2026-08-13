@@ -27,78 +27,78 @@ export const ResponseTemplateDropdown = ({
 }: ResponseTemplateDropdownProps) => {
   const { t } = useTranslation('frontline');
   return (
-  <Popover open>
-    <Popover.Anchor asChild>
-      <span className="sr-only" />
-    </Popover.Anchor>
-    <Popover.Content
-      sideOffset={20}
-      side="top"
-      align="start"
-      onOpenAutoFocus={(e) => e.preventDefault()}
-      className="p-0 min-w-lg overflow-hidden"
-    >
-      <div className="sticky top-0 bg-background/90 backdrop-blur-sm z-10 border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-        {t('response-templates')}
-      </div>
+    <Popover open>
+      <Popover.Anchor asChild>
+        <span className="sr-only" />
+      </Popover.Anchor>
+      <Popover.Content
+        sideOffset={20}
+        side="top"
+        align="start"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="p-0 min-w-lg overflow-hidden"
+      >
+        <div className="sticky top-0 bg-background/90 backdrop-blur-sm z-10 border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {t('response-templates')}
+        </div>
 
-      {suggestions.map((suggestion, index) => {
-        const isSelected = index === selectedIndex;
-        const channelName = availableChannels.find(
-          (c) => c._id === suggestion.channelId,
-        )?.name;
+        {suggestions.map((suggestion, index) => {
+          const isSelected = index === selectedIndex;
+          const channelName = availableChannels.find(
+            (c) => c._id === suggestion.channelId,
+          )?.name;
 
-        return (
-          <div
-            key={suggestion._id}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              onSelect(suggestion.content);
-            }}
-            className={cn(
-              'group cursor-pointer px-4 py-3 hover:bg-accent',
-              isSelected && 'bg-accent',
-            )}
-          >
-            <div className="flex items-start justify-between gap-2 w-full">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium truncate text-foreground">
-                    {suggestion.name}
-                  </span>
-                  {suggestion.channelId && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
-                      {channelName || t('channel-label')}
+          return (
+            <div
+              key={suggestion._id}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onSelect(suggestion.content);
+              }}
+              className={cn(
+                'group cursor-pointer px-4 py-3 hover:bg-accent',
+                isSelected && 'bg-accent',
+              )}
+            >
+              <div className="flex items-start justify-between gap-2 w-full">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium truncate text-foreground">
+                      {suggestion.name}
                     </span>
-                  )}
+                    {suggestion.channelId && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-accent text-accent-foreground">
+                        {channelName || t('channel-label')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    {suggestion.preview}
+                  </div>
+                  {suggestion.updatedAt &&
+                    !isNaN(new Date(suggestion.updatedAt).getTime()) && (
+                      <div className="mt-1.5 text-xs text-muted-foreground">
+                        {t('updated')}{' '}
+                        {formatDistanceToNow(new Date(suggestion.updatedAt), {
+                          addSuffix: true,
+                        })}
+                      </div>
+                    )}
                 </div>
-                <div className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                  {suggestion.preview}
+                <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs text-muted-foreground group-hover:bg-background transition-colors">
+                  {index + 1}
                 </div>
-                {suggestion.updatedAt &&
-                  !isNaN(new Date(suggestion.updatedAt).getTime()) && (
-                    <div className="mt-1.5 text-xs text-muted-foreground">
-                      {t('updated')}{' '}
-                      {formatDistanceToNow(new Date(suggestion.updatedAt), {
-                        addSuffix: true,
-                      })}
-                    </div>
-                  )}
-              </div>
-              <div className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs text-muted-foreground group-hover:bg-background transition-colors">
-                {index + 1}
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
 
-      <div className="sticky bottom-0 bg-linear-to-t from-primary/10 to-background border-t border-border px-4 py-2">
-        <div className="text-xs text-center text-muted-foreground">
-          {t('press')} <Kbd variant="foreground">Enter</Kbd> {t('to-select')}
+        <div className="sticky bottom-0 bg-linear-to-t from-primary/10 to-background border-t border-border px-4 py-2">
+          <div className="text-xs text-center text-muted-foreground">
+            {t('press')} <Kbd variant="foreground">Enter</Kbd> {t('to-select')}
+          </div>
         </div>
-      </div>
-    </Popover.Content>
-  </Popover>
+      </Popover.Content>
+    </Popover>
   );
 };

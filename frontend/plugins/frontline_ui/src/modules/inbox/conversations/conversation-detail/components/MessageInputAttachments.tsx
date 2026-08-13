@@ -80,11 +80,7 @@ const AttachmentRow = ({
     <div className="group flex items-center gap-3 px-3 py-2">
       <div className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded border border-border bg-muted">
         {thumbnail ? (
-          <img
-            src={thumbnail}
-            alt={name}
-            className="size-full object-cover"
-          />
+          <img src={thumbnail} alt={name} className="size-full object-cover" />
         ) : (
           getFileIcon(type, name)
         )}

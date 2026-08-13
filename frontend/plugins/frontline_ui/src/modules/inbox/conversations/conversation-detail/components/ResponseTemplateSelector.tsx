@@ -1,5 +1,18 @@
-import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Badge, Popover, Skeleton, Spinner, Command, ToggleGroup, cn, EnumCursorDirection, isUndefinedOrNull } from 'erxes-ui';
+import {
+  useGetResponses,
+  RESPONSES_PER_PAGE,
+} from '@/responseTemplate/hooks/useGetResponses';
+import {
+  Badge,
+  Popover,
+  Skeleton,
+  Spinner,
+  Command,
+  ToggleGroup,
+  cn,
+  EnumCursorDirection,
+  isUndefinedOrNull,
+} from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
@@ -57,7 +70,6 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-
   useEffect(() => {
     refetch({
       filter: {
@@ -109,7 +121,8 @@ export const ResponseTemplateSelector: React.FC<
     setIsOpen(false);
   };
 
-  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
+  const isInitialLoad =
+    (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>

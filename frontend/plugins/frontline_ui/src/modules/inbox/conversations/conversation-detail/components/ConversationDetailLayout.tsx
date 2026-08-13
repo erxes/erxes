@@ -19,11 +19,7 @@ export const ConversationDetailLayout = ({
       {input && (
         <>
           <Resizable.Handle className="bg-transparent hover:bg-border" />
-          <Resizable.Panel
-            defaultSize={30}
-            minSize={20}
-            className="min-h-56"
-          >
+          <Resizable.Panel defaultSize={30} minSize={20} className="min-h-56">
             {input}
           </Resizable.Panel>
         </>

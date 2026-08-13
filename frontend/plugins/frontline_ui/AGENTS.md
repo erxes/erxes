@@ -410,7 +410,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   repository-level change and must be requested explicitly.
 - `MessageInput.tsx`'s scrollable region (the discord reply banner, the
   `BlockEditor`, and `MessageInputAttachments`) must stay `flex-1 min-h-0
-  overflow-y-auto`, never a plain `h-full`. The input `Resizable.Panel` clips
+overflow-y-auto`, never a plain `h-full`. The input `Resizable.Panel` clips
   overflow, so a `h-full` editor with no `min-h-0` grows past the panel and
   silently hides the toolbar (Internal Note toggle, Send button) below the
   clipped edge instead of scrolling — that was the "input view is out of
