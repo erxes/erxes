@@ -315,9 +315,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 disabled
               />
             </div>
-            <Tooltip.Content>
-              {t('pipeline-cannot-be-changed')}
-            </Tooltip.Content>
+            <Tooltip.Content>{t('pipeline-cannot-be-changed')}</Tooltip.Content>
           </Tooltip>
           <SelectStatusTicket
             variant="detail"
