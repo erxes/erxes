@@ -24,8 +24,7 @@ import {
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
-import { useAtomValue } from 'jotai';
-import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const FilterConversationsPopover = () => {
@@ -134,7 +133,7 @@ export const ConversationFilterBar = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
-  const inboxLayout = useAtomValue(inboxLayoutState);
+  const inboxLayout = useInboxLayout();
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
