@@ -128,8 +128,10 @@ const isValidTableContent = (content: unknown): boolean =>
   content.columnWidths.every(
     (width) => width === undefined || typeof width === 'number',
   ) &&
-  (content.headerRows === undefined || typeof content.headerRows === 'number') &&
-  (content.headerCols === undefined || typeof content.headerCols === 'number') &&
+  (content.headerRows === undefined ||
+    typeof content.headerRows === 'number') &&
+  (content.headerCols === undefined ||
+    typeof content.headerCols === 'number') &&
   Array.isArray(content.rows) &&
   content.rows.every(
     (row) =>
