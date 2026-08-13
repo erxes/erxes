@@ -170,17 +170,13 @@ const isValidBlock = (block: unknown): block is CmsEditorBlock => {
 
   const config = BLOCK_CONFIGS[block.type];
 
-  if (
-    !isRecord(config) ||
-    !isValidProps(block.props, config.propSchema) ||
-    !isValidBlockContent(block.content, config.content) ||
-    !Array.isArray(block.children) ||
-    !block.children.every(isValidBlock)
-  ) {
-    return false;
-  }
-
-  return true;
+  return (
+    isRecord(config) &&
+    isValidProps(block.props, config.propSchema) &&
+    isValidBlockContent(block.content, config.content) &&
+    Array.isArray(block.children) &&
+    block.children.every(isValidBlock)
+  );
 };
 
 const isValidBlocks = (blocks: unknown): blocks is CmsEditorBlock[] =>
