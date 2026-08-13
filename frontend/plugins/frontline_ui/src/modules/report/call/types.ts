@@ -143,4 +143,3 @@ export interface CallHistoryPage {
 
   agents: CallHistoryAgent[];
 }
-

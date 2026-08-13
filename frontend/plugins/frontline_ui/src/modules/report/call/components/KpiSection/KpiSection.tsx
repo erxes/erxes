@@ -10,11 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import {
-  fmtDurOrDash,
-  fmtNum,
-  fmtPctOrDash,
-} from '../../utils';
+import { fmtDurOrDash, fmtNum, fmtPctOrDash } from '../../utils';
 
 export function KpiSection() {
   const { t } = useTranslation('frontline');
@@ -34,8 +30,7 @@ export function KpiSection() {
     );
   }
 
-  const answerRate =
-    kpi?.abandonment == null ? null : 100 - kpi.abandonment;
+  const answerRate = kpi?.abandonment == null ? null : 100 - kpi.abandonment;
 
   const cards = [
     {

@@ -94,11 +94,12 @@ const findQueueIntegration = async (
     selector['operators.userId'] = user?._id;
   }
 
-  return models.CallIntegrations.findOne(selector).lean<IReportIntegration | null>();
+  return models.CallIntegrations.findOne(
+    selector,
+  ).lean<IReportIntegration | null>();
 };
 
 export const reportCallQueries = {
-
   async callReportIntegrations(
     _args,
     _params,
@@ -156,7 +157,12 @@ export const reportCallQueries = {
     }: ICallReportArgs & { agentId?: string | null },
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(models, subdomain, user, queueId);
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
 
     if (!integration) {
       return [];
@@ -169,7 +175,8 @@ export const reportCallQueries = {
     );
     const agentExtensions = new Set(userIdByExtension.keys());
 
-    const wantsInbound = !direction || direction === 'all' || direction === 'Inbound';
+    const wantsInbound =
+      !direction || direction === 'all' || direction === 'Inbound';
     const wantsOutbound =
       !direction || direction === 'all' || direction === 'Outbound';
 
@@ -212,17 +219,20 @@ export const reportCallQueries = {
       ),
     ];
 
-    const operators: { _id: string; details?: { fullName?: string }; email?: string }[] =
-      operatorUserIds.length
-        ? await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'find',
-            input: { query: { _id: { $in: operatorUserIds } } },
-          })
-        : [];
+    const operators: {
+      _id: string;
+      details?: { fullName?: string };
+      email?: string;
+    }[] = operatorUserIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'users',
+          action: 'find',
+          input: { query: { _id: { $in: operatorUserIds } } },
+        })
+      : [];
 
     const nameByUserId = new Map(
       (operators ?? []).map((operator) => [
@@ -243,7 +253,12 @@ export const reportCallQueries = {
     { startDate, endDate, queueId }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(models, subdomain, user, queueId);
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
 
     if (queueId && !integration) {
       return [];
@@ -304,7 +319,12 @@ export const reportCallQueries = {
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
         ? models.CallCdrs.find(
-            buildCdrFilter({ startDate, endDate, queueId, direction: 'Inbound' }),
+            buildCdrFilter({
+              startDate,
+              endDate,
+              queueId,
+              direction: 'Inbound',
+            }),
           )
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -354,7 +374,12 @@ export const reportCallQueries = {
     { startDate, endDate, queueId, direction }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(models, subdomain, user, queueId);
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
 
     if (queueId && !integration) {
       return [];
@@ -389,7 +414,9 @@ export const reportCallQueries = {
         : [],
     ]);
 
-    return buildVolumeSeries(foldLegsIntoCalls([...inboundCdrs, ...outboundCdrs]));
+    return buildVolumeSeries(
+      foldLegsIntoCalls([...inboundCdrs, ...outboundCdrs]),
+    );
   },
 
   async callCarrierBreakdown(
@@ -794,7 +821,12 @@ export const reportCallQueries = {
     },
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(models, subdomain, user, queueId);
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
 
     if (queueId && !integration) {
       return { entries: [], totalCount: 0, callerCount: 0, agents: [] };
@@ -808,7 +840,12 @@ export const reportCallQueries = {
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
         ? models.CallCdrs.find(
-            buildCdrFilter({ startDate, endDate, queueId, direction: 'Inbound' }),
+            buildCdrFilter({
+              startDate,
+              endDate,
+              queueId,
+              direction: 'Inbound',
+            }),
           )
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -836,9 +873,7 @@ export const reportCallQueries = {
       ]),
     );
 
-    calls = calls.filter(
-      (call) => outcomeByCall.get(call.uniqueid) !== 'IVR',
-    );
+    calls = calls.filter((call) => outcomeByCall.get(call.uniqueid) !== 'IVR');
 
     const repeats = countRepeatCallers(calls);
 
@@ -858,13 +893,18 @@ export const reportCallQueries = {
 
     if (resolution === 'resolved' || resolution === 'unresolved') {
       const conversationIds = [
-        ...new Set(calls.map(({ conversationId }) => conversationId).filter(Boolean)),
+        ...new Set(
+          calls.map(({ conversationId }) => conversationId).filter(Boolean),
+        ),
       ] as string[];
 
       const closedIds = new Set(
         (
           await models.Conversations.find(
-            { _id: { $in: conversationIds }, status: CONVERSATION_STATUSES.CLOSED },
+            {
+              _id: { $in: conversationIds },
+              status: CONVERSATION_STATUSES.CLOSED,
+            },
             { _id: 1 },
           ).lean<{ _id: string }[]>()
         ).map(({ _id }) => String(_id)),
@@ -892,7 +932,9 @@ export const reportCallQueries = {
     const page = calls.slice(skip, skip + limit);
 
     const phones = [
-      ...new Set(page.map(({ customerPhone }) => customerPhone).filter(Boolean)),
+      ...new Set(
+        page.map(({ customerPhone }) => customerPhone).filter(Boolean),
+      ),
     ] as string[];
 
     const extensions = agentExtensionsInRange;
@@ -926,7 +968,13 @@ export const reportCallQueries = {
                   { phones: { $in: phones } },
                 ],
               },
-              fields: { _id: 1, firstName: 1, lastName: 1, primaryPhone: 1, phones: 1 },
+              fields: {
+                _id: 1,
+                firstName: 1,
+                lastName: 1,
+                primaryPhone: 1,
+                phones: 1,
+              },
             },
           })
         : [],
@@ -948,8 +996,10 @@ export const reportCallQueries = {
     >();
     for (const contact of (contacts ?? []) as any[]) {
       const name =
-        [contact.firstName, contact.lastName].filter(Boolean).join(' ').trim() ||
-        '';
+        [contact.firstName, contact.lastName]
+          .filter(Boolean)
+          .join(' ')
+          .trim() || '';
       if (!name) continue;
       for (const phone of [contact.primaryPhone, ...(contact.phones ?? [])]) {
         if (phone && !customerNamesByPhone.has(String(phone))) {
@@ -1001,7 +1051,6 @@ export const reportCallQueries = {
         ),
     };
   },
-
 };
 
 markResolvers(reportCallQueries, {

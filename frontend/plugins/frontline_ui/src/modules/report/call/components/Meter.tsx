@@ -1,7 +1,6 @@
 import { cn } from 'erxes-ui';
 
 interface MeterProps {
-
   value: number;
 
   colorVar?: string;

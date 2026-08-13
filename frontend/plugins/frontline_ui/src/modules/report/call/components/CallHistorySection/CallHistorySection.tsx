@@ -86,7 +86,10 @@ const formatWhen = (value: string | null) => {
 };
 
 const initialOf = (entry: CallHistoryEntry) =>
-  (entry.agentName || entry.agentExtension || '?').trim().charAt(0).toUpperCase();
+  (entry.agentName || entry.agentExtension || '?')
+    .trim()
+    .charAt(0)
+    .toUpperCase();
 
 export function CallHistorySection() {
   const { t } = useTranslation('frontline');

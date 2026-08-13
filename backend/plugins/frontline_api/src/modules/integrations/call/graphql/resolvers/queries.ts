@@ -308,7 +308,6 @@ const callQueries = {
       uniqueid: uniqueId,
     });
   },
-
 };
 markResolvers(callQueries, {
   wrapperConfig: {

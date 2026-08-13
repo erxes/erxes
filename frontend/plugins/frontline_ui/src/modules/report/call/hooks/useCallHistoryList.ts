@@ -29,8 +29,7 @@ export function useCallHistoryList({
       queueId: queueId || undefined,
       direction: direction !== 'all' ? direction : undefined,
       outcome: outcome !== 'all' ? outcome : undefined,
-      agentExtension:
-        agentExtension !== 'all' ? agentExtension : undefined,
+      agentExtension: agentExtension !== 'all' ? agentExtension : undefined,
       resolution: resolution !== 'all' ? resolution : undefined,
       searchValue: searchValue || undefined,
       skip: (page - 1) * CALL_HISTORY_PAGE_SIZE,

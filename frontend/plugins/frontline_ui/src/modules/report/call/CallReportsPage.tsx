@@ -185,7 +185,10 @@ export function CallReportsPage() {
                   <TopNumbersSection />
                 </Tabs.Content>
 
-                <Tabs.Content value="call-history" className="mt-0 outline-none">
+                <Tabs.Content
+                  value="call-history"
+                  className="mt-0 outline-none"
+                >
                   <CallHistorySection />
                 </Tabs.Content>
               </div>

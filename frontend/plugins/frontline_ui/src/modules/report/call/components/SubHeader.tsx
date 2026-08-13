@@ -63,7 +63,8 @@ export function SubHeader({
     setDateFilter,
   } = useCallFilters();
 
-  const [dateQuery, setDateQuery] = useFilterQueryState<string>(DATE_FILTER_KEY);
+  const [dateQuery, setDateQuery] =
+    useFilterQueryState<string>(DATE_FILTER_KEY);
   useEffect(() => {
     if (dateQuery) setDateFilter(dateQuery);
   }, [dateQuery, setDateFilter]);

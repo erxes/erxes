@@ -110,7 +110,7 @@ export const buildCallHistoryEntries = ({
       talkTime: call.billsec,
       agentExtension: call.agent,
       agentName: call.agent
-        ? agentNamesByExtension.get(call.agent) ?? null
+        ? (agentNamesByExtension.get(call.agent) ?? null)
         : null,
       rungCount: rungExtensionCount(legs),
       queue: call.queue,

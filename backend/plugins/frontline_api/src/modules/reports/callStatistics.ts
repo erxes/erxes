@@ -46,7 +46,8 @@ export const calculateServiceLevel = async (legs: IStatisticsLeg[]) => {
   if (!answered.length) return null;
 
   const withinTarget = answered.filter(
-    (call) => (callSpeedOfAnswer(call) ?? Infinity) <= SERVICE_LEVEL_TARGET_SECONDS,
+    (call) =>
+      (callSpeedOfAnswer(call) ?? Infinity) <= SERVICE_LEVEL_TARGET_SECONDS,
   );
 
   return (withinTarget.length / answered.length) * 100;
