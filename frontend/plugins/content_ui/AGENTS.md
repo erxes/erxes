@@ -74,8 +74,9 @@
 - CMS posts store interoperable HTML with the non-lossy BlockNote document in
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.
-- The CMS post form uses the public `Editor` in its default JSON mode, matching
-  Sales; HTML conversion belongs to the CMS submission boundary.
+- The CMS post editor adapter composes the public `useBlockEditor` and
+  `BlockEditor` APIs, restores embedded structure on load, and emits public HTML
+  plus the non-lossy editor document before the existing submission boundary.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
@@ -186,10 +187,10 @@
 
 ### `2026-08-13` — Restore structured post content
 
-- **Summary:** Switched CMS posts to the shared editor's JSON mode and restored
-  saved blank paragraphs and Tab indentation from the embedded editor document.
-- **Affected areas:** `src/modules/cms/posts/PostPreview.tsx`, post form helpers,
-  submission hook, and block-structure serialization utility
+- **Summary:** Restored saved blank paragraphs and Tab indentation with a
+  CMS-local editor adapter while preserving the existing publish/save flow.
+- **Affected areas:** `src/modules/cms/posts/PostPreview.tsx`, CMS post editor
+  adapter, and block-structure serialization utility
 - **Contracts changed:** None
 
 ### `2026-08-11` — Increase custom-field upload limit
