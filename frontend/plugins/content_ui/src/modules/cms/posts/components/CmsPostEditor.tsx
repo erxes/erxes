@@ -12,6 +12,7 @@ interface CmsPostEditorProps {
   uploadFile: (file: File) => Promise<string>;
 }
 
+/** Edits CMS post HTML while preserving the lossless BlockNote document. */
 export const CmsPostEditor = ({
   className,
   initialContent,
@@ -45,13 +46,17 @@ export const CmsPostEditor = ({
   }, []);
 
   useEffect(() => {
+    let isActive = true;
+
     if (!initialContent || initialContent === lastEditorOutputRef.current) {
-      return;
+      return () => {
+        isActive = false;
+      };
     }
 
-    let isActive = true;
     const syncRevision = ++outputRevisionRef.current;
 
+    /** Restores externally supplied content without overwriting newer edits. */
     const syncContent = async () => {
       const structuredBlocks =
         parseBlockStructureFromHTML(initialContent) ||

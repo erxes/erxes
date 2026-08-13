@@ -9,9 +9,11 @@ const INLINE_CONTENT_CONFIGS: Record<string, unknown> =
   BLOCK_SCHEMA.inlineContentSchema;
 const STYLE_CONFIGS: Record<string, unknown> = BLOCK_SCHEMA.styleSchema;
 
+/** Checks whether an unknown value is a non-array object. */
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/** Validates one property value against a BlockNote property specification. */
 const isValidPropValue = (value: unknown, spec: unknown): boolean => {
   if (!isRecord(spec)) {
     return false;
@@ -35,6 +37,7 @@ const isValidPropValue = (value: unknown, spec: unknown): boolean => {
   );
 };
 
+/** Validates a complete property object against its BlockNote schema. */
 const isValidProps = (props: unknown, schema: unknown): boolean => {
   if (!isRecord(props) || !isRecord(schema)) {
     return false;
@@ -48,6 +51,7 @@ const isValidProps = (props: unknown, schema: unknown): boolean => {
   );
 };
 
+/** Validates the styles attached to a text node. */
 const isValidStyles = (styles: unknown): boolean =>
   isRecord(styles) &&
   Object.entries(styles).every(([name, value]) => {
@@ -56,12 +60,14 @@ const isValidStyles = (styles: unknown): boolean =>
     return isRecord(config) && typeof value === config.propSchema;
   });
 
+/** Validates a BlockNote styled-text node. */
 const isValidStyledText = (content: unknown): boolean =>
   isRecord(content) &&
   content.type === 'text' &&
   typeof content.text === 'string' &&
   isValidStyles(content.styles);
 
+/** Validates text, link, and custom inline content. */
 const isValidInlineContent = (content: unknown): boolean => {
   if (!isRecord(content) || typeof content.type !== 'string') {
     return false;
@@ -96,6 +102,7 @@ const isValidInlineContent = (content: unknown): boolean => {
   );
 };
 
+/** Validates either a legacy inline table cell or a structured table cell. */
 const isValidTableCell = (cell: unknown): boolean => {
   if (Array.isArray(cell)) {
     return cell.every(isValidInlineContent);
@@ -121,6 +128,7 @@ const isValidTableCell = (cell: unknown): boolean => {
   );
 };
 
+/** Validates the rows, cells, and metadata in table block content. */
 const isValidTableContent = (content: unknown): boolean =>
   isRecord(content) &&
   content.type === 'tableContent' &&
@@ -140,6 +148,7 @@ const isValidTableContent = (content: unknown): boolean =>
       row.cells.every(isValidTableCell),
   );
 
+/** Validates content according to a block type's declared content mode. */
 const isValidBlockContent = (
   content: unknown,
   contentType: unknown,
@@ -155,6 +164,7 @@ const isValidBlockContent = (
   return contentType === 'table' && isValidTableContent(content);
 };
 
+/** Validates one embedded editor block and all of its descendants. */
 const isValidBlock = (block: unknown): block is CmsEditorBlock => {
   if (!isRecord(block)) {
     return false;
@@ -179,9 +189,11 @@ const isValidBlock = (block: unknown): block is CmsEditorBlock => {
   );
 };
 
+/** Validates a non-empty embedded BlockNote document. */
 const isValidBlocks = (blocks: unknown): blocks is CmsEditorBlock[] =>
   Array.isArray(blocks) && blocks.length > 0 && blocks.every(isValidBlock);
 
+/** Encodes a UTF-8 string as browser-compatible Base64. */
 const encodeUtf8Base64 = (value: string): string => {
   const binary = encodeURIComponent(value).replace(
     /%([0-9A-F]{2})/g,
@@ -191,6 +203,7 @@ const encodeUtf8Base64 = (value: string): string => {
   return btoa(binary);
 };
 
+/** Decodes browser-compatible Base64 into a UTF-8 string. */
 const decodeUtf8Base64 = (value: string): string => {
   const binary = atob(value);
   const encoded = Array.from(
@@ -202,6 +215,7 @@ const decodeUtf8Base64 = (value: string): string => {
   return decodeURIComponent(encoded);
 };
 
+/** Embeds a lossless editor document alongside its public HTML. */
 export const embedBlockStructureInHTML = (
   html: string,
   blocks: unknown[],
@@ -211,6 +225,7 @@ export const embedBlockStructureInHTML = (
   return `<div ${BLOCK_STRUCTURE_ATTRIBUTE}="${encodedBlocks}">${html}</div>`;
 };
 
+/** Restores a valid embedded editor document from saved CMS HTML. */
 export const parseBlockStructureFromHTML = (html: string) => {
   if (!html.includes(BLOCK_STRUCTURE_ATTRIBUTE)) {
     return undefined;
