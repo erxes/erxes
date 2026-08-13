@@ -302,3 +302,23 @@ export const getReportGroupPropertyFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+export const reportTicketStatusFilterState = atom<Record<string, string[]>>({});
+
+const ticketStatusFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportTicketStatusFilterAtom = (cardId: string) =>
+  getOrCreate(ticketStatusFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportTicketStatusFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportTicketStatusFilterState, {
+          ...get(reportTicketStatusFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );

@@ -10,7 +10,6 @@ interface QueuesSectionProps {
   queueOptions: SelectOption[];
 }
 
-/** Queues tab: grid of QueueCards for all queue stats. */
 export function QueuesSection({ queueOptions }: QueuesSectionProps) {
   const { t } = useTranslation('frontline');
   const { queueStats, loading } = useDashboard();

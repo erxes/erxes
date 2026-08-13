@@ -348,10 +348,11 @@ export const sendMessage = async (
     message,
     tag,
     commentId,
+    skipTyping,
   }: ISendMessageData,
   isLoop?: boolean,
 ) => {
-  if (!commentId) {
+  if (!commentId && !skipTyping) {
     await trySendTypingOn(
       models,
       senderId,
@@ -393,6 +394,7 @@ export const sendMessage = async (
           message,
           tag,
           commentId: undefined,
+          skipTyping,
         },
         isLoop,
       );
@@ -416,6 +418,7 @@ export const sendMessage = async (
           message,
           tag: bot?.tag,
           commentId,
+          skipTyping,
         },
         true,
       );

@@ -8,14 +8,10 @@ interface SectionCardProps {
   className?: string;
   loading?: boolean;
   skeletonHeight?: string;
-  /** Accent bar colour class, e.g. 'bg-[var(--chart-2)]'. Defaults to primary. */
+
   accentClass?: string;
 }
 
-/**
- * Lightweight container card shared by every report section.
- * Uses CSS custom properties for shadow so it adapts to light/dark mode.
- */
 export function SectionCard({
   title,
   description,

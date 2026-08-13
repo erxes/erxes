@@ -19,7 +19,7 @@ type ScheduleDays = Weekday & ScheduleDay;
 // Messenger setup payload type
 export interface MessengerSetupPayload {
   _id: string;
-  ticketConfigId?: string;
+  ticketConfigIds?: string[];
   name?: string;
   brandId?: string;
   languageCode?: string;

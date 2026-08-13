@@ -14,19 +14,18 @@ import {
   Avatar,
   readImage,
   Separator,
+  cn,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ComponentPropsWithoutRef, FC, useState } from 'react';
 import { ITicketCheckProgress } from '../types';
 import { format } from 'date-fns';
 import { useGetTicketsByCustomer } from '../hooks/useGetTicketsByCustomer';
 import { TicketStatusInlineValue } from './ticket-check-progress';
 import { IUser } from '../../types';
+import { useSetAtom } from 'jotai';
+import { ticketTabAtom } from '../../states';
 
-export const TicketSubmissions = ({
-  setPage,
-}: {
-  setPage: (page: 'submissions' | 'submit') => void;
-}) => {
+export const TicketSubmissions = () => {
   const { tickets, error } = useGetTicketsByCustomer();
 
   if (error || tickets?.length === 0) {
@@ -41,14 +40,7 @@ export const TicketSubmissions = ({
             <div className="text-accent-foreground mt-2 text-xs">
               Please create a ticket to get started.
             </div>
-            <Button
-              type="button"
-              className="bg-primary flex-none shadow-2xs my-2"
-              onClick={() => setPage('submit')}
-            >
-              <IconPlus size={16} />
-              Issue new ticket
-            </Button>
+            <NewTicket />
           </div>
         </div>
       </div>
@@ -62,15 +54,10 @@ export const TicketSubmissions = ({
         ))}
       </div>
       <div className="shrink-0">
-        <Button
-          type="button"
+        <NewTicket
           variant={'secondary'}
           className="bg-primary hover:bg-primary/70 text-primary-foreground flex-none shadow-2xs my-2 w-full"
-          onClick={() => setPage('submit')}
-        >
-          <IconPlus size={16} />
-          Issue a new ticket
-        </Button>
+        />
       </div>
     </div>
   );
@@ -234,5 +221,25 @@ export const TicketDateDisplay = ({
         )}
       </span>
     </div>
+  );
+};
+
+export const NewTicket: FC<ComponentPropsWithoutRef<typeof Button>> = ({
+  variant,
+  className,
+  ...rest
+}) => {
+  const setPage = useSetAtom(ticketTabAtom);
+  return (
+    <Button
+      type="button"
+      variant={variant}
+      className={cn('bg-primary flex-none shadow-2xs my-2', className)}
+      onClick={() => setPage('selection')}
+      {...rest}
+    >
+      <IconPlus size={16} />
+      Issue a new ticket
+    </Button>
   );
 };

@@ -10,6 +10,7 @@ export const types = `
     fromDate: String
     toDate: String
     status: String
+    statusIds: [String]
     source: String
     limit: Int
     page: Int
