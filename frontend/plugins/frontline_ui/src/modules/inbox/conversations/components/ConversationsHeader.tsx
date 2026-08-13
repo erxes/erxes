@@ -11,7 +11,7 @@ export const ConversationsHeader = ({
   return (
     <Filter id="conversations-filter-bar">
       <div className="min-w-0 space-y-1 overflow-hidden bg-sidebar py-2 pl-6 pr-4">
-        <div className="flex items-center justify-between">
+        <div className="flex min-w-0 items-center justify-between gap-2">
           {children}
           <ConversationCount />
         </div>
@@ -36,11 +36,16 @@ export const ConversationCount = ({ className }: { className?: string }) => {
   return (
     <span
       className={cn(
-        'text-accent-foreground inline-flex items-center gap-1 text-sm font-medium ml-auto truncate',
+        'text-accent-foreground inline-flex items-center gap-1 text-sm font-medium ml-auto min-w-0',
         className,
       )}
     >
-      {loading ? <Skeleton className="w-4 h-4" /> : totalCount} {t('conversations')}
+      {loading ? (
+        <Skeleton className="w-4 h-4 flex-none" />
+      ) : (
+        <span className="flex-none">{totalCount}</span>
+      )}
+      <span className="truncate">{t('conversations')}</span>
     </span>
   );
 };

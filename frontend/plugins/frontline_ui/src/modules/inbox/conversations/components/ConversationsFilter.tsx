@@ -3,6 +3,7 @@ import {
   Command,
   Filter,
   Skeleton,
+  cn,
   parseDateRangeFromString,
   useMultiQueryState,
   useNonNullMultiQueryState,
@@ -26,6 +27,7 @@ import {
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
 
@@ -192,6 +194,7 @@ export const ConversationFilterBar = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
+  const inboxLayout = useInboxLayout();
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
@@ -216,7 +219,10 @@ export const ConversationFilterBar = ({
 
   return (
     <Filter.Bar
-      className="w-full min-w-0 overflow-hidden pl-2 pt-1 [&>div]:min-w-0 [&>div]:max-w-full [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0"
+      className={cn(
+        'w-full min-w-0 overflow-hidden [&>div]:min-w-0 [&>div]:max-w-full [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0',
+        inboxLayout === 'list' ? 'pl-2' : 'pt-1',
+      )}
       id="conversations-filter-bar"
     >
       <Filter.SearchValueBarItem />

@@ -7,7 +7,6 @@ import { HeatmapChart } from './HeatmapChart';
 import { SectionCard } from '../SectionCard';
 import { useTranslation } from 'react-i18next';
 
-/** Overview tab: volume series + carrier donut + heatmap. */
 export function OverviewSection() {
   const { t } = useTranslation('frontline');
   const { series, loading: volumeLoading } = useVolumeSeries();
@@ -16,7 +15,6 @@ export function OverviewSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Volume + Carrier row */}
       <div className="grid gap-4 lg:grid-cols-3">
         <SectionCard
           className="lg:col-span-2"
@@ -38,7 +36,6 @@ export function OverviewSection() {
         </SectionCard>
       </div>
 
-      {/* Heatmap */}
       <SectionCard
         title={t('hour-day-heatmap')}
         description={t('call-volume-by-hour-and-day')}

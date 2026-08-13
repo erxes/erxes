@@ -1,3 +1,19 @@
+
+
+## [3.0.78](https://github.com/erxes/erxes/compare/3.0.77...3.0.78) (2026-08-12)
+
+
+### Bug Fixes
+
+* calc excludeAmount and totalAmount with additionalconfig.discountCheck ([#9000](https://github.com/erxes/erxes/issues/9000)) ([682e25c](https://github.com/erxes/erxes/commit/682e25c58ef093d3671f455deefcda84e2f3c38a))
+* calc score with scoreCampaigns product filter ([#9003](https://github.com/erxes/erxes/issues/9003)) ([0e868ae](https://github.com/erxes/erxes/commit/0e868aefe3307c0585758035d1df2f1336c908c4))
+
+
+### Features
+
+* **frontline:** add client portal messenger conversation operations ([2b74435](https://github.com/erxes/erxes/commit/2b744350217bb0d602e57773d9022d8567be27a8))
+* **pipelines:** add scoped property selection ([#9001](https://github.com/erxes/erxes/issues/9001)) ([2561cf8](https://github.com/erxes/erxes/commit/2561cf8e68d9b7e23b1223a89dc7a0ff66f3f526))
+
 # Changelog
 
 ## [3.0.77](https://github.com/erxes/erxes/compare/3.0.76...3.0.77) (2026-08-12)

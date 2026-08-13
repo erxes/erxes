@@ -80,7 +80,7 @@ export const DealPipelineProperties = (props: Props) => {
 
   if (
     !pipelineLoading &&
-    pipelineDetail?.isPropertySelectionConfigured === false
+    pipelineDetail?.isPropertySelectionConfigured !== true
   ) {
     return (
       <FieldsInDetail

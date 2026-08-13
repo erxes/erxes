@@ -6,12 +6,10 @@ import { Meter } from '../Meter';
 import { ReportTable } from '../ReportTable';
 import { CARRIER_COLOR_VAR, fmtDur, fmtNum } from '../../utils';
 
-/** Top Contact Numbers tab: ranked table of most active phone numbers. */
 export function TopNumbersSection() {
   const { t } = useTranslation('frontline');
   const { numbers, loading } = useTopNumbers(20);
 
-  // Attempt bars are relative to the most-seen number in the current range.
   const busiest = Math.max(...numbers.map(({ attempts }) => attempts), 1);
 
   return (

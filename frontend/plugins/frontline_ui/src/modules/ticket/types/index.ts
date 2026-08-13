@@ -18,6 +18,8 @@ export interface ITicket {
   createdAt: string;
   updatedAt: string;
   channelId: string;
+  branchId?: string;
+  departmentId?: string;
   statusChangedDate: string;
   number: number;
   pipelineId: string;

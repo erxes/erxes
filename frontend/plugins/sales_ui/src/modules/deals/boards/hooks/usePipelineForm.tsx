@@ -12,6 +12,7 @@ export const usePipelineForm = () => {
       createPipelineFormSchema({
         boardRequired: t('pipeline-board-required'),
         duplicatePaymentType: t('pipeline-payment-type-duplicate'),
+        duplicateStageCode: t('pipeline-stage-code-duplicate'),
         invalidPipelineVisibility: t('pipeline-visibility-invalid'),
         invalidStageProbability: t('pipeline-stage-probability-invalid'),
         invalidStageStatus: t('pipeline-stage-status-invalid'),
