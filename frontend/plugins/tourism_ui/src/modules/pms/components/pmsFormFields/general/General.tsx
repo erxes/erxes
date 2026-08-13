@@ -1,4 +1,4 @@
-import { Control } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Textarea, InfoCard } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import PmsFormFieldsLayout from '../PmsFormFieldsLayout';
@@ -7,8 +7,9 @@ import Discount from './Discount';
 import Lock from './Lock';
 import { PmsBranchFormType } from '@/pms/constants/formSchema';
 
-const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
+const General = ({ form }: { form: UseFormReturn<PmsBranchFormType> }) => {
   const { t } = useTranslation('tourism');
+  const { control } = form;
   return (
     <PmsFormFieldsLayout>
       <div className="space-y-3">
@@ -54,7 +55,7 @@ const General = ({ control }: { control: Control<PmsBranchFormType> }) => {
 
         <InfoCard title={t('discount')}>
           <InfoCard.Content>
-            <Discount control={control} />
+            <Discount form={form} />
           </InfoCard.Content>
         </InfoCard>
 
