@@ -8,6 +8,7 @@ import { BLOCK_SCHEMA, TABLE_SCHEMA } from '../constant';
 export const useBlockEditor = (args?: {
   initialContent?: Block[];
   placeholder?: string;
+  tabBehavior?: 'prefer-navigate-ui' | 'prefer-indent';
   uploadFile?: (file: File) => Promise<string>;
 }) => {
   const { placeholder, uploadFile, ...restArgs } = args || {};

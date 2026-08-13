@@ -5,13 +5,17 @@ import { Block } from '@blocknote/core';
 import { BlockEditorProps, IEditorProps } from '../types';
 import { cn } from 'erxes-ui/lib';
 import { parseBlocks } from '../utils';
+import {
+  embedBlockStructureInHTML,
+  parseBlockStructureFromHTML,
+} from '../utils/blockStructureHTML';
 
 export const Editor = ({
   onChange,
   initialContent,
-  scope,
   className,
   isHTML = false,
+  preserveBlockStructure = false,
   uploadFile,
   ...props
 }: Omit<BlockEditorProps, 'editor' | 'onChange'> & IEditorProps) => {
@@ -27,6 +31,7 @@ export const Editor = ({
   const parsedInitialContent = parseBlocks(initialContent ?? '');
   const editor = useBlockEditor({
     initialContent: parsedInitialContent || undefined,
+    tabBehavior: preserveBlockStructure ? 'prefer-indent' : undefined,
     uploadFile,
   });
 
@@ -40,7 +45,10 @@ export const Editor = ({
       if (initialContent === lastEditorOutputRef.current) return;
 
       // Support legacy JSON content stored before isHTML mode was introduced
-      const parsed = parseBlocks(initialContent);
+      const parsed =
+        (preserveBlockStructure &&
+          parseBlockStructureFromHTML(initialContent)) ||
+        parseBlocks(initialContent);
       if (parsed) {
         const currentSerialized = JSON.stringify(editor.document);
         const nextSerialized = JSON.stringify(parsed);
@@ -71,8 +79,7 @@ export const Editor = ({
     return () => {
       isActive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor, initialContent, isHTML]);
+  }, [editor, initialContent, isHTML, preserveBlockStructure]);
 
   useEffect(() => {
     if (isHTML) return;
@@ -132,14 +139,18 @@ export const Editor = ({
       const content = editor?.document;
       if (!content) return;
       if (isHTML) {
-        const htmlContent = await editor.blocksToHTMLLossy(content as Block[]);
+        const blocks = content as Block[];
+        const interoperableHTML = await editor.blocksToHTMLLossy(blocks);
+        const htmlContent = preserveBlockStructure
+          ? embedBlockStructureInHTML(interoperableHTML, blocks)
+          : interoperableHTML;
         lastEditorOutputRef.current = htmlContent;
         onChange(htmlContent);
       } else {
         onChange(JSON.stringify(content));
       }
     }, 300);
-  }, [editor, isHTML, onChange]);
+  }, [editor, isHTML, onChange, preserveBlockStructure]);
 
   return (
     <BlockEditor

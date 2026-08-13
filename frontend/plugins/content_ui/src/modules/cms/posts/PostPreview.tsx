@@ -41,6 +41,7 @@ export const PostPreview = ({
                   className="h-[calc(100vh-200px)] border text-justify"
                   key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
                   isHTML
+                  preserveBlockStructure
                   initialContent={form.getValues('content') || ''}
                   onChange={handleEditorChange}
                   uploadFile={async (file) => {

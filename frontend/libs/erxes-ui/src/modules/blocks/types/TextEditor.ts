@@ -30,6 +30,7 @@ export interface IEditorProps {
   initialContent?: string;
   scope?: string;
   isHTML?: boolean;
+  preserveBlockStructure?: boolean;
   uploadFile?: (file: File) => Promise<string>;
 }
 

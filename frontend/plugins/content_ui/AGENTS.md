@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-08-11`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -23,6 +23,8 @@
 
 - Provides CMS content, category, page, menu, custom-field, and media workflows.
 - Provides Web Builder configuration and editing surfaces.
+- Preserves blank lines and tab-indented block structure when CMS posts are
+  saved and reopened in the post editor.
 - Allows individual CMS custom-field file uploads up to 630 MiB through the
   platform's chunked-upload contract.
 
@@ -69,6 +71,8 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- The CMS post editor must enable the shared editor's structure-preserving HTML
+  mode so blank and nested blocks survive the HTML persistence boundary.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
@@ -155,8 +159,11 @@
 
 ## Validation
 
-- `pnpm nx lint content_ui` (when a lint target is defined)
+- `pnpm nx lint content_ui`
 - `pnpm nx build content_ui`
+- `pnpm nx test content_ui`
+- Create or edit a CMS post with a blank paragraph and a Tab-indented paragraph,
+  save it, reopen it, and verify both structures remain visible.
 - Directly select a CMS file custom field and verify a file no larger than
   630 MiB is accepted while a larger file is rejected.
 
@@ -174,6 +181,14 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Preserve post editor spacing
+
+- **Summary:** Preserved blank lines and tab-indented blocks across CMS post
+  saves and reloads while retaining HTML output for CMS consumers.
+- **Affected areas:** `src/modules/cms/posts/PostPreview.tsx`
+- **Contracts changed:** Consumes the optional `preserveBlockStructure` prop
+  from the public `erxes-ui` editor API.
 
 ### `2026-08-11` — Increase custom-field upload limit
 
