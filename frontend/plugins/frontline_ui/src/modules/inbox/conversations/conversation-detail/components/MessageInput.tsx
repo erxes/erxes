@@ -569,7 +569,7 @@ export const MessageInput = ({
           </div>
         )}
 
-        <div className="flex min-w-0 flex-wrap items-center gap-1 px-2 mt-2 sm:flex-nowrap sm:gap-4 sm:px-6">
+        <div className="flex min-w-0 flex-wrap items-center gap-1 px-2 mt-2 sm:gap-4 sm:px-6">
           <Toggle
             pressed={isInternalNote}
             size="lg"
