@@ -1213,6 +1213,8 @@
   "quiet-teams_one": "Чимээгүй {{count}} суваг",
   "quiet-teams_other": "Чимээгүй {{count}} суваг",
   "hide-quiet-teams": "Чимээгүй сувгуудыг нуух",
+  "show-conversations": "Яриануудыг харуулах",
+  "hide-conversations": "Яриануудыг нуух",
   "create-facebook-post": "Facebook пост үүсгэх",
   "integration": "Холболт",
   "search-integrations": "Холболт хайх...",
@@ -1254,6 +1256,6 @@
   "move-to-pipeline": "Pipeline рүү шилжүүлэх",
   "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ",
   "tickets-updated-successfully": "Тикетүүд амжилттай шинэчлэгдлээ",
-  "tickets-refresh-failed": "Жагсаалтыг сэргээж чадсангүй — хамгийн сүүлийн байдлыг харахын тулд refresh хийнэ үү."
+  "tickets-refresh-failed": "Жагсаалтыг сэргээж чадсангүй — хамгийн сүүлийн байдлыг харахын тулд refresh хийнэ үү.",
   "ticket-status": "Тасалбарын төлөв"
 }

@@ -1213,6 +1213,8 @@
   "quiet-teams_one": "{{count}} quiet channels",
   "quiet-teams_other": "{{count}} quiet channels",
   "hide-quiet-teams": "Hide quiet channels",
+  "show-conversations": "Show conversations",
+  "hide-conversations": "Hide conversations",
   "create-facebook-post": "Create Facebook post",
   "integration": "Integration",
   "search-integrations": "Search integrations...",
@@ -1254,6 +1256,6 @@
   "move-to-pipeline": "Move to pipeline",
   "tickets-moved-successfully": "Tickets moved successfully",
   "tickets-updated-successfully": "Tickets updated successfully",
-  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest."
+  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest.",
   "ticket-status": "Ticket status"
 }

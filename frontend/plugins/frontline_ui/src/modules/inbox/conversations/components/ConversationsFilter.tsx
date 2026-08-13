@@ -27,7 +27,6 @@ import {
   IntegrationTypeFilterItem,
   IntegrationTypeFilterView,
 } from '@/integrations/components/IntegrationTypeFilter';
-import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
 
@@ -142,7 +141,10 @@ export const FilterConversationsPopover = () => {
                 <IconUsersGroup />
                 {t('participated')}
                 <span className="ml-auto flex items-center gap-2">
-                  <FilterCount count={counts?.participating} loading={loading} />
+                  <FilterCount
+                    count={counts?.participating}
+                    loading={loading}
+                  />
                   {participated && <IconCheck />}
                 </span>
               </Filter.CommandItem>
@@ -189,12 +191,13 @@ export const FilterConversationsPopover = () => {
 
 export const ConversationFilterBar = ({
   children,
+  className,
 }: {
   children?: React.ReactNode;
+  className?: string;
 }) => {
   const { t } = useTranslation('frontline');
   const [status] = useQueryState<ConversationStatus>('status');
-  const inboxLayout = useInboxLayout();
   const filterStates = useNonNullMultiQueryState<{
     status: ConversationStatus;
     unassigned: boolean;
@@ -220,8 +223,8 @@ export const ConversationFilterBar = ({
   return (
     <Filter.Bar
       className={cn(
-        'w-full min-w-0 overflow-hidden [&>div]:min-w-0 [&>div]:max-w-full [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0',
-        inboxLayout === 'list' ? 'pl-2' : 'pt-1',
+        'hide-scroll min-w-0 flex-nowrap overflow-x-auto overflow-y-hidden [&>div]:min-w-0 [&>div]:max-w-full [&>div]:shrink-0 [&>div]:overflow-hidden [&>div>button]:min-w-0 [&>div>button]:truncate [&>div>button:last-child]:shrink-0',
+        className,
       )}
       id="conversations-filter-bar"
     >

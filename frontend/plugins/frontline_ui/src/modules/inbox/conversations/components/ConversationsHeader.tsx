@@ -1,6 +1,7 @@
 import { cn, Filter, Skeleton } from 'erxes-ui';
-import { useConversationListContext } from '../hooks/useConversationListContext';
+import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { ConversationFilterBar } from '@/inbox/conversations/components/ConversationsFilter';
+import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationsHeader = ({
@@ -8,14 +9,24 @@ export const ConversationsHeader = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const inboxLayout = useInboxLayout();
+
   return (
     <Filter id="conversations-filter-bar">
-      <div className="min-w-0 space-y-1 overflow-hidden bg-sidebar py-2 pl-6 pr-4">
-        <div className="flex min-w-0 items-center justify-between gap-2">
-          {children}
-          <ConversationCount />
-        </div>
-        <ConversationFilterBar />
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 overflow-hidden bg-sidebar py-2 pl-6 pr-4">
+        <div className="order-1 flex shrink-0 items-center">{children}</div>
+        <ConversationFilterBar
+          className={cn(
+            'order-3 basis-full',
+            inboxLayout === 'list' && 'md:order-2 md:basis-0',
+          )}
+        />
+        <ConversationCount
+          className={cn(
+            'order-2 shrink-0',
+            inboxLayout === 'list' && 'md:order-3',
+          )}
+        />
         <Filter.Dialog>
           <Filter.View filterKey="searchValue" inDialog>
             <Filter.DialogStringView filterKey="searchValue" />
