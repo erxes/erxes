@@ -1,12 +1,11 @@
-/** Call Reports — shared TypeScript types */
-
 export interface KpiScorecard {
   callstotal: number;
-  abandonment: number;
-  averageAnsweredTime: number;
-  /** Null when no call in range carries a ring time, so it cannot be measured. */
+
+  abandonment: number | null;
+  averageAnsweredTime: number | null;
+
   serviceLevel: number | null;
-  /** Null when no call in range carries a ring time, so it cannot be measured. */
+
   averageSpeed: number | null;
   firstCallResolution: number | null;
   occupancy: number | null;
@@ -79,20 +78,17 @@ export interface AgentStat {
   longestCall: number;
 }
 
-/** Normalised integration entry (phone numbers may be comma-joined). */
 export interface Integration {
   inboxId: string;
   phone: string;
   [key: string]: unknown;
 }
 
-/** Option shape used by Select dropdowns. */
 export interface SelectOption {
   label: string;
   value: string;
 }
 
-/** The global filter state shared across all sections. */
 export interface CallFilters {
   integrationId: string;
   setIntegrationId: (id: string) => void;
@@ -102,9 +98,48 @@ export interface CallFilters {
   setDirection: (d: string) => void;
   dateFilter: string;
   setDateFilter: (v: string) => void;
-  /** Derived ISO date strings, ready to pass to GraphQL queries */
+
   startDate: string;
   endDate: string;
-  /** Human-readable label for current date range */
+
   dateRangeLabel: string;
+}
+
+export interface CallHistoryEntry {
+  uniqueid: string;
+  startedAt: string | null;
+  endedAt: string | null;
+  customerPhone: string | null;
+
+  customerName: string | null;
+  customerId: string | null;
+  carrier: string;
+  direction: 'incoming' | 'outgoing';
+
+  outcome: string;
+  isAnswered: boolean;
+
+  waitTime: number | null;
+  talkTime: number;
+  agentExtension: string | null;
+  agentName: string | null;
+  rungCount: number;
+  queue: string | null;
+  recordUrl: string | null;
+  conversationId: string | null;
+  repeatCount: number;
+  repeatAnswered: number;
+}
+
+export interface CallHistoryAgent {
+  extension: string;
+  name: string | null;
+}
+
+export interface CallHistoryPage {
+  entries: CallHistoryEntry[];
+  totalCount: number;
+  callerCount: number;
+
+  agents: CallHistoryAgent[];
 }

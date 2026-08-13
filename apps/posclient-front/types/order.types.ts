@@ -192,6 +192,7 @@ export interface IOrderHistory {
   type: string
   createdAt: string
   modifiedAt: string
+  user?: Customer
   paidDate: string
 }
 

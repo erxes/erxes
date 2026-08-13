@@ -11,6 +11,8 @@ export interface IAutomationExecAction {
   actionConfig?: any;
   nextActionId?: string;
   result?: any;
+  // Why the action failed, from AUTOMATION_ERROR_CODES. Only set on errors.
+  errorCode?: string;
   // Set on workflow node actions: links to the child execution for drill-in
   childExecutionId?: string;
 }
@@ -68,13 +70,14 @@ const execActionSchema = new Schema({
   nextActionId: { type: String },
   result: { type: Object },
   childExecutionId: { type: String },
+  errorCode: { type: String },
 });
 
 export const automationExecutionSchema = new Schema({
   createdAt: { type: Date, default: Date.now, required: true },
   modifiedAt: { type: Date, default: Date.now, required: true },
-  automationId: { type: String, required: true, index: true },
-  triggerId: { type: String, required: true, index: true },
+  automationId: { type: String, required: true },
+  triggerId: { type: String, required: true },
   triggerType: { type: String },
   triggerConfig: { type: Object },
   nextActionId: { type: String },
@@ -97,4 +100,21 @@ export const automationExecutionSchema = new Schema({
   workflowId: { type: String },
   inputs: { type: Object },
   depth: { type: Number, default: 0 },
+});
+
+// Executions are write-heavy, so only the compound indexes the real queries
+// need. The `automationId` / `triggerId` prefixes cover single-field lookups.
+
+// History list and stats: match by automation, order/range by createdAt.
+automationExecutionSchema.index({ automationId: 1, createdAt: -1 });
+
+// Status-filtered list and the status breakdown.
+automationExecutionSchema.index({ automationId: 1, status: 1, createdAt: -1 });
+
+// Engine hot path: latest execution of a target for re-enrollment checks.
+automationExecutionSchema.index({
+  automationId: 1,
+  triggerId: 1,
+  targetId: 1,
+  createdAt: -1,
 });

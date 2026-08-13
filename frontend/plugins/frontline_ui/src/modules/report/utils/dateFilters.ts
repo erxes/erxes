@@ -13,27 +13,12 @@ import {
   subWeeks,
   subYears,
 } from 'date-fns';
+import { parseDateRangeFromString } from 'erxes-ui';
 
 export function getDateRange(value: string) {
   const today = new Date();
   let fromDate: Date | undefined;
   let toDate: Date | undefined;
-
-  // Constants
-  const MONTHS = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
 
   switch (value) {
     case 'today': {
@@ -95,38 +80,18 @@ export function getDateRange(value: string) {
         } catch {
           return { fromDate: undefined, toDate: undefined };
         }
-      } else if (MONTHS.some((month) => value.includes(month))) {
-        // Month format: YYYY-MMM
-        const [year, month] = value.split('-');
-        const monthIndex = MONTHS.indexOf(month);
-        fromDate = startOfDay(new Date(parseInt(year), monthIndex, 1));
-        toDate = endOfDay(new Date(parseInt(year), monthIndex + 1, 0));
-      } else if (value.includes('quarter')) {
-        // Quarter format: YYYY-quarterN
-        const [year] = value.split('-');
-        const quarterNumber = Number.parseInt(value.split('quarter')[1]);
-        fromDate = startOfDay(
-          new Date(parseInt(year), (quarterNumber - 1) * 3, 1),
-        );
-        toDate = endOfDay(new Date(parseInt(year), quarterNumber * 3, 0));
-      } else if (value.includes('half')) {
-        // Half year format: YYYY-halfN
-        const [year] = value.split('-');
-        const halfNumber = Number.parseInt(value.split('half')[1]);
-        fromDate = startOfDay(
-          new Date(parseInt(year), (halfNumber - 1) * 6, 1),
-        );
-        toDate = endOfDay(new Date(parseInt(year), halfNumber * 6, 0));
-      } else if (/^\d{4}-y$/.test(value)) {
-        // Year format: YYYY-y
-        const year = Number.parseInt(value);
-        fromDate = startOfDay(new Date(year, 0, 1));
-        toDate = endOfDay(new Date(year, 11, 31));
-      } else if (value.includes(',')) {
-        // Date range format: fromDate,toDate
-        const [from, to] = value.split(',');
-        fromDate = startOfDay(new Date(from));
-        toDate = endOfDay(new Date(to));
+        break;
+      }
+
+      // Month, quarter, half-year, year and day-range values are written by the
+      // shared date filter dialog, so the shared parser owns their format. It
+      // is the only place that knows a quarter arrives as `2026-quarter-1`
+      // rather than `2026-quarter1`; reading the number out by hand here took
+      // the hyphen as a minus sign and moved the range into the wrong year.
+      const range = parseDateRangeFromString(value);
+      if (range) {
+        fromDate = range.from;
+        toDate = range.to;
       }
       break;
     }

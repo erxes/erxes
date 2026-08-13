@@ -12,6 +12,9 @@ import {
 import {
   generateAutomationElementId,
   splitAutomationNodeType,
+  TAutomationAction,
+  TAutomationOptionalConnect,
+  TAutomationTrigger,
 } from 'ui-modules';
 
 const DEFAULT_INPUT_TIME_UNIT = 'minute' as const;
@@ -22,12 +25,46 @@ export const MAX_MESSAGES_PER_ACTION = 5;
 // open the 24h messaging window, so anything further has to sit behind a button.
 export const MAX_MESSAGES_FROM_COMMENT_TRIGGER = 1;
 
-export const getMaxMessagesForTrigger = (triggerType?: string) => {
-  const [, , contentType] = splitAutomationNodeType(triggerType);
+// `config` widens to any through the action's generic, so narrow it here.
+const getOptionalConnects = ({
+  config,
+}: TAutomationAction): TAutomationOptionalConnect[] =>
+  config?.optionalConnects || [];
 
-  return contentType === 'comments'
-    ? MAX_MESSAGES_FROM_COMMENT_TRIGGER
-    : MAX_MESSAGES_PER_ACTION;
+// An optional connect only fires when the customer clicks a button, and that
+// click opens the messaging window for everything downstream of it.
+const isBehindOptionalConnect = (
+  currentActionId: string,
+  previousActions: TAutomationAction[],
+) => {
+  const previousActionIds = new Set(previousActions.map(({ id }) => id));
+
+  return previousActions.some((action) =>
+    getOptionalConnects(action).some(
+      ({ actionId }) =>
+        actionId === currentActionId || previousActionIds.has(actionId),
+    ),
+  );
+};
+
+export const getMaxMessagesForAction = ({
+  trigger,
+  currentActionId,
+  previousActions = [],
+}: {
+  trigger?: TAutomationTrigger;
+  currentActionId: string;
+  previousActions?: TAutomationAction[];
+}) => {
+  const [, , contentType] = splitAutomationNodeType(trigger?.type);
+
+  if (contentType !== 'comments') {
+    return MAX_MESSAGES_PER_ACTION;
+  }
+
+  return isBehindOptionalConnect(currentActionId, previousActions)
+    ? MAX_MESSAGES_PER_ACTION
+    : MAX_MESSAGES_FROM_COMMENT_TRIGGER;
 };
 
 export const INITIAL_OBJ_MESSAGE_TYPES = {

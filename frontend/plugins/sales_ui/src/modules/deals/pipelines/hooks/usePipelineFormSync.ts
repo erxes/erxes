@@ -57,6 +57,7 @@ const getPipelineFormValues = (
       excludeCheckUserIds: [],
       paymentIds: [],
       paymentTypes: [],
+      propertyIds: [],
     };
   }
 
@@ -84,6 +85,7 @@ const getPipelineFormValues = (
       ...paymentType,
       config: formatPaymentConfig(paymentType.config),
     })),
+    propertyIds: pipelineDetail.propertyIds || [],
   };
 };
 

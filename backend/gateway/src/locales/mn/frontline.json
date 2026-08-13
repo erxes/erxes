@@ -858,6 +858,8 @@
   "status-label": "Төлөв",
   "assignee-label": "Хариуцагч",
   "pipeline-label": "Дамжлага",
+  "branch-label": "Салбар",
+  "department-label": "Тасаг",
   "tags-label": "Шошгонууд",
   "created-at-label": "Үүссэн огноо",
   "start-date-label": "Эхлэх огноо",
@@ -898,6 +900,8 @@
   "media-attachments": "Медиа хавсралтууд",
   "channel-cannot-be-changed": "Сувгийг өөрчлөх боломжгүй",
   "pipeline-cannot-be-changed": "Дамжлагыг өөрчлөх боломжгүй",
+  "branch-cannot-be-changed": "Салбарыг өөрчлөх боломжгүй",
+  "department-cannot-be-changed": "Тасгийг өөрчлөх боломжгүй",
   "subscribe": "Бүртгүүлэх",
   "unsubscribe": "Бүртгэлээс гарах",
   "no-pipelines": "Дамжлага байхгүй",
@@ -1243,5 +1247,14 @@
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
   "without-priority": "{{value}} нь priority-гүй",
+  "assign-to": "Хуваарилах",
+  "change-status": "Төлөв өөрчлөх",
+  "change-priority": "Эрэмбэ өөрчлөх",
+  "change-tags": "Таг өөрчлөх",
+  "change-assigned-members": "Хариуцагч гишүүд өөрчлөх",
+  "move-to-pipeline": "Pipeline рүү шилжүүлэх",
+  "tickets-moved-successfully": "Тикетүүд амжилттай шилжлээ",
+  "tickets-updated-successfully": "Тикетүүд амжилттай шинэчлэгдлээ",
+  "tickets-refresh-failed": "Жагсаалтыг сэргээж чадсангүй — хамгийн сүүлийн байдлыг харахын тулд refresh хийнэ үү."
   "ticket-status": "Тасалбарын төлөв"
 }

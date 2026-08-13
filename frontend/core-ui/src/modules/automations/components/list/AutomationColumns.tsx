@@ -30,6 +30,7 @@ import {
   TAutomationAction,
   TAutomationTrigger,
 } from 'ui-modules';
+import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
@@ -260,6 +261,14 @@ export const getAutomationColumns: (
       );
     },
     size: 80,
+  },
+  {
+    id: 'executionCount',
+    header: () => <RecordTable.InlineHead label={t('runs')} />,
+    cell: ({ cell }) => (
+      <AutomationExecutionCountCell id={cell.row.original._id} />
+    ),
+    size: 100,
   },
   {
     id: 'tagIds',

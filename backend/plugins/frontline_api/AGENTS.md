@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -50,6 +50,10 @@
 
 ## Current Capabilities
 
+- Ticket pipelines persist an ordered unique `propertyIds` selection. Create
+  and update validate every id against Core `frontline:ticket` fields before
+  writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
+  pipelines from an intentional empty selection.
 - Runs as a federated subgraph plus tRPC service on port `3304`, with GraphQL
   subscriptions enabled.
 - Multi-channel inbox with membership-scoped conversation visibility.
@@ -76,6 +80,9 @@
   keeps the shared app.
 - Runs Facebook/Instagram/Discord/inbox/ticket automation triggers and actions,
   including bot message sequences with postback buttons and wait conditions.
+- Logs Facebook Graph delivery failures with provider error metadata and request
+  context while excluding outbound message content; comment-triggered bot flows
+  do not send Messenger typing indicators.
 - Boots the Call app, the IMAP poller, and the Discord gateway client from
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
@@ -305,6 +312,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - A Page may send exactly one private reply per comment, and that reply does not
   open the 24-hour messaging window. Any message after it needs a user
   interaction, an already-open window, or a valid tag.
+- Comment-triggered Facebook automations never send `typing_on`, including bot
+  sequence steps after the initial private reply.
 - In `sendReply`, request-level Graph error codes (`1`, `10`, `100`, `10900`)
   must not flip `FacebookIntegrations.healthStatus` to a token state — only
   genuine token and permission failures may.
@@ -444,6 +453,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-12` — Pipeline-scoped ticket properties
+
+- **Summary:** Ticket pipelines now persist only validated Core ticket property
+  ids for pipeline-specific detail forms.
+- **Affected areas:** `src/modules/ticket/{@types,db,graphql,utils}`.
+- **Contracts changed:** `Pipeline`, `createPipeline`, and `updatePipeline`
+  gained optional `propertyIds: [String]`; `Pipeline` also exposes
+  `isPropertySelectionConfigured: Boolean` for backward-compatible rendering.
+
+### `2026-08-10` — Improve Facebook delivery diagnostics
+
+- **Summary:** Suppressed typing indicators throughout comment-triggered bot flows and added privacy-safe Graph error metadata logging.
+- **Affected areas:** `src/modules/integrations/facebook/utils.ts`, Facebook automation messages
+- **Contracts changed:** None
+
+### `2026-08-07` — Indexed knowledge base articles carry their category name
 
 ### `2026-08-10` — Multi-select real pipeline status filter for ticket reports
 
@@ -595,6 +621,19 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
 
 ### `2026-08-09` — Saved report charts
 
+- **Summary:** Implemented the already-declared query so it returns the active
+  integration kinds used by the caller's visible channels, optionally narrowed
+  by channel id and/or scope, resolving channel ids first and then a single
+  `distinct('kind')` read; extracted `visibleChannelsFilter` so the channel
+  visibility rule has one implementation.
+- **Affected areas:**
+  `src/modules/inbox/graphql/{resolvers/queries/integrations.ts,schemas/integration.ts}`,
+  `src/modules/channel/utils.ts`,
+  `src/modules/channel/graphql/resolvers/queries/channel.ts`.
+- **Contracts changed:** `integrationsGetUsedTypesByChannel` gained an optional
+  `scope: String` argument and its `channelId` relaxed from `String!` to
+  `String`; the query itself was already declared and previously returned
+  `undefined`.
 - **Summary:** Added the `frontline_report_charts` collection and its
   `reportCharts` / `reportChartDetail` queries and `reportChartAdd` /
   `reportChartEdit` / `reportChartRemove` mutations, so a report card's current
