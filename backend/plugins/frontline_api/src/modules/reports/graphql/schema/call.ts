@@ -36,6 +36,27 @@ export const types = `
     longestCall: Int!
   }
 
+  """
+  Call volume and handling quality for one conversation tag. Calls reach a tag
+  through the conversation they opened, so untagged calls are not represented
+  and shares read against the tagged calls only.
+  """
+  type CallTagStats {
+    tagId: String!
+    """Null when the tag was deleted after it was applied."""
+    name: String
+    colorCode: String
+    totalCalls: Int!
+    answeredCalls: Int!
+    answeredRate: Float!
+    missedCalls: Int!
+    totalTalkTime: Int!
+    averageTalkTime: Float!
+    averageWaitTime: Float!
+    """Percentage of the tagged calls that carry this tag."""
+    share: Float!
+  }
+
   type CallbackStats {
     queue: String!
     totalMissedCalls: Int!
@@ -159,6 +180,7 @@ export const queries = `
   callReportIntegrations: [CallReportIntegration!]!
   callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
   callGetAgentStats(startDate: String!, endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
+  callGetTagStats(startDate: String!, endDate: String!, queueId: String, direction: String, agentExtension: String): [CallTagStats!]!
   getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
   callKpiScorecard(startDate: String!, endDate: String!, queueId: String, direction: String): CallKeyStatistics
   callVolumeSeries(startDate: String!, endDate: String!, queueId: String, direction: String): [CallVolumePoint]

@@ -265,6 +265,65 @@ export const summariseAgentStats = (
     .sort((a, b) => a.agent.localeCompare(b.agent));
 };
 
+/**
+ * Call volume and handling quality per conversation tag.
+ *
+ * A call is only tagged through the conversation it opened, so calls that
+ * never reached a conversation, and calls on an untagged conversation, are
+ * left out entirely. Shares therefore read against the tagged calls, not
+ * against every call in the range.
+ *
+ * A conversation may carry several tags, so a call counts once per tag it
+ * holds. Totals across tags can exceed the tagged call count by design.
+ */
+export const summariseTagStats = (
+  calls: ICall[],
+  tagIdsByConversation: Map<string, string[]>,
+  agentExtension?: string | null,
+) => {
+  const byTag = new Map<string, ICall[]>();
+  const taggedCalls = new Set<string>();
+
+  for (const call of calls) {
+    if (agentExtension && call.agent !== agentExtension) continue;
+
+    const tagIds = call.conversationId
+      ? (tagIdsByConversation.get(call.conversationId) ?? [])
+      : [];
+
+    for (const tagId of tagIds) {
+      byTag.set(tagId, [...(byTag.get(tagId) ?? []), call]);
+      taggedCalls.add(call.uniqueid);
+    }
+  }
+
+  return [...byTag.entries()]
+    .map(([tagId, tagCalls]) => {
+      const answered = tagCalls.filter((call) => call.isAnswered);
+      const totalTalkTime = answered.reduce(
+        (sum, call) => sum + call.billsec,
+        0,
+      );
+      const totalWaitTime = answered.reduce(
+        (sum, call) => sum + call.waitTime,
+        0,
+      );
+
+      return {
+        tagId,
+        totalCalls: tagCalls.length,
+        answeredCalls: answered.length,
+        answeredRate: percentage(answered.length, tagCalls.length),
+        missedCalls: tagCalls.length - answered.length,
+        totalTalkTime,
+        averageTalkTime: average(totalTalkTime, answered.length),
+        averageWaitTime: average(totalWaitTime, answered.length),
+        share: percentage(tagCalls.length, taggedCalls.size),
+      };
+    })
+    .sort((a, b) => b.totalCalls - a.totalCalls);
+};
+
 export const CALLBACK_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export const summariseCallbackStats = (

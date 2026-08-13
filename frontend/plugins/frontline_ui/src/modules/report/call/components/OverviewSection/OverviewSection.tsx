@@ -5,6 +5,7 @@ import { VolumeChart } from './VolumeChart';
 import { CarrierDonut } from './CarrierDonut';
 import { HeatmapChart } from './HeatmapChart';
 import { SectionCard } from '../SectionCard';
+import { TagsSection } from '../TagsSection/TagsSection';
 import { useTranslation } from 'react-i18next';
 
 export function OverviewSection() {
@@ -35,6 +36,8 @@ export function OverviewSection() {
           <CarrierDonut data={breakdown} />
         </SectionCard>
       </div>
+
+      <TagsSection />
 
       <SectionCard
         title={t('hour-day-heatmap')}

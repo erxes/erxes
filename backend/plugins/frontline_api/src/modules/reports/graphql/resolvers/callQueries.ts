@@ -12,6 +12,7 @@ import {
   summariseAgentStats,
   summariseCallbackStats,
   summariseQueueStats,
+  summariseTagStats,
 } from '@/reports/callReportService';
 import {
   buildCallHistoryEntries,
@@ -245,6 +246,93 @@ export const reportCallQueries = {
       ...stat,
       agentName:
         nameByUserId.get(userIdByExtension.get(stat.agent) ?? '') || null,
+    }));
+  },
+
+  async callGetTagStats(
+    _args,
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+      agentExtension,
+    }: ICallReportArgs & { agentExtension?: string | null },
+    { models, user, subdomain }: IContext,
+  ) {
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
+
+    if (!integration) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({ startDate, endDate, queueId, direction }),
+      inboxIntegrationId: integration.inboxId,
+    })
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    const calls = foldLegsIntoCalls(cdrs);
+
+    const conversationIds = [
+      ...new Set(
+        calls
+          .map(({ conversationId }) => conversationId)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+
+    if (!conversationIds.length) {
+      return [];
+    }
+
+    const conversations = await models.Conversations.find(
+      { _id: { $in: conversationIds }, tagIds: { $exists: true, $ne: [] } },
+      { _id: 1, tagIds: 1 },
+    ).lean<{ _id: string; tagIds?: string[] }[]>();
+
+    const tagIdsByConversation = new Map<string, string[]>(
+      conversations.map(({ _id, tagIds }) => [String(_id), tagIds ?? []]),
+    );
+
+    const stats = summariseTagStats(
+      calls,
+      tagIdsByConversation,
+      agentExtension && agentExtension !== 'all' ? agentExtension : null,
+    );
+
+    if (!stats.length) {
+      return [];
+    }
+
+    const tags: { _id: string; name: string; colorCode?: string }[] =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: {
+          type: 'frontline:conversation',
+          query: { _id: { $in: stats.map(({ tagId }) => tagId) } },
+          fields: { _id: 1, name: 1, colorCode: 1 },
+        },
+      });
+
+    const tagById = new Map(tags.map((tag) => [String(tag._id), tag]));
+
+    // A tag deleted after it was applied still holds calls, so the row stays
+    // and only loses its name.
+    return stats.map((stat) => ({
+      ...stat,
+      name: tagById.get(stat.tagId)?.name ?? null,
+      colorCode: tagById.get(stat.tagId)?.colorCode ?? null,
     }));
   },
 

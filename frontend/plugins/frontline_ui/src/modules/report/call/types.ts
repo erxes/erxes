@@ -143,3 +143,17 @@ export interface CallHistoryPage {
 
   agents: CallHistoryAgent[];
 }
+
+export interface TagStat {
+  tagId: string;
+  name: string | null;
+  colorCode: string | null;
+  totalCalls: number;
+  answeredCalls: number;
+  answeredRate: number;
+  missedCalls: number;
+  totalTalkTime: number;
+  averageTalkTime: number;
+  averageWaitTime: number;
+  share: number;
+}
