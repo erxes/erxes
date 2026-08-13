@@ -12,11 +12,15 @@ import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
 import {
   IconArrowLeft,
+  IconCircleCheck,
+  IconCircleDashed,
   IconDots,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconPlayerPause,
   IconPlayerPlay,
+  IconTags,
+  IconUser,
 } from '@tabler/icons-react';
 import {
   Avatar,
@@ -31,7 +35,6 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
-import { ConversationActions } from './ConversationActions';
 import { useTranslation } from 'react-i18next';
 
 const ConversationListToggle = () => {
@@ -122,9 +125,9 @@ const AutomatedReplyStatusBadge = () => {
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-        automatedReplyControl?.reason === 'operator_reply'
-      ? 'Automation paused: operator active'
-      : 'Automation paused';
+      automatedReplyControl?.reason === 'operator_reply'
+    ? 'Automation paused: operator active'
+    : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
@@ -209,9 +212,16 @@ const AssignConversation = () => {
   );
 };
 
-export const ConversationTags = () => {
+export const ConversationTags = ({
+  showAllTags = false,
+}: {
+  showAllTags?: boolean;
+}) => {
   const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
+  const TagSelector = showAllTags
+    ? SelectTags.Detail
+    : SelectTags.ConversationDetail;
 
   if (!_id) return null;
 
@@ -223,13 +233,13 @@ export const ConversationTags = () => {
 
   return (
     <div className="flex-none">
-      <SelectTags.ConversationDetail
+      <TagSelector
         tagType="frontline:conversation"
         mode="multiple"
         value={tagIds}
         targetIds={[_id]}
         onValueChange={handleTagChange}
-        options={(newTagIds: string[]) => ({
+        options={() => ({
           onCompleted: () => {
             toast({
               title: t('tag-updated'),
@@ -249,11 +259,17 @@ export const ConversationTags = () => {
   );
 };
 
-const ConversationActionsDropdown = () => {
+const ConversationActionsDropdown = ({
+  showAssignee = false,
+}: {
+  showAssignee?: boolean;
+}) => {
   const { t } = useTranslation('frontline');
   const { _id, status } = useConversationContext();
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
+  const isClosed = status === ConversationStatus.CLOSED;
+  const StatusIcon = isClosed ? IconCircleDashed : IconCircleCheck;
 
   const handleStatusChange = () => {
     changeConversationStatus({
@@ -273,23 +289,54 @@ const ConversationActionsDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button variant="ghost" size="icon" className="[&>svg]:size-4">
+        <Button
+          variant="secondary"
+          size="icon"
+          className="flex-none [&>svg]:size-4"
+          aria-label={t('actions')}
+        >
           <IconDots />
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end" className="min-w-[260px]">
+      <DropdownMenu.Content
+        align="end"
+        className="w-80 max-w-[calc(100vw-1rem)] p-1.5"
+      >
+        {showAssignee && (
+          <>
+            <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
+              <IconUser className="size-4" />
+              {t('assignee')}
+            </DropdownMenu.Label>
+            <div
+              className="px-1 pb-2"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AssignConversation />
+            </div>
+            <DropdownMenu.Separator />
+          </>
+        )}
+        <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
+          <IconTags className="size-4" />
+          {t('tags')}
+        </DropdownMenu.Label>
         <div
-          className="px-2 py-1.5"
+          className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <ConversationTags />
+          <ConversationTags showAllTags />
         </div>
         <DropdownMenu.Separator />
-        <DropdownMenu.Item onSelect={handleStatusChange} disabled={loading}>
-          {status === ConversationStatus.CLOSED
-            ? t('open-label')
-            : t('resolve')}
+        <DropdownMenu.Item
+          className="mt-1 gap-2"
+          onSelect={handleStatusChange}
+          disabled={loading}
+        >
+          <StatusIcon className="size-4" />
+          {isClosed ? t('open-label') : t('resolve')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -325,20 +372,12 @@ export const ConversationHeader = () => {
         <Skeleton className="w-32 h-4 ml-2" />
       )}
       <Separator.Inline />
-      <AssignConversation />
+      {!isCompact && <AssignConversation />}
       <AutomatedReplyStatusBadge />
-      {isCompact ? (
-        <div className="flex items-center gap-3 ml-auto flex-none">
-          <IntegrationActions />
-          <ConversationActionsDropdown />
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 pr-px ml-auto flex-none">
-          <ConversationTags />
-          <IntegrationActions />
-          <ConversationActions />
-        </div>
-      )}
+      <div className="flex items-center gap-3 ml-auto flex-none">
+        <IntegrationActions />
+        <ConversationActionsDropdown showAssignee={isCompact} />
+      </div>
     </div>
   );
 };
