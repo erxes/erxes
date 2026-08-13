@@ -1,4 +1,5 @@
-import { toast } from 'erxes-ui';
+import { BlockNoteEditor } from '@blocknote/core';
+import { BLOCK_SCHEMA, parseBlocks, TABLE_SCHEMA, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '../../../../hooks/usePostMutations';
 import {
@@ -9,28 +10,7 @@ import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback } from 'react';
 import { getAutoArchiveDate } from './getAutoArchiveDate';
-
-interface InlineContent {
-  text?: string;
-  styles?: {
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-    strike?: boolean;
-    code?: boolean;
-  };
-}
-
-interface BlockContent {
-  type?: string;
-  content?: InlineContent[];
-  props?: {
-    level?: number;
-    url?: string;
-    caption?: string;
-    imageStyle?: 'normal' | 'wide';
-  };
-}
+import { embedBlockStructureInHTML } from '../../../utils/blockStructureHTML';
 
 interface CustomField {
   field: string;
@@ -112,74 +92,20 @@ interface MainFields {
   customFields: CustomField[] | undefined;
 }
 
-const escapeHtml = (str: string): string =>
-  str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-
-const getImageMaxWidth = (imageStyle: 'normal' | 'wide'): number =>
-  imageStyle === 'wide' ? 1080 : 720;
-
-const blocksToHtml = (raw: string): string => {
-  try {
-    const blocks = JSON.parse(raw) as BlockContent[];
-
-    if (!Array.isArray(blocks)) {
-      return raw;
-    }
-
-    return blocks
-      .map((block) => {
-        const inlines = block.content ?? [];
-
-        const html = inlines
-          .map((inline) => {
-            let text = escapeHtml(inline.text ?? '');
-
-            if (inline.styles?.bold) text = `<strong>${text}</strong>`;
-            if (inline.styles?.italic) text = `<em>${text}</em>`;
-            if (inline.styles?.underline) text = `<u>${text}</u>`;
-            if (inline.styles?.strike) text = `<s>${text}</s>`;
-            if (inline.styles?.code) text = `<code>${text}</code>`;
-
-            return text;
-          })
-          .join('');
-
-        if (block.type === 'heading') {
-          const level = block.props?.level ?? 1;
-          return `<h${level}>${html}</h${level}>`;
-        }
-
-        if (block.type === 'codeBlock') {
-          return `<pre><code>${html}</code></pre>`;
-        }
-
-        if (block.type === 'image') {
-          const url = block.props?.url;
-          if (!url) return '';
-          const caption = block.props?.caption || '';
-          const safeCaption = escapeHtml(caption);
-          const imageStyle =
-            block.props?.imageStyle === 'wide' ? 'wide' : 'normal';
-          const maxWidth = getImageMaxWidth(imageStyle);
-          const img = `<img src="${url}"${
-            safeCaption ? ` alt="${safeCaption}"` : ''
-          } data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;height:auto;display:block;margin:0 auto;" />`;
-          return caption
-            ? `<figure data-image-style="${imageStyle}" class="erxes-editor-image erxes-editor-image--${imageStyle}" style="width:100%;max-width:${maxWidth}px;margin:0 auto;">${img}<figcaption>${safeCaption}</figcaption></figure>`
-            : img;
-        }
-
-        return `<p>${html}</p>`;
-      })
-      .join('');
-  } catch {
+const blocksToHtml = async (raw: string): Promise<string> => {
+  const parsedBlocks = parseBlocks(raw);
+  if (!parsedBlocks) {
     return raw;
   }
+
+  const blocks = parsedBlocks as (typeof BLOCK_SCHEMA.Block)[];
+  const serializer = BlockNoteEditor.create({
+    schema: BLOCK_SCHEMA,
+    tables: TABLE_SCHEMA,
+  });
+  const html = await serializer.blocksToHTMLLossy(blocks);
+
+  return embedBlockStructureInHTML(html, blocks);
 };
 
 /**
@@ -220,7 +146,7 @@ const redirectToPosts = (
   navigate(`/content/cms/${websiteId}/posts${typeParam}`);
 };
 
-const normalizeContent = (raw: string): string => {
+const normalizeContent = async (raw: string): Promise<string> => {
   return raw.trimStart().startsWith('[') ? blocksToHtml(raw) : raw;
 };
 
@@ -234,18 +160,18 @@ const filterCustomFields = (
   return filtered && filtered.length > 0 ? filtered : undefined;
 };
 
-const resolveMainFields = (
+const resolveMainFields = async (
   data: PostFormData,
   computedTitle: string,
   contentHtml: string,
   isCreating: boolean,
   isNonDefaultLang: boolean,
   curDefaultLangData: DefaultLangData | null | undefined,
-): MainFields => {
+): Promise<MainFields> => {
   if (isCreating && isNonDefaultLang && curDefaultLangData) {
     return {
       title: curDefaultLangData.title?.trim() || computedTitle || 'Untitled',
-      content: normalizeContent(curDefaultLangData.content ?? ''),
+      content: await normalizeContent(curDefaultLangData.content ?? ''),
       excerpt: curDefaultLangData.excerpt?.trim() || null,
       customFields: filterCustomFields(curDefaultLangData.customFieldsData),
     };
@@ -310,7 +236,7 @@ const buildPostInput = (
   };
 };
 
-const buildTranslations = (
+const buildTranslations = async (
   curTranslations: Record<string, TranslationEntry>,
   curDefaultLanguage: string,
   isNonDefaultLang: boolean,
@@ -318,7 +244,7 @@ const buildTranslations = (
   computedTitle: string,
   contentHtml: string,
   data: PostFormData,
-): TranslationInput[] => {
+): Promise<TranslationInput[]> => {
   const entries: TranslationInput[] = [];
 
   for (const [lang, tData] of Object.entries(curTranslations)) {
@@ -333,7 +259,7 @@ const buildTranslations = (
     entries.push({
       language: lang,
       title: tData.title || '',
-      content: normalizeContent(tData.content || ''),
+      content: await normalizeContent(tData.content || ''),
       excerpt: tData.excerpt || '',
       customFieldsData: tData.customFieldsData,
       type: 'post',
@@ -465,7 +391,7 @@ export const usePostSubmission = ({
       return;
     }
 
-    const contentHtml = normalizeContent(data.content ?? '');
+    const contentHtml = await normalizeContent(data.content ?? '');
     const computedTitle = computeTitle(data, contentHtml);
 
     const currentLanguage = selectedLanguageRef.current;
@@ -476,7 +402,7 @@ export const usePostSubmission = ({
       Boolean(curDefaultLanguage) &&
       currentLanguage !== curDefaultLanguage;
 
-    const main = resolveMainFields(
+    const main = await resolveMainFields(
       data,
       computedTitle,
       contentHtml,
@@ -492,7 +418,7 @@ export const usePostSubmission = ({
     }
 
     if (curDefaultLanguage) {
-      const translationEntries = buildTranslations(
+      const translationEntries = await buildTranslations(
         translationsRef.current || {},
         curDefaultLanguage,
         isNonDefaultLang,

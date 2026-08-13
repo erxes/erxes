@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-08-11`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -23,6 +23,8 @@
 
 - Provides CMS content, category, page, menu, custom-field, and media workflows.
 - Provides Web Builder configuration and editing surfaces.
+- Preserves blank lines and Tab-indented block structure when CMS posts are
+  saved and reopened in the post editor.
 - Allows individual CMS custom-field file uploads up to 630 MiB through the
   platform's chunked-upload contract.
 
@@ -69,6 +71,11 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- CMS posts store interoperable HTML with the non-lossy BlockNote document in
+  `data-erxes-editor-document`; reopening a post must prefer that document and
+  use the HTML only as a legacy fallback.
+- The CMS post form uses the public `Editor` in its default JSON mode, matching
+  Sales; HTML conversion belongs to the CMS submission boundary.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
@@ -157,6 +164,8 @@
 
 - `pnpm nx lint content_ui` (when a lint target is defined)
 - `pnpm nx build content_ui`
+- Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
+  save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than
   630 MiB is accepted while a larger file is rejected.
 
@@ -174,6 +183,14 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Restore structured post content
+
+- **Summary:** Switched CMS posts to the shared editor's JSON mode and restored
+  saved blank paragraphs and Tab indentation from the embedded editor document.
+- **Affected areas:** `src/modules/cms/posts/PostPreview.tsx`, post form helpers,
+  submission hook, and block-structure serialization utility
+- **Contracts changed:** None
 
 ### `2026-08-11` — Increase custom-field upload limit
 
