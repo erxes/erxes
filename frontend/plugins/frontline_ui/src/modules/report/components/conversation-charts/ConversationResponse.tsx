@@ -5,11 +5,9 @@ import {
   cn,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useConversationResponses } from '@/report/hooks/useConversationResponses';
-import { getFilters } from '@/report/utils/dateFilters';
 import {
   Area,
   AreaChart,
@@ -18,8 +16,6 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  Line,
-  LineChart,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -31,11 +27,12 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ResponsesChartType,
   ConversationUserMessageStat,
+  ReportChart,
 } from '@/report/types';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
@@ -44,23 +41,20 @@ import { IUser, MembersInline } from 'ui-modules';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
 import { AreaGradient } from '../chart/AreaGradient';
 import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 interface ConversationResponseProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -71,37 +65,19 @@ interface ResponseChartProps {
 
 export const ConversationResponse = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationResponseProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
-  }, [dateValue]);
 
   const { conversationResponses, loading, error } = useConversationResponses({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
+    variables: { filters: queryFilters },
+    skip: !filtersRestored,
   });
 
   const allResponses = useMemo(
@@ -134,6 +110,13 @@ export const ConversationResponse = ({
     <>
       <ReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType="conversation-responses"
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allResponses}
         columns={responseExportColumns}
@@ -142,7 +125,7 @@ export const ConversationResponse = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -188,7 +171,7 @@ export const ConversationResponse = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -288,19 +271,6 @@ export const ResponseBarChart = memo(function ResponseBarChart({
     if (chartData.length === 0) return 100;
     return Math.max(...chartData.map((item) => item.percentage || 0), 100);
   }, [chartData]);
-
-  const messageCountYAxisDomain = useMemo(() => {
-    if (maxMessageCount === 0) {
-      return [0, 100];
-    }
-    const max = Math.ceil(maxMessageCount / 50) * 50;
-    return [0, max];
-  }, [maxMessageCount]);
-
-  const percentageYAxisDomain = useMemo(() => {
-    const max = Math.ceil(maxPercentage / 10) * 10;
-    return [0, max];
-  }, [maxPercentage]);
 
   const scaledChartData = useMemo(() => {
     if (chartData.length === 0) return [];

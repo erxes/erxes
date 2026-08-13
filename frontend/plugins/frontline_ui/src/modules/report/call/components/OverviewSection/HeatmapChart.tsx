@@ -8,13 +8,8 @@ interface HeatmapChartProps {
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const DOWS = [1, 2, 3, 4, 5, 6, 7]; // Mon–Sun ($isoDayOfWeek)
+const DOWS = [1, 2, 3, 4, 5, 6, 7];
 
-/**
- * 24 × 7 call-volume heatmap.
- * Intensity is rendered via oklch using the `--heatmap-hue` CSS variable
- * so it adapts to the active theme without hardcoding colours.
- */
 export const HeatmapChart = memo(function HeatmapChart({
   cells,
 }: HeatmapChartProps) {
@@ -40,7 +35,6 @@ export const HeatmapChart = memo(function HeatmapChart({
   return (
     <div className="overflow-x-auto">
       <div style={{ minWidth: 640 }}>
-        {/* Hour header */}
         <div className="flex">
           <div className="w-10 shrink-0" />
           {HOURS.map((h) => (
@@ -53,7 +47,6 @@ export const HeatmapChart = memo(function HeatmapChart({
           ))}
         </div>
 
-        {/* Rows */}
         {DOWS.map((dow) => (
           <div key={dow} className="flex items-center">
             <div className="w-10 shrink-0 text-[10px] text-muted-foreground text-right pr-1.5">

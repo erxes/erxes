@@ -12,7 +12,6 @@ interface AgentTableProps {
   stats: AgentStat[];
 }
 
-/** Leaderboard table for agents with expandable drilldown rows. */
 export function AgentTable({ stats }: AgentTableProps) {
   const { t } = useTranslation('frontline');
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -24,7 +23,6 @@ export function AgentTable({ stats }: AgentTableProps) {
     return <ReportTable.Empty>{t('no-agent-data')}</ReportTable.Empty>;
   }
 
-  // Volume bars are relative to the busiest agent in the current range.
   const busiest = Math.max(...stats.map(({ totalCalls }) => totalCalls), 1);
 
   return (
