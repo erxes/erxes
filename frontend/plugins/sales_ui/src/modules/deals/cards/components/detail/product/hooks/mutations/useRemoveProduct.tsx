@@ -12,6 +12,7 @@ import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { serializeDealProductMutation } from './serializeDealProductMutation';
 import { updateDealProductsCache } from './updateDealProductsCache';
 
 interface RemoveProductsVariables {
@@ -37,19 +38,24 @@ export const useRemoveProducts = () => {
       const { onCompleted, onError, ...executeOptions } = options;
 
       try {
-        const result = await mutateRemoveProducts({
-          ...executeOptions,
-          variables: {
-            ...executeOptions.variables,
-            dealId,
-          },
-        });
-        const remainingProductsData: IProductData[] | undefined =
-          result.data?.dealsDeleteProductData?.productsData;
+        const result = await serializeDealProductMutation(dealId, async () => {
+          const mutationResult = await mutateRemoveProducts({
+            ...executeOptions,
+            variables: {
+              ...executeOptions.variables,
+              dealId,
+            },
+          });
 
-        if (remainingProductsData) {
-          updateDealProductsCache(client, dealId, remainingProductsData);
-        }
+          const productsData: IProductData[] | undefined =
+            mutationResult.data?.dealsDeleteProductData?.productsData;
+
+          if (productsData) {
+            updateDealProductsCache(client, dealId, productsData);
+          }
+
+          return mutationResult;
+        });
 
         toast({
           title: t('products-deleted'),
