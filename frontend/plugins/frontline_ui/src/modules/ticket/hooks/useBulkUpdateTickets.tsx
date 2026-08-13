@@ -5,7 +5,7 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export type TBulkTicketUpdate = {
-  assigneeId?: string | null;
+  assigneeIds?: string[] | null;
   assignedMembers?: string[];
   statusId?: string;
   priority?: number;

@@ -36,14 +36,14 @@ export const TicketsAssignToContent = ({
 
   return (
     <SelectAssigneeTicket.Provider
-      mode="single"
-      value=""
+      mode="multiple"
+      value={[]}
       allowUnassigned
       onValueChange={async (value) => {
         setOpen(false);
         await bulkUpdateTickets(
           ticketIds,
-          { assigneeId: Array.isArray(value) ? value[0] : value },
+          { assigneeIds: Array.isArray(value) ? value : value ? [value] : [] },
           { successMessage: t('tickets-updated-successfully') },
         );
       }}
