@@ -36,7 +36,8 @@ export const useActivities = (contentId: string) => {
       document: ACTIVITY_CHANGED,
       variables: { contentId },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!prev?.getTicketActivities?.list || !subscriptionData.data)
+          return prev;
 
         const { type, activity } = subscriptionData.data.ticketActivityChanged;
         const currentList = prev.getTicketActivities.list;
