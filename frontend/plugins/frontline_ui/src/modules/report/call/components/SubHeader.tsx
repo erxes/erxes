@@ -2,11 +2,18 @@ import { useEffect, useState } from 'react';
 import {
   Command,
   Dialog,
+  DropdownMenu,
   Filter,
   Spinner,
+  cn,
   useFilterQueryState,
 } from 'erxes-ui';
-import { IconCalendar, IconX } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconChevronDown,
+  IconSelector,
+  IconX,
+} from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useCallFilters } from '../hooks/useCallFilters';
 import type { SelectOption } from '../types';
@@ -20,17 +27,24 @@ interface SubHeaderProps {
   queuesLoading?: boolean;
 }
 
+const DATE_PRESETS: SelectOption[] = [
+  { label: 'Today', value: 'today' },
+  { label: 'Yesterday', value: 'yesterday' },
+  { label: 'This week', value: 'this-week' },
+  { label: 'Last week', value: 'last-week' },
+  { label: 'This month', value: 'this-month' },
+  { label: 'Last month', value: 'last-month' },
+  { label: 'Last 3 months', value: 'last-3-months' },
+  { label: 'This year', value: 'this-year' },
+  { label: 'Last year', value: 'last-year' },
+];
+
 const DIRECTION_OPTIONS: SelectOption[] = [
   { label: 'All Directions', value: 'all' },
   { label: 'Inbound', value: 'Inbound' },
   { label: 'Outbound', value: 'Outbound' },
 ];
 
-/**
- * Page-level sub-header directly beneath the main PageHeader.
- * Uses erxes-ui `Filter.Bar` chip layout — no dropdown popovers.
- * Each chip opens a `Dialog` for value selection.
- */
 export function SubHeader({
   integrationOptions,
   queueOptions,
@@ -49,7 +63,6 @@ export function SubHeader({
     setDateFilter,
   } = useCallFilters();
 
-  // Sync URL date state → context so sections re-query on change
   const [dateQuery, setDateQuery] = useFilterQueryState<string>(DATE_FILTER_KEY);
   useEffect(() => {
     if (dateQuery) setDateFilter(dateQuery);
@@ -58,6 +71,11 @@ export function SubHeader({
   const handleClearDate = () => {
     setDateQuery(null);
     setDateFilter('last-3-months');
+  };
+
+  const handleSelectPreset = (value: string) => {
+    setDateQuery(value);
+    setDateFilter(value);
   };
 
   const integrationLabel =
@@ -71,7 +89,6 @@ export function SubHeader({
     <Filter id="call-reports-subheader">
       <div className="border-b bg-sidebar px-4 py-2 shrink-0 overflow-x-auto styled-scroll">
         <Filter.Bar>
-          {/* Integration */}
           {integrationsLoading ? (
             <LoadingChip label={t('integrations')} />
           ) : (
@@ -84,7 +101,6 @@ export function SubHeader({
             />
           )}
 
-          {/* Queue */}
           {queuesLoading ? (
             <LoadingChip label={t('queue')} />
           ) : (
@@ -98,7 +114,6 @@ export function SubHeader({
             />
           )}
 
-          {/* Direction */}
           <SelectChip
             label={t('direction')}
             value={directionLabel}
@@ -107,19 +122,50 @@ export function SubHeader({
             selected={direction}
           />
 
-          {/* Date range — opens Filter.DialogDateView (Day/Month/Quarter/Half/Year) */}
           <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium">
             <Filter.BarName>
               <IconCalendar className="h-3.5 w-3.5" />
               {t('date')}
             </Filter.BarName>
-            <Filter.BarButton
-              inDialog
-              filterKey={DATE_FILTER_KEY}
-              className={dateQuery ? '' : 'rounded-r'}
-            >
-              {formatDateDisplay(dateQuery ?? dateFilter)}
-            </Filter.BarButton>
+            <DropdownMenu>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  className={cn(
+                    'flex items-center gap-1.5 px-2 bg-background hover:bg-muted-foreground/10 transition-colors',
+                    !dateQuery && 'rounded-r',
+                  )}
+                >
+                  {formatDateDisplay(dateQuery ?? dateFilter)}
+                  <IconChevronDown className="h-3 w-3 text-muted-foreground" />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="start" className="w-44">
+                {DATE_PRESETS.map((preset) => (
+                  <DropdownMenu.Item
+                    key={preset.value}
+                    onSelect={() => handleSelectPreset(preset.value)}
+                    className={
+                      (dateQuery ?? dateFilter) === preset.value
+                        ? 'text-primary'
+                        : ''
+                    }
+                  >
+                    {t(preset.value, { defaultValue: preset.label })}
+                  </DropdownMenu.Item>
+                ))}
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item asChild>
+                  <Filter.BarButton
+                    inDialog
+                    filterKey={DATE_FILTER_KEY}
+                    className="w-full justify-start bg-transparent px-2"
+                  >
+                    <IconSelector className="h-3.5 w-3.5" />
+                    {t('custom-range', { defaultValue: 'Custom range…' })}
+                  </Filter.BarButton>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu>
             {dateQuery && (
               <button
                 onClick={handleClearDate}
@@ -133,7 +179,6 @@ export function SubHeader({
         </Filter.Bar>
       </div>
 
-      {/* Date range dialog — rendered inside Filter provider so context is available */}
       <Filter.Dialog>
         <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
           <Filter.DialogDateView
@@ -146,14 +191,12 @@ export function SubHeader({
   );
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Format the stored date filter value for display in the chip. */
 function formatDateDisplay(value: string): string {
   if (!value) return 'Last 3 months';
-  if (value === 'last-3-months') return 'Last 3 months';
 
-  // Day range: two ISO timestamps separated by comma
+  const preset = DATE_PRESETS.find((option) => option.value === value);
+  if (preset) return preset.label;
+
   if (value.includes(',')) {
     const [from, to] = value.split(',');
     try {
@@ -171,30 +214,21 @@ function formatDateDisplay(value: string): string {
     }
   }
 
-  // Quarter: e.g. "2026-quarter1" → "2026 Q1"
-  if (value.includes('quarter')) {
-    const [year] = value.split('-');
-    const n = value.split('quarter')[1];
-    return `${year} Q${n}`;
+  const quarter = /^(\d{4})-quarter-([1-4])$/.exec(value);
+  if (quarter) {
+    return `${quarter[1]} Q${quarter[2]}`;
   }
 
-  // Half year: e.g. "2026-half1" → "2026 H1"
-  if (value.includes('half')) {
-    const [year] = value.split('-');
-    const n = value.split('half')[1];
-    return `${year} H${n}`;
+  const half = /^(\d{4})-half-([1-2])$/.exec(value);
+  if (half) {
+    return `${half[1]} H${half[2]}`;
   }
 
-  // Year: e.g. "2026-y" → "2026"
   if (/^\d{4}-y$/.test(value)) return value.replace('-y', '');
 
-  // Month: e.g. "2026-Jun" — return as-is
   return value;
 }
 
-// ─── Chip sub-components ──────────────────────────────────────────────────────
-
-/** A chip that opens a Command list dialog for selecting a value. */
 function SelectChip({
   label,
   value,
@@ -260,7 +294,6 @@ function SelectChip({
   );
 }
 
-/** Skeleton chip shown while data is loading. */
 function LoadingChip({ label }: { label: string }) {
   return (
     <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium opacity-60">
