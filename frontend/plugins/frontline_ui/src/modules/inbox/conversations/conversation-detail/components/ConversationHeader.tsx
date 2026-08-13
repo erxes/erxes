@@ -225,9 +225,7 @@ const AssignConversation = ({
           <Combobox.Trigger
             className="text-foreground shadow-none px-2"
             variant="outline"
-            onPointerDown={
-              withinDropdown ? stopEventPropagation : undefined
-            }
+            onPointerDown={withinDropdown ? stopEventPropagation : undefined}
             onClick={withinDropdown ? stopEventPropagation : undefined}
             onKeyDown={withinDropdown ? stopEventPropagation : undefined}
           >
