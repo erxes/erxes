@@ -420,7 +420,7 @@ export const createProductsData = async ({
       action: 'create',
       data: {
         dataIds,
-        docs,
+        docs: addDocs,
         productsData,
       },
     },
