@@ -15,7 +15,7 @@ export const FbMessengerBotQuickRepliesBlock = ({
     <div
       className={cn(
         'rounded-xl bg-background px-3 py-2.5 ring-1 ring-border/60',
-        internal && 'bg-info/20 ring-info/50',
+        internal && 'bg-warning/20 ring-warning/50',
       )}
     >
       <MessageContent content={data.text} internal={internal} />

@@ -47,7 +47,7 @@ const getMessageBubbleClassName = ({
     'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
     userId && 'bg-primary/10 hover:bg-primary/10',
     isBotMessage && 'bg-muted hover:bg-muted',
-    internal && 'bg-info/20 hover:bg-info/5',
+    internal && 'bg-warning/20 hover:bg-warning/5',
     fromBot && 'bg-primary/5 hover:bg-primary/5 border-l-2 border-primary',
     separatePrevious && (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
   );

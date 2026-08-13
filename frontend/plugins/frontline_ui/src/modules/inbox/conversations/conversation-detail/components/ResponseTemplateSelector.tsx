@@ -1,5 +1,5 @@
 import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Spinner, Command, ToggleGroup, cn, EnumCursorDirection } from 'erxes-ui';
+import { Badge, Popover, Skeleton, Spinner, Command, ToggleGroup, cn, EnumCursorDirection, isUndefinedOrNull } from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
@@ -43,9 +43,11 @@ export const ResponseTemplateSelector: React.FC<
   const {
     responses,
     isInitialLoad: responsesInitialLoad,
+    isRefetching: responsesRefetching,
     handleFetchMore,
     pageInfo,
     refetch,
+    totalCount,
   } = useGetResponses({
     variables: {
       filter: {
@@ -116,7 +118,18 @@ export const ResponseTemplateSelector: React.FC<
       <Popover.Content className="w-full max-w-md min-w-sm p-3 shadow-xl border">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-semibold text-sm">{t('response-templates')}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm">
+                {t('response-templates')}
+              </h3>
+              {isUndefinedOrNull(totalCount) ||
+              responsesInitialLoad ||
+              responsesRefetching ? (
+                <Skeleton className="w-6 h-4 rounded-sm" />
+              ) : (
+                <Badge variant="secondary">{totalCount}</Badge>
+              )}
+            </div>
             <ToggleGroup
               type="single"
               variant="outline"

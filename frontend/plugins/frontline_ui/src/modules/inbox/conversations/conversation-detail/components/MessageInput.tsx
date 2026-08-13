@@ -482,7 +482,7 @@ export const MessageInput = ({
         onDragOver={(e) => e.preventDefault()}
         className={cn(
           'mx-auto flex h-full max-w-2xl flex-col gap-2 overflow-hidden rounded-lg bg-sidebar py-3 shadow-xs transition-colors duration-150',
-          isInternalNote && 'bg-info/20',
+          isInternalNote && 'bg-warning/20',
         )}
       >
         {showSuggestions && !isInternalNote && (

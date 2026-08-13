@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -408,12 +408,14 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   toolbar. Don't drop either guard; they cover different failure modes (drag
   vs. genuinely short window).
 - "Internal" content — the composer, sent-message bubbles, call notes, and
-  Facebook/Instagram message bot preview blocks — is tinted `bg-info`
-  (a blue "private note" read), not `bg-warning` (amber/"caution"). Keep
-  compose-time and rendered colors identical across every `internal &&` /
-  `isInternalNote &&` conditional in the plugin; don't reintroduce
-  `bg-warning` for this concept even in one spot, or typing a note and seeing
-  it land will show two different colors.
+  Facebook/Instagram message bot preview blocks — is tinted `bg-warning`
+  (amber/yellow "private note" read), not `bg-info` (blue). This reverses the
+  `2026-08-12` decision below on explicit product direction (yellow reads more
+  like "caution/internal" than blue does). Keep compose-time and rendered
+  colors identical across every `internal &&` / `isInternalNote &&`
+  conditional in the plugin; don't reintroduce `bg-info` for this concept even
+  in one spot, or typing a note and seeing it land will show two different
+  colors.
 - `ResponseTemplateSelector.tsx`'s infinite scroll is `useInView`
   (`react-intersection-observer`, no explicit `root`) on a sentinel div
   rendered only while `pageInfo?.hasNextPage`, guarded by a synchronous
@@ -456,6 +458,28 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Internal note color reverted to yellow; response template popover shows a count
+
+- **Summary:** Code review feedback on the `frontline-inbox-improve` branch:
+  internal-note tinting across the plugin flips from `bg-info` (blue) back to
+  `bg-warning` (amber/yellow) — the composer, `ConversationMessage`/`MessageItem`
+  bubbles, call `InternalNotes`, `FbMessengerMessages`/`IgMessengerMessages`,
+  and the three `FbMessengerBotMessageBlocks` preview blocks all changed
+  together so compose-time and rendered colors stay identical (this reverses
+  the `2026-08-12` blue change below; see the updated Local Invariant). Also,
+  `ResponseTemplateSelector.tsx`'s popover header now shows the current
+  `totalCount` from `useGetResponses` next to the "Response templates" title
+  (a `Badge`, with a `Skeleton` while loading/refetching), so the count
+  reflects the active channel/search filter rather than requiring the user to
+  scroll to see how many templates exist.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/{MessageInput.tsx,ResponseTemplateSelector.tsx}`,
+  `src/modules/inbox/conversation-messages/components/{ConversationMessage.tsx,MessageItem.tsx}`,
+  `src/modules/integrations/call/components/InternalNotes.tsx`,
+  `src/modules/integrations/facebook/components/{FbMessengerMessages.tsx,FbMessengerBotMessageBlocks/*.tsx}`,
+  `src/modules/integrations/instagram/components/IgMessengerMessages.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-12` — Response template popover: clearer view toggle, tighter channel filter, real infinite scroll
 
@@ -652,14 +676,5 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
 - **Contracts changed:** `KpiScorecard.serviceLevel` and
   `KpiScorecard.averageSpeed` are typed `number | null` (the GraphQL fields were
   already nullable `Float`).
-
-### `2026-08-10` — Form preview number fields drop the thousands separator
-
-- **Summary:** `Input.Number` from `erxes-ui` formats with a `,` thousands
-  separator by default, so a phone number typed into a `number` form field
-  previewed as `00,000,000`. The form preview now passes
-  `thousandsSeparator=""` for these fields.
-- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
-- **Contracts changed:** None.
 
 
