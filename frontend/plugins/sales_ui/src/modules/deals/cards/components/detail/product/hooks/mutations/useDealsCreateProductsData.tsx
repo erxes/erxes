@@ -81,15 +81,7 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
         throw apolloError;
       }
     },
-    [
-      client,
-      dealId,
-      mutateCreateProductsData,
-      onCompleted,
-      onError,
-      t,
-      toast,
-    ],
+    [client, dealId, mutateCreateProductsData, onCompleted, onError, t, toast],
   );
 
   return {

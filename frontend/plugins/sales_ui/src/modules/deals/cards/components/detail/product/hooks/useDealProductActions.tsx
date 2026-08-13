@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 
 import { AdjustmentByCurrency } from './useProductCalculations';
