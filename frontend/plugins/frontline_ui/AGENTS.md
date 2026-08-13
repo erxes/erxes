@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -368,6 +368,24 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-13` — Ticket tag popover stays open across a multi-select
+
+- **Summary:** Picking a tag on the ticket board card, detail sheet, or create
+  form no longer closes the tag popover; it now behaves like a normal
+  multi-select and only closes on Escape or an outside click, so multiple tags
+  can be added in one open. The fix lives in `ui-modules`' shared `TagsSelect`
+  (`handleChange`'s `mode === 'multiple'` branch dropped its unconditional
+  `setOpen(false)`), since `SelectTagsTicket` only wraps that provider and has
+  no local hook into the close behavior. `mode === 'single'` is unaffected and
+  still closes on selection.
+- **Affected areas:** `src/modules/ticket/components/ticket-selects/SelectTagsTicket.tsx`
+  (consumer, unchanged) — the actual edit is in
+  `frontend/libs/ui-modules/src/modules/tags-new/components/TagsSelect.tsx`,
+  outside this plugin, and also affects `operation_ui` and `sales_ui`, the
+  other consumers of `TagsSelect` multi-select mode.
+- **Contracts changed:** None — `TagsSelectProps`/`TagsSelectContextType` are
+  unchanged; only the popover's close timing in multi mode changed.
+
 ### `2026-08-10` — Ticket tag selector matches Sales' count-based trigger
 
 - **Summary:** Ticket tag selection (board card, detail sheet, create form) now
@@ -499,14 +517,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - **Contracts changed:** `IntegrationList` lost its optional `integrationTypes`
   prop; `channelId` and `heading` are unchanged.
 
-### `2026-08-06` — Team inbox sort control removed
-
-- **Summary:** Dropped the `Team inbox` sort toggle, the unread re-order behind
-  it, and the `teamInboxSortState` atom. The group now renders channels in the
-  order the API returns them; the quiet-channel folding and per-row counts are
-  unaffected.
-- **Affected areas:**
-  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`,
-  `src/modules/inbox/channel/states/teamInboxSortState.ts` (deleted),
-  `frontline` locale files (`sort-team-inbox`, `sort-by-unread` removed).
-- **Contracts changed:** None.
