@@ -41,6 +41,7 @@ export type TTicketActionsProps = {
   channelId?: string;
   sharedAssignedMembers: string[];
   sharedTagIds: string[];
+  sharedAssigneeIds: string[];
   allArchived: boolean;
   permissions: TTicketPermissions;
   setCurrentContent: (currentContent: string) => void;
@@ -56,7 +57,10 @@ export const TicketActionsMenu = ({
   permissions,
   setCurrentContent,
   setOpen,
-}: Omit<TTicketActionsProps, 'sharedAssignedMembers' | 'sharedTagIds'>) => {
+}: Omit<
+  TTicketActionsProps,
+  'sharedAssignedMembers' | 'sharedTagIds' | 'sharedAssigneeIds'
+>) => {
   const { canEditTicket, canMoveTicket, canDeleteTicket } = permissions;
   const showMoveGroup = canMoveTicket && (pipelineId || channelId);
   const showDestructiveGroup = canEditTicket || canDeleteTicket;
@@ -120,6 +124,7 @@ export const TicketActionsPanel = ({
   channelId,
   sharedAssignedMembers,
   sharedTagIds,
+  sharedAssigneeIds,
   setOpen,
 }: Pick<
   TTicketActionsProps,
@@ -128,11 +133,17 @@ export const TicketActionsPanel = ({
   | 'channelId'
   | 'sharedAssignedMembers'
   | 'sharedTagIds'
+  | 'sharedAssigneeIds'
   | 'setOpen'
 > & { currentContent: string }) => {
   switch (currentContent) {
     case 'assignee':
-      return <TicketsAssignToContent ticketIds={ticketIds} setOpen={setOpen} />;
+      return (
+        <TicketsAssignToContent
+          ticketIds={ticketIds}
+          assigneeIds={sharedAssigneeIds}
+        />
+      );
     case 'assignedMembers':
       return (
         <TicketsAssignedMembersContent

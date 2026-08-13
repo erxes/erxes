@@ -68,6 +68,9 @@ export const TicketCommandBar = () => {
   const sharedTagIds = getSharedValues(
     selectedTickets.map((ticket) => ticket.tagIds),
   );
+  const sharedAssigneeIds = getSharedValues(
+    selectedTickets.map((ticket) => ticket.assigneeIds),
+  );
   const allArchived =
     selectedTickets.length > 0 &&
     selectedTickets.every((ticket) => ticket.state === 'archived');
@@ -134,6 +137,7 @@ export const TicketCommandBar = () => {
                     channelId={channelId}
                     sharedAssignedMembers={sharedAssignedMembers}
                     sharedTagIds={sharedTagIds}
+                    sharedAssigneeIds={sharedAssigneeIds}
                     setOpen={setOpen}
                   />
                 )}

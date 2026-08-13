@@ -2,6 +2,7 @@ import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectA
 import { useBulkUpdateTickets } from '@/ticket/hooks/useBulkUpdateTickets';
 import { IconChevronRight, IconUser } from '@tabler/icons-react';
 import { Command } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const TicketsAssignToTrigger = ({
@@ -26,25 +27,37 @@ export const TicketsAssignToTrigger = ({
 
 export const TicketsAssignToContent = ({
   ticketIds,
-  setOpen,
+  assigneeIds,
 }: {
   ticketIds: string[];
-  setOpen: (open: boolean) => void;
+  assigneeIds: string[];
 }) => {
   const { t } = useTranslation('frontline');
   const { bulkUpdateTickets } = useBulkUpdateTickets();
+  const [value, setValue] = useState<string[]>(assigneeIds);
 
   return (
     <SelectAssigneeTicket.Provider
       mode="multiple"
-      value={[]}
+      value={value}
       allowUnassigned
-      onValueChange={async (value) => {
-        setOpen(false);
+      onValueChange={async (newValue) => {
+        const newAssigneeIds = Array.isArray(newValue) ? newValue : [];
+        const previousAssigneeIds = value;
+        setValue(newAssigneeIds);
         await bulkUpdateTickets(
           ticketIds,
-          { assigneeIds: Array.isArray(value) ? value : value ? [value] : [] },
-          { successMessage: t('tickets-updated-successfully') },
+          { assigneeIds: newAssigneeIds },
+          {
+            successMessage: t('tickets-updated-successfully'),
+            // The control holds one value for the whole selection, so it can
+            // only go back when nothing was applied.
+            onError: (failedIds) => {
+              if (failedIds.length === ticketIds.length) {
+                setValue(previousAssigneeIds);
+              }
+            },
+          },
         );
       }}
     >
