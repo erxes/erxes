@@ -5,13 +5,21 @@ import { useTranslation } from 'react-i18next';
 
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const modifierKeys = isMacPlatform() ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];
+  const { t: tSearch } = useTranslation('common', {
+    keyPrefix: 'global-search',
+  });
+  const isMac = isMacPlatform();
+  const modifierKeys = isMac ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];
   const shortcuts = [
-    { label: t('next-tab'), shortcutKey: ']' },
-    { label: t('previous-tab'), shortcutKey: '[' },
-    { label: t('close-current-tab'), shortcutKey: 'W' },
-    { label: t('close-all-tabs'), shortcutKey: 'X' },
-    { label: t('toggle-tabs-row'), shortcutKey: 'T' },
+    {
+      label: tSearch('placeholder', 'Search'),
+      keys: [...modifierKeys, 'K'],
+    },
+    { label: t('next-tab'), keys: [...modifierKeys, ']'] },
+    { label: t('previous-tab'), keys: [...modifierKeys, '['] },
+    { label: t('close-current-tab'), keys: [...modifierKeys, 'W'] },
+    { label: t('close-all-tabs'), keys: [...modifierKeys, 'X'] },
+    { label: t('toggle-tabs-row'), keys: [...modifierKeys, 'T'] },
   ];
 
   return (
@@ -36,14 +44,14 @@ export const VisitedPageTabsShortcutGuide = () => {
           {t('tab-shortcuts')}
         </div>
         <div className="py-0.5">
-          {shortcuts.map(({ label, shortcutKey }) => (
+          {shortcuts.map(({ label, keys }) => (
             <div
               className="flex min-h-7 items-center justify-between gap-2 px-2 py-0.5"
-              key={shortcutKey}
+              key={label}
             >
               <span className="text-[13px] text-foreground">{label}</span>
               <Kbd className="h-auto min-w-0 shrink-0 border-0 bg-transparent p-0 font-sans text-[13px] font-normal text-muted-foreground opacity-100">
-                {[...modifierKeys, shortcutKey].join(' ')}
+                {keys.join(' ')}
               </Kbd>
             </div>
           ))}

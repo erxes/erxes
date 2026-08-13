@@ -138,7 +138,7 @@ export const channelQueries = {
         },
         {
           $group: {
-            _id: '$memberId',
+            _id: { channelId: '$channelId', memberId: '$memberId' },
             doc: { $first: '$$ROOT' },
           },
         },

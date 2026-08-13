@@ -1,11 +1,13 @@
 import { setWaitActionResponse } from '../setWaitActionResponse';
 import {
+  AUTOMATION_ERROR_CODES,
   IAutomationAction,
   IAutomationExecutionDocument,
   splitType,
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { AutomationActionError } from '../errorCodes';
 
 type TCreateActionResponse = Promise<{
   shouldBreak: boolean;
@@ -37,7 +39,12 @@ export const executeCreateAction = async (
   });
 
   if (actionResponse.error) {
-    throw new Error(actionResponse.error);
+    // The failure happened inside the owning plugin; only its message crosses
+    // the producer boundary.
+    throw new AutomationActionError(
+      actionResponse.error,
+      AUTOMATION_ERROR_CODES.PLUGIN_ACTION_FAILED,
+    );
   }
 
   const waitCondition = actionResponse?.waitCondition;

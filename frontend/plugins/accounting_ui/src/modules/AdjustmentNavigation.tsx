@@ -7,12 +7,12 @@ export const AdjustmentNavigation = () => {
   return (
     <NavigationMenuGroup name={t('adjustment-settings')}>
       <NavigationMenuLinkItem
-        name={t('fx-rate-adjustment')}
+        name={t('fund-rate-adjustment')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/fundRate"
       ></NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name={t('calc-rate-adjustment')}
+        name={t('debt-rate-adjustment')}
         icon={IconAdjustmentsCode}
         path="accounting/adjustment/debRate"
       ></NavigationMenuLinkItem>

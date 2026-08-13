@@ -5,6 +5,7 @@ import { ProductConfig } from '@/deals/cards/components/detail/product/component
 import { useTranslation } from 'react-i18next';
 import type { TPipelineForm } from '@/deals/types/pipelines';
 import type { UseFormReturn } from 'react-hook-form';
+import { PipelinePropertySelector } from './PipelinePropertySelector';
 
 type Props = {
   form: UseFormReturn<TPipelineForm>;
@@ -46,6 +47,14 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
             {t('product-config')}
           </Button>
         </Tabs.Trigger>
+        <Tabs.Trigger asChild value="properties">
+          <Button
+            variant={'outline'}
+            className="bg-transparent data-[state=active]:bg-background data-[state=inactive]:shadow-none"
+          >
+            {t('properties')}
+          </Button>
+        </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="general" className="h-full py-4 px-5 overflow-auto">
         <GeneralForm form={form} />
@@ -58,6 +67,12 @@ export const PipelineForm = ({ form, stagesLoading }: Props) => {
         className="h-full py-4 px-5 overflow-auto"
       >
         <ProductConfig form={form} />
+      </Tabs.Content>
+      <Tabs.Content
+        value="properties"
+        className="h-full py-4 px-5 overflow-auto"
+      >
+        <PipelinePropertySelector form={form} />
       </Tabs.Content>
     </Tabs>
   );

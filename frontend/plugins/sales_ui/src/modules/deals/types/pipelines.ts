@@ -42,6 +42,8 @@ export interface IPipeline {
 
   paymentIds?: string[];
   paymentTypes?: PaymentConfigItem[];
+  propertyIds?: string[];
+  isPropertySelectionConfigured?: boolean | null;
 }
 
 export interface ISelectLabelContext {

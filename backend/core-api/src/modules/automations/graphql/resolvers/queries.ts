@@ -21,6 +21,7 @@ import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
+  generateAutomationStatsFilter,
   generateAutomationsFilter,
   addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
@@ -46,6 +47,12 @@ export interface IListArgs extends ICursorPaginateParams {
   updatedAtFrom: Date;
   updatedAtTo: Date;
   actionTypes: string[];
+}
+
+export interface IStatsParams {
+  automationId: string;
+  beginDate?: Date;
+  endDate?: Date;
 }
 
 export interface IHistoriesParams {
@@ -160,6 +167,32 @@ export const automationQueries = {
     const filter: any = generateAutomationHistoriesFilter(params);
 
     return await models.AutomationExecutions.find(filter).countDocuments();
+  },
+
+  /**
+   * Execution counts for the automations currently listed, so the list itself
+   * never waits on them.
+   */
+  async automationExecutionCounts(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getExecutionCounts(automationIds);
+  },
+
+  /**
+   * Execution stats of one automation: run status breakdown, daily buckets and
+   * per action node counts/durations.
+   */
+  async automationStats(
+    _root,
+    params: IStatsParams,
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getStats(
+      generateAutomationStatsFilter(params),
+    );
   },
 
   async automationsTotalCount(

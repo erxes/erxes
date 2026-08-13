@@ -3,13 +3,30 @@ import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
+import {
+  EbarimtEmailDeal,
+  EbarimtEmailResponse,
+  sendEbarimtEmail,
+} from './sendEbarimtEmail';
 import { getEbarimtData, getPostData } from './utils';
+
+interface AfterMutationParams {
+  deal: EbarimtEmailDeal & { description?: string };
+  destinationStageId: string;
+  processId?: string;
+  sessionCode: string;
+  sourceStageId?: string;
+  userId: string;
+}
+
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 export const afterMutationHandlers = async (
   models: IModels,
   subdomain: string,
   processId: string,
-  params: any,
+  params: AfterMutationParams,
 ) => {
   const { destinationStageId, deal, sessionCode, userId } = params;
 
@@ -27,8 +44,8 @@ export const afterMutationHandlers = async (
 
   if (returnConfigVal) {
     const returnConfig = {
-      ...returnConfigVal,
       ...mainConfig,
+      ...returnConfigVal,
     };
 
     const returnResponses = await models.PutResponses.returnBill(
@@ -53,8 +70,8 @@ export const afterMutationHandlers = async (
             content: returnResponses,
           },
         });
-      } catch (e) {
-        throw new Error(e.message);
+      } catch (error) {
+        throw new Error(getErrorMessage(error));
       }
     }
 
@@ -93,7 +110,7 @@ export const afterMutationHandlers = async (
     pipeline.paymentTypes,
   );
 
-  const ebarimtResponses: any[] = [];
+  const ebarimtResponses: EbarimtEmailResponse[] = [];
 
   if (config.skipEbarimt) {
     const { status, msg, data, innerData } = await getEbarimtData({
@@ -115,7 +132,7 @@ export const afterMutationHandlers = async (
           ...data,
           id: 'Түр баримт',
           status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
           registerNo: config.companyRD || '',
         });
       }
@@ -124,7 +141,7 @@ export const afterMutationHandlers = async (
           ...innerData,
           id: 'Түр баримт',
           status: 'SUCCESS',
-          date: moment(new Date()).format('"yyyy-MM-dd HH:mm:ss'),
+          date: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
           registerNo: config.companyRD || '',
         });
       }
@@ -139,12 +156,12 @@ export const afterMutationHandlers = async (
 
       if (putData) ebarimtResponses.push(putData);
       if (innerData) ebarimtResponses.push(innerData);
-    } catch (e) {
+    } catch (error) {
       ebarimtResponses.push({
         _id: nanoid(),
         id: 'Error',
         status: 'ERROR',
-        message: e.message,
+        message: getErrorMessage(error),
       });
     }
   }
@@ -164,8 +181,34 @@ export const afterMutationHandlers = async (
           })),
         },
       });
+
+      if (config.sendEmail) {
+        try {
+          const emailResponses: EbarimtEmailResponse[] = ebarimtResponses.map(
+            (response) => ({
+              ...config,
+              ...response,
+              description: (config.withDescription && deal.description) || '',
+            }),
+          );
+
+          await sendEbarimtEmail({
+            deal,
+            responses: emailResponses,
+            subdomain,
+          });
+        } catch (error) {
+          console.error(
+            'Failed to send eBarimt email:',
+            getErrorMessage(error),
+          );
+        }
+      }
     }
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (error) {
+    console.error(
+      'Failed to publish eBarimt response:',
+      getErrorMessage(error),
+    );
   }
 };

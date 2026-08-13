@@ -88,7 +88,7 @@ const connect = (isCloudFlareEnabled?: boolean) => gql`
       uiOptions,
       customerId,
       visitorId,
-      ticketConfig
+      ticketConfigs
       customer {
         _id
         firstName

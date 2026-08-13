@@ -14,6 +14,22 @@ export interface ITicketFormFields {
   tags?: ITicketFormField;
 }
 
+export interface ITicketPropertyFieldOption {
+  label: string;
+  value: string;
+}
+
+export interface ITicketPropertyField {
+  fieldId: string;
+  groupId?: string;
+  label?: string;
+  placeholder?: string;
+  order?: number;
+  isRequired?: boolean;
+  type?: string;
+  options?: ITicketPropertyFieldOption[];
+}
+
 export interface ITicketConfig {
   name: string;
 
@@ -24,6 +40,8 @@ export interface ITicketConfig {
   parentId?: string;
 
   formFields: ITicketFormFields;
+
+  propertyFields?: ITicketPropertyField[];
 }
 export interface ITicketSaveConfigArgs {
   input: ITicketConfig;

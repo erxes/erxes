@@ -151,3 +151,12 @@ export const AUTOMATION_WORKFLOW_TEMPLATES = gql`
     }
   }
 `;
+
+export const AUTOMATION_EXECUTION_COUNTS = gql`
+  query AutomationExecutionCounts($automationIds: [String!]!) {
+    automationExecutionCounts(automationIds: $automationIds) {
+      key
+      count
+    }
+  }
+`;

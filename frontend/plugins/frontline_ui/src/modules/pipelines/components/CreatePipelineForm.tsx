@@ -1,43 +1,45 @@
 import { Form, Input, Textarea } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 import { TCreatePipelineForm, TUpdatePipelineForm } from '@/pipelines/types';
 import { useTranslation } from 'react-i18next';
 
-export const CreatePipelineForm = ({
+type PipelineFormValues = TCreatePipelineForm | TUpdatePipelineForm;
+
+type CreatePipelineFormProps<T extends FieldValues> = {
+  form: UseFormReturn<T>;
+};
+
+const PIPELINE_NAME_FIELD = 'name' as FieldPath<PipelineFormValues>;
+const PIPELINE_DESCRIPTION_FIELD =
+  'description' as FieldPath<PipelineFormValues>;
+
+export const CreatePipelineForm = <T extends PipelineFormValues>({
   form,
-}: {
-  form: UseFormReturn<TCreatePipelineForm> | UseFormReturn<TUpdatePipelineForm>;
-}) => {
+}: CreatePipelineFormProps<T>) => {
   const { t } = useTranslation('frontline');
   return (
     <div className="flex flex-col gap-3">
-      <div className="w-full flex gap-2">
-        <Form.Field
-          control={form.control as any}
-          name="name"
-          render={({ field }) => (
-            <Form.Item className="flex-auto">
-              <Form.Label>{t('pipeline-name')}</Form.Label>
-              <Form.Description className="sr-only">
-                {t('pipeline-name')}
-              </Form.Description>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      </div>
       <Form.Field
-        control={form.control as any}
-        name="description"
+        control={form.control}
+        name={PIPELINE_NAME_FIELD as FieldPath<T>}
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
-            <Form.Description className="sr-only">{t('description')}</Form.Description>
+          <Form.Item className="space-y-1">
+            <Form.Label>{t('pipeline-name')}</Form.Label>
             <Form.Control>
-              <Textarea {...field} />
+              <Input {...field} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name={PIPELINE_DESCRIPTION_FIELD as FieldPath<T>}
+        render={({ field }) => (
+          <Form.Item className="space-y-1">
+            <Form.Label>{t('description')}</Form.Label>
+            <Form.Control>
+              <Textarea className="min-h-20 resize-none" {...field} />
             </Form.Control>
             <Form.Message />
           </Form.Item>

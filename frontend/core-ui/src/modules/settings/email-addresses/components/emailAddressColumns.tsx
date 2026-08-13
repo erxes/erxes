@@ -76,14 +76,20 @@ export const emailAddressColumns: ColumnDef<IEmailAddress>[] = [
     cell: ({ cell }) => {
       const value = cell.getValue() as string | undefined;
 
-      return (
-        <RecordTableInlineCell>
-          {value ? (
-            <RelativeDateDisplay value={value} />
-          ) : (
+      if (!value) {
+        return (
+          <RecordTableInlineCell>
             <span className="text-muted-foreground">Never</span>
-          )}
-        </RecordTableInlineCell>
+          </RecordTableInlineCell>
+        );
+      }
+
+      return (
+        <RelativeDateDisplay value={value} asChild>
+          <RecordTableInlineCell>
+            <RelativeDateDisplay.Value value={value} />
+          </RecordTableInlineCell>
+        </RelativeDateDisplay>
       );
     },
   },

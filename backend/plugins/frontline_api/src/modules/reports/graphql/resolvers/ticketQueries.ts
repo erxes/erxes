@@ -7,6 +7,7 @@ import {
   buildTicketPipeline,
   buildTicketTagMatch,
   buildDateGroupPipeline,
+  narrowTicketMatchByContacts,
 } from '@/reports/utils';
 import {
   TICKET_DEFAULT_STATUSES,
@@ -40,6 +41,18 @@ type ReportPropertyRow = {
 
 const OPTION_PROPERTY_TYPES = new Set(['select', 'multiSelect', 'radio']);
 
+const NO_PRIORITY_TYPE = { name: 'no priority', type: 0, color: '#9CA3AF' };
+
+type StatusSummaryRow = {
+  _id: string | null;
+  statusType: number;
+  name: string;
+  group: string | null;
+  color: string;
+  order: number;
+  count: number;
+};
+
 const getPrimitivePropertyValue = (value: unknown) => {
   if (
     typeof value === 'string' ||
@@ -65,7 +78,6 @@ async function reportTicketCustomPropertiesGrouped({
   filters: IReportFilters;
   groupPropertyId: string;
 }) {
-
   const pipeline: any[] = [
     { $match: matchFilter },
     { $match: { $expr: { $eq: [{ $type: '$propertiesData' }, 'object'] } } },
@@ -171,7 +183,6 @@ async function reportTicketCustomPropertiesGrouped({
   }));
 }
 
-
 async function reportTicketFieldsForGroupValue({
   models,
   subdomain,
@@ -240,11 +251,7 @@ async function reportTicketFieldsForGroupValue({
     {
       $addFields: {
         __vals: {
-          $cond: [
-            { $isArray: '$__props.v' },
-            '$__props.v',
-            ['$__props.v'],
-          ],
+          $cond: [{ $isArray: '$__props.v' }, '$__props.v', ['$__props.v']],
         },
       },
     },
@@ -265,9 +272,7 @@ async function reportTicketFieldsForGroupValue({
     return [];
   }
 
-  const fieldIds = Array.from(
-    new Set(valueCounts.map((p) => p._id.fieldId)),
-  );
+  const fieldIds = Array.from(new Set(valueCounts.map((p) => p._id.fieldId)));
 
   const fields: ReportPropertyField[] = await sendTRPCMessage({
     subdomain,
@@ -365,7 +370,11 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const tickets = await models.Ticket.find(matchFilter, { _id: 1 }).lean();
 
@@ -441,12 +450,20 @@ export const reportTicketQueries = {
     return result.map((r) => ({ date: r._id, count: r.count }));
   },
 
-  async reportTicketOpen(_parent, { filters = {} }, { models }) {
-    const query = buildTicketMatch(filters);
-    const baseQuery = buildTicketMatch({
-      ...filters,
-      status: undefined,
-    });
+  async reportTicketOpen(_parent, { filters = {} }, { models, subdomain }) {
+    const query = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
+    const baseQuery = await narrowTicketMatchByContacts(
+      buildTicketMatch({
+        ...filters,
+        status: undefined,
+      }),
+      filters,
+      subdomain,
+    );
 
     const [openCount, totalCount] = await Promise.all([
       models.Ticket.countDocuments(query),
@@ -510,7 +527,11 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketTagMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketTagMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const pipeline: any[] = [
       { $match: matchFilter },
@@ -568,8 +589,11 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
-
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
 
     if (filters.groupPropertyId) {
       if (filters.groupPropertyValue) {
@@ -624,9 +648,8 @@ export const reportTicketQueries = {
       { $sort: { count: -1 } },
     ];
 
-    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-      pipeline,
-    );
+    const propertyCounts: ReportPropertyCount[] =
+      await models.Ticket.aggregate(pipeline);
 
     if (!propertyCounts.length) {
       return [];
@@ -670,9 +693,8 @@ export const reportTicketQueries = {
           if (!optionValue) {
             return null;
           }
-               const fieldLabel = field.name || field.text;
+          const fieldLabel = field.name || field.text;
           const valueLabel = option?.label || optionValue;
-
 
           return {
             _id: `${fieldId}:${optionValue}`,
@@ -681,7 +703,6 @@ export const reportTicketQueries = {
           };
         }
 
-     
         return {
           _id: fieldId,
           name: field.name || field.text,
@@ -722,45 +743,97 @@ export const reportTicketQueries = {
   async reportTicketStatusSummary(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const pipeline: any[] = [
       { $match: matchFilter },
       {
         $group: {
-          _id: { $ifNull: ['$statusType', 0] },
+          _id: {
+            statusId: '$statusId',
+            statusType: { $ifNull: ['$statusType', 0] },
+          },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
     ];
 
-    const statusCounts = await models.Ticket.aggregate(pipeline);
+    const statusCounts: Array<{
+      _id: { statusId?: string; statusType: number };
+      count: number;
+    }> = await models.Ticket.aggregate(pipeline);
 
-    const total = statusCounts.reduce((s: number, r: any) => s + r.count, 0);
+    const statusIds = statusCounts
+      .map((statusCount) => statusCount._id.statusId)
+      .filter((statusId): statusId is string => Boolean(statusId));
 
-    return TICKET_DEFAULT_STATUSES.map((defaultStatus) => {
-      const found = statusCounts.find((r: any) => r._id === defaultStatus.type);
-      const count = found?.count ?? 0;
+    const statuses = statusIds.length
+      ? await models.Status.find({ _id: { $in: statusIds } }).lean()
+      : [];
 
-      return {
-        statusType: defaultStatus.type,
-        name: defaultStatus.name,
-        color: defaultStatus.color,
+    const statusById = new Map(statuses.map((status) => [status._id, status]));
+    const categoryByType = new Map(
+      TICKET_DEFAULT_STATUSES.map((category) => [category.type, category]),
+    );
+
+    const rows = new Map<string, StatusSummaryRow>();
+
+    let total = 0;
+
+    for (const { _id, count } of statusCounts) {
+      total += count;
+
+      const status = _id.statusId ? statusById.get(_id.statusId) : undefined;
+      const statusType = status?.type ?? _id.statusType;
+      const category = categoryByType.get(statusType);
+      const key = status ? `status:${status._id}` : `category:${statusType}`;
+      const existing = rows.get(key);
+
+      if (existing) {
+        existing.count += count;
+        continue;
+      }
+
+      rows.set(key, {
+        _id: status?._id ?? null,
+        statusType,
+        name: status?.name || category?.name || 'unknown',
+        color: category?.color || status?.color || '#6B7280',
+        group: status ? (category?.name ?? null) : null,
+        order: status?.order ?? 0,
         count,
-        percentage: calculatePercentage(count, total),
-      };
-    });
+      });
+    }
+
+    return [...rows.values()]
+      .sort((a, b) => a.statusType - b.statusType || a.order - b.order)
+      .map((row) => ({
+        _id: row._id,
+        statusType: row.statusType,
+        name: row.name,
+        group: row.group,
+        color: row.color,
+        count: row.count,
+        percentage: calculatePercentage(row.count, total),
+      }));
   },
 
   async reportTicketPriority(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
     const pipeline: any[] = [
       { $match: matchFilter },
       {
@@ -780,7 +853,7 @@ export const reportTicketQueries = {
       priorityCounts.map((r: any) => [r._id, r.count]),
     );
 
-    return TICKET_PRIORITY_TYPES.map((p) => {
+    return [NO_PRIORITY_TYPE, ...TICKET_PRIORITY_TYPES].map((p) => {
       const count = countMap[p.type] ?? 0;
 
       return {

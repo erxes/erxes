@@ -567,10 +567,19 @@ export const sendReply = async (
     debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
+    const targetRecipient = data?.recipient?.id || data?.recipient?.comment_id;
+
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
-      } data: ${JSON.stringify(data)}`,
+      `Facebook Graph request failed ${JSON.stringify({
+        path: url,
+        pageId: recipientId,
+        targetRecipient,
+        requestType: data?.sender_action ? 'sender_action' : 'message',
+        code: e.code,
+        errorSubcode: e.error_subcode,
+        fbtraceId: e.fbtrace_id,
+        message: e.message,
+      })}`,
     );
     // request-level failures (unknown error, invalid parameter, messaging
     // window, already replied) say nothing about the token's health

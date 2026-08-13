@@ -39,6 +39,14 @@ const COLLECTIONS = [
   // response templates
   'response_templates',
 
+
+  'tickets_pipelines',
+  'tickets_stages',
+  'tickets',
+  'ticket_comments',
+  'tickets_checklists',
+  'tickets_checklist_items',
+
   // ticket
   'frontline_tickets_pipeline',
   'frontline_tickets_pipeline_status',
@@ -101,6 +109,9 @@ const COLLECTIONS = [
   'frontline_form_fields',
   'frontline_forms',
   'frontline_form_submissions',
+  'form_fields',
+  'forms',
+  'form_submissions',
 
   // knowledgebase
   'knowledgebase_articles',

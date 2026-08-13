@@ -228,11 +228,11 @@ export const EMSettings = () => {
               )}
             />
             <Collapsible>
-              <Collapsible.TriggerButton>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
                 <Collapsible.TriggerIcon />
                 {t('website-apps')}
               </Collapsible.TriggerButton>
-              <Collapsible.Content>
+              <Collapsible.Content className="p-2 space-y-4">
                 <Form.Item>
                   <div className="space-y-4">
                     {websiteAppFields.map((field, index) => (

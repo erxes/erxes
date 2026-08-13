@@ -62,6 +62,13 @@ export const FORM_WIDGET_CONNECT = gql`
         }
         visibility
         leadData
+        callout {
+          title
+          body
+          buttonText
+          featuredImage
+          skip
+        }
         languageCode
         departmentIds
         tagIds

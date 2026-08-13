@@ -36,6 +36,19 @@ const GET_TICKET_CONFIGS = gql`
           placeholder
         }
       }
+      propertyFields {
+        fieldId
+        groupId
+        label
+        placeholder
+        order
+        isRequired
+        type
+        options {
+          label
+          value
+        }
+      }
       updatedAt
     }
   }

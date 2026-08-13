@@ -19,7 +19,7 @@ export type TAutomationOptionalConnect = {
 
 type IConfig = {
   workflowConnection?: WorkflowConnection;
-  optionalConnect?: TAutomationOptionalConnect[];
+  optionalConnects?: TAutomationOptionalConnect[];
   [key: string]: any;
 };
 
@@ -131,6 +131,9 @@ export type AutomationActionFormProps<TConfig = any> =
     onSaveActionConfig: (config: TConfig) => void;
     trigger?: TAutomationTrigger;
     targetType?: string;
+    // Every action reachable backwards from the current one, so a form can tell
+    // how it is connected to its trigger (e.g. behind an optional connect).
+    previousActions?: TAutomationAction[];
   };
 
 export type AutomationTriggerConfigProps<TConfig = any> =
@@ -174,6 +177,8 @@ export type TAiKnowledgeSourceConfig = {
   key: string;
   label: string;
   sourceSelector: 'remote-module' | 'local';
+  // Off for collections too large to stream, e.g. customers.
+  supportsFullScope?: boolean;
 };
 
 export type TAiToolConfig = {

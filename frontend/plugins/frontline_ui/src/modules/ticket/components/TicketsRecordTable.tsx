@@ -40,6 +40,7 @@ export const TicketsRecordTable = () => {
         data={tickets || (loading ? [{}] : [])}
         className="m-3 h-full"
         stickyColumns={['more', 'checkbox', 'name']}
+        tableId="frontline_tickets_record_table"
       >
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}

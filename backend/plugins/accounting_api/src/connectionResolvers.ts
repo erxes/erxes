@@ -58,9 +58,24 @@ import {
 } from './modules/accounting/db/models/Transactions';
 import { transactionCounterSchema } from './modules/accounting/db/definitions/transaction';
 import {
+  IAdjustClosingEntryModel,
+  loadAdjustClosingClass,
+} from './modules/accounting/db/models/AdjustClosing';
+import { IAdjustClosingDocument } from './modules/accounting/@types/adjustClosingEntry';
+import {
   IVatRowModel,
   loadVatRowClass,
 } from './modules/accounting/db/models/VatRows';
+import {
+  IAdjustFundRatesModels,
+  loadAdjustRatesClass,
+} from './modules/accounting/db/models/AdjustFundRate';
+import { IAdjustDebtRateDocument } from './modules/accounting/@types/adjustDebtRate';
+import { IAdjustFundRateDocument } from './modules/accounting/@types/adjustRateFundDetails';
+import {
+  IAdjustDebtRatesModels,
+  loadAdjustDebtRatesClass,
+} from './modules/accounting/db/models/AdjustDebtRate';
 import {
   IReserveRemModel,
   loadReserveRemClass,
@@ -96,7 +111,6 @@ import {
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
-
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -105,6 +119,9 @@ export interface IModels {
   VatRows: IVatRowModel;
   CtaxRows: ICtaxRowModel;
   Permissions: IPermissionModel;
+
+  AdjustDebtRates: IAdjustDebtRatesModels;
+  AdjustFundRates: IAdjustFundRatesModels;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
   FixedAssetCategories: IFixedAssetCategoryModel;
@@ -118,6 +135,7 @@ export interface IModels {
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
+  AdjustClosings: IAdjustClosingEntryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -163,6 +181,16 @@ export const loadClasses = (
       accountingEventHandlers('accounting', 'account_categories'),
     ),
   );
+
+  models.AdjustDebtRates = db.model<
+    IAdjustDebtRateDocument,
+    IAdjustDebtRatesModels
+  >('adjust_debt_rates', loadAdjustDebtRatesClass(models));
+
+  models.AdjustFundRates = db.model<
+    IAdjustFundRateDocument,
+    IAdjustFundRatesModels
+  >('adjust_fund_rates', loadAdjustRatesClass(models));
 
   models.AdjustInventories = db.model<
     IAdjustInventoryDocument,
@@ -232,6 +260,11 @@ export const loadClasses = (
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
   );
+
+  models.AdjustClosings = db.model<
+    IAdjustClosingDocument,
+    IAdjustClosingEntryModel
+  >('adjust_closings', loadAdjustClosingClass(models, subdomain));
 
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
