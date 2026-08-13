@@ -21,6 +21,8 @@ export const GET_TICKETS = gql`
         createdBy
         updatedAt
         channelId
+        branchId
+        departmentId
         statusChangedDate
         number
         pipelineId

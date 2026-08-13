@@ -3,8 +3,10 @@ import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -47,6 +49,8 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
     pipelineId,
     statusId,
     channelId,
+    branchId,
+    departmentId,
     tagIds,
     isSubscribed: _isSubscribed,
     state: ticketState,
@@ -286,7 +290,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
           <div className="gap-2 flex flex-wrap w-full items-center">
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectChannel value={channelId} variant="detail" disabled />
               </div>
               <Tooltip.Content>
@@ -295,7 +299,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             </Tooltip>
             <Tooltip>
               <div className="relative">
-                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
                 <SelectPipeline
                   value={pipelineId}
                   variant="detail"
@@ -305,6 +309,35 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               </div>
               <Tooltip.Content>
                 {t('pipeline-cannot-be-changed')}
+              </Tooltip.Content>
+            </Tooltip>
+            <Tooltip>
+              <div className="relative">
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+                <SelectBranchTicket
+                  value={branchId || ''}
+                  variant="detail"
+                  disabled
+                />
+              </div>
+              <Tooltip.Content>
+                {t('branch-cannot-be-changed', 'Branch cannot be changed')}
+              </Tooltip.Content>
+            </Tooltip>
+            <Tooltip>
+              <div className="relative">
+                <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
+                <SelectDepartmentTicket
+                  value={departmentId || ''}
+                  variant="detail"
+                  disabled
+                />
+              </div>
+              <Tooltip.Content>
+                {t(
+                  'department-cannot-be-changed',
+                  'Department cannot be changed',
+                )}
               </Tooltip.Content>
             </Tooltip>
             <SelectStatusTicket

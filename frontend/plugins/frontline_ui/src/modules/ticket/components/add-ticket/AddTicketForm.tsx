@@ -1,6 +1,8 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -47,7 +49,8 @@ export const AddTicketForm = ({
     ticketCreateDefaultValuesState,
   );
 
-  const resolvedPipelineId = defaultValuesState?.pipelineId || pipelineId || undefined;
+  const resolvedPipelineId =
+    defaultValuesState?.pipelineId || pipelineId || undefined;
   const defaultValues = {
     channelId: defaultValuesState?.channelId || channelId || undefined,
     pipelineId: resolvedPipelineId,
@@ -55,6 +58,8 @@ export const AddTicketForm = ({
     name: '',
     priority: 0,
     assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
+    branchId: undefined,
+    departmentId: undefined,
     startDate: undefined,
     targetDate: undefined,
   };
@@ -169,7 +174,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('pipeline-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('pipeline-label')}
+                    </Form.Label>
                     <SelectPipeline.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => {
@@ -191,7 +198,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('status-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('status-label')}
+                    </Form.Label>
                     <SelectStatusTicket.FormItem
                       value={field.value || ''}
                       onValueChange={(value) => field.onChange(value)}
@@ -210,7 +219,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('priority-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('priority-label')}
+                    </Form.Label>
                     <SelectPriorityTicket.FormItem
                       value={field.value || 0}
                       onValueChange={(value) => field.onChange(value)}
@@ -223,7 +234,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('assignee-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('assignee-label')}
+                    </Form.Label>
                     <SelectAssigneeTicket.FormItem
                       value={field.value || ''}
                       onValueChange={(value: any) => {
@@ -235,11 +248,49 @@ export const AddTicketForm = ({
               />
 
               <Form.Field
+                name="branchId"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">
+                      {t('branch-label', 'Branch')}
+                    </Form.Label>
+                    <SelectBranchTicket.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value) =>
+                        field.onChange(value || undefined)
+                      }
+                    />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                name="departmentId"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label className="sr-only">
+                      {t('department-label', 'Department')}
+                    </Form.Label>
+                    <SelectDepartmentTicket.FormItem
+                      value={field.value || ''}
+                      onValueChange={(value) =>
+                        field.onChange(value || undefined)
+                      }
+                    />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
                 name="startDate"
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('start-date-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('start-date-label')}
+                    </Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       placeholder={t('start-date-label')}
@@ -253,7 +304,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('due-date-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('due-date-label')}
+                    </Form.Label>
                     <SelectDateTicket.FormItem
                       value={field.value}
                       onValueChange={(value) => field.onChange(value)}
@@ -269,7 +322,9 @@ export const AddTicketForm = ({
                 control={form.control}
                 render={() => (
                   <Form.Item>
-                    <Form.Label className="sr-only">{t('tags-label')}</Form.Label>
+                    <Form.Label className="sr-only">
+                      {t('tags-label')}
+                    </Form.Label>
                     <Form.Control>
                       <TagsSelect.Trigger variant="ICON" />
                     </Form.Control>
