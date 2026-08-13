@@ -15,8 +15,10 @@ import { DEALS_EDIT_PRODUCT_DATA } from '@/deals/cards/components/detail/product
 import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
-import { serializeDealProductMutation } from './serializeDealProductMutation';
-import { updateDealProductsCache } from './updateDealProductsCache';
+import {
+  serializeDealProductMutation,
+  withDealIdVariables,
+} from './serializeDealProductMutation';
 
 interface EditProductDataVariables {
   processId: string;
@@ -45,23 +47,13 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       },
     ) => {
       try {
-        const result = await serializeDealProductMutation(dealId, async () => {
-          const mutationResult = await mutateEditProductData({
-            ...executeOptions,
-            variables: {
-              ...executeOptions.variables,
-              dealId,
-            },
-          });
-
-          const productsData: IProductData[] | undefined =
-            mutationResult.data?.dealsEditProductData?.productsData;
-
-          if (productsData) {
-            updateDealProductsCache(client, dealId, productsData);
-          }
-
-          return mutationResult;
+        const result = await serializeDealProductMutation({
+          client,
+          dealId,
+          mutation: () =>
+            mutateEditProductData(withDealIdVariables(executeOptions, dealId)),
+          selectProductsData: (mutationResult) =>
+            mutationResult.data?.dealsEditProductData?.productsData,
         });
 
         toast({

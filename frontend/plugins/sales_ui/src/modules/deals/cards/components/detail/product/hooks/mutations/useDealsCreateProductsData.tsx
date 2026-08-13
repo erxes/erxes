@@ -15,8 +15,10 @@ import { DEALS_CREATE_PRODUCT_DATA } from '@/deals/cards/components/detail/produ
 import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
-import { serializeDealProductMutation } from './serializeDealProductMutation';
-import { updateDealProductsCache } from './updateDealProductsCache';
+import {
+  serializeDealProductMutation,
+  withDealIdVariables,
+} from './serializeDealProductMutation';
 
 interface CreateProductsDataVariables {
   processId: string;
@@ -44,23 +46,15 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
       },
     ) => {
       try {
-        const result = await serializeDealProductMutation(dealId, async () => {
-          const mutationResult = await mutateCreateProductsData({
-            ...executeOptions,
-            variables: {
-              ...executeOptions.variables,
-              dealId,
-            },
-          });
-
-          const productsData: IProductData[] | undefined =
-            mutationResult.data?.dealsCreateProductsData?.productsData;
-
-          if (productsData) {
-            updateDealProductsCache(client, dealId, productsData);
-          }
-
-          return mutationResult;
+        const result = await serializeDealProductMutation({
+          client,
+          dealId,
+          mutation: () =>
+            mutateCreateProductsData(
+              withDealIdVariables(executeOptions, dealId),
+            ),
+          selectProductsData: (mutationResult) =>
+            mutationResult.data?.dealsCreateProductsData?.productsData,
         });
 
         toast({

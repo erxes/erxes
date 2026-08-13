@@ -9,11 +9,12 @@ import { useCallback } from 'react';
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
 import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { IProductData } from 'ui-modules';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { serializeDealProductMutation } from './serializeDealProductMutation';
-import { updateDealProductsCache } from './updateDealProductsCache';
+import {
+  serializeDealProductMutation,
+  withDealIdVariables,
+} from './serializeDealProductMutation';
 
 interface RemoveProductsVariables {
   processId: string;
@@ -38,23 +39,13 @@ export const useRemoveProducts = () => {
       const { onCompleted, onError, ...executeOptions } = options;
 
       try {
-        const result = await serializeDealProductMutation(dealId, async () => {
-          const mutationResult = await mutateRemoveProducts({
-            ...executeOptions,
-            variables: {
-              ...executeOptions.variables,
-              dealId,
-            },
-          });
-
-          const productsData: IProductData[] | undefined =
-            mutationResult.data?.dealsDeleteProductData?.productsData;
-
-          if (productsData) {
-            updateDealProductsCache(client, dealId, productsData);
-          }
-
-          return mutationResult;
+        const result = await serializeDealProductMutation({
+          client,
+          dealId,
+          mutation: () =>
+            mutateRemoveProducts(withDealIdVariables(executeOptions, dealId)),
+          selectProductsData: (mutationResult) =>
+            mutationResult.data?.dealsDeleteProductData?.productsData,
         });
 
         toast({
