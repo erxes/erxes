@@ -32,8 +32,7 @@ const isValidPropValue = (value: unknown, spec: unknown): boolean => {
 
   return (
     spec.values === undefined ||
-    (Array.isArray(spec.values) &&
-      spec.values.some((allowedValue) => allowedValue === value))
+    (Array.isArray(spec.values) && spec.values.includes(value))
   );
 };
 
