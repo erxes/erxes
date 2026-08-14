@@ -4,6 +4,27 @@ import { ConversationFilterBar } from '@/inbox/conversations/components/Conversa
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useTranslation } from 'react-i18next';
 
+export const ConversationCount = ({ className }: { className?: string }) => {
+  const { t } = useTranslation('frontline');
+  const { totalCount, loading } = useConversationListContext();
+
+  return (
+    <span
+      className={cn(
+        'text-accent-foreground inline-flex items-center gap-1 text-sm font-medium ml-auto min-w-0',
+        className,
+      )}
+    >
+      {loading ? (
+        <Skeleton className="w-4 h-4 flex-none" />
+      ) : (
+        <span className="flex-none">{totalCount}</span>
+      )}
+      <span className="truncate">{t('conversations')}</span>
+    </span>
+  );
+};
+
 export const ConversationsHeader = ({
   children,
 }: {
@@ -37,26 +58,5 @@ export const ConversationsHeader = ({
         </Filter.Dialog>
       </div>
     </Filter>
-  );
-};
-
-export const ConversationCount = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
-  const { totalCount, loading } = useConversationListContext();
-
-  return (
-    <span
-      className={cn(
-        'text-accent-foreground inline-flex items-center gap-1 text-sm font-medium ml-auto min-w-0',
-        className,
-      )}
-    >
-      {loading ? (
-        <Skeleton className="w-4 h-4 flex-none" />
-      ) : (
-        <span className="flex-none">{totalCount}</span>
-      )}
-      <span className="truncate">{t('conversations')}</span>
-    </span>
   );
 };
