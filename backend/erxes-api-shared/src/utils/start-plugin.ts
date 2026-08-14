@@ -49,7 +49,7 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { mountAgentTools } from './agent-tools';
+import { AgentModelPermissionMap, mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
 
@@ -129,7 +129,18 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
-  agentTools?: false | { exclude?: string[] };
+  /**
+   * Agent capability endpoints are opt-in. `true` exposes only curated tRPC
+   * tools (procedures declaring `.meta({ agent: ... })`); the options object
+   * additionally allows exposing selected models as CRUD tools.
+   */
+  agentTools?:
+    | true
+    | {
+        exclude?: string[];
+        includeModels?: string[];
+        modelPermissions?: AgentModelPermissionMap;
+      };
   meta?: IMeta;
 };
 
@@ -152,6 +163,8 @@ export async function startPlugin(
     apolloServerContext,
     trpcAppRouter,
     onServerInit,
+    // agent capability endpoints (opt-in)
+    agentTools,
     // meta
     meta,
   } = configs || {};
@@ -266,15 +279,18 @@ export async function startPlugin(
     );
   }
 
-  if (configs.agentTools !== false) {
+  if (agentTools) {
     mountAgentTools(app, {
       plugin: name,
       trpcRouter: trpcAppRouter?.router,
       createContext: trpcAppRouter?.createContext,
-      exclude:
-        typeof configs.agentTools === 'object'
-          ? configs.agentTools.exclude
-          : [],
+      exclude: typeof agentTools === 'object' ? agentTools.exclude : [],
+      includeModels:
+        typeof agentTools === 'object' ? agentTools.includeModels : undefined,
+      modelPermissions:
+        typeof agentTools === 'object'
+          ? agentTools.modelPermissions
+          : undefined,
     });
   }
 
