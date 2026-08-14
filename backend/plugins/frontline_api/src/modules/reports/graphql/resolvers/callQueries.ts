@@ -427,11 +427,23 @@ export const reportCallQueries = {
   async callCarrierBreakdown(
     _args,
     { startDate, endDate, queueId, direction }: ICallReportArgs,
-    { models }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
+
+    if (queueId && !integration) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({ startDate, endDate, queueId, direction }),
+      ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
@@ -441,11 +453,23 @@ export const reportCallQueries = {
   async callHeatmap(
     _args,
     { startDate, endDate, queueId, direction }: ICallReportArgs,
-    { models }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
+
+    if (queueId && !integration) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({ startDate, endDate, queueId, direction }),
+      ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
@@ -461,11 +485,23 @@ export const reportCallQueries = {
       direction,
       limit = 12,
     }: ICallReportArgs & { limit?: number },
-    { models }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const integration = await findQueueIntegration(
+      models,
+      subdomain,
+      user,
+      queueId,
+    );
+
+    if (queueId && !integration) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({ startDate, endDate, queueId, direction }),
+      ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 

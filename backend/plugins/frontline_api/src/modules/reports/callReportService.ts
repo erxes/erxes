@@ -90,7 +90,7 @@ export const buildCdrFilter = ({
   }
 
   const inQueue = {
-    actionType: { $regex: `QUEUE\\[${escapeRegExp(queueId)}\\]` },
+    actionType: { $regex: String.raw`QUEUE\[${escapeRegExp(queueId)}\]` },
   };
 
   if (direction === 'Inbound') {
