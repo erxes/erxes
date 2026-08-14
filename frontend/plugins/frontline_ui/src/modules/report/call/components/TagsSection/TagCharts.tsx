@@ -242,7 +242,11 @@ export const TagRadarChart = memo(function TagRadarChart({
     <ChartContainer config={config} className="h-64 w-full">
       <RadarChart data={data}>
         <PolarGrid />
-        <PolarAngleAxis dataKey="tag" tickLine={false} tick={{ fontSize: 12 }} />
+        <PolarAngleAxis
+          dataKey="tag"
+          tickLine={false}
+          tick={{ fontSize: 12 }}
+        />
         <PolarRadiusAxis angle={90} tick={false} axisLine={false} />
         <Radar
           name={config.totalCalls.label}

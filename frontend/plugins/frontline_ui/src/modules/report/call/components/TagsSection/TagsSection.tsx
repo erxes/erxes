@@ -226,8 +226,7 @@ export function TagsSection() {
                       aria-hidden
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{
-                        background:
-                          tag.colorCode ?? 'var(--muted-foreground)',
+                        background: tag.colorCode ?? 'var(--muted-foreground)',
                       }}
                     />
                     <span className="text-sm font-medium">
