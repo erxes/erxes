@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-13`
+- **Last synchronized:** `2026-08-14`
 
 ## Scope
 
@@ -394,6 +394,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
   request's own models; never read another plugin's collections.
+- `Pipeline.excludeCheckUserIds` is an **exemption** list, not a target list.
+  When `isCheckUser` is on, `generateFilter` restricts a user to
+  `assigneeId`/`createdBy` tickets **unless** their id is in
+  `excludeCheckUserIds` — the UI labels that field "Members who still see every
+  ticket". Never invert this test; `sales_api`'s `checkItemPermByUser` uses the
+  same semantics.
 - Ticket reports count **live tickets by default**: `buildTicketMatch` treats an
   unset `state` as `active` (and a missing `state` field as active, for tickets
   written before it existed). `state: 'all'` is the only way to include archived
@@ -459,6 +465,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-14` — Fixed inverted `isCheckUser` ticket visibility
+
+- **Summary:** With "Show only tickets assigned to the user" enabled, the
+  own-tickets restriction now applies to users **outside**
+  `excludeCheckUserIds`; previously only the exempted members were restricted,
+  so adding a member hid their tickets and removing them showed everything.
+- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
+- **Contracts changed:** None
 
 ### `2026-08-13` — Frontline admins see every call queue
 
@@ -579,88 +594,3 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
   types. Values move: wait-time figures, `firstCallResolution`, `occupancy`,
   and the carrier breakdown all report differently because they were wrong
   before.
-
-### `2026-08-10` — Status summary breaks down by pipeline status
-
-- **Summary:** `reportTicketStatusSummary` now returns one row per pipeline
-  status a ticket is actually in, named after that status and carrying its
-  default category in `group`, instead of six rolled-up category rows. Tickets
-  whose status was deleted collapse onto a category-named row with no `group`,
-  and statuses nobody is using are omitted.
-- **Affected areas:**
-  `src/modules/reports/graphql/{resolvers/ticketQueries.ts,schema/ticket.ts}`.
-- **Contracts changed:** `ReportTicketStatusSummary` gained nullable `_id` and
-  `group`; the row count is now the number of statuses in use rather than a
-  fixed six, and an empty result is possible where six zero rows came back
-  before.
-
-### `2026-08-10` — Ticket reports count live tickets, and priority totals add up
-
-- **Summary:** `buildTicketMatch` now defaults to `state: 'active'`, so archived
-  and deleted tickets stay out of every ticket report unless `state: 'all'` asks
-  for them. `reportTicketPriority` additionally returns the `priority: 0` bucket
-  it was already counting into its denominator, so the KPI row can show the real
-  ticket count instead of only the triaged ones.
-- **Affected areas:** `src/modules/reports/utils.ts`,
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `TicketReportFilter.state` gained the `all` value;
-  an unset `state` no longer means "every state". `reportTicketPriority` returns
-  five rows instead of four.
-
-### `2026-08-10` — Status summary counts tickets by their real status
-
-- **Summary:** `reportTicketStatusSummary` now resolves each ticket's category
-  from `statusId` through `Status.type` instead of trusting the denormalized
-  `Ticket.statusType`, which is only written when a ticket is moved. Tickets
-  created into a custom pipeline status and never moved carried `statusType: 0`
-  and were dropped from every bucket; they are now counted, and the card's
-  percentages describe the same population as its counts.
-- **Affected areas:**
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `None` — `reportTicketStatusSummary` keeps its
-  arguments and its six `TICKET_DEFAULT_STATUSES` rows.
-
-### `2026-08-10` — Customer and Company filters reach every ticket report
-
-- **Summary:** Extracted the customer/company relation lookup out of
-  `buildTicketPipeline` into `narrowTicketMatchByContacts` and applied it to the
-  six resolvers that built their match with `buildTicketMatch` /
-  `buildTicketTagMatch` and therefore dropped both filters without erroring —
-  custom properties, tags, source, open, status summary, and priority.
-  Behaviour of the four resolvers already using `buildTicketPipeline` is
-  unchanged.
-- **Affected areas:** `src/modules/reports/utils.ts`,
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `None` — same arguments and return shapes;
-  `reportTicketOpen`, `reportTicketStatusSummary`, and `reportTicketPriority`
-  now read `subdomain` from context.
-
-### `2026-08-09` — Saved report charts
-
-- **Summary:** Implemented the already-declared query so it returns the active
-  integration kinds used by the caller's visible channels, optionally narrowed
-  by channel id and/or scope, resolving channel ids first and then a single
-  `distinct('kind')` read; extracted `visibleChannelsFilter` so the channel
-  visibility rule has one implementation.
-- **Affected areas:**
-  `src/modules/inbox/graphql/{resolvers/queries/integrations.ts,schemas/integration.ts}`,
-  `src/modules/channel/utils.ts`,
-  `src/modules/channel/graphql/resolvers/queries/channel.ts`.
-- **Contracts changed:** `integrationsGetUsedTypesByChannel` gained an optional
-  `scope: String` argument and its `channelId` relaxed from `String!` to
-  `String`; the query itself was already declared and previously returned
-  `undefined`.
-- **Summary:** Added the `frontline_report_charts` collection and its
-  `reportCharts` / `reportChartDetail` queries and `reportChartAdd` /
-  `reportChartEdit` / `reportChartRemove` mutations, so a report card's current
-  filter selection can be stored under a user-chosen name and reopened later.
-  `filters` reuses the existing `TicketReportFilter` input and is narrowed by
-  `pickReportChartFilters` before it is written.
-- **Affected areas:** `src/modules/reports/@types/chart.ts`,
-  `src/modules/reports/db/{definitions,models}/chart*.ts`,
-  `src/modules/reports/graphql/{schema/chart.ts,resolvers/chart{Queries,Mutations}.ts}`,
-  `src/modules/reports/utils.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/{queries,mutations}.ts}`.
-- **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
-  `ReportChartPropertyValueFilter` types; two new queries and three new
-  mutations. No existing report query changed.
