@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-13`
 
 ## Scope
 
@@ -347,6 +347,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallQueueStatistics` is a cache of live PBX counters and is empty until the
   PBX pushes queue statistics, so it must never be the source of "which queues
   exist" — the Call Reports page hides every tab when the queue list is empty.
+- Call report queue visibility is decided once, by `seesEveryQueue` in
+  `src/modules/reports/graphql/resolvers/callQueries.ts`: `user.isOwner`, the
+  `frontline:admin` entry in `user.permissionGroupIds`, or the
+  `showAllCallReports` action grants every queue; everyone else is narrowed to
+  the integrations listing them under `operators.userId`. Add new report
+  resolvers on top of that helper rather than re-deriving the rule.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -453,6 +459,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-13` — Frontline admins see every call queue
+
+- **Summary:** `seesEveryQueue` now also treats a `frontline:admin` entry in
+  `user.permissionGroupIds` as full call-report access, so admins get every
+  integration and queue instead of only the ones they operate.
+- **Affected areas:**
+  `src/modules/reports/graphql/resolvers/callQueries.ts` — `callReportIntegrations`,
+  `callGetQueueStats`, and every resolver using `findQueueIntegration`.
+- **Contracts changed:** None
 
 ### `2026-08-12` — Pipeline-scoped ticket properties
 

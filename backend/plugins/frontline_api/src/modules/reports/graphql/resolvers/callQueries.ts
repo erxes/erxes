@@ -42,11 +42,14 @@ interface IReportIntegration {
   operators: { userId?: string; gsUsername?: string }[];
 }
 
+const FRONTLINE_ADMIN_GROUP = 'frontline:admin';
+
 const seesEveryQueue = async (
   subdomain: string,
   user: IContext['user'],
 ): Promise<boolean> =>
   Boolean(user?.isOwner) ||
+  Boolean(user?.permissionGroupIds?.includes(FRONTLINE_ADMIN_GROUP)) ||
   (await canGroup(subdomain, 'showAllCallReports', user));
 
 const readableQueues = async (
