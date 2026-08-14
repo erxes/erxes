@@ -34,9 +34,9 @@ export const isMongooseModel = (
 
   return Boolean(
     candidate &&
-      (typeof candidate === 'object' || typeof candidate === 'function') &&
-      candidate.schema &&
-      typeof candidate.find === 'function',
+    (typeof candidate === 'object' || typeof candidate === 'function') &&
+    candidate.schema &&
+    typeof candidate.find === 'function',
   );
 };
 
