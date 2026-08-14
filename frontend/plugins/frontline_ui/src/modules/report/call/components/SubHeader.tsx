@@ -6,6 +6,7 @@ import {
   Filter,
   Spinner,
   cn,
+  useFilterContext,
   useFilterQueryState,
 } from 'erxes-ui';
 import {
@@ -19,6 +20,22 @@ import { useCallFilters } from '../hooks/useCallFilters';
 import type { SelectOption } from '../types';
 
 const DATE_FILTER_KEY = 'call-report-date';
+
+function CustomRangeItem({ label }: { label: string }) {
+  const { setDialogView, setOpenDialog } = useFilterContext();
+
+  return (
+    <DropdownMenu.Item
+      onSelect={() => {
+        setDialogView(DATE_FILTER_KEY);
+        setOpenDialog(true);
+      }}
+    >
+      <IconSelector className="h-3.5 w-3.5" />
+      {label}
+    </DropdownMenu.Item>
+  );
+}
 
 interface SubHeaderProps {
   integrationOptions: SelectOption[];
@@ -155,16 +172,9 @@ export function SubHeader({
                   </DropdownMenu.Item>
                 ))}
                 <DropdownMenu.Separator />
-                <DropdownMenu.Item asChild>
-                  <Filter.BarButton
-                    inDialog
-                    filterKey={DATE_FILTER_KEY}
-                    className="w-full justify-start bg-transparent px-2"
-                  >
-                    <IconSelector className="h-3.5 w-3.5" />
-                    {t('custom-range', { defaultValue: 'Custom range…' })}
-                  </Filter.BarButton>
-                </DropdownMenu.Item>
+                <CustomRangeItem
+                  label={t('custom-range', { defaultValue: 'Custom range…' })}
+                />
               </DropdownMenu.Content>
             </DropdownMenu>
             {dateQuery && (

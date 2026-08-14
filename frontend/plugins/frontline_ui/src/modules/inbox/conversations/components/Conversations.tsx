@@ -19,15 +19,19 @@ import {
 
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { ConversationItem } from './ConversationItem';
-import { ConversationThreadList } from './ConversationChannelSection';
+import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
+import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
-import { ConversationActions } from './ConversationActions';
+import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
+
+const getBooleanFilterVariable = (
+  value: boolean | null | undefined,
+): string | undefined => (value ? 'true' : undefined);
 
 export const Conversations = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +77,8 @@ export const Conversations = () => {
     integrationId,
     integrationType,
     unassigned,
+    awaitingResponse,
+    participated,
     status,
     created,
     brandId,
@@ -81,7 +87,9 @@ export const Conversations = () => {
     channelId: string;
     integrationId: string;
     integrationType: string;
-    unassigned: string;
+    unassigned: boolean;
+    awaitingResponse: boolean;
+    participated: boolean;
     status: string;
     conversationId: string;
     created: string;
@@ -92,6 +100,8 @@ export const Conversations = () => {
     'integrationId',
     'integrationType',
     'unassigned',
+    'awaitingResponse',
+    'participated',
     'status',
     'conversationId',
     'created',
@@ -108,7 +118,9 @@ export const Conversations = () => {
         channelId,
         integrationId,
         integrationType: integrationType,
-        unassigned,
+        unassigned: getBooleanFilterVariable(unassigned),
+        awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+        participating: getBooleanFilterVariable(participated),
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,
