@@ -15,9 +15,11 @@ import {
 const MAX_MODEL_FIELDS = 40;
 const DESCRIPTION_FIELD_HINTS = 20;
 
+/** Lowercase the first character (Deals -> deals). */
 const lowerFirst = (value: string): string =>
   value.charAt(0).toLowerCase() + value.slice(1);
 
+/** Build one flat input-field descriptor for a tool's input summary. */
 const inputField = (
   name: string,
   type: string,
@@ -70,6 +72,7 @@ const extractModelFields = (model: AgentMongooseModel): AgentToolField[] => {
   return fields;
 };
 
+/** Render a compact `name: type!` hint list for tool descriptions. */
 const describeFields = (fields: AgentToolField[]): string =>
   fields
     .slice(0, DESCRIPTION_FIELD_HINTS)
@@ -218,6 +221,7 @@ const buildModelTools = (
   const modelFields = extractModelFields(model);
   const fieldHints = describeFields(modelFields);
 
+  /** Compose the tool description with the model's field hints. */
   const describe = (verb: string): string =>
     `${verb} in ${plugin} model ${modelName}.${
       fieldHints ? ` Fields: ${fieldHints}` : ''
@@ -428,6 +432,7 @@ export const buildAgentToolManifest = (opts: {
     }
   }
 
+  /** Match a tool against the configured exclude prefixes. */
   const isExcluded = (tool: AgentToolDescriptor): boolean =>
     exclude.some(
       (entry) =>

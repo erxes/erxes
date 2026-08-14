@@ -74,6 +74,11 @@ export function encodeTRPCContextHeader(
   return Buffer.from(contextJson, 'utf8').toString('base64');
 }
 
+/**
+ * Decode the base64 JSON tRPC context header into tenant, method, and caller
+ * context. Returns null when the header is absent or malformed. Note: the
+ * header is an encoding, not an authentication credential.
+ */
 export function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
   method: 'query' | 'mutation';
