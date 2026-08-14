@@ -15,7 +15,10 @@ export const ReportTableFooter = () => {
       <ReportTable.Cell></ReportTable.Cell>
       <ReportTable.Cell className="text-right">НИЙТ ДҮН:</ReportTable.Cell>
       {Array.from({ length: columnCount - 2 }).map((_, index) => (
-        <ReportTable.Cell key={`${reportCode}-footer-value-${index}`} className="text-right"></ReportTable.Cell>
+        <ReportTable.Cell
+          key={`${reportCode}-footer-value-${index}`}
+          className="text-right"
+        ></ReportTable.Cell>
       ))}
     </ReportTable.Row>
   );
