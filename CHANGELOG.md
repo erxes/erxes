@@ -1,5 +1,15 @@
 
 
+## [3.0.80](https://github.com/erxes/erxes/compare/3.0.79...3.0.80) (2026-08-14)
+
+
+### Bug Fixes
+
+* **frontline:** correct inverted isCheckUser ticket visibility ([88b2dbe](https://github.com/erxes/erxes/commit/88b2dbead8aff54a67a2ead0092e7fa28732789f))
+* **frontline:** grant frontline:admin access to all call queues ([d2c11d9](https://github.com/erxes/erxes/commit/d2c11d935c4fd11da6688c628e834c4c4b3437f8))
+* hide response template when internal note in inbox([#8948](https://github.com/erxes/erxes/issues/8948)) ([f734e80](https://github.com/erxes/erxes/commit/f734e808a1fd613b3ee68280009f9e1a59c0a136))
+* update board tag in card detail on frontline ([#8950](https://github.com/erxes/erxes/issues/8950)) ([f8914f0](https://github.com/erxes/erxes/commit/f8914f022c7f0ee5a2485756253472e6ec012994))
+
 ## [3.0.79](https://github.com/erxes/erxes/compare/3.0.78...3.0.79) (2026-08-13)
 
 
