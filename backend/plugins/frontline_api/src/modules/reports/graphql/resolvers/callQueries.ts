@@ -209,7 +209,7 @@ export const reportCallQueries = {
     ]);
 
     const stats = summariseAgentStats(
-      foldLegsIntoCalls([...inboundCdrs, ...outboundCdrs]),
+      [...inboundCdrs, ...outboundCdrs],
       agentId,
       agentExtensions,
     );
@@ -867,7 +867,13 @@ export const reportCallQueries = {
     const legs = [...inboundCdrs, ...outboundCdrs];
     const legsByCall = groupLegsByCall(legs);
 
-    let calls = foldLegsIntoCalls(legs);
+    const userIdByExtension = new Map<string, string>(
+      (integration?.operators ?? [])
+        .filter(({ gsUsername, userId }) => gsUsername && userId)
+        .map(({ gsUsername, userId }) => [String(gsUsername), String(userId)]),
+    );
+
+    let calls = foldLegsIntoCalls(legs, new Set(userIdByExtension.keys()));
 
     const outcomeByCall = new Map(
       calls.map(({ uniqueid }) => [
@@ -941,12 +947,6 @@ export const reportCallQueries = {
     ] as string[];
 
     const extensions = agentExtensionsInRange;
-
-    const userIdByExtension = new Map<string, string>(
-      (integration?.operators ?? [])
-        .filter(({ gsUsername, userId }) => gsUsername && userId)
-        .map(({ gsUsername, userId }) => [String(gsUsername), String(userId)]),
-    );
 
     const operatorUserIds = [
       ...new Set(

@@ -104,7 +104,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, trpc                                                          |
-| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`               | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
+| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
 | FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
@@ -372,6 +372,28 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - A trunk leg carries the dialled DID in `dst`; the answering extension is in
   `dstchannelExt`. `agentOf` takes whichever field holds a four-digit extension,
   so agent attribution must not read `dst` alone.
+- Some trunks present the outbound caller id as `<did><extension>` — `src` is
+  `767622222000` for DID `76762222` and extension `2000`, and `channelExt` holds
+  the customer number, not the agent. `agentOf` therefore accepts an optional
+  known-extension set and trusts a four-digit `src` suffix only when it matches
+  a configured operator. Never strip the suffix without that set: an arbitrary
+  trailing four digits is a customer number as often as an extension.
+- Agent statistics are attributed **per leg, not per folded call**. A queue call
+  rings several agents at once, each on its own leg sharing the `uniqueid`, so
+  `summariseAgentStats` takes `ICdrLeg[]` (not `ICall[]`): the agent whose leg
+  satisfies `isHumanAnsweredLeg` gets the answer, every other agent that rang
+  gets a miss. Folding first would credit whichever ringing leg happened to come
+  first and silently drop the rest. Consequently per-agent totals sum to more
+  than the queue's call count — that is correct for a leaderboard.
+- When a call is answered but no leg yields an extension, `summariseAgentStats`
+  skips the call entirely rather than charging every agent that rang with a
+  miss; one of them is likely the one who picked it up.
+- A voicemail deposit is not an answered call. `isHumanAnsweredLeg` requires
+  `billsec > 0`, a `Queue`/`Dial` `lastapp`, and an `actionType` without `VM`,
+  which is why a queue leg that the PBX marks `ANSWERED` with `billsec: 0` — the
+  queue answering the line to play its announcement — counts as abandoned. Do
+  not relax those conditions to raise an answer rate; on a real deployment the
+  voicemail legs outnumber human answers by more than twenty to one.
 - `calculateOccupancyRate` computes `workingTime / handlingTime`, which is the
   inverse of occupancy and exceeds 100% at low call volume. `callKpiScorecard`
   returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
@@ -465,6 +487,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-14` — Per-leg agent attribution in call reports
+
+- **Summary:** `summariseAgentStats` now consumes CDR legs instead of folded
+  calls, so a queue call that rings several agents credits the answering agent
+  and counts a miss for every other agent that rang, instead of attributing the
+  whole call to whichever ringing leg came first; `agentOf` additionally
+  recovers the operator from an outbound caller id shaped `<did><extension>`
+  when the suffix matches a configured operator.
+- **Affected areas:** `src/modules/reports/callReportService.ts`,
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callGetAgentStats`
+  passes legs; `callHistoryList` resolves operator extensions before folding).
+- **Contracts changed:** None — `callGetAgentStats` returns the same fields,
+  with corrected per-agent counts.
 
 ### `2026-08-14` — Fixed inverted `isCheckUser` ticket visibility
 
@@ -571,26 +607,3 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
 - **Contracts changed:** `TicketConfig.propertyFields: [TicketPropertyField]`
   and `TicketConfigInput.propertyFields: [TicketPropertyFieldInput]` added; both
   are optional, so existing callers and stored configs are unaffected.
-
-### `2026-08-10` — Call report queries rewritten as filter-fetch-compute
-
-- **Summary:** All eight report queries now follow the same shape as
-  `callCalculate*` — build a CDR filter, fetch the legs, compute in JS —
-  replacing roughly 1,300 lines of `$addFields`/`$switch`/`$group` pipelines
-  with `callReportService.ts`. `callKpiScorecard` delegates to `statistics.ts`,
-  which fills in `firstCallResolution` and `occupancy` (previously hard-coded
-  `null`) and drops an unexplained `+38` seconds from `averageAnsweredTime`.
-  Fixes carried by the rewrite: wait time is `duration - billsec` rather than
-  the non-existent `$waittime`, so Avg Wait is no longer always `0`; the agent
-  extension comes from `dstchannelExt` when `dst` holds the DID; the carrier
-  breakdown folds legs into calls, where it used to count legs; queue and
-  callback stats bound only `start`, so a call finishing after the range is no
-  longer dropped; and the queue filter is anchored on `QUEUE[<id>]` so `650`
-  cannot match `QUEUE[6500]`.
-- **Affected areas:**
-  `src/modules/integrations/call/services/callReportService.ts`,
-  `src/modules/integrations/call/graphql/resolvers/queries.ts`.
-- **Contracts changed:** `None` — same query names, arguments, and return
-  types. Values move: wait-time figures, `firstCallResolution`, `occupancy`,
-  and the carrier breakdown all report differently because they were wrong
-  before.
