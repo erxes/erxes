@@ -9,6 +9,7 @@ import { TR_STATUSES } from '../../@types/constants';
 import { IReportFilterParams } from '../../graphql/resolvers/queries/journalReport';
 import { generateFilter as accountGenerateFilter } from '../../graphql/resolvers/queries/accounts';
 import { IGroupCommon } from '.';
+import { resolveErkhetReportJournals } from './erkhetKinds';
 
 type ReportQuery = Record<string, unknown>;
 type ReportRecord = Record<string, unknown>;
@@ -32,25 +33,43 @@ interface IReportFilters {
   detailMatch: ReportQuery;
 }
 
-interface IReportBuildOptions {
+export interface IJournalReportBase {
+  code: string;
   baseGroups: string[];
+  recordMode?: 'summary' | 'line';
+  periodMode?: 'balance' | 'between';
   extraTransactionMatch?: ReportQuery;
   extraDetailMatch?: ReportQuery;
   sums?: Record<string, unknown>;
+  supportsMore?: boolean;
 }
 
-const REPORT_GROUP_EXPRESSIONS: Record<string, string> = {
+const REPORT_GROUP_EXPRESSIONS: Record<string, unknown> = {
   accountId: '$details.accountId',
   productId: '$details.productId',
-  branchId: '$branchId',
-  departmentId: '$departmentId',
+  fixedAssetId: '$details.fixedAssetId',
+  customerId: '$customerId',
+  journal: '$journal',
+  createdBy: '$createdBy',
+  contentId: '$contentId',
+  contentType: '$contentType',
+  branchId: { $ifNull: ['$details.branchId', '$branchId'] },
+  departmentId: { $ifNull: ['$details.departmentId', '$departmentId'] },
+  ptrId: { $ifNull: ['$ptrId', '$parentId'] },
 };
 
 const REPORT_GROUP_PROJECTS: Record<string, string> = {
   accountId: '$_id.accountId',
   productId: '$_id.productId',
+  fixedAssetId: '$_id.fixedAssetId',
+  customerId: '$_id.customerId',
+  journal: '$_id.journal',
+  createdBy: '$_id.createdBy',
+  contentId: '$_id.contentId',
+  contentType: '$_id.contentType',
   branchId: '$_id.branchId',
   departmentId: '$_id.departmentId',
+  ptrId: '$_id.ptrId',
 };
 
 const uniqueStringValues = (records: ReportRecord[], field: string) => [
@@ -60,6 +79,11 @@ const uniqueStringValues = (records: ReportRecord[], field: string) => [
       .filter((value): value is string => typeof value === 'string' && !!value),
   ),
 ];
+
+const getStringField = (record: unknown, field: string) =>
+  record && typeof record === 'object' && field in record
+    ? String((record as Record<string, unknown>)[field] || '')
+    : '';
 
 const getStructureIdsWithChildren = async (
   subdomain: string,
@@ -91,10 +115,14 @@ const getAccountIds = async (
   params: IReportFilterParams,
   user: IUserDocument,
 ) => {
+  const accountIds = [
+    ...(params.accountIds || []),
+    params.accountId || '',
+  ].filter(Boolean);
   const accountFilter = await accountGenerateFilter(
     models,
     {
-      ids: params.accountIds,
+      ids: accountIds,
       kind: params.accountKind,
       excludeIds: params.accountExcludeIds,
       status: params.accountStatus,
@@ -116,7 +144,48 @@ const getAccountIds = async (
   return accounts.map((account) => account._id);
 };
 
-export const generateReportFilters = async (
+const intersect = (left: string[], right: string[]) => {
+  const rightSet = new Set(right);
+  return left.filter((value) => rightSet.has(value));
+};
+
+const buildIdsFilter = (id?: string, ids?: string[]) => {
+  const values = [...(ids || []), id || ''].filter(Boolean);
+
+  if (!values.length) {
+    return undefined;
+  }
+
+  return { $in: [...new Set(values)] };
+};
+
+const getJournalFilter = (params: IReportFilterParams) => {
+  const explicitJournals = [
+    ...(params.journals || []),
+    params.journal || '',
+  ].filter(Boolean);
+  const kindFilter = resolveErkhetReportJournals({
+    trKind: params.trKind,
+    trKinds: params.trKinds,
+    getTrKind: params.getTrKind,
+  });
+
+  if (!explicitJournals.length && !kindFilter.hasFilter) {
+    return undefined;
+  }
+
+  if (!explicitJournals.length) {
+    return { $in: kindFilter.journals };
+  }
+
+  if (!kindFilter.hasFilter) {
+    return { $in: [...new Set(explicitJournals)] };
+  }
+
+  return { $in: intersect([...new Set(explicitJournals)], kindFilter.journals) };
+};
+
+export const getFilter = async (
   subdomain: string,
   models: IModels,
   params: IReportFilterParams,
@@ -125,6 +194,7 @@ export const generateReportFilters = async (
   const transactionMatch: ReportQuery = {};
   const detailMatch: ReportQuery = {};
   const andFilters: ReportQuery[] = [];
+  const detailAndFilters: ReportQuery[] = [];
   const orFilters: ReportQuery[] = [];
 
   const accountIds = await getAccountIds(models, params, user);
@@ -138,12 +208,9 @@ export const generateReportFilters = async (
     transactionMatch.modifiedBy = params.modifiedUserId;
   }
 
-  if (params.journals?.length) {
-    transactionMatch.journal = { $in: params.journals };
-  }
-
-  if (params.journal) {
-    transactionMatch.journal = params.journal;
+  const journalFilter = getJournalFilter(params);
+  if (journalFilter) {
+    transactionMatch.journal = journalFilter;
   }
 
   if (params.statuses?.length) {
@@ -176,13 +243,44 @@ export const generateReportFilters = async (
     transactionMatch.scopeBrandIds = { $in: [params.brandId] };
   }
 
+  const customerFilter = buildIdsFilter(params.customerId, params.customerIds);
+  if (customerFilter) {
+    transactionMatch.customerId = customerFilter;
+  }
+
+  if (params.contentType) {
+    transactionMatch.contentType = params.contentType;
+  }
+
+  if (params.contentId) {
+    transactionMatch.contentId = params.contentId;
+  }
+
+  const productFilter = buildIdsFilter(params.productId, params.productIds);
+  if (productFilter) {
+    detailMatch['details.productId'] = productFilter;
+  }
+
+  const fixedAssetFilter = buildIdsFilter(
+    params.fixedAssetId,
+    params.fixedAssetIds,
+  );
+  if (fixedAssetFilter) {
+    detailMatch['details.fixedAssetId'] = fixedAssetFilter;
+  }
+
   const branchIds = await getStructureIdsWithChildren(
     subdomain,
     'branches',
     params.branchId,
   );
   if (branchIds.length) {
-    transactionMatch.branchId = { $in: branchIds };
+    detailAndFilters.push({
+      $or: [
+        { branchId: { $in: branchIds } },
+        { 'details.branchId': { $in: branchIds } },
+      ],
+    });
   }
 
   const departmentIds = await getStructureIdsWithChildren(
@@ -191,7 +289,12 @@ export const generateReportFilters = async (
     params.departmentId,
   );
   if (departmentIds.length) {
-    transactionMatch.departmentId = { $in: departmentIds };
+    detailAndFilters.push({
+      $or: [
+        { departmentId: { $in: departmentIds } },
+        { 'details.departmentId': { $in: departmentIds } },
+      ],
+    });
   }
 
   if (params.currency) {
@@ -206,6 +309,10 @@ export const generateReportFilters = async (
     transactionMatch.$and = andFilters;
   }
 
+  if (detailAndFilters.length) {
+    detailMatch.$and = detailAndFilters;
+  }
+
   return { transactionMatch, detailMatch };
 };
 
@@ -218,13 +325,13 @@ const getDateMatch = (
 
   if (period === 'opening') {
     if (fromDate) {
-      dateMatch.$lte = getPureDate(fromDate);
+      dateMatch.$lt = getPureDate(fromDate);
     }
     return Object.keys(dateMatch).length ? { date: dateMatch } : {};
   }
 
   if (fromDate) {
-    dateMatch.$gt = getPureDate(fromDate);
+    dateMatch.$gte = getPureDate(fromDate);
   }
 
   if (toDate) {
@@ -234,11 +341,42 @@ const getDateMatch = (
   return Object.keys(dateMatch).length ? { date: dateMatch } : {};
 };
 
+const isStringInFilter = (value: unknown): value is { $in: string[] } =>
+  !!value &&
+  typeof value === 'object' &&
+  '$in' in value &&
+  Array.isArray((value as { $in?: unknown }).$in);
+
+const mergeQueryValue = (current: unknown, next: unknown) => {
+  if (!current) {
+    return next;
+  }
+
+  if (isStringInFilter(current) && isStringInFilter(next)) {
+    return { $in: intersect(current.$in, next.$in) };
+  }
+
+  if (isStringInFilter(current) && typeof next === 'string') {
+    return { $in: current.$in.includes(next) ? [next] : [] };
+  }
+
+  if (typeof current === 'string' && isStringInFilter(next)) {
+    return { $in: next.$in.includes(current) ? [current] : [] };
+  }
+
+  return next;
+};
+
 const mergeMatch = (...matches: ReportQuery[]) =>
-  matches.reduce<ReportQuery>(
-    (result, match) => ({ ...result, ...match }),
-    {},
-  );
+  matches.reduce<ReportQuery>((result, match) => {
+    const merged = { ...result };
+
+    Object.entries(match).forEach(([key, value]) => {
+      merged[key] = mergeQueryValue(merged[key], value);
+    });
+
+    return merged;
+  }, {});
 
 const getGroupNames = (baseGroups: string[], groupRules: IGroupCommon[]) => {
   const names = new Set(baseGroups);
@@ -270,14 +408,19 @@ const buildGroupStage = (
   };
 };
 
-const buildProjectStage = (groupNames: string[]) => {
+const buildProjectStage = (
+  groupNames: string[],
+  sums: Record<string, unknown>,
+) => {
   const project: ReportQuery = {
     _id: 0,
     side: '$_id.side',
-    sumAmount: 1,
-    sumCurrencyAmount: 1,
     isBetween: 1,
   };
+
+  for (const sumName of Object.keys(sums)) {
+    project[sumName] = 1;
+  }
 
   for (const groupName of groupNames) {
     project[groupName] = REPORT_GROUP_PROJECTS[groupName];
@@ -352,13 +495,65 @@ const fetchProducts = async (
     action: 'find',
     input: {
       query: { _id: { $in: productIds } },
-      fields: { _id: 1, code: 1, name: 1, categoryId: 1 },
+      fields: { _id: 1, code: 1, name: 1, categoryId: 1, unitPrice: 1 },
       limit: productIds.length,
     },
     defaultValue: [],
   });
 
   return Object.fromEntries(products.map((product) => [product._id, product]));
+};
+
+const fetchUsers = async (
+  subdomain: string,
+  userIds: string[],
+): Promise<ReportLookup> => {
+  if (!userIds.length) {
+    return {};
+  }
+
+  const users = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'users',
+    action: 'find',
+    input: {
+      query: { _id: { $in: userIds } },
+      fields: { _id: 1, username: 1, email: 1, details: 1 },
+      limit: userIds.length,
+    },
+    defaultValue: [],
+  });
+
+  return Object.fromEntries(users.map((user) => [user._id, user]));
+};
+
+const fetchCustomers = async (
+  subdomain: string,
+  customerIds: string[],
+): Promise<ReportLookup> => {
+  if (!customerIds.length) {
+    return {};
+  }
+
+  const customers = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findActiveCustomers',
+    input: {
+      query: { _id: { $in: customerIds } },
+      fields: { _id: 1, code: 1, firstName: 1, lastName: 1, primaryName: 1 },
+      limit: customerIds.length,
+    },
+    defaultValue: [],
+  });
+
+  return Object.fromEntries(
+    customers.map((customer) => [customer._id, customer]),
+  );
 };
 
 const enrichRecords = async (
@@ -416,6 +611,21 @@ const enrichRecords = async (
     subdomain,
     uniqueStringValues(records, 'productId'),
   );
+  const customerById = await fetchCustomers(
+    subdomain,
+    uniqueStringValues(records, 'customerId'),
+  );
+  const fixedAssets = await models.FixedAssets.find(
+    { _id: { $in: uniqueStringValues(records, 'fixedAssetId') } },
+    { _id: 1, code: 1, name: 1, categoryId: 1 },
+  ).lean();
+  const fixedAssetById: ReportLookup = Object.fromEntries(
+    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
+  );
+  const userById = await fetchUsers(
+    subdomain,
+    uniqueStringValues(records, 'createdBy'),
+  );
 
   return records.map((record) => {
     const account =
@@ -435,6 +645,26 @@ const enrichRecords = async (
       typeof record.productId === 'string'
         ? productById[record.productId]
         : undefined;
+    const customer =
+      typeof record.customerId === 'string'
+        ? customerById[record.customerId]
+        : undefined;
+    const fixedAsset =
+      typeof record.fixedAssetId === 'string'
+        ? fixedAssetById[record.fixedAssetId]
+        : undefined;
+    const createdUser =
+      typeof record.createdBy === 'string'
+        ? userById[record.createdBy]
+        : undefined;
+    const customerName = [customer?.firstName, customer?.lastName]
+      .filter(Boolean)
+      .join(' ');
+    const userName =
+      createdUser?.username ||
+      createdUser?.email ||
+      getStringField(createdUser?.details, 'fullName') ||
+      '';
 
     return {
       ...record,
@@ -450,47 +680,57 @@ const enrichRecords = async (
       productCode: product?.code,
       productName: product?.name,
       productCategoryId: product?.categoryId,
+      productUnitPrice: product?.unitPrice,
+      customerCode: customer?.code,
+      customerName: customer?.primaryName || customerName,
+      fixedAssetCode: fixedAsset?.code,
+      fixedAssetName: fixedAsset?.name,
+      fixedAssetCategoryId: fixedAsset?.categoryId,
+      createdByCode: createdUser?.email || createdUser?.username,
+      createdByName: userName,
+      contentCode: record.contentId,
+      contentName: record.contentType,
     };
   });
 };
 
-export const buildJournalReportRecords = async (
+export const recordListWithValues = async (
   subdomain: string,
   models: IModels,
   groupRules: IGroupCommon[],
   filterParams: IReportFilterParams,
   user: IUserDocument,
-  options: IReportBuildOptions,
+  reportBase: IJournalReportBase,
 ) => {
   const { fromDate, toDate, ...filters } = filterParams;
-  const reportFilters = await generateReportFilters(
+  const reportFilters = await getFilter(
     subdomain,
     models,
     filters,
     user,
   );
-  const groupNames = getGroupNames(options.baseGroups, groupRules);
-  const sums = options.sums || {
+  const groupNames = getGroupNames(reportBase.baseGroups, groupRules);
+  const sums = reportBase.sums || {
     sumAmount: { $sum: '$details.amount' },
     sumCurrencyAmount: { $sum: '$details.currencyAmount' },
   };
-  const projectStage = buildProjectStage(groupNames);
+  const projectStage = buildProjectStage(groupNames, sums);
 
   const commonPipeline = [
     { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
     {
       $match: mergeMatch(
         reportFilters.detailMatch,
-        options.extraDetailMatch || {},
+        reportBase.extraDetailMatch || {},
       ),
     },
   ];
   const baseMatch = mergeMatch(
     reportFilters.transactionMatch,
-    options.extraTransactionMatch || {},
+    reportBase.extraTransactionMatch || {},
   );
 
-  const openingRecords = fromDate
+  const openingRecords = fromDate && reportBase.periodMode !== 'between'
     ? await models.Transactions.aggregate([
         {
           $match: mergeMatch(
@@ -515,4 +755,71 @@ export const buildJournalReportRecords = async (
     ...openingRecords,
     ...betweenRecords,
   ]);
+};
+
+export const getLineRecords = async (
+  subdomain: string,
+  models: IModels,
+  filterParams: IReportFilterParams,
+  user: IUserDocument,
+  reportBase: IJournalReportBase,
+) => {
+  const { fromDate, toDate, ...filters } = filterParams;
+  const reportFilters = await getFilter(
+    subdomain,
+    models,
+    filters,
+    user,
+  );
+  const baseMatch = mergeMatch(
+    reportFilters.transactionMatch,
+    reportBase.extraTransactionMatch || {},
+    getDateMatch(fromDate, toDate),
+  );
+
+  const records = await models.Transactions.aggregate([
+    { $match: baseMatch },
+    { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+    {
+      $match: mergeMatch(
+        reportFilters.detailMatch,
+        reportBase.extraDetailMatch || {},
+      ),
+    },
+    {
+      $project: {
+        _id: 0,
+        transactionId: '$_id',
+        parentId: 1,
+        ptrId: { $ifNull: ['$ptrId', '$parentId'] },
+        date: 1,
+        number: 1,
+        ptrNumber: 1,
+        description: 1,
+        side: 1,
+        detailInd: 1,
+        accountId: '$details.accountId',
+        branchId: { $ifNull: ['$details.branchId', '$branchId'] },
+        departmentId: { $ifNull: ['$details.departmentId', '$departmentId'] },
+        productId: '$details.productId',
+        fixedAssetId: '$details.fixedAssetId',
+        customerId: '$customerId',
+        createdBy: '$createdBy',
+        contentId: '$contentId',
+        contentType: '$contentType',
+        currency: '$details.currency',
+        currencyAmount: '$details.currencyAmount',
+        amount: '$details.amount',
+        debit: {
+          $cond: [{ $eq: ['$side', 'dt'] }, '$details.amount', 0],
+        },
+        credit: {
+          $cond: [{ $eq: ['$side', 'ct'] }, '$details.amount', 0],
+        },
+      },
+    },
+    { $sort: { date: 1, number: 1, ptrId: 1, detailInd: 1 } },
+  ]);
+
+  return enrichRecords(subdomain, models, records);
 };

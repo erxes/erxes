@@ -1,9 +1,12 @@
 import { IUserDocument } from "erxes-api-shared/core-types";
 import { IModels } from "~/connectionResolvers";
 import { IReportFilterParams } from "../../graphql/resolvers/queries/journalReport";
-import { handleMainTB } from "./tb";
-import { handleMainAC, handleMainACMore } from "./ac";
-import { handleInvCost } from "./invCost";
+import { handleMainACMore } from './details/main';
+import { getReportBase } from './definitions';
+import {
+  getLineRecords,
+  recordListWithValues,
+} from './maps';
 
 export interface IGroupRule {
   group: string;
@@ -25,32 +28,26 @@ export interface IGroupCommon {
 type ReportRecord = Record<string, unknown>;
 
 export const getRecords = async (subdomain: string, models: IModels, report: string, groupRules: IGroupCommon[], filterParams: IReportFilterParams, user: IUserDocument) => {
-  const handler = getReportHandler(report);
-  if (!handler) throw new Error(`Unsupported journal: ${report}`);
+  const reportBase = getReportBase(report);
+  if (!reportBase) throw new Error(`Unsupported journal: ${report}`);
 
-  const { records } = await handler(subdomain, models, groupRules, filterParams, user);
-
-  return records;
-}
-
-const getReportHandler = (report: string) => {
-  const handlers: Record<
-    string,
-    (
-      subdomain: string,
-      models: IModels,
-      groupRules: IGroupCommon[],
-      filterParams: IReportFilterParams,
-      user: IUserDocument
-    ) => Promise<{ records: ReportRecord[] }>
-  > = {
-    ac: handleMainAC,
-    tb: handleMainTB,
-    invCost: handleInvCost,
-  };
-
-  return handlers[report];
-}
+  return reportBase.recordMode === 'line'
+    ? getLineRecords(
+        subdomain,
+        models,
+        filterParams,
+        user,
+        reportBase,
+      )
+    : recordListWithValues(
+        subdomain,
+        models,
+        groupRules,
+        filterParams,
+        user,
+        reportBase,
+      );
+};
 
 export const getRecMore = async (subdomain: string, models: IModels, report: string, filterParams: IReportFilterParams, user: IUserDocument) => {
   const handler = getReportMoreHandler(report);
@@ -78,7 +75,7 @@ const getReportMoreHandler = (report: string) => {
   return handlers[report];
 };
 
-export const getFirstGroupRule = (firstGroupRule: IGroupCommon[], groupRule?: IGroupRule) => {
+export const getGroupRule = (firstGroupRule: IGroupCommon[], groupRule?: IGroupRule) => {
   const subGroupRule = groupRule?.groupRule;
 
   if (groupRule?.group && !groupRule.excMore) {
@@ -94,7 +91,9 @@ export const getFirstGroupRule = (firstGroupRule: IGroupCommon[], groupRule?: IG
   }
 
   if (subGroupRule) {
-    getFirstGroupRule(firstGroupRule, subGroupRule);
+    getGroupRule(firstGroupRule, subGroupRule);
   }
   return firstGroupRule;
 }
+
+export const getFirstGroupRule = getGroupRule;

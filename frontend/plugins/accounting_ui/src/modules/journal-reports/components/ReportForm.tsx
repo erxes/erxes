@@ -11,27 +11,51 @@ import {
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import { SelectCustomer } from 'ui-modules/modules/contacts';
 import { SelectAccountCategory } from '~/modules/settings/account/account-categories/components/SelectAccountCategory';
+import { SelectFixedAsset } from '~/modules/settings/fixed-assets/components/SelectFixedAsset';
 import { activeReportState } from '../states/renderingReportsStates';
 import { IReportConfig, ReportRules } from '../types/reportsMap';
 import { useEffect, useMemo, useState } from 'react';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
+import { ERKHET_TRANSACTION_TYPE_CHOICES } from '../types/erkhetTransactionTypes';
+
+interface ReportFormValues {
+  categoryId?: string;
+  accountIds?: string[];
+  productIds?: string[];
+  fixedAssetIds?: string[];
+  customerId?: string;
+  branchId?: string;
+  departmentId?: string;
+  isTemp?: boolean;
+  isOutBalance?: boolean;
+  unhideZero?: boolean;
+  groupKey?: string;
+  trKind?: string;
+  fromDate?: Date;
+  toDate?: Date;
+}
+
+type ReportQueryValue = string | string[] | Date | boolean | undefined;
 
 const getQueryParam = (
   key: string,
   value: string | string[] | Date | boolean,
 ): string => {
   if (key === 'fromDate' || key === 'toDate') {
-    return format(value as Date, 'yyyy-MM-dd hh:mm:ss'); // date.isoString // new Date().toISOString();
+    return format(value as Date, 'yyyy-MM-dd HH:mm:ss');
   }
 
-  if (key === 'isMore') {
+  if (key === 'isMore' || key === 'unhideZero') {
     return 'true';
   }
 
-  return value as string;
+  return Array.isArray(value) ? value.join(',') : `${value}`;
 };
+
+const datePickerClassName = 'h-8 flex w-full';
 
 export const ReportForm = () => {
   const { t } = useTranslation('accounting');
@@ -40,7 +64,7 @@ export const ReportForm = () => {
     return ReportRules[activeReport] || ({} as IReportConfig);
   }, [activeReport]);
 
-  const form = useForm<any>({
+  const form = useForm<ReportFormValues>({
     defaultValues: {},
   });
 
@@ -49,17 +73,22 @@ export const ReportForm = () => {
   );
 
   useEffect(() => {
-    setGroupKeyChoices(activeReportConf?.choices || []);
-    form.setValue(`groupKey`, 'default');
-  }, [activeReport]);
+    const choices = activeReportConf?.choices || [];
+    setGroupKeyChoices(choices);
+    form.setValue('groupKey', choices[0]?.code || 'default');
+  }, [activeReport, activeReportConf?.choices, form]);
 
-  const onSubmit = (data: any) => {
-    const params: any = { ...data, ...activeReportConf.initParams };
+  const onSubmit = (data: ReportFormValues) => {
+    const params: Record<string, ReportQueryValue> = {
+      ...data,
+      ...(activeReportConf.initParams || {}),
+    };
     let result = '';
 
     for (const key of Object.keys(params)) {
-      if (params[key]) {
-        const converted = getQueryParam(key, params[key]);
+      const value = params[key];
+      if (value) {
+        const converted = getQueryParam(key, value);
         result = `${result}&${key}=${converted}`;
       }
     }
@@ -82,7 +111,7 @@ export const ReportForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="py-4 pt-4 px-1 mx-auto grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-5 overflow-auto"
+          className="py-4 pt-4 px-1 mx-auto grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 overflow-auto"
         >
           <Form.Field
             control={form.control}
@@ -142,6 +171,60 @@ export const ReportForm = () => {
 
           <Form.Field
             control={form.control}
+            name="productIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Бараа материал</Form.Label>
+                <Form.Control>
+                  <SelectProduct.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="fixedAssetIds"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Үндсэн хөрөнгө</Form.Label>
+                <Form.Control>
+                  <SelectFixedAsset.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="customerId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Харилцагч</Form.Label>
+                <Form.Control>
+                  <SelectCustomer.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="single"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
             name="departmentId"
             render={({ field }) => (
               <Form.Item>
@@ -192,6 +275,22 @@ export const ReportForm = () => {
 
           <Form.Field
             control={form.control}
+            name="unhideZero"
+            render={({ field }) => (
+              <Form.Item className="flex items-center space-x-2 space-y-0 mt-4">
+                <Form.Control>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+                <Form.Label>Хоосон мөр харуулах</Form.Label>
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
             name="groupKey"
             render={({ field }) => (
               <Form.Item>
@@ -218,38 +317,65 @@ export const ReportForm = () => {
 
           <Form.Field
             control={form.control}
-            name="fromDate"
+            name="trKind"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('from-date')}</Form.Label>
+                <Form.Label>Гүйлгээний төрөл</Form.Label>
                 <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    format="YYYY-MM-DD"
-                    className="h-8 flex w-full"
-                  />
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Бүгд" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {ERKHET_TRANSACTION_TYPE_CHOICES.map((choice) => (
+                        <Select.Item key={choice.code} value={choice.code}>
+                          {choice.title}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
                 </Form.Control>
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="toDate"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('to-date')}</Form.Label>
-                <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    className="h-8 flex w-full"
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-          <Dialog.Footer className="col-span-2 mt-4">
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 xl:col-span-2">
+            <Form.Field
+              control={form.control}
+              name="fromDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('from-date')}</Form.Label>
+                  <Form.Control>
+                    <DatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      format="YYYY-MM-DD"
+                      className={datePickerClassName}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="toDate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('to-date')}</Form.Label>
+                  <Form.Control>
+                    <DatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      format="YYYY-MM-DD"
+                      className={datePickerClassName}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
+          <Dialog.Footer className="mt-4 lg:col-span-2 xl:col-span-4">
             <Button type="submit" size="lg">
               {t('generate-report')}
             </Button>
