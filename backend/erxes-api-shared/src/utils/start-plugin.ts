@@ -49,6 +49,7 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
+import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
 
@@ -128,6 +129,7 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
+  agentTools?: false | { exclude?: string[] };
   meta?: IMeta;
 };
 
@@ -262,6 +264,18 @@ export async function startPlugin(
         createContext: createTRPCContext(createContext),
       }),
     );
+  }
+
+  if (configs.agentTools !== false) {
+    mountAgentTools(app, {
+      plugin: name,
+      trpcRouter: trpcAppRouter?.router,
+      createContext: trpcAppRouter?.createContext,
+      exclude:
+        typeof configs.agentTools === 'object'
+          ? configs.agentTools.exclude
+          : [],
+    });
   }
 
   app.use((req: any, _res, next) => {

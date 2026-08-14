@@ -9,6 +9,7 @@ import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
+import { capturePluginModels } from '../agent-tools/modelRegistry';
 
 export type MessageProps = {
   subdomain: string;
@@ -73,7 +74,7 @@ export function encodeTRPCContextHeader(
   return Buffer.from(contextJson, 'utf8').toString('base64');
 }
 
-function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
+export function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   subdomain: string;
   method: 'query' | 'mutation';
   context: CommonTRPCContext;
@@ -203,10 +204,25 @@ export const createTRPCContext =
     });
 
     if (trpcContext) {
-      return await trpcContext(subdomain, {
+      const pluginContext = await trpcContext(subdomain, {
         ...context,
         eventHandlers,
       });
+
+      // Capture plugin models for the agent-tools endpoints (no-op when the
+      // plugin context does not carry a `models` property).
+      if (
+        pluginContext &&
+        typeof pluginContext === 'object' &&
+        'models' in pluginContext
+      ) {
+        capturePluginModels(
+          subdomain,
+          (pluginContext as { models?: unknown }).models,
+        );
+      }
+
+      return pluginContext;
     }
 
     return {

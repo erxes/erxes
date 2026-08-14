@@ -10,6 +10,7 @@ import { generateRequestProcess, getSubdomain } from '../utils';
 import { createScopedEventHandlers } from '../../core-modules/common/eventHandlers/generateEventHandlers';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 import { checkPermissionGroup } from '../../core-modules/permissions/utils';
+import { capturePluginModels } from '../agent-tools/modelRegistry';
 
 export const generateApolloContext =
   <TContext>(
@@ -73,7 +74,27 @@ export const generateApolloContext =
     };
 
     if (apolloServerContext) {
-      return await apolloServerContext(subdomain, context, req, res);
+      const apolloContext = await apolloServerContext(
+        subdomain,
+        context,
+        req,
+        res,
+      );
+
+      // Capture plugin models for the agent-tools endpoints (no-op when the
+      // plugin context does not carry a `models` property).
+      if (
+        apolloContext &&
+        typeof apolloContext === 'object' &&
+        'models' in apolloContext
+      ) {
+        capturePluginModels(
+          subdomain,
+          (apolloContext as { models?: unknown }).models,
+        );
+      }
+
+      return apolloContext;
     }
 
     return context;

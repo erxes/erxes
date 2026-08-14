@@ -13,6 +13,7 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  mountAgentTools,
   registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
@@ -137,6 +138,20 @@ app.use(
     }),
   }),
 );
+
+// Core predates startPlugin, so it mounts the agent capability endpoints
+// itself — same contract every plugin gets automatically.
+mountAgentTools(app, {
+  plugin: PLUGIN_NAME,
+  trpcRouter: appRouter,
+  createContext: async (subdomain: string, context: any) => {
+    const models = await generateModels(subdomain, context);
+
+    context.models = models;
+
+    return context;
+  },
+});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');
