@@ -294,9 +294,10 @@ export const mountAgentTools = (
         }
 
         try {
-          await checkPermissionGroup(subdomain, user)(
-            descriptor.permission.action,
-          );
+          await checkPermissionGroup(
+            subdomain,
+            user,
+          )(descriptor.permission.action);
         } catch (permissionError) {
           return res.status(403).json(err(permissionError));
         }

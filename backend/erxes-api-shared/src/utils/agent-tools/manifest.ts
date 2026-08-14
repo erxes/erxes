@@ -25,9 +25,9 @@ const isMongooseModel = (model: unknown): model is Record<string, any> => {
 
   return Boolean(
     candidate &&
-      (typeof candidate === 'object' || typeof candidate === 'function') &&
-      candidate.schema &&
-      typeof candidate.find === 'function',
+    (typeof candidate === 'object' || typeof candidate === 'function') &&
+    candidate.schema &&
+    typeof candidate.find === 'function',
   );
 };
 
