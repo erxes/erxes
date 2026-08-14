@@ -13,6 +13,7 @@ import { capturePluginModels, getCapturedPluginModels } from './modelRegistry';
 import {
   AgentModelPermissionMap,
   AgentModelToolDescriptor,
+  AgentMongooseModel,
   AgentToolField,
   AgentToolManifest,
   AgentTrpcRouter,
@@ -54,7 +55,9 @@ const manifestCacheKey = (
     subdomain,
     options.exclude || [],
     options.includeModels || [],
-    Object.keys(options.modelPermissions || {}).sort(),
+    Object.keys(options.modelPermissions || {}).sort((a, b) =>
+      a.localeCompare(b),
+    ),
   ]);
 
 /** Resolve tenant models from the capture registry or the context factory. */
@@ -331,6 +334,64 @@ const sanitizeSkip = (input: unknown): number => {
   return Math.floor(skip);
 };
 
+/** Apply validated paging/sort/projection modifiers to a read query. */
+const applyReadModifiers = (
+  query: ReturnType<AgentMongooseModel['find']>,
+  input: Record<string, unknown> | undefined,
+  modelFields: AgentToolField[],
+  { paginate }: { paginate: boolean },
+): ReturnType<AgentMongooseModel['find']> => {
+  let result = query;
+
+  if (paginate) {
+    result = result.limit(Math.min(Number(input?.limit) || 50, 100));
+
+    const skip = sanitizeSkip(input?.skip);
+
+    if (skip > 0) {
+      result = result.skip(skip);
+    }
+
+    const sort = sanitizeSort(input?.sort, modelFields);
+
+    if (sort) {
+      result = result.sort(sort);
+    }
+  }
+
+  const select = sanitizeSelect(input?.select, modelFields);
+
+  if (select?.length) {
+    result = result.select(select.join(' '));
+  }
+
+  return result;
+};
+
+/**
+ * Plugin models conventionally expose statics named after the singular model
+ * name (e.g. Deals -> createDeal/updateDeal/removeDeal); prefer them so plugin
+ * business logic runs. Returns null when the static does not exist.
+ */
+const callModelStatic = (
+  model: AgentMongooseModel,
+  staticName: string,
+  args: unknown[],
+): Promise<unknown> | null => {
+  const staticFn = model[staticName];
+
+  if (typeof staticFn !== 'function') {
+    return null;
+  }
+
+  return Promise.resolve(
+    (staticFn as (...staticArgs: unknown[]) => unknown).apply(model, args),
+  );
+};
+
+const singularName = (modelName: string): string =>
+  modelName.endsWith('s') ? modelName.slice(0, -1) : modelName;
+
 /** Execute a model CRUD tool against validated, schema-scoped input. */
 const executeModelTool = async (
   models: ModelRecord,
@@ -343,99 +404,56 @@ const executeModelTool = async (
     throw new Error(`Model '${descriptor.modelName}' is not available`);
   }
 
-  // Plugin models conventionally expose statics named after the singular
-  // model name (e.g. Deals -> createDeal/updateDeal/removeDeal); prefer them
-  // so plugin business logic runs, falling back to raw Mongoose calls.
-  const singular = descriptor.modelName.endsWith('s')
-    ? descriptor.modelName.slice(0, -1)
-    : descriptor.modelName;
-
-  const callStatic = (
-    staticName: string,
-    args: unknown[],
-  ): Promise<unknown> | null => {
-    const staticFn = model[staticName];
-
-    if (typeof staticFn !== 'function') {
-      return null;
-    }
-
-    return Promise.resolve(
-      (staticFn as (...staticArgs: unknown[]) => unknown).apply(model, args),
-    );
-  };
+  const singular = singularName(descriptor.modelName);
 
   switch (descriptor.op) {
-    case 'find': {
-      let query = model.find(sanitizeQuery(input?.query));
-
-      query = query.limit(Math.min(Number(input?.limit) || 50, 100));
-
-      const skip = sanitizeSkip(input?.skip);
-
-      if (skip > 0) {
-        query = query.skip(skip);
-      }
-
-      const sort = sanitizeSort(input?.sort, descriptor.modelFields);
-
-      if (sort) {
-        query = query.sort(sort);
-      }
-
-      const select = sanitizeSelect(input?.select, descriptor.modelFields);
-
-      if (select?.length) {
-        query = query.select(select.join(' '));
-      }
-
-      return await query.lean();
-    }
-    case 'findOne': {
-      let query = model.findOne(sanitizeQuery(input?.query));
-
-      const select = sanitizeSelect(input?.select, descriptor.modelFields);
-
-      if (select?.length) {
-        query = query.select(select.join(' '));
-      }
-
-      return await query.lean();
-    }
+    case 'find':
+      return await applyReadModifiers(
+        model.find(sanitizeQuery(input?.query)),
+        input,
+        descriptor.modelFields,
+        { paginate: true },
+      ).lean();
+    case 'findOne':
+      return await applyReadModifiers(
+        model.findOne(sanitizeQuery(input?.query)),
+        input,
+        descriptor.modelFields,
+        { paginate: false },
+      ).lean();
     case 'count':
       return await model.countDocuments(sanitizeQuery(input?.query));
     case 'create': {
       const doc = sanitizeDoc(input?.doc);
-      const staticResult = await callStatic(`create${singular}`, [doc]);
+      const staticResult = await callModelStatic(model, `create${singular}`, [
+        doc,
+      ]);
 
-      if (staticResult !== null) {
-        return staticResult;
-      }
-
-      return await model.create(doc);
+      return staticResult !== null ? staticResult : await model.create(doc);
     }
     case 'update': {
       const id = sanitizeId(input?._id);
       const doc = sanitizeDoc(input?.doc);
-      const staticResult = await callStatic(`update${singular}`, [id, doc]);
+      const staticResult = await callModelStatic(model, `update${singular}`, [
+        id,
+        doc,
+      ]);
 
-      if (staticResult !== null) {
-        return staticResult;
-      }
-
-      return await model
-        .findOneAndUpdate({ _id: id }, { $set: doc }, { new: true })
-        .lean();
+      return staticResult !== null
+        ? staticResult
+        : await model
+            .findOneAndUpdate({ _id: id }, { $set: doc }, { new: true })
+            .lean();
     }
     case 'remove': {
       const id = sanitizeId(input?._id);
-      const staticResult = await callStatic(`remove${singular}`, [id]);
+      const staticResult = await callModelStatic(model, `remove${singular}`, [
+        id,
+      ]);
 
-      if (staticResult !== null) {
-        return staticResult;
-      }
-
-      return await model.deleteOne({ _id: id });
+      return staticResult !== null
+        ? staticResult
+        : await model.deleteOne({ _id: id });
     }
     default:
       throw new Error(`Unsupported model operation '${descriptor.op}'`);
@@ -486,7 +504,7 @@ const executeTrpcTool = async (
     );
 
   if (typeof procedure !== 'function') {
-    throw new Error(`tRPC procedure '${descriptor.path}' not found`);
+    throw new TypeError(`tRPC procedure '${descriptor.path}' not found`);
   }
 
   return await (procedure as (input: unknown) => Promise<unknown>)(

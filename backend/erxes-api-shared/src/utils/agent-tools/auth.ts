@@ -1,5 +1,5 @@
-import { createHmac, timingSafeEqual } from 'crypto';
-import { IncomingHttpHeaders } from 'http';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { IncomingHttpHeaders } from 'node:http';
 
 export const agentToolsAuthHeaderName = 'x-erxes-agent-auth';
 
