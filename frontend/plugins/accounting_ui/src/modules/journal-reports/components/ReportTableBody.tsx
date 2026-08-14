@@ -212,12 +212,7 @@ function renderGroup(
     // Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
       const preLeafAttr = (leafAttr && `${leafAttr},`) || '';
-      const newMoreAttr = getMoreAttr(
-        groupRule,
-        groupId,
-        moreAttr,
-        isMore,
-      );
+      const newMoreAttr = getMoreAttr(groupRule, groupId, moreAttr, isMore);
 
       return (
         <React.Fragment key={attr}>
@@ -288,9 +283,7 @@ function renderGroup(
             {groupCode}
           </ReportTable.Cell>
 
-          <ReportTable.Cell className="text-left">
-            {groupName}
-          </ReportTable.Cell>
+          <ReportTable.Cell className="text-left">{groupName}</ReportTable.Cell>
 
           {lastNode}
         </ReportTable.Row>
