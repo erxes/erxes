@@ -18,6 +18,11 @@ export const types = `
     callstotal: Int
     abandonment: Float
     occupancy: Float
+    """
+    Share of the selected calls that connected, counted in either direction,
+    so it stays populated when the report is filtered to outbound only.
+    """
+    answerRate: Float
   }
 
   type AgentStats {

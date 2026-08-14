@@ -77,9 +77,27 @@ export const buildCdrFilter = ({
     filter.userfield = direction;
   }
 
-  if (queueId && queueId !== 'all') {
-    filter.actionType = { $regex: `QUEUE\\[${escapeRegExp(queueId)}\\]` };
+  if (!queueId || queueId === 'all') {
+    return filter;
   }
+
+  // An outbound call never enters a queue — the PBX files it as `DIAL`, not
+  // `QUEUE[...]` — so pairing a queue with outbound legs matches nothing at
+  // all, and pairing it with both directions silently drops every outbound
+  // call from the totals. The queue therefore narrows the inbound side only.
+  if (direction === 'Outbound') {
+    return filter;
+  }
+
+  const inQueue = {
+    actionType: { $regex: `QUEUE\\[${escapeRegExp(queueId)}\\]` },
+  };
+
+  if (direction === 'Inbound') {
+    return { ...filter, ...inQueue };
+  }
+
+  filter.$or = [inQueue, { userfield: 'Outbound' }];
 
   return filter;
 };

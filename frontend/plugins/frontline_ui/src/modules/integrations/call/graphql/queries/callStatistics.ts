@@ -53,6 +53,7 @@ export const CALL_KPI_SCORECARD = `
       averageAnsweredTime
       firstCallResolution
       occupancy
+      answerRate
     }
   }
 `;

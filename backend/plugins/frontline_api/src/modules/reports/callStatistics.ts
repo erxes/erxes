@@ -72,14 +72,37 @@ export const calculateFirstCallResolution = async (legs: IStatisticsLeg[]) => {
   return (resolvedFirstTime / callsPerCaller.size) * 100;
 };
 
+/**
+ * Share of the selected calls that connected.
+ *
+ * Counted straight from the calls rather than derived from the abandonment
+ * rate, so it survives a direction filter: an outbound call the customer
+ * picked up counts exactly like an inbound call an agent answered.
+ */
+export const calculateAnswerRate = async (legs: IStatisticsLeg[]) => {
+  const calls = groupLegsIntoCalls(legs);
+
+  if (!calls.length) return null;
+
+  return (calls.filter(wasAnswered).length / calls.length) * 100;
+};
+
+/**
+ * Share of the selected calls that never connected.
+ *
+ * The exact complement of {@link calculateAnswerRate}, and counted over the
+ * same population for that reason: scoping one to inbound and the other to
+ * every direction left the two cards sitting side by side without summing to
+ * 100 whenever both directions were in view.
+ */
 export const calculateAbandonmentRate = async (legs: IStatisticsLeg[]) => {
-  const inbound = inboundCalls(legs);
+  const calls = groupLegsIntoCalls(legs);
 
-  if (!inbound.length) return null;
+  if (!calls.length) return null;
 
-  const abandoned = inbound.filter((call) => !wasAnswered(call));
+  const abandoned = calls.filter((call) => !wasAnswered(call));
 
-  return (abandoned.length / inbound.length) * 100;
+  return (abandoned.length / calls.length) * 100;
 };
 
 export const calculateOccupancyRate = async (
@@ -109,8 +132,16 @@ export const calculateAverageSpeedOfAnswer = async (legs: IStatisticsLeg[]) => {
   return averageSpeedOfAnswer(inbound);
 };
 
+/**
+ * Mean talk time over the calls that connected, in either direction.
+ *
+ * Unlike the queue metrics above, handling time is not about what the caller
+ * waited through: an agent spends the same effort on a call they placed as on
+ * one they answered. Restricting it to inbound left an outbound-only report
+ * with nothing to show.
+ */
 export const calculateAverageHandlingTime = async (legs: IStatisticsLeg[]) => {
-  const answered = inboundCalls(legs).filter(wasAnswered);
+  const answered = groupLegsIntoCalls(legs).filter(wasAnswered);
 
   if (!answered.length) return null;
 

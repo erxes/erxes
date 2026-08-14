@@ -785,7 +785,7 @@
   "kpi-service-level": "Үйлчилгээний түвшин",
   "kpi-service-level-subtitle": "≤ 20 сек хариулах зорилт",
   "kpi-abandonment-rate": "Орхих хувь",
-  "kpi-abandonment-rate-subtitle": "Орхисон ирж буй дуудлага",
+  "kpi-abandonment-rate-subtitle": "Холбогдоогүй дуудлага",
   "kpi-avg-speed-of-answer": "Хариулах дундаж хурд",
   "kpi-avg-speed-of-answer-subtitle": "Хариулахаас өмнөх хугацаа",
   "kpi-avg-handle-time": "Дундаж боловсруулах хугацаа",

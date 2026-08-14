@@ -785,7 +785,7 @@
   "kpi-service-level": "Service Level",
   "kpi-service-level-subtitle": "≤ 20 s answer target",
   "kpi-abandonment-rate": "Abandonment Rate",
-  "kpi-abandonment-rate-subtitle": "Inbound abandoned",
+  "kpi-abandonment-rate-subtitle": "Calls that never connected",
   "kpi-avg-speed-of-answer": "Avg Speed of Answer",
   "kpi-avg-speed-of-answer-subtitle": "Time before answer",
   "kpi-avg-handle-time": "Avg Handle Time",

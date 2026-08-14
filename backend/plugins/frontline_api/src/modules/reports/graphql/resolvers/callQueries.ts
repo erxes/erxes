@@ -20,6 +20,7 @@ import {
 } from '@/reports/callHistoryService';
 import {
   calculateAbandonmentRate,
+  calculateAnswerRate,
   calculateAverageHandlingTime,
   calculateAverageSpeedOfAnswer,
   calculateFirstCallResolution,
@@ -78,6 +79,7 @@ const EMPTY_SCORECARD = {
   averageAnsweredTime: null,
   firstCallResolution: null,
   occupancy: null,
+  answerRate: null,
 };
 
 const findQueueIntegration = async (
@@ -349,6 +351,7 @@ export const reportCallQueries = {
       firstCallResolution,
       occupancy,
       averageSpeed,
+      answerRate,
     ] = await Promise.all([
       calculateServiceLevel(cdrs),
       calculateAbandonmentRate(cdrs),
@@ -356,6 +359,7 @@ export const reportCallQueries = {
       calculateFirstCallResolution(cdrs),
       calculateOccupancyRate(cdrs),
       calculateAverageSpeedOfAnswer(cdrs),
+      calculateAnswerRate(cdrs),
     ]);
 
     return {
@@ -366,6 +370,7 @@ export const reportCallQueries = {
       averageAnsweredTime,
       firstCallResolution,
       occupancy,
+      answerRate,
     };
   },
 

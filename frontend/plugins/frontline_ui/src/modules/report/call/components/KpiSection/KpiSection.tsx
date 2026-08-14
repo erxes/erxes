@@ -30,8 +30,6 @@ export function KpiSection() {
     );
   }
 
-  const answerRate = kpi?.abandonment == null ? null : 100 - kpi.abandonment;
-
   const cards = [
     {
       title: t('kpi-total-calls'),
@@ -75,7 +73,7 @@ export function KpiSection() {
     },
     {
       title: t('kpi-answer-rate'),
-      value: fmtPctOrDash(answerRate),
+      value: fmtPctOrDash(kpi?.answerRate),
       subtitle:
         direction !== 'all'
           ? t('kpi-direction-only', { direction })

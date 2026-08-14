@@ -9,6 +9,9 @@ export interface KpiScorecard {
   averageSpeed: number | null;
   firstCallResolution: number | null;
   occupancy: number | null;
+
+  /** Connected share of the selected calls, in either direction. */
+  answerRate: number | null;
 }
 
 export interface VolumePoint {
