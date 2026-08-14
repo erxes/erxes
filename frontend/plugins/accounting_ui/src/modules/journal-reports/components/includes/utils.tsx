@@ -5,7 +5,10 @@ type ReportRecord = Record<string, unknown>;
 type GroupedRecords = Record<string, ReportRecord>;
 
 // toGroup Data
-export const groupRecords = (records: ReportRecord[], groupRule?: IGroupRule) => {
+export const groupRecords = (
+  records: ReportRecord[],
+  groupRule?: IGroupRule,
+) => {
   if (!groupRule) {
     return { items: records };
   }

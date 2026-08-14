@@ -100,7 +100,9 @@ export const HandleInvByPrice = (
         <ReportTable.Cell>{displayNum(saleCount)}</ReportTable.Cell>
         <ReportTable.Cell>{displayNum(saleHistory)}</ReportTable.Cell>
         <ReportTable.Cell>{displayNum(salePlan)}</ReportTable.Cell>
-        <ReportTable.Cell>{displayNum(salePlan - saleHistory)}</ReportTable.Cell>
+        <ReportTable.Cell>
+          {displayNum(salePlan - saleHistory)}
+        </ReportTable.Cell>
         <ReportTable.Cell>{displayNum(lastCount)}</ReportTable.Cell>
         <ReportTable.Cell>{displayNum(lastValue)}</ReportTable.Cell>
       </>

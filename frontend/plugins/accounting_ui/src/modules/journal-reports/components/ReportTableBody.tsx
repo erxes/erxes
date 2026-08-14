@@ -84,7 +84,15 @@ export const ReportTableBody = () => {
     if (detailError) return;
     if (!groupRule) return;
     setMoreData(moreDataByKey(trDetails, groupRule));
-  }, [grouped, detailLoading, detailError, isMore, setMoreData, trDetails, groupRule]); // дата солигдох бүрт дахин бодно
+  }, [
+    grouped,
+    detailLoading,
+    detailError,
+    isMore,
+    setMoreData,
+    trDetails,
+    groupRule,
+  ]); // дата солигдох бүрт дахин бодно
 
   if (!report || !reportConf || !groupRule) {
     return 'NOT FOUND REPORT';

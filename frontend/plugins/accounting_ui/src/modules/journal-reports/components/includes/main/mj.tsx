@@ -19,7 +19,10 @@ export const HandleMainMJ = (
   _attr: string,
 ): CalcReportResult => {
   const items = getItems(dic);
-  const debit = items.reduce((sum, record) => sum + numberValue(record.debit), 0);
+  const debit = items.reduce(
+    (sum, record) => sum + numberValue(record.debit),
+    0,
+  );
   const credit = items.reduce(
     (sum, record) => sum + numberValue(record.credit),
     0,
@@ -41,7 +44,10 @@ export const HandleMainMJS = (
   _attr: string,
 ): CalcReportResult => {
   const items = getItems(dic);
-  const debit = items.reduce((sum, record) => sum + numberValue(record.debit), 0);
+  const debit = items.reduce(
+    (sum, record) => sum + numberValue(record.debit),
+    0,
+  );
   const credit = items.reduce(
     (sum, record) => sum + numberValue(record.credit),
     0,
@@ -63,9 +69,10 @@ export const HandleMainMJS = (
     ),
   ];
   const diff = debit - credit;
-  const amount = Math.round(debit * 10000) === Math.round(credit * 10000)
-    ? debit
-    : Math.max(debit, credit);
+  const amount =
+    Math.round(debit * 10000) === Math.round(credit * 10000)
+      ? debit
+      : Math.max(debit, credit);
 
   return {
     lastNode: (

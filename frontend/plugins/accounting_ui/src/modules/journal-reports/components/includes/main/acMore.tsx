@@ -35,8 +35,7 @@ export const HandleMainACMore = ({
   currentKey: string;
   nodeExtra?: Record<string, unknown>;
 }) => {
-  const frDiff =
-    typeof nodeExtra?.fr_diff === 'number' ? nodeExtra.fr_diff : 0;
+  const frDiff = typeof nodeExtra?.fr_diff === 'number' ? nodeExtra.fr_diff : 0;
   const navigate = useNavigate();
   const rows: AccountStatementMoreRecord[] = [];
   let rem = frDiff;

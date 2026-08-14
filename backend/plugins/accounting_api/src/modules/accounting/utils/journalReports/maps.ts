@@ -182,7 +182,9 @@ const getJournalFilter = (params: IReportFilterParams) => {
     return { $in: [...new Set(explicitJournals)] };
   }
 
-  return { $in: intersect([...new Set(explicitJournals)], kindFilter.journals) };
+  return {
+    $in: intersect([...new Set(explicitJournals)], kindFilter.journals),
+  };
 };
 
 export const getFilter = async (
@@ -703,12 +705,7 @@ export const recordListWithValues = async (
   reportBase: IJournalReportBase,
 ) => {
   const { fromDate, toDate, ...filters } = filterParams;
-  const reportFilters = await getFilter(
-    subdomain,
-    models,
-    filters,
-    user,
-  );
+  const reportFilters = await getFilter(subdomain, models, filters, user);
   const groupNames = getGroupNames(reportBase.baseGroups, groupRules);
   const sums = reportBase.sums || {
     sumAmount: { $sum: '$details.amount' },
@@ -730,19 +727,20 @@ export const recordListWithValues = async (
     reportBase.extraTransactionMatch || {},
   );
 
-  const openingRecords = fromDate && reportBase.periodMode !== 'between'
-    ? await models.Transactions.aggregate([
-        {
-          $match: mergeMatch(
-            baseMatch,
-            getDateMatch(fromDate, toDate, 'opening'),
-          ),
-        },
-        ...commonPipeline,
-        { $group: buildGroupStage(groupNames, sums, false) },
-        { $project: projectStage },
-      ])
-    : [];
+  const openingRecords =
+    fromDate && reportBase.periodMode !== 'between'
+      ? await models.Transactions.aggregate([
+          {
+            $match: mergeMatch(
+              baseMatch,
+              getDateMatch(fromDate, toDate, 'opening'),
+            ),
+          },
+          ...commonPipeline,
+          { $group: buildGroupStage(groupNames, sums, false) },
+          { $project: projectStage },
+        ])
+      : [];
 
   const betweenRecords = await models.Transactions.aggregate([
     { $match: mergeMatch(baseMatch, getDateMatch(fromDate, toDate)) },
@@ -765,12 +763,7 @@ export const getLineRecords = async (
   reportBase: IJournalReportBase,
 ) => {
   const { fromDate, toDate, ...filters } = filterParams;
-  const reportFilters = await getFilter(
-    subdomain,
-    models,
-    filters,
-    user,
-  );
+  const reportFilters = await getFilter(subdomain, models, filters, user);
   const baseMatch = mergeMatch(
     reportFilters.transactionMatch,
     reportBase.extraTransactionMatch || {},

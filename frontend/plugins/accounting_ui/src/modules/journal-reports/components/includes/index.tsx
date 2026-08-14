@@ -7,11 +7,7 @@ import {
   mainCalcReportHandlers,
   mainRenderMoreHandlers,
 } from './handlers/main';
-import {
-  CalcReportHandler,
-  RenderMoreHandler,
-  RenderMoreProps,
-} from './types';
+import { CalcReportHandler, RenderMoreHandler, RenderMoreProps } from './types';
 
 export type {
   CalcReportHandler,
@@ -34,11 +30,7 @@ const renderMoreHandlers: Record<string, RenderMoreHandler> = {
 
 export const getCalcReport = (report: string): CalcReportHandler => {
   if (!calcReportHandlers[report]) {
-    return (
-      _dic: Record<string, unknown>,
-      _groupRule,
-      _attr: string,
-    ) => ({
+    return (_dic: Record<string, unknown>, _groupRule, _attr: string) => ({
       lastNode: null,
       lastData: {},
     });

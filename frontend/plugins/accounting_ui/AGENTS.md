@@ -41,20 +41,20 @@
 
 ## Architecture
 
-| Area              | Path                                       | Responsibility                                                                 |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
-| Runtime           | `src/main.ts`                              | Starts the accounting UI remote.                                               |
-| Plugin config     | `src/config.tsx`                           | Registers accounting routes and navigation with the host.                      |
-| Route composition | `src/modules/AccountingMain.tsx`           | Wires accounting pages into the plugin router.                                 |
-| Transactions      | `src/modules/transactions`                 | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
-| Adjustments       | `src/modules/adjustments`                  | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.  |
-| Journal reports   | `src/modules/journal-reports`              | Owns report selection, filters, grouped rendering, totals, and detail rows.    |
-| Report configs    | `src/modules/journal-reports/types/reports` | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
-| Report table layout | `src/modules/journal-reports/components/reportTableLayout.ts` | Maps each report code to header rows and footer column counts aligned with the recursive report renderer. |
-| Report renderers  | `src/modules/journal-reports/components/includes/handlers` | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers. |
-| Settings          | `src/modules/settings`                     | Owns accounting settings forms, account tables, filters, and config hooks.     |
-| Pages             | `src/pages`                                | Exposes route-level page components for accounting surfaces.                   |
-| Relation widgets  | `src/widgets/relation/RelationWidgets.tsx` | Provides accounting relation widget exports.                                   |
+| Area                | Path                                                          | Responsibility                                                                                                  |
+| ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
+| Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
+| Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
+| Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
+| Adjustments         | `src/modules/adjustments`                                     | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
+| Journal reports     | `src/modules/journal-reports`                                 | Owns report selection, filters, grouped rendering, totals, and detail rows.                                     |
+| Report configs      | `src/modules/journal-reports/types/reports`                   | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
+| Report table layout | `src/modules/journal-reports/components/reportTableLayout.ts` | Maps each report code to header rows and footer column counts aligned with the recursive report renderer.       |
+| Report renderers    | `src/modules/journal-reports/components/includes/handlers`    | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers.                   |
+| Settings            | `src/modules/settings`                                        | Owns accounting settings forms, account tables, filters, and config hooks.                                      |
+| Pages               | `src/pages`                                                   | Exposes route-level page components for accounting surfaces.                                                    |
+| Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                    | Provides accounting relation widget exports.                                                                    |
 
 ## Contracts
 
@@ -175,7 +175,6 @@
 - **Summary:** Closing adjustment list account columns now render through `AccountsInline` instead of displaying raw account ids.
 - **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingColumns.tsx`.
 - **Contracts changed:** None.
-
 
 ### `2026-08-11` — `Hide Closing Begin Date`
 
