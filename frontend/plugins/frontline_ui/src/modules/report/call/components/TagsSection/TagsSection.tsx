@@ -176,7 +176,7 @@ export function TagsSection() {
     >
       {!tags.length ? (
         <ReportTable.Empty>
-          {t('no-tag-data', 'No tagged calls in this range')}
+          {t('no-call-tag-data', 'No tagged calls in this range')}
         </ReportTable.Empty>
       ) : chartType === ResponsesChartType.Bar ? (
         <TagBarChart tags={pagedTags} />
