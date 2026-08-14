@@ -177,6 +177,67 @@ const getMoreAttr = (
   return moreAttr;
 };
 
+const drillParamByGroup: Record<string, string> = {
+  accountId: 'accountIds',
+  branchId: 'branchId',
+  departmentId: 'departmentId',
+  customerId: 'customerId',
+  productId: 'productIds',
+  fixedAssetId: 'fixedAssetIds',
+  journal: 'journal',
+  contentId: 'contentId',
+  contentType: 'contentType',
+};
+
+const getGroupsFromAttr = (attr: string) =>
+  attr
+    .split(/[,*]/)
+    .map((entry) => {
+      const [group, id] = entry.split('+');
+      return { group, id };
+    })
+    .filter(({ group, id }) => group && id);
+
+const getAccountStatementDrillUrl = (
+  report: string,
+  groupRule: IGroupRule,
+  groupId: string,
+  attr: string,
+) => {
+  if (report === 'ac' || groupRule.group !== 'accountId' || !groupId) {
+    return '';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+
+  params.set('report', 'ac');
+  params.set('groupKey', 'default');
+  params.set('isMore', 'true');
+  params.set('accountIds', groupId);
+
+  getGroupsFromAttr(attr).forEach(({ group, id }) => {
+    const paramName = drillParamByGroup[group];
+    if (paramName && group !== 'accountId') {
+      params.set(paramName, id);
+    }
+  });
+
+  return `${window.location.pathname}?${params.toString()}`;
+};
+
+const openAccountStatementDrill = (
+  report: string,
+  groupRule: IGroupRule,
+  groupId: string,
+  attr: string,
+) => {
+  const url = getAccountStatementDrillUrl(report, groupRule, groupId, attr);
+
+  if (url) {
+    window.location.assign(url);
+  }
+};
+
 function renderGroup(
   groupedDic: Record<string, unknown>,
   groupRule: IGroupRule,
@@ -220,9 +281,17 @@ function renderGroup(
             <ReportTable.Row
               key={attr}
               data-sum-key={attr}
-              className={cn(groupRule.style ?? '')}
+              className={cn(
+                groupRule.style ?? '',
+                groupRule.group === 'accountId' && report !== 'ac'
+                  ? 'cursor-pointer'
+                  : '',
+              )}
               data-group={groupRule.group}
               data-id={groupId}
+              onDoubleClick={() =>
+                openAccountStatementDrill(report, groupRule, groupId, attr)
+              }
             >
               <ReportTable.Cell
                 className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
@@ -272,9 +341,18 @@ function renderGroup(
         <ReportTable.Row
           key={attr}
           data-keys={['footer', leafAttr].filter(Boolean).join(',')}
-          className={cn('text-right', groupRule.style ?? '')}
+          className={cn(
+            'text-right',
+            groupRule.style ?? '',
+            groupRule.group === 'accountId' && report !== 'ac'
+              ? 'cursor-pointer'
+              : '',
+          )}
           data-group={groupRule.group}
           data-id={groupId}
+          onDoubleClick={() =>
+            openAccountStatementDrill(report, groupRule, groupId, attr)
+          }
         >
           <ReportTable.Cell
             className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
