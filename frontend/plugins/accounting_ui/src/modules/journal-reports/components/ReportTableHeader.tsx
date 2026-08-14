@@ -13,7 +13,7 @@ export const ReportTableHeader = () => {
   return (
     <>
       {headerRows.map((row, rowIndex) => (
-        <ReportTable.Row key={rowIndex}>
+        <ReportTable.Row key={`${reportCode}-header-value-${rowIndex}`}>
           {row.map((cell, cellIndex) => (
             <ReportTable.Head
               key={`${cell.label}-${cellIndex}`}

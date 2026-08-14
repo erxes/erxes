@@ -11,7 +11,12 @@ import {
   getCalcReport,
   getRenderMoreHandler,
 } from './includes';
-import { groupRecords, moreDataByKey, totalsCalc } from './includes/utils';
+import {
+  groupRecords,
+  moreDataByKey,
+  toSafeString,
+  totalsCalc,
+} from './includes/utils';
 
 type QueryObject = Record<string, string | string[]>;
 
@@ -191,35 +196,38 @@ function renderGroup(
   const keyName = `${groupRule.group}Name`;
 
   const sortedValues = Object.values(groupedDic).sort((a, b) =>
-    String((a as Record<string, unknown>)[keyCode]).localeCompare(
-      String((b as Record<string, unknown>)[keyCode]),
+    toSafeString((a as Record<string, unknown>)[keyCode]).localeCompare(
+      toSafeString((b as Record<string, unknown>)[keyCode]),
     ),
   );
 
-  return sortedValues.map((grStepValue, index: number) => {
+  return sortedValues.map((grStepValue) => {
     const grStep = grStepValue as Record<string, unknown>;
+    const groupId = toSafeString(grStep[grId]);
+    const groupCode = toSafeString(grStep[keyCode]);
+    const groupName = toSafeString(grStep[keyName]);
     const lAttr = lastAttr ? `${lastAttr}*` : '';
-    const attr = `${lAttr}${groupRule.group}+${grStep[grId]}`;
+    const attr = `${lAttr}${groupRule.group}+${groupId}`;
 
     // Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
       const preLeafAttr = (leafAttr && `${leafAttr},`) || '';
       const newMoreAttr = getMoreAttr(
         groupRule,
-        String(grStep[grId] ?? ''),
+        groupId,
         moreAttr,
         isMore,
       );
 
       return (
-        <React.Fragment key={attr + index}>
+        <React.Fragment key={attr}>
           {
             <ReportTable.Row
               key={attr}
               data-sum-key={attr}
               className={cn(groupRule.style ?? '')}
               data-group={groupRule.group}
-              data-id={String(grStep[grId] ?? '')}
+              data-id={groupId}
             >
               <ReportTable.Cell
                 className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
@@ -227,15 +235,18 @@ function renderGroup(
                   { '--cellPadding': `${padding}px` } as React.CSSProperties
                 }
               >
-                {String(grStep[keyCode] ?? '')}
+                {groupCode}
               </ReportTable.Cell>
 
               <ReportTable.Cell className="text-left">
-                {String(grStep[keyName] ?? '')}
+                {groupName}
               </ReportTable.Cell>
 
-              {Array.from({ length: colCount }).map((_, i) => (
-                <ReportTable.Cell key={`${attr}-${i}`} className="text-right" />
+              {Array.from(
+                { length: colCount },
+                (_value, valueIndex) => `${attr}-value-${valueIndex + 1}`,
+              ).map((key) => (
+                <ReportTable.Cell key={key} className="text-right" />
               ))}
             </ReportTable.Row>
           }
@@ -268,17 +279,17 @@ function renderGroup(
           data-keys={['footer', leafAttr].filter(Boolean).join(',')}
           className={cn('text-right', groupRule.style ?? '')}
           data-group={groupRule.group}
-          data-id={String(grStep[grId] ?? '')}
+          data-id={groupId}
         >
           <ReportTable.Cell
             className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
             style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
           >
-            {String(grStep[keyCode] ?? '')}
+            {groupCode}
           </ReportTable.Cell>
 
           <ReportTable.Cell className="text-left">
-            {String(grStep[keyName] ?? '')}
+            {groupName}
           </ReportTable.Cell>
 
           {lastNode}
@@ -287,7 +298,7 @@ function renderGroup(
           <RenderMore
             report={report}
             treeIds={moreAttr ?? ''}
-            leafId={`${grStep[grId]}`}
+            leafId={groupId}
             nodeExtra={lastData}
           />
         )}

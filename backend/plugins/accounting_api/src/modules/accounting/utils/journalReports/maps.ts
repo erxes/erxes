@@ -80,9 +80,21 @@ const uniqueStringValues = (records: ReportRecord[], field: string) => [
   ),
 ];
 
+const toSafeString = (value: unknown) => {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return '';
+};
+
 const getStringField = (record: unknown, field: string) =>
   record && typeof record === 'object' && field in record
-    ? String((record as Record<string, unknown>)[field] || '')
+    ? toSafeString((record as Record<string, unknown>)[field])
     : '';
 
 const getStructureIdsWithChildren = async (

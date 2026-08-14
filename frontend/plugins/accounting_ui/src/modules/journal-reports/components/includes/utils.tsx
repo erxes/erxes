@@ -4,6 +4,18 @@ import { IGroupRule } from '../../types/reportsMap';
 type ReportRecord = Record<string, unknown>;
 type GroupedRecords = Record<string, ReportRecord>;
 
+export const toSafeString = (value: unknown) => {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return '';
+};
+
 // toGroup Data
 export const groupRecords = (
   records: ReportRecord[],
@@ -26,17 +38,17 @@ export const toGroup = (
 ) => {
   // iterate over rows to group
   for (const item of groupRuleItems) {
-    const groupKey = String(item[groupRule.group] ?? '');
+    const groupKey = toSafeString(item[groupRule.group]);
 
     // If group does not exist in resultDic, initialize it
     if (!resultDic[groupKey]) {
       resultDic[groupKey] = {
         items: [],
-        [`${groupRule.group}Id`]: String(groupKey), // id
-        [`${groupRule.group}Code`]: String(item[groupRule.code]), // code
+        [`${groupRule.group}Id`]: groupKey,
+        [`${groupRule.group}Code`]: toSafeString(item[groupRule.code]),
         [`${groupRule.group}Name`]: groupRule.name
-          ? String(item[groupRule.name])
-          : '', // name
+          ? toSafeString(item[groupRule.name])
+          : '',
       };
 
       // if sub-group rule exists -> initialize empty dict
@@ -75,7 +87,7 @@ export const getFirstGroupRule = (
   const subGroupRule = groupRule?.groupRule;
 
   if (groupRule?.group && !groupRule.excMore) {
-    const froms = (groupRule.from && `${groupRule.from}.`) || '';
+    const froms = groupRule.from?.length ? `${groupRule.from.join('.')}.` : '';
 
     firstGroupRule.push(`${froms}${groupRule.group}`);
   }

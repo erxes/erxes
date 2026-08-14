@@ -81,7 +81,7 @@ export const ReportForm = () => {
   const onSubmit = (data: ReportFormValues) => {
     const params: Record<string, ReportQueryValue> = {
       ...data,
-      ...(activeReportConf.initParams || {}),
+      ...activeReportConf?.initParams,
     };
     let result = '';
 
