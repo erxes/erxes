@@ -334,6 +334,20 @@ const sanitizeSkip = (input: unknown): number => {
   return Math.floor(skip);
 };
 
+const sanitizeLimit = (input: unknown): number => {
+  if (input === undefined || input === null) {
+    return 50;
+  }
+
+  const limit = Number(input);
+
+  if (!Number.isInteger(limit) || limit < 0) {
+    throw new AgentToolInputError('limit must be a non-negative integer');
+  }
+
+  return Math.min(limit, 100);
+};
+
 /** Apply validated paging/sort/projection modifiers to a read query. */
 const applyReadModifiers = (
   query: ReturnType<AgentMongooseModel['find']>,
@@ -344,7 +358,7 @@ const applyReadModifiers = (
   let result = query;
 
   if (paginate) {
-    result = result.limit(Math.min(Number(input?.limit) || 50, 100));
+    result = result.limit(sanitizeLimit(input?.limit));
 
     const skip = sanitizeSkip(input?.skip);
 
@@ -389,8 +403,13 @@ const callModelStatic = (
   );
 };
 
-const singularName = (modelName: string): string =>
-  modelName.endsWith('s') ? modelName.slice(0, -1) : modelName;
+const singularName = (modelName: string): string => {
+  if (modelName.endsWith('ies')) {
+    return `${modelName.slice(0, -3)}y`;
+  }
+
+  return modelName.endsWith('s') ? modelName.slice(0, -1) : modelName;
+};
 
 /** Execute a model CRUD tool against validated, schema-scoped input. */
 const executeModelTool = async (
