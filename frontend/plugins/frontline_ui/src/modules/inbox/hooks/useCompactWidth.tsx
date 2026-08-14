@@ -6,6 +6,8 @@ import {
   useState,
 } from 'react';
 
+type CompactLevel = 0 | 1 | 2;
+
 const useResizeEffect = (
   ref: RefObject<HTMLElement>,
   onResize: () => void,
@@ -46,16 +48,16 @@ export const useCompactWidth = <T extends HTMLElement>(
   return { ref, isCompact };
 };
 
-// Collapses on real overflow instead of a guessed breakpoint, and expands again
-// only once the width the full content needed is available, so it cannot flap.
+// Collapse secondary actions before the assignee.
 export const useOverflowCompact = <T extends HTMLElement>(): {
   ref: RefObject<T>;
   isCompact: boolean;
+  compactLevel: CompactLevel;
 } => {
   const ref = useRef<T>(null);
-  const requiredWidth = useRef(0);
-  const compactRef = useRef(false);
-  const [isCompact, setIsCompact] = useState(false);
+  const requiredWidths = useRef<[number, number]>([0, 0]);
+  const compactLevelRef = useRef<CompactLevel>(0);
+  const [compactLevel, setCompactLevel] = useState<CompactLevel>(0);
 
   const measure = useCallback(() => {
     const element = ref.current;
@@ -64,27 +66,38 @@ export const useOverflowCompact = <T extends HTMLElement>(): {
       return;
     }
 
-    const compact = compactRef.current;
-    const next = compact
-      ? element.clientWidth < requiredWidth.current
-      : element.scrollWidth > element.clientWidth;
+    const level = compactLevelRef.current;
+    let nextLevel = level;
 
-    if (!compact && next) {
-      requiredWidth.current = element.scrollWidth;
+    if (level === 0 && element.scrollWidth > element.clientWidth) {
+      requiredWidths.current[0] = element.scrollWidth;
+      nextLevel = 1;
+    } else if (level === 1) {
+      if (element.clientWidth >= requiredWidths.current[0]) {
+        nextLevel = 0;
+      } else if (element.scrollWidth > element.clientWidth) {
+        requiredWidths.current[1] = element.scrollWidth;
+        nextLevel = 2;
+      }
+    } else if (
+      level === 2 &&
+      element.clientWidth >= requiredWidths.current[1]
+    ) {
+      nextLevel = 1;
     }
 
     // Never dispatch while stable: this also runs on every render.
-    if (next === compact) {
+    if (nextLevel === level) {
       return;
     }
 
-    compactRef.current = next;
-    setIsCompact(next);
+    compactLevelRef.current = nextLevel;
+    setCompactLevel(nextLevel);
   }, []);
 
   // No dependency list: content can change without the element resizing.
   useLayoutEffect(measure);
   useResizeEffect(ref, measure);
 
-  return { ref, isCompact };
+  return { ref, isCompact: compactLevel > 0, compactLevel };
 };
