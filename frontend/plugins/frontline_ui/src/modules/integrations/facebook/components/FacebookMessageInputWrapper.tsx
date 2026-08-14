@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { EnumFacebookTag } from '@/integrations/facebook/types/FacebookTypes';
-import { useForm, type SubmitHandler, type UseFormReturn } from 'react-hook-form';
+import {
+  useForm,
+  type SubmitHandler,
+  type UseFormReturn,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FACEBOOK_TAG_FORM_SCHEMA } from '../constants/FbTagSchema';
 import { z } from 'zod';
