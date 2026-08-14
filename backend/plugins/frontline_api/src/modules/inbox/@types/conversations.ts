@@ -78,6 +78,8 @@ export interface IConversationListParams
   tag?: string;
   integrationType?: string;
   participating?: string;
+  mentioned?: string;
+  unread?: string;
   starred?: string;
   ids?: string[];
   startDate?: string;

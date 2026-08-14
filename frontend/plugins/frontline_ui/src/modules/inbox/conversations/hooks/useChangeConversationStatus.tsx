@@ -11,6 +11,11 @@ export const useChangeConversationStatus = () => {
 
   const handleChangeConversationStatus = (options: MutationHookOptions) => {
     changeConversationStatus({
+      refetchQueries: [
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
       update: (cache) => {
         try {
           options.variables?.ids.forEach((id: string) => {

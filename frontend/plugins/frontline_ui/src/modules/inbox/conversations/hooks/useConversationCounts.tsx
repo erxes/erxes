@@ -1,13 +1,24 @@
 import { useQuery } from '@apollo/client';
 
-import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import {
+  CONVERSATION_COUNTS,
+  INBOX_SIDEBAR_WORK_COUNTS,
+} from '@/inbox/conversations/graphql/queries/getConversationCounts';
 
 export type TConversationCounts = Record<string, number>;
 
 type TConversationCountsResponse = {
   conversationCounts: {
     byIntegrationTypes?: TConversationCounts;
+    byIntegrations?: TConversationCounts;
   };
+};
+
+export type TInboxWorkCounts = {
+  awaitingResponse: number;
+  mentioned: number;
+  participating: number;
+  unassigned: number;
 };
 
 /**
@@ -49,6 +60,62 @@ export const useConversationCountsByIntegrationType = ({
   return {
     counts: data?.conversationCounts?.byIntegrationTypes ?? {},
     awaitingCounts: awaitingData?.conversationCounts?.byIntegrationTypes ?? {},
+    loading,
+  };
+};
+
+export const useConversationCountsByIntegration = ({
+  channelId,
+  skip,
+}: {
+  channelId: string;
+  skip?: boolean;
+}) => {
+  const { data, loading } = useQuery<TConversationCountsResponse>(
+    CONVERSATION_COUNTS,
+    {
+      variables: { only: 'byIntegrations', channelId },
+      skip,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  const { data: awaitingData } = useQuery<TConversationCountsResponse>(
+    CONVERSATION_COUNTS,
+    {
+      variables: {
+        only: 'byIntegrations',
+        channelId,
+        awaitingResponse: 'true',
+      },
+      skip,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  return {
+    counts: data?.conversationCounts?.byIntegrations ?? {},
+    awaitingCounts: awaitingData?.conversationCounts?.byIntegrations ?? {},
+    loading,
+  };
+};
+
+export const useInboxWorkCounts = () => {
+  const { data, loading, error } = useQuery<{
+    conversationCounts?: Partial<TInboxWorkCounts>;
+  }>(INBOX_SIDEBAR_WORK_COUNTS, {
+    fetchPolicy: 'cache-and-network',
+    variables: { unread: 'true' },
+  });
+
+  return {
+    counts: {
+      awaitingResponse: data?.conversationCounts?.awaitingResponse ?? 0,
+      mentioned: data?.conversationCounts?.mentioned ?? 0,
+      participating: data?.conversationCounts?.participating ?? 0,
+      unassigned: data?.conversationCounts?.unassigned ?? 0,
+    },
+    error,
     loading,
   };
 };

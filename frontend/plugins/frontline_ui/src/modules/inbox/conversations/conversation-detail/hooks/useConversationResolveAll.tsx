@@ -5,7 +5,12 @@ export const useConversationResolveAll = () => {
   const [resolveAllConversations, { loading }] = useMutation(
     CONVERSATION_RESOLVE,
     {
-      refetchQueries: ['Conversations'],
+      refetchQueries: [
+        'Conversations',
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
     },
   );
 

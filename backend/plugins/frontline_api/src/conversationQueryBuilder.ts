@@ -22,6 +22,8 @@ export interface IListArgs {
   tag?: string;
   integrationType?: string;
   participating?: string;
+  mentioned?: string;
+  unread?: string;
   starred?: string;
   ids?: string[];
   startDate?: string;
@@ -257,6 +259,23 @@ export default class Builder {
     };
   }
 
+  public async mentionedFilter(): Promise<{ _id: IIn }> {
+    const conversationIds: string[] =
+      await this.models.ConversationMessages.distinct('conversationId', {
+        mentionedUserIds: this.user._id,
+      });
+
+    return {
+      _id: { $in: conversationIds },
+    };
+  }
+
+  public unreadFilter(): { readUserIds: { $ne: string } } {
+    return {
+      readUserIds: { $ne: this.user._id },
+    };
+  }
+
   public starredFilter(): { _id: IIn | { $in: string[] } } {
     return {
       _id: {
@@ -441,6 +460,8 @@ export default class Builder {
       integrations: {},
 
       participating: {},
+      mentioned: {},
+      unread: {},
       createdAt: {},
       segments: {},
     };
@@ -457,6 +478,14 @@ export default class Builder {
 
     if (this.params.participating) {
       this.queries.participating = this.participatingFilter();
+    }
+
+    if (this.params.mentioned) {
+      this.queries.mentioned = await this.mentionedFilter();
+    }
+
+    if (this.params.unread) {
+      this.queries.unread = this.unreadFilter();
     }
 
     if (this.params.starred) {
@@ -496,6 +525,8 @@ export default class Builder {
       ...this.queries.extended,
       ...this.queries.unassigned,
       ...this.queries.participating,
+      ...this.queries.mentioned,
+      ...this.queries.unread,
       ...this.queries.status,
       ...this.queries.starred,
       ...this.queries.tag,

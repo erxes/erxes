@@ -84,6 +84,17 @@ export const loadClass = (models: IModels) => {
         message.mentionedUserIds || [],
       );
 
+      const mentionedUserIds = (message.mentionedUserIds || []).filter(
+        (mentionedUserId) => mentionedUserId !== message.userId,
+      );
+
+      if (mentionedUserIds.length > 0) {
+        await models.Conversations.updateOne(
+          { _id: message.conversationId },
+          { $pull: { readUserIds: { $in: mentionedUserIds } } },
+        );
+      }
+
       return message;
     }
 

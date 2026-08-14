@@ -57,7 +57,6 @@ export const Conversations = () => {
       });
       setConversationsContainerScroll(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationsContainerScroll]);
 
   useEffect(() => {
@@ -73,6 +72,10 @@ export const Conversations = () => {
     integrationId,
     integrationType,
     unassigned,
+    participating,
+    mentioned,
+    awaitingResponse,
+    starred,
     status,
     created,
     brandId,
@@ -81,7 +84,11 @@ export const Conversations = () => {
     channelId: string;
     integrationId: string;
     integrationType: string;
-    unassigned: string;
+    unassigned: boolean;
+    participating: boolean;
+    mentioned: boolean;
+    awaitingResponse: boolean;
+    starred: boolean;
     status: string;
     conversationId: string;
     created: string;
@@ -92,6 +99,10 @@ export const Conversations = () => {
     'integrationId',
     'integrationType',
     'unassigned',
+    'participating',
+    'mentioned',
+    'awaitingResponse',
+    'starred',
     'status',
     'conversationId',
     'created',
@@ -108,7 +119,11 @@ export const Conversations = () => {
         channelId,
         integrationId,
         integrationType: integrationType,
-        unassigned,
+        unassigned: unassigned ? 'true' : undefined,
+        participating: participating ? 'true' : undefined,
+        mentioned: mentioned ? 'true' : undefined,
+        awaitingResponse: awaitingResponse ? 'true' : undefined,
+        starred: starred ? 'true' : undefined,
         status: status || '',
         startDate: parsedDate?.from,
         endDate: parsedDate?.to,

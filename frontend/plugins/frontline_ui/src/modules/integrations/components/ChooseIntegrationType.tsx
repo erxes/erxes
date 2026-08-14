@@ -14,6 +14,11 @@ import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
 import { IIntegrationType } from '../types/Integration';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookPostSheet } from '../facebook/components/FacebookPostSheet';
+import {
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
 
 type Props = {
   allowedIntegrationTypes?: string[];
@@ -68,16 +73,14 @@ export const IntegrationTypeItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [{ channelId: selectedChannelId, integrationType }, setFilters] =
-    useMultiQueryState<{
-      channelId: string;
-      integrationType: string;
-    }>(['channelId', 'integrationType']);
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive =
     integrationType === _id && (!channelId || selectedChannelId === channelId);
 
   const handleClick = () => {
     setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
       integrationType: isActive ? null : _id,
       ...(channelId ? { channelId: isActive ? null : channelId } : {}),
     });
@@ -92,7 +95,10 @@ export const IntegrationTypeItem = ({
   const trigger = (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className="justify-start pl-7 relative overflow-hidden text-left w-full"
+      className={cn(
+        'relative w-full justify-start overflow-hidden text-left',
+        nested ? 'pl-10' : 'pl-7',
+      )}
       onClick={handleClick}
     >
       {isActive ? (

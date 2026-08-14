@@ -26,7 +26,11 @@ export const useConversationMarkAsRead = () => {
       },
       // The sidebar badges count conversations this user has not read, so they
       // have to fall as soon as one is read.
-      refetchQueries: ['GetMyChannels'],
+      refetchQueries: [
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
       onError: (error) => {
         toast({
           title: t('error'),
@@ -35,20 +39,15 @@ export const useConversationMarkAsRead = () => {
         });
       },
       update: (cache) => {
-        try {
-          cache.modify({
-            id: cache.identify({
-              __typename: 'Conversation',
-              _id,
-            }),
-            fields: {
-              readUserIds: () => [...(readUserIds || []), currentUser?._id],
-            },
-          });
-        } catch (error) {
-          console.error(error);
-          return;
-        }
+        cache.modify({
+          id: cache.identify({
+            __typename: 'Conversation',
+            _id,
+          }),
+          fields: {
+            readUserIds: () => [...(readUserIds || []), currentUser?._id],
+          },
+        });
       },
     });
   };

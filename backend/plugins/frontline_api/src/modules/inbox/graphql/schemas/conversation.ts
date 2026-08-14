@@ -177,6 +177,8 @@ const mutationFilterParams = `
   tag: String
   integrationType: String
   participating: String
+  mentioned: String
+  unread: String
   awaitingResponse: String
   starred: String
   startDate: String

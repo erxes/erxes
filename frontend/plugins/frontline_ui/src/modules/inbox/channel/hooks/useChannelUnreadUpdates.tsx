@@ -1,4 +1,4 @@
-import { useSubscription } from '@apollo/client';
+import { useApolloClient, useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 import { useDebouncedCallback } from 'use-debounce';
@@ -10,16 +10,25 @@ import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/grap
 const REFRESH_DELAY = 1000;
 
 /**
- * Keeps the sidebar's per-channel unread counts live. The API publishes
+ * Keeps the sidebar's workload, channel, and integration counts live. The API publishes
  * `conversationClientMessageInserted` to every member of the channel the
  * message landed in, so one subscription covers all of this user's channels;
- * the counts themselves are re-read from `GetMyChannels`.
+ * active sidebar queries are then refreshed together.
  */
-export const useChannelUnreadUpdates = (refresh: () => void) => {
+export const useChannelUnreadUpdates = () => {
+  const client = useApolloClient();
   const currentUser = useAtomValue(currentUserState);
   const userId = currentUser?._id;
 
-  const refreshCounts = useDebouncedCallback(refresh, REFRESH_DELAY);
+  const refreshCounts = useDebouncedCallback(() => {
+    client.refetchQueries({
+      include: [
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
+    });
+  }, REFRESH_DELAY);
 
   useSubscription(CONVERSATION_CLIENT_MESSAGE_INSERTED, {
     variables: { userId },

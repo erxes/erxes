@@ -33,10 +33,16 @@ export const FilterConversationsPopover = () => {
     status: ConversationStatus;
     unassigned: boolean;
     awaitingResponse: boolean;
-    participated: boolean;
+    participating: boolean;
     channelId: string;
-  }>(['status', 'unassigned', 'awaitingResponse', 'participated', 'channelId']);
-  const { status, unassigned, awaitingResponse, participated } = queries || {};
+  }>([
+    'status',
+    'unassigned',
+    'awaitingResponse',
+    'participating',
+    'channelId',
+  ]);
+  const { status, unassigned, awaitingResponse, participating } = queries || {};
 
   return (
     <Filter.Popover scope={InboxHotkeyScope.MainPage}>
@@ -83,13 +89,13 @@ export const FilterConversationsPopover = () => {
               <Filter.CommandItem
                 onSelect={() => {
                   setQueries({
-                    participated: participated ? null : true,
+                    participating: participating ? null : true,
                   });
                 }}
               >
                 <IconUsersGroup />
                 {t('participated')}
-                {participated && <IconCheck className="ml-auto" />}
+                {participating && <IconCheck className="ml-auto" />}
               </Filter.CommandItem>
               <Command.Separator className="my-1" />
               <Filter.CommandItem
@@ -138,7 +144,7 @@ export const ConversationFilterBar = ({
     status: ConversationStatus;
     unassigned: boolean;
     awaitingResponse: boolean;
-    participated: boolean;
+    participating: boolean;
     created: Date;
     channelId: string;
     searchValue: string;
@@ -146,7 +152,7 @@ export const ConversationFilterBar = ({
     'status',
     'unassigned',
     'awaitingResponse',
-    'participated',
+    'participating',
     'created',
     'channelId',
     'searchValue',
@@ -189,7 +195,7 @@ export const ConversationFilterBar = ({
         </Filter.BarName>
       </Filter.BarItem>
 
-      <Filter.BarItem queryKey="participated">
+      <Filter.BarItem queryKey="participating">
         <Filter.BarName>
           <IconUsersGroup />
           {t('participated')}

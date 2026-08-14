@@ -14,6 +14,7 @@ import {
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
 
@@ -30,6 +31,11 @@ import {
   channelLabelFromIntegration,
 } from '@/inbox/conversations/utils/channelGroups';
 import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import {
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
 
 type ChannelCounts = Record<string, number>;
 
@@ -238,8 +244,8 @@ const DiscordCategoryItem = ({
   integrations: IIntegration[];
   counts: ChannelCounts;
 }) => {
-  const [integrationId, setIntegrationId] =
-    useQueryState<string>('integrationId');
+  const [{ integrationId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
   const [open, setOpen] = useState(true);
 
   const totalCount = integrations.reduce(
@@ -257,7 +263,10 @@ const DiscordCategoryItem = ({
     groupIds.every((id) => selectedIds.includes(id));
 
   const handleSelectGroup = () => {
-    setIntegrationId(isGroupActive ? null : groupIds.join(','));
+    setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
+      integrationId: isGroupActive ? null : groupIds.join(','),
+    });
     setOpen(true);
   };
 
@@ -319,14 +328,17 @@ const DiscordChannelItem = ({
   count: number;
   nested?: boolean;
 }) => {
-  const [integrationId, setIntegrationId] =
-    useQueryState<string>('integrationId');
+  const [{ integrationId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive = integrationId === integration._id;
   const label = channelLabelFromIntegration(integration);
 
   const handleClick = () => {
-    setIntegrationId(isActive ? null : integration._id);
+    setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
+      integrationId: isActive ? null : integration._id,
+    });
   };
 
   return (

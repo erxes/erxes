@@ -15,3 +15,9 @@ export const CONVERSATION_COUNTS = gql`
     )
   }
 `;
+
+export const INBOX_SIDEBAR_WORK_COUNTS = gql`
+  query FrontlineInboxSidebarWorkCounts($unread: String) {
+    conversationCounts(unread: $unread)
+  }
+`;

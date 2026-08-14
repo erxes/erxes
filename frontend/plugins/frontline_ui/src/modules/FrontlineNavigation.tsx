@@ -1,26 +1,40 @@
 import {
   IconMail,
-  IconDotsVertical,
-  IconSettings,
   IconTicket,
   IconChartHistogram,
   IconForms,
   IconBook,
   IconPlus,
-  IconCaretRightFilled,
 } from '@tabler/icons-react';
 import {
   NavigationMenuLinkItem,
-  DropdownMenu,
   Button,
-  Spinner,
   Skeleton,
   Badge,
+  Sidebar,
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useConversations } from './inbox/conversations/hooks/useConversations';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+import { SearchConversations } from '@/inbox/components/SearchConversations';
+
 export const FrontlineNavigation = () => {
+  const { pathname } = useLocation();
+
+  return (
+    <>
+      <FrontlineDestinationLinks />
+      {pathname.startsWith('/frontline/inbox') && (
+        <Sidebar.MenuItem className="pt-1">
+          <SearchConversations />
+        </Sidebar.MenuItem>
+      )}
+    </>
+  );
+};
+
+export const FrontlineDestinationLinks = () => {
   const { t } = useTranslation('frontline');
   const navigate = (path: string) => {
     window.history.pushState(null, '', path);
@@ -33,8 +47,9 @@ export const FrontlineNavigation = () => {
         name={t('inbox')}
         icon={IconMail}
         path="frontline/inbox"
-        children={<NotificationCount />}
-      />
+      >
+        <NotificationCount />
+      </NavigationMenuLinkItem>
       <NavigationMenuLinkItem
         name={t('tickets')}
         icon={IconTicket}

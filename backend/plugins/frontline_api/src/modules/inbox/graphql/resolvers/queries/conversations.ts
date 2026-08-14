@@ -185,6 +185,12 @@ export const conversationQueries = {
       ...qb.participatingFilter(),
     });
 
+    // conversations where the current user was mentioned
+    response.mentioned = await count(models, {
+      ...mainQuery,
+      ...(await qb.mentionedFilter()),
+    });
+
     // starred count
     response.starred = await count(models, {
       ...mainQuery,

@@ -207,7 +207,12 @@ const AssignConversation = ({
           variant: 'destructive',
         });
       },
-      refetchQueries: ['ConversationDetail', 'Conversations'],
+      refetchQueries: [
+        'ConversationDetail',
+        'Conversations',
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+      ],
     });
   };
 

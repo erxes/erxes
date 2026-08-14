@@ -17,6 +17,11 @@ export const ReplaceAssignee = () => {
             conversationIds: selectedConversations,
             assignedUserId: value,
           },
+          refetchQueries: [
+            'Conversations',
+            'ConversationCounts',
+            'FrontlineInboxSidebarWorkCounts',
+          ],
         });
       }}
       placeholder={t('select-assignee')}
