@@ -415,7 +415,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation operation and node type names stay prefixed with the plugin and
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
-  request's own models; never read another plugin's collections.
+  request's own models; never read another plugin's collections. The two
+  integrations share a code shape but never a collection: an Instagram automation
+  reads and writes `Instagram*` models only. `addMessage` on either
+  `ConversationMessages` model validates the parent against its own
+  conversations collection, so a crossed model fails at write time with
+  `Conversation not found with id ...` after the message has already been sent.
 - `Pipeline.excludeCheckUserIds` is an **exemption** list, not a target list.
   When `isCheckUser` is on, `generateFilter` restricts a user to
   `assigneeId`/`createdBy` tickets **unless** their id is in
@@ -487,6 +492,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-14` — Instagram bot replies persist to the Instagram collection
+
+- **Summary:** `actionCreateMessage` stored the sent bot reply through
+  `FacebookConversationMessages`, whose `addMessage` looks the parent up in
+  `FacebookConversations` and therefore threw
+  `Conversation not found with id <instagram conversation id>` after the message
+  had already been delivered; it now uses `InstagramConversationMessages`, so the
+  reply is saved and shows up in the Instagram conversation.
+- **Affected areas:**
+  `src/modules/integrations/instagram/meta/automation/messages/index.ts`.
+- **Contracts changed:** None
 
 ### `2026-08-14` — Per-leg agent attribution in call reports
 
