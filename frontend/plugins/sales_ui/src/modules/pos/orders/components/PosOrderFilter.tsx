@@ -174,7 +174,10 @@ export const PosOrderFilterPopover = () => {
       </Filter.Popover>
       <Filter.Dialog>
         <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" />
+          <Filter.DialogStringView
+            filterKey="searchValue"
+            label={t('search')}
+          />
         </Filter.View>
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
