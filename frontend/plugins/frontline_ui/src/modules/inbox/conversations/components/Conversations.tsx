@@ -19,15 +19,15 @@ import {
 
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { ConversationItem } from './ConversationItem';
-import { ConversationThreadList } from './ConversationChannelSection';
+import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
+import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
 import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
-import { ConversationActions } from './ConversationActions';
+import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 
 const getBooleanFilterVariable = (
   value: boolean | null | undefined,

@@ -1,5 +1,5 @@
 import { differenceInHours } from 'date-fns';
-import { useFacebookConversationMessages } from '../hooks/useFacebookConversationMessages';
+import { useFacebookConversationMessages } from '@/integrations/facebook/hooks/useFacebookConversationMessages';
 import { Button, Dialog, Form, Select, Skeleton } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -11,7 +11,7 @@ import {
   type UseFormReturn,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FACEBOOK_TAG_FORM_SCHEMA } from '../constants/FbTagSchema';
+import { FACEBOOK_TAG_FORM_SCHEMA } from '@/integrations/facebook/constants/FbTagSchema';
 import { z } from 'zod';
 import { FACEBOOK_MESSAGE_WINDOW_HOURS } from '@/integrations/facebook/constants/FbMessageWindow';
 

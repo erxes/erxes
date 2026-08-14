@@ -7,7 +7,7 @@ import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChan
 import { useConversationListVisibility } from '@/inbox/hooks/useConversationListVisibility';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useOverflowCompact } from '@/inbox/hooks/useCompactWidth';
-import { refetchConversationsAtom } from '../../states/refetchConversationState';
+import { refetchConversationsAtom } from '@/inbox/conversations/states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
 import {
@@ -133,9 +133,9 @@ const AutomatedReplyStatusBadge = () => {
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-        automatedReplyControl?.reason === 'operator_reply'
-      ? 'Automation paused: operator active'
-      : 'Automation paused';
+      automatedReplyControl?.reason === 'operator_reply'
+    ? 'Automation paused: operator active'
+    : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;

@@ -6,6 +6,8 @@ import {
   useState,
 } from 'react';
 
+type CompactLevel = 0 | 1 | 2;
+
 const useResizeEffect = (
   ref: RefObject<HTMLElement>,
   onResize: () => void,
@@ -50,12 +52,12 @@ export const useCompactWidth = <T extends HTMLElement>(
 export const useOverflowCompact = <T extends HTMLElement>(): {
   ref: RefObject<T>;
   isCompact: boolean;
-  compactLevel: 0 | 1 | 2;
+  compactLevel: CompactLevel;
 } => {
   const ref = useRef<T>(null);
   const requiredWidths = useRef<[number, number]>([0, 0]);
-  const compactLevelRef = useRef<0 | 1 | 2>(0);
-  const [compactLevel, setCompactLevel] = useState<0 | 1 | 2>(0);
+  const compactLevelRef = useRef<CompactLevel>(0);
+  const [compactLevel, setCompactLevel] = useState<CompactLevel>(0);
 
   const measure = useCallback(() => {
     const element = ref.current;
