@@ -10,15 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { KpiCard } from './KpiCard';
 import { useKpiScorecard } from '../../hooks/useKpiScorecard';
 import { useCallFilters } from '../../hooks/useCallFilters';
-import {
-  fmtDur,
-  fmtDurOrDash,
-  fmtNum,
-  fmtPct,
-  fmtPctOrDash,
-} from '../../utils';
+import { fmtDurOrDash, fmtNum, fmtPctOrDash } from '../../utils';
 
-/** 6-card KPI scorecard row. */
 export function KpiSection() {
   const { t } = useTranslation('frontline');
   const { kpi, loading } = useKpiScorecard();
@@ -37,7 +30,7 @@ export function KpiSection() {
     );
   }
 
-  const answerRate = kpi ? 100 - (kpi.abandonment ?? 0) : null;
+  const answerRate = kpi?.abandonment == null ? null : 100 - kpi.abandonment;
 
   const cards = [
     {
@@ -58,7 +51,7 @@ export function KpiSection() {
     },
     {
       title: t('kpi-abandonment-rate'),
-      value: fmtPct(kpi?.abandonment),
+      value: fmtPctOrDash(kpi?.abandonment),
       subtitle: t('kpi-abandonment-rate-subtitle'),
       icon: <IconPhoneOff className="h-5 w-5" />,
       valueClass: 'text-[var(--neg)]',
@@ -74,7 +67,7 @@ export function KpiSection() {
     },
     {
       title: t('kpi-avg-handle-time'),
-      value: fmtDur(kpi?.averageAnsweredTime),
+      value: fmtDurOrDash(kpi?.averageAnsweredTime),
       subtitle: t('kpi-avg-handle-time-subtitle'),
       icon: <IconPhoneCheck className="h-5 w-5" />,
       valueClass: 'text-[var(--pos)]',

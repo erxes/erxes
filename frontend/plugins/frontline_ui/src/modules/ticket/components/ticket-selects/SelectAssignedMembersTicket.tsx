@@ -72,7 +72,7 @@ const SelectAssignedMembersContent = () => {
   );
 };
 
-export const SelectAssignedMembersTicket = ({
+const SelectAssignedMembersTicketRoot = ({
   scope,
   value,
   variant,
@@ -119,3 +119,11 @@ export const SelectAssignedMembersTicket = ({
     </SelectAssignedMembersProvider>
   );
 };
+
+export const SelectAssignedMembersTicket = Object.assign(
+  SelectAssignedMembersTicketRoot,
+  {
+    Provider: SelectAssignedMembersProvider,
+    Content: SelectAssignedMembersContent,
+  },
+);

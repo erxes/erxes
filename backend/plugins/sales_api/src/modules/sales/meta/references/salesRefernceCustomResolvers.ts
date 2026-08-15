@@ -45,19 +45,27 @@ export const salesReferenceCustomResolvers: TRecordReferencesConfig<
   },
   excludeLoyaltyAmount: async ({ models, target, ...props }) => {
     const stage = await models.Stages.getStage(target.stageId);
-
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
-      ({ scoreCampaignId }) => !!scoreCampaignId,
+
+    const scorePaymentTypes = new Set(
+      (pipeline?.paymentTypes || [])
+        .filter(({ scoreCampaignId }) => !!scoreCampaignId)
+        .map(({ type }) => type),
     );
-    return Object.entries(target?.paymentsData || {})
-      .filter(
-        ([type]) => !scoreCampaignTypes.map(({ type }) => type).includes(type),
-      )
-      .map(([type, obj]) => ({
-        type,
-        ...obj,
-      }))
-      .reduce((sum, payment) => sum + (payment?.amount || 0), 0);
+    const fallbackTotalAmount = (target.productsData || []).reduce(
+      (sum, product) =>
+        product.tickUsed ? sum + (Number(product?.amount) || 0) : sum,
+      0,
+    );
+    const targetTotalAmount = Number(target.totalAmount);
+    const totalAmount =
+      target.totalAmount === undefined || !Number.isFinite(targetTotalAmount)
+        ? fallbackTotalAmount
+        : targetTotalAmount;
+    const scorePaymentAmount = Object.entries(target?.paymentsData || {})
+      .filter(([type]) => scorePaymentTypes.has(type))
+      .reduce((sum, [, payment]) => sum + (Number(payment?.amount) || 0), 0);
+
+    return Math.max(0, totalAmount - scorePaymentAmount);
   },
 };

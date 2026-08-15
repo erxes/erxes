@@ -104,6 +104,12 @@ export const PipelinePermissionsPage = lazy(() =>
   })),
 );
 
+export const PipelinePropertiesPage = lazy(() =>
+  import('~/pages/PipelinePropertiesPage').then((module) => ({
+    default: module.PipelinePropertiesPage,
+  })),
+);
+
 export const TicketStatusesPage = lazy(() =>
   import('~/pages/TicketStatusesPage').then((module) => ({
     default: module.TicketStatusesPage,
@@ -167,6 +173,10 @@ const ChannelsSettings = () => {
             <Route
               path={PIPELINE_TAB_SEGMENTS.permissions}
               element={<PipelinePermissionsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.properties}
+              element={<PipelinePropertiesPage />}
             />
           </Route>
           <Route

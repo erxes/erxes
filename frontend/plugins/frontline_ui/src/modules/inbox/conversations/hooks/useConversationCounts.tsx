@@ -1,12 +1,54 @@
 import { useQuery } from '@apollo/client';
 
-import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import {
+  CONVERSATION_COUNTS,
+  CONVERSATION_FILTER_COUNTS,
+} from '@/inbox/conversations/graphql/queries/getConversationCounts';
 
 export type TConversationCounts = Record<string, number>;
 
 type TConversationCountsResponse = {
   conversationCounts: {
     byIntegrationTypes?: TConversationCounts;
+  };
+};
+
+type TConversationFilterCountsResponse = {
+  unresolved: number;
+  conversationCounts: {
+    unassigned?: number;
+    participating?: number;
+    awaitingResponse?: number;
+    resolved?: number;
+  };
+};
+
+type ConversationFilterCountVariables = {
+  channelId?: string | null;
+  integrationId?: string | null;
+  integrationType?: string | null;
+  brandId?: string | null;
+  startDate?: Date;
+  endDate?: Date;
+  searchValue?: string | null;
+};
+
+export const useConversationFilterCounts = (
+  variables: ConversationFilterCountVariables,
+) => {
+  const { data, loading } = useQuery<TConversationFilterCountsResponse>(
+    CONVERSATION_FILTER_COUNTS,
+    {
+      variables,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  return {
+    counts: data
+      ? { ...data.conversationCounts, unresolved: data.unresolved }
+      : undefined,
+    loading,
   };
 };
 

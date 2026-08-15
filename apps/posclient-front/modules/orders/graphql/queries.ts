@@ -334,6 +334,9 @@ const ordersHistory = gql`
       type
       createdAt
       modifiedAt
+      user {
+        email
+      }
       paidDate
     }
   }

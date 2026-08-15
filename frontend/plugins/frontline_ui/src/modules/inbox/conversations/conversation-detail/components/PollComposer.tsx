@@ -115,7 +115,7 @@ export const PollComposer = ({
           variant="ghost"
           size="icon"
           disabled={disabled}
-          className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="h-8 w-8 flex-none rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
           title="Create poll"
         >
           <IconChartBar className="h-4 w-4" />

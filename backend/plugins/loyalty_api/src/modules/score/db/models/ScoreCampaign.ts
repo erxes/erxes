@@ -28,6 +28,10 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import {
+  generateTargetTotalAmountDeal,
+  getAllowedProductIdsByRestrictions,
+} from '~/utils/utils';
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -493,6 +497,33 @@ export const loadScoreCampaignClass = (
         ...target,
         [ownerType]: owner,
       };
+
+      const productRows = Array.isArray(target?.productsData)
+        ? target.productsData
+        : Array.isArray(target?.items)
+          ? target.items
+          : undefined;
+
+      if (productRows) {
+        const isPosOrderTarget = Array.isArray(target?.items);
+        const allowedProductIds = await getAllowedProductIdsByRestrictions({
+          subdomain,
+          restrictions: campaign.restrictions,
+          productsData: productRows,
+        });
+
+        calculationTarget.totalAmount = generateTargetTotalAmountDeal(
+          productRows,
+          {
+            allowedProductIds,
+            discountCheck:
+              !isPosOrderTarget &&
+              campaign.additionalConfig?.discountCheck === true,
+            requireTickUsed: !isPosOrderTarget,
+          },
+        );
+      }
+
       const oldStageStatus = getCampaignStageStatus(
         campaign,
         oldTarget?.stageId,

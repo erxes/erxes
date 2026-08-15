@@ -23,7 +23,6 @@ const CHART_CONFIG = {
   answered: { label: 'Answered', color: 'var(--pos)' },
 } as const;
 
-/** Daily call-volume area chart with inbound / outbound / answered series. */
 export const VolumeChart = memo(function VolumeChart({
   data,
 }: VolumeChartProps) {

@@ -1,10 +1,19 @@
 import {
   IconCalculator,
+  IconBuilding,
+  IconCurrencyDollar,
   IconPlayerPlay,
   IconTrashX,
   IconEdit,
+  IconUser,
 } from '@tabler/icons-react';
-import { Button, Spinner, useQueryState } from 'erxes-ui';
+import {
+  Button,
+  RecordTable,
+  RecordTableInlineCell,
+  Spinner,
+  useQueryState,
+} from 'erxes-ui';
 import { useAdjustDebtRateRemove } from '../hooks/useAdjustDebtRateChange';
 import { useAdjustDebtRateDetail } from '../hooks/useAdjustDebtRateDetail';
 import dayjs from 'dayjs';
@@ -13,6 +22,7 @@ import { EditAdjustDebtRate } from './AdjustDebtRateForm';
 import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
 import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
+import { ColumnDef } from '@tanstack/react-table';
 
 const DetailField = ({ label, value }: { label: string; value: string }) => (
   <div>
@@ -20,6 +30,125 @@ const DetailField = ({ label, value }: { label: string; value: string }) => (
     <p className="font-medium">{value || '-'}</p>
   </div>
 );
+
+const formatAmount = (amount?: number) =>
+  typeof amount === 'number' ? amount.toLocaleString() : '-';
+
+const AccountCell = ({ detail }: { detail: IAdjustDebtRateDetail }) => (
+  <RecordTableInlineCell>
+    <div className="min-w-0">
+      <div className="truncate font-medium">
+        {detail.accountCode || detail.accountId}
+      </div>
+      <div className="truncate text-xs text-muted-foreground">
+        {[detail.accountName, detail.accountKind].filter(Boolean).join(' / ') ||
+          '-'}
+      </div>
+    </div>
+  </RecordTableInlineCell>
+);
+
+const TextCell = ({ value }: { value?: string }) => (
+  <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>
+);
+
+const AmountCell = ({ amount }: { amount?: number }) => (
+  <RecordTableInlineCell className="justify-end font-mono">
+    {formatAmount(amount)}
+  </RecordTableInlineCell>
+);
+
+const BranchCell = ({ branchId }: { branchId?: string }) => (
+  <RecordTableInlineCell>
+    {branchId ? <SelectBranches.InlineCell branchIds={[branchId]} /> : '-'}
+  </RecordTableInlineCell>
+);
+
+const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
+  <RecordTableInlineCell>
+    {departmentId ? (
+      <SelectDepartments.InlineCell departmentIds={[departmentId]} />
+    ) : (
+      '-'
+    )}
+  </RecordTableInlineCell>
+);
+
+const adjustDebtRateDetailColumns: ColumnDef<IAdjustDebtRateDetail>[] = [
+  {
+    id: 'account',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Account" />
+    ),
+    cell: ({ row }) => <AccountCell detail={row.original} />,
+    size: 260,
+  },
+  {
+    id: 'customer',
+    header: () => <RecordTable.InlineHead icon={IconUser} label="Customer" />,
+    cell: ({ row }) => (
+      <TextCell
+        value={[row.original.customerType, row.original.customerId]
+          .filter(Boolean)
+          .join(': ')}
+      />
+    ),
+    size: 220,
+  },
+  {
+    id: 'branch',
+    header: () => <RecordTable.InlineHead icon={IconBuilding} label="Branch" />,
+    cell: ({ row }) => <BranchCell branchId={row.original.branchId} />,
+    size: 180,
+  },
+  {
+    id: 'department',
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuilding} label="Department" />
+    ),
+    cell: ({ row }) => (
+      <DepartmentCell departmentId={row.original.departmentId} />
+    ),
+    size: 180,
+  },
+  {
+    id: 'mainBalance',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Main Balance" />
+    ),
+    accessorKey: 'mainBalance',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 160,
+  },
+  {
+    id: 'currencyBalance',
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconCurrencyDollar}
+        label="Currency Balance"
+      />
+    ),
+    accessorKey: 'currencyBalance',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 180,
+  },
+  {
+    id: 'diff',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Difference" />
+    ),
+    accessorKey: 'diff',
+    cell: ({ getValue }) => <AmountCell amount={getValue<number>()} />,
+    size: 160,
+  },
+  {
+    id: 'transactionId',
+    header: () => <RecordTable.InlineHead label="Transaction" />,
+    accessorKey: 'transactionId',
+    cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
+    size: 220,
+  },
+];
 
 export const AdjustDebtRateDetail = () => {
   const [id] = useQueryState<string>('id');
@@ -160,77 +289,20 @@ export const AdjustDebtRateDetail = () => {
         {adjustDebtRate.details && adjustDebtRate.details.length > 0 && (
           <div className="p-6 border-t">
             <h3 className="text-lg font-semibold mb-4">Account Details</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-3 font-medium">Account</th>
-                    <th className="text-left p-3 font-medium">Customer</th>
-                    <th className="text-left p-3 font-medium">Branch</th>
-                    <th className="text-left p-3 font-medium">Department</th>
-                    <th className="text-right p-3 font-medium">Main Balance</th>
-                    <th className="text-right p-3 font-medium">
-                      Currency Balance
-                    </th>
-                    <th className="text-right p-3 font-medium">Difference</th>
-                    <th className="text-center p-3 font-medium">Transaction</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {adjustDebtRate.details.map(
-                    (detail: IAdjustDebtRateDetail) => (
-                      <tr key={detail._id} className="border-b">
-                        <td className="p-3">
-                          <div className="font-medium">
-                            {detail.accountCode || detail.accountId}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {[detail.accountName, detail.accountKind]
-                              .filter(Boolean)
-                              .join(' / ') || '-'}
-                          </div>
-                        </td>
-                        <td className="p-3 text-sm text-muted-foreground">
-                          {[detail.customerType, detail.customerId]
-                            .filter(Boolean)
-                            .join(': ') || '-'}
-                        </td>
-                        <td className="p-3 text-sm text-muted-foreground">
-                          {detail.branchId ? (
-                            <SelectBranches.InlineCell
-                              branchIds={[detail.branchId]}
-                            />
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td className="p-3 text-sm text-muted-foreground">
-                          {detail.departmentId ? (
-                            <SelectDepartments.InlineCell
-                              departmentIds={[detail.departmentId]}
-                            />
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td className="p-3 text-right font-mono">
-                          {detail.mainBalance?.toLocaleString() || '-'}
-                        </td>
-                        <td className="p-3 text-right font-mono">
-                          {detail.currencyBalance?.toLocaleString() || '-'}
-                        </td>
-                        <td className="p-3 text-right font-mono">
-                          {detail.diff?.toLocaleString() || '-'}
-                        </td>
-                        <td className="p-3 text-center text-sm text-muted-foreground">
-                          {detail.transactionId || '-'}
-                        </td>
-                      </tr>
-                    ),
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <RecordTable.Provider
+              columns={adjustDebtRateDetailColumns}
+              data={adjustDebtRate.details}
+              tableId="accounting_adjust_debt_rate_detail_record_table"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                  </RecordTable.Body>
+                </RecordTable>
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
           </div>
         )}
       </div>
