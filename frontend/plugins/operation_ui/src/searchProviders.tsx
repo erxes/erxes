@@ -2,7 +2,6 @@ import { IconChecklist, IconClipboard, IconUsers } from '@tabler/icons-react';
 import {
   defineSearchProvider,
   ISearchProvider,
-  readArray,
   readCursorList,
 } from 'erxes-ui';
 
@@ -22,8 +21,8 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit }',
-      body: '{ list { _id name } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward }',
+      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TTaskNode>(payload, 'gs_operation_tasks'),
@@ -48,8 +47,8 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit }',
-      body: '{ list { _id name } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward }',
+      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -74,14 +73,12 @@ const teamsSearchProvider = defineSearchProvider<TTeamNode>({
   selections: [
     {
       alias: 'gs_operation_teams',
-      field: 'getTeams',
-      args: 'name: $searchValue',
-      body: '{ _id name }',
+      field: 'operationGlobalSearchTeams',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TTeamNode>(payload, 'gs_operation_teams'),
-  }),
+  select: (payload) => readCursorList<TTeamNode>(payload, 'gs_operation_teams'),
   toItem: (team) => ({
     id: team._id,
     title: team.name || UNNAMED,

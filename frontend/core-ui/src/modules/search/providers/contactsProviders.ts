@@ -22,8 +22,8 @@ export const customersSearchProvider = defineSearchProvider<TCustomerNode>({
     {
       alias: 'gs_core_customers',
       field: 'customers',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id firstName lastName primaryEmail primaryPhone } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id firstName lastName primaryEmail primaryPhone } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -54,8 +54,8 @@ export const companiesSearchProvider = defineSearchProvider<TCompanyNode>({
     {
       alias: 'gs_core_companies',
       field: 'companies',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id primaryName primaryEmail primaryPhone } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id primaryName primaryEmail primaryPhone } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

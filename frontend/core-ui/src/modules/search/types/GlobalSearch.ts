@@ -1,4 +1,15 @@
-import { TSearchGroupResult, TSearchResultItem } from 'erxes-ui';
+import {
+  TSearchGroupResult,
+  TSearchPageInfo,
+  TSearchResultItem,
+} from 'erxes-ui';
+
+export type TGlobalSearchCategory = string;
+
+export type TNavigationSearchItem = TSearchResultItem & {
+  activityId: string;
+  icon?: React.ElementType;
+};
 
 export type TGlobalSearchGroupStatus = 'ok' | 'error';
 
@@ -12,4 +23,14 @@ export type TGlobalSearchGroup = {
   items: TSearchResultItem[];
   totalCount: number;
   countMode: TSearchGroupResult['countMode'];
+  pageInfo: TSearchPageInfo;
+  loadingMore: boolean;
+  loadMoreError: boolean;
+};
+
+export type TGlobalSearchCategoryOption = {
+  key: TGlobalSearchCategory;
+  label: string;
+  labelKey?: string;
+  labelNamespace?: string;
 };

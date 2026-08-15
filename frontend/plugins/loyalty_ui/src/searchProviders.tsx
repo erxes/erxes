@@ -21,8 +21,8 @@ const voucherCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_voucher_campaigns',
       field: 'voucherCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id title } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id title } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -43,8 +43,8 @@ const couponCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_coupon_campaigns',
       field: 'couponCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id title } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id title } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -65,8 +65,8 @@ const assignmentCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_assignment_campaigns',
       field: 'assignmentCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id title } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id title } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -87,8 +87,8 @@ const scoreCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_score_campaigns',
       field: 'scoreCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id title } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id title } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

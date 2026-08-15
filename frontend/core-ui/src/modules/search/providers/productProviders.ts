@@ -1,5 +1,5 @@
 import { IconTag } from '@tabler/icons-react';
-import { defineSearchProvider, readArray, readNumber } from 'erxes-ui';
+import { defineSearchProvider, readCursorList } from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
 
@@ -20,21 +20,13 @@ export const productsSearchProvider = defineSearchProvider<TProductNode>({
   selections: [
     {
       alias: 'gs_core_products',
-      field: 'products',
-      args: 'searchValue: $searchValue, perPage: $limit',
-      body: '{ _id name code unitPrice }',
-    },
-    {
-      alias: 'gs_core_products_count',
-      field: 'productsTotalCount',
-      args: 'searchValue: $searchValue',
-      optional: true,
+      field: 'productsMain',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id name code unitPrice } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TProductNode>(payload, 'gs_core_products'),
-    totalCount: readNumber(payload, 'gs_core_products_count'),
-  }),
+  select: (payload) =>
+    readCursorList<TProductNode>(payload, 'gs_core_products'),
   toItem: (product) => ({
     id: product._id,
     title: product.name || UNNAMED,

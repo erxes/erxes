@@ -1,8 +1,4 @@
-import {
-  IconAlertTriangle,
-  IconLoader2,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconLoader2 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -12,17 +8,13 @@ const StateShell = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-export const GlobalSearchHint = () => {
+export const GlobalSearchMinimumLength = () => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
 
   return (
     <StateShell>
-      <IconSearch className="size-5 text-muted-foreground" />
       <span className="text-sm text-muted-foreground">
-        {t(
-          'hint',
-          'Search contacts, conversations, tickets, deals, products and more',
-        )}
+        {t('minimum-length', 'Enter at least 2 characters to search content')}
       </span>
     </StateShell>
   );

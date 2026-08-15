@@ -22,8 +22,8 @@ const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
     {
       alias: 'gs_payment_invoices',
       field: 'invoices',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id invoiceNumber amount } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id invoiceNumber amount } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

@@ -3,6 +3,7 @@ import { DocumentNode, parse, visit } from 'graphql';
 import {
   GLOBAL_SEARCH_ALLOWED_VARIABLES,
   GLOBAL_SEARCH_OPERATION_NAME,
+  GLOBAL_SEARCH_PAGE_OPERATION_NAME,
   GLOBAL_SEARCH_VARIABLE_DEFS,
 } from '@/search/constants/globalSearch';
 
@@ -114,7 +115,9 @@ export const validateSearchProviders = (
       if (!rejectedProviderKeys.has(provider?.key ?? 'unknown')) {
         rejectedProviderKeys.add(provider?.key ?? 'unknown');
         console.error(
-          `[GlobalSearch] rejected provider "${provider?.key ?? 'unknown'}": ${shapeError}`,
+          `[GlobalSearch] rejected provider "${
+            provider?.key ?? 'unknown'
+          }": ${shapeError}`,
         );
       }
 
@@ -145,13 +148,14 @@ export const getRejectedProviderKeys = (): ReadonlySet<string> =>
 
 const documentCache = new Map<string, DocumentNode>();
 
-export const buildGlobalSearchDocument = (
+const buildSearchDocument = (
   providers: ISearchProvider[],
+  operationName: string,
 ): DocumentNode => {
-  const cacheKey = providers
+  const cacheKey = `${operationName}:${providers
     .flatMap((provider) => provider.selections.map((s) => s.alias))
     .sort((a, b) => a.localeCompare(b))
-    .join('|');
+    .join('|')}`;
 
   const cached = documentCache.get(cacheKey);
 
@@ -165,10 +169,19 @@ export const buildGlobalSearchDocument = (
     .join('\n');
 
   const document = parse(
-    `query ${GLOBAL_SEARCH_OPERATION_NAME}(${GLOBAL_SEARCH_VARIABLE_DEFS}) { ${selectionsSource} }`,
+    `query ${operationName}(${GLOBAL_SEARCH_VARIABLE_DEFS}) { ${selectionsSource} }`,
   );
 
   documentCache.set(cacheKey, document);
 
   return document;
 };
+
+export const buildGlobalSearchDocument = (
+  providers: ISearchProvider[],
+): DocumentNode => buildSearchDocument(providers, GLOBAL_SEARCH_OPERATION_NAME);
+
+export const buildGlobalSearchPageDocument = (
+  provider: ISearchProvider,
+): DocumentNode =>
+  buildSearchDocument([provider], GLOBAL_SEARCH_PAGE_OPERATION_NAME);

@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
 
     extend type User @key(fields: "_id") {
@@ -29,11 +31,18 @@ export const types = `
         member: User
         role: String
     }
+
+    type FrontlineGlobalSearchChannelListResponse {
+        list: [Channel]
+        pageInfo: PageInfo
+        totalCount: Int
+    }
 `;
 
 export const queries = `
     getChannel(_id: String!): Channel
     getChannels(name: String, userId: String, channelIds: [String], integrationId: String): [Channel]
+    frontlineGlobalSearchChannels(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): FrontlineGlobalSearchChannelListResponse
     getMyChannels(name: String, sortField: String, sortDirection: Int): [Channel]
     getPersonalChannel: Channel
     getChannelMembers(channelId: String, channelIds: [String]): [ChannelMember]

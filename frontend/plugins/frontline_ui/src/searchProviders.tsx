@@ -8,7 +8,6 @@ import {
   defineSearchProvider,
   getPersonName,
   ISearchProvider,
-  readArray,
   readCursorList,
   stripHtml,
 } from 'erxes-ui';
@@ -35,33 +34,14 @@ const conversationsSearchProvider = defineSearchProvider<TConversationNode>({
   order: 110,
   selections: [
     {
-      alias: 'gs_frontline_conversations_open',
-      field: 'conversations',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount }',
-    },
-    {
-      alias: 'gs_frontline_conversations_closed',
-      field: 'conversations',
-      args: 'searchValue: $searchValue, limit: $limit, status: "closed"',
-      body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount }',
+      alias: 'gs_frontline_conversations',
+      field: 'frontlineGlobalSearchConversations',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => {
-    const open = readCursorList<TConversationNode>(
-      payload,
-      'gs_frontline_conversations_open',
-    );
-    const closed = readCursorList<TConversationNode>(
-      payload,
-      'gs_frontline_conversations_closed',
-    );
-
-    return {
-      nodes: [...open.nodes, ...closed.nodes],
-      totalCount: open.totalCount + closed.totalCount,
-    };
-  },
+  select: (payload) =>
+    readCursorList<TConversationNode>(payload, 'gs_frontline_conversations'),
   toItem: (conversation) => ({
     id: conversation._id,
     title: getPersonName(
@@ -90,8 +70,8 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args: 'filter: { searchValue: $searchValue, limit: $limit, cursor: "", direction: forward, orderBy: { createdAt: -1 } }',
-      body: '{ list { _id name number } totalCount }',
+      args: 'filter: { searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: { createdAt: -1 } }',
+      body: '{ list { _id name number } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -120,14 +100,13 @@ const channelsSearchProvider = defineSearchProvider<TChannelNode>({
   selections: [
     {
       alias: 'gs_frontline_channels',
-      field: 'getChannels',
-      args: 'name: $searchValue',
-      body: '{ _id name description }',
+      field: 'frontlineGlobalSearchChannels',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id name description } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TChannelNode>(payload, 'gs_frontline_channels'),
-  }),
+  select: (payload) =>
+    readCursorList<TChannelNode>(payload, 'gs_frontline_channels'),
   toItem: (channel) => ({
     id: channel._id,
     title: channel.name || UNNAMED,
@@ -154,8 +133,8 @@ const formsSearchProvider = defineSearchProvider<TFormNode>({
     {
       alias: 'gs_frontline_forms',
       field: 'forms',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id name title code } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id name title code } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TFormNode>(payload, 'gs_frontline_forms'),

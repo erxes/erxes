@@ -1,75 +1,161 @@
+import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { GlobalSearchDialog } from '@/search/components/GlobalSearchDialog';
 import {
+  GLOBAL_SEARCH_DEBOUNCE,
   GLOBAL_SEARCH_MIN_LENGTH,
-  useGlobalSearch,
-} from '@/search/hooks/useGlobalSearch';
+} from '@/search/constants/globalSearch';
+import { useGlobalSearch } from '@/search/hooks/useGlobalSearch';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
-import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { TGlobalSearchCategory } from '@/search/types/GlobalSearch';
+import {
+  getGlobalSearchCategoryShortcut,
+  isGlobalSearchOpenShortcut,
+} from '@/search/utils/globalSearchShortcuts';
+import {
+  buildGlobalSearchCategories,
+  getMaterializedGlobalSearchTotalCount,
+} from '@/search/utils/globalSearchResults';
+import {
+  buildNavigationSearchItems,
+  filterNavigationSearchItems,
+} from '@/search/utils/navigationSearch';
+import { activePluginState } from 'erxes-ui';
+import { useAtom, useSetAtom } from 'jotai';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
 
-const SEARCH_DEBOUNCE = 350;
-
-// Mounted by the layout rather than by the tabs row, which unmounts when the
-// row is hidden — the shortcut has to keep working there too.
+// Mounted by the layout so the sidebar trigger and shortcut keep one search
+// instance available across navigation changes.
 export const GlobalSearch = () => {
   const navigate = useNavigate();
-
+  const activities = useNavigationActivities();
+  const setActiveActivityId = useSetAtom(activePluginState);
   const [open, setOpen] = useAtom(globalSearchOpenState);
   const [value, setValue] = useState('');
-  const [debouncedValue] = useDebounce(value.trim(), SEARCH_DEBOUNCE);
-
-  const { groups, totalCount, loading, hasFailure, refetch } =
+  const [category, setCategory] = useState<TGlobalSearchCategory>('all');
+  const searchValue = value.trim();
+  const [debouncedValue] = useDebounce(searchValue, GLOBAL_SEARCH_DEBOUNCE);
+  const { groups, loading, hasFailure, refetch, loadMore } =
     useGlobalSearch(debouncedValue);
 
-  useEffect(() => {
-    const handleOpenSearch = (event: KeyboardEvent) => {
-      const hasSearchModifier = isMacPlatform()
-        ? event.metaKey && !event.ctrlKey
-        : event.ctrlKey && !event.metaKey;
+  const { goToItems, pluginItems } = useMemo(
+    () => buildNavigationSearchItems(activities),
+    [activities],
+  );
+  const matchingGoToItems = useMemo(
+    () => filterNavigationSearchItems(goToItems, searchValue),
+    [goToItems, searchValue],
+  );
+  const contentSearchReady = searchValue.length >= GLOBAL_SEARCH_MIN_LENGTH;
+  const contentSearchSettled =
+    contentSearchReady && debouncedValue === searchValue;
+  const visibleGroups = contentSearchSettled ? groups : [];
+  const categories = useMemo(
+    () =>
+      buildGlobalSearchCategories({
+        hasSearchValue: searchValue.length > 0,
+        goToItemCount: matchingGoToItems.length,
+        groups: visibleGroups,
+      }),
+    [matchingGoToItems.length, searchValue.length, visibleGroups],
+  );
+  const categoryKeys = useMemo(
+    () => categories.map(({ key }) => key),
+    [categories],
+  );
+  const contentLoading =
+    contentSearchReady && (!contentSearchSettled || loading);
+  const contentFailure = contentSearchSettled && hasFailure;
+  const totalCount = getMaterializedGlobalSearchTotalCount({
+    goToItems: matchingGoToItems,
+    groups: visibleGroups,
+  });
 
-      if (
-        hasSearchModifier &&
-        event.altKey &&
-        !event.shiftKey &&
-        event.code === 'KeyK'
-      ) {
+  const resetSearch = () => {
+    setValue('');
+    setCategory('all');
+  };
+
+  useEffect(() => {
+    if (!categoryKeys.includes(category)) {
+      setCategory('all');
+    }
+  }, [category, categoryKeys]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (event: KeyboardEvent) => {
+      if (open) {
+        const nextCategory = getGlobalSearchCategoryShortcut(
+          event,
+          categoryKeys,
+        );
+
+        if (nextCategory) {
+          event.preventDefault();
+
+          if (!event.repeat) {
+            setCategory(nextCategory);
+          }
+
+          return;
+        }
+      }
+
+      if (isGlobalSearchOpenShortcut(event)) {
         event.preventDefault();
-        setOpen(true);
+
+        if (!event.repeat) {
+          setOpen(true);
+        }
       }
     };
 
-    window.addEventListener('keydown', handleOpenSearch);
+    window.addEventListener('keydown', handleSearchShortcut);
 
-    return () => window.removeEventListener('keydown', handleOpenSearch);
-  }, [setOpen]);
+    return () => window.removeEventListener('keydown', handleSearchShortcut);
+  }, [categoryKeys, open, setOpen]);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      resetSearch();
+    }
+  };
 
   const openResult = (path: string) => {
-    setValue('');
+    resetSearch();
     setOpen(false);
     navigate(path);
   };
 
-  const isTyping = debouncedValue.length >= GLOBAL_SEARCH_MIN_LENGTH;
-  const hasResults = groups.some((group) => group.items.length > 0);
+  const openNavigationResult = (path: string, activityId: string) => {
+    setActiveActivityId(activityId);
+    openResult(path);
+  };
 
   return (
     <GlobalSearchDialog
+      category={category}
+      categories={categories}
+      contentFailure={contentFailure}
+      contentLoading={contentLoading}
+      contentSearchReady={contentSearchReady}
+      goToItems={matchingGoToItems}
+      groups={visibleGroups}
       open={open}
-      onOpenChange={setOpen}
-      value={value}
-      onValueChange={setValue}
-      isTyping={isTyping}
-      hasFailure={hasFailure}
-      loading={loading}
-      hasResults={hasResults}
-      groups={groups}
+      quickAccessItems={pluginItems}
       totalCount={totalCount}
-      searchValue={debouncedValue}
-      onSelect={openResult}
+      value={value}
+      onCategoryChange={setCategory}
+      onClear={resetSearch}
+      onContentSelect={openResult}
+      onLoadMore={loadMore}
+      onNavigationSelect={openNavigationResult}
+      onOpenChange={handleOpenChange}
       onRetry={() => refetch()}
+      onValueChange={setValue}
     />
   );
 };

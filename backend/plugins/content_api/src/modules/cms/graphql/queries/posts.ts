@@ -5,9 +5,12 @@ import {
   CMSPostUrlField,
 } from '@/cms/@types/cms';
 import { POST_VIEW_RETENTION_DAYS } from '@/cms/db/models/PostViews';
+import { IPostDocument } from '@/cms/@types/posts';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
-import { Resolver } from 'erxes-api-shared/core-types';
+import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import {
   assertCmsDocumentAccess,
   getAllowedCmsLanguages,
@@ -15,7 +18,10 @@ import {
   requireCmsPermission,
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
-import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import {
+  assertCmsAccessByClientPortal,
+  getAccessibleCmsClientPortalIds,
+} from '@/cms/utils/cms-access';
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
   if (query[field] === undefined || query[field] === value) {
@@ -98,6 +104,51 @@ const applyCmsAdminReadScopeToPostQuery = async (
 };
 
 class PostQueryResolver extends BaseQueryResolver {
+  async contentGlobalSearchPosts(
+    _parent: undefined,
+    args: ICursorPaginateParams & { searchValue?: string },
+    context: IContext,
+  ) {
+    const { models, user } = context;
+    const permissionScope = await requireCmsPermission(
+      context,
+      CMS_POST_ACTIONS.read,
+    );
+    const accessibleClientPortalIds = await getAccessibleCmsClientPortalIds(
+      context,
+    );
+    const query: FilterQuery<IPostDocument> = {};
+    const searchValue = args.searchValue?.trim();
+
+    if (accessibleClientPortalIds) {
+      query.clientPortalId = { $in: accessibleClientPortalIds };
+    }
+
+    if (!user?.isOwner && permissionScope !== 'all') {
+      query.authorId = user?._id;
+    }
+
+    if (searchValue) {
+      const searchPattern = new RegExp(escapeRegExp(searchValue), 'i');
+      query.$or = [
+        { title: searchPattern },
+        { slug: searchPattern },
+        { excerpt: searchPattern },
+      ];
+    }
+
+    const { list, totalCount, pageInfo } = await cursorPaginate<IPostDocument>({
+      model: models.Posts,
+      params: {
+        ...args,
+        orderBy: { updatedAt: -1 },
+      },
+      query,
+    });
+
+    return { posts: list, totalCount, pageInfo };
+  }
+
   private async findMostViewedPosts(
     args: {
       clientPortalId: string;
@@ -572,6 +623,16 @@ class PostQueryResolver extends BaseQueryResolver {
 }
 
 export const postQueries: Record<string, Resolver> = {
+  contentGlobalSearchPosts: (
+    _parent: undefined,
+    args: ICursorPaginateParams & { searchValue?: string },
+    context: IContext,
+  ) =>
+    new PostQueryResolver(context).contentGlobalSearchPosts(
+      _parent,
+      args,
+      context,
+    ),
   cmsPosts: (_parent: any, args: any, context: IContext) => {
     return new PostQueryResolver(context).cmsPosts(_parent, args, context);
   },

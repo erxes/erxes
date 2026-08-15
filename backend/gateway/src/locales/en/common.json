@@ -108,7 +108,20 @@
     "modules": "{{name}} modules"
   },
   "global-search": {
-    "placeholder": "Search",
+    "placeholder": "Search anything...",
+    "description": "Search navigation pages, content, and plugins",
+    "all": "All",
+    "go-to": "Go to",
+    "quick-access": "Quick access",
+    "go-to-page": "Go to page",
+    "open-plugin": "Open plugin",
+    "open-result": "Open result",
+    "minimum-length": "Enter at least 2 characters to search content",
+    "clear": "Clear search",
+    "navigate": "navigate",
+    "open": "open",
+    "filter": "filter",
+    "close": "close",
     "loading": "Loading...",
     "no-results": "No results",
     "results-count_one": "{{count}} result",
@@ -125,6 +138,9 @@
     "forms": "Forms",
     "hint": "Search contacts, conversations, tickets, deals, products and more",
     "load-error": "Couldn't load {{label}}",
+    "show-more": "Show more",
+    "loading-more": "Loading more...",
+    "load-more-failed": "Couldn't load more results",
     "search-failed": "Couldn't load search results",
     "retry": "Retry"
   }

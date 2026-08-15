@@ -2,6 +2,8 @@ import { ITeamFilter } from '@/team/@types/team';
 import { getTeamEstimateChoises } from '@/team/utils';
 import { Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export const teamQueries = {
   getTeam: async (
@@ -71,6 +73,31 @@ export const teamQueries = {
     }
 
     return models.Team.getTeams(params);
+  },
+
+  operationGlobalSearchTeams: async (
+    _parent: undefined,
+    params: ICursorPaginateParams & { searchValue?: string },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('teamRead');
+
+    const searchValue = params.searchValue?.trim();
+    const escapedSearchValue = searchValue?.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
+
+    return cursorPaginate({
+      model: models.Team,
+      params: {
+        ...params,
+        orderBy: { name: 1 },
+      },
+      query: escapedSearchValue
+        ? { name: { $regex: escapedSearchValue, $options: 'i' } }
+        : {},
+    });
   },
 
   getTeamMembers: async (

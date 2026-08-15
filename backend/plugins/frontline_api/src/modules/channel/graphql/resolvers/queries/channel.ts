@@ -1,8 +1,10 @@
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IChannelFilter } from '@/channel/@types/channel';
-import { teamChannelsOnly } from '@/channel/utils';
+import { teamChannelsOnly, visibleChannelsFilter } from '@/channel/utils';
 import { canGroup } from 'erxes-api-shared/core-modules';
+import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 
 // Sortable document paths. `memberCount` and the other counts are field
 // resolvers rather than stored fields, and `updatedAt` is not a schema path,
@@ -119,6 +121,47 @@ export const channelQueries = {
     }
 
     return [];
+  },
+
+  frontlineGlobalSearchChannels: async (
+    _parent: undefined,
+    params: ICursorPaginateParams & { searchValue?: string },
+    { models, user, subdomain }: IContext,
+  ) => {
+    const visibilityFilter = await visibleChannelsFilter({
+      models,
+      subdomain,
+      user,
+    });
+    const searchValue = params.searchValue?.trim();
+    const escapedSearchValue = searchValue?.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
+
+    return cursorPaginate({
+      model: models.Channels,
+      params: {
+        ...params,
+        orderBy: { name: 1 },
+      },
+      query: {
+        $and: [
+          visibilityFilter,
+          teamChannelsOnly(),
+          ...(escapedSearchValue
+            ? [
+                {
+                  name: {
+                    $regex: escapedSearchValue,
+                    $options: 'i',
+                  },
+                },
+              ]
+            : []),
+        ],
+      },
+    });
   },
 
   getChannelMembers: async (

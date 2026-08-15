@@ -22,8 +22,8 @@ const toursSearchProvider = defineSearchProvider<TTourNode>({
     {
       alias: 'gs_tourism_tours',
       field: 'bmsTours',
-      args: 'name: $searchValue, limit: $limit',
-      body: '{ list { _id name branchId } totalCount }',
+      args: 'name: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id name branchId } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TTourNode>(payload, 'gs_tourism_tours'),

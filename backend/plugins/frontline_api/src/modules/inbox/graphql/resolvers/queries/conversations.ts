@@ -6,7 +6,7 @@ import {
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 
@@ -76,6 +76,35 @@ export const conversationQueries = {
       });
 
     return { list, totalCount, pageInfo };
+  },
+
+  async frontlineGlobalSearchConversations(
+    _parent: undefined,
+    params: IConversationListParams,
+    { user, models, subdomain }: IContext,
+  ) {
+    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
+
+    await qb.buildAllQueries();
+
+    return cursorPaginate<IConversationDocument>({
+      model: models.Conversations,
+      params: {
+        ...params,
+        orderBy: { updatedAt: -1 },
+        limit: params.limit || 20,
+      },
+      query: {
+        ...qb.mainQuery(),
+        status: {
+          $in: [
+            CONVERSATION_STATUSES.NEW,
+            CONVERSATION_STATUSES.OPEN,
+            CONVERSATION_STATUSES.CLOSED,
+          ],
+        },
+      },
+    });
   },
 
   async conversationMessage(

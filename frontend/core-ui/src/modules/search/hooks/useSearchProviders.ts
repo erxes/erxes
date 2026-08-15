@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { pluginsConfigState } from 'ui-modules';
 import { ISearchProvider } from 'erxes-ui';
@@ -12,7 +12,7 @@ export const useSearchProviders = () => {
   const [quarantinedFields, setQuarantinedFields] = useState<Set<string>>(
     new Set(),
   );
-  const [retryCount, setRetryCount] = useState(0);
+  const retryCount = useRef(0);
 
   const providers = useMemo(() => {
     const fromPlugins = Object.values(pluginsConfig ?? {}).flatMap(
@@ -39,29 +39,34 @@ export const useSearchProviders = () => {
       );
   }, [pluginsConfig, quarantinedFields]);
 
-  const quarantineFields = useCallback(
-    (fields: string[]) => {
-      if (fields.length === 0 || retryCount >= MAX_QUARANTINE_RETRIES) {
-        return;
+  const quarantineFields = useCallback((fields: string[]) => {
+    if (
+      fields.length === 0 ||
+      retryCount.current >= MAX_QUARANTINE_RETRIES
+    ) {
+      return;
+    }
+
+    setQuarantinedFields((prev) => {
+      const next = new Set(prev);
+
+      for (const field of fields) {
+        next.add(field);
       }
 
-      setQuarantinedFields((prev) => {
-        const next = new Set(prev);
-        let changed = false;
+      if (next.size === prev.size) {
+        return prev;
+      }
 
-        for (const field of fields) {
-          if (!next.has(field)) {
-            next.add(field);
-            changed = true;
-          }
-        }
+      retryCount.current += 1;
 
-        return changed ? next : prev;
-      });
-      setRetryCount((prev) => prev + 1);
-    },
-    [retryCount],
-  );
+      return next;
+    });
+  }, []);
 
-  return { providers, quarantineFields };
+  return {
+    providers,
+    quarantineFields,
+    canQuarantineFields: retryCount.current < MAX_QUARANTINE_RETRIES,
+  };
 };

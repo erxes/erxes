@@ -3,10 +3,26 @@ import {
   defineSearchProvider,
   isAnObject,
   ISearchProvider,
+  TSearchPageInfo,
   TSearchPayload,
 } from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
+const EMPTY_PAGE_INFO: TSearchPageInfo = {
+  hasNextPage: false,
+  endCursor: null,
+};
+
+const readPageInfo = (value: unknown): TSearchPageInfo => {
+  if (!isAnObject(value)) {
+    return EMPTY_PAGE_INFO;
+  }
+
+  return {
+    hasNextPage: value.hasNextPage === true,
+    endCursor: typeof value.endCursor === 'string' ? value.endCursor : null,
+  };
+};
 
 type TPostNode = {
   _id: string;
@@ -21,15 +37,21 @@ const readPostsPage = (payload: TSearchPayload, alias: string) => {
     return {
       nodes: [] as TPostNode[],
       totalCount: undefined as number | undefined,
+      pageInfo: EMPTY_PAGE_INFO,
     };
   }
 
-  const { posts, totalCount } = page as {
+  const { posts, totalCount, pageInfo } = page as {
     posts?: TPostNode[];
     totalCount?: number;
+    pageInfo?: unknown;
   };
 
-  return { nodes: Array.isArray(posts) ? posts : [], totalCount };
+  return {
+    nodes: Array.isArray(posts) ? posts : [],
+    totalCount,
+    pageInfo: readPageInfo(pageInfo),
+  };
 };
 
 const postsSearchProvider = defineSearchProvider<TPostNode>({
@@ -40,9 +62,9 @@ const postsSearchProvider = defineSearchProvider<TPostNode>({
   selections: [
     {
       alias: 'gs_content_posts',
-      field: 'cmsPostList',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ posts { _id title clientPortalId } totalCount }',
+      field: 'contentGlobalSearchPosts',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ posts { _id title clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readPostsPage(payload, 'gs_content_posts'),
@@ -66,15 +88,21 @@ const readPagesPage = (payload: TSearchPayload, alias: string) => {
     return {
       nodes: [] as TPageNode[],
       totalCount: undefined as number | undefined,
+      pageInfo: EMPTY_PAGE_INFO,
     };
   }
 
-  const { pages, totalCount } = page as {
+  const { pages, totalCount, pageInfo } = page as {
     pages?: TPageNode[];
     totalCount?: number;
+    pageInfo?: unknown;
   };
 
-  return { nodes: Array.isArray(pages) ? pages : [], totalCount };
+  return {
+    nodes: Array.isArray(pages) ? pages : [],
+    totalCount,
+    pageInfo: readPageInfo(pageInfo),
+  };
 };
 
 const pagesSearchProvider = defineSearchProvider<TPageNode>({
@@ -85,9 +113,9 @@ const pagesSearchProvider = defineSearchProvider<TPageNode>({
   selections: [
     {
       alias: 'gs_content_pages',
-      field: 'cmsPageList',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ pages { _id name clientPortalId } totalCount }',
+      field: 'contentGlobalSearchPages',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ pages { _id name clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readPagesPage(payload, 'gs_content_pages'),

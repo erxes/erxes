@@ -3,7 +3,7 @@ import {
   defineSearchProvider,
   getPersonName,
   ISearchProvider,
-  readArray,
+  readCursorList,
 } from 'erxes-ui';
 
 const UNNAMED = 'Unnamed';
@@ -21,14 +21,13 @@ const contractsSearchProvider = defineSearchProvider<TContractNode>({
   selections: [
     {
       alias: 'gs_insurance_contracts',
-      field: 'contracts',
-      args: 'searchValue: $searchValue',
-      body: '{ id contractNumber }',
+      field: 'insuranceGlobalSearchContracts',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { id contractNumber } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TContractNode>(payload, 'gs_insurance_contracts'),
-  }),
+  select: (payload) =>
+    readCursorList<TContractNode>(payload, 'gs_insurance_contracts'),
   toItem: (contract) => ({
     id: contract.id,
     title: contract.contractNumber || UNNAMED,
@@ -53,14 +52,13 @@ const customersSearchProvider = defineSearchProvider<TInsuranceCustomerNode>({
   selections: [
     {
       alias: 'gs_insurance_customers',
-      field: 'insuranceCustomers',
-      args: 'search: $searchValue, limit: $limit',
-      body: '{ id firstName lastName companyName email phone }',
+      field: 'insuranceGlobalSearchCustomers',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { id firstName lastName companyName email phone } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TInsuranceCustomerNode>(payload, 'gs_insurance_customers'),
-  }),
+  select: (payload) =>
+    readCursorList<TInsuranceCustomerNode>(payload, 'gs_insurance_customers'),
   toItem: (customer) => ({
     id: customer.id,
     title:

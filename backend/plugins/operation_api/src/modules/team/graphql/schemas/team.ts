@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = `
     extend type User @key(fields: "_id") {
        _id: String @external
@@ -27,11 +29,18 @@ export const types = `
         # ** Deprecated
         #role: String
     }
+
+    type OperationGlobalSearchTeamListResponse {
+        list: [Team]
+        pageInfo: PageInfo
+        totalCount: Int
+    }
 `;
 
 export const queries = `
     getTeam(_id: String!): Team
     getTeams(name: String, userId: String, teamIds: [String], projectId: String, isTriageEnabled: Boolean, teamId: String): [Team]
+    operationGlobalSearchTeams(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): OperationGlobalSearchTeamListResponse
     getTeamMembers(teamId: String, teamIds: [String]): [TeamMember]
     getTeamEstimateChoises(teamId: String): JSON
 `;

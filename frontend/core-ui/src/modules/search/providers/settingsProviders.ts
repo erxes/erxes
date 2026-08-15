@@ -21,8 +21,8 @@ export const teamMembersSearchProvider = defineSearchProvider<TTeamMemberNode>({
     {
       alias: 'gs_core_team_members',
       field: 'users',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id email username details { fullName } } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      body: '{ list { _id email username details { fullName } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
