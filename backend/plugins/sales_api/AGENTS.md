@@ -46,15 +46,15 @@
 
 ## Architecture
 
-| Area                  | Path                                              | Responsibility                                           |
-| --------------------- | ------------------------------------------------- | -------------------------------------------------------- |
-| Runtime               | `src/main.ts`, `src/connectionResolvers.ts`       | Start the plugin, load tenant-scoped models, expose tRPC  |
-| Sales models          | `src/modules/sales/db`                            | Store deals, boards, pipelines, stages, labels, metadata  |
-| Sales GraphQL         | `src/modules/sales/graphql`, `src/apollo`         | Sales schemas, resolvers, mutations, subscriptions        |
-| Agent-tool surface    | `src/modules/sales/trpc`, `src/modules/pos/trpc`  | tRPC procedures with `.meta({ agent: { permission } })`   |
-| References, automations| `src/modules/sales/meta`                          | Reference values, automation constants, after-process     |
-| Documents             | `src/modules/sales/documents`                     | Sales document content and amount mappings                |
-| POS and ecommerce     | `src/modules/pos`, `src/modules/ecommerce`        | Sales-owned POS and ecommerce behavior                    |
+| Area                    | Path                                             | Responsibility                                           |
+| ----------------------- | ------------------------------------------------ | -------------------------------------------------------- |
+| Runtime                 | `src/main.ts`, `src/connectionResolvers.ts`      | Start the plugin, load tenant-scoped models, expose tRPC |
+| Sales models            | `src/modules/sales/db`                           | Store deals, boards, pipelines, stages, labels, metadata |
+| Sales GraphQL           | `src/modules/sales/graphql`, `src/apollo`        | Sales schemas, resolvers, mutations, subscriptions       |
+| Agent-tool surface      | `src/modules/sales/trpc`, `src/modules/pos/trpc` | tRPC procedures with `.meta({ agent: { permission } })`  |
+| References, automations | `src/modules/sales/meta`                         | Reference values, automation constants, after-process    |
+| Documents               | `src/modules/sales/documents`                    | Sales document content and amount mappings               |
+| POS and ecommerce       | `src/modules/pos`, `src/modules/ecommerce`       | Sales-owned POS and ecommerce behavior                   |
 
 ## Contracts
 
