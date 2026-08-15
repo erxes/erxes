@@ -12,6 +12,7 @@ import {
   summariseAgentStats,
   summariseCallbackStats,
   summariseQueueStats,
+  withForwardedCallKeys,
 } from '@/reports/callReportService';
 import {
   buildCallHistoryEntries,
@@ -200,7 +201,12 @@ export const reportCallQueries = {
 
       wantsOutbound
         ? models.CallCdrs.find({
-            ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
+            ...buildCdrFilter({
+              startDate,
+              endDate,
+              direction: 'Outbound',
+              includeForwarded: true,
+            }),
             inboxIntegrationId: integration.inboxId,
           })
             .select(CDR_REPORT_FIELDS)
@@ -856,7 +862,12 @@ export const reportCallQueries = {
 
       wantsOutbound
         ? models.CallCdrs.find({
-            ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
+            ...buildCdrFilter({
+              startDate,
+              endDate,
+              direction: 'Outbound',
+              includeForwarded: true,
+            }),
             ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
           })
             .select(CDR_REPORT_FIELDS)
@@ -864,7 +875,7 @@ export const reportCallQueries = {
         : [],
     ]);
 
-    const legs = [...inboundCdrs, ...outboundCdrs];
+    const legs = withForwardedCallKeys([...inboundCdrs, ...outboundCdrs]);
     const legsByCall = groupLegsByCall(legs);
 
     const userIdByExtension = new Map<string, string>(

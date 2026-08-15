@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-14`
+- **Last synchronized:** `2026-08-15`
 
 ## Scope
 
@@ -388,6 +388,38 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - When a call is answered but no leg yields an extension, `summariseAgentStats`
   skips the call entirely rather than charging every agent that rang with a
   miss; one of them is likely the one who picked it up.
+- A `FOLLOWME[<ext>]` leg is an extension's Follow-Me forward to a staff mobile,
+  not a customer call. It carries the DID in `src` and the staff mobile in
+  `dst`, so it has no customer identity at all, and the PBX gives each forward
+  attempt its own `uniqueid` — one unanswered queue call can spawn three of
+  them. Counted naively they dominate every call-level report: on a real
+  deployment 1,664 of 1,843 "calls" were forwards, and the busiest "customer"
+  in Top Numbers was an operator's mobile.
+- `buildCdrFilter` therefore excludes `FOLLOWME[...]` unless the caller passes
+  `includeForwarded: true`, which only `callGetAgentStats` and `callHistoryList`
+  do. A `queueId` already narrows `actionType` to `QUEUE[<id>]`, so the
+  exclusion applies only to the unfiltered (outbound) fetches. Never drop the
+  exclusion elsewhere to "get more data" — it re-inflates Total Calls, Top
+  Numbers, carrier mix, and callbacks.
+- A forward cannot be merged into the call that triggered it. The PBX issues a
+  fresh `uniqueid` per attempt and erxes gives most forwards their own
+  `conversationId`, so neither field links them back; only ~2 in 10 forwarded
+  conversations also hold the originating `IVR`/`DIAL` leg. Do not add a
+  time-window join to "fix" abandonment — forwards outnumber queue calls 15:1
+  because most originate from direct extension calls, not the queue.
+- Consequence to keep in mind: a queue call nobody answered at the desk but
+  which was answered on a mobile counts as abandoned in Queues and answered for
+  the agent in Agents. That is the honest reading of the data, not a bug.
+- The forwarded agent is in the `actionType`, nowhere else: `agentOf` reads
+  `FOLLOWME[<ext>]` before anything else because `dstchannelExt` is the trunk
+  and `dst` is a mobile. This is the only way extensions whose calls are all
+  forwarded ever appear on the leaderboard.
+- Because each forward attempt has its own `uniqueid`, `summariseAgentStats`
+  re-keys forwarded legs before folding: consecutive legs for the same
+  extension starting within `FORWARDED_WINDOW_MS` become one call. Bucketing by
+  a fixed time window instead would split a burst that straddles the boundary —
+  real forwards land one second apart. Without this, an extension with three
+  Follow-Me destinations reports triple its real volume.
 - A voicemail deposit is not an answered call. `isHumanAnsweredLeg` requires
   `billsec > 0`, a `Queue`/`Dial` `lastapp`, and an `actionType` without `VM`,
   which is why a queue leg that the PBX marks `ANSWERED` with `billsec: 0` — the
@@ -493,6 +525,27 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-15` — Follow-Me forwards excluded from call volume, credited to agents
+
+- **Summary:** `FOLLOWME[<ext>]` legs — an extension's forward to a staff
+  mobile, one `uniqueid` per attempt — were counted as distinct outbound
+  customer calls, inflating Total Calls to 1,843 against 179 real calls and
+  filling Top Numbers with operator mobiles. `buildCdrFilter` now drops them
+  unless `includeForwarded: true`; `callGetAgentStats` and `callHistoryList` opt
+  in, read the agent out of the `actionType`, and collapse forward attempts made
+  within `FORWARDED_WINDOW_MS` into one call, so extensions reached only by
+  Follow-Me finally appear on the leaderboard without triple-counting and their
+  calls stay traceable in the history under the existing `FOLLOWME` outcome.
+- **Affected areas:** `src/modules/reports/callReportService.ts`
+  (`buildCdrFilter`, `agentOf`, `forwardedExtensionOf`, `withForwardedCallKeys`,
+  `summariseAgentStats`),
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callGetAgentStats`,
+  `callHistoryList`).
+- **Contracts changed:** None — same query names, arguments, and return types.
+  Values move: Total Calls, Top Numbers, carrier mix, heatmap, volume series,
+  callbacks, and call history all shed forwarded legs, while per-agent totals
+  gain the calls those agents took on their mobiles.
+
 ### `2026-08-14` — Instagram bot replies persist to the Instagram collection
 
 - **Summary:** `actionCreateMessage` stored the sent bot reply through
@@ -593,34 +646,3 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
   `propertiesData: JSON` argument; `TicketPropertyField` /
   `TicketPropertyFieldInput` gained optional `type: String` and
   `options: [TicketPropertyFieldOption]`.
-
-### `2026-08-10` — Speed of answer folded per call
-
-- **Summary:** `callKpiScorecard.averageSpeed` no longer always returns `0`.
-  `cdrUtils.ts` gained `legRingSeconds`, `callSpeedOfAnswer`, and
-  `averageSpeedOfAnswer`, which fold inbound legs by `uniqueid` and read the
-  ring time off the leg that actually held the caller instead of averaging
-  `answer - start` over legs selected by `disposition`, all of which are
-  stamped at their own `start`.
-- **Affected areas:** `src/modules/integrations/call/services/cdrUtils.ts`,
-  `src/modules/integrations/call/graphql/resolvers/queries.ts`,
-  `ICdrLeg.answer` in `src/modules/integrations/call/services/callReportService.ts`.
-- **Contracts changed:** None — `CallKpiScorecard.averageSpeed` keeps its shape
-  and unit (seconds).
-
-### `2026-08-10` — Ticket property fields in the messenger ticket config
-
-- **Summary:** A messenger ticket form configuration can now include ticket
-  custom properties in addition to the four built-in fields: `TicketConfig`
-  gained `propertyFields`, each entry naming a `frontline:ticket` field with its
-  own label, placeholder, required flag, and position. `ticketSaveConfig`
-  validates every entry against core's `fields` collection over tRPC, drops
-  duplicates, and renumbers `order` from the submitted array position.
-- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts` (new).
-- **Contracts changed:** `TicketConfig.propertyFields: [TicketPropertyField]`
-  and `TicketConfigInput.propertyFields: [TicketPropertyFieldInput]` added; both
-  are optional, so existing callers and stored configs are unaffected.
