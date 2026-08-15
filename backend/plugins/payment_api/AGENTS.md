@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-12`
 
 ## Scope
 
@@ -36,7 +36,8 @@
   fan-out through `enqueuePaidInvoiceCallback`.
 - Issues one random ticket code per unit of `invoice.data.quantity`, renders
   them into a QR PDF, and emails it once per invoice.
-- Redeems ticket codes with per-code scan state.
+- Redeems ticket codes with per-code scan state and can atomically reject a
+  code whose invoice does not match the scanner's expected event slug.
 - Optionally enqueues a sales deal for the paid invoice when the payment
   method's `dealConfig.enabled` is set.
 - Declares the plugin permission config (`invoice` module with
@@ -69,7 +70,9 @@
 - GraphQL: `payment*` queries/mutations/subscriptions (invoices, payments,
   ticket redemption), including
   `invoiceEdit(_id: String!, input: InvoiceEditInput!)` for admin invoice
-  corrections (`description`, `amount`, `currency`, `status`).
+  corrections (`description`, `amount`, `currency`, `status`) and
+  `invoiceScanBarcode(code: String!, eventSlug: String)` for optional
+  event-scoped ticket redemption.
 - Permission actions `paymentInvoiceView` / `paymentInvoiceEdit` and the
   default groups `payment:admin` and `payment:viewer`, published through
   `startPlugin({ meta: { permissions } })`.
@@ -109,6 +112,9 @@
   `email_deliveries` collection.
 - Ticket codes are unguessable random tokens; never fall back to a predictable
   identifier for newly issued tickets.
+- When `invoiceScanBarcode` receives an `eventSlug`, the invoice's
+  `data.eventSlug` must match before any per-ticket or legacy scan timestamp is
+  written; a mismatch must leave the ticket unused.
 - Every callback, resolver, and worker path must keep operating on the request
   `subdomain`'s models.
 - `invoiceEdit` moving `status` into `paid` stamps `resolvedAt`, publishes
@@ -133,10 +139,23 @@
 - Smoke: edit a pending invoice that has `email` to `status: paid` and confirm
   one QR ticket email is sent; repeat on an already-paid invoice and confirm the
   `QR email already sent` skip log instead of a second email.
+- Smoke: scan a paid ticket with its matching `eventSlug` (succeeds), then scan
+  an unused ticket with a different `eventSlug` and confirm it is rejected and
+  remains unused.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-12` — `Event-scoped ticket redemption`
+
+- **Summary:** Added an optional expected event slug to barcode redemption so
+  scanners can reject a ticket for another event without consuming its code.
+- **Affected areas:** `src/modules/payment/db/models/Invoices.ts`,
+  `src/modules/payment/graphql/schemas/invoices.ts`,
+  `src/modules/payment/graphql/resolvers/mutations/invoices.ts`
+- **Contracts changed:** `invoiceScanBarcode` now accepts optional
+  `eventSlug: String`.
 
 ### `2026-08-10` — `Invoice edit permission and mutation`
 
