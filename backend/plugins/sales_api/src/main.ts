@@ -84,6 +84,7 @@ startPlugin({
     resolvers,
   }),
   expressRouter: router,
+  agentTools: { includeModels: ['Deals'] },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,

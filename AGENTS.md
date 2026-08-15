@@ -407,6 +407,56 @@ plugin-specific integrations.
   tRPC, HTTP, event, or federation contracts. Never import another service's
   implementation.
 
+### Adopting agent tools (the `/agent-tools` platform)
+
+Every plugin mounts the platform agent-tools endpoints unconditionally:
+`GET /agent-tools/manifest` (tool inventory) and `POST /agent-tools/call`
+(execute as the linked agent account). The manifest lists every tRPC
+procedure with an `agentUsable` flag plus model CRUD tools; `agentUsable=false`
+entries are inventory-only and the call endpoint rejects them. A plugin
+contributes nothing to agents until an admin enables it in the erxes-agent
+"Plugin tools" settings page (default-deny per plugin, with per-tool disable
+switches).
+
+**Exposing a tool:**
+
+- **tRPC procedures** — add
+  `.meta({ agent: { description, permission: { module, action } } })` to the
+  procedure builder, chained **before** `.input(...)`. In tRPC v11,
+  `.query()`/`.mutation()` return a terminal procedure object with no
+  `.meta()`, so appending it after them does not compile. Use an action the
+  plugin actually registers (`module` = the permission module, e.g. `sales`).
+- **Models** — pass `agentTools: { includeModels: ['ModelName', ...] }` to
+  `startPlugin`. Permissions resolve by naming convention
+  (`show<Model>` / `<lower>Read` / `<lower>Show` for reads;
+  `<lower>Add` / `<lower>Create`, `<lower>Edit` / `<lower>Update`,
+  `<lower>Remove` / `<lower>Delete`) or via explicit `modelPermissions`
+  overrides; operations resolving to no registered action are omitted.
+
+**Filtering — what must NEVER be agent-callable:**
+
+- Raw-mongo procedures: `findOneAndUpdate` with arbitrary `$` modifiers,
+  `aggregate`, or unbounded `updateMany`.
+- System-user / internal plumbing: subscription publishing, activity-log
+  creation, notification builders, document templating.
+- Device-facing sync endpoints (e.g. POS `posToken`-authenticated calls).
+- Any procedure without a registered permission action.
+
+Approved tools are active every turn and the model decides what to call (no
+keyword gating); destructive mutations still require runtime user approval.
+
+**Required workflow for plugin developers:**
+
+Before implementing agent-tool adoption in a plugin, map the plugin's tRPC
+procedures and models, then produce a plain-language list of exactly which
+operations the agent would call (what each does and which permission action
+gates it) and **ask the user to approve it — never implement adoption
+directly**. If the plugin has no `AGENTS.md`, create one from the template
+above as part of the change and record the declared surface in it.
+
+`sales_api` is the reference adoption (deal/pos/document/fields tRPC plus
+`agentTools: { includeModels: ['Deals'] }`).
+
 ### Frontend plugin requirements
 
 The frontend project owns its routes, navigation, pages, widgets, GraphQL
