@@ -9,7 +9,10 @@ interface IGlobalSearchShortcutEvent {
   shiftKey: boolean;
 }
 
-const hasPrimaryModifier = ({ ctrlKey, metaKey }: IGlobalSearchShortcutEvent) =>
+const hasPrimaryModifier = ({
+  ctrlKey,
+  metaKey,
+}: IGlobalSearchShortcutEvent) =>
   isMacPlatform() ? metaKey && !ctrlKey : ctrlKey && !metaKey;
 
 export const isGlobalSearchOpenShortcut = (event: IGlobalSearchShortcutEvent) =>

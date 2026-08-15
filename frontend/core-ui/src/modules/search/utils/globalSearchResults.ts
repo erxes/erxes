@@ -27,9 +27,7 @@ export const buildGlobalSearchCategories = ({
   groups: TGlobalSearchGroup[];
 }): TGlobalSearchCategoryOption[] => [
   { key: 'all', label: 'All' },
-  ...(goToItemCount > 0
-    ? [{ key: 'go-to', label: 'Go to' }]
-    : []),
+  ...(goToItemCount > 0 ? [{ key: 'go-to', label: 'Go to' }] : []),
   ...(hasSearchValue
     ? groups
         .filter((group) => group.status === 'ok' && group.items.length > 0)
@@ -75,10 +73,6 @@ export const getGlobalSearchRequestState = ({
   return {
     loading: queryLoading || recoveringSchema,
     hasFailure:
-      !skipped &&
-      !queryLoading &&
-      !recoveringSchema &&
-      hasError &&
-      !hasData,
+      !skipped && !queryLoading && !recoveringSchema && hasError && !hasData,
   };
 };

@@ -114,9 +114,8 @@ class PostQueryResolver extends BaseQueryResolver {
       context,
       CMS_POST_ACTIONS.read,
     );
-    const accessibleClientPortalIds = await getAccessibleCmsClientPortalIds(
-      context,
-    );
+    const accessibleClientPortalIds =
+      await getAccessibleCmsClientPortalIds(context);
     const query: FilterQuery<IPostDocument> = {};
     const searchValue = args.searchValue?.trim();
 

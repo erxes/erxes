@@ -40,10 +40,7 @@ export const useSearchProviders = () => {
   }, [pluginsConfig, quarantinedFields]);
 
   const quarantineFields = useCallback((fields: string[]) => {
-    if (
-      fields.length === 0 ||
-      retryCount.current >= MAX_QUARANTINE_RETRIES
-    ) {
+    if (fields.length === 0 || retryCount.current >= MAX_QUARANTINE_RETRIES) {
       return;
     }
 

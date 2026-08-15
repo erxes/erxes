@@ -10,7 +10,7 @@ const generateFilterQuery = async ({ isOnline, search }) => {
   }
 
   if (search) {
-    query.name = { $regex: search }
+    query.name = { $regex: search };
   }
 
   return query;
@@ -20,7 +20,9 @@ const queries = {
   async posEnv() {
     const { ALLOW_OFFLINE_POS } = process.env;
     return {
-      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || ''),
+      ALLOW_OFFLINE_POS: [true, 'true', 'True', '1'].includes(
+        ALLOW_OFFLINE_POS || '',
+      ),
     };
   },
 
@@ -78,11 +80,15 @@ const queries = {
     { posId }: { posId: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('posRead'); 
+    await checkPermission('posRead');
     return await models.ProductGroups.groups(posId);
   },
 
-  async posSlots(_root, { posId }: { posId: string }, { models, checkPermission }: IContext) {
+  async posSlots(
+    _root,
+    { posId }: { posId: string },
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('posRead');
     return await models.PosSlots.find({ posId }).lean();
   },

@@ -117,8 +117,8 @@ const GlobalSearchResults = ({
         0,
       )
     : isGoTo
-    ? goToItems.length
-    : activeProviderGroup?.items.length ?? 0;
+      ? goToItems.length
+      : (activeProviderGroup?.items.length ?? 0);
   const waitingForContent =
     contentSearchReady &&
     contentLoading &&
