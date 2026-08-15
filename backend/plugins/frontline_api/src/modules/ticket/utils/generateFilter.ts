@@ -59,7 +59,7 @@ export const generateFilter = async (
 
     if (
       pipeline.isCheckUser &&
-      (pipeline.excludeCheckUserIds || []).includes(user._id)
+      !(pipeline.excludeCheckUserIds || []).includes(user._id)
     ) {
       ownershipOrCondition = [
         { assigneeId: user._id },

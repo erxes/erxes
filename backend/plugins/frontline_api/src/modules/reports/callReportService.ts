@@ -12,8 +12,10 @@ export const CDR_REPORT_FIELDS =
 export interface ICallReportArgs {
   startDate: string;
   endDate: string;
+  integrationId?: string;
   queueId?: string;
   direction?: string;
+  includeForwarded?: boolean;
 }
 
 export interface ICdrLeg {
@@ -63,11 +65,16 @@ const percentage = (part: number, whole: number): number =>
 const average = (total: number, count: number): number =>
   count > 0 ? round2(total / count) : 0;
 
+const FORWARDED_ACTION_TYPE = /^FOLLOWME\[([0-9]+)\]/;
+
+const FORWARDED_WINDOW_MS = 10_000;
+
 export const buildCdrFilter = ({
   startDate,
   endDate,
   queueId,
   direction,
+  includeForwarded,
 }: ICallReportArgs): Record<string, unknown> => {
   const filter: Record<string, unknown> = {
     start: { $gte: new Date(startDate), $lt: new Date(endDate) },
@@ -79,6 +86,8 @@ export const buildCdrFilter = ({
 
   if (queueId && queueId !== 'all') {
     filter.actionType = { $regex: `QUEUE\\[${escapeRegExp(queueId)}\\]` };
+  } else if (!includeForwarded) {
+    filter.actionType = { $not: FORWARDED_ACTION_TYPE };
   }
 
   return filter;
@@ -92,9 +101,36 @@ const isExtension = (value?: string): boolean =>
 
 const RINGING_LASTAPPS = ['Queue', 'Dial'];
 
-export const agentOf = (leg: ICdrLeg): string | null => {
-  if (leg.userfield === 'Outbound' && isExtension(leg.src)) {
-    return String(leg.src);
+const extensionFromCallerId = (
+  value: string | undefined,
+  knownExtensions: Set<string>,
+): string | null => {
+  const digits = String(value ?? '');
+  if (digits.length <= 4) return null;
+
+  const suffix = digits.slice(-4);
+  return knownExtensions.has(suffix) ? suffix : null;
+};
+
+export const forwardedExtensionOf = (leg: ICdrLeg): string | null => {
+  const extension = FORWARDED_ACTION_TYPE.exec(leg.actionType ?? '')?.[1];
+  return extension && isExtension(extension) ? extension : null;
+};
+
+export const agentOf = (
+  leg: ICdrLeg,
+  knownExtensions?: Set<string>,
+): string | null => {
+  const forwarded = forwardedExtensionOf(leg);
+  if (forwarded) return forwarded;
+
+  if (leg.userfield === 'Outbound') {
+    if (isExtension(leg.src)) return String(leg.src);
+
+    if (knownExtensions?.size) {
+      const extension = extensionFromCallerId(leg.src, knownExtensions);
+      if (extension) return extension;
+    }
   }
   if (isExtension(leg.dstchannelExt)) return String(leg.dstchannelExt);
   if (isExtension(leg.dst)) return String(leg.dst);
@@ -104,7 +140,21 @@ export const agentOf = (leg: ICdrLeg): string | null => {
 const customerPhoneOf = (leg: ICdrLeg): string | null =>
   (leg.userfield === 'Inbound' ? leg.src : leg.dst) ?? null;
 
-export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
+const legsByCallId = (legs: ICdrLeg[]): Map<string, ICdrLeg[]> => {
+  const grouped = new Map<string, ICdrLeg[]>();
+
+  for (const leg of legs) {
+    if (!leg.uniqueid) continue;
+    grouped.set(leg.uniqueid, [...(grouped.get(leg.uniqueid) ?? []), leg]);
+  }
+
+  return grouped;
+};
+
+export const foldLegsIntoCalls = (
+  legs: ICdrLeg[],
+  knownExtensions?: Set<string>,
+): ICall[] => {
   const calls = new Map<string, ICall>();
   const legsByCall = new Map<string, ICdrLeg[]>();
 
@@ -147,7 +197,7 @@ export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
 
       call.billsec = Math.max(call.billsec, leg.billsec ?? 0);
 
-      call.agent = agentOf(leg) ?? call.agent;
+      call.agent = agentOf(leg, knownExtensions) ?? call.agent;
 
       call.recordUrl = leg.recordUrl ?? call.recordUrl;
     }
@@ -173,7 +223,7 @@ export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
       call.agent =
         callLegs
           .filter((leg) => RINGING_LASTAPPS.includes(leg.lastapp ?? ''))
-          .map(agentOf)
+          .map((leg) => agentOf(leg, knownExtensions))
           .find(Boolean) ?? null;
     }
 
@@ -220,25 +270,99 @@ export const summariseQueueStats = (calls: ICall[]) => {
     .sort((a, b) => a.queue.localeCompare(b.queue));
 };
 
+export const withForwardedCallKeys = (legs: ICdrLeg[]): ICdrLeg[] => {
+  const forwarded: { leg: ICdrLeg; extension: string }[] = [];
+  const rest: ICdrLeg[] = [];
+
+  for (const leg of legs) {
+    const extension = forwardedExtensionOf(leg);
+    if (extension) forwarded.push({ leg, extension });
+    else rest.push(leg);
+  }
+
+  forwarded.sort(
+    (a, b) => (a.leg.start?.getTime() ?? 0) - (b.leg.start?.getTime() ?? 0),
+  );
+
+  const openedAt = new Map<string, number>();
+  const groupIndex = new Map<string, number>();
+
+  const keyed = forwarded.map(({ leg, extension }) => {
+    const startedAt = leg.start?.getTime() ?? 0;
+    const opened = openedAt.get(extension);
+
+    if (opened === undefined || startedAt - opened > FORWARDED_WINDOW_MS) {
+      openedAt.set(extension, startedAt);
+      groupIndex.set(extension, (groupIndex.get(extension) ?? -1) + 1);
+    }
+
+    return {
+      ...leg,
+      uniqueid: `forwarded:${extension}:${groupIndex.get(extension)}`,
+    };
+  });
+
+  return [...rest, ...keyed];
+};
+
 export const summariseAgentStats = (
-  calls: ICall[],
+  rawLegs: ICdrLeg[],
   agentId?: string | null,
   agentExtensions?: Set<string>,
 ) => {
-  const byAgent = new Map<string, ICall[]>();
+  const legs = withForwardedCallKeys(rawLegs);
 
-  for (const call of calls) {
-    const agent = call.agent;
-    if (!agent) continue;
-    if (agentId && agent !== agentId) continue;
-    if (agentExtensions?.size && !agentExtensions.has(agent)) continue;
-    byAgent.set(agent, [...(byAgent.get(agent) ?? []), call]);
+  const callById = new Map(
+    foldLegsIntoCalls(legs, agentExtensions).map((call) => [
+      call.uniqueid,
+      call,
+    ]),
+  );
+
+  const isReported = (agent: string): boolean =>
+    (!agentId || agent === agentId) &&
+    (!agentExtensions?.size || agentExtensions.has(agent));
+
+  const answeredByAgent = new Map<string, ICall[]>();
+  const missedByAgent = new Map<string, ICall[]>();
+
+  for (const [uniqueid, callLegs] of legsByCallId(legs)) {
+    const call = callById.get(uniqueid);
+    if (!call) continue;
+
+    const answeredAgent =
+      callLegs
+        .filter(isHumanAnsweredLeg)
+        .map((leg) => agentOf(leg, agentExtensions))
+        .find(Boolean) ?? null;
+
+    if (call.isAnswered && !answeredAgent) continue;
+
+    if (answeredAgent && isReported(answeredAgent)) {
+      answeredByAgent.set(answeredAgent, [
+        ...(answeredByAgent.get(answeredAgent) ?? []),
+        call,
+      ]);
+    }
+
+    const rungAgents = new Set(
+      callLegs
+        .filter((leg) => RINGING_LASTAPPS.includes(leg.lastapp ?? ''))
+        .map((leg) => agentOf(leg, agentExtensions))
+        .filter((agent): agent is string => Boolean(agent)),
+    );
+
+    for (const agent of rungAgents) {
+      if (agent === answeredAgent || !isReported(agent)) continue;
+      missedByAgent.set(agent, [...(missedByAgent.get(agent) ?? []), call]);
+    }
   }
 
-  return [...byAgent.entries()]
-    .map(([agent, agentCalls]) => {
-      const answered = agentCalls.filter((call) => call.isAnswered);
-      const missed = agentCalls.filter((call) => !call.isAnswered);
+  return [...new Set([...answeredByAgent.keys(), ...missedByAgent.keys()])]
+    .map((agent) => {
+      const answered = answeredByAgent.get(agent) ?? [];
+      const missed = missedByAgent.get(agent) ?? [];
+      const totalCalls = answered.length + missed.length;
 
       const talkTimes = answered.map((call) => call.billsec);
       const totalTalkTime = talkTimes.reduce((sum, value) => sum + value, 0);
@@ -249,11 +373,11 @@ export const summariseAgentStats = (
 
       return {
         agent,
-        totalCalls: agentCalls.length,
+        totalCalls,
         answeredCalls: answered.length,
-        answeredRate: percentage(answered.length, agentCalls.length),
+        answeredRate: percentage(answered.length, totalCalls),
         missedCalls: missed.length,
-        missedRate: percentage(missed.length, agentCalls.length),
+        missedRate: percentage(missed.length, totalCalls),
         totalTalkTime,
         averageTalkTime: average(totalTalkTime, answered.length),
         totalWaitTime,

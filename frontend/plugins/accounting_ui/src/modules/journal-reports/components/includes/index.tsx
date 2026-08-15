@@ -1,57 +1,44 @@
 import React from 'react';
-import { IGroupRule } from '../../types/reportsMap';
-import { HandleMainAC } from './main/ac';
-import { HandleMainACMore } from './main/acMore';
-import { HandleMainTB } from './main/tb';
-import { HandleInvCost } from './inventory/invCost';
+import { debtCalcReportHandlers } from './handlers/debt';
+import { fixedAssetCalcReportHandlers } from './handlers/fixedAsset';
+import { fundCalcReportHandlers } from './handlers/fund';
+import { inventoryCalcReportHandlers } from './handlers/inventory';
+import {
+  mainCalcReportHandlers,
+  mainRenderMoreHandlers,
+} from './handlers/main';
+import { CalcReportHandler, RenderMoreHandler, RenderMoreProps } from './types';
 
-export type CalcReportResult = {
-  lastNode: JSX.Element;
-  lastData?: any;
+export type {
+  CalcReportHandler,
+  CalcReportProps,
+  CalcReportResult,
+  RenderMoreProps,
+} from './types';
+
+const calcReportHandlers: Record<string, CalcReportHandler> = {
+  ...mainCalcReportHandlers,
+  ...fundCalcReportHandlers,
+  ...debtCalcReportHandlers,
+  ...inventoryCalcReportHandlers,
+  ...fixedAssetCalcReportHandlers,
 };
 
-export type CalcReportHandler = (
-  dic: any,
-  groupRule: IGroupRule,
-  attr: string,
-) => CalcReportResult;
-
-export type CalcReportProps = {
-  dic: any;
-  groupRule: IGroupRule;
-  attr: string;
+const renderMoreHandlers: Record<string, RenderMoreHandler> = {
+  ...mainRenderMoreHandlers,
 };
 
-export const getCalcReportHandler = (report: string): CalcReportHandler => {
-  const handlers: any = {
-    ac: HandleMainAC,
-    tb: HandleMainTB,
-    invCost: HandleInvCost,
-  };
-
-  if (!handlers[report]) {
-    return (_dic: any, _groupRule: IGroupRule, _attr: string) => ({
-      lastNode: <></>,
+export const getCalcReport = (report: string): CalcReportHandler => {
+  if (!calcReportHandlers[report]) {
+    return (_dic: Record<string, unknown>, _groupRule, _attr: string) => ({
+      lastNode: null,
       lastData: {},
     });
   }
 
-  return handlers[report];
-};
-
-export type RenderMoreProps = {
-  moreData: any[];
-  currentKey: string;
-  nodeExtra: any;
+  return calcReportHandlers[report];
 };
 
 export const getRenderMoreHandler = (
   report: string,
-): React.FC<RenderMoreProps> => {
-  const handlers: any = {
-    ac: HandleMainACMore,
-    tb: () => <></>,
-  };
-
-  return handlers[report] || <></>;
-};
+): React.FC<RenderMoreProps> => renderMoreHandlers[report] || (() => null);

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-13`
+- **Last synchronized:** `2026-08-14`
 
 ## Scope
 
@@ -37,19 +37,24 @@
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
+- Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
 
 ## Architecture
 
-| Area              | Path                                       | Responsibility                                                                 |
-| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
-| Runtime           | `src/main.ts`                              | Starts the accounting UI remote.                                               |
-| Plugin config     | `src/config.tsx`                           | Registers accounting routes and navigation with the host.                      |
-| Route composition | `src/modules/AccountingMain.tsx`           | Wires accounting pages into the plugin router.                                 |
-| Transactions      | `src/modules/transactions`                 | Owns transaction tables, forms, GraphQL documents, hooks, and print documents. |
-| Adjustments       | `src/modules/adjustments`                  | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.  |
-| Settings          | `src/modules/settings`                     | Owns accounting settings forms, account tables, filters, and config hooks.     |
-| Pages             | `src/pages`                                | Exposes route-level page components for accounting surfaces.                   |
-| Relation widgets  | `src/widgets/relation/RelationWidgets.tsx` | Provides accounting relation widget exports.                                   |
+| Area                | Path                                                          | Responsibility                                                                                                  |
+| ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
+| Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
+| Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
+| Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
+| Adjustments         | `src/modules/adjustments`                                     | Owns inventory, fixed asset, fund rate, debt rate, and closing adjustment UI.                                   |
+| Journal reports     | `src/modules/journal-reports`                                 | Owns report selection, filters, grouped rendering, totals, and detail rows.                                     |
+| Report configs      | `src/modules/journal-reports/types/reports`                   | Groups report titles, choices, and group rules by main, fund, debt, inventory, and fixed asset report families. |
+| Report table layout | `src/modules/journal-reports/components/reportTableLayout.ts` | Maps each report code to header rows and footer column counts aligned with the recursive report renderer.       |
+| Report renderers    | `src/modules/journal-reports/components/includes/handlers`    | Maps report families to Erkhet-style `calcReport` table calculators and detail-row renderers.                   |
+| Settings            | `src/modules/settings`                                        | Owns accounting settings forms, account tables, filters, and config hooks.                                      |
+| Pages               | `src/pages`                                                   | Exposes route-level page components for accounting surfaces.                                                    |
+| Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                    | Provides accounting relation widget exports.                                                                    |
 
 ## Contracts
 
@@ -61,7 +66,7 @@
 
 ### Consumes
 
-- Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments.
+- Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
 - Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
 - Debt rate adjustment contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged`.
 - Closing adjustment contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
@@ -93,6 +98,9 @@
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
 - Module Federation exposes, route paths, and named exports must stay aligned.
+- Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
+- Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
+- Journal report inventory and fixed-asset location filtering is represented by branch/department selectors because erxes transaction details carry branch/department instead of Erkhet `inv_location`/`fxa_location` ids.
 
 ## Validation
 
@@ -102,10 +110,47 @@
 - Smoke scenario: create a closing adjustment, calculate details, edit a row tax percent, run transactions, and confirm status plus tax impact refresh without a manual page reload.
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
+- Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-14` — `Journal Report Drilldown`
+
+- **Summary:** Journal report account rows now double-click through to account statements with current filter and grouping context, while account-statement detail rows continue to open transaction edit screens.
+- **Affected areas:** `src/modules/journal-reports/components`.
+- **Contracts changed:** None.
+
+### `2026-08-14` — `Journal Report Table Layout`
+
+- **Summary:** Journal report headers and footers now come from a shared layout registry so displayed columns stay aligned with the recursive renderer, date range filters use consistent formatting and layout, and renderer lookup uses the Erkhet-aligned `getCalcReport` name.
+- **Affected areas:** `src/modules/journal-reports/components`.
+- **Contracts changed:** None.
+
+### `2026-08-14` — `Journal Report Detail Deduplication`
+
+- **Summary:** Journal report detail rows are rebuilt from the latest query result instead of appended onto previous render state, preventing repeated account-statement detail rows after rerenders or refetches.
+- **Affected areas:** `src/modules/journal-reports/components`.
+- **Contracts changed:** None.
+
+### `2026-08-14` — `Journal Report Structure`
+
+- **Summary:** Journal report config and renderer registries were split by report family, while the report selector shows full wrapped names inside wider, scrollable, collapsed report groups.
+- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
+- **Contracts changed:** None.
+
+### `2026-08-14` — `Erkhet Journal Report Coverage`
+
+- **Summary:** Journal report UI now exposes erxes-native product/fixed-asset/customer filters and renders fund, debt, fixed asset, inventory sale/cost/period/price/profit/shipper/document, and inventory seller subsystem variants alongside the main journal reports through the shared grouped report renderer.
+- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
+- **Contracts changed:** None.
+
+### `2026-08-13` — `Journal Report Rendering`
+
+- **Summary:** Journal report rendering now mirrors the Erkhet generated-report templates more closely with transaction-kind filtering, scoped total calculation, all-zero row hiding, immutable detail grouping, and transaction navigation from account-statement detail rows.
+- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/graphql`, `src/modules/journal-reports/hooks`, `src/modules/journal-reports/states`, `src/modules/journal-reports/types`.
+- **Contracts changed:** Consumes optional `trKind`, `trKinds`, and `getTrKind` journal report filters.
 
 ### `2026-08-13` — `Adjustment Detail Record Tables`
 
@@ -137,32 +182,8 @@
 - **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingColumns.tsx`.
 - **Contracts changed:** None.
 
-### `2026-08-11` — `Closing Detail Header Spacing`
-
-- **Summary:** Closing adjustment detail header no longer expands vertically, keeping grouped detail tables directly below the status row.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Closing Detail Inline Groups`
-
-- **Summary:** Closing adjustment detail groups now collapse by branch/department and render entries in common `RecordTable` tables with inline branch, department, and account names.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
-- **Contracts changed:** None.
-
 ### `2026-08-11` — `Hide Closing Begin Date`
 
 - **Summary:** The closing adjustment create sheet no longer exposes `beginDate`; users select only the closing date and account fields.
 - **Affected areas:** `src/modules/adjustments/closing/components/AddAdjustClosing.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-11` — `Closing Adjustment Sheet Form`
-
-- **Summary:** The closing adjustment create form now opens in an `AccountingSheet` panel consistent with other accounting adjustment forms.
-- **Affected areas:** `src/modules/adjustments/closing/components/AddAdjustClosing.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Temporary Account Closing`
-
-- **Summary:** Closing adjustment UI now routes to detail screens, separates calculation from transaction execution, supports per-row tax percent edits, and shows validation/tax-impact state.
-- **Affected areas:** `src/modules/AccountingMain.tsx`, `src/pages/AdjustClosingDetailPage.tsx`, `src/modules/adjustments/closing`.
-- **Contracts changed:** Consumes closing adjustment calculate, do-transaction, publish, cancel, detail validation, grouped details, and tax impact fields.

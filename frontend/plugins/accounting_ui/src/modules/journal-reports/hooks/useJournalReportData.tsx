@@ -1,5 +1,6 @@
 import { OperationVariables, useQuery } from '@apollo/client';
 import { JOURNAL_REPORT_QUERY } from '../graphql/reportQueries';
+import { IJournalReportRecord } from '../types/journalReport';
 import { useJouranlReportVariables } from './useJournalReportVars';
 
 export const useJournalReportData = (options?: OperationVariables) => {
@@ -7,7 +8,7 @@ export const useJournalReportData = (options?: OperationVariables) => {
 
   const { data, loading, error } = useQuery<{
     journalReportData: {
-      records: any[];
+      records: IJournalReportRecord[];
     };
   }>(JOURNAL_REPORT_QUERY, {
     ...options,
