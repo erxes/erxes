@@ -12,6 +12,7 @@ export const CDR_REPORT_FIELDS =
 export interface ICallReportArgs {
   startDate: string;
   endDate: string;
+  integrationId?: string;
   queueId?: string;
   direction?: string;
   includeForwarded?: boolean;

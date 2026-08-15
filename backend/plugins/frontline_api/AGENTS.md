@@ -353,6 +353,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `showAllCallReports` action grants every queue; everyone else is narrowed to
   the integrations listing them under `operators.userId`. Add new report
   resolvers on top of that helper rather than re-deriving the rule.
+- A queue is a filter, never the scope. Every call report resolver resolves an
+  `IReportScope` through `resolveReportScope` and bounds its CDR reads with
+  `inboxScopeFilter` (`inboxIntegrationId`); `QUEUE[<id>]` narrowing applies
+  only when a specific `queueId` arrives. Anchoring on the queue alone is what
+  emptied the whole report once the deployment stopped routing through
+  queue 6507 and moved to IVR, and it left `callCarrierBreakdown`,
+  `callHeatmap`, and `callTopNumbers` reading every integration's CDRs whenever
+  no queue was chosen. An empty `scope.inboxIds` means "nothing readable" and
+  must short-circuit before any query runs.
+- `resolveReportScope` rejects a `queueId` the scoped integrations do not own,
+  which is the permission guard `callGetQueueStats` used to carry alone. Keep
+  that check in the helper so a caller cannot reach another integration's queue
+  by pairing it with its own `integrationId`.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -525,6 +538,27 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-15` — Call reports scope by integration, queue becomes a filter
+
+- **Summary:** Every call report resolver was anchored on `queueId`, so a
+  deployment that stopped routing through its queue reported nothing at all —
+  IVR and direct-to-extension traffic was invisible even though it was the only
+  traffic left. Reports now resolve an integration scope through
+  `resolveReportScope` and bound their CDR reads on `inboxIntegrationId`,
+  applying `QUEUE[<id>]` only when a queue is actually chosen. This also closes
+  the gap where `callCarrierBreakdown`, `callHeatmap`, and `callTopNumbers` had
+  no integration bound at all.
+- **Affected areas:**
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (all nine report
+  resolvers, `resolveReportScope` / `inboxScopeFilter` /
+  `operatorUserIdByExtension` replacing `findQueueIntegration` and
+  `readableQueues`), `src/modules/reports/graphql/schema/call.ts`,
+  `ICallReportArgs` in `src/modules/reports/callReportService.ts`.
+- **Contracts changed:** Nine report queries gained an optional
+  `integrationId: String`; `queueId` stays optional and now accepts `"all"`.
+  Existing callers keep working, and a queue-scoped call returns the same rows
+  as before, additionally bounded to that queue's integration.
+
 ### `2026-08-15` — Follow-Me forwards excluded from call volume, credited to agents
 
 - **Summary:** `FOLLOWME[<ext>]` legs — an extension's forward to a staff
@@ -625,24 +659,3 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
 - **Contracts changed:** `TicketReportFilter` and `ReportChartFilters` both
   gained `statusIds: [String]`. `status: String` is unchanged and still
   takes precedence if a caller sends both.
-
-### `2026-08-10` — Ticket property values from the messenger widget
-
-- **Summary:** `widgetTicketCreated` accepts `propertiesData: JSON`
-  (`{ [fieldId]: value }`) and stores it on the ticket after narrowing it to the
-  `propertyFields` of the pipeline's ticket config, enforcing the required ones,
-  and validating the values through core `fields.validateFieldValues`.
-  `TicketPropertyField` also gained `type` and `options`, both copied from the
-  core field definition on every `ticketSaveConfig`, so the widget can render a
-  select, radio, checkbox, switch, or date control instead of a text box.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`,
-  `src/modules/inbox/graphql/schemas/widget.ts`,
-  `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts`.
-- **Contracts changed:** `widgetTicketCreated` gained the optional
-  `propertiesData: JSON` argument; `TicketPropertyField` /
-  `TicketPropertyFieldInput` gained optional `type: String` and
-  `options: [TicketPropertyFieldOption]`.

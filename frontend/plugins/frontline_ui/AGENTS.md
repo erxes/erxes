@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-13`
+- **Last synchronized:** `2026-08-15`
 
 ## Scope
 
@@ -302,6 +302,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   and a horizontal scroll container; fix density there, not per table, and never
   by editing `erxes-ui` (out of plugin scope, and the record grids depend on
   those defaults).
+- The call report is scoped by **integration**, not by queue. `CallReportsPage`
+  gates every tab on `integrationId`, defaults `queueId` to the synthetic
+  `ALL_QUEUES` (`'all'`) option it prepends to `queueOptions`, and each report
+  hook skips on `!integrationId` while sending `queueId` only when it is a real
+  queue. Never restore the "select the first queue and gate on it" behaviour: a
+  deployment that moves its traffic off queues (to an IVR, say) then renders an
+  entirely empty report even though every other tab has data.
 - `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
   Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
@@ -442,6 +449,21 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-15` — Call report filters by integration, queue becomes optional
+
+- **Summary:** The page force-selected the first queue and hid every tab until
+  one was set, so a deployment whose traffic moved off queues saw an empty
+  report. `queueOptions` now leads with an "All Queues" entry that is the
+  default, the tabs gate on `integrationId`, and every report hook forwards
+  `integrationId` while sending `queueId` only for a real queue.
+- **Affected areas:**
+  `src/modules/report/call/CallReportsPage.tsx`,
+  `src/modules/report/call/hooks/*` (nine report hooks),
+  `src/modules/integrations/call/graphql/queries/callStatistics.ts`,
+  `src/modules/integrations/call/graphql/queries/callHistoryList.ts`.
+- **Contracts changed:** Nine report documents gained `$integrationId: String`,
+  matching the new optional argument in `frontline_api`.
+
 ### `2026-08-13` — Ticket tag popover stays open across a multi-select
 
 - **Summary:** Picking a tag on the ticket board card, detail sheet, or create
@@ -576,23 +598,3 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
 - **Contracts changed:** `None` on the UI side; the four ticket-config documents
   now select the new optional `propertyFields` field from `frontline_api`.
-
-### `2026-08-10` — Denser, scannable call report tables
-
-- **Summary:** The Agents, Callbacks, and Top Numbers tables now compose a
-  shared `ReportTable` wrapper that replaces `erxes-ui`'s `table-fixed` /
-  `p-0` defaults with content-sized columns, real cell padding, aligned heads,
-  and horizontal scrolling. Added proportional `Meter` bars for call volume,
-  answer rate, and callback recovery; an agent row now shows name over
-  extension with its leaderboard rank; the expander is a real button with
-  `aria-expanded`; and the drilldown became a labelled grid. Fixed a missing
-  React `key` on the agent row fragment, and repointed these three tables'
-  colours from the undefined `--pos` / `--neg` / `--warn` variables to the
-  theme's real `--success` / `--destructive` / `--warning`, so the count pills
-  are actually tinted.
-- **Affected areas:** `src/modules/report/call/components/ReportTable.tsx`
-  (new), `.../components/Meter.tsx` (new),
-  `.../components/AgentsSection/{AgentTable,AgentDrilldown}.tsx`,
-  `.../components/CallbacksSection/CallbacksSection.tsx`,
-  `.../components/TopNumbersSection/TopNumbersSection.tsx`.
-- **Contracts changed:** `None`
