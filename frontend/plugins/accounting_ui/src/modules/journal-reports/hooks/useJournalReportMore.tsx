@@ -8,6 +8,7 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
+import { IJournalReportRecord } from '../types/journalReport';
 
 export const useJournalReportMore = (options?: OperationVariables) => {
   const variables = useJouranlReportVariables(options?.variables);
@@ -16,7 +17,7 @@ export const useJournalReportMore = (options?: OperationVariables) => {
 
   const { data, loading, error, fetchMore } = useQuery<{
     journalReportMore: {
-      trDetails: any[];
+      trDetails: IJournalReportRecord[];
       totalCount: number;
       pageInfo: IRecordTableCursorPageInfo;
     };

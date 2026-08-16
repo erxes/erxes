@@ -1,5 +1,34 @@
 
 
+## [3.0.80](https://github.com/erxes/erxes/compare/3.0.79...3.0.80) (2026-08-14)
+
+
+### Bug Fixes
+
+* **frontline:** correct inverted isCheckUser ticket visibility ([88b2dbe](https://github.com/erxes/erxes/commit/88b2dbead8aff54a67a2ead0092e7fa28732789f))
+* **frontline:** grant frontline:admin access to all call queues ([d2c11d9](https://github.com/erxes/erxes/commit/d2c11d935c4fd11da6688c628e834c4c4b3437f8))
+* hide response template when internal note in inbox([#8948](https://github.com/erxes/erxes/issues/8948)) ([f734e80](https://github.com/erxes/erxes/commit/f734e808a1fd613b3ee68280009f9e1a59c0a136))
+* update board tag in card detail on frontline ([#8950](https://github.com/erxes/erxes/issues/8950)) ([f8914f0](https://github.com/erxes/erxes/commit/f8914f022c7f0ee5a2485756253472e6ec012994))
+
+## [3.0.79](https://github.com/erxes/erxes/compare/3.0.78...3.0.79) (2026-08-13)
+
+
+### Bug Fixes
+
+* add branch and department fields to ticket form and detail ([#8931](https://github.com/erxes/erxes/issues/8931)) ([aaa4145](https://github.com/erxes/erxes/commit/aaa4145a7fbb7b5b30a91478f646f19a2f3a5ae1))
+* **frontline:** make the inbox layout adapt to narrow viewports ([#8991](https://github.com/erxes/erxes/issues/8991)) ([350d6f0](https://github.com/erxes/erxes/commit/350d6f068c50039e7cbf1977caa5935eda6c2cee))
+* **gateway:** add missing comma in frontline locale files ([1d6b493](https://github.com/erxes/erxes/commit/1d6b49318441cb0adfae1ad17eea485d1ba51d6b))
+* group ticket bulk actions in an Actions popover ([#8947](https://github.com/erxes/erxes/issues/8947)) ([07dfaf7](https://github.com/erxes/erxes/commit/07dfaf744a0b5b3bac600a993d0be38514a21805))
+* preserve legacy pipeline properties ([#9005](https://github.com/erxes/erxes/issues/9005)) ([8ad08f0](https://github.com/erxes/erxes/commit/8ad08f05ad21c7213a232ae7e7f1d7fed3a4bee0))
+* **sales:** deals search and stage code/product config payment cyrillic ([#8999](https://github.com/erxes/erxes/issues/8999)) ([912aaed](https://github.com/erxes/erxes/commit/912aaed896edf1b94daad969574ebb138bbad4d5))
+* **sales:** stabilize deal payment saves ([#9010](https://github.com/erxes/erxes/issues/9010)) ([5ae800a](https://github.com/erxes/erxes/commit/5ae800a6ce10a53d1b0510f9aa32c0fba861a1b9))
+
+
+### Features
+
+* **frontline:** add call history report  ([1cac92b](https://github.com/erxes/erxes/commit/1cac92b5bae4847783b67f5fc3348d6f542788ed))
+* **pipelines:** select properties by group ([#9006](https://github.com/erxes/erxes/issues/9006)) ([6d318c0](https://github.com/erxes/erxes/commit/6d318c01bb40f9ba4262c322fdd0e7a4fccbc78a))
+
 ## [3.0.78](https://github.com/erxes/erxes/compare/3.0.77...3.0.78) (2026-08-12)
 
 

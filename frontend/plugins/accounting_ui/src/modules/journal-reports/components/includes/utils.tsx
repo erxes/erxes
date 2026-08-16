@@ -1,38 +1,54 @@
 import { displayNum } from 'erxes-ui';
 import { IGroupRule } from '../../types/reportsMap';
 
+type ReportRecord = Record<string, unknown>;
+type GroupedRecords = Record<string, ReportRecord>;
+
+export const toSafeString = (value: unknown) => {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return '';
+};
+
 // toGroup Data
-export const groupRecords = (records: any[], groupRule?: IGroupRule) => {
+export const groupRecords = (
+  records: ReportRecord[],
+  groupRule?: IGroupRule,
+) => {
   if (!groupRule) {
     return { items: records };
   }
 
-  const resultDic = {};
+  const resultDic: GroupedRecords = {};
 
   toGroup(resultDic, records, groupRule);
   return resultDic;
 };
 
-type AnyDict = { [key: string]: any };
-
 export const toGroup = (
-  resultDic: AnyDict,
-  groupRuleItems: AnyDict[],
+  resultDic: GroupedRecords,
+  groupRuleItems: ReportRecord[],
   groupRule: IGroupRule,
 ) => {
   // iterate over rows to group
   for (const item of groupRuleItems) {
-    const groupKey = item[groupRule.group];
+    const groupKey = toSafeString(item[groupRule.group]);
 
     // If group does not exist in resultDic, initialize it
     if (!resultDic[groupKey]) {
       resultDic[groupKey] = {
         items: [],
-        [`${groupRule.group}Id`]: String(groupKey), // id
-        [`${groupRule.group}Code`]: String(item[groupRule.code]), // code
+        [`${groupRule.group}Id`]: groupKey,
+        [`${groupRule.group}Code`]: toSafeString(item[groupRule.code]),
         [`${groupRule.group}Name`]: groupRule.name
-          ? String(item[groupRule.name])
-          : '', // name
+          ? toSafeString(item[groupRule.name])
+          : '',
       };
 
       // if sub-group rule exists -> initialize empty dict
@@ -42,7 +58,7 @@ export const toGroup = (
     }
 
     // get existing items under this group
-    const dicItems = resultDic[groupKey]['items'] || [];
+    const dicItems = (resultDic[groupKey].items || []) as ReportRecord[];
 
     // add current record
     dicItems.push(item);
@@ -55,11 +71,11 @@ export const toGroup = (
   if (groupRule.groupRule?.group) {
     for (const key of Object.keys(resultDic)) {
       toGroup(
-        resultDic[key][groupRule.groupRule.group],
-        resultDic[key]['items'],
+        resultDic[key][groupRule.groupRule.group] as GroupedRecords,
+        resultDic[key].items as ReportRecord[],
         groupRule.groupRule,
       );
-      resultDic[key]['items'] = undefined;
+      resultDic[key].items = undefined;
     }
   }
 };
@@ -71,7 +87,7 @@ export const getFirstGroupRule = (
   const subGroupRule = groupRule?.groupRule;
 
   if (groupRule?.group && !groupRule.excMore) {
-    const froms = (groupRule.from && `${groupRule.from}.`) || '';
+    const froms = groupRule.from?.length ? `${groupRule.from.join('.')}.` : '';
 
     firstGroupRule.push(`${froms}${groupRule.group}`);
   }
@@ -83,29 +99,75 @@ export const getFirstGroupRule = (
 };
 
 export const moreDataByKey = (
-  moreData: { [key: string]: any[] },
-  trDetails: any[],
+  trDetails: ReportRecord[],
   groupRule?: IGroupRule,
 ) => {
   const rules = getFirstGroupRule([], groupRule);
+  const nextMoreData: Record<string, ReportRecord[]> = {};
 
   trDetails.forEach((tr) => {
     const key = rules
-      .map((rule) => rule.split('.').reduce((acc, k) => acc?.[k], tr))
+      .map((rule) =>
+        rule
+          .split('.')
+          .reduce<unknown>(
+            (acc, k) =>
+              acc && typeof acc === 'object'
+                ? (acc as ReportRecord)[k]
+                : undefined,
+            tr,
+          ),
+      )
       .join('#');
 
-    if (!moreData[key]) {
-      moreData[key] = [];
-    }
-
-    moreData[key].push(tr);
+    nextMoreData[key] = [...(nextMoreData[key] || []), tr];
   });
 
-  return moreData;
+  return nextMoreData;
 };
 
-export const totalsCalc = (root: HTMLElement, groupRule?: IGroupRule) => {
-  const table = document.querySelector('table[data-slot="table"]');
+const parseCellNumber = (text?: string | null) => {
+  const recordValue = Number.parseFloat(text?.replace(/,/g, '') || '0');
+  return Number.isNaN(recordValue) ? 0 : recordValue;
+};
+
+const hideZeroRows = (
+  root: HTMLElement,
+  excludedIndexes: Set<number>,
+  unhideZero?: boolean,
+) => {
+  const rows = root.querySelectorAll('tr');
+
+  rows.forEach((row, rowIndex) => {
+    const htmlRow = row as HTMLTableRowElement;
+    htmlRow.style.display = '';
+
+    if (unhideZero || rowIndex <= 1) {
+      return;
+    }
+
+    if (htmlRow.dataset.drawZero === '1') {
+      return;
+    }
+
+    const hasValue = Array.from(row.querySelectorAll('td')).some(
+      (td, colIndex) =>
+        !excludedIndexes.has(colIndex) &&
+        Math.abs(parseCellNumber(td.textContent)) > 0.005,
+    );
+
+    if (!hasValue) {
+      htmlRow.style.display = 'none';
+    }
+  });
+};
+
+export const totalsCalc = (
+  root: HTMLElement,
+  groupRule?: IGroupRule,
+  unhideZero?: boolean,
+) => {
+  const table = root.closest('table[data-slot="table"]');
   if (!table) return;
 
   const excludedIndexes = new Set([0, 1].concat(groupRule?.excTotal || [])); // not-sum index-үүд энд орно
@@ -122,10 +184,7 @@ export const totalsCalc = (root: HTMLElement, groupRule?: IGroupRule) => {
     tds.forEach((td, index) => {
       if (excludedIndexes.has(index)) return;
 
-      let recordValue = Number.parseFloat(
-        td.textContent?.replace(/,/g, '') || '0',
-      );
-      if (Number.isNaN(recordValue)) recordValue = 0;
+      const recordValue = parseCellNumber(td.textContent);
 
       Array.from(sumKeys).forEach((sumKey) => {
         if (!totals[sumKey]) totals[sumKey] = {};
@@ -136,7 +195,7 @@ export const totalsCalc = (root: HTMLElement, groupRule?: IGroupRule) => {
     });
   });
 
-  // ✅ БОДОГДСОН ДҮНГ TABLE-Д ШАХАХ
+  // БОДОГДСОН ДҮНГ TABLE-Д ШАХАХ
   Object.keys(totals).forEach((rowId) => {
     const colIndexes = Object.keys(totals[rowId]);
 
@@ -150,4 +209,6 @@ export const totalsCalc = (root: HTMLElement, groupRule?: IGroupRule) => {
       cell.textContent = displayNum(value, 2).toString();
     });
   });
+
+  hideZeroRows(root, excludedIndexes, unhideZero);
 };

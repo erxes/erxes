@@ -1,33 +1,23 @@
 import { escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  callSpeedOfAnswer,
+  isHumanAnsweredLeg,
+} from '@/integrations/call/services/cdrUtils';
 
-/**
- * Computation behind the call report queries.
- *
- * The resolvers follow the same shape as `callCalculate*` and
- * `callTodayStatistics`: build a plain CDR filter, fetch the legs, and fold
- * them here. `statistics.ts` owns the KPI formulas; this module owns the
- * per-queue, per-agent, and per-number breakdowns.
- *
- * A single call writes several CDR legs sharing one `uniqueid`, so every report
- * folds legs into calls before counting — otherwise a two-leg call is counted
- * twice.
- */
-
-/** The PBX stamps wall-clock time at UTC+8, and Mongolia observes no DST. */
 const PBX_OFFSET_MS = 8 * 60 * 60 * 1000;
 
-/** Only these CDR fields are read; keep the projection narrow. */
 export const CDR_REPORT_FIELDS =
-  'uniqueid actionType userfield disposition lastapp billsec duration start end src dst dstchannelExt';
+  'uniqueid actionType userfield disposition lastapp billsec duration start answer end src dst dstchannelExt recordUrl conversationId';
 
 export interface ICallReportArgs {
   startDate: string;
   endDate: string;
+  integrationId?: string;
   queueId?: string;
   direction?: string;
+  includeForwarded?: boolean;
 }
 
-/** The subset of a CDR leg the reports read. */
 export interface ICdrLeg {
   uniqueid?: string;
   actionType?: string;
@@ -42,9 +32,10 @@ export interface ICdrLeg {
   src?: string;
   dst?: string;
   dstchannelExt?: string;
+  recordUrl?: string;
+  conversationId?: string;
 }
 
-/** One call, folded from every leg that shares its `uniqueid`. */
 export interface ICall {
   uniqueid: string;
   queue: string | null;
@@ -53,13 +44,17 @@ export interface ICall {
   lastapps: string[];
   billsec: number;
   duration: number;
-  /** Seconds the caller waited before the call was answered or gave up. */
+
   waitTime: number;
   isAnswered: boolean;
   agent: string | null;
   customerPhone: string | null;
   start: Date | null;
   end: Date | null;
+
+  recordUrl: string | null;
+
+  conversationId: string | null;
 }
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
@@ -70,18 +65,16 @@ const percentage = (part: number, whole: number): number =>
 const average = (total: number, count: number): number =>
   count > 0 ? round2(total / count) : 0;
 
-/**
- * The filter every report query starts from, matching the one the
- * `callCalculate*` queries build.
- *
- * The queue is anchored on the bracketed form the PBX writes
- * (`actionType: "QUEUE[6500]"`) so queue `650` cannot match `QUEUE[6500]`.
- */
+const FORWARDED_ACTION_TYPE = /^FOLLOWME\[([0-9]+)\]/;
+
+const FORWARDED_WINDOW_MS = 10_000;
+
 export const buildCdrFilter = ({
   startDate,
   endDate,
   queueId,
   direction,
+  includeForwarded,
 }: ICallReportArgs): Record<string, unknown> => {
   const filter: Record<string, unknown> = {
     start: { $gte: new Date(startDate), $lt: new Date(endDate) },
@@ -93,38 +86,77 @@ export const buildCdrFilter = ({
 
   if (queueId && queueId !== 'all') {
     filter.actionType = { $regex: `QUEUE\\[${escapeRegExp(queueId)}\\]` };
+  } else if (!includeForwarded) {
+    filter.actionType = { $not: FORWARDED_ACTION_TYPE };
   }
 
   return filter;
 };
 
-/** `"QUEUE[6500]"` → `"6500"`. */
 export const queueOf = (leg: ICdrLeg): string | null =>
   /QUEUE\[([^\]]+)\]/.exec(leg.actionType ?? '')?.[1] ?? null;
 
 const isExtension = (value?: string): boolean =>
   /^[0-9]{4}$/.test(String(value ?? ''));
 
-/**
- * The answering extension.
- *
- * On a trunk leg `dst` holds the DID the customer dialled, and the extension
- * appears in `dstchannelExt` instead, so take whichever field actually looks
- * like an extension.
- */
-export const agentOf = (leg: ICdrLeg): string | null => {
+const RINGING_LASTAPPS = ['Queue', 'Dial'];
+
+const extensionFromCallerId = (
+  value: string | undefined,
+  knownExtensions: Set<string>,
+): string | null => {
+  const digits = String(value ?? '');
+  if (digits.length <= 4) return null;
+
+  const suffix = digits.slice(-4);
+  return knownExtensions.has(suffix) ? suffix : null;
+};
+
+export const forwardedExtensionOf = (leg: ICdrLeg): string | null => {
+  const extension = FORWARDED_ACTION_TYPE.exec(leg.actionType ?? '')?.[1];
+  return extension && isExtension(extension) ? extension : null;
+};
+
+export const agentOf = (
+  leg: ICdrLeg,
+  knownExtensions?: Set<string>,
+): string | null => {
+  const forwarded = forwardedExtensionOf(leg);
+  if (forwarded) return forwarded;
+
+  if (leg.userfield === 'Outbound') {
+    if (isExtension(leg.src)) return String(leg.src);
+
+    if (knownExtensions?.size) {
+      const extension = extensionFromCallerId(leg.src, knownExtensions);
+      if (extension) return extension;
+    }
+  }
   if (isExtension(leg.dstchannelExt)) return String(leg.dstchannelExt);
   if (isExtension(leg.dst)) return String(leg.dst);
   return null;
 };
 
-/** Inbound calls are identified by the caller, outbound by the callee. */
 const customerPhoneOf = (leg: ICdrLeg): string | null =>
   (leg.userfield === 'Inbound' ? leg.src : leg.dst) ?? null;
 
-/** Folds CDR legs into one record per call, keyed on `uniqueid`. */
-export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
+const legsByCallId = (legs: ICdrLeg[]): Map<string, ICdrLeg[]> => {
+  const grouped = new Map<string, ICdrLeg[]>();
+
+  for (const leg of legs) {
+    if (!leg.uniqueid) continue;
+    grouped.set(leg.uniqueid, [...(grouped.get(leg.uniqueid) ?? []), leg]);
+  }
+
+  return grouped;
+};
+
+export const foldLegsIntoCalls = (
+  legs: ICdrLeg[],
+  knownExtensions?: Set<string>,
+): ICall[] => {
   const calls = new Map<string, ICall>();
+  const legsByCall = new Map<string, ICdrLeg[]>();
 
   for (const leg of legs) {
     if (!leg.uniqueid) continue;
@@ -143,11 +175,13 @@ export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
       customerPhone: null,
       start: null,
       end: null,
+      recordUrl: null,
+      conversationId: null,
     };
 
     call.queue = call.queue ?? queueOf(leg);
-    call.agent = call.agent ?? agentOf(leg);
     call.customerPhone = call.customerPhone ?? customerPhoneOf(leg);
+    call.conversationId = call.conversationId ?? leg.conversationId ?? null;
 
     if (leg.disposition && !call.dispositions.includes(leg.disposition)) {
       call.dispositions.push(leg.disposition);
@@ -156,8 +190,17 @@ export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
       call.lastapps.push(leg.lastapp);
     }
 
-    call.billsec = Math.max(call.billsec, leg.billsec ?? 0);
     call.duration = Math.max(call.duration, leg.duration ?? 0);
+
+    if (isHumanAnsweredLeg(leg)) {
+      call.isAnswered = true;
+
+      call.billsec = Math.max(call.billsec, leg.billsec ?? 0);
+
+      call.agent = agentOf(leg, knownExtensions) ?? call.agent;
+
+      call.recordUrl = leg.recordUrl ?? call.recordUrl;
+    }
 
     if (leg.start && (!call.start || leg.start < call.start)) {
       call.start = leg.start;
@@ -167,28 +210,29 @@ export const foldLegsIntoCalls = (legs: ICdrLeg[]): ICall[] => {
     }
 
     calls.set(leg.uniqueid, call);
+    legsByCall.set(leg.uniqueid, [
+      ...(legsByCall.get(leg.uniqueid) ?? []),
+      leg,
+    ]);
   }
 
   for (const call of calls.values()) {
-    call.isAnswered =
-      call.dispositions.includes('ANSWERED') && call.billsec > 0;
+    const callLegs = legsByCall.get(call.uniqueid) ?? [];
 
-    // `waittime` is not a field on CDRSchema, so it is never written. A leg's
-    // `duration` covers ringing plus talking and `billsec` only the talking,
-    // so the difference is how long the caller waited.
-    call.waitTime = Math.max(0, call.duration - call.billsec);
+    if (!call.agent) {
+      call.agent =
+        callLegs
+          .filter((leg) => RINGING_LASTAPPS.includes(leg.lastapp ?? ''))
+          .map((leg) => agentOf(leg, knownExtensions))
+          .find(Boolean) ?? null;
+    }
+
+    call.waitTime = callSpeedOfAnswer(callLegs) ?? 0;
   }
 
   return [...calls.values()];
 };
 
-/**
- * Queue-level totals, one row per queue.
- *
- * A call counts as answered only when it reached a queue member or an
- * announcement, which is what `lastapp` distinguishes; anything else that rang
- * the queue and produced no talk time was abandoned.
- */
 export const summariseQueueStats = (calls: ICall[]) => {
   const byQueue = new Map<string, ICall[]>();
 
@@ -200,12 +244,7 @@ export const summariseQueueStats = (calls: ICall[]) => {
 
   return [...byQueue.entries()]
     .map(([queue, queueCalls]) => {
-      const answered = queueCalls.filter(
-        (call) =>
-          call.isAnswered &&
-          (call.lastapps.includes('Queue') ||
-            call.lastapps.includes('Playback')),
-      );
+      const answered = queueCalls.filter((call) => call.isAnswered);
       const abandoned = queueCalls.filter((call) => !call.isAnswered);
 
       const totalWaitTime = answered.reduce(
@@ -231,24 +270,99 @@ export const summariseQueueStats = (calls: ICall[]) => {
     .sort((a, b) => a.queue.localeCompare(b.queue));
 };
 
-/** Per-agent totals for the calls that reached an extension. */
-export const summariseAgentStats = (
-  calls: ICall[],
-  agentId?: string | null,
-) => {
-  const byAgent = new Map<string, ICall[]>();
+export const withForwardedCallKeys = (legs: ICdrLeg[]): ICdrLeg[] => {
+  const forwarded: { leg: ICdrLeg; extension: string }[] = [];
+  const rest: ICdrLeg[] = [];
 
-  for (const call of calls) {
-    const agent = call.agent;
-    if (!agent) continue;
-    if (agentId && agent !== agentId) continue;
-    byAgent.set(agent, [...(byAgent.get(agent) ?? []), call]);
+  for (const leg of legs) {
+    const extension = forwardedExtensionOf(leg);
+    if (extension) forwarded.push({ leg, extension });
+    else rest.push(leg);
   }
 
-  return [...byAgent.entries()]
-    .map(([agent, agentCalls]) => {
-      const answered = agentCalls.filter((call) => call.isAnswered);
-      const missed = agentCalls.filter((call) => !call.isAnswered);
+  forwarded.sort(
+    (a, b) => (a.leg.start?.getTime() ?? 0) - (b.leg.start?.getTime() ?? 0),
+  );
+
+  const openedAt = new Map<string, number>();
+  const groupIndex = new Map<string, number>();
+
+  const keyed = forwarded.map(({ leg, extension }) => {
+    const startedAt = leg.start?.getTime() ?? 0;
+    const opened = openedAt.get(extension);
+
+    if (opened === undefined || startedAt - opened > FORWARDED_WINDOW_MS) {
+      openedAt.set(extension, startedAt);
+      groupIndex.set(extension, (groupIndex.get(extension) ?? -1) + 1);
+    }
+
+    return {
+      ...leg,
+      uniqueid: `forwarded:${extension}:${groupIndex.get(extension)}`,
+    };
+  });
+
+  return [...rest, ...keyed];
+};
+
+export const summariseAgentStats = (
+  rawLegs: ICdrLeg[],
+  agentId?: string | null,
+  agentExtensions?: Set<string>,
+) => {
+  const legs = withForwardedCallKeys(rawLegs);
+
+  const callById = new Map(
+    foldLegsIntoCalls(legs, agentExtensions).map((call) => [
+      call.uniqueid,
+      call,
+    ]),
+  );
+
+  const isReported = (agent: string): boolean =>
+    (!agentId || agent === agentId) &&
+    (!agentExtensions?.size || agentExtensions.has(agent));
+
+  const answeredByAgent = new Map<string, ICall[]>();
+  const missedByAgent = new Map<string, ICall[]>();
+
+  for (const [uniqueid, callLegs] of legsByCallId(legs)) {
+    const call = callById.get(uniqueid);
+    if (!call) continue;
+
+    const answeredAgent =
+      callLegs
+        .filter(isHumanAnsweredLeg)
+        .map((leg) => agentOf(leg, agentExtensions))
+        .find(Boolean) ?? null;
+
+    if (call.isAnswered && !answeredAgent) continue;
+
+    if (answeredAgent && isReported(answeredAgent)) {
+      answeredByAgent.set(answeredAgent, [
+        ...(answeredByAgent.get(answeredAgent) ?? []),
+        call,
+      ]);
+    }
+
+    const rungAgents = new Set(
+      callLegs
+        .filter((leg) => RINGING_LASTAPPS.includes(leg.lastapp ?? ''))
+        .map((leg) => agentOf(leg, agentExtensions))
+        .filter((agent): agent is string => Boolean(agent)),
+    );
+
+    for (const agent of rungAgents) {
+      if (agent === answeredAgent || !isReported(agent)) continue;
+      missedByAgent.set(agent, [...(missedByAgent.get(agent) ?? []), call]);
+    }
+  }
+
+  return [...new Set([...answeredByAgent.keys(), ...missedByAgent.keys()])]
+    .map((agent) => {
+      const answered = answeredByAgent.get(agent) ?? [];
+      const missed = missedByAgent.get(agent) ?? [];
+      const totalCalls = answered.length + missed.length;
 
       const talkTimes = answered.map((call) => call.billsec);
       const totalTalkTime = talkTimes.reduce((sum, value) => sum + value, 0);
@@ -259,11 +373,11 @@ export const summariseAgentStats = (
 
       return {
         agent,
-        totalCalls: agentCalls.length,
+        totalCalls,
         answeredCalls: answered.length,
-        answeredRate: percentage(answered.length, agentCalls.length),
+        answeredRate: percentage(answered.length, totalCalls),
         missedCalls: missed.length,
-        missedRate: percentage(missed.length, agentCalls.length),
+        missedRate: percentage(missed.length, totalCalls),
         totalTalkTime,
         averageTalkTime: average(totalTalkTime, answered.length),
         totalWaitTime,
@@ -275,13 +389,8 @@ export const summariseAgentStats = (
     .sort((a, b) => a.agent.localeCompare(b.agent));
 };
 
-/** How long after a missed call an outbound call still counts as a callback. */
 export const CALLBACK_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Missed-call recovery: for each abandoned inbound call, whether the number was
- * called back within a day and whether that callback connected.
- */
 export const summariseCallbackStats = (
   inboundCalls: ICall[],
   outboundCalls: ICall[],
@@ -341,7 +450,6 @@ export const summariseCallbackStats = (
   ];
 };
 
-/** UTC instant of PBX-local midnight on the day the call started. */
 const pbxDayStart = (date: Date): Date => {
   const local = new Date(date.getTime() + PBX_OFFSET_MS);
   return new Date(
@@ -350,14 +458,12 @@ const pbxDayStart = (date: Date): Date => {
   );
 };
 
-/** ISO day of week (1 = Monday) and hour, both in PBX-local time. */
 const pbxDayAndHour = (date: Date): { dow: number; hour: number } => {
   const local = new Date(date.getTime() + PBX_OFFSET_MS);
   const day = local.getUTCDay();
   return { dow: day === 0 ? 7 : day, hour: local.getUTCHours() };
 };
 
-/** Daily call volume, split by direction and outcome. */
 export const buildVolumeSeries = (calls: ICall[]) => {
   const byDay = new Map<number, ICall[]>();
 
@@ -380,7 +486,6 @@ export const buildVolumeSeries = (calls: ICall[]) => {
     }));
 };
 
-/** Mongolian mobile prefixes, keyed on the first two digits of the number. */
 const CARRIER_BY_PREFIX: Record<string, string> = {
   '85': 'Mobicom',
   '94': 'Mobicom',
@@ -402,20 +507,9 @@ const CARRIER_BY_PREFIX: Record<string, string> = {
   '66': 'Ondo',
 };
 
-/**
- * Carrier for a Mongolian number.
- *
- * Two digits identify every allocated range except Skytel's `696XXXXX`, which
- * needs three — `69` alone is not allocated. Unallocated ranges (`81`, `82`,
- * `84`, `87`), landlines, and short codes fall through to `Other`.
- *
- * Mirrors `detectCarrier` in the `frontline_ui` call report utils.
- */
 export const detectCarrier = (phone?: string | null): string => {
   const digits = String(phone ?? '').replace(/\D/g, '');
 
-  // Only an 11-digit number carries the country code — `976XXXXX` on its own is
-  // a valid 8-digit G-Mobile number and must keep its `97` prefix.
   const national =
     digits.length === 11 && digits.startsWith('976') ? digits.slice(3) : digits;
 
@@ -424,7 +518,6 @@ export const detectCarrier = (phone?: string | null): string => {
   return CARRIER_BY_PREFIX[national.slice(0, 2)] ?? 'Other';
 };
 
-/** Call share per carrier, counted once per call. */
 export const buildCarrierBreakdown = (calls: ICall[]) => {
   const byCarrier = new Map<string, number>();
 
@@ -438,7 +531,6 @@ export const buildCarrierBreakdown = (calls: ICall[]) => {
     .sort((a, b) => b.value - a.value);
 };
 
-/** Call volume and answer rate per weekday/hour cell. */
 export const buildHeatmap = (calls: ICall[]) => {
   const cells = new Map<
     string,
@@ -467,7 +559,6 @@ export const buildHeatmap = (calls: ICall[]) => {
   });
 };
 
-/** The busiest customer numbers in the range. */
 export const buildTopNumbers = (calls: ICall[], limit: number) => {
   const byNumber = new Map<string, ICall[]>();
 

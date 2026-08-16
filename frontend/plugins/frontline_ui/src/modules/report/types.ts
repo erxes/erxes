@@ -58,6 +58,7 @@ export interface ReportChartFilters {
   date?: string;
   fromDate?: string;
   toDate?: string;
+  source?: string;
   state?: string;
   statusIds?: string[];
   frequency?: string;

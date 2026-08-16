@@ -6,5 +6,7 @@
   "login": "Нэвтрэх",
   "logout": "Гарах",
   "username": "Нэр",
-  "password": "Нууц үг"
+  "password": "Нууц үг",
+  "hide-conversations": "Яриануудыг нуух",
+  "show-conversations": "Яриануудыг харуулах"
 }

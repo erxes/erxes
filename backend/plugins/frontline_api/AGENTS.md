@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-15`
 
 ## Scope
 
@@ -104,7 +104,7 @@
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, trpc                                                          |
-| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`               | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
+| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
 | FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
@@ -347,6 +347,25 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallQueueStatistics` is a cache of live PBX counters and is empty until the
   PBX pushes queue statistics, so it must never be the source of "which queues
   exist" — the Call Reports page hides every tab when the queue list is empty.
+- Call report queue visibility is decided once, by `seesEveryQueue` in
+  `src/modules/reports/graphql/resolvers/callQueries.ts`: `user.isOwner`, the
+  `frontline:admin` entry in `user.permissionGroupIds`, or the
+  `showAllCallReports` action grants every queue; everyone else is narrowed to
+  the integrations listing them under `operators.userId`. Add new report
+  resolvers on top of that helper rather than re-deriving the rule.
+- A queue is a filter, never the scope. Every call report resolver resolves an
+  `IReportScope` through `resolveReportScope` and bounds its CDR reads with
+  `inboxScopeFilter` (`inboxIntegrationId`); `QUEUE[<id>]` narrowing applies
+  only when a specific `queueId` arrives. Anchoring on the queue alone is what
+  emptied the whole report once the deployment stopped routing through
+  queue 6507 and moved to IVR, and it left `callCarrierBreakdown`,
+  `callHeatmap`, and `callTopNumbers` reading every integration's CDRs whenever
+  no queue was chosen. An empty `scope.inboxIds` means "nothing readable" and
+  must short-circuit before any query runs.
+- `resolveReportScope` rejects a `queueId` the scoped integrations do not own,
+  which is the permission guard `callGetQueueStats` used to carry alone. Keep
+  that check in the helper so a caller cannot reach another integration's queue
+  by pairing it with its own `integrationId`.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -366,6 +385,60 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - A trunk leg carries the dialled DID in `dst`; the answering extension is in
   `dstchannelExt`. `agentOf` takes whichever field holds a four-digit extension,
   so agent attribution must not read `dst` alone.
+- Some trunks present the outbound caller id as `<did><extension>` — `src` is
+  `767622222000` for DID `76762222` and extension `2000`, and `channelExt` holds
+  the customer number, not the agent. `agentOf` therefore accepts an optional
+  known-extension set and trusts a four-digit `src` suffix only when it matches
+  a configured operator. Never strip the suffix without that set: an arbitrary
+  trailing four digits is a customer number as often as an extension.
+- Agent statistics are attributed **per leg, not per folded call**. A queue call
+  rings several agents at once, each on its own leg sharing the `uniqueid`, so
+  `summariseAgentStats` takes `ICdrLeg[]` (not `ICall[]`): the agent whose leg
+  satisfies `isHumanAnsweredLeg` gets the answer, every other agent that rang
+  gets a miss. Folding first would credit whichever ringing leg happened to come
+  first and silently drop the rest. Consequently per-agent totals sum to more
+  than the queue's call count — that is correct for a leaderboard.
+- When a call is answered but no leg yields an extension, `summariseAgentStats`
+  skips the call entirely rather than charging every agent that rang with a
+  miss; one of them is likely the one who picked it up.
+- A `FOLLOWME[<ext>]` leg is an extension's Follow-Me forward to a staff mobile,
+  not a customer call. It carries the DID in `src` and the staff mobile in
+  `dst`, so it has no customer identity at all, and the PBX gives each forward
+  attempt its own `uniqueid` — one unanswered queue call can spawn three of
+  them. Counted naively they dominate every call-level report: on a real
+  deployment 1,664 of 1,843 "calls" were forwards, and the busiest "customer"
+  in Top Numbers was an operator's mobile.
+- `buildCdrFilter` therefore excludes `FOLLOWME[...]` unless the caller passes
+  `includeForwarded: true`, which only `callGetAgentStats` and `callHistoryList`
+  do. A `queueId` already narrows `actionType` to `QUEUE[<id>]`, so the
+  exclusion applies only to the unfiltered (outbound) fetches. Never drop the
+  exclusion elsewhere to "get more data" — it re-inflates Total Calls, Top
+  Numbers, carrier mix, and callbacks.
+- A forward cannot be merged into the call that triggered it. The PBX issues a
+  fresh `uniqueid` per attempt and erxes gives most forwards their own
+  `conversationId`, so neither field links them back; only ~2 in 10 forwarded
+  conversations also hold the originating `IVR`/`DIAL` leg. Do not add a
+  time-window join to "fix" abandonment — forwards outnumber queue calls 15:1
+  because most originate from direct extension calls, not the queue.
+- Consequence to keep in mind: a queue call nobody answered at the desk but
+  which was answered on a mobile counts as abandoned in Queues and answered for
+  the agent in Agents. That is the honest reading of the data, not a bug.
+- The forwarded agent is in the `actionType`, nowhere else: `agentOf` reads
+  `FOLLOWME[<ext>]` before anything else because `dstchannelExt` is the trunk
+  and `dst` is a mobile. This is the only way extensions whose calls are all
+  forwarded ever appear on the leaderboard.
+- Because each forward attempt has its own `uniqueid`, `summariseAgentStats`
+  re-keys forwarded legs before folding: consecutive legs for the same
+  extension starting within `FORWARDED_WINDOW_MS` become one call. Bucketing by
+  a fixed time window instead would split a burst that straddles the boundary —
+  real forwards land one second apart. Without this, an extension with three
+  Follow-Me destinations reports triple its real volume.
+- A voicemail deposit is not an answered call. `isHumanAnsweredLeg` requires
+  `billsec > 0`, a `Queue`/`Dial` `lastapp`, and an `actionType` without `VM`,
+  which is why a queue leg that the PBX marks `ANSWERED` with `billsec: 0` — the
+  queue answering the line to play its announcement — counts as abandoned. Do
+  not relax those conditions to raise an answer rate; on a real deployment the
+  voicemail legs outnumber human answers by more than twenty to one.
 - `calculateOccupancyRate` computes `workingTime / handlingTime`, which is the
   inverse of occupancy and exceeds 100% at low call volume. `callKpiScorecard`
   returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
@@ -387,7 +460,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Automation operation and node type names stay prefixed with the plugin and
   module (`frontline:facebook.comments.create`).
 - Facebook/Instagram automations must resolve their integration and bot from the
-  request's own models; never read another plugin's collections.
+  request's own models; never read another plugin's collections. The two
+  integrations share a code shape but never a collection: an Instagram automation
+  reads and writes `Instagram*` models only. `addMessage` on either
+  `ConversationMessages` model validates the parent against its own
+  conversations collection, so a crossed model fails at write time with
+  `Conversation not found with id ...` after the message has already been sent.
+- `Pipeline.excludeCheckUserIds` is an **exemption** list, not a target list.
+  When `isCheckUser` is on, `generateFilter` restricts a user to
+  `assigneeId`/`createdBy` tickets **unless** their id is in
+  `excludeCheckUserIds` — the UI labels that field "Members who still see every
+  ticket". Never invert this test; `sales_api`'s `checkItemPermByUser` uses the
+  same semantics.
 - Ticket reports count **live tickets by default**: `buildTicketMatch` treats an
   unset `state` as `active` (and a missing `state` field as active, for tickets
   written before it existed). `state: 'all'` is the only way to include archived
@@ -454,6 +538,93 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-15` — Call reports scope by integration, queue becomes a filter
+
+- **Summary:** Every call report resolver was anchored on `queueId`, so a
+  deployment that stopped routing through its queue reported nothing at all —
+  IVR and direct-to-extension traffic was invisible even though it was the only
+  traffic left. Reports now resolve an integration scope through
+  `resolveReportScope` and bound their CDR reads on `inboxIntegrationId`,
+  applying `QUEUE[<id>]` only when a queue is actually chosen. This also closes
+  the gap where `callCarrierBreakdown`, `callHeatmap`, and `callTopNumbers` had
+  no integration bound at all.
+- **Affected areas:**
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (all nine report
+  resolvers, `resolveReportScope` / `inboxScopeFilter` /
+  `operatorUserIdByExtension` replacing `findQueueIntegration` and
+  `readableQueues`), `src/modules/reports/graphql/schema/call.ts`,
+  `ICallReportArgs` in `src/modules/reports/callReportService.ts`.
+- **Contracts changed:** Nine report queries gained an optional
+  `integrationId: String`; `queueId` stays optional and now accepts `"all"`.
+  Existing callers keep working, and a queue-scoped call returns the same rows
+  as before, additionally bounded to that queue's integration.
+
+### `2026-08-15` — Follow-Me forwards excluded from call volume, credited to agents
+
+- **Summary:** `FOLLOWME[<ext>]` legs — an extension's forward to a staff
+  mobile, one `uniqueid` per attempt — were counted as distinct outbound
+  customer calls, inflating Total Calls to 1,843 against 179 real calls and
+  filling Top Numbers with operator mobiles. `buildCdrFilter` now drops them
+  unless `includeForwarded: true`; `callGetAgentStats` and `callHistoryList` opt
+  in, read the agent out of the `actionType`, and collapse forward attempts made
+  within `FORWARDED_WINDOW_MS` into one call, so extensions reached only by
+  Follow-Me finally appear on the leaderboard without triple-counting and their
+  calls stay traceable in the history under the existing `FOLLOWME` outcome.
+- **Affected areas:** `src/modules/reports/callReportService.ts`
+  (`buildCdrFilter`, `agentOf`, `forwardedExtensionOf`, `withForwardedCallKeys`,
+  `summariseAgentStats`),
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callGetAgentStats`,
+  `callHistoryList`).
+- **Contracts changed:** None — same query names, arguments, and return types.
+  Values move: Total Calls, Top Numbers, carrier mix, heatmap, volume series,
+  callbacks, and call history all shed forwarded legs, while per-agent totals
+  gain the calls those agents took on their mobiles.
+
+### `2026-08-14` — Instagram bot replies persist to the Instagram collection
+
+- **Summary:** `actionCreateMessage` stored the sent bot reply through
+  `FacebookConversationMessages`, whose `addMessage` looks the parent up in
+  `FacebookConversations` and therefore threw
+  `Conversation not found with id <instagram conversation id>` after the message
+  had already been delivered; it now uses `InstagramConversationMessages`, so the
+  reply is saved and shows up in the Instagram conversation.
+- **Affected areas:**
+  `src/modules/integrations/instagram/meta/automation/messages/index.ts`.
+- **Contracts changed:** None
+
+### `2026-08-14` — Per-leg agent attribution in call reports
+
+- **Summary:** `summariseAgentStats` now consumes CDR legs instead of folded
+  calls, so a queue call that rings several agents credits the answering agent
+  and counts a miss for every other agent that rang, instead of attributing the
+  whole call to whichever ringing leg came first; `agentOf` additionally
+  recovers the operator from an outbound caller id shaped `<did><extension>`
+  when the suffix matches a configured operator.
+- **Affected areas:** `src/modules/reports/callReportService.ts`,
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callGetAgentStats`
+  passes legs; `callHistoryList` resolves operator extensions before folding).
+- **Contracts changed:** None — `callGetAgentStats` returns the same fields,
+  with corrected per-agent counts.
+
+### `2026-08-14` — Fixed inverted `isCheckUser` ticket visibility
+
+- **Summary:** With "Show only tickets assigned to the user" enabled, the
+  own-tickets restriction now applies to users **outside**
+  `excludeCheckUserIds`; previously only the exempted members were restricted,
+  so adding a member hid their tickets and removing them showed everything.
+- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
+- **Contracts changed:** None
+
+### `2026-08-13` — Frontline admins see every call queue
+
+- **Summary:** `seesEveryQueue` now also treats a `frontline:admin` entry in
+  `user.permissionGroupIds` as full call-report access, so admins get every
+  integration and queue instead of only the ones they operate.
+- **Affected areas:**
+  `src/modules/reports/graphql/resolvers/callQueries.ts` — `callReportIntegrations`,
+  `callGetQueueStats`, and every resolver using `findQueueIntegration`.
+- **Contracts changed:** None
+
 ### `2026-08-12` — Pipeline-scoped ticket properties
 
 - **Summary:** Ticket pipelines now persist only validated Core ticket property
@@ -488,163 +659,3 @@ graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
 - **Contracts changed:** `TicketReportFilter` and `ReportChartFilters` both
   gained `statusIds: [String]`. `status: String` is unchanged and still
   takes precedence if a caller sends both.
-
-### `2026-08-10` — Ticket property values from the messenger widget
-
-- **Summary:** `widgetTicketCreated` accepts `propertiesData: JSON`
-  (`{ [fieldId]: value }`) and stores it on the ticket after narrowing it to the
-  `propertyFields` of the pipeline's ticket config, enforcing the required ones,
-  and validating the values through core `fields.validateFieldValues`.
-  `TicketPropertyField` also gained `type` and `options`, both copied from the
-  core field definition on every `ticketSaveConfig`, so the widget can render a
-  select, radio, checkbox, switch, or date control instead of a text box.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`,
-  `src/modules/inbox/graphql/schemas/widget.ts`,
-  `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts`.
-- **Contracts changed:** `widgetTicketCreated` gained the optional
-  `propertiesData: JSON` argument; `TicketPropertyField` /
-  `TicketPropertyFieldInput` gained optional `type: String` and
-  `options: [TicketPropertyFieldOption]`.
-
-### `2026-08-10` — Speed of answer folded per call
-
-- **Summary:** `callKpiScorecard.averageSpeed` no longer always returns `0`.
-  `cdrUtils.ts` gained `legRingSeconds`, `callSpeedOfAnswer`, and
-  `averageSpeedOfAnswer`, which fold inbound legs by `uniqueid` and read the
-  ring time off the leg that actually held the caller instead of averaging
-  `answer - start` over legs selected by `disposition`, all of which are
-  stamped at their own `start`.
-- **Affected areas:** `src/modules/integrations/call/services/cdrUtils.ts`,
-  `src/modules/integrations/call/graphql/resolvers/queries.ts`,
-  `ICdrLeg.answer` in `src/modules/integrations/call/services/callReportService.ts`.
-- **Contracts changed:** None — `CallKpiScorecard.averageSpeed` keeps its shape
-  and unit (seconds).
-
-### `2026-08-10` — Ticket property fields in the messenger ticket config
-
-- **Summary:** A messenger ticket form configuration can now include ticket
-  custom properties in addition to the four built-in fields: `TicketConfig`
-  gained `propertyFields`, each entry naming a `frontline:ticket` field with its
-  own label, placeholder, required flag, and position. `ticketSaveConfig`
-  validates every entry against core's `fields` collection over tRPC, drops
-  duplicates, and renumbers `order` from the submitted array position.
-- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts` (new).
-- **Contracts changed:** `TicketConfig.propertyFields: [TicketPropertyField]`
-  and `TicketConfigInput.propertyFields: [TicketPropertyFieldInput]` added; both
-  are optional, so existing callers and stored configs are unaffected.
-
-### `2026-08-10` — Call report queries rewritten as filter-fetch-compute
-
-- **Summary:** All eight report queries now follow the same shape as
-  `callCalculate*` — build a CDR filter, fetch the legs, compute in JS —
-  replacing roughly 1,300 lines of `$addFields`/`$switch`/`$group` pipelines
-  with `callReportService.ts`. `callKpiScorecard` delegates to `statistics.ts`,
-  which fills in `firstCallResolution` and `occupancy` (previously hard-coded
-  `null`) and drops an unexplained `+38` seconds from `averageAnsweredTime`.
-  Fixes carried by the rewrite: wait time is `duration - billsec` rather than
-  the non-existent `$waittime`, so Avg Wait is no longer always `0`; the agent
-  extension comes from `dstchannelExt` when `dst` holds the DID; the carrier
-  breakdown folds legs into calls, where it used to count legs; queue and
-  callback stats bound only `start`, so a call finishing after the range is no
-  longer dropped; and the queue filter is anchored on `QUEUE[<id>]` so `650`
-  cannot match `QUEUE[6500]`.
-- **Affected areas:**
-  `src/modules/integrations/call/services/callReportService.ts`,
-  `src/modules/integrations/call/graphql/resolvers/queries.ts`.
-- **Contracts changed:** `None` — same query names, arguments, and return
-  types. Values move: wait-time figures, `firstCallResolution`, `occupancy`,
-  and the carrier breakdown all report differently because they were wrong
-  before.
-
-### `2026-08-10` — Status summary breaks down by pipeline status
-
-- **Summary:** `reportTicketStatusSummary` now returns one row per pipeline
-  status a ticket is actually in, named after that status and carrying its
-  default category in `group`, instead of six rolled-up category rows. Tickets
-  whose status was deleted collapse onto a category-named row with no `group`,
-  and statuses nobody is using are omitted.
-- **Affected areas:**
-  `src/modules/reports/graphql/{resolvers/ticketQueries.ts,schema/ticket.ts}`.
-- **Contracts changed:** `ReportTicketStatusSummary` gained nullable `_id` and
-  `group`; the row count is now the number of statuses in use rather than a
-  fixed six, and an empty result is possible where six zero rows came back
-  before.
-
-### `2026-08-10` — Ticket reports count live tickets, and priority totals add up
-
-- **Summary:** `buildTicketMatch` now defaults to `state: 'active'`, so archived
-  and deleted tickets stay out of every ticket report unless `state: 'all'` asks
-  for them. `reportTicketPriority` additionally returns the `priority: 0` bucket
-  it was already counting into its denominator, so the KPI row can show the real
-  ticket count instead of only the triaged ones.
-- **Affected areas:** `src/modules/reports/utils.ts`,
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `TicketReportFilter.state` gained the `all` value;
-  an unset `state` no longer means "every state". `reportTicketPriority` returns
-  five rows instead of four.
-
-### `2026-08-10` — Status summary counts tickets by their real status
-
-- **Summary:** `reportTicketStatusSummary` now resolves each ticket's category
-  from `statusId` through `Status.type` instead of trusting the denormalized
-  `Ticket.statusType`, which is only written when a ticket is moved. Tickets
-  created into a custom pipeline status and never moved carried `statusType: 0`
-  and were dropped from every bucket; they are now counted, and the card's
-  percentages describe the same population as its counts.
-- **Affected areas:**
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `None` — `reportTicketStatusSummary` keeps its
-  arguments and its six `TICKET_DEFAULT_STATUSES` rows.
-
-### `2026-08-10` — Customer and Company filters reach every ticket report
-
-- **Summary:** Extracted the customer/company relation lookup out of
-  `buildTicketPipeline` into `narrowTicketMatchByContacts` and applied it to the
-  six resolvers that built their match with `buildTicketMatch` /
-  `buildTicketTagMatch` and therefore dropped both filters without erroring —
-  custom properties, tags, source, open, status summary, and priority.
-  Behaviour of the four resolvers already using `buildTicketPipeline` is
-  unchanged.
-- **Affected areas:** `src/modules/reports/utils.ts`,
-  `src/modules/reports/graphql/resolvers/ticketQueries.ts`.
-- **Contracts changed:** `None` — same arguments and return shapes;
-  `reportTicketOpen`, `reportTicketStatusSummary`, and `reportTicketPriority`
-  now read `subdomain` from context.
-
-### `2026-08-09` — Saved report charts
-
-- **Summary:** Implemented the already-declared query so it returns the active
-  integration kinds used by the caller's visible channels, optionally narrowed
-  by channel id and/or scope, resolving channel ids first and then a single
-  `distinct('kind')` read; extracted `visibleChannelsFilter` so the channel
-  visibility rule has one implementation.
-- **Affected areas:**
-  `src/modules/inbox/graphql/{resolvers/queries/integrations.ts,schemas/integration.ts}`,
-  `src/modules/channel/utils.ts`,
-  `src/modules/channel/graphql/resolvers/queries/channel.ts`.
-- **Contracts changed:** `integrationsGetUsedTypesByChannel` gained an optional
-  `scope: String` argument and its `channelId` relaxed from `String!` to
-  `String`; the query itself was already declared and previously returned
-  `undefined`.
-- **Summary:** Added the `frontline_report_charts` collection and its
-  `reportCharts` / `reportChartDetail` queries and `reportChartAdd` /
-  `reportChartEdit` / `reportChartRemove` mutations, so a report card's current
-  filter selection can be stored under a user-chosen name and reopened later.
-  `filters` reuses the existing `TicketReportFilter` input and is narrowed by
-  `pickReportChartFilters` before it is written.
-- **Affected areas:** `src/modules/reports/@types/chart.ts`,
-  `src/modules/reports/db/{definitions,models}/chart*.ts`,
-  `src/modules/reports/graphql/{schema/chart.ts,resolvers/chart{Queries,Mutations}.ts}`,
-  `src/modules/reports/utils.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/{queries,mutations}.ts}`.
-- **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
-  `ReportChartPropertyValueFilter` types; two new queries and three new
-  mutations. No existing report query changed.

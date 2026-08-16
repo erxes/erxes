@@ -82,7 +82,6 @@ const TagsSelectProvider = ({
       }
       (onValueChange as ((value: string) => void) | undefined)?.(tag._id);
     } else {
-      setOpen(false);
       const isSelected = selectedTags.some((t) => t._id === tag._id);
       let newTags: ITag[];
       if (isSelected) {

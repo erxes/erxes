@@ -6,5 +6,7 @@
   "login": "Login",
   "logout": "Logout",
   "username": "Username",
-  "password": "Password"
+  "password": "Password",
+  "hide-conversations": "Hide conversations",
+  "show-conversations": "Show conversations"
 }

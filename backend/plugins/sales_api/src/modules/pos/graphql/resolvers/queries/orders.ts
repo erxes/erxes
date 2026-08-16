@@ -58,9 +58,12 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
   }
 
   if (search) {
+    const searchRegex = new RegExp(escapeRegExp(search), 'i');
+
     query.$or = [
-      { number: { $regex: new RegExp(search) } },
-      { origin: { $regex: new RegExp(search) } },
+      { number: { $regex: searchRegex } },
+      { origin: { $regex: searchRegex } },
+      { description: { $regex: searchRegex } },
     ];
   }
 

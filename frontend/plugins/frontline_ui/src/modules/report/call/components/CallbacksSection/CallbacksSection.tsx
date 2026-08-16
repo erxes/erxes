@@ -6,7 +6,6 @@ import { Meter, rateColorVar } from '../Meter';
 import { ReportTable } from '../ReportTable';
 import { fmt, fmtNum, fmtPct } from '../../utils';
 
-/** Callbacks tab: per-queue callback recovery stats. */
 export function CallbacksSection() {
   const { t } = useTranslation('frontline');
   const { stats, loading } = useCallbackStats();
@@ -26,7 +25,6 @@ export function CallbacksSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Mini KPI row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CallbackMiniKpi
           label={t('missed-calls')}
@@ -49,7 +47,6 @@ export function CallbacksSection() {
         />
       </div>
 
-      {/* Detail table */}
       <SectionCard
         title={t('callback-recovery')}
         description={t('per-queue-missed-call-follow-up')}
