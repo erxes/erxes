@@ -54,16 +54,10 @@ export const AdjustInventoryDetail = () => {
     skip: !id,
   });
 
-  const { runAdjust, loading: runLoading } = useAdjustInventoryRun(id ?? '');
-  const { publishAdjust, loading: publishLoading } = useAdjustInventoryPublish(
-    id ?? '',
-  );
-  const { cancelAdjust, loading: cancelLoading } = useAdjustInventoryCancel(
-    id ?? '',
-  );
-  const { removeAdjust, loading: removeLoading } = useAdjustInventoryRemove(
-    id ?? '',
-  );
+  const { runAdjust } = useAdjustInventoryRun(id ?? '');
+  const { publishAdjust } = useAdjustInventoryPublish(id ?? '');
+  const { cancelAdjust } = useAdjustInventoryCancel(id ?? '');
+  const { removeAdjust } = useAdjustInventoryRemove(id ?? '');
 
   if (loading || detailsLoading) {
     return <Spinner />;
@@ -147,7 +141,9 @@ export const AdjustInventoryDetail = () => {
   return (
     <>
       <div className="m-3 flex-auto">
-        <h3 className="text-lg font-bold">{t('inventory-adjustment-detail')}</h3>
+        <h3 className="text-lg font-bold">
+          {t('inventory-adjustment-detail')}
+        </h3>
         <div>
           {adjustInventory && <StatusBar adjustInventory={adjustInventory} />}
         </div>
@@ -170,7 +166,8 @@ export const AdjustInventoryDetail = () => {
       <RecordTable.Provider
         columns={adjustDetailTableColumns}
         data={adjustInventoryDetails || []}
-        stickyColumns={[]}
+        stickyColumns={['more']}
+        tableId="accounting_adjust_inventory_detail_record_table"
         className="m-3"
       >
         <RecordTable.Scroll>

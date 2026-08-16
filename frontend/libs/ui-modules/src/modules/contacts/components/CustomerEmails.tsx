@@ -33,15 +33,6 @@ export function CustomerEmails({
     emailValidationStatus: emailValidationStatus as ValidationStatus,
   };
 
-  const handleValidationStatusChange = (status: ValidationStatus) => {
-    customerEdit({
-      variables: {
-        _id,
-        emailValidationStatus: status,
-      },
-    });
-  };
-
   const handleValueChange: TEmailsOnValueChange = (values) => {
     customerEdit({
       variables: {
@@ -61,7 +52,7 @@ export function CustomerEmails({
           recordId={_id}
           {...emailProps}
           onValueChange={handleValueChange}
-          onValidationStatusChange={handleValidationStatusChange}
+          noValidation
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>

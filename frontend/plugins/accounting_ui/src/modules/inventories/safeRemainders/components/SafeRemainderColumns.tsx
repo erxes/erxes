@@ -29,8 +29,9 @@ const TransactionMoreColumnCell = ({
 
 const transactionMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: TransactionMoreColumnCell,
-  size: 20,
+  size: 33,
 };
 
 export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [

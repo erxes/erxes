@@ -13,6 +13,7 @@ import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
+import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -67,9 +68,6 @@ const buildFacebookMessengerTextPayload = ({
   return payload;
 };
 
-/**
- * conversation notrification receiver ids
- */
 export const dispatchConversationToService = async (
   subdomain: string,
   serviceName: string,
@@ -83,11 +81,13 @@ export const dispatchConversationToService = async (
       case 'instagram':
         return await handleInstagramIntegration({ subdomain, data });
 
+      case 'discord':
+        return await handleDiscordIntegration({ subdomain, data });
+
       case 'calls':
         break;
 
       case 'mobinetSms':
-        // TODO: Implement Mobinet SMS logic
         break;
 
       case 'messenger':
@@ -266,10 +266,6 @@ export const conversationNotifReceivers = (
   }
   return userIds;
 };
-/**
- * Using this subscription to track conversation detail's assignee, tag, status
- * changes
- */
 export const publishConversationsChanged = async (
   subdomain: string,
   _ids: string[],
@@ -286,9 +282,6 @@ export const publishConversationsChanged = async (
   return _ids;
 };
 
-/**
- * Publish admin's message
- */
 export const publishMessage = async (
   models: IModels,
   message: IMessageDocument,
@@ -432,11 +425,6 @@ export const sendNotifications = async (
         }
       }
 
-      // Navigation-critical payload: the new mobile app deep-links into the
-      // existing conversation thread using `data.conversationId`. The legacy
-      // `type`/`id` keys are kept for backward compatibility with older app
-      // versions and other consumers. FCM requires every `data` value to be a
-      // string, so optional ids are stringified and only added when present.
       if (!conversation._id) {
         debugError(
           'Skipping mobile chat notification: conversation id is unavailable',
@@ -495,9 +483,47 @@ const getConversationById = async (models: IModels, selector) => {
 };
 
 export const conversationMutations = {
-  /**
-   * Create new message in conversation
-   */
+  async conversationAgentTyping(
+    _root,
+    {
+      conversationId,
+      typing = true,
+    }: { conversationId: string; typing?: boolean },
+    { models, subdomain }: IContext,
+  ) {
+    try {
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
+      if (!conversation?.integrationId) {
+        return false;
+      }
+
+      const integration = await models.Integrations.getIntegration({
+        _id: conversation.integrationId,
+      });
+      if (!integration?.kind) {
+        return false;
+      }
+
+      const serviceName = integration.kind.split('-')[0];
+
+      await dispatchConversationToService(subdomain, serviceName, {
+        action: 'typing',
+        type: serviceName,
+        payload: JSON.stringify({
+          integrationId: integration._id,
+          conversationId: conversation._id,
+          typing,
+        }),
+        integrationId: integration._id,
+      });
+
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
   async conversationMessageAdd(
     _root,
     doc: IConversationMessageAdd,
@@ -513,7 +539,14 @@ export const conversationMutations = {
 
       const { _id: integrationId } = integration;
       const { _id: conversationId } = conversation;
-      const { content = '', internal, attachments = [], extraInfo } = doc;
+      const {
+        content = '',
+        internal,
+        attachments = [],
+        extraInfo,
+        poll,
+        replyToMessageId,
+      } = doc;
       const { _id: userId } = user;
 
       await sendNotifications(subdomain, {
@@ -544,7 +577,6 @@ export const conversationMutations = {
 
       const email = customer.primaryEmail;
 
-      // Send auto-reply email for lead forms
       if (!internal && kind === 'lead' && email) {
         await sendTRPCMessage({
           subdomain,
@@ -605,6 +637,8 @@ export const conversationMutations = {
             internal,
             attachments,
             extraInfo,
+            poll,
+            replyToMessageId,
             userId,
           }),
           integrationId,
@@ -618,16 +652,30 @@ export const conversationMutations = {
       }
 
       if (response?.data?.data) {
-        const { conversationId, content } = response.data.data;
-        if (conversationId && content) {
-          await models.Conversations.updateConversation(conversationId, {
-            content: content || '',
-            updatedAt: new Date(),
-          });
+        const {
+          conversationId: responseConversationId,
+          content: responseContent,
+          displayContent,
+          extraData,
+        } = response.data.data;
+        if (responseConversationId && responseContent) {
+          await models.Conversations.updateConversation(
+            responseConversationId,
+            {
+              content: responseContent || '',
+              updatedAt: new Date(),
+            },
+          );
         }
 
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
+          ...doc,
+          ...(displayContent ? { content: displayContent } : {}),
+          ...(extraData ? { extraData } : {}),
+        };
+
         const message = await models.ConversationMessages.addMessage(
-          doc,
+          messageDoc,
           userId,
         );
 
@@ -645,17 +693,14 @@ export const conversationMutations = {
         return dbMessage;
       }
 
-      //  Fallback: always save message locally if not already handled
       const message = await models.ConversationMessages.addMessage(doc, userId);
       const dbMessage = await models.ConversationMessages.getMessage(
         message._id,
       );
 
       if (internal) {
-        // Internal message: only publish to admins
         publishMessage(models, dbMessage);
       } else {
-        // Normal message: publish to both admin and client
         await markAutomatedReplyHumanActive({
           models,
           conversation,
@@ -685,9 +730,6 @@ export const conversationMutations = {
     );
   },
 
-  /**
-   * Assign employee to conversation
-   */
   async conversationsAssign(
     _root,
     {
@@ -702,7 +744,6 @@ export const conversationMutations = {
         assignedUserId,
       );
 
-    // notify graphl subscription
     publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
     await sendNotifications(subdomain, {
@@ -725,9 +766,6 @@ export const conversationMutations = {
     return conversations;
   },
 
-  /**
-   * Unassign employee from conversation
-   */
   async conversationsUnassign(
     _root,
     { _ids }: { _ids: string[] },
@@ -750,9 +788,6 @@ export const conversationMutations = {
     return updatedConversations;
   },
 
-  /**
-   * Change conversation status
-   */
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
@@ -774,9 +809,6 @@ export const conversationMutations = {
 
     return updatedConversations;
   },
-  /**
-   * Resolve all conversations
-   */
   async conversationsResolve(
     _root,
     params: { ids: string[] },
@@ -800,9 +832,6 @@ export const conversationMutations = {
     return result.modifiedCount || 0;
   },
 
-  /**
-   * Conversation mark as read
-   */
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },

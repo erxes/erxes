@@ -1,138 +1,55 @@
-import { IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import {
-  Button,
-  Collapsible,
-  DropdownMenu,
-  Spinner,
-  Table,
-  useConfirm,
-} from 'erxes-ui';
-import { Link, useParams } from 'react-router-dom';
+import { EnumCursorDirection, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { Properties } from './Properties';
-import { useFieldGroupRemove } from '../hooks/useFieldGroupRemove';
+import { useInView } from 'react-intersection-observer';
+import { useParams } from 'react-router-dom';
+import { useFieldGroups } from 'ui-modules';
+import { PropertiesCommandBar } from './record/PropertiesCommandBar';
+import { PropertiesGroupSection } from './record/PropertiesGroupSection';
 import { PropertyGroupEditSheet } from './PropertyGroupEdit';
-import { activePropertyState } from '../states/activePropertyState';
-import { useSetAtom } from 'jotai';
-import { IFieldGroup } from '../types/Properties';
-import { Can, useFieldGroups } from 'ui-modules';
 
 export const PropertyFieldsGroupSettings = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { type } = useParams<{ type: string }>();
+  const { type: contentType } = useParams<{ type: string }>();
+  const { fieldGroups, loading, handleFetchMore, pageInfo } = useFieldGroups({
+    contentType: contentType || '',
+  });
 
-  const { fieldGroups } = useFieldGroups({ contentType: type || '' });
+  const [loadMoreRef] = useInView({
+    onChange(inView) {
+      if (inView) {
+        handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+      }
+    },
+  });
 
   return (
     <>
       <PropertyGroupEditSheet />
-      <div className="m-3">
-        <div className="max-w-lg mx-auto flex flex-col gap-2">
-          <Table>
-            <Table.Header>
-              <Table.Row>
-                <Table.Head>{t('name', 'Name')}</Table.Head>
-                <Table.Head>{t('data-type', 'Data type')}</Table.Head>
-                <Table.Head className="w-12"></Table.Head>
-              </Table.Row>
-            </Table.Header>
-          </Table>
-          {fieldGroups.map((group) => (
-            <Collapsible className="group" defaultOpen key={group._id}>
-              <div className="relative">
-                <Collapsible.Trigger asChild>
-                  <Button variant="secondary" className="w-full justify-start">
-                    <Collapsible.TriggerIcon />
-                    {group.name}
-                  </Button>
-                </Collapsible.Trigger>
-                <FieldGroupSettingsDropdown
-                  groupId={group._id}
-                  contentType={type || ''}
-                  group={group}
-                />
+      <div className="m-3 max-w-4xl mx-auto flex flex-col gap-2">
+        {loading ? (
+          <Spinner containerClassName="py-12" />
+        ) : fieldGroups.length === 0 ? (
+          <div className="py-12 text-center text-muted-foreground">
+            {t('no-groups-found', 'No field groups found')}
+          </div>
+        ) : (
+          <>
+            {fieldGroups.map((group) => (
+              <PropertiesGroupSection
+                key={group._id}
+                group={group}
+                contentType={contentType || ''}
+              />
+            ))}
+            {pageInfo?.hasNextPage && (
+              <div ref={loadMoreRef}>
+                <Spinner containerClassName="py-6" />
               </div>
-
-              <Collapsible.Content className="pt-2">
-                <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
-                  <Table.Body>
-                    <Properties groupId={group._id} />
-                  </Table.Body>
-                </Table>
-                <div className="flex items-center justify-end mt-2">
-                  <Can action="fieldsManage">
-                    <Button variant="secondary" asChild>
-                      <Link
-                        to={`/settings/properties/${type}/${group._id}/add`}
-                      >
-                        <IconPlus />
-                        {t('add-field', 'Add field')}
-                      </Link>
-                    </Button>
-                  </Can>
-                </div>
-              </Collapsible.Content>
-            </Collapsible>
-          ))}
-        </div>
+            )}
+          </>
+        )}
       </div>
+      <PropertiesCommandBar />
     </>
-  );
-};
-
-export const FieldGroupSettingsDropdown = ({
-  groupId,
-  contentType,
-  group,
-}: {
-  groupId: string;
-  contentType: string;
-  group: IFieldGroup;
-}) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { removeFieldGroup, loading } = useFieldGroupRemove({ contentType });
-  const setActivePropertyGroup = useSetAtom(activePropertyState);
-
-  const { confirm } = useConfirm();
-  const handleDeleteFieldGroup = () => {
-    confirm({
-      message: t(
-        'confirm-delete-group',
-        'Are you sure you want to delete this field group?',
-      ),
-    }).then(() => removeFieldGroup(groupId));
-  };
-  return (
-    <DropdownMenu>
-      <Can action="fieldGroupsManage">
-        <DropdownMenu.Trigger asChild>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="absolute right-0.5 top-0.5 size-6 px-0"
-          >
-            <IconDots />
-          </Button>
-        </DropdownMenu.Trigger>
-      </Can>
-      <DropdownMenu.Content className="min-w-48">
-        <Can action="fieldGroupsManage">
-          <DropdownMenu.Item onClick={() => setActivePropertyGroup(group)}>
-            <IconEdit />
-            {t('edit', 'Edit')}
-          </DropdownMenu.Item>
-        </Can>
-        <Can action="fieldGroupsManage">
-          <DropdownMenu.Item
-            className="text-destructive"
-            disabled={loading}
-            onClick={handleDeleteFieldGroup}
-          >
-            {loading ? <Spinner size="sm" /> : <IconTrash />}
-            {t('delete', 'Delete')}
-          </DropdownMenu.Item>
-        </Can>
-      </DropdownMenu.Content>
-    </DropdownMenu>
   );
 };

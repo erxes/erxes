@@ -65,12 +65,12 @@ export const PricingDelete = ({
 
   return (
     <Button
-      variant="destructive"
+      variant="secondary"
       size="sm"
       onClick={handleDelete}
       disabled={loading}
     >
-      <IconTrash className="w-4 h-4 mr-2" />
+      <IconTrash />
       {loading ? t('deleting') : t('delete')}
     </Button>
   );

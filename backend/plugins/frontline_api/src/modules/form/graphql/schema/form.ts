@@ -14,6 +14,7 @@ export const types = `
     body: String,
     buttonText: String,
     featuredImage: String,
+    calloutImgSize: String,
     skip: Boolean
   }
 
@@ -36,6 +37,7 @@ export const types = `
 
     visibility: String
     leadData: JSON
+    callout: Callout
     languageCode: String
     departmentIds: [String]
     tagIds: [String]

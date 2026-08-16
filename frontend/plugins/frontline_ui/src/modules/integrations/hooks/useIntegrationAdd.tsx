@@ -6,7 +6,14 @@ import { useTranslation } from 'react-i18next';
 export const useIntegrationAdd = () => {
   const { t } = useTranslation('frontline');
   const [addIntegration, { loading }] = useMutation(ADD_INTEGRATION, {
-    refetchQueries: ['Integrations', 'IntegrationDetail'],
+    refetchQueries: [
+      'Integrations',
+      'IntegrationDetail',
+      'IntegrationsGetUsedTypes',
+      'IntegrationsGetUsedTypesByChannel',
+      'DiscordConnectedServers',
+      'DiscordTakenChannels',
+    ],
     onCompleted() {
       toast({
         title: t('integration-added'),

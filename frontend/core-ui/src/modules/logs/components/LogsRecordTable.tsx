@@ -29,7 +29,7 @@ export const LogsRecordTable = () => {
         dataLength={list?.length}
         sessionKey={LOGS_CURSOR_SESSION_KEY}
       >
-        <RecordTable className="w-full">
+        <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton

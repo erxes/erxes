@@ -22,6 +22,7 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  isLink?: boolean;
   field?: string;
   /** Plain sub-fields of an array/object value, resolved from the source itself (no reference lookup). */
   fields?: TAutomationOutputVariable[];
@@ -142,6 +143,8 @@ export type TAiKnowledgeSourceConfig = {
   label: string;
   moduleName: string;
   sourceSelector: 'remote-module' | 'local';
+  // Off for collections too large to stream, e.g. customers.
+  supportsFullScope?: boolean;
 };
 
 export type TAiToolConfig = {

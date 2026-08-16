@@ -170,39 +170,40 @@ export const BROADCAST_MESSAGE_KIND = [
   { value: 'manual', label: 'Manual' },
 ];
 
+export const BROADCAST_PROVIDER_FIELDS: Record<
+  string,
+  Array<{ name: string; label: string; type?: string }>
+> = {
+  SES: [
+    {
+      name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
+      label: 'AWS SES Access Key id',
+    },
+    {
+      name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
+      label: 'AWS SES Secret Access Key',
+    },
+    { name: 'BROADCAST_AWS_REGION', label: 'AWS Region' },
+    { name: 'BROADCAST_AWS_SES_CONFIG_SET', label: 'AWS SES Config Set' },
+  ],
+  sendgrid: [
+    {
+      name: 'BROADCAST_SENDGRID_API_KEY',
+      label: 'SendGrid API Key',
+      type: 'password',
+    },
+    { name: 'BROADCAST_SENDGRID_SUBUSER', label: 'SendGrid Subuser' },
+  ],
+  custom: [
+    { name: 'BROADCAST_MAIL_SERVICE', label: 'Mail Service Name' },
+    { name: 'BROADCAST_MAIL_HOST', label: 'Host' },
+    { name: 'BROADCAST_MAIL_PORT', label: 'Port' },
+    { name: 'BROADCAST_MAIL_USER', label: 'Username' },
+    { name: 'BROADCAST_MAIL_PASS', label: 'Password', type: 'password' },
+  ],
+};
+
 export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
-  {
-    name: 'BROADCAST_AWS_SES_ACCESS_KEY_ID',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Access Key id',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Secret Access Key',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_REGION',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS Region',
-    description: '',
-    osOnly: true,
-  },
-  {
-    name: 'BROADCAST_AWS_SES_CONFIG_SET',
-    inputType: 'input',
-    type: 'text',
-    label: 'AWS SES Config Set',
-    description: '',
-    osOnly: true,
-  },
   {
     name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',
     inputType: 'input',

@@ -39,6 +39,7 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
         label: 'Products',
         moduleName: 'products',
         sourceSelector: 'local',
+        supportsFullScope: true,
       },
     ],
   },

@@ -4,6 +4,8 @@ import {
   setActiveTabAtom,
   resetTabAtom,
   conversationIdAtom,
+  ticketTabAtom,
+  selectedTicketConfigAtom,
 } from '../states';
 import { TabType } from '../types';
 import { postMessage } from '@libs/utils';
@@ -13,8 +15,17 @@ export function useMessenger() {
   const [, setActiveTab] = useAtom(setActiveTabAtom);
   const [, resetTab] = useAtom(resetTabAtom);
   const [, setConversationId] = useAtom(conversationIdAtom);
+  const [, setTicketPage] = useAtom(ticketTabAtom);
+  const [ticketForm, setTicketForm] = useAtom(selectedTicketConfigAtom);
 
   const switchToTab = (tab: TabType) => {
+    if (tab === 'ticket') {
+      setTicketPage('selection');
+    }
+    if (activeTab === 'ticket' && !!ticketForm) {
+      setActiveTab(tab);
+      setTicketForm(null);
+    }
     setActiveTab(tab);
   };
 

@@ -198,10 +198,10 @@ export const buildAiAgentRuntimeSummary = ({
     });
   }
 
-  if (model.trim().toLowerCase().startsWith('gpt-5') && maxTokens <= 250) {
+  if (model.trim().toLowerCase().startsWith('gpt-5') && maxTokens < 2000) {
     notes.push({
       variant: 'warning',
-      text: 'GPT-5 models may spend part of the completion budget on internal reasoning. Very low max token caps can end with no visible text even when the prompt is short.',
+      text: 'GPT-5 models spend part of the completion budget on internal reasoning before any visible text. Caps below 2000 can return an empty reply even when the prompt is short. Raise max tokens.',
     });
   }
 
@@ -217,13 +217,6 @@ export const buildAiAgentRuntimeSummary = ({
     notes.push({
       variant: 'warning',
       text: 'This agent system prompt looks chat-oriented. For email or template generation, use an artifact-oriented prompt instead of a live support assistant prompt.',
-    });
-  }
-
-  if (actionConfig?.goalType === 'generateText' && maxTokens > 300) {
-    notes.push({
-      variant: 'default',
-      text: 'Short email or reply generation usually stays stable around 150-300 max tokens.',
     });
   }
 

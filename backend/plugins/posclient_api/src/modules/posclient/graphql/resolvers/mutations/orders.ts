@@ -319,6 +319,8 @@ export const ordersEdit = async (
     subBranchId: doc.branchId,
     customerId: doc.customerId,
     customerType: doc.customerType,
+    brokerId: doc.brokerId,
+    brokerType: doc.brokerType,
     userId: posUser ? posUser._id : '',
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
@@ -480,7 +482,10 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
   return ordersEdit({ ...doc, ...slotInSameOrder, items }, ctx);
 }
 
-export async function cancelPosOrder(models: IModels, _id: string): Promise<any> {
+export async function cancelPosOrder(
+  models: IModels,
+  _id: string,
+): Promise<any> {
   const order = await models.Orders.getOrder(_id);
 
   checkOrderStatus(order);
@@ -1064,6 +1069,34 @@ const orderMutations: Record<string, Resolver> = {
     );
   }, // end ordersSettlePayment()
 
+    async cpOrdersSettlePayment(
+    _root,
+    { _id, billType, registerNumber }: ISettlePaymentParams,
+    { config, models, subdomain, posUser }: IContext,
+  ) {
+
+    const order = await models.Orders.getOrder(_id);
+
+    if (!ORDER_TYPES.SALES.includes(order.type || '')) {
+      throw new Error(
+        'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
+      );
+    }
+
+    return await prepareSettlePayment(
+      subdomain,
+      models,
+      order,
+      config,
+      {
+        _id,
+        billType,
+        registerNumber,
+      },
+      posUser,
+    );
+  }, // end ordersSettlePayment()
+
   async ordersConvertToDeal(
     _root,
     params,
@@ -1178,7 +1211,7 @@ const orderMutations: Record<string, Resolver> = {
                   contentId: order.customerId,
                 },
               ],
-            }
+            },
           },
           defaultValue: null,
         });
@@ -1494,6 +1527,9 @@ orderMutations.cpOrdersCancel.wrapperConfig = {
 };
 
 orderMutations.cpOrdersAddPayment.wrapperConfig = {
+  forClientPortal: true,
+};
+orderMutations.cpOrdersSettlePayment.wrapperConfig = {
   forClientPortal: true,
 };
 

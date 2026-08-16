@@ -1,4 +1,5 @@
 import { TAutomationVariableDragPayload } from 'ui-modules';
+import { Command } from 'erxes-ui';
 import {
   TAutomationOutputVariable,
   TAutomationVariablePayloadBuilder,
@@ -15,7 +16,7 @@ export const AutomationOutputVariableList = ({
   buildVariableToken,
   loading,
   onInsertVariable,
-  searchQuery,
+  onInsertVariableAsLink,
   sourceNode,
   variables,
 }: {
@@ -24,24 +25,12 @@ export const AutomationOutputVariableList = ({
   buildVariableToken: (path: string) => string;
   loading: boolean;
   onInsertVariable?: (payload: TAutomationVariableDragPayload) => void;
-  searchQuery: string;
+  onInsertVariableAsLink?: (payload: TAutomationVariableDragPayload) => void;
   sourceNode: TAutomationVariableSourceNode;
   variables: TAutomationOutputVariable[];
 }) => {
   if (loading) {
     return <AutomationVariableBrowserLoadingState text="Loading outputs..." />;
-  }
-
-  if (variables.length === 0) {
-    return (
-      <AutomationVariableBrowserEmptyState
-        text={
-          searchQuery
-            ? 'No matching output variables.'
-            : 'No output variables available.'
-        }
-      />
-    );
   }
 
   return (
@@ -51,17 +40,27 @@ export const AutomationOutputVariableList = ({
         buildVariablePayload,
         buildVariableToken,
         onInsertVariable,
+        onInsertVariableAsLink,
         sourceNode,
       }}
     >
-      <div className="space-y-2">
+      <Command.List className="m-0 max-h-none overflow-visible [&_[cmdk-list-sizer]]:space-y-2">
+        <Command.Empty>
+          <AutomationVariableBrowserEmptyState
+            text={
+              variables.length
+                ? 'No matching output variables.'
+                : 'No output variables available.'
+            }
+          />
+        </Command.Empty>
         {variables.map((variable) => (
           <AutomationOutputVariableItem
             key={variable.key}
             variable={variable}
           />
         ))}
-      </div>
+      </Command.List>
     </AutomationVariableListProvider>
   );
 };

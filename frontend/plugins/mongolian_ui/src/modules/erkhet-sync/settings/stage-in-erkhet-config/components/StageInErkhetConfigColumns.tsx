@@ -1,105 +1,51 @@
-import { IconAlignLeft, IconAt, IconLayoutKanban } from '@tabler/icons-react';
-import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
+import { IconAt, IconLayoutKanban } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { TFunction } from 'i18next';
 import { TErkhetConfig } from '../types';
 import { TStageInErkhetConfigRow } from '../hooks/useStageInErkhetConfigs';
 import { StageInErkhetConfigEditSheet } from './StageInErkhetConfigEditSheet';
 import {
-  ErkhetConfigTitleCell,
-  ErkhetConfigMoreCell,
-} from '../../shared/components/ErkhetConfigColumnCells';
+  buildErkhetConfigBaseColumns,
+  erkhetConfigTextColumn,
+} from '../../shared/components/ErkhetConfigColumns';
 
 export const buildStageInErkhetConfigColumns = (
+  t: TFunction,
   onEdit: (id: string, data: TErkhetConfig) => Promise<void>,
   onDelete: (id: string) => void,
   editLoading: boolean,
 ): ColumnDef<TStageInErkhetConfigRow>[] => [
-  {
-    id: 'more',
-    cell: (cell: CellContext<TStageInErkhetConfigRow, unknown>) => (
-      <ErkhetConfigMoreCell
-        cell={cell}
-        onDelete={onDelete}
-        editLoading={editLoading}
-        renderEditSheet={(open, onOpenChange) => (
-          <StageInErkhetConfigEditSheet
-            config={cell.row.original}
-            open={open}
-            onOpenChange={onOpenChange}
-            onSubmit={onEdit}
-            loading={editLoading}
-          />
-        )}
+  ...buildErkhetConfigBaseColumns<TStageInErkhetConfigRow>({
+    t,
+    onDelete,
+    editLoading,
+    renderEditSheet: (config, open, onOpenChange) => (
+      <StageInErkhetConfigEditSheet
+        config={config}
+        open={open}
+        onOpenChange={onOpenChange}
+        onSubmit={onEdit}
+        loading={editLoading}
       />
     ),
-    size: 25,
-  },
-  checkboxColumn as ColumnDef<TStageInErkhetConfigRow>,
-  {
-    id: 'title',
-    accessorKey: 'title',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAlignLeft} label={t('title')} />;
-    },
-    cell: ({ row }) => (
-      <ErkhetConfigTitleCell
-        config={row.original}
-        renderEditSheet={(open, onOpenChange) => (
-          <StageInErkhetConfigEditSheet
-            config={row.original}
-            open={open}
-            onOpenChange={onOpenChange}
-            onSubmit={onEdit}
-            loading={editLoading}
-          />
-        )}
-      />
-    ),
-    size: 200,
-  },
-  {
+  }),
+  erkhetConfigTextColumn<TStageInErkhetConfigRow>({
+    t,
     id: 'userEmail',
-    accessorKey: 'userEmail',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconAt} label={t('user-email')} />;
-    },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
-    ),
-    size: 200,
-  },
-  {
+    icon: IconAt,
+    labelKey: 'user-email',
+  }),
+  erkhetConfigTextColumn<TStageInErkhetConfigRow>({
+    t,
     id: 'responseField',
-    accessorKey: 'responseField',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('response-field')} />;
-    },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
-    ),
-    size: 200,
-  },
-  {
+    icon: IconLayoutKanban,
+    labelKey: 'response-field',
+  }),
+  erkhetConfigTextColumn<TStageInErkhetConfigRow>({
+    t,
     id: 'defaultPay',
-    accessorKey: 'defaultPay',
-    header: () => {
-      const { t } = useTranslation('mongolian');
-      return <RecordTable.InlineHead icon={IconLayoutKanban} label={t('default-pay')} />;
-    },
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
-    ),
+    icon: IconLayoutKanban,
+    labelKey: 'default-pay',
     size: 150,
-  },
+  }),
 ];

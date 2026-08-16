@@ -6,7 +6,7 @@ import {
   IconPlus,
   IconGripVertical,
 } from '@tabler/icons-react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DndContext,
@@ -30,6 +30,9 @@ import {
   ICustomField,
   FIELD_TYPES_OBJECT,
 } from '../types/customFieldTypes';
+import { useSyncedState } from '../hooks/useSyncedState';
+
+const EMPTY_FIELDS: ICustomField[] = [];
 
 interface CustomFieldGroupItemProps {
   group: ICustomFieldGroup;
@@ -149,13 +152,9 @@ export function CustomFieldGroupItem({
   dragHandleProps,
 }: CustomFieldGroupItemProps) {
   const { t } = useTranslation('content');
-  const groupFields = group.fields || [];
+  const groupFields = group.fields || EMPTY_FIELDS;
 
-  const [fields, setFields] = useState(groupFields);
-  const fieldsKey = groupFields.map((f) => f._id).join('|');
-  useEffect(() => {
-    setFields(group.fields || []);
-  }, [fieldsKey]);
+  const [fields, setFields] = useSyncedState(groupFields);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),

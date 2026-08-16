@@ -6,14 +6,27 @@ import {
 } from '@tabler/icons-react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
 
-export default function ArchivedDeals() {
+export const ArchivedDeals = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isArchivedMode = searchParams.get('archivedOnly') === 'true';
   const { t } = useTranslation('sales');
+  const view = useAtomValue(dealsViewAtom);
   const sortDir = (searchParams.get('archivedSort') || 'desc') as
     | 'asc'
     | 'desc';
+
+  useEffect(() => {
+    if (view === 'list' || !isArchivedMode) return;
+
+    const params = new URLSearchParams(searchParams);
+    params.delete('archivedOnly');
+    params.delete('archivedSort');
+    setSearchParams(params, { replace: true });
+  }, [view, isArchivedMode, searchParams, setSearchParams]);
 
   const handleToggle = () => {
     const params = new URLSearchParams(searchParams);
@@ -34,6 +47,10 @@ export default function ArchivedDeals() {
     params.set('archivedSort', dir);
     setSearchParams(params, { replace: true });
   };
+
+  if (view !== 'list') {
+    return null;
+  }
 
   return (
     <div className="flex items-center">
@@ -91,4 +108,4 @@ export default function ArchivedDeals() {
       )}
     </div>
   );
-}
+};

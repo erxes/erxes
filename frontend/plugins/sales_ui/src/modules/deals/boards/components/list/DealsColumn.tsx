@@ -18,6 +18,7 @@ import { IDeal } from '@/deals/types/deals';
 import { RecordTable } from 'erxes-ui';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { dealsMoreColumn } from './DealsMoreColumn';
 import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +29,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
 
   return [
     checkBoxColumn,
+    dealsMoreColumn,
     {
       id: 'name',
       accessorKey: 'name',
@@ -57,7 +59,10 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'pipeline',
       accessorFn: (row) => row.pipeline?.name,
       header: () => (
-        <RecordTable.InlineHead label={t('pipeline')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('pipeline')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ row }) => {
         return <PipelineSelect pipelineId={row.original.pipeline?._id} />;
@@ -90,14 +95,19 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'products',
       accessorFn: (row) => row.products,
       header: () => (
-        <RecordTable.InlineHead label={t('products')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('products')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ row }) => <ProductsCell deal={row.original} />,
     },
     {
       id: 'assignedUsers',
       accessorKey: 'assignedUserIds',
-      header: () => <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />
+      ),
       cell: ({ row }) => (
         <SelectAssigneeDeal
           variant="table"
@@ -129,7 +139,10 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('start-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ row }) => {
         const startDate = row.original.startDate;
@@ -148,7 +161,10 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
       id: 'closeDate',
       accessorKey: 'closeDate',
       header: () => (
-        <RecordTable.InlineHead label={t('close-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('close-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ row }) => {
         const closeDate = row.original.closeDate;

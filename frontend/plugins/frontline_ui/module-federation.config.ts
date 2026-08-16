@@ -25,6 +25,8 @@ const config: ModuleFederationConfig = {
       './src/widgets/notifications/NotificationRemoteEntries.tsx',
     './relationWidget': './src/widgets/RelationWidget.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
+    './selectErxesMessenger':
+      './src/modules/integrations/erxes-messenger/components/SelectErxesMessenger.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

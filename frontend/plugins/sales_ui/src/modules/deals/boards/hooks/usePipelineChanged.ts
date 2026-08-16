@@ -1,116 +1,142 @@
 'use client';
 
 import { PIPELINE_CHANGED } from '@/deals/graphql/subscriptions/pipelineChange';
-import {
-  useAllDealsMap,
-  useDealsBoard,
-} from '@/deals/states/dealsBoardState';
+import { useAllDealsMap, useDealsBoard } from '@/deals/states/dealsBoardState';
 import { IDeal } from '@/deals/types/deals';
-import { useSubscription } from '@apollo/client';
-import { useEffect } from 'react';
+import { useApolloClient, useSubscription } from '@apollo/client';
+
+type ISalesPipelinesChange =
+  | {
+      _id: string;
+      processId?: string;
+      action: 'orderUpdated';
+      data: {
+        item: IDeal;
+        aboveItemId?: string;
+        destinationStageId: string;
+        oldStageId?: string;
+      };
+    }
+  | {
+      _id: string;
+      processId?: string;
+      action: 'stageStatusChanged';
+      data: {
+        stageId: string;
+        status: string;
+      };
+    };
 
 interface ISalesPipelinesChangedPayload {
-  salesPipelinesChanged: {
-    _id: string;
-    processId?: string;
-    action: string;
-    data: {
-      item: IDeal;
-      aboveItemId?: string;
-      destinationStageId: string;
-      oldStageId?: string;
-    };
-  };
+  salesPipelinesChanged: ISalesPipelinesChange;
 }
 
 export const usePipelineChanged = (pipelineId?: string) => {
   const [, setBoardState] = useDealsBoard();
   const [, setAllDealsMap] = useAllDealsMap();
+  const client = useApolloClient();
 
-  const { data } = useSubscription<ISalesPipelinesChangedPayload>(
-    PIPELINE_CHANGED,
-    {
-      variables: { _id: pipelineId },
-      skip: !pipelineId,
-    },
-  );
+  useSubscription<ISalesPipelinesChangedPayload>(PIPELINE_CHANGED, {
+    variables: { _id: pipelineId },
+    skip: !pipelineId,
+    onData: ({ data: result }) => {
+      const payload = result.data?.salesPipelinesChanged;
+      if (!payload?.data) return;
 
-  useEffect(() => {
-    const payload = data?.salesPipelinesChanged;
-    if (!payload?.data) return;
+      const { processId } = payload;
 
-    const { processId, action, data: changeData } = payload;
+      if (processId && processId === localStorage.getItem('processId')) {
+        return;
+      }
 
-    if (processId && processId === localStorage.getItem('processId')) {
-      return;
-    }
+      if (payload.action === 'stageStatusChanged') {
+        void client.refetchQueries({ include: ['SalesStages'] });
+        return;
+      }
 
-    if (action !== 'orderUpdated') return;
+      const { item, aboveItemId, destinationStageId, oldStageId } =
+        payload.data;
 
-    const { item, aboveItemId, destinationStageId, oldStageId } = changeData;
+      if (!item?._id || !destinationStageId) return;
 
-    if (!item?._id || !destinationStageId) return;
+      const resolvedOldStageId = oldStageId || item.stageId || '';
 
-    const resolvedOldStageId = oldStageId || item.stageId || '';
+      setBoardState((prev) => {
+        if (!prev) return prev;
 
-    setBoardState((prev) => {
-      if (!prev) return prev;
+        const nextColumnItems = { ...prev.columnItems };
+        const oldStageItems = [...(nextColumnItems[resolvedOldStageId] || [])];
+        const srcIndex = oldStageItems.indexOf(item._id);
 
-      const nextColumnItems = { ...prev.columnItems };
-      const oldStageItems = [...(nextColumnItems[resolvedOldStageId] || [])];
-      const srcIndex = oldStageItems.indexOf(item._id);
-
-      nextColumnItems[resolvedOldStageId] = oldStageItems.filter(
-        (id) => id !== item._id,
-      );
-
-      const destinationItems = [
-        ...(nextColumnItems[destinationStageId] || []).filter(
+        nextColumnItems[resolvedOldStageId] = oldStageItems.filter(
           (id) => id !== item._id,
-        ),
-      ];
+        );
 
-      let destIndex = aboveItemId
-        ? destinationItems.indexOf(aboveItemId)
-        : 0;
+        const destinationItems = [
+          ...(nextColumnItems[destinationStageId] || []).filter(
+            (id) => id !== item._id,
+          ),
+        ];
 
-      if (destIndex < 0) {
-        destIndex = 0;
-      }
+        let destIndex = aboveItemId ? destinationItems.indexOf(aboveItemId) : 0;
 
-      if (
-        aboveItemId &&
-        ((destinationStageId === resolvedOldStageId && destIndex < srcIndex) ||
-          destinationStageId !== resolvedOldStageId)
-      ) {
-        destIndex = destIndex + 1;
-      }
+        if (destIndex < 0) {
+          destIndex = 0;
+        }
 
-      destinationItems.splice(destIndex, 0, item._id);
-      nextColumnItems[destinationStageId] = [...new Set(destinationItems)];
+        if (
+          aboveItemId &&
+          ((destinationStageId === resolvedOldStageId &&
+            destIndex < srcIndex) ||
+            destinationStageId !== resolvedOldStageId)
+        ) {
+          destIndex = destIndex + 1;
+        }
 
-      return {
-        ...prev,
-        items: {
-          ...prev.items,
-          [item._id]: {
-            ...(prev.items[item._id] || {}),
-            ...item,
-            stageId: destinationStageId,
-            columnId: destinationStageId,
+        destinationItems.splice(destIndex, 0, item._id);
+        nextColumnItems[destinationStageId] = [...new Set(destinationItems)];
+
+        const prevItem = prev.items[item._id] || ({} as IDeal);
+
+        return {
+          ...prev,
+          items: {
+            ...prev.items,
+            [item._id]: {
+              ...prevItem,
+              ...item,
+              products: item.products ?? prevItem.products,
+              productsData: item.productsData ?? prevItem.productsData,
+              labels: item.labels ?? prevItem.labels,
+              tags: item.tags ?? prevItem.tags,
+              companies: item.companies ?? prevItem.companies,
+              customers: item.customers ?? prevItem.customers,
+              stageId: destinationStageId,
+              columnId: destinationStageId,
+            },
           },
-        },
-        columnItems: nextColumnItems,
-      };
-    });
+          columnItems: nextColumnItems,
+        };
+      });
 
-    setAllDealsMap((prev) => ({
-      ...prev,
-      [item._id]: {
-        ...(prev[item._id] || {}),
-        ...item,
-        stageId: destinationStageId,
-      },
-    }));
-  }, [data, setBoardState, setAllDealsMap]);
+      setAllDealsMap((prev) => {
+        const prevItem = prev[item._id] || ({} as IDeal);
+
+        return {
+          ...prev,
+          [item._id]: {
+            ...prevItem,
+            ...item,
+            products: item.products ?? prevItem.products,
+            productsData: item.productsData ?? prevItem.productsData,
+            labels: item.labels ?? prevItem.labels,
+            tags: item.tags ?? prevItem.tags,
+            companies: item.companies ?? prevItem.companies,
+            customers: item.customers ?? prevItem.customers,
+            stageId: destinationStageId,
+          },
+        };
+      });
+    },
+  });
 };

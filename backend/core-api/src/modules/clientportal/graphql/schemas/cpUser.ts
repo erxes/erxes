@@ -150,6 +150,7 @@ const userEditParams = `
 const clientPortalCustomerEditParams = `
   firstName: String,
   lastName: String,
+  avatar: String,
   primaryEmail: String,
   emails: [String],
   primaryPhone: String,
@@ -236,6 +237,9 @@ export const mutations = `
   clientPortalUserConfirmChangePhone(code: String!): CPUser
   clientPortalUserDelete: CPUserRemoveResponse
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): CPUser
+  clientPortalUserLoginWithToki(token: String!): JSON
+  checkTokiUserLegalAge(token: String!): Boolean
+
 `;
 
 export const queries = `

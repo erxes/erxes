@@ -9,7 +9,10 @@ import {
   UseFormWatch,
 } from 'react-hook-form';
 import { generateAutomationElementId } from 'ui-modules';
-import { INITIAL_OBJ_MESSAGE_TYPES } from '~/widgets/automations/modules/facebook/components/action/constants/ReplyMessage';
+import {
+  INITIAL_OBJ_MESSAGE_TYPES,
+  MAX_MESSAGES_PER_ACTION,
+} from '~/widgets/automations/modules/facebook/components/action/constants/ReplyMessage';
 import {
   TBotMessage,
   TMessageActionForm,
@@ -18,6 +21,7 @@ import { MessageActionTypeNames } from '~/widgets/automations/modules/facebook/c
 
 interface ActionMessageContextType {
   messages: TBotMessage[];
+  maxMessages: number;
   control: Control<TMessageActionForm>;
   watch: UseFormWatch<TMessageActionForm>;
   setValue: UseFormSetValue<TMessageActionForm>;
@@ -32,9 +36,11 @@ const ReplyMessageContext = createContext<ActionMessageContextType | null>(
 
 export const ReplyMessageProvider = ({
   form,
+  maxMessages = MAX_MESSAGES_PER_ACTION,
   children,
 }: {
   form: UseFormReturn<TMessageActionForm>;
+  maxMessages?: number;
   children: React.ReactNode;
 }) => {
   const { t } = useTranslation('frontline');
@@ -43,9 +49,15 @@ export const ReplyMessageProvider = ({
   const messages = watch('messages') || [];
 
   const addMessage = (type: MessageActionTypeNames) => {
-    if (messages.length === 5) {
+    if (messages.length >= maxMessages) {
       return setError('messages', {
-        message: t('max-five-messages'),
+        message:
+          maxMessages === 1
+            ? t(
+                'single-message-comment-flow',
+                'A comment reply can only send one message. Add a button and continue the flow in the next action.',
+              )
+            : t('max-five-messages'),
       });
     }
 
@@ -71,6 +83,7 @@ export const ReplyMessageProvider = ({
         handleSubmit,
         addMessage,
         messages,
+        maxMessages,
       }}
     >
       {children}

@@ -5,4 +5,5 @@ export const CHANNEL_SCHEMA = z.object({
   icon: z.string().optional().nullable(),
   description: z.string().optional(),
   memberIds: z.string().array().optional(),
+  scope: z.string().default('team').optional(),
 });

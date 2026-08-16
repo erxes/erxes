@@ -11,12 +11,15 @@ export interface ITicket {
   labelIds: string[];
   tagIds: string[];
   assigneeId: string;
+  assignedMembers?: string[];
   userId: string;
   startDate: string;
   targetDate: string;
   createdAt: string;
   updatedAt: string;
   channelId: string;
+  branchId?: string;
+  departmentId?: string;
   statusChangedDate: string;
   number: number;
   pipelineId: string;

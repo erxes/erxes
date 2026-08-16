@@ -22,7 +22,7 @@ import {
 } from './FacebookIntegrationForm';
 import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
-
+import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
 
 const FacebookAccountRow = ({
   account,
@@ -33,7 +33,9 @@ const FacebookAccountRow = ({
   selectedAccount: string | undefined;
   onSelect: (id: string) => void;
 }) => {
-  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(account._id);
+  const { facebookGetPages, loading: pagesLoading } = useFacebookPages(
+    account._id,
+  );
   return (
     <Command.Item
       key={account._id}
@@ -64,7 +66,10 @@ const FacebookAccountRow = ({
 
 export const FacebookGetAccounts = () => {
   const { t } = useTranslation('frontline');
-  const { facebookGetAccounts, loading, refetch } = useFacebookAccounts();
+  const { isPost } = useFbIntegrationContext();
+  const integrationKind = isPost ? 'facebook-post' : 'facebook-messenger';
+  const { facebookGetAccounts, loading, refetch } =
+    useFacebookAccounts(integrationKind);
   const [selectedAccount, setSelectedAccount] = useAtom(
     selectedFacebookAccountAtom,
   );
@@ -80,7 +85,7 @@ export const FacebookGetAccounts = () => {
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
     popupWindow(
-      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin`,
+      `${REACT_APP_API_URL}/pl:frontline/facebook/fblogin?kind=${integrationKind}`,
       'Facebook Login',
       660,
       750,

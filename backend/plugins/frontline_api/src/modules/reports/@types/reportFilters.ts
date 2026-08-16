@@ -6,6 +6,7 @@ export type IReportFilters = {
   toDate?: string;
   limit?: number;
   status?: string;
+  statusIds?: string[];
   source?: string;
   callStatus?: string;
   page?: number;
@@ -20,6 +21,8 @@ export type IReportFilters = {
   frequency?: string;
   branchIds?: string[];
   propertyIds?: string[];
+  groupPropertyId?: string;
+  groupPropertyValue?: string;
   propertyValueFilters?: Array<{
     propertyId?: string;
     type?: string;

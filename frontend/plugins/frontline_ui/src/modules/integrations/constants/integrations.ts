@@ -26,6 +26,11 @@ export const INTEGRATIONS = {
     descriptionKey: 'integration-desc-instagram-post',
     img: 'ig.svg',
   },
+  [IntegrationType.DISCORD_MESSENGER]: {
+    name: 'Discord',
+    descriptionKey: 'integration-desc-discord',
+    img: 'discord.svg',
+  },
   [IntegrationType.CALL]: {
     name: 'Call',
     descriptionKey: 'integration-desc-call',

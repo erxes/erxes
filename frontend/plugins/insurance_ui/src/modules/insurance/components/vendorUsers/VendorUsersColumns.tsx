@@ -58,7 +58,7 @@ export const createVendorUsersColumns = (
   const moreColumn: ColumnDef<VendorUser> = {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
       <VendorUsersMoreColumn
         cell={cell}
@@ -71,7 +71,7 @@ export const createVendorUsersColumns = (
 
   return [
     moreColumn,
-    { ...(RecordTable.checkboxColumn as ColumnDef<VendorUser>), size: 32 },
+    { ...(RecordTable.checkboxColumn as ColumnDef<VendorUser>), size: 33 },
     createTextColumn<VendorUser>('name', 'name', IconUser, 'name', 'no-name'),
     createTextColumn<VendorUser>('email', 'email', IconMail, 'email', ''),
     createTextColumn<VendorUser>('phone', 'phone', IconPhone, 'phone', ''),

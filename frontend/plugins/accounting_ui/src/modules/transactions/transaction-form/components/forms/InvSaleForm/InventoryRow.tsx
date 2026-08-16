@@ -19,7 +19,10 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
-import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
+import {
+  useGetAccountingProductUnitPrice,
+  useGetAccCurrentCost,
+} from '../../../hooks/useGetInvCostInfo';
 import {
   followTrDocsState,
   showAdvancedViewState,
@@ -258,14 +261,25 @@ export const InventoryRow = ({
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
   });
 
+  const {
+    unitPrice: selectedProductUnitPrice,
+    loading: loadingSelectedProductUnitPrice,
+  } = useGetAccountingProductUnitPrice({
+    variables: {
+      _id: detail.productId,
+    },
+    skip:
+      !detail.productId ||
+      (initProductId.current && detail.productId === initProductId.current),
+  });
+
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
     if (loading || !currentCostInfo) return;
 
     const costInfo = currentCostInfo[detail.productId || ''];
-    if (costInfo === undefined) return;
 
-    setUnitCost(fixNum(costInfo.unitCost ?? 0));
+    setUnitCost(fixNum(costInfo?.unitCost ?? 0));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.productId, loading]);
@@ -297,6 +311,15 @@ export const InventoryRow = ({
       });
     }
   };
+
+  useEffect(() => {
+    if (loadingSelectedProductUnitPrice || !detail.productId) {
+      return;
+    }
+
+    calcAmount(count ?? 0, selectedProductUnitPrice);
+    form.setValue(getFieldName('unitPrice'), selectedProductUnitPrice);
+  }, [detail.productId, loadingSelectedProductUnitPrice]);
 
   const handleCountChange = (
     value: number,

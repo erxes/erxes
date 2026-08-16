@@ -15,7 +15,9 @@ export const DirectMessageEmptyState = ({
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm font-medium">{t('no-direct-message-conditions')}</p>
+        <p className="text-sm font-medium">
+          {t('no-direct-message-conditions')}
+        </p>
         <p className="text-xs text-muted-foreground">
           {t('no-conditions-hint')}
         </p>

@@ -50,7 +50,7 @@ export const ConfigDetails = () => {
         },
       });
     },
-    [saveTicketsConfig, handleClose],
+    [saveTicketsConfig, handleClose, t],
   );
 
   return (

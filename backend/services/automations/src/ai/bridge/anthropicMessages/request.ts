@@ -1,8 +1,9 @@
-import fetch from 'node-fetch';
+import { nativeFetch as fetch } from '../nativeFetch';
 import {
   TAiBridgeConnection,
   TAiBridgeMessage,
   TAiBridgeRuntime,
+  TAiBridgeToolDefinition,
 } from '../types';
 
 type TAnthropicMessagesRequestParams = {
@@ -96,30 +97,67 @@ export const requestAnthropicMessages = async <TJson = any>({
   }
 };
 
+const toAnthropicMessage = (message: TAiBridgeMessage) => {
+  if (message.role === 'assistant' && message.toolCalls?.length) {
+    return {
+      role: 'assistant',
+      content: [
+        ...(message.content
+          ? [{ type: 'text', text: message.content }]
+          : []),
+        ...message.toolCalls.map((call) => ({
+          type: 'tool_use',
+          id: call.id,
+          name: call.name,
+          input: call.arguments || {},
+        })),
+      ],
+    };
+  }
+
+  if (message.role === 'tool') {
+    return {
+      role: 'user',
+      content: [
+        {
+          type: 'tool_result',
+          tool_use_id: message.toolCallId,
+          content: message.content,
+        },
+      ],
+    };
+  }
+
+  return {
+    role: message.role === 'assistant' ? 'assistant' : 'user',
+    content: message.content,
+  };
+};
+
 export const buildAnthropicMessagesBody = ({
   connection,
   runtime,
   messages,
   responseFormat,
+  tools,
 }: {
   connection: TAiBridgeConnection;
   runtime: TAiBridgeRuntime;
   messages: TAiBridgeMessage[];
   responseFormat?: 'json' | 'text';
+  tools?: TAiBridgeToolDefinition[];
 }) => {
   const system = messages
     .filter((message) => message.role === 'system')
     .map((message) => message.content)
     .filter(Boolean)
     .join('\n\n');
-  const chatMessages = messages
+  const chatMessages: any[] = messages
     .filter((message) => message.role !== 'system')
-    .map((message) => ({
-      role: message.role === 'assistant' ? 'assistant' : 'user',
-      content: message.content,
-    }));
+    .map(toAnthropicMessage);
 
-  if (responseFormat === 'json') {
+  // The "{" prefill forces plain text, which breaks tool_use turns
+  if (responseFormat === 'json' && !tools?.length) {
     // Assistant prefill forces the completion to continue a JSON object.
     chatMessages.push({ role: 'assistant', content: '{' });
   }
@@ -131,6 +169,15 @@ export const buildAnthropicMessagesBody = ({
       ? { temperature: runtime.temperature }
       : {}),
     ...(system ? { system } : {}),
+    ...(tools?.length
+      ? {
+          tools: tools.map((tool) => ({
+            name: tool.name,
+            description: tool.description,
+            input_schema: tool.parameters,
+          })),
+        }
+      : {}),
     messages: chatMessages.length
       ? chatMessages
       : [{ role: 'user', content: 'Hello' }],

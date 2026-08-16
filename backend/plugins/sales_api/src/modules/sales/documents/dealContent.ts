@@ -9,6 +9,7 @@ const TABLE_ATTRIBUTES = [
   'productCategoryInfo',
   'servicesInfo',
 ];
+const DOCUMENT_PROCESS_CONCURRENCY = 8;
 
 const getPath = (obj: any, path?: string) => {
   if (!obj || !path) return undefined;
@@ -74,6 +75,28 @@ type DealReplacer = {
   deal: any;
 };
 
+const mapWithConcurrency = async <TItem, TResult>(
+  items: TItem[],
+  concurrency: number,
+  mapper: (item: TItem) => Promise<TResult>,
+): Promise<TResult[]> => {
+  const results = new Array<TResult>(items.length);
+  let nextIndex = 0;
+
+  const worker = async () => {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex++;
+      results[currentIndex] = await mapper(items[currentIndex]);
+    }
+  };
+
+  const workerCount = Math.min(concurrency, items.length);
+
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+  return results;
+};
+
 export const buildDealReplacer = async (
   models: IModels,
   subdomain: string,
@@ -82,50 +105,52 @@ export const buildDealReplacer = async (
   const attrMap: Record<string, string> = {};
   const tables: Record<string, string[][]> = {};
 
-  const stage = deal.stageId
-    ? await models.Stages.findOne({ _id: deal.stageId }).lean()
-    : null;
-  attrMap.stageName = stage?.name || '-';
+  const stageContextPromise = (async () => {
+    const stage = deal.stageId
+      ? await models.Stages.findOne({ _id: deal.stageId }).lean()
+      : null;
 
-  let brandName = '-';
-  if (stage?.pipelineId) {
+    if (!stage?.pipelineId) {
+      return { stageName: stage?.name || '-', brandName: '-' };
+    }
+
     const pipeline = await models.Pipelines.findOne({
       _id: stage.pipelineId,
     }).lean();
-    if (pipeline?.boardId) {
-      const board = await models.Boards.findOne({
-        _id: pipeline.boardId,
-      }).lean();
-      brandName = board?.name || '-';
+
+    if (!pipeline?.boardId) {
+      return { stageName: stage.name || '-', brandName: '-' };
     }
-  }
-  attrMap.brandName = brandName;
 
-  if (deal.assignedUserIds?.length) {
-    const users = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'find',
-      input: { query: { _id: { $in: deal.assignedUserIds } } },
-      defaultValue: [],
-    });
-    attrMap.assignedUsers = joinNames(users, userName);
-  } else {
-    attrMap.assignedUsers = '-';
-  }
-
-  if (deal.labelIds?.length) {
-    const labels = await models.PipelineLabels.find({
-      _id: { $in: deal.labelIds },
+    const board = await models.Boards.findOne({
+      _id: pipeline.boardId,
     }).lean();
-    attrMap.labels = joinNames(labels, (label) => label?.name);
-  } else {
-    attrMap.labels = '-';
-  }
 
-  let customerIds: string[] = await sendTRPCMessage({
+    return {
+      stageName: stage.name || '-',
+      brandName: board?.name || '-',
+    };
+  })();
+
+  const assignedUsersPromise = deal.assignedUserIds?.length
+    ? sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'find',
+        input: { query: { _id: { $in: deal.assignedUserIds } } },
+        defaultValue: [],
+      })
+    : Promise.resolve([]);
+
+  const labelsPromise = deal.labelIds?.length
+    ? models.PipelineLabels.find({
+        _id: { $in: deal.labelIds },
+      }).lean()
+    : Promise.resolve([]);
+
+  const customerIdsPromise = sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -139,42 +164,7 @@ export const buildDealReplacer = async (
     defaultValue: [],
   });
 
-  if (!customerIds?.length && deal.customerIds?.length) {
-    customerIds = deal.customerIds;
-  }
-
-  let customers: any[] = [];
-  if (customerIds?.length) {
-    customers = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'customers',
-      action: 'findActiveCustomers',
-      input: {
-        query: { _id: { $in: customerIds } },
-        fields: {
-          _id: 1,
-          code: 1,
-          firstName: 1,
-          lastName: 1,
-          primaryEmail: 1,
-          primaryPhone: 1,
-        },
-      },
-      defaultValue: [],
-    });
-  }
-  attrMap.customers = joinNames(customers, customerName);
-
-  const primaryCustomer =
-    (customers || []).find(
-      (customer) => customer?.code && /^\d{8}$/.test(customer.code),
-    ) || (customers || [])[0];
-  attrMap['customers.primaryPhone'] = primaryCustomer?.primaryPhone || '-';
-  attrMap['customers.primaryEmail'] = primaryCustomer?.primaryEmail || '-';
-
-  let companyIds: string[] = await sendTRPCMessage({
+  const companyIdsPromise = sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
@@ -188,32 +178,85 @@ export const buildDealReplacer = async (
     defaultValue: [],
   });
 
-  if (!companyIds?.length && deal.companyIds?.length) {
-    companyIds = deal.companyIds;
-  }
+  const [
+    stageContext,
+    users,
+    labels,
+    relatedCustomerIds,
+    relatedCompanyIds,
+    enriched,
+  ] = await Promise.all([
+    stageContextPromise,
+    assignedUsersPromise,
+    labelsPromise,
+    customerIdsPromise,
+    companyIdsPromise,
+    generateProducts(subdomain, deal.productsData),
+  ]);
 
-  if (companyIds?.length) {
-    const companies = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'companies',
-      action: 'findActiveCompanies',
-      input: {
-        query: { _id: { $in: companyIds } },
-        fields: { _id: 1, primaryName: 1, code: 1 },
-      },
-      defaultValue: [],
-    });
-    attrMap.companies = joinNames(
-      companies,
-      (company) => company?.primaryName || company?.code,
-    );
-  } else {
-    attrMap.companies = '-';
-  }
+  attrMap.stageName = stageContext.stageName;
+  attrMap.brandName = stageContext.brandName;
+  attrMap.assignedUsers = joinNames(users, userName);
+  attrMap.labels = joinNames(labels, (label) => label?.name);
 
-  const enriched = await generateProducts(subdomain, deal.productsData);
+  const customerIds: string[] = relatedCustomerIds?.length
+    ? relatedCustomerIds
+    : deal.customerIds || [];
+  const companyIds: string[] = relatedCompanyIds?.length
+    ? relatedCompanyIds
+    : deal.companyIds || [];
+
+  const [customers, companies] = await Promise.all([
+    customerIds.length
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findActiveCustomers',
+          input: {
+            query: { _id: { $in: customerIds } },
+            fields: {
+              _id: 1,
+              code: 1,
+              firstName: 1,
+              lastName: 1,
+              primaryEmail: 1,
+              primaryPhone: 1,
+            },
+          },
+          defaultValue: [],
+        })
+      : Promise.resolve([]),
+    companyIds.length
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'companies',
+          action: 'findActiveCompanies',
+          input: {
+            query: { _id: { $in: companyIds } },
+            fields: { _id: 1, primaryName: 1, code: 1 },
+          },
+          defaultValue: [],
+        })
+      : Promise.resolve([]),
+  ]);
+
+  attrMap.customers = joinNames(customers, customerName);
+
+  const primaryCustomer =
+    (customers || []).find(
+      (customer) => customer?.code && /^\d{8}$/.test(customer.code),
+    ) || (customers || [])[0];
+  attrMap['customers.primaryPhone'] = primaryCustomer?.primaryPhone || '-';
+  attrMap['customers.primaryEmail'] = primaryCustomer?.primaryEmail || '-';
+
+  attrMap.companies = joinNames(
+    companies,
+    (company) => company?.primaryName || company?.code,
+  );
 
   const productRows: string[][] = [
     ['#', 'Name', 'Quantity', 'Unit price', 'Amount', 'Currency'],
@@ -357,11 +400,23 @@ export const buildDealReplacer = async (
   attrMap.totalAmountAfterTaxVat = formatAmounts(totalAmount);
   attrMap.totalAmountWithoutVat = formatAmounts(totalWithoutVat);
   attrMap.discount = formatAmounts(discountAmount);
-  attrMap.discountType = hasDiscountPercent ? '%' : hasDiscountAmount ? 'amount' : '-';
+
+  let discountType = '-';
+
+  if (hasDiscountPercent) {
+    discountType = '%';
+  } else if (hasDiscountAmount) {
+    discountType = 'amount';
+  }
+
+  attrMap.discountType = discountType;
 
   const rawPayments = deal.paymentsData;
   const paymentsEntries: Array<[string, any]> = Array.isArray(rawPayments)
-    ? (rawPayments as any[]).map((p: any, i: number) => [p?.kind || String(i), p])
+    ? (rawPayments as any[]).map((p: any, i: number) => [
+        p?.kind || String(i),
+        p,
+      ])
     : Object.entries((rawPayments || {}) as Record<string, any>);
 
   let cash = 0;
@@ -398,54 +453,51 @@ export const replaceDealContent = async ({
   content: string;
 }): Promise<string[]> => {
   if (!content) {
-    console.warn('[deal-document] replaceContent called with empty content');
     return [];
   }
 
   const deals = await models.Deals.find({ _id: { $in: replacerIds } }).lean();
 
   if (!deals.length) {
-    console.warn(
-      `[deal-document] no deals matched replacerIds ${JSON.stringify(
-        replacerIds,
-      )}`,
-    );
     return [];
   }
 
-  const replacedContents: string[] = [];
+  return mapWithConcurrency(
+    deals,
+    DOCUMENT_PROCESS_CONCURRENCY,
+    async (deal) => {
+      const { attrMap, tables } = await buildDealReplacer(
+        models,
+        subdomain,
+        deal,
+      );
 
-  for (const deal of deals) {
-    const { attrMap, tables } = await buildDealReplacer(
-      models,
-      subdomain,
-      deal,
-    );
+      const replacement = (_replacer: any, path?: string) => {
+        if (!path) return '-';
+        if (path in attrMap) return attrMap[path];
 
-    const replacement = (_replacer: any, path?: string) => {
-      if (!path) return '-';
-      if (path in attrMap) return attrMap[path];
+        const value = getPath(deal, path);
+        if (value == null) return '-';
+        if (value instanceof Date) return formatDate(value);
+        if (typeof value === 'number') return formatNumber(value);
+        if (Array.isArray(value)) return value.join(', ');
+        return String(value);
+      };
 
-      const value = getPath(deal, path);
-      if (value == null) return '-';
-      if (value instanceof Date) return formatDate(value);
-      if (typeof value === 'number') return formatNumber(value);
-      if (Array.isArray(value)) return value.join(', ');
-      return String(value);
-    };
+      const transform = (block: any) => {
+        const attr = block?.props?.value;
+        if (attr && TABLE_ATTRIBUTES.includes(attr)) {
+          return buildTableBlock(tables[attr] || []);
+        }
+        return undefined;
+      };
 
-    const transform = (block: any) => {
-      const attr = block?.props?.value;
-      if (attr && TABLE_ATTRIBUTES.includes(attr)) {
-        return buildTableBlock(tables[attr] || []);
-      }
-      return undefined;
-    };
-
-    replacedContents.push(
-      replaceBlocks({ replacer: deal, content, replacement, transform }),
-    );
-  }
-
-  return replacedContents;
+      return replaceBlocks({
+        replacer: deal,
+        content,
+        replacement,
+        transform,
+      });
+    },
+  );
 };

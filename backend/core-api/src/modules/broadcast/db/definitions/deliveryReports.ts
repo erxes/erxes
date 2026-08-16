@@ -6,7 +6,7 @@ export const statsSchema = new Schema({
     label: 'Engage message id at erxes-api',
     unique: true,
   },
-  createdAt: { type: Date, default: new Date() },
+  createdAt: { type: Date, default: Date.now },
   open: {
     type: Number,
     default: 0,
@@ -77,7 +77,7 @@ export const deliveryReportsSchema = new Schema({
   createdAt: {
     type: Date,
     label: 'Created at',
-    default: new Date(),
+    default: Date.now,
     index: true,
   },
   email: { type: String, label: 'Customer email', index: true },

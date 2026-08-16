@@ -13,7 +13,7 @@ import {
   normalizeAutomationConstantsForTransport,
   splitType,
 } from 'erxes-api-shared/core-modules';
-import { IListArgs } from '../queries';
+import { IListArgs, IStatsParams } from '../queries';
 import {
   getPlugin,
   getPlugins,
@@ -160,6 +160,49 @@ export const generateAutomationHistoriesFilter = (params: any) => {
 
   if (targetIds?.length) {
     filter.targetId = { $in: targetIds };
+  }
+
+  if (params.failedActionIds?.length) {
+    filter.failedActionId = { $in: params.failedActionIds };
+  }
+
+  if (params.errorCodes?.length) {
+    filter.errorCode = { $in: params.errorCodes };
+  }
+
+  if (params.waitingActionIds?.length) {
+    filter.waitingActionId = { $in: params.waitingActionIds };
+  }
+
+  // Workflow child executions are opened from within their parent execution;
+  // the main history list shows only root executions.
+  if (params.parentExecutionId) {
+    filter.parentExecutionId = params.parentExecutionId;
+  } else {
+    filter.parentExecutionId = { $exists: false };
+  }
+
+  return filter;
+};
+
+/**
+ * Stats match one automation over a date range. Workflow child executions stay
+ * in, so node stats cover actions that run inside a workflow; the branches that
+ * count whole runs narrow to root executions themselves.
+ */
+export const generateAutomationStatsFilter = ({
+  automationId,
+  beginDate,
+  endDate,
+}: IStatsParams) => {
+  const filter: any = { automationId };
+
+  if (beginDate) {
+    filter.createdAt = { $gte: beginDate };
+  }
+
+  if (endDate) {
+    filter.createdAt = { ...(filter.createdAt || {}), $lte: endDate };
   }
 
   return filter;

@@ -52,6 +52,7 @@ export const types = `
     ): JSON
     isCheckRem: Boolean
     hasSimilarity: Boolean
+    similarity: JSON
     pdfAttachment: PdfAttachment
   }
 

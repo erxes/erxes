@@ -82,11 +82,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -98,6 +98,12 @@ const PropertiesSettingsRoutes = lazy(() =>
 const LogsRoutes = lazy(() =>
   import('~/pages/settings/logs/LogsIndexPage').then((module) => ({
     default: module.LogsIndexPage,
+  })),
+);
+
+const EmailDeliveries = lazy(() =>
+  import('~/pages/settings/workspace/EmailDeliveriesPage').then((module) => ({
+    default: module.EmailDeliveriesPage,
   })),
 );
 
@@ -194,6 +200,10 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
+        <Route
+          path={SettingsWorkspacePath.EmailDeliveries}
+          element={<EmailDeliveries />}
+        />
         <Route
           path={SettingsWorkspacePath.ImportExportCatchAll}
           element={<ImportExportSettingsRoutes />}

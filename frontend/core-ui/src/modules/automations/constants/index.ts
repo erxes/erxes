@@ -1,7 +1,25 @@
 import { AutomationNodesType, AutomationNodeType } from '@/automations/types';
-import { IconBolt, IconPointerBolt } from '@tabler/icons-react';
+import {
+  IconArrowsSplit2,
+  IconBolt,
+  IconPointerBolt,
+} from '@tabler/icons-react';
 
 export const CANVAS_FIT_VIEW_OPTIONS = { padding: 4, minZoom: 0.8 };
+
+// Canvas zoom bounds. Shared so the ReactFlow instance and the zoom slider in
+// the canvas controls can never drift apart.
+export const CANVAS_MIN_ZOOM = 0.1;
+export const CANVAS_MAX_ZOOM = 2;
+
+// The history flow is read-only and lives in containers of any size (sheet or
+// split panel), so it scales down until the whole run fits instead of holding
+// a fixed zoom.
+export const HISTORY_FLOW_FIT_VIEW_OPTIONS = {
+  padding: 0.15,
+  minZoom: CANVAS_MIN_ZOOM,
+  maxZoom: 1,
+};
 
 export const PROPERTY_OPERATOR = {
   String: [
@@ -110,6 +128,7 @@ export const STATUSES_BADGE_VARIABLES = {
 
 export const AUTOMATION_HISTORIES_CURSOR_SESSION_KEY =
   'automation-histories-cursor';
+export const AUTOMATION_STATS_FILTER_SESSION_KEY = 'automation-stats-filter';
 export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
   'automation-record-table-filters-cursor';
 
@@ -125,7 +144,11 @@ export const AUTOMATION_LIBRARY_TABS = [
     icon: IconPointerBolt,
   },
   { value: AutomationNodeType.Action, label: 'Actions', icon: IconBolt },
-  // { value: AutomationNodeType.Workflow, label: 'Automations' },
+  {
+    value: AutomationNodeType.Workflow,
+    label: 'Workflows',
+    icon: IconArrowsSplit2,
+  },
 ];
 type ConnectionPropertyName = 'nextActionId' | 'actionId' | 'workflowId';
 

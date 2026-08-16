@@ -17,13 +17,9 @@ import {
   IconToggleLeft,
   IconTrash,
 } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
-import {
-  stageInEbarimtDetailAtom,
-  IStageInEbarimtConfigRow,
-} from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
+import { IStageInEbarimtConfigRow } from '@/ebarimt/settings/stage-in-ebarimt-config/states/stageInEbarimtConfigStates';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { AddStageInEBarimtConfig } from './AddStageInEBarimtConfig';
@@ -60,12 +56,10 @@ const StageInEBarimtConfigTitleCell = ({
   cell: Cell<IStageInEbarimtConfigRow, unknown>;
 }) => {
   const [, setOpen] = useQueryState('stage_in_ebarimt_id');
-  const setDetail = useSetAtom(stageInEbarimtDetailAtom);
   return (
     <RecordTableInlineCell
       className="cursor-pointer"
       onClick={() => {
-        setDetail(cell.row.original);
         setOpen(cell.row.original._id);
       }}
     >
@@ -81,12 +75,10 @@ const StageInEBarimtConfigMoreCell = ({
 }) => {
   const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('stage_in_ebarimt_id');
-  const setDetail = useSetAtom(stageInEbarimtDetailAtom);
   const { removeStageInEbarimtConfig } = useRemoveStageInEbarimtConfig();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    setDetail(cell.row.original);
     setOpen(cell.row.original._id);
   };
 
@@ -120,6 +112,7 @@ const StageInEBarimtConfigMoreCell = ({
 
 const moreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: StageInEBarimtConfigMoreCell,
   size: 33,
 };
@@ -132,7 +125,9 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
     {
       id: 'title',
       accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('title')} icon={IconCode} />
+      ),
       cell: ({ cell }) => <StageInEBarimtConfigTitleCell cell={cell} />,
       size: 200,
     },
@@ -152,7 +147,9 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
     {
       id: 'posNo',
       accessorKey: 'posNo',
-      header: () => <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -177,7 +174,10 @@ const useStageInEbarimtColumns = (): ColumnDef<IStageInEbarimtConfigRow>[] => {
       id: 'hasCitytax',
       accessorKey: 'hasCitytax',
       header: () => (
-        <RecordTable.InlineHead label={t('has-citytax')} icon={IconToggleLeft} />
+        <RecordTable.InlineHead
+          label={t('has-citytax')}
+          icon={IconToggleLeft}
+        />
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
@@ -195,7 +195,12 @@ export const StageInEBarimtConfigTable = () => {
   const columns = useStageInEbarimtColumns();
 
   return (
-    <RecordTable.Provider columns={columns} data={rows}>
+    <RecordTable.Provider
+      columns={columns}
+      data={rows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_stage_in_ebarimt_config_record_table"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

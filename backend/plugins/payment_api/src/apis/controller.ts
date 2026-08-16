@@ -18,17 +18,25 @@ import { stripeCallbackHandler } from '~/apis/stripe/api';
 import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
+import { enqueuePaidInvoiceCallback } from '~/modules/payment/services/paidInvoiceCallback';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
 export const callbackHandler = async (req, res) => {
+  console.log('[CALLBACK] Incoming request', {
+    path: req.path,
+    method: req.method,
+    query: req.query,
+    body: req.body,
+  });
   const { route, body, query } = req;
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const kind = query.kind || route.path.split('/').slice(-1).pop();
-
+  console.log('[CALLBACK] kind =', kind);
   if (!kind) {
     return res.status(400).send('kind is required');
   }
@@ -69,15 +77,31 @@ export const callbackHandler = async (req, res) => {
       case PAYMENTS.tdb.kind:
         transaction = await tdbCallbackHandler(models, subdomain, data);
         break;
+      case PAYMENTS.toki.kind:
+        console.log('[CALLBACK] Dispatching to tokiCallbackHandler');
+        transaction = await tokiCallbackHandler(models, data);
+        break;
       default:
         return res.status(400).send('Invalid kind');
     }
-
+    if (
+      transaction.paymentKind === PAYMENTS.tdb.kind &&
+      [
+        PAYMENT_STATUS.CANCELLED,
+        PAYMENT_STATUS.FAILED,
+        PAYMENT_STATUS.EXPIRED,
+      ].includes(transaction.status)
+    ) {
+      return res.redirect(
+        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+      );
+    }
     if (
       transaction.status === PAYMENT_STATUS.CANCELLED ||
-      transaction.status === PAYMENT_STATUS.FAILED
+      transaction.status === PAYMENT_STATUS.FAILED ||
+      transaction.status === PAYMENT_STATUS.EXPIRED
     ) {
-      return res.status(400).send('Payment failed or cancelled');
+      return res.status(400).send('Payment failed, cancelled or expired');
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {
@@ -116,62 +140,67 @@ export const callbackHandler = async (req, res) => {
 
       redis.updateInvoiceStatus(transaction._id, 'paid');
 
-      const [pluginName, moduleName, collectionType] = splitType(
-        invoice.contentType,
-      );
+      if (invoice.contentType) {
+        const [pluginName, moduleName, collectionType] = splitType(
+          invoice.contentType,
+        );
 
-      if (await isEnabled(pluginName)) {
-        try {
-          await sendWorkerMessage({
-            subdomain,
-            pluginName,
-            queueName: 'payments',
-            jobName: 'transactionCallback',
-            data: {
-              ...transaction.toObject(),
-              moduleName,
-              collectionType,
-              apiResponse: 'success',
-            },
-            defaultValue: null,
-          });
-
-          if (result === 'paid') {
+        if (await isEnabled(pluginName)) {
+          try {
             await sendWorkerMessage({
               subdomain,
               pluginName,
               queueName: 'payments',
-              jobName: 'callback',
+              jobName: 'transactionCallback',
               data: {
-                ...invoice,
-                status: 'paid',
+                ...transaction.toObject(),
                 moduleName,
                 collectionType,
+                apiResponse: 'success',
               },
               defaultValue: null,
             });
+          } catch (e) {
+            console.error('Error: ', e);
           }
+        }
+      }
 
-          if (invoice.callback) {
-            try {
-              await fetch(invoice.callback, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  _id: invoice._id,
-                  amount: invoice.amount,
-                  status: 'paid',
-                }),
-              });
-            } catch (e) {
-              console.error('Error: ', e);
-            }
-          }
+      if (result === 'paid') {
+        const paymentId = transaction.paymentId || invoice.paymentIds?.[0];
+        const payment = paymentId
+          ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
+          : null;
+
+        enqueuePaidInvoiceCallback(
+          subdomain,
+          models,
+          invoice,
+          payment,
+          'paymentCallback',
+        );
+      }
+
+      if (invoice.callback) {
+        try {
+          await fetch(invoice.callback, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              _id: invoice._id,
+              amount: invoice.amount,
+              status: 'paid',
+            }),
+          });
         } catch (e) {
           console.error('Error: ', e);
         }
+      }
+
+      if (invoice.redirectUri) {
+        return res.redirect(invoice.redirectUri);
       }
     }
   } catch (error) {

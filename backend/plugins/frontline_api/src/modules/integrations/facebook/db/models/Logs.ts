@@ -11,7 +11,7 @@ export interface IFacebookLogModel extends Model<IFacebookLogDocument> {
     type,
     value,
     specialValue,
-  }: IFacebookLogInput): IFacebookLogDocument;
+  }: IFacebookLogInput): Promise<IFacebookLogDocument>;
 }
 
 export const loadFacebookLogClass = (models: IModels) => {

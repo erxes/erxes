@@ -93,6 +93,8 @@ export const posOrderSchema = schemaWrapper(
     number: { type: String, label: 'Order number', index: true },
     customerId: { type: String, label: 'Customer' },
     customerType: { type: String, label: 'Customer type' },
+    brokerId: { type: String, label: 'Broker', optional: true },
+    brokerType: { type: String, label: 'Broker type', optional: true },
     cashAmount: { type: Number, label: 'Cash amount' },
     mobileAmount: { type: Number, label: 'Mobile amount' },
     mobileAmounts: {

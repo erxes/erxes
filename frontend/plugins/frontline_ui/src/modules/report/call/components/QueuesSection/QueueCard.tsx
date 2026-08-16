@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 interface QueueCardProps {
   stat: QueueStat;
-  /** Human-readable label for this queue. */
+
   label?: string;
 }
 
-/** Single-queue summary card with key metrics. */
 export function QueueCard({ stat, label }: QueueCardProps) {
   const { t } = useTranslation('frontline');
   const answerRate = stat.answeredRate ?? 0;
@@ -49,10 +48,9 @@ export function QueueCard({ stat, label }: QueueCardProps) {
         <Metric label="Avg talk" value={fmtDur(stat.averageTalkTime)} />
       </div>
 
-      {/* Answer-rate progress bar */}
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-[var(--pos)] transition-all"
+          className="h-full rounded-full bg-primary transition-all"
           style={{ width: `${Math.min(answerRate, 100)}%` }}
         />
       </div>

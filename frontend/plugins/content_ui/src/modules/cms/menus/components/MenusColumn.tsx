@@ -134,16 +134,18 @@ export const useMenusColumns = (
     },
     {
       id: 'more',
-      header: () => <span className="sr-only">{t('more')}</span>,
+      header: () => <RecordTable.ColumnSelector />,
       cell: ({ row }) => (
         <MoreCell row={row} onEdit={onEdit} refetch={refetch} />
       ),
-      size: 40,
+      size: 33,
     },
     RecordTable.checkboxColumn as ColumnDef<MenuItem>,
     {
       id: 'label',
-      header: () => <RecordTable.InlineHead icon={IconList} label={t('label')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconList} label={t('label')} />
+      ),
       accessorKey: 'label',
       cell: ({ cell }) => (
         <LabelCell cell={cell} refetch={refetch} isMissing={isMissing} />
@@ -165,7 +167,9 @@ export const useMenusColumns = (
     },
     {
       id: 'kind',
-      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconArticle} label={t('kind')} />
+      ),
       accessorKey: 'kind',
       cell: ({ cell }) => (
         <div className={BADGE_CLASS}>

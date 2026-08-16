@@ -16,6 +16,7 @@ export const CheckPriceRecordTable = () => {
       data={filteredItems || []}
       className="h-full w-full overflow-y-auto px-2"
       stickyColumns={['checkbox']}
+      tableId="mongolian_msdynamic_check_price_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={pageInfo.hasPreviousPage}
@@ -24,7 +25,7 @@ export const CheckPriceRecordTable = () => {
         sessionKey={MS_DYNAMIC_SESSION_KEYS.prices}
       >
         <RecordTable>
-          <RecordTable.Header />
+          <RecordTable.Header showColumnSelector />
           <RecordTable.Body>
             <RecordTable.CursorBackwardSkeleton handleFetchMore={checkPrice} />
             {checking && <RecordTable.RowSkeleton rows={20} />}
@@ -40,7 +41,9 @@ export const CheckPriceRecordTable = () => {
                   size={64}
                   className="text-muted-foreground mx-auto mb-4"
                 />
-                <h3 className="text-xl font-semibold mb-2">{t('no-prices-yet')}</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t('no-prices-yet')}
+                </h3>
                 <p className="text-muted-foreground max-w-md">
                   {t('select-brand-check-prices')}
                 </p>

@@ -1,155 +1,14 @@
-import { splitType } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  getEnv,
-  graphqlPubsub,
-  sendWorkerQueue,
-  sendWorkerMessage,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
+import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
-import { IInvoice } from '~/modules/payment/@types/invoices';
-import * as QRCode from 'qrcode';
-async function sendInvoiceBarcodeEmail(
-  subdomain: string,
-  invoice: {
-    email?: string;
-    invoiceNumber?: string;
-    _id: string;
-    amount?: number;
-    currency?: string;
-    description?: string;
-  },
-) {
-  const ticketCode = invoice.invoiceNumber || invoice._id;
-  const title = invoice.description || 'Тасалбар';
-  const amountStr = invoice.amount
-    ? `${invoice.amount.toLocaleString()} ${invoice.currency || 'MNT'}`
-    : '';
-
-  let qrTableHtml = '';
-
-  try {
-    const qr = (QRCode as any).create(ticketCode, {
-      errorCorrectionLevel: 'M',
-    });
-    const { size, data } = qr.modules;
-    const cell = 6;
-
-    qrTableHtml = `
-    <table cellpadding="0" cellspacing="0" border="0"
-      style="border-collapse:collapse;background:#fff;border:16px solid #fff">
-      ${Array.from(
-        { length: size },
-        (_, r) => `
-        <tr height="${cell}">
-          ${Array.from(
-            { length: size },
-            (_, c) => `
-            <td
-              width="${cell}"
-              height="${cell}"
-              style="
-                width:${cell}px;
-                height:${cell}px;
-                background:${data[r * size + c] ? '#000' : '#fff'};
-                padding:0;
-                border:none;
-                font-size:0;
-                line-height:0;
-              "
-            ></td>
-          `,
-          ).join('')}
-        </tr>
-      `,
-      ).join('')}
-    </table>
-  `;
-  } catch (err) {
-    throw new Error(`Failed to generate QR code: ${err.message}`);
-  }
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-</head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:sans-serif">
-  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 0">
-    <tr>
-      <td align="center">
-        <table width="480" cellpadding="0" cellspacing="0"
-          style="background:#fff;border-radius:12px;overflow:hidden">
-
-          <tr>
-            <td style="background:#111827;padding:24px 32px;text-align:center">
-              <p style="margin:0;color:#9ca3af;font-size:12px;text-transform:uppercase">
-                Төлбөр амжилттай
-              </p>
-
-              <h1 style="margin:8px 0 0;color:#fff;font-size:22px">
-                ${title}
-              </h1>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="padding:32px;text-align:center;border-bottom:2px dashed #e5e7eb">
-              <p style="margin:0 0 16px;color:#6b7280;font-size:13px">
-                QR кодыг уншуулан нэвтрэнэ үү
-              </p>
-
-              <div align="center">${qrTableHtml}</div>
-
-              <p style="margin:16px 0 0;color:#374151;font-size:13px;font-family:monospace">
-                ${ticketCode}
-              </p>
-            </td>
-          </tr>
-          ${
-            amountStr &&
-            `
-            <tr>
-              <td style="padding:24px 32px">
-                <table width="100%">
-                  <tr>
-                    <td style="color:#6b7280;font-size:13px">
-                      Төлсөн дүн
-                    </td>
-
-                    <td style="color:#111827;font-size:13px;font-weight:600;text-align:right">
-                      ${amountStr}
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          `
-          }
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-`;
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'notifications',
-    action: 'sendEmail',
-    input: {
-      toEmails: [invoice.email],
-      title: `Тасалбар – ${title}`,
-      customHtml: html,
-    },
-    defaultValue: null,
-  });
-}
+import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
+import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
+import {
+  enqueuePaidInvoiceCallback,
+  resolvePaymentForInvoice,
+  sendPaidInvoiceQrEmail,
+} from '~/modules/payment/services/paidInvoiceCallback';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
@@ -157,19 +16,16 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
-
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
-
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async invoiceCreate(
@@ -191,19 +47,16 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { input }: { input: IInvoice },
     { models, subdomain }: IContext,
   ) {
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
-      : getEnv({ name: 'REACT_APP_API_URL' }) || 'http://localhost:4000';
-
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
-
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
 
-    const invoice = await models.Invoices.createInvoice({ ...input }, subdomain);
+    const invoice = await models.Invoices.createInvoice(
+      { ...input },
+      subdomain,
+    );
 
-    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+    return buildInvoiceUrl(subdomain, invoice._id);
   },
 
   async cpInvoiceCreate(
@@ -230,42 +83,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      const paymentId = invoice.paymentIds?.[0];
-      const payment = paymentId
-        ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
-        : null;
-      if (payment?.sendEmailOnPayment !== false) {
-        await models.Invoices.updateOne({ _id }, { sendEmailOnPayment: true });
-        sendInvoiceBarcodeEmail(subdomain, invoice).catch(() => undefined);
-      }
+      const payment = await resolvePaymentForInvoice(models, invoice);
 
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
-        );
-
-        // Fire-and-forget: enqueue without waiting for the worker to finish
-        sendWorkerQueue(pluginName, 'payments')
-          .add(
-            'callback',
-            {
-              subdomain,
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-                apiResponse: 'success',
-              },
-            },
-            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-          )
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Failed to enqueue worker job for invoice ${_id}: ${err.message}\n`,
-            );
-          });
-      }
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        models,
+        invoice,
+        payment,
+        'invoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -311,46 +137,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      const paymentId = invoice.paymentIds?.[0];
-      const payment = paymentId
-        ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
-        : null;
-      if (payment?.sendEmailOnPayment !== false && invoice.email) {
-        await models.Invoices.updateOne({ _id }, { sendEmailOnPayment: true });
-        sendInvoiceBarcodeEmail(subdomain, invoice).catch(() => undefined);
-      }
+      const payment = await resolvePaymentForInvoice(models, invoice);
 
-      if (invoice.contentType) {
-        const [moduleName, collectionType] = splitType(invoice.contentType);
-
-        // Fire worker message – do not await
-        sendWorkerMessage({
-          subdomain,
-          pluginName: 'payment',
-          queueName: 'payments',
-          jobName: 'paymentCallback',
-          data: {
-            ...invoice,
-            status: 'paid',
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-          defaultValue: null,
-          timeout: 30000, // keep increased timeout
-          options: {
-            //  added this to enable retries
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 2000 },
-          },
-        })
-          .then(() => {})
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Worker message failed for invoice ${_id}: ${err.stack}\n`,
-            );
-          });
-      }
+      enqueuePaidInvoiceCallback(
+        subdomain,
+        models,
+        invoice,
+        payment,
+        'cpInvoicesCheck',
+      );
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -387,22 +182,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
   async invoiceScanBarcode(
     _root,
-    { code }: { code: string },
+    { code, eventSlug }: { code: string; eventSlug?: string },
     { models }: IContext,
   ) {
-    const invoice = await models.Invoices.findOne({
-      invoiceNumber: code,
-    }).lean();
-
-    if (!invoice) {
-      throw new Error('Invoice not found');
-    }
-
-    if (invoice.status !== 'paid') {
-      throw new Error('Invoice is not paid');
-    }
-
-    const scanned = await models.Invoices.scanBarcode(code);
+    const scanned = await models.Invoices.scanBarcode(code, eventSlug);
 
     graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
       invoiceUpdated: scanned,
@@ -438,6 +221,80 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       selectedPaymentId: paymentId,
       domain,
     });
+  },
+
+  async invoiceEdit(
+    _root,
+    { _id, input }: { _id: string; input: IInvoiceEditInput },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('paymentInvoiceEdit');
+
+    const invoice = await models.Invoices.getInvoice({ _id });
+
+    const doc: IInvoiceEditInput & { resolvedAt?: Date } = {};
+
+    if (input.description !== undefined) {
+      doc.description = input.description;
+    }
+
+    if (input.amount !== undefined) {
+      if (!(input.amount > 0)) {
+        throw new Error('Amount must be greater than 0');
+      }
+
+      doc.amount = input.amount;
+    }
+
+    if (input.currency !== undefined) {
+      if (!CURRENCIES.includes(input.currency)) {
+        throw new Error(`Unsupported currency: ${input.currency}`);
+      }
+
+      doc.currency = input.currency;
+    }
+
+    if (input.status !== undefined) {
+      if (!PAYMENT_STATUS.ALL.includes(input.status)) {
+        throw new Error(`Unsupported status: ${input.status}`);
+      }
+
+      doc.status = input.status;
+
+      if (input.status === PAYMENT_STATUS.PAID && !invoice.resolvedAt) {
+        doc.resolvedAt = new Date();
+      }
+    }
+
+    if (Object.keys(doc).length === 0) {
+      throw new Error('Nothing to update');
+    }
+
+    const updated = await models.Invoices.updateInvoice(_id, doc);
+
+    if (doc.status && doc.status !== invoice.status) {
+      graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
+        invoiceUpdated: {
+          _id,
+          status: updated.status,
+        },
+      });
+
+      if (doc.status === PAYMENT_STATUS.PAID) {
+        const paidInvoice = await models.Invoices.getInvoice({ _id }, true);
+        const payment = await resolvePaymentForInvoice(models, paidInvoice);
+
+        sendPaidInvoiceQrEmail(
+          subdomain,
+          models,
+          paidInvoice,
+          payment,
+          'invoiceEdit',
+        );
+      }
+    }
+
+    return updated;
   },
 
   async cpInvoiceUpdate(
@@ -478,10 +335,6 @@ mutations.invoicesCheck.wrapperConfig = {
 };
 
 mutations.cpInvoiceCreate.wrapperConfig = {
-  skipPermission: true,
-};
-
-mutations.invoiceScanBarcode.wrapperConfig = {
   skipPermission: true,
 };
 

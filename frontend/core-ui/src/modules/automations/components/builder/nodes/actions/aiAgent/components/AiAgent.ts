@@ -1,3 +1,4 @@
+import { getAiAgentResultPreview } from '@/automations/components/builder/nodes/actions/aiAgent/utils/aiAgentResultPreview';
 import {
   AutomationComponentMap,
   AutomationNodeType,
@@ -21,5 +22,13 @@ export const AiAgentComponents: AutomationComponentMap<AutomationNodeType.Action
           default: module.AiAgentNodeContent,
         })),
       ),
+      actionResult: lazy(() =>
+        import(
+          '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentActionResult'
+        ).then((module) => ({
+          default: module.AiAgentActionResult,
+        })),
+      ),
+      actionResultPreview: getAiAgentResultPreview,
     },
   };

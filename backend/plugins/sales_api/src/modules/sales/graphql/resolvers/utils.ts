@@ -10,7 +10,11 @@ import {
   IStageDocument,
 } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
-import { generateAmounts, generateProducts, getNewOrder } from '~/modules/sales/utils';
+import {
+  generateAmounts,
+  generateProducts,
+  getNewOrder,
+} from '~/modules/sales/utils';
 
 export const subscriptionWrapper = async (
   models: IModels,
@@ -78,7 +82,33 @@ export const resolveDealSubscriptionItem = async (
     _id: { $in: deal.labelIds || [] },
   }).lean();
 
-  const products = await generateProducts(subdomain, deal.productsData);
+  // Match Deal.products GraphQL shape used by board cards: { _id, name }
+  // (not generateProducts line-item shape with nested `product`)
+  const generatedProducts = await generateProducts(
+    subdomain,
+    deal.productsData,
+  );
+  const products = generatedProducts
+    .map(
+      (row: {
+        productId?: string;
+        product?: { _id?: string; name?: string };
+      }) => {
+        const productId = row.product?._id || row.productId;
+        if (!productId) {
+          return null;
+        }
+
+        return {
+          _id: productId,
+          name: row.product?.name,
+        };
+      },
+    )
+    .filter(
+      (product): product is { _id: string; name?: string } => product !== null,
+    );
+
   const amount = generateAmounts(deal.productsData || []);
   const unUsedAmount = generateAmounts(deal.productsData || [], false);
 
@@ -293,6 +323,26 @@ export const createOrUpdatePipelineStages = async (
   stages: IStageDocument[],
   pipelineId: string,
 ): Promise<DeleteResult> => {
+  const stageCodes = new Set<string>();
+
+  for (const stage of stages) {
+    const code = stage.code?.trim();
+
+    if (code !== undefined) {
+      stage.code = code;
+    }
+
+    if (!code) {
+      continue;
+    }
+
+    if (stageCodes.has(code)) {
+      throw new Error('Code must be unique');
+    }
+
+    stageCodes.add(code);
+  }
+
   let order = 0;
 
   const validStageIds: string[] = [];
@@ -335,7 +385,12 @@ export const createOrUpdatePipelineStages = async (
       // create
     } else {
       delete doc._id;
-      const createdStage = await models.Stages.createStage(doc);
+      // Codes were validated against the final stage list above.
+      const createdStage = await models.Stages.createStage(
+        doc,
+        undefined,
+        true,
+      );
       validStageIds.push(createdStage._id);
     }
   }
@@ -424,18 +479,23 @@ export const changeItemStatus = async (
   const aboveItemId = aboveItems[0]?._id || '';
 
   // maybe, recovered order includes to oldOrders
+  const recoveredOrder = await getNewOrder({
+    collection: models.Deals,
+    stageId: item.stageId,
+    aboveItemId,
+  });
+
   await models.Deals.updateOne(
     {
       _id: item._id,
     },
     {
-      order: await getNewOrder({
-        collection: models.Deals,
-        stageId: item.stageId,
-        aboveItemId,
-      }),
+      order: recoveredOrder,
     },
   );
+
+  // Publish the persisted order when restoring the deal.
+  item.order = recoveredOrder;
 
   // graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
   //   salesPipelinesChanged: {

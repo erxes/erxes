@@ -22,6 +22,8 @@
   "save": "Хадгалах",
   "automation-name-placeholder": "Автоматжуулалтын нэр",
   "inactive": "Идэвхгүй",
+  "activate": "Идэвхжүүлэх",
+  "deactivate": "Идэвхгүй болгох",
   "builder": "Бүтээгч",
   "history": "Түүх",
 
@@ -38,6 +40,7 @@
 
   "edit": "Засах",
   "delete": "Устгах",
+  "duplicate": "Хувилах",
   "delete-confirm-title": "Та итгэлтэй байна уу?",
   "delete-confirm-description": "Энэ үйлдлийг буцааж болохгүй.",
   "cancel": "Цуцлах",
@@ -75,7 +78,12 @@
   "delay-helper-description": "Триггер ажиллах үед хүлээлт эхэлнэ. Дараагийн үйлдлүүд энэ хугацаа дуусах хүртэл хүлээнэ.",
 
   "sender": "Илгээгч",
+  "sender-name": "Илгээгчийн нэр",
+  "from": "Илгээгч",
+  "reply-to": "Хариу очих хаяг",
+  "no-reply-to": "Хариу очих хаяггүй",
   "use-company-email": "Компанийн имэйл ашиглах",
+  "verified-sender-email": "Баталгаажсан илгээгч",
   "custom-sender-email": "Өөр илгээгч имэйл",
   "to": "Хүлээн авагч",
   "cc": "CC",
@@ -89,6 +97,15 @@
   "loading-documents": "Баримт бичгүүд уншиж байна...",
   "no-documents-found": "Баримт бичиг олдсонгүй.",
   "untitled-document": "Нэргүй баримт бичиг",
+  "insert-link": "Линк",
+  "insert-as-link": "Линк болгож оруулах",
+  "insert-link-title": "Линк оруулах",
+  "insert-link-description": "Хаяг нь хувьсагч ашиглаж болох линк оруулах",
+  "insert-link-variable": "Хувьсагч оруулах",
+  "link-text": "Линкийн текст",
+  "remove-link": "Линк устгах",
+  "apply": "Хэрэглэх",
+  "insert": "Оруулах",
   "load-more": "Цааш ачаалах",
 
   "no-matching-context-title": "Тохирох контекст олдсонгүй",
@@ -182,6 +199,8 @@
   "trigger-type-description": "Триггер идэвхжүүлдэг автоматжуулалтын төрлөөс эхлэнэ үү",
   "choose-action-type": "Үйлдлийн төрлийг сонгоно уу",
   "action-type-description": "Автоматжуулалт идэвхжсэний дараа юу болохыг сонгоно уу",
+  "choose-workflow": "Workflow сонгоно уу",
+  "workflow-description": "Хадгалсан workflow-г энэ автоматжуулалт дотор дахин ашиглана",
   "search": "Хайх...",
   "filter-by-type": "Төрлөөр шүүх",
   "variables-help-aria-label": "Хувьсагч хэрхэн ажилладаг вэ",
@@ -244,6 +263,16 @@
       }
     }
   },
+  "schedule-cron-required": "Cron илэрхийлэл шаардлагатай",
+  "schedule-cron-format-error": "5, 6 эсвэл 7 талбартай cron илэрхийлэл ашиглана уу",
+  "schedule-timezone-required": "Цагийн бүс шаардлагатай",
+  "schedule-validation-title": "Хуваарийн тохиргоог шалгана уу",
+  "schedule-validation-description": "Зөв cron илэрхийлэл болон цагийн бүс шаардлагатай.",
+  "schedule-cron-label": "Cron илэрхийлэл",
+  "schedule-cron-description": "Таваас долоон талбар ашиглана. Жишээлбэл, 0 9 * * 1 нь Даваа гараг бүрийн 09:00 цагт ажиллана.",
+  "schedule-timezone-label": "Цагийн бүс",
+  "schedule-timezone-description": "UTC, Asia/Ulaanbaatar эсвэл America/New_York зэрэг IANA цагийн бүс ашиглана уу.",
+  "schedule-not-configured": "Хуваарь тохируулаагүй",
   "error": "Алдаа",
   "success": "Амжилттай"
 }

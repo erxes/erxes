@@ -415,13 +415,14 @@ export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
-     pricingPlanDetail(id: String): PricingPlan
-    pricingFixedValuesPage(
-      pricingPlanId: String!
-      page: Int
-      perPage: Int
-      search: String
-    ): PricingFixedValuePageResult
+  pricingPlanDetail(id: String): PricingPlan
+  cpPricingPlanDetail(id: String): PricingPlan
+  pricingFixedValuesPage(
+    pricingPlanId: String!
+    page: Int
+    perPage: Int
+    search: String
+  ): PricingFixedValuePageResult
   pricingCheckDiscount(${checkDiscountParams}): JSON
 `;
 
@@ -434,4 +435,5 @@ export const mutations = `
   pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue
   pricingFixedValueEdit(id: String!, doc: PricingFixedValueInput!): PricingFixedValue
   pricingFixedValueRemove(id: String!): PricingFixedValue
+  pricingFixedValuesBulkEdit(pricingPlanId: String!, productsData: JSON): JSON
 `;
