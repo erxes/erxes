@@ -31,7 +31,7 @@ export const BranchList = () => {
     if (!branch) return;
 
     confirm({
-      message: t('confirm-duplicate-branch', { name: branchName }),
+      message: t('confirm-duplicate-branch', 'Are you sure you want to create a duplicate of "{{name}}"?', { name: branchName }),
       options: duplicateConfirmOptions,
     }).then(async () => {
       await handleDuplicateBranch(branch, refetch);
@@ -42,7 +42,7 @@ export const BranchList = () => {
     const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
     confirm({
-      message: t('confirm-delete-branch', { name: branchName }),
+      message: t('confirm-delete-branch', 'Are you sure you want to permanently delete "{{name}}"?', { name: branchName }),
       options: deleteConfirmOptions,
     }).then(async () => {
       await handleDeleteBranch(branchId, refetch);

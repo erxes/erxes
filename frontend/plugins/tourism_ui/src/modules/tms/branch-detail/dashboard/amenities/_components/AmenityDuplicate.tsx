@@ -41,7 +41,7 @@ export const AmenityDuplicate = ({
       .filter((translation) => translation.name);
 
     confirm({
-      message: t('confirm-duplicate-amenity'),
+      message: t('confirm-duplicate-amenity', 'Are you sure you want to duplicate this amenity?'),
       options: { confirmationValue: 'duplicate' },
     })
       .then(() => {
@@ -56,16 +56,16 @@ export const AmenityDuplicate = ({
           },
           onCompleted: () => {
             toast({
-              title: t('success'),
+              title: t('success', 'Success'),
               variant: 'success',
-              description: t('amenity-duplicated-successfully'),
+              description: t('amenity-duplicated-successfully', 'Amenity duplicated successfully'),
             });
           },
           onError: (e: unknown) => {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description:
-                e instanceof Error ? e.message : t('unknown-error-occurred'),
+                e instanceof Error ? e.message : t('unknown-error-occurred', 'Unknown error occurred'),
               variant: 'destructive',
             });
           },
@@ -74,7 +74,7 @@ export const AmenityDuplicate = ({
       .catch((e: unknown) => {
         if (e instanceof Error) {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });

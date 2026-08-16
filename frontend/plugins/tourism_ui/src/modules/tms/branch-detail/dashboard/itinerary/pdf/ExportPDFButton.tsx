@@ -204,8 +204,8 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 
   const previewStatusText =
     previewLoading || shouldWaitForResources
-      ? t('preparing-pdf-preview')
-      : t('preview-refreshes-after-edits');
+      ? t('preparing-pdf-preview', 'Preparing PDF preview...')
+      : t('preview-refreshes-after-edits', 'Preview refreshes automatically after edits and customization changes.');
 
   const revokePreviewUrl = useCallback(() => {
     if (previewObjectUrlRef.current) {
@@ -249,7 +249,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const generatePreview = useCallback(
     async (force = false) => {
       if (!itinerary) {
-        setPreviewError(t('no-itinerary-data'));
+        setPreviewError(t('no-itinerary-data', 'No itinerary data available.'));
         return;
       }
 
@@ -281,8 +281,8 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 
         if (totalImages > 0 && loadedImages < totalImages) {
           toast({
-            title: t('some-images-failed'),
-            description: t('some-images-failed-desc', { failed: totalImages - loadedImages, total: totalImages }),
+            title: t('some-images-failed', 'Some images failed to load'),
+            description: t('some-images-failed-desc', '{{failed}} of {{total}} image(s) could not be loaded. The preview may have missing images.', { failed: totalImages - loadedImages, total: totalImages }),
           });
         }
 
@@ -302,7 +302,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
 
         setPreviewBlob(null);
         setPreviewError(
-          err instanceof Error ? err.message : t('failed-to-generate-preview'),
+          err instanceof Error ? err.message : t('failed-to-generate-preview', 'Failed to generate preview.'),
         );
       } finally {
         if (isMountedRef.current && requestId === previewRequestIdRef.current) {
@@ -333,8 +333,8 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
     triggerDownload(url, generateFilename(itinerary.name));
 
     toast({
-      title: t('pdf-downloaded'),
-      description: t('pdf-downloaded-desc', { name: itinerary.name || 'Itinerary' }),
+      title: t('pdf-downloaded', 'PDF downloaded'),
+      description: t('pdf-downloaded-desc', '"{{name}}" has been downloaded.', { name: itinerary.name || 'Itinerary' }),
       variant: 'success',
     });
   }, [itinerary, previewBlob, toast, triggerDownload]);
@@ -447,11 +447,11 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           await refetchItinerary?.();
         } catch (error) {
           toast({
-            title: t('refresh-failed'),
+            title: t('refresh-failed', 'Refresh failed'),
             description:
               error instanceof Error
                 ? error.message
-                : t('failed-to-reload-itinerary'),
+                : t('failed-to-reload-itinerary', 'Failed to reload itinerary details.'),
             variant: 'destructive',
           });
         } finally {
@@ -523,7 +523,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
         onClick={() => handlePreviewOpenChange(true)}
       >
         <IconFileTypePdf size={16} />
-        {size !== 'icon' && t('preview-pdf')}
+        {size !== 'icon' && t('preview-pdf', 'Preview PDF')}
       </Button>
 
       <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
@@ -539,12 +539,12 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
           </Dialog.Close>
 
           <Dialog.Header className="px-6 py-4 space-y-1 border-b pr-14">
-            <Dialog.Title>{t('itinerary-pdf-preview')}</Dialog.Title>
+            <Dialog.Title>{t('itinerary-pdf-preview', 'Itinerary PDF preview')}</Dialog.Title>
             <Dialog.Description>
-              {t('preview-before-download')}
+              {t('preview-before-download', 'Preview before download. You can edit and refresh here.')}
             </Dialog.Description>
             <div className="pt-2 space-y-2">
-              <Label htmlFor="template-select">{t('template')}</Label>
+              <Label htmlFor="template-select">{t('template', 'Template')}</Label>
               <Select
                 value={selectedTemplate}
                 onValueChange={handleTemplateChange}
@@ -573,7 +573,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
               <div className="flex items-center justify-center h-full">
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Spinner />
-                  {t('preparing-pdf-preview')}
+                  {t('preparing-pdf-preview', 'Preparing PDF preview...')}
                 </div>
               </div>
             ) : previewError ? (
@@ -583,18 +583,18 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
                 </p>
                 <Button variant="outline" onClick={handleRefreshPreview}>
                   <IconRefresh size={16} />
-                  {t('retry-preview')}
+                  {t('retry-preview', 'Retry preview')}
                 </Button>
               </div>
             ) : previewUrl ? (
               <iframe
-                title={t('itinerary-pdf-preview')}
+                title={t('itinerary-pdf-preview', 'Itinerary PDF preview')}
                 src={previewUrl}
                 className="w-full h-full bg-white border-0"
               />
             ) : (
               <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-                {t('no-preview-available')}
+                {t('no-preview-available', 'No preview available yet.')}
               </div>
             )}
           </div>
@@ -609,7 +609,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
                 disabled={!itinerary}
               >
                 <IconAdjustmentsHorizontal size={16} />
-                {t('customize')}
+                {t('customize', 'Customize')}
               </Button>
 
               <Button
@@ -620,7 +620,7 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
                 }
               >
                 {previewLoading ? <Spinner /> : <IconRefresh size={16} />}
-                {t('refresh')}
+                {t('refresh', 'Refresh')}
               </Button>
 
               <Button
@@ -629,12 +629,12 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
                 disabled={!canEdit}
               >
                 <IconEdit size={16} />
-                {t('edit-itinerary')}
+                {t('edit-itinerary', 'Edit itinerary')}
               </Button>
 
               <Button onClick={handleDownload} disabled={!canDownload}>
                 <IconDownload size={16} />
-                {t('download-pdf')}
+                {t('download-pdf', 'Download PDF')}
               </Button>
             </div>
           </Dialog.Footer>

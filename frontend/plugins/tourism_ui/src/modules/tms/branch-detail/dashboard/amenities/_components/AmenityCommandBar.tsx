@@ -24,21 +24,21 @@ export const AmenityCommandBar = () => {
 
   const onRemove = () => {
     confirm({
-      message: t('confirm-delete-amenities', { count: selectedCount }),
+      message: t('confirm-delete-amenities', 'Are you sure you want to delete the {{count}} selected amenities?', { count: selectedCount }),
       options: confirmOptions,
     }).then(() => {
       removeAmenities({ variables: { ids: amenityIds } })
         .then(() => {
           table.resetRowSelection();
           toast({
-            title: t('success'),
+            title: t('success', 'Success'),
             variant: 'success',
-            description: t('amenities-deleted-successfully'),
+            description: t('amenities-deleted-successfully', 'Amenities deleted successfully'),
           });
         })
         .catch((e: ApolloError) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: e.message,
             variant: 'destructive',
           });
@@ -49,7 +49,7 @@ export const AmenityCommandBar = () => {
   return (
     <CommandBar open={selectedCount > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>{t('x-selected', { count: selectedCount })}</CommandBar.Value>
+        <CommandBar.Value>{t('x-selected', '{{count}} selected', { count: selectedCount })}</CommandBar.Value>
         <Separator.Inline />
         <Button
           variant="secondary"
@@ -57,7 +57,7 @@ export const AmenityCommandBar = () => {
           onClick={onRemove}
         >
           <IconTrash />
-          {t('delete')}
+          {t('delete', 'Delete')}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

@@ -41,11 +41,11 @@ export const ElementNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name', 'Name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder={t('element-name')} {...field} />
+            <Input placeholder={t('element-name', 'Element name')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -67,10 +67,10 @@ export const ElementNoteField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('note')}<span className="text-primary">{labelSuffix}</span>
+            {t('note', 'Note')}<span className="text-primary">{labelSuffix}</span>
           </Form.Label>
           <Form.Description>
-            {t('not-visible-for-clients')}
+            {t('not-visible-for-clients', 'Not visible for clients and agents.')}
           </Form.Description>
           <Form.Control>
             <Editor
@@ -99,7 +99,7 @@ export const ElementStartTimeField = ({
       name="startTime"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('start-time')}</Form.Label>
+          <Form.Label>{t('start-time', 'Start Time')}</Form.Label>
           <Form.Control>
             <Input type="time" {...field} />
           </Form.Control>
@@ -122,7 +122,7 @@ export const ElementDurationField = ({
       name="duration"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('duration-minutes')}</Form.Label>
+          <Form.Label>{t('duration-minutes', 'Duration (minutes)')}</Form.Label>
           <Form.Control>
             <Input type="number" placeholder="0" {...field} />
           </Form.Control>
@@ -152,7 +152,7 @@ export const ElementCostField = ({
       name={name}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('cost')}</Form.Label>
+          <Form.Label>{t('cost', 'Cost')}</Form.Label>
           <Form.Control>
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">

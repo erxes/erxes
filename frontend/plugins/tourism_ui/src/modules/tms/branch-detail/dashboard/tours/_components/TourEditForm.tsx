@@ -346,8 +346,8 @@ export const TourEditForm = ({
   const handleSubmit = async (values: TourFormValues) => {
     if (!tourId) {
       toast({
-        title: t('error'),
-        description: t('tour-id-required'),
+        title: t('error', 'Error'),
+        description: t('tour-id-required', 'Tour ID required'),
         variant: 'destructive',
       });
       return;
@@ -355,8 +355,8 @@ export const TourEditForm = ({
 
     if (!values.pricingOptions || values.pricingOptions.length === 0) {
       toast({
-        title: t('error'),
-        description: t('at-least-one-pricing'),
+        title: t('error', 'Error'),
+        description: t('at-least-one-pricing', 'At least one pricing option is required'),
         variant: 'destructive',
       });
       return;
@@ -401,8 +401,8 @@ export const TourEditForm = ({
 
       if (additionalDates.length > 0 && !targetBranchId) {
         toast({
-          title: t('error'),
-          description: t('branch-id-required-dates'),
+          title: t('error', 'Error'),
+          description: t('branch-id-required-dates', 'Branch ID is required to create additional tours for the selected dates'),
           variant: 'destructive',
         });
         return;
@@ -466,19 +466,19 @@ export const TourEditForm = ({
       }
 
       toast({
-        title: t('success'),
+        title: t('success', 'Success'),
         description:
           additionalDates.length > 0
-            ? t('tour-updated-and-created', { count: additionalDates.length })
-            : t('tour-updated-successfully'),
+            ? t('tour-updated-and-created', 'Tour updated and {{count}} new tour(s) created', { count: additionalDates.length })
+            : t('tour-updated-successfully', 'Tour updated successfully'),
       });
 
       onSuccess?.();
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-update-tour'),
+          error instanceof Error ? error.message : t('failed-to-update-tour', 'Failed to update tour'),
         variant: 'destructive',
       });
     }
@@ -492,7 +492,7 @@ export const TourEditForm = ({
         className="flex flex-col h-full"
       >
         <Sheet.Header>
-          <Sheet.Title>{t('edit-tour')}</Sheet.Title>
+          <Sheet.Title>{t('edit-tour', 'Edit tour')}</Sheet.Title>
           {allLanguages.length > 1 && (
             <div className="flex items-center gap-2 ml-auto">
               <TourFieldLanguageSwitch
@@ -590,7 +590,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">{t('duration-info')}</Form.Label>
+                  <Form.Label className="mx-2">{t('duration-info', 'Duration Info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -608,7 +608,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">{t('crew')}</Form.Label>
+                  <Form.Label className="mx-2">{t('crew', 'Crew')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -616,7 +616,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">{t('pricing-info')}</Form.Label>
+                  <Form.Label className="mx-2">{t('pricing-info', 'Pricing Info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -641,7 +641,7 @@ export const TourEditForm = ({
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />
-                  <Form.Label className="mx-2">{t('more-info')}</Form.Label>
+                  <Form.Label className="mx-2">{t('more-info', 'More Info')}</Form.Label>
                   <div className="flex-1 border-t" />
                 </div>
 
@@ -654,13 +654,13 @@ export const TourEditForm = ({
                 <div className="space-y-4">
                   <Tabs defaultValue="info1" className="w-full">
                     <Tabs.List className="grid w-full grid-cols-5">
-                      <Tabs.Trigger value="info1">{t('included')}</Tabs.Trigger>
-                      <Tabs.Trigger value="info2">{t('not-included')}</Tabs.Trigger>
-                      <Tabs.Trigger value="info3">{t('highlights')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info1">{t('included', 'Included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info2">{t('not-included', 'Not Included')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info3">{t('highlights', 'Highlights')}</Tabs.Trigger>
                       <Tabs.Trigger value="info4">
-                        {t('additional-information')}
+                        {t('additional-information', 'Additional Information')}
                       </Tabs.Trigger>
-                      <Tabs.Trigger value="info5">{t('notes')}</Tabs.Trigger>
+                      <Tabs.Trigger value="info5">{t('notes', 'Notes')}</Tabs.Trigger>
                     </Tabs.List>
 
                     <Tabs.Content value="info1" className="pt-4">
@@ -721,11 +721,11 @@ export const TourEditForm = ({
             disabled={loading}
             onClick={onSuccess}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
 
           <Button type="submit" disabled={loading}>
-            {loading ? t('updating') : t('update')}
+            {loading ? t('updating', 'Updating...') : t('update', 'Update')}
           </Button>
         </Sheet.Footer>
       </form>

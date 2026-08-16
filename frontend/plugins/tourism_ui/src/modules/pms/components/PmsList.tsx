@@ -35,11 +35,11 @@ function PmsListEmpty() {
         </div>
 
         <h2 className="mb-3 text-xl font-semibold text-foreground">
-          {t('property-management-system')}
+          {t('property-management-system', 'Property management system')}
         </h2>
 
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          {t('pms-empty-description')}
+          {t('pms-empty-description', 'A property management system is software designed to organize and manage property-related activities. It helps streamline trip planning, booking, payment management, customer information, and travel schedules.')}
         </p>
 
         <PmsCreateSheet />
@@ -97,7 +97,7 @@ function PmsBranchCard({
       <div className="flex justify-between items-center px-3 py-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold truncate">
-            {branch.name || t('unnamed-branch')}
+            {branch.name || t('unnamed-branch', 'Unnamed Branch')}
           </div>
         </div>
 
@@ -118,10 +118,10 @@ function PmsBranchCard({
         <div className="flex gap-2 items-center min-w-0">
           <IconCalendarPlus size={16} className="shrink-0" />
           <span className="text-xs font-medium truncate">
-            {t('created')}:{' '}
+            {t('created', 'Created')}:{' '}
             {branch.createdAt
               ? format(new Date(branch.createdAt), 'dd MMM yyyy')
-              : t('na')}
+              : t('na', 'N/A')}
           </span>
         </div>
 
@@ -167,22 +167,22 @@ export function PmsList() {
     const branchName = list?.find((b) => b._id === branchId)?.name || '';
 
     confirm({
-      message: t('confirm-delete-branch', { name: branchName }),
+      message: t('confirm-delete-branch', 'Are you sure you want to permanently delete "{{name}}"?', { name: branchName }),
       options: confirmOptions,
     }).then(() => {
       removeBranch({
         variables: { id: branchId },
         onCompleted: () => {
           toast({
-            title: t('success'),
-            description: t('branch-removed-successfully'),
+            title: t('success', 'Success'),
+            description: t('branch-removed-successfully', 'Branch removed successfully'),
           });
         },
         onError: (e) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description:
-              e instanceof Error ? e.message : t('failed-to-remove-branch'),
+              e instanceof Error ? e.message : t('failed-to-remove-branch', 'Failed to remove branch'),
             variant: 'destructive',
           });
         },

@@ -21,7 +21,7 @@ export const TmsCreateSheet = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-tms')}
+          {t('create-tms', 'Create TMS')}
         </Button>
       </Sheet.Trigger>
       <CreateTmsForm onOpenChange={handleOpenChange} isOpen={open} />
@@ -33,7 +33,7 @@ export const TmsCreateSheetHeader = () => {
   const { t } = useTranslation('tourism');
   return (
     <Sheet.Header>
-      <Sheet.Title>{t('create-tms-full')}</Sheet.Title>
+      <Sheet.Title>{t('create-tms-full', 'Create Tour Management System')}</Sheet.Title>
       <Sheet.Close />
     </Sheet.Header>
   );

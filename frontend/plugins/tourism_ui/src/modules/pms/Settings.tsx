@@ -4,7 +4,7 @@ const Settings = () => {
   const { t } = useTranslation('tourism');
   return (
     <div>
-      <h1>{t('pms-settings')}</h1>
+      <h1>{t('pms-settings', 'PMS Settings')}</h1>
     </div>
   );
 };

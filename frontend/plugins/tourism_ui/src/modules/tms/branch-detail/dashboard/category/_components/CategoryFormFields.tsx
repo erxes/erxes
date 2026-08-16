@@ -30,12 +30,12 @@ export const CategoryNameField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
+            {t('name', 'Name')}<span className="text-primary">{labelSuffix}</span>{' '}
             <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input
-              placeholder={t('category-name-placeholder')}
+              placeholder={t('category-name-placeholder', 'e.g., Adventure Tours, Cultural Tours')}
               {...field}
             />
           </Form.Control>
@@ -59,10 +59,10 @@ export const CategoryCodeField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            {t('code')} <span className="text-destructive">*</span>
+            {t('code', 'Code')} <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
-            <Input placeholder={t('category-code-placeholder')} {...field} />
+            <Input placeholder={t('category-code-placeholder', 'e.g., ADV, CUL')} {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -87,7 +87,7 @@ export const CategoryParentIdField = ({
       name="parentId"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('parent-category')}</Form.Label>
+          <Form.Label>{t('parent-category', 'Parent category')}</Form.Label>
           <Form.Control>
             <SelectParentCategory
               selected={field.value}
@@ -117,7 +117,7 @@ export const CategoryAttachmentField = ({
       name="attachment"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('category-image')}</Form.Label>
+          <Form.Label>{t('category-image', 'Category Image')}</Form.Label>
 
           <Form.Control>
             <Upload.Root
@@ -149,11 +149,11 @@ export const CategoryAttachmentField = ({
                 {!field.value?.url && (
                   <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
                     {isLoading ? (
-                      <span>{t('uploading')}</span>
+                      <span>{t('uploading', 'Uploading...')}</span>
                     ) : (
                       <>
                         <IconUpload size={22} />
-                        <span>{t('upload-category-image')}</span>
+                        <span>{t('upload-category-image', 'Upload category image')}</span>
                       </>
                     )}
                   </div>
@@ -162,7 +162,7 @@ export const CategoryAttachmentField = ({
                 {field.value?.url && (
                   <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
                     <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
-                      {t('change-image')}
+                      {t('change-image', 'Change image')}
                     </span>
                   </div>
                 )}

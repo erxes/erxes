@@ -69,11 +69,11 @@ export const ImageUploadGrid = ({
             onClick={uploadProps.open}
           >
             {loading ? (
-              <span className="text-xs">{t('uploading')}</span>
+              <span className="text-xs">{t('uploading', 'Uploading...')}</span>
             ) : (
               <>
                 <IconUpload size={18} />
-                <span className="text-[11px]">{t('add-images')}</span>
+                <span className="text-[11px]">{t('add-images', 'Add images')}</span>
               </>
             )}
           </div>
@@ -82,7 +82,7 @@ export const ImageUploadGrid = ({
 
       {urls.length >= maxImages && (
         <p className="text-xs text-muted-foreground">
-          {t('max-images-allowed', { count: maxImages })}
+          {t('max-images-allowed', 'Maximum {{count}} images allowed', { count: maxImages })}
         </p>
       )}
 

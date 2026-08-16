@@ -38,12 +38,12 @@ export const BranchDetailView = () => {
         <IconBox size={64} stroke={1.5} className="text-muted-foreground" />
         <div className="space-y-5">
           <h2 className="text-lg font-semibold text-muted-foreground">
-            {t('branch-not-found')}
+            {t('branch-not-found', 'Branch not found')}
           </h2>
 
           <Button variant="outline" onClick={() => window.history.back()}>
             <IconArrowLeft size={16} />
-            {t('back-to-branches')}
+            {t('back-to-branches', 'Back to branches')}
           </Button>
         </div>
       </div>

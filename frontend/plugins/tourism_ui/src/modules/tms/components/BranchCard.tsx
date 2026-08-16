@@ -61,7 +61,7 @@ export const BranchCard = ({
       <div className="flex items-center justify-between px-3 py-2">
         <div className="min-w-0">
           <div className="text-sm font-semibold truncate">
-            {branch.name || t('unnamed-branch')}
+            {branch.name || t('unnamed-branch', 'Unnamed Branch')}
           </div>
         </div>
 
@@ -84,10 +84,10 @@ export const BranchCard = ({
         <div className="flex items-center min-w-0 gap-2">
           <IconCalendarPlus size={16} className="shrink-0" />
           <span className="text-xs font-medium truncate">
-            {t('created')}:{' '}
+            {t('created', 'Created')}:{' '}
             {branch.createdAt
               ? format(new Date(branch.createdAt), 'dd MMM yyyy')
-              : t('na')}
+              : t('na', 'N/A')}
           </span>
         </div>
 

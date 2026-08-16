@@ -78,7 +78,7 @@ const LogoField = ({
                       <div className="flex relative z-10 flex-col gap-3 justify-center items-center">
                         <IconUpload size={20} />
                         <span className="text-xs text-muted-foreground">
-                          {t('max-size-file-type')}
+                          {t('max-size-file-type', 'Max size: 15MB, File type: PNG')}
                         </span>
                       </div>
                     )}
@@ -87,7 +87,7 @@ const LogoField = ({
                       <div className="flex absolute inset-0 justify-center items-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
                         <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                           <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
-                            {t('change')}
+                            {t('change', 'Change')}
                           </div>
                         </div>
                       </div>
@@ -125,22 +125,22 @@ const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
   return (
     <PmsFormFieldsLayout>
       <div className="grid grid-cols-2 gap-4">
-        <InfoCard title={t('logo-title')}>
+        <InfoCard title={t('logo-title', 'Logo')}>
           <InfoCard.Content>
-            <LogoField control={control} name="logo" label={t('main-logo')} />
+            <LogoField control={control} name="logo" label={t('main-logo', 'Main logo')} />
           </InfoCard.Content>
         </InfoCard>
 
-        <InfoCard title={t('main-colors')}>
+        <InfoCard title={t('main-colors', 'Main colors')}>
           <InfoCard.Content>
-            <Label>{t('colors')}</Label>
+            <Label>{t('colors', 'Colors')}</Label>
             <div className="flex gap-6">
               <Form.Field
                 control={control}
                 name="primaryColor"
                 render={({ field }) => (
                   <Form.Item className="space-y-2">
-                    <Label>{t('primary-label')}</Label>
+                    <Label>{t('primary-label', 'PRIMARY')}</Label>
                     <Form.Control>
                       <ColorPicker
                         className="w-20 h-8"
@@ -158,7 +158,7 @@ const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
                 name="secondaryColor"
                 render={({ field }) => (
                   <Form.Item className="space-y-2">
-                    <Label>{t('secondary')}</Label>
+                    <Label>{t('secondary', 'SECONDARY')}</Label>
                     <Form.Control>
                       <ColorPicker
                         className="w-20 h-8"
@@ -176,7 +176,7 @@ const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
                 name="thirdColor"
                 render={({ field }) => (
                   <Form.Item className="space-y-2">
-                    <Label>{t('third')}</Label>
+                    <Label>{t('third', 'THIRD')}</Label>
                     <Form.Control>
                       <ColorPicker
                         className="w-20 h-8"
@@ -193,17 +193,17 @@ const Appearance = ({ control }: { control: Control<PmsBranchFormType> }) => {
         </InfoCard>
       </div>
 
-      <InfoCard title={t('infos')}>
+      <InfoCard title={t('infos', 'Infos')}>
         <InfoCard.Content>
           <Form.Field
             control={control}
             name="website"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('website')}</Form.Label>
+                <Form.Label>{t('website', 'Website')}</Form.Label>
 
                 <Form.Control>
-                  <Input {...field} placeholder={t('website-url')} />
+                  <Input {...field} placeholder={t('website-url', 'Website url')} />
                 </Form.Control>
                 <Form.Message className="text-destructive" />
               </Form.Item>

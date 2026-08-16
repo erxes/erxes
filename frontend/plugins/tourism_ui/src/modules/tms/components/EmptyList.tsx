@@ -17,11 +17,11 @@ export const EmptyList = () => {
 
         <div className="p-2 text-center">
           <h2 className="mb-2 text-lg font-semibold sm:mb-3 sm:text-xl text-foreground">
-            {t('tour-management-system')}
+            {t('tour-management-system', 'Tour management system')}
           </h2>
 
           <p className="px-1 sm:px-0 text-center text-muted-foreground text-xs sm:text-sm font-medium leading-[140%] font-inter pb-3 sm:pb-4">
-            {t('tms-empty-description')}
+            {t('tms-empty-description', 'A tour management system is software designed to help travel agencies and operators organize and manage tour-related activities. It helps streamline itinerary planning, booking, guide assignment, customer information, and travel schedules.')}
           </p>
 
           <TmsCreateSheet />

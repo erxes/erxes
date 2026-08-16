@@ -139,16 +139,16 @@ export const AmenityEditSheet = ({
       });
 
       toast({
-        title: t('success'),
-        description: t('amenity-updated-successfully'),
+        title: t('success', 'Success'),
+        description: t('amenity-updated-successfully', 'Amenity updated successfully'),
       });
 
       handleOpenChange(false);
     } catch (error) {
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description:
-          error instanceof Error ? error.message : t('failed-to-update-amenity'),
+          error instanceof Error ? error.message : t('failed-to-update-amenity', 'Failed to update amenity'),
         variant: 'destructive',
       });
     }
@@ -172,7 +172,7 @@ export const AmenityEditSheet = ({
             className="flex flex-col h-full"
           >
             <Sheet.Header>
-              <Sheet.Title>{t('edit-amenity')}</Sheet.Title>
+              <Sheet.Title>{t('edit-amenity', 'Edit amenity')}</Sheet.Title>
               {allLanguages.length > 1 && (
                 <div className="flex items-center gap-2 ml-auto">
                   <TourFieldLanguageSwitch
@@ -205,10 +205,10 @@ export const AmenityEditSheet = ({
                 disabled={loading}
                 onClick={() => handleOpenChange(false)}
               >
-                {t('cancel')}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? t('updating') : t('update')}
+                {loading ? t('updating', 'Updating...') : t('update', 'Update')}
               </Button>
             </Sheet.Footer>
           </form>

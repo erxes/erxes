@@ -16,7 +16,7 @@ export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('tour-management')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('tour-management', 'Tour Management')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {steps.map((step) => (

@@ -81,13 +81,13 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, boards, loading } = useSelectBoardContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-boards')}</span>;
+    return <span className="text-accent-foreground/80">{t('loading-boards', 'Loading boards...')}</span>;
   }
 
   if (!boards || boards.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-board')}
+        {placeholder || t('select-board', 'Select board')}
       </span>
     );
   }
@@ -97,7 +97,7 @@ const SelectBoardValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedBoard) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-board')}
+        {placeholder || t('select-board', 'Select board')}
       </span>
     );
   }
@@ -131,7 +131,7 @@ const SelectBoardContent = () => {
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
-            {loading ? t('loading-boards') : t('no-boards-found')}
+            {loading ? t('loading-boards', 'Loading boards...') : t('no-boards-found', 'No boards found')}
           </div>
         </Command.Empty>
         {boards?.map((board) => (
@@ -244,14 +244,14 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (loading) {
     return (
-      <span className="text-accent-foreground/80">{t('loading-pipelines')}</span>
+      <span className="text-accent-foreground/80">{t('loading-pipelines', 'Loading pipelines...')}</span>
     );
   }
 
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pipeline')}
+        {placeholder || t('select-pipeline', 'Select pipeline')}
       </span>
     );
   }
@@ -261,7 +261,7 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedPipeline) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-pipeline')}
+        {placeholder || t('select-pipeline', 'Select pipeline')}
       </span>
     );
   }
@@ -294,10 +294,10 @@ const SelectPipelineContent = () => {
   const { pipelines, boardId, loading } = useSelectPipelineContext();
 
   const emptyMessage = loading
-    ? t('loading-pipelines')
+    ? t('loading-pipelines', 'Loading pipelines...')
     : boardId
-      ? t('no-pipelines-found')
-      : t('board-not-selected');
+      ? t('no-pipelines-found', 'No pipelines found')
+      : t('board-not-selected', 'Board not selected');
 
   return (
     <Command>
@@ -418,13 +418,13 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, stages, loading } = useSelectStageContext();
 
   if (loading) {
-    return <span className="text-accent-foreground/80">{t('loading-stages')}</span>;
+    return <span className="text-accent-foreground/80">{t('loading-stages', 'Loading stages...')}</span>;
   }
 
   if (!stages || stages.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select stage')}
       </span>
     );
   }
@@ -434,7 +434,7 @@ const SelectStageValue = ({ placeholder }: { placeholder?: string }) => {
   if (!selectedStage) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-stage')}
+        {placeholder || t('select-stage', 'Select stage')}
       </span>
     );
   }
@@ -464,10 +464,10 @@ const SelectStageContent = () => {
   const { stages, pipelineId, loading } = useSelectStageContext();
 
   const emptyMessage = loading
-    ? t('loading-stages')
+    ? t('loading-stages', 'Loading stages...')
     : pipelineId
-      ? t('no-stages-found')
-      : t('pipeline-not-selected');
+      ? t('no-stages-found', 'No stages found')
+      : t('pipeline-not-selected', 'Pipeline not selected');
 
   return (
     <Command>
