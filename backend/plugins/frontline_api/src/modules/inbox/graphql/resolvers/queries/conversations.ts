@@ -5,7 +5,10 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
@@ -201,6 +204,16 @@ export const conversationQueries = {
     response.awaitingResponse = await count(models, {
       ...mainQuery,
       ...qb.awaitingResponse(),
+    });
+
+    const automationCounts = await Promise.all(
+      CONVERSATION_AUTOMATION_STATUS.ALL.map((key) =>
+        count(models, { ...mainQuery, ...qb.automationStatusFilter(key) }),
+      ),
+    );
+
+    CONVERSATION_AUTOMATION_STATUS.ALL.forEach((key, index) => {
+      response[key] = automationCounts[index];
     });
 
     return response;

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-15`
+- **Last synchronized:** `2026-08-16`
 
 ## Scope
 
@@ -130,6 +130,15 @@
   schema path, so neither is sortable. The query runs under
   `collation({ locale: 'en', strength: 1 })`, so `name` sorts case- and
   diacritic-insensitively instead of in Mongo's default byte order.
+- GraphQL: every conversation filter query (`conversations`, `conversationCounts`,
+  `conversationsTotalCount`, `conversationsGetLast`) accepts
+  `automationStatus: String` — a comma-separated list of `responded`, `standby`,
+  `handoff`. `responded` matches any conversation that carries an
+  `automatedReplyControl.status` at all, so it is a superset of the other two;
+  `standby` is `handoff_requested` and `handoff` is `human_active`.
+  `conversationCounts` always returns a `responded` / `standby` / `handoff`
+  count alongside `unassigned` / `participating` / `starred` / `resolved` /
+  `awaitingResponse`.
 - GraphQL: `getChannels` returns **team channels only** on every branch
   (`channelIds`, `integrationId`, see-everything, and membership), including the
   caller's own personal channel. Personal inboxes are reached only through
@@ -294,6 +303,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   new resolver that reads channels — from any module — composes it rather than
   querying `Channels` directly, and narrows with `$and` so a caller-supplied
   `_id` can never widen the result.
+- The `automationStatus` filter is Mongo-only. It must not be added to
+  `CommonBuilder` in `src/modules/inbox/conversationUtils.ts`, which builds the
+  Elasticsearch queries behind `conversationCounts(only: ...)` — the ES index is
+  filled by an external syncer and `automatedReplyControl.status` is not
+  guaranteed to be mapped there.
 - Conversations reference an integration, not a channel. Any per-channel
   conversation count must resolve the channel's integration ids first; never
   read `channels.conversationCount` / `channels.openConversationCount`, which
@@ -538,6 +552,25 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-16` — Filter conversations by automation ownership
+
+- **Summary:** Conversation filter queries accept `automationStatus`
+  (`responded` / `standby` / `handoff`, comma-separated), resolved against
+  `automatedReplyControl.status`: `responded` is an `$exists` match covering
+  every automation-touched conversation, `standby` is `handoff_requested`,
+  `handoff` is `human_active`. `conversationCounts` returns the three counts
+  unconditionally, and the conversation schema gained a partial index on
+  `automatedReplyControl.status` + `updatedAt`.
+- **Affected areas:** `src/conversationQueryBuilder.ts`,
+  `src/modules/inbox/db/definitions/{constants.ts,conversations.ts}`,
+  `src/modules/inbox/@types/conversations.ts`,
+  `src/modules/inbox/graphql/schemas/conversation.ts`,
+  `src/modules/inbox/graphql/resolvers/queries/conversations.ts`.
+- **Contracts changed:** `mutationFilterParams` gained `automationStatus: String`,
+  so `conversations`, `conversationCounts`, `conversationsTotalCount` and
+  `conversationsGetLast` all accept it. `conversationCounts` gained
+  `responded` / `standby` / `handoff` keys.
+
 ### `2026-08-15` — Call reports scope by integration, queue becomes a filter
 
 - **Summary:** Every call report resolver was anchored on `queueId`, so a
@@ -639,8 +672,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Suppressed typing indicators throughout comment-triggered bot flows and added privacy-safe Graph error metadata logging.
 - **Affected areas:** `src/modules/integrations/facebook/utils.ts`, Facebook automation messages
 - **Contracts changed:** None
-
-### `2026-08-07` — Indexed knowledge base articles carry their category name
 
 ### `2026-08-10` — Multi-select real pipeline status filter for ticket reports
 
