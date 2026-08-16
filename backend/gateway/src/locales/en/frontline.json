@@ -992,6 +992,9 @@
   "add-title": "Add {{title}}",
   "add-title-wip": "Add {{title}} ( Work in progress )",
   "sent-successfully": "Sent successfully",
+  "messages-sent": "{{count}} message sent",
+  "messages-sent_other": "{{count}} messages sent",
+  "attachments": "Attachments",
   "no-results": "No results",
   "add-bot": "Add Bot",
   "persistent-menu-description": "Configure menu items that appear in your bot",
@@ -1250,6 +1253,6 @@
   "move-to-pipeline": "Move to pipeline",
   "tickets-moved-successfully": "Tickets moved successfully",
   "tickets-updated-successfully": "Tickets updated successfully",
-  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest."
+  "tickets-refresh-failed": "The list could not be refreshed — refresh to see the latest.",
   "ticket-status": "Ticket status"
 }

@@ -12,9 +12,7 @@ type TWorkflowEditScope = {
   addInput?: (name: string) => void;
 };
 
-const WorkflowEditScopeContext = createContext<TWorkflowEditScope | null>(
-  null,
-);
+const WorkflowEditScopeContext = createContext<TWorkflowEditScope | null>(null);
 
 export const WorkflowEditScopeProvider = ({
   children,

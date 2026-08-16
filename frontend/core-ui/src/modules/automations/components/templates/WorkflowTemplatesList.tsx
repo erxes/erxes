@@ -1,3 +1,4 @@
+import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { getWorkflowTemplateColumns } from '@/automations/components/templates/WorkflowTemplateColumns';
 import {
@@ -5,19 +6,13 @@ import {
   useWorkflowTemplateList,
 } from '@/automations/hooks/useWorkflowTemplateList';
 import { IconAffiliate, IconArrowsSplit2 } from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  RecordTable,
-  Separator,
-  toast,
-} from 'erxes-ui';
+import { Breadcrumb, Button, RecordTable, Separator, toast } from 'erxes-ui';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { PageHeader } from 'ui-modules';
 
 export const WorkflowTemplatesList = () => {
-  const { templates, loading, editTemplate, removeTemplate } =
+  const { templates, loading, error, refetch, editTemplate, removeTemplate } =
     useWorkflowTemplateList();
 
   const handleRename = async (template: TWorkflowTemplate, name: string) => {
@@ -67,7 +62,13 @@ export const WorkflowTemplatesList = () => {
         </PageHeader.End>
       </PageHeader>
 
-      {!loading && templates.length === 0 ? (
+      {error ? (
+        <AutomationErrorEmptyState
+          title="Couldn't load workflow templates"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      ) : !loading && templates.length === 0 ? (
         <WorkflowTemplatesEmptyState />
       ) : (
         <RecordTable.Provider

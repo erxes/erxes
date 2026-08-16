@@ -15,10 +15,11 @@ import { AutomationHistorySplitPanel } from '@/automations/components/builder/hi
 import { AutomationHistoryViewModeToggle } from '@/automations/components/builder/history/components/AutomationHistoryViewOptions';
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { useTranslation } from 'react-i18next';
+import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 
 type AutomationHistoriesTableProps = Omit<
   ReturnType<typeof useAutomationHistories>,
-  'refetch'
+  'refetch' | 'error'
 >;
 
 // Reuses the record table's own selected-row styling for the row shown in the
@@ -94,7 +95,7 @@ const AutomationHistoriesTable = ({
 };
 
 export const AutomationHistories = () => {
-  const { refetch, ...tableProps } = useAutomationHistories();
+  const { refetch, error, ...tableProps } = useAutomationHistories();
   const { loading, totalCount } = tableProps;
   const { isSplitView, isVerticalSplit, splitDirection, selectedExecutionId } =
     useAutomationHistoryView();
@@ -116,7 +117,13 @@ export const AutomationHistories = () => {
         </Button>
         <AutomationHistoryViewModeToggle />
       </PageSubHeader>
-      {isSplitOpen ? (
+      {error ? (
+        <AutomationErrorEmptyState
+          title="Couldn't load the run history"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      ) : isSplitOpen ? (
         <Resizable.PanelGroup
           key={splitDirection}
           direction={splitDirection}

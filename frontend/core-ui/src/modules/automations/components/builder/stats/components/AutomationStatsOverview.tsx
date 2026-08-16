@@ -33,8 +33,7 @@ export const AutomationStatsOverview = ({
 }) => {
   const { total, byStatus, byErrorCode } = stats;
 
-  const errorTotal =
-    byStatus.find(({ key }) => key === 'error')?.count ?? 0;
+  const errorTotal = byStatus.find(({ key }) => key === 'error')?.count ?? 0;
   const errorRate = total ? Math.round((errorTotal / total) * 100) : 0;
 
   return (

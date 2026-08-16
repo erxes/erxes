@@ -56,7 +56,9 @@ export const useAutomationNodeLibrarySidebar = () => {
   // Workflows contain only actions, so their library defaults there
   const activeNodeTab =
     queryParams?.activeNodeTab ??
-    (workflowEditScope ? AutomationNodeType.Action : AutomationNodeType.Trigger);
+    (workflowEditScope
+      ? AutomationNodeType.Action
+      : AutomationNodeType.Trigger);
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const { triggers, actions, workflows, getList } = useAutomationNodes();
   const { getNodes, getNode, addNodes, setNodes } =

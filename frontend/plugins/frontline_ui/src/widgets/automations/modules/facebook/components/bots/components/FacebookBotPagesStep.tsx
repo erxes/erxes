@@ -57,10 +57,7 @@ export const FacebookBotPagesStep = () => {
             {t('pages-found', { count: facebookGetPages.length })}
           </div>
         </div>
-        <RadioGroup
-          value={selectedPage}
-          onValueChange={setSelectedPage}
-        >
+        <RadioGroup value={selectedPage} onValueChange={setSelectedPage}>
           <Command.List>
             <FacebookBotPagesStepContent
               loading={loading || botsLoading}
