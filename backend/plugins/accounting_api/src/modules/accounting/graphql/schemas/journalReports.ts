@@ -1,4 +1,4 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type AccDD {
@@ -57,11 +57,22 @@ const trsQueryParams = `
   brandId: String,
   isTemp: Boolean,
   isOutBalance: Boolean,
+  productId: String,
+  productIds: [String],
+  fixedAssetId: String,
+  fixedAssetIds: [String],
+  customerId: String,
+  customerIds: [String],
+  contentType: String,
+  contentId: String,
   branchId: String,
   departmentId: String,
   currency: String,
   journal: String,
   journals: [String],
+  trKind: String,
+  trKinds: [String],
+  getTrKind: String,
   statuses: [String],
 
   createdUserId: String

@@ -24,6 +24,9 @@ export const useConversationMarkAsRead = () => {
       variables: {
         id: _id,
       },
+      // The sidebar badges count conversations this user has not read, so they
+      // have to fall as soon as one is read.
+      refetchQueries: ['GetMyChannels'],
       onError: (error) => {
         toast({
           title: t('error'),

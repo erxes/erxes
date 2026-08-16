@@ -1,11 +1,11 @@
-import { Table } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCallbackStats } from '../../hooks/useCallbackStats';
 import { CallbackMiniKpi } from './CallbackMiniKpi';
 import { SectionCard } from '../SectionCard';
+import { Meter, rateColorVar } from '../Meter';
+import { ReportTable } from '../ReportTable';
 import { fmt, fmtNum, fmtPct } from '../../utils';
 
-/** Callbacks tab: per-queue callback recovery stats. */
 export function CallbacksSection() {
   const { t } = useTranslation('frontline');
   const { stats, loading } = useCallbackStats();
@@ -25,100 +25,112 @@ export function CallbacksSection() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Mini KPI row */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CallbackMiniKpi
           label={t('missed-calls')}
           value={fmtNum(totals.missed)}
-          accentVar="var(--neg)"
+          accentVar="var(--destructive)"
         />
-        <CallbackMiniKpi label={t('cb-attempts')} value={fmtNum(totals.attempts)} />
+        <CallbackMiniKpi
+          label={t('cb-attempts')}
+          value={fmtNum(totals.attempts)}
+        />
         <CallbackMiniKpi
           label={t('successful')}
           value={fmtNum(totals.successful)}
-          accentVar="var(--pos)"
+          accentVar="var(--success)"
         />
         <CallbackMiniKpi
           label={t('recovery-rate')}
           value={fmtPct(overallRate)}
-          accentVar={overallRate >= 60 ? 'var(--pos)' : 'var(--warn)'}
+          accentVar={rateColorVar(overallRate)}
         />
       </div>
 
-      {/* Detail table */}
       <SectionCard
         title={t('callback-recovery')}
         description={t('per-queue-missed-call-follow-up')}
-        accentClass="bg-[var(--warn)]"
+        accentClass="bg-[var(--warning)]"
         loading={loading}
         skeletonHeight="h-32"
       >
         {!stats.length ? (
-          <div className="rounded-xl border-2 border-dashed p-8 text-center text-sm text-muted-foreground">
-            {t('no-callback-data')}
-          </div>
+          <ReportTable.Empty>{t('no-callback-data')}</ReportTable.Empty>
         ) : (
-          <div className="overflow-hidden rounded-xl border">
-            <Table>
-              <Table.Header>
-                <Table.Row className="bg-muted/50">
-                  <Table.Head className="font-semibold">{t('queue')}</Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('missed')}
-                  </Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('cb-attempts')}
-                  </Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('successful')}
-                  </Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('pending')}
-                  </Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('cb-rate')}
-                  </Table.Head>
-                  <Table.Head className="font-semibold text-right">
-                    {t('avg-cb-time')}
-                  </Table.Head>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {stats.map((row, i) => (
-                  <Table.Row
-                    key={`${row.queue}-${i}`}
-                    className="hover:bg-muted/30"
-                  >
-                    <Table.Cell className="font-medium">
+          <ReportTable>
+            <ReportTable.Header>
+              <ReportTable.HeaderRow>
+                <ReportTable.Head>{t('queue')}</ReportTable.Head>
+                <ReportTable.Head align="right">{t('missed')}</ReportTable.Head>
+                <ReportTable.Head align="right">
+                  {t('cb-attempts')}
+                </ReportTable.Head>
+                <ReportTable.Head align="right">
+                  {t('successful')}
+                </ReportTable.Head>
+                <ReportTable.Head align="right">
+                  {t('pending')}
+                </ReportTable.Head>
+                <ReportTable.Head align="right" className="w-40">
+                  {t('cb-rate')}
+                </ReportTable.Head>
+                <ReportTable.Head align="right">
+                  {t('avg-cb-time')}
+                </ReportTable.Head>
+              </ReportTable.HeaderRow>
+            </ReportTable.Header>
+            <ReportTable.Body>
+              {stats.map((row, i) => (
+                <ReportTable.Row key={`${row.queue}-${i}`} index={i}>
+                  <ReportTable.Cell>
+                    <span className="inline-flex items-center rounded-md border bg-muted/50 px-2 py-0.5 font-mono text-xs font-semibold">
                       {row.queue || '—'}
-                    </Table.Cell>
-                    <Table.Cell className="text-right font-semibold">
-                      {fmtNum(row.totalMissedCalls)}
-                    </Table.Cell>
-                    <Table.Cell className="text-right">
-                      {fmtNum(row.callbackAttempts)}
-                    </Table.Cell>
-                    <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-(--pos)/10 px-2 py-0.5 text-xs font-medium text-(--pos)">
-                        {fmtNum(row.successfulCallbacks)}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-(--warn)/10 px-2 py-0.5 text-xs font-medium text-(--warn)">
-                        {fmtNum(row.pendingCallbacks)}
-                      </span>
-                    </Table.Cell>
-                    <Table.Cell className="text-right font-medium">
+                    </span>
+                  </ReportTable.Cell>
+                  <ReportTable.Cell
+                    align="right"
+                    numeric
+                    className="text-sm font-semibold"
+                  >
+                    {fmtNum(row.totalMissedCalls)}
+                  </ReportTable.Cell>
+                  <ReportTable.Cell align="right" numeric className="text-sm">
+                    {fmtNum(row.callbackAttempts)}
+                  </ReportTable.Cell>
+                  <ReportTable.Cell align="right">
+                    <ReportTable.Badge tone="success">
+                      {fmtNum(row.successfulCallbacks)}
+                    </ReportTable.Badge>
+                  </ReportTable.Cell>
+                  <ReportTable.Cell align="right">
+                    <ReportTable.Badge tone="warning">
+                      {fmtNum(row.pendingCallbacks)}
+                    </ReportTable.Badge>
+                  </ReportTable.Cell>
+                  <ReportTable.Cell align="right" numeric className="w-40">
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: rateColorVar(row.callbackRate) }}
+                    >
                       {fmtPct(row.callbackRate)}
-                    </Table.Cell>
-                    <Table.Cell className="text-right font-mono text-sm">
-                      {fmt(row.averageCallbackTime)} {t('min')}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </div>
+                    </p>
+                    <Meter
+                      className="mt-1.5"
+                      value={row.callbackRate}
+                      colorVar={rateColorVar(row.callbackRate)}
+                    />
+                  </ReportTable.Cell>
+                  <ReportTable.Cell
+                    align="right"
+                    numeric
+                    className="font-mono text-sm"
+                  >
+                    {fmt(row.averageCallbackTime)} {t('min')}
+                  </ReportTable.Cell>
+                </ReportTable.Row>
+              ))}
+            </ReportTable.Body>
+          </ReportTable>
         )}
       </SectionCard>
     </div>

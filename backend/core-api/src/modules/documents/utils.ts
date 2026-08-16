@@ -1,6 +1,56 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 
+const toDimension = (value?: number | string) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const num = typeof value === 'number' ? value : parseFloat(value);
+
+  if (!isFinite(num) || num <= 0) {
+    return undefined;
+  }
+
+  return num;
+};
+
+const isBlankBlock = (block: any) => {
+  if (!block || block.type !== 'paragraph') {
+    return false;
+  }
+
+  if (!Array.isArray(block.content) || !block.content.length) {
+    return true;
+  }
+
+  return block.content.every(
+    (item: any) => item?.type === 'text' && !String(item.text || '').trim(),
+  );
+};
+
+const trimBlankBlocks = (content: string) => {
+  try {
+    const blocks = JSON.parse(content);
+
+    if (!Array.isArray(blocks)) {
+      return content;
+    }
+
+    let end = blocks.length;
+
+    while (end > 0 && isBlankBlock(blocks[end - 1])) {
+      end -= 1;
+    }
+
+    return end === blocks.length
+      ? content
+      : JSON.stringify(blocks.slice(0, end));
+  } catch {
+    return content;
+  }
+};
+
 export const prepareContent = ({
   contents,
   config,
@@ -8,14 +58,95 @@ export const prepareContent = ({
   contents: string[];
   config: Record<string, any>;
 }) => {
-  const { copies } = config;
+  const { copies, paperWidth, paperHeight, type } = config || {};
+
+  const width = toDimension(paperWidth ?? config?.width);
+  const height = toDimension(paperHeight ?? config?.height);
+
+  const isRoll = type === 'roll';
+  const isLabel = isRoll && !!height;
+  const isContinuous = isRoll && !height;
+
+  const sizing = isContinuous
+    ? 'width: 100%;'
+    : isLabel
+    ? `width: ${width}mm;
+              height: ${height}mm;
+              overflow: hidden;
+              break-after: page;
+              page-break-after: always;`
+    : `width: ${width}mm;${
+        height ? `\n              min-height: ${height}mm;` : ''
+      }`;
+
+  const pageRule = isLabel
+    ? `
+            @page {
+              size: ${width}mm ${height}mm;
+              margin: 0;
+            }`
+    : isContinuous
+    ? `
+            @page {
+              margin: 0;
+            }`
+    : '';
+
+  const fitStyle = isLabel
+    ? `
+            .label-fit {
+              display: flow-root;
+              width: 100%;
+              text-align: left;
+              overflow-wrap: break-word;
+            }
+            .label-fit > :first-child {
+              margin-top: 0 !important;
+            }
+            .label-fit > :last-child {
+              margin-bottom: 0 !important;
+            }`
+    : '';
+
+  const pageStyle = width
+    ? `${pageRule}
+            html,
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            .label-item {
+              box-sizing: border-box;
+              ${sizing}
+            }
+            .label-item:last-child {
+              break-after: auto;
+              page-break-after: auto;
+            }${fitStyle}
+            img,
+            svg {
+              max-width: 100%;
+              height: auto;
+            }
+            table {
+              width: 100%;
+              max-width: 100%;
+              table-layout: fixed;
+            }`
+    : '';
 
   let htmlContents: string[] = [];
 
   for (const content of contents) {
-    const html = blocksToHtml(content, {});
+    const html = blocksToHtml(trimBlankBlocks(content), {});
 
-    htmlContents.push(`<div style="margin-bottom: 2mm">${html}</div>`);
+    htmlContents.push(
+      width
+        ? `<div class="label-item">${
+            isLabel ? `<div class="label-fit">${html}</div>` : html
+          }</div>`
+        : `<div style="margin-bottom: 2mm">${html}</div>`,
+    );
   }
 
   if (copies > 1) {
@@ -26,11 +157,16 @@ export const prepareContent = ({
     htmlContents = [...htmlContents, ...copiedContents];
   }
 
-  return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
+  const tableStyles = width
+    ? `
+            table {
+              border-collapse: collapse;
+            }
+            td {
+              padding: 0;
+              border: 0;
+            }`
+    : `
             table {
               border-collapse: collapse;
             }
@@ -43,7 +179,13 @@ export const prepareContent = ({
             td {
               border: 1px solid #ddd;
               padding: 5px 10px;
-            }
+            }`;
+
+  return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>${pageStyle}${tableStyles}
             blockquote {
               margin-left: 0;
               border-left: 2px solid rgb(125, 121, 122);
@@ -60,7 +202,7 @@ export const prepareContent = ({
         <body>
           ${htmlContents.join('')}
         </body>
-      </html>  
+      </html>
     `;
 };
 

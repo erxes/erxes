@@ -122,6 +122,8 @@ export const checkPricing = async (
       pipelineId: stage.pipelineId,
       customerType,
       customerId: pricingCustomerId,
+      brokerType: deal.brokerType || '',
+      brokerId: deal.brokerId || '',
       products: activeProductsData.map((item) => ({
         itemId: item._id,
         productId: item.productId,

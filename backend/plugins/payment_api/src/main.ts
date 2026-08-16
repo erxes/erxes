@@ -10,6 +10,7 @@ import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
 import { afterProcess } from './meta/afterProcess';
+import { permissions } from './meta/permissions';
 
 const getWidgetApiUrl = (req: express.Request) => {
   const subdomain =
@@ -103,5 +104,6 @@ startPlugin({
   },
   meta: {
     afterProcess,
+    permissions,
   },
 });

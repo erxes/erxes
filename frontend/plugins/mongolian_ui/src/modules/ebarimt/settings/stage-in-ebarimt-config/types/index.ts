@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  EBARIMT_COMMON_DEFAULT_VALUES,
+  getEBarimtCommonFormValues,
+} from '@/ebarimt/settings/types/EBarimtConfig';
 
 export const normalizeRuleIds = (value?: string | string[] | null) => {
   if (Array.isArray(value)) {
@@ -32,8 +36,27 @@ export const addEBarimtStageInConfigSchema = z.object({
   reverseCtaxRules: z.array(z.string()).optional(),
   withDescription: z.boolean().optional(),
   skipEbarimt: z.boolean().optional(),
+  sendEmail: z.boolean().optional(),
 });
 
 export type TStageInEbarimtConfig = z.infer<
   typeof addEBarimtStageInConfigSchema
 >;
+
+export const STAGE_IN_EBARIMT_DEFAULT_VALUES: TStageInEbarimtConfig = {
+  ...EBARIMT_COMMON_DEFAULT_VALUES,
+  boardId: '',
+  pipelineId: '',
+  stageId: '',
+  sendEmail: false,
+};
+
+export const getStageInEBarimtFormValues = (
+  detail: Partial<TStageInEbarimtConfig>,
+): TStageInEbarimtConfig => ({
+  ...getEBarimtCommonFormValues(detail),
+  boardId: detail.boardId || '',
+  pipelineId: detail.pipelineId || '',
+  stageId: detail.stageId || '',
+  sendEmail: detail.sendEmail || false,
+});

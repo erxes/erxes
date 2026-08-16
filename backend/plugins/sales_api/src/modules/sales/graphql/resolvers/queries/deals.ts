@@ -14,7 +14,6 @@ import {
 import {
   getNextMonth,
   getToday,
-  regexSearchText,
   escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
@@ -30,6 +29,61 @@ const contains = (values: string[]) => {
 
 const isListEmpty = (value) => {
   return value.length === 1 && value[0].length === 0;
+};
+
+const getDealIdsByCustomerPhone = async (
+  subdomain: string,
+  search: string,
+): Promise<string[]> => {
+  const trimmedSearch = search.trim();
+  const phoneDigits = trimmedSearch.replace(/\D/g, '');
+
+  // Do not treat alphanumeric identifiers as phone searches.
+  const isPhoneSearch =
+    phoneDigits.length >= 4 && /^[\d\s+()-]+$/.test(trimmedSearch);
+
+  if (!isPhoneSearch) {
+    return [];
+  }
+
+  const phonePattern = phoneDigits.split('').join('\\D*');
+  const customers: Array<{ _id: unknown }> = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'customers',
+    action: 'findActiveCustomers',
+    input: {
+      query: {
+        $or: [
+          { primaryPhone: { $regex: phonePattern } },
+          { phones: { $regex: phonePattern } },
+        ],
+      },
+      fields: { _id: 1 },
+      skip: 0,
+      limit: 0,
+    },
+    defaultValue: [],
+  });
+
+  if (!customers.length) {
+    return [];
+  }
+
+  return sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'filterRelationIds',
+    input: {
+      contentType: 'core:customer',
+      contentIds: customers.map(({ _id }) => String(_id)),
+      relatedContentType: 'sales:deal',
+    },
+    defaultValue: [],
+  });
 };
 
 export const generateFilter = async (
@@ -71,6 +125,7 @@ export const generateFilter = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
+    status,
     number,
     branchIds,
     departmentIds,
@@ -90,9 +145,11 @@ export const generateFilter = async (
   } = params;
   Object.assign(
     filter,
-    noSkipArchive
-      ? {}
-      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+    status
+      ? { status }
+      : noSkipArchive
+        ? {}
+        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -106,7 +163,6 @@ export const generateFilter = async (
   }
 
   if (assignedUserIds) {
-    // Filter by assigned to no one
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : { $in: assignedUserIds };
@@ -299,11 +355,14 @@ export const generateFilter = async (
   }
 
   if (search) {
+    const escaped = escapeRegExp(search);
+    const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+
     Object.assign(filter, {
       $or: [
-        regexSearchText(search),
-        { name: { $regex: new RegExp(`${escapeRegExp(search)}`, 'i') } },
-        { number: { $regex: new RegExp(`^${escapeRegExp(search)}`, 'i') } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { number: { $regex: escaped, $options: 'i' } },
+        ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
       ],
     });
   }
@@ -371,8 +430,6 @@ export const generateFilter = async (
     filter.tagIds = { $in: tagIds };
   }
 
-  // Pipeline user/department permission check — internal users only.
-  // CP users are not erxes users so this block must be skipped for client portal.
   if (pipelineId && !forClientPortal) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
@@ -685,7 +742,7 @@ const fetchDeals = async (
   const { search, noSkipArchive } = args;
 
   if (noSkipArchive && search) {
-    args.orderBy = { status: 1, ...args.orderBy }
+    args.orderBy = { status: 1, ...args.orderBy };
   }
 
   const filter = await generateFilter(
@@ -705,7 +762,11 @@ const fetchDeals = async (
     list: deals,
     pageInfo,
     totalCount,
-  } = await getItemList(models, subdomain, filter, args, user, getExtraFields);
+  } = await getItemList(models, subdomain, filter, args, user, getExtraFields, {
+    formatter: {
+      modifiedAt: 'date',
+    },
+  });
 
   await enrichDealsWithProducts(subdomain, deals);
 

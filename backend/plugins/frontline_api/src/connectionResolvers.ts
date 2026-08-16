@@ -116,6 +116,28 @@ import {
   loadFacebookBotClass,
 } from '@/integrations/facebook/db/models/Bots';
 
+// Discord integration models
+import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
+import { IDiscordCustomerDocument } from '@/integrations/discord/@types/customers';
+import { IDiscordConversationDocument } from '@/integrations/discord/@types/conversations';
+import { IDiscordConversationMessageDocument } from '@/integrations/discord/@types/conversationMessages';
+import {
+  IDiscordBotModel,
+  loadDiscordBotClass,
+} from '@/integrations/discord/db/models/Bots';
+import {
+  IDiscordCustomerModel,
+  loadDiscordCustomerClass,
+} from '@/integrations/discord/db/models/Customers';
+import {
+  IDiscordConversationModel,
+  loadDiscordConversationClass,
+} from '@/integrations/discord/db/models/Conversations';
+import {
+  IDiscordConversationMessageModel,
+  loadDiscordConversationMessageClass,
+} from '@/integrations/discord/db/models/ConversationMessages';
+
 import {
   ICustomerImapDocument,
   IIntegrationImapDocument,
@@ -258,6 +280,13 @@ import {
   loadInstagramConfigClass,
 } from '@/integrations/instagram/db/models/Config';
 import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
+
+import { IReportChartDocument } from '@/reports/@types/chart';
+import {
+  IReportChartModel,
+  loadReportChartClass,
+} from '@/reports/db/models/Charts';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -302,6 +331,13 @@ export interface IModels {
   CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
+
+  // discord
+  DiscordBots: IDiscordBotModel;
+  DiscordCustomers: IDiscordCustomerModel;
+  DiscordConversations: IDiscordConversationModel;
+  DiscordConversationMessages: IDiscordConversationMessageModel;
+
   //imap
   ImapCustomers: ICustomerImapModel;
   ImapIntegrations: IIntegrationImapModel;
@@ -330,6 +366,8 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  ReportCharts: IReportChartModel;
 }
 
 export interface IContext extends IMainContext {
@@ -548,6 +586,28 @@ export const loadClasses = (
     'facebook_messengers_bots',
     loadFacebookBotClass(models, subdomain),
   );
+
+  // discord models
+  models.DiscordBots = db.model<IDiscordBotDocument, IDiscordBotModel>(
+    'discord_bots',
+    loadDiscordBotClass(models),
+  );
+  models.DiscordCustomers = db.model<
+    IDiscordCustomerDocument,
+    IDiscordCustomerModel
+  >('customers_discord', loadDiscordCustomerClass(models));
+  models.DiscordConversations = db.model<
+    IDiscordConversationDocument,
+    IDiscordConversationModel
+  >('conversations_discord', loadDiscordConversationClass(models));
+  models.DiscordConversationMessages = db.model<
+    IDiscordConversationMessageDocument,
+    IDiscordConversationMessageModel
+  >(
+    'conversation_messages_discord',
+    loadDiscordConversationMessageClass(models),
+  );
+
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
     'imap_customers',
@@ -599,6 +659,11 @@ export const loadClasses = (
   models.Topic = db.model<ITopicDocument, ITopicModel>(
     'knowledgebase_topics',
     loadTopicClass(models),
+  );
+
+  models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
+    'frontline_report_charts',
+    loadReportChartClass(models),
   );
 
   return models;

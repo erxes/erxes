@@ -53,6 +53,7 @@ const productsMain = gql`
         shortName
         uom
         unitPrice
+        status
         type
         vendor {
           _id

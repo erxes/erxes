@@ -127,7 +127,9 @@ const CheckSyncedOrders = () => {
         toast({
           title: t('failed-to-resend-order'),
           description:
-            error instanceof Error ? error.message : t('please-try-again-later'),
+            error instanceof Error
+              ? error.message
+              : t('please-try-again-later'),
           variant: 'destructive',
         });
       }
@@ -146,6 +148,7 @@ const CheckSyncedOrders = () => {
       data={orders || []}
       className="m-0"
       stickyColumns={['more', 'checkbox', 'createdAt']}
+      tableId="mongolian_msdynamic_check_orders_record_table"
     >
       <MSDynamicCheckOrderCommandBar
         checking={checkingSyncedOrders}

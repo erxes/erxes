@@ -6,6 +6,7 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
 import { generateSalesFields } from '~/modules/sales/fieldUtils';
+import { generatePosOrderFields } from '~/modules/pos/fieldUtils';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -45,6 +46,11 @@ export const appRouter = t.mergeRouters(
           if (input.moduleType === 'sales') {
             return await generateSalesFields(subdomain, models, input);
           }
+
+          if (input.moduleType === 'pos') {
+            return await generatePosOrderFields(models);
+          }
+
           return [];
         },
       ),

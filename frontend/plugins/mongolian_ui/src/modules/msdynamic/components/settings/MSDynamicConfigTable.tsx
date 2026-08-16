@@ -28,22 +28,23 @@ export const MSDynamicConfigTable = () => {
     <RecordTable.Provider
       columns={columns}
       data={rows}
+      className="m-3"
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_msdynamic_config_record_table"
     >
-      <RecordTable.Scroll>
-        <RecordTable.CursorProvider
-          dataLength={rows.length}
-          sessionKey={MS_DYNAMIC_CONFIG_CURSOR_SESSION_KEY}
-        >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-              {(configsLoading || loading || saveLoading) && (
-                <RecordTable.RowSkeleton rows={4} />
-              )}
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.CursorProvider>
+      <RecordTable.CursorProvider
+        dataLength={rows.length}
+        sessionKey={MS_DYNAMIC_CONFIG_CURSOR_SESSION_KEY}
+      >
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            <RecordTable.RowList />
+            {(configsLoading || loading || saveLoading) && (
+              <RecordTable.RowSkeleton rows={4} />
+            )}
+          </RecordTable.Body>
+        </RecordTable>
         {!(configsLoading || loading || saveLoading) && rows.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center text-center">
@@ -58,7 +59,7 @@ export const MSDynamicConfigTable = () => {
             </div>
           </div>
         )}
-      </RecordTable.Scroll>
+      </RecordTable.CursorProvider>
       <MSDynamicConfigCommandBar />
     </RecordTable.Provider>
   );

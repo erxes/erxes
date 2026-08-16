@@ -10,6 +10,20 @@ export const cpInboxMutations = {
   async cpInsertMessage(_root, args: any, ctx: IContext, info: any) {
     return widgetMutations.widgetsInsertMessage(_root, args, ctx, info);
   },
+
+  async cpReadConversationMessages(
+    _root,
+    args: { conversationId: string },
+    ctx: IContext,
+    info,
+  ) {
+    return widgetMutations.widgetsReadConversationMessages(
+      _root,
+      args,
+      ctx,
+      info,
+    );
+  },
 };
 
 markResolvers(cpInboxMutations, {

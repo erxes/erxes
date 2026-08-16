@@ -1,4 +1,4 @@
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconSandbox, IconPackage, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
@@ -10,6 +10,11 @@ interface ProductsHeaderProps {
 
 export const ProductsHeader = ({ onCreateClick }: ProductsHeaderProps) => {
   const { t } = useTranslation('insurance');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('products'),
+  );
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -33,7 +38,10 @@ export const ProductsHeader = ({ onCreateClick }: ProductsHeaderProps) => {
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
-        <PageHeader.FavoriteToggleButton />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconSandbox"
+        />
       </PageHeader.Start>
       <PageHeader.End>
         <Button onClick={onCreateClick}>

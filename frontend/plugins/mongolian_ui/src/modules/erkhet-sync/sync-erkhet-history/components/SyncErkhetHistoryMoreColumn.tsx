@@ -35,6 +35,7 @@ export const SyncErkhetHistoryMoreColumnCell = ({
 
 export const SyncErkhetHistoryMoreColumn = {
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: SyncErkhetHistoryMoreColumnCell,
   size: 33,
 };

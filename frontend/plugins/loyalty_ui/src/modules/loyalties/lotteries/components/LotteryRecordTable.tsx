@@ -15,7 +15,7 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const allColumns = [...firstLotteryColumns, ...secondLotteryColumns];
+  const allColumns = [...firstLotteryColumns(t), ...secondLotteryColumns(t)];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');
 
   if (loading) return <Spinner />;
@@ -27,6 +27,7 @@ export const LotteryRecordTable = ({ posId }: { posId?: string }) => {
       data={lotteriesList || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'number']}
+      tableId="loyalties_lotteries_record_table"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

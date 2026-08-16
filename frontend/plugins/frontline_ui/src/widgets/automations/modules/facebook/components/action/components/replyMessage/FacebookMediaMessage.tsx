@@ -67,7 +67,8 @@ export const FacebookMediaMessage = ({
                         ? [
                             {
                               _id:
-                                attachment?._id || generateAutomationElementId(),
+                                attachment?._id ||
+                                generateAutomationElementId(),
                               url: fileUrl,
                               type: 'file',
                             } satisfies TBotMessageAttachment,

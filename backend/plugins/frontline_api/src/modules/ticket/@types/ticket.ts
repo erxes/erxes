@@ -13,10 +13,13 @@ export interface ITicket {
   statusId?: string;
   description?: string;
   priority?: number;
+  branchId?: string;
+  departmentId?: string;
   labelIds?: string[];
   tagIds?: string[];
   status?: string;
   assigneeId?: string;
+  assignedMembers?: string[];
   createdBy?: string;
   userId?: string;
   startDate?: Date;

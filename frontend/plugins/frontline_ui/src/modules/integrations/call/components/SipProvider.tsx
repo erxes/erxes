@@ -65,11 +65,6 @@ const SipProvider = ({
   const loggerRef = useRef<any>(logger);
 
   const historyIdRef = useRef<string>('');
-  const sipStateRef = useRef(sipState);
-
-  useEffect(() => {
-    sipStateRef.current = sipState;
-  }, [sipState]);
 
   useEffect(() => {
     if (currentHistoryId) {
@@ -109,11 +104,13 @@ const SipProvider = ({
         'Calling registerSip is not allowed when autoRegister === true',
       );
     }
-    if (sipStateRef.current.sipStatus !== SipStatusEnum.CONNECTED) {
-      return;
+    if (sipState.sipStatus !== SipStatusEnum.CONNECTED) {
+      throw new Error(
+        `Calling registerSip is not allowed when sip status is ${sipState.sipStatus} (expected ${SipStatusEnum.CONNECTED})`,
+      );
     }
     return uaRef.current?.register();
-  }, [autoRegister]);
+  }, [autoRegister, sipState.sipStatus]);
 
   const unregisterSip = useCallback(() => {
     if (autoRegister) {
@@ -121,11 +118,13 @@ const SipProvider = ({
         'Calling unregisterSip is not allowed when autoRegister === true',
       );
     }
-    if (sipStateRef.current.sipStatus !== SipStatusEnum.REGISTERED) {
-      return;
+    if (sipState.sipStatus !== SipStatusEnum.REGISTERED) {
+      throw new Error(
+        `Calling unregisterSip is not allowed when sip status is ${sipState.sipStatus} (expected ${SipStatusEnum.REGISTERED})`,
+      );
     }
     return uaRef.current?.unregister();
-  }, [autoRegister]);
+  }, [autoRegister, sipState.sipStatus]);
 
   // Call control functions
   const answerCall = useCallback(() => {

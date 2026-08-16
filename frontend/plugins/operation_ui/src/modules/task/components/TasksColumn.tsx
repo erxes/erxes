@@ -9,7 +9,7 @@ import { SelectStatusTask } from '@/task/components/task-selects/SelectStatusTas
 import { SelectTaskPriority } from '@/task/components/task-selects/SelectTaskPriority';
 import { SelectTeamTask } from '@/task/components/task-selects/SelectTeamTask';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
-import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 import { ITask } from '@/task/types';
 import { ITeam } from '@/team/types';
 import {
@@ -31,7 +31,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { SelectMilestone } from './task-selects/SelectMilestone';
 import { TagsSelect } from 'ui-modules';
@@ -57,7 +56,7 @@ export const tasksColumns = (
         const name = cell.getValue() as string;
         const [value, setValue] = useState(name);
         const { updateTask } = useUpdateTask();
-        const setActiveTask = useSetAtom(taskDetailSheetState);
+        const [, setActiveTask] = useTaskDetailSheet();
 
         const handleUpdate = () => {
           if (value !== name) {

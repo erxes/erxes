@@ -62,6 +62,7 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
     labels,
     boardId,
     pipeline,
+    pipelineId,
     departments,
     branches,
   } = deal || {};
@@ -72,7 +73,18 @@ export const DealWidgetCard = ({ deal }: { deal: IDeal }) => {
   const hasBranches = !!branches?.length;
 
   const onCardClick = () => {
-    const dealUrl = `/sales/deals?boardId=${boardId}&pipelineId=${pipeline._id}&salesItemId=${_id}`;
+    const searchParams = new URLSearchParams({ salesItemId: _id });
+    const resolvedPipelineId = pipeline?._id || pipelineId || stage?.pipelineId;
+
+    if (boardId) {
+      searchParams.set('boardId', boardId);
+    }
+
+    if (resolvedPipelineId) {
+      searchParams.set('pipelineId', resolvedPipelineId);
+    }
+
+    const dealUrl = `/sales/deals?${searchParams.toString()}`;
     window.open(dealUrl, '_blank');
   };
 

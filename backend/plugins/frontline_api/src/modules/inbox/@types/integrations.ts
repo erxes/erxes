@@ -47,8 +47,7 @@ export interface IMessengerOnlineHours {
 }
 
 export interface IMessengerOnlineHoursDocument
-  extends IMessengerOnlineHours,
-    Document {}
+  extends IMessengerOnlineHours, Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -201,7 +200,7 @@ export interface IIntegration {
   departmentIds?: string[];
   visibility?: string;
   configId?: string;
-  ticketConfigId?: string;
+  ticketConfigIds?: string[];
   brandId?: string;
 }
 

@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2020",
-    "lib": ["es2020"],
+    "target": "es2021",
+    "lib": ["es2021", "dom"],
     "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "erxes-api-shared/*": ["../erxes-api-shared/src/*"]
+    },
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,

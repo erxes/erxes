@@ -154,6 +154,7 @@ export class QpayAPI extends BaseAPI {
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`,
       };
 
+      // NOTE: uncomment next line for testing purposes
       // console.debug("callback_url", `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?_id=${transaction._id}`)
 
       const res = await this.request({

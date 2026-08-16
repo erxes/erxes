@@ -49,6 +49,12 @@ const columns: ColumnDef<IOrderHistory>[] = [
     cell: formatDate,
   },
   {
+    id: "user",
+    accessorFn: (order) => order.user?.email,
+    header: "Хэрэглэгч",
+    cell: (info) => info.getValue() || "-",
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }: CellContext<IOrderHistory, unknown>) => (

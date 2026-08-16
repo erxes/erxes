@@ -51,6 +51,7 @@ const queryParams = `
   stageChangedStartDate: Date
   stageChangedEndDate: Date
   noSkipArchive: Boolean
+  status: String
   tagIds: [String]
   number: String
   branchIds: [String]
@@ -135,6 +136,8 @@ export const types = `
     mobileAmounts: JSON
     paymentsData: JSON
     extraData: JSON
+    brokerType: String
+    brokerId: String
 
     cursor: String
   }
@@ -227,6 +230,8 @@ const mutationParams = `
   mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
+  brokerType: String,
+  brokerId: String,
 `;
 
 export const mutations = `

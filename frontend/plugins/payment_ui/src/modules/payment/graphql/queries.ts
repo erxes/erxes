@@ -16,18 +16,24 @@ export const COUNTS = gql`
   }
 `;
 
-
 export const PAYMENTS = gql`
-query payments($status: String, $kind: String) {
-  payments(status: $status, kind: $kind) {
-    _id
-    name
-    kind
-    status
-    config
-    createdAt
+  query payments($status: String, $kind: String) {
+    payments(status: $status, kind: $kind) {
+      _id
+      name
+      kind
+      status
+      config
+      sendEmailOnPayment
+      dealConfig {
+        enabled
+        boardId
+        pipelineId
+        stageId
+      }
+      createdAt
+    }
   }
-}
 `;
 
 export const DISTRICTS = gql`
@@ -37,36 +43,56 @@ export const DISTRICTS = gql`
 `;
 
 export const INVOICES = gql`
-query Invoices($kind: String, $status: String, $searchValue: String, $contentType: String, $contentTypeId: String, $limit: Int, $cursor: String, $direction: CURSOR_DIRECTION) {
-  invoices(kind: $kind, status: $status, searchValue: $searchValue, contentType: $contentType, contentTypeId: $contentTypeId, limit: $limit, cursor: $cursor, direction: $direction) {
-    list {
-      _id
-      amount
-      contentType
-      contentTypeId
-      createdAt
-      currency
-      customer
-      customerId
-      customerType
-      description
-      invoiceNumber
-      status
-      scannedAt
-      transactions {
+  query Invoices(
+    $kind: String
+    $status: String
+    $searchValue: String
+    $contentType: String
+    $contentTypeId: String
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+  ) {
+    invoices(
+      kind: $kind
+      status: $status
+      searchValue: $searchValue
+      contentType: $contentType
+      contentTypeId: $contentTypeId
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+    ) {
+      list {
+        _id
         amount
+        contentType
+        contentTypeId
         createdAt
+        currency
+        customer
+        customerId
+        customerType
+        description
+        invoiceNumber
         status
-        paymentKind
+        scannedAt
+        scannedCount
+        ticketCount
+        transactions {
+          amount
+          createdAt
+          status
+          paymentKind
+        }
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
       }
     }
-    totalCount
-    pageInfo {
-      hasNextPage
-      hasPreviousPage
-      startCursor
-      endCursor
-    }
   }
-}
 `;

@@ -1,4 +1,5 @@
 import { AutomationNodeLibraryTabContent } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabContent';
+import { AutomationNodeLibraryTabs } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabs';
 import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck, IconFilter, IconX } from '@tabler/icons-react';
@@ -16,6 +17,7 @@ import {
   useAutomationNodeLibraryActionGroupFilter,
 } from '../../context/AutomationNodeLibraryActionGroupFilterContext';
 import { AutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
+import { WorkflowNodeLibraryContent } from './WorkflowNodeLibraryContent';
 
 const SidebarPanelHeader = ({
   title,
@@ -99,6 +101,7 @@ const AutomationNodeLibrarySidebarContent = ({
 
   return (
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
+      <AutomationNodeLibraryTabs activeNodeTab={activeNodeTab} />
       <div className="flex shrink-0 flex-row gap-2 px-5 py-4">
         <Command.Input
           placeholder={t('search')}
@@ -106,21 +109,30 @@ const AutomationNodeLibrarySidebarContent = ({
           wrapperClassName="m-0 flex-1 rounded-md bg-background shadow-xs"
           autoFocus
         />
-        <AutomationNodeLibrarySidebarFilters
-          activeNodeTab={activeNodeTab}
-          list={config.list as IAutomationsActionConfigConstants[]}
-        />
+        {activeNodeTab !== AutomationNodeType.Workflow && (
+          <AutomationNodeLibrarySidebarFilters
+            activeNodeTab={activeNodeTab}
+            list={config.list as IAutomationsActionConfigConstants[]}
+          />
+        )}
       </div>
       <div className="min-h-0 flex-1 overflow-hidden px-5 pb-4">
-        <div className="h-full w-full overflow-auto p-0 pr-1">
-          <AutomationNodeLibraryTabContent
-            type={
-              activeNodeTab === AutomationNodeType.Action
-                ? AutomationNodeType.Action
-                : AutomationNodeType.Trigger
-            }
-            list={config.list}
-          />
+        <div
+          key={activeNodeTab}
+          className="h-full w-full overflow-auto p-0 pr-1 animate-in fade-in-0 duration-150"
+        >
+          {activeNodeTab === AutomationNodeType.Workflow ? (
+            <WorkflowNodeLibraryContent />
+          ) : (
+            <AutomationNodeLibraryTabContent
+              type={
+                activeNodeTab === AutomationNodeType.Action
+                  ? AutomationNodeType.Action
+                  : AutomationNodeType.Trigger
+              }
+              list={config.list}
+            />
+          )}
         </div>
       </div>
     </Command>

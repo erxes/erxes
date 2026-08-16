@@ -1,3 +1,4 @@
+import { PIPELINE_TAB_SEGMENTS } from '@/pipelines/constants/pipelineTabs';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { PageContainer } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -79,21 +80,33 @@ export const ChannelMembersPage = lazy(() =>
   })),
 );
 
+export const PipelineLayoutPage = lazy(() =>
+  import('~/pages/PipelineLayoutPage').then((module) => ({
+    default: module.PipelineLayoutPage,
+  })),
+);
+
 export const PipelineDetailPage = lazy(() =>
   import('~/pages/PipelineDetailPage').then((module) => ({
     default: module.PipelineDetailPage,
   })),
 );
 
-export const PipielineConfigListPage = lazy(() =>
-  import('~/pages/PipielineConfigListPage').then((module) => ({
-    default: module.PipielineConfigListPage,
+export const PipelineConfigsPage = lazy(() =>
+  import('~/pages/PipelineConfigsPage').then((module) => ({
+    default: module.PipelineConfigsPage,
   })),
 );
 
 export const PipelinePermissionsPage = lazy(() =>
   import('~/pages/PipelinePermissionsPage').then((module) => ({
     default: module.PipelinePermissionsPage,
+  })),
+);
+
+export const PipelinePropertiesPage = lazy(() =>
+  import('~/pages/PipelinePropertiesPage').then((module) => ({
+    default: module.PipelinePropertiesPage,
   })),
 );
 
@@ -146,20 +159,26 @@ const ChannelsSettings = () => {
           />
           <Route
             path={FrontlinePaths.PipelineDetail}
-            element={<PipelineDetailPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsConfigs}
-            element={<PipielineConfigListPage />}
-          />
-          <Route
-            path={FrontlinePaths.PipelinePermissions}
-            element={<PipelinePermissionsPage />}
-          />
-          <Route
-            path={FrontlinePaths.TicketsStatuses}
-            element={<TicketStatusesPage />}
-          />
+            element={<PipelineLayoutPage />}
+          >
+            <Route index element={<PipelineDetailPage />} />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.statuses}
+              element={<TicketStatusesPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.configs}
+              element={<PipelineConfigsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.permissions}
+              element={<PipelinePermissionsPage />}
+            />
+            <Route
+              path={PIPELINE_TAB_SEGMENTS.properties}
+              element={<PipelinePropertiesPage />}
+            />
+          </Route>
           <Route
             path={FrontlinePaths.ChannelResponsePage}
             element={<ChannelResponsePage />}

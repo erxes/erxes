@@ -34,6 +34,7 @@ export const GET_INTEGRATIONS_BY_KIND = gql`
         isActive
         healthStatus
         brandId
+        channelId
       }
       ${GQL_PAGE_INFO}
     }
@@ -43,6 +44,15 @@ export const GET_INTEGRATIONS_BY_KIND = gql`
 export const GET_INTEGRATION_KINDS = gql`
   query IntegrationsGetUsedTypes {
     integrationsGetUsedTypes {
+      _id
+      name
+    }
+  }
+`;
+
+export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
+  query IntegrationsGetUsedTypesByChannel($channelId: String, $scope: String) {
+    integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
       _id
       name
     }

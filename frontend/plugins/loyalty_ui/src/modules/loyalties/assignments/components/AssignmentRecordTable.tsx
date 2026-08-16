@@ -18,7 +18,7 @@ export const AssignmentRecordTable = () => {
 
   return (
     <RecordTable.Provider
-      columns={assignmentColumns}
+      columns={assignmentColumns(t)}
       data={list || []}
       className="m-3"
       stickyColumns={['checkbox', 'campaign']}

@@ -53,6 +53,8 @@ export interface IOrderCommon {
   type?: IOrderType
   customerId?: string
   customerType?: CustomerType
+  brokerId?: string
+  brokerType?: string
   description?: string
   billType?: IBillType
   registerNumber?: string
@@ -190,6 +192,7 @@ export interface IOrderHistory {
   type: string
   createdAt: string
   modifiedAt: string
+  user?: Customer
   paidDate: string
 }
 

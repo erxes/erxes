@@ -212,7 +212,9 @@ const FacebookPost = ({
       <div className="p-2">
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
-          <p className="text-xs text-muted-foreground mb-2">{t('created-at')}</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {t('created-at')}
+          </p>
           <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
           </p>

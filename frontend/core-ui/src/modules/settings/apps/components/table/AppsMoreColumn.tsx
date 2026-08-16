@@ -84,5 +84,5 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
 export const appsMoreColumn = {
   id: 'more',
   cell: AppsMoreColumnCell,
-  size: 24,
+  size: 33,
 };

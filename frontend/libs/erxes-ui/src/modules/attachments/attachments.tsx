@@ -4,6 +4,7 @@ import {
   IconChevronRight,
   IconDownload,
   IconFile,
+  IconMusic,
   IconPaperclip,
   IconPhoto,
   IconPlayerPlayFilled,
@@ -516,9 +517,77 @@ const AttachmentVideo = ({
   );
 };
 
-// ---------------------------------------------------------------------------
-// Attachments.Uploader
-// ---------------------------------------------------------------------------
+
+export type AttachmentAudioProps = {
+  heading?: string;
+};
+
+const AttachmentAudio = ({
+  heading = 'Audio Attachments',
+}: AttachmentAudioProps) => {
+  const { attachments, handleRemoveAttachment, removingUrl, isLoading } =
+    useAttachmentContext();
+
+  const audioAttachments = attachments.filter(
+    (a) => a?.type != null && a.type.startsWith('audio/'),
+  );
+
+  if (audioAttachments.length === 0) return null;
+
+  return (
+    <div className="py-4 px-8">
+      <h4 className="uppercase text-sm text-muted-foreground pb-4">
+        {heading}
+      </h4>
+
+      <div className="flex flex-col gap-2" role="list" aria-label={heading}>
+        {audioAttachments.map((attachment) => {
+          const isRemoving = removingUrl === attachment.url;
+          return (
+            <div
+              key={attachment.url}
+              role="listitem"
+              className="group relative w-72 max-w-full rounded-lg border border-border shadow-sm bg-background p-2"
+            >
+              <div className="flex items-center gap-1.5 pb-1.5 pr-5">
+                <IconMusic
+                  size={14}
+                  className="text-muted-foreground shrink-0"
+                  aria-hidden
+                />
+                <span
+                  className="text-xs font-medium truncate"
+                  title={attachment.name}
+                >
+                  {attachment.name}
+                </span>
+              </div>
+              <audio
+                className="w-full"
+                src={readImage(attachment.url)}
+                controls
+                preload="metadata"
+              >
+                <track kind="captions" />
+              </audio>
+              <Button
+                variant="ghost"
+                disabled={isLoading && isRemoving}
+                onClick={(e) => handleRemoveAttachment(e, attachment)}
+                className="absolute hidden group-hover:flex items-center justify-center top-1 right-1 bg-destructive/40 hover:bg-destructive/80 text-background rounded-full p-1 w-5 h-5 shadow-md z-10"
+                aria-label={`Remove ${attachment.name}`}
+              >
+                <IconX size={10} aria-hidden />
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+
 
 export type AttachmentUploaderProps = {
   onSave?: (attachments: IAttachment[]) => Promise<void> | void;
@@ -659,6 +728,7 @@ export const Attachments = {
   Files: AttachmentFiles,
   Preview: AttachmentPreview,
   Video: AttachmentVideo,
+  Audio: AttachmentAudio,
   Uploader: AttachmentUploader,
   Inline: AttachmentsInline,
 } as const;

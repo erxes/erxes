@@ -2,9 +2,10 @@ import { useActionNodeConfiguration } from '@/automations/components/builder/nod
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { IconAdjustmentsAlt } from '@tabler/icons-react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { Skeleton } from 'erxes-ui';
+import { FieldPath, useFormContext, useWatch } from 'react-hook-form';
 import { useNodeContent } from '@/automations/components/builder/nodes/hooks/useTriggerNodeContent';
-import { memo } from 'react';
+import { memo, Suspense } from 'react';
 
 type ActionNodeConfigurationContentProps = {
   data: NodeData;
@@ -51,7 +52,12 @@ const ActionNodeConfigurationContentComponent = ({
 }: ActionNodeConfigurationContentProps) => {
   const { control } = useFormContext<TAutomationBuilderForm>();
 
-  const actionData = useWatch({ control, name: `actions.${data.nodeIndex}` });
+  const watchedActionData = useWatch({
+    control,
+    name: data.formPath as FieldPath<TAutomationBuilderForm>,
+  });
+
+  const actionData = data.readOnly ? data.actionSnapshot : watchedActionData;
 
   const { Component } = useActionNodeConfiguration(data, actionData);
 
@@ -71,7 +77,11 @@ const ActionNodeConfigurationContentComponent = ({
         <p className="text-sm font-semibold">Configuration</p>
       </div>
       <div className="rounded border bg-muted text-muted-foreground overflow-x-auto">
-        {Component}
+        {/* Action content loads lazily; without a boundary here the closest one
+            is the route's, which blanks the whole page on first render */}
+        <Suspense fallback={<Skeleton className="m-2 h-8" />}>
+          {Component}
+        </Suspense>
       </div>
     </div>
   );
@@ -86,6 +96,7 @@ export const ActionNodeConfigurationContent = memo(
     return (
       previousData.id === nextData.id &&
       previousData.nodeIndex === nextData.nodeIndex &&
+      previousData.formPath === nextData.formPath &&
       previousData.type === nextData.type &&
       previousData.error === nextData.error &&
       previousData.isCustom === nextData.isCustom &&

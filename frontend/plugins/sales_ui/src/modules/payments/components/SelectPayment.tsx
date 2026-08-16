@@ -374,6 +374,7 @@ export const SelectPaymentDetail = ({
   className?: string;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
   return (
     <SelectPaymentProvider
@@ -395,7 +396,7 @@ export const SelectPaymentDetail = ({
             </Button>
           ) : (
             <Combobox.TriggerBase className={cn('font-medium', className)}>
-              Add Payment <IconPlus />
+              {t('add-payment', 'Add Payment')} <IconPlus />
             </Combobox.TriggerBase>
           )}
         </Popover.Trigger>

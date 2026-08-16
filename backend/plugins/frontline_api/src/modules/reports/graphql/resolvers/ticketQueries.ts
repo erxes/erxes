@@ -7,6 +7,7 @@ import {
   buildTicketPipeline,
   buildTicketTagMatch,
   buildDateGroupPipeline,
+  narrowTicketMatchByContacts,
 } from '@/reports/utils';
 import {
   TICKET_DEFAULT_STATUSES,
@@ -40,6 +41,18 @@ type ReportPropertyRow = {
 
 const OPTION_PROPERTY_TYPES = new Set(['select', 'multiSelect', 'radio']);
 
+const NO_PRIORITY_TYPE = { name: 'no priority', type: 0, color: '#9CA3AF' };
+
+type StatusSummaryRow = {
+  _id: string | null;
+  statusType: number;
+  name: string;
+  group: string | null;
+  color: string;
+  order: number;
+  count: number;
+};
+
 const getPrimitivePropertyValue = (value: unknown) => {
   if (
     typeof value === 'string' ||
@@ -52,13 +65,316 @@ const getPrimitivePropertyValue = (value: unknown) => {
   return '';
 };
 
+async function reportTicketCustomPropertiesGrouped({
+  models,
+  subdomain,
+  matchFilter,
+  filters,
+  groupPropertyId,
+}: {
+  models: IContext['models'];
+  subdomain: string;
+  matchFilter: any;
+  filters: IReportFilters;
+  groupPropertyId: string;
+}) {
+  const pipeline: any[] = [
+    { $match: matchFilter },
+    { $match: { $expr: { $eq: [{ $type: '$propertiesData' }, 'object'] } } },
+    { $addFields: { __allProps: { $objectToArray: '$propertiesData' } } },
+    {
+      $addFields: {
+        __raw: {
+          $let: {
+            vars: {
+              g: {
+                $first: {
+                  $filter: {
+                    input: '$__allProps',
+                    as: 'p',
+                    cond: { $eq: ['$$p.k', groupPropertyId] },
+                  },
+                },
+              },
+            },
+            in: '$$g.v',
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        __values: {
+          $cond: [{ $isArray: '$__raw' }, '$__raw', ['$__raw']],
+        },
+      },
+    },
+    { $unwind: '$__values' },
+    { $match: { __values: { $nin: [null, ''] } } },
+    { $group: { _id: '$__values', count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: filters.limit ?? 100 },
+  ];
+
+  const valueCounts: Array<{ _id: unknown; count: number }> =
+    await models.Ticket.aggregate(pipeline);
+
+  if (!valueCounts.length) {
+    return [];
+  }
+
+  const fields: ReportPropertyField[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'fields',
+    action: 'find',
+    input: {
+      query: { _id: { $in: [groupPropertyId] } },
+    },
+    defaultValue: [],
+  });
+
+  const groupField = fields.find((f) => f._id.toString() === groupPropertyId);
+
+  const resolveOptionLabel = (primitive: string) => {
+    const option = groupField?.options?.find((o) => o.value === primitive);
+    return option?.label || primitive;
+  };
+
+  const rows = valueCounts
+    .map((entry): ReportPropertyRow | null => {
+      const primitive = getPrimitivePropertyValue(entry._id);
+
+      if (!primitive) {
+        return null;
+      }
+
+      return {
+        _id: primitive,
+        name: resolveOptionLabel(primitive),
+        count: entry.count,
+      };
+    })
+    .filter((row): row is ReportPropertyRow => Boolean(row?.name));
+
+  const mergedRows = Array.from(
+    rows
+      .reduce<Map<string, ReportPropertyRow>>((map, row) => {
+        const existingRow = map.get(row._id);
+
+        map.set(row._id, {
+          ...row,
+          count: (existingRow?.count || 0) + row.count,
+        });
+
+        return map;
+      }, new Map())
+      .values(),
+  ).sort((a, b) => b.count - a.count);
+
+  const total = mergedRows.reduce((sum, row) => sum + row.count, 0);
+
+  return mergedRows.map((row) => ({
+    _id: row._id,
+    name: row.name,
+    count: row.count,
+    percentage: calculatePercentage(row.count, total),
+  }));
+}
+
+async function reportTicketFieldsForGroupValue({
+  models,
+  subdomain,
+  matchFilter,
+  filters,
+  groupPropertyId,
+  groupPropertyValue,
+}: {
+  models: IContext['models'];
+  subdomain: string;
+  matchFilter: any;
+  filters: IReportFilters;
+  groupPropertyId: string;
+  groupPropertyValue: string;
+}) {
+  const pipeline: any[] = [
+    { $match: matchFilter },
+    { $match: { $expr: { $eq: [{ $type: '$propertiesData' }, 'object'] } } },
+    { $addFields: { __allProps: { $objectToArray: '$propertiesData' } } },
+    {
+      $addFields: {
+        __groupRaw: {
+          $let: {
+            vars: {
+              g: {
+                $first: {
+                  $filter: {
+                    input: '$__allProps',
+                    as: 'p',
+                    cond: { $eq: ['$$p.k', groupPropertyId] },
+                  },
+                },
+              },
+            },
+            in: '$$g.v',
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        __groupValues: {
+          $cond: [{ $isArray: '$__groupRaw' }, '$__groupRaw', ['$__groupRaw']],
+        },
+      },
+    },
+    { $match: { __groupValues: groupPropertyValue } },
+    {
+      $addFields: {
+        __props: {
+          $filter: {
+            input: '$__allProps',
+            as: 'p',
+            cond: {
+              $and: [
+                { $ne: ['$$p.k', groupPropertyId] },
+                { $ne: ['$$p.v', null] },
+                { $ne: ['$$p.v', ''] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    { $unwind: '$__props' },
+    {
+      $addFields: {
+        __vals: {
+          $cond: [{ $isArray: '$__props.v' }, '$__props.v', ['$__props.v']],
+        },
+      },
+    },
+    { $unwind: '$__vals' },
+    {
+      $group: {
+        _id: { fieldId: '$__props.k', value: '$__vals' },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ];
+
+  const valueCounts: ReportPropertyCount[] =
+    await models.Ticket.aggregate(pipeline);
+
+  if (!valueCounts.length) {
+    return [];
+  }
+
+  const fieldIds = Array.from(new Set(valueCounts.map((p) => p._id.fieldId)));
+
+  const fields: ReportPropertyField[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'fields',
+    action: 'find',
+    input: {
+      query: { _id: { $in: fieldIds } },
+    },
+    defaultValue: [],
+  });
+
+  const fieldMap = new Map<string, ReportPropertyField>(
+    fields.map((f) => [f._id.toString(), f]),
+  );
+
+  type GroupedRow = ReportPropertyRow & { group: string };
+
+  const optionRows: GroupedRow[] = [];
+  const nonOptionTotals = new Map<string, GroupedRow>();
+
+  for (const entry of valueCounts) {
+    const fieldId = entry._id.fieldId?.toString();
+    const field = fieldMap.get(fieldId);
+    const fieldLabel = field?.name || field?.text || 'Unknown Property';
+
+    if (field && OPTION_PROPERTY_TYPES.has(field.type || '')) {
+      const primitive = getPrimitivePropertyValue(entry._id.value);
+
+      if (!primitive) {
+        continue;
+      }
+
+      const option = field.options?.find((o) => o.value === primitive);
+
+      optionRows.push({
+        _id: `${fieldId}:${primitive}`,
+        name: option?.label || primitive,
+        group: fieldLabel,
+        count: entry.count,
+      });
+    } else {
+      const existing = nonOptionTotals.get(fieldId) || {
+        _id: fieldId,
+        name: fieldLabel,
+        group: fieldLabel,
+        count: 0,
+      };
+      existing.count += entry.count;
+      nonOptionTotals.set(fieldId, existing);
+    }
+  }
+
+  const rows = [...optionRows, ...Array.from(nonOptionTotals.values())];
+
+  if (!rows.length) {
+    return [];
+  }
+
+  const total = rows.reduce((sum, row) => sum + row.count, 0);
+
+  const groupTotals = rows.reduce<Map<string, number>>((totals, row) => {
+    totals.set(row.group, (totals.get(row.group) || 0) + row.count);
+    return totals;
+  }, new Map());
+
+  rows.sort((a, b) => {
+    const groupDiff =
+      (groupTotals.get(b.group) || 0) - (groupTotals.get(a.group) || 0);
+
+    if (groupDiff !== 0) {
+      return groupDiff;
+    }
+
+    if (a.group !== b.group) {
+      return a.group < b.group ? -1 : 1;
+    }
+
+    return b.count - a.count;
+  });
+
+  return rows.slice(0, filters.limit ?? 200).map((row) => ({
+    _id: row._id,
+    name: row.name,
+    group: row.group,
+    count: row.count,
+    percentage: calculatePercentage(row.count, total),
+  }));
+}
+
 export const reportTicketQueries = {
   async reportTicketSource(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const tickets = await models.Ticket.find(matchFilter, { _id: 1 }).lean();
 
@@ -134,12 +450,20 @@ export const reportTicketQueries = {
     return result.map((r) => ({ date: r._id, count: r.count }));
   },
 
-  async reportTicketOpen(_parent, { filters = {} }, { models }) {
-    const query = buildTicketMatch(filters);
-    const baseQuery = buildTicketMatch({
-      ...filters,
-      status: undefined,
-    });
+  async reportTicketOpen(_parent, { filters = {} }, { models, subdomain }) {
+    const query = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
+    const baseQuery = await narrowTicketMatchByContacts(
+      buildTicketMatch({
+        ...filters,
+        status: undefined,
+      }),
+      filters,
+      subdomain,
+    );
 
     const [openCount, totalCount] = await Promise.all([
       models.Ticket.countDocuments(query),
@@ -203,7 +527,11 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketTagMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketTagMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const pipeline: any[] = [
       { $match: matchFilter },
@@ -261,7 +589,32 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
+
+    if (filters.groupPropertyId) {
+      if (filters.groupPropertyValue) {
+        return reportTicketFieldsForGroupValue({
+          models,
+          subdomain,
+          matchFilter,
+          filters,
+          groupPropertyId: filters.groupPropertyId,
+          groupPropertyValue: filters.groupPropertyValue,
+        });
+      }
+
+      return reportTicketCustomPropertiesGrouped({
+        models,
+        subdomain,
+        matchFilter,
+        filters,
+        groupPropertyId: filters.groupPropertyId,
+      });
+    }
 
     const pipeline: any[] = [
       { $match: matchFilter },
@@ -295,9 +648,8 @@ export const reportTicketQueries = {
       { $sort: { count: -1 } },
     ];
 
-    const propertyCounts: ReportPropertyCount[] = await models.Ticket.aggregate(
-      pipeline,
-    );
+    const propertyCounts: ReportPropertyCount[] =
+      await models.Ticket.aggregate(pipeline);
 
     if (!propertyCounts.length) {
       return [];
@@ -341,9 +693,8 @@ export const reportTicketQueries = {
           if (!optionValue) {
             return null;
           }
-               const fieldLabel = field.name || field.text;
+          const fieldLabel = field.name || field.text;
           const valueLabel = option?.label || optionValue;
-
 
           return {
             _id: `${fieldId}:${optionValue}`,
@@ -352,7 +703,6 @@ export const reportTicketQueries = {
           };
         }
 
-     
         return {
           _id: fieldId,
           name: field.name || field.text,
@@ -393,45 +743,97 @@ export const reportTicketQueries = {
   async reportTicketStatusSummary(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
 
     const pipeline: any[] = [
       { $match: matchFilter },
       {
         $group: {
-          _id: { $ifNull: ['$statusType', 0] },
+          _id: {
+            statusId: '$statusId',
+            statusType: { $ifNull: ['$statusType', 0] },
+          },
           count: { $sum: 1 },
         },
       },
-      { $sort: { _id: 1 } },
     ];
 
-    const statusCounts = await models.Ticket.aggregate(pipeline);
+    const statusCounts: Array<{
+      _id: { statusId?: string; statusType: number };
+      count: number;
+    }> = await models.Ticket.aggregate(pipeline);
 
-    const total = statusCounts.reduce((s: number, r: any) => s + r.count, 0);
+    const statusIds = statusCounts
+      .map((statusCount) => statusCount._id.statusId)
+      .filter((statusId): statusId is string => Boolean(statusId));
 
-    return TICKET_DEFAULT_STATUSES.map((defaultStatus) => {
-      const found = statusCounts.find((r: any) => r._id === defaultStatus.type);
-      const count = found?.count ?? 0;
+    const statuses = statusIds.length
+      ? await models.Status.find({ _id: { $in: statusIds } }).lean()
+      : [];
 
-      return {
-        statusType: defaultStatus.type,
-        name: defaultStatus.name,
-        color: defaultStatus.color,
+    const statusById = new Map(statuses.map((status) => [status._id, status]));
+    const categoryByType = new Map(
+      TICKET_DEFAULT_STATUSES.map((category) => [category.type, category]),
+    );
+
+    const rows = new Map<string, StatusSummaryRow>();
+
+    let total = 0;
+
+    for (const { _id, count } of statusCounts) {
+      total += count;
+
+      const status = _id.statusId ? statusById.get(_id.statusId) : undefined;
+      const statusType = status?.type ?? _id.statusType;
+      const category = categoryByType.get(statusType);
+      const key = status ? `status:${status._id}` : `category:${statusType}`;
+      const existing = rows.get(key);
+
+      if (existing) {
+        existing.count += count;
+        continue;
+      }
+
+      rows.set(key, {
+        _id: status?._id ?? null,
+        statusType,
+        name: status?.name || category?.name || 'unknown',
+        color: category?.color || status?.color || '#6B7280',
+        group: status ? (category?.name ?? null) : null,
+        order: status?.order ?? 0,
         count,
-        percentage: calculatePercentage(count, total),
-      };
-    });
+      });
+    }
+
+    return [...rows.values()]
+      .sort((a, b) => a.statusType - b.statusType || a.order - b.order)
+      .map((row) => ({
+        _id: row._id,
+        statusType: row.statusType,
+        name: row.name,
+        group: row.group,
+        color: row.color,
+        count: row.count,
+        percentage: calculatePercentage(row.count, total),
+      }));
   },
 
   async reportTicketPriority(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
-    const matchFilter = buildTicketMatch(filters);
+    const matchFilter = await narrowTicketMatchByContacts(
+      buildTicketMatch(filters),
+      filters,
+      subdomain,
+    );
     const pipeline: any[] = [
       { $match: matchFilter },
       {
@@ -451,7 +853,7 @@ export const reportTicketQueries = {
       priorityCounts.map((r: any) => [r._id, r.count]),
     );
 
-    return TICKET_PRIORITY_TYPES.map((p) => {
+    return [NO_PRIORITY_TYPE, ...TICKET_PRIORITY_TYPES].map((p) => {
       const count = countMap[p.type] ?? 0;
 
       return {

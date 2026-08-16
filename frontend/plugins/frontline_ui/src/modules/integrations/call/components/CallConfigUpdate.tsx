@@ -20,6 +20,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { SecretInput } from '@/integrations/components/SecretInput';
 
 export const CallConfigUpdateCollapse = () => {
   const { t } = useTranslation('frontline');
@@ -132,7 +133,7 @@ export const CallConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('turn-server-username')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -144,7 +145,7 @@ export const CallConfigUpdate = () => {
             <Form.Item>
               <Form.Label>{t('turn-server-credential')}</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <SecretInput {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>

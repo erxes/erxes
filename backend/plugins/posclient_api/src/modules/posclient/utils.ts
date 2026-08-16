@@ -257,7 +257,12 @@ export const updateMobileAmount = async (
   ) {
     billType = BILL_TYPES.INNER;
   }
-
+  console.log('[SETTLE CHECK]', {
+    totalAmount,
+    sumMobileAmount,
+    billType,
+    registerNumber,
+  });
   if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||

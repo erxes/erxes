@@ -1,3 +1,4 @@
+import { getWaitEventResultPreview } from '@/automations/components/builder/nodes/actions/waitEvent/utils/waitEventResultPreview';
 import { lazy } from 'react';
 import {
   AutomationComponentMap,
@@ -27,6 +28,7 @@ const WaitEventComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.WaitEventActionResult,
       })),
     ),
+    actionResultPreview: getWaitEventResultPreview,
   },
 };
 

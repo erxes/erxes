@@ -14,7 +14,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
-  scanBarcode(code: string): Promise<IInvoiceDocument>;
+  scanBarcode(code: string, eventSlug?: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -32,6 +32,8 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
+      console.log('[createInvoice] called');
+
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -47,7 +49,7 @@ export const loadInvoiceClass = (models: IModels) => {
           throw new Error('Payment not found');
         }
 
-        const transaction = await models.Transactions.createTransaction({
+        await models.Transactions.createTransaction({
           invoiceId: invoice._id,
           paymentId: payment._id,
           subdomain: subdomain || '',
@@ -55,19 +57,7 @@ export const loadInvoiceClass = (models: IModels) => {
           description: invoice.description,
         });
 
-        const api = new ErxesPayment(payment, subdomain);
-
-        try {
-          const response = await api.createInvoice(transaction.toObject());
-          transaction.response = response;
-          await transaction.save();
-
-          return invoice;
-        } catch (e) {
-          await models.Invoices.deleteOne({ _id: invoice._id });
-          await models.Transactions.deleteOne({ _id: transaction._id });
-          throw new Error(`Error creating invoice: ${e.message}`);
-        }
+        return invoice;
       }
 
       return invoice;
@@ -111,8 +101,6 @@ export const loadInvoiceClass = (models: IModels) => {
         status: 'pending',
       });
 
-      console.log('[resolver] unpaidTransactions', JSON.stringify(unpaidTransactions, null, 2))
-
       if (unpaidTransactions.length > 0) {
         try {
           // Process transactions in parallel for better performance
@@ -131,7 +119,7 @@ export const loadInvoiceClass = (models: IModels) => {
               },
               update: {
                 $set: {
-                  status: statusChecks[index] === 'paid' ? 'paid' : 'pending',
+                  status: statusChecks[index],
                 },
               },
             },
@@ -149,8 +137,6 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      console.log('[resolver] invoice', invoice)
-
       const totalAmount = await models.Transactions.aggregate([
         {
           $match: {
@@ -166,9 +152,16 @@ export const loadInvoiceClass = (models: IModels) => {
         },
       ]);
 
-      console.log('[resolver] totalAmount', totalAmount)
-
       if (totalAmount.length === 0) {
+        const failed = await models.Transactions.exists({
+          invoiceId: _id,
+          status: PAYMENT_STATUS.FAILED,
+        });
+
+        if (failed) {
+          return PAYMENT_STATUS.FAILED;
+        }
+
         return PAYMENT_STATUS.PENDING;
       }
 
@@ -204,22 +197,72 @@ export const loadInvoiceClass = (models: IModels) => {
       return 'removed';
     }
 
-    public static async scanBarcode(code: string) {
-      const invoice = await models.Invoices.findOneAndUpdate(
-        { invoiceNumber: code, scannedAt: null },
+    public static async scanBarcode(code: string, eventSlug?: string) {
+      const invoice =
+        (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
+        (await models.Invoices.findOne({ invoiceNumber: code }));
+
+      if (!invoice) {
+        throw new Error(`Invoice not found for barcode: ${code}`);
+      }
+
+      if (invoice.status !== 'paid') {
+        throw new Error('Invoice is not paid');
+      }
+
+      const expectedEventSlug = eventSlug?.trim();
+      let storedEventSlug: string | undefined;
+      if (expectedEventSlug) {
+        storedEventSlug =
+          typeof invoice.data?.eventSlug === 'string'
+            ? invoice.data.eventSlug
+            : undefined;
+        if (storedEventSlug?.trim() !== expectedEventSlug) {
+          throw new Error('Ticket belongs to a different event');
+        }
+      }
+
+      const eventFilter = storedEventSlug
+        ? { 'data.eventSlug': storedEventSlug }
+        : {};
+
+      const hasTicketCodes =
+        Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
+
+      if (hasTicketCodes) {
+        const scanned = await models.Invoices.findOneAndUpdate(
+          {
+            _id: invoice._id,
+            ...eventFilter,
+            ticketCodes: { $elemMatch: { code, scannedAt: null } },
+          },
+          {
+            $set: {
+              'ticketCodes.$.scannedAt': new Date(),
+              scannedAt: new Date(),
+            },
+          },
+          { new: true },
+        );
+
+        if (!scanned) {
+          throw new Error('Barcode already scanned');
+        }
+
+        return scanned;
+      }
+
+      const scanned = await models.Invoices.findOneAndUpdate(
+        { _id: invoice._id, ...eventFilter, scannedAt: null },
         { $set: { scannedAt: new Date() } },
         { new: true },
       );
 
-      if (!invoice) {
-        const exists = await models.Invoices.exists({ invoiceNumber: code });
-        if (!exists) {
-          throw new Error(`Invoice not found for barcode: ${code}`);
-        }
+      if (!scanned) {
         throw new Error('Barcode already scanned');
       }
 
-      return invoice;
+      return scanned;
     }
 
     public static async markAsPaid(_id: string) {

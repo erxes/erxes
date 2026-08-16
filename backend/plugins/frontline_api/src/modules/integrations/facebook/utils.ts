@@ -40,6 +40,13 @@ export const graphRequest = {
   },
 };
 
+export const getPageAccessTokenFromMap = (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+): string => {
+  return pageTokens?.[pageId];
+};
+
 export const getPostDetails = async (
   pageId: string,
   pageTokens: { [key: string]: string },
@@ -64,6 +71,115 @@ export const getPostDetails = async (
   } catch (e) {
     debugError(`Error occurred while getting facebook post: ${e.message}`);
     return null;
+  }
+};
+
+const MAX_POST_IMAGE_BYTES = 4 * 1024 * 1024;
+
+export const uploadUnpublishedPhotoFromKey = async (
+  subdomain: string,
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  fileKey: string,
+): Promise<{ id: string }> => {
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found');
+  }
+
+  if (!fileKey || /^[a-zA-Z]+:\/\//.test(fileKey) || fileKey.includes('..')) {
+    throw new Error('Invalid image reference');
+  }
+
+  const sourceUrl = generateAttachmentUrl(
+    subdomain,
+    encodeURIComponent(fileKey),
+  );
+
+  let bytes: ArrayBuffer;
+
+  try {
+    const file = await fetch(sourceUrl);
+
+    if (!file.ok) {
+      throw new Error(`storage returned ${file.status}`);
+    }
+
+    bytes = await file.arrayBuffer();
+  } catch (e) {
+    debugError(`Error reading uploaded image ${fileKey}: ${e.message}`);
+    throw new Error('Could not read the uploaded image');
+  }
+
+  if (bytes.byteLength > MAX_POST_IMAGE_BYTES) {
+    throw new Error('Each image must be 4 MB or smaller');
+  }
+
+  const form = new FormData();
+  form.append('published', 'false');
+  form.append('access_token', pageAccessToken);
+  form.append('source', new Blob([bytes]), fileKey.split('/').pop() || 'image');
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/v7.0/${pageId}/photos`,
+      { method: 'POST', body: form },
+    );
+
+    const result = (await response.json()) as {
+      id?: string;
+      error?: { message?: string };
+    };
+
+    if (!response.ok || !result.id) {
+      throw new Error(result?.error?.message || `HTTP ${response.status}`);
+    }
+
+    return { id: result.id };
+  } catch (e) {
+    debugError(`Error uploading facebook photo bytes: ${e.message}`);
+    throw new Error(e.message);
+  }
+};
+
+export const createPagePost = async (
+  pageId: string,
+  pageTokens: { [key: string]: string },
+  message: string,
+  link?: string,
+  attachedMediaIds?: string[],
+): Promise<{ id: string }> => {
+  const pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+
+  if (!pageAccessToken) {
+    throw new Error('Page access token not found');
+  }
+
+  const doc: { [key: string]: string } = { message };
+
+  if (link) {
+    doc.link = link;
+  }
+
+  for (let i = 0; i < (attachedMediaIds || []).length; i++) {
+    doc[`attached_media[${i}]`] = JSON.stringify({
+      media_fbid: (attachedMediaIds as string[])[i],
+    });
+  }
+
+  try {
+    // Requires the pages_manage_posts permission on the page token.
+    const response: any = await graphRequest.post(
+      `${pageId}/feed`,
+      pageAccessToken,
+      doc,
+    );
+
+    return response;
+  } catch (e) {
+    debugError(`Error occurred while creating facebook post: ${e.message}`);
+    throw new Error(e.message);
   }
 };
 
@@ -309,13 +425,6 @@ export const refreshPageAccessToken = async (
   return facebookPageTokensMap;
 };
 
-export const getPageAccessTokenFromMap = (
-  pageId: string,
-  pageTokens: { [key: string]: string },
-): string => {
-  return pageTokens?.[pageId];
-};
-
 export const subscribePage = async (
   models: IModels,
   pageId,
@@ -458,15 +567,23 @@ export const sendReply = async (
     debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
     return response;
   } catch (e) {
+    const targetRecipient = data?.recipient?.id || data?.recipient?.comment_id;
+
     debugError(
-      `Error ocurred while trying to send post request to facebook ${
-        e.message
-      } data: ${JSON.stringify(data)}`,
+      `Facebook Graph request failed ${JSON.stringify({
+        path: url,
+        pageId: recipientId,
+        targetRecipient,
+        requestType: data?.sender_action ? 'sender_action' : 'message',
+        code: e.code,
+        errorSubcode: e.error_subcode,
+        fbtraceId: e.fbtrace_id,
+        message: e.message,
+      })}`,
     );
-
-
-    const messageLevelErrorCodes = [10, 10900];
-
+    // request-level failures (unknown error, invalid parameter, messaging
+    // window, already replied) say nothing about the token's health
+    const messageLevelErrorCodes = [1, 10, 100, 10900];
     if (e.message.includes('access token')) {
       await models.FacebookIntegrations.updateOne(
         { _id: integration._id },

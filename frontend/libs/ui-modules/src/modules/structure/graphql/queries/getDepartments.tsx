@@ -35,6 +35,7 @@ export const GET_DEPARTMENTS = gql`
       list{
         ${DEPARTMENTS_FIELDS}
       }
+      totalCount
       ${GQL_PAGE_INFO}
     }
   }

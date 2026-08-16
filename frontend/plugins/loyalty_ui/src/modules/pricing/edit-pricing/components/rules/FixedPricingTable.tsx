@@ -10,10 +10,13 @@ import {
   InputNumber,
   Input,
   Select,
+  Button,
+  useToast,
 } from 'erxes-ui';
 import { useRef, useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
+import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -36,6 +39,111 @@ interface IProductRow {
   code?: string;
 }
 
+const readFileAsText = (file: File): Promise<string> => file.text();
+
+type ColIndices = {
+  productCode: number;
+  newPrice: number;
+  uom: number;
+  unitPrice: number;
+};
+
+const detectColumns = (headerCells: string[]): ColIndices => {
+  const cols: ColIndices = {
+    productCode: 0,
+    newPrice: 1,
+    uom: 2,
+    unitPrice: 3,
+  };
+  headerCells.forEach((cell, i) => {
+    if (cell === 'productcode' || cell === 'product code') cols.productCode = i;
+    else if (cell === 'newprice' || cell === 'new price') cols.newPrice = i;
+    else if (cell === 'uom' || cell === 'unit of measure') cols.uom = i;
+    else if (cell === 'unitprice' || cell === 'unit price') cols.unitPrice = i;
+  });
+  return cols;
+};
+
+const parseRow = (line: string, cols: ColIndices) => {
+  const parts = line.split(',').map((s) => s.trim());
+  const productCode = parts[cols.productCode];
+  const price = Number.parseFloat(parts[cols.newPrice]);
+  if (!productCode || Number.isNaN(price)) return null;
+  const uom = parts[cols.uom] || undefined;
+  const up = Number.parseFloat(parts[cols.unitPrice]);
+  return {
+    productCode,
+    newPrice: price,
+    uom,
+    unitPrice: Number.isNaN(up) ? undefined : up,
+  };
+};
+
+const parseCsvText = (text: string) => {
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (!lines.length) return null;
+  const firstCells = lines[0].split(',').map((s) => s.trim().toLowerCase());
+  const hasHeader = Number.isNaN(Number.parseFloat(firstCells[1]));
+  const cols = hasHeader
+    ? detectColumns(firstCells)
+    : { productCode: 0, newPrice: 1, uom: 2, unitPrice: 3 };
+  const dataLines = hasHeader ? lines.slice(1) : lines;
+  return dataLines.map((line) => parseRow(line, cols)).filter(Boolean);
+};
+
+const STATUS_BADGE_STYLES: Record<FixedPricingStatus, React.CSSProperties> = {
+  NEW: { background: '#e0f2fe', color: '#0369a1' },
+  SAVED: { background: '#dcfce7', color: '#15803d' },
+  STALE: { background: '#fef3c7', color: '#b45309' },
+};
+
+const StatusBadge = ({ status }: { status: FixedPricingStatus }) => (
+  <span
+    style={{
+      display: 'inline-block',
+      padding: '2px 8px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: 'bold',
+      textTransform: 'uppercase',
+      ...STATUS_BADGE_STYLES[status],
+    }}
+  >
+    {status}
+  </span>
+);
+
+const DiffPrice = ({ diff }: { diff: number }) => {
+  let text = '0';
+  let color = '#7f8c8d';
+  let fontWeight = 'normal';
+  if (diff > 0) {
+    text = `+${diff.toLocaleString()}`;
+    color = '#10b981';
+    fontWeight = 'semibold';
+  } else if (diff < 0) {
+    text = diff.toLocaleString();
+    color = '#ef4444';
+    fontWeight = 'semibold';
+  }
+  return <span style={{ color, fontWeight }}>{text}</span>;
+};
+
+const applyCustomPageSize = (
+  raw: string,
+  setPageSize: (n: number) => void,
+  setCurrentPage: (n: number) => void,
+) => {
+  const n = Number.parseInt(raw, 10);
+  if (n > 0) {
+    setPageSize(n);
+    setCurrentPage(1);
+  }
+};
+
 export const FixedPricingTable = ({
   control,
   pricingId,
@@ -46,7 +154,12 @@ export const FixedPricingTable = ({
   onSave: () => void;
 }) => {
   const { fields, replace } = useFieldArray({ control, name: 'fixedValues' });
-  const tableRef = useRef<HTMLTableElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const client = useApolloClient();
+  const [bulkEdit, { loading: bulkLoading }] = useMutation(
+    PRICING_FIXED_VALUES_BULK_EDIT,
+  );
 
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -56,7 +169,6 @@ export const FixedPricingTable = ({
   const [pageSize, setPageSize] = useState(10);
   const [customPageSize, setCustomPageSize] = useState('');
   const [isCustomMode, setIsCustomMode] = useState(false);
-  const PAGE_SIZE = pageSize;
 
   const watchedFixedValues = useWatch({ control, name: 'fixedValues' });
 
@@ -72,7 +184,7 @@ export const FixedPricingTable = ({
     variables: {
       pricingPlanId: pricingId,
       page: currentPage,
-      perPage: PAGE_SIZE,
+      perPage: pageSize,
       search: debouncedSearch,
     },
     skip: !pricingId,
@@ -82,7 +194,8 @@ export const FixedPricingTable = ({
   const pageResult = data?.pricingFixedValuesPage;
   const pageItems: IPageItem[] = pageResult?.list || [];
   const totalCount: number = pageResult?.totalCount || 0;
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const pageItemsKey = JSON.stringify(pageItems);
 
   useEffect(() => {
     if (!pageItems.length) return;
@@ -96,7 +209,8 @@ export const FixedPricingTable = ({
         newPrice: item.newPrice,
       })),
     );
-  }, [JSON.stringify(pageItems)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageItemsKey, replace]);
 
   const handlePageChange = (newPage: number) => {
     const hasDirtyRows = watchedFixedValues?.some((fv, index) => {
@@ -107,68 +221,56 @@ export const FixedPricingTable = ({
     setCurrentPage(newPage);
   };
 
-  const renderStatusBadge = (status: FixedPricingStatus) => {
-    let styles = {};
-    if (status === 'NEW') {
-      styles = { background: '#e0f2fe', color: '#0369a1' };
-    } else if (status === 'SAVED') {
-      styles = { background: '#dcfce7', color: '#15803d' };
-    } else {
-      styles = { background: '#fef3c7', color: '#b45309' };
-    }
-    return (
-      <span
-        style={{
-          display: 'inline-block',
-          padding: '2px 8px',
-          borderRadius: '12px',
-          fontSize: '11px',
-          fontWeight: 'bold',
-          textTransform: 'uppercase',
-          ...styles,
-        }}
-      >
-        {status}
-      </span>
-    );
-  };
+  const handleCsvFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!fileInputRef.current) return;
+    fileInputRef.current.value = '';
+    if (!file) return;
 
-  const renderDiffPrice = (diff: number) => {
-    let text = '0';
-    let color = '#7f8c8d';
-    let fontWeight = 'normal';
+    const text = await readFileAsText(file);
+    const productsData = parseCsvText(text);
 
-    if (diff > 0) {
-      text = `+${diff.toLocaleString()}`;
-      color = '#10b981';
-      fontWeight = 'semibold';
-    } else if (diff < 0) {
-      text = diff.toLocaleString();
-      color = '#ef4444';
-      fontWeight = 'semibold';
+    if (!productsData?.length) {
+      toast({ title: 'No valid rows found in CSV', variant: 'destructive' });
+      return;
     }
 
-    return <span style={{ color, fontWeight }}>{text}</span>;
+    try {
+      const result = await bulkEdit({
+        variables: { pricingPlanId: pricingId, productsData },
+      });
+      const { count = 0, notFound = [] } =
+        result.data?.pricingFixedValuesBulkEdit ?? {};
+      await client.refetchQueries({ include: ['PricingFixedValuesPage'] });
+      if (notFound.length) {
+        toast({
+          title: `Imported ${count} rows. ${
+            notFound.length
+          } product code(s) not found: ${notFound.join(', ')}`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: `Imported ${count} rows successfully` });
+      }
+    } catch (err: any) {
+      toast({ title: err?.message || 'Import failed', variant: 'destructive' });
+    }
   };
 
   const filteredIndices: number[] = [];
   fields.forEach((field, index) => {
     const item = pageItems[index];
     if (!item) return;
-
     const matchesStatus =
       statusFilter === 'all' || item.status === statusFilter;
-
     const watchedValue = watchedFixedValues?.[index];
     const newPrice = watchedValue?.newPrice ?? item.unitPrice ?? 0;
     const unitPrice = watchedValue?.unitPrice ?? item.unitPrice ?? 0;
     const diffPrice = newPrice - unitPrice;
-
     let matchesDiff = true;
     if (diffFilter === 'increased') matchesDiff = diffPrice > 0;
     else if (diffFilter === 'decreased') matchesDiff = diffPrice < 0;
     else if (diffFilter === 'no_change') matchesDiff = diffPrice === 0;
-
     if (matchesStatus && matchesDiff) filteredIndices.push(index);
   });
 
@@ -216,11 +318,21 @@ export const FixedPricingTable = ({
           product={product}
           status={item.status}
           onSave={onSave}
-          renderDiffPrice={renderDiffPrice}
-          renderStatusBadge={renderStatusBadge}
         />
       );
     });
+  };
+
+  const handlePageSizeChange = (v: string) => {
+    if (v === 'custom') {
+      setIsCustomMode(true);
+      setCustomPageSize('');
+    } else {
+      setIsCustomMode(false);
+      setPageSize(Number(v));
+      setCustomPageSize('');
+      setCurrentPage(1);
+    }
   };
 
   return (
@@ -247,6 +359,22 @@ export const FixedPricingTable = ({
             onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          style={{ display: 'none' }}
+          onChange={handleCsvFile}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={bulkLoading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {bulkLoading ? 'Importing…' : 'Import CSV'}
+        </Button>
         <div style={{ width: '200px' }}>
           <Select
             value={statusFilter}
@@ -285,28 +413,12 @@ export const FixedPricingTable = ({
             </Select.Content>
           </Select>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Select
             value={
               [5, 10, 50, 100].includes(pageSize) ? String(pageSize) : 'custom'
             }
-            onValueChange={(v) => {
-              if (v === 'custom') {
-                setIsCustomMode(true);
-                setCustomPageSize('');
-              } else {
-                setIsCustomMode(false);
-                setPageSize(Number(v));
-                setCustomPageSize('');
-                setCurrentPage(1);
-              }
-            }}
+            onValueChange={handlePageSizeChange}
           >
             <Select.Trigger style={{ width: '130px' }}>
               <Select.Value />
@@ -326,21 +438,17 @@ export const FixedPricingTable = ({
               placeholder="e.g. 25"
               value={customPageSize}
               onChange={(e) => setCustomPageSize(e.target.value)}
-              onBlur={() => {
-                const n = Number.parseInt(customPageSize, 10);
-                if (n > 0) {
-                  setPageSize(n);
-                  setCurrentPage(1);
-                }
-              }}
+              onBlur={() =>
+                applyCustomPageSize(customPageSize, setPageSize, setCurrentPage)
+              }
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  const n = Number.parseInt(customPageSize, 10);
-                  if (n > 0) {
-                    setPageSize(n);
-                    setCurrentPage(1);
-                  }
+                  applyCustomPageSize(
+                    customPageSize,
+                    setPageSize,
+                    setCurrentPage,
+                  );
                 }
               }}
               style={{
@@ -361,7 +469,7 @@ export const FixedPricingTable = ({
           rowLength={filteredIndices.length}
           scope="pricingFixedValues"
         >
-          <Table ref={tableRef}>
+          <Table>
             <Table.Header>
               <Table.Row>
                 <Table.Head />
@@ -427,8 +535,6 @@ const FixedPricingRow = ({
   product,
   status,
   onSave,
-  renderDiffPrice,
-  renderStatusBadge,
 }: {
   rowId: string;
   index: number;
@@ -436,17 +542,15 @@ const FixedPricingRow = ({
   product: IProductRow;
   status: FixedPricingStatus;
   onSave: () => void;
-  renderDiffPrice: (diff: number) => any;
-  renderStatusBadge: (status: FixedPricingStatus) => any;
 }) => {
-  const watchedValue = useWatch({
-    control,
-    name: `fixedValues.${index}`,
-  });
-
+  const watchedValue = useWatch({ control, name: `fixedValues.${index}` });
   const newPrice = watchedValue?.newPrice ?? product.unitPrice ?? 0;
   const unitPrice = watchedValue?.unitPrice ?? product.unitPrice ?? 0;
   const diffPrice = newPrice - unitPrice;
+
+  const handleNewPriceKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') onSave();
+  };
 
   return (
     <Table.Row>
@@ -501,11 +605,7 @@ const FixedPricingRow = ({
                   <InputNumber
                     value={field.value ?? 0}
                     onChange={(v) => field.onChange(v || 0)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        onSave();
-                      }
-                    }}
+                    onKeyDown={handleNewPriceKeyDown}
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
@@ -516,13 +616,13 @@ const FixedPricingRow = ({
 
       <Table.Cell>
         <RecordTableInlineCell>
-          {renderDiffPrice(diffPrice)}
+          <DiffPrice diff={diffPrice} />
         </RecordTableInlineCell>
       </Table.Cell>
 
       <Table.Cell>
         <RecordTableInlineCell>
-          {renderStatusBadge(status)}
+          <StatusBadge status={status} />
         </RecordTableInlineCell>
       </Table.Cell>
     </Table.Row>

@@ -3,17 +3,14 @@ import { Node, useReactFlow } from '@xyflow/react';
 
 import { splitAutomationNodeType } from 'ui-modules';
 import { toast } from 'erxes-ui';
-import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useMemo } from 'react';
-import { useSetAtom } from 'jotai';
 
 export const useCustomTriggerContent = (activeNode: NodeData) => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();
-  const { setQueryParams } = useAutomation();
-  const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
+  const { setQueryParams, toggleSidebar: toggleSideBarOpen } = useAutomation();
   const { triggers } = useAutomationNodes();
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
   const activeTrigger = triggers[activeNode.nodeIndex];

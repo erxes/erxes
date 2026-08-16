@@ -2,12 +2,14 @@ import { setExecutionWaitAction } from '../../bullmq/actionHandlerWorker/setWait
 import { generateModels } from '../../connectionResolver';
 import { TDelayActionConfig } from '../../types';
 import {
+  AUTOMATION_ERROR_CODES,
   AUTOMATION_EXECUTION_STATUS,
   EXECUTE_WAIT_TYPES,
   IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
+import { AutomationActionError } from '../errorCodes';
 
 export const executeDelayAction = async (
   subdomain: string,
@@ -22,7 +24,10 @@ export const executeDelayAction = async (
   const { value, type } = action?.config || {};
 
   if (!type || !['minute', 'hour', 'day', 'month', 'year'].includes(type)) {
-    throw new Error('Invalid time unit for delay action');
+    throw new AutomationActionError(
+      'Invalid time unit for delay action',
+      AUTOMATION_ERROR_CODES.CONFIG_INVALID,
+    );
   }
 
   await setExecutionWaitAction(models, {

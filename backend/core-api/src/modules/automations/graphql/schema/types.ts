@@ -25,9 +25,13 @@ const commonActionTypes = `
 const workflowTypes = `
   id:String
   automationId:String
+  templateId:String
+  nextActionId:String
   name:String
   description:String
   config:JSON
+  actions: [JSON]
+  icon: String
   position:JSON
 `;
 
@@ -60,6 +64,9 @@ const types = `
     triggers: [Trigger]
     actions: [Action]
     workflows: [Workflow]
+
+    duplicatedFrom: String
+    duplicatedFromName: String
 
     createdUser: User
     updatedUser: User
@@ -101,14 +108,63 @@ const types = `
     status: String
     description: String
     actions: [JSON]
+    failedActionId: String
+    failedActionType: String
+    errorCode: String
     startWaitingDate: Date
     waitingActionId: String
+    parentExecutionId: String
+    workflowId: String
+    inputs: JSON
+    depth: Int
   }
 
   type AutomationHistories {
     list:[AutomationHistory]
     totalCount: Int
     pageInfo: PageInfo
+  }
+
+  type AutomationStatsCount {
+    key: String
+    count: Int
+  }
+
+  type AutomationStatsBucket {
+    date: String
+    total: Int
+    complete: Int
+    error: Int
+    waiting: Int
+  }
+
+  type AutomationStatsNode {
+    actionId: String
+    actionType: String
+    total: Int
+    success: Int
+    error: Int
+    waiting: Int
+    avgDurationMs: Float
+    maxDurationMs: Float
+    errorCodes: [AutomationStatsCount]
+  }
+
+  type AutomationStatsErrorMessage {
+    message: String
+    errorCode: String
+    actionTypes: [String]
+    count: Int
+    lastAt: Date
+  }
+
+  type AutomationStats {
+    total: Int
+    byStatus: [AutomationStatsCount]
+    byErrorCode: [AutomationStatsCount]
+    timeSeries: [AutomationStatsBucket]
+    nodes: [AutomationStatsNode]
+    errorMessages: [AutomationStatsErrorMessage]
   }
 
   input TriggerInput {
@@ -146,6 +202,18 @@ const types = `
     list: [AutomationEmailTemplate]
     totalCount: Float
     pageInfo: PageInfo
+  }
+
+  type AutomationWorkflowTemplate {
+    _id: String!
+    name: String!
+    description: String
+    entryActionId: String
+    actions: JSON
+    inputs: JSON
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
   }
 `;
 

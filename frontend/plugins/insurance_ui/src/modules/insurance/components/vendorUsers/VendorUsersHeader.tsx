@@ -1,4 +1,4 @@
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconSandbox, IconUsers, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
@@ -14,6 +14,11 @@ export const VendorUsersHeader = ({
   canAddUser,
 }: VendorUsersHeaderProps) => {
   const { t } = useTranslation('insurance');
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('vendor-users'),
+  );
+
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -37,7 +42,10 @@ export const VendorUsersHeader = ({
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
-        <PageHeader.FavoriteToggleButton />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconSandbox"
+        />
       </PageHeader.Start>
       <PageHeader.End>
         <Button onClick={onAddUser} disabled={!canAddUser}>

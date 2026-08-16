@@ -1,17 +1,42 @@
-import { SideMenu, useSideMenuContext } from 'erxes-ui';
-import { useRelationWidget } from 'ui-modules';
-import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
-import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
+import { SideMenu, cn, useSideMenuContext } from 'erxes-ui';
+import { RefObject, useEffect, useRef } from 'react';
+import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
 
-const SideWidgetStateSync = () => {
-  const { activeTab } = useSideMenuContext();
-  const setSideWidgetOpen = useSetAtom(sideWidgetOpenState);
+// Bounded to the conversation area so the widget's own portals do not count.
+const SideWidgetOutsideClose = ({
+  containerRef,
+  boundaryRef,
+}: {
+  containerRef: RefObject<HTMLDivElement>;
+  boundaryRef: RefObject<HTMLElement>;
+}) => {
+  const { activeTab, setActiveTab } = useSideMenuContext();
 
   useEffect(() => {
-    setSideWidgetOpen(!!activeTab);
-    return () => setSideWidgetOpen(false);
-  }, [activeTab, setSideWidgetOpen]);
+    if (!activeTab) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      const container = containerRef.current;
+      const boundary = boundaryRef.current;
+      const isOutside =
+        target !== null &&
+        container !== null &&
+        boundary !== null &&
+        boundary.contains(target) &&
+        !container.contains(target);
+
+      if (isOutside) {
+        setActiveTab();
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [activeTab, boundaryRef, containerRef, setActiveTab]);
 
   return null;
 };
@@ -19,18 +44,38 @@ const SideWidgetStateSync = () => {
 export const ConversationSideWidget = ({
   customerId,
   _id,
+  asSheet,
+  boundaryRef,
 }: {
   customerId: string;
   _id: string;
+  asSheet?: boolean;
+  boundaryRef: RefObject<HTMLElement>;
 }) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget();
+  const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (
-    <SideMenu>
-      <SideWidgetStateSync />
+    <SideMenu ref={sideMenuRef} className="flex-none">
+      {asSheet && (
+        <SideWidgetOutsideClose
+          containerRef={sideMenuRef}
+          boundaryRef={boundaryRef}
+        />
+      )}
       {relationWidgetsModules.map((module) => {
         return (
-          <SideMenu.Content value={module.name} key={module.name}>
+          <SideMenu.Content
+            value={module.name}
+            key={module.name}
+            className={cn(
+              'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
+              asSheet
+                ? // Docked under the conversation header instead of taking a column.
+                  'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
+                : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
+            )}
+          >
             <RelationWidget
               key={module.name}
               module={module.name}
@@ -49,7 +94,7 @@ export const ConversationSideWidget = ({
             <SideMenu.Trigger
               key={module.name}
               value={module.name}
-              label={module.name}
+              label={getRelationWidgetLabel(module)}
               Icon={module.icon}
             />
           );

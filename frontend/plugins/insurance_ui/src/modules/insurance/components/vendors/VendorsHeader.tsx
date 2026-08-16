@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import { IconSandbox, IconBuilding, IconPlus } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
@@ -11,6 +11,10 @@ export const VendorsHeader = () => {
   const { t } = useTranslation('insurance');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { refetch } = useVendors();
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('insurance'),
+    t('vendors'),
+  );
 
   const handleCreate = () => {
     setIsFormOpen(true);
@@ -48,7 +52,10 @@ export const VendorsHeader = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Button onClick={handleCreate}>

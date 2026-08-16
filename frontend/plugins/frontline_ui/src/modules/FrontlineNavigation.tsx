@@ -51,27 +51,27 @@ export const FrontlineNavigation = () => {
         icon={IconForms}
         path="frontline/forms"
       />
-      <div className="relative group/knowledgebase">
-        <NavigationMenuLinkItem
-          name={t('knowledge-base')}
-          icon={IconBook}
-          path="frontline/knowledgebase"
-        />
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate('/frontline/knowledgebase?createTopic=true');
-          }}
-          aria-label={t('create-new-topic')}
-          title={t('create-new-topic')}
-        >
-          <IconPlus className="size-4" />
-        </Button>
-      </div>
+      <NavigationMenuLinkItem
+        name={t('knowledge-base')}
+        icon={IconBook}
+        className="group/knowledgebase"
+        path="frontline/knowledgebase"
+        action={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="invisible group-hover/knowledgebase:visible group-focus-within/knowledgebase:visible absolute top-1/2 -translate-y-1/2 right-2 text-muted-foreground hover:bg-transparent hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/frontline/knowledgebase?createTopic=true');
+            }}
+            aria-label={t('create-new-topic')}
+            title={t('create-new-topic')}
+          >
+            <IconPlus className="size-4" />
+          </Button>
+        }
+      />
     </>
   );
 };

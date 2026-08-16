@@ -4,9 +4,11 @@ const addEditParamDefs = `
     $items: [OrderItemInput]
     $totalAmount: Float!
     $type: String! 
-    $customerId: String 
-    $customerType: String 
-    $slotCode: String 
+    $customerId: String
+    $customerType: String
+    $brokerId: String
+    $brokerType: String
+    $slotCode: String
     $registerNumber: String 
     $billType: String 
     $origin: String 
@@ -22,9 +24,11 @@ const addEditParams = `
     items: $items 
     totalAmount: $totalAmount 
     type: $type 
-    customerId: $customerId 
-    customerType: $customerType 
-    slotCode: $slotCode 
+    customerId: $customerId
+    customerType: $customerType
+    brokerId: $brokerId
+    brokerType: $brokerType
+    slotCode: $slotCode
     registerNumber: $registerNumber
     billType: $billType 
     origin: $origin

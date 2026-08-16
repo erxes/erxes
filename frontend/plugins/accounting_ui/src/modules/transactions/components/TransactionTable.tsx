@@ -15,6 +15,7 @@ export const TransactionTable = () => {
       columns={transactionColumns}
       data={transactions || []}
       stickyColumns={['more', 'checkbox', 'account']}
+      tableId="accounting_transactions_record_table"
       className="m-3"
     >
       <RecordTable.CursorProvider

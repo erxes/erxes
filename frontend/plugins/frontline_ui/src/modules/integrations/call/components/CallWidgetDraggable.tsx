@@ -50,7 +50,7 @@ export const CallWidgetDraggable = memo(
             variant="secondary"
             size="icon"
             className={cn(
-              'fixed bottom-10 right-10 size-12 [&>svg]:size-6 rounded-full shadow-lg',
+              'fixed bottom-10 right-10 z-100 pointer-events-auto size-12 [&>svg]:size-6 rounded-full shadow-lg',
               isOnline
                 ? 'bg-success hover:bg-success/90'
                 : 'bg-destructive hover:bg-destructive/90',

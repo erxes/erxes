@@ -4,14 +4,22 @@ import { AiAgentKnowledgeSourcesProvider } from '@/automations/components/settin
 import { useAiAgentKnowledgeSourceRail } from '@/automations/components/settings/components/agents/hooks/useAiAgentKnowledgeSourceRail';
 import { useAiAgentKnowledgeSourceSelections } from '@/automations/components/settings/components/agents/hooks/useAiAgentKnowledgeSourceSelections';
 import { useAiAgentKnowledgeSourceStatuses } from '@/automations/components/settings/components/agents/hooks/useAiAgentKnowledgeSourceStatuses';
+import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
+import { Form, Switch } from 'erxes-ui';
+import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 export const AiAgentKnowledgeSourcesForm = () => {
   const { t } = useTranslation('automations');
+  const { control } = useFormContext<TAiAgentForm>();
   const { statuses, indexedCount, indexingCount } =
     useAiAgentKnowledgeSourceStatuses();
-  const { knowledgeSources, handleSourceIdsChange, handleSourceEnabledChange } =
-    useAiAgentKnowledgeSourceSelections();
+  const {
+    knowledgeSources,
+    handleSourceIdsChange,
+    handleSourceEnabledChange,
+    handleSourceScopeChange,
+  } = useAiAgentKnowledgeSourceSelections();
   const { railItems, resolvedKey, setActiveKey, activeSource } =
     useAiAgentKnowledgeSourceRail(knowledgeSources);
 
@@ -27,6 +35,28 @@ export const AiAgentKnowledgeSourcesForm = () => {
         {t('knowledge-sources-description')}
       </p>
 
+      <Form.Field
+        control={control}
+        name="context.retrieval.mode"
+        render={({ field }) => (
+          <div className="mt-3 flex items-center justify-between rounded-md border p-3">
+            <div>
+              <p className="text-sm font-medium">Search on demand</p>
+              <p className="text-xs text-muted-foreground">
+                The agent searches knowledge only when a reply needs it, instead
+                of loading matches into every prompt.
+              </p>
+            </div>
+            <Switch
+              checked={field.value === 'tool'}
+              onCheckedChange={(checked) =>
+                field.onChange(checked ? 'tool' : 'prompt')
+              }
+            />
+          </div>
+        )}
+      />
+
       <div className="mt-4 flex gap-4">
         <AiAgentKnowledgeSourceRail
           items={railItems}
@@ -41,6 +71,7 @@ export const AiAgentKnowledgeSourcesForm = () => {
               statuses,
               handleSourceIdsChange,
               handleSourceEnabledChange,
+              handleSourceScopeChange,
             }}
           >
             <AiAgentKnowledgeSourcePanel

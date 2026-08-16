@@ -25,6 +25,7 @@ import {
 
 import {
   applyTrustProxy,
+  DEFAULT_JOB_OPTIONS,
   getPlugin,
   getPlugins,
   getSubdomain,
@@ -61,6 +62,7 @@ const corsOptions = {
           'http://localhost:3001',
           'http://localhost:5173',
           'http://localhost:4200',
+          'http://localhost:7002',
         ]
       : []),
   ],
@@ -68,9 +70,7 @@ const corsOptions = {
 
 const myQueue = new Queue('gateway-service-discovery', {
   connection: redis as any,
-  defaultJobOptions: {
-    removeOnComplete: false,
-  },
+  defaultJobOptions: DEFAULT_JOB_OPTIONS,
 });
 
 const serverAdapter = new ExpressAdapter();

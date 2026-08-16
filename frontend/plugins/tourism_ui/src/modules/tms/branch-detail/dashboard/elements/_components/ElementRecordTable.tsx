@@ -64,6 +64,7 @@ export const ElementRecordTable = ({
       data={elements || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
+      tableId="tourism_elements_record_table"
     >
       <ElementCommandBar />
       <RecordTable.CursorProvider

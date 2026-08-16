@@ -3,7 +3,7 @@ import { IModels } from '../connectionResolver';
 import { debugError } from '../debugger';
 import { executeActions } from './executeActions';
 import { IAutomationWaitingActionDocument } from '../mongo/waitingActionsToExecute';
-import { getActionsMap } from '../utils/utils';
+import { getExecutionActionsMap } from '../utils/utils';
 
 export const executeWaitingAction = async (
   subdomain: string,
@@ -24,9 +24,10 @@ export const executeWaitingAction = async (
     throw new Error('Execution not found');
   }
 
-  const currentAction = automation.actions.find(
-    (action) => action.id === waitingAction.currentActionId,
-  );
+  // Child executions wait on workflow member actions, so the lookup must go
+  // through the execution-aware map instead of the root actions list.
+  const actionsMap = await getExecutionActionsMap(automation, waitingExecution);
+  const currentAction = actionsMap[waitingAction.currentActionId];
 
   if (!currentAction) {
     waitingExecution.status = AUTOMATION_EXECUTION_STATUS.MISSID;
@@ -40,7 +41,7 @@ export const executeWaitingAction = async (
     subdomain,
     waitingExecution.triggerType,
     waitingExecution,
-    await getActionsMap(automation.actions || []),
+    actionsMap,
     responseActionId,
   )
     .then(async () => {

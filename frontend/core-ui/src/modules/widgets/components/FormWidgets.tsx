@@ -1,6 +1,6 @@
 import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { FocusSheet } from 'erxes-ui';
-import { toFormWidgetForm } from 'ui-modules';
+import { getRelationWidgetLabel, toFormWidgetForm } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import { useFormWidgetsModules } from '../hooks/useFormWidgets';
 
@@ -45,7 +45,7 @@ export const FormWidgetSideTabs = <T extends FieldValues>({
             key={`${module.pluginName}:${module.name}`}
             value={module.name}
             Icon={module.icon}
-            label={module.name.charAt(0).toUpperCase() + module.name.slice(1)}
+            label={getRelationWidgetLabel(module)}
           />
         ))}
       </FocusSheet.SideTabsList>

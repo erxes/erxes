@@ -11,7 +11,7 @@ import {
   IconArrowRight,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { Link } from 'react-router-dom';
 import {
   useInsuranceTypes,
@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 export const IndexPage = () => {
   const { t } = useTranslation('insurance');
   const [isContractFormOpen, setIsContractFormOpen] = useState(false);
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('insurance'));
   const { insuranceTypes, loading: typesLoading } = useInsuranceTypes();
   const { insuranceProducts, loading: productsLoading } =
     useInsuranceProducts();
@@ -52,7 +53,10 @@ export const IndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          <PageHeader.FavoriteToggleButton />
+          <PageHeader.FavoriteToggleButton
+            breadcrumb={favoriteBreadcrumb}
+            icon="IconSandbox"
+          />
         </PageHeader.Start>
         <PageHeader.End>
           <Link to="/insurance/car-insurance">

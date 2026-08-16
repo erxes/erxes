@@ -56,6 +56,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   MESSAGE_PRO: 'messagePro',
   WAIT_EVENT: 'waitEvent',
   AI_AGENT: 'aiAgent',
+  WORKFLOW: 'workflow',
 };
 
 export const AUTOMATION_CORE_TRIGGER_TYPES = {
@@ -110,3 +111,31 @@ export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
     label: 'Companies',
   },
 ];
+
+/**
+ * Machine readable reason an action failed. Written by the automations service
+ * at the single execution error chokepoint and grouped by execution stats, so
+ * "what kind of failure" is answerable without parsing error messages.
+ */
+export const AUTOMATION_ERROR_CODES = {
+  // Set explicitly where the failure is thrown
+  CONFIG_INVALID: 'CONFIG_INVALID',
+  NOT_FOUND: 'NOT_FOUND',
+  PLUGIN_NOT_ENABLED: 'PLUGIN_NOT_ENABLED',
+  PLUGIN_ACTION_FAILED: 'PLUGIN_ACTION_FAILED',
+  AI_AGENT_FAILED: 'AI_AGENT_FAILED',
+  WORKFLOW_DEPTH_EXCEEDED: 'WORKFLOW_DEPTH_EXCEEDED',
+  // Derived from the outgoing webhook failure phase
+  WEBHOOK_TIMEOUT: 'WEBHOOK_TIMEOUT',
+  WEBHOOK_NETWORK_FAILED: 'WEBHOOK_NETWORK_FAILED',
+  WEBHOOK_BAD_RESPONSE: 'WEBHOOK_BAD_RESPONSE',
+  WEBHOOK_FAILED: 'WEBHOOK_FAILED',
+  // Fallbacks, from the shared error classifier
+  PROVIDER_ERROR: 'PROVIDER_ERROR',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  BUSINESS_ERROR: 'BUSINESS_ERROR',
+  UNKNOWN: 'UNKNOWN',
+} as const;
+
+export type TAutomationErrorCode =
+  (typeof AUTOMATION_ERROR_CODES)[keyof typeof AUTOMATION_ERROR_CODES];

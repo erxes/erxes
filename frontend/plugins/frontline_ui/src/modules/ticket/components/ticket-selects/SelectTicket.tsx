@@ -38,6 +38,7 @@ export const SelectTriggerTicket = ({
       <Popover.Trigger asChild disabled={disabled}>
         <Badge
           variant="secondary"
+          className="cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
           }}

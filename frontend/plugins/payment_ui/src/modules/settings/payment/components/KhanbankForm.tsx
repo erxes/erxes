@@ -1,18 +1,19 @@
 import { gql, useLazyQuery, useQuery } from '@apollo/client';
-import { Input, Select, Spinner } from 'erxes-ui';
+import { Form, Input, Select, Spinner } from 'erxes-ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { UseFormReturn } from 'react-hook-form';
+import { FieldValues, UseFormReturn } from 'react-hook-form';
 
 import { IPaymentDocument } from '../../../payment/types/Payment';
 
 const CONFIGS_QUERY = gql`
-  query KhanbankConfigs($page: Int, $perPage: Int) {
-    khanbankConfigs(page: $page, perPage: $perPage) {
+  query KhanbankConfigsList($page: Int, $perPage: Int) {
+    khanbankConfigsList(page: $page, perPage: $perPage) {
       list {
         _id
         name
       }
+      totalCount
     }
   }
 `;
@@ -30,11 +31,10 @@ const ACCOUNTS_QUERY = gql`
 
 type Props = {
   payment?: IPaymentDocument;
-  form: UseFormReturn<any>;
-  Form: typeof import('erxes-ui/components/form').Form;
+  form: UseFormReturn<FieldValues>;
 };
 
-const KhanbankForm: React.FC<Props> = ({ payment, form, Form }) => {
+const KhanbankForm: React.FC<Props> = ({ payment, form }) => {
   const { t } = useTranslation('payment');
 
   const { register, watch, setValue, control } = form;

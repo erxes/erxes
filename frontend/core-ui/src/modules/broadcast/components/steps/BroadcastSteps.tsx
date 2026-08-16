@@ -30,7 +30,12 @@ const BROADCAST_STEPS = [
     title: 'Broadcast Config',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastConfigStep,
-    validateFields: ['fromUserId', 'email.subject', 'email.content'],
+    validateFields: [
+      'fromEmail',
+      'email.subject',
+      'email.replyTo',
+      'email.content',
+    ],
   },
 ];
 
@@ -49,7 +54,7 @@ const getConfigValidateFields = (method?: string | null) => {
     ];
   }
 
-  return ['fromUserId', 'email.subject', 'email.content'];
+  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
 };
 
 export const BroadcastSteps = ({

@@ -3,6 +3,17 @@ import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IContext } from '~/modules/posclient/@types/types';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 
+const hasReportPermission = ({ config, posUser }: IContext) => {
+  const isAdmin = (config.adminIds || []).includes(posUser?._id || '');
+  const isCashier = (config.cashierIds || []).includes(posUser?._id || '');
+
+  if (isAdmin) {
+    return true;
+  }
+
+  return isCashier && !!config.permissionConfig?.cashiers?.seeReport;
+};
+
 const getDateFilter = (dateType, startDate, endDate) => {
   if (dateType === 'created') {
     return {
@@ -64,9 +75,14 @@ const reportQueries = {
       startDate: Date;
       endDate: Date;
     },
-    { models, config, posUser }: IContext,
+    context: IContext,
   ) {
+    const { models, config, posUser } = context;
     assertPosUser(posUser);
+
+    if (!hasReportPermission(context)) {
+      throw new Error('Permission denied');
+    }
 
     const report: any = {};
     // dateType: created | modified | paid | due | close | return

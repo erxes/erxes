@@ -11,7 +11,7 @@ RUN apk add --no-cache alpine-sdk && \
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm@9.12.3 && pnpm install
 COPY . .
 RUN pnpm nx build frontline-widgets --configuration=production --verbose
 

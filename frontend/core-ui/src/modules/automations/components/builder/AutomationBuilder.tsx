@@ -1,6 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -20,10 +19,12 @@ import {
   automationBuilderFormSchema,
   TAutomationBuilderForm,
 } from '@/automations/utils/automationFormDefinitions';
-import { useAtom } from 'jotai';
+import { normalizeAutomationWorkflows } from '@/automations/utils/workflowInputs';
+import { useAtom, useSetAtom } from 'jotai';
 import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
+import { AutomationStats } from '@/automations/components/builder/stats/components/AutomationStats';
 
 type AutomationBuilderProps = {
   detail?: IAutomation;
@@ -31,14 +32,20 @@ type AutomationBuilderProps = {
 
 export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
   const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
-  const [isOpenSideBar, setOpenSidebar] = useAtom(
-    automationBuilderSiderbarOpenState,
-  );
+  const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
   const [queryParams] = useMultiQueryState<{
     activeNodeId: string;
     activeTab: AutomationBuilderTabsType;
   }>(['activeNodeId', 'activeTab']);
   const cleanedDetail = deepCleanNulls(detail);
+
+  // Migrates legacy workflow formats (raw trigger.* refs, memberActionIds
+  // reference model) on load; no-op for clean data
+  const normalized = normalizeAutomationWorkflows({
+    triggers: cleanedDetail?.triggers ?? [],
+    actions: cleanedDetail?.actions ?? [],
+    workflows: cleanedDetail?.workflows ?? [],
+  });
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
@@ -46,9 +53,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
       ...cleanedDetail,
       edgeType: cleanedDetail?.edgeType ?? 'default',
       flowDirection: cleanedDetail?.flowDirection ?? 'horizontal',
-      triggers: cleanedDetail?.triggers ?? [],
-      actions: cleanedDetail?.actions ?? [],
-      workflows: cleanedDetail?.workflows ?? [],
+      ...normalized,
     },
   });
 
@@ -59,18 +64,13 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
     if (activeTab !== nextActiveTab) {
       setActiveTab(nextActiveTab);
     }
+  }, [activeTab, queryParams.activeTab, setActiveTab]);
 
-    if (queryParams.activeNodeId && !isOpenSideBar) {
+  useEffect(() => {
+    if (queryParams.activeNodeId) {
       setOpenSidebar(true);
     }
-  }, [
-    activeTab,
-    isOpenSideBar,
-    queryParams.activeNodeId,
-    queryParams.activeTab,
-    setActiveTab,
-    setOpenSidebar,
-  ]);
+  }, [queryParams.activeNodeId, setOpenSidebar]);
 
   return (
     <AutomationProvider detail={detail}>
@@ -78,11 +78,11 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
             <AutomationBuilderUnsavedChangesAlert />
-            <Tabs value={activeTab} className="h-screen flex flex-col">
+            <Tabs value={activeTab} className="h-full flex flex-col">
               <AutomationBuilderHeader />
               <Tabs.Content
                 value="builder"
-                className="flex-1 h-full relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+                className="flex-1 min-h-0 relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
               >
                 <AutomationBuilderWorkspace />
               </Tabs.Content>
@@ -91,6 +91,12 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
                 className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
               >
                 <AutomationHistories />
+              </Tabs.Content>
+              <Tabs.Content
+                value="stats"
+                className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationStats />
               </Tabs.Content>
             </Tabs>
           </FormProvider>

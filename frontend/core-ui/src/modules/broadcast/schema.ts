@@ -13,7 +13,7 @@ const baseSchema = {
 export const broadcastSchema = z.discriminatedUnion('method', [
   z.object({
     method: z.literal('email'),
-    fromUserId: z.string().min(1),
+    fromEmail: z.string().min(1),
     email: z.object({
       subject: z.string().min(1),
       sender: z.string().min(1),

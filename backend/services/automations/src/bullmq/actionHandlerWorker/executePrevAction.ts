@@ -2,7 +2,7 @@ import type { Job } from 'bullmq';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
 import { executeActions } from '../../executions/executeActions';
-import { getActionsMap } from '../../utils/utils';
+import { getExecutionActionsMap } from '../../utils/utils';
 
 // Final job interfaces
 type IExecutePrevActionJobData = IJobData<{ query: any }>;
@@ -37,7 +37,9 @@ export const executePrevActionWorker = async (
     throw new Error(`No automation found of execution`);
   }
 
-  const prevAction = automation.actions.find((action) => {
+  const actionsMap = await getExecutionActionsMap(automation, lastExecution);
+
+  const prevAction = Object.values(actionsMap).find((action) => {
     const { nextActionId, config } = action;
     if (nextActionId === lastExecutionAction.actionId) {
       return true;
@@ -58,7 +60,7 @@ export const executePrevActionWorker = async (
     subdomain,
     lastExecution.triggerType,
     lastExecution,
-    await getActionsMap(automation.actions),
+    actionsMap,
     prevAction.id,
   );
 };

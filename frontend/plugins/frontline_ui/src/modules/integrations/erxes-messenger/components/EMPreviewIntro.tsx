@@ -40,7 +40,9 @@ import {
   IconArrowRight,
   IconBook,
   IconBookmark,
+  IconChevronRight,
   IconCircleMinus,
+  IconCirclePlus,
   IconHelp,
   IconHelpCircle,
   IconHome,
@@ -351,7 +353,9 @@ export const EMPreviewIntro = () => {
                 {hours?.displayOperatorTimezone && (
                   <b className="text-foreground">
                     {' '}
-                    ({formatTimeZoneLabel(hours?.timezone as string) || t('utc')})
+                    (
+                    {formatTimeZoneLabel(hours?.timezone as string) || t('utc')}
+                    )
                   </b>
                 )}
               </div>
@@ -389,31 +393,6 @@ export const EMPreviewIntro = () => {
             </div>
           </div>
 
-          {/* Tickets card */}
-          {config?.ticketConfigId && (
-            <div
-              className="w-full bg-background rounded-2xl shadow-xs p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-all duration-200 hover:shadow-sm"
-              role="button"
-              onClick={() => setActiveTab('ticket')}
-            >
-              <div className="bg-muted rounded-full p-2.5 flex-none">
-                <IconSend size={20} className="text-muted-foreground" />
-              </div>
-              <div className="flex-1 text-left min-w-0">
-                <div className="text-xs font-semibold text-foreground uppercase tracking-wide">
-                  tickets
-                </div>
-                <div className="text-sm font-normal text-accent-foreground truncate">
-                  Issue a ticket
-                </div>
-              </div>
-              <IconArrowRight
-                size={16}
-                className="text-muted-foreground flex-none"
-              />
-            </div>
-          )}
-
           {/* FAQ card */}
           {config?.knowledgeBaseTopicId && (
             <div
@@ -438,6 +417,38 @@ export const EMPreviewIntro = () => {
               />
             </div>
           )}
+
+          {/* Tickets card */}
+          {!!config?.ticketConfigIds?.length && (
+            <div className="flex flex-col gap-4 my-2">
+              <span className="font-mono uppercase ps-2 text-muted-foreground font-semibold text-sm">
+                Tickets
+              </span>
+              <div
+                className="w-full bg-background rounded-2xl shadow-xs p-4 flex items-center gap-3 cursor-pointer hover:-translate-y-0.5 transition-all duration-200 hover:shadow-sm"
+                role="button"
+                onClick={() => setActiveTab('ticket')}
+              >
+                <div className="bg-muted rounded-full p-2.5 flex-none">
+                  <IconSend size={20} className="text-muted-foreground" />
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <div className="text-xs font-semibold text-foreground uppercase tracking-wide">
+                    tickets
+                  </div>
+                  <div className="text-sm font-normal text-accent-foreground truncate">
+                    Issue a ticket
+                  </div>
+                </div>
+                <IconArrowRight
+                  size={16}
+                  className="text-muted-foreground flex-none"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* External apps */}
           {settings?.websiteApps && settings?.websiteApps?.length > 0 && (
             <div className="flex flex-col gap-4 my-2">
               <span className="font-mono uppercase ps-2 text-muted-foreground font-semibold text-sm">
@@ -725,7 +736,7 @@ export const EMPreviewTickets = () => {
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const step = useAtomValue(erxesMessengerSetupStepAtom);
 
-  if (!config?.ticketConfigId) {
+  if (!config?.ticketConfigIds?.length) {
     return (
       <div className="flex flex-col h-full">
         <div className="flex-none pb-5.5 px-5 pt-4.5 bg-primary relative">
@@ -777,9 +788,19 @@ export const EMPreviewTickets = () => {
                 </Empty.Description>
               </Empty.Header>
               <Empty.Content>
-                <Button>
-                  <IconPlus />
-                  Issue new ticket
+                <Button variant={'outline'} className="flex gap-2 h-auto">
+                  <span className="flex-0 size-6">
+                    <IconCirclePlus />
+                  </span>
+                  <span className="flex flex-col items-start gap-0.5">
+                    <p className="text-foreground">{t('issue-a-new-ticket')}</p>
+                    <span className="text-accent-foreground text-xs font-normal">
+                      {t('choose-a-form')}
+                    </span>
+                  </span>
+                  <span className="flex-0 size-5 text-muted-foreground">
+                    <IconChevronRight size={16} />
+                  </span>
                 </Button>
               </Empty.Content>
             </Empty>
@@ -829,7 +850,9 @@ export const EMPreviewFaq = () => {
           <span className="text-primary-foreground/60 text-xs font-light">
             {t('browse')}
           </span>
-          <h1 className="text-primary-foreground text-2xl">{t('help-center')}</h1>
+          <h1 className="text-primary-foreground text-2xl">
+            {t('help-center')}
+          </h1>
         </div>
 
         <div className="flex-1 px-2 pb-2 flex flex-col bg-muted relative h-full overflow-y-hidden">

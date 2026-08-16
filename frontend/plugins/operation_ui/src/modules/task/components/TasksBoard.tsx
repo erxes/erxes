@@ -32,11 +32,24 @@ import { StatusInlineIcon } from '@/operation/components/StatusInline';
 const fetchedTasksState = atom<BoardItemProps[]>([]);
 export const allTasksMapState = atom<Record<string, ITask>>({});
 
-export const TasksBoard = () => {
+const taskSortMapState = atom<Record<string, string>>({});
+
+export function TasksBoard() {
   const { t } = useTranslation('operation');
   const { teamId } = useParams();
   const allTasksMap = useAtomValue(allTasksMapState);
   const { updateTask } = useUpdateTask();
+  const [tasks, setTasks] = useAtom(fetchedTasksState);
+  const setAllTasksMap = useSetAtom(allTasksMapState);
+  const setTaskSortMap = useSetAtom(taskSortMapState);
+  const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
+
+  useEffect(() => {
+    setTasks([]);
+    setAllTasksMap({});
+    setTaskSortMap({});
+    setTaskCountByBoard({});
+  }, [teamId, setAllTasksMap, setTaskCountByBoard, setTaskSortMap, setTasks]);
 
   const { statuses, loading } = useGetStatusByTeam({
     variables: {
@@ -51,9 +64,6 @@ export const TasksBoard = () => {
     type: status.type.toString(),
     color: status.color,
   }));
-
-  const [tasks, setTasks] = useAtom(fetchedTasksState);
-  const setTaskCountByBoard = useSetAtom(taskCountByBoardAtom);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -76,18 +86,23 @@ export const TasksBoard = () => {
         status: overColumn,
       },
     });
+    const newSort = new Date().toISOString();
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id === activeItem?._id) {
           return {
             ...task,
             column: overColumn,
-            sort: new Date().toISOString(),
+            sort: newSort,
           };
         }
         return task;
       }),
     );
+
+    if (activeItem?._id) {
+      setTaskSortMap((prev) => ({ ...prev, [activeItem._id]: newSort }));
+    }
     setTaskCountByBoard((prev) => ({
       ...prev,
       [activeItem?.status]: prev[activeItem?.status] - 1 || 0,
@@ -115,7 +130,7 @@ export const TasksBoard = () => {
             {t('create-team-to-start')}
           </p>
           <Button variant="outline" asChild>
-            <Link to={`/settings/operation/team`}>
+            <Link to="/settings/operation/team">
               <IconSettings />
               {t('go-to-settings')}
             </Link>
@@ -130,9 +145,11 @@ export const TasksBoard = () => {
       )}
     </Board.Provider>
   );
-};
+}
 
-export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
+export function TasksBoardCards({
+  column,
+}: Readonly<{ column: BoardColumnProps }>) {
   const currentUser = useAtomValue(currentUserState);
   const { projectId, cycleId } = useParams();
   const [taskCards, setTaskCards] = useAtom(fetchedTasksState);
@@ -154,12 +171,28 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
       status: column.id,
     },
   });
+  const isInitialLoading = loading && !tasks;
   const setAllTasksMap = useSetAtom(allTasksMapState);
+  const [taskSortMap, setTaskSortMap] = useAtom(taskSortMapState);
+
+  useEffect(() => {
+    if (!tasks) return;
+    const unseen = tasks.filter((task) => !(task._id in taskSortMap));
+    if (unseen.length === 0) return;
+    setTaskSortMap((prev) => {
+      const next = { ...prev };
+      unseen.forEach((task) => {
+        if (!(task._id in next)) {
+          next[task._id] = task.updatedAt;
+        }
+      });
+      return next;
+    });
+  }, [tasks, taskSortMap, setTaskSortMap]);
 
   useEffect(() => {
     if (tasks) {
       setTaskCards((prev) => {
-        const prevSortById = new Map(prev.map((task) => [task.id, task.sort]));
         const previousTasks = prev.filter(
           (task) => !tasks.some((t) => t._id === task.id),
         );
@@ -168,19 +201,22 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
           ...tasks.map((task) => ({
             id: task._id,
             column: task.status,
-            sort: prevSortById.get(task._id) ?? task.updatedAt,
+            sort: taskSortMap[task._id] ?? task.updatedAt,
           })),
         ];
       });
       setAllTasksMap((prev) => {
-        const newTasks = tasks.reduce((acc, task) => {
-          acc[task._id] = task;
-          return acc;
-        }, {} as Record<string, ITask>);
+        const newTasks = tasks.reduce(
+          (acc, task) => {
+            acc[task._id] = task;
+            return acc;
+          },
+          {} as Record<string, ITask>,
+        );
         return { ...prev, ...newTasks };
       });
     }
-  }, [tasks, setTaskCards, setAllTasksMap, column.id]);
+  }, [tasks, taskSortMap, setTaskCards, setAllTasksMap, column.id]);
 
   useEffect(() => {
     if (totalCount) {
@@ -198,7 +234,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
           <StatusInlineIcon statusType={column.type} />
           {column.name}
           <span className="text-accent-foreground font-medium pl-1">
-            {loading ? (
+            {isInitialLoading ? (
               <Skeleton className="size-4 rounded" />
             ) : (
               taskCountByBoard[column.id] || 0
@@ -208,7 +244,7 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
         <TaskCreateSheetTrigger status={column.id} />
       </Board.Header>
       <Board.Cards id={column.id} items={boardCards.map((task) => task.id)}>
-        {loading ? (
+        {isInitialLoading ? (
           <SkeletonArray
             className="p-24 w-full rounded shadow-xs opacity-80"
             count={10}
@@ -235,17 +271,17 @@ export const TasksBoardCards = ({ column }: { column: BoardColumnProps }) => {
       </Board.Cards>
     </>
   );
-};
+}
 
-export const TaskCardsFetchMore = ({
+export function TaskCardsFetchMore({
   totalCount,
   handleFetchMore,
   currentLength,
-}: {
+}: Readonly<{
   totalCount: number;
   handleFetchMore: () => void;
   currentLength: number;
-}) => {
+}>) {
   const { ref: bottomRef } = useInView({
     onChange: (inView) => inView && handleFetchMore(),
   });
@@ -259,9 +295,9 @@ export const TaskCardsFetchMore = ({
       <Skeleton className="p-12 w-full rounded shadow-xs opacity-80" />
     </div>
   );
-};
+}
 
-const TaskCreateSheetTrigger = ({ status }: { status: string }) => {
+function TaskCreateSheetTrigger({ status }: Readonly<{ status: string }>) {
   const setOpenCreateTask = useSetAtom(taskCreateSheetState);
   const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
 
@@ -275,4 +311,4 @@ const TaskCreateSheetTrigger = ({ status }: { status: string }) => {
       <IconPlus />
     </Button>
   );
-};
+}
