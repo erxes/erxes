@@ -15,6 +15,30 @@ import { initSentry } from './sentry';
 // Install browser error handlers as early as possible, before any rendering.
 initSentry();
 
+// Reload once when a deployed chunk becomes stale (e.g. a new release
+// invalidated the hashed filename the current bundle references). This prevents
+// a broken UI and avoids spamming Sentry with deployment artifacts.
+window.addEventListener('error', (event) => {
+  if (event.error?.name !== 'ChunkLoadError') {
+    return;
+  }
+
+  try {
+    const reloadKey = 'erxes_chunk_reload_count';
+    const count = Number(sessionStorage.getItem(reloadKey) || '0');
+
+    if (count < 1) {
+      sessionStorage.setItem(reloadKey, String(count + 1));
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem(reloadKey);
+    }
+  } catch {
+    // If storage is unavailable, still attempt to recover.
+    window.location.reload();
+  }
+});
+
 async function initFederation() {
   const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement,
