@@ -19,6 +19,7 @@ import {
 import {
   buildNavigationSearchItems,
   filterNavigationSearchItems,
+  getNavigationSearchCategoryCounts,
 } from '@/search/utils/navigationSearch';
 import { activePluginState } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
@@ -49,6 +50,10 @@ export const GlobalSearch = () => {
     () => filterNavigationSearchItems(goToItems, searchValue),
     [goToItems, searchValue],
   );
+  const navigationCounts = useMemo(
+    () => getNavigationSearchCategoryCounts(matchingGoToItems),
+    [matchingGoToItems],
+  );
   const contentSearchReady = searchValue.length >= GLOBAL_SEARCH_MIN_LENGTH;
   const contentSearchSettled =
     contentSearchReady && debouncedValue === searchValue;
@@ -57,10 +62,10 @@ export const GlobalSearch = () => {
     () =>
       buildGlobalSearchCategories({
         hasSearchValue: searchValue.length > 0,
-        goToItemCount: matchingGoToItems.length,
+        navigationCounts,
         groups: visibleGroups,
       }),
-    [matchingGoToItems.length, searchValue.length, visibleGroups],
+    [navigationCounts, searchValue.length, visibleGroups],
   );
   const categoryKeys = useMemo(
     () => categories.map(({ key }) => key),
@@ -71,7 +76,7 @@ export const GlobalSearch = () => {
   const contentFailure = contentSearchSettled && hasFailure;
   const totalCount = getGlobalSearchTotalCount({
     category,
-    goToItems: matchingGoToItems,
+    navigationCounts,
     groups: visibleGroups,
   });
 

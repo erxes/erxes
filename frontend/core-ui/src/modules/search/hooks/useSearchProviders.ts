@@ -4,8 +4,23 @@ import { pluginsConfigState } from 'ui-modules';
 import { ISearchProvider } from 'erxes-ui';
 import { validateSearchProviders } from '@/search/utils/composeSearchDocument';
 import { CORE_SEARCH_PROVIDERS } from '@/search/providers/coreSearchProviders';
+import { TSearchProviderCategory } from '@/search/types/GlobalSearch';
 
 const MAX_QUARANTINE_RETRIES = 3;
+
+const CORE_PROVIDER_CATEGORIES: Record<string, TSearchProviderCategory> = {
+  'core-customers': 'core-modules',
+  'core-companies': 'core-modules',
+  'core-products': 'core-modules',
+  'core-team-members': 'settings',
+};
+
+export type TSearchProviderWithCategory = ISearchProvider & {
+  category: TSearchProviderCategory;
+};
+
+const resolveProviderCategory = (key: string): TSearchProviderCategory =>
+  CORE_PROVIDER_CATEGORIES[key] ?? 'plugins';
 
 export const useSearchProviders = () => {
   const pluginsConfig = useAtomValue(pluginsConfigState);
@@ -28,6 +43,7 @@ export const useSearchProviders = () => {
     return validated
       .map((provider) => ({
         ...provider,
+        category: resolveProviderCategory(provider.key),
         selections: provider.selections.filter(
           (selection) => !quarantinedFields.has(selection.field),
         ),

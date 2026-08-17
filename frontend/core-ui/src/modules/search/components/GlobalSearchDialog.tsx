@@ -14,12 +14,15 @@ import {
   GlobalSearchMinimumLength,
 } from '@/search/components/GlobalSearchStates';
 import { GLOBAL_SEARCH_PREVIEW_LIMIT } from '@/search/constants/globalSearch';
+import { NAVIGATION_SEARCH_CATEGORIES } from '@/search/utils/globalSearchResults';
 import {
   TGlobalSearchCategory,
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
 } from '@/search/types/GlobalSearch';
+
+const CONTENT_CATEGORIES = NAVIGATION_SEARCH_CATEGORIES.map(({ key }) => key);
 
 const SearchCategoryLabel = ({
   category,
@@ -86,29 +89,36 @@ const GlobalSearchResults = ({
   const visibleGroups = groups.filter(
     (group) => group.status === 'ok' && group.items.length > 0,
   );
-  const activeProviderGroup = visibleGroups.find(
-    (group) => group.key === category,
-  );
   const isAll = category === 'all';
-  const isGoTo = category === 'go-to';
-  const visibleItemCount = isAll
-    ? goToItems.length +
-      visibleGroups.reduce(
-        (total, group) =>
-          total + Math.min(group.items.length, GLOBAL_SEARCH_PREVIEW_LIMIT),
-        0,
-      )
-    : isGoTo
-      ? goToItems.length
-      : (activeProviderGroup?.items.length ?? 0);
+  const isNavCategory = category === 'navigation';
+  const isContentCategory = CONTENT_CATEGORIES.includes(category);
+  const contentGroups = visibleGroups.filter(
+    (group) => isAll || group.category === category,
+  );
+  const navigationItems = isNavCategory || isAll ? goToItems : [];
+  const visibleItemCount =
+    navigationItems.length +
+    (isNavCategory
+      ? 0
+      : contentGroups.reduce(
+          (total, group) =>
+            total +
+            Math.min(
+              group.items.length,
+              isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : group.items.length,
+            ),
+          0,
+        ));
   const waitingForContent =
-    contentSearchReady &&
-    contentLoading &&
-    (isAll || Boolean(activeProviderGroup));
+    contentSearchReady && contentLoading && (isAll || isContentCategory);
   const needsMoreCharacters =
-    !contentSearchReady && visibleItemCount === 0 && (isAll || !isGoTo);
+    !contentSearchReady &&
+    visibleItemCount === 0 &&
+    (isAll || isContentCategory);
   const showFailure =
-    contentFailure && visibleItemCount === 0 && (isAll || !isGoTo);
+    contentFailure &&
+    visibleItemCount === 0 &&
+    (isAll || isContentCategory);
   const showEmpty =
     visibleItemCount === 0 &&
     !waitingForContent &&
@@ -120,44 +130,42 @@ const GlobalSearchResults = ({
       key={category}
       className="styled-scroll m-0 min-h-32 max-h-[min(60vh,24rem)] p-1"
     >
-      {(isAll || isGoTo) && (
+      {navigationItems.length > 0 && (
         <NavigationSearchGroup
           actionLabel={t('go-to-page', 'Go to page')}
-          heading={t('go-to', 'Go to')}
-          items={goToItems}
+          heading={t('navigation', 'Navigation')}
+          items={navigationItems}
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
           onSelect={onNavigationSelect}
-          onShowMore={isAll ? () => onCategoryChange('go-to') : undefined}
+          onShowMore={
+            isAll && navigationItems.length > GLOBAL_SEARCH_PREVIEW_LIMIT
+              ? () => onCategoryChange('navigation')
+              : undefined
+          }
         />
       )}
 
-      {isAll &&
-        visibleGroups.map((group) => (
-          <GlobalSearchProviderGroup
-            key={group.key}
-            actionLabel={t('open-result', 'Open result')}
-            group={group}
-            previewLimit={GLOBAL_SEARCH_PREVIEW_LIMIT}
-            searchValue={searchValue}
-            onSelect={onContentSelect}
-            onShowMore={() => onCategoryChange(group.key)}
-          />
-        ))}
-
-      {activeProviderGroup && (
+      {contentGroups.map((group) => (
         <GlobalSearchProviderGroup
+          key={group.key}
           actionLabel={t('open-result', 'Open result')}
-          group={activeProviderGroup}
+          group={group}
+          previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
-          onLoadMore={() => onLoadMore(activeProviderGroup.key)}
           onSelect={onContentSelect}
+          onLoadMore={
+            isAll ? undefined : () => onLoadMore(group.key)
+          }
+          onShowMore={
+            isAll ? () => onCategoryChange(group.category) : undefined
+          }
         />
-      )}
+      ))}
 
-      {showFailure && <GlobalSearchFailure onRetry={onRetry} />}
       {waitingForContent && visibleItemCount === 0 && <GlobalSearchLoading />}
       {needsMoreCharacters && <GlobalSearchMinimumLength />}
+      {showFailure && <GlobalSearchFailure onRetry={onRetry} />}
       {showEmpty && <GlobalSearchEmpty />}
     </Command.List>
   );
@@ -276,7 +284,15 @@ export const GlobalSearchDialog = ({
                   key={searchCategory.key}
                   value={searchCategory.key}
                 >
-                  <SearchCategoryLabel category={searchCategory} />
+                  <span className="flex items-center gap-1.5">
+                    <SearchCategoryLabel category={searchCategory} />
+                    {searchCategory.count !== undefined &&
+                      searchCategory.count > 0 && (
+                        <span className="rounded bg-muted px-1 text-[10px] font-medium tabular-nums text-muted-foreground">
+                          {searchCategory.count}
+                        </span>
+                      )}
+                  </span>
                 </Tabs.Trigger>
               ))}
             </Tabs.List>

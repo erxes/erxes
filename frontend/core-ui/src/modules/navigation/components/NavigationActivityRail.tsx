@@ -388,7 +388,7 @@ export const NavigationActivityRail = ({
     >
       <NavigationRailLogo expanded={expanded} />
       <Button
-        aria-label={t('go-to')}
+        aria-label={t('search')}
         aria-keyshortcuts="Control+M Meta+M"
         className={cn(
           'mb-1 h-7 shrink-0 justify-start gap-2 rounded-md text-sm transition-[width,margin,padding] duration-200 ease-linear [&>svg]:size-4!',
@@ -396,7 +396,7 @@ export const NavigationActivityRail = ({
         )}
         onClick={onSearch}
         size="default"
-        title={t('go-to')}
+        title={t('search')}
         type="button"
         variant="ghost"
       >
@@ -405,7 +405,7 @@ export const NavigationActivityRail = ({
           className="truncate font-medium"
           expanded={expanded}
         >
-          {t('go-to')}
+          {t('search')}
         </NavigationRailLabel>
       </Button>
       <div

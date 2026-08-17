@@ -2,7 +2,11 @@ import {
   INavigationActivity,
   INavigationActivityModule,
 } from '@/navigation/types/NavigationActivity';
-import { TNavigationSearchItem } from '@/search/types/GlobalSearch';
+import {
+  TNavigationCategoryCounts,
+  TNavigationSearchItem,
+  TNavigationSearchItemCategory,
+} from '@/search/types/GlobalSearch';
 
 const normalizePath = (path: string) => path.replace(/^\/+|\/+$/g, '');
 
@@ -11,6 +15,7 @@ const getDescription = (parts: string[]) => parts.filter(Boolean).join(' › ');
 const getModuleItems = (
   activity: INavigationActivity,
   module: INavigationActivityModule,
+  category: TNavigationSearchItemCategory,
   parents: string[],
 ): TNavigationSearchItem[] => {
   const path = normalizePath(module.path);
@@ -19,8 +24,11 @@ const getModuleItems = (
         {
           id: `go-to:${activity.id}:${path}`,
           activityId: activity.id,
+          category,
           title: module.name,
-          description: getDescription([activity.label, ...parents]),
+          description: path.startsWith('settings/')
+            ? `Settings › ${activity.label}`
+            : getDescription([activity.label, ...parents]),
           icon: module.icon ?? activity.icon,
           path: `/${path}`,
         },
@@ -30,7 +38,7 @@ const getModuleItems = (
   return [
     ...item,
     ...(module.submenus?.flatMap((submenu) =>
-      getModuleItems(activity, submenu, [...parents, module.name]),
+      getModuleItems(activity, submenu, category, [...parents, module.name]),
     ) || []),
   ];
 };
@@ -57,7 +65,12 @@ export const buildNavigationSearchItems = (
   const goToItems = deduplicateByPath([
     ...activities.flatMap((activity) =>
       activity.modules.flatMap((module) =>
-        getModuleItems(activity, module, []),
+        getModuleItems(
+          activity,
+          module,
+          activity.kind === 'core' ? 'core-modules' : 'plugins',
+          [],
+        ),
       ),
     ),
     ...additionalItems,
@@ -70,16 +83,32 @@ export const buildNavigationSearchItems = (
         id: `plugin:${activity.id}`,
         activityId: activity.id,
         title: activity.label,
-        description: activity.modules
-          .map((module) => module.name)
-          .filter(Boolean)
-          .join(' · '),
+        description: `Settings › ${activity.label}`,
         icon: activity.icon,
         path: `/${normalizePath(activity.defaultPath)}`,
       }),
     );
 
   return { goToItems, pluginItems };
+};
+
+export const getNavigationSearchCategoryCounts = (
+  items: TNavigationSearchItem[],
+): TNavigationCategoryCounts => {
+  const counts: TNavigationCategoryCounts = {
+    navigation: items.length,
+    plugins: 0,
+    settings: 0,
+    'core-modules': 0,
+  };
+
+  items.forEach((item) => {
+    if (item.category) {
+      counts[item.category] += 1;
+    }
+  });
+
+  return counts;
 };
 
 export const filterNavigationSearchItems = (

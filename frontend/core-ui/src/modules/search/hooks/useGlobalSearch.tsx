@@ -1,11 +1,14 @@
 import { ApolloError, useApolloClient, useQuery } from '@apollo/client';
-import { ISearchProvider, TSearchPayload, TSearchResultItem } from 'erxes-ui';
+import { TSearchPayload, TSearchResultItem } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   GLOBAL_SEARCH_MIN_LENGTH,
   GLOBAL_SEARCH_PAGE_SIZE,
 } from '@/search/constants/globalSearch';
-import { useSearchProviders } from '@/search/hooks/useSearchProviders';
+import {
+  TSearchProviderWithCategory,
+  useSearchProviders,
+} from '@/search/hooks/useSearchProviders';
 import { useGlobalSearchDocument } from '@/search/hooks/useGlobalSearchDocument';
 import {
   getErroredAliases,
@@ -40,7 +43,7 @@ export interface IGlobalSearchResult {
 }
 
 const getFailedRequiredSelection = (
-  provider: ISearchProvider,
+  provider: TSearchProviderWithCategory,
   error?: ApolloError,
 ) => {
   const erroredAliases = getErroredAliases(error);
@@ -51,7 +54,7 @@ const getFailedRequiredSelection = (
 };
 
 const resolveProviderGroup = (
-  provider: ISearchProvider,
+  provider: TSearchProviderWithCategory,
   payload: TSearchPayload,
   error?: ApolloError,
 ): TGlobalSearchGroup | null => {
@@ -68,6 +71,7 @@ const resolveProviderGroup = (
 
     return {
       key: provider.key,
+      category: provider.category,
       label: provider.label,
       labelKey: provider.labelKey,
       labelNamespace: provider.labelNamespace,
@@ -86,6 +90,7 @@ const resolveProviderGroup = (
 
   return {
     key: provider.key,
+    category: provider.category,
     label: provider.label,
     labelKey: provider.labelKey,
     labelNamespace: provider.labelNamespace,

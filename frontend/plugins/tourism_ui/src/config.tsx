@@ -29,6 +29,16 @@ export const CONFIG: IUIConfig = {
       path: 'tourism',
       hasRelationWidget: true,
     },
+    {
+      name: 'PMS',
+      icon: IconSandbox,
+      path: 'tourism/pms',
+    },
+    {
+      name: 'TMS',
+      icon: IconSandbox,
+      path: 'tourism/tms',
+    },
   ],
   searchProviders: SEARCH_PROVIDERS,
 };
