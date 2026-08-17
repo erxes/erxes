@@ -50,6 +50,50 @@ const resolveStatusPermissions = (
 export class PermissionValidator {
   constructor(private models: IModels) {}
 
+  async getHiddenStatusIds(
+    userId: string,
+    pipelineId?: string,
+  ): Promise<string[]> {
+    const query: {
+      visibilityType: string;
+      memberIds: { $ne: string };
+      pipelineId?: string;
+    } = {
+      visibilityType: 'private',
+      memberIds: { $ne: userId },
+    };
+
+    if (pipelineId) {
+      query.pipelineId = pipelineId;
+    }
+
+    const statuses = await this.models.Status.find(query)
+      .select('_id')
+      .lean();
+
+    return statuses.map(({ _id }) => _id);
+  }
+
+  async canViewStatus(
+    statusId: string | undefined,
+    userId: string,
+  ): Promise<boolean> {
+    if (!statusId?.trim()) {
+      return true;
+    }
+
+    const status = await this.models.Status.findOne({ _id: statusId }).lean();
+
+    if (!status) {
+      return true;
+    }
+
+    return (
+      status.visibilityType !== 'private' ||
+      (status.memberIds || []).includes(userId)
+    );
+  }
+
   async validatePipelineAccess(
     pipelineId: string,
     user: IUserDocument,
@@ -155,6 +199,7 @@ export class PermissionValidator {
     statusId: string,
     newStatusId: string,
     userId: string,
+    editsFields = true,
   ): Promise<void> {
     try {
       if (!statusId?.trim()) {
@@ -170,6 +215,7 @@ export class PermissionValidator {
       const status = await this.models.Status.getStatus(statusId);
 
       if (
+        editsFields &&
         status?.canEditMemberIds?.length &&
         !status.canEditMemberIds.includes(userId)
       ) {
@@ -179,6 +225,15 @@ export class PermissionValidator {
       }
 
       if (isStatusChanged) {
+        if (
+          status?.canMoveMemberIds?.length &&
+          !status.canMoveMemberIds.includes(userId)
+        ) {
+          throw new PermissionError(
+            'You do not have permission to move tickets out of this status',
+          );
+        }
+
         const newStatus = await this.models.Status.getStatus(newStatusId);
 
         if (

@@ -27,4 +27,6 @@ export interface ITicketStatusChoice {
   label: string;
   color: string;
   type: number;
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
 }

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-16`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -324,6 +324,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
   service, which is what actually labels the report data — the UI helper only
   covers phone numbers the plugin classifies itself. Change both together.
+- "Can move" applies at **both ends** of a status change, matching
+  `frontline_api`: the status the ticket leaves and the one it lands in must
+  each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
+  single implementation and is called once per end — the board checks the card's
+  own column and then the column being dropped on, `useTicketPermissions({
+  status })` returns the leaving side as `canMoveTicket` (what disables the
+  status field in ticket detail), and `SelectStatusTicket` disables the options a
+  user may not move into when the surface passes `restrictToMovable` (moves only
+  — never on filter or create surfaces, where no ticket is being moved). An empty
+  `canMoveMemberIds` means "everyone". `useTicketPermissions({ pipeline })`
+  without a `status` returns permissive defaults, so its `canMoveTicket` must
+  never stand in for a real per-status check.
+- `useUpdateTicketStatus` hands Apollo its own `onError`, so its promise
+  **resolves** on a refused write instead of rejecting — a `try`/`catch` around
+  it never fires. Every caller decides success from `result?.data`
+  (`StatusPermissionControl` commits the member selection only then,
+  `StatusGroup` checks `result.value?.data` per reorder write). Committing local
+  state unconditionally is what once made "Can move" look configured while the
+  server stored nothing.
+- The board keeps its own optimistic copy of the cards
+  (`fetchedTicketsState` + `ticketCountByBoardAtom`), and nothing else restores
+  it. Every optimistic move must pass an `onError` that puts the card and both
+  counts back, otherwise a rejected move stays on screen until a reload.
 - Channel scope is presentation-only here; the server is the authority. Never
   infer privacy from the UI, and never offer a members/invite affordance on a
   channel whose `scope` is `personal`.
@@ -456,34 +479,45 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-16` — Conversations filter by automation status
+### `2026-08-17` — "Can move" also blocks dragging a card out of a status
 
-- **Summary:** The inbox filter popover gained an `Automation status` sub-view
-  writing the `automationStatus` query param — `responded`, `standby`, or
-  `handoff` — which `Conversations.tsx` passes straight to the `conversations`
-  query. Each row shows its count from `conversationCounts`, and the selection
-  renders as a filter bar item.
+- **Summary:** The board only checked the destination column, so a user missing
+  from a status's `canMoveMemberIds` could still drag its cards away; the drag
+  now checks the card's own column first, and `useTicketPermissions` reports the
+  leaving side again through `canMoveTicket`, which is what disables the status
+  field on ticket detail.
+- **Affected areas:** `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/TicketsBoard.tsx`.
+- **Contracts changed:** `None` — new `no-move-out-permission` copy falls back to
+  English until the gateway `frontline` namespace carries it.
+
+### `2026-08-17` — Status permission edits stop reporting refused writes as saved
+
+- **Summary:** A refused `updateTicketStatus` resolves without data instead of
+  throwing, so `StatusPermissionControl` used to commit the member selection
+  anyway and "Can move" / "Can edit" looked configured while the server stored
+  nothing; both handlers now commit only on `result?.data`, and
+  `useUpdateTicketStatus` refetches the pipeline status queries so the board and
+  the pickers see new status permissions without a reload.
 - **Affected areas:**
-  `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx` (new),
-  `src/modules/inbox/constants/automationStatusFilters.ts` (new),
-  `src/modules/inbox/conversations/components/{ConversationsFilter,Conversations}.tsx`,
-  `src/modules/inbox/conversations/graphql/queries/getConversations.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`.
-- **Contracts changed:** `None` on the UI side; `GET_CONVERSATIONS` sends the
-  new `automationStatus` argument added by `frontline_api`, and the four new
-  `frontline` i18n keys live in the gateway-owned locale files.
+  `src/modules/pipelines/components/permissions/components/StatusPermissionControl.tsx`,
+  `src/modules/status/hooks/useUpdateTicketStatus.tsx`.
+- **Contracts changed:** `None`
 
-### `2026-08-15` — Facebook history result shows the sent sequence
+### `2026-08-15` — Status move permission gated per destination
 
-- **Summary:** The Facebook automation history result renders every message the
-  run actually sent, in order, with its type, resolved content, buttons/quick
-  replies, send time and message id, instead of a single "sent successfully"
-  badge; comment replies show the reply text and attachments.
+- **Summary:** The board dropped cards into any column because it asked for
+  permissions without a status; it now checks the destination's
+  `canMoveMemberIds`, rolls the card and both counts back when the API refuses,
+  and the status pickers used to move a ticket disable the statuses the user may
+  not move into instead of gating on the status the ticket is leaving.
 - **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
-  `src/widgets/automations/modules/facebook/components/history/`.
-- **Contracts changed:** None — reads the existing `historyActionResult` props;
-  layout now uses the shared `ActionResult` primitives from `ui-modules`.
+  `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/{TicketsBoard.tsx,ticket-selects/SelectStatusTicket.tsx,ticket-command-bar/TicketsEditStatus.tsx}`,
+  `src/modules/status/types/index.ts`.
+- **Contracts changed:** `SelectStatusTicket.Provider` gained an optional
+  `restrictToMovable` prop; `ITicketStatusChoice` gained `canMoveMemberIds` and
+  `canEditMemberIds`.
 
 ### `2026-08-15` — Call report filters by integration, queue becomes optional
 
@@ -593,19 +627,3 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `.../configs/schema.ts`, `.../configs/graphql/**`.
 - **Contracts changed:** `None` on the UI side; the ticket-config documents now
   select the new optional `type` and `options` fields from `frontline_api`.
-
-### `2026-08-10` — Ticket config picker is multi-select
-
-- **Summary:** `SelectTicketConfig` now selects many ticket configs instead of
-  one: its context is `value: string[]` / `onValueChange: (configIds: string[])`,
-  items toggle in and out of the array, the popover stays open across toggles,
-  the trigger shows the single config's name or `n-selected`, and the list gained
-  loading and error states. Also repointed the messenger preview's two ticket
-  gates from the removed `ticketConfigId` to `ticketConfigIds`.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/SelectTicketConfig.tsx`,
-  `.../configs/hooks/useGetTicketConfigs.ts`,
-  `src/modules/integrations/erxes-messenger/components/EMPreviewIntro.tsx`.
-- **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
-  take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
-  returns `error`.

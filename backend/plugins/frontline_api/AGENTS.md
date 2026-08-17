@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-16`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -480,6 +480,36 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ConversationMessages` model validates the parent against its own
   conversations collection, so a crossed model fails at write time with
   `Conversation not found with id ...` after the message has already been sent.
+- Status permissions are three separate rules and must stay separate.
+  `Status.memberIds` (with `visibilityType: 'private'`) decides who may **see**
+  the status, `canMoveMemberIds` who may move tickets **across** it, and
+  `canEditMemberIds` who may edit the tickets sitting in it.
+  `validateEditPermission` takes `editsFields` so a payload carrying nothing but
+  `statusId` is treated as a move and never requires edit rights. An empty list
+  means "everyone".
+- A status change is checked at **both ends**: the status the ticket leaves and
+  the status it lands in must each accept the user through `canMoveMemberIds`.
+  This mirrors `sales_api`'s `checkMovePermission(stage)` +
+  `checkMovePermission(destinationStage)` in
+  `modules/sales/graphql/resolvers/mutations/utils.ts`, which is the reference
+  implementation of the same board rule. Checking only the destination lets a
+  user drag tickets out of a status they were never given move rights on.
+- Status management (`addTicketStatus` / `updateTicketStatus` /
+  `deleteTicketStatus`) is gated by the frontline permission action
+  `ticketStatusesManage` through `context.checkPermission`, never by pipeline
+  ownership — `Pipeline.userId` records who created a board, and boards migrated
+  without one left the rule unenforceable. Any new status-management resolver
+  must call the same action, and the action must stay listed in the
+  `frontline:admin` default group in `src/meta/permissions.ts`.
+- Status visibility is enforced on tickets, not only on status lists.
+  `generateFilter` excludes `getHiddenStatusIds` from every ticket query and
+  `getTicket` refuses a ticket whose status hides it. `canViewStatus` must keep
+  returning `true` for a ticket with no status or with a deleted status — a
+  ticket may never vanish because its status row is gone.
+- `generateFilter` also serves `cpGetTickets` / `cpGetTicketTotalCount`, which
+  run under `forClientPortal` and carry a `cpUser` — **`user` is undefined
+  there**. Every team-level rule in it must be guarded by `userId`; an
+  unconditional `user._id` crashes the portal ticket list.
 - `Pipeline.excludeCheckUserIds` is an **exemption** list, not a target list.
   When `isCheckUser` is on, `generateFilter` restricts a user to
   `assigneeId`/`createdBy` tickets **unless** their id is in
@@ -552,24 +582,28 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-16` — Filter conversations by automation ownership
+### `2026-08-17` — "Can move" also guards the status a ticket leaves
 
-- **Summary:** Conversation filter queries accept `automationStatus`
-  (`responded` / `standby` / `handoff`, comma-separated), resolved against
-  `automatedReplyControl.status`: `responded` is an `$exists` match covering
-  every automation-touched conversation, `standby` is `handoff_requested`,
-  `handoff` is `human_active`. `conversationCounts` returns the three counts
-  unconditionally, and the conversation schema gained a partial index on
-  `automatedReplyControl.status` + `updatedAt`.
-- **Affected areas:** `src/conversationQueryBuilder.ts`,
-  `src/modules/inbox/db/definitions/{constants.ts,conversations.ts}`,
-  `src/modules/inbox/@types/conversations.ts`,
-  `src/modules/inbox/graphql/schemas/conversation.ts`,
-  `src/modules/inbox/graphql/resolvers/queries/conversations.ts`.
-- **Contracts changed:** `mutationFilterParams` gained `automationStatus: String`,
-  so `conversations`, `conversationCounts`, `conversationsTotalCount` and
-  `conversationsGetLast` all accept it. `conversationCounts` gained
-  `responded` / `standby` / `handoff` keys.
+- **Summary:** `validateEditPermission` only checked the destination, so a user
+  missing from a status's `canMoveMemberIds` could still drag its tickets
+  elsewhere; a status change now checks the source status as well, the way
+  `sales_api` checks both stages. An empty list still means "everyone".
+- **Affected areas:** `src/modules/ticket/utils/permissionValidator.ts`.
+- **Contracts changed:** None — `updateTicket` can now fail with
+  `You do not have permission to move tickets out of this status`.
+
+### `2026-08-17` — Status management moved onto the frontline permission
+
+- **Summary:** `addTicketStatus`, `updateTicketStatus` and `deleteTicketStatus`
+  now require the new `ticketStatusesManage` action via
+  `context.checkPermission` instead of asserting pipeline ownership; the local
+  `assertPipelineOwner` helper is gone.
+- **Affected areas:** `src/meta/permissions.ts`,
+  `src/modules/ticket/graphql/resolvers/mutations/status.ts`.
+- **Contracts changed:** The `ticket` permission module gained the
+  `ticketStatusesManage` action, granted to the `frontline:admin` default
+  group; the three status mutations now fail with `Permission required`
+  (`FORBIDDEN`) for users without it.
 
 ### `2026-08-15` — Call reports scope by integration, queue becomes a filter
 
@@ -639,6 +673,22 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None — `callGetAgentStats` returns the same fields,
   with corrected per-agent counts.
 
+### `2026-08-15` — Status permissions actually enforced
+
+- **Summary:** Private-status membership now hides tickets in `getTickets` and
+  `getTicket` instead of only hiding the status from status lists; a plain move
+  no longer requires "Can edit" on the status being left;
+  `getAccessibleTicketStatuses` returns `canMoveMemberIds`/`canEditMemberIds` so
+  the UI can gate a destination. `generateFilter` now reads its user through an
+  optional `userId`, so the client-portal callers that have no team user keep
+  working.
+- **Affected areas:** `src/modules/ticket/utils/{permissionValidator,generateFilter}.ts`,
+  `src/modules/ticket/db/models/Ticket.ts`,
+  `src/modules/ticket/graphql/resolvers/{queries/ticket.ts,queries/status.ts,mutations/status.ts}`.
+- **Contracts changed:** `getAccessibleTicketStatuses` JSON rows gained
+  `canMoveMemberIds` and `canEditMemberIds`; `getTicket` can now fail with a
+  permission error.
+
 ### `2026-08-14` — Fixed inverted `isCheckUser` ticket visibility
 
 - **Summary:** With "Show only tickets assigned to the user" enabled, the
@@ -666,27 +716,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `Pipeline`, `createPipeline`, and `updatePipeline`
   gained optional `propertyIds: [String]`; `Pipeline` also exposes
   `isPropertySelectionConfigured: Boolean` for backward-compatible rendering.
-
-### `2026-08-10` — Improve Facebook delivery diagnostics
-
-- **Summary:** Suppressed typing indicators throughout comment-triggered bot flows and added privacy-safe Graph error metadata logging.
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts`, Facebook automation messages
-- **Contracts changed:** None
-
-### `2026-08-10` — Multi-select real pipeline status filter for ticket reports
-
-- **Summary:** Added `statusIds: [String]` to `TicketReportFilter` /
-  `ReportChartFilters`, so ticket reports can filter by any number of real
-  pipeline statuses (as opposed to `state`, the active/archived/deleted
-  lifecycle flag, and distinct from the pre-existing, frontend-unused
-  single-value `status` field). `buildTicketMatch` matches
-  `statusId: { $in: filters.statusIds }`; the persisted-chart filter
-  whitelist (`REPORT_CHART_FILTER_KEYS` / `pickReportChartFilters`) and the
-  chart schema (`reportChartFiltersSchema`) both gained the field so it
-  round-trips through save/restore like every other ticket filter.
-- **Affected areas:**
-  `src/modules/reports/{@types/reportFilters.ts,utils.ts,
-graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`.
-- **Contracts changed:** `TicketReportFilter` and `ReportChartFilters` both
-  gained `statusIds: [String]`. `status: String` is unchanged and still
-  takes precedence if a caller sends both.
