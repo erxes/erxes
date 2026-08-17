@@ -1,106 +1,149 @@
-import { visitedPageTabsState } from '@/navigation/states/visitedPageTabsState';
+import {
+  activeVisitedPageTabIdState,
+  visitedPageTabsState,
+} from '@/navigation/states/visitedPageTabsState';
 import { AppPath } from '@/types/paths/AppPath';
 import {
+  createVisitedPageTabId,
   getVisitedPageTabCloseDestination,
   getVisitedPageTabLocation,
+  insertVisitedPageTabAfter,
   moveVisitedPageTab,
   normalizeVisitedPagePathname,
   removeVisitedPageTab,
   shouldTrackVisitedPage,
-  visitVisitedPageTab,
+  updateVisitedPageTab,
 } from '@/navigation/utils/visitedPageTabs';
 import { useAtom } from 'jotai';
 import { useCallback, useLayoutEffect, useRef } from 'react';
-import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const DEFAULT_VISITED_PAGE_PATH = `/${AppPath.MyInbox}`;
+const HOME_PAGE_PATH = `/${AppPath.MyInbox}`;
 
 export const useVisitedPageTabs = () => {
   const { pathname, search } = useLocation();
-  const navigationType = useNavigationType();
   const navigate = useNavigate();
   const [tabs, setTabs] = useAtom(visitedPageTabsState);
+  const [activeTabId, setActiveTabId] = useAtom(
+    activeVisitedPageTabIdState,
+  );
   const activePathname = normalizeVisitedPagePathname(pathname);
-  const previousPathname = useRef(activePathname);
+  const activeTabIdRef = useRef(activeTabId);
+  const tabsRef = useRef(tabs);
+
+  activeTabIdRef.current = activeTabId;
+  tabsRef.current = tabs;
+
+  const selectVisitedPageTab = useCallback(
+    (tabId: string) => {
+      activeTabIdRef.current = tabId;
+      setActiveTabId(tabId);
+    },
+    [setActiveTabId],
+  );
 
   useLayoutEffect(() => {
     if (!shouldTrackVisitedPage(activePathname)) {
-      previousPathname.current = activePathname;
       return;
     }
 
-    const replacedPathname =
-      navigationType === 'REPLACE' ? previousPathname.current : undefined;
-
-    setTabs((currentTabs) =>
-      visitVisitedPageTab(
-        currentTabs,
-        activePathname,
-        replacedPathname,
-        search,
-      ),
+    const currentTabs = tabsRef.current;
+    const currentTabId = activeTabIdRef.current;
+    const existingActiveTab = currentTabs.find(
+      (tab) => tab.id === currentTabId,
     );
-    previousPathname.current = activePathname;
-  }, [activePathname, navigationType, search, setTabs]);
+    const matchingTab = currentTabs.find(
+      (tab) => tab.pathname === activePathname,
+    );
+    const tabId =
+      existingActiveTab?.id ?? matchingTab?.id ?? createVisitedPageTabId();
+
+    if (tabId !== currentTabId) {
+      selectVisitedPageTab(tabId);
+    }
+
+    setTabs((current) =>
+      updateVisitedPageTab(current, tabId, activePathname, search),
+    );
+  }, [activePathname, search, selectVisitedPageTab, setTabs]);
 
   const openVisitedPageTab = useCallback(
-    (tabPathname: string) => {
-      const destinationTab = tabs.find((tab) => tab.pathname === tabPathname);
+    (tabId: string) => {
+      const destinationTab = tabs.find((tab) => tab.id === tabId);
 
-      navigate(
-        destinationTab
-          ? getVisitedPageTabLocation(destinationTab)
-          : tabPathname,
-      );
-    },
-    [navigate, tabs],
-  );
-
-  const closeVisitedPageTab = useCallback(
-    (tabPathname: string) => {
-      const closeDestination = getVisitedPageTabCloseDestination(
-        tabs,
-        tabPathname,
-      );
-
-      if (tabPathname === activePathname) {
-        setTabs((currentTabs) =>
-          removeVisitedPageTab(currentTabs, tabPathname),
-        );
-        navigate(
-          closeDestination
-            ? getVisitedPageTabLocation(closeDestination)
-            : DEFAULT_VISITED_PAGE_PATH,
-          {
-            replace: true,
-          },
-        );
+      if (!destinationTab) {
         return;
       }
 
-      setTabs((currentTabs) => removeVisitedPageTab(currentTabs, tabPathname));
+      selectVisitedPageTab(tabId);
+      navigate(getVisitedPageTabLocation(destinationTab));
     },
-    [activePathname, navigate, setTabs, tabs],
+    [navigate, selectVisitedPageTab, tabs],
+  );
+
+  const openNewVisitedPageTab = useCallback(() => {
+    const tabId = createVisitedPageTabId();
+
+    setTabs((currentTabs) =>
+      insertVisitedPageTabAfter(
+        currentTabs,
+        { id: tabId, pathname: HOME_PAGE_PATH },
+        activeTabIdRef.current,
+      ),
+    );
+    selectVisitedPageTab(tabId);
+    navigate(HOME_PAGE_PATH);
+  }, [navigate, selectVisitedPageTab, setTabs]);
+
+  const closeVisitedPageTab = useCallback(
+    (tabId: string) => {
+      const closeDestination = getVisitedPageTabCloseDestination(tabs, tabId);
+
+      if (tabId === activeTabIdRef.current) {
+        if (!closeDestination) {
+          const homeTabId = createVisitedPageTabId();
+
+          setTabs([{ id: homeTabId, pathname: HOME_PAGE_PATH }]);
+          selectVisitedPageTab(homeTabId);
+          navigate(HOME_PAGE_PATH, { replace: true });
+          return;
+        }
+
+        setTabs((currentTabs) => removeVisitedPageTab(currentTabs, tabId));
+        selectVisitedPageTab(closeDestination.id);
+        navigate(getVisitedPageTabLocation(closeDestination), {
+          replace: true,
+        });
+        return;
+      }
+
+      setTabs((currentTabs) => removeVisitedPageTab(currentTabs, tabId));
+    },
+    [navigate, selectVisitedPageTab, setTabs, tabs],
   );
 
   const closeAllVisitedPageTabs = useCallback(() => {
-    setTabs([{ pathname: DEFAULT_VISITED_PAGE_PATH }]);
-    navigate(DEFAULT_VISITED_PAGE_PATH, { replace: true });
-  }, [navigate, setTabs]);
+    const homeTabId = createVisitedPageTabId();
+
+    setTabs([{ id: homeTabId, pathname: HOME_PAGE_PATH }]);
+    selectVisitedPageTab(homeTabId);
+    navigate(HOME_PAGE_PATH, { replace: true });
+  }, [navigate, selectVisitedPageTab, setTabs]);
 
   const reorderVisitedPageTab = useCallback(
-    (tabPathname: string, destinationPathname: string) => {
+    (tabId: string, destinationTabId: string) => {
       setTabs((currentTabs) =>
-        moveVisitedPageTab(currentTabs, tabPathname, destinationPathname),
+        moveVisitedPageTab(currentTabs, tabId, destinationTabId),
       );
     },
     [setTabs],
   );
 
   return {
-    activePathname,
+    activeTabId,
     closeAllVisitedPageTabs,
     closeVisitedPageTab,
+    openNewVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,
     tabs,

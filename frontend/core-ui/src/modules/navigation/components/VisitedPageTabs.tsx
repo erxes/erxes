@@ -6,7 +6,7 @@ import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
 import { visitedPageTabsVisibleState } from '@/navigation/states/visitedPageTabsState';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import {
-  getAdjacentVisitedPageTabPathname,
+  getAdjacentVisitedPageTabId,
   getVisitedPageTabLabel,
   getVisitedPageTabTitle,
 } from '@/navigation/utils/visitedPageTabs';
@@ -40,9 +40,18 @@ import {
   IconApps,
   IconFile,
   IconLayoutNavbarCollapse,
+  IconPlus,
   IconX,
 } from '@tabler/icons-react';
-import { Button, cn, ContextMenu, ScrollArea, Sidebar, Tabs } from 'erxes-ui';
+import {
+  Button,
+  cn,
+  ContextMenu,
+  ScrollArea,
+  Sidebar,
+  Tabs,
+  Tooltip,
+} from 'erxes-ui';
 import { useAtom } from 'jotai';
 import type { ComponentProps, ElementType, ReactNode } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
@@ -61,7 +70,7 @@ const SortableVisitedPageTab = ({
   onClose,
   onCloseAll,
   onHideTabs,
-  pathname,
+  tabId,
 }: Readonly<{
   canClose: boolean;
   closeAriaShortcut: string;
@@ -75,7 +84,7 @@ const SortableVisitedPageTab = ({
   onClose: () => void;
   onCloseAll: () => void;
   onHideTabs: () => void;
-  pathname: string;
+  tabId: string;
 }>) => {
   const tabRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -85,7 +94,7 @@ const SortableVisitedPageTab = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: pathname });
+  } = useSortable({ id: tabId });
   const setTabRef = useCallback(
     (node: HTMLDivElement | null) => {
       tabRef.current = node;
@@ -107,7 +116,7 @@ const SortableVisitedPageTab = ({
 
   const tabTrigger = (
     <Tabs.Trigger
-      value={pathname}
+      value={tabId}
       title={label}
       className="h-full min-w-0 flex-1 justify-start gap-1 rounded-md bg-transparent px-1.5 text-[11px] font-medium text-inherit shadow-none hover:bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-inherit data-[state=active]:shadow-none data-[state=active]:hover:bg-transparent"
     >
@@ -175,9 +184,11 @@ const SortableVisitedPageTab = ({
 const VisitedPageTabsList = ({
   children,
   items,
+  trailingAction,
 }: Readonly<{
   children: ReactNode;
   items: string[];
+  trailingAction: ReactNode;
 }>) => (
   <ScrollArea.Root className="group/tabs-scroll h-10 w-full" type="auto">
     <ScrollArea.Viewport className="h-10 w-full">
@@ -188,6 +199,7 @@ const VisitedPageTabsList = ({
         <SortableContext items={items} strategy={horizontalListSortingStrategy}>
           {children}
         </SortableContext>
+        {trailingAction}
       </Tabs.List>
     </ScrollArea.Viewport>
     <ScrollArea.Bar
@@ -198,19 +210,21 @@ const VisitedPageTabsList = ({
 );
 
 const VisitedPageTabsContent = ({
-  activePathname,
+  activeTabId,
   children,
   items,
   onDragEnd,
   onValueChange,
   sensors,
+  trailingAction,
 }: Readonly<{
-  activePathname: string;
+  activeTabId: string | null;
   children: ReactNode;
   items: string[];
   onDragEnd: (event: DragEndEvent) => void;
-  onValueChange: (pathname: string) => void;
+  onValueChange: (tabId: string) => void;
   sensors: ComponentProps<typeof DndContext>['sensors'];
+  trailingAction: ReactNode;
 }>) => (
   <DndContext
     autoScroll={false}
@@ -220,11 +234,13 @@ const VisitedPageTabsContent = ({
     sensors={sensors}
   >
     <Tabs
-      value={activePathname}
+      value={activeTabId ?? ''}
       onValueChange={onValueChange}
       className="min-w-0 flex-1 overflow-hidden"
     >
-      <VisitedPageTabsList items={items}>{children}</VisitedPageTabsList>
+      <VisitedPageTabsList items={items} trailingAction={trailingAction}>
+        {children}
+      </VisitedPageTabsList>
     </Tabs>
   </DndContext>
 );
@@ -235,9 +251,10 @@ export const VisitedPageTabs = () => {
   const activities = useNavigationActivities();
   const modules = usePluginsModules() ?? [];
   const {
-    activePathname,
+    activeTabId,
     closeAllVisitedPageTabs,
     closeVisitedPageTab,
+    openNewVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,
     tabs,
@@ -304,21 +321,21 @@ export const VisitedPageTabs = () => {
       }
 
       if (tabShortcut === 'close-current') {
-        if (tabs.length > 1) {
-          closeVisitedPageTab(activePathname);
+        if (tabs.length > 1 && activeTabId) {
+          closeVisitedPageTab(activeTabId);
         }
 
         return;
       }
 
-      const destinationPathname = getAdjacentVisitedPageTabPathname(
+      const destinationTabId = getAdjacentVisitedPageTabId(
         tabs,
-        activePathname,
+        activeTabId,
         tabShortcut,
       );
 
-      if (destinationPathname) {
-        openVisitedPageTab(destinationPathname);
+      if (destinationTabId) {
+        openVisitedPageTab(destinationTabId);
       }
     };
 
@@ -348,7 +365,7 @@ export const VisitedPageTabs = () => {
 
     return () => window.removeEventListener('keydown', handleKeyboardShortcut);
   }, [
-    activePathname,
+    activeTabId,
     closeAllVisitedPageTabs,
     closeVisitedPageTab,
     openVisitedPageTab,
@@ -361,7 +378,7 @@ export const VisitedPageTabs = () => {
     return null;
   }
 
-  const tabPathnames = tabs.map((tab) => tab.pathname);
+  const tabIds = tabs.map((tab) => tab.id);
   const tabItems = tabs.map((tab) => {
     const pageLabel = getVisitedPageTabLabel(tab.pathname, modules, labels);
     const activity = findNavigationActivityByPath(activities, tab.pathname);
@@ -377,14 +394,14 @@ export const VisitedPageTabs = () => {
       translatedPageLabel,
       activity?.kind === 'plugin' ? activity.label : undefined,
     );
-    const isActive = tab.pathname === activePathname;
+    const isActive = tab.id === activeTabId;
     const closeLabel = t('navigation.close-tab', {
       page: label,
     });
 
     return (
       <SortableVisitedPageTab
-        key={tab.pathname}
+        key={tab.id}
         canClose={tabs.length > 1}
         closeAriaShortcut={closeAriaShortcut}
         closeAllLabel={t('navigation.close-all-tabs')}
@@ -394,10 +411,10 @@ export const VisitedPageTabs = () => {
         icon={Icon}
         isActive={isActive}
         label={label}
-        onClose={() => closeVisitedPageTab(tab.pathname)}
+        onClose={() => closeVisitedPageTab(tab.id)}
         onCloseAll={closeAllVisitedPageTabs}
         onHideTabs={() => setTabsVisible(false)}
-        pathname={tab.pathname}
+        tabId={tab.id}
       />
     );
   });
@@ -409,11 +426,32 @@ export const VisitedPageTabs = () => {
     >
       <div className="flex min-w-0 flex-1 items-center overflow-hidden">
         <VisitedPageTabsContent
-          activePathname={activePathname}
-          items={tabPathnames}
+          activeTabId={activeTabId}
+          items={tabIds}
           onDragEnd={handleDragEnd}
           onValueChange={openVisitedPageTab}
           sensors={sensors}
+          trailingAction={
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <Button
+                  aria-label={t('navigation.new-tab', {
+                    defaultValue: 'New tab',
+                  })}
+                  className="size-6 shrink-0 rounded-md text-muted-foreground"
+                  onClick={openNewVisitedPageTab}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <IconPlus className="size-3.5" />
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content side="bottom">
+                {t('navigation.new-tab', { defaultValue: 'New tab' })}
+              </Tooltip.Content>
+            </Tooltip>
+          }
         >
           {tabItems}
         </VisitedPageTabsContent>
