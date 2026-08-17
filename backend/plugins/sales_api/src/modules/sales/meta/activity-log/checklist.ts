@@ -134,7 +134,7 @@ export async function generateChecklistItemActivityLogs(
       metadata: {
         checklistTitle: checklist.title,
         checklistItemTitle: currentDocument.content,
-        ...(activity.metadata || {}),
+        ...activity.metadata,
       },
     })),
     ...manualActivities,
