@@ -2,27 +2,25 @@ import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useDuplicateAutomation } from '@/automations/hooks/useDuplicateAutomation';
 import { ApolloError } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { currentUserState } from 'ui-modules';
 
-export const useAutomationBuilderCanvasActions = () => {
+const stripDuplicateSuffix = (name: string) =>
+  name.replace(/\s*\(duplicated(\s+\d+)?\)$/i, '');
+
+export const useAutomationDuplicateAction = () => {
   const { detail } = useAutomation();
-  const currentUser = useAtomValue(currentUserState);
   const navigate = useNavigate();
   const { duplicateAutomation, loading: duplicating } =
     useDuplicateAutomation();
-  const [isDuplicateOpen, setDuplicateOpen] = useState(false);
-  const [duplicateName, setDuplicateName] = useState('');
+  const [isOpen, setOpen] = useState(false);
+  const [name, setName] = useState('');
 
   const automationId = detail?._id;
-  const automationCreatedBy = detail?.createdBy;
-  const canLock = !!automationId && currentUser?._id === automationCreatedBy;
 
-  const openDuplicate = () => {
-    setDuplicateName('');
-    setDuplicateOpen(true);
+  const open = () => {
+    setName('');
+    setOpen(true);
   };
 
   const onDuplicate = () => {
@@ -31,7 +29,7 @@ export const useAutomationBuilderCanvasActions = () => {
     }
 
     return duplicateAutomation(automationId, {
-      variables: { name: duplicateName.trim() || undefined },
+      variables: { name: name.trim() || undefined },
       onError: (error: ApolloError) => {
         toast({
           title: 'Error',
@@ -48,7 +46,7 @@ export const useAutomationBuilderCanvasActions = () => {
           return;
         }
 
-        setDuplicateOpen(false);
+        setOpen(false);
         toast({
           title: 'Success',
           variant: 'success',
@@ -61,20 +59,15 @@ export const useAutomationBuilderCanvasActions = () => {
 
   return {
     automationId,
-    automationCreatedBy,
-    canLock,
     duplicating,
-    duplicateName,
-    setDuplicateName,
-    isDuplicateOpen,
-    setDuplicateOpen,
-    openDuplicate,
+    isOpen,
+    name,
     onDuplicate,
-    suggestedDuplicateName: detail?.name
-      ? `${detail.name.replace(
-          /\s*\(duplicated(\s+\d+)?\)$/i,
-          '',
-        )} (duplicated)`
+    open,
+    setName,
+    setOpen,
+    suggestedName: detail?.name
+      ? `${stripDuplicateSuffix(detail.name)} (duplicated)`
       : '',
   };
 };

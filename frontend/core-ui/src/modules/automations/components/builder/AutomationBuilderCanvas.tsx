@@ -8,17 +8,19 @@ import {
   CANVAS_MAX_ZOOM,
   CANVAS_MIN_ZOOM,
 } from '@/automations/constants';
-import { MarqueeSelectionPanel } from '@/automations/components/builder/MarqueeSelectionPanel';
+import { MarqueeSelectionPanel } from '@/automations/components/builder/marquee/MarqueeSelectionPanel';
 import { useReactFlowEditor } from '@/automations/hooks/useReactFlowEditor';
 import {
   automationCanvasMarqueeModeState,
   automationCanvasViewState,
 } from '@/automations/states/automationState';
 import { Background, MiniMap, ReactFlow, SelectionMode } from '@xyflow/react';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAtomValue } from 'jotai';
 import '@xyflow/react/dist/style.css';
 
 export const AutomationBuilderCanvas = () => {
+  const { isReadOnly } = useAutomation();
   const { showGrid, showMiniMap } = useAtomValue(automationCanvasViewState);
   const isMarqueeMode = useAtomValue(automationCanvasMarqueeModeState);
   const {
@@ -50,15 +52,15 @@ export const AutomationBuilderCanvas = () => {
         edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
+        onConnect={isReadOnly ? undefined : onConnect}
+        onDrop={isReadOnly ? undefined : onDrop}
         isValidConnection={isValidConnection}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onPaneClick={onPaneClick}
         onNodeDragStop={onNodeDragStop}
         onInit={setReactFlowInstance}
-        onDragOver={onDragOver}
+        onDragOver={isReadOnly ? undefined : onDragOver}
         fitView
         fitViewOptions={CANVAS_FIT_VIEW_OPTIONS}
         connectionLineComponent={ConnectionLine}
@@ -68,6 +70,9 @@ export const AutomationBuilderCanvas = () => {
         selectionOnDrag={isMarqueeMode}
         panOnDrag={isMarqueeMode ? [1, 2] : true}
         selectionMode={SelectionMode.Partial}
+        nodesDraggable={!isReadOnly}
+        nodesConnectable={!isReadOnly}
+        deleteKeyCode={isReadOnly ? null : undefined}
       >
         {showGrid && <Background />}
         {showMiniMap && (
