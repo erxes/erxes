@@ -9,7 +9,6 @@ import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
-import { captureModelsFromContext } from '../agent-tools/modelRegistry';
 
 export type MessageProps = {
   subdomain: string;
@@ -171,9 +170,9 @@ export const sendTRPCMessage = async ({
 
 /**
  * Shared plugin-context initialization for in-process tRPC execution:
- * request process state, event-handler runtime context, scoped event
- * handlers, and plugin model capture. Used by the /trpc express adapter and
- * by the agent-tools endpoints so both paths build identical contexts.
+ * request process state, event-handler runtime context, and scoped event
+ * handlers. Used by the /trpc express adapter and by the agent-tools
+ * endpoints so both paths build identical contexts.
  */
 export const createPluginTRPCContext = async <TContext>(
   subdomain: string,
@@ -199,16 +198,10 @@ export const createPluginTRPCContext = async <TContext>(
   const eventHandlers = createScopedEventHandlers(subdomain, runtimeContext);
 
   if (trpcContext) {
-    const pluginContext = await trpcContext(subdomain, {
+    return await trpcContext(subdomain, {
       ...context,
       eventHandlers,
     });
-
-    // Capture plugin models for the agent-tools endpoints (no-op when the
-    // plugin context does not carry a `models` property).
-    captureModelsFromContext(subdomain, pluginContext);
-
-    return pluginContext;
   }
 
   return {

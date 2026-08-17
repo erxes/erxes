@@ -140,53 +140,17 @@ app.use(
 );
 
 // Core predates startPlugin, so it mounts the agent capability endpoints
-// itself. The same opt-in contract plugins get: an explicit model allow list
-// (credential-bearing models like Users, Configs, ClientPortal, and CPUser
-// are never exposed) plus explicit registered-permission mappings where the
-// model name does not derive the action name.
-const AGENT_CORE_MODELS = [
-  'Customers',
-  'Companies',
-  'Products',
-  'Tags',
-  'Brands',
-  'Segments',
-  'Documents',
-];
-
+// itself. Only tRPC procedures declaring agent metadata are exposed.
 mountAgentTools(app, {
   plugin: PLUGIN_NAME,
   trpcRouter: appRouter,
-  includeModels: AGENT_CORE_MODELS,
-  modelPermissions: {
-    Customers: {
-      read: 'contactsRead',
-      create: 'contactsCreate',
-      update: 'contactsUpdate',
-      remove: 'contactsDelete',
-    },
-    Companies: {
-      read: 'contactsRead',
-      create: 'contactsCreate',
-      update: 'contactsUpdate',
-      remove: 'contactsDelete',
-    },
-  },
   createContext: async (
     subdomain: string,
     context: Record<string, unknown>,
   ) => {
     const models = await generateModels(subdomain, context);
-    const modelsRecord = models as unknown as Record<string, unknown>;
-    const allowedModels: Record<string, unknown> = {};
 
-    for (const modelName of AGENT_CORE_MODELS) {
-      if (modelsRecord[modelName]) {
-        allowedModels[modelName] = modelsRecord[modelName];
-      }
-    }
-
-    return { ...context, models: allowedModels };
+    return { ...context, models };
   },
 });
 

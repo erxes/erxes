@@ -3,18 +3,12 @@ import {
   Request as ApiRequest,
   Response as ApiResponse,
 } from 'express';
-import { IPermissionConfig, IUserDocument } from '../../core-types';
+import { IUserDocument } from '../../core-types';
 import { checkPermissionGroup } from '../../core-modules/permissions/utils';
-import { getPlugin } from '../service-discovery';
 import { createPluginTRPCContext, err, ok, sendTRPCMessage } from '../trpc';
 import { decodeAgentToolsAuthHeader } from './auth';
-import { buildAgentToolManifest, isMongooseModel } from './manifest';
-import { capturePluginModels, getCapturedPluginModels } from './modelRegistry';
+import { buildAgentToolManifest } from './manifest';
 import {
-  AgentModelPermissionMap,
-  AgentModelToolDescriptor,
-  AgentMongooseModel,
-  AgentToolField,
   AgentToolManifest,
   AgentTrpcRouter,
   AgentTrpcToolDescriptor,
@@ -29,14 +23,9 @@ export interface AgentToolsOptions {
     subdomain: string,
     context: Record<string, unknown>,
   ) => Promise<unknown>;
+  /** Prefixes of tRPC procedure paths to keep out of the manifest. */
   exclude?: string[];
-  /** Explicit allow list of model names exposed as CRUD tools. */
-  includeModels?: string[];
-  /** Per-model overrides mapping operations to registered permission actions. */
-  modelPermissions?: AgentModelPermissionMap;
 }
-
-type ModelRecord = Record<string, unknown>;
 
 const MANIFEST_TTL_MS = 60_000;
 
@@ -54,71 +43,8 @@ const manifestCacheKey = (
     options.plugin,
     subdomain,
     options.exclude || [],
-    options.includeModels || [],
-    Object.keys(options.modelPermissions || {}).sort((a, b) =>
-      a.localeCompare(b),
-    ),
   ]);
 
-/** Resolve tenant models from the capture registry or the context factory. */
-const resolveModels = async (
-  subdomain: string,
-  createContext?: (
-    subdomain: string,
-    context: Record<string, unknown>,
-  ) => Promise<unknown>,
-): Promise<ModelRecord | null> => {
-  const captured = getCapturedPluginModels(subdomain);
-
-  if (captured) {
-    return captured;
-  }
-
-  if (!createContext) {
-    return null;
-  }
-
-  const context = await createContext(subdomain, { subdomain });
-
-  if (context && typeof context === 'object' && 'models' in context) {
-    const models = (context as { models?: unknown }).models;
-
-    capturePluginModels(subdomain, models);
-
-    if (models && typeof models === 'object') {
-      return models as ModelRecord;
-    }
-  }
-
-  return null;
-};
-
-/** Permission actions the plugin registered in its service config. */
-const getRegisteredActions = async (plugin: string): Promise<Set<string>> => {
-  const actions = new Set<string>();
-
-  try {
-    const service = await getPlugin(plugin);
-    const permissions = (
-      service?.config?.meta as { permissions?: IPermissionConfig } | undefined
-    )?.permissions;
-
-    for (const module of permissions?.modules || []) {
-      for (const action of module?.actions || []) {
-        if (action?.name) {
-          actions.add(action.name);
-        }
-      }
-    }
-  } catch {
-    // Registry unavailable — fail closed: no model tools resolve.
-  }
-
-  return actions;
-};
-
-// NOTE: models resolve per subdomain, but the derived tool ids are stable
-// across subdomains, so the manifest is safe to cache per subdomain + config.
 const getManifest = async (
   subdomain: string,
   options: AgentToolsOptions,
@@ -130,353 +56,15 @@ const getManifest = async (
     return cached.manifest;
   }
 
-  let models: ModelRecord | null = null;
-
-  try {
-    models = await resolveModels(subdomain, options.createContext);
-  } catch {
-    // Model resolution is best-effort; the manifest still carries tRPC tools.
-    models = null;
-  }
-
-  const registeredActions = await getRegisteredActions(options.plugin);
-
   const manifest = buildAgentToolManifest({
     plugin: options.plugin,
-    models,
     trpcRouter: options.trpcRouter,
     exclude: options.exclude || [],
-    includeModels: options.includeModels,
-    modelPermissions: options.modelPermissions,
-    registeredActions,
   });
 
   manifestCache.set(cacheKey, { manifest, at: Date.now() });
 
   return manifest;
-};
-
-/** Input validation failure — surfaced to the caller as HTTP 400. */
-class AgentToolInputError extends Error {}
-
-// Query operators allowed in model tool `query` input. `$where` and any
-// operator outside this list are rejected so callers cannot smuggle server-
-// side JavaScript or unexpected aggregation behavior into MongoDB.
-const ALLOWED_QUERY_OPERATORS = new Set([
-  '$eq',
-  '$ne',
-  '$gt',
-  '$gte',
-  '$lt',
-  '$lte',
-  '$in',
-  '$nin',
-  '$exists',
-  '$regex',
-  '$options',
-  '$and',
-  '$or',
-  '$nor',
-  '$not',
-  '$elemMatch',
-  '$all',
-  '$size',
-]);
-
-const assertSafeQueryValue = (value: unknown): void => {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      assertSafeQueryValue(item);
-    }
-    return;
-  }
-
-  if (value && typeof value === 'object') {
-    for (const [key, nested] of Object.entries(value)) {
-      if (key.startsWith('$') && !ALLOWED_QUERY_OPERATORS.has(key)) {
-        throw new AgentToolInputError(`Query operator '${key}' is not allowed`);
-      }
-      assertSafeQueryValue(nested);
-    }
-    return;
-  }
-
-  if (typeof value === 'function') {
-    throw new AgentToolInputError('Functions are not allowed in query input');
-  }
-};
-
-const assertSafeDocValue = (value: unknown): void => {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      assertSafeDocValue(item);
-    }
-    return;
-  }
-
-  if (value && typeof value === 'object') {
-    for (const [key, nested] of Object.entries(value)) {
-      if (key.startsWith('$')) {
-        throw new AgentToolInputError(
-          'Update operators are not allowed in doc input',
-        );
-      }
-      assertSafeDocValue(nested);
-    }
-    return;
-  }
-
-  if (typeof value === 'function') {
-    throw new AgentToolInputError('Functions are not allowed in doc input');
-  }
-};
-
-const sanitizeQuery = (input: unknown): Record<string, unknown> => {
-  if (input === undefined || input === null) {
-    return {};
-  }
-
-  if (typeof input !== 'object' || Array.isArray(input)) {
-    throw new AgentToolInputError('query must be an object');
-  }
-
-  assertSafeQueryValue(input);
-
-  return input as Record<string, unknown>;
-};
-
-const sanitizeDoc = (input: unknown): Record<string, unknown> => {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new AgentToolInputError('doc must be a non-empty object');
-  }
-
-  assertSafeDocValue(input);
-
-  return input as Record<string, unknown>;
-};
-
-const sanitizeId = (input: unknown): string => {
-  if (typeof input !== 'string' || !input) {
-    throw new AgentToolInputError('_id must be a non-empty string');
-  }
-
-  return input;
-};
-
-const sanitizeSelect = (
-  input: unknown,
-  modelFields: AgentToolField[],
-): string[] | undefined => {
-  if (input === undefined || input === null) {
-    return undefined;
-  }
-
-  if (!Array.isArray(input)) {
-    throw new AgentToolInputError('select must be an array of field names');
-  }
-
-  const allowed = new Set(modelFields.map((field) => field.name));
-  const select: string[] = [];
-
-  for (const entry of input) {
-    if (typeof entry !== 'string' || !allowed.has(entry)) {
-      throw new AgentToolInputError(
-        `select field '${String(entry)}' is not a model field`,
-      );
-    }
-    select.push(entry);
-  }
-
-  return select;
-};
-
-const sanitizeSort = (
-  input: unknown,
-  modelFields: AgentToolField[],
-): Record<string, 1 | -1> | undefined => {
-  if (input === undefined || input === null) {
-    return undefined;
-  }
-
-  if (typeof input !== 'object' || Array.isArray(input)) {
-    throw new AgentToolInputError('sort must be an object');
-  }
-
-  const allowed = new Set(modelFields.map((field) => field.name));
-  const sort: Record<string, 1 | -1> = {};
-
-  for (const [key, direction] of Object.entries(
-    input as Record<string, unknown>,
-  )) {
-    if (!allowed.has(key)) {
-      throw new AgentToolInputError(`sort field '${key}' is not a model field`);
-    }
-
-    if (![1, -1, 'asc', 'desc'].includes(direction as string | number)) {
-      throw new AgentToolInputError(
-        `sort direction for '${key}' must be 1, -1, 'asc', or 'desc'`,
-      );
-    }
-
-    sort[key] = direction === -1 || direction === 'desc' ? -1 : 1;
-  }
-
-  return sort;
-};
-
-const sanitizeSkip = (input: unknown): number => {
-  const skip = Number(input) || 0;
-
-  if (!Number.isFinite(skip) || skip < 0) {
-    throw new AgentToolInputError('skip must be a non-negative number');
-  }
-
-  return Math.floor(skip);
-};
-
-const sanitizeLimit = (input: unknown): number => {
-  if (input === undefined || input === null) {
-    return 50;
-  }
-
-  const limit = Number(input);
-
-  if (!Number.isInteger(limit) || limit < 0) {
-    throw new AgentToolInputError('limit must be a non-negative integer');
-  }
-
-  return Math.min(limit, 100);
-};
-
-/** Apply validated paging/sort/projection modifiers to a read query. */
-const applyReadModifiers = (
-  query: ReturnType<AgentMongooseModel['find']>,
-  input: Record<string, unknown> | undefined,
-  modelFields: AgentToolField[],
-  { paginate }: { paginate: boolean },
-): ReturnType<AgentMongooseModel['find']> => {
-  let result = query;
-
-  if (paginate) {
-    result = result.limit(sanitizeLimit(input?.limit));
-
-    const skip = sanitizeSkip(input?.skip);
-
-    if (skip > 0) {
-      result = result.skip(skip);
-    }
-
-    const sort = sanitizeSort(input?.sort, modelFields);
-
-    if (sort) {
-      result = result.sort(sort);
-    }
-  }
-
-  const select = sanitizeSelect(input?.select, modelFields);
-
-  if (select?.length) {
-    result = result.select(select.join(' '));
-  }
-
-  return result;
-};
-
-/**
- * Plugin models conventionally expose statics named after the singular model
- * name (e.g. Deals -> createDeal/updateDeal/removeDeal); prefer them so plugin
- * business logic runs. Returns null when the static does not exist.
- */
-const callModelStatic = (
-  model: AgentMongooseModel,
-  staticName: string,
-  args: unknown[],
-): Promise<unknown> | null => {
-  const staticFn = model[staticName];
-
-  if (typeof staticFn !== 'function') {
-    return null;
-  }
-
-  return Promise.resolve(
-    (staticFn as (...staticArgs: unknown[]) => unknown).apply(model, args),
-  );
-};
-
-const singularName = (modelName: string): string => {
-  if (modelName.endsWith('ies')) {
-    return `${modelName.slice(0, -3)}y`;
-  }
-
-  return modelName.endsWith('s') ? modelName.slice(0, -1) : modelName;
-};
-
-/** Execute a model CRUD tool against validated, schema-scoped input. */
-const executeModelTool = async (
-  models: ModelRecord,
-  descriptor: AgentModelToolDescriptor,
-  input: Record<string, unknown> | undefined,
-): Promise<unknown> => {
-  const model = models[descriptor.modelName];
-
-  if (!isMongooseModel(model)) {
-    throw new Error(`Model '${descriptor.modelName}' is not available`);
-  }
-
-  const singular = singularName(descriptor.modelName);
-
-  switch (descriptor.op) {
-    case 'find':
-      return await applyReadModifiers(
-        model.find(sanitizeQuery(input?.query)),
-        input,
-        descriptor.modelFields,
-        { paginate: true },
-      ).lean();
-    case 'findOne':
-      return await applyReadModifiers(
-        model.findOne(sanitizeQuery(input?.query)),
-        input,
-        descriptor.modelFields,
-        { paginate: false },
-      ).lean();
-    case 'count':
-      return await model.countDocuments(sanitizeQuery(input?.query));
-    case 'create': {
-      const doc = sanitizeDoc(input?.doc);
-      const staticResult = await callModelStatic(model, `create${singular}`, [
-        doc,
-      ]);
-
-      return staticResult !== null ? staticResult : await model.create(doc);
-    }
-    case 'update': {
-      const id = sanitizeId(input?._id);
-      const doc = sanitizeDoc(input?.doc);
-      const staticResult = await callModelStatic(model, `update${singular}`, [
-        id,
-        doc,
-      ]);
-
-      return staticResult !== null
-        ? staticResult
-        : await model
-            .findOneAndUpdate({ _id: id }, { $set: doc }, { new: true })
-            .lean();
-    }
-    case 'remove': {
-      const id = sanitizeId(input?._id);
-      const staticResult = await callModelStatic(model, `remove${singular}`, [
-        id,
-      ]);
-
-      return staticResult !== null
-        ? staticResult
-        : await model.deleteOne({ _id: id });
-    }
-    default:
-      throw new Error(`Unsupported model operation '${descriptor.op}'`);
-  }
 };
 
 /** Execute a tRPC tool in-process through the plugin's context factory. */
@@ -644,34 +232,16 @@ export const mountAgentTools = (
         return res.status(403).json(err(permissionError));
       }
 
-      let result: unknown;
-
-      if (descriptor.kind === 'model') {
-        const models = await resolveModels(subdomain, options.createContext);
-
-        if (!models) {
-          return res
-            .status(500)
-            .json(err(new Error('Plugin models are not available')));
-        }
-
-        result = await executeModelTool(models, descriptor, input);
-      } else {
-        result = await executeTrpcTool(
-          options,
-          subdomain,
-          userId,
-          descriptor,
-          input,
-        );
-      }
+      const result = await executeTrpcTool(
+        options,
+        subdomain,
+        userId,
+        descriptor,
+        input,
+      );
 
       return res.json(ok(result));
     } catch (error) {
-      if (error instanceof AgentToolInputError) {
-        return res.status(400).json(err(error));
-      }
-
       console.error('[agent-tools] call error:', error);
 
       return res
