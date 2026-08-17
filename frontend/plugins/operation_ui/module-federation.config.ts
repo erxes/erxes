@@ -12,6 +12,11 @@ const coreLibraries = new Set([
   'react-i18next',
 ]);
 
+const hostOwnedLibraries: Record<string, true> = {
+  'react-router': true,
+  'react-router-dom': true,
+};
+
 const config: ModuleFederationConfig = {
   name: 'operation_ui',
   exposes: {
@@ -26,6 +31,15 @@ const config: ModuleFederationConfig = {
   },
 
   shared: (libraryName, defaultConfig) => {
+    if (hostOwnedLibraries[libraryName]) {
+      return {
+        ...defaultConfig,
+        import: false,
+        singleton: true,
+        strictVersion: true,
+      };
+    }
+
     if (coreLibraries.has(libraryName)) {
       return defaultConfig;
     }
