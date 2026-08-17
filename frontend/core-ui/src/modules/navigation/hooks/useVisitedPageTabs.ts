@@ -24,9 +24,7 @@ export const useVisitedPageTabs = () => {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [tabs, setTabs] = useAtom(visitedPageTabsState);
-  const [activeTabId, setActiveTabId] = useAtom(
-    activeVisitedPageTabIdState,
-  );
+  const [activeTabId, setActiveTabId] = useAtom(activeVisitedPageTabIdState);
   const activePathname = normalizeVisitedPagePathname(pathname);
   const activeTabIdRef = useRef(activeTabId);
   const tabsRef = useRef(tabs);
