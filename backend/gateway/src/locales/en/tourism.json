@@ -606,6 +606,17 @@
   "check-out-amount": "Check out amount",
 
   "add-discount": "Add discount",
+  "applies-to": "Applies to",
+  "choose-discount-type": "Choose target",
+  "pricing-plan": "Pricing plan",
+  "rooms": "Rooms",
+  "extra-products": "Extra products",
+  "appointments": "Appointments",
+  "select-pricing-plan": "Select pricing plan",
+  "search-pricing-plan": "Search pricing plan",
+  "loading-pricing-plans": "Loading pricing plans...",
+  "no-pricing-plans-found": "No pricing plans found",
+  "failed-to-load-pricing-plans": "Failed to load pricing plans",
 
   "website-reservation-lock": "Website Reservation Lock",
   "reservation-lock-duration": "Reservation lock duration",

@@ -18,7 +18,7 @@ export const CreatePmsFormContent = ({
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <General control={form.control} />;
+        return <General form={form} />;
       case 2:
         return <Payments control={form.control} />;
       case 3:
