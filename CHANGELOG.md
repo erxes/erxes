@@ -1,4 +1,11 @@
+# Changelog
 
+## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
+
+
+### Bug Fixes
+
+* **frontline:** tolerate deleted ticket config references on messenger save ([0dbc37d](https://github.com/erxes/erxes/commit/0dbc37d131bd70ccebce2df8c340f0c81591e416))
 
 ## [3.0.81](https://github.com/erxes/erxes/compare/3.0.80...3.0.81) (2026-08-17)
 
@@ -68,7 +75,7 @@
 * **frontline:** add client portal messenger conversation operations ([2b74435](https://github.com/erxes/erxes/commit/2b744350217bb0d602e57773d9022d8567be27a8))
 * **pipelines:** add scoped property selection ([#9001](https://github.com/erxes/erxes/issues/9001)) ([2561cf8](https://github.com/erxes/erxes/commit/2561cf8e68d9b7e23b1223a89dc7a0ff66f3f526))
 
-# Changelog
+
 
 ## [3.0.77](https://github.com/erxes/erxes/compare/3.0.76...3.0.77) (2026-08-12)
 
