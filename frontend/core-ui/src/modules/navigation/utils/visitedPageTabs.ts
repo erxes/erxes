@@ -8,9 +8,7 @@ const ROOT_PATHNAME = '/';
 const IDENTIFIER_PATTERN = /^[a-zA-Z0-9_-]{16,}$/;
 const MONGODB_IDENTIFIER_PATTERN = /^[a-f\d]{24}$/i;
 
-export const createVisitedPageTabId = () =>
-  globalThis.crypto?.randomUUID?.() ??
-  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+export const createVisitedPageTabId = () => globalThis.crypto.randomUUID();
 
 const normalizeModulePath = (path: string) => {
   let startIndex = 0;

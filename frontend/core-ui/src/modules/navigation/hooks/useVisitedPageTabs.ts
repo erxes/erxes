@@ -29,9 +29,6 @@ export const useVisitedPageTabs = () => {
   const activeTabIdRef = useRef(activeTabId);
   const tabsRef = useRef(tabs);
 
-  activeTabIdRef.current = activeTabId;
-  tabsRef.current = tabs;
-
   const selectVisitedPageTab = useCallback(
     (tabId: string) => {
       activeTabIdRef.current = tabId;
@@ -39,6 +36,11 @@ export const useVisitedPageTabs = () => {
     },
     [setActiveTabId],
   );
+
+  useLayoutEffect(() => {
+    activeTabIdRef.current = activeTabId;
+    tabsRef.current = tabs;
+  }, [activeTabId, tabs]);
 
   useLayoutEffect(() => {
     if (!shouldTrackVisitedPage(activePathname)) {

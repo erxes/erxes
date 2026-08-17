@@ -321,7 +321,7 @@ export const VisitedPageTabs = () => {
       }
 
       if (tabShortcut === 'close-current') {
-        if (tabs.length > 1 && activeTabId) {
+        if (activeTabId) {
           closeVisitedPageTab(activeTabId);
         }
 
@@ -402,7 +402,7 @@ export const VisitedPageTabs = () => {
     return (
       <SortableVisitedPageTab
         key={tab.id}
-        canClose={tabs.length > 1}
+        canClose
         closeAriaShortcut={closeAriaShortcut}
         closeAllLabel={t('navigation.close-all-tabs')}
         closeLabel={closeLabel}
