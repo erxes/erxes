@@ -127,7 +127,7 @@ export const CustomersMerge = ({
       mergedEntries.push([
         key,
         value,
-        secondValue !== undefined ? secondValue : value,
+        secondValue === undefined ? value : secondValue,
       ]);
     });
 
@@ -225,7 +225,7 @@ export const CustomersMerge = ({
   const handleValueChange = (newValue: any, key: string) => {
     if (key.startsWith('links.')) {
       const linkType = key.split('.')[1];
-      const currentLinks = { ...(value['links'] || {}) };
+      const currentLinks = { ...value['links'] };
 
       if (currentLinks[linkType] === newValue) {
         delete currentLinks[linkType];
@@ -284,26 +284,26 @@ export const CustomersMerge = ({
                 direction="row"
                 className="gap-3"
               >
-                {value1 !== '' ? (
+                {value1 === '' ? (
+                  <span className="w-full" />
+                ) : (
                   <MergingFieldContainer
                     key={createEntryKey(linkType, value1)}
                     fieldName={displayName}
                     fieldValue={value1}
                     type="link"
                   />
-                ) : (
-                  <span className="w-full" />
                 )}
 
-                {value2 !== '' ? (
+                {value2 === '' ? (
+                  <span className="w-full" />
+                ) : (
                   <MergingFieldContainer
                     key={createEntryKey(linkType, value2)}
                     fieldName={displayName}
                     fieldValue={value2}
                     type="link"
                   />
-                ) : (
-                  <span className="w-full" />
                 )}
               </ChoiceboxGroup>
             );
@@ -316,26 +316,26 @@ export const CustomersMerge = ({
               direction="row"
               className="gap-3"
             >
-              {value1 !== '' ? (
+              {value1 === '' ? (
+                <span className="w-full" />
+              ) : (
                 <MergingFieldContainer
                   key={createEntryKey(key, value1)}
                   fieldName={fieldMappings[key].displayName}
                   fieldValue={value1}
                   type={fieldMappings[key].type}
                 />
-              ) : (
-                <span className="w-full" />
               )}
 
-              {value2 !== '' ? (
+              {value2 === '' ? (
+                <span className="w-full" />
+              ) : (
                 <MergingFieldContainer
                   key={createEntryKey(key, value2)}
                   fieldName={fieldMappings[key].displayName}
                   fieldValue={value2}
                   type={fieldMappings[key].type}
                 />
-              ) : (
-                <span className="w-full" />
               )}
             </ChoiceboxGroup>
           );
