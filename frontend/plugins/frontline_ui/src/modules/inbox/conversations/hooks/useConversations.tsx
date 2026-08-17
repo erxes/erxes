@@ -1,41 +1,89 @@
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
-import { QueryHookOptions, useQuery } from '@apollo/client';
-import { ConversationStatus, IConversation } from '../../types/Conversation';
+import { useQuery } from '@apollo/client';
+import type { QueryHookOptions } from '@apollo/client';
+import {
+  ConversationStatus,
+  type IConversation,
+} from '@/inbox/types/Conversation';
 import {
   EnumCursorDirection,
+  EnumCursorMode,
   ICursorListResponse,
+  isUndefinedOrNull,
   mergeCursorData,
+  parseDateRangeFromString,
+  useNonNullMultiQueryState,
+  useToast,
   validateFetchMore,
 } from 'erxes-ui';
 import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { useEffect, useMemo, useRef } from 'react';
-import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '../graphql/subscriptions/inboxSubscriptions';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useNotificationSound } from './useNotificationSound';
+import { useNotificationSound } from '@/inbox/conversations/hooks/useNotificationSound';
 import {
   newMessagesCountState,
   resetNewMessagesState,
 } from '@/inbox/conversations/states/newMessagesCountState';
-import { refetchConversationsAtom } from '../states/refetchConversationState';
-import { activeConversationState } from '../states/activeConversationState';
-
-const getRecency = (conversation: IConversation) => {
-  const time = Date.parse(conversation.updatedAt || conversation.createdAt);
-  return Number.isNaN(time) ? 0 : time;
-};
-
-// Live cache writes only patch fields, so re-apply the server's order
-// (updatedAt desc, ascending _id) to keep the newest conversation on top.
-const compareByRecency = (a: IConversation, b: IConversation) =>
-  getRecency(b) - getRecency(a) || a._id.localeCompare(b._id);
+import { refetchConversationsAtom } from '@/inbox/conversations/states/refetchConversationState';
+import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
+import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
+import { useTranslation } from 'react-i18next';
+import {
+  CONVERSATION_FETCH_MORE_THRESHOLD,
+  INBOX_CONVERSATION_QUERY_KEYS,
+} from '@/inbox/conversations/constants/useConversations';
+import type { InboxConversationQueryState } from '@/inbox/conversations/types/useConversations';
+import {
+  compareConversationsByRecency,
+  getBooleanFilterVariable,
+  getConversationRecency,
+} from '@/inbox/conversations/utils/useConversations';
 
 export const useConversations = (
   options?: QueryHookOptions<ICursorListResponse<IConversation>>,
 ) => {
+  const {
+    channelId,
+    integrationId,
+    integrationType,
+    unassigned,
+    awaitingResponse,
+    automationStatus,
+    participated,
+    status,
+    created,
+    brandId,
+    searchValue,
+  } = useNonNullMultiQueryState<InboxConversationQueryState>(
+    INBOX_CONVERSATION_QUERY_KEYS,
+  );
+  const parsedDate = parseDateRangeFromString(created || '');
+
   const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
     ICursorListResponse<IConversation>
-  >(GET_CONVERSATIONS, options);
+  >(
+    GET_CONVERSATIONS,
+    options || {
+      variables: {
+        limit: CONVERSATIONS_LIMIT,
+        channelId,
+        integrationId,
+        integrationType,
+        unassigned: getBooleanFilterVariable(unassigned),
+        awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+        automationStatus,
+        participating: getBooleanFilterVariable(participated),
+        status: status || '',
+        startDate: parsedDate?.from,
+        endDate: parsedDate?.to,
+        brandId,
+        searchValue,
+        cursorMode: EnumCursorMode.INCLUSIVE,
+      },
+    },
+  );
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};
@@ -43,7 +91,7 @@ export const useConversations = (
   const { conversations } = data || {};
   const { totalCount = 0, pageInfo } = conversations || {};
   const sortedList = useMemo(
-    () => [...(conversations?.list ?? [])].sort(compareByRecency),
+    () => [...(conversations?.list ?? [])].sort(compareConversationsByRecency),
     [conversations?.list],
   );
   const setNewMessagesCount = useSetAtom(newMessagesCountState);
@@ -55,6 +103,15 @@ export const useConversations = (
   const activeConversation = useAtomValue(activeConversationState);
   const activeConversationRef = useRef(activeConversation);
   activeConversationRef.current = activeConversation;
+  const { t } = useTranslation('frontline');
+  const { toast } = useToast();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const fetchingMoreRef = useRef(false);
+  const [fetchingMore, setFetchingMore] = useState(false);
+  const [conversationSelected, setConversationSelected] = useState(false);
+  const [storedScrollPosition, setStoredScrollPosition] = useAtom(
+    conversationsContainerScrollState,
+  );
 
   useEffect(() => {
     setRefetch(() => refetch);
@@ -65,38 +122,36 @@ export const useConversations = (
       refetch();
       resetNewMessagesStates();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refetchNewMessages]);
+  }, [refetch, refetchNewMessages, resetNewMessagesStates]);
 
-  const handleFetchMore = ({
-    direction,
-  }: {
-    direction: EnumCursorDirection;
-  }) => {
-    if (!validateFetchMore({ direction, pageInfo })) {
-      return;
-    }
+  const handleFetchMore = useCallback(
+    async ({ direction }: { direction: EnumCursorDirection }) => {
+      if (!validateFetchMore({ direction, pageInfo })) {
+        return;
+      }
 
-    fetchMore({
-      variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
-        limit: CONVERSATIONS_LIMIT,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return Object.assign({}, prev, {
-          conversations: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.conversations,
-            prevResult: prev.conversations,
-          }),
-        });
-      },
-    });
-  };
+      await fetchMore({
+        variables: {
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo?.endCursor
+              : pageInfo?.startCursor,
+          limit: CONVERSATIONS_LIMIT,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) return prev;
+          return Object.assign({}, prev, {
+            conversations: mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.conversations,
+              prevResult: prev.conversations,
+            }),
+          });
+        },
+      });
+    },
+    [fetchMore, pageInfo],
+  );
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
@@ -143,7 +198,8 @@ export const useConversations = (
           content: newMessage.content,
           // Events can arrive out of order; recency must never move backwards.
           updatedAt:
-            Date.parse(newMessage.createdAt) >= getRecency(conversation)
+            Date.parse(newMessage.createdAt) >=
+            getConversationRecency(conversation)
               ? newMessage.createdAt
               : conversation.updatedAt,
         });
@@ -157,11 +213,80 @@ export const useConversations = (
     };
   }, [playNotificationSound, setNewMessagesCount, subscribeToMore, userId]);
 
+  useEffect(() => {
+    if (
+      containerRef.current &&
+      !isUndefinedOrNull(storedScrollPosition) &&
+      !conversationSelected
+    ) {
+      containerRef.current.scrollTo({
+        top: storedScrollPosition,
+      });
+      setStoredScrollPosition(null);
+    }
+  }, [conversationSelected, setStoredScrollPosition, storedScrollPosition]);
+
+  useEffect(() => {
+    if (refetchNewMessages) {
+      containerRef.current?.scrollTo({
+        top: 0,
+      });
+    }
+  }, [refetchNewMessages]);
+
+  const fetchNextPage = useCallback(async () => {
+    if (fetchingMoreRef.current || loading || !pageInfo?.hasNextPage) {
+      return;
+    }
+
+    fetchingMoreRef.current = true;
+    setFetchingMore(true);
+
+    try {
+      await handleFetchMore({
+        direction: EnumCursorDirection.FORWARD,
+      });
+    } catch (error) {
+      toast({
+        title: t('something-went-wrong'),
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'destructive',
+      });
+    } finally {
+      fetchingMoreRef.current = false;
+      setFetchingMore(false);
+    }
+  }, [handleFetchMore, loading, pageInfo?.hasNextPage, t, toast]);
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+
+    if (distanceFromBottom <= CONVERSATION_FETCH_MORE_THRESHOLD) {
+      void fetchNextPage();
+    }
+  }, [fetchNextPage]);
+
+  const handleConversationSelect = useCallback(() => {
+    setStoredScrollPosition(containerRef.current?.scrollTop || 0);
+    setConversationSelected(true);
+  }, [setStoredScrollPosition]);
+
   return {
     totalCount,
     conversations: sortedList,
     loading,
     handleFetchMore,
     pageInfo,
+    containerRef,
+    fetchingMore,
+    handleConversationSelect,
+    handleScroll,
   };
 };
