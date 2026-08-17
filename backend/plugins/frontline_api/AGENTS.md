@@ -582,6 +582,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-17` — Messenger ticket configs tolerate deleted references
+
+- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
+  selection when one id is gone — it persists the configs that still exist and
+  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
+  id out of every integration and returns the removed document.
+- **Affected areas:**
+  `src/modules/inbox/db/models/Integrations.ts`,
+  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
+- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
+  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
+  returns the `TicketConfig` its schema already declared instead of `null`.
+
 ### `2026-08-17` — "Can move" also guards the status a ticket leaves
 
 - **Summary:** `validateEditPermission` only checked the destination, so a user
@@ -707,12 +720,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/reports/graphql/resolvers/callQueries.ts` — `callReportIntegrations`,
   `callGetQueueStats`, and every resolver using `findQueueIntegration`.
 - **Contracts changed:** None
-
-### `2026-08-12` — Pipeline-scoped ticket properties
-
-- **Summary:** Ticket pipelines now persist only validated Core ticket property
-  ids for pipeline-specific detail forms.
-- **Affected areas:** `src/modules/ticket/{@types,db,graphql,utils}`.
-- **Contracts changed:** `Pipeline`, `createPipeline`, and `updatePipeline`
-  gained optional `propertyIds: [String]`; `Pipeline` also exposes
-  `isPropertySelectionConfigured: Boolean` for backward-compatible rendering.

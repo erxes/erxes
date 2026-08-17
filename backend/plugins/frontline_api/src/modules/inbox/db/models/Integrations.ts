@@ -7,7 +7,7 @@ import {
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
 import moment from 'moment-timezone';
-import { Model, Query } from 'mongoose';
+import { isValidObjectId, Model, Query } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IMessengerIntegration {
@@ -300,41 +300,28 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Integration not found');
       }
 
-      if (!configIds || configIds.length === 0) {
-        const result = await models.Integrations.updateOne(
-          { _id },
-          // Note: Assuming you rename the field in your schema to plural.
-          { $unset: { ticketConfigIds: 1 } },
-          { runValidators: true },
-        );
+      const uniqueConfigIds = [...new Set(configIds || [])].filter((configId) =>
+        isValidObjectId(configId),
+      );
 
-        if (!result.acknowledged) {
-          throw new Error('Failed to update ticket data');
-        }
+      const existingConfigs = await models.TicketConfig.find(
+        { _id: { $in: uniqueConfigIds } },
+        { _id: 1 },
+      ).lean();
 
-        return models.Integrations.findOne({ _id });
-      }
+      const existingConfigIds = new Set(
+        existingConfigs.map((config) => String(config._id)),
+      );
 
-      // Remove duplicates just in case the client sent duplicate IDs
-      const uniqueConfigIds = [...new Set(configIds)];
+      const validConfigIds = uniqueConfigIds.filter((configId) =>
+        existingConfigIds.has(configId),
+      );
 
-      // 2. Validate that ALL provided configs exist
-      const configs = await models.TicketConfig.find({
-        _id: { $in: uniqueConfigIds },
-      });
-
-      if (configs.length !== uniqueConfigIds.length) {
-        throw new Error('One or more Configs not found');
-      }
-
-      // 3. Save the array to the database
       const result = await models.Integrations.updateOne(
         { _id },
-        {
-          $set: {
-            ticketConfigIds: uniqueConfigIds,
-          },
-        },
+        validConfigIds.length
+          ? { $set: { ticketConfigIds: validConfigIds } }
+          : { $unset: { ticketConfigIds: 1 } },
         { runValidators: true },
       );
 
