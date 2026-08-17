@@ -130,6 +130,45 @@ export const useVisitedPageTabs = () => {
     navigate(HOME_PAGE_PATH, { replace: true });
   }, [navigate, selectVisitedPageTab, setTabs]);
 
+  const closeOtherVisitedPageTabs = useCallback(
+    (tabId: string) => {
+      const destinationTab = tabs.find((tab) => tab.id === tabId);
+
+      if (!destinationTab) {
+        return;
+      }
+
+      setTabs([destinationTab]);
+      selectVisitedPageTab(tabId);
+      navigate(getVisitedPageTabLocation(destinationTab), { replace: true });
+    },
+    [navigate, selectVisitedPageTab, setTabs, tabs],
+  );
+
+  const closeVisitedPageTabsToRight = useCallback(
+    (tabId: string) => {
+      const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
+
+      if (tabIndex < 0 || tabIndex === tabs.length - 1) {
+        return;
+      }
+
+      const remainingTabs = tabs.slice(0, tabIndex + 1);
+
+      setTabs(remainingTabs);
+
+      if (remainingTabs.some((tab) => tab.id === activeTabIdRef.current)) {
+        return;
+      }
+
+      const destinationTab = remainingTabs[tabIndex];
+
+      selectVisitedPageTab(destinationTab.id);
+      navigate(getVisitedPageTabLocation(destinationTab), { replace: true });
+    },
+    [navigate, selectVisitedPageTab, setTabs, tabs],
+  );
+
   const reorderVisitedPageTab = useCallback(
     (tabId: string, destinationTabId: string) => {
       setTabs((currentTabs) =>
@@ -142,7 +181,9 @@ export const useVisitedPageTabs = () => {
   return {
     activeTabId,
     closeAllVisitedPageTabs,
+    closeOtherVisitedPageTabs,
     closeVisitedPageTab,
+    closeVisitedPageTabsToRight,
     openNewVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,

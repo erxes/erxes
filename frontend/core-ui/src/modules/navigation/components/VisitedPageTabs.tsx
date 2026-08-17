@@ -40,7 +40,9 @@ export const VisitedPageTabs = () => {
   const {
     activeTabId,
     closeAllVisitedPageTabs,
+    closeOtherVisitedPageTabs,
     closeVisitedPageTab,
+    closeVisitedPageTabsToRight,
     openNewVisitedPageTab,
     openVisitedPageTab,
     reorderVisitedPageTab,
@@ -113,7 +115,7 @@ export const VisitedPageTabs = () => {
             <VisitedPageTabsNewButton onClick={openNewVisitedPageTab} />
           }
         >
-          {tabs.map((tab) => {
+          {tabs.map((tab, tabIndex) => {
             const pageLabel = getVisitedPageTabLabel(
               tab.pathname,
               modules,
@@ -139,16 +141,26 @@ export const VisitedPageTabs = () => {
             return (
               <SortableVisitedPageTab
                 key={tab.id}
+                canCloseOtherTabs={tabs.length > 1}
+                canCloseTabsToRight={tabIndex < tabs.length - 1}
                 closeAriaShortcut={closeAriaShortcut}
                 closeAllLabel={t('navigation.close-all-tabs')}
                 closeLabel={t('navigation.close-tab', { page: label })}
+                closeOtherTabsLabel={t('navigation.close-other-tabs', {
+                  defaultValue: 'Close other tabs',
+                })}
                 closeShortcutLabel={closeShortcutLabel}
+                closeTabsToRightLabel={t('navigation.close-tabs-to-right', {
+                  defaultValue: 'Close tabs to the right',
+                })}
                 hideTabsLabel={t('navigation.hide-tabs-row')}
                 icon={Icon}
                 isActive={tab.id === activeTabId}
                 label={label}
                 onClose={() => closeVisitedPageTab(tab.id)}
                 onCloseAll={closeAllVisitedPageTabs}
+                onCloseOtherTabs={() => closeOtherVisitedPageTabs(tab.id)}
+                onCloseTabsToRight={() => closeVisitedPageTabsToRight(tab.id)}
                 onHideTabs={() => setTabsVisible(false)}
                 tabId={tab.id}
               />

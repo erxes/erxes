@@ -1,6 +1,10 @@
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { IconLayoutNavbarCollapse, IconX } from '@tabler/icons-react';
+import {
+  IconArrowBarToRight,
+  IconLayoutNavbarCollapse,
+  IconX,
+} from '@tabler/icons-react';
 import { Button, cn, ContextMenu, Tabs } from 'erxes-ui';
 import type { ElementType } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
@@ -9,26 +13,38 @@ export const SortableVisitedPageTab = ({
   closeAriaShortcut,
   closeLabel,
   closeAllLabel,
+  closeOtherTabsLabel,
   closeShortcutLabel,
+  closeTabsToRightLabel,
+  canCloseOtherTabs,
+  canCloseTabsToRight,
   hideTabsLabel,
   icon: Icon,
   isActive,
   label,
   onClose,
   onCloseAll,
+  onCloseOtherTabs,
+  onCloseTabsToRight,
   onHideTabs,
   tabId,
 }: Readonly<{
   closeAriaShortcut: string;
   closeLabel: string;
   closeAllLabel: string;
+  closeOtherTabsLabel: string;
   closeShortcutLabel: string;
+  closeTabsToRightLabel: string;
+  canCloseOtherTabs: boolean;
+  canCloseTabsToRight: boolean;
   hideTabsLabel: string;
   icon: ElementType;
   isActive: boolean;
   label: string;
   onClose: () => void;
   onCloseAll: () => void;
+  onCloseOtherTabs: () => void;
+  onCloseTabsToRight: () => void;
   onHideTabs: () => void;
   tabId: string;
 }>) => {
@@ -109,6 +125,20 @@ export const SortableVisitedPageTab = ({
         </div>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
+        <ContextMenu.Item
+          disabled={!canCloseOtherTabs}
+          onSelect={onCloseOtherTabs}
+        >
+          <IconX />
+          {closeOtherTabsLabel}
+        </ContextMenu.Item>
+        <ContextMenu.Item
+          disabled={!canCloseTabsToRight}
+          onSelect={onCloseTabsToRight}
+        >
+          <IconArrowBarToRight />
+          {closeTabsToRightLabel}
+        </ContextMenu.Item>
         <ContextMenu.Item onSelect={onCloseAll}>
           <IconX />
           {closeAllLabel}
