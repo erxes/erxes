@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-14`
+- **Last synchronized:** `2026-08-16`
 
 ## Scope
 
@@ -36,6 +36,9 @@
 - Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
+- Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
+- Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
 - Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
 
@@ -116,6 +119,30 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-16` — `Empty Related Account Defaults`
+
+- **Summary:** Transaction submission now omits empty related-account overrides so backend default debit/credit related account calculation is preserved.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/utils.ts`.
+- **Contracts changed:** None.
+
+### `2026-08-16` — `Journal Addition Account Isolation`
+
+- **Summary:** Adding a transaction tab by journal no longer copies the first tab's account, while account-based additions still prefill only the selected account.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/TransactionTabs.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-15` — `Related Account Input Stability`
+
+- **Summary:** Related account override inputs now use stable keys, independent debit/credit save timers, and non-submit edit buttons so typing no longer loses focus after a character.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/RelAccountsForm.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-14` — `Account-Based Transaction Tab Creation`
+
+- **Summary:** The in-form add-transaction dropdown now lets users select main, cash, bank, and debt accounts first, then creates the matching transaction tab with that account prefilled.
+- **Affected areas:** `src/modules/transactions/components/AddTransaction.tsx`, `src/modules/transactions/transaction-form/components/TransactionTabs.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-14` — `Journal Report Drilldown`
 
 - **Summary:** Journal report account rows now double-click through to account statements with current filter and grouping context, while account-statement detail rows continue to open transaction edit screens.
@@ -156,34 +183,4 @@
 
 - **Summary:** Fund and debt rate adjustment detail result grids now use accounting `RecordTable` columns instead of raw HTML tables.
 - **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/debt/components/AdjustDebtRateDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Closing Detail Renderer Extraction`
-
-- **Summary:** Closing adjustment detail table cell renderers and action controls were moved out of the parent component to satisfy static analysis.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Closing Transactions Tab`
-
-- **Summary:** Closing adjustment detail now has calculation and transactions tabs, with generated transactions rendered through the transaction balance table columns.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Closing Group Read-Only Labels`
-
-- **Summary:** Closing adjustment detail group headers now display branch and department as read-only `code - title` labels instead of selector inline cells.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Closing List Inline Accounts`
-
-- **Summary:** Closing adjustment list account columns now render through `AccountsInline` instead of displaying raw account ids.
-- **Affected areas:** `src/modules/adjustments/closing/components/AdjustClosingColumns.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-11` — `Hide Closing Begin Date`
-
-- **Summary:** The closing adjustment create sheet no longer exposes `beginDate`; users select only the closing date and account fields.
-- **Affected areas:** `src/modules/adjustments/closing/components/AddAdjustClosing.tsx`.
 - **Contracts changed:** None.

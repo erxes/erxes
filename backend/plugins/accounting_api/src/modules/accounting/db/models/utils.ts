@@ -91,6 +91,17 @@ export const setPtrStatus = async (
   models: IModels,
   transactions: ITransactionDocument[],
 ) => {
+  const ptrIds = [
+    ...new Set(transactions.map((tr) => tr.ptrId).filter(Boolean)),
+  ];
+  if (!ptrIds.length) {
+    return PTR_STATUSES.DIFF;
+  }
+
+  transactions = await models.Transactions.find({
+    ptrId: { $in: ptrIds },
+  }).lean();
+
   const trsByPtrId = {};
   const relAccountsByTrId = {};
   const { accounts, accountsById } = await getAccountIdsOnTr(
@@ -120,9 +131,7 @@ export const setPtrStatus = async (
     relAccountsByTrId[tr._id] = getRelAccounts(tr, transactions, accountsById);
   }
 
-  const ptrIds = Object.keys(trsByPtrId);
-
-  for (const ptrId of ptrIds) {
+  for (const ptrId of Object.keys(trsByPtrId)) {
     const trs = trsByPtrId[ptrId];
     const status = await getPtrStatus(models, trs, accounts);
 
@@ -177,8 +186,9 @@ export const generateTrStatusActivityLog = (param: {
   const isCreate = oldStatus === undefined;
   const statusChanged = oldStatus !== undefined && oldStatus !== status;
   const mentionOwnerChanged = oldMentionOwnerId !== mentionOwnerId;
-  const normalizeIds = (ids: string[] = []) =>
-    [...new Set(ids.filter(Boolean))];
+  const normalizeIds = (ids: string[] = []) => [
+    ...new Set(ids.filter(Boolean)),
+  ];
   const currentMentionUserIds = normalizeIds(mentionUserIds);
   const previousMentionUserIds = normalizeIds(oldMentionUserIds);
   const mentionUsersChanged =
@@ -202,7 +212,9 @@ export const generateTrStatusActivityLog = (param: {
     description = `created transaction with ${status || 'unknown'} status`;
   } else if (statusChanged) {
     actionType = 'status_changed';
-    description = `changed transaction status from ${oldStatus || 'unknown'} to ${status || 'unknown'}`;
+    description = `changed transaction status from ${
+      oldStatus || 'unknown'
+    } to ${status || 'unknown'}`;
   }
 
   return {
