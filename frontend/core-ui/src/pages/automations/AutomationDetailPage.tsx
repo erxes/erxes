@@ -1,4 +1,5 @@
 import { AutomationBuilder } from '@/automations/components/builder/AutomationBuilder';
+import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { AUTOMATION_DETAIL } from '@/automations/graphql/automationQueries';
 import { IAutomation } from '@/automations/types';
@@ -25,7 +26,7 @@ export const AutomationDetailPage = () => {
     },
   );
 
-  const { data, loading } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     automationDetail: IAutomation;
   }>(AUTOMATION_DETAIL, {
     variables: { id },
@@ -37,6 +38,18 @@ export const AutomationDetailPage = () => {
 
   if (lockLoading || loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <AutomationErrorEmptyState
+          title="Couldn't load this automation"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      </PageContainer>
+    );
   }
 
   if (lockState?.locked && !lockState.hasAccess) {

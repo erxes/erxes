@@ -66,6 +66,9 @@ export interface IHistoriesParams {
   endDate?: Date;
   // Set to list a workflow child executions; omitted = root executions only
   parentExecutionId?: string;
+  failedActionIds?: string[];
+  errorCodes?: string[];
+  waitingActionIds?: string[];
 }
 
 export const automationQueries = {
@@ -112,6 +115,9 @@ export const automationQueries = {
     { models, user }: IContext,
   ) {
     const automation = await models.Automations.getAutomation(_id);
+    if (!automation) {
+      throw new Error('Automation not found');
+    }
 
     await models.ApprovalLocks.assertAccess({
       user,
@@ -141,7 +147,6 @@ export const automationQueries = {
     { models }: IContext,
   ) {
     const filter: any = generateAutomationHistoriesFilter(params);
-
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IAutomationExecutionDocument>({
         model: models.AutomationExecutions,
@@ -185,11 +190,7 @@ export const automationQueries = {
    * Execution stats of one automation: run status breakdown, daily buckets and
    * per action node counts/durations.
    */
-  async automationStats(
-    _root,
-    params: IStatsParams,
-    { models }: IContext,
-  ) {
+  async automationStats(_root, params: IStatsParams, { models }: IContext) {
     return models.AutomationExecutions.getStats(
       generateAutomationStatsFilter(params),
     );

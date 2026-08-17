@@ -32,7 +32,8 @@ const emailTemplateFields = `
 
 const mutations = `
   automationsAdd(${commonFields}): Automation
-  automationsEdit(_id: String, ${commonFields}): Automation
+  automationsEdit(_id: String, acknowledgeDuplicate: Boolean, ${commonFields}): Automation
+  automationsDuplicate(_id: String!, name: String): Automation
   automationsRemove(automationIds: [String]): [String]
   archiveAutomations(automationIds: [String],isRestore:Boolean): [String]
 

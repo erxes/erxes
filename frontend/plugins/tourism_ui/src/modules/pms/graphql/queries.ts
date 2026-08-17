@@ -91,9 +91,22 @@ const ProductCategories = gql`
   }
 `;
 
+const PmsPricingPlans = gql`
+  query PmsPricingPlans($status: String) {
+    pricingPlans(status: $status) {
+      _id
+      name
+      status
+      type
+      value
+    }
+  }
+`;
+
 export const pmsQueries = {
   PmsBranchList,
   PmsBranchDetail,
   Payments,
   ProductCategories,
+  PmsPricingPlans,
 };

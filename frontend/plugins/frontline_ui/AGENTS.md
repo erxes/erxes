@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-15`
+- **Last synchronized:** `2026-08-16`
 
 ## Scope
 
@@ -82,6 +82,12 @@
   channel is quiet.
 - Each team channel row shows an avatar stack of its members, rendered from one
   batched `GetChannelMembers` query for the whole group.
+- The conversation filter popover carries an `Automation status` sub-view over
+  the `automationStatus` query param: `responded` (automation touched the
+  conversation at all), `standby` (handoff requested), `handoff` (an operator
+  took over). It is single-select, each row shows its count from
+  `conversationCounts`, and `responded` is a superset of the other two, so the
+  three counts overlap by design.
 - Selecting a nested integration type filters the conversation list by both
   `channelId` and `integrationType`; selecting a channel row filters by
   `channelId` and clears `integrationType`.
@@ -132,6 +138,7 @@
 | Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                   |
 | Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                                     | The "N unread" figure in a group header's actions slot                                                                                           |
 | Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                           |
+| Automation filter  | `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx`, `src/modules/inbox/constants/automationStatusFilters.ts`             | `automationStatus` filter item, sub-view, and bar item                                                                                          |
 | Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | `conversationCounts` reads per integration type inside one channel                                                                               |
 | Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                                     |
 | Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                           |
@@ -449,6 +456,35 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-16` — Conversations filter by automation status
+
+- **Summary:** The inbox filter popover gained an `Automation status` sub-view
+  writing the `automationStatus` query param — `responded`, `standby`, or
+  `handoff` — which `Conversations.tsx` passes straight to the `conversations`
+  query. Each row shows its count from `conversationCounts`, and the selection
+  renders as a filter bar item.
+- **Affected areas:**
+  `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx` (new),
+  `src/modules/inbox/constants/automationStatusFilters.ts` (new),
+  `src/modules/inbox/conversations/components/{ConversationsFilter,Conversations}.tsx`,
+  `src/modules/inbox/conversations/graphql/queries/getConversations.ts`,
+  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`.
+- **Contracts changed:** `None` on the UI side; `GET_CONVERSATIONS` sends the
+  new `automationStatus` argument added by `frontline_api`, and the four new
+  `frontline` i18n keys live in the gateway-owned locale files.
+
+### `2026-08-15` — Facebook history result shows the sent sequence
+
+- **Summary:** The Facebook automation history result renders every message the
+  run actually sent, in order, with its type, resolved content, buttons/quick
+  replies, send time and message id, instead of a single "sent successfully"
+  badge; comment replies show the reply text and attachments.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
+  `src/widgets/automations/modules/facebook/components/history/`.
+- **Contracts changed:** None — reads the existing `historyActionResult` props;
+  layout now uses the shared `ActionResult` primitives from `ui-modules`.
+
 ### `2026-08-15` — Call report filters by integration, queue becomes optional
 
 - **Summary:** The page force-selected the first queue and hid every tab until
@@ -573,28 +609,3 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
 - **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
   take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
   returns `error`.
-
-### `2026-08-10` — Current Mongolian carrier prefixes
-
-- **Summary:** `detectCarrier` now uses the current allocation — Skytel `90`,
-  `91`, `92`, `96` and `696XXXXX`; Mobicom `85`, `94`, `95`, `99`; Unitel `80`,
-  `86`, `88`, `89`; G-Mobile `83`, `93`, `97`, `98`; Ondo `60`, `66` — with the
-  unallocated ranges falling through to `Unknown`. The country-code strip is now
-  length-aware so a legitimate 8-digit `976XXXXX` G-Mobile number keeps its
-  prefix.
-- **Affected areas:** `src/modules/report/call/utils.ts`.
-- **Contracts changed:** `None`
-
-### `2026-08-10` — Ticket property fields in the messenger config builder
-
-- **Summary:** The pipeline configuration sheet gained a "Select ticket property
-  fields" section: ticket custom properties are listed per `frontline:ticket`
-  field group, toggling one adds it to the form, and selected properties get
-  drag-ordered cards with label, placeholder, and required controls, saved as
-  `propertyFields` on the ticket config.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`
-  (new), `.../components/ConfigsForm.tsx`, `.../schema.ts`, `.../constant.ts`,
-  `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
-- **Contracts changed:** `None` on the UI side; the four ticket-config documents
-  now select the new optional `propertyFields` field from `frontline_api`.

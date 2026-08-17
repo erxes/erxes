@@ -68,6 +68,7 @@ export interface IAutomation {
   triggers: IAutomationTrigger[];
   actions: IAutomationAction[];
   workflows?: IAutomationWorkflow[];
+  duplicatedFrom?: string;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;
@@ -144,6 +145,7 @@ export const automationSchema = new Schema({
   triggers: { type: [triggerSchema] },
   actions: { type: [actionSchema] },
   workflows: { type: [workflowSchema] },
+  duplicatedFrom: { type: String, optional: true },
   createdAt: {
     type: Date,
     default: new Date(),

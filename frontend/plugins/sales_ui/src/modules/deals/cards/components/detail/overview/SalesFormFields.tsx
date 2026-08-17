@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { AttachmentUploader } from './attachments/AttachmentUploader';
 import { Attachments } from './attachments/Attachments';
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
+import { ChecklistOverview } from './checklist/ChecklistOverview';
 import {
   areIdListsEqual,
   rejectOnMutationError,
@@ -242,6 +243,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         )}
         <DealsActions deals={[deal]} variant="inline" />
+        <ChecklistOverview />
       </div>
       <div className="flex">
         <AttachmentUploader />

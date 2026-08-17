@@ -30,6 +30,9 @@ export interface IAutomationExecution {
   status: string;
   description: string;
   actions?: IAutomationExecAction[];
+  failedActionId?: string;
+  failedActionType?: string;
+  errorCode?: string;
   startWaitingDate?: Date;
   waitingActionId?: string;
   objToCheck?: any;
@@ -45,7 +48,8 @@ export interface IAutomationExecution {
 }
 
 export interface IAutomationExecutionDocument
-  extends IAutomationExecution, Document {
+  extends IAutomationExecution,
+    Document {
   _id: string;
 }
 
@@ -92,6 +96,9 @@ export const automationExecutionSchema = new Schema({
   },
   description: { type: String, required: true },
   actions: { type: [execActionSchema] },
+  failedActionId: { type: String },
+  failedActionType: { type: String },
+  errorCode: { type: String },
   startWaitingDate: { type: Date },
   waitingActionId: { type: String },
   responseActionId: { type: String },
@@ -118,3 +125,12 @@ automationExecutionSchema.index({
   targetId: 1,
   createdAt: -1,
 });
+
+automationExecutionSchema.index(
+  { automationId: 1, failedActionId: 1, createdAt: -1 },
+  { sparse: true },
+);
+automationExecutionSchema.index(
+  { automationId: 1, errorCode: 1, createdAt: -1 },
+  { sparse: true },
+);

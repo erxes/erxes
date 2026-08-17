@@ -10,6 +10,16 @@ export const AUTOMATION_REMOVE = gql`
   }
 `;
 
+export const AUTOMATION_DUPLICATE = gql`
+  mutation AutomationsDuplicate($id: String!, $name: String) {
+    automationsDuplicate(_id: $id, name: $name) {
+      _id
+      name
+      status
+    }
+  }
+`;
+
 export const AUTOMATION_EDIT = gql`
   mutation AutomationsEdit(
     $id: String
@@ -20,6 +30,7 @@ export const AUTOMATION_EDIT = gql`
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
+    $acknowledgeDuplicate: Boolean
   ) {
     automationsEdit(
       _id: $id
@@ -30,6 +41,7 @@ export const AUTOMATION_EDIT = gql`
       triggers: $triggers
       actions: $actions
       workflows: $workflows
+      acknowledgeDuplicate: $acknowledgeDuplicate
     ) {
       _id
       name
@@ -38,6 +50,8 @@ export const AUTOMATION_EDIT = gql`
       flowDirection
       updatedAt
       updatedBy
+      duplicatedFrom
+      duplicatedFromName
       triggers {
         ${AUTOMATION_TRIGGER_FIELDS}
       }

@@ -78,6 +78,7 @@ export const Conversations = () => {
     integrationType,
     unassigned,
     awaitingResponse,
+    automationStatus,
     participated,
     status,
     created,
@@ -89,6 +90,7 @@ export const Conversations = () => {
     integrationType: string;
     unassigned: boolean;
     awaitingResponse: boolean;
+    automationStatus: string;
     participated: boolean;
     status: string;
     conversationId: string;
@@ -101,6 +103,7 @@ export const Conversations = () => {
     'integrationType',
     'unassigned',
     'awaitingResponse',
+    'automationStatus',
     'participated',
     'status',
     'conversationId',
@@ -120,6 +123,7 @@ export const Conversations = () => {
         integrationType: integrationType,
         unassigned: getBooleanFilterVariable(unassigned),
         awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+        automationStatus,
         participating: getBooleanFilterVariable(participated),
         status: status || '',
         startDate: parsedDate?.from,

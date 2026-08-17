@@ -1,25 +1,24 @@
 import { AUTOMATION_STATS } from '@/automations/components/builder/stats/graphql/automationStatsQueries';
+import { useAutomationStatsWindow } from '@/automations/components/builder/stats/hooks/useAutomationStatsWindow';
 import { TAutomationStats } from '@/automations/types';
 import { useQuery } from '@apollo/client';
-import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useParams } from 'react-router';
 
 /**
- * Stats follow the same date filter as the history list, so the numbers on the
- * page always describe the rows below them.
+ * Every number on the stats page describes one window, so the totals and the
+ * chart can never end up talking about different periods.
  */
 export const useAutomationStats = (skip?: boolean) => {
   const { id } = useParams();
-  const [queries] = useMultiQueryState<{ createdAt: string }>(['createdAt']);
-  const range = parseDateRangeFromString(queries.createdAt);
+  const { beginDate, endDate, ...window } = useAutomationStatsWindow();
 
   const { data, loading, error, refetch } = useQuery<{
     automationStats: TAutomationStats;
   }>(AUTOMATION_STATS, {
     variables: {
       automationId: id,
-      beginDate: range?.from,
-      endDate: range?.to,
+      beginDate,
+      endDate,
     },
     skip: skip || !id,
   });
@@ -29,5 +28,6 @@ export const useAutomationStats = (skip?: boolean) => {
     loading,
     error,
     refetch,
+    window: { beginDate, endDate, ...window },
   };
 };

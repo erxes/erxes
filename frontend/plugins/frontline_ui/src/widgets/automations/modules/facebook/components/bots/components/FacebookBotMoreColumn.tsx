@@ -32,7 +32,8 @@ export const FacebookBotMoreColumnCell = ({
               <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="repair" onSelect={handleRepair}>
-              {loadingRepair ? <Spinner size="sm" /> : <IconRefresh />} {t('repair')}
+              {loadingRepair ? <Spinner size="sm" /> : <IconRefresh />}{' '}
+              {t('repair')}
             </Command.Item>
             <Command.Item value="remove" onSelect={handleRemove}>
               {loadingRemove ? <Spinner size="sm" /> : <IconX />} {t('remove')}

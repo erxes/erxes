@@ -20,6 +20,9 @@ type TConversationFilterCountsResponse = {
     participating?: number;
     awaitingResponse?: number;
     resolved?: number;
+    responded?: number;
+    standby?: number;
+    handoff?: number;
   };
 };
 
