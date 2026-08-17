@@ -191,9 +191,11 @@ export const userQueries = {
       ...NORMAL_USER_SELECTOR,
     };
 
+    const limit = Math.min(100, Math.max(1, args.limit || 20));
+
     const { list, totalCount, pageInfo } = await cursorPaginate<IUserDocument>({
       model: models.Users,
-      params: args,
+      params: { ...args, limit },
       query: selector,
     });
 
