@@ -107,6 +107,7 @@ export const useConversations = (
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
   const fetchingMoreRef = useRef(false);
+  const lastAutoFetchCursorRef = useRef<string | null>(null);
   const [fetchingMore, setFetchingMore] = useState(false);
   const [conversationSelected, setConversationSelected] = useState(false);
   const [storedScrollPosition, setStoredScrollPosition] = useAtom(
@@ -214,17 +215,31 @@ export const useConversations = (
   }, [playNotificationSound, setNewMessagesCount, subscribeToMore, userId]);
 
   useEffect(() => {
+    if (conversationSelected) {
+      setConversationSelected(false);
+      return;
+    }
+
+    const container = containerRef.current;
+
     if (
-      containerRef.current &&
-      !isUndefinedOrNull(storedScrollPosition) &&
-      !conversationSelected
+      container &&
+      !loading &&
+      sortedList.length > 0 &&
+      !isUndefinedOrNull(storedScrollPosition)
     ) {
-      containerRef.current.scrollTo({
+      container.scrollTo({
         top: storedScrollPosition,
       });
       setStoredScrollPosition(null);
     }
-  }, [conversationSelected, setStoredScrollPosition, storedScrollPosition]);
+  }, [
+    conversationSelected,
+    loading,
+    setStoredScrollPosition,
+    sortedList.length,
+    storedScrollPosition,
+  ]);
 
   useEffect(() => {
     if (refetchNewMessages) {
@@ -233,6 +248,19 @@ export const useConversations = (
       });
     }
   }, [refetchNewMessages]);
+
+  const isNearBottom = useCallback(() => {
+    const container = containerRef.current;
+
+    if (!container) {
+      return false;
+    }
+
+    return (
+      container.scrollHeight - container.scrollTop - container.clientHeight <=
+      CONVERSATION_FETCH_MORE_THRESHOLD
+    );
+  }, []);
 
   const fetchNextPage = useCallback(async () => {
     if (fetchingMoreRef.current || loading || !pageInfo?.hasNextPage) {
@@ -258,20 +286,34 @@ export const useConversations = (
     }
   }, [handleFetchMore, loading, pageInfo?.hasNextPage, t, toast]);
 
-  const handleScroll = useCallback(() => {
-    const container = containerRef.current;
+  useEffect(() => {
+    const endCursor = pageInfo?.endCursor;
 
-    if (!container) {
+    if (
+      loading ||
+      !pageInfo?.hasNextPage ||
+      !endCursor ||
+      lastAutoFetchCursorRef.current === endCursor ||
+      !isNearBottom()
+    ) {
       return;
     }
 
-    const distanceFromBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight;
+    lastAutoFetchCursorRef.current = endCursor;
+    void fetchNextPage();
+  }, [
+    fetchNextPage,
+    isNearBottom,
+    loading,
+    pageInfo?.endCursor,
+    pageInfo?.hasNextPage,
+  ]);
 
-    if (distanceFromBottom <= CONVERSATION_FETCH_MORE_THRESHOLD) {
+  const handleScroll = useCallback(() => {
+    if (isNearBottom()) {
       void fetchNextPage();
     }
-  }, [fetchNextPage]);
+  }, [fetchNextPage, isNearBottom]);
 
   const handleConversationSelect = useCallback(() => {
     setStoredScrollPosition(containerRef.current?.scrollTop || 0);
