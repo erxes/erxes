@@ -14,11 +14,11 @@ export interface IRoomTypeModel extends Model<IOTARoomTypeDocument> {
 
 export const loadRoomTypeClass = (models: IModels) => {
   class RoomTypes {
-    public static createRoomType = async (data: IOTARoomType) => {
+    public static readonly createRoomType = async (data: IOTARoomType) => {
       return models.RoomTypes.create(data);
     };
 
-    public static updateRoomType = async (
+    public static readonly updateRoomType = async (
       _id: string,
       data: Partial<IOTARoomType>,
     ) => {
@@ -29,7 +29,7 @@ export const loadRoomTypeClass = (models: IModels) => {
       );
     };
 
-    public static deleteRoomType = async (_id: string) => {
+    public static readonly deleteRoomType = async (_id: string) => {
       return models.RoomTypes.findOneAndDelete({ _id });
     };
   }
