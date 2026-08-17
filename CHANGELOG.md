@@ -1,3 +1,12 @@
+
+
+## [3.0.83](https://github.com/erxes/erxes/compare/3.0.82...3.0.83) (2026-08-17)
+
+
+### Bug Fixes
+
+* (accounting) related accounts ([#9043](https://github.com/erxes/erxes/issues/9043)) ([577c4b8](https://github.com/erxes/erxes/commit/577c4b828cb6c0892adfb5f1a8f241f654ab2b12))
+
 # Changelog
 
 ## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
