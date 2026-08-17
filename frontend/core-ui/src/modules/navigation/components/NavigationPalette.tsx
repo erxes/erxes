@@ -33,11 +33,7 @@ export const NavigationPalette = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Command.Input
-        focusOnMount
-        placeholder={t('open-plugin')}
-        variant="primary"
-      />
+      <Command.Input focusOnMount placeholder={t('go-to')} variant="primary" />
       <Command.List className="styled-scroll">
         <Command.Empty>{t('no-plugins-match')}</Command.Empty>
         <Command.Group>

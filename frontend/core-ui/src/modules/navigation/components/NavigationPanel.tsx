@@ -1,12 +1,8 @@
-import { NavigationPluginPanelContent } from '@/navigation/components/NavigationPlugins';
-import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
-import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { navigationPanelOpenState } from '@/navigation/states/navigationPanelState';
-import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
 import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
-import { Button, cn, ScrollArea, Separator, Sidebar } from 'erxes-ui';
+import { Button, cn, Separator, Sidebar } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -27,8 +23,6 @@ const getNavigationPanelClassName = (panelOpen: boolean, isMobile: boolean) => {
 };
 
 export const NavigationPanel = () => {
-  const activities = useNavigationActivities();
-  const navigationGroups = usePluginsNavigationGroups();
   const [panelOpen, setPanelOpen] = useAtom(navigationPanelOpenState);
   const { pathname } = useLocation();
   const { isMobile } = Sidebar.useSidebar();
@@ -37,39 +31,11 @@ export const NavigationPanel = () => {
   });
   const { t: organizationT } = useTranslation('organization');
   const isSettings = pathname.includes(`/${AppPath.Settings}`);
-  const activity = findNavigationActivityByPath(activities, pathname);
-  const navigationGroup =
-    activity?.kind === 'plugin' ? navigationGroups[activity.id] : undefined;
-  const hasActivityPanel = Boolean(
-    navigationGroup?.contents.length || navigationGroup?.subGroups.length,
-  );
-  const shouldShowPanel = isSettings || hasActivityPanel;
   const expanded = isMobile || panelOpen;
-  let title = activity?.label;
+  const title = organizationT('settings');
+  const toggleLabel = navigationT('toggle-panel');
 
-  if (isSettings) {
-    title = organizationT('settings');
-  }
-
-  const toggleLabel = navigationT(
-    expanded ? 'collapse-plugin-navigation' : 'expand-plugin-navigation',
-  );
-  let panelContent = (
-    <ScrollArea
-      className="min-h-0 flex-1"
-      viewportClassName="[&>div]:block! [&>div]:min-w-0"
-    >
-      {activity?.kind === 'plugin' && (
-        <NavigationPluginPanelContent activityId={activity.id} />
-      )}
-    </ScrollArea>
-  );
-
-  if (isSettings) {
-    panelContent = <SettingsSidebar hideExit />;
-  }
-
-  if (!shouldShowPanel) {
+  if (!isSettings) {
     return null;
   }
 
@@ -121,7 +87,7 @@ export const NavigationPanel = () => {
         )}
       >
         <div className={cn('flex h-full flex-col', !isMobile && 'w-64')}>
-          {panelContent}
+          <SettingsSidebar hideExit />
         </div>
       </div>
     </aside>

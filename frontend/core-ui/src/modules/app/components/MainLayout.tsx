@@ -58,7 +58,7 @@ export const DefaultLayout = () => {
       open={sidebarOpen}
       onOpenChange={setSidebarOpen}
       sidebarKeyboardShortcut={false}
-      sidebarWidth="13rem"
+      sidebarWidth="16rem"
       sidebarWidthIcon="3rem"
     >
       <VisitedPageTabs />
