@@ -93,10 +93,12 @@ export const NavigationActivityHover = ({
       </HoverCard.Trigger>
       <NavigationActivityPeek
         activity={activity}
+        keepOpen={keepOpen}
         pinned={pinned}
         onPointerEnter={keepOpen}
         onPointerLeave={closeImmediately}
         onPinnedChange={onPinnedChange}
+        scheduleClose={scheduleClose}
       />
     </HoverCard>
   );
