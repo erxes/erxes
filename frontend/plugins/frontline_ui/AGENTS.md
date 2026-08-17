@@ -82,6 +82,12 @@
   channel is quiet.
 - Each team channel row shows an avatar stack of its members, rendered from one
   batched `GetChannelMembers` query for the whole group.
+- The conversation filter popover carries an `Automation status` sub-view over
+  the `automationStatus` query param: `responded` (automation touched the
+  conversation at all), `standby` (handoff requested), `handoff` (an operator
+  took over). It is single-select, each row shows its count from
+  `conversationCounts`, and `responded` is a superset of the other two, so the
+  three counts overlap by design.
 - Selecting a nested integration type filters the conversation list by both
   `channelId` and `integrationType`; selecting a channel row filters by
   `channelId` and clears `integrationType`.
@@ -132,6 +138,7 @@
 | Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                   |
 | Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                                     | The "N unread" figure in a group header's actions slot                                                                                           |
 | Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                           |
+| Automation filter  | `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx`, `src/modules/inbox/constants/automationStatusFilters.ts`             | `automationStatus` filter item, sub-view, and bar item                                                                                          |
 | Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | `conversationCounts` reads per integration type inside one channel                                                                               |
 | Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                                     |
 | Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                           |

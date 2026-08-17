@@ -1,5 +1,10 @@
 import { TWorkflowTemplate } from '@/automations/hooks/useWorkflowTemplateList';
-import { IconArrowBarToRight, IconEdit, IconShare, IconTrash } from '@tabler/icons-react';
+import {
+  IconArrowBarToRight,
+  IconEdit,
+  IconShare,
+  IconTrash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Button,
@@ -105,9 +110,7 @@ export const getWorkflowTemplateColumns = ({
         >
           <RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Anchor
-              onClick={() =>
-                navigate(`/automations/templates/${template._id}`)
-              }
+              onClick={() => navigate(`/automations/templates/${template._id}`)}
             >
               <span className="truncate">{currentName}</span>
             </RecordTableInlineCell.Anchor>

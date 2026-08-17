@@ -1,3 +1,4 @@
+import { getBranchesResultPreview } from '@/automations/components/builder/nodes/actions/branches/utils/branchesResultPreview';
 import { lazy } from 'react';
 import {
   AutomationComponentMap,
@@ -13,6 +14,14 @@ const BranchComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.BranchesConfigForm,
       })),
     ),
+    actionResult: lazy(() =>
+      import(
+        '@/automations/components/builder/nodes/actions/branches/components/BranchesActionResult'
+      ).then((module) => ({
+        default: module.BranchesActionResult,
+      })),
+    ),
+    actionResultPreview: getBranchesResultPreview,
   },
 };
 

@@ -1,4 +1,5 @@
 import { AttachmentProvider } from './attachments/AttachmentContext';
+import { Checklists } from './checklist/Checklists';
 import { Separator } from 'erxes-ui';
 import { IAttachment } from '@/deals/types/attachments';
 import { IDeal } from '@/deals/types/deals';
@@ -14,6 +15,7 @@ export const Overview = ({ deal }: { deal: IDeal }) => {
       <div className="w-full xl:max-w-6xl mx-auto p-6 flex flex-col gap-3">
         <SalesFormFields deal={deal} />
         <Separator className="mt-1" />
+        <Checklists dealId={deal._id} stageId={deal.stageId} />
         <SalesNoteAndComment dealId={deal._id} />
       </div>
     </AttachmentProvider>

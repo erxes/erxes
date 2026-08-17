@@ -1,74 +1,60 @@
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
-import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
-import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
-import { automationBuilderActiveTabState } from '@/automations/states/automationState';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { Button, cn, Toggle } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { SubmitErrorHandler } from 'react-hook-form';
-import { AutomationBuilderStatusSwitch } from './AutomationBuilderStatusSwitch';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { automationBuilderActiveTabState } from '@/automations/states/automationState';
 import { AutomationNodeType } from '@/automations/types';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, Toggle, Tooltip, cn } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 
-type AutomationBuilderHeaderActionsProps = {
-  loading?: boolean;
-  onSave: (values: TAutomationBuilderForm) => Promise<unknown>;
-  onError: SubmitErrorHandler<TAutomationBuilderForm>;
-};
-
-export const AutomationBuilderHeaderActions = ({
-  loading,
-  onSave,
-  onError,
-}: AutomationBuilderHeaderActionsProps) => {
+export const AutomationBuilderHeaderActions = () => {
   const { isEmpty } = useAutomationNodes();
   const { editingWorkflowId } = useAutomation();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
-  const { activeNodeTab, queryParams } = useAutomationNodeLibrarySidebar();
+  const { isOpenSideBar, activeNode, openNodeLibrary, closeNodeLibrary } =
+    useAutomationBuilderSidebarHooks();
 
-  const { handleNodeLibraryToggle } = useAutomationBuilderSidebarHooks();
-  if (activeTab !== 'builder') {
+  if (activeTab !== 'builder' || editingWorkflowId) {
     return null;
   }
 
-  const isEmptyFlow =
-    isEmpty(AutomationNodeType.Trigger) && isEmpty(AutomationNodeType.Action);
+  const isLibraryOpen = isOpenSideBar && !activeNode;
+  const needsTrigger = isEmpty(AutomationNodeType.Trigger);
+  const defaultNodeTab = needsTrigger
+    ? AutomationNodeType.Trigger
+    : AutomationNodeType.Action;
 
   return (
-    <div className="flex shrink-0 items-center gap-4 lg:gap-9">
-      <div className="flex shrink-0 flex-row items-center justify-between gap-4">
-        <AutomationBuilderStatusSwitch
-          disabled={loading}
-          onSave={onSave}
-          onError={onError}
-        />
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        {AUTOMATION_LIBRARY_TABS.map(({ value, label, icon: Icon }) => (
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
           <Toggle
-            key={value}
             variant="outline"
             className={cn(
               'data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground',
             )}
-            pressed={
-              Boolean(queryParams?.activeNodeTab) && value === activeNodeTab
-            }
+            pressed={isLibraryOpen}
             asChild
-            disabled={
-              !!editingWorkflowId ||
-              (value === AutomationNodeType.Action && isEmptyFlow)
+            onPressedChange={() =>
+              isLibraryOpen
+                ? closeNodeLibrary()
+                : openNodeLibrary(defaultNodeTab)
             }
-            onPressedChange={() => handleNodeLibraryToggle(value)}
           >
             <Button variant="outline" className="whitespace-nowrap">
-              <Icon className="shrink-0" />
-              <span>{label}</span>
+              <IconPlus className="shrink-0" />
+              <span>{needsTrigger ? 'Add trigger' : 'Add action'}</span>
             </Button>
           </Toggle>
-        ))}
-      </div>
-    </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {isLibraryOpen
+            ? 'Close the node library'
+            : needsTrigger
+            ? 'Pick what starts this automation'
+            : 'Pick what happens next'}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };

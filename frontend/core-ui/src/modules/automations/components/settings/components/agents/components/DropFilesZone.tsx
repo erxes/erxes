@@ -94,7 +94,9 @@ export function UploadDropzone({
         if (file.size > maxSingleFileBytes) {
           toast({
             title: 'Context file is too large',
-            description: `"${file.name}" exceeds ${formatBytes(maxSingleFileBytes)}.`,
+            description: `"${file.name}" exceeds ${formatBytes(
+              maxSingleFileBytes,
+            )}.`,
             variant: 'destructive',
           });
           return null;
@@ -117,7 +119,9 @@ export function UploadDropzone({
         if (nextTotalBytes > maxTotalContextBytes) {
           toast({
             title: 'Combined context is too large',
-            description: `Keep total context under ${formatBytes(maxTotalContextBytes)}.`,
+            description: `Keep total context under ${formatBytes(
+              maxTotalContextBytes,
+            )}.`,
             variant: 'destructive',
           });
           return null;

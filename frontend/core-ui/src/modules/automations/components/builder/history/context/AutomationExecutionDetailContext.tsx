@@ -1,12 +1,13 @@
 import { useAutomationHistoryDetail } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import { GET_AUTOMATION_EXECUTION_DETAIL } from '@/automations/components/builder/history/graphql/automationExecutionQueries';
-import { useQuery } from '@apollo/client';
+import { ApolloError, useQuery } from '@apollo/client';
 import { createContext, useContext } from 'react';
 import { IAutomationHistory } from 'ui-modules';
 
 type TAutomationExecutionDetailContext = {
   executionDetail?: IAutomationHistory;
   loading: boolean;
+  error?: ApolloError;
   refetch: () => void;
 };
 
@@ -23,7 +24,7 @@ export const AutomationExecutionDetailProvider = ({
   children: React.ReactNode;
 }) => {
   const { executionId } = useAutomationHistoryDetail();
-  const { data, loading, refetch } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     getAutomationExecutionDetail: IAutomationHistory;
   }>(GET_AUTOMATION_EXECUTION_DETAIL, {
     variables: { executionId },
@@ -34,6 +35,7 @@ export const AutomationExecutionDetailProvider = ({
       value={{
         executionDetail: data?.getAutomationExecutionDetail,
         loading,
+        error,
         refetch,
       }}
     >

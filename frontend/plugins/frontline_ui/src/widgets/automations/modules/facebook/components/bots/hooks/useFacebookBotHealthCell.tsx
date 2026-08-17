@@ -22,7 +22,7 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
   const status = health?.status || 'unknown';
   const statusLabel = t(
     BOT_STATUS_LABELS[status as keyof typeof BOT_STATUS_LABELS] ||
-    BOT_STATUS_LABELS.unknown
+      BOT_STATUS_LABELS.unknown,
   );
   const statusVariant =
     BOT_STATUS_VARIANTS[status as keyof typeof BOT_STATUS_VARIANTS] ||

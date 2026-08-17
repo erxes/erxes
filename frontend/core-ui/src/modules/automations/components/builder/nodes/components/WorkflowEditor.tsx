@@ -138,9 +138,7 @@ export const WorkflowEditor = ({
     const actions = innerForm.getValues('actions') || [];
     // The stored entry may have been deleted while editing; fall back to the
     // first member so the workflow always has an entry point.
-    const entryActionId = actions.some(
-      ({ id }) => id === initial.entryActionId,
-    )
+    const entryActionId = actions.some(({ id }) => id === initial.entryActionId)
       ? initial.entryActionId
       : actions[0]?.id;
 

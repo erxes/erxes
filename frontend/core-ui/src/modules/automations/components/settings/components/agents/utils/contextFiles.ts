@@ -119,8 +119,8 @@ export const mapUploadedContextFiles = (
       uploadedAt instanceof Date
         ? uploadedAt.toISOString()
         : typeof uploadedAt === 'string'
-          ? uploadedAt
-          : new Date().toISOString(),
+        ? uploadedAt
+        : new Date().toISOString(),
     purpose: 'knowledge',
     status: 'uploaded',
     versions: [],

@@ -29,11 +29,18 @@ import {
 } from '@/integrations/components/IntegrationTypeFilter';
 import { useTranslation } from 'react-i18next';
 import { useConversationFilterCounts } from '@/inbox/conversations/hooks/useConversationCounts';
+import {
+  AutomationStatusFilterBar,
+  AutomationStatusFilterItem,
+  AutomationStatusFilterView,
+} from '@/inbox/conversations/components/AutomationStatusFilter';
+import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
   unassigned: boolean;
   awaitingResponse: boolean;
+  automationStatus: TAutomationStatusFilter;
   participated: boolean;
   channelId: string;
   integrationId: string;
@@ -55,6 +62,9 @@ type ConversationFilterCounts = {
   unassigned?: number;
   participating?: number;
   awaitingResponse?: number;
+  responded?: number;
+  standby?: number;
+  handoff?: number;
 };
 
 const FilterCount = ({
@@ -171,6 +181,7 @@ const ConversationFilterCommand = ({
           <IconLoader />
           {t('awaiting-response')}
         </ConversationFilterCommandItem>
+        <AutomationStatusFilterItem />
         <SelectChannel.FilterItem />
         <IntegrationTypeFilterItem />
         <Command.Separator className="my-1" />
@@ -188,6 +199,7 @@ export const FilterConversationsPopover = () => {
     'status',
     'unassigned',
     'awaitingResponse',
+    'automationStatus',
     'participated',
     'channelId',
     'integrationId',
@@ -223,6 +235,7 @@ export const FilterConversationsPopover = () => {
           onValueChange={() => setQueries({ unassigned: null })}
         />
         <SelectChannel.FilterView />
+        <AutomationStatusFilterView counts={counts} loading={loading} />
         <Filter.View filterKey="created">
           <Filter.DateView filterKey="created" />
         </Filter.View>
@@ -245,6 +258,7 @@ export const ConversationFilterBar = ({
     status: ConversationStatus;
     unassigned: boolean;
     awaitingResponse: boolean;
+    automationStatus: TAutomationStatusFilter;
     participated: boolean;
     created: Date;
     channelId: string;
@@ -253,6 +267,7 @@ export const ConversationFilterBar = ({
     'status',
     'unassigned',
     'awaitingResponse',
+    'automationStatus',
     'participated',
     'created',
     'channelId',
@@ -305,6 +320,7 @@ export const ConversationFilterBar = ({
           {t('participated')}
         </Filter.BarName>
       </Filter.BarItem>
+      <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
       {children}

@@ -28,10 +28,14 @@ export const AiAgentProviderSelect = () => {
                 const nextProvider = value as TAiAgentProvider;
 
                 field.onChange(nextProvider);
-                setValue('connection', buildDefaultAiAgentConnection(nextProvider), {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
+                setValue(
+                  'connection',
+                  buildDefaultAiAgentConnection(nextProvider),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  },
+                );
               }}
             >
               <Select.Trigger>
@@ -55,4 +59,3 @@ export const AiAgentProviderSelect = () => {
     />
   );
 };
-
