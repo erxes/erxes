@@ -1,4 +1,12 @@
-import { Checkbox, toast, useConfirm } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  DropdownMenu,
+  Textarea,
+  cn,
+  toast,
+  useConfirm,
+} from 'erxes-ui';
 import { IconDotsVertical, IconRefresh, IconTrash } from '@tabler/icons-react';
 import {
   useChecklistItemsEdit,
@@ -6,27 +14,25 @@ import {
 } from '@/deals/cards/hooks/useChecklists';
 import { useEffect, useRef, useState } from 'react';
 
-import { GET_CHECKLIST_DETAIL } from '~/modules/deals/graphql/queries/ChecklistQueries';
 import { GET_STAGE_DETAIL } from '~/modules/deals/graphql/queries/StagesQueries';
 import { IChecklistItem } from '@/deals/types/checklists';
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
 
-
-const ChecklistItemContent = ({
+export const ChecklistItemContent = ({
   item,
-  index,
   setItems,
   stageId,
-  dealId,
-}: {
+  dragHandle,
+}: Readonly<{
   item: IChecklistItem;
-  index: number;
   setItems: React.Dispatch<React.SetStateAction<IChecklistItem[]>>;
   stageId?: string;
-  dealId?: string;
-}) => {
-  const [activeMenuIndex, setActiveMenuIndex] = useState<number | null>(null);
+  dragHandle?: React.ReactNode;
+}>) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [content, setContent] = useState(item.content);
+  const savingContentRef = useRef(false);
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');
   const { salesChecklistItemsEdit } = useChecklistItemsEdit();
@@ -42,77 +48,135 @@ const ChecklistItemContent = ({
 
   const { addDeals } = useDealsAdd();
 
-  const menuRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        activeMenuIndex === index &&
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node)
-      ) {
-        setActiveMenuIndex(null);
-      }
-    };
+    setContent(item.content);
+  }, [item.content]);
 
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [activeMenuIndex, index]);
-
-  const toggleChecked = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item._id === id ? { ...item, isChecked: !item.isChecked } : item,
-      ),
-    );
+  const removeItem = (id: string) => {
+    salesChecklistItemsRemove({
+      variables: { _id: id },
+      onCompleted: () => {
+        setItems((prev) => prev.filter((current) => current._id !== id));
+      },
+      onError: (error) => {
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
   };
 
   const handleRemove = (id: string) => {
     confirm({
       message: t('are-you-sure'),
-    }).then(() => {
-      salesChecklistItemsRemove({
-        variables: {
-          _id: id,
-        },
-        refetchQueries: [
-          {
-            query: GET_CHECKLIST_DETAIL,
-            variables: {
-              _id: dealId,
-            },
-          },
-        ],
-        onCompleted: () => {
-          setItems((prev) => prev.filter((item) => item._id !== id));
-          setActiveMenuIndex(null);
-        },
-      });
-    });
+    }).then(() => removeItem(id));
   };
 
-  const onChangeChecked = (id: string) => {
-    toggleChecked(id);
+  const onChangeChecked = () => {
+    const isChecked = !item.isChecked;
+
+    setItems((prev) =>
+      prev.map((current) =>
+        current._id === item._id ? { ...current, isChecked } : current,
+      ),
+    );
 
     salesChecklistItemsEdit({
       variables: {
-        _id: id,
-        isChecked: !item.isChecked,
+        _id: item._id,
+        isChecked,
+      },
+      onError: (error) => {
+        setItems((prev) =>
+          prev.map((current) =>
+            current._id === item._id
+              ? { ...current, isChecked: !isChecked }
+              : current,
+          ),
+        );
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   };
 
+  const saveContent = () => {
+    if (savingContentRef.current) return;
+
+    const trimmed = content.trim();
+
+    if (!trimmed || trimmed === item.content) {
+      setContent(item.content);
+      setIsEditing(false);
+      return;
+    }
+
+    savingContentRef.current = true;
+    setIsEditing(false);
+    setItems((prev) =>
+      prev.map((current) =>
+        current._id === item._id ? { ...current, content: trimmed } : current,
+      ),
+    );
+
+    salesChecklistItemsEdit({
+      variables: {
+        _id: item._id,
+        content: trimmed,
+      },
+      onCompleted: () => {
+        savingContentRef.current = false;
+      },
+      onError: (error) => {
+        savingContentRef.current = false;
+        setContent(item.content);
+        setItems((prev) =>
+          prev.map((current) =>
+            current._id === item._id
+              ? { ...current, content: item.content }
+              : current,
+          ),
+        );
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
+
+  const cancelEditing = () => {
+    setContent(item.content);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.nativeEvent.isComposing) return;
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveContent();
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditing();
+    }
+  };
+
   const onConvert = () => {
-    setActiveMenuIndex(null);
     addDeals({
       variables: {
         name: item.content,
-        stageId: stageId,
+        stageId,
       },
-      refetchQueries: dealId
+      refetchQueries: stageId
         ? [
             {
               query: GET_STAGE_DETAIL,
@@ -122,14 +186,12 @@ const ChecklistItemContent = ({
             },
           ]
         : [],
-
       onCompleted: () => {
         toast({
           title: t('success'),
           description: t('checklist-item-converted'),
-          variant: 'default',
         });
-        handleRemove(item._id);
+        removeItem(item._id);
       },
       onError: (error) => {
         toast({
@@ -141,73 +203,75 @@ const ChecklistItemContent = ({
     });
   };
 
-  return (
-    <div
-      key={item._id}
-      className="border-b border-gray-100 pointer-events-auto flex items-center justify-between p-1 gap-2 group relative"
-    >
-      <div className="flex items-center gap-2 text-xs">
-        <div
-          onPointerDown={(e) => e.stopPropagation()}
-          onPointerUp={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Checkbox
-            checked={item.isChecked || false}
-            onCheckedChange={() => onChangeChecked(item._id)}
-          />
+  if (isEditing) {
+    return (
+      <div className="flex flex-col gap-2 p-1">
+        <Textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          className="min-h-0 resize-none px-2 py-1.5 text-xs"
+          autoFocus
+        />
+        <div className="flex gap-2">
+          <Button size="sm" onClick={saveContent}>
+            {t('save')}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={cancelEditing}>
+            {t('cancel')}
+          </Button>
         </div>
-        <span
-          className={`text-xs ${
-            item.isChecked ? 'line-through text-gray-400' : ''
-          } select-none`}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between p-1 gap-2 relative rounded hover:bg-accent-foreground/10 transition-colors">
+      <div className="flex items-center gap-2 text-xs">
+        {dragHandle}
+        <Checkbox
+          checked={item.isChecked || false}
+          onCheckedChange={onChangeChecked}
+        />
+        <button
+          type="button"
+          title={t('edit')}
+          className={cn(
+            'text-xs text-left select-none',
+            item.isChecked && 'line-through text-muted-foreground',
+          )}
+          onClick={() => setIsEditing(true)}
         >
           {item.content}
-        </span>
-      </div>
-
-      <div
-        className="relative"
-        ref={menuRef}
-        onClick={(e) => e.stopPropagation()}
-        onPointerUp={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={(e) => {
-            setActiveMenuIndex(activeMenuIndex === index ? null : index);
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-          onPointerUp={(e) => e.stopPropagation()}
-          className="opacity-0 group-hover:opacity-100 transition"
-          aria-label={t('more-actions')}
-        >
-          <IconDotsVertical size={18} />
         </button>
-
-        {activeMenuIndex === index && (
-          <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white border rounded shadow-md">
-            <button
-              onClick={onConvert}
-              className="flex items-center gap-2 px- py-2 hover:bg-gray-100 w-full text-sm"
-            >
-              <IconRefresh size={16} className="ml-3" />
-              {t('convert-to-deal')}
-            </button>
-            <button
-              onClick={() => {
-                handleRemove(item._id);
-              }}
-              className="flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 w-full text-sm"
-            >
-              <IconTrash size={16} />
-              {t('delete')}
-            </button>
-          </div>
-        )}
       </div>
+
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground"
+            aria-label={t('more-actions')}
+          >
+            <IconDotsVertical />
+          </Button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end" className="w-44 min-w-fit!">
+          <DropdownMenu.Item onClick={onConvert} disabled={!stageId}>
+            <IconRefresh />
+            {t('convert-to-deal')}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onClick={() => handleRemove(item._id)}
+            className="text-destructive focus:text-destructive"
+          >
+            <IconTrash className="text-destructive" />
+            {t('delete')}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu>
     </div>
   );
 };
-
-export default ChecklistItemContent;

@@ -54,6 +54,7 @@ export interface IChecklistDoc {
   
   export interface IChecklistItem extends IChecklistItemDoc {
     _id: string;
+    order?: number;
   }
   
   export type AddItemMutationResponse = (args: {
