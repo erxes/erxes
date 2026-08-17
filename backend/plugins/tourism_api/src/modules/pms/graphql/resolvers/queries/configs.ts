@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ARCHIVED_DEAL_STATUS } from '@/pms/constants';
 import { IContext } from '~/connectionResolvers';
 
 const escapeRegExp = (value: string) =>
@@ -167,6 +168,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
@@ -225,6 +227,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
@@ -281,6 +284,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           // 1. Broad filter: Find any deal that touches our range and has our rooms
           productsData: {
@@ -355,6 +359,7 @@ const configQueries: Record<string, Resolver> = {
       action: 'find',
       input: {
         query: {
+          status: { $ne: ARCHIVED_DEAL_STATUS },
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {

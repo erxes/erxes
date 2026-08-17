@@ -162,6 +162,18 @@ export const generateAutomationHistoriesFilter = (params: any) => {
     filter.targetId = { $in: targetIds };
   }
 
+  if (params.failedActionIds?.length) {
+    filter.failedActionId = { $in: params.failedActionIds };
+  }
+
+  if (params.errorCodes?.length) {
+    filter.errorCode = { $in: params.errorCodes };
+  }
+
+  if (params.waitingActionIds?.length) {
+    filter.waitingActionId = { $in: params.waitingActionIds };
+  }
+
   // Workflow child executions are opened from within their parent execution;
   // the main history list shows only root executions.
   if (params.parentExecutionId) {

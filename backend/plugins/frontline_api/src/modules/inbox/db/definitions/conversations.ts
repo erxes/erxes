@@ -116,6 +116,15 @@ conversationSchema.index(
   { partialFilterExpression: { userRelevance: { $exists: true } } },
 );
 
+conversationSchema.index(
+  { 'automatedReplyControl.status': 1, updatedAt: -1 },
+  {
+    partialFilterExpression: {
+      'automatedReplyControl.status': { $exists: true },
+    },
+  },
+);
+
 conversationSchema.index({ createdAt: 1 });
 conversationSchema.index({ closedAt: 1 });
 conversationSchema.index({ assignedUserId: 1 });

@@ -1,9 +1,13 @@
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import { StatusBadgeValue } from '@/automations/types';
+import { useAutomationHistoryFilterOptions } from '@/automations/components/builder/history/hooks/useAutomationHistoryFilterOptions';
 import {
+  IconAlertTriangle,
   IconCalendarPlus,
   IconCheck,
+  IconClockPause,
   IconProgressCheck,
+  IconTargetArrow,
 } from '@tabler/icons-react';
 import {
   Combobox,
@@ -13,7 +17,31 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 
+const NodeFilterBarItem = ({
+  filterKey,
+  icon,
+  label,
+  value,
+}: {
+  filterKey: string;
+  icon: React.ReactNode;
+  label: string;
+  value?: string | null;
+}) => (
+  <Filter.BarItem queryKey={filterKey}>
+    <Filter.BarName>
+      {icon}
+      {label}
+    </Filter.BarName>
+    <Filter.BarButton filterKey={filterKey} inDialog>
+      {value}
+    </Filter.BarButton>
+  </Filter.BarItem>
+);
+
 export const AutomationHistoriesFilterBar = () => {
+  const { queries: nodeQueries, getActionLabel } =
+    useAutomationHistoryFilterOptions();
   const [queries, setQueries] = useMultiQueryState<{
     status?: StatusBadgeValue;
     createdAt: string;
@@ -72,6 +100,25 @@ export const AutomationHistoriesFilterBar = () => {
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
+
+      <NodeFilterBarItem
+        filterKey="failedActionId"
+        icon={<IconTargetArrow />}
+        label="Failed at"
+        value={getActionLabel(nodeQueries.failedActionId)}
+      />
+      <NodeFilterBarItem
+        filterKey="errorCode"
+        icon={<IconAlertTriangle />}
+        label="Error"
+        value={nodeQueries.errorCode}
+      />
+      <NodeFilterBarItem
+        filterKey="waitingActionId"
+        icon={<IconClockPause />}
+        label="Waiting at"
+        value={getActionLabel(nodeQueries.waitingActionId)}
+      />
     </Filter.Bar>
   );
 };
