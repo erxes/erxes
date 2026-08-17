@@ -25,15 +25,21 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'pricing',
+      name: 'vouchers',
       icon: IconAward,
-      path: 'pricing',
+      path: 'loyalty/vouchers',
+      hasAutomation: true,
+      hasRelationWidget: true,
     },
     {
-      name: 'loyalty',
+      name: 'configs',
       icon: IconAward,
-      path: 'loyalty',
-      hasAutomation: true,
+      path: 'settings/loyalty/config',
+    },
+    {
+      name: 'pricing',
+      icon: IconAward,
+      path: 'settings/loyalty/pricing',
     },
   ],
   widgets: {

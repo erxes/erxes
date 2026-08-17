@@ -25,7 +25,7 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'insurance',
+      name: 'insurance-types',
       icon: IconSandbox,
       path: 'insurance/types',
     },

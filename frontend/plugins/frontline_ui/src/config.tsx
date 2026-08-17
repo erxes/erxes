@@ -1,8 +1,11 @@
 import {
+  IconBook,
+  IconChartHistogram,
+  IconForms,
   IconMail,
+  IconSettings,
   IconStackFront,
   IconTicket,
-  IconBook,
 } from '@tabler/icons-react';
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
@@ -94,27 +97,46 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'channels',
-      path: 'frontline/channels',
-    },
-    {
-      name: 'configs',
-      path: 'frontline/config',
-    },
-    {
-      name: 'frontline',
+      name: 'inbox',
       icon: IconMail,
-      path: 'frontline',
+      path: 'frontline/inbox',
       hasAutomation: true,
     },
     {
-      name: 'ticket',
-      path: 'frontline/ticket',
+      name: 'tickets',
+      icon: IconTicket,
+      path: 'frontline/tickets',
+      hasAutomation: true,
     },
     {
-      name: 'knowledgeBase',
+      name: 'reports',
+      icon: IconChartHistogram,
+      path: 'frontline/reports',
+    },
+    {
+      name: 'forms',
+      icon: IconForms,
+      path: 'frontline/forms',
+    },
+    {
+      name: 'knowledge-base',
       icon: IconBook,
       path: 'frontline/knowledgebase',
+    },
+    {
+      name: 'channels',
+      icon: IconMail,
+      path: 'settings/frontline/channels',
+    },
+    {
+      name: 'personal-channel',
+      icon: IconMail,
+      path: 'settings/frontline/personal-channel',
+    },
+    {
+      name: 'integrations-config',
+      icon: IconSettings,
+      path: 'settings/frontline/config',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

@@ -12,11 +12,29 @@ const PaymentSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'payment',
   path: 'payment',
+  icon: IconCurrencyDollar,
   settingsNavigation: () => (
     <Suspense fallback={<div />}>
       <PaymentSettingsNavigation />
     </Suspense>
   ),
+  modules: [
+    {
+      name: 'payment-methods',
+      icon: IconCurrencyDollar,
+      path: 'settings/payment/methods',
+    },
+    {
+      name: 'invoices',
+      icon: IconInvoice,
+      path: 'settings/payment/invoices',
+    },
+    {
+      name: 'corporate-gateway',
+      icon: IconCurrencyDollar,
+      path: 'settings/payment/corporate-gateway',
+    },
+  ],
   widgets: {
     relationWidgets: [
       {

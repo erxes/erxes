@@ -19,14 +19,18 @@ const getModuleItems = (
   parents: string[],
 ): TNavigationSearchItem[] => {
   const path = normalizePath(module.path);
+  const isSettings = path.startsWith('settings/') || path.startsWith('settings');
+  const itemCategory: TNavigationSearchItemCategory = isSettings
+    ? 'settings'
+    : category;
   const item: TNavigationSearchItem[] = path
     ? [
         {
           id: `go-to:${activity.id}:${path}`,
           activityId: activity.id,
-          category,
+          category: itemCategory,
           title: module.name,
-          description: path.startsWith('settings/')
+          description: isSettings
             ? `Settings › ${activity.label}`
             : getDescription([activity.label, ...parents]),
           icon: module.icon ?? activity.icon,
@@ -82,8 +86,9 @@ export const buildNavigationSearchItems = (
       (activity): TNavigationSearchItem => ({
         id: `plugin:${activity.id}`,
         activityId: activity.id,
+        category: 'plugins',
         title: activity.label,
-        description: `Settings › ${activity.label}`,
+        description: activity.label,
         icon: activity.icon,
         path: `/${normalizePath(activity.defaultPath)}`,
       }),

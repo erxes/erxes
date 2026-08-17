@@ -24,19 +24,14 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'tourism',
-      icon: IconBox,
-      path: 'tourism',
+      name: 'PMS',
+      icon: IconDirections,
+      path: 'tourism/pms',
       hasRelationWidget: true,
     },
     {
-      name: 'PMS',
-      icon: IconSandbox,
-      path: 'tourism/pms',
-    },
-    {
       name: 'TMS',
-      icon: IconSandbox,
+      icon: IconDirections,
       path: 'tourism/tms',
     },
   ],

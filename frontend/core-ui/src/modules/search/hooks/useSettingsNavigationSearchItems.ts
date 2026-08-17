@@ -7,19 +7,15 @@ import { TeamMembersPath } from '@/settings/team-member/constants/teamMemberRout
 import { TNavigationSearchItem } from '@/search/types/GlobalSearch';
 import { AppPath } from '@/types/paths/AppPath';
 import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
-import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { usePermissionCheck, useVersion } from 'ui-modules';
 
 type TSettingsDestination = {
   name: string;
   path: string;
   icon?: React.ElementType;
 };
-
-const getDisplayName = (name: string) =>
-  /[\sA-Z]/.test(name) ? name : name.charAt(0).toUpperCase() + name.slice(1);
 
 const toSettingsSearchItem = (
   destination: TSettingsDestination,
@@ -33,11 +29,10 @@ const toSettingsSearchItem = (
 });
 
 export const useSettingsNavigationSearchItems = () => {
-  const plugins = useAtomValue(pluginsConfigState);
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { t: tSettings } = useTranslation('settings');
-  const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
+  const { isLoaded, isWildcard, hasModulePermission } =
     usePermissionCheck();
   const settingsData = useMemo(
     () => GET_SETTINGS_PATH_DATA(version, t),
@@ -88,32 +83,11 @@ export const useSettingsNavigationSearchItems = () => {
       );
     }
 
-    Object.values(plugins || {})
-      .filter(
-        (plugin) =>
-          plugin.settingsNavigation &&
-          (!isLoaded || isWildcard || hasPluginPermission(plugin.name)),
-      )
-      .forEach((plugin) => {
-        items.push(
-          toSettingsSearchItem(
-            {
-              name: getDisplayName(plugin.name),
-              path: plugin.path,
-              icon: plugin.icon,
-            },
-            t('plugins', 'Plugins'),
-          ),
-        );
-      });
-
     return items;
   }, [
     hasModulePermission,
-    hasPluginPermission,
     isLoaded,
     isWildcard,
-    plugins,
     settingsData,
     t,
     tSettings,

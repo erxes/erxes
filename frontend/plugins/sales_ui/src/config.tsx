@@ -39,6 +39,11 @@ const SalesSettingsNavigation = lazy(() =>
 export const CONFIG: IUIConfig = {
   name: 'sales',
   path: 'sales',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <SalesSettingsNavigation />
+    </Suspense>
+  ),
   navigationGroup: {
     name: 'sales',
     defaultPath: 'sales/deals',

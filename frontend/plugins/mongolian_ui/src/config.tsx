@@ -37,9 +37,9 @@ export const CONFIG: IUIConfig = {
   widgets: {},
   modules: [
     {
-      name: 'ebarimt',
+      name: 'put-response',
       icon: IconSandbox,
-      path: 'mongolian/ebarimt',
+      path: 'mongolian/put-response',
     },
     {
       name: 'sync-erkhet',
@@ -47,59 +47,34 @@ export const CONFIG: IUIConfig = {
       path: 'mongolian/sync-erkhet',
     },
     {
-      name: 'sync-erkhet-history',
-      icon: IconSandbox,
-      path: 'mongolian/sync-erkhet-history',
-    },
-    {
-      name: 'check-synced-deals',
-      icon: IconSandbox,
-      path: 'mongolian/check-synced-deals',
-    },
-    {
-      name: 'check-pos-orders',
-      icon: IconSandbox,
-      path: 'mongolian/check-pos-orders',
-    },
-    {
-      name: 'check-category',
-      icon: IconSandbox,
-      path: 'mongolian/check-category',
-    },
-    {
-      name: 'check-products',
-      icon: IconSandbox,
-      path: 'mongolian/check-products',
-    },
-    {
-      name: 'put-response',
-      icon: IconSandbox,
-      path: 'mongolian/put-response',
-    },
-    {
-      name: 'put-responses-by-date',
-      icon: IconSandbox,
-      path: 'mongolian/put-responses-by-date',
-    },
-    {
-      name: 'put-responses-duplicated',
-      icon: IconSandbox,
-      path: 'mongolian/put-responses-duplicated',
-    },
-    {
-      name: 'productplaces',
-      icon: IconSandbox,
-      path: 'mongolian/product-places',
-    },
-    {
       name: 'msdynamic',
       icon: IconSandbox,
-      path: 'mongolian/msdynamic/',
+      path: 'mongolian/msdynamic',
+    },
+    {
+      name: 'ebarimt',
+      icon: IconSandbox,
+      path: 'settings/mongolian/ebarimt',
+    },
+    {
+      name: 'erkhet-settings',
+      icon: IconSandbox,
+      path: 'settings/mongolian/sync-erkhet',
+    },
+    {
+      name: 'product-places',
+      icon: IconSandbox,
+      path: 'settings/mongolian/product-places',
     },
     {
       name: 'exchange-rates',
       icon: IconSandbox,
-      path: 'mongolian/exchange-rates',
+      path: 'settings/mongolian/exchange-rates',
+    },
+    {
+      name: 'msdynamic-settings',
+      icon: IconSandbox,
+      path: 'settings/mongolian/msdynamic',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,
