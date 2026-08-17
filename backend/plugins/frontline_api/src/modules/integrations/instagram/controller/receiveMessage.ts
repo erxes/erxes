@@ -131,8 +131,15 @@ export const receiveMessage = async (
     throw new Error(e.message);
   }
 
+  // Defense in depth: even with the $eq wrap below preventing operator-shape
+  // injection at the Mongoose layer, reject non-string / empty `mid` early so
+  // we never run a duplicate-detection lookup on a malformed webhook payload.
+  if (typeof mid !== 'string' || mid.length === 0) {
+    return;
+  }
+
   const existingMessage = await models.InstagramConversationMessages.findOne({
-    mid,
+    mid: { $eq: mid },
   });
 
   if (!existingMessage) {
