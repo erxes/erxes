@@ -5,6 +5,7 @@ import {
   GLOBAL_SEARCH_MIN_LENGTH,
 } from '@/search/constants/globalSearch';
 import { useGlobalSearch } from '@/search/hooks/useGlobalSearch';
+import { useSettingsNavigationSearchItems } from '@/search/hooks/useSettingsNavigationSearchItems';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { TGlobalSearchCategory } from '@/search/types/GlobalSearch';
 import {
@@ -13,7 +14,7 @@ import {
 } from '@/search/utils/globalSearchShortcuts';
 import {
   buildGlobalSearchCategories,
-  getMaterializedGlobalSearchTotalCount,
+  getGlobalSearchTotalCount,
 } from '@/search/utils/globalSearchResults';
 import {
   buildNavigationSearchItems,
@@ -30,6 +31,7 @@ import { useDebounce } from 'use-debounce';
 export const GlobalSearch = () => {
   const navigate = useNavigate();
   const activities = useNavigationActivities();
+  const settingsItems = useSettingsNavigationSearchItems();
   const setActiveActivityId = useSetAtom(activePluginState);
   const [open, setOpen] = useAtom(globalSearchOpenState);
   const [value, setValue] = useState('');
@@ -40,8 +42,8 @@ export const GlobalSearch = () => {
     useGlobalSearch(debouncedValue);
 
   const { goToItems, pluginItems } = useMemo(
-    () => buildNavigationSearchItems(activities),
-    [activities],
+    () => buildNavigationSearchItems(activities, settingsItems),
+    [activities, settingsItems],
   );
   const matchingGoToItems = useMemo(
     () => filterNavigationSearchItems(goToItems, searchValue),
@@ -67,7 +69,8 @@ export const GlobalSearch = () => {
   const contentLoading =
     contentSearchReady && (!contentSearchSettled || loading);
   const contentFailure = contentSearchSettled && hasFailure;
-  const totalCount = getMaterializedGlobalSearchTotalCount({
+  const totalCount = getGlobalSearchTotalCount({
+    category,
     goToItems: matchingGoToItems,
     groups: visibleGroups,
   });
@@ -89,14 +92,12 @@ export const GlobalSearch = () => {
         const nextCategory = getGlobalSearchCategoryShortcut(
           event,
           categoryKeys,
+          category,
         );
 
         if (nextCategory) {
           event.preventDefault();
-
-          if (!event.repeat) {
-            setCategory(nextCategory);
-          }
+          setCategory(nextCategory);
 
           return;
         }
@@ -114,7 +115,7 @@ export const GlobalSearch = () => {
     window.addEventListener('keydown', handleSearchShortcut);
 
     return () => window.removeEventListener('keydown', handleSearchShortcut);
-  }, [categoryKeys, open, setOpen]);
+  }, [category, categoryKeys, open, setOpen]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
@@ -130,8 +131,11 @@ export const GlobalSearch = () => {
     navigate(path);
   };
 
-  const openNavigationResult = (path: string, activityId: string) => {
-    setActiveActivityId(activityId);
+  const openNavigationResult = (path: string, activityId?: string) => {
+    if (activityId) {
+      setActiveActivityId(activityId);
+    }
+
     openResult(path);
   };
 

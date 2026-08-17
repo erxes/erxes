@@ -3,7 +3,7 @@ import { ISearchProvider, TSearchPayload, TSearchResultItem } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   GLOBAL_SEARCH_MIN_LENGTH,
-  GLOBAL_SEARCH_PER_GROUP,
+  GLOBAL_SEARCH_PAGE_SIZE,
 } from '@/search/constants/globalSearch';
 import { useSearchProviders } from '@/search/hooks/useSearchProviders';
 import { useGlobalSearchDocument } from '@/search/hooks/useGlobalSearchDocument';
@@ -82,7 +82,7 @@ const resolveProviderGroup = (
     };
   }
 
-  const result = provider.resolve(payload, GLOBAL_SEARCH_PER_GROUP);
+  const result = provider.resolve(payload, GLOBAL_SEARCH_PAGE_SIZE);
 
   return {
     key: provider.key,
@@ -119,7 +119,7 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   const { data, loading, error, refetch } = useQuery<TSearchPayload>(document, {
     variables: {
       searchValue,
-      limit: GLOBAL_SEARCH_PER_GROUP,
+      limit: GLOBAL_SEARCH_PAGE_SIZE,
       cursor: null,
     },
     skip,
@@ -235,7 +235,7 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
           query: buildGlobalSearchPageDocument(provider),
           variables: {
             searchValue: requestSearchValue,
-            limit: GLOBAL_SEARCH_PER_GROUP,
+            limit: GLOBAL_SEARCH_PAGE_SIZE,
             cursor: currentGroup.pageInfo.endCursor,
           },
           errorPolicy: 'all',
@@ -252,7 +252,7 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
 
         const nextPage = provider.resolve(
           result.data ?? {},
-          GLOBAL_SEARCH_PER_GROUP,
+          GLOBAL_SEARCH_PAGE_SIZE,
         );
 
         setPagination((current) => {

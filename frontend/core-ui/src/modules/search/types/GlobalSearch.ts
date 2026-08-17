@@ -7,7 +7,7 @@ import {
 export type TGlobalSearchCategory = string;
 
 export type TNavigationSearchItem = TSearchResultItem & {
-  activityId: string;
+  activityId?: string;
   icon?: React.ElementType;
 };
 

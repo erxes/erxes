@@ -24,16 +24,23 @@ export const isGlobalSearchOpenShortcut = (event: IGlobalSearchShortcutEvent) =>
 export const getGlobalSearchCategoryShortcut = (
   event: IGlobalSearchShortcutEvent,
   categories: TGlobalSearchCategory[],
+  currentCategory: TGlobalSearchCategory,
 ): TGlobalSearchCategory | null => {
   if (event.altKey || event.shiftKey || !hasPrimaryModifier(event)) {
     return null;
   }
 
-  if (!/^Digit[1-9]$/.test(event.code)) {
+  if (
+    categories.length < 2 ||
+    (event.code !== 'ArrowLeft' && event.code !== 'ArrowRight')
+  ) {
     return null;
   }
 
-  const index = Number(event.code.slice(-1)) - 1;
+  const currentIndex = Math.max(categories.indexOf(currentCategory), 0);
+  const direction = event.code === 'ArrowLeft' ? -1 : 1;
+  const nextIndex =
+    (currentIndex + direction + categories.length) % categories.length;
 
-  return categories[index] ?? null;
+  return categories[nextIndex];
 };

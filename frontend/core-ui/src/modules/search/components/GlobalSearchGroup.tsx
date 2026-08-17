@@ -19,13 +19,13 @@ const SearchGroupHeading = ({
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
 
   return (
-    <span className="flex min-h-7 items-center justify-between gap-3">
+    <span className="flex min-h-6 items-center justify-between gap-2">
       <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       {onShowMore && (
         <Button
-          className="h-7 gap-1 px-2 text-xs font-normal normal-case"
+          className="h-6 gap-1 px-1.5 text-xs font-normal normal-case"
           size="sm"
           type="button"
           variant="ghost"
@@ -55,7 +55,7 @@ export const NavigationSearchGroup = ({
   searchValue: string;
   previewLimit?: number;
   onShowMore?: () => void;
-  onSelect: (path: string, activityId: string) => void;
+  onSelect: (path: string, activityId?: string) => void;
 }) => {
   if (items.length === 0) {
     return null;
@@ -66,7 +66,7 @@ export const NavigationSearchGroup = ({
 
   return (
     <Command.Group
-      className="px-1 py-1.5"
+      className="p-1"
       heading={<SearchGroupHeading label={heading} onShowMore={onShowMore} />}
     >
       {visibleItems.map((item) => (
@@ -133,7 +133,7 @@ export const GlobalSearchProviderGroup = ({
 
   return (
     <Command.Group
-      className="px-1 py-1.5"
+      className="p-1"
       heading={<SearchGroupHeading label={label} onShowMore={onShowMore} />}
     >
       {visibleItems.map((item) => (

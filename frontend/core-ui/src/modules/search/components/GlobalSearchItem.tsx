@@ -18,11 +18,11 @@ export const GlobalSearchItem = ({
   onSelect: (path: string) => void;
 }) => (
   <Command.Item
-    className="group h-auto min-h-14 gap-3 rounded-md px-3 py-2"
+    className="group h-auto min-h-10 gap-2 rounded-sm px-2 py-1.5"
     value={commandValue}
     onSelect={() => onSelect(item.path)}
   >
-    <span className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted/40 text-muted-foreground">
+    <span className="flex size-7 shrink-0 items-center justify-center rounded-sm border bg-muted/40 text-muted-foreground">
       {Icon && <Icon className="size-4" />}
     </span>
     <span className="min-w-0 flex-1">

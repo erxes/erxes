@@ -8,35 +8,30 @@ const normalizePath = (path: string) => path.replace(/^\/+|\/+$/g, '');
 
 const getDescription = (parts: string[]) => parts.filter(Boolean).join(' › ');
 
-const getLeafModuleItems = (
+const getModuleItems = (
   activity: INavigationActivity,
   module: INavigationActivityModule,
   parents: string[],
 ): TNavigationSearchItem[] => {
-  if (module.submenus?.length) {
-    return module.submenus.flatMap((submenu) =>
-      getLeafModuleItems(activity, submenu, [...parents, module.name]),
-    );
-  }
-
   const path = normalizePath(module.path);
-
-  if (
-    !path ||
-    (activity.kind === 'plugin' && path === normalizePath(activity.defaultPath))
-  ) {
-    return [];
-  }
+  const item: TNavigationSearchItem[] = path
+    ? [
+        {
+          id: `go-to:${activity.id}:${path}`,
+          activityId: activity.id,
+          title: module.name,
+          description: getDescription([activity.label, ...parents]),
+          icon: module.icon ?? activity.icon,
+          path: `/${path}`,
+        },
+      ]
+    : [];
 
   return [
-    {
-      id: `go-to:${activity.id}:${path}`,
-      activityId: activity.id,
-      title: module.name,
-      description: getDescription([activity.label, ...parents]),
-      icon: module.icon ?? activity.icon,
-      path: `/${path}`,
-    },
+    ...item,
+    ...(module.submenus?.flatMap((submenu) =>
+      getModuleItems(activity, submenu, [...parents, module.name]),
+    ) || []),
   ];
 };
 
@@ -57,14 +52,16 @@ const deduplicateByPath = (items: TNavigationSearchItem[]) => {
 
 export const buildNavigationSearchItems = (
   activities: INavigationActivity[],
+  additionalItems: TNavigationSearchItem[] = [],
 ) => {
-  const goToItems = deduplicateByPath(
-    activities.flatMap((activity) =>
+  const goToItems = deduplicateByPath([
+    ...activities.flatMap((activity) =>
       activity.modules.flatMap((module) =>
-        getLeafModuleItems(activity, module, []),
+        getModuleItems(activity, module, []),
       ),
     ),
-  );
+    ...additionalItems,
+  ]);
 
   const pluginItems = activities
     .filter((activity) => activity.kind === 'plugin')

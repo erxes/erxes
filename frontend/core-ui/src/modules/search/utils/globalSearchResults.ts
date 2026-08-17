@@ -1,4 +1,5 @@
 import {
+  TGlobalSearchCategory,
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
@@ -27,7 +28,9 @@ export const buildGlobalSearchCategories = ({
   groups: TGlobalSearchGroup[];
 }): TGlobalSearchCategoryOption[] => [
   { key: 'all', label: 'All' },
-  ...(goToItemCount > 0 ? [{ key: 'go-to', label: 'Go to' }] : []),
+  ...(hasSearchValue && goToItemCount > 0
+    ? [{ key: 'go-to', label: 'Go to' }]
+    : []),
   ...(hasSearchValue
     ? groups
         .filter((group) => group.status === 'ok' && group.items.length > 0)
@@ -40,18 +43,34 @@ export const buildGlobalSearchCategories = ({
     : []),
 ];
 
-export const getMaterializedGlobalSearchTotalCount = ({
+export const getGlobalSearchTotalCount = ({
+  category,
   goToItems,
   groups,
 }: {
+  category: TGlobalSearchCategory;
   goToItems: TNavigationSearchItem[];
   groups: TGlobalSearchGroup[];
-}) =>
-  goToItems.length +
-  groups.reduce(
-    (total, group) => total + (group.status === 'ok' ? group.items.length : 0),
-    0,
+}) => {
+  if (category === 'go-to') {
+    return goToItems.length;
+  }
+
+  const availableGroups = groups.filter(
+    (group) => group.status === 'ok' && group.items.length > 0,
   );
+
+  if (category !== 'all') {
+    return (
+      availableGroups.find((group) => group.key === category)?.totalCount ?? 0
+    );
+  }
+
+  return (
+    goToItems.length +
+    availableGroups.reduce((total, group) => total + group.totalCount, 0)
+  );
+};
 
 export const getGlobalSearchRequestState = ({
   skipped,
