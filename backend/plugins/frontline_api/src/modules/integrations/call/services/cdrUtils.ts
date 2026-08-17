@@ -36,6 +36,12 @@ export const getPbxDayRange = (now: Date = new Date()) => {
   return { dateFrom, dateTo };
 };
 
+/** The PBX-local (`+08:00`) calendar day of `now`, as `YYYY-MM-DD`. */
+export const getPbxDateKey = (now: Date = new Date()): string => {
+  const local = new Date(now.getTime() + CDR_TIME_OFFSET_MS);
+  return local.toISOString().slice(0, 10);
+};
+
 export const formatCdrApiDate = (value?: string | Date | null): string => {
   if (typeof value === 'string') {
     return value.includes(' ') ? value.replace(' ', 'T') : value;

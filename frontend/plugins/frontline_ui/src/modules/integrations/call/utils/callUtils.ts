@@ -43,6 +43,16 @@ export function formatSeconds(seconds: number): string {
   return [hrs, mins, secs].map((v) => String(v).padStart(2, '0')).join(':');
 }
 
+export function formatDurationShort(totalSeconds: number): string {
+  if (!totalSeconds || totalSeconds <= 0) return '0m';
+
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.round((totalSeconds % 3600) / 60);
+
+  if (hrs > 0) return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  return `${mins}m`;
+}
+
 export function safeFormatDate(value: unknown, fmt = 'MM-dd HH:mm'): string {
   const timeZone =
     Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Ulaanbaatar';

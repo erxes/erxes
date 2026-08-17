@@ -10,6 +10,7 @@ import {
   verifyWebhookSignature,
 } from '@/integrations/call/webhookAuth';
 import { upsertQueueStatistics } from '@/integrations/call/utils';
+import { recordAgentPauseTransitions } from '@/integrations/call/services/agentPauseService';
 
 import express from 'express';
 import redis from '@/integrations/call/redlock';
@@ -108,6 +109,21 @@ const initCallApp = async (app) => {
       await graphqlPubsub.publish(`queueRealtimeUpdate:${subdomain}`, {
         queueRealtimeUpdate: snapshot,
       });
+
+      const integrationId = (req as any).callIntegration?.inboxId;
+      if (integrationId && Array.isArray(state.agents)) {
+        try {
+          const models = await generateModels(subdomain);
+          await recordAgentPauseTransitions(
+            models,
+            integrationId,
+            String(queue),
+            state.agents,
+          );
+        } catch (error) {
+          console.error('Failed to record agent pause transitions:', error);
+        }
+      }
 
       return res
         .status(200)

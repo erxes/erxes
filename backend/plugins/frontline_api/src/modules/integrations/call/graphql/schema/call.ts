@@ -160,6 +160,27 @@ export const types = `
     idlecount: Int
   }
 
+  type CallAgentPauseInterval {
+    start: Date
+    end: Date
+    durationSec: Int
+  }
+
+  type CallAgentDailyStat {
+    date: String
+    extension: String
+    firstName: String
+    lastName: String
+    status: String
+    answer: Int
+    abandon: Int
+    talktime: Int
+    pauseReason: String
+    currentPauseStartedAt: Date
+    totalPausedSec: Int
+    pauseIntervals: [CallAgentPauseInterval]
+  }
+
   type AgentMember {
     member_extension: String
     status: String # InUse, Idle, Paused
@@ -252,6 +273,7 @@ export const queries = `
   callExtensionList(integrationId: String!): JSON
   callQueueList(integrationId: String!): JSON
   callQueueInitialList(queue: String!): String
+  callAgentDailyStats(integrationId: String!, queue: String!, startDate: String, endDate: String): [CallAgentDailyStat]
 
   callConversationNotes(conversationId: String! getFirst: Boolean, ${pageParams}): [CallConversationNotes]
   callHistoryDetail(_id: String, conversationId: String): CallHistory

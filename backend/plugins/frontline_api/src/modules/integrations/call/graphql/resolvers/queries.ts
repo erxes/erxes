@@ -16,6 +16,7 @@ import {
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
+import { getPbxDateKey } from '@/integrations/call/services/cdrUtils';
 
 const callQueries = {
   async callsIntegrationDetail(
@@ -206,6 +207,56 @@ const callQueries = {
       console.error(`Failed to fetch queue data for ${queue}:`, error);
       return '{}';
     }
+  },
+
+  async callAgentDailyStats(
+    _root,
+    {
+      integrationId,
+      queue,
+      startDate,
+      endDate,
+    }: {
+      integrationId: string;
+      queue: string;
+      startDate?: string;
+      endDate?: string;
+    },
+    { models, user }: IContext,
+  ) {
+    if (!user?._id) {
+      throw new Error('Login required');
+    }
+
+    try {
+      const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+        user._id,
+      );
+      if (!queues.map(String).includes(String(queue))) {
+        console.warn(
+          `[call] callAgentDailyStats: user ${user._id} is not an operator on queue ${queue}`,
+        );
+      }
+    } catch {
+      console.warn(
+        `[call] callAgentDailyStats: could not verify queue ownership for user ${user._id}`,
+      );
+    }
+
+    const filter: Record<string, unknown> = { integrationId, queue };
+
+    if (startDate || endDate) {
+      const range: Record<string, string> = {};
+      if (startDate) range.$gte = startDate.slice(0, 10);
+      if (endDate) range.$lte = endDate.slice(0, 10);
+      filter.date = range;
+    } else {
+      filter.date = getPbxDateKey();
+    }
+
+    return models.CallAgentPauseStats.find(filter)
+      .sort({ date: -1, extension: 1 })
+      .lean();
   },
 
   async callConversationNotes(_root, args: INotesParams, { models }: IContext) {
