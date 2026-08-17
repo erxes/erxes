@@ -1,8 +1,9 @@
-import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
 import { cursorPaginate } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
+import type { FilterQuery } from 'mongoose';
+import type { ITaskDocument, ITaskFilter } from '@/task/@types/task';
+import type { IProjectDocument } from '@/project/@types/project';
+import type { IContext } from '~/connectionResolvers';
 
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
@@ -195,7 +196,7 @@ export const taskQueries = {
         filter.projectPriority ||
         filter.projectLeadId
       ) {
-        const projectFilter: FilterQuery<any> = {};
+        const projectFilter: FilterQuery<IProjectDocument> = {};
 
         if (filter.projectStatus) {
           projectFilter.status = filter.projectStatus;
@@ -263,10 +264,15 @@ export const taskQueries = {
       filterQuery.assigneeId = filter.userId;
     }
 
+    const limit = filter.limit
+      ? Math.min(100, Math.max(1, filter.limit))
+      : undefined;
+
     const { list, totalCount, pageInfo } = await cursorPaginate<ITaskDocument>({
       model: models.Task,
       params: {
         ...filter,
+        limit,
         orderBy: {
           statusType: 'asc',
           createdAt: 'desc',
