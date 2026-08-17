@@ -3,9 +3,9 @@ import { CUSTOMER_ACTIVITY_FIELDS } from './constants';
 
 const humanizeCustomerField = (field: string) =>
   field
-    .replace(/\./g, ' ')
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+    .replaceAll('.', ' ')
+    .replaceAll(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replaceAll(/\b\w/g, (letter) => letter.toUpperCase());
 
 export const getCustomerFieldLabel = (field: string) => {
   if (field.startsWith('links.')) {
