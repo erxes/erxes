@@ -104,7 +104,7 @@ export interface IUserModel extends Model<IUserDocument> {
   resetPassword(params: {
     token: string;
     newPassword: string;
-  }): Promise<IUserDocument>;
+  }): Promise<{ success: boolean }>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
     params: IPasswordParams & { currentPassword: string },
@@ -632,7 +632,7 @@ export const loadUserClass = (
         },
       );
 
-      return models.Users.findOne({ _id: user._id });
+      return { success: true };
     }
 
     /**
