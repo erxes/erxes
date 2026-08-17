@@ -11,12 +11,6 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 export const documentTrpcRouter = t.router({
   documents: t.router({
     editorAttributes: t.procedure
-      .meta({
-        agent: {
-          description: 'Document editor attributes for a content type',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
       .input(z.object({ contentType: z.string() }))
       .query(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;

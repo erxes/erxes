@@ -66,42 +66,26 @@ const updateDealProcedure = t.procedure
 
 export const dealTrpcRouter = t.router({
   deal: {
-    findOne: t.procedure
-      .meta({
-        agent: {
-          description: 'Find one deal by criteria',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        return await models.Deals.findOne(input).lean();
-      }),
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.Deals.findOne(input).lean();
+    }),
 
-    find: t.procedure
-      .meta({
-        agent: {
-          description: 'Find deals with skip/limit/sort',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
 
-        const { query, skip, limit, sort = {} } = input;
+      const { query, skip, limit, sort = {} } = input;
 
-        if (!query) {
-          return await models.Deals.find(input).lean();
-        }
+      if (!query) {
+        return await models.Deals.find(input).lean();
+      }
 
-        return await models.Deals.find(query)
-          .skip(skip || 0)
-          .limit(limit || 0)
-          .sort(sort)
-          .lean();
-      }),
+      return await models.Deals.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
 
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -109,51 +93,29 @@ export const dealTrpcRouter = t.router({
       return await models.Deals.aggregate(convertNestedDate(input));
     }),
 
-    count: t.procedure
-      .meta({
-        agent: {
-          description: 'Count deals',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
+    count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
 
-        return await models.Deals.find(input).countDocuments();
-      }),
+      return await models.Deals.find(input).countDocuments();
+    }),
 
-    getLink: t.procedure
-      .meta({
-        agent: {
-          description: 'Board link for a deal',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { _id } = input;
-        const item = await models.Deals.findOne({ _id });
+    getLink: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { _id } = input;
+      const item = await models.Deals.findOne({ _id });
 
-        if (!item) {
-          throw new Error('Deal not found');
-        }
+      if (!item) {
+        throw new Error('Deal not found');
+      }
 
-        const stage = await models.Stages.getStage(item.stageId);
-        const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-        const board = await models.Boards.getBoard(pipeline.boardId);
+      const stage = await models.Stages.getStage(item.stageId);
+      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+      const board = await models.Boards.getBoard(pipeline.boardId);
 
-        return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
-      }),
+      return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
+    }),
 
     findDealProductIds: t.procedure
-      .meta({
-        agent: {
-          description: 'Product ids referenced by deals',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -166,93 +128,59 @@ export const dealTrpcRouter = t.router({
         return dealProductIds;
       }),
 
-    createItem: t.procedure
-      .meta({
-        agent: {
-          description: 'Create a deal',
-          permission: { module: 'sales', action: 'dealsAdd' },
-        },
-      })
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        const { user, processId, ...doc } = input;
-        if (!user || !processId) {
-          throw new Error('you must provide some params');
-        }
-        try {
-          return await addDeal({ models, subdomain, user, doc });
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      }),
+    createItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { user, processId, ...doc } = input;
+      if (!user || !processId) {
+        throw new Error('you must provide some params');
+      }
+      try {
+        return await addDeal({ models, subdomain, user, doc });
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }),
 
-    editItem: t.procedure
-      .meta({
-        agent: {
-          description: 'Edit a deal',
-          permission: { module: 'sales', action: 'dealsEdit' },
-        },
-      })
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+    editItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
 
-        const { itemId, processId, user, ...doc } = input;
+      const { itemId, processId, user, ...doc } = input;
 
-        if (!itemId || !user || !processId) {
-          throw new Error('you must provide some params');
-        }
+      if (!itemId || !user || !processId) {
+        throw new Error('you must provide some params');
+      }
 
-        try {
-          return await editDeal({
-            models,
-            subdomain,
-            _id: itemId,
-            doc,
-            processId,
-            user,
-          });
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      }),
+      try {
+        return await editDeal({
+          models,
+          subdomain,
+          _id: itemId,
+          doc,
+          processId,
+          user,
+        });
+      } catch (e) {
+        throw new Error(e.message);
+      }
+    }),
 
-    removeItem: t.procedure
-      .meta({
-        agent: {
-          description: 'Remove deals',
-          permission: { module: 'sales', action: 'dealsRemove' },
-        },
-      })
-      .input(z.any())
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { _ids } = input;
+    removeItem: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { _ids } = input;
 
-        return await models.Deals.removeDeals(_ids);
-      }),
+      return await models.Deals.removeDeals(_ids);
+    }),
 
-    contentIds: t.procedure
-      .meta({
-        agent: {
-          description: 'Deal ids in a pipeline',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { pipelineId } = input;
-        const { models } = ctx;
+    contentIds: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { pipelineId } = input;
+      const { models } = ctx;
 
-        const stageIds = await models.Stages.find({ pipelineId }).distinct(
-          '_id',
-        );
+      const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
 
-        return await models.Deals.find({
-          stageId: { $in: stageIds },
-        }).distinct('_id');
-      }),
+      return await models.Deals.find({ stageId: { $in: stageIds } }).distinct(
+        '_id',
+      );
+    }),
 
     generateInternalNoteNotif: t.procedure
       .input(z.any())
@@ -278,12 +206,6 @@ export const dealTrpcRouter = t.router({
       }),
 
     notifiedUserIds: t.procedure
-      .meta({
-        agent: {
-          description: 'Users to notify for a deal change',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { item } = input;
@@ -326,12 +248,6 @@ export const dealTrpcRouter = t.router({
     }),
 
     getFilterParams: t.procedure
-      .meta({
-        agent: {
-          description: 'Build deal filter parameters',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { filter, userId } = input;
@@ -339,25 +255,11 @@ export const dealTrpcRouter = t.router({
         return await generateFilter(models, subdomain, userId, filter);
       }),
 
-    generateAmounts: t.procedure
-      .meta({
-        agent: {
-          description: 'Generate deal amount breakdown',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ input }) => {
-        return generateAmounts(input);
-      }),
+    generateAmounts: t.procedure.input(z.any()).query(async ({ input }) => {
+      return generateAmounts(input);
+    }),
 
     generateProducts: t.procedure
-      .meta({
-        agent: {
-          description: 'Generate deal product lines',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
@@ -428,64 +330,40 @@ export const dealTrpcRouter = t.router({
   },
 
   stage: {
-    findOne: t.procedure
-      .meta({
-        agent: {
-          description: 'Find one deal stage',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { subdomain, ...rest } = input;
-        return await models.Stages.findOne(rest).lean();
-      }),
-    find: t.procedure
-      .meta({
-        agent: {
-          description: 'Find deal stages',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { subdomain, ...rest } = input;
-        return await models.Stages.find(rest).sort({ order: 1 }).lean();
-      }),
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return await models.Stages.findOne(rest).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { subdomain, ...rest } = input;
+      return await models.Stages.find(rest).sort({ order: 1 }).lean();
+    }),
   },
   pipeline: {
-    findOne: t.procedure
-      .meta({
-        agent: {
-          description: 'Find a pipeline',
-          permission: { module: 'sales', action: 'showDeals' },
-        },
-      })
-      .input(z.any())
-      .query(async ({ ctx, input }) => {
-        const { models } = ctx;
-        const { stageId, ...rest } = input || {};
-        const { query, fields } = rest || {};
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { stageId, ...rest } = input || {};
+      const { query, fields } = rest || {};
 
-        let pipeline =
-          query && Object.keys(query).length
-            ? await models.Pipelines.findOne(query, fields).lean()
-            : null;
+      let pipeline =
+        query && Object.keys(query).length
+          ? await models.Pipelines.findOne(query, fields).lean()
+          : null;
 
-        if (!pipeline && stageId) {
-          const stage = await models.Stages.findOne({ _id: stageId }).lean();
-          if (stage) {
-            pipeline = await models.Pipelines.findOne(
-              { _id: stage.pipelineId },
-              fields,
-            ).lean();
-          }
+      if (!pipeline && stageId) {
+        const stage = await models.Stages.findOne({ _id: stageId }).lean();
+        if (stage) {
+          pipeline = await models.Pipelines.findOne(
+            { _id: stage.pipelineId },
+            fields,
+          ).lean();
         }
+      }
 
-        return pipeline || {};
-      }),
+      return pipeline || {};
+    }),
   },
 });
 

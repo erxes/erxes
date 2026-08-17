@@ -29,18 +29,10 @@ const createFieldListProcedure = (
     input: z.infer<typeof fieldQueryInput>,
   ) => Promise<unknown[]>,
 ) => {
-  return t.procedure
-    .meta({
-      agent: {
-        description: 'Custom field list for a module',
-        permission: { module: 'sales', action: 'showDeals' },
-      },
-    })
-    .input(fieldQueryInput)
-    .query(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      return fieldGenerator(subdomain, models, input);
-    });
+  return t.procedure.input(fieldQueryInput).query(async ({ ctx, input }) => {
+    const { models, subdomain } = ctx;
+    return fieldGenerator(subdomain, models, input);
+  });
 };
 
 export const appRouter = t.mergeRouters(
