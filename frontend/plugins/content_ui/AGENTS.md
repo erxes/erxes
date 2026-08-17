@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-08-13`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -25,7 +25,7 @@
 - Provides Web Builder configuration and editing surfaces.
 - Preserves blank lines and Tab-indented block structure when CMS posts are
   saved and reopened in the post editor.
-- Allows individual CMS custom-field file uploads up to 630 MiB through the
+- Allows individual CMS custom-field file uploads up to 650 MiB through the
   platform's chunked-upload contract.
 
 ## Architecture
@@ -176,7 +176,7 @@
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than
-  630 MiB is accepted while a larger file is rejected.
+  650 MiB is accepted while a larger file is rejected.
 
 ### Common Mistakes
 
@@ -192,6 +192,13 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-17` — Raise custom-field upload limit to 650 MiB
+
+- **Summary:** Raised the CMS custom-field file upload ceiling from 630 MiB to
+  650 MiB while preserving chunked upload behavior.
+- **Affected areas:** `src/modules/cms/posts/CustomFieldInput.tsx`
+- **Contracts changed:** None
 
 ### `2026-08-13` — Validate complete embedded block payloads
 

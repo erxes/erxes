@@ -18,7 +18,7 @@ import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
 
-const MAX_CUSTOM_FIELD_FILE_SIZE = 630 * 1024 * 1024;
+const MAX_CUSTOM_FIELD_FILE_SIZE = 650 * 1024 * 1024;
 
 export interface FieldDefinition {
   _id: string;
@@ -62,7 +62,7 @@ function FileFieldInput({
 
     if (file.size > MAX_CUSTOM_FIELD_FILE_SIZE) {
       setValidationError(
-        t('max-630mb', { defaultValue: 'Maximum file size: 630 MB' }),
+        t('max-650mb', { defaultValue: 'Maximum file size: 650 MB' }),
       );
       return;
     }
@@ -125,7 +125,7 @@ function FileFieldInput({
           {loading ? `${t('uploading')} ${progress}%` : buttonLabel}
         </Button>
         <p className="text-xs text-muted-foreground mt-1">
-          {t('max-630mb', { defaultValue: 'Maximum file size: 630 MB' })}
+          {t('max-650mb', { defaultValue: 'Maximum file size: 650 MB' })}
         </p>
       </div>
       {(validationError || error) && (
