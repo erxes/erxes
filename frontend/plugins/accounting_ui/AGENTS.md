@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-16`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -38,7 +38,7 @@
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
-- Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active.
+- Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
 - Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
 
@@ -119,6 +119,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-17` — `Related Account Default Display`
+
+- **Summary:** Related account editing now falls back to backend-calculated default debit/credit codes whenever custom debit/credit override arrays are empty.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/RelAccountsForm.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-16` — `Empty Related Account Defaults`
 
 - **Summary:** Transaction submission now omits empty related-account overrides so backend default debit/credit related account calculation is preserved.
@@ -178,9 +184,3 @@
 - **Summary:** Journal report rendering now mirrors the Erkhet generated-report templates more closely with transaction-kind filtering, scoped total calculation, all-zero row hiding, immutable detail grouping, and transaction navigation from account-statement detail rows.
 - **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/graphql`, `src/modules/journal-reports/hooks`, `src/modules/journal-reports/states`, `src/modules/journal-reports/types`.
 - **Contracts changed:** Consumes optional `trKind`, `trKinds`, and `getTrKind` journal report filters.
-
-### `2026-08-13` — `Adjustment Detail Record Tables`
-
-- **Summary:** Fund and debt rate adjustment detail result grids now use accounting `RecordTable` columns instead of raw HTML tables.
-- **Affected areas:** `src/modules/adjustments/rate/components/AdjustFundRateDetail.tsx`, `src/modules/adjustments/debt/components/AdjustDebtRateDetail.tsx`.
-- **Contracts changed:** None.

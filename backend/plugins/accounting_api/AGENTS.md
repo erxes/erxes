@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-16`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -25,7 +25,7 @@
 ## Current Capabilities
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
-- Normalizes empty related-account overrides before transaction persistence and recalculates related debit/credit account codes from all transactions sharing the same `ptrId`.
+- Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, VAT, CTAX, inventory, fixed asset, and journal report GraphQL contracts.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
@@ -111,6 +111,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-17` — `Related Account Storage Shape`
+
+- **Summary:** Related account storage no longer creates nested `_id` values, transaction updates clear omitted custom overrides, and pointer status refreshes trim or unset empty custom related-account overrides while recalculating default debit and credit codes.
+- **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`, `src/modules/accounting/db/models/Transactions.ts`, `src/modules/accounting/db/models/utils.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-16` — `Related Account Override Normalization`
 

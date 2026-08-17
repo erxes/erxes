@@ -87,6 +87,19 @@ const getRelAccounts = (
   };
 };
 
+const normalizeRelAccountCodes = (codes?: string[]) => {
+  if (!Array.isArray(codes)) {
+    return;
+  }
+
+  const cleanCodes = codes
+    .filter((code): code is string => typeof code === 'string')
+    .map((code) => code.trim())
+    .filter(Boolean);
+
+  return cleanCodes.length ? cleanCodes : undefined;
+};
+
 export const setPtrStatus = async (
   models: IModels,
   transactions: ITransactionDocument[],
@@ -136,16 +149,38 @@ export const setPtrStatus = async (
     const status = await getPtrStatus(models, trs, accounts);
 
     for (const tr of trs) {
+      const customDt = normalizeRelAccountCodes(tr.relAccounts?.customDt);
+      const customCt = normalizeRelAccountCodes(tr.relAccounts?.customCt);
+      const update: any = {
+        $set: {
+          'relAccounts.dt': relAccountsByTrId[tr._id]?.dt,
+          'relAccounts.ct': relAccountsByTrId[tr._id]?.ct,
+          ptrStatus: status,
+        },
+      };
+
+      if (customDt) {
+        update.$set['relAccounts.customDt'] = customDt;
+      } else {
+        update.$unset = {
+          ...update.$unset,
+          'relAccounts.customDt': '',
+        };
+      }
+
+      if (customCt) {
+        update.$set['relAccounts.customCt'] = customCt;
+      } else {
+        update.$unset = {
+          ...update.$unset,
+          'relAccounts.customCt': '',
+        };
+      }
+
       bulkOps.push({
         updateOne: {
           filter: { _id: tr._id },
-          update: {
-            $set: {
-              'relAccounts.dt': relAccountsByTrId[tr._id]?.dt,
-              'relAccounts.ct': relAccountsByTrId[tr._id]?.ct,
-              ptrStatus: status,
-            },
-          },
+          update,
         },
       });
     }

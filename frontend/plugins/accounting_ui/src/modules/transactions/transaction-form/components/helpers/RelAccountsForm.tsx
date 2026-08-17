@@ -7,6 +7,19 @@ import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { followTrDocsState } from '../../states/trStates';
 import { ICommonFieldProps } from '../../types/JournalForms';
 
+const relatedAccountCodes = (
+  customCodes?: string[],
+  defaultCodes?: string[],
+) => {
+  const filteredCustomCodes = customCodes?.filter(Boolean);
+
+  if (filteredCustomCodes?.length) {
+    return filteredCustomCodes;
+  }
+
+  return defaultCodes || [];
+};
+
 export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const trDoc = useWatch({
@@ -83,11 +96,11 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
   const dtTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const ctTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [customDts, setCustomDts] = useState<string[]>([
-    ...(trDoc.relAccounts?.customDt || dtCodes),
+    ...relatedAccountCodes(trDoc.relAccounts?.customDt, dtCodes),
     '',
   ]);
   const [customCts, setCustomCts] = useState<string[]>([
-    ...(trDoc.relAccounts?.customCt || ctCodes),
+    ...relatedAccountCodes(trDoc.relAccounts?.customCt, ctCodes),
     '',
   ]);
 
