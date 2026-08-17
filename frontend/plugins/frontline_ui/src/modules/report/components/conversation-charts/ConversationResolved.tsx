@@ -20,6 +20,7 @@ import {
   XAxis,
   YAxis,
   Legend,
+  LabelList,
   Tooltip,
   CartesianGrid,
   PolarGrid,
@@ -77,7 +78,7 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
@@ -94,7 +95,14 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
       </BarChart>
