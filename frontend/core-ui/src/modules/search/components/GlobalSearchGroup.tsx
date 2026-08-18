@@ -100,8 +100,6 @@ export const GlobalSearchCategoryGroup = ({
   category,
   label,
   labelKey,
-  labelNamespace,
-  icon: Icon,
   groups,
   searchValue,
   actionLabel,
@@ -113,8 +111,6 @@ export const GlobalSearchCategoryGroup = ({
   category: TSearchProviderCategory;
   label: string;
   labelKey?: string;
-  labelNamespace?: string;
-  icon?: React.ElementType;
   groups: TGlobalSearchGroup[];
   searchValue: string;
   actionLabel: string;
@@ -123,9 +119,7 @@ export const GlobalSearchCategoryGroup = ({
   onLoadMore?: (category: TSearchProviderCategory) => void;
   onSelect: (path: string) => void;
 }) => {
-  const { t } = useTranslation(labelNamespace ?? 'common', {
-    keyPrefix: labelNamespace ? undefined : 'global-search',
-  });
+  const { t } = useTranslation('common', { keyPrefix: 'global-search' });
   const { t: tCommon } = useTranslation('common', {
     keyPrefix: 'global-search',
   });
@@ -185,7 +179,6 @@ export const GlobalSearchCategoryGroup = ({
           key={`${providerKey}:${item.id}`}
           actionLabel={actionLabel}
           commandValue={`${providerKey}:${item.id}`}
-          icon={Icon}
           item={item}
           searchValue={searchValue}
           onSelect={onSelect}
