@@ -157,14 +157,14 @@ export const types = `
 
 export const queries = `
   callReportIntegrations: [CallReportIntegration!]!
-  callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
-  callGetAgentStats(startDate: String!, endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
-  getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
-  callKpiScorecard(startDate: String!, endDate: String!, queueId: String, direction: String): CallKeyStatistics
-  callVolumeSeries(startDate: String!, endDate: String!, queueId: String, direction: String): [CallVolumePoint]
-  callCarrierBreakdown(startDate: String!, endDate: String!, queueId: String, direction: String): [CarrierSlice]
-  callHeatmap(startDate: String!, endDate: String!, queueId: String, direction: String): [HeatCell]
-  callTopNumbers(startDate: String!, endDate: String!, queueId: String, direction: String, limit: Int): [TopNumber]
+  callGetQueueStats(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [QueueStats!]!
+  callGetAgentStats(startDate: String!, endDate: String!, integrationId: String, queueId: String, agentId: String, direction: String): [AgentStats!]!
+  getCallbackStats(startDate: String!, endDate: String!, integrationId: String, queueId: String): [CallbackStats!]!
+  callKpiScorecard(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): CallKeyStatistics
+  callVolumeSeries(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [CallVolumePoint]
+  callCarrierBreakdown(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [CarrierSlice]
+  callHeatmap(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [HeatCell]
+  callTopNumbers(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String, limit: Int): [TopNumber]
   callTodayStatistics(queue: String!): CallKeyStatistics
   callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateFirstCallResolution(queue: String!, startDate: String!, endDate: String!, direction: String): Float
@@ -173,5 +173,5 @@ export const queries = `
   callCalculateAverageHandlingTime(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callCalculateOccupancyRate(queue: String!, startDate: String!, endDate: String!, direction: String): Float
   callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStat]
-  callHistoryList(startDate: String!, endDate: String!, queueId: String, direction: String, outcome: String, agentExtension: String, resolution: String, searchValue: String, skip: Int, limit: Int): CallHistoryPage
+  callHistoryList(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String, outcome: String, agentExtension: String, resolution: String, searchValue: String, skip: Int, limit: Int): CallHistoryPage
 `;

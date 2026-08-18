@@ -78,6 +78,8 @@ export type NodeData<TConfig = any> = {
     id: string,
     type: AutomationNodeType,
   ) => React.ReactNode;
+  readOnly?: boolean;
+  actionSnapshot?: TAutomationAction;
 };
 
 export type WorkflowNodeData = {
@@ -107,6 +109,8 @@ export interface IAutomationDoc {
   tags?: any[];
   tagIds?: string[];
   approvalLockState?: ApprovalLockState;
+  duplicatedFrom?: string;
+  duplicatedFromName?: string;
 }
 
 export interface IAutomationNoteDoc {
@@ -265,6 +269,7 @@ interface ActionComponentConfig<TConfig = any>
     action: IAutomationHistoryAction;
     status: IAutomationHistory['status'];
   }>;
+  actionResultPreview?: (action: IAutomationHistoryAction) => string;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 }
 

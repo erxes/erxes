@@ -1,5 +1,46 @@
 
 
+## [3.0.83](https://github.com/erxes/erxes/compare/3.0.82...3.0.83) (2026-08-17)
+
+
+### Bug Fixes
+
+* (accounting) related accounts ([#9043](https://github.com/erxes/erxes/issues/9043)) ([577c4b8](https://github.com/erxes/erxes/commit/577c4b828cb6c0892adfb5f1a8f241f654ab2b12))
+
+# Changelog
+
+## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
+
+
+### Bug Fixes
+
+* **frontline:** tolerate deleted ticket config references on messenger save ([0dbc37d](https://github.com/erxes/erxes/commit/0dbc37d131bd70ccebce2df8c340f0c81591e416))
+
+## [3.0.81](https://github.com/erxes/erxes/compare/3.0.80...3.0.81) (2026-08-17)
+
+
+### Bug Fixes
+
+* **accounting:** report improvement ([#9016](https://github.com/erxes/erxes/issues/9016)) ([6e317e9](https://github.com/erxes/erxes/commit/6e317e92b47ecdcfc1ec84cfee92c7fa2a19f37c))
+* add checklists on deal ([#9031](https://github.com/erxes/erxes/issues/9031)) ([9dd55e3](https://github.com/erxes/erxes/commit/9dd55e31c2d3be17a0732e8ce8d2699e09a3be91))
+* **content:** allow 650 MiB custom field uploads ([#9040](https://github.com/erxes/erxes/issues/9040)) ([38b7301](https://github.com/erxes/erxes/commit/38b7301b75441364b52b515c77bcf23202580aa3))
+* **content:** preserve CMS post editor structure ([#9013](https://github.com/erxes/erxes/issues/9013)) ([36a6994](https://github.com/erxes/erxes/commit/36a6994d726991ae1f3eb0230dd74a7505aba9de))
+* frontline inbox filters and Facebook tagging ([#9022](https://github.com/erxes/erxes/issues/9022)) ([03af06c](https://github.com/erxes/erxes/commit/03af06c4408b8a2fc5930a6463c8ae1a60687206))
+* **frontline:** attribute call report agent stats per leg ([388d315](https://github.com/erxes/erxes/commit/388d3153621412ea2207c42f106c4b5b5fbafa71))
+* **frontline:** enforce ticket status permissions  ([ff78897](https://github.com/erxes/erxes/commit/ff7889704a34b45202f6c79a2a58eb9b72a84f2e))
+* **frontline:** keep Follow-Me forwards out of call volume ([65e0622](https://github.com/erxes/erxes/commit/65e06224dcb12be3fc96efd1be7a57d19c27f3e3))
+* **frontline:** save Instagram bot replies to the Instagram collection ([2ca23c2](https://github.com/erxes/erxes/commit/2ca23c235811ef546ac48f1a2f3607b9255e72c6))
+* **frontline:** scope call reports by integration, not by queue ([fa09314](https://github.com/erxes/erxes/commit/fa09314021a9ae59733dfdfe751b33963b2b4aa6))
+* **payment:** validate event before ticket scan ([b795017](https://github.com/erxes/erxes/commit/b795017373779c585e902d30f1480138d7db8d64))
+* **sales:** add POS order search filter ([#9024](https://github.com/erxes/erxes/issues/9024)) ([7aeb64a](https://github.com/erxes/erxes/commit/7aeb64a5ed921f1bb625940c90dc72431be8f5cb))
+
+
+### Features
+
+* **automations:** add automation settings tabs component ([356cc71](https://github.com/erxes/erxes/commit/356cc710573b7214c597948c4092747c1c23e19d))
+* **conversations:** add automation status filter and related functionality ([728e9ef](https://github.com/erxes/erxes/commit/728e9ef76f422aacc9b0814a0a3d181ba723e46c))
+* **tourism:** add discount config  ([7f9aa27](https://github.com/erxes/erxes/commit/7f9aa27582396e5d14e5672cfb4cfeb991737353))
+
 ## [3.0.80](https://github.com/erxes/erxes/compare/3.0.79...3.0.80) (2026-08-14)
 
 
@@ -43,7 +84,7 @@
 * **frontline:** add client portal messenger conversation operations ([2b74435](https://github.com/erxes/erxes/commit/2b744350217bb0d602e57773d9022d8567be27a8))
 * **pipelines:** add scoped property selection ([#9001](https://github.com/erxes/erxes/issues/9001)) ([2561cf8](https://github.com/erxes/erxes/commit/2561cf8e68d9b7e23b1223a89dc7a0ff66f3f526))
 
-# Changelog
+
 
 ## [3.0.77](https://github.com/erxes/erxes/compare/3.0.76...3.0.77) (2026-08-12)
 

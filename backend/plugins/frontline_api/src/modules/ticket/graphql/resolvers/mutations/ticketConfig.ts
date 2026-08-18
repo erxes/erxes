@@ -52,8 +52,17 @@ export const ticketConfigMutations = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
+    const ticketConfig = await models.TicketConfig.getTicketConfig(_id);
+
     await models.TicketConfig.deleteOne({
       _id: _id,
     });
+
+    await models.Integrations.updateMany(
+      { ticketConfigIds: _id },
+      { $pull: { ticketConfigIds: _id } },
+    );
+
+    return ticketConfig;
   },
 };

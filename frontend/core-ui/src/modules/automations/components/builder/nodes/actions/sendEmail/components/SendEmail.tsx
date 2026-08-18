@@ -1,3 +1,4 @@
+import { getSendEmailResultPreview } from '@/automations/components/builder/nodes/actions/sendEmail/utils/sendEmailResultPreview';
 import { lazy } from 'react';
 import {
   AutomationComponentMap,
@@ -27,6 +28,7 @@ const SendEmailComponents: AutomationComponentMap<AutomationNodeType.Action> = {
         default: module.AutomationSendEmailActionResult,
       })),
     ),
+    actionResultPreview: getSendEmailResultPreview,
   },
 };
 

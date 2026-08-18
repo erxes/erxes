@@ -30,11 +30,22 @@ export interface IReportFilterParams {
 
   brandId?: string;
   isOutBalance?: boolean;
+  productId?: string;
+  productIds?: string[];
+  fixedAssetId?: string;
+  fixedAssetIds?: string[];
+  customerId?: string;
+  customerIds?: string[];
+  contentType?: string;
+  contentId?: string;
   branchId?: string;
   departmentId?: string;
   currency?: string;
   journal?: string;
   journals?: string[];
+  trKind?: string;
+  trKinds?: string[];
+  getTrKind?: string;
   statuses?: string[];
 
   createdUserId?: string;

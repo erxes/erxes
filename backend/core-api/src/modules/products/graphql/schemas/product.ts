@@ -94,6 +94,7 @@ const queryParams = `
   boardId: String,
   segment: String,
   segmentData: String,
+  propertiesData: String,
   groupedSimilarity: String,
   similarity: Boolean,
   image: String,

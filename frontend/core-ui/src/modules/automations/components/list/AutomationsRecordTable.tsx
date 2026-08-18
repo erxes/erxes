@@ -3,6 +3,7 @@ import { AutomationRecordTableFilters } from '@/automations/components/list/filt
 import { useAutomationsRecordTable } from '@/automations/hooks/useAutomationsRecordTable';
 import { AutomationsRecordTableContent } from '@/automations/components/list/AutomationsRecordTableContent';
 import { AutomationsRecordTableEmptyState } from '@/automations/components/list/AutomationsRecordTableEmptyState';
+import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationsViewToggle } from '@/automations/components/list/AutomationsViewToggle';
 import { IconAffiliate, IconSettings } from '@tabler/icons-react';
 import {
@@ -30,6 +31,8 @@ export const AutomationsRecordTable = () => {
   const {
     list,
     loading,
+    error,
+    refetch,
     totalCount,
     hasNextPage,
     handleFetchMore,
@@ -99,7 +102,13 @@ export const AutomationsRecordTable = () => {
         </PageHeader.End>
       </PageHeader>
       <AutomationRecordTableFilters loading={loading} totalCount={totalCount} />
-      {list.length === 0 ? (
+      {error ? (
+        <AutomationErrorEmptyState
+          title="Couldn't load automations"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      ) : list.length === 0 ? (
         <AutomationsRecordTableEmptyState />
       ) : (
         <AutomationsRecordTableContent

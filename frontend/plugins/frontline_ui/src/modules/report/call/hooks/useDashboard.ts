@@ -9,7 +9,8 @@ interface DashboardData {
 }
 
 export function useDashboard() {
-  const { startDate, endDate, queueId, direction } = useCallFilters();
+  const { startDate, endDate, integrationId, queueId, direction } =
+    useCallFilters();
 
   const { data, loading, error } = useQuery<DashboardData>(
     gql(callReportsDashboard),
@@ -17,10 +18,11 @@ export function useDashboard() {
       variables: {
         startDate,
         endDate,
-        queueId,
+        integrationId: integrationId || undefined,
+        queueId: queueId && queueId !== 'all' ? queueId : undefined,
         direction: direction !== 'all' ? direction : undefined,
       },
-      skip: !queueId,
+      skip: !integrationId,
     },
   );
 

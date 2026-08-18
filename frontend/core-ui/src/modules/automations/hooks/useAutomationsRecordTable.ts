@@ -21,7 +21,7 @@ export const useAutomationsRecordTable = (
   options?: QueryHookOptions<QueryResponse>,
 ) => {
   const filters = useAutomationRecordTableFilters();
-  const { data, loading, fetchMore } = useQuery<QueryResponse>(
+  const { data, loading, error, refetch, fetchMore } = useQuery<QueryResponse>(
     AUTOMATIONS_MAIN_LIST,
     {
       ...(options || {}),
@@ -71,6 +71,8 @@ export const useAutomationsRecordTable = (
   };
 
   return {
+    error,
+    refetch,
     list,
     loading,
     totalCount,

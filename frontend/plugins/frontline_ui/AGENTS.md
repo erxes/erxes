@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-13`
+- **Last synchronized:** `2026-08-17`
 
 ## Scope
 
@@ -82,6 +82,12 @@
   channel is quiet.
 - Each team channel row shows an avatar stack of its members, rendered from one
   batched `GetChannelMembers` query for the whole group.
+- The conversation filter popover carries an `Automation status` sub-view over
+  the `automationStatus` query param: `responded` (automation touched the
+  conversation at all), `standby` (handoff requested), `handoff` (an operator
+  took over). It is single-select, each row shows its count from
+  `conversationCounts`, and `responded` is a superset of the other two, so the
+  three counts overlap by design.
 - Selecting a nested integration type filters the conversation list by both
   `channelId` and `integrationType`; selecting a channel row filters by
   `channelId` and clears `integrationType`.
@@ -132,6 +138,7 @@
 | Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                   |
 | Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                                     | The "N unread" figure in a group header's actions slot                                                                                           |
 | Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                           |
+| Automation filter  | `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx`, `src/modules/inbox/constants/automationStatusFilters.ts`             | `automationStatus` filter item, sub-view, and bar item                                                                                          |
 | Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | `conversationCounts` reads per integration type inside one channel                                                                               |
 | Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                                     |
 | Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                           |
@@ -302,6 +309,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   and a horizontal scroll container; fix density there, not per table, and never
   by editing `erxes-ui` (out of plugin scope, and the record grids depend on
   those defaults).
+- The call report is scoped by **integration**, not by queue. `CallReportsPage`
+  gates every tab on `integrationId`, defaults `queueId` to the synthetic
+  `ALL_QUEUES` (`'all'`) option it prepends to `queueOptions`, and each report
+  hook skips on `!integrationId` while sending `queueId` only when it is a real
+  queue. Never restore the "select the first queue and gate on it" behaviour: a
+  deployment that moves its traffic off queues (to an IVR, say) then renders an
+  entirely empty report even though every other tab has data.
 - `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
   Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
@@ -310,6 +324,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
   service, which is what actually labels the report data — the UI helper only
   covers phone numbers the plugin classifies itself. Change both together.
+- "Can move" applies at **both ends** of a status change, matching
+  `frontline_api`: the status the ticket leaves and the one it lands in must
+  each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
+  single implementation and is called once per end — the board checks the card's
+  own column and then the column being dropped on, `useTicketPermissions({
+  status })` returns the leaving side as `canMoveTicket` (what disables the
+  status field in ticket detail), and `SelectStatusTicket` disables the options a
+  user may not move into when the surface passes `restrictToMovable` (moves only
+  — never on filter or create surfaces, where no ticket is being moved). An empty
+  `canMoveMemberIds` means "everyone". `useTicketPermissions({ pipeline })`
+  without a `status` returns permissive defaults, so its `canMoveTicket` must
+  never stand in for a real per-status check.
+- `useUpdateTicketStatus` hands Apollo its own `onError`, so its promise
+  **resolves** on a refused write instead of rejecting — a `try`/`catch` around
+  it never fires. Every caller decides success from `result?.data`
+  (`StatusPermissionControl` commits the member selection only then,
+  `StatusGroup` checks `result.value?.data` per reorder write). Committing local
+  state unconditionally is what once made "Can move" look configured while the
+  server stored nothing.
+- The board keeps its own optimistic copy of the cards
+  (`fetchedTicketsState` + `ticketCountByBoardAtom`), and nothing else restores
+  it. Every optimistic move must pass an `onError` that puts the card and both
+  counts back, otherwise a rejected move stays on screen until a reload.
 - Channel scope is presentation-only here; the server is the authority. Never
   infer privacy from the UI, and never offer a members/invite affordance on a
   channel whose `scope` is `personal`.
@@ -442,6 +479,61 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-17` — "Can move" also blocks dragging a card out of a status
+
+- **Summary:** The board only checked the destination column, so a user missing
+  from a status's `canMoveMemberIds` could still drag its cards away; the drag
+  now checks the card's own column first, and `useTicketPermissions` reports the
+  leaving side again through `canMoveTicket`, which is what disables the status
+  field on ticket detail.
+- **Affected areas:** `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/TicketsBoard.tsx`.
+- **Contracts changed:** `None` — new `no-move-out-permission` copy falls back to
+  English until the gateway `frontline` namespace carries it.
+
+### `2026-08-17` — Status permission edits stop reporting refused writes as saved
+
+- **Summary:** A refused `updateTicketStatus` resolves without data instead of
+  throwing, so `StatusPermissionControl` used to commit the member selection
+  anyway and "Can move" / "Can edit" looked configured while the server stored
+  nothing; both handlers now commit only on `result?.data`, and
+  `useUpdateTicketStatus` refetches the pipeline status queries so the board and
+  the pickers see new status permissions without a reload.
+- **Affected areas:**
+  `src/modules/pipelines/components/permissions/components/StatusPermissionControl.tsx`,
+  `src/modules/status/hooks/useUpdateTicketStatus.tsx`.
+- **Contracts changed:** `None`
+
+### `2026-08-15` — Status move permission gated per destination
+
+- **Summary:** The board dropped cards into any column because it asked for
+  permissions without a status; it now checks the destination's
+  `canMoveMemberIds`, rolls the card and both counts back when the API refuses,
+  and the status pickers used to move a ticket disable the statuses the user may
+  not move into instead of gating on the status the ticket is leaving.
+- **Affected areas:**
+  `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/{TicketsBoard.tsx,ticket-selects/SelectStatusTicket.tsx,ticket-command-bar/TicketsEditStatus.tsx}`,
+  `src/modules/status/types/index.ts`.
+- **Contracts changed:** `SelectStatusTicket.Provider` gained an optional
+  `restrictToMovable` prop; `ITicketStatusChoice` gained `canMoveMemberIds` and
+  `canEditMemberIds`.
+
+### `2026-08-15` — Call report filters by integration, queue becomes optional
+
+- **Summary:** The page force-selected the first queue and hid every tab until
+  one was set, so a deployment whose traffic moved off queues saw an empty
+  report. `queueOptions` now leads with an "All Queues" entry that is the
+  default, the tabs gate on `integrationId`, and every report hook forwards
+  `integrationId` while sending `queueId` only for a real queue.
+- **Affected areas:**
+  `src/modules/report/call/CallReportsPage.tsx`,
+  `src/modules/report/call/hooks/*` (nine report hooks),
+  `src/modules/integrations/call/graphql/queries/callStatistics.ts`,
+  `src/modules/integrations/call/graphql/queries/callHistoryList.ts`.
+- **Contracts changed:** Nine report documents gained `$integrationId: String`,
+  matching the new optional argument in `frontline_api`.
+
 ### `2026-08-13` — Ticket tag popover stays open across a multi-select
 
 - **Summary:** Picking a tag on the ticket board card, detail sheet, or create
@@ -535,64 +627,3 @@ utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
   `.../configs/schema.ts`, `.../configs/graphql/**`.
 - **Contracts changed:** `None` on the UI side; the ticket-config documents now
   select the new optional `type` and `options` fields from `frontline_api`.
-
-### `2026-08-10` — Ticket config picker is multi-select
-
-- **Summary:** `SelectTicketConfig` now selects many ticket configs instead of
-  one: its context is `value: string[]` / `onValueChange: (configIds: string[])`,
-  items toggle in and out of the array, the popover stays open across toggles,
-  the trigger shows the single config's name or `n-selected`, and the list gained
-  loading and error states. Also repointed the messenger preview's two ticket
-  gates from the removed `ticketConfigId` to `ticketConfigIds`.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/SelectTicketConfig.tsx`,
-  `.../configs/hooks/useGetTicketConfigs.ts`,
-  `src/modules/integrations/erxes-messenger/components/EMPreviewIntro.tsx`.
-- **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
-  take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
-  returns `error`.
-
-### `2026-08-10` — Current Mongolian carrier prefixes
-
-- **Summary:** `detectCarrier` now uses the current allocation — Skytel `90`,
-  `91`, `92`, `96` and `696XXXXX`; Mobicom `85`, `94`, `95`, `99`; Unitel `80`,
-  `86`, `88`, `89`; G-Mobile `83`, `93`, `97`, `98`; Ondo `60`, `66` — with the
-  unallocated ranges falling through to `Unknown`. The country-code strip is now
-  length-aware so a legitimate 8-digit `976XXXXX` G-Mobile number keeps its
-  prefix.
-- **Affected areas:** `src/modules/report/call/utils.ts`.
-- **Contracts changed:** `None`
-
-### `2026-08-10` — Ticket property fields in the messenger config builder
-
-- **Summary:** The pipeline configuration sheet gained a "Select ticket property
-  fields" section: ticket custom properties are listed per `frontline:ticket`
-  field group, toggling one adds it to the form, and selected properties get
-  drag-ordered cards with label, placeholder, and required controls, saved as
-  `propertyFields` on the ticket config.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`
-  (new), `.../components/ConfigsForm.tsx`, `.../schema.ts`, `.../constant.ts`,
-  `.../hooks/usePipelineConfigForm.ts`, `.../graphql/**`.
-- **Contracts changed:** `None` on the UI side; the four ticket-config documents
-  now select the new optional `propertyFields` field from `frontline_api`.
-
-### `2026-08-10` — Denser, scannable call report tables
-
-- **Summary:** The Agents, Callbacks, and Top Numbers tables now compose a
-  shared `ReportTable` wrapper that replaces `erxes-ui`'s `table-fixed` /
-  `p-0` defaults with content-sized columns, real cell padding, aligned heads,
-  and horizontal scrolling. Added proportional `Meter` bars for call volume,
-  answer rate, and callback recovery; an agent row now shows name over
-  extension with its leaderboard rank; the expander is a real button with
-  `aria-expanded`; and the drilldown became a labelled grid. Fixed a missing
-  React `key` on the agent row fragment, and repointed these three tables'
-  colours from the undefined `--pos` / `--neg` / `--warn` variables to the
-  theme's real `--success` / `--destructive` / `--warning`, so the count pills
-  are actually tinted.
-- **Affected areas:** `src/modules/report/call/components/ReportTable.tsx`
-  (new), `.../components/Meter.tsx` (new),
-  `.../components/AgentsSection/{AgentTable,AgentDrilldown}.tsx`,
-  `.../components/CallbacksSection/CallbacksSection.tsx`,
-  `.../components/TopNumbersSection/TopNumbersSection.tsx`.
-- **Contracts changed:** `None`

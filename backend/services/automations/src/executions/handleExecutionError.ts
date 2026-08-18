@@ -18,5 +18,8 @@ export const handleExecutionError = async (
   execution.actions = [...(execution.actions || []), execAction];
   execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;
   execution.description = `An error occurred while working action: ${actionType}`;
+  execution.failedActionId = execAction.actionId;
+  execution.failedActionType = actionType;
+  execution.errorCode = execAction.errorCode;
   await execution.save();
 };

@@ -12,6 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { ReportsView } from '@/report/components/ReportsView';
 import { CallReportsView } from '@/report/components/CallReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
+import {
+  OVERVIEW_KPI_DATE_FILTER_ID,
+  ReportKpiDateFilter,
+  TICKET_PRIORITY_DATE_FILTER_ID,
+} from '@/report/components/filter-popover/ReportKpiDateFilter';
 
 const ROUTES = {
   overview: '/frontline/reports',
@@ -55,6 +60,10 @@ export default function ReportIndexPage() {
     t('reports'),
     activeSectionLabel,
   );
+  const kpiDateFilterId =
+    activeSection === 'ticket'
+      ? TICKET_PRIORITY_DATE_FILTER_ID
+      : OVERVIEW_KPI_DATE_FILTER_ID;
 
   return (
     <PageContainer>
@@ -93,6 +102,11 @@ export default function ReportIndexPage() {
             icon="IconChartHistogram"
           />
         </PageHeader.Start>
+        {activeSection !== 'call' && (
+          <PageHeader.End>
+            <ReportKpiDateFilter filterId={kpiDateFilterId} />
+          </PageHeader.End>
+        )}
       </PageHeader>
 
       {reportContent}

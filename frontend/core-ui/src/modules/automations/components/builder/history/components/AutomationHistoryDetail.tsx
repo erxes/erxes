@@ -8,42 +8,46 @@ import { AutomationHistoryDetailProvider } from '@/automations/components/builde
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { IconEye } from '@tabler/icons-react';
 import { cn, RecordTable, RecordTableInlineCell, Sheet } from 'erxes-ui';
-import { useState } from 'react';
 
 export const AutomationHistoryDetail = ({
   executionId,
 }: {
   executionId: string;
 }) => {
-  const [isOpen, setOpen] = useState(false);
   const { isSplitView, selectedExecutionId, selectExecution } =
     useAutomationHistoryView();
+  const isOpen = selectedExecutionId === executionId;
+
+  const trigger = (
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      aria-label="Show execution detail"
+    >
+      <IconEye className={cn(isOpen && 'text-primary')} />
+    </RecordTable.MoreButton>
+  );
 
   if (isSplitView) {
     return (
       <RecordTableInlineCell className="p-0">
-        <RecordTable.MoreButton
-          className="w-full h-full"
-          aria-label="Show execution detail"
+        <span
+          className="flex size-full"
           onClick={() => selectExecution(executionId)}
         >
-          <IconEye
-            className={cn(selectedExecutionId === executionId && 'text-primary')}
-          />
-        </RecordTable.MoreButton>
+          {trigger}
+        </span>
       </RecordTableInlineCell>
     );
   }
 
   return (
     <AutomationHistoryDetailProvider executionId={executionId}>
-      <RecordTableInlineCell>
-        <Sheet open={isOpen} onOpenChange={setOpen}>
-          <Sheet.Trigger asChild>
-            <RecordTable.MoreButton className="w-full h-full">
-              <IconEye />
-            </RecordTable.MoreButton>
-          </Sheet.Trigger>
+      <RecordTableInlineCell className="p-0">
+        <Sheet
+          open={isOpen}
+          onOpenChange={(open) => selectExecution(open ? executionId : null)}
+        >
+          <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
           <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
             <AutomationHistorySheetContent isOpen={isOpen} />
           </Sheet.View>
