@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import {
-  GlobalSearchProviderGroup,
+  GlobalSearchCategoryGroup,
   NavigationSearchGroup,
 } from '@/search/components/GlobalSearchGroup';
 import {
@@ -20,6 +20,7 @@ import {
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
+  TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 
 const CONTENT_CATEGORIES = new Set(
@@ -64,7 +65,7 @@ const GlobalSearchResults = ({
   onCategoryChange: (category: TGlobalSearchCategory) => void;
   onContentSelect: (path: string) => void;
   onNavigationSelect: (path: string, activityId?: string) => void;
-  onLoadMore: (providerKey: string) => void;
+  onLoadMore: (category: TSearchProviderCategory) => void;
   onRetry: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
@@ -97,17 +98,25 @@ const GlobalSearchResults = ({
   const contentGroups = visibleGroups.filter(
     (group) => isAll || group.category === category,
   );
+  const categoryGroups = NAVIGATION_SEARCH_CATEGORIES.map(
+    ({ key, labelKey, defaultLabel }) => ({
+      category: key,
+      label: defaultLabel,
+      labelKey,
+      groups: contentGroups.filter((group) => group.category === key),
+    }),
+  ).filter(({ groups }) => groups.length > 0);
   const navigationItems = isNavCategory || isAll ? goToItems : [];
   const visibleItemCount =
     navigationItems.length +
     (isNavCategory
       ? 0
-      : contentGroups.reduce(
-          (total, group) =>
+      : categoryGroups.reduce(
+          (total, { groups }) =>
             total +
             Math.min(
-              group.items.length,
-              isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : group.items.length,
+              groups.reduce((sum, group) => sum + group.items.length, 0),
+              isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : Number.MAX_SAFE_INTEGER,
             ),
           0,
         ));
@@ -146,25 +155,41 @@ const GlobalSearchResults = ({
         />
       )}
 
-      {contentGroups.map((group) => (
-        <GlobalSearchProviderGroup
-          key={group.key}
-          actionLabel={t('open-result', 'Open result')}
-          group={group}
-          previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
-          searchValue={searchValue}
-          onSelect={onContentSelect}
-          onLoadMore={isAll ? undefined : () => onLoadMore(group.key)}
-          onShowMore={
-            isAll &&
-            (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
-              group.pageInfo.hasNextPage ||
-              (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT)
-              ? () => onCategoryChange(group.category)
-              : undefined
-          }
-        />
-      ))}
+      {categoryGroups.map(
+        ({
+          category: categoryKey,
+          label,
+          labelKey,
+          groups: categoryGroupList,
+        }) => (
+          <GlobalSearchCategoryGroup
+            key={categoryKey}
+            actionLabel={t('open-result', 'Open result')}
+            category={categoryKey}
+            groups={categoryGroupList}
+            label={label}
+            labelKey={labelKey}
+            previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
+            searchValue={searchValue}
+            onLoadMore={isAll ? undefined : onLoadMore}
+            onSelect={onContentSelect}
+            onShowMore={
+              isAll &&
+              (categoryGroupList.reduce(
+                (total, group) => total + group.items.length,
+                0,
+              ) > GLOBAL_SEARCH_PREVIEW_LIMIT ||
+                categoryGroupList.some(
+                  (group) =>
+                    group.pageInfo.hasNextPage ||
+                    (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT,
+                ))
+                ? () => onCategoryChange(categoryKey)
+                : undefined
+            }
+          />
+        ),
+      )}
 
       {waitingForContent && visibleItemCount === 0 && <GlobalSearchLoading />}
       {needsMoreCharacters && <GlobalSearchMinimumLength />}
@@ -212,7 +237,7 @@ export const GlobalSearchDialog = ({
   contentFailure: boolean;
   onContentSelect: (path: string) => void;
   onNavigationSelect: (path: string, activityId?: string) => void;
-  onLoadMore: (providerKey: string) => void;
+  onLoadMore: (category: TSearchProviderCategory) => void;
   onRetry: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });

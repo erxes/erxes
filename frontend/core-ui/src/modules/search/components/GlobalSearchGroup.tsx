@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { IconArrowRight, IconLoader2 } from '@tabler/icons-react';
-import { Button, Command } from 'erxes-ui';
+import { Button, Command, TSearchResultItem } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   TGlobalSearchGroup,
   TNavigationSearchItem,
+  TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 import { GlobalSearchItem } from '@/search/components/GlobalSearchItem';
 
@@ -71,7 +72,9 @@ export const NavigationSearchGroup = ({
   return (
     <Command.Group
       className="p-1"
-      heading={<SearchGroupHeading label={heading} onShowMore={showMoreAction} />}
+      heading={
+        <SearchGroupHeading label={heading} onShowMore={showMoreAction} />
+      }
     >
       {visibleItems.map((item) => (
         <GlobalSearchItem
@@ -88,8 +91,18 @@ export const NavigationSearchGroup = ({
   );
 };
 
-export const GlobalSearchProviderGroup = ({
-  group,
+type TCategoryGroupItem = {
+  providerKey: string;
+  item: TSearchResultItem;
+};
+
+export const GlobalSearchCategoryGroup = ({
+  category,
+  label,
+  labelKey,
+  labelNamespace,
+  icon: Icon,
+  groups,
   searchValue,
   actionLabel,
   previewLimit,
@@ -97,16 +110,21 @@ export const GlobalSearchProviderGroup = ({
   onLoadMore,
   onSelect,
 }: {
-  group: TGlobalSearchGroup;
+  category: TSearchProviderCategory;
+  label: string;
+  labelKey?: string;
+  labelNamespace?: string;
+  icon?: React.ElementType;
+  groups: TGlobalSearchGroup[];
   searchValue: string;
   actionLabel: string;
   previewLimit?: number;
   onShowMore?: () => void;
-  onLoadMore?: () => void;
+  onLoadMore?: (category: TSearchProviderCategory) => void;
   onSelect: (path: string) => void;
 }) => {
-  const { t } = useTranslation(group.labelNamespace ?? 'common', {
-    keyPrefix: group.labelNamespace ? undefined : 'global-search',
+  const { t } = useTranslation(labelNamespace ?? 'common', {
+    keyPrefix: labelNamespace ? undefined : 'global-search',
   });
   const { t: tCommon } = useTranslation('common', {
     keyPrefix: 'global-search',
@@ -114,16 +132,27 @@ export const GlobalSearchProviderGroup = ({
   const { ref: loadMoreRef, inView } = useInView({
     rootMargin: '160px 0px',
   });
-  const label = t(group.labelKey ?? group.key, group.label);
+  const heading = t(labelKey ?? category, label);
+
+  const items = groups.reduce<TCategoryGroupItem[]>((acc, group) => {
+    for (const item of group.items) {
+      acc.push({ providerKey: group.key, item });
+    }
+
+    return acc;
+  }, []);
+
   const visibleItems =
-    previewLimit === undefined
-      ? group.items
-      : group.items.slice(0, previewLimit);
+    previewLimit === undefined ? items : items.slice(0, previewLimit);
+  const hasAnyMore = groups.some(
+    (group) =>
+      group.pageInfo.hasNextPage ||
+      (group.totalCount ?? 0) > (previewLimit ?? group.items.length),
+  );
+  const loadingMore = groups.some((group) => group.loadingMore);
+  const loadMoreError = groups.some((group) => group.loadMoreError);
   const canLoadMore =
-    Boolean(onLoadMore) &&
-    group.pageInfo.hasNextPage &&
-    !group.loadingMore &&
-    !group.loadMoreError;
+    Boolean(onLoadMore) && hasAnyMore && !loadingMore && !loadMoreError;
 
   const previousInView = useRef(false);
 
@@ -132,44 +161,43 @@ export const GlobalSearchProviderGroup = ({
     previousInView.current = inView;
 
     if (enteredView && canLoadMore) {
-      onLoadMore?.();
+      onLoadMore?.(category);
     }
-  }, [canLoadMore, inView, onLoadMore]);
+  }, [canLoadMore, inView, onLoadMore, category]);
 
-  if (group.status !== 'ok' || group.items.length === 0) {
+  if (items.length === 0) {
     return null;
   }
 
   const hasMore =
-    previewLimit !== undefined &&
-    (group.items.length > previewLimit ||
-      group.pageInfo.hasNextPage ||
-      (group.totalCount ?? 0) > previewLimit);
+    previewLimit !== undefined && (items.length > previewLimit || hasAnyMore);
   const showMoreAction = hasMore ? onShowMore : undefined;
 
   return (
     <Command.Group
       className="p-1"
-      heading={<SearchGroupHeading label={label} onShowMore={showMoreAction} />}
+      heading={
+        <SearchGroupHeading label={heading} onShowMore={showMoreAction} />
+      }
     >
-      {visibleItems.map((item) => (
+      {visibleItems.map(({ providerKey, item }) => (
         <GlobalSearchItem
-          key={item.id}
+          key={`${providerKey}:${item.id}`}
           actionLabel={actionLabel}
-          commandValue={`${group.key}:${item.id}`}
-          icon={group.icon}
+          commandValue={`${providerKey}:${item.id}`}
+          icon={Icon}
           item={item}
           searchValue={searchValue}
           onSelect={onSelect}
         />
       ))}
 
-      {onLoadMore && group.pageInfo.hasNextPage && (
+      {onLoadMore && hasAnyMore && (
         <div
           ref={loadMoreRef}
           className="flex min-h-10 items-center justify-center gap-2 text-xs text-muted-foreground"
         >
-          {group.loadingMore && (
+          {loadingMore && (
             <>
               <IconLoader2 className="size-4 animate-spin" />
               {tCommon('loading-more', 'Loading more...')}
@@ -178,7 +206,7 @@ export const GlobalSearchProviderGroup = ({
         </div>
       )}
 
-      {onLoadMore && group.loadMoreError && (
+      {onLoadMore && loadMoreError && (
         <div className="flex min-h-10 items-center justify-center gap-2 text-xs text-destructive">
           <span>
             {tCommon('load-more-failed', "Couldn't load more results")}
@@ -188,8 +216,7 @@ export const GlobalSearchProviderGroup = ({
             size="sm"
             type="button"
             variant="secondary"
-            onClick={onLoadMore}
-            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => onLoadMore(category)}
           >
             {tCommon('retry', 'Retry')}
           </Button>

@@ -20,7 +20,10 @@ import {
   appendUniqueSearchItems,
   getGlobalSearchRequestState,
 } from '@/search/utils/globalSearchResults';
-import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
+import {
+  TGlobalSearchGroup,
+  TSearchProviderCategory,
+} from '@/search/types/GlobalSearch';
 
 type TGroupPageState = {
   items: TSearchResultItem[];
@@ -39,7 +42,7 @@ export interface IGlobalSearchResult {
   loading: boolean;
   hasFailure: boolean;
   refetch: () => void;
-  loadMore: (providerKey: string) => void;
+  loadMore: (category: TSearchProviderCategory) => void;
 }
 
 const getFailedRequiredSelection = (
@@ -194,121 +197,126 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   });
 
   const loadMore = useCallback(
-    async (providerKey: string) => {
-      const provider = providers.find(({ key }) => key === providerKey);
-      const currentGroup = groupsRef.current.find(
-        ({ key }) => key === providerKey,
-      );
-      const requestKey = `${searchValue}:${providerKey}:${
-        currentGroup?.pageInfo.endCursor ?? ''
-      }`;
-
-      if (
-        !provider ||
-        currentGroup?.status !== 'ok' ||
-        !currentGroup?.pageInfo.hasNextPage ||
-        !currentGroup?.pageInfo.endCursor ||
-        loadingProviderKeys.current.has(requestKey)
-      ) {
-        return;
-      }
-
+    async (category: TSearchProviderCategory) => {
       const requestSearchValue = searchValue;
-      loadingProviderKeys.current.add(requestKey);
-      setPagination((current) => {
-        const currentGroups =
-          current.searchValue === requestSearchValue ? current.groups : {};
-        const currentPage = currentGroups[providerKey];
+      const categoryProviders = providers.filter(
+        ({ category: providerCategory }) => providerCategory === category,
+      );
 
-        return {
-          searchValue: requestSearchValue,
-          groups: {
-            ...currentGroups,
-            [providerKey]: {
-              items: currentPage?.items ?? [],
-              pageInfo: currentGroup.pageInfo,
-              loadingMore: true,
-              loadMoreError: false,
-            },
-          },
-        };
-      });
-
-      try {
-        const result = await client.query<TSearchPayload>({
-          query: buildGlobalSearchPageDocument(provider),
-          variables: {
-            searchValue: requestSearchValue,
-            limit: GLOBAL_SEARCH_PAGE_SIZE,
-            cursor: currentGroup.pageInfo.endCursor,
-          },
-          errorPolicy: 'all',
-          fetchPolicy: 'no-cache',
-        });
-
-        if (latestSearchValue.current !== requestSearchValue) {
-          return;
-        }
-
-        if (getFailedRequiredSelection(provider, result.error)) {
-          throw result.error ?? new Error('Search page failed');
-        }
-
-        const nextPage = provider.resolve(
-          result.data ?? {},
-          GLOBAL_SEARCH_PAGE_SIZE,
+      for (const provider of categoryProviders) {
+        const currentGroup = groupsRef.current.find(
+          ({ key }) => key === provider.key,
         );
+        const requestKey = `${requestSearchValue}:${provider.key}:${
+          currentGroup?.pageInfo.endCursor ?? ''
+        }`;
 
+        if (
+          !currentGroup ||
+          currentGroup.status !== 'ok' ||
+          !currentGroup.pageInfo.hasNextPage ||
+          !currentGroup.pageInfo.endCursor ||
+          loadingProviderKeys.current.has(requestKey)
+        ) {
+          continue;
+        }
+
+        loadingProviderKeys.current.add(requestKey);
         setPagination((current) => {
-          if (current.searchValue !== requestSearchValue) {
-            return current;
-          }
-
-          const currentPage = current.groups[providerKey];
+          const currentGroups =
+            current.searchValue === requestSearchValue ? current.groups : {};
+          const currentPage = current.groups[provider.key];
 
           return {
-            ...current,
+            searchValue: requestSearchValue,
             groups: {
-              ...current.groups,
-              [providerKey]: {
-                items: appendUniqueSearchItems(
-                  currentPage?.items ?? [],
-                  nextPage.items,
-                ),
-                pageInfo: nextPage.pageInfo,
-                loadingMore: false,
+              ...currentGroups,
+              [provider.key]: {
+                items: currentPage?.items ?? [],
+                pageInfo: currentGroup.pageInfo,
+                loadingMore: true,
                 loadMoreError: false,
               },
             },
           };
         });
-      } catch {
-        if (latestSearchValue.current !== requestSearchValue) {
-          return;
-        }
 
-        setPagination((current) => {
-          if (current.searchValue !== requestSearchValue) {
-            return current;
+        try {
+          const result = await client.query<TSearchPayload>({
+            query: buildGlobalSearchPageDocument(provider),
+            variables: {
+              searchValue: requestSearchValue,
+              limit: GLOBAL_SEARCH_PAGE_SIZE,
+              cursor: currentGroup.pageInfo.endCursor,
+            },
+            errorPolicy: 'all',
+            fetchPolicy: 'no-cache',
+          });
+
+          if (latestSearchValue.current !== requestSearchValue) {
+            return;
           }
 
-          const currentPage = current.groups[providerKey];
+          if (getFailedRequiredSelection(provider, result.error)) {
+            throw result.error ?? new Error('Search page failed');
+          }
 
-          return {
-            ...current,
-            groups: {
-              ...current.groups,
-              [providerKey]: {
-                items: currentPage?.items ?? [],
-                pageInfo: currentPage?.pageInfo ?? currentGroup.pageInfo,
-                loadingMore: false,
-                loadMoreError: true,
+          const nextPage = provider.resolve(
+            result.data ?? {},
+            GLOBAL_SEARCH_PAGE_SIZE,
+          );
+
+          setPagination((current) => {
+            if (current.searchValue !== requestSearchValue) {
+              return current;
+            }
+
+            const currentPage = current.groups[provider.key];
+
+            return {
+              ...current,
+              groups: {
+                ...current.groups,
+                [provider.key]: {
+                  items: appendUniqueSearchItems(
+                    currentPage?.items ?? [],
+                    nextPage.items,
+                  ),
+                  pageInfo: nextPage.pageInfo,
+                  loadingMore: false,
+                  loadMoreError: false,
+                },
               },
-            },
-          };
-        });
-      } finally {
-        loadingProviderKeys.current.delete(requestKey);
+            };
+          });
+        } catch {
+          if (latestSearchValue.current !== requestSearchValue) {
+            return;
+          }
+
+          setPagination((current) => {
+            if (current.searchValue !== requestSearchValue) {
+              return current;
+            }
+
+            const currentPage = current.groups[provider.key];
+
+            return {
+              ...current,
+              groups: {
+                ...current.groups,
+                [provider.key]: {
+                  items: currentPage?.items ?? [],
+                  pageInfo: currentPage?.pageInfo ?? currentGroup.pageInfo,
+                  loadingMore: false,
+                  loadMoreError: true,
+                },
+              },
+            };
+          });
+        } finally {
+          loadingProviderKeys.current.delete(requestKey);
+        }
       }
     },
     [client, providers, searchValue],
@@ -319,6 +327,6 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     loading: requestState.loading,
     hasFailure: requestState.hasFailure,
     refetch: () => refetch(),
-    loadMore: (providerKey) => void loadMore(providerKey),
+    loadMore: (category) => void loadMore(category),
   };
 };
