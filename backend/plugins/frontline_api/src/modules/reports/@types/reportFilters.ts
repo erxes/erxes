@@ -20,6 +20,7 @@ export type IReportFilters = {
   customerIds?: string[];
   frequency?: string;
   branchIds?: string[];
+  pageIds?: string[];
   propertyIds?: string[];
   groupPropertyId?: string;
   groupPropertyValue?: string;
@@ -37,4 +38,13 @@ export type IReportTagsFilters = {
   status?: string;
   source?: string;
   limit?: number;
+};
+
+export type IFacebookReportFilters = {
+  date?: string;
+  fromDate?: string;
+  toDate?: string;
+  pageIds?: string[];
+  limit?: number;
+  page?: number;
 };

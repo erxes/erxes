@@ -16,6 +16,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -261,7 +262,7 @@ export const SourceBarChart = memo(function SourceBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 10 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
@@ -270,7 +271,14 @@ export const SourceBarChart = memo(function SourceBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>

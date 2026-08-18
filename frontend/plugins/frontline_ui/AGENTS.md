@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-16`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -154,6 +154,7 @@
 | FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                                             |
 | Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                  |
 | Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                         |
+| Facebook reports   | `src/modules/report/components/FacebookReportsList.tsx`, `src/modules/report/components/facebook-charts/`                                    | Facebook KPI row and the activity, bot, and post cards, with their page + date filter                                                            |
 | Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                 |
 | Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                      |
 
@@ -192,6 +193,13 @@
   chart, the chart `_id` for a saved one) and `savedChart` when it renders a
   saved configuration. A component that ignores the last two still works; one
   that supports saving reads `cardId` for its filter atoms.
+- `FACEBOOK_CHART_TYPES` and `facebookReportComponents` from
+  `src/modules/report/types/component-registry.ts` — the Facebook card registry.
+  `FACEBOOK_DEFAULT_CARD_CONFIGS` is the board's default catalogue, and the same
+  strings are persisted as a saved chart's `chartType`.
+- `useFacebookChartCard({ title, cardId, savedChart })` from
+  `src/modules/report/hooks/useFacebookChartCard.ts` — the Facebook equivalent
+  of `useTicketChartCard`, carrying `date` plus `pageIds`.
 - `TICKET_CHART_TYPES` from
   `src/modules/report/types/component-registry.ts` — the registry keys shared by
   the default cards, `ticketReportComponents`, and each card's save action.
@@ -246,6 +254,16 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   appears without a refetch or a reload. Do not reintroduce a per-chart-type
   query: the mutation would then write to a different cache entry than the
   board reads.
+- `frontline_api` GraphQL `reportFacebookSyncPostStats` — the Sync button on
+  the posts card. It is the only place this UI causes a Meta API call, it is
+  always user-initiated, and it refetches `reportFacebookPosts` and
+  `reportFacebookSummary` on completion so the table shows the new numbers
+  without a reload.
+- `frontline_api` GraphQL `reportFacebookPages`, `reportFacebookSummary`,
+  `reportFacebookActivity`, `reportFacebookPosts`, and `reportFacebookBots` —
+  the Facebook board's data. `reportFacebookPosts` pages on the server
+  (`limit` + `page` in the filter), every other card pages client-side through
+  `useChartPagination`.
 - `react-i18next` with the `frontline` namespace.
 
 ## Data and State
@@ -324,6 +342,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
   service, which is what actually labels the report data — the UI helper only
   covers phone numbers the plugin classifies itself. Change both together.
+- "Can move" applies at **both ends** of a status change, matching
+  `frontline_api`: the status the ticket leaves and the one it lands in must
+  each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
+  single implementation and is called once per end — the board checks the card's
+  own column and then the column being dropped on, `useTicketPermissions({
+  status })` returns the leaving side as `canMoveTicket` (what disables the
+  status field in ticket detail), and `SelectStatusTicket` disables the options a
+  user may not move into when the surface passes `restrictToMovable` (moves only
+  — never on filter or create surfaces, where no ticket is being moved). An empty
+  `canMoveMemberIds` means "everyone". `useTicketPermissions({ pipeline })`
+  without a `status` returns permissive defaults, so its `canMoveTicket` must
+  never stand in for a real per-status check.
+- `useUpdateTicketStatus` hands Apollo its own `onError`, so its promise
+  **resolves** on a refused write instead of rejecting — a `try`/`catch` around
+  it never fires. Every caller decides success from `result?.data`
+  (`StatusPermissionControl` commits the member selection only then,
+  `StatusGroup` checks `result.value?.data` per reorder write). Committing local
+  state unconditionally is what once made "Can move" look configured while the
+  server stored nothing.
+- The board keeps its own optimistic copy of the cards
+  (`fetchedTicketsState` + `ticketCountByBoardAtom`), and nothing else restores
+  it. Every optimistic move must pass an `onError` that puts the card and both
+  counts back, otherwise a rejected move stays on screen until a reload.
 - Channel scope is presentation-only here; the server is the authority. Never
   infer privacy from the UI, and never offer a members/invite affordance on a
   channel whose `scope` is `personal`.
@@ -417,6 +458,27 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `useRestoreTicketChartFilters` reports back — it holds the query with `skip`
   and shows its skeleton, otherwise the card flashes unfiltered data before the
   saved filters land.
+- The Facebook board is reached through `/frontline/reports/facebook` and the
+  page header's `ToggleGroup` in `ReportIndexPage`, which is the only report
+  navigation a user can actually click. `ReportsView` also still renders it for
+  `?reportModule=facebook`; keep both, because the query-param path is what the
+  `REPORT_MODULES` entry uses. The KPI row reads the header's
+  `OVERVIEW_KPI_DATE_FILTER_ID` date atom, exactly like the conversation board,
+  so the header filter keeps driving it.
+- **`REPORT_MODULES` is not a visible menu.** `ChooseReportModule` renders it,
+  but its only consumer `ReportNavigations` is imported nowhere and
+  `FrontlineSubGroups` computes `isReport` and then returns `null` for
+  `/frontline/reports`. Adding an entry to `REPORT_MODULES` therefore ships no
+  clickable surface — a new report board needs a `ReportIndexPage` route and
+  toggle item as well.
+- The posts card's "On Meta" column shows `—` until a sync has run, and the
+  signed difference next to Meta's count is `meta − (comments + replies)` — a
+  positive number means Meta has comments erxes never received, which is the
+  gap the card exists to surface. Never hide it behind a zero default.
+- Facebook cards filter on page and date only. Their page list comes from
+  `reportFacebookPages` (pages the plugin already stores), never from a Graph
+  API call — this board reads no Facebook Insights and no automation-execution
+  data, and a card must not start doing so on its own.
 - Exposed modules stay lazy-loaded and wrapped in `Suspense`.
 - Routed pages use `h-full`, never `h-dvh`/`h-screen`.
 - New user-visible strings go through `useTranslation('frontline')` with keys
@@ -456,34 +518,103 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-16` — Conversations filter by automation status
+### `2026-08-19` — Facebook repair reports real failures
 
-- **Summary:** The inbox filter popover gained an `Automation status` sub-view
-  writing the `automationStatus` query param — `responded`, `standby`, or
-  `handoff` — which `Conversations.tsx` passes straight to the `conversations`
-  query. Each row shows its count from `conversationCounts`, and the selection
-  renders as a filter bar item.
+- **Summary:** `integrationsRepair` answers a failed Facebook repair with a
+  `{ status: 'error', errorMessage }` payload instead of a GraphQL error, so the
+  Repair action now inspects the payload and shows that message as a destructive
+  toast rather than claiming success while the badge stays unhealthy.
 - **Affected areas:**
-  `src/modules/inbox/conversations/components/AutomationStatusFilter.tsx` (new),
-  `src/modules/inbox/constants/automationStatusFilters.ts` (new),
-  `src/modules/inbox/conversations/components/{ConversationsFilter,Conversations}.tsx`,
-  `src/modules/inbox/conversations/graphql/queries/getConversations.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`.
-- **Contracts changed:** `None` on the UI side; `GET_CONVERSATIONS` sends the
-  new `automationStatus` argument added by `frontline_api`, and the four new
-  `frontline` i18n keys live in the gateway-owned locale files.
+  `src/modules/integrations/utils/repairResult.ts` (new),
+  `src/modules/integrations/facebook/components/FacebookIntegrationRepair.tsx`,
+  `src/modules/integrations/facebook/hooks/useFbIntegrationsRepair.tsx`.
+- **Contracts changed:** None; the `FacebookRepair` mutation and its variables
+  are unchanged.
 
-### `2026-08-15` — Facebook history result shows the sent sequence
+### `2026-08-19` — Health status tooltip on the integrations table
 
-- **Summary:** The Facebook automation history result renders every message the
-  run actually sent, in order, with its type, resolved content, buttons/quick
-  replies, send time and message id, instead of a single "sent successfully"
-  badge; comment replies show the reply text and attachments.
+- **Summary:** The integrations table's health status badge now shows the
+  provider error message returned with `healthStatus` in a tooltip on hover, so
+  an unhealthy integration (for example a `page-token` Facebook page) explains
+  why it failed without opening anything else.
 - **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
-  `src/widgets/automations/modules/facebook/components/history/`.
-- **Contracts changed:** None — reads the existing `historyActionResult` props;
-  layout now uses the shared `ActionResult` primitives from `ui-modules`.
+  `src/modules/integrations/components/IntegrationsRecordTable.tsx`,
+  `src/modules/integrations/types/Integration.ts`.
+- **Contracts changed:** None; reads the already-returned optional `error`
+  field inside the `healthStatus` JSON of the `Integrations` query.
+
+### `2026-08-18` — Sync button for Meta post counts
+
+- **Summary:** The Facebook posts card gained a Sync action that pulls
+  Facebook's own comment, reaction, and share counts on demand, an "On Meta"
+  column showing that count with the signed gap against what erxes received,
+  and a "last synced" line; the result toast reports how many posts updated and
+  how many Meta posts erxes has no record of.
+- **Affected areas:**
+  `src/modules/report/components/facebook-charts/{SyncFacebookStatsButton,FacebookPosts}.tsx`,
+  `src/modules/report/graphql/{mutations/facebookReportMutations.ts,queries/getFacebookChart.ts}`,
+  `src/modules/report/{hooks/useFacebookReport.ts,types.ts}`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- **Contracts changed:** Consumes the new `reportFacebookSyncPostStats`
+  mutation and selects four new `metaCommentCount`/`metaReactionCount`/
+  `metaShareCount`/`metaSyncedAt` fields on `reportFacebookPosts`.
+
+### `2026-08-18` — Facebook report board
+
+- **Summary:** Added a Facebook reports board reached from
+  `/frontline/reports/facebook` and the report page's section toggle: a
+  five-tile KPI row (conversations, messages, bot messages, posts, comments)
+  plus draggable, saveable cards for daily activity, per-bot coverage, and
+  per-post engagement with permalinks, all filtered by Facebook page and date.
+- **Affected areas:** `src/pages/ReportIndexPage.tsx`,
+  `src/modules/report/components/{FacebookReportsList,ReportsView}.tsx`,
+  `src/modules/report/components/facebook-charts/`,
+  `src/modules/report/components/filter-popover/facebook-report-filter.tsx`,
+  `src/modules/report/{hooks/useFacebookReport.ts,hooks/useFacebookChartCard.ts,graphql/queries/getFacebookChart.ts,states.ts,types.ts,types/component-registry.ts,constants/modules.ts}`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+- **Contracts changed:** Consumes five new `reportFacebook*` queries from
+  `frontline_api`; the frontend `ReportChartFilters` type gained
+  `pageIds?: string[]` so a saved Facebook chart round-trips its page selection.
+
+### `2026-08-17` — "Can move" also blocks dragging a card out of a status
+
+- **Summary:** The board only checked the destination column, so a user missing
+  from a status's `canMoveMemberIds` could still drag its cards away; the drag
+  now checks the card's own column first, and `useTicketPermissions` reports the
+  leaving side again through `canMoveTicket`, which is what disables the status
+  field on ticket detail.
+- **Affected areas:** `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/TicketsBoard.tsx`.
+- **Contracts changed:** `None` — new `no-move-out-permission` copy falls back to
+  English until the gateway `frontline` namespace carries it.
+
+### `2026-08-17` — Status permission edits stop reporting refused writes as saved
+
+- **Summary:** A refused `updateTicketStatus` resolves without data instead of
+  throwing, so `StatusPermissionControl` used to commit the member selection
+  anyway and "Can move" / "Can edit" looked configured while the server stored
+  nothing; both handlers now commit only on `result?.data`, and
+  `useUpdateTicketStatus` refetches the pipeline status queries so the board and
+  the pickers see new status permissions without a reload.
+- **Affected areas:**
+  `src/modules/pipelines/components/permissions/components/StatusPermissionControl.tsx`,
+  `src/modules/status/hooks/useUpdateTicketStatus.tsx`.
+- **Contracts changed:** `None`
+
+### `2026-08-15` — Status move permission gated per destination
+
+- **Summary:** The board dropped cards into any column because it asked for
+  permissions without a status; it now checks the destination's
+  `canMoveMemberIds`, rolls the card and both counts back when the API refuses,
+  and the status pickers used to move a ticket disable the statuses the user may
+  not move into instead of gating on the status the ticket is leaving.
+- **Affected areas:**
+  `src/modules/ticket/hooks/useTicketPermissions.ts`,
+  `src/modules/ticket/components/{TicketsBoard.tsx,ticket-selects/SelectStatusTicket.tsx,ticket-command-bar/TicketsEditStatus.tsx}`,
+  `src/modules/status/types/index.ts`.
+- **Contracts changed:** `SelectStatusTicket.Provider` gained an optional
+  `restrictToMovable` prop; `ITicketStatusChoice` gained `canMoveMemberIds` and
+  `canEditMemberIds`.
 
 ### `2026-08-15` — Call report filters by integration, queue becomes optional
 
@@ -525,87 +656,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   one; the stored contract remains the group's field ids.
 - **Affected areas:** `src/modules/pipelines/components/PipelinePropertySelector.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-12` — Pipeline-scoped ticket properties
-
-- **Summary:** Ticket pipelines now choose grouped Core ticket properties, and
-  ticket detail shows only the selected fields after configuration while
-  legacy pipelines retain the previous show-all behavior until first save.
-- **Affected areas:** `src/modules/pipelines/**`,
-  `src/modules/ticket/components/ticket-detail/**`, `src/pages/PipelinePropertiesPage.tsx`.
-- **Contracts changed:** Ticket pipeline GraphQL reads and updates now include
-  `propertyIds`.
-
-### `2026-08-12` — Comment-trigger message limit applies only before a button
-
-- **Summary:** The one-message cap for Facebook message actions under a comment
-  trigger no longer applies to the whole automation; `getMaxMessagesForAction`
-  now reads the connected ancestor actions and lifts the cap to five for any
-  action reached through an `optionalConnects` edge, since the customer's button
-  click opens the messaging window. Actions reached only through `nextActionId`
-  keep the one-message cap.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageActionForm.tsx`
-- **Contracts changed:** Consumes the new optional `previousActions` prop on the
-  shared `AutomationActionFormProps` (`ui-modules`), populated by the core
-  automation builder sidebar.
-
-### `2026-08-10` — Ticket reports can filter by real pipeline status (multi-select)
-
-- **Summary:** The ticket report filter gained a "Status" filter, separate
-  from the existing active/archived/deleted filter (relabelled "State" so the
-  two are no longer both called "Status"), that multi-selects the actual
-  configurable statuses (New/Open/In Progress/... plus any custom
-  sub-statuses) from the first selected pipeline via
-  `getAccessibleTicketStatuses`, matching what Settings → Channels →
-  Pipelines → Ticket statuses shows. The backend `TicketReportFilter`/
-  `ReportChartFilters` gained a new `statusIds: [String]` field alongside the
-  existing single-value `status: String` (left untouched — unused by the
-  frontend, so no reason to repurpose it), and `buildTicketMatch` matches
-  `statusId: { $in: filters.statusIds }`.
-- **Affected areas:** frontend —
-  `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
-  `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
-  `src/modules/report/states.ts`, `src/modules/report/types.ts`,
-  `src/modules/report/graphql/queries/getReportCharts.ts`; backend (see
-  `frontline_api`'s guide) — `src/modules/reports/{@types/reportFilters.ts,
-utils.ts,graphql/schema/{ticket.ts,chart.ts},db/definitions/chart.ts}`;
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `TicketReportFilter` and `ReportChartFilters`
-  (backend GraphQL) gained `statusIds: [String]`; `ReportChartFilters`
-  (frontend TS type) gained matching optional `statusIds?: string[]`. A saved
-  chart's `filters.statusIds` now round-trips through save/restore like every
-  other ticket filter. The `state` filter's menu item switched from the
-  shared `status` label to the existing `state-label` key; no atom, value, or
-  query variable changed for `state`.
-
-### `2026-08-10` — Ticket property fields carry their type and options
-
-- **Summary:** Toggling a ticket property into a messenger ticket form now
-  stores the source property's `type` and `options` alongside its label,
-  placeholder, required flag, and order, and the four ticket-config documents
-  select both back. The messenger widget uses them to render the matching input
-  instead of a text box; the API rewrites both from the current core field
-  definition on every save, so nothing here edits them.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`,
-  `.../configs/schema.ts`, `.../configs/graphql/**`.
-- **Contracts changed:** `None` on the UI side; the ticket-config documents now
-  select the new optional `type` and `options` fields from `frontline_api`.
-
-### `2026-08-10` — Ticket config picker is multi-select
-
-- **Summary:** `SelectTicketConfig` now selects many ticket configs instead of
-  one: its context is `value: string[]` / `onValueChange: (configIds: string[])`,
-  items toggle in and out of the array, the popover stays open across toggles,
-  the trigger shows the single config's name or `n-selected`, and the list gained
-  loading and error states. Also repointed the messenger preview's two ticket
-  gates from the removed `ticketConfigId` to `ticketConfigIds`.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/SelectTicketConfig.tsx`,
-  `.../configs/hooks/useGetTicketConfigs.ts`,
-  `src/modules/integrations/erxes-messenger/components/EMPreviewIntro.tsx`.
-- **Contracts changed:** `SelectTicketConfig`, its `Provider`, and its `FormItem`
-  take `value?: string[] | null` and emit `string[]`; `useGetTicketConfigs` also
-  returns `error`.

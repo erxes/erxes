@@ -34,6 +34,7 @@ import {
   IAutomationsActionConfigConstants,
   IAutomationsActionFolkConfig,
   IAutomationsTriggerConfigConstants,
+  usePermissionCheck,
 } from 'ui-modules';
 
 type QueryTypes = Record<string, unknown>;
@@ -96,6 +97,7 @@ interface AutomationContextType {
   triggerConstMap: Map<string, IAutomationsTriggerConfigConstants>;
   isCreatePage: boolean;
   detail?: IAutomation;
+  isReadOnly: boolean;
 }
 
 const AutomationContext = createContext<AutomationContextType | null>(null);
@@ -167,6 +169,12 @@ export const AutomationProvider = ({
 
   const { pathname } = useLocation();
   const isCreatePage = pathname === '/automations/create';
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const isReadOnly =
+    isLoaded &&
+    !hasActionPermission(
+      isCreatePage ? 'automationsCreate' : 'automationsUpdate',
+    );
   const [cached, setCached] = useState<TConstantCached>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
@@ -271,6 +279,7 @@ export const AutomationProvider = ({
         triggerConstMap,
         isCreatePage,
         detail,
+        isReadOnly,
       }}
     >
       {children}
