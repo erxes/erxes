@@ -31,6 +31,7 @@ type ProductsQueryVariables = {
   tagIds?: string[];
   segment?: string;
   segmentData?: string;
+  propertiesData?: string;
 
   sortField?: string;
   sortDirection?: number;
@@ -50,6 +51,7 @@ export const useProductsVariables = (
       tags,
       segment,
       segmentData,
+      propertiesData,
       sortField,
       sortDirection,
     },
@@ -63,6 +65,7 @@ export const useProductsVariables = (
     tags: string[]; // stored in URL as "tags"
     segment: string;
     segmentData: string;
+    propertiesData: string;
     sortField: string;
     sortDirection: string; // stored in URL as string (ex: "-1")
   }>([
@@ -75,6 +78,7 @@ export const useProductsVariables = (
     'tags',
     'segment',
     'segmentData',
+    'propertiesData',
     'sortField',
     'sortDirection',
   ]);
@@ -105,6 +109,7 @@ export const useProductsVariables = (
 
     segment: segment || undefined,
     segmentData: segmentData || undefined,
+    propertiesData: propertiesData || undefined,
 
     // sorting defaults
     sortField: sortField || 'createdAt',

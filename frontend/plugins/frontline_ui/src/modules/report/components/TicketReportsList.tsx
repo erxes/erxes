@@ -14,7 +14,7 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { ScrollArea, Skeleton } from 'erxes-ui';
+import { Alert, ScrollArea, Skeleton } from 'erxes-ui';
 import {
   IconTicket,
   IconAlertOctagonFilled,
@@ -33,7 +33,10 @@ import {
 import { useTicketPriority } from '@/report/hooks/useTicketPriority';
 import { useReportCharts } from '@/report/hooks/useReportCharts';
 import { ReportChart } from '@/report/types';
-import { ReportsViewSkeleton } from './ReportsView';
+import { useAtomValue } from 'jotai';
+import { getReportDateFilterAtom } from '@/report/states';
+import { getFilters } from '@/report/utils/dateFilters';
+import { TICKET_PRIORITY_DATE_FILTER_ID } from './filter-popover/ReportKpiDateFilter';
 import {
   ticketReportComponents,
   TICKET_DEFAULT_CARD_CONFIGS,
@@ -79,7 +82,20 @@ function PriorityIcon({ priority }: { priority: number }) {
 
 export const TicketReportsList = () => {
   const { t } = useTranslation('frontline');
-  const { priorityData, loading: priorityLoading } = useTicketPriority();
+  const priorityDate = useAtomValue(
+    getReportDateFilterAtom(TICKET_PRIORITY_DATE_FILTER_ID),
+  );
+  const priorityFilters = useMemo(
+    () => getFilters(priorityDate || undefined),
+    [priorityDate],
+  );
+  const {
+    priorityData,
+    loading: priorityLoading,
+    error: priorityError,
+  } = useTicketPriority({
+    variables: { filters: priorityFilters },
+  });
   const { reportCharts } = useReportCharts();
 
   const savedTicketCharts = useMemo(
@@ -167,8 +183,6 @@ export const TicketReportsList = () => {
     );
   };
 
-  if (priorityLoading) return <ReportsViewSkeleton />;
-
   const totalCount = priorityData?.reduce((s, r) => s + r.count, 0) ?? 0;
   const noPriorityCount =
     priorityData?.find((p) => p.priority === 0)?.count ?? 0;
@@ -223,7 +237,26 @@ export const TicketReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+      {priorityError && (
+        <Alert variant="destructive">
+          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Description>{priorityError.message}</Alert.Description>
+        </Alert>
+      )}
+      {!priorityError && priorityLoading && (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      )}
+      <div
+        className={
+          priorityError || priorityLoading
+            ? 'hidden'
+            : 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3'
+        }
+      >
         <KpiCard
           title={t('total-tickets')}
           value={String(totalCount)}

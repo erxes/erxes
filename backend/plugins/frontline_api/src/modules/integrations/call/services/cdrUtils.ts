@@ -323,7 +323,6 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
         (leg.disposition || '').toLowerCase() === 'answered',
     );
 
-  if (answeredBy('IVR')) return 'IVR';
   if (answeredBy('VM')) return 'VOICEMAIL';
 
   if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
@@ -334,6 +333,9 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
   if (dispositions.includes('BUSY')) return 'BUSY';
   if (dispositions.includes('FAILED')) return 'FAILED';
   if (dispositions.includes('NO ANSWER')) return 'NO ANSWER';
+
+  if (answeredBy('IVR')) return 'IVR';
+
   return 'MISSED';
 };
 

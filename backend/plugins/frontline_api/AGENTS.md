@@ -453,6 +453,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   queue answering the line to play its announcement — counts as abandoned. Do
   not relax those conditions to raise an answer rate; on a real deployment the
   voicemail legs outnumber human answers by more than twenty to one.
+- An IVR picking up the line is routing, not an outcome. `IVR` is therefore the
+  **last** branch in `deriveCallStatusFromLegs`, after `BUSY` / `FAILED` /
+  `NO ANSWER`, so it only labels a call that stayed in the menu and never
+  reached an agent. Checking it earlier — as the original order did — swallowed
+  every call that entered an IVR, since the menu answers the line on every one
+  of them: on an IVR-fronted deployment the Call history emptied out and the
+  No answer / Busy / Failed filters returned nothing. `VOICEMAIL` and
+  `FOLLOWME` stay above the dispositions because both describe what actually
+  became of the call.
+- `callHistoryList` shows every call in range, IVR ones included. It must not
+  filter a whole outcome class out of the list — the section promises "one row
+  per call", and dropping a class both contradicts Total Calls and makes a
+  customer unfindable by phone search.
 - `calculateOccupancyRate` computes `workingTime / handlingTime`, which is the
   inverse of occupancy and exceeds 100% at low call volume. `callKpiScorecard`
   returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
@@ -582,6 +595,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-17` — IVR stops swallowing every call outcome
+
+- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
+  dispositions, and an IVR answers the line on every call it fronts, so every
+  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
+  outright. On an IVR-fronted deployment the Call history was empty, phone
+  search found nothing, and the No answer / Busy / Failed filters returned
+  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
+  labels a call that never left the menu, and the history no longer filters an
+  outcome class out of the list.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts`
+  (`deriveCallStatusFromLegs`),
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
+- **Contracts changed:** None. Values move: calls that entered an IVR and were
+  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
+  which also changes the conversation label `getConversationContent` renders.
+
 ### `2026-08-17` — Messenger ticket configs tolerate deleted references
 
 - **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
@@ -709,14 +740,4 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `excludeCheckUserIds`; previously only the exempted members were restricted,
   so adding a member hid their tickets and removing them showed everything.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- **Contracts changed:** None
-
-### `2026-08-13` — Frontline admins see every call queue
-
-- **Summary:** `seesEveryQueue` now also treats a `frontline:admin` entry in
-  `user.permissionGroupIds` as full call-report access, so admins get every
-  integration and queue instead of only the ones they operate.
-- **Affected areas:**
-  `src/modules/reports/graphql/resolvers/callQueries.ts` — `callReportIntegrations`,
-  `callGetQueueStats`, and every resolver using `findQueueIntegration`.
 - **Contracts changed:** None
