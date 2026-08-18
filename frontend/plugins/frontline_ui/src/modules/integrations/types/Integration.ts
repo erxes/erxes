@@ -26,6 +26,7 @@ export interface IIntegrationDetail extends IIntegration {
   isActive: boolean;
   healthStatus: {
     status: 'healthy' | string;
+    error?: string;
   };
   channel: IChannel;
 }

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-18`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -518,6 +518,31 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Facebook repair reports real failures
+
+- **Summary:** `integrationsRepair` answers a failed Facebook repair with a
+  `{ status: 'error', errorMessage }` payload instead of a GraphQL error, so the
+  Repair action now inspects the payload and shows that message as a destructive
+  toast rather than claiming success while the badge stays unhealthy.
+- **Affected areas:**
+  `src/modules/integrations/utils/repairResult.ts` (new),
+  `src/modules/integrations/facebook/components/FacebookIntegrationRepair.tsx`,
+  `src/modules/integrations/facebook/hooks/useFbIntegrationsRepair.tsx`.
+- **Contracts changed:** None; the `FacebookRepair` mutation and its variables
+  are unchanged.
+
+### `2026-08-19` — Health status tooltip on the integrations table
+
+- **Summary:** The integrations table's health status badge now shows the
+  provider error message returned with `healthStatus` in a tooltip on hover, so
+  an unhealthy integration (for example a `page-token` Facebook page) explains
+  why it failed without opening anything else.
+- **Affected areas:**
+  `src/modules/integrations/components/IntegrationsRecordTable.tsx`,
+  `src/modules/integrations/types/Integration.ts`.
+- **Contracts changed:** None; reads the already-returned optional `error`
+  field inside the `healthStatus` JSON of the `Integrations` query.
+
 ### `2026-08-18` — Sync button for Meta post counts
 
 - **Summary:** The Facebook posts card gained a Sync action that pulls
@@ -631,28 +656,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   one; the stored contract remains the group's field ids.
 - **Affected areas:** `src/modules/pipelines/components/PipelinePropertySelector.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-12` — Pipeline-scoped ticket properties
-
-- **Summary:** Ticket pipelines now choose grouped Core ticket properties, and
-  ticket detail shows only the selected fields after configuration while
-  legacy pipelines retain the previous show-all behavior until first save.
-- **Affected areas:** `src/modules/pipelines/**`,
-  `src/modules/ticket/components/ticket-detail/**`, `src/pages/PipelinePropertiesPage.tsx`.
-- **Contracts changed:** Ticket pipeline GraphQL reads and updates now include
-  `propertyIds`.
-
-### `2026-08-12` — Comment-trigger message limit applies only before a button
-
-- **Summary:** The one-message cap for Facebook message actions under a comment
-  trigger no longer applies to the whole automation; `getMaxMessagesForAction`
-  now reads the connected ancestor actions and lifts the cap to five for any
-  action reached through an `optionalConnects` edge, since the customer's button
-  click opens the messaging window. Actions reached only through `nextActionId`
-  keep the one-message cap.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/constants/ReplyMessage.ts`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageActionForm.tsx`
-- **Contracts changed:** Consumes the new optional `previousActions` prop on the
-  shared `AutomationActionFormProps` (`ui-modules`), populated by the core
-  automation builder sidebar.
