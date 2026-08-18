@@ -1,5 +1,26 @@
 
 
+## [3.0.84](https://github.com/erxes/erxes/compare/3.0.83...3.0.84) (2026-08-18)
+
+
+### Bug Fixes
+
+* **core:** remove phone number plus prefix  ([4167bb2](https://github.com/erxes/erxes/commit/4167bb2944d8f70383a76d6d6bb3bc3094060d53))
+* frontline report improvement ([#9042](https://github.com/erxes/erxes/issues/9042)) ([cfbc5c0](https://github.com/erxes/erxes/commit/cfbc5c06fd7f261102cad1861bd99908463b5293))
+* **frontline:** load next conversation page on scroll ([#9035](https://github.com/erxes/erxes/issues/9035)) ([b60e039](https://github.com/erxes/erxes/commit/b60e039b55df104d76f823cc10608d10694216d3))
+* **frontline:** stop IVR from swallowing every call outcome ([2aadf6c](https://github.com/erxes/erxes/commit/2aadf6c24b97f1d8e676aa0332382f9c5a8c52f7))
+* products filter by propertiesData ([719b319](https://github.com/erxes/erxes/commit/719b31945b4f662ea4146e7dbd60ca3f5aeb8fbf))
+* update startWaitingDate to use z.coerce.date() for proper date handling ([6c47b1b](https://github.com/erxes/erxes/commit/6c47b1b490e85bdcec33303dbc41c7b176a921e0))
+
+
+### Features
+
+* add automation canvas edge type options and lock action components ([fcf07a7](https://github.com/erxes/erxes/commit/fcf07a7e618bf3f252fdc135f74793910bf3b6d9))
+* **erxes-api-shared:** auto-derived agent capability endpoints ([#9030](https://github.com/erxes/erxes/issues/9030)) ([21b0966](https://github.com/erxes/erxes/commit/21b096656e73e63b3a6875a176eb32e7d189b067))
+* **navigation:** add explicit browser-style tabs ([#9033](https://github.com/erxes/erxes/issues/9033)) ([81c6ffc](https://github.com/erxes/erxes/commit/81c6ffc2f35364f676a5520d38fb5133e4bc5212))
+* **saas-migrations:** migrate product tags to a properties field ([b956f15](https://github.com/erxes/erxes/commit/b956f150aa3a4e6ff6d657190e87645dee26f160))
+* **saas-migrations:** migrate product tags to a properties field ([0c7eec0](https://github.com/erxes/erxes/commit/0c7eec0eccaa80c99255e8f84d8ed06f559ba033))
+
 ## [3.0.83](https://github.com/erxes/erxes/compare/3.0.82...3.0.83) (2026-08-17)
 
 
