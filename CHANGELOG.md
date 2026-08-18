@@ -1,5 +1,12 @@
 
 
+## [3.0.86](https://github.com/erxes/erxes/compare/3.0.85...3.0.86) (2026-08-18)
+
+
+### Features
+
+* **frontline:** search Facebook posts and repair post timestamps ([b73a959](https://github.com/erxes/erxes/commit/b73a9597703ba18fd0efc9c411ee74dda3ed8e99))
+
 ## [3.0.85](https://github.com/erxes/erxes/compare/3.0.84...3.0.85) (2026-08-18)
 
 
