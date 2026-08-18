@@ -15,7 +15,13 @@ export const appendUniqueSearchItems = (
 
   return [
     ...currentItems,
-    ...nextItems.filter((item) => !seenIds.has(item.id)),
+    ...nextItems.filter((item) => {
+      if (seenIds.has(item.id)) {
+        return false;
+      }
+      seenIds.add(item.id);
+      return true;
+    }),
   ];
 };
 

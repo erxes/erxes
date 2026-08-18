@@ -23,7 +23,9 @@ import {
   TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 
-const CONTENT_CATEGORIES = NAVIGATION_SEARCH_CATEGORIES.map(({ key }) => key);
+const CONTENT_CATEGORIES = new Set(
+  NAVIGATION_SEARCH_CATEGORIES.map(({ key }) => key as string),
+);
 
 const SearchCategoryLabel = ({
   category,
@@ -92,7 +94,7 @@ const GlobalSearchResults = ({
   );
   const isAll = category === 'all';
   const isNavCategory = category === 'navigation';
-  const isContentCategory = CONTENT_CATEGORIES.includes(category);
+  const isContentCategory = CONTENT_CATEGORIES.has(category);
   const contentGroups = visibleGroups.filter(
     (group) => isAll || group.category === category,
   );
@@ -201,9 +203,7 @@ export const GlobalSearchDialog = ({
   onClear: () => void;
   category: TGlobalSearchCategory;
   categories: TGlobalSearchCategoryOption[];
-  onCategoryChange: (
-    category: TGlobalSearchCategory | TSearchProviderCategory,
-  ) => void;
+  onCategoryChange: (category: TGlobalSearchCategory) => void;
   groups: TGlobalSearchGroup[];
   goToItems: TNavigationSearchItem[];
   quickAccessItems: TNavigationSearchItem[];

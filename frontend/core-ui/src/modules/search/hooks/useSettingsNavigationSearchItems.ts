@@ -21,10 +21,11 @@ type TSettingsDestination = {
 const toSettingsSearchItem = (
   destination: TSettingsDestination,
   section: string,
+  settingsPrefix: string,
 ): TNavigationSearchItem => ({
   id: `go-to:settings:${destination.path.replace(/^\/+/, '')}`,
   title: destination.name,
-  description: `Settings › ${section}`,
+  description: `${settingsPrefix} › ${section}`,
   icon: destination.icon,
   path: `/${AppPath.Settings}/${destination.path.replace(/^\/+/, '')}`,
 });
@@ -52,10 +53,13 @@ export const useSettingsNavigationSearchItems = () => {
         hasModulePermission(requiredModule)
       );
     };
+    const settingsPrefix = t('settings', 'Settings');
     const toItems = (section: string, destinations: TSettingsDestination[]) =>
       destinations
         .filter(({ path }) => canAccessPath(path))
-        .map((destination) => toSettingsSearchItem(destination, section));
+        .map((destination) =>
+          toSettingsSearchItem(destination, section, settingsPrefix),
+        );
     const items = [
       ...toItems(t('account', 'Account'), settingsData.account),
       ...toItems(t('workspace', 'Workspace'), settingsData.nav),
@@ -74,6 +78,7 @@ export const useSettingsNavigationSearchItems = () => {
             path: `${SettingsWorkspacePath.TeamMember}${TeamMembersPath.TeamMembers}`,
           },
           t('team-member', 'Team member'),
+          settingsPrefix,
         ),
         toSettingsSearchItem(
           {
@@ -81,6 +86,7 @@ export const useSettingsNavigationSearchItems = () => {
             path: `${SettingsWorkspacePath.TeamMember}${TeamMembersPath.TeamPermissions}`,
           },
           t('team-member', 'Team member'),
+          settingsPrefix,
         ),
       );
     }
@@ -99,6 +105,7 @@ export const useSettingsNavigationSearchItems = () => {
             toSettingsSearchItem(
               { name: module.name, icon: module.icon, path: module.path },
               sectionLabel,
+              settingsPrefix,
             ),
           );
       },

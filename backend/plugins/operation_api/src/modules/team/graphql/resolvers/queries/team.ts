@@ -85,7 +85,7 @@ export const teamQueries = {
     const searchValue = params.searchValue?.trim();
     const escapedSearchValue = searchValue?.replace(
       /[.*+?^${}()|[\]\\]/g,
-      '\\$&',
+      String.raw`\$&`,
     );
 
     return cursorPaginate({

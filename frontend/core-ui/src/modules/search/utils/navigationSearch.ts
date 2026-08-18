@@ -8,7 +8,17 @@ import {
   TNavigationSearchItemCategory,
 } from '@/search/types/GlobalSearch';
 
-const normalizePath = (path: string) => path.replace(/^\/+|\/+$/g, '');
+const normalizePath = (path: string) => {
+  let start = 0;
+  let end = path.length;
+  while (start < end && path.charCodeAt(start) === 47 /* '/' */) {
+    start++;
+  }
+  while (end > start && path.charCodeAt(end - 1) === 47 /* '/' */) {
+    end--;
+  }
+  return path.slice(start, end);
+};
 
 const getDescription = (parts: string[]) => parts.filter(Boolean).join(' › ');
 

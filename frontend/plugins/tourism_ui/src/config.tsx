@@ -1,4 +1,4 @@
-import { IconBox, IconDirections } from '@tabler/icons-react';
+import { IconDirections } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from './searchProviders';

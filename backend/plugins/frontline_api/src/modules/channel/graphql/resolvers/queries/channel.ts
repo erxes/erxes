@@ -136,7 +136,7 @@ export const channelQueries = {
     const searchValue = params.searchValue?.trim();
     const escapedSearchValue = searchValue?.replace(
       /[.*+?^${}()|[\]\\]/g,
-      '\\$&',
+      String.raw`\$&`,
     );
 
     return cursorPaginate({

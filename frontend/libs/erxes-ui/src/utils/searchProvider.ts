@@ -26,13 +26,15 @@ export const readCursorList = <TNode>(
     pageInfo?: Partial<TSearchPageInfo> | null;
   };
 
+  const endCursor =
+    typeof pageInfo?.endCursor === 'string' ? pageInfo.endCursor : null;
+
   return {
     nodes: Array.isArray(list) ? list : [],
     totalCount: totalCount ?? 0,
     pageInfo: {
-      hasNextPage: pageInfo?.hasNextPage === true,
-      endCursor:
-        typeof pageInfo?.endCursor === 'string' ? pageInfo.endCursor : null,
+      hasNextPage: pageInfo?.hasNextPage === true && Boolean(endCursor),
+      endCursor,
     },
   };
 };

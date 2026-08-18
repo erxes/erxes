@@ -14,7 +14,7 @@ export const customerQueries = {
       const searchValue = args.searchValue?.trim();
       const escapedSearchValue = searchValue?.replace(
         /[.*+?^${}()|[\]\\]/g,
-        '\\$&',
+        String.raw`\$&`,
       );
       const query: FilterQuery<ICustomerDocument> = escapedSearchValue
         ? {

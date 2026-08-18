@@ -189,6 +189,7 @@ export const GlobalSearchProviderGroup = ({
             type="button"
             variant="secondary"
             onClick={onLoadMore}
+            onMouseDown={(event) => event.preventDefault()}
           >
             {tCommon('retry', 'Retry')}
           </Button>

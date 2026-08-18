@@ -205,10 +205,9 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
 
       if (
         !provider ||
-        !currentGroup ||
-        currentGroup.status !== 'ok' ||
-        !currentGroup.pageInfo.hasNextPage ||
-        !currentGroup.pageInfo.endCursor ||
+        currentGroup?.status !== 'ok' ||
+        !currentGroup?.pageInfo.hasNextPage ||
+        !currentGroup?.pageInfo.endCursor ||
         loadingProviderKeys.current.has(requestKey)
       ) {
         return;

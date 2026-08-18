@@ -18,7 +18,7 @@ const hasPrimaryModifier = ({
 export const isGlobalSearchOpenShortcut = (event: IGlobalSearchShortcutEvent) =>
   !event.shiftKey &&
   !event.altKey &&
-  event.metaKey !== event.ctrlKey &&
+  hasPrimaryModifier(event) &&
   event.code === 'KeyM';
 
 export const getGlobalSearchCategoryShortcut = (
