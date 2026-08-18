@@ -1,5 +1,17 @@
 
 
+## [3.0.85](https://github.com/erxes/erxes/compare/3.0.84...3.0.85) (2026-08-18)
+
+
+### Bug Fixes
+
+* **frontline:** surface integration health errors in the UI ([04a0815](https://github.com/erxes/erxes/commit/04a081599105b0c894e9e96fb72f60ab27252407))
+
+
+### Features
+
+* **frontline:** add Facebook report board with Meta engagement sync  ([4a6a68c](https://github.com/erxes/erxes/commit/4a6a68c0392f962ead600506f654f7c1388aa5e9))
+
 ## [3.0.84](https://github.com/erxes/erxes/compare/3.0.83...3.0.84) (2026-08-18)
 
 
