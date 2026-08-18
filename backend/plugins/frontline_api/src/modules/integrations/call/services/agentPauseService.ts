@@ -15,14 +15,6 @@ interface IRealtimeAgent {
 
 const PAUSED_STATUS = 'Paused';
 
-/**
- * Diffs the PBX's realtime agent snapshot against the last stored status for
- * today to detect pause/resume transitions, and upserts one row per
- * (integration, queue, extension, PBX-local day) with the latest counters and
- * an accumulated pause history. This is what backs the dashboard's per-day,
- * date-filterable agent table — the realtime snapshot itself is never
- * persisted anywhere else.
- */
 export const recordAgentPauseTransitions = async (
   models: IModels,
   integrationId: string,
@@ -65,7 +57,6 @@ export const recordAgentPauseTransitions = async (
     };
 
     if (isPausedNow && !wasPausedBefore) {
-      // Just entered pause. Trust the PBX-reported click time when present.
       const pausedAt = parseCdrDate(agent.pausetime) || new Date();
 
       await models.CallAgentPauseStats.updateOne(
@@ -80,7 +71,6 @@ export const recordAgentPauseTransitions = async (
     }
 
     if (!isPausedNow && previousPauseStart) {
-      // Just exited pause. Close the interval and add it to today's total.
       const pausedAt = previousPauseStart;
       const resumedAt = new Date();
       const durationSec = Math.max(
