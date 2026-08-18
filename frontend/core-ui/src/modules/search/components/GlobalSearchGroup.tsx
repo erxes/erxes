@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { IconArrowRight, IconLoader2 } from '@tabler/icons-react';
 import { Button, Command, TSearchResultItem } from 'erxes-ui';
@@ -148,13 +148,8 @@ export const GlobalSearchCategoryGroup = ({
   const canLoadMore =
     Boolean(onLoadMore) && hasAnyMore && !loadingMore && !loadMoreError;
 
-  const previousInView = useRef(false);
-
   useEffect(() => {
-    const enteredView = inView && !previousInView.current;
-    previousInView.current = inView;
-
-    if (enteredView && canLoadMore) {
+    if (inView && canLoadMore) {
       onLoadMore?.(category);
     }
   }, [canLoadMore, inView, onLoadMore, category]);
