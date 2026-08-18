@@ -7,6 +7,7 @@ import mongoose, {
 import { nanoid } from 'nanoid';
 
 import {
+  attachCursors,
   buildCursorQuery,
   CursorPaginateAggregationParams,
   CursorPaginateParams,
@@ -156,7 +157,7 @@ export const cursorPaginate = async <T extends Document>({
   };
 
   return {
-    list: list as T[],
+    list: attachCursors(list, sortFields) as T[],
     totalCount,
     pageInfo,
   };
@@ -241,7 +242,7 @@ export async function cursorPaginateAggregation<T>({
   };
 
   return {
-    list,
+    list: attachCursors(list, sortFields),
     totalCount,
     pageInfo,
   };
