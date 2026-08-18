@@ -20,7 +20,6 @@ import {
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
-  TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 
 const CONTENT_CATEGORIES = new Set(

@@ -11,10 +11,10 @@ import {
 const normalizePath = (path: string) => {
   let start = 0;
   let end = path.length;
-  while (start < end && path.charCodeAt(start) === 47 /* '/' */) {
+  while (start < end && path.codePointAt(start) === 47 /* '/' */) {
     start++;
   }
-  while (end > start && path.charCodeAt(end - 1) === 47 /* '/' */) {
+  while (end > start && path.codePointAt(end - 1) === 47 /* '/' */) {
     end--;
   }
   return path.slice(start, end);

@@ -4,7 +4,11 @@ import {
   TSearchResultItem,
 } from 'erxes-ui';
 
-export type TGlobalSearchCategory = string;
+export type TGlobalSearchCategory =
+  | 'all'
+  | 'navigation'
+  | TSearchProviderCategory
+  | (string & {});
 
 export type TNavigationSearchItemCategory =
   | 'navigation'
