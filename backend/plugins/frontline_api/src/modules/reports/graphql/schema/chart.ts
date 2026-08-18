@@ -24,6 +24,7 @@ export const types = `
     customerIds: [String]
     companyIds: [String]
     branchIds: [String]
+    pageIds: [String]
     propertyIds: [String]
     priority: [Int]
     propertyValueFilters: [ReportChartPropertyValueFilter]
