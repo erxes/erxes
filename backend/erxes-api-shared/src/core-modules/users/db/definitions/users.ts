@@ -50,7 +50,7 @@ const detailSchema = new Schema(
       optional: true,
       label: 'Operator phone',
       set: (value: string | null | undefined) =>
-        value?.replace(/\D/g, ''),
+        value == null ? value : value.replace(/\D/g, ''),
     }),
     firstName: mongooseField({ type: String, label: 'First name' }),
     middleName: mongooseField({ type: String, label: 'Middle name' }),
