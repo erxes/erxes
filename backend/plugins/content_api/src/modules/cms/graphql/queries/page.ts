@@ -28,6 +28,10 @@ class PageQueryResolver extends BaseQueryResolver {
     const query: FilterQuery<ICMSPageDocument> = {};
     const searchValue = args.searchValue?.trim();
 
+    if (searchValue !== undefined && searchValue.length < 2) {
+      throw new Error('Search value must be at least 2 characters');
+    }
+
     if (accessibleClientPortalIds) {
       query.clientPortalId = { $in: accessibleClientPortalIds };
     }

@@ -86,10 +86,13 @@ export const GlobalSearch = () => {
   };
 
   useEffect(() => {
-    if (!categoryKeys.includes(category)) {
+    if (
+      (!contentSearchReady || contentSearchSettled) &&
+      !categoryKeys.includes(category)
+    ) {
       setCategory('all');
     }
-  }, [category, categoryKeys]);
+  }, [category, categoryKeys, contentSearchReady, contentSearchSettled]);
 
   useEffect(() => {
     const handleSearchShortcut = (event: KeyboardEvent) => {

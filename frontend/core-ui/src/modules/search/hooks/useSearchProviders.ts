@@ -28,6 +28,7 @@ export const useSearchProviders = () => {
     new Set(),
   );
   const retryCount = useRef(0);
+  const quarantinedFieldsRef = useRef<Set<string>>(new Set());
 
   const providers = useMemo(() => {
     const fromPlugins = Object.values(pluginsConfig ?? {}).flatMap(
@@ -60,21 +61,19 @@ export const useSearchProviders = () => {
       return;
     }
 
-    setQuarantinedFields((prev) => {
-      const next = new Set(prev);
+    const next = new Set(quarantinedFieldsRef.current);
 
-      for (const field of fields) {
-        next.add(field);
-      }
+    for (const field of fields) {
+      next.add(field);
+    }
 
-      if (next.size === prev.size) {
-        return prev;
-      }
+    if (next.size === quarantinedFieldsRef.current.size) {
+      return;
+    }
 
-      retryCount.current += 1;
-
-      return next;
-    });
+    quarantinedFieldsRef.current = next;
+    retryCount.current += 1;
+    setQuarantinedFields(next);
   }, []);
 
   return {
