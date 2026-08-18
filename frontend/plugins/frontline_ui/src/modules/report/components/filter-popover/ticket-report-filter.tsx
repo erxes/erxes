@@ -164,6 +164,21 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
     setGroupPropertyFilter('');
   };
 
+  const handleChannelFilterChange = (value: string[]) => {
+    setChannelFilter(value);
+    setMemberFilter([]);
+    setPipelineFilter([]);
+    setTicketStatusFilter([]);
+  };
+
+  const handlePipelineFilterChange = (value: string[]) => {
+    if (value[0] !== pipelineFilter[0]) {
+      setTicketStatusFilter([]);
+    }
+
+    setPipelineFilter(value);
+  };
+
   return (
     <Filter
       id={`ticket-report-filter-${cardId}`}
@@ -216,7 +231,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
             <Command shouldFilter={false}>
               <ChannelFilterView
                 value={channelFilter}
-                onValueChange={setChannelFilter}
+                onValueChange={handleChannelFilterChange}
                 channels={channels || []}
               />
             </Command>
@@ -236,7 +251,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
             <Command shouldFilter={false}>
               <PipelineFilterView
                 value={pipelineFilter}
-                onValueChange={setPipelineFilter}
+                onValueChange={handlePipelineFilterChange}
                 channelIds={channelFilter}
               />
             </Command>
@@ -458,11 +473,11 @@ const PipelineFilterView = ({
   const { pipelines, loading } = useGetPipelines({
     variables: {
       filter: {
-        channelId: channelIds[0],
+        channelIds: channelIds.length ? channelIds : undefined,
+        limit: 100,
         applyVisibilityFilter: true,
       },
     },
-    skip: channelIds.length === 0,
   });
 
   const handleSelect = (id: string) => {

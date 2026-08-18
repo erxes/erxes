@@ -44,6 +44,7 @@ export const types = `
 
   input TicketsPipelineFilter {
     channelId: String
+    channelIds: [String]
     pipelineId:String
     userId: String
     name: String

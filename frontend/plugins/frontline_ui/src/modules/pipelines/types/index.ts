@@ -49,6 +49,7 @@ export interface IPipeline {
 export interface ITicketsPipelineFilter {
   filter: {
     channelId?: string;
+    channelIds?: string[];
     cursor?: string;
     aggregationPipeline?: JSON;
     cursorMode?: 'inclusive' | 'exclusive';
