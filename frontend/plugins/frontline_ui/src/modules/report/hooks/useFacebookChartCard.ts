@@ -4,6 +4,7 @@ import {
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportFacebookPageFilterAtom,
+  getReportFacebookSearchFilterAtom,
 } from '@/report/states';
 import { ReportChart, ReportChartFilters } from '@/report/types';
 import { getFilters } from '@/report/utils/dateFilters';
@@ -11,6 +12,7 @@ import { getFilters } from '@/report/utils/dateFilters';
 const useFacebookChartFilterConfig = (cardId: string): ReportChartFilters => {
   const date = useAtomValue(getReportDateFilterAtom(cardId));
   const pageIds = useAtomValue(getReportFacebookPageFilterAtom(cardId));
+  const searchValue = useAtomValue(getReportFacebookSearchFilterAtom(cardId));
 
   return useMemo(() => {
     const filters: ReportChartFilters = {};
@@ -23,8 +25,12 @@ const useFacebookChartFilterConfig = (cardId: string): ReportChartFilters => {
       filters.pageIds = pageIds;
     }
 
+    if (searchValue.trim()) {
+      filters.searchValue = searchValue.trim();
+    }
+
     return filters;
-  }, [date, pageIds]);
+  }, [date, pageIds, searchValue]);
 };
 
 const useRestoreFacebookChartFilters = (
@@ -49,6 +55,7 @@ const useRestoreFacebookChartFilters = (
 
     set(getReportDateFilterAtom, filters.date || '');
     set(getReportFacebookPageFilterAtom, filters.pageIds || []);
+    set(getReportFacebookSearchFilterAtom, filters.searchValue || '');
 
     if (chart.visualType) {
       set(getReportChartTypeAtom, chart.visualType);

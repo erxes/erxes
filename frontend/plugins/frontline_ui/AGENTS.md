@@ -475,6 +475,23 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   signed difference next to Meta's count is `meta − (comments + replies)` — a
   positive number means Meta has comments erxes never received, which is the
   gap the card exists to surface. Never hide it behind a zero default.
+- The posts card pages on the **server**, so its query re-runs on every page
+  step. `useFacebookPosts` falls back to Apollo's `previousData` and the card
+  only shows its skeleton when nothing has loaded yet — gating the skeleton on
+  `loading` alone unmounts the header, filters, and Sync button on every Next
+  click, which reads as the whole card reloading. The other Facebook cards page
+  client-side through `useChartPagination` and never refetch.
+- `FacebookReportFilter` takes `showSearch`, and only the posts card passes it:
+  search matches post text, so offering it on the activity or bot cards would
+  show a control that silently does nothing. It follows the shared filter's
+  string pattern: an `inDialog` `Filter.Item` opening a `Dialog.Content` with a
+  title, `Input`, and Cancel/Apply footer, mirroring `Filter.DialogStringView`
+  but controlled by the card's atom instead of query state. Applying is
+  explicit, never debounced live, because the posts query pages on the server.
+- A `Filter` may mount only **one** `Filter.Dialog`: it binds to the shared
+  `openDialogState(id)`, so two siblings both open at once. The Facebook filter
+  therefore renders its own single dialog holding the date and search views
+  instead of reusing `ReportDateFilterView`, which brings its own.
 - Facebook cards filter on page and date only. Their page list comes from
   `reportFacebookPages` (pages the plugin already stores), never from a Graph
   API call — this board reads no Facebook Insights and no automation-execution

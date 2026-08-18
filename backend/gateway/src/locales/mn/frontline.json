@@ -1283,5 +1283,7 @@
   "facebook-sync-partial": "Зарим хуудсыг татаж чадсангүй",
   "facebook-sync-failed": "Татаж чадсангүй",
   "facebook-last-synced": "Meta-гийн тоог сүүлд {{time}}-д татсан",
-  "facebook-reports": "Facebook"
+  "facebook-reports": "Facebook",
+  "search-posts-placeholder": "Постын текст эсвэл id хайх",
+  "search-posts-title": "Постын текстээр шүүх..."
 }

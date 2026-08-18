@@ -21,6 +21,7 @@ export type IReportFilters = {
   frequency?: string;
   branchIds?: string[];
   pageIds?: string[];
+  searchValue?: string;
   propertyIds?: string[];
   groupPropertyId?: string;
   groupPropertyValue?: string;
@@ -45,6 +46,7 @@ export type IFacebookReportFilters = {
   fromDate?: string;
   toDate?: string;
   pageIds?: string[];
+  searchValue?: string;
   limit?: number;
   page?: number;
 };

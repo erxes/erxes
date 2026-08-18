@@ -223,9 +223,13 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   documents. It returns `{ pages, fetched, updated, missingInErxes, syncedAt,
   errors }` — `missingInErxes` is the number of Meta posts this deployment has
   no document for, which is the point of the comparison, not an error.
-- `TicketReportFilter.pageIds: [String]` — carried only so a saved Facebook
-  chart round-trips its page selection through `reportChartAdd`; ticket
-  aggregations ignore it.
+- `TicketReportFilter.pageIds: [String]` and `searchValue: String` — carried
+  only so a saved Facebook chart round-trips its page selection and post search
+  through `reportChartAdd`; ticket aggregations ignore both.
+- `FacebookReportFilter.searchValue` matches **post content or post id** and is
+  applied only by `reportFacebookPosts`, never by the summary, activity, or bot
+  queries. The term is escaped before it becomes a `RegExp`, so a user typing
+  `a.b(c` searches for that literal string instead of crashing the resolver.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,

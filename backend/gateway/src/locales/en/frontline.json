@@ -1284,5 +1284,7 @@
   "facebook-sync-partial": "Some pages could not be synced",
   "facebook-sync-failed": "Sync failed",
   "facebook-last-synced": "Meta counts last synced {{time}}",
-  "facebook-reports": "Facebook"
+  "facebook-reports": "Facebook",
+  "search-posts-placeholder": "Search post text or id",
+  "search-posts-title": "Filter by post text..."
 }
