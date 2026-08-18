@@ -633,6 +633,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   reply authors — an agent answering a post must never inflate "how many people
   engaged". The `replies` total does include agent replies, because Meta counts
   the page's own replies too and that column is compared against Meta's number.
+- `posts_conversations_facebooks` can hold **several documents for one
+  `postId`**: `getOrCreatePost` and `getOrCreatePostConversation` both do a
+  `findOne` then `create`, and the `postId` index is not unique, so concurrent
+  webhook deliveries for the same post each insert a row. `reportFacebookPosts`
+  therefore `$group`s by `postId` before paging — without it the same post
+  appears once per duplicate, each row showing identical counts because they all
+  join on the same `postId`. Meta counts use `$max` in that group, because the
+  sync writes with `updateOne` and only reaches one of the duplicates.
 - `reportFacebookPosts` scopes the date range to the **post's own**
   `timestamp` and then counts that post's comments for its whole lifetime, so
   the card answers "posts published in this period and the engagement they

@@ -330,6 +330,19 @@ export const reportFacebookQueries = {
         },
       },
       {
+        $group: {
+          _id: '$postId',
+          postId: { $first: '$postId' },
+          content: { $first: '$content' },
+          permalink_url: { $first: '$permalink_url' },
+          timestamp: { $max: '$timestamp' },
+          metaCommentCount: { $max: '$metaCommentCount' },
+          metaReactionCount: { $max: '$metaReactionCount' },
+          metaShareCount: { $max: '$metaShareCount' },
+          metaSyncedAt: { $max: '$metaSyncedAt' },
+        },
+      },
+      {
         $facet: {
           totalCount: [{ $count: 'value' }],
           list: [
