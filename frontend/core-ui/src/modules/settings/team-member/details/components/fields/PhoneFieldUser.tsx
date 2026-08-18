@@ -21,12 +21,14 @@ export const PhoneFieldUser = ({ _id, details }: PhoneFieldUserProps) => {
       setErrorMessage('Please enter a valid phone number.');
       return;
     }
-    if (editingValue === operatorPhone) {
+    const normalizedPhone = editingValue.replace(/\D/g, '');
+
+    if (normalizedPhone === operatorPhone) {
       return;
     }
 
     usersEdit({
-      variables: { _id, details: { ...rest, operatorPhone: editingValue } },
+      variables: { _id, details: { ...rest, operatorPhone: normalizedPhone } },
     });
   };
 
