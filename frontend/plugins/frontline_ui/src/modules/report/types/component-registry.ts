@@ -10,6 +10,12 @@ export const TICKET_CHART_TYPES = {
   list: 'ticket-list',
 } as const;
 
+export const FACEBOOK_CHART_TYPES = {
+  activity: 'facebook-activity',
+  posts: 'facebook-posts',
+  bots: 'facebook-bots',
+} as const;
+
 export interface ReportComponentProps {
   title: string;
   colSpan?: 6 | 12;
@@ -166,3 +172,51 @@ export function registerReportComponent(
 ): void {
   reportComponents[id] = component;
 }
+
+export const facebookReportComponents: Record<
+  string,
+  LazyExoticComponent<ComponentType<ReportComponentProps>>
+> = {
+  [FACEBOOK_CHART_TYPES.activity]: lazy(() =>
+    import('@/report/components/facebook-charts/FacebookActivity').then(
+      (module) => ({
+        default: module.FacebookActivity,
+      }),
+    ),
+  ),
+  [FACEBOOK_CHART_TYPES.posts]: lazy(() =>
+    import('@/report/components/facebook-charts/FacebookPosts').then(
+      (module) => ({
+        default: module.FacebookPosts,
+      }),
+    ),
+  ),
+  [FACEBOOK_CHART_TYPES.bots]: lazy(() =>
+    import('@/report/components/facebook-charts/FacebookBots').then(
+      (module) => ({
+        default: module.FacebookBots,
+      }),
+    ),
+  ),
+};
+
+export const FACEBOOK_DEFAULT_CARD_CONFIGS: Omit<
+  ReportCardConfig,
+  'component'
+>[] = [
+  {
+    id: FACEBOOK_CHART_TYPES.activity,
+    title: 'facebook-activity-title',
+    colSpan: 12,
+  },
+  {
+    id: FACEBOOK_CHART_TYPES.bots,
+    title: 'facebook-bots-title',
+    colSpan: 6,
+  },
+  {
+    id: FACEBOOK_CHART_TYPES.posts,
+    title: 'facebook-posts-title',
+    colSpan: 12,
+  },
+];

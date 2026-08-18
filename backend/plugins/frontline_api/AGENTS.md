@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-08-18`
 
 ## Scope
 
@@ -111,7 +111,7 @@
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
-| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
+| Reports              | `src/modules/reports/`                                                      | Inbox/ticket/Facebook report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model       |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
 
 ## Contracts
@@ -203,6 +203,29 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   something the report queries accept; the persisted subset is narrowed by
   `pickReportChartFilters`. Saving never touches the default charts — they are
   a frontend constant, not rows in this collection.
+- GraphQL Facebook reports — `reportFacebookPages`, `reportFacebookSummary`,
+  `reportFacebookActivity`, `reportFacebookPosts`, `reportFacebookBots`. All but
+  the first take a `FacebookReportFilter` (`date`, `fromDate`, `toDate`,
+  `pageIds`, `limit`, `page`) and read only this plugin's own Facebook
+  collections — no Graph API call, no Page Insights, and no automation-execution
+  data from core. `reportFacebookPages` derives the page list from
+  `FacebookIntegrations.facebookPageIds` and names each page from the inbox
+  `Integrations.name` its `erxesApiId` points at, falling back to a bot bound to
+  the page and then to the raw page id. Integration name comes first because
+  only some pages have a messenger bot, while nearly every connected page has an
+  admin-typed integration name; a page whose integration was deleted still falls
+  through to its id.
+- GraphQL: `reportFacebookSyncPostStats(pageIds: [String], limit: Int)` — the
+  only Facebook report path that calls Meta. Requires an authenticated user,
+  reads `/{pageId}/posts` with `comments.filter(stream).summary(true)`,
+  `reactions.summary(true)`, and `shares`, and writes `metaCommentCount`,
+  `metaReactionCount`, `metaShareCount`, `metaSyncedAt` onto matching post
+  documents. It returns `{ pages, fetched, updated, missingInErxes, syncedAt,
+  errors }` — `missingInErxes` is the number of Meta posts this deployment has
+  no document for, which is the point of the comparison, not an error.
+- `TicketReportFilter.pageIds: [String]` — carried only so a saved Facebook
+  chart round-trips its page selection through `reportChartAdd`; ticket
+  aggregations ignore it.
 - `TicketReportFilter.statusIds: [String]` — real pipeline `Status._id` values
   (multi-select). `buildTicketMatch` turns a non-empty list into
   `statusId: { $in: filters.statusIds }`. This is distinct from the older,
@@ -268,6 +291,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   subdocument with explicit fields, and `createdBy`. Tenant-scoped like every
   other collection here; charts are visible to the whole tenant, not only their
   author.
+- Facebook reports own no collection of their own. They aggregate
+  `conversations_facebooks` (`timestamp`, `botId`/`isBot`),
+  `conversation_messages_facebooks` (`createdAt`, `fromBot`, `userId`,
+  `botId`), `comment_conversations_facebook` and
+  `comment_conversations_reply_facebook` (`createdAt`, `postId`,
+  `recipientId`), and `posts_conversations_facebooks` (`timestamp`, `postId`,
+  `permalink_url`).
 - Migrations under `src/migrations/` cover call conversation content, CDR dates,
   channels, forms, response templates, and tickets.
 - Every call — whether it arrived through the CDR webhook (`receiveCdr`) or the
@@ -557,6 +587,61 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   ignores them. `buildTicketPipeline` already does this; a new ticket report
   resolver must too. When a selected contact has no related tickets the result
   is `_id: { $in: [] }` — never a fall back to unfiltered.
+- The Meta sync is **manual and bounded**: one button press, one page of
+  results per page (`limit` capped at 100), no pagination loop and no cron. It
+  updates existing post documents only — a Meta post erxes never received is
+  counted into `missingInErxes` and never created, because
+  `posts_conversations_facebooks` means "posts this deployment ingested" and
+  the summary KPI counts it.
+- `syncFacebookPostStats` calls Graph through a plain `fetch` on an
+  **unversioned** `https://graph.facebook.com/...` URL, so Meta resolves the
+  app's own oldest-available version. This deliberately bypasses the shared
+  `graphRequest`, which pins `v7.0` globally via `graph.setVersion` — changing
+  that pin would affect every Facebook code path, not just reports.
+- Meta's comment total is requested as `comments.filter(stream)` so it counts
+  replies too, matching what the report shows as `comments + replies`. Dropping
+  the filter would silently compare top-level-only against a total that
+  includes replies.
+- In an **aggregation expression** a missing field is not `null`:
+  `{ $in: ['$userId', [null, '']] }` is `false` when the document has no
+  `userId` at all, which is the normal shape of an inbound customer message.
+  `reportFacebookSummary` classifies outbound messages through
+  `{ $ifNull: ['$userId', null] }` for exactly this reason — without it every
+  customer message counted as staff-sent and `incomingMessages` collapsed to
+  zero. Query-language `$match` has the opposite semantics (`{ botId: null }`
+  does match a missing field), so the `$nin` filters elsewhere in this module
+  are correct as written; do not "normalize" the two styles into one.
+- Facebook report date fields are not interchangeable: messenger conversations
+  and posts carry `timestamp`, messages and comments carry `createdAt`. Page
+  scoping is `recipientId` on conversations, comments, and posts; messages hold
+  no page, so `reportFacebook*` reach the page through a `$lookup` on
+  `conversationId` and only when `pageIds` is set.
+- A comment **reply document carries no `postId`**, even though
+  `commentConversationReplySchema` declares the field — nothing on the write
+  path fills it. Replies reach their post only through
+  `parentId` → the parent comment's `comment_id` → that comment's `postId`, which
+  is what `reportFacebookPosts` joins on (`localField: '__comments.comment_id'`,
+  `foreignField: 'parentId'`). A lookup from the post straight to the reply
+  collection by `postId` silently returns nothing, so the Replies column reads
+  zero and `lastActivityAt` ignores replies.
+- A reply written from erxes by an agent has `userId` set, so the distinct
+  `commenters` count unions the comment authors with only the **agent-free**
+  reply authors — an agent answering a post must never inflate "how many people
+  engaged". The `replies` total does include agent replies, because Meta counts
+  the page's own replies too and that column is compared against Meta's number.
+- `reportFacebookPosts` scopes the date range to the **post's own**
+  `timestamp` and then counts that post's comments for its whole lifetime, so
+  the card answers "posts published in this period and the engagement they
+  eventually drew". It matches the `posts` figure in `reportFacebookSummary`;
+  do not silently switch either one to comment-activity dating.
+- Facebook automation coverage is measured from this plugin's own bot fields
+  (`FacebookConversations.botId`/`isBot`, `FacebookConversationMessages.fromBot`
+  and `botId`), never from core's `AutomationExecutions`. Core exposes
+  per-automation `automationStats` and an undated
+  `automationExecutionCounts(automationIds)`; neither is read from this service,
+  and the raw `automations.executions.find` tRPC procedure destructures its
+  input as `const { ...query } = input` and then queries `find({ query })`, so
+  it matches nothing. Do not build on it.
 - A saved report chart stores only configuration. `pickReportChartFilters` is
   the one gate: it drops empty values and never persists `limit`, `page`, or
   `groupPropertyValue`, which describe a viewing session (paging, an open
@@ -594,6 +679,37 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-18` — Manual Meta sync for post engagement
+
+- **Summary:** Added `reportFacebookSyncPostStats`, an on-demand pull of
+  Facebook's own comment, reaction, and share counts onto stored post
+  documents, so the post report can show Meta's number next to the number
+  erxes received and name the gap.
+- **Affected areas:** `src/modules/reports/facebookSyncService.ts`,
+  `src/modules/reports/graphql/{schema/facebook.ts,resolvers/facebookMutations.ts,resolvers/facebookQueries.ts}`,
+  `src/modules/integrations/facebook/db/definitions/postConversations.ts`,
+  `src/modules/integrations/facebook/@types/postConversations.ts`,
+  `src/apollo/{schema/schema.ts,resolvers/mutations.ts}`.
+- **Contracts changed:** New `reportFacebookSyncPostStats` mutation and
+  `ReportFacebookSyncResult`/`ReportFacebookSyncError` types;
+  `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
+  `metaShareCount`, `metaSyncedAt`; the post document gained the same four
+  optional fields.
+
+### `2026-08-18` — Facebook report aggregations
+
+- **Summary:** Added a Facebook reporting surface over the plugin's own
+  Messenger, comment, and post collections — page list, KPI summary, daily
+  activity series, per-post engagement, and per-bot coverage — with page and
+  date scoping, plus `pageIds` on the saved-chart filter set so a saved
+  Facebook card restores its page selection.
+- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
+  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
+  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
+- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
+  types, and five `reportFacebook*` queries; `TicketReportFilter`,
+  `ReportChartFilters`, and the stored chart filters gained `pageIds`.
 
 ### `2026-08-17` — IVR stops swallowing every call outcome
 
@@ -716,28 +832,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   passes legs; `callHistoryList` resolves operator extensions before folding).
 - **Contracts changed:** None — `callGetAgentStats` returns the same fields,
   with corrected per-agent counts.
-
-### `2026-08-15` — Status permissions actually enforced
-
-- **Summary:** Private-status membership now hides tickets in `getTickets` and
-  `getTicket` instead of only hiding the status from status lists; a plain move
-  no longer requires "Can edit" on the status being left;
-  `getAccessibleTicketStatuses` returns `canMoveMemberIds`/`canEditMemberIds` so
-  the UI can gate a destination. `generateFilter` now reads its user through an
-  optional `userId`, so the client-portal callers that have no team user keep
-  working.
-- **Affected areas:** `src/modules/ticket/utils/{permissionValidator,generateFilter}.ts`,
-  `src/modules/ticket/db/models/Ticket.ts`,
-  `src/modules/ticket/graphql/resolvers/{queries/ticket.ts,queries/status.ts,mutations/status.ts}`.
-- **Contracts changed:** `getAccessibleTicketStatuses` JSON rows gained
-  `canMoveMemberIds` and `canEditMemberIds`; `getTicket` can now fail with a
-  permission error.
-
-### `2026-08-14` — Fixed inverted `isCheckUser` ticket visibility
-
-- **Summary:** With "Show only tickets assigned to the user" enabled, the
-  own-tickets restriction now applies to users **outside**
-  `excludeCheckUserIds`; previously only the exempted members were restricted,
-  so adding a member hid their tickets and removing them showed everything.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- **Contracts changed:** None
