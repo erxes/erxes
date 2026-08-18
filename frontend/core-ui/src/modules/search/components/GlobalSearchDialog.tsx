@@ -20,6 +20,7 @@ import {
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
+  TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 
 const CONTENT_CATEGORIES = NAVIGATION_SEARCH_CATEGORIES.map(({ key }) => key);
@@ -116,9 +117,7 @@ const GlobalSearchResults = ({
     visibleItemCount === 0 &&
     (isAll || isContentCategory);
   const showFailure =
-    contentFailure &&
-    visibleItemCount === 0 &&
-    (isAll || isContentCategory);
+    contentFailure && visibleItemCount === 0 && (isAll || isContentCategory);
   const showEmpty =
     visibleItemCount === 0 &&
     !waitingForContent &&
@@ -154,11 +153,14 @@ const GlobalSearchResults = ({
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
           onSelect={onContentSelect}
-          onLoadMore={
-            isAll ? undefined : () => onLoadMore(group.key)
-          }
+          onLoadMore={isAll ? undefined : () => onLoadMore(group.key)}
           onShowMore={
-            isAll ? () => onCategoryChange(group.category) : undefined
+            isAll &&
+            (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
+              group.pageInfo.hasNextPage ||
+              (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT)
+              ? () => onCategoryChange(group.category)
+              : undefined
           }
         />
       ))}
@@ -199,7 +201,9 @@ export const GlobalSearchDialog = ({
   onClear: () => void;
   category: TGlobalSearchCategory;
   categories: TGlobalSearchCategoryOption[];
-  onCategoryChange: (category: TGlobalSearchCategory) => void;
+  onCategoryChange: (
+    category: TGlobalSearchCategory | TSearchProviderCategory,
+  ) => void;
   groups: TGlobalSearchGroup[];
   goToItems: TNavigationSearchItem[];
   quickAccessItems: TNavigationSearchItem[];

@@ -32,6 +32,41 @@ export const CONFIG: IUIConfig = {
       hasRelationWidget: true,
     },
     {
+      name: 'lotteries',
+      path: 'loyalty/lotteries',
+      icon: IconAward,
+    },
+    {
+      name: 'spins',
+      path: 'loyalty/spins',
+      icon: IconAward,
+    },
+    {
+      name: 'donates',
+      path: 'loyalty/donates',
+      icon: IconAward,
+    },
+    {
+      name: 'scores',
+      path: 'loyalty/scores',
+      icon: IconAward,
+    },
+    {
+      name: 'assignments',
+      path: 'loyalty/assignments',
+      icon: IconAward,
+    },
+    {
+      name: 'agents',
+      path: 'loyalty/agents',
+      icon: IconAward,
+    },
+    {
+      name: 'coupons',
+      path: 'loyalty/coupons',
+      icon: IconAward,
+    },
+    {
       name: 'configs',
       icon: IconAward,
       path: 'settings/loyalty/config',

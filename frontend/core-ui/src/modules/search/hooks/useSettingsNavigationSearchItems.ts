@@ -9,7 +9,8 @@ import { AppPath } from '@/types/paths/AppPath';
 import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePermissionCheck, useVersion } from 'ui-modules';
+import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { useAtomValue } from 'jotai';
 
 type TSettingsDestination = {
   name: string;
@@ -32,8 +33,9 @@ export const useSettingsNavigationSearchItems = () => {
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { t: tSettings } = useTranslation('settings');
-  const { isLoaded, isWildcard, hasModulePermission } =
+  const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
     usePermissionCheck();
+  const pluginsMetaData = useAtomValue(pluginsConfigState);
   const settingsData = useMemo(
     () => GET_SETTINGS_PATH_DATA(version, t),
     [t, version],
@@ -83,11 +85,32 @@ export const useSettingsNavigationSearchItems = () => {
       );
     }
 
-    return items;
+    const settingsOnlyPluginItems = Object.values(pluginsMetaData || {}).flatMap(
+      (plugin) => {
+        if (!plugin.settingsOnly || !plugin.modules?.length) return [];
+        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) return [];
+
+        const sectionLabel =
+          plugin.name.charAt(0).toUpperCase() + plugin.name.slice(1);
+
+        return plugin.modules
+          .filter((module) => module.path.startsWith('settings/'))
+          .map((module) =>
+            toSettingsSearchItem(
+              { name: module.name, icon: module.icon, path: module.path },
+              sectionLabel,
+            ),
+          );
+      },
+    );
+
+    return [...items, ...settingsOnlyPluginItems];
   }, [
     hasModulePermission,
+    hasPluginPermission,
     isLoaded,
     isWildcard,
+    pluginsMetaData,
     settingsData,
     t,
     tSettings,

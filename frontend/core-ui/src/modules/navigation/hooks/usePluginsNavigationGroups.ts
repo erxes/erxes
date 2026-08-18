@@ -64,6 +64,8 @@ export const usePluginsNavigationGroups = () => {
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
 
+        if (plugin.settingsOnly) return acc;
+
         if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
           return acc;
         }

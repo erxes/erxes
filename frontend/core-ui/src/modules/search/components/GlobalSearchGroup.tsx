@@ -63,11 +63,15 @@ export const NavigationSearchGroup = ({
 
   const visibleItems =
     previewLimit === undefined ? items : items.slice(0, previewLimit);
+  const showMoreAction =
+    previewLimit !== undefined && items.length > previewLimit
+      ? onShowMore
+      : undefined;
 
   return (
     <Command.Group
       className="p-1"
-      heading={<SearchGroupHeading label={heading} onShowMore={onShowMore} />}
+      heading={<SearchGroupHeading label={heading} onShowMore={showMoreAction} />}
     >
       {visibleItems.map((item) => (
         <GlobalSearchItem
@@ -136,10 +140,17 @@ export const GlobalSearchProviderGroup = ({
     return null;
   }
 
+  const hasMore =
+    previewLimit !== undefined &&
+    (group.items.length > previewLimit ||
+      group.pageInfo.hasNextPage ||
+      (group.totalCount ?? 0) > previewLimit);
+  const showMoreAction = hasMore ? onShowMore : undefined;
+
   return (
     <Command.Group
       className="p-1"
-      heading={<SearchGroupHeading label={label} onShowMore={onShowMore} />}
+      heading={<SearchGroupHeading label={label} onShowMore={showMoreAction} />}
     >
       {visibleItems.map((item) => (
         <GlobalSearchItem

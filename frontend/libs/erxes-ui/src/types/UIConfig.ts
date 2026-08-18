@@ -89,6 +89,7 @@ export type IUIConfig = {
   i18n?: boolean;
   i18nNamespace?: string;
   hasFloatingWidget?: boolean;
+  settingsOnly?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;

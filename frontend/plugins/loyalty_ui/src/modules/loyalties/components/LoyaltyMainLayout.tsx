@@ -4,7 +4,6 @@ import { IconAward } from '@tabler/icons-react';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
-import { LoyaltyMainSidebar } from './LoyaltyMainSidebar';
 import {
   LoyaltyHeaderActionProvider,
   useLoyaltyHeaderAction,
@@ -61,10 +60,7 @@ export const LoyaltyMainLayout = ({
           </PageHeader.End>
         </PageHeader>
         <div className="flex flex-row h-full overflow-hidden">
-          <LoyaltyMainSidebar />
-          <div className="flex flex-col flex-auto overflow-hidden">
-            <Suspense>{children}</Suspense>
-          </div>
+          <Suspense>{children}</Suspense>
         </div>
       </PageContainer>
     </LoyaltyHeaderActionProvider>
