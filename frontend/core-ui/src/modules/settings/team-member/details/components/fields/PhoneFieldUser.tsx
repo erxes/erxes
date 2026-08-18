@@ -23,12 +23,18 @@ export const PhoneFieldUser = ({ _id, details }: PhoneFieldUserProps) => {
     }
     const normalizedPhone = editingValue.replace(/\D/g, '');
 
-    if (normalizedPhone === operatorPhone) {
+    if (normalizedPhone === (operatorPhone ?? '')) {
       return;
     }
 
     usersEdit({
-      variables: { _id, details: { ...rest, operatorPhone: normalizedPhone } },
+      variables: {
+        _id,
+        details: {
+          ...rest,
+          operatorPhone: normalizedPhone === '' ? null : normalizedPhone,
+        },
+      },
     });
   };
 
