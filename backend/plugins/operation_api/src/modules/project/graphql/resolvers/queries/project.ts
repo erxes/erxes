@@ -84,7 +84,8 @@ export const projectQueries: Record<string, Resolver> = {
     if (
       !filter?._ids?.length &&
       filter.userId &&
-      (filter.teamIds?.length === 0 || (!filter.teamIds && !filter.memberId))
+      !filter.memberId &&
+      (!filter.teamIds || filter.teamIds.length === 0)
     ) {
       const teamIds = await models.TeamMember.find({
         memberId: filter.userId,
