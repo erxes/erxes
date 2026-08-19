@@ -94,11 +94,11 @@ const getPipelineVisibilityFilter = async ({
     const userPipelineDepartmentIds = userDepartmentIds.filter((departmentId) =>
       pipelineDepartmentIds.includes(departmentId),
     );
-    const checkDepartmentIds = supervisorPipelineDepartmentIds.length
-      ? supervisorPipelineDepartmentIds
-      : pipeline.isCheckDepartment
-        ? userPipelineDepartmentIds
-        : [];
+    let checkDepartmentIds = supervisorPipelineDepartmentIds;
+
+    if (!checkDepartmentIds.length && pipeline.isCheckDepartment) {
+      checkDepartmentIds = userPipelineDepartmentIds;
+    }
 
     if (checkDepartmentIds.length > 0) {
       const departmentUsers = await sendTRPCMessage({
@@ -115,8 +115,8 @@ const getPipelineVisibilityFilter = async ({
 
       includeCheckUserIds.push(
         ...departmentUsers.map((departmentUser) => departmentUser._id),
+        user?._id || userId,
       );
-      includeCheckUserIds.push(user?._id || userId);
     }
   }
 
