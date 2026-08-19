@@ -1,3 +1,4 @@
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
 import { IconScissors } from '@tabler/icons-react';
 import {
@@ -25,6 +26,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     data,
   } = edge;
   const { onDisconnect } = useNodeConnect();
+  const { isReadOnly } = useAutomation();
   const edgeType = data?.edgeType || 'default';
   const pathArgs = {
     sourceX,
@@ -38,10 +40,10 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     edgeType === 'straight'
       ? getStraightPath(pathArgs)
       : edgeType === 'step'
-        ? getSmoothStepPath({ ...pathArgs, borderRadius: 0 })
-        : edgeType === 'smoothstep'
-          ? getSmoothStepPath(pathArgs)
-          : getBezierPath(pathArgs);
+      ? getSmoothStepPath({ ...pathArgs, borderRadius: 0 })
+      : edgeType === 'smoothstep'
+      ? getSmoothStepPath(pathArgs)
+      : getBezierPath(pathArgs);
 
   return (
     <>
@@ -65,7 +67,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
           }}
         >
           <AnimatePresence>
-            {selected && (
+            {selected && !isReadOnly && (
               <motion.div
                 key="scissors"
                 initial={{ opacity: 0, scale: 0.7 }}

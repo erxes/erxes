@@ -11,6 +11,7 @@ import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NodeEditMetaDataDialog } from './NodeEditMetaDataDialog';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 
 export const NodeDropdownActions = ({
   id,
@@ -19,6 +20,7 @@ export const NodeDropdownActions = ({
   id: string;
   data: NodeData;
 }) => {
+  const { isReadOnly } = useAutomation();
   const {
     isOpenDialog,
     isOpenDropDown,
@@ -29,6 +31,10 @@ export const NodeDropdownActions = ({
     onRemoveNode,
     openNodeConfigurationForm,
   } = useNodeDropDownActions(id, data.nodeType);
+
+  if (isReadOnly) {
+    return null;
+  }
 
   return (
     <DropdownMenu

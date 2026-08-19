@@ -253,6 +253,22 @@ export const getOrCreateComment = async (
     );
   }
 };
+const toPostTimestamp = (value?: number | string) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const numeric = Number(value);
+
+  if (!Number.isNaN(numeric)) {
+    return new Date(numeric < 1e11 ? numeric * 1000 : numeric);
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+};
+
 export const generatePostDoc = async (
   postParams: any,
   pageId: string,
@@ -312,7 +328,7 @@ export const generatePostDoc = async (
     senderId: userId,
     permalink_url: '',
     attachments: generatedMediaUrls.length > 0 ? generatedMediaUrls : [],
-    timestamp: created_time ? new Date(created_time) : undefined,
+    timestamp: toPostTimestamp(created_time),
   };
 
   return doc;

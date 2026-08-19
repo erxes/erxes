@@ -40,6 +40,8 @@ query AutomationDetail($id: String!) {
     updatedAt
     createdBy
     updatedBy
+    duplicatedFrom
+    duplicatedFromName
     triggers {
       ${AUTOMATION_TRIGGER_FIELDS}
     }
@@ -121,6 +123,9 @@ export const AUTOMATION_HISTORIES = gql`
         status
         description
         actions
+        failedActionId
+        failedActionType
+        errorCode
         startWaitingDate
         waitingActionId
       }
@@ -148,6 +153,15 @@ export const AUTOMATION_WORKFLOW_TEMPLATES = gql`
       actions
       inputs
       createdAt
+    }
+  }
+`;
+
+export const AUTOMATION_EXECUTION_COUNTS = gql`
+  query AutomationExecutionCounts($automationIds: [String!]!) {
+    automationExecutionCounts(automationIds: $automationIds) {
+      key
+      count
     }
   }
 `;

@@ -6,7 +6,10 @@ import {
 } from '@/automations/graphql/automationMutations';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationBuilderTabsType, NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import {
+  TAutomationBuilderForm,
+  TAutomationBuilderSaveValues,
+} from '@/automations/utils/automationFormDefinitions';
 import { setAutomationSettingsReturnPath } from '@/automations/utils/settingsReturn';
 import { useMutation } from '@apollo/client';
 import { Node, useReactFlow } from '@xyflow/react';
@@ -50,7 +53,8 @@ export const useAutomationHeader = () => {
     edgeType,
     flowDirection,
     workflows,
-  }: TAutomationBuilderForm) => {
+    acknowledgeDuplicate,
+  }: TAutomationBuilderSaveValues) => {
     const generateValues = () => {
       return {
         id,
@@ -74,7 +78,10 @@ export const useAutomationHeader = () => {
     };
 
     return save({
-      variables: generateValues(),
+      variables: {
+        ...generateValues(),
+        ...(acknowledgeDuplicate && { acknowledgeDuplicate }),
+      },
       onError: (error) => {
         toast({
           title: 'Something went wrong',

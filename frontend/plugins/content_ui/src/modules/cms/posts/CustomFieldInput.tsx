@@ -6,17 +6,19 @@ import {
   Switch,
   DatePicker,
   Button,
-  useErxesUpload,
+  useUploadChunked,
   readImage,
   Editor,
 } from 'erxes-ui';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SelectProduct } from 'ui-modules';
 import { SpreadsheetInput } from './SpreadsheetInput';
 import { GalleryUploader } from './GalleryUploader';
-import { useAutoUpload } from './hooks/useAutoUpload';
+
+const MAX_CUSTOM_FIELD_FILE_SIZE = 650 * 1024 * 1024;
 
 export interface FieldDefinition {
   _id: string;
@@ -48,17 +50,27 @@ function FileFieldInput({
 }) {
   const { t } = useTranslation('content');
   const urls = Array.isArray(value) ? value : [];
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { upload, loading, error, progress } = useUploadChunked();
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: [],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      const url = added[0]?.url;
-      if (url) onChange([url]);
-    },
-  });
-  useAutoUpload(uploadProps);
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) return;
+
+    if (file.size > MAX_CUSTOM_FIELD_FILE_SIZE) {
+      setValidationError(
+        t('max-650mb', { defaultValue: 'Maximum file size: 650 MB' }),
+      );
+      return;
+    }
+
+    setValidationError(null);
+    const uploaded = await upload(file);
+    if (uploaded?.url) onChange([uploaded.url]);
+  };
 
   const handleRemove = (url: string) => {
     onChange(urls.filter((u) => u !== url));
@@ -88,7 +100,7 @@ function FileFieldInput({
               </Button>
             </div>
           ))}
-          {uploadProps.loading && (
+          {loading && (
             <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded">
               <span className="text-sm text-gray-500">{t('uploading')}</span>
             </div>
@@ -96,23 +108,28 @@ function FileFieldInput({
         </div>
       )}
       <div>
-        <input {...uploadProps.getInputProps()} />
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+        />
         <Button
           variant="outline"
           className={buttonClassName}
           type="button"
-          onClick={uploadProps.open}
-          disabled={uploadProps.loading}
+          onClick={() => inputRef.current?.click()}
+          disabled={loading}
         >
           <IconUpload size={16} className="mr-2" />
-          {uploadProps.loading ? t('uploading') : buttonLabel}
+          {loading ? `${t('uploading')} ${progress}%` : buttonLabel}
         </Button>
-        <p className="text-xs text-muted-foreground mt-1">{t('max-20mb')}</p>
-      </div>
-      {Boolean(uploadProps.errors.length) && (
-        <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || t('upload-failed')}
+        <p className="text-xs text-muted-foreground mt-1">
+          {t('max-650mb', { defaultValue: 'Maximum file size: 650 MB' })}
         </p>
+      </div>
+      {(validationError || error) && (
+        <p className="text-xs text-destructive">{validationError || error}</p>
       )}
     </div>
   );

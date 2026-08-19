@@ -6,6 +6,7 @@ import AccountingConfigs from './configs';
 import AccountingCheckSynced from './checkSynced';
 import Transactions from './transacations';
 import AdjustInventories from './adjustInventories';
+import AdjustClosings from './adjustClosing';
 import AdjustFundRates from './adjustFundRates';
 import AdjustDebtRates from './adjustDebtRates';
 import AccountPermissions from './permissions';
@@ -20,6 +21,7 @@ export {
   CtaxRows,
   Transactions,
   AdjustInventories,
+  AdjustClosings,
   AdjustFundRates,
   AdjustDebtRates,
   AccountPermissions,

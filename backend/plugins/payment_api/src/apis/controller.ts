@@ -84,12 +84,24 @@ export const callbackHandler = async (req, res) => {
       default:
         return res.status(400).send('Invalid kind');
     }
-
+    if (
+      transaction.paymentKind === PAYMENTS.tdb.kind &&
+      [
+        PAYMENT_STATUS.CANCELLED,
+        PAYMENT_STATUS.FAILED,
+        PAYMENT_STATUS.EXPIRED,
+      ].includes(transaction.status)
+    ) {
+      return res.redirect(
+        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+      );
+    }
     if (
       transaction.status === PAYMENT_STATUS.CANCELLED ||
-      transaction.status === PAYMENT_STATUS.FAILED
+      transaction.status === PAYMENT_STATUS.FAILED ||
+      transaction.status === PAYMENT_STATUS.EXPIRED
     ) {
-      return res.status(400).send('Payment failed or cancelled');
+      return res.status(400).send('Payment failed, cancelled or expired');
     }
 
     if (transaction.status === PAYMENT_STATUS.PAID) {

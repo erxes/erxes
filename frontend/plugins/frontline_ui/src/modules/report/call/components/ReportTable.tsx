@@ -9,21 +9,6 @@ const ALIGN_CLASS: Record<Align, string> = {
   right: 'text-right',
 };
 
-/**
- * Shared density wrapper for the report tables.
- *
- * `erxes-ui`'s `Table` is tuned for the record grids: it lays out `table-fixed`
- * so every column gets an equal share of the width, and its cells carry `p-0`
- * while its heads carry `px-2`. In a seven- or eight-column report that squeezes
- * the label column to the same width as a two-digit count and leaves the text
- * touching the cell borders, with headers offset from the values beneath them.
- *
- * These wrappers restore content-driven column widths, symmetric padding on
- * heads and cells, and a horizontal scroll container so a narrow viewport
- * scrolls the table instead of crushing it. `Table.Cell`'s `h-cell` stays as the
- * row's minimum height — a table cell treats `height` as a floor, so the padding
- * here grows the row past it.
- */
 function ReportTableRoot({
   className,
   children,
@@ -65,7 +50,6 @@ function ReportTableCell({
   ...props
 }: ComponentProps<typeof Table.Cell> & {
   align?: Align;
-  /** Renders the value with tabular figures so digits line up down the column. */
   numeric?: boolean;
 }) {
   return (
@@ -81,7 +65,6 @@ function ReportTableCell({
   );
 }
 
-/** Header row with the shared tint, so every report table reads the same. */
 function ReportTableHeaderRow({
   className,
   ...props
@@ -89,7 +72,6 @@ function ReportTableHeaderRow({
   return <Table.Row className={cn('bg-muted/50', className)} {...props} />;
 }
 
-/** Body row with zebra striping driven by its index. */
 function ReportTableBodyRow({
   index,
   className,
@@ -107,7 +89,6 @@ function ReportTableBodyRow({
   );
 }
 
-/** Shared empty state for a report table that has no rows to show. */
 function ReportTableEmpty({ children }: { children: ReactNode }) {
   return (
     <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground">
@@ -116,14 +97,6 @@ function ReportTableEmpty({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * Numeric count rendered as a tinted pill, sized to a common minimum so the
- * pills stay aligned down the column.
- *
- * Tones name the theme's own semantic colours. The `--pos` / `--neg` / `--warn`
- * variables used elsewhere in the call report are defined nowhere in the
- * stylesheet, so those pills render untinted — use these tones instead.
- */
 function ReportTableBadge({
   tone,
   children,

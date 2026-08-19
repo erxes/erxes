@@ -10,6 +10,7 @@ export const types = `
     fromDate: String
     toDate: String
     status: String
+    statusIds: [String]
     source: String
     limit: Int
     page: Int
@@ -25,6 +26,8 @@ export const types = `
     customerIds: [String]
     frequency: String
     branchIds: [String]
+    pageIds: [String]
+    searchValue: String
     propertyIds: [String]
     groupPropertyId: String
     groupPropertyValue: String

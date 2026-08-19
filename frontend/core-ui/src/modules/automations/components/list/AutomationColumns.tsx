@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ApolloError, useMutation } from '@apollo/client';
 import {
+  IconCopy,
   IconEdit,
   IconPointerBolt,
   IconShare,
@@ -30,9 +31,11 @@ import {
   TAutomationAction,
   TAutomationTrigger,
 } from 'ui-modules';
+import { AutomationExecutionCountCell } from '@/automations/components/list/AutomationExecutionCountCell';
 import { AutomationRecordTableUserInlineCell } from '@/automations/components/list/AutomationRecordTableUserInlineCell';
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
+import { useDuplicateAutomation } from '@/automations/hooks/useDuplicateAutomation';
 import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
 import { useTranslation } from 'react-i18next';
 
@@ -48,10 +51,34 @@ export const getAutomationColumns: (
       const navigate = useNavigate();
       const { confirm } = useConfirm();
       const { removeAutomations, loading } = useRemoveAutomations();
+      const { duplicateAutomation, loading: duplicating } =
+        useDuplicateAutomation();
       const { t } = useTranslation('automations');
       const { toast } = useToast();
       const lockState = cell.row.original.approvalLockState;
       const canWrite = !lockState?.locked || lockState.hasAccess;
+
+      const onDuplicate = () =>
+        duplicateAutomation(cell.row.original._id, {
+          onError: (e: ApolloError) => {
+            toast({
+              title: 'Error',
+              description: e.message,
+              variant: 'destructive',
+            });
+          },
+          onCompleted: ({
+            automationsDuplicate,
+          }: {
+            automationsDuplicate?: { _id: string; name: string };
+          }) => {
+            toast({
+              title: 'Success',
+              variant: 'success',
+              description: `“${automationsDuplicate?.name}” created as a draft`,
+            });
+          },
+        });
 
       const onRemove = () => {
         confirm({
@@ -77,12 +104,12 @@ export const getAutomationColumns: (
       };
       return (
         <DropdownMenu>
-          <DropdownMenu.Trigger asChild disabled={loading}>
+          <DropdownMenu.Trigger asChild disabled={loading || duplicating}>
             <RecordTable.MoreButton className="w-full h-full" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content
             align="start"
-            className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+            className="w-[140px] min-w-0 [&>button]:cursor-pointer"
             onClick={(e) => e.stopPropagation()}
           >
             <DropdownMenu.Item
@@ -98,6 +125,18 @@ export const getAutomationColumns: (
               >
                 <IconEdit className="size-4" />
                 {t('edit')}
+              </Button>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+                disabled={duplicating}
+                onClick={() => onDuplicate()}
+              >
+                <IconCopy className="size-4" />
+                {t('duplicate')}
               </Button>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild>
@@ -260,6 +299,14 @@ export const getAutomationColumns: (
       );
     },
     size: 80,
+  },
+  {
+    id: 'executionCount',
+    header: () => <RecordTable.InlineHead label={t('runs')} />,
+    cell: ({ cell }) => (
+      <AutomationExecutionCountCell id={cell.row.original._id} />
+    ),
+    size: 100,
   },
   {
     id: 'tagIds',

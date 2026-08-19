@@ -81,10 +81,10 @@ export const FormMutateLayout = ({
                 ? t('updating-form')
                 : t('creating-form')
               : step === FORM_SETUP_STEPS.CONFIRMATION
-              ? id
-                ? t('update-form')
-                : t('create-form')
-              : t('next-step')}
+                ? id
+                  ? t('update-form')
+                  : t('create-form')
+                : t('next-step')}
           </Button>
         </Sheet.Footer>
       </form>

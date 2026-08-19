@@ -20,8 +20,8 @@ interface AutomationErrorStateProps {
 export function AutomationErrorState({
   title = 'An error occurred',
   description,
-  errorCode = 'ERR_WORKFLOW_EXECUTION',
-  errorDetails = 'The workflow execution failed because one of the required parameters is missing or invalid. Please check your configuration and try again.',
+  errorCode,
+  errorDetails,
   onRetry,
   onDismiss,
 }: AutomationErrorStateProps) {
@@ -53,38 +53,42 @@ export function AutomationErrorState({
       </div>
 
       <div className="mt-3 text-sm">
-        <div className="flex items-center text-gray-500 mb-1">
-          <span className="font-mono text-xs bg-destructive/5 px-2 py-0.5 rounded border border-destructive/10">
-            {errorCode}
-          </span>
-        </div>
-
-        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-2">
-          <div className="flex items-center gap-1">
-            <Collapsible.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-0 h-auto text-gray-500 hover:text-gray-700 hover:bg-transparent"
-                data-collapsible-trigger="true"
-              >
-                <span className="text-xs underline underline-offset-2">
-                  {isOpen ? 'Hide details' : 'Show details'}
-                </span>
-                {isOpen ? (
-                  <IconChevronUp className="h-3 w-3 ml-1" />
-                ) : (
-                  <IconChevronDown className="h-3 w-3 ml-1" />
-                )}
-              </Button>
-            </Collapsible.Trigger>
+        {errorCode && (
+          <div className="flex items-center text-gray-500 mb-1">
+            <span className="font-mono text-xs bg-destructive/5 px-2 py-0.5 rounded border border-destructive/10">
+              {errorCode}
+            </span>
           </div>
-          <Collapsible.Content className="mt-2 ">
-            <div className="bg-gray-50 p-3 rounded border border-gray-100 text-xs text-gray-600 font-mono whitespace-pre-wrap w-auto overflow-auto">
-              {errorDetails}
+        )}
+
+        {errorDetails && (
+          <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-2">
+            <div className="flex items-center gap-1">
+              <Collapsible.Trigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 h-auto text-gray-500 hover:text-gray-700 hover:bg-transparent"
+                  data-collapsible-trigger="true"
+                >
+                  <span className="text-xs underline underline-offset-2">
+                    {isOpen ? 'Hide details' : 'Show details'}
+                  </span>
+                  {isOpen ? (
+                    <IconChevronUp className="h-3 w-3 ml-1" />
+                  ) : (
+                    <IconChevronDown className="h-3 w-3 ml-1" />
+                  )}
+                </Button>
+              </Collapsible.Trigger>
             </div>
-          </Collapsible.Content>
-        </Collapsible>
+            <Collapsible.Content className="mt-2 ">
+              <div className="bg-gray-50 p-3 rounded border border-gray-100 text-xs text-gray-600 font-mono whitespace-pre-wrap w-auto overflow-auto">
+                {errorDetails}
+              </div>
+            </Collapsible.Content>
+          </Collapsible>
+        )}
       </div>
 
       {onRetry && (

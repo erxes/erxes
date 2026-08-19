@@ -24,7 +24,7 @@ type StatusPermissionUpdateVariables = {
 
 type StatusPermissionUpdate = (options: {
   variables: StatusPermissionUpdateVariables;
-}) => Promise<unknown>;
+}) => Promise<{ data?: unknown } | null | undefined>;
 
 type MemberPermissionConfig = {
   label: string;
@@ -107,13 +107,18 @@ export const StatusPermissionControl = ({
 
       setIsUpdating(true);
       try {
-        await updateStatus({
+        const result = await updateStatus({
           variables: {
             id: status.value,
             visibilityType: nextVisibility,
             ...(nextVisibility === 'public' ? memberPermissions : {}),
           },
         });
+
+        if (!result?.data) {
+          return;
+        }
+
         setVisibility(nextVisibility);
 
         if (nextVisibility === 'public') {
@@ -138,12 +143,17 @@ export const StatusPermissionControl = ({
     async (memberType: MemberType, selectedMembers: string[]) => {
       setIsUpdating(true);
       try {
-        await updateStatus({
+        const result = await updateStatus({
           variables: {
             id: status.value,
             [memberType]: selectedMembers,
           },
         });
+
+        if (!result?.data) {
+          return;
+        }
+
         setMemberStates((previousMembers) => ({
           ...previousMembers,
           [memberType]: selectedMembers,

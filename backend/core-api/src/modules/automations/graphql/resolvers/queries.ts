@@ -21,6 +21,7 @@ import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
   generateAutomationHistoriesFilter,
+  generateAutomationStatsFilter,
   generateAutomationsFilter,
   addReferenceExtensionsToAutomationOutput,
   getAutomationReferenceFields,
@@ -48,6 +49,12 @@ export interface IListArgs extends ICursorPaginateParams {
   actionTypes: string[];
 }
 
+export interface IStatsParams {
+  automationId: string;
+  beginDate?: Date;
+  endDate?: Date;
+}
+
 export interface IHistoriesParams {
   automationId: string;
   page?: number;
@@ -59,6 +66,9 @@ export interface IHistoriesParams {
   endDate?: Date;
   // Set to list a workflow child executions; omitted = root executions only
   parentExecutionId?: string;
+  failedActionIds?: string[];
+  errorCodes?: string[];
+  waitingActionIds?: string[];
 }
 
 export const automationQueries = {
@@ -105,6 +115,9 @@ export const automationQueries = {
     { models, user }: IContext,
   ) {
     const automation = await models.Automations.getAutomation(_id);
+    if (!automation) {
+      throw new Error('Automation not found');
+    }
 
     await models.ApprovalLocks.assertAccess({
       user,
@@ -134,7 +147,6 @@ export const automationQueries = {
     { models }: IContext,
   ) {
     const filter: any = generateAutomationHistoriesFilter(params);
-
     const { list, totalCount, pageInfo } =
       await cursorPaginate<IAutomationExecutionDocument>({
         model: models.AutomationExecutions,
@@ -160,6 +172,28 @@ export const automationQueries = {
     const filter: any = generateAutomationHistoriesFilter(params);
 
     return await models.AutomationExecutions.find(filter).countDocuments();
+  },
+
+  /**
+   * Execution counts for the automations currently listed, so the list itself
+   * never waits on them.
+   */
+  async automationExecutionCounts(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getExecutionCounts(automationIds);
+  },
+
+  /**
+   * Execution stats of one automation: run status breakdown, daily buckets and
+   * per action node counts/durations.
+   */
+  async automationStats(_root, params: IStatsParams, { models }: IContext) {
+    return models.AutomationExecutions.getStats(
+      generateAutomationStatsFilter(params),
+    );
   },
 
   async automationsTotalCount(

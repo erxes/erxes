@@ -1,8 +1,6 @@
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { NodeData } from '@/automations/types';
-import {
-    IconEdit
-} from '@tabler/icons-react';
+import { IconEdit } from '@tabler/icons-react';
 import { Button, Dialog, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';

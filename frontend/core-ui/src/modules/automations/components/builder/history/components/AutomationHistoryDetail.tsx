@@ -1,45 +1,53 @@
-import { AutomationHistoryByFlow } from '@/automations/components/builder/history/components/AutomationHistoryByFlow';
-import { AutomationHistoryByTable } from '@/automations/components/builder/history/components/AutomationHistoryByTable';
-import { AutomationHistoryResultName } from '@/automations/components/builder/history/components/AutomationHistoryResultName';
 import {
-  AutomationExecutionDetailProvider,
-  useAutomationExecutionDetail,
-} from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
-import {
-  AutomationHistoryDetailProvider,
-  useAutomationHistoryDetail,
-} from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
-import {
-  IconArrowLeft,
-  IconAutomaticGearbox,
-  IconEye,
-  IconTournament,
-} from '@tabler/icons-react';
-import {
-  Button,
-  RecordTable,
-  RecordTableInlineCell,
-  Sheet,
-  Tabs,
-} from 'erxes-ui';
-import { useState } from 'react';
+  AutomationExecutionBackButton,
+  AutomationExecutionDetailTabs,
+  useAutomationExecutionDetailTitle,
+} from '@/automations/components/builder/history/components/AutomationExecutionDetailView';
+import { AutomationExecutionDetailProvider } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
+import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
+import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
+import { IconEye } from '@tabler/icons-react';
+import { cn, RecordTable, RecordTableInlineCell, Sheet } from 'erxes-ui';
 
 export const AutomationHistoryDetail = ({
   executionId,
 }: {
   executionId: string;
 }) => {
-  const [isOpen, setOpen] = useState(false);
+  const { isSplitView, selectedExecutionId, selectExecution } =
+    useAutomationHistoryView();
+  const isOpen = selectedExecutionId === executionId;
+
+  const trigger = (
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      aria-label="Show execution detail"
+    >
+      <IconEye className={cn(isOpen && 'text-primary')} />
+    </RecordTable.MoreButton>
+  );
+
+  if (isSplitView) {
+    return (
+      <RecordTableInlineCell className="p-0">
+        <span
+          className="flex size-full"
+          onClick={() => selectExecution(executionId)}
+        >
+          {trigger}
+        </span>
+      </RecordTableInlineCell>
+    );
+  }
 
   return (
     <AutomationHistoryDetailProvider executionId={executionId}>
-      <RecordTableInlineCell>
-        <Sheet open={isOpen} onOpenChange={setOpen}>
-          <Sheet.Trigger asChild>
-            <RecordTable.MoreButton className="w-full h-full">
-              <IconEye />
-            </RecordTable.MoreButton>
-          </Sheet.Trigger>
+      <RecordTableInlineCell className="p-0">
+        <Sheet
+          open={isOpen}
+          onOpenChange={(open) => selectExecution(open ? executionId : null)}
+        >
+          <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
           <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
             <AutomationHistorySheetContent isOpen={isOpen} />
           </Sheet.View>
@@ -50,26 +58,15 @@ export const AutomationHistoryDetail = ({
 };
 
 const AutomationHistorySheetHeader = () => {
-  const { canGoBack, backToParentExecution } = useAutomationHistoryDetail();
+  const title = useAutomationExecutionDetailTitle();
 
   return (
     <Sheet.Header>
       <div className="flex min-w-0 items-center gap-2">
-        {canGoBack && (
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Back to parent execution"
-            onClick={backToParentExecution}
-          >
-            <IconArrowLeft className="size-4" />
-          </Button>
-        )}
+        <AutomationExecutionBackButton />
         <div>
           <div className="flex items-center gap-2">
-            <Sheet.Title>
-              {canGoBack ? 'Workflow run' : 'Execution history'}
-            </Sheet.Title>
+            <Sheet.Title>{title}</Sheet.Title>
           </div>
           <Sheet.Description>
             View the execution log of your automation in table or flow format.
@@ -81,18 +78,6 @@ const AutomationHistorySheetHeader = () => {
   );
 };
 
-const AutomationHistorySheetResultName = () => {
-  const { executionDetail } = useAutomationExecutionDetail();
-  if (!executionDetail) {
-    return null;
-  }
-
-  return (
-    <div>
-      <AutomationHistoryResultName executionDetail={executionDetail} />
-    </div>
-  );
-};
 export const AutomationHistorySheetContent = ({
   isOpen,
 }: {
@@ -105,28 +90,7 @@ export const AutomationHistorySheetContent = ({
     <AutomationExecutionDetailProvider>
       <AutomationHistorySheetHeader />
       <Sheet.Content>
-        <Tabs defaultValue="table" className="h-full">
-          <div className="w-full flex items-center justify-between p-2 border-b">
-            <Tabs.List variant="segment">
-              <Tabs.Trigger value="table">
-                <IconAutomaticGearbox />
-                View as table
-              </Tabs.Trigger>
-              <Tabs.Trigger value="flow">
-                <IconTournament className="scale-x-[-1]" />
-                View as flow
-              </Tabs.Trigger>
-            </Tabs.List>
-            <AutomationHistorySheetResultName />
-          </div>
-          <Tabs.Content value="flow" className="h-[calc(100%-36px)]">
-            <AutomationHistoryByFlow />
-          </Tabs.Content>
-
-          <Tabs.Content value="table" className="h-[calc(100%-36px)]">
-            <AutomationHistoryByTable />
-          </Tabs.Content>
-        </Tabs>
+        <AutomationExecutionDetailTabs />
       </Sheet.Content>
     </AutomationExecutionDetailProvider>
   );

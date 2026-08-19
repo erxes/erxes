@@ -35,6 +35,8 @@ export const GET_PIPELINE_DETAIL = gql`
       isCheckUser
       isCheckDepartment
       excludeCheckUserIds
+      propertyIds
+      isPropertySelectionConfigured
     }
   }
 `;

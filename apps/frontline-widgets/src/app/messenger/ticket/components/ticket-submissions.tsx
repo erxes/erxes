@@ -419,3 +419,4 @@ export const TicketNumberDisplay = ({
     </div>
   );
 };
+

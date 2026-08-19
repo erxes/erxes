@@ -50,6 +50,16 @@ export const transactionDetailSchema = new Schema({
   fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
 });
 
+const relAccountsSchema = new Schema(
+  {
+    dt: { type: [String], default: undefined },
+    ct: { type: [String], default: undefined },
+    customDt: { type: [String], default: undefined },
+    customCt: { type: [String], default: undefined },
+  },
+  { _id: false },
+);
+
 export const transactionSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
@@ -129,12 +139,7 @@ export const transactionSchema = schemaWrapper(
       index: true,
     },
     relAccounts: {
-      type: {
-        dt: [String],
-        ct: [String],
-        customDt: [String],
-        customCt: [String],
-      },
+      type: relAccountsSchema,
       optional: true,
     },
 

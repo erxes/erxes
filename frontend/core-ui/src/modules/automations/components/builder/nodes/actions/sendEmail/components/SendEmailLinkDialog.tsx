@@ -47,7 +47,9 @@ const SendEmailLinkDialog = ({
       <Dialog.Content className="max-w-lg">
         <Dialog.Header>
           <Dialog.Title>{t('insert-link-title')}</Dialog.Title>
-          <Dialog.Description>{t('insert-link-description')}</Dialog.Description>
+          <Dialog.Description>
+            {t('insert-link-description')}
+          </Dialog.Description>
         </Dialog.Header>
         <SendEmailLinkFields
           textValue={textValue}

@@ -89,7 +89,8 @@ export const AutomationFbBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? t('hide') : t('show')} {t('optional-configuration')}{' '}
+                    {isOptionalOpen ? t('hide') : t('show')}{' '}
+                    {t('optional-configuration')}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>
                 </Button>
@@ -157,7 +158,9 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffPauseMinutes"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('inactivity-pause-minutes')}</Form.Label>
+                          <Form.Label>
+                            {t('inactivity-pause-minutes')}
+                          </Form.Label>
                           <Input
                             type="number"
                             min={1}
@@ -186,7 +189,9 @@ export const AutomationFbBotFormContent = () => {
                       name="automationActiveMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('automation-active-message')}</Form.Label>
+                          <Form.Label>
+                            {t('automation-active-message')}
+                          </Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>

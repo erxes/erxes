@@ -12,4 +12,8 @@ export const postConversationSchema = new Schema({
   customerId: { type: String, optional: true },
   permalink_url: String,
   attachments: [String],
+  metaCommentCount: { type: Number, optional: true },
+  metaReactionCount: { type: Number, optional: true },
+  metaShareCount: { type: Number, optional: true },
+  metaSyncedAt: { type: Date, optional: true },
 });

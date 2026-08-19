@@ -557,7 +557,9 @@ export const FormPreviewContent = ({
                 {t('previous')}
               </Button>
               <Button type="submit">
-                {stepsLength > step ? t('next') : formGeneral.buttonText || 'Send'}
+                {stepsLength > step
+                  ? t('next')
+                  : formGeneral.buttonText || 'Send'}
               </Button>
             </div>
           ) : (
