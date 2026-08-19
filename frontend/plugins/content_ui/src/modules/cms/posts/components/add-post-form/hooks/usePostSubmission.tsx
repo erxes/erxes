@@ -368,7 +368,7 @@ export const usePostSubmission = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { createPost, editPost, creating, saving } = usePostMutations({
+  const { createPost, editPost, loading } = usePostMutations({
     websiteId,
   });
 
@@ -519,7 +519,6 @@ export const usePostSubmission = ({
 
   return {
     onSubmit,
-    creating,
-    saving,
+    loading,
   };
 };
