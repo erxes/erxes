@@ -108,15 +108,6 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-19` — Invoices global-search cursor pagination
-
-- **Summary:** The `payment-invoices` search provider now passes `cursor` and
-  requests `pageInfo` from the `invoices` query so the unified Plugins category
-  can advance this source when its combined load-more fires.
-- **Affected areas:** `src/searchProviders.tsx`
-- **Contracts changed:** None (consumes the existing `invoices` `cursor`/`pageInfo`
-  contract).
-
 ### `2026-08-10` — Permission-gated inline invoice editing
 
 - **Summary:** The invoice table now edits description, amount, and status inline through the
