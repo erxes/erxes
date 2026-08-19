@@ -111,7 +111,7 @@ export const SelectDepartmentsCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedDepartments, departmentIds } = useSelectDepartmentsContext();
+  const { departmentIds } = useSelectDepartmentsContext();
   const [noDepartmentsSearchValue, setNoDepartmentsSearchValue] =
     useState<string>('');
 
@@ -143,7 +143,7 @@ export const SelectDepartmentsCommand = ({
       />
 
       <Command.List>
-        {selectedDepartments?.length > 0 && (
+        {(departmentIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <DepartmentsList />
@@ -260,6 +260,7 @@ export const DepartmentsList = ({
           departmentId={departmentId}
           department={selectedDepartments.find((d) => d._id === departmentId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
           className={cn('min-w-0', className)}
           onCompleted={(department) =>
@@ -271,9 +272,9 @@ export const DepartmentsList = ({
           }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (d) => d._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((d) => d._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
           {...props}
@@ -357,6 +358,7 @@ const SelectDepartmentsBadgesView = () => {
         <DepartmentBadge
           key={departmentId}
           departmentId={departmentId}
+          showMissingId
           onCompleted={(department) =>
             cacheSelectedDepartment(
               department,
@@ -366,9 +368,9 @@ const SelectDepartmentsBadgesView = () => {
           }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (p) => p._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((p) => p._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
         />

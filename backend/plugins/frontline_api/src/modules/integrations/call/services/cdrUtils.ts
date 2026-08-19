@@ -239,9 +239,11 @@ export interface ICdrLegTiming {
   lastapp?: string;
   disposition?: string;
   billsec?: number;
+  duration?: number;
   actionType?: string;
   start?: Date | string | null;
   answer?: Date | string | null;
+  end?: Date | string | null;
 }
 
 /** The apps that hold the caller while the PBX looks for an agent. */
@@ -259,17 +261,6 @@ export const legRingSeconds = (leg: ICdrLegTiming): number => {
   return seconds > 0 ? seconds : 0;
 };
 
-/**
- * Seconds the caller waited before an agent picked up, or `null` when no agent
- * ever did. Every leg passed in must belong to the same call (one `uniqueid`).
- *
- * The ring time lives on the leg that actually held the caller. A queue call
- * sits on its `Queue` leg — stamped `NO ANSWER` with no talk time, because the
- * caller left it the moment the agent bridged — while the leg carrying
- * `ANSWERED` is often a `ForkCDR` copy whose `answer` equals its `start`. So
- * read the answered leg first and fall back to the waiting legs when it
- * recorded no ring of its own.
- */
 export const callSpeedOfAnswer = (legs: ICdrLegTiming[]): number | null => {
   const answeredLeg = legs.find(isHumanAnsweredLeg);
 
@@ -288,12 +279,32 @@ export const callSpeedOfAnswer = (legs: ICdrLegTiming[]): number | null => {
   return waits.length ? Math.max(...waits) : 0;
 };
 
-/**
- * Average speed of answer, in seconds, over the answered calls in `legs`.
- *
- * Legs are folded into calls by `uniqueid` first, so a call spread over several
- * legs counts once and contributes the wait it actually recorded.
- */
+export const callRingSeconds = (legs: ICdrLegTiming[]): number | null => {
+  const held = legs
+    .filter((leg) => WAITING_LASTAPPS.includes(leg.lastapp ?? ''))
+    .map((leg) => Number(leg.duration ?? 0) - Number(leg.billsec ?? 0))
+    .filter((seconds) => seconds > 0);
+
+  if (held.length) return Math.max(...held);
+
+  const stamps = (
+    pick: (leg: ICdrLegTiming) => Date | string | null | undefined,
+  ): number[] =>
+    legs
+      .map((leg) => parseCdrDate(pick(leg)))
+      .filter((date): date is Date => Boolean(date))
+      .map((date) => date.getTime());
+
+  const starts = stamps((leg) => leg.start);
+  const ends = stamps((leg) => leg.end);
+
+  if (!starts.length || !ends.length) return null;
+
+  const span = (Math.max(...ends) - Math.min(...starts)) / 1000;
+
+  return span > 0 ? span : null;
+};
+
 export const averageSpeedOfAnswer = (legs: ICdrLegTiming[]): number => {
   const byCall = new Map<string, ICdrLegTiming[]>();
 

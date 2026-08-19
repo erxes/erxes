@@ -42,6 +42,7 @@ export const types = `
     groupId: String
     label: String
     placeholder: String
+    groupOrder: Int
     order: Int
     isRequired: Boolean
     type: String
@@ -53,6 +54,7 @@ export const types = `
     groupId: String
     label: String
     placeholder: String
+    groupOrder: Int
     order: Int
     isRequired: Boolean
     type: String

@@ -78,7 +78,7 @@ export const useConnect = ({ integrationId }: connectionProps) => {
         setIntegrationId(connectionData.integrationId);
         setUiOptions(uiOptions as IWidgetUiOptions);
         setTicketConfigs(connectionData.ticketConfigs as ITicketConfig[]);
-        setHasTicketConfig(!!connectionData.ticketConfigs);
+        setHasTicketConfig(!!connectionData.ticketConfigs?.length);
         setHasKnowledgeBaseTopic(
           !!connectionData.messengerData?.knowledgeBaseTopicId,
         );

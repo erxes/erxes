@@ -41,6 +41,8 @@ export const Intro = () => {
   const { knowledgeBaseTopicId, websiteApps } = messengerData || {};
   const { switchToTab } = useMessenger();
 
+  console.log('has ticket?', hasTicketConfig)
+
   const handleSwitchWebCall = (url: string) => {
     setWebAppCredentialsUrl(url);
     switchToTab('web-call');
@@ -214,16 +216,6 @@ export const Messages = () => {
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;
-  }
-
-  if (requireAuth === true && !hasEmailOrPhone) {
-    return (
-      <div className="flex flex-col flex-1 p-4 font-medium text-sm gap-1">
-        <div className="flex flex-col justify-center font-medium text-sm">
-          <NotifyCustomerForm />
-        </div>
-      </div>
-    );
   }
 
   return (
