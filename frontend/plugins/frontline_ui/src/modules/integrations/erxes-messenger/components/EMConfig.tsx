@@ -29,11 +29,7 @@ import {
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
 import { SelectMember, SelectBrand } from 'ui-modules';
-import {
-  IconPlus,
-  IconQuestionMark,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconPlus, IconQuestionMark, IconTrash } from '@tabler/icons-react';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupEditSheetOpenAtom,
@@ -613,8 +609,8 @@ const SelectMessengerAutomation = ({
           {loading
             ? t('loading')
             : selected
-            ? selected.name
-            : t('select-an-automation')}
+              ? selected.name
+              : t('select-an-automation')}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
