@@ -445,6 +445,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `waittime` is **not a field on `CDRSchema`** — Mongoose strips it on write, so
   anything reading `$waittime` measures zero. Ring time is `duration - billsec`
   on a folded call (`statistics.ts` uses `answer - start` for the same thing).
+- `CallHistoryEntry.waitTime` is how long the caller was held, whichever way
+  the call went: `callSpeedOfAnswer` for an answered call, `callRingSeconds`
+  for one that ended unanswered. They read different fields because an
+  unanswered leg has no `answer` stamp for `answer - start` to use — the ring
+  is `duration - billsec` there. A queue rings several agents at once, so
+  `callRingSeconds` takes the longest of the waiting legs, which is what the
+  caller actually sat through. When no `Queue`/`Dial` leg carries a ring it
+  falls back to the whole call, `max(end) - min(start)`. Subtracting `billsec`
+  is useless there: an IVR files its menu as `billsec`, so `duration - billsec`
+  reads zero on a call where the caller sat through the menu for 26 seconds and
+  hung up. Nothing on a call nobody answered was a conversation, so the span is
+  all wait. `null` only when no leg carries a usable timestamp.
 - A trunk leg carries the dialled DID in `dst`; the answering extension is in
   `dstchannelExt`. `agentOf` takes whichever field holds a four-digit extension,
   so agent attribution must not read `dst` alone.
@@ -710,6 +722,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Call history reports the ring on unanswered calls
+
+- **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
+  answered, so the Waited column showed a dash on exactly the rows a supervisor
+  wants to read — a No answer row said nothing about whether it rang for three
+  seconds or three minutes. Unanswered calls now report `callRingSeconds`,
+  taken from `duration - billsec` on the legs that held the caller, since an
+  unanswered leg has no `answer` stamp for the existing helper to subtract. It
+  falls back to the call's own span when the PBX filed no `Queue`/`Dial` ring,
+  which is how an IVR-only call arrives — its menu time lands in `billsec`, so
+  subtracting it would report zero.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts` (`callRingSeconds`,
+  `ICdrLegTiming.duration`), `src/modules/reports/callHistoryService.ts`,
+  `src/modules/reports/graphql/schema/call.ts`.
+- **Contracts changed:** None. `CallHistoryEntry.waitTime` keeps its type and
+  unit; it is now populated for unanswered calls instead of always `null`.
+
 ### `2026-08-19` — Bot typing status survives conversation creation
 
 - **Summary:** `generateAiContext` re-publishes
@@ -837,24 +867,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ticketStatusesManage` action, granted to the `frontline:admin` default
   group; the three status mutations now fail with `Permission required`
   (`FORBIDDEN`) for users without it.
-
-### `2026-08-15` — Call reports scope by integration, queue becomes a filter
-
-- **Summary:** Every call report resolver was anchored on `queueId`, so a
-  deployment that stopped routing through its queue reported nothing at all —
-  IVR and direct-to-extension traffic was invisible even though it was the only
-  traffic left. Reports now resolve an integration scope through
-  `resolveReportScope` and bound their CDR reads on `inboxIntegrationId`,
-  applying `QUEUE[<id>]` only when a queue is actually chosen. This also closes
-  the gap where `callCarrierBreakdown`, `callHeatmap`, and `callTopNumbers` had
-  no integration bound at all.
-- **Affected areas:**
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (all nine report
-  resolvers, `resolveReportScope` / `inboxScopeFilter` /
-  `operatorUserIdByExtension` replacing `findQueueIntegration` and
-  `readableQueues`), `src/modules/reports/graphql/schema/call.ts`,
-  `ICallReportArgs` in `src/modules/reports/callReportService.ts`.
-- **Contracts changed:** Nine report queries gained an optional
-  `integrationId: String`; `queueId` stays optional and now accepts `"all"`.
-  Existing callers keep working, and a queue-scoped call returns the same rows
-  as before, additionally bounded to that queue's integration.
