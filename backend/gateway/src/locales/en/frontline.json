@@ -1286,5 +1286,7 @@
   "facebook-last-synced": "Meta counts last synced {{time}}",
   "facebook-reports": "Facebook",
   "search-posts-placeholder": "Search post text or id",
-  "search-posts-title": "Filter by post text..."
+  "search-posts-title": "Filter by post text...",
+  "convert-to-ticket": "Convert to ticket",
+  "go-to-ticket": "Go to ticket"
 }

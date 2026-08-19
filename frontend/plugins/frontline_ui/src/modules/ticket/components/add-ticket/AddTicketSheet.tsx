@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react';
+import { Icon as TablerIcon, IconPlus } from '@tabler/icons-react';
 import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import {
   Button,
@@ -16,13 +16,23 @@ import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
 export const AddTicketSheet = ({
   onComplete,
   isRelation = false,
+  label,
+  Icon = IconPlus,
+  open: openProp,
+  onOpenChange,
   ...props
 }: {
   onComplete?: (ticketId: string) => void;
   isRelation?: boolean;
+  label?: string;
+  Icon?: TablerIcon;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 } & ButtonProps) => {
   const { t } = useTranslation('frontline');
-  const [open, setOpen] = useAtom(ticketCreateSheetState);
+  const [openState, setOpenState] = useAtom(ticketCreateSheetState);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChange ?? setOpenState;
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -50,8 +60,8 @@ export const AddTicketSheet = ({
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
         <Button {...props}>
-          <IconPlus />
-          {t('add-ticket')}
+          <Icon />
+          {label ?? t('add-ticket')}
           {!isRelation && <Kbd>C</Kbd>}
         </Button>
       </Sheet.Trigger>

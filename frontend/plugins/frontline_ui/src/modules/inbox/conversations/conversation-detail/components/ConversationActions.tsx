@@ -1,3 +1,4 @@
+import { ConvertToTicket } from '@/inbox/conversations/conversation-detail/components/ConvertToTicket';
 import { Toggle } from 'erxes-ui';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
@@ -26,14 +27,17 @@ export const ConversationActions = () => {
   };
 
   return (
-    <Toggle
-      variant="outline"
-      className="flex-none"
-      pressed={status === ConversationStatus.CLOSED}
-      onPressedChange={handleChangeConversationStatus}
-      disabled={loading}
-    >
-      {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
-    </Toggle>
+    <>
+      <ConvertToTicket />
+      <Toggle
+        variant="outline"
+        className="flex-none"
+        pressed={status === ConversationStatus.CLOSED}
+        onPressedChange={handleChangeConversationStatus}
+        disabled={loading}
+      >
+        {status === ConversationStatus.CLOSED ? t('open-label') : t('resolve')}
+      </Toggle>
+    </>
   );
 };
