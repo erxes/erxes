@@ -1,5 +1,18 @@
 
 
+## [3.0.87](https://github.com/erxes/erxes/compare/3.0.86...3.0.87) (2026-08-19)
+
+
+### Bug Fixes
+
+* **frontline:** collapse duplicate Facebook posts into one report row ([8647e33](https://github.com/erxes/erxes/commit/8647e3357f2e4abadca11f5bc55dfd260378e3fc))
+
+
+### Features
+
+* **core:** expose safe tRPC procedures as agent-callable tools ([#9056](https://github.com/erxes/erxes/issues/9056)) ([5b76c13](https://github.com/erxes/erxes/commit/5b76c13d3e62a025765cb3b69b3684ce6f3f49d7))
+* handle Toki payments in MS Dynamics sync  ([5e1c7de](https://github.com/erxes/erxes/commit/5e1c7dea2408d81697ec37b195743fbd7d6c8aa8))
+
 ## [3.0.86](https://github.com/erxes/erxes/compare/3.0.85...3.0.86) (2026-08-18)
 
 
