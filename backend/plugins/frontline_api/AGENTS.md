@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-08-20`
 
 ## Scope
 
@@ -87,6 +87,10 @@
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
+- Read-only inbox, integration, and form-submission tRPC procedures are
+  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
+  via `.meta(agentMeta(...))` annotations; every other procedure remains
+  invisible to agents.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 
@@ -98,6 +102,7 @@
 | Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
 | GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
 | tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
+| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                            |
 | HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook` and `/instagram` webhook routers                                                     |
 | Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
@@ -178,6 +183,16 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
+- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
+  the listed frontline permission action:
+  - `inbox.conversations.findOne`, `inbox.conversations.count`,
+    `inbox.getConversationsList`, `inbox.conversationMessages.findOne`,
+    `inbox.conversationMessages.find` — `showConversations`
+  - `inbox.conversations.changeStatus` — `conversationsChangeStatus`
+  - `inbox.integrations.findOne`, `inbox.integrations.find`,
+    `inbox.integrations.count`, `inbox.getIntegrationKinds` —
+    `showIntegrations`
+  - `form.submissionsByConversation` — `showFormSubmissions`
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
@@ -690,6 +705,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   drill-down) rather than the chart. Widening the stored filter set means adding
   the field to the `filters` subschema, the `ReportChartFilters` output type,
   and that key list together, or it will be silently dropped on save.
+- Agent tool annotations are admit-only: never annotate webhook ingestion or
+  notification plumbing (`inbox.integrations.receive`,
+  `inbox.integrationsNotification`, `inbox.sendNotifications`,
+  `inbox.conversationClientMessageInserted`), raw-mongo helpers
+  (`inbox.conversationMessages.updateOne`, `inbox.updateConversationMessage`),
+  bulk or destructive operations (`inbox.integrations.remove`,
+  `inbox.removeConversation`, `inbox.removeCustomersConversations`,
+  `inbox.changeCustomer`, `conversation.tag`), procedures that trust a
+  caller-supplied `userId` (`inbox.createConversationAndMessage`,
+  `inbox.createOnlyMessage`, `inbox.integrations.copyLeadIntegration`,
+  `ticket.create`), widget-facing endpoints
+  (`inbox.widgetsGetUnreadMessagesCount`), internal membership or relation
+  plumbing (`inbox.updateUserChannels`, `inbox.getModuleRelation`,
+  `relation.onRelationAdded`, `fields.getFieldList`), or the raw
+  `inbox.channels.find`, which bypasses `visibleChannelsFilter` and would
+  expose other users' personal channels. New procedures are agent-invisible
+  unless explicitly annotated.
 - Every resolver, model call, worker, and route resolves models from the request
   `subdomain`.
 - Schemas are defined with `new Schema(...)` and explicit fields; do not
@@ -717,10 +749,34 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   range covering `calls_cdrs` documents whose `actionType` contains
   `QUEUE[<queue>]`. Every tab must show numbers; an empty `calls_cdrs` renders
   every tab blank, which is expected, not a bug.
+- Smoke: `GET /agent-tools/manifest` on the frontline service lists only the
+  annotated procedures above; `ticket.create`, `inbox.removeConversation`,
+  `inbox.conversationMessages.updateOne`, and `inbox.channels.find` never
+  appear.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-20` — Agent-callable tRPC tools
+
+- **Summary:** Read-only inbox conversation/message, integration, and form
+  submission tRPC procedures — plus the well-scoped
+  `inbox.conversations.changeStatus` action — are now exposed to AI agents
+  through the platform agent-tools manifest, each gated by a frontline
+  permission the plugin registers.
+- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
+  core-api), `src/modules/inbox/trpc/inbox.ts`,
+  `src/modules/form/trpc/form.ts`.
+- **Contracts changed:** New agent-tool manifest entries
+  `inbox.conversations.findOne`, `inbox.conversations.count`,
+  `inbox.getConversationsList`, `inbox.conversations.changeStatus`,
+  `inbox.conversationMessages.findOne`, `inbox.conversationMessages.find`,
+  `inbox.integrations.findOne`, `inbox.integrations.find`,
+  `inbox.integrations.count`, `inbox.getIntegrationKinds`, and
+  `form.submissionsByConversation`, gated by `showConversations`,
+  `conversationsChangeStatus`, `showIntegrations`, and `showFormSubmissions`.
+  No existing GraphQL or tRPC behavior changed.
 
 ### `2026-08-19` — Call history reports the ring on unanswered calls
 
@@ -854,16 +910,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/ticket/utils/permissionValidator.ts`.
 - **Contracts changed:** None — `updateTicket` can now fail with
   `You do not have permission to move tickets out of this status`.
-
-### `2026-08-17` — Status management moved onto the frontline permission
-
-- **Summary:** `addTicketStatus`, `updateTicketStatus` and `deleteTicketStatus`
-  now require the new `ticketStatusesManage` action via
-  `context.checkPermission` instead of asserting pipeline ownership; the local
-  `assertPipelineOwner` helper is gone.
-- **Affected areas:** `src/meta/permissions.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/status.ts`.
-- **Contracts changed:** The `ticket` permission module gained the
-  `ticketStatusesManage` action, granted to the `frontline:admin` default
-  group; the three status mutations now fail with `Permission required`
-  (`FORBIDDEN`) for users without it.
