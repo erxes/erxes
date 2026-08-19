@@ -684,6 +684,18 @@ export const generateFilter = async (
     };
   }
 
+  const hasPipelineContext = Boolean(
+    pipelineId || pipelineIds || stageId || boardIds || stageCodes,
+  );
+
+  if (!hasPipelineContext && !filter.stageId) {
+    const validStageIds = await models.Stages.find({
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+    }).distinct('_id');
+
+    filter.stageId = { $in: validStageIds };
+  }
+
   return filter;
 };
 

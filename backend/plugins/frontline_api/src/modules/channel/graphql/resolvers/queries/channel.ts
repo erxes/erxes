@@ -123,47 +123,6 @@ export const channelQueries = {
     return [];
   },
 
-  frontlineGlobalSearchChannels: async (
-    _parent: undefined,
-    params: ICursorPaginateParams & { searchValue?: string },
-    { models, user, subdomain }: IContext,
-  ) => {
-    const visibilityFilter = await visibleChannelsFilter({
-      models,
-      subdomain,
-      user,
-    });
-    const searchValue = params.searchValue?.trim();
-    const escapedSearchValue = searchValue?.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      String.raw`\$&`,
-    );
-
-    return cursorPaginate({
-      model: models.Channels,
-      params: {
-        ...params,
-        orderBy: { name: 1 },
-      },
-      query: {
-        $and: [
-          visibilityFilter,
-          teamChannelsOnly(),
-          ...(escapedSearchValue
-            ? [
-                {
-                  name: {
-                    $regex: escapedSearchValue,
-                    $options: 'i',
-                  },
-                },
-              ]
-            : []),
-        ],
-      },
-    });
-  },
-
   getChannelMembers: async (
     _parent: undefined,
     { channelId, channelIds }: { channelId: string; channelIds: string[] },

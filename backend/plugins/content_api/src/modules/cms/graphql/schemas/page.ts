@@ -85,7 +85,6 @@ export const inputs = `
 `;
 
 export const queries = `
-    contentGlobalSearchPages(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): PageList
     cmsPage(_id: String, slug: String, language: String, clientPortalId: String): Page
     cmsPages(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [Page]
     cmsPageList(clientPortalId: String, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): PageList

@@ -62,7 +62,7 @@ const postsSearchProvider = defineSearchProvider<TPostNode>({
   selections: [
     {
       alias: 'gs_content_posts',
-      field: 'contentGlobalSearchPosts',
+      field: 'cmsPostList',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
       body: '{ posts { _id title clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
     },
@@ -113,7 +113,7 @@ const pagesSearchProvider = defineSearchProvider<TPageNode>({
   selections: [
     {
       alias: 'gs_content_pages',
-      field: 'contentGlobalSearchPages',
+      field: 'cmsPageList',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
       body: '{ pages { _id name clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
     },

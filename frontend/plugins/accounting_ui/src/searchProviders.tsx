@@ -24,8 +24,8 @@ const transactionsSearchProvider = defineSearchProvider<TTransactionNode>({
     {
       alias: 'gs_accounting_transactions',
       field: 'accTransactionsMain',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
-      body: '{ list { _id number parentId originId description } totalCount pageInfo { hasNextPage endCursor } }',
+      args: 'searchValue: $searchValue, limit: $limit',
+      body: '{ list { _id number parentId originId description } totalCount }',
     },
   ],
   select: (payload) =>

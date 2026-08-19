@@ -2,6 +2,7 @@ import { IconChecklist, IconClipboard, IconUsers } from '@tabler/icons-react';
 import {
   defineSearchProvider,
   ISearchProvider,
+  readArray,
   readCursorList,
 } from 'erxes-ui';
 
@@ -21,8 +22,8 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward }',
-      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      body: '{ list { _id name } totalCount }',
     },
   ],
   select: (payload) => readCursorList<TTaskNode>(payload, 'gs_operation_tasks'),
@@ -47,8 +48,8 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward }',
-      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      body: '{ list { _id name } totalCount }',
     },
   ],
   select: (payload) =>
@@ -73,12 +74,19 @@ const teamsSearchProvider = defineSearchProvider<TTeamNode>({
   selections: [
     {
       alias: 'gs_operation_teams',
-      field: 'operationGlobalSearchTeams',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
-      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
+      field: 'getTeams',
+      args: 'name: $searchValue',
+      body: '{ _id name }',
     },
   ],
-  select: (payload) => readCursorList<TTeamNode>(payload, 'gs_operation_teams'),
+  select: (payload) => {
+    const nodes = readArray<TTeamNode>(payload, 'gs_operation_teams');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (team) => ({
     id: team._id,
     title: team.name || UNNAMED,

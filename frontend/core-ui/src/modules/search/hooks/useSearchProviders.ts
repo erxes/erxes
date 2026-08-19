@@ -9,10 +9,8 @@ import { TSearchProviderCategory } from '@/search/types/GlobalSearch';
 const MAX_QUARANTINE_RETRIES = 3;
 
 const CORE_PROVIDER_CATEGORIES: Record<string, TSearchProviderCategory> = {
-  'core-customers': 'core-modules',
-  'core-companies': 'core-modules',
-  'core-products': 'core-modules',
-  'core-team-members': 'settings',
+  'core-modules': 'core-modules',
+  settings: 'settings',
 };
 
 export type TSearchProviderWithCategory = ISearchProvider & {

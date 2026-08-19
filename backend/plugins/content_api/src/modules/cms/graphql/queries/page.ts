@@ -13,55 +13,6 @@ import { IContext } from '~/connectionResolvers';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 
 class PageQueryResolver extends BaseQueryResolver {
-  async contentGlobalSearchPages(
-    _parent: undefined,
-    args: ICursorPaginateParams & { searchValue?: string },
-    context: IContext,
-  ) {
-    const { models, user } = context;
-    const permissionScope = await requireCmsPermission(
-      context,
-      CMS_POST_ACTIONS.read,
-    );
-    const accessibleClientPortalIds =
-      await getAccessibleCmsClientPortalIds(context);
-    const query: FilterQuery<ICMSPageDocument> = {};
-    const searchValue = args.searchValue?.trim();
-
-    if (searchValue !== undefined && searchValue.length < 2) {
-      throw new Error('Search value must be at least 2 characters');
-    }
-
-    if (accessibleClientPortalIds) {
-      query.clientPortalId = { $in: accessibleClientPortalIds };
-    }
-
-    if (!user?.isOwner && permissionScope !== 'all') {
-      query.createdUserId = user?._id;
-    }
-
-    if (searchValue) {
-      const searchPattern = new RegExp(escapeRegExp(searchValue), 'i');
-      query.$or = [
-        { name: searchPattern },
-        { slug: searchPattern },
-        { description: searchPattern },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ICMSPageDocument>({
-        model: models.Pages,
-        params: {
-          ...args,
-          orderBy: { updatedAt: -1 },
-        },
-        query,
-      });
-
-    return { pages: list, totalCount, pageInfo };
-  }
-
   async cmsPages(_parent: any, args: any, context: IContext) {
     const { language, clientPortalId } = args;
     const { models } = context;
@@ -187,16 +138,6 @@ class PageQueryResolver extends BaseQueryResolver {
 }
 
 const queries: Record<string, Resolver> = {
-  contentGlobalSearchPages: (
-    _parent: undefined,
-    args: ICursorPaginateParams & { searchValue?: string },
-    context: IContext,
-  ) =>
-    new PageQueryResolver(context).contentGlobalSearchPages(
-      _parent,
-      args,
-      context,
-    ),
   cmsPages: (_parent: any, args: any, context: IContext) =>
     new PageQueryResolver(context).cmsPages(_parent, args, context),
 

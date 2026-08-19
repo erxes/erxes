@@ -19,11 +19,9 @@ import { buildGlobalSearchPageDocument } from '@/search/utils/composeSearchDocum
 import {
   appendUniqueSearchItems,
   getGlobalSearchRequestState,
+  isSourceNameMatch,
 } from '@/search/utils/globalSearchResults';
-import {
-  TGlobalSearchGroup,
-  TSearchProviderCategory,
-} from '@/search/types/GlobalSearch';
+import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
 
 type TGroupPageState = {
   items: TSearchResultItem[];
@@ -42,7 +40,7 @@ export interface IGlobalSearchResult {
   loading: boolean;
   hasFailure: boolean;
   refetch: () => void;
-  loadMore: (category: TSearchProviderCategory) => void;
+  loadMore: (providerKey: string) => void;
 }
 
 const getFailedRequiredSelection = (
@@ -112,7 +110,6 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   const client = useApolloClient();
   const { providers, quarantineFields, canQuarantineFields } =
     useSearchProviders();
-  const document = useGlobalSearchDocument(providers);
   const [pagination, setPagination] = useState<TPaginationState>({
     searchValue,
     groups: {},
@@ -120,6 +117,23 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   const loadingProviderKeys = useRef(new Set<string>());
   const latestSearchValue = useRef(searchValue);
   latestSearchValue.current = searchValue;
+
+  const sourceSearchOverrides = useMemo(
+    () =>
+      providers.reduce<Record<string, string>>((overrides, provider) => {
+        if (isSourceNameMatch(searchValue, provider.label)) {
+          overrides[provider.key] = '';
+        }
+
+        return overrides;
+      }, {}),
+    [providers, searchValue],
+  );
+
+  const document = useGlobalSearchDocument(
+    providers,
+    sourceSearchOverrides,
+  );
 
   const skip =
     searchValue.length < GLOBAL_SEARCH_MIN_LENGTH || providers.length === 0;
@@ -197,129 +211,127 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   });
 
   const loadMore = useCallback(
-    async (category: TSearchProviderCategory) => {
-      const requestSearchValue = searchValue;
-      const categoryProviders = providers.filter(
-        ({ category: providerCategory }) => providerCategory === category,
+    async (providerKey: string) => {
+      const provider = providers.find(({ key }) => key === providerKey);
+      const currentGroup = groupsRef.current.find(
+        ({ key }) => key === providerKey,
       );
+      const requestSearchValue = searchValue;
+      const requestKey = `${requestSearchValue}:${providerKey}:${
+        currentGroup?.pageInfo.endCursor ?? ''
+      }`;
 
-      for (const provider of categoryProviders) {
-        const currentGroup = groupsRef.current.find(
-          ({ key }) => key === provider.key,
-        );
-        const requestKey = `${requestSearchValue}:${provider.key}:${
-          currentGroup?.pageInfo.endCursor ?? ''
-        }`;
+      if (
+        !provider ||
+        currentGroup?.status !== 'ok' ||
+        !currentGroup?.pageInfo.hasNextPage ||
+        !currentGroup?.pageInfo.endCursor ||
+        loadingProviderKeys.current.has(requestKey)
+      ) {
+        return;
+      }
 
-        if (
-          !currentGroup ||
-          currentGroup?.status !== 'ok' ||
-          !currentGroup?.pageInfo.hasNextPage ||
-          !currentGroup?.pageInfo.endCursor ||
-          loadingProviderKeys.current.has(requestKey)
-        ) {
-          continue;
+      loadingProviderKeys.current.add(requestKey);
+      setPagination((current) => {
+        const currentGroups =
+          current.searchValue === requestSearchValue ? current.groups : {};
+        const currentPage = currentGroups[providerKey];
+
+        return {
+          searchValue: requestSearchValue,
+          groups: {
+            ...currentGroups,
+            [providerKey]: {
+              items: currentPage?.items ?? [],
+              pageInfo: currentGroup.pageInfo,
+              loadingMore: true,
+              loadMoreError: false,
+            },
+          },
+        };
+      });
+
+      try {
+        const result = await client.query<TSearchPayload>({
+          query: buildGlobalSearchPageDocument(
+            provider,
+            sourceSearchOverrides[providerKey],
+          ),
+          variables: {
+            searchValue: requestSearchValue,
+            limit: GLOBAL_SEARCH_PAGE_SIZE,
+            cursor: currentGroup.pageInfo.endCursor,
+          },
+          errorPolicy: 'all',
+          fetchPolicy: 'no-cache',
+        });
+
+        if (latestSearchValue.current !== requestSearchValue) {
+          return;
         }
 
-        loadingProviderKeys.current.add(requestKey);
+        if (getFailedRequiredSelection(provider, result.error)) {
+          throw result.error ?? new Error('Search page failed');
+        }
+
+        const nextPage = provider.resolve(
+          result.data ?? {},
+          GLOBAL_SEARCH_PAGE_SIZE,
+        );
+
         setPagination((current) => {
-          const currentGroups =
-            current.searchValue === requestSearchValue ? current.groups : {};
-          const currentPage = current.groups[provider.key];
+          if (current.searchValue !== requestSearchValue) {
+            return current;
+          }
+
+          const currentPage = current.groups[providerKey];
 
           return {
-            searchValue: requestSearchValue,
+            ...current,
             groups: {
-              ...currentGroups,
-              [provider.key]: {
-                items: currentPage?.items ?? [],
-                pageInfo: currentGroup.pageInfo,
-                loadingMore: true,
+              ...current.groups,
+              [providerKey]: {
+                items: appendUniqueSearchItems(
+                  currentPage?.items ?? [],
+                  nextPage.items,
+                ),
+                pageInfo: nextPage.pageInfo,
+                loadingMore: false,
                 loadMoreError: false,
               },
             },
           };
         });
-
-        try {
-          const result = await client.query<TSearchPayload>({
-            query: buildGlobalSearchPageDocument(provider),
-            variables: {
-              searchValue: requestSearchValue,
-              limit: GLOBAL_SEARCH_PAGE_SIZE,
-              cursor: currentGroup.pageInfo.endCursor,
-            },
-            errorPolicy: 'all',
-            fetchPolicy: 'no-cache',
-          });
-
-          if (latestSearchValue.current !== requestSearchValue) {
-            return;
-          }
-
-          if (getFailedRequiredSelection(provider, result.error)) {
-            throw result.error ?? new Error('Search page failed');
-          }
-
-          const nextPage = provider.resolve(
-            result.data ?? {},
-            GLOBAL_SEARCH_PAGE_SIZE,
-          );
-
-          setPagination((current) => {
-            if (current.searchValue !== requestSearchValue) {
-              return current;
-            }
-
-            const currentPage = current.groups[provider.key];
-
-            return {
-              ...current,
-              groups: {
-                ...current.groups,
-                [provider.key]: {
-                  items: appendUniqueSearchItems(
-                    currentPage?.items ?? [],
-                    nextPage.items,
-                  ),
-                  pageInfo: nextPage.pageInfo,
-                  loadingMore: false,
-                  loadMoreError: false,
-                },
-              },
-            };
-          });
-        } catch {
-          if (latestSearchValue.current !== requestSearchValue) {
-            return;
-          }
-
-          setPagination((current) => {
-            if (current.searchValue !== requestSearchValue) {
-              return current;
-            }
-
-            const currentPage = current.groups[provider.key];
-
-            return {
-              ...current,
-              groups: {
-                ...current.groups,
-                [provider.key]: {
-                  items: currentPage?.items ?? [],
-                  pageInfo: currentPage?.pageInfo ?? currentGroup.pageInfo,
-                  loadingMore: false,
-                  loadMoreError: true,
-                },
-              },
-            };
-          });
-        } finally {
-          loadingProviderKeys.current.delete(requestKey);
+      } catch {
+        if (latestSearchValue.current !== requestSearchValue) {
+          return;
         }
+
+        setPagination((current) => {
+          if (current.searchValue !== requestSearchValue) {
+            return current;
+          }
+
+          const currentPage = current.groups[providerKey];
+
+          return {
+            ...current,
+            groups: {
+              ...current.groups,
+              [providerKey]: {
+                items: currentPage?.items ?? [],
+                pageInfo: currentPage?.pageInfo ?? currentGroup.pageInfo,
+                loadingMore: false,
+                loadMoreError: true,
+              },
+            },
+          };
+        });
+      } finally {
+        loadingProviderKeys.current.delete(requestKey);
       }
     },
-    [client, providers, searchValue],
+    [client, providers, searchValue, sourceSearchOverrides],
   );
 
   return {
@@ -327,6 +339,6 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     loading: requestState.loading,
     hasFailure: requestState.hasFailure,
     refetch: () => refetch(),
-    loadMore: (category) => void loadMore(category),
+    loadMore: (providerKey) => void loadMore(providerKey),
   };
 };

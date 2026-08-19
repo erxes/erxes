@@ -181,7 +181,6 @@ const commonPostQuerySelectorPagination = `
   `;
 
 export const queries = `
-      contentGlobalSearchPosts(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): PostList
       cmsPost(_id: String, count: Int, slug: String, identifier: String, language: String, clientPortalId: String): Post
       cmsPosts(clientPortalId: String, ${commonPostQuerySelector}): [Post]
       cmsPostList(clientPortalId: String, ${commonPostQuerySelector}): PostList

@@ -193,6 +193,17 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Switch CMS search providers to base list queries
+
+- **Summary:** The global-search providers no longer query the removed
+  `contentGlobalSearchPosts`/`contentGlobalSearchPages` fields; they now read
+  the base `cmsPostList`/`cmsPageList` queries, which return the same
+  `{ posts/pages, totalCount, pageInfo }` shape and accept the same cursor
+  args, so the composed global search query no longer fails validation.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None — pointed at existing `cmsPostList`/`cmsPageList`
+  contracts.
+
 ### `2026-08-17` — Raise custom-field upload limit to 650 MiB
 
 - **Summary:** Raised the CMS custom-field file upload ceiling from 630 MiB to

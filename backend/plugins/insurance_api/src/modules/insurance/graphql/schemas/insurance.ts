@@ -209,18 +209,6 @@ export const types = `
     totalCount: Int!
   }
 
-  type InsuranceGlobalSearchContractListResponse {
-    list: [InsuranceContract!]!
-    pageInfo: PageInfo!
-    totalCount: Int!
-  }
-
-  type InsuranceGlobalSearchCustomerListResponse {
-    list: [InsuranceCustomer!]!
-    pageInfo: PageInfo!
-    totalCount: Int!
-  }
-
   """
   Бүс нутаг (Region)
   """
@@ -333,14 +321,12 @@ export const queries = `
   currentVendorUser: InsuranceVendorUser
 
   insuranceCustomers(search: String, page: Int, limit: Int, sort: Sort, sortField: String, filter: JSON): [InsuranceCustomer!]!
-  insuranceGlobalSearchCustomers(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): InsuranceGlobalSearchCustomerListResponse!
   insuranceCustomer(id: ID!): InsuranceCustomer
   customerByRegistration(registrationNumber: String!): InsuranceCustomer
   customerByEmail(email: String!): InsuranceCustomer
   companyByRegistration(registrationNumber: String!): InsuranceCustomer
 
   contracts(vendorId: ID, customerId: ID, searchValue: String, contractNumber: String, customerRegistration: String, plateNumber: String, paymentStatus: String, insuranceTypeId: ID, startDate: Date, endDate: Date): [InsuranceContract!]!
-  insuranceGlobalSearchContracts(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): InsuranceGlobalSearchContractListResponse!
   contract(id: ID!): InsuranceContract
 
   vendorContracts: [InsuranceContract!]!

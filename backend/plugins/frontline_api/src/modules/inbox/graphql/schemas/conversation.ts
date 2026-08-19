@@ -222,7 +222,6 @@ export const queries = `
   conversationMessage(_id: String!): ConversationMessage
 
   conversations(${filterParams}, skip: Int): ConversationListResponse
-  frontlineGlobalSearchConversations(${cursorParams}, searchValue: String): ConversationListResponse
   conversationMessages(
     conversationId: String!
     skip: Int

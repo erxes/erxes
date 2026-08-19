@@ -7,6 +7,27 @@ import {
 } from '@/search/types/GlobalSearch';
 import { TSearchResultItem } from 'erxes-ui';
 
+const toSingular = (value: string): string =>
+  value.length > 1 && value.endsWith('s') && !value.endsWith('ss')
+    ? value.slice(0, -1)
+    : value;
+
+// Matches a source by its name so typing a category/source label (e.g. "deals",
+// "conversations") surfaces that source's results instead of only content text.
+export const isSourceNameMatch = (
+  searchValue: string,
+  label?: string | null,
+): boolean => {
+  const term = searchValue.trim().toLowerCase();
+  const name = (label ?? '').trim().toLowerCase();
+
+  if (!term || !name) {
+    return false;
+  }
+
+  return toSingular(term) === toSingular(name);
+};
+
 export const appendUniqueSearchItems = (
   currentItems: TSearchResultItem[],
   nextItems: TSearchResultItem[],

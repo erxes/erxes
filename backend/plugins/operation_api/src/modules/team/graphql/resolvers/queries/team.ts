@@ -75,31 +75,6 @@ export const teamQueries = {
     return models.Team.getTeams(params);
   },
 
-  operationGlobalSearchTeams: async (
-    _parent: undefined,
-    params: ICursorPaginateParams & { searchValue?: string },
-    { models, checkPermission }: IContext,
-  ) => {
-    await checkPermission('teamRead');
-
-    const searchValue = params.searchValue?.trim();
-    const escapedSearchValue = searchValue?.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      String.raw`\$&`,
-    );
-
-    return cursorPaginate({
-      model: models.Team,
-      params: {
-        ...params,
-        orderBy: { name: 1 },
-      },
-      query: escapedSearchValue
-        ? { name: { $regex: escapedSearchValue, $options: 'i' } }
-        : {},
-    });
-  },
-
   getTeamMembers: async (
     _parent: undefined,
     { teamId, teamIds }: { teamId: string; teamIds: string[] },

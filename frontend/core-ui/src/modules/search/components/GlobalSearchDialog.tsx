@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import {
-  GlobalSearchCategoryGroup,
+  GlobalSearchPluginsGroup,
+  GlobalSearchProviderGroup,
   NavigationSearchGroup,
 } from '@/search/components/GlobalSearchGroup';
 import {
@@ -20,7 +21,6 @@ import {
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
   TNavigationSearchItem,
-  TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 
 const CONTENT_CATEGORIES = new Set(
@@ -65,7 +65,7 @@ const GlobalSearchResults = ({
   onCategoryChange: (category: TGlobalSearchCategory) => void;
   onContentSelect: (path: string) => void;
   onNavigationSelect: (path: string, activityId?: string) => void;
-  onLoadMore: (category: TSearchProviderCategory) => void;
+  onLoadMore: (providerKey: string) => void;
   onRetry: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
@@ -95,31 +95,35 @@ const GlobalSearchResults = ({
   const isAll = category === 'all';
   const isNavCategory = category === 'navigation';
   const isContentCategory = CONTENT_CATEGORIES.has(category);
-  const contentGroups = visibleGroups.filter(
+  const scopedContentGroups = visibleGroups.filter(
     (group) => isAll || group.category === category,
   );
-  const categoryGroups = NAVIGATION_SEARCH_CATEGORIES.map(
-    ({ key, labelKey, defaultLabel }) => ({
-      category: key,
-      label: defaultLabel,
-      labelKey,
-      groups: contentGroups.filter((group) => group.category === key),
-    }),
-  ).filter(({ groups }) => groups.length > 0);
+  const pluginGroups = scopedContentGroups.filter(
+    (group) => group.category === 'plugins',
+  );
+  const otherContentGroups = scopedContentGroups.filter(
+    (group) => group.category !== 'plugins',
+  );
+  const pluginItemCount = pluginGroups.reduce(
+    (total, group) => total + group.items.length,
+    0,
+  );
+  const visiblePluginCount = isAll
+    ? Math.min(pluginItemCount, GLOBAL_SEARCH_PREVIEW_LIMIT)
+    : pluginItemCount;
   const navigationItems = isNavCategory || isAll ? goToItems : [];
   const visibleItemCount =
     navigationItems.length +
-    (isNavCategory
-      ? 0
-      : categoryGroups.reduce(
-          (total, { groups }) =>
-            total +
-            Math.min(
-              groups.reduce((sum, group) => sum + group.items.length, 0),
-              isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : Number.MAX_SAFE_INTEGER,
-            ),
-          0,
-        ));
+    visiblePluginCount +
+    otherContentGroups.reduce(
+      (total, group) =>
+        total +
+        Math.min(
+          group.items.length,
+          isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : Number.MAX_SAFE_INTEGER,
+        ),
+      0,
+    );
   const waitingForContent =
     contentSearchReady && contentLoading && (isAll || isContentCategory);
   const needsMoreCharacters =
@@ -155,41 +159,42 @@ const GlobalSearchResults = ({
         />
       )}
 
-      {categoryGroups.map(
-        ({
-          category: categoryKey,
-          label,
-          labelKey,
-          groups: categoryGroupList,
-        }) => (
-          <GlobalSearchCategoryGroup
-            key={categoryKey}
-            actionLabel={t('open-result', 'Open result')}
-            category={categoryKey}
-            groups={categoryGroupList}
-            label={label}
-            labelKey={labelKey}
-            previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
-            searchValue={searchValue}
-            onLoadMore={isAll ? undefined : onLoadMore}
-            onSelect={onContentSelect}
-            onShowMore={
-              isAll &&
-              (categoryGroupList.reduce(
-                (total, group) => total + group.items.length,
-                0,
-              ) > GLOBAL_SEARCH_PREVIEW_LIMIT ||
-                categoryGroupList.some(
-                  (group) =>
-                    group.pageInfo.hasNextPage ||
-                    (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT,
-                ))
-                ? () => onCategoryChange(categoryKey)
-                : undefined
-            }
-          />
-        ),
+      {pluginGroups.length > 0 && (
+        <GlobalSearchPluginsGroup
+          actionLabel={t('open-result', 'Open result')}
+          groups={pluginGroups}
+          heading={isAll ? t('plugins', 'Plugins') : undefined}
+          previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
+          searchValue={searchValue}
+          onLoadMore={onLoadMore}
+          onSelect={onContentSelect}
+          onShowMore={
+            isAll && pluginItemCount > GLOBAL_SEARCH_PREVIEW_LIMIT
+              ? () => onCategoryChange('plugins')
+              : undefined
+          }
+        />
       )}
+
+      {otherContentGroups.map((group) => (
+        <GlobalSearchProviderGroup
+          key={group.key}
+          actionLabel={t('open-result', 'Open result')}
+          group={group}
+          previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
+          searchValue={searchValue}
+          onSelect={onContentSelect}
+          onLoadMore={() => onLoadMore(group.key)}
+          onShowMore={
+            isAll &&
+            (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
+              group.pageInfo.hasNextPage ||
+              (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT)
+              ? () => onCategoryChange(group.category)
+              : undefined
+          }
+        />
+      ))}
 
       {waitingForContent && visibleItemCount === 0 && <GlobalSearchLoading />}
       {needsMoreCharacters && <GlobalSearchMinimumLength />}
@@ -237,7 +242,7 @@ export const GlobalSearchDialog = ({
   contentFailure: boolean;
   onContentSelect: (path: string) => void;
   onNavigationSelect: (path: string, activityId?: string) => void;
-  onLoadMore: (category: TSearchProviderCategory) => void;
+  onLoadMore: (providerKey: string) => void;
   onRetry: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });

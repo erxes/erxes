@@ -8,6 +8,7 @@ import {
   defineSearchProvider,
   getPersonName,
   ISearchProvider,
+  readArray,
   readCursorList,
   stripHtml,
 } from 'erxes-ui';
@@ -35,7 +36,7 @@ const conversationsSearchProvider = defineSearchProvider<TConversationNode>({
   selections: [
     {
       alias: 'gs_frontline_conversations',
-      field: 'frontlineGlobalSearchConversations',
+      field: 'conversations',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
       body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount pageInfo { hasNextPage endCursor } }',
     },
@@ -70,8 +71,8 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args: 'filter: { searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: { createdAt: -1 } }',
-      body: '{ list { _id name number } totalCount pageInfo { hasNextPage endCursor } }',
+      args: 'filter: { searchValue: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      body: '{ list { _id name number } totalCount }',
     },
   ],
   select: (payload) =>
@@ -100,13 +101,19 @@ const channelsSearchProvider = defineSearchProvider<TChannelNode>({
   selections: [
     {
       alias: 'gs_frontline_channels',
-      field: 'frontlineGlobalSearchChannels',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
-      body: '{ list { _id name description } totalCount pageInfo { hasNextPage endCursor } }',
+      field: 'getChannels',
+      args: 'name: $searchValue',
+      body: '{ _id name description }',
     },
   ],
-  select: (payload) =>
-    readCursorList<TChannelNode>(payload, 'gs_frontline_channels'),
+  select: (payload) => {
+    const nodes = readArray<TChannelNode>(payload, 'gs_frontline_channels');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (channel) => ({
     id: channel._id,
     title: channel.name || UNNAMED,

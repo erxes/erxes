@@ -331,7 +331,9 @@ const generateArchivedItemsFilter = (
   filter.stageId = { $in: stages.map((stage) => stage._id) };
 
   if (search) {
-    Object.assign(filter, regexSearchText(search, 'name'));
+    Object.assign(filter, {
+      $or: [regexSearchText(search, 'name'), regexSearchText(search, 'number')],
+    });
   }
 
   if (userIds && userIds.length) {

@@ -1,6 +1,3 @@
-import { IContractDocument } from '@/insurance/@types/contract';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -9,61 +6,6 @@ const escapeRegex = (str: string): string => {
 };
 
 export const contractQueries = {
-  insuranceGlobalSearchContracts: Object.assign(
-    async (
-      _parent: undefined,
-      args: ICursorPaginateParams & { searchValue?: string },
-      { models }: IContext,
-    ) => {
-      const searchValue = args.searchValue?.trim();
-      const query: FilterQuery<IContractDocument> = {
-        insuranceProduct: { $ne: null },
-        insuranceType: { $ne: null },
-      };
-
-      if (searchValue) {
-        const escapedSearchValue = escapeRegex(searchValue);
-        const customerIds = await models.Customer.find({
-          $or: [
-            { firstName: { $regex: escapedSearchValue, $options: 'i' } },
-            { lastName: { $regex: escapedSearchValue, $options: 'i' } },
-            {
-              registrationNumber: {
-                $regex: escapedSearchValue,
-                $options: 'i',
-              },
-            },
-          ],
-        }).distinct('_id');
-
-        query.$or = [
-          {
-            contractNumber: {
-              $regex: escapedSearchValue,
-              $options: 'i',
-            },
-          },
-          {
-            'insuredObject.Улсын дугаар': {
-              $regex: escapedSearchValue,
-              $options: 'i',
-            },
-          },
-          ...(customerIds.length > 0
-            ? [{ customer: { $in: customerIds } }]
-            : []),
-        ];
-      }
-
-      return cursorPaginate<IContractDocument>({
-        model: models.Contract,
-        params: args,
-        query,
-      });
-    },
-    { wrapperConfig: { skipPermission: true } },
-  ),
-
   contracts: Object.assign(
     async (
       _parent: undefined,

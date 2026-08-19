@@ -104,54 +104,6 @@ const applyCmsAdminReadScopeToPostQuery = async (
 };
 
 class PostQueryResolver extends BaseQueryResolver {
-  async contentGlobalSearchPosts(
-    _parent: undefined,
-    args: ICursorPaginateParams & { searchValue?: string },
-    context: IContext,
-  ) {
-    const { models, user } = context;
-    const permissionScope = await requireCmsPermission(
-      context,
-      CMS_POST_ACTIONS.read,
-    );
-    const accessibleClientPortalIds =
-      await getAccessibleCmsClientPortalIds(context);
-    const query: FilterQuery<IPostDocument> = {};
-    const searchValue = args.searchValue?.trim();
-
-    if (searchValue !== undefined && searchValue.length < 2) {
-      throw new Error('Search value must be at least 2 characters');
-    }
-
-    if (accessibleClientPortalIds) {
-      query.clientPortalId = { $in: accessibleClientPortalIds };
-    }
-
-    if (!user?.isOwner && permissionScope !== 'all') {
-      query.authorId = user?._id;
-    }
-
-    if (searchValue) {
-      const searchPattern = new RegExp(escapeRegExp(searchValue), 'i');
-      query.$or = [
-        { title: searchPattern },
-        { slug: searchPattern },
-        { excerpt: searchPattern },
-      ];
-    }
-
-    const { list, totalCount, pageInfo } = await cursorPaginate<IPostDocument>({
-      model: models.Posts,
-      params: {
-        ...args,
-        orderBy: { updatedAt: -1 },
-      },
-      query,
-    });
-
-    return { posts: list, totalCount, pageInfo };
-  }
-
   private async findMostViewedPosts(
     args: {
       clientPortalId: string;
@@ -626,16 +578,6 @@ class PostQueryResolver extends BaseQueryResolver {
 }
 
 export const postQueries: Record<string, Resolver> = {
-  contentGlobalSearchPosts: (
-    _parent: undefined,
-    args: ICursorPaginateParams & { searchValue?: string },
-    context: IContext,
-  ) =>
-    new PostQueryResolver(context).contentGlobalSearchPosts(
-      _parent,
-      args,
-      context,
-    ),
   cmsPosts: (_parent: any, args: any, context: IContext) => {
     return new PostQueryResolver(context).cmsPosts(_parent, args, context);
   },

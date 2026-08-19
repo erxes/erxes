@@ -4,10 +4,48 @@ import {
   GLOBAL_SEARCH_ALLOWED_VARIABLES,
   GLOBAL_SEARCH_OPERATION_NAME,
   GLOBAL_SEARCH_PAGE_OPERATION_NAME,
-  GLOBAL_SEARCH_VARIABLE_DEFS,
 } from '@/search/constants/globalSearch';
 
 const ALIAS_PATTERN = /^gs_[a-z0-9]+_[a-z0-9_]+$/;
+const VARIABLE_PATTERN = /\$([A-Za-z_][A-Za-z0-9_]*)/g;
+
+const VARIABLE_TYPE_DEFS: Record<string, string> = {
+  searchValue: 'String!',
+  limit: 'Int!',
+  cursor: 'String',
+};
+
+const collectUsedVariables = (selections: TSearchSelection[]): string[] => {
+  const used = new Set<string>();
+
+  for (const selection of selections) {
+    const source = `${selection.args ?? ''} ${selection.body ?? ''}`;
+
+    for (const match of source.matchAll(VARIABLE_PATTERN)) {
+      if (GLOBAL_SEARCH_ALLOWED_VARIABLES.has(match[1])) {
+        used.add(match[1]);
+      }
+    }
+  }
+
+  return [...used].sort();
+};
+
+const buildVariableDefs = (selections: TSearchSelection[]): string =>
+  collectUsedVariables(selections)
+    .map((name) => `$${name}: ${VARIABLE_TYPE_DEFS[name]}`)
+    .join(', ');
+
+const applySearchOverride = (
+  args: string | undefined,
+  override: string | undefined,
+): string | undefined => {
+  if (!args || override === undefined) {
+    return args;
+  }
+
+  return args.replace(/\$searchValue/g, JSON.stringify(override));
+};
 
 const printSelection = (selection: TSearchSelection): string => {
   const args = selection.args ? `(${selection.args})` : '';
@@ -71,9 +109,9 @@ const isValidSyntax = (
 
   try {
     ast = parse(
-      `query ${GLOBAL_SEARCH_OPERATION_NAME}Probe(${GLOBAL_SEARCH_VARIABLE_DEFS}) { ${provider.selections
-        .map(printSelection)
-        .join('\n')} }`,
+      `query ${GLOBAL_SEARCH_OPERATION_NAME}Probe(${buildVariableDefs(
+        provider.selections,
+      )}) { ${provider.selections.map(printSelection).join('\n')} }`,
     );
   } catch (parseError) {
     return `invalid selection syntax: ${(parseError as Error).message}`;
@@ -148,14 +186,37 @@ export const getRejectedProviderKeys = (): ReadonlySet<string> =>
 
 const documentCache = new Map<string, DocumentNode>();
 
+const applyOverridesToSelections = (
+  providers: ISearchProvider[],
+  overrides: Record<string, string>,
+): TSearchSelection[] =>
+  providers.flatMap((provider) =>
+    provider.selections.map((selection) => {
+      const override = overrides[provider.key];
+
+      return override === undefined
+        ? selection
+        : { ...selection, args: applySearchOverride(selection.args, override) };
+    }),
+  );
+
 const buildSearchDocument = (
   providers: ISearchProvider[],
   operationName: string,
+  overrides: Record<string, string> = {},
 ): DocumentNode => {
+  const overrideKey =
+    Object.keys(overrides).length === 0
+      ? ''
+      : `:${Object.entries(overrides)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([key, value]) => `${key}=${value}`)
+          .join(',')}`;
+
   const cacheKey = `${operationName}:${providers
     .flatMap((provider) => provider.selections.map((s) => s.alias))
     .sort((a, b) => a.localeCompare(b))
-    .join('|')}`;
+    .join('|')}${overrideKey}`;
 
   const cached = documentCache.get(cacheKey);
 
@@ -163,13 +224,11 @@ const buildSearchDocument = (
     return cached;
   }
 
-  const selectionsSource = providers
-    .flatMap((provider) => provider.selections)
-    .map(printSelection)
-    .join('\n');
+  const selections = applyOverridesToSelections(providers, overrides);
+  const selectionsSource = selections.map(printSelection).join('\n');
 
   const document = parse(
-    `query ${operationName}(${GLOBAL_SEARCH_VARIABLE_DEFS}) { ${selectionsSource} }`,
+    `query ${operationName}(${buildVariableDefs(selections)}) { ${selectionsSource} }`,
   );
 
   documentCache.set(cacheKey, document);
@@ -179,9 +238,16 @@ const buildSearchDocument = (
 
 export const buildGlobalSearchDocument = (
   providers: ISearchProvider[],
-): DocumentNode => buildSearchDocument(providers, GLOBAL_SEARCH_OPERATION_NAME);
+  overrides: Record<string, string> = {},
+): DocumentNode =>
+  buildSearchDocument(providers, GLOBAL_SEARCH_OPERATION_NAME, overrides);
 
 export const buildGlobalSearchPageDocument = (
   provider: ISearchProvider,
+  override?: string,
 ): DocumentNode =>
-  buildSearchDocument([provider], GLOBAL_SEARCH_PAGE_OPERATION_NAME);
+  buildSearchDocument(
+    [provider],
+    GLOBAL_SEARCH_PAGE_OPERATION_NAME,
+    override === undefined ? {} : { [provider.key]: override },
+  );

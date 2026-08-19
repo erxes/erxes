@@ -1,48 +1,7 @@
-import { ICustomerDocument } from '@/insurance/@types/customer';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const customerQueries = {
-  insuranceGlobalSearchCustomers: Object.assign(
-    async (
-      _parent: undefined,
-      args: ICursorPaginateParams & { searchValue?: string },
-      { models }: IContext,
-    ) => {
-      const searchValue = args.searchValue?.trim();
-      const escapedSearchValue = searchValue?.replace(
-        /[.*+?^${}()|[\]\\]/g,
-        String.raw`\$&`,
-      );
-      const query: FilterQuery<ICustomerDocument> = escapedSearchValue
-        ? {
-            $or: [
-              { firstName: { $regex: escapedSearchValue, $options: 'i' } },
-              { lastName: { $regex: escapedSearchValue, $options: 'i' } },
-              { companyName: { $regex: escapedSearchValue, $options: 'i' } },
-              { email: { $regex: escapedSearchValue, $options: 'i' } },
-              { phone: { $regex: escapedSearchValue, $options: 'i' } },
-              {
-                registrationNumber: {
-                  $regex: escapedSearchValue,
-                  $options: 'i',
-                },
-              },
-            ],
-          }
-        : {};
-
-      return cursorPaginate<ICustomerDocument>({
-        model: models.Customer,
-        params: args,
-        query,
-      });
-    },
-    { wrapperConfig: { skipPermission: true } },
-  ),
-
   insuranceCustomers: Object.assign(
     async (_parent: undefined, args: any, { models }: IContext) => {
       const { search, page = 1, limit = 100, sort, sortField, filter } = args;

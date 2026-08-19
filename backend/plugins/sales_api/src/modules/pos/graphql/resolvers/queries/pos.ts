@@ -33,34 +33,6 @@ const queries = {
     return posList;
   },
 
-  async salesGlobalSearchPos(
-    _root,
-    params: ICursorPaginateParams & { searchValue?: string },
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('posRead');
-
-    const searchValue = params.searchValue?.trim();
-    const escapedSearchValue = searchValue?.replace(
-      /[.*+?^${}()|[\]\\]/g,
-      String.raw`\$&`,
-    );
-
-    return cursorPaginate({
-      model: models.Pos,
-      params: {
-        ...params,
-        orderBy: { name: 1 },
-      },
-      query: {
-        status: { $ne: 'deleted' },
-        ...(escapedSearchValue
-          ? { name: { $regex: escapedSearchValue, $options: 'i' } }
-          : {}),
-      },
-    });
-  },
-
   async posDetail(_root, { _id }, { models, checkPermission }: IContext) {
     await checkPermission('posRead');
     return await models.Pos.getPos({ $or: [{ _id }, { token: _id }] });

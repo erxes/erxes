@@ -479,6 +479,34 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Conversations global-search filter + cursor pagination
+
+- **Summary:** The `frontline-conversations` search provider passed no search
+  term (`args` were only `limit`), so conversations matched every query; it now
+  forwards `searchValue`, and passes `cursor`/requests `pageInfo` so the unified
+  Plugins category can advance this source on load-more.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None (consumes the existing `conversations`
+  `searchValue`/`cursor`/`pageInfo` contract).
+
+### `2026-08-19` — Forms global-search cursor pagination
+
+- **Summary:** The `frontline-forms` search provider now passes `cursor` and
+  requests `pageInfo` from the `forms` query so the unified Plugins category
+  can advance this source when its combined load-more fires.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None (consumes the existing `forms` `cursor`/`pageInfo`
+  contract).
+
+### `2026-08-19` — Fix channels global-search provider bare-array read
+
+- **Summary:** `getChannels` returns a bare `[Channel]` array, but the
+  `frontline-channels` search provider consumed it with `readCursorList`
+  (which expects a `{ list }` wrapper), so channel results never appeared.
+  It now reads the array with `readArray`.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None.
+
 ### `2026-08-17` — "Can move" also blocks dragging a card out of a status
 
 - **Summary:** The board only checked the destination column, so a user missing

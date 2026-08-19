@@ -117,6 +117,25 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-20` — Navigable-only deals in global search
+
+- **Summary:** The `sales-deals` `toItem` includes only deals that resolve a
+  `boardId`/`pipeline`, so search results are always openable. The matching
+  backend `deals` query now narrows the context-free search to deals inside
+  real stages, so the first page is not full of orphan deals.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None (consumes the existing `deals` selection; relies
+  on `sales_api` narrowing the context-free result set).
+
+### `2026-08-19` — Deals global-search cursor pagination
+
+- **Summary:** The `sales-deals` search provider now passes `cursor` and
+  requests `pageInfo` from the `deals` query so the unified Plugins category
+  can advance this source when its combined load-more fires.
+- **Affected areas:** `src/searchProviders.tsx`
+- **Contracts changed:** None (consumes the existing `deals` `cursor`/`pageInfo`
+  contract).
+
 ### `2026-08-12` — Select deal properties by group
 
 - **Summary:** Pipeline property configuration now selects an entire Core deal

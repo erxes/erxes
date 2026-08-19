@@ -75,7 +75,7 @@ export const GlobalSearch = () => {
     contentSearchReady && (!contentSearchSettled || loading);
   const contentFailure = contentSearchSettled && hasFailure;
   const totalCount = getGlobalSearchTotalCount({
-    category,
+    category: 'all',
     navigationCounts,
     groups: visibleGroups,
   });

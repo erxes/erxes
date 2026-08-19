@@ -142,6 +142,9 @@
     "loading-more": "Loading more...",
     "load-more-failed": "Couldn't load more results",
     "search-failed": "Couldn't load search results",
-    "retry": "Retry"
+    "retry": "Retry",
+    "core-modules": "Core modules",
+    "settings": "Settings",
+    "plugins": "Plugins"
   }
 }

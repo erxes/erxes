@@ -2,6 +2,7 @@ import { IconBriefcase, IconTag } from '@tabler/icons-react';
 import {
   defineSearchProvider,
   ISearchProvider,
+  readArray,
   readCursorList,
 } from 'erxes-ui';
 
@@ -61,12 +62,19 @@ const posSearchProvider = defineSearchProvider<TPosNode>({
   selections: [
     {
       alias: 'gs_sales_pos',
-      field: 'salesGlobalSearchPos',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
-      body: '{ list { _id name } totalCount pageInfo { hasNextPage endCursor } }',
+      field: 'posList',
+      args: 'search: $searchValue, perPage: $limit',
+      body: '{ _id name }',
     },
   ],
-  select: (payload) => readCursorList<TPosNode>(payload, 'gs_sales_pos'),
+  select: (payload) => {
+    const nodes = readArray<TPosNode>(payload, 'gs_sales_pos');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (pos) => ({
     id: pos._id,
     title: pos.name || UNNAMED,

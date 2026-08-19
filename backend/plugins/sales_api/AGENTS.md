@@ -127,6 +127,17 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-20` — Search deals only inside real stages
+
+- **Summary:** The broad `deals` query (no pipeline/stage/board context, e.g. the
+  global-search source filter) now returns only deals whose `stageId` points to
+  a non-archived stage, so every returned deal resolves `boardId`/`pipeline`
+  and can be opened.
+- **Affected areas:** `src/modules/sales/graphql/resolvers/queries/deals.ts`
+  (`generateFilter`)
+- **Contracts changed:** None (same query contract; result set narrows for the
+  context-free case).
+
 ### `2026-08-12` — Pipeline-scoped deal properties
 
 - **Summary:** Sales pipelines now persist only validated Core deal property ids.

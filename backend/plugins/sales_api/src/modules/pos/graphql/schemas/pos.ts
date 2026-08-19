@@ -80,12 +80,6 @@ export const types = () => `
     option: JSON
   }
 
-  type SalesGlobalSearchPosListResponse {
-    list: [Pos]
-    pageInfo: PageInfo
-    totalCount: Int
-  }
-
   type ProductGroups {
     _id: String
     name: String
@@ -120,7 +114,6 @@ export const types = () => `
 
 export const queries = `
   posList(page: Int, perPage: Int, isOnline: String, search: String, sortField: String, sortDirection: Int): [Pos]
-  salesGlobalSearchPos(searchValue: String, ${GQL_CURSOR_PARAM_DEFS}): SalesGlobalSearchPosListResponse
   posDetail(_id: String!): Pos
   posEnv: JSON
   productGroups(posId: String!): [ProductGroups]

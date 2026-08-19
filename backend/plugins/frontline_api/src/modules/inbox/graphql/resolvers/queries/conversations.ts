@@ -81,35 +81,6 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  async frontlineGlobalSearchConversations(
-    _parent: undefined,
-    params: IConversationListParams,
-    { user, models, subdomain }: IContext,
-  ) {
-    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
-
-    await qb.buildAllQueries();
-
-    return cursorPaginate<IConversationDocument>({
-      model: models.Conversations,
-      params: {
-        ...params,
-        orderBy: { updatedAt: -1 },
-        limit: params.limit || 20,
-      },
-      query: {
-        ...qb.mainQuery(),
-        status: {
-          $in: [
-            CONVERSATION_STATUSES.NEW,
-            CONVERSATION_STATUSES.OPEN,
-            CONVERSATION_STATUSES.CLOSED,
-          ],
-        },
-      },
-    });
-  },
-
   async conversationMessage(
     _root,
     { _id }: { _id: string },
