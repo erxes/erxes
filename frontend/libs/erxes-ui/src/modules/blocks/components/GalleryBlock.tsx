@@ -6,10 +6,13 @@ import {
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
+  useResolveUrl,
 } from '@blocknote/react';
 import { IconLayoutGrid, IconPhoto, IconPlus, IconX, IconLoader2 } from '@tabler/icons-react';
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
+import { useToast } from 'erxes-ui/hooks';
+import { Dialog } from 'erxes-ui/components';
 
 export interface GalleryImage {
   url: string;
@@ -47,9 +50,73 @@ const parseImages = (raw: string): GalleryImage[] => {
   }
 };
 
+const GalleryItem: FC<{
+  image: GalleryImage;
+  readonly: boolean;
+  onRemove: () => void;
+}> = ({ image, readonly, onRemove }) => {
+  const { downloadUrl } = useResolveUrl(image.url);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const src = downloadUrl ?? image.url;
+
+  return (
+    <div className="relative group aspect-square overflow-hidden rounded-md bg-muted">
+      <button
+        type="button"
+        className="w-full h-full cursor-pointer"
+        contentEditable={false}
+        aria-label="Preview image"
+        onClick={() => setPreviewOpen(true)}
+      >
+        <img
+          src={src}
+          alt={image.caption ?? ''}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+          }}
+          draggable={false}
+        />
+      </button>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
+          <Dialog.Title className="sr-only">
+            {image.caption || 'Image preview'}
+          </Dialog.Title>
+          <img
+            src={src}
+            alt={image.caption ?? ''}
+            className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
+          />
+        </Dialog.Content>
+      </Dialog>
+      {!readonly && (
+        <button
+          type="button"
+          aria-label="Remove image"
+          className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={onRemove}
+        >
+          <IconX size={12} />
+        </button>
+      )}
+      {image.caption && (
+        <div className="pointer-events-none absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
+          {image.caption}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const images = parseImages(block.props.images);
   const columns = Math.max(2, Math.min(4, parseInt(block.props.columns) || 3));
@@ -63,14 +130,23 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
   const handleFiles = async (files: FileList | null) => {
     if (!files?.length || !canUpload) return;
     setUploading(true);
+    const uploaded: GalleryImage[] = [];
+
     try {
-      const uploaded = await Promise.all(
-        Array.from(files).map((f) =>
-          (editor as BlockNoteEditor).uploadFile!(f).then((url) => ({ url })),
-        ),
-      );
-      updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+      for (const file of Array.from(files)) {
+        const url = await (editor as BlockNoteEditor).uploadFile!(file);
+        uploaded.push({ url: url as string });
+      }
+    } catch (e) {
+      toast({
+        title: 'Error uploading image',
+        description: (e as Error).message,
+        variant: 'destructive',
+      });
     } finally {
+      if (uploaded.length) {
+        updateBlock({ images: JSON.stringify([...images, ...uploaded]) });
+      }
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
     }
@@ -94,34 +170,12 @@ const GalleryBlockContent: FC<GalleryRenderProps> = ({ block, editor }) => {
           style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
         >
           {images.map((img, i) => (
-            <div
-              key={i}
-              className="relative group aspect-square overflow-hidden rounded-md bg-muted"
-            >
-              <img
-                src={img.url}
-                alt={img.caption ?? ''}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-              {!readonly && (
-                <button
-                  type="button"
-                  className="absolute top-1 right-1 flex items-center justify-center w-5 h-5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    removeImage(i);
-                  }}
-                >
-                  <IconX size={12} />
-                </button>
-              )}
-              {img.caption && (
-                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-1.5 py-0.5 truncate">
-                  {img.caption}
-                </div>
-              )}
-            </div>
+            <GalleryItem
+              key={img.url}
+              image={img}
+              readonly={readonly || uploading}
+              onRemove={() => removeImage(i)}
+            />
           ))}
         </div>
       )}
@@ -215,14 +269,24 @@ const GalleryExternalHTML: FC<GalleryRenderProps> = ({ block }) => {
           : { display: 'none' }
       }
     >
-      {images.map((img, i) =>
+      {images.map((img) =>
         img.caption ? (
-          <figure key={i} style={{ margin: 0 }}>
-            <img src={img.url} alt={img.caption} style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <figure key={img.url} style={{ margin: 0 }}>
+            <img src={img.url} alt={img.caption} style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              objectFit: 'cover',
+              display: 'block',
+            }} />
             <figcaption>{img.caption}</figcaption>
           </figure>
         ) : (
-          <img key={i} src={img.url} alt="" style={{ width: '100%', height: 'auto', display: 'block' }} />
+          <img key={img.url} src={img.url} alt="" style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              objectFit: 'cover',
+              display: 'block',
+            }} />
         ),
       )}
     </div>
