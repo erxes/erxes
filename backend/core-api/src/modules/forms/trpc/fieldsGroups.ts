@@ -8,6 +8,13 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const fieldsGroupsTrpcRouter = t.router({
   fieldsGroups: t.router({
     find: t.procedure
+      .meta({
+        agent: {
+          description:
+            'List custom field groups (sections that custom fields belong to): { query? }. Use with fields.find to understand how custom fields are organized.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;

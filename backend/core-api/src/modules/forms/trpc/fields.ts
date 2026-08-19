@@ -14,6 +14,13 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const fieldsTrpcRouter = t.router({
   fields: t.router({
     find: t.procedure
+      .meta({
+        agent: {
+          description:
+            'List custom field definitions: { query, projection?, sort? }, e.g. { query: { contentType: "core:contacts.customers" } }. Returns field metadata (name, label, type, validation, options). For a complete field list including built-in schema fields, use fields.fieldsCombinedByContentType instead.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(z.object({ query: z.any(), projection: z.any(), sort: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query, projection, sort } = input;
@@ -21,6 +28,13 @@ export const fieldsTrpcRouter = t.router({
         return await models.Fields.find(query, projection).sort(sort).lean();
       }),
     findOne: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get a single custom field definition by { _id } or { query: {...} }. Returns the field metadata (type, validation, options) needed to format values for fields.prepareCustomFieldsData.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(
         z.object({
           _id: z.string().optional(),
@@ -65,6 +79,13 @@ export const fieldsTrpcRouter = t.router({
         return await models.Fields.updateOne(selector, modifier);
       }),
     prepareCustomFieldsData: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Format raw custom field values into typed customFieldsData entries. Input: [{ field, value }] where field is the custom field _id. Returns entries with the correct stringValue/numberValue/dateValue extras. Pure transformation — writes nothing to the database. Pass the result as doc.customFieldsData in customers.createCustomer / customers.updateCustomer / companies.createCompany / companies.updateCompany. Discover field IDs first via fields.fieldsCombinedByContentType.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(z.array(z.object({ field: z.string(), value: z.any() })))
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -104,6 +125,13 @@ export const fieldsTrpcRouter = t.router({
       }),
 
     getFieldList: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get the full field list (built-in schema fields + custom fields) for a module. Input: { moduleType, collectionType?, usageType? } — moduleType is "contacts" (with collectionType "customers" or "companies"), "product", or "users". Use to discover which fields exist before building filters, imports, or create/update docs.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(
         z.object({
           moduleType: z.string(),
@@ -128,6 +156,13 @@ export const fieldsTrpcRouter = t.router({
         }
       }),
     fieldsCombinedByContentType: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get ALL fields (built-in schema fields + custom fields with select options) for one content type. Input: { contentType, usageType?, excludedNames? } — contentType format "plugin:module.collection", e.g. "core:contacts.customers", "core:contacts.companies", "core:products.product", "core:organization.users". Call this BEFORE writing customFieldsData on any create/update to learn the custom field IDs and their types, then format values with fields.prepareCustomFieldsData.',
+          permission: { module: 'properties', action: 'propertiesRead' },
+        },
+      })
       .input(
         z.object({
           contentType: z.string(),

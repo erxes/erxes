@@ -109,6 +109,13 @@ export const importRouter = t.router({
       }),
 
     getTemplate: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get the CSV import template (filename + required column headers) for an entity type. Input: { entityType } — e.g. "core:contacts.customers", "core:contacts.companies", "core:product.product", "core:organization.users". Use to prepare import data with the exact expected columns. For the full field list of an entity also see fields.getFieldList.',
+          permission: { module: 'importExport', action: 'importsManage' },
+        },
+      })
       .input(
         z.object({
           entityType: z.string(),

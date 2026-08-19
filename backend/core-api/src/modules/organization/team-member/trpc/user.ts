@@ -7,6 +7,13 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const userTrpcRouter = t.router({
   users: t.router({
     find: t.procedure
+      .meta({
+        agent: {
+          description:
+            'List team members (staff users): { query, fields? }, e.g. { query: { email: "a@b.com" } } or { query: { isActive: true } }. Use fields to limit columns, e.g. { _id: 1, email: 1, "detail.fullName": 1 }. Use to resolve a person\'s name/email to their user _id (needed for ownerId, assignee, etc.).',
+          permission: { module: 'teamMembers', action: 'teamMembersRead' },
+        },
+      })
       .input(
         z.object({
           query: z.record(z.any()),
@@ -19,7 +26,16 @@ export const userTrpcRouter = t.router({
 
         return models.Users.find(query, fields);
       }),
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    findOne: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get a single team member by { _id }, { email }, { username }, or any MongoDB-style query. Returns {} when nothing matches.',
+          permission: { module: 'teamMembers', action: 'teamMembersRead' },
+        },
+      })
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
       const { models } = ctx;
 
@@ -64,7 +80,16 @@ export const userTrpcRouter = t.router({
         return models.Users.setUserActiveOrInactive(_id);
       }),
 
-    getCount: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    getCount: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Count team members matching a filter: { query? }, e.g. { query: { isActive: true } }.',
+          permission: { module: 'teamMembers', action: 'teamMembersRead' },
+        },
+      })
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
 

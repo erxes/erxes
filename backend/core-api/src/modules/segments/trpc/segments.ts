@@ -30,6 +30,13 @@ export const optionsSchema = z
 export const segmentsRouter = t.router({
   segment: t.router({
     isInSegment: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Check whether ONE record belongs to a segment. Input: { segmentId, idToCheck } — idToCheck is the record _id (e.g. a customer _id). Returns true/false. Use segment.fetchSegment instead when you need the full member list.',
+          permission: { module: 'segments', action: 'segmentsRead' },
+        },
+      })
       .input(
         z.object({
           segmentId: z.string(),
@@ -65,6 +72,13 @@ export const segmentsRouter = t.router({
         return count > 0;
       }),
     fetchSegment: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Fetch the records that belong to a segment. Input: { segmentId?, options? } — options.returnCount=true returns only the count; options.returnFields limits columns; options.page/perPage paginate; options.returnFullDoc=true returns full documents. Call segment.findOne first to confirm the segment exists and see what content type and conditions it filters.',
+          permission: { module: 'segments', action: 'segmentsRead' },
+        },
+      })
       .input(
         z.object({
           segmentId: z.string().optional(),
@@ -84,6 +98,13 @@ export const segmentsRouter = t.router({
         return await fetchSegment(models, subdomain, segment, options);
       }),
     findOne: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Get a segment definition by ID: { _id }. Returns the segment name, contentType (what entity it filters, e.g. "core:contacts.customers"), and its conditions. Call this before segment.fetchSegment or segment.isInSegment to understand what the segment contains.',
+          permission: { module: 'segments', action: 'segmentsRead' },
+        },
+      })
       .input(z.object({ _id: z.string() }))
       .query(async ({ input, ctx }) => {
         const { models } = ctx;

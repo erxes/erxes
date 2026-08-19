@@ -21,6 +21,13 @@ const notificationDataSchema = z.object({
 export const cpNotificationTrpcRouter = t.router({
   cpNotifications: t.router({
     create: t.procedure
+      .meta({
+        agent: {
+          description:
+            'Send a notification to client portal users (in-app in the customer portal). Input: { cpUserIds: [...], clientPortalId, data: { title, message, type?, priority?, contentType?, contentTypeId?, action? } } — type: "info"|"success"|"warning"|"error", priority: "low"|"medium"|"high"|"urgent". Workflow: customers.findOne → cpUsers.list (erxesCustomerId) to get cpUserIds → this tool. Use to notify end customers about updates to their tickets, orders, etc.',
+          permission: { module: 'clientPortal', action: 'clientPortalManage' },
+        },
+      })
       .input(
         z.object({
           cpUserIds: z.array(z.string()),
@@ -96,6 +103,13 @@ export const cpNotificationTrpcRouter = t.router({
       }),
 
     list: t.procedure
+      .meta({
+        agent: {
+          description:
+            'List notifications previously sent to a portal user: { cpUserId, clientPortalId?, isRead?, limit?, skip? }. Returns { list, totalCount }. Get cpUserId from cpUsers.list.',
+          permission: { module: 'clientPortal', action: 'clientPortalRead' },
+        },
+      })
       .input(
         z.object({
           cpUserId: z.string(),
