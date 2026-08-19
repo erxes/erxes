@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 import { IModels } from '~/connectionResolvers';
 
 type ApprovalTrpcUser = {
@@ -44,13 +45,12 @@ const getTrpcUser = async (
 export const approvalTrpcRouter = t.router({
   approval: t.router({
     state: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Check the approval-lock state of ONE record before editing it. Input: { contentType, contentId, action?, ownerId?, userId? } — contentType like "sales:deal", contentId is the record _id. Returns whether the current user has access and the lock reason. Always check this before mutating pipeline records (deals, tickets) so you do not fight an active approval lock. Use approval.states for multiple records at once.',
-          permission: { module: 'approval', action: 'approvalLocksManage' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Check the approval-lock state of ONE record before editing it. Input: { contentType, contentId, action?, ownerId?, userId? } — contentType like "sales:deal", contentId is the record _id. Returns whether the current user has access and the lock reason. Always check this before mutating pipeline records (deals, tickets) so you do not fight an active approval lock. Use approval.states for multiple records at once.',
+          { module: 'approval', action: 'approvalLocksManage' },
+        ),
+      )
       .input(approvalLockCheckInputSchema)
       .query(async ({ ctx, input }) => {
         const user = await getTrpcUser(ctx, input.userId);
@@ -65,13 +65,12 @@ export const approvalTrpcRouter = t.router({
       }),
 
     states: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Batch-check approval-lock states for MULTIPLE records of one content type. Input: { contentType, contentIds, ownerIdsByContentId?, action?, userId? }. Use instead of approval.state when working with a list of records.',
-          permission: { module: 'approval', action: 'approvalLocksManage' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Batch-check approval-lock states for MULTIPLE records of one content type. Input: { contentType, contentIds, ownerIdsByContentId?, action?, userId? }. Use instead of approval.state when working with a list of records.',
+          { module: 'approval', action: 'approvalLocksManage' },
+        ),
+      )
       .input(approvalLockStatesInputSchema)
       .query(async ({ ctx, input }) => {
         const user = await getTrpcUser(ctx, input.userId);

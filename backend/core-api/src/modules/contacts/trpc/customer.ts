@@ -1,6 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 import { createOrUpdate } from '../utils';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -8,13 +9,12 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 export const customerRouter = t.router({
   customers: t.router({
     find: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Search customers (people) with a MongoDB-style filter. Input: { query: {...} }, e.g. { query: { primaryEmail: "a@b.com" } } or { query: { tagIds: ["tagId"] } }. Returns full customer documents. Use customers.findOne when you already know a unique key, and customers.count when you only need the total number.',
-          permission: { module: 'contacts', action: 'contactsRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Search customers (people) with a MongoDB-style filter. Input: { query: {...} }, e.g. { query: { primaryEmail: "a@b.com" } } or { query: { tagIds: ["tagId"] } }. Returns full customer documents. Use customers.findOne when you already know a unique key, and customers.count when you only need the total number.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -24,13 +24,12 @@ export const customerRouter = t.router({
       }),
 
     findOne: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Get a single customer by a unique key: { _id }, { customerPrimaryEmail }, { customerPrimaryPhone }, or { customerCode }. Deleted customers are excluded automatically. Returns {} when nothing matches. Always call this before customers.updateCustomer to confirm the record and read its current values.',
-          permission: { module: 'contacts', action: 'contactsRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Get a single customer by a unique key: { _id }, { customerPrimaryEmail }, { customerPrimaryPhone }, or { customerCode }. Deleted customers are excluded automatically. Returns {} when nothing matches. Always call this before customers.updateCustomer to confirm the record and read its current values.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
@@ -67,13 +66,12 @@ export const customerRouter = t.router({
     }),
 
     findActiveCustomers: t.procedure
-      .meta({
-        agent: {
-          description:
-            'List active (non-deleted) customers with optional projection and pagination: { query, fields, skip, limit }, e.g. fields: { primaryEmail: 1, firstName: 1 } to return only those columns. Prefer customers.find unless you need field projection or pagination.',
-          permission: { module: 'contacts', action: 'contactsRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'List active (non-deleted) customers with optional projection and pagination: { query, fields, skip, limit }, e.g. fields: { primaryEmail: 1, firstName: 1 } to return only those columns. Prefer customers.find unless you need field projection or pagination.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(
         z.object({
           query: z.any(),
@@ -107,13 +105,12 @@ export const customerRouter = t.router({
       }),
 
     count: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Count customers matching a MongoDB-style filter: { query: {...} }. Use this for "how many customers ..." questions instead of fetching full records.',
-          permission: { module: 'contacts', action: 'contactsRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Count customers matching a MongoDB-style filter: { query: {...} }. Use this for "how many customers ..." questions instead of fetching full records.',
+          { module: 'contacts', action: 'contactsRead' },
+        ),
+      )
       .input(z.object({ query: z.any() }))
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -123,13 +120,12 @@ export const customerRouter = t.router({
       }),
 
     createCustomer: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Create a customer (person). Input: { doc: { firstName?, lastName?, primaryEmail?, emails?, primaryPhone?, phones?, code?, tagIds?, customFieldsData?, ... } }. Workflow: (1) check for duplicates with customers.findOne by email or phone; (2) resolve tag IDs with tags.find (type "core:customer"); (3) for custom fields, discover field IDs via fields.fieldsCombinedByContentType (contentType "core:contacts.customers") and format values with fields.prepareCustomFieldsData.',
-          permission: { module: 'contacts', action: 'contactsCreate' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Create a customer (person). Input: { doc: { firstName?, lastName?, primaryEmail?, emails?, primaryPhone?, phones?, code?, tagIds?, customFieldsData?, ... } }. Workflow: (1) check for duplicates with customers.findOne by email or phone; (2) resolve tag IDs with tags.find (type "core:customer"); (3) for custom fields, discover field IDs via fields.fieldsCombinedByContentType (contentType "core:contacts.customers") and format values with fields.prepareCustomFieldsData.',
+          { module: 'contacts', action: 'contactsCreate' },
+        ),
+      )
       .input(z.object({ doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { doc } = input;
@@ -139,13 +135,12 @@ export const customerRouter = t.router({
       }),
 
     updateCustomer: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Update a customer by ID. Input: { _id, doc: { ...fields to change } } — only provided fields are modified. Call customers.findOne first to get the _id and current values. For custom fields, build doc.customFieldsData with fields.prepareCustomFieldsData.',
-          permission: { module: 'contacts', action: 'contactsUpdate' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Update a customer by ID. Input: { _id, doc: { ...fields to change } } — only provided fields are modified. Call customers.findOne first to get the _id and current values. For custom fields, build doc.customFieldsData with fields.prepareCustomFieldsData.',
+          { module: 'contacts', action: 'contactsUpdate' },
+        ),
+      )
       .input(z.object({ _id: z.string(), doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
         const { _id, doc } = input;
@@ -275,13 +270,12 @@ export const customerRouter = t.router({
       }),
 
     tag: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Attach tags to customers, or count tagged customers. Input: { action, _ids, tagIds, targetIds }. action "tagObject" sets tagIds on the customers listed in targetIds; action "count" counts customers carrying the tag IDs in _ids. Resolve tag IDs first with tags.find (type "core:customer").',
-          permission: { module: 'tags', action: 'tagsTag' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Attach tags to customers, or count tagged customers. Input: { action, _ids, tagIds, targetIds }. action "tagObject" sets tagIds on the customers listed in targetIds; action "count" counts customers carrying the tag IDs in _ids. Resolve tag IDs first with tags.find (type "core:customer").',
+          { module: 'tags', action: 'tagsTag' },
+        ),
+      )
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
       const { action, _ids, tagIds, targetIds } = input;

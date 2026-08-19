@@ -2,19 +2,19 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const branchTrpcRouter = t.router({
   branches: t.router({
     find: t.procedure
-      .meta({
-        agent: {
-          description:
-            'List branches (physical/logical locations): { query?, fields? }. Branch IDs are needed for inventory operations (products.setInventories / products.increaseInventories) and team member assignment. Use to resolve a branch name/code to its _id.',
-          permission: { module: 'organization', action: 'organizationRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'List branches (physical/logical locations): { query?, fields? }. Branch IDs are needed for inventory operations (products.setInventories / products.increaseInventories) and team member assignment. Use to resolve a branch name/code to its _id.',
+          { module: 'organization', action: 'organizationRead' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -24,13 +24,12 @@ export const branchTrpcRouter = t.router({
     }),
 
     findOne: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Get a single branch by { _id }, { code }, or any MongoDB-style query. Returns {} when nothing matches.',
-          permission: { module: 'organization', action: 'organizationRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Get a single branch by { _id }, { code }, or any MongoDB-style query. Returns {} when nothing matches.',
+          { module: 'organization', action: 'organizationRead' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
@@ -44,13 +43,12 @@ export const branchTrpcRouter = t.router({
     }),
 
     findWithChild: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Get branches matching { query?, fields? } plus all their descendant branches (branches nest via parentId/order).',
-          permission: { module: 'organization', action: 'organizationRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Get branches matching { query?, fields? } plus all their descendant branches (branches nest via parentId/order).',
+          { module: 'organization', action: 'organizationRead' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
       const { query, fields } = input;

@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -18,13 +19,12 @@ const cpUserListFilterSchema = z.object({
 export const cpUsersTrpcRouter = t.router({
   cpUsers: t.router({
     list: t.procedure
-      .meta({
-        agent: {
-          description:
-            'List client portal users (end customers with portal accounts): { erxesCustomerId?, clientPortalId?, type?, isVerified?, searchValue?, limit?, skip? }. Pass erxesCustomerId (from customers.findOne) to find the portal account linked to a customer. Returns { list, totalCount }.',
-          permission: { module: 'clientPortal', action: 'clientPortalRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'List client portal users (end customers with portal accounts): { erxesCustomerId?, clientPortalId?, type?, isVerified?, searchValue?, limit?, skip? }. Pass erxesCustomerId (from customers.findOne) to find the portal account linked to a customer. Returns { list, totalCount }.',
+          { module: 'clientPortal', action: 'clientPortalRead' },
+        ),
+      )
       .input(cpUserListFilterSchema)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -68,13 +68,12 @@ export const cpUsersTrpcRouter = t.router({
         return { list, totalCount };
       }),
     get: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Get one client portal user by { id } or by { erxesCustomerId, clientPortalId? }. Returns null when not found. Use cpUsers.list to search by name/email/phone instead.',
-          permission: { module: 'clientPortal', action: 'clientPortalRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Get one client portal user by { id } or by { erxesCustomerId, clientPortalId? }. Returns null when not found. Use cpUsers.list to search by name/email/phone instead.',
+          { module: 'clientPortal', action: 'clientPortalRead' },
+        ),
+      )
       .input(
         z.object({
           id: z.string().optional(),
@@ -102,13 +101,12 @@ export const cpUsersTrpcRouter = t.router({
   }),
   clientPortals: t.router({
     get: t.procedure
-      .meta({
-        agent: {
-          description:
-            'Get a client portal configuration by { _id }. Returns portal settings (name, domain, features). The portal _id is needed for cpUsers.list and cpNotifications.create.',
-          permission: { module: 'clientPortal', action: 'clientPortalRead' },
-        },
-      })
+      .meta(
+        agentMeta(
+          'Get a client portal configuration by { _id }. Returns portal settings (name, domain, features). The portal _id is needed for cpUsers.list and cpNotifications.create.',
+          { module: 'clientPortal', action: 'clientPortalRead' },
+        ),
+      )
       .input(z.object({ _id: z.string() }))
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
