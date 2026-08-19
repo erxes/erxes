@@ -1,5 +1,13 @@
 
 
+## [3.0.88](https://github.com/erxes/erxes/compare/3.0.87...3.0.88) (2026-08-19)
+
+
+### Bug Fixes
+
+* deal filter by pipeline config ([#9074](https://github.com/erxes/erxes/issues/9074)) ([edfa087](https://github.com/erxes/erxes/commit/edfa087e6f20ac55f5ff5a23e671fcd4813239aa))
+* **payment:** handle expired TDB invoice status ([182beda](https://github.com/erxes/erxes/commit/182bedaa9e418c72b87427de10474315d4e0ff9d))
+
 ## [3.0.87](https://github.com/erxes/erxes/compare/3.0.86...3.0.87) (2026-08-19)
 
 
