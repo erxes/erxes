@@ -29,6 +29,9 @@ const GET_CONVERSATION_DETAIL = gql`
         attachments {
           name
           url
+          size
+          duration
+          type
         }
         user {
           _id

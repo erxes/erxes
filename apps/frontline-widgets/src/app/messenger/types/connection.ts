@@ -48,6 +48,7 @@ export interface IMessengerData {
   knowledgeBaseTopicId?: string;
   websiteApps?: any[];
   formCodes?: any[];
+  aiAgentLabel?: string;
 }
 
 export interface IOnlineHours {
@@ -78,11 +79,6 @@ export interface IWidgetUiOptions {
 }
 
 export interface IBrowserInfo {
-  remoteAddress?: string;
-  city?: string;
-  country?: string;
-  countryCode?: string;
-  region?: string;
   url?: string;
   hostname?: string;
   language?: string;

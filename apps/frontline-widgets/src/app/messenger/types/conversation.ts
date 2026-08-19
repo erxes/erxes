@@ -40,6 +40,9 @@ export interface IMessengerAppData {
 export interface IAttachment {
   name: string;
   url: string;
+  type?: string;
+  size?: number;
+  duration?: number;
 }
 
 export interface IMessage {

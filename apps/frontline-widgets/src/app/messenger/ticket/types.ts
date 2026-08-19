@@ -80,3 +80,35 @@ export interface ITicketStatus {
   description: string;
   type: number;
 }
+export interface ITicketNote {
+  _id: string;
+  content: string;
+  contentId: string;
+  createdBy: string;
+  mentions: string[];
+  statusId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITicketListChangedSubscription {
+  ticketListChanged: {
+    type: 'create' | 'update' | 'delete';
+    ticket: Pick<
+      ITicketCheckProgress,
+      '_id' | 'statusId' | 'number' | 'statusChangedDate' | 'updatedAt'
+    > | null;
+  } | null;
+}
+
+export interface ITicketActivityChangedSubscription {
+  ticketActivityChanged: {
+    type: string;
+    activity: {
+      _id: string;
+      action: string;
+      module: string;
+      contentId: string;
+    } | null;
+  } | null;
+}

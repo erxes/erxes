@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -48,11 +48,17 @@
 
 - Runs as a Module Federation remote on port `3004`, bundled with Rspack.
 - The messenger ticket form builder lives on a pipeline's configuration sheet
-  (`src/modules/pipelines/components/configs/`): a configuration picks a status
-  and a tag group, toggles the four built-in ticket fields, and now also selects
-  ticket custom properties out of the `frontline:ticket` field groups. Both
-  lists are drag-reorderable and each entry carries its own label and
-  placeholder; property entries add a required toggle.
+  (`src/modules/pipelines/components/configs/`): a pipeline owns **one**
+  configuration, which picks a status and a tag group, toggles the four built-in
+  ticket fields, and also selects ticket custom properties out of the
+  `frontline:ticket` field groups. The four built-in fields are
+  drag-reorderable and each carries its own label and placeholder. Ticket
+  properties are an `Accordion` with two drag levels: the field groups reorder
+  among themselves, and inside an open group its selected properties reorder
+  among themselves. Switching a property on reveals its label, placeholder, and
+  required inputs inline under that row and moves it into the group's selected
+  block; switching it off removes it. There is no second editor section — the
+  saved order is the order the list shows.
 - A messenger integration attaches **several** ticket configs. The erxes
   messenger config form binds `ticketConfigIds` to `SelectTicketConfig.FormItem`,
   a multi-select over the selected channel's `ticketConfigs`.
@@ -252,8 +258,14 @@
   has no sort control and holds no sort state — the order is whatever
   `getMyChannels` returns.
 - `PIPELINE_CONFIG_SCHEMA.propertyFields` is a `useFieldArray` list whose array
-  position is the display order — the API renumbers `order` from that position
-  on save, so reordering means `move`, never rewriting `order` values. Each
+  position is the display order — the API renumbers both `order` and
+  `groupOrder` from that position on save, so nothing in this UI writes either
+  value. Every reorder instead rewrites positions through `replace`, and
+  switching a property on `insert`s it at the end of its own group's block
+  rather than appending to the array. Group order is not stored per group
+  anywhere: it is the order the groups' blocks appear in, which
+  `TicketPropertyFields` seeds its local `groupIds` state from on first load.
+  Each
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
@@ -271,6 +283,33 @@
 
 ## Local Invariants
 
+- Messenger `onlineHours` is persisted per concrete `Weekday` only. The
+  `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
+  record but are UI quick-selectors derived from the individual days, so they
+  must never reach the save payload and are dropped when loading an existing
+  integration. Build the payload by iterating `Object.values(Weekday)` in
+  `EMStateValues.ts`, not by iterating the record's own keys.
+- `TicketBasicFields` and `TicketPropertyFields` are one visual list on the
+  configuration sheet: a `Label` section heading over `flex flex-col divide-y`
+  rows of `py-2.5 first:pt-0 last:pb-0`, each row ending in a `flex-none`
+  `Switch`, with the row's inputs below it carrying `sr-only` labels and
+  placeholder text. Keep both in that shape; do not reintroduce `InfoCard`/`Card`
+  wrappers around one of them.
+- A ticket property is edited in place, under the row that toggles it —
+  `SelectedPropertyFieldRow` renders the `propertyFields.<index>` inputs, and an
+  unselected property renders as the plain `PropertyFieldRow`. The sheet is
+  narrow, so never add a second section that repeats the selected properties,
+  and never give a property both a switch and a separate delete control.
+- The property accordion runs one `DndContext` over two `SortableContext`
+  levels, so drag ids are prefixed `group:` and `field:` to say which level they
+  belong to. Only **selected** properties are sortable — an unselected one has
+  no array position to persist — and a drop outside the dragged row's own group
+  is ignored, because a property belongs to the group its core field defines.
+  Never move a row between groups or write `groupId` from a drag.
+- `flatten` in `TicketPropertyFields` rebuilds the whole field array from the
+  group and field order. It must append every value whose group or field
+  definition is not loaded, otherwise a property from a group the picker cannot
+  currently show is silently dropped from the configuration on the next drag.
 - The theme's semantic colour tokens are `--success`, `--warning`, `--info`, and
   `--destructive` (each also exposed to Tailwind as `bg-success`,
   `text-destructive`, …). `--pos`, `--neg`, and `--warn` are **not defined
@@ -399,6 +438,64 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Messenger availability schedule follows the design canvas
+
+- **Summary:** `EMHoursTimeTable` was rewritten to the Availability Schedule
+  design: the three `everyday` / `weekday` / `weekend` switch rows became one
+  `ToggleGroup` quick-set control under a `Quick set` caption, separated by
+  `Separator`s from the day list, and every day row now keeps its two
+  `TimeField`s visible — disabled and dimmed when the day is off — instead of
+  swapping them for a "not working" label. All work-flag writes go through one
+  `applyDayWork` helper that writes the whole `onlineHours` object once, so the
+  group keys stay derived and the `as never` casts are gone.
+- **Affected areas:**
+  `src/modules/integrations/erxes-messenger/components/EmHoursAvailability.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (new `quick-set` key).
+- **Contracts changed:** None — the `onlineHours` form shape is unchanged.
+
+### `2026-08-19` — Messenger online hours only save real weekdays
+
+- **Summary:** Saving messenger availability no longer sends the `everyday`,
+  `weekday`, and `weekend` group toggles as if they were schedule entries — the
+  payload is now built from `Object.values(Weekday)`, so only days the user
+  actually enabled are persisted, with their own times. Loading an integration
+  also drops legacy group entries, which is what let a stale `everyday`
+  `9:00 PM – 3:00 AM` row survive round-trips.
+- **Affected areas:**
+  `src/modules/integrations/erxes-messenger/states/EMStateValues.ts`,
+  `src/modules/integrations/erxes-messenger/utils/emStateUtils.ts`.
+- **Contracts changed:** None — the `saveConfigVariables.messengerData.onlineHours`
+  shape is unchanged, only which entries it contains.
+
+### `2026-08-19` — Ticket properties are a two-level drag-and-drop accordion
+
+- **Summary:** The separate `Edit property fields` section is gone: switching a
+  property on now reveals its label, placeholder, and required inputs directly
+  under its row, which halves the height of the configuration sheet. The list
+  itself became an `Accordion` of field groups with two drag levels inside one
+  `DndContext` — groups reorder among themselves, selected properties reorder
+  inside their group — and both are stored as array positions, which the API
+  renumbers into `order` and the new `groupOrder`. Group order is seeded from
+  the saved configuration on first load and held in local state after that.
+- **Affected areas:**
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`,
+  `.../configs/schema.ts`,
+  `.../configs/graphql/queries/{getTicketConfigs,getConfigDetail,getTicketConfigBetPipelineId}.ts`.
+- **Contracts changed:** `PIPELINE_CONFIG_SCHEMA.propertyFields` entries gained
+  an optional `groupOrder`, selected by all three config queries.
+
+### `2026-08-12` — Property fields match the basic ticket fields UI
+
+- **Summary:** `TicketPropertyFields` dropped its `InfoCard` wrapper and per
+  field `Card`s for the row layout `TicketBasicFields` already uses: a `Label`
+  section heading, `divide-y` rows, `DragHandle` instead of a hand-rolled grip,
+  a `flex-none` switch on the right of each row, and label/placeholder inputs in
+  a two-column grid with `sr-only` labels and placeholder text. Behavior
+  (grouped picker, drag ordering, required toggle, remove) is unchanged.
+- **Affected areas:**
+  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`.
+- **Contracts changed:** `None`
+
 ### `2026-08-10` — Ticket property fields carry their type and options
 
 - **Summary:** Toggling a ticket property into a messenger ticket form now
@@ -487,62 +584,3 @@
 - **Contracts changed:** `KpiScorecard.serviceLevel` and
   `KpiScorecard.averageSpeed` are typed `number | null` (the GraphQL fields were
   already nullable `Float`).
-
-### `2026-08-10` — Form preview number fields drop the thousands separator
-
-- **Summary:** `Input.Number` from `erxes-ui` formats with a `,` thousands
-  separator by default, so a phone number typed into a `number` form field
-  previewed as `00,000,000`. The form preview now passes
-  `thousandsSeparator=""` for these fields.
-- **Affected areas:** `src/modules/forms/components/FormPreview.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-10` — Save chart on every ticket report card
-
-- **Summary:** Status summary, date, source, tags, and list gained the Save (and
-  for a saved card, delete) action that only custom properties had. Each card
-  now takes its filters from the shared `useTicketChartCard` hook instead of
-  reading eleven atoms itself, and the board reads every saved chart in one
-  query, keeping it to the chart types it can render.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/Ticket{StatusSummary,OpenDate,Source,Tags,List,CustomProperties}.tsx`,
-  `src/modules/report/hooks/{useTicketChartCard.ts,useReportCharts.ts}`,
-  `src/modules/report/components/report-chart/ReportChartActions.tsx`,
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/types/component-registry.ts`.
-- **Contracts changed:** `TICKET_CUSTOM_PROPERTIES_CHART_TYPE` replaced by
-  `TICKET_CHART_TYPES` (same string values); `useReportCharts` and
-  `useReportChartMutations` no longer take a chart type;
-  `RemoveReportChartButton` dropped its `chartType` prop. Every ticket card
-  component gained optional `cardId` and `savedChart`.
-
-### `2026-08-10` — Status summary lists the pipeline's own statuses
-
-- **Summary:** The Ticket Status Summary card now shows one row per pipeline
-  status, named as it is in ticket status settings, with its default category
-  beside it, instead of six built-in category names. Axis ticks truncate because
-  status names are full sentences.
-- **Affected areas:**
-  `src/modules/report/components/ticket-charts/TicketStatusSummary.tsx`,
-  `src/modules/report/hooks/useTicketStatusSummary.ts`,
-  `src/modules/report/graphql/queries/getTicketChart.ts`.
-- **Contracts changed:** `TicketStatusSummaryItem` gained optional `_id` and
-  `group`; the card can now render an empty state, where six zero rows always
-  came back before.
-
-### `2026-08-10` — Ticket KPI row shows the real total
-
-- **Summary:** "Total Tickets" now sums every priority bucket, including the new
-  `priority: 0` row, so it matches the percentages beside it instead of counting
-  only triaged tickets; the untriaged count moved into that card's subtitle and
-  the row still renders four priority cards. The state filter now defaults to
-  `active` with `all` as the explicit opt-in to archived and deleted tickets.
-- **Affected areas:**
-  `src/modules/report/components/TicketReportsList.tsx`,
-  `src/modules/report/components/filter-popover/ticket-report-filter.tsx`,
-  `src/modules/report/states.ts`,
-  `src/modules/report/hooks/useTicketChartFilterConfig.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `None` on this side; consumes the extra
-  `reportTicketPriority` row and the `state: 'all'` value from `frontline_api`.
-

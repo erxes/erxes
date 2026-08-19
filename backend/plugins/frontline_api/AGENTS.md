@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -199,7 +199,10 @@
   `attachment`, `tags`, each with `isShow` / `label` / `placeholder` / `order`)
   and `propertyFields: [TicketPropertyField]` — ticket custom properties chosen
   from the `frontline:ticket` field groups, each `{ fieldId, groupId, label,
-  placeholder, order, isRequired, type, options }`, where `type` and `options`
+  placeholder, groupOrder, order, isRequired, type, options }`, where
+  `groupOrder` is the 1-based position of the property's group among the groups
+  this configuration uses (every property of a group shares it) and `order` is
+  the property's own 1-based position in the whole list. `type` and `options`
   are copied from the core field definition on save so the messenger widget can
   render the right control without querying core. The widget bootstrap
   (`widgetsMessengerConnect`) returns the whole document as `ticketConfig: JSON`,
@@ -285,6 +288,21 @@
   conversation count must resolve the channel's integration ids first; never
   read `channels.conversationCount` / `channels.openConversationCount`, which
   are stale legacy fields.
+- `conversationBotTypingStatus:<conversationId>` is fire-and-forget: a subscriber
+  that is not connected when an event is published never receives it. A widget
+  starting a new conversation learns its `conversationId` only from the
+  `widgetsInsertMessage` response, so the `typing: true` that mutation publishes
+  inline always reaches nobody. `generateAiContext` therefore re-publishes
+  `typing: true` when the agent starts, and `receiveActions` clears it in a
+  `finally`; neither may be dropped without replacing the other.
+- Messenger availability is always derived, never read from storage.
+  `messengerData.isOnline` on the integration document is only the operator's
+  manual switch; `Integrations.isOnline()` is the one place that resolves it
+  against `availabilityMethod`, `onlineHours`, and `timezone`. Every surface that
+  reports availability — `widgetsMessengerConnect` / `cpConnect` via
+  `getMessengerData`, `widgetsConversationDetail`, `widgetsMessengerSupporters` —
+  must return that computed value, so the stored flag never leaks to a widget as
+  `isOnline`.
 - An integration may never be attached to another user's personal channel. That
   ownership check is the only scope-based restriction on integration creation —
   do not reintroduce a per-kind allowlist for personal channels.
@@ -356,9 +374,12 @@
   returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
   today.
 - `TicketConfig.propertyFields` is stored in display order: the array position
-  is the order and `order` is rewritten to `index + 1` on every save. Never
-  re-sort the incoming list by `order` — the client sends the list as the user
-  arranged it. Every entry must resolve to an existing `frontline:ticket` field
+  is the order, so `order` is rewritten to `index + 1` and `groupOrder` to the
+  rank of the group's first appearance on every save. Both are derived from the
+  submitted array and never read from the submitted values. Never re-sort the
+  incoming list by either — the client sends the list as the user arranged it,
+  with each group's properties in one contiguous block.
+  Every entry must resolve to an existing `frontline:ticket` field
   in core, and duplicates are dropped; `validateTicketPropertyFields` in
   `src/modules/ticket/utils/ticketConfig.ts` is the one implementation. `type`
   and `options` are always taken from the core field definition there, never
@@ -438,6 +459,49 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-19` — Bot typing status survives conversation creation
+
+- **Summary:** `generateAiContext` re-publishes
+  `conversationBotTypingStatus:<conversationId>` with `typing: true` when the AI
+  agent starts, so a widget that only learns its `conversationId` from the
+  `widgetsInsertMessage` response still sees the indicator for the first message
+  of a conversation and for the whole agent run. Also removed the debug
+  `console.log` calls left in `widgetsInsertMessage`.
+- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
+- **Contracts changed:** None — same subscription and payload shape, published
+  once more per agent run.
+
+### `2026-08-19` — Messenger connect returns computed online state
+
+- **Summary:** `getMessengerData` now computes availability with
+  `Integrations.isOnline(integration)` and returns it as `messengerData.isOnline`
+  instead of passing through the stored manual flag, so a widget connecting to an
+  `availabilityMethod: "auto"` integration follows `onlineHours` and `timezone`.
+  The same computed value drives the existing `hideWhenOffline` `showChat`
+  suppression, which no longer recomputes it.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` (`getMessengerData`,
+  shared by `widgetsMessengerConnect` and `cpConnect`).
+- **Contracts changed:** None — `MessengerConnectResponse.messengerData` is
+  `JSON` and still carries `isOnline`, now with the derived value.
+
+### `2026-08-19` — Ticket property fields carry their group's order
+
+- **Summary:** `TicketPropertyField` gained `groupOrder`, the position of the
+  property's group among the groups a configuration uses, so a consumer can
+  rebuild the grouped layout the builder shows without inferring it from array
+  positions. Like `order`, it is derived in `validateTicketPropertyFields` from
+  the submitted array — the rank at which each `groupId` first appears — and
+  never taken from the submitted values.
+- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
+  `src/modules/ticket/db/definitions/ticketConfig.ts`,
+  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
+  `src/modules/ticket/utils/ticketConfig.ts`.
+- **Contracts changed:** `TicketPropertyField` and `TicketPropertyFieldInput`
+  gained an optional `groupOrder: Int`; stored configurations without it keep
+  working and are backfilled on their next save.
 
 ### `2026-08-10` — Ticket property values from the messenger widget
 
@@ -585,15 +649,3 @@
 - **Contracts changed:** New `ReportChart`, `ReportChartFilters`, and
   `ReportChartPropertyValueFilter` types; two new queries and three new
   mutations. No existing report query changed.
-
-### `2026-08-07` — Indexed knowledge base articles carry their category name
-
-- **Summary:** Article documents sent for AI indexing are now titled
-  `Category › Article` and carry the category title as a keyword, so articles
-  named only `1`, `2`, `3` are still reachable by the subject that lives on
-  their category. Categories are resolved in one batched query per document
-  batch.
-- **Affected areas:** `src/modules/knowledgebase/meta/automations.ts`
-- **Contracts changed:** `None` (same `TKnowledgeDocument` shape; `title` and
-  `metadata.keywords` are richer). Existing chunks keep their old titles until
-  the source is re-indexed.

@@ -79,11 +79,6 @@ export const requestBrowserInfo = ({
       window.removeEventListener('message', messageHandler);
     }
     callback({
-      remoteAddress: '',
-      region: '',
-      countryCode: '',
-      city: '',
-      country: '',
       url: window.location.href,
       hostname: window.location.hostname,
       language: navigator.language,
@@ -100,70 +95,24 @@ export const requestBrowserInfo = ({
 // ---------------------------------------------------------------------------
 
 export type IHostBrowserInfo = {
-  remoteAddress?: string;
-  region?: string;
-  countryCode?: string;
-  city?: string;
-  country?: string;
   url: string;
   hostname: string;
   language: string;
   userAgent: string;
 };
 
-let cachedGeoInfo: Omit<
-  IHostBrowserInfo,
-  'url' | 'hostname' | 'language' | 'userAgent'
-> | null = null;
-
-export const getBrowserInfo = async (): Promise<IHostBrowserInfo> => {
-  if (window.location.hostname === 'localhost') {
-    return {
-      url: window.location.pathname,
-      hostname: window.location.href,
-      language: navigator.language,
-      userAgent: navigator.userAgent,
-      countryCode: 'MN',
-    };
-  }
-
-  if (!cachedGeoInfo) {
-    try {
-      const response = await fetch('https://geo.erxes.io');
-      const location = await response.json();
-
-      cachedGeoInfo = {
-        remoteAddress: location.network,
-        region: location.region,
-        countryCode: location.countryCode,
-        city: location.city,
-        country: location.countryName,
-      };
-    } catch (e) {
-      cachedGeoInfo = {
-        city: '',
-        remoteAddress: '',
-        region: '',
-        country: '',
-        countryCode: '',
-      };
-    }
-  }
-
-  return {
-    ...cachedGeoInfo,
-    url: window.location.pathname,
-    hostname: window.location.origin,
-    language: navigator.language,
-    userAgent: navigator.userAgent,
-  };
-};
+export const getBrowserInfo = (): IHostBrowserInfo => ({
+  url: window.location.pathname,
+  hostname: window.location.origin,
+  language: navigator.language,
+  userAgent: navigator.userAgent,
+});
 
 // Answers a 'requestingBrowserInfo' message from the widget iframe, and
 // mirrors any 'setLocalStorageItem' request into localStorage. Shared by
 // both loader scripts so an SPA host page gets identical behavior for the
 // messenger widget and the embedded/popup forms.
-export const listenForCommonRequests = async (
+export const listenForCommonRequests = (
   event: MessageEvent,
   iframe: HTMLIFrameElement | null | undefined,
 ) => {
@@ -179,7 +128,7 @@ export const listenForCommonRequests = async (
         fromPublisher: true,
         source,
         message: 'sendingBrowserInfo',
-        browserInfo: await getBrowserInfo(),
+        browserInfo: getBrowserInfo(),
       },
       '*',
     );
