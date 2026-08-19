@@ -11,6 +11,7 @@ import {
   checkIsBot,
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
+import { sanitizeString } from '@/integrations/instagram/utils';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -20,15 +21,24 @@ export const receiveMessage = async (
   integration: IInstagramIntegrationDocument,
   activity: IMessageData,
 ) => {
-  const userId = activity.sender.id;
   const { recipient, timestamp } = activity;
+
+  if (activity.sender?.id == null || recipient?.id == null) {
+    debugError(
+      `[instagram.receiveMessage] missing required webhook fields: sender.id=${activity.sender?.id ? 'present' : 'missing'} recipient.id=${recipient?.id ? 'present' : 'missing'}`,
+    );
+    throw new Error('Invalid Instagram message webhook payload');
+  }
+
+  const userId = sanitizeString(activity.sender.id);
 
   let message = activity.message as any;
   const postback = activity.postback as any;
 
-  const pageId = recipient.id;
+  const pageId = sanitizeString(recipient.id);
   const kind = INTEGRATION_KINDS.MESSENGER;
-  const mid = message?.mid || postback?.mid;
+  const rawMid = message?.mid || postback?.mid;
+  const mid = rawMid == null ? undefined : sanitizeString(rawMid);
   const attachments = message?.attachments;
 
   debugInstagram(`Received message from ${userId} → page ${pageId}`);
@@ -60,11 +70,11 @@ export const receiveMessage = async (
   }
 
   let conversation = await models.InstagramConversations.findOne({
-    senderId: userId,
-    recipientId: pageId,
+    senderId: { $eq: userId },
+    recipientId: { $eq: pageId },
   });
 
-  const bot = await checkIsBot(models, message, recipient.id);
+  const bot = await checkIsBot(models, message, pageId);
   const botId = bot?._id;
   let isNewConversation = false;
 
@@ -131,9 +141,13 @@ export const receiveMessage = async (
     throw new Error(e.message);
   }
 
-  const existingMessage = await models.InstagramConversationMessages.findOne({
-    mid,
-  });
+  // Skip the dedupe lookup when mid is absent, otherwise every mid-less event
+  // would collide on a single { mid: undefined } idempotency key.
+  const existingMessage = mid
+    ? await models.InstagramConversationMessages.findOne({
+        mid: { $eq: mid },
+      })
+    : null;
 
   if (!existingMessage) {
     try {
