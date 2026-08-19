@@ -52,8 +52,7 @@ export function usePostMutations({ websiteId }: UsePostMutationsOptions = {}) {
     createPost,
     editPost,
     removePost,
-    creating: createState.loading,
-    saving: editState.loading,
+    loading: createState.loading || editState.loading,
     removing: removeState.loading,
   };
 }

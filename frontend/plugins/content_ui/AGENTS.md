@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -27,6 +27,8 @@
   saved and reopened in the post editor.
 - Allows individual CMS custom-field file uploads up to 650 MiB through the
   platform's chunked-upload contract.
+- Shows the active CMS post create or edit mutation state in the header action
+  so save, schedule, and publish submissions cannot be triggered twice.
 
 ## Architecture
 
@@ -87,6 +89,8 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- Keep the form-ready header state synchronized with post mutation loading so
+  header actions remain disabled and visible as loading until submission ends.
 
 ### UI Conventions
 
@@ -170,9 +174,9 @@
 
 ## Validation
 
-- `pnpm nx lint content_ui` (when a lint target is defined)
 - `pnpm nx build content_ui`
-- `pnpm nx test content_ui`
+- Create and edit a CMS post, submit each form, and verify the header action is
+  disabled with a status-specific loading label until the mutation completes.
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than
@@ -192,6 +196,14 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-19` — Synchronize post submission loading
+
+- **Summary:** Kept CMS post header actions synchronized with create and edit
+  mutation loading so submissions show feedback and cannot be duplicated.
+- **Affected areas:** `src/modules/cms/hooks/usePostMutations.ts`, post add form
+  submission and header actions, and CMS post add/detail pages
+- **Contracts changed:** None
 
 ### `2026-08-17` — Raise custom-field upload limit to 650 MiB
 
