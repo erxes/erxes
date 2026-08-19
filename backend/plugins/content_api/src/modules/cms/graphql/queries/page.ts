@@ -1,16 +1,8 @@
-import { ICMSPageDocument } from '@/cms/@types/cms';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
-import {
-  assertCmsAccessByClientPortal,
-  getAccessibleCmsClientPortalIds,
-} from '@/cms/utils/cms-access';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
-import { requireCmsPermission } from '@/cms/utils/permissions';
-import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { CMS_POST_ACTIONS } from '~/meta/permissions';
 
 class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {

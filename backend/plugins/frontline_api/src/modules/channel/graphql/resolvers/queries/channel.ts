@@ -1,10 +1,8 @@
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IChannelFilter } from '@/channel/@types/channel';
-import { teamChannelsOnly, visibleChannelsFilter } from '@/channel/utils';
+import { teamChannelsOnly } from '@/channel/utils';
 import { canGroup } from 'erxes-api-shared/core-modules';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 
 // Sortable document paths. `memberCount` and the other counts are field
 // resolvers rather than stored fields, and `updatedAt` is not a schema path,

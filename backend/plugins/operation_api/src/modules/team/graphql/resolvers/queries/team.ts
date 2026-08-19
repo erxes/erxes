@@ -2,8 +2,6 @@ import { ITeamFilter } from '@/team/@types/team';
 import { getTeamEstimateChoises } from '@/team/utils';
 import { Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export const teamQueries = {
   getTeam: async (

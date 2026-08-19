@@ -1,6 +1,5 @@
 import { getBranchesUtil } from '@/pos/utils';
-import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
-import { cursorPaginate, paginate } from 'erxes-api-shared/utils';
+import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilterQuery = async ({ isOnline, search }) => {

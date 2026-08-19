@@ -5,12 +5,9 @@ import {
   CMSPostUrlField,
 } from '@/cms/@types/cms';
 import { POST_VIEW_RETENTION_DAYS } from '@/cms/db/models/PostViews';
-import { IPostDocument } from '@/cms/@types/posts';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
-import { ICursorPaginateParams, Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   assertCmsDocumentAccess,
   getAllowedCmsLanguages,
@@ -20,7 +17,6 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import {
   assertCmsAccessByClientPortal,
-  getAccessibleCmsClientPortalIds,
 } from '@/cms/utils/cms-access';
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {

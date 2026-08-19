@@ -1,4 +1,3 @@
-import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 const escapeRegex = (str: string): string => {

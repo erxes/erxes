@@ -420,22 +420,4 @@ export const globalSearchQueries = {
 
     return paginateDataSources(sources, params);
   },
-
-  pluginsGlobalSearch: async (
-    _parent: undefined,
-    params: TQueryParams,
-    _context: IContext,
-  ) => {
-    // Aggregator placeholder for plugin search
-    return {
-      list: [],
-      totalCount: 0,
-      pageInfo: {
-        hasNextPage: false,
-        hasPreviousPage: false,
-        startCursor: null,
-        endCursor: null,
-      },
-    };
-  },
 };

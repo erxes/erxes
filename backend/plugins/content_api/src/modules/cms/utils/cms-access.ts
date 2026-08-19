@@ -89,26 +89,3 @@ export const assertCmsAccessByClientPortal = async (
 
   assertCmsDocAccess(context, cms);
 };
-
-export const getAccessibleCmsClientPortalIds = async (
-  context: IContext,
-): Promise<string[] | null> => {
-  const { user } = context;
-
-  if (!user?._id) {
-    throw new Error('Login required');
-  }
-
-  if (user.isOwner) {
-    return null;
-  }
-
-  const clientPortalIds = await context.models.CMS.find({
-    $or: [
-      { accessPolicy: { $ne: 'assigned' } },
-      { assignedMemberIds: user._id },
-    ],
-  }).distinct('clientPortalId');
-
-  return clientPortalIds.map(String);
-};
