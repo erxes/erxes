@@ -5,9 +5,9 @@ import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
 import { TICKETS_DETAIL_QUERY_KEY } from '@/ticket/constants';
 import { IconTicket } from '@tabler/icons-react';
-import { Button, parseBlocks, stripHtml } from 'erxes-ui';
+import { Button, parseBlocks, stripHtml, useToast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useCreateMultipleRelations, useRelations } from 'ui-modules';
@@ -33,7 +33,9 @@ export const ConvertToTicket = () => {
   const { t } = useTranslation('frontline');
   const { _id, content, customerId, assignedUserId, integration } =
     useConversationContext();
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const { toast } = useToast();
+  const { createMultipleRelations, error: relationError } =
+    useCreateMultipleRelations();
   const { ownEntities } = useRelations({
     variables: {
       contentId: _id,
@@ -48,6 +50,21 @@ export const ConvertToTicket = () => {
   const [open, setOpen] = useState(false);
 
   const linkedTicketId = ownEntities?.[ownEntities.length - 1]?.contentId;
+
+  useEffect(() => {
+    if (!relationError) {
+      return;
+    }
+
+    toast({
+      title: t('error'),
+      description: t(
+        'ticket-relation-failed',
+        'The ticket was created but could not be linked to this conversation.',
+      ),
+      variant: 'destructive',
+    });
+  }, [relationError, t, toast]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
@@ -92,7 +109,7 @@ export const ConvertToTicket = () => {
           to={`/frontline/tickets?${TICKETS_DETAIL_QUERY_KEY}=${linkedTicketId}`}
         >
           <IconTicket />
-          {t('go-to-ticket', 'Go to ticket')}
+          {t('open-linked-ticket', 'Go to ticket')}
         </Link>
       </Button>
     );

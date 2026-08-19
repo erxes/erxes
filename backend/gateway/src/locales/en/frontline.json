@@ -1288,5 +1288,6 @@
   "search-posts-placeholder": "Search post text or id",
   "search-posts-title": "Filter by post text...",
   "convert-to-ticket": "Convert to ticket",
-  "go-to-ticket": "Go to ticket"
+  "open-linked-ticket": "Go to ticket",
+  "ticket-relation-failed": "The ticket was created but could not be linked to this conversation."
 }

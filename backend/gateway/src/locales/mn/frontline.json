@@ -1287,5 +1287,6 @@
   "search-posts-placeholder": "Постын текст эсвэл id хайх",
   "search-posts-title": "Постын текстээр шүүх...",
   "convert-to-ticket": "Тикет болгох",
-  "go-to-ticket": "Тикет рүү очих"
+  "open-linked-ticket": "Тикет рүү очих",
+  "ticket-relation-failed": "Тикет үүссэн ч энэ харилцаатай холбогдож чадсангүй."
 }

@@ -63,6 +63,13 @@
   a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
+- A conversation converts to a ticket from its header. `ConvertToTicket` renders
+  `AddTicketSheet` with the conversation's channel, assignee, and content-derived
+  name as defaults, then links the ticket to the conversation and its customer.
+  It flips to a "Go to ticket" link once a `frontline:ticket` relation exists.
+  The ticket relation widget offers the same create-and-link flow from the side
+  menu; both write through `createMultipleRelations`, so either surface refreshes
+  the other.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -144,6 +151,7 @@
 | Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                           |
 | Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                                        |
 | Inbox              | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                                 |
+| Convert to ticket  | `src/modules/inbox/conversations/conversation-detail/components/ConvertToTicket.tsx`                                                          | Header action that creates a ticket from a conversation and links it, or links out to the ticket already linked                                  |
 | Integrations       | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                                      |
 | Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                               |
 | Ticket selects     | `src/modules/ticket/components/ticket-selects/`                                                                                              | Card/detail/form select-trigger components (status, priority, assignee, dates, tags) shared across the board card, detail sheet, and create form |
@@ -298,6 +306,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
+- `ticketCreateSheetState` is a single global atom, so two mounted
+  `AddTicketSheet` instances would open together. `ConvertToTicket` therefore
+  passes its own `open`/`onOpenChange` and keeps that state local, leaving the
+  atom to the ticket page and the relation widget. Prefilled values still travel
+  through `ticketCreateDefaultValuesState`, which `AddTicketForm` merges over its
+  own defaults and then clears — pass a key only when it has a value, or the
+  form's fallback for that field is lost.
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
@@ -535,6 +550,23 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-19` — Convert a conversation to a ticket from the inbox header
+
+- **Summary:** The conversation header opens the ticket create sheet prefilled
+  with the conversation's channel, assignee, and readable content as the ticket
+  name, then links the new ticket to `frontline:conversation` and
+  `core:customer`. Once a ticket is linked the button becomes "Go to ticket" and
+  routes to `/frontline/tickets?ticketId=<id>`; a failed relation write raises a
+  destructive toast, since the ticket already exists by then.
+- **Affected areas:**
+  `src/modules/inbox/conversations/conversation-detail/components/ConvertToTicket.tsx`
+  (new),
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationActions.tsx`,
+  `src/modules/ticket/components/add-ticket/AddTicketSheet.tsx`.
+- **Contracts changed:** `AddTicketSheet` gained optional `label`, `Icon`, and a
+  controlled `open`/`onOpenChange` pair; omitting them keeps the previous
+  `add-ticket` trigger and the `ticketCreateSheetState` atom behavior.
+
 ### `2026-08-19` — Facebook repair reports real failures
 
 - **Summary:** `integrationsRepair` answers a failed Facebook repair with a
@@ -665,11 +697,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   other consumers of `TagsSelect` multi-select mode.
 - **Contracts changed:** None — `TagsSelectProps`/`TagsSelectContextType` are
   unchanged; only the popover's close timing in multi mode changed.
-
-### `2026-08-12` — Select ticket properties by group
-
-- **Summary:** Pipeline property configuration now selects an entire Core
-  ticket property group with one checkbox instead of selecting fields one by
-  one; the stored contract remains the group's field ids.
-- **Affected areas:** `src/modules/pipelines/components/PipelinePropertySelector.tsx`.
-- **Contracts changed:** None.
