@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-08-18`
 
 ## Scope
 
@@ -33,7 +33,7 @@
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
-- Accepts token-protected Erkhet transaction migration batches at `/pl:accounting/migration/erkhet/transactions`; raw-save mode preserves source-side accounting calculations after validation and code resolution.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -92,7 +92,7 @@
 - Fund rate adjustment is organization-level; branch/department grouping belongs to details and generated transactions, not the root adjustment.
 - Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
-- Erkhet migration raw-save mode must validate and resolve external source codes but must not recalculate source-side accounting results.
+- Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as `contentType/contentId` when present and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
@@ -105,12 +105,18 @@
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
-- Smoke scenario: send a dry-run Erkhet batch with `rawSave: true` and verify code resolution plus per-batch success/error rows.
+- Smoke scenario: send a dry-run Erkhet batch and verify code resolution, contact match/create planning, idempotent create/update selection, and per-batch success/error rows.
 - Smoke scenario: run `journalReportData` for account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset reports with account/category/currency, Erkhet `trKind`, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and `journalReportMore` detail rows match the selected account details.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-18` — `Erkhet Migration Wrapper`
+
+- **Summary:** The Erkhet migration route now resolves account, branch, department, product, fixed-asset, and contact codes before delegating source-content-aware idempotent batches to transaction create/update methods.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts Erkhet-coded `trDocs`, resolves references, and creates or updates by `sync_type/sync_id`-derived content references when present or `contentType: "erkhet:ptr"` plus external pointer id otherwise.
 
 ### `2026-08-17` — `Related Account Storage Shape`
 

@@ -1,12 +1,7 @@
 import { Request, Response } from 'express';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { nanoid } from 'nanoid';
 import { IModels, generateModels } from '~/connectionResolvers';
-import {
-  ITransaction,
-  ITransactionDocument,
-  ITrDetail,
-} from '../@types/transaction';
+import { ITransaction, ITrDetail } from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -18,7 +13,6 @@ type ErkhetTransactionBatch = {
 type ErkhetTransactionsRequest = {
   userId?: string;
   dryRun?: boolean;
-  rawSave?: boolean;
   skipAccountPermission?: boolean;
   batches?: ErkhetTransactionBatch[];
 };
@@ -82,23 +76,6 @@ type TMigrationErrorRow = {
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
 
-const getMigrationToken = (req: Request) =>
-  req.headers['x-erkhet-migration-token'] || req.headers['x-migration-token'];
-
-const assertMigrationToken = (req: Request) => {
-  const expectedToken = process.env.ERKHET_MIGRATION_TOKEN;
-
-  if (!expectedToken) {
-    throw new Error('Erkhet migration endpoint is disabled');
-  }
-
-  if (getMigrationToken(req) !== expectedToken) {
-    const error = new Error('Unauthorized');
-    (error as Error & { statusCode?: number }).statusCode = 401;
-    throw error;
-  }
-};
-
 const validateBatch = (batch: ErkhetTransactionBatch) => {
   if (!batch?.externalPtrId) {
     throw new Error('externalPtrId is required');
@@ -150,6 +127,7 @@ const getCodeMap = (docs: ITransaction[]) => {
     const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
     const accumulatedDepreciationAccountId =
       doc.followInfos?.accumulatedDepreciationAccountId;
+    const fixedAssetAccountId = doc.followInfos?.fixedAssetAccountId;
     const lossAccountId = doc.followInfos?.lossAccountId;
 
     if (moveInBranchId) {
@@ -160,6 +138,9 @@ const getCodeMap = (docs: ITransaction[]) => {
     }
     if (accumulatedDepreciationAccountId) {
       accountCodes.push(accumulatedDepreciationAccountId);
+    }
+    if (fixedAssetAccountId) {
+      accountCodes.push(fixedAssetAccountId);
     }
     if (lossAccountId) {
       accountCodes.push(lossAccountId);
@@ -616,6 +597,7 @@ const resolveTransactionFollowInfos = (
   const moveInDepartmentCode = doc.followInfos?.moveInDepartmentId;
   const accumulatedDepreciationAccountCode =
     doc.followInfos?.accumulatedDepreciationAccountId;
+  const fixedAssetAccountCode = doc.followInfos?.fixedAssetAccountId;
   const lossAccountCode = doc.followInfos?.lossAccountId;
 
   if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
@@ -633,6 +615,12 @@ const resolveTransactionFollowInfos = (
   if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
     throw new Error(`Account not found: ${lossAccountCode}`);
   }
+  if (
+    fixedAssetAccountCode &&
+    !maps.accountsByCode[fixedAssetAccountCode]
+  ) {
+    throw new Error(`Account not found: ${fixedAssetAccountCode}`);
+  }
 
   return {
     ...doc.followInfos,
@@ -645,12 +633,16 @@ const resolveTransactionFollowInfos = (
     accumulatedDepreciationAccountId: accumulatedDepreciationAccountCode
       ? maps.accountsByCode[accumulatedDepreciationAccountCode]
       : doc.followInfos?.accumulatedDepreciationAccountId,
+    fixedAssetAccountId: fixedAssetAccountCode
+      ? maps.accountsByCode[fixedAssetAccountCode]
+      : doc.followInfos?.fixedAssetAccountId,
     lossAccountId: lossAccountCode
       ? maps.accountsByCode[lossAccountCode]
       : doc.followInfos?.lossAccountId,
     moveInBranchCode,
     moveInDepartmentCode,
     accumulatedDepreciationAccountCode,
+    fixedAssetAccountCode,
     lossAccountCode,
   };
 };
@@ -728,64 +720,12 @@ const normalizeBatchDocs = async (
   });
 };
 
-const cleanRawTransactionDoc = (doc: ITransaction) => {
-  const cleanDoc = { ...doc };
-
-  delete cleanDoc._id;
-  delete cleanDoc.ptrId;
-  delete cleanDoc.parentId;
-  delete cleanDoc.ptrNumber;
-
-  return cleanDoc;
-};
-
-const saveRawBatch = async ({
-  models,
-  trDocs,
-  oldTr,
-  userId,
-}: {
-  models: IModels;
-  trDocs: ITransaction[];
-  oldTr?: ITransactionDocument | null;
-  userId: string;
-}) => {
-  const ptrId = oldTr?.ptrId || nanoid();
-  const parentId = oldTr?.parentId || nanoid();
-  const ptrNumber = oldTr?.ptrNumber || trDocs[0]?.number || '';
-
-  if (oldTr?.parentId) {
-    await models.Transactions.deleteMany({ parentId: oldTr.parentId });
-  }
-
-  const transactions: ITransactionDocument[] = [];
-
-  for (const doc of trDocs) {
-    const cleanDoc = cleanRawTransactionDoc(doc);
-    const transaction = await models.Transactions.createTransaction(
-      {
-        ...cleanDoc,
-        ptrId,
-        parentId,
-        ptrNumber,
-        number: cleanDoc.number || ptrNumber,
-      },
-      userId,
-    );
-
-    transactions.push(transaction);
-  }
-
-  return transactions;
-};
-
 const saveBatch = async ({
   models,
   batch,
   userId,
   skipAccountPermission,
   dryRun,
-  rawSave,
   subdomain,
 }: {
   subdomain: string;
@@ -794,14 +734,15 @@ const saveBatch = async ({
   userId: string;
   skipAccountPermission: boolean;
   dryRun: boolean;
-  rawSave: boolean;
 }) => {
   validateBatch(batch);
 
   const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
+  const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
+  const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
   const oldTr = await models.Transactions.findOne({
-    contentType: ERKHET_CONTENT_TYPE,
-    contentId: batch.externalPtrId,
+    contentType: lookupContentType,
+    contentId: lookupContentId,
     $or: [{ originId: { $exists: false } }, { originId: '' }],
   }).lean();
 
@@ -810,22 +751,6 @@ const saveBatch = async ({
       action: oldTr ? 'update' : 'create',
       parentId: oldTr?.parentId,
       count: trDocs.length,
-    };
-  }
-
-  if (rawSave) {
-    const transactions = await saveRawBatch({
-      models,
-      trDocs,
-      oldTr,
-      userId,
-    });
-
-    return {
-      action: oldTr ? 'updated' : 'created',
-      parentId: transactions[0]?.parentId || oldTr?.parentId,
-      ptrId: transactions[0]?.ptrId || oldTr?.ptrId,
-      count: transactions.length,
     };
   }
 
@@ -850,8 +775,6 @@ const saveBatch = async ({
 
 export const importErkhetTransactions = async (req: Request, res: Response) => {
   try {
-    assertMigrationToken(req);
-
     const body = req.body as ErkhetTransactionsRequest;
     const userId = body.userId || String(req.headers.userid || '');
 
@@ -876,7 +799,6 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
           userId,
           skipAccountPermission: body.skipAccountPermission !== false,
           dryRun: Boolean(body.dryRun),
-          rawSave: body.rawSave !== false,
           subdomain,
         });
 
