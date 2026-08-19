@@ -18,7 +18,7 @@ import {
 import { FC, useRef, useState } from 'react';
 import { cn } from 'erxes-ui/lib';
 import { readImage } from 'erxes-ui/utils';
-import { Button, Spinner } from 'erxes-ui/components';
+import { Button, Dialog, Spinner } from 'erxes-ui/components';
 
 export interface GalleryImage {
   url: string;
@@ -62,6 +62,7 @@ const GalleryItem: FC<{
   onRemove: () => void;
 }> = ({ image, readonly, onRemove }) => {
   const { loadingState, downloadUrl } = useResolveUrl(image.url);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const isResolving = loadingState === 'loading';
   const src = downloadUrl ?? image.url;
 
@@ -72,18 +73,44 @@ const GalleryItem: FC<{
           <Spinner size="sm" />
         </div>
       ) : (
-        <img
-          src={src}
-          alt={image.caption ?? ''}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
+        <Button
+          variant="ghost"
+          aria-label="Preview image"
+          className="h-full w-full p-0 rounded-none"
+          onDoubleClick={() => setPreviewOpen(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setPreviewOpen(true);
+            }
           }}
-          draggable={false}
-        />
+        >
+          <img
+            src={src}
+            alt={image.caption ?? ''}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+            draggable={false}
+          />
+        </Button>
       )}
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
+          <Dialog.Title className="sr-only">
+            {image.caption || 'Image preview'}
+          </Dialog.Title>
+          <img
+            src={src}
+            alt={image.caption ?? ''}
+            className="max-h-[85vh] max-w-[90vw] rounded object-contain shadow-2xl"
+          />
+        </Dialog.Content>
+      </Dialog>
       {!readonly && (
         <Button
           variant="ghost"
