@@ -1,5 +1,20 @@
 
 
+## [3.0.90](https://github.com/erxes/erxes/compare/3.0.89...3.0.90) (2026-08-20)
+
+
+### Bug Fixes
+
+* **frontline:** reconcile call report queue stats with total calls ([c604df0](https://github.com/erxes/erxes/commit/c604df0b1dbcd75874bdeb9223f1868cded29e1a))
+
+
+### Features
+
+* **erxes-api-shared:** cap agent tool call responses at 64KB ([#9094](https://github.com/erxes/erxes/issues/9094)) ([3516cb1](https://github.com/erxes/erxes/commit/3516cb1b37ae9750a50158dfe568e8c348fb28d6))
+* **frontline:** expose safe tRPC procedures as agent-callable tools ([#9079](https://github.com/erxes/erxes/issues/9079)) ([7c82bec](https://github.com/erxes/erxes/commit/7c82bec2cb64d09951c9a23d5188434e75160206))
+* **payment:** enable TDB production API ([#9101](https://github.com/erxes/erxes/issues/9101)) ([f4b7aec](https://github.com/erxes/erxes/commit/f4b7aec28886a1c56787d246c31f6e8edee7a927))
+* **sales:** expose safe tRPC procedures as agent-callable tools ([#9058](https://github.com/erxes/erxes/issues/9058)) ([dc00a3e](https://github.com/erxes/erxes/commit/dc00a3e4054b0584f3408856d648d86ca6483148))
+
 ## [3.0.89](https://github.com/erxes/erxes/compare/3.0.88...3.0.89) (2026-08-20)
 
 
