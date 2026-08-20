@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-20`
+- **Last synchronized:** `2026-08-21`
 
 ## Scope
 
@@ -33,7 +33,8 @@
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts and products, resolves fixed asset income instance payloads, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories/master records by source code before transactions are imported.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts, resolves fixed asset income instance payloads, rejects missing product/fixed-asset references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -49,6 +50,7 @@
 | Rate adjustments   | `src/modules/accounting/utils/adjust*Rates.ts`           | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                           |
 | Closing adjustment | `src/modules/accounting/utils/adjustClosings.ts`         | Owns temporary account closing calculation, tax impact calculation, and transaction execution.               |
 | Fixed assets       | `src/modules/fixedAssets`                                | Owns fixed asset master data, instances, logs, and adjustment models.                                        |
+| Erkhet migration   | `src/modules/accounting/routes/erkhetReferenceMigration.ts` | Upserts required product and fixed-asset reference data from Erkhet codes before transaction import.       |
 | Erkhet migration   | `src/modules/accounting/routes/erkhetMigration.ts`       | Validates migration batches, resolves external codes, and imports transactions.                              |
 
 ## Contracts
@@ -63,6 +65,7 @@
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - GraphQL queries `journalReportData` and `journalReportMore`, returning account, trial balance, general-ledger, main-journal, main-journal-summary, fund, debt, inventory-cost, inventory-sale, inventory-sale-cost, inventory-sale-period, inventory-price, inventory-profit, inventory-shipper, inventory-document, inventory-seller-subsystem, and fixed-asset report rows with account permission filters, account/product/fixed-asset/customer/content metadata filters, branch/department child filters, Erkhet-compatible `trKind`/`trKinds`/`getTrKind` filters, detail-level currency/account matching, line-record projection, and group metadata enrichment.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, `updateTransaction`, and removal helpers used by accounting-owned flows.
+- HTTP route `/pl:accounting/migration/erkhet/references`.
 - HTTP route `/pl:accounting/migration/erkhet/transactions`.
 
 ### Consumes
@@ -93,7 +96,7 @@
 - Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
 - Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as normalized `contentType/contentId` when present (`sale` maps to `sales:deal`; other sync types map to `erkhet:<sync_type>`) and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
-- Erkhet migration may create missing core products from source inventory metadata, but fixed asset categories/master records must already exist and only income instances are supplied by transaction payloads.
+- Erkhet reference migration is the only product and fixed-asset master-data bootstrap path; transaction migration must not create products or fixed asset master records and must strip obsolete detail follow-info keys before persistence.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
@@ -106,6 +109,7 @@
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
+- Smoke scenario: send a dry-run Erkhet references batch and verify product category/product plus fixed asset category/master rows report create/update actions without missing parent/category code errors.
 - Smoke scenario: send a dry-run Erkhet batch and verify code resolution, contact match/create planning, idempotent create/update selection, and per-batch success/error rows.
 - Smoke scenario: run `journalReportData` for account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset reports with account/category/currency, Erkhet `trKind`, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and `journalReportMore` detail rows match the selected account details.
 
@@ -113,11 +117,23 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-21` — `Erkhet Contract Cleanup`
+
+- **Summary:** Tightened Erkhet migration contracts so product and fixed-asset master data must arrive through the reference route and obsolete detail follow-info keys are stripped before transaction persistence.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` no longer creates missing products from embedded inventory metadata; `/pl:accounting/migration/erkhet/references` remains the reference bootstrap path.
+
+### `2026-08-21` — `Erkhet Reference Bootstrap`
+
+- **Summary:** Added a migration-only Erkhet reference route that upserts product categories, products, fixed asset categories, and fixed asset master records before transaction import.
+- **Affected areas:** `src/routes.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
+- **Contracts changed:** Adds `/pl:accounting/migration/erkhet/references` accepting coded product and fixed-asset reference payloads with dry-run reporting.
+
 ### `2026-08-18` — `Erkhet Migration Wrapper`
 
-- **Summary:** The Erkhet migration route now resolves account, branch, department, product, fixed-asset, and contact codes, creates missing products from source inventory metadata, and delegates source-content-aware idempotent batches to transaction create/update methods.
+- **Summary:** The Erkhet migration route now resolves account, branch, department, product, fixed-asset, and contact codes and delegates source-content-aware idempotent batches to transaction create/update methods.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts Erkhet-coded `trDocs` with optional inventory metadata and fixed asset income instance payloads, resolves references, creates missing products, and creates or updates by normalized `sync_type/sync_id` content references when present (`sale` to `sales:deal`, others to `erkhet:<sync_type>`) or `contentType: "erkhet:ptr"` plus external pointer id otherwise.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts Erkhet-coded `trDocs` with fixed asset income instance payloads, resolves references, and creates or updates by normalized `sync_type/sync_id` content references when present (`sale` to `sales:deal`, others to `erkhet:<sync_type>`) or `contentType: "erkhet:ptr"` plus external pointer id otherwise.
 
 ### `2026-08-17` — `Related Account Storage Shape`
 
@@ -160,15 +176,3 @@
 - **Summary:** Journal report aggregation now uses shared strategy definitions, Erkhet-compatible transaction-kind filters, grouping keys, detail-level matching, and enrichment for account statement, trial balance, and inventory cost reports.
 - **Affected areas:** `src/modules/accounting/utils/journalReports`.
 - **Contracts changed:** `journalReportData` and `journalReportMore` accept optional `trKind`, `trKinds`, and `getTrKind` filter arguments.
-
-### `2026-08-11` — `Temporary Account Closing`
-
-- **Summary:** Temporary account closing adjustments now calculate grouped balances, preserve editable tax percentages, validate final balance sides, and run linked closing transactions after calculation.
-- **Affected areas:** `src/modules/accounting/db/definitions/adjustClosingEntry.ts`, `src/modules/accounting/db/models/AdjustClosing.ts`, `src/modules/accounting/graphql`, `src/modules/accounting/utils/adjustClosings.ts`, `src/apollo`.
-- **Contracts changed:** Adds `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingPublish`, `adjustClosingCancel`, validation fields, grouped details, tax impact value, and transaction id fields.
-
-### `2026-08-10` — `Rate Adjustment Current State`
-
-- **Summary:** Fund and debt rate adjustments are implemented with daily validation, grouped calculation details, separate transaction execution, subscriptions, and permission-protected resolvers.
-- **Affected areas:** `src/modules/accounting/db/definitions/adjust*Rate.ts`, `src/modules/accounting/db/models/Adjust*Rate.ts`, `src/modules/accounting/graphql`, `src/modules/accounting/utils/adjust*Rates.ts`, `src/apollo`.
-- **Contracts changed:** Provides fund/debt rate adjustment GraphQL queries, mutations, subscriptions, validation fields, grouped detail fields, and linked transaction ids.

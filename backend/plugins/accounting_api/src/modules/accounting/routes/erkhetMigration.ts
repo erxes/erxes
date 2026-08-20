@@ -60,15 +60,6 @@ type TContactResolution = {
   _id?: string;
 };
 
-type TErkhetProduct = {
-  code?: string;
-  name?: string;
-  categoryCode?: string;
-  uom?: string;
-  unitPrice?: number;
-  barcodes?: string[];
-};
-
 type TMigrationSuccessRow = {
   externalPtrId: string;
   action: string;
@@ -121,6 +112,8 @@ const getCodeMap = (docs: ITransaction[]) => {
   const fixedAssetIds: string[] = [];
   const fxaInstanceRefs: string[] = [];
 
+  // Payload дотор ирсэн бүх source code-г эхэлж цуглуулна. Дараагийн шатанд
+  // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
   for (const doc of docs) {
     if (doc.branchId) {
       branchCodes.push(doc.branchId);
@@ -215,69 +208,24 @@ const indexByCode = <T extends { _id: string; code?: string }>(
     return byCode;
   }, {});
 
-const getProductPayloads = (docs: ITransaction[]) => {
-  const productByCode: Record<string, TErkhetProduct> = {};
+const OMIT_DETAIL_FOLLOW_INFO_KEYS = [
+  'erkhetProduct',
+  'inventoryCode',
+  'invLocationCode',
+  'fxaLocationCode',
+];
 
-  for (const doc of docs) {
-    for (const detail of doc.details || []) {
-      const product = detail.followInfos?.erkhetProduct as
-        | TErkhetProduct
-        | undefined;
-      if (product?.code && !productByCode[product.code]) {
-        productByCode[product.code] = product;
-      }
-    }
-  }
-
-  return productByCode;
-};
-
-const ensureProducts = async (
-  subdomain: string,
-  productCodes: string[],
-  productsByCode: TCodeMap,
-  docs: ITransaction[],
-) => {
-  const productPayloads = getProductPayloads(docs);
-
-  for (const productCode of productCodes) {
-    if (productsByCode[productCode]) {
-      continue;
-    }
-
-    const product = productPayloads[productCode];
-    if (!product?.name) {
-      continue;
-    }
-
-    const created = await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'createProduct',
-      input: {
-        doc: {
-          code: product.code,
-          name: product.name,
-          categoryCode: product.categoryCode,
-          uom: product.uom,
-          unitPrice: product.unitPrice,
-          barcodes: product.barcodes || [],
-          type: 'product',
-          status: 'active',
-        },
-      },
-      defaultValue: {},
-    });
-
-    if (created?._id) {
-      productsByCode[productCode] = created._id;
-    }
-  }
-
-  return productsByCode;
-};
+// Хуучин migration payload-оос ирсэн audit-only key-үүдийг хадгалахгүй.
+// Erxes тал resolve хийсний дараа хэрэгтэй source code-уудыг өөрөө followInfos-д нэмнэ.
+const cleanDetailFollowInfos = (
+  followInfos: ITrDetail['followInfos'] = {},
+) =>
+  Object.fromEntries(
+    Object.entries(followInfos).filter(
+      ([key, value]) =>
+        value !== undefined && !OMIT_DETAIL_FOLLOW_INFO_KEYS.includes(key),
+    ),
+  );
 
 const fetchReferenceMaps = async (
   subdomain: string,
@@ -295,6 +243,8 @@ const fetchReferenceMaps = async (
     fxaInstanceRefs,
   } = getCodeMap(docs);
 
+  // Transaction route лавлах үүсгэхгүй. Reference migration өмнө нь
+  // bootstrap хийсэн байх ёстой бөгөөд энд зөвхөн code -> _id lookup хийнэ.
   const accounts = accountCodes.length
     ? await models.Accounts.find(
         { code: { $in: accountCodes } },
@@ -359,12 +309,7 @@ const fetchReferenceMaps = async (
         defaultValue: [],
       })
     : [];
-  const productsByCode = await ensureProducts(
-    subdomain,
-    productCodes,
-    indexByCode(products),
-    docs,
-  );
+  const productsByCode = indexByCode(products);
 
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find(
@@ -486,6 +431,8 @@ const findOrCreateContact = async ({
     return {};
   }
 
+  // Erkhet-д бүх харилцагч нэг model-д байсан. Erxes дээр company/customer
+  // тусдаа тул source category mapping-ээр ирсэн type-г баримталж олж эсвэл үүсгэнэ.
   const type = contact.type === 'company' ? 'company' : 'customer';
   const module = type === 'company' ? 'companies' : 'customers';
   const findAction =
@@ -554,6 +501,8 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const departmentCode = detail.departmentId;
   const fixedAssetCode = detail.fixedAssetId;
 
+  // Detail дээр байгаа account/product/fixedAsset/branch/department нь
+  // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
   if (accountCode && !maps.accountsByCode[accountCode]) {
     throw new Error(`Account not found: ${accountCode}`);
   }
@@ -586,7 +535,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       ? maps.departmentsByCode[departmentCode] || detail.departmentId
       : detail.departmentId,
     followInfos: {
-      ...detail.followInfos,
+      ...cleanDetailFollowInfos(detail.followInfos),
       accountCode,
       branchCode,
       productCode,
@@ -605,6 +554,8 @@ const resolveFxaInstances = (
     const branchCode = instance.branchId;
     const departmentCode = instance.departmentId;
 
+    // fxaIncome үед Erkhet income_info нь erxes instance болж үүснэ.
+    // fixedAssetId/branchId/departmentId нь мөн source code тул энд resolve хийнэ.
     if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
       throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
     }
@@ -638,6 +589,8 @@ const resolveFxaInstanceIds = (
   maps: TReferenceMaps,
 ) => {
   const usedByCode: Record<string, number> = {};
+  // Нэг ижил income_info code олон ширхэгээр задарсан байж болох тул detail.count
+  // дарааллаар instance reference-үүдийг тааруулж, давхардсан code бүрийг нэг нэгээр хэрэглэнэ.
   const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
     const fixedAssetCode = detail.fixedAssetId;
     const fixedAssetId = fixedAssetCode
@@ -679,6 +632,8 @@ const resolveTransactionFollowInfos = (
   const fixedAssetAccountCode = doc.followInfos?.fixedAssetAccountId;
   const lossAccountCode = doc.followInfos?.lossAccountId;
 
+  // fxaOut/fxaMove-ийн дагалдах данс, шилжих салбар/хэлтэс нь transaction root
+  // биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж journal handler-т өгнө.
   if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
     throw new Error(`Branch not found: ${moveInBranchCode}`);
   }
@@ -735,6 +690,8 @@ const normalizeBatchDocs = async (
   const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs);
   const contactByCode: Record<string, TContactResolution> = {};
 
+  // Нэг batch дотор ижил customer олон transaction дээр давтагддаг тул
+  // contact sync-г code-р cache хийж давхар create хийхээс сэргийлнэ.
   for (const doc of batch.trDocs) {
     const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
@@ -819,6 +776,8 @@ const saveBatch = async ({
   const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
   const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
   const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
+  // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.
+  // sync_id/sync_type байвал deal/source content-оор, байхгүй бол externalPtrId-р update хийнэ.
   const oldTr = await models.Transactions.findOne({
     contentType: lookupContentType,
     contentId: lookupContentId,
