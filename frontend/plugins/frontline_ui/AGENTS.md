@@ -19,7 +19,7 @@
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
 - Integration connect/detail UIs for IMAP, Facebook, Instagram, Discord, calls,
-  and the erxes messenger.
+  Call Pro, and the erxes messenger.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
@@ -150,6 +150,7 @@
 | Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                        |
 | Inbox              | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                 |
 | Integrations       | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                      |
+| Call Pro           | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                  |
 | Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                               |
 | Forms              | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                               |
 | Knowledge base     | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                     |
@@ -321,6 +322,20 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- Every Call Pro surface is gated on `useCallProConfig().enabled`, which reads
+  the backend's `CALLPRO_ENABLED`. The frontend has no env var of its own for
+  this — never add a `REACT_APP_*` flag, since injecting one means editing
+  `core-ui`'s rspack config, outside this plugin.
+- A Call Pro conversation with several candidate customers must never be
+  auto-attributed in the UI. `CallProCustomerSelect` is the only path to
+  `customerId`, and the unattached picker renders exactly when
+  `!customerId && callProPotentialCustomerIds.length > 1`; once a customer is
+  attached the same component reappears as the confirm/switch list built from
+  `callProCustomersByPhone`, and only when that returns more than one match.
+- Call Pro follows the `call` module's integration-form shape: `callProAddSheetAtom`
+  (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
+  single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
+  both sheets are mounted. Do not fork a second form for edit.
 - Messenger `onlineHours` is persisted per concrete `Weekday` only. The
   `everyday` / `weekday` / `weekend` keys of `ScheduleDay` live in the same form
   record but are UI quick-selectors derived from the individual days, so they
@@ -566,10 +581,36 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   the single-message notice and every "Add …" button is disabled once one
   message exists; attach the same action to a `frontline:facebook.messages`
   trigger and confirm five messages are still allowed.
+- Smoke: with `CALLPRO_ENABLED` off, the channel integrations list must not show
+  the Call Pro card. With it on, add a Call Pro line (name, phone number, record
+  URL, brand), confirm the dialog shows the webhook URL to point the PBX at, and
+  open a Call Pro conversation — the recording plays, and a conversation with
+  several candidates shows the picker until a customer is chosen, after which
+  the picker is replaced by the confirm/switch control without a reload.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-19` — Call Pro integration UI
+
+- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
+  built on the `call` module's shape — add/edit `Sheet`s over one shared form
+  carrying the webhook URL to configure, the recording player in the
+  conversation panel, and a `Command`-based customer picker/switcher for a
+  caller number that matches several customers. Everything is hidden unless the
+  backend reports Call Pro as enabled.
+- **Affected areas:** `src/modules/integrations/callpro/` (new),
+  `src/modules/types/Integration.ts`,
+  `src/modules/integrations/constants/integrations.ts`,
+  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
+  `src/pages/IntegrationDetailPage.tsx`,
+  `src/modules/inbox/types/Conversation.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
+- **Contracts changed:** Consumes new `frontline_api` operations
+  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
+  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
+  conversation fields. Adds the `callpro` integration type.
 
 ### `2026-08-19` — Messenger availability schedule follows the design canvas
 
