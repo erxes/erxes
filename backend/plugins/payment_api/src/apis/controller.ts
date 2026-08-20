@@ -93,7 +93,27 @@ export const callbackHandler = async (req, res) => {
       ].includes(transaction.status)
     ) {
       try {
-        await models.Invoices.checkInvoice(transaction.invoiceId, subdomain);
+        const result = await models.Invoices.checkInvoice(
+          transaction.invoiceId,
+          subdomain,
+        );
+
+        console.log('[CALLBACK][TDB] checkInvoice result', {
+          invoiceId: transaction.invoiceId,
+          transactionId: transaction._id,
+          transactionStatus: transaction.status,
+          result,
+        });
+
+        const invoice = await models.Invoices.findOne({
+          _id: transaction.invoiceId,
+        }).lean();
+
+        console.log('[CALLBACK][TDB] invoice after checkInvoice', {
+          invoiceId: transaction.invoiceId,
+          status: invoice?.status,
+          resolvedAt: invoice?.resolvedAt,
+        });
       } catch (error) {
         console.error('[CALLBACK] Failed to update TDB invoice status', {
           invoiceId: transaction.invoiceId,
