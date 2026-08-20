@@ -88,6 +88,10 @@
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
+- Read-only inbox, integration, and form-submission tRPC procedures are
+  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
+  via `.meta(agentMeta(...))` annotations; every other procedure remains
+  invisible to agents.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 
@@ -99,6 +103,7 @@
 | Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
 | GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
 | tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
+| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                            |
 | HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook`, `/instagram`, and (when enabled) `/callpro` webhook routers                         |
 | Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
@@ -180,6 +185,16 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
+- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
+  the listed frontline permission action:
+  - `inbox.conversations.findOne`, `inbox.conversations.count`,
+    `inbox.getConversationsList`, `inbox.conversationMessages.findOne`,
+    `inbox.conversationMessages.find` — `showConversations`
+  - `inbox.conversations.changeStatus` — `conversationsChangeStatus`
+  - `inbox.integrations.findOne`, `inbox.integrations.find`,
+    `inbox.integrations.count`, `inbox.getIntegrationKinds` —
+    `showIntegrations`
+  - `form.submissionsByConversation` — `showFormSubmissions`
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
@@ -756,6 +771,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   drill-down) rather than the chart. Widening the stored filter set means adding
   the field to the `filters` subschema, the `ReportChartFilters` output type,
   and that key list together, or it will be silently dropped on save.
+- Agent tool annotations are admit-only: never annotate webhook ingestion or
+  notification plumbing (`inbox.integrations.receive`,
+  `inbox.integrationsNotification`, `inbox.sendNotifications`,
+  `inbox.conversationClientMessageInserted`), raw-mongo helpers
+  (`inbox.conversationMessages.updateOne`, `inbox.updateConversationMessage`),
+  bulk or destructive operations (`inbox.integrations.remove`,
+  `inbox.removeConversation`, `inbox.removeCustomersConversations`,
+  `inbox.changeCustomer`, `conversation.tag`), procedures that trust a
+  caller-supplied `userId` (`inbox.createConversationAndMessage`,
+  `inbox.createOnlyMessage`, `inbox.integrations.copyLeadIntegration`,
+  `ticket.create`), widget-facing endpoints
+  (`inbox.widgetsGetUnreadMessagesCount`), internal membership or relation
+  plumbing (`inbox.updateUserChannels`, `inbox.getModuleRelation`,
+  `relation.onRelationAdded`, `fields.getFieldList`), or the raw
+  `inbox.channels.find`, which bypasses `visibleChannelsFilter` and would
+  expose other users' personal channels. New procedures are agent-invisible
+  unless explicitly annotated.
 - Every resolver, model call, worker, and route resolves models from the request
   `subdomain`.
 - Schemas are defined with `new Schema(...)` and explicit fields; do not
@@ -783,6 +815,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   range covering `calls_cdrs` documents whose `actionType` contains
   `QUEUE[<queue>]`. Every tab must show numbers; an empty `calls_cdrs` renders
   every tab blank, which is expected, not a bug.
+- Smoke: `GET /agent-tools/manifest` on the frontline service lists only the
+  annotated procedures above; `ticket.create`, `inbox.removeConversation`,
+  `inbox.conversationMessages.updateOne`, and `inbox.channels.find` never
+  appear.
 - Smoke: with `CALLPRO_ENABLED` unset, `POST /callpro/receive` must 404. With it
   set to `true`, create a Call Pro line and post
   `{ numberTo, numberFrom, disp, callID, owner }` — a conversation appears in
@@ -793,47 +829,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-08-20` — Queue stats reconcile with the KPI total
-
-- **Summary:** The Queues tab stopped losing calls: `callGetQueueStats` no
-  longer filters its result against `CallIntegrations.queues` and now reports a
-  `__no_queue__` bucket for calls that never entered a queue, while a selected
-  queue excludes outbound calls across the KPI, volume, agent, and history
-  resolvers so a queue-scoped total is not inflated by queue-less outbound
-  traffic.
-- **Affected areas:** `src/modules/reports/callReportService.ts`
-  (`summariseQueueStats`, `NO_QUEUE`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts`
-  (`resolveReportScope`, `wantsOutboundCalls`, `callGetQueueStats`).
-- **Contracts changed:** None in the schema. Values move: `QueueStats.queue`
-  can now be the sentinel `__no_queue__`, queues outside the integration's
-  configured list appear, and queue-scoped `callKpiScorecard` /
-  `callVolumeSeries` / `callGetAgentStats` / `callHistoryList` no longer include
-  outbound calls.
-
-### `2026-08-20` — Daily hour matrix behind the heatmap export
-
-- **Summary:** Added `callHeatmapDaily`, which folds the same CDR read as
-  `callHeatmap` into calendar-day × hour buckets (`total`, `answered`,
-  `noAnswer`) so the report UI can export the heatmap as a date × hour sheet.
-- **Affected areas:** `src/modules/reports/callReportService.ts`
-  (`buildDailyHourMatrix`),
-  `src/modules/reports/graphql/schema/call.ts`,
-  `src/modules/reports/graphql/resolvers/callQueries.ts`.
-- **Contracts changed:** New query `callHeatmapDaily` returning
-  `[CallDayHourCell]`; additive.
-
-### `2026-08-20` — No-answer counts on the volume series and heatmap
-
-- **Summary:** `callVolumeSeries` and `callHeatmap` now also report the calls
-  no human answered per bucket, so the call report charts can plot no answer
-  next to answered volume.
-- **Affected areas:** `src/modules/reports/callReportService.ts`
-  (`buildVolumeSeries`, `buildHeatmap`),
-  `src/modules/reports/graphql/schema/call.ts`.
-- **Contracts changed:** `CallVolumePoint.noAnswer: Int` and
-  `HeatCell.noAnswer: Int` added; both are additive.
 
 ### `2026-08-20` — The agent who answered a call is assigned to it
 
@@ -875,6 +870,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `Conversation.callProPhone`; a resolver for the previously dangling
   `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
   `sendUpdateIntegration`, and `sendRemoveIntegration`.
+
 ### `2026-08-19` — Call history reports the ring on unanswered calls
 
 - **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
@@ -952,3 +948,48 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
   `metaShareCount`, `metaSyncedAt`; the post document gained the same four
   optional fields.
+
+### `2026-08-18` — Facebook report aggregations
+
+- **Summary:** Added a Facebook reporting surface over the plugin's own
+  Messenger, comment, and post collections — page list, KPI summary, daily
+  activity series, per-post engagement, and per-bot coverage — with page and
+  date scoping, plus `pageIds` on the saved-chart filter set so a saved
+  Facebook card restores its page selection.
+- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
+  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
+  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
+- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
+  types, and five `reportFacebook*` queries; `TicketReportFilter`,
+  `ReportChartFilters`, and the stored chart filters gained `pageIds`.
+
+### `2026-08-17` — IVR stops swallowing every call outcome
+
+- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
+  dispositions, and an IVR answers the line on every call it fronts, so every
+  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
+  outright. On an IVR-fronted deployment the Call history was empty, phone
+  search found nothing, and the No answer / Busy / Failed filters returned
+  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
+  labels a call that never left the menu, and the history no longer filters an
+  outcome class out of the list.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts`
+  (`deriveCallStatusFromLegs`),
+  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
+- **Contracts changed:** None. Values move: calls that entered an IVR and were
+  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
+  which also changes the conversation label `getConversationContent` renders.
+
+### `2026-08-17` — Messenger ticket configs tolerate deleted references
+
+- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
+  selection when one id is gone — it persists the configs that still exist and
+  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
+  id out of every integration and returns the removed document.
+- **Affected areas:**
+  `src/modules/inbox/db/models/Integrations.ts`,
+  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
+- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
+  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
+  returns the `TicketConfig` its schema already declared instead of `null`.
