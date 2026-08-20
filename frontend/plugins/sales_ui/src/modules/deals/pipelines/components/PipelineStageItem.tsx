@@ -376,7 +376,7 @@ export const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.defaultTick`}
                       control={control}
-                      defaultValue={stage?.defaultTick ?? false}
+                      defaultValue={stage?.defaultTick ?? true}
                       render={({ field }) => (
                         <Checkbox
                           id={`defaultTick-${index}`}

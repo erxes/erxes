@@ -1,4 +1,6 @@
 import type { ApolloClient, Reference, StoreObject } from '@apollo/client';
+import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
+import type { IDeal } from '@/deals/types/deals';
 import type { IProductData } from 'ui-modules';
 
 export const updateDealProductsCache = (
@@ -53,4 +55,24 @@ export const updateDealProductsCache = (
       },
     },
   });
+
+  client.cache.updateQuery<{ dealDetail: IDeal }>(
+    {
+      query: GET_DEAL_DETAIL,
+      variables: { _id: dealId },
+    },
+    (current) => {
+      if (!current?.dealDetail) {
+        return current;
+      }
+
+      return {
+        ...current,
+        dealDetail: {
+          ...current.dealDetail,
+          productsData,
+        },
+      };
+    },
+  );
 };

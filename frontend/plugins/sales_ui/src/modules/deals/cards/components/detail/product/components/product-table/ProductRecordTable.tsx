@@ -66,7 +66,11 @@ export const ProductsRecordTable = ({
         'unitPrice',
         'assignUserId',
       ]}
-      tableId="products_record_table"
+      tableId={
+        showAdvancedView
+          ? 'products_record_table_advanced'
+          : 'products_record_table'
+      }
     >
       {products.length === 0 ? (
         <Empty className="border-0 bg-transparent">

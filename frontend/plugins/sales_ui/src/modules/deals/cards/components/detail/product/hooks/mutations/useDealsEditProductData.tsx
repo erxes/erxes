@@ -7,14 +7,18 @@ import {
   useApolloClient,
   useMutation,
 } from '@apollo/client';
-import { useQueryState, useToast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DEALS_EDIT_PRODUCT_DATA } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
+import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
 import { IProductData } from 'ui-modules';
-import { updateDealProductsCache } from './updateDealProductsCache';
+import {
+  serializeDealProductMutation,
+  withDealIdVariables,
+} from './serializeDealProductMutation';
 
 interface EditProductDataVariables {
   processId: string;
@@ -25,7 +29,7 @@ interface EditProductDataVariables {
 export const useDealsEditProductData = (options?: MutationHookOptions) => {
   const { toast } = useToast();
   const { t } = useTranslation('sales');
-  const [salesItemId] = useQueryState<string>('salesItemId');
+  const dealId = useCurrentDealId();
   const client = useApolloClient();
 
   const { onCompleted, onError, ...hookOptions } = options || {};
@@ -43,14 +47,13 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
       },
     ) => {
       try {
-        // dealId always comes from the URL, not the caller: it must match
-        // the id updateDealProductsCache writes into below.
-        const result = await mutateEditProductData({
-          ...executeOptions,
-          variables: {
-            ...executeOptions.variables,
-            dealId: salesItemId || '',
-          },
+        const result = await serializeDealProductMutation({
+          client,
+          dealId,
+          mutation: () =>
+            mutateEditProductData(withDealIdVariables(executeOptions, dealId)),
+          selectProductsData: (mutationResult) =>
+            mutationResult.data?.dealsEditProductData?.productsData,
         });
 
         toast({
@@ -58,13 +61,6 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
           variant: 'success',
           ...DEAL_TOAST_OPTIONS,
         });
-
-        const nextProductsData: IProductData[] | undefined =
-          result.data?.dealsEditProductData?.productsData;
-
-        if (nextProductsData) {
-          updateDealProductsCache(client, salesItemId, nextProductsData);
-        }
 
         onCompleted?.(result.data);
 
@@ -83,15 +79,7 @@ export const useDealsEditProductData = (options?: MutationHookOptions) => {
         throw apolloError;
       }
     },
-    [
-      client,
-      mutateEditProductData,
-      onCompleted,
-      onError,
-      salesItemId,
-      t,
-      toast,
-    ],
+    [client, dealId, mutateEditProductData, onCompleted, onError, t, toast],
   );
 
   return {
