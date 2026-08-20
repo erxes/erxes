@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-19`
 
 ## Scope
 
@@ -86,6 +86,8 @@
 - Never accept a pipeline property id outside Core `sales:deal` fields.
 - Preserve tenant isolation by validating through the request `subdomain`.
 - Pipeline stage updates and property selections remain one pipeline mutation.
+- Checked pipeline deal queries preserve master branch department-user visibility and compose with existing filters through `$and`.
+- Do not fetch department visibility data when the pipeline has no `departmentIds`.
 
 ## Validation
 
@@ -126,6 +128,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-19` — Checked pipeline deal query filter
+
+- **Summary:** Checked pipeline visibility now uses the master branch department-user rules, skips department lookups without pipeline departments, and preserves existing query filters.
+- **Affected areas:** `src/modules/sales/graphql/resolvers/queries/deals.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-12` — Pipeline-scoped deal properties
 

@@ -22,6 +22,8 @@
   "save": "Save",
   "automation-name-placeholder": "Automation name",
   "inactive": "Inactive",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
   "builder": "Builder",
   "history": "History",
 
@@ -38,6 +40,7 @@
 
   "edit": "Edit",
   "delete": "Delete",
+  "duplicate": "Duplicate",
   "delete-confirm-title": "Are you absolutely sure?",
   "delete-confirm-description": "This action cannot be undone.",
   "cancel": "Cancel",
@@ -196,6 +199,8 @@
   "trigger-type-description": "Start with an automation type that enrolls and triggers off",
   "choose-action-type": "Choose your action type",
   "action-type-description": "Pick what should happen next after the automation is triggered",
+  "choose-workflow": "Choose a workflow",
+  "workflow-description": "Reuse a saved workflow inside this automation",
   "search": "Search...",
   "filter-by-type": "Filter by type",
   "variables-help-aria-label": "How variables work",

@@ -26,6 +26,17 @@ interface UseTicketPermissionsParams {
   assigneeId?: string;
 }
 
+export const canMoveTicketToStatus = (
+  status: Pick<IStatusPermissions, 'canMoveMemberIds'> | undefined,
+  userId: string | undefined,
+): boolean => {
+  if (!status?.canMoveMemberIds?.length) {
+    return true;
+  }
+
+  return !!userId && status.canMoveMemberIds.includes(userId);
+};
+
 const resolveStatusPermissions = (
   status: IStatusPermissions,
   userId: string,
@@ -44,11 +55,11 @@ const resolveStatusPermissions = (
     ? status.canEditMemberIds.includes(userId)
     : true;
 
-  const canMoveTicket = status.canMoveMemberIds?.length
-    ? status.canMoveMemberIds.includes(userId)
-    : true;
-
-  return { canViewTicket: true, canEditTicket, canMoveTicket };
+  return {
+    canViewTicket: true,
+    canEditTicket,
+    canMoveTicket: canMoveTicketToStatus(status, userId),
+  };
 };
 
 const DENIED: ITicketPermissions = {

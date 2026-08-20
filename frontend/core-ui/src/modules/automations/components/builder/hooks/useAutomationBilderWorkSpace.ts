@@ -12,10 +12,8 @@ export const useAutomationBilderWorkSpace = () => {
   const isPanelOpen = useAtomValue(automationBuilderPanelOpenState);
   const togglePanelOpen = useSetAtom(toggleAutomationBuilderOpenPanel);
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-  const {
-    isSidebarOpen: isOpenSideBar,
-    toggleSidebar: toggleSideBarOpen,
-  } = useAutomation();
+  const { isSidebarOpen: isOpenSideBar, toggleSidebar: toggleSideBarOpen } =
+    useAutomation();
   const onOpen = () => {
     togglePanelOpen();
     setHotkeyScopeAndMemorizePreviousScope(AutomationsHotKeyScope.Builder);

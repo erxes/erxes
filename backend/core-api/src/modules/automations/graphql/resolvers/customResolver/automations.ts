@@ -27,6 +27,23 @@ export default {
     return await models.Tags.find({ _id: { $in: tagIds } });
   },
 
+  async duplicatedFromName(
+    { duplicatedFrom }: IAutomationDoc,
+    _args: unknown,
+    { models }: IContext,
+  ) {
+    if (!duplicatedFrom) {
+      return null;
+    }
+
+    const source = await models.Automations.findOne(
+      { _id: duplicatedFrom },
+      { name: 1 },
+    ).lean();
+
+    return source?.name ?? null;
+  },
+
   async approvalLockState(
     automation: IAutomationDoc & {
       _id: string;

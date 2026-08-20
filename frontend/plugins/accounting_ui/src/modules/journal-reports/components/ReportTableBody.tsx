@@ -1,5 +1,5 @@
 import { ReportTable, cn } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
@@ -8,15 +8,25 @@ import { moreDataState } from '../states/renderingReportsStates';
 import { IGroupRule, ReportRules } from '../types/reportsMap';
 import {
   CalcReportHandler,
-  getCalcReportHandler,
+  getCalcReport,
   getRenderMoreHandler,
 } from './includes';
-import { groupRecords, moreDataByKey, totalsCalc } from './includes/utils';
+import {
+  groupRecords,
+  moreDataByKey,
+  toSafeString,
+  totalsCalc,
+} from './includes/utils';
 
-export function useQueryObject() {
+type QueryObject = Record<string, string | string[]>;
+
+const getStringParam = (value?: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
+
+export function useQueryObject(): QueryObject {
   const [searchParams] = useSearchParams();
 
-  const obj: any = {};
+  const obj: QueryObject = {};
   for (const key of searchParams.keys()) {
     const values = searchParams.getAll(key);
     obj[key] = values.length > 1 ? values : values[0];
@@ -26,17 +36,25 @@ export function useQueryObject() {
 }
 
 export const ReportTableBody = () => {
-  const { report, groupKey, ...params } = useQueryObject();
-  const reportConf = ReportRules[report as string];
+  const {
+    report: reportParam,
+    groupKey: groupKeyParam,
+    ...params
+  } = useQueryObject();
+  const report = getStringParam(reportParam) || '';
+  const groupKey = getStringParam(groupKeyParam);
+  const reportConf = ReportRules[report];
 
-  const { isMore } = params;
+  const isMore = getStringParam(params.isMore) === 'true';
+  const unhideZero = getStringParam(params.unhideZero) === 'true';
 
-  const colCount = reportConf.colCount ?? 0;
+  const colCount = reportConf?.colCount ?? 0;
+  const defaultGroupKey = reportConf?.choices?.[0]?.code || 'default';
   const groupRule =
-    reportConf.groups?.[(groupKey as string) || ''] ||
-    reportConf.groups?.['default'];
+    reportConf?.groups?.[groupKey || defaultGroupKey] ||
+    reportConf?.groups?.[defaultGroupKey];
 
-  const calcReport = getCalcReportHandler((report as string) || '');
+  const calcReport = getCalcReport(report);
 
   const { records = [], loading, error } = useJournalReportData();
   const {
@@ -44,34 +62,44 @@ export const ReportTableBody = () => {
     loading: detailLoading,
     error: detailError,
   } = useJournalReportMore();
-  const [moreData, setMoreData] = useAtom(moreDataState);
+  const setMoreData = useSetAtom(moreDataState);
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
 
   const grouped = React.useMemo(() => {
-    if (error) return {};
+    if (error || !groupRule) return {};
 
     return groupRecords(records, groupRule);
-  }, [records, groupRule]);
+  }, [records, groupRule, error]);
 
-  // ✅ RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
+  // RENDER ДУУССАНЫ ДАРАА TOTALS БОДНО
   useEffect(() => {
     if (!tableRef?.current) return;
     if (loading) return;
     if (error) return;
+    if (!groupRule) return;
 
-    totalsCalc(tableRef.current, groupRule);
-  }, [grouped]); // ✅ дата солигдох бүрт дахин бодно
+    totalsCalc(tableRef.current, groupRule, unhideZero);
+  }, [grouped, groupRule, loading, error, unhideZero]); // дата солигдох бүрт дахин бодно
 
   useEffect(() => {
     if (!tableRef?.current) return;
     if (!isMore) return;
     if (detailLoading) return;
     if (detailError) return;
-    setMoreData(moreDataByKey(moreData, trDetails, groupRule));
-  }, [grouped, detailLoading]); // ✅ дата солигдох бүрт дахин бодно
+    if (!groupRule) return;
+    setMoreData(moreDataByKey(trDetails, groupRule));
+  }, [
+    grouped,
+    detailLoading,
+    detailError,
+    isMore,
+    setMoreData,
+    trDetails,
+    groupRule,
+  ]); // дата солигдох бүрт дахин бодно
 
-  if (!report || !reportConf) {
+  if (!report || !reportConf || !groupRule) {
     return 'NOT FOUND REPORT';
   }
 
@@ -102,7 +130,7 @@ export const ReportTableBody = () => {
 
 // extract and render
 interface ReportRendererProps {
-  groupedDic: any;
+  groupedDic: Record<string, unknown>;
   groupRule?: IGroupRule;
   colCount: number;
   calcReport: CalcReportHandler;
@@ -149,8 +177,69 @@ const getMoreAttr = (
   return moreAttr;
 };
 
+const drillParamByGroup: Record<string, string> = {
+  accountId: 'accountIds',
+  branchId: 'branchId',
+  departmentId: 'departmentId',
+  customerId: 'customerId',
+  productId: 'productIds',
+  fixedAssetId: 'fixedAssetIds',
+  journal: 'journal',
+  contentId: 'contentId',
+  contentType: 'contentType',
+};
+
+const getGroupsFromAttr = (attr: string) =>
+  attr
+    .split(/[,*]/)
+    .map((entry) => {
+      const [group, id] = entry.split('+');
+      return { group, id };
+    })
+    .filter(({ group, id }) => group && id);
+
+const getAccountStatementDrillUrl = (
+  report: string,
+  groupRule: IGroupRule,
+  groupId: string,
+  attr: string,
+) => {
+  if (report === 'ac' || groupRule.group !== 'accountId' || !groupId) {
+    return '';
+  }
+
+  const params = new URLSearchParams(window.location.search);
+
+  params.set('report', 'ac');
+  params.set('groupKey', 'default');
+  params.set('isMore', 'true');
+  params.set('accountIds', groupId);
+
+  getGroupsFromAttr(attr).forEach(({ group, id }) => {
+    const paramName = drillParamByGroup[group];
+    if (paramName && group !== 'accountId') {
+      params.set(paramName, id);
+    }
+  });
+
+  return `${window.location.pathname}?${params.toString()}`;
+};
+
+const openAccountStatementDrill = (
+  report: string,
+  groupRule: IGroupRule,
+  groupId: string,
+  attr: string,
+) => {
+  const url = getAccountStatementDrillUrl(report, groupRule, groupId, attr);
+
+  if (url) {
+    window.location.assign(url);
+  }
+};
+
 function renderGroup(
-  groupedDic: any,
+  groupedDic: Record<string, unknown>,
   groupRule: IGroupRule,
   colCount: number,
   padding: number,
@@ -167,33 +256,42 @@ function renderGroup(
   const keyCode = `${groupRule.group}Code`;
   const keyName = `${groupRule.group}Name`;
 
-  const sortedValues = Object.values(groupedDic).sort((a: any, b: any) =>
-    String(a[keyCode]).localeCompare(String(b[keyCode])),
+  const sortedValues = Object.values(groupedDic).sort((a, b) =>
+    toSafeString((a as Record<string, unknown>)[keyCode]).localeCompare(
+      toSafeString((b as Record<string, unknown>)[keyCode]),
+    ),
   );
 
-  return sortedValues.map((grStep: any, index: number) => {
+  return sortedValues.map((grStepValue) => {
+    const grStep = grStepValue as Record<string, unknown>;
+    const groupId = toSafeString(grStep[grId]);
+    const groupCode = toSafeString(grStep[keyCode]);
+    const groupName = toSafeString(grStep[keyName]);
     const lAttr = lastAttr ? `${lastAttr}*` : '';
-    const attr = `${lAttr}${groupRule.group}+${grStep[grId]}`;
+    const attr = `${lAttr}${groupRule.group}+${groupId}`;
 
-    // ✅ Дараагийн групп байвал (recursion үргэлжилнэ)
+    // Дараагийн групп байвал (recursion үргэлжилнэ)
     if (groupRule.groupRule?.group) {
       const preLeafAttr = (leafAttr && `${leafAttr},`) || '';
-      const newMoreAttr = getMoreAttr(
-        groupRule,
-        grStep[grId],
-        moreAttr,
-        isMore,
-      );
+      const newMoreAttr = getMoreAttr(groupRule, groupId, moreAttr, isMore);
 
       return (
-        <React.Fragment key={attr + index}>
+        <React.Fragment key={attr}>
           {
             <ReportTable.Row
               key={attr}
               data-sum-key={attr}
-              className={cn(groupRule.style ?? '')}
+              className={cn(
+                groupRule.style ?? '',
+                groupRule.group === 'accountId' && report !== 'ac'
+                  ? 'cursor-pointer'
+                  : '',
+              )}
               data-group={groupRule.group}
-              data-id={grStep[grId]}
+              data-id={groupId}
+              onDoubleClick={() =>
+                openAccountStatementDrill(report, groupRule, groupId, attr)
+              }
             >
               <ReportTable.Cell
                 className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
@@ -201,21 +299,24 @@ function renderGroup(
                   { '--cellPadding': `${padding}px` } as React.CSSProperties
                 }
               >
-                {grStep[keyCode]}
+                {groupCode}
               </ReportTable.Cell>
 
               <ReportTable.Cell className="text-left">
-                {grStep[keyName]}
+                {groupName}
               </ReportTable.Cell>
 
-              {Array.from({ length: colCount }).map((_, i) => (
-                <ReportTable.Cell key={`${attr}-${i}`} className="text-right" />
+              {Array.from(
+                { length: colCount },
+                (_value, valueIndex) => `${attr}-value-${valueIndex + 1}`,
+              ).map((key) => (
+                <ReportTable.Cell key={key} className="text-right" />
               ))}
             </ReportTable.Row>
           }
 
           {renderGroup(
-            grStep[groupRule.groupRule.group],
+            grStep[groupRule.groupRule.group] as Record<string, unknown>,
             groupRule.groupRule,
             colCount,
             padding + 25,
@@ -230,7 +331,7 @@ function renderGroup(
       );
     }
 
-    // ✅ Навч node
+    // Навч node
     const { lastNode, lastData } = calcReport(grStep, groupRule, attr);
 
     if (!lastNode) return null;
@@ -239,21 +340,28 @@ function renderGroup(
       <React.Fragment key={attr}>
         <ReportTable.Row
           key={attr}
-          data-keys={`footer,${leafAttr}`}
-          className={cn('text-right', groupRule.style ?? '')}
+          data-keys={['footer', leafAttr].filter(Boolean).join(',')}
+          className={cn(
+            'text-right',
+            groupRule.style ?? '',
+            groupRule.group === 'accountId' && report !== 'ac'
+              ? 'cursor-pointer'
+              : '',
+          )}
           data-group={groupRule.group}
-          data-id={grStep[grId]}
+          data-id={groupId}
+          onDoubleClick={() =>
+            openAccountStatementDrill(report, groupRule, groupId, attr)
+          }
         >
           <ReportTable.Cell
             className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
             style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
           >
-            {grStep[keyCode]}
+            {groupCode}
           </ReportTable.Cell>
 
-          <ReportTable.Cell className="text-left">
-            {grStep[keyName]}
-          </ReportTable.Cell>
+          <ReportTable.Cell className="text-left">{groupName}</ReportTable.Cell>
 
           {lastNode}
         </ReportTable.Row>
@@ -261,7 +369,7 @@ function renderGroup(
           <RenderMore
             report={report}
             treeIds={moreAttr ?? ''}
-            leafId={`${grStep[grId]}`}
+            leafId={groupId}
             nodeExtra={lastData}
           />
         )}
@@ -279,7 +387,7 @@ const RenderMore = ({
   report: string;
   treeIds: string;
   leafId: string;
-  nodeExtra?: any;
+  nodeExtra?: Record<string, unknown>;
 }) => {
   const ReportMore = getRenderMoreHandler(report);
 

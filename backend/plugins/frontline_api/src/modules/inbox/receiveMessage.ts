@@ -200,8 +200,11 @@ export const receiveInboxMessage = async (
       return sendSuccess({ _id: conversationId });
     }
 
-    doc.assignedUserId = assignedUserId;
-    const conversation = await Conversations.createConversation(doc);
+    const createDoc = { ...doc, assignedUserId };
+    delete createDoc.owner;
+    delete createDoc.userId;
+
+    const conversation = await Conversations.createConversation(createDoc);
 
     return sendSuccess({ _id: conversation._id });
   }

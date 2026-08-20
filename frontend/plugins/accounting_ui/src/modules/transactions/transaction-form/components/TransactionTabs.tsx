@@ -1,4 +1,5 @@
 import { IconLock, IconX, IconZoomExclamation } from '@tabler/icons-react';
+import { IAccount } from '@/settings/account/types/Account';
 import { Button, cn, Tabs, Tooltip } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
@@ -197,7 +198,10 @@ export const TransactionsTabsList = ({
     index.toString() === activeJournal && setActiveJournal('0');
   };
 
-  const handleAddTransaction = (journal?: TrJournalEnum) => {
+  const handleAddTransaction = (
+    journal?: TrJournalEnum,
+    account?: IAccount,
+  ) => {
     const selectedJournal = journal || TrJournalEnum.MAIN;
 
     const [sumDebit, sumCredit] = sumDtAndCt(fields as TTrDoc[], followTrDocs);
@@ -216,7 +220,7 @@ export const TransactionsTabsList = ({
       side: diff > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
       details: [
         {
-          ...fields[0].details,
+          ...(account ? { account, accountId: account._id } : {}),
           amount: Math.abs(diff),
         },
       ],

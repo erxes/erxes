@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { cfRecordUrl, toCamelCase } from '../utils';
+import { CallOperator } from '@/integrations/call/@types/integrations';
 
 const CDR_TIME_OFFSET = '+08:00';
 const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -239,9 +240,11 @@ export interface ICdrLegTiming {
   lastapp?: string;
   disposition?: string;
   billsec?: number;
+  duration?: number;
   actionType?: string;
   start?: Date | string | null;
   answer?: Date | string | null;
+  end?: Date | string | null;
 }
 
 /** The apps that hold the caller while the PBX looks for an agent. */
@@ -259,17 +262,6 @@ export const legRingSeconds = (leg: ICdrLegTiming): number => {
   return seconds > 0 ? seconds : 0;
 };
 
-/**
- * Seconds the caller waited before an agent picked up, or `null` when no agent
- * ever did. Every leg passed in must belong to the same call (one `uniqueid`).
- *
- * The ring time lives on the leg that actually held the caller. A queue call
- * sits on its `Queue` leg — stamped `NO ANSWER` with no talk time, because the
- * caller left it the moment the agent bridged — while the leg carrying
- * `ANSWERED` is often a `ForkCDR` copy whose `answer` equals its `start`. So
- * read the answered leg first and fall back to the waiting legs when it
- * recorded no ring of its own.
- */
 export const callSpeedOfAnswer = (legs: ICdrLegTiming[]): number | null => {
   const answeredLeg = legs.find(isHumanAnsweredLeg);
 
@@ -288,12 +280,32 @@ export const callSpeedOfAnswer = (legs: ICdrLegTiming[]): number | null => {
   return waits.length ? Math.max(...waits) : 0;
 };
 
-/**
- * Average speed of answer, in seconds, over the answered calls in `legs`.
- *
- * Legs are folded into calls by `uniqueid` first, so a call spread over several
- * legs counts once and contributes the wait it actually recorded.
- */
+export const callRingSeconds = (legs: ICdrLegTiming[]): number | null => {
+  const held = legs
+    .filter((leg) => WAITING_LASTAPPS.includes(leg.lastapp ?? ''))
+    .map((leg) => Number(leg.duration ?? 0) - Number(leg.billsec ?? 0))
+    .filter((seconds) => seconds > 0);
+
+  if (held.length) return Math.max(...held);
+
+  const stamps = (
+    pick: (leg: ICdrLegTiming) => Date | string | null | undefined,
+  ): number[] =>
+    legs
+      .map((leg) => parseCdrDate(pick(leg)))
+      .filter((date): date is Date => Boolean(date))
+      .map((date) => date.getTime());
+
+  const starts = stamps((leg) => leg.start);
+  const ends = stamps((leg) => leg.end);
+
+  if (!starts.length || !ends.length) return null;
+
+  const span = (Math.max(...ends) - Math.min(...starts)) / 1000;
+
+  return span > 0 ? span : null;
+};
+
 export const averageSpeedOfAnswer = (legs: ICdrLegTiming[]): number => {
   const byCall = new Map<string, ICdrLegTiming[]>();
 
@@ -323,7 +335,6 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
         (leg.disposition || '').toLowerCase() === 'answered',
     );
 
-  if (answeredBy('IVR')) return 'IVR';
   if (answeredBy('VM')) return 'VOICEMAIL';
 
   if (legs.some((leg) => actionTypeOf(leg).includes('FOLLOWME'))) {
@@ -334,6 +345,9 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
   if (dispositions.includes('BUSY')) return 'BUSY';
   if (dispositions.includes('FAILED')) return 'FAILED';
   if (dispositions.includes('NO ANSWER')) return 'NO ANSWER';
+
+  if (answeredBy('IVR')) return 'IVR';
+
   return 'MISSED';
 };
 
@@ -390,4 +404,42 @@ export const calculateFileDir = (doc) => {
     fileDir = 'queue';
   }
   return fileDir;
+};
+
+export interface ICdrOperatorParams {
+  userfield?: string;
+  src?: string;
+  dst?: string;
+  dstanswer?: string;
+  dstchannel_ext?: string;
+  channel_ext?: string;
+  new_src?: string;
+  lastapp?: string;
+  action_type?: string;
+}
+
+export const resolveCdrOperator = (
+  operators: CallOperator[] = [],
+  params: ICdrOperatorParams,
+): { operator?: CallOperator; extension?: string } => {
+  const extension = determineExtension(params);
+
+  const candidates = [
+    extension,
+    extractOperatorId(params),
+    params.dstchannel_ext,
+    params.channel_ext,
+    params.dstanswer,
+    params.new_src,
+    params.userfield === 'Outbound' ? params.src : params.dst,
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const operator = operators.find((op) => op.gsUsername === candidate);
+    if (operator) {
+      return { operator, extension: candidate };
+    }
+  }
+
+  return { extension: extension || undefined };
 };

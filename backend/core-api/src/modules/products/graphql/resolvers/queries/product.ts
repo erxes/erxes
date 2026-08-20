@@ -19,6 +19,7 @@ import {
   getSimilaritiesProductsCount,
 } from '@/products/utils';
 import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
+import { withPropertyConditions } from '@/properties/utils';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
@@ -307,6 +308,7 @@ const generateFilter = async (
     pipelineId,
     segment,
     segmentData,
+    propertiesData,
     branchId,
     departmentId,
     minRemainder,
@@ -339,6 +341,14 @@ const generateFilter = async (
 
   if (params.status) {
     filter.status = params.status;
+  }
+
+  if (propertiesData) {
+    const propertyConditions = withPropertyConditions(propertiesData);
+
+    if (propertyConditions.length) {
+      andFilters.push(...propertyConditions);
+    }
   }
 
   if (type) {

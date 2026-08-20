@@ -29,7 +29,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { ScrollArea, Skeleton } from 'erxes-ui';
+import { Alert, ScrollArea, Skeleton } from 'erxes-ui';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -38,9 +38,12 @@ import {
   reportComponents,
 } from '../types/component-registry';
 import { getTopSource } from '../utils';
-import { ReportsViewSkeleton } from './ReportsView';
 import { useReportCharts } from '@/report/hooks/useReportCharts';
 import { ReportChart } from '@/report/types';
+import { useAtomValue } from 'jotai';
+import { getReportDateFilterAtom } from '@/report/states';
+import { getFilters } from '@/report/utils/dateFilters';
+import { OVERVIEW_KPI_DATE_FILTER_ID } from './filter-popover/ReportKpiDateFilter';
 
 interface CardConfig {
   id: string;
@@ -75,17 +78,36 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 
 export const FrontlineReportsList = () => {
   const { t } = useTranslation('frontline');
-  const { conversationOpen, loading: openLoading } = useConversationOpen();
-  const { conversationClosed, loading: closedLoading } =
-    useConversationClosed();
-  const { conversationSources = [], loading: sourcesLoading } =
-    useConversationSources({
-      variables: {
-        filters: {
-          limit: 10,
-        },
+  const kpiDate = useAtomValue(
+    getReportDateFilterAtom(OVERVIEW_KPI_DATE_FILTER_ID),
+  );
+  const kpiFilters = useMemo(() => getFilters(kpiDate || undefined), [kpiDate]);
+  const {
+    conversationOpen,
+    loading: openLoading,
+    error: openError,
+  } = useConversationOpen({
+    variables: { filters: kpiFilters },
+  });
+  const {
+    conversationClosed,
+    loading: closedLoading,
+    error: closedError,
+  } = useConversationClosed({
+    variables: { filters: kpiFilters },
+  });
+  const {
+    conversationSources = [],
+    loading: sourcesLoading,
+    error: sourcesError,
+  } = useConversationSources({
+    variables: {
+      filters: {
+        ...kpiFilters,
+        limit: 10,
       },
-    });
+    },
+  });
   const { reportCharts } = useReportCharts();
   const savedConversationCharts = useMemo(
     () => reportCharts.filter((chart) => reportComponents[chart.chartType]),
@@ -134,6 +156,8 @@ export const FrontlineReportsList = () => {
   const sources = Array.isArray(conversationSources) ? conversationSources : [];
   const topPerformingSource = getTopSource(sources);
   const topConvertingSource = getTopSource(sources);
+  const kpiError = openError || closedError || sourcesError;
+  const kpiLoading = openLoading || closedLoading || sourcesLoading;
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -188,10 +212,6 @@ export const FrontlineReportsList = () => {
     );
   };
 
-  if (openLoading || closedLoading || sourcesLoading) {
-    return <ReportsViewSkeleton />;
-  }
-
   const getCardConfig = (id: string) => {
     const savedChart: ReportChart | undefined = savedChartsById.get(id);
 
@@ -244,7 +264,26 @@ export const FrontlineReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      {kpiError && (
+        <Alert variant="destructive">
+          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Description>{kpiError.message}</Alert.Description>
+        </Alert>
+      )}
+      {!kpiError && kpiLoading && (
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      )}
+      <div
+        className={
+          kpiError || kpiLoading
+            ? 'hidden'
+            : 'grid grid-cols-2 xl:grid-cols-4 gap-4'
+        }
+      >
         <KpiCard
           title={t('open-conversations')}
           value={String(conversationOpen?.count ?? 0)}

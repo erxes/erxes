@@ -65,6 +65,9 @@ const types = `
     actions: [Action]
     workflows: [Workflow]
 
+    duplicatedFrom: String
+    duplicatedFromName: String
+
     createdUser: User
     updatedUser: User
     approvalLockState(action: String): ApprovalLockState
@@ -105,6 +108,9 @@ const types = `
     status: String
     description: String
     actions: [JSON]
+    failedActionId: String
+    failedActionType: String
+    errorCode: String
     startWaitingDate: Date
     waitingActionId: String
     parentExecutionId: String

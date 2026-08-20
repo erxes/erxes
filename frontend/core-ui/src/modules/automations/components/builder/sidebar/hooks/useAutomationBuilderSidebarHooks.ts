@@ -74,5 +74,7 @@ export const useAutomationBuilderSidebarHooks = () => {
     toggleSideBarOpen,
     toggleSecondarySidebarOpen,
     handleNodeLibraryToggle,
+    openNodeLibrary,
+    closeNodeLibrary,
   };
 };

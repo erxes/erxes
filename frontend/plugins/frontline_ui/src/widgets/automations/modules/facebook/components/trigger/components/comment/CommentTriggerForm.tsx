@@ -100,9 +100,7 @@ export const CommentTriggerForm = ({
             name="checkContent"
             render={({ field }) => (
               <Form.Item className="flex items-center justify-between">
-                <Form.Label>
-                  {t('check-comment-text-keywords')}
-                </Form.Label>
+                <Form.Label>{t('check-comment-text-keywords')}</Form.Label>
                 <Form.Control>
                   <Switch
                     checked={field.value}

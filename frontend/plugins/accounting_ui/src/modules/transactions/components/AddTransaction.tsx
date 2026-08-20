@@ -1,4 +1,6 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
+import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import { IAccount, JournalEnum } from '@/settings/account/types/Account';
 import {
   DropdownMenu,
   usePreviousHotkeyScope,
@@ -7,6 +9,12 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrJournalEnum } from '../types/constants';
+import { getSingleJournalByAccount } from '../transaction-form/components/utils';
+
+export type AddTransactionHandler = (
+  journal?: TrJournalEnum,
+  account?: IAccount,
+) => void;
 
 export const AddTransaction = ({
   inForm,
@@ -15,7 +23,7 @@ export const AddTransaction = ({
 }: {
   inForm?: boolean;
   children: React.ReactNode;
-  onClick?: (journal?: TrJournalEnum) => void;
+  onClick?: AddTransactionHandler;
 }) => {
   const [open, setOpen] = useState(false);
   const {
@@ -47,6 +55,32 @@ export const AddTransaction = ({
     >
       <DropdownMenu.Trigger asChild>{children}</DropdownMenu.Trigger>
       <DropdownMenu.Content className="min-w-(--radix-dropdown-menu-trigger-width)">
+        {inForm && (
+          <>
+            <DropdownMenu.Label>Данс</DropdownMenu.Label>
+            <div className="px-2 pb-2">
+              <SelectAccount
+                placeholder="Дансаар хайх"
+                defaultFilter={{
+                  journals: [
+                    JournalEnum.MAIN,
+                    JournalEnum.CASH,
+                    JournalEnum.BANK,
+                    JournalEnum.DEBT,
+                  ],
+                }}
+                onCallback={(account) => {
+                  onClick?.(
+                    getSingleJournalByAccount(account.journal, account.kind),
+                    account,
+                  );
+                  setOpen(false);
+                }}
+              />
+            </div>
+            <DropdownMenu.Separator />
+          </>
+        )}
         <DropdownMenu.Label>Ерөнхий</DropdownMenu.Label>
         <AddTransactionItem
           journal={TrJournalEnum.MAIN}
@@ -171,7 +205,7 @@ const AddTransactionItem = ({
   children: React.ReactNode;
   disabled?: boolean;
   journal?: TrJournalEnum;
-  onClick?: (journal?: TrJournalEnum) => void;
+  onClick?: AddTransactionHandler;
   inForm?: boolean;
 }) => {
   if (disabled) {

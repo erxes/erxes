@@ -31,6 +31,105 @@ const isListEmpty = (value) => {
   return value.length === 1 && value[0].length === 0;
 };
 
+const getPipelineVisibilityFilter = async ({
+  models,
+  subdomain,
+  userId,
+  pipelineId,
+}: {
+  models: IModels;
+  subdomain: string;
+  userId: string;
+  pipelineId: string;
+}): Promise<FilterQuery<IDealDocument> | null> => {
+  const pipeline = await models.Pipelines.getPipeline(pipelineId);
+  const isCheckEnabled = pipeline.isCheckUser || pipeline.isCheckDepartment;
+
+  if (!isCheckEnabled) {
+    return null;
+  }
+
+  if ((pipeline.excludeCheckUserIds || []).includes(userId)) {
+    return null;
+  }
+
+  const pipelineDepartmentIds = pipeline.departmentIds || [];
+  const includeCheckUserIds: string[] = [];
+
+  if (pipelineDepartmentIds.length > 0) {
+    const user = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: {
+        _id: userId,
+      },
+    });
+
+    const supervisorDepartments = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'departments',
+      action: 'findWithChild',
+      input: {
+        query: {
+          supervisorId: userId,
+        },
+        fields: {
+          _id: 1,
+        },
+      },
+      defaultValue: [],
+    });
+
+    const supervisorDepartmentIds =
+      supervisorDepartments?.map((department) => department._id) || [];
+    const supervisorPipelineDepartmentIds = supervisorDepartmentIds.filter(
+      (departmentId) => pipelineDepartmentIds.includes(departmentId),
+    );
+    const userDepartmentIds = user?.departmentIds || [];
+    const userPipelineDepartmentIds = userDepartmentIds.filter((departmentId) =>
+      pipelineDepartmentIds.includes(departmentId),
+    );
+    let checkDepartmentIds = supervisorPipelineDepartmentIds;
+
+    if (!checkDepartmentIds.length && pipeline.isCheckDepartment) {
+      checkDepartmentIds = userPipelineDepartmentIds;
+    }
+
+    if (checkDepartmentIds.length > 0) {
+      const departmentUsers = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'find',
+        input: {
+          query: { departmentIds: { $in: checkDepartmentIds } },
+        },
+        defaultValue: [],
+      });
+
+      includeCheckUserIds.push(
+        ...departmentUsers.map((departmentUser) => departmentUser._id),
+        user?._id || userId,
+      );
+    }
+  }
+
+  const uniqueCheckUserIds = [...new Set([...includeCheckUserIds, userId])];
+
+  return {
+    $or: [
+      { assignedUserIds: { $in: uniqueCheckUserIds } },
+      { userId: { $in: uniqueCheckUserIds } },
+    ],
+  };
+};
+
 const getDealIdsByCustomerPhone = async (
   subdomain: string,
   search: string,
@@ -431,126 +530,15 @@ export const generateFilter = async (
   }
 
   if (pipelineId && !forClientPortal) {
-    const pipeline = await models.Pipelines.getPipeline(pipelineId);
-
-    const user = await sendTRPCMessage({
+    const pipelineVisibilityFilter = await getPipelineVisibilityFilter({
+      models,
       subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'findOne',
-      input: {
-        _id: userId,
-      },
-    });
-
-    const departments = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'departments',
-      action: 'findWithChild',
-      input: {
-        _id: userId,
-      },
-      defaultValue: [],
-    });
-
-    const supervisorDepartmentIds = departments?.map((x) => x._id) || [];
-    const pipelineDepartmentIds = pipeline.departmentIds || [];
-
-    const commonIds =
-      supervisorDepartmentIds.filter((id) =>
-        pipelineDepartmentIds.includes(id),
-      ) || [];
-    const isEligibleSeeAllCards = (pipeline.excludeCheckUserIds || []).includes(
       userId,
-    );
-    if (
-      commonIds?.length > 0 &&
-      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-      !isEligibleSeeAllCards
-    ) {
-      // current user is supervisor in departments and this pipeline has included that some of user's departments
-      // so user is eligible to see all cards of people who share same department.
-      const otherDepartmentUsers = await sendTRPCMessage({
-        subdomain,
+      pipelineId,
+    });
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'find',
-        input: {
-          query: { departmentIds: { $in: commonIds } },
-        },
-        defaultValue: [],
-      });
-
-      let includeCheckUserIds = otherDepartmentUsers.map((x) => x._id) || [];
-      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-
-      const uqinueCheckUserIds = [
-        ...new Set(includeCheckUserIds.concat(userId)),
-      ];
-
-      Object.assign(filter, {
-        $or: [
-          { assignedUserIds: { $in: uqinueCheckUserIds } },
-          { userId: { $in: uqinueCheckUserIds } },
-        ],
-      });
-    } else {
-      if (
-        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-        !isEligibleSeeAllCards
-      ) {
-        let includeCheckUserIds: string[] = [];
-
-        if (pipeline.isCheckDepartment) {
-          const userDepartmentIds = user?.departmentIds || [];
-          const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id),
-          );
-
-          const otherDepartmentUsers = await sendTRPCMessage({
-            subdomain,
-
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'find',
-            input: {
-              query: { departmentIds: { $in: commonIds } },
-            },
-            defaultValue: [],
-          });
-
-          for (const departmentUser of otherDepartmentUsers) {
-            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-          }
-
-          if (
-            pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId),
-            ).length
-          ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-          }
-        }
-
-        const uqinueCheckUserIds = [
-          ...new Set(includeCheckUserIds.concat(userId)),
-        ];
-
-        Object.assign(filter, {
-          $or: [
-            { assignedUserIds: { $in: uqinueCheckUserIds } },
-            { userId: { $in: uqinueCheckUserIds } },
-          ],
-        });
-      }
+    if (pipelineVisibilityFilter) {
+      filter.$and = [...(filter.$and || []), pipelineVisibilityFilter];
     }
   }
 

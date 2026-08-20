@@ -166,6 +166,11 @@ export const permissions: IPermissionConfig = {
           description: 'Delete tickets',
         },
         {
+          title: 'Manage ticket statuses',
+          name: 'ticketStatusesManage',
+          description: 'Add, edit and remove statuses of a pipeline',
+        },
+        {
           title: 'Export tickets',
           name: 'ticketsExportManage',
           description: 'Export tickets to file',
@@ -362,6 +367,7 @@ export const permissions: IPermissionConfig = {
             'createTicket',
             'updateTicket',
             'removeTicket',
+            'ticketStatusesManage',
             'ticketsExportManage',
             'ticketsImportManage',
           ],

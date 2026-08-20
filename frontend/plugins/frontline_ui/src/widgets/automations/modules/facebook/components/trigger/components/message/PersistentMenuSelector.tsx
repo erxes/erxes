@@ -33,9 +33,7 @@ export const PersistentMenuSelector = ({
       <div className="flex justify-center text-muted-foreground">
         <IconList className="h-6 w-6" />
         <p>{t('no-persistent-menus')}</p>
-        <span>
-          {t('persistent-menu-link-note')}
-        </span>
+        <span>{t('persistent-menu-link-note')}</span>
       </div>
     );
   }

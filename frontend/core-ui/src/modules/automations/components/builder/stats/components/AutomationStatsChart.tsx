@@ -1,5 +1,7 @@
 import { TAutomationStatsBucket } from '@/automations/types';
+import dayjs from 'dayjs';
 import { ChartContainer, ChartTooltipContent } from 'erxes-ui';
+import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 
 // Status colours follow STATUSES_BADGE_VARIABLES so the chart and the badges
@@ -10,11 +12,41 @@ const CHART_CONFIG = {
   waiting: { label: 'Waiting', color: 'var(--warning)' },
 };
 
+const EMPTY_BUCKET = { total: 0, complete: 0, error: 0, waiting: 0 };
+
+const useFilledSeries = (
+  timeSeries: TAutomationStatsBucket[],
+  beginDate: Date,
+  endDate: Date,
+) =>
+  useMemo(() => {
+    const byDate = new Map(timeSeries.map((bucket) => [bucket.date, bucket]));
+    const filled: TAutomationStatsBucket[] = [];
+    const last = dayjs(endDate).startOf('day');
+
+    for (
+      let day = dayjs(beginDate).startOf('day');
+      !day.isAfter(last);
+      day = day.add(1, 'day')
+    ) {
+      const date = day.format('YYYY-MM-DD');
+      filled.push(byDate.get(date) ?? { date, ...EMPTY_BUCKET });
+    }
+
+    return filled;
+  }, [timeSeries, beginDate, endDate]);
+
 export const AutomationStatsChart = ({
   timeSeries,
+  beginDate,
+  endDate,
 }: {
   timeSeries: TAutomationStatsBucket[];
+  beginDate: Date;
+  endDate: Date;
 }) => {
+  const series = useFilledSeries(timeSeries, beginDate, endDate);
+
   if (!timeSeries.length) {
     return (
       <div className="flex h-72 items-center justify-center rounded-lg border bg-background text-sm text-muted-foreground">
@@ -29,9 +61,15 @@ export const AutomationStatsChart = ({
         Runs per day
       </span>
       <ChartContainer config={CHART_CONFIG} className="mt-2 h-72 w-full">
-        <BarChart data={timeSeries} margin={{ top: 8, right: 8, left: -16 }}>
+        <BarChart data={series} margin={{ top: 8, right: 8, left: -16 }}>
           <CartesianGrid vertical={false} strokeDasharray="3 3" />
-          <XAxis dataKey="date" tickLine={false} axisLine={false} />
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(date: string) => dayjs(date).format('MMM D')}
+            minTickGap={16}
+          />
           <YAxis tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip content={<ChartTooltipContent />} />
           <Bar

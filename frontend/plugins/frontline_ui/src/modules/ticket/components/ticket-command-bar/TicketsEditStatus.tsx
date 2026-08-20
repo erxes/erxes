@@ -40,6 +40,7 @@ export const TicketsEditStatusContent = ({
     <SelectStatusTicket.Provider
       pipelineId={pipelineId}
       value=""
+      restrictToMovable
       onValueChange={async (value) => {
         setOpen(false);
         await bulkUpdateTickets(

@@ -1,20 +1,35 @@
-import { useVisitedPageTabs } from '@/navigation/hooks/useVisitedPageTabs';
 import {
+  activeVisitedPageTabIdState,
   visitedPageTabsState,
   visitedPageTabsVisibleState,
 } from '@/navigation/states/visitedPageTabsState';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
+import { createVisitedPageTabId } from '@/navigation/utils/visitedPageTabs';
+import { AppPath } from '@/types/paths/AppPath';
 import { IconLayoutNavbarExpand, IconX } from '@tabler/icons-react';
 import { Button, ContextMenu, Separator, Tooltip } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
+const HOME_PAGE_PATH = `/${AppPath.MyInbox}`;
 
 export const VisitedPageTabsOpenButton = () => {
   const tabs = useAtomValue(visitedPageTabsState);
   const tabsVisible = useAtomValue(visitedPageTabsVisibleState);
+  const setActiveTabId = useSetAtom(activeVisitedPageTabIdState);
+  const setTabs = useSetAtom(visitedPageTabsState);
   const setTabsVisible = useSetAtom(visitedPageTabsVisibleState);
-  const { closeAllVisitedPageTabs } = useVisitedPageTabs();
+  const navigate = useNavigate();
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+
+  const closeAllVisitedPageTabs = () => {
+    const homeTabId = createVisitedPageTabId();
+
+    setTabs([{ id: homeTabId, pathname: HOME_PAGE_PATH }]);
+    setActiveTabId(homeTabId);
+    navigate(HOME_PAGE_PATH, { replace: true });
+  };
 
   if (tabsVisible) {
     return null;

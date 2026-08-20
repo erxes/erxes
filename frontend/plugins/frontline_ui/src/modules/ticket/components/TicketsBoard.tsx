@@ -11,9 +11,12 @@ import {
   SkeletonArray,
   useQueryState,
   Spinner,
+  useToast,
 } from 'erxes-ui';
+import { currentUserState } from 'ui-modules';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TicketCard } from '@/ticket/components/TicketCard';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import clsx from 'clsx';
@@ -29,13 +32,19 @@ import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
 import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
+import {
+  canMoveTicketToStatus,
+  useTicketPermissions,
+} from '@/ticket/hooks/useTicketPermissions';
 
 export const TicketsBoard = () => {
+  const { t } = useTranslation('frontline');
+  const { toast } = useToast();
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [channelId] = useQueryState<string | null>('channelId');
   const allTicketsMap = useAtomValue(allTicketsMapState);
   const { updateTicket } = useUpdateTicket();
+  const currentUser = useAtomValue(currentUserState);
 
   const { pipeline } = useGetPipeline(pipelineId || undefined);
   const permissions = useTicketPermissions({ pipeline });
@@ -79,10 +88,62 @@ export const TicketsBoard = () => {
     if (activeItem?.statusId === overColumn) {
       return;
     }
+
+    const source = statuses?.find(
+      (status) => status.value === activeItem?.statusId,
+    );
+
+    if (!canMoveTicketToStatus(source, currentUser?._id)) {
+      toast({
+        title: t('error'),
+        description: t(
+          'no-move-out-permission',
+          'You do not have permission to move tickets out of this status',
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const destination = statuses?.find((status) => status.value === overColumn);
+
+    if (!canMoveTicketToStatus(destination, currentUser?._id)) {
+      toast({
+        title: t('error'),
+        description: t(
+          'no-move-permission',
+          'You do not have permission to move tickets to this status',
+        ),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const previousStatusId = activeItem?.statusId;
+
     updateTicket({
       variables: {
         _id: activeItem?._id,
         statusId: overColumn,
+      },
+      onError: (error) => {
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === activeItem?._id
+              ? { ...ticket, column: previousStatusId }
+              : ticket,
+          ),
+        );
+        setTicketCountByBoard((prev) => ({
+          ...prev,
+          [overColumn]: Math.max((prev[overColumn] || 0) - 1, 0),
+          [previousStatusId]: (prev[previousStatusId] || 0) + 1,
+        }));
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
     setTickets((prev) =>

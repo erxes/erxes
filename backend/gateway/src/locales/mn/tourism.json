@@ -606,6 +606,17 @@
   "check-out-amount": "Гарах хэмжээ",
 
   "add-discount": "Хөнгөлөлт нэмэх",
+  "applies-to": "Хамаарах",
+  "choose-discount-type": "Хамаарахыг сонгох",
+  "pricing-plan": "Үнийн төлөвлөгөө",
+  "rooms": "Өрөөнүүд",
+  "extra-products": "Нэмэлт бүтээгдэхүүн",
+  "appointments": "Цаг захиалга",
+  "select-pricing-plan": "Үнийн төлөвлөгөө сонгох",
+  "search-pricing-plan": "Үнийн төлөвлөгөө хайх",
+  "loading-pricing-plans": "Үнийн төлөвлөгөө ачаалж байна...",
+  "no-pricing-plans-found": "Үнийн төлөвлөгөө олдсонгүй",
+  "failed-to-load-pricing-plans": "Үнийн төлөвлөгөө ачаалахад алдаа гарлаа",
 
   "website-reservation-lock": "Вэбсайтын захиалгын түгжээ",
   "reservation-lock-duration": "Захиалгын түгжээний хугацаа",

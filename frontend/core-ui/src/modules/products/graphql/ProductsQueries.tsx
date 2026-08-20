@@ -16,6 +16,7 @@ const productsMain = gql`
     $tagIds: [String]
     $segment: String
     $segmentData: String
+    $propertiesData: String
     $sortField: String
     $sortDirection: Int
      ${GQL_CURSOR_PARAM_DEFS}
@@ -30,6 +31,7 @@ const productsMain = gql`
       tagIds: $tagIds
       segment: $segment
       segmentData: $segmentData
+      propertiesData: $propertiesData
       sortField: $sortField
       sortDirection: $sortDirection
       ${GQL_CURSOR_PARAMS}
