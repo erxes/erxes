@@ -15,6 +15,7 @@ import React from 'react';
 const InvoiceDetail = () => {
   const { id } = useParams();
   const hasPostedRef = React.useRef(false); //
+  const checkingRef = React.useRef(false);
   const [checkInvoice, { loading: checkInvoiceLoading }] =
     useMutation(CHECK_INVOICE);
 
@@ -68,12 +69,18 @@ const InvoiceDetail = () => {
       invoiceDetailQuery.refetch();
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
-    React.useEffect(() => {
+ React.useEffect(() => {
     if (!id || !invoiceDetail || invoiceDetail.status === 'paid') {
       return;
     }
 
     const interval = setInterval(async () => {
+      if (checkingRef.current) {
+        return;
+      }
+
+      checkingRef.current = true;
+
       try {
         const { data } = await checkInvoice({
           variables: { id },
@@ -82,18 +89,23 @@ const InvoiceDetail = () => {
         const status = data?.invoicesCheck;
 
         if (status === 'paid') {
+          await invoiceDetailQuery.refetch();
           clearInterval(interval);
           return;
         }
 
         if (status === 'failed' || status === 'expired') {
           clearInterval(interval);
-          window.location.href = `/gateway/pl:payment/widget/payment-failed/${id}`;
+          window.location.href =
+            `/gateway/pl:payment/widget/payment-failed/${id}`;
         }
       } catch (error) {
         console.error('[Payment] Automatic invoice check failed:', error);
+      } finally {
+        checkingRef.current = false;
       }
     }, 15000);
+
     return () => clearInterval(interval);
   }, [id, invoiceDetail?.status, checkInvoice]);
   if (invoiceDetailQuery.loading || paymentsLoading) {
