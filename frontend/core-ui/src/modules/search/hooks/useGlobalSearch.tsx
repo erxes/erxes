@@ -20,6 +20,7 @@ import {
   appendUniqueSearchItems,
   getGlobalSearchRequestState,
   isSourceNameMatch,
+  parseSourceQualifier,
 } from '@/search/utils/globalSearchResults';
 import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
 
@@ -118,17 +119,21 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   const latestSearchValue = useRef(searchValue);
   latestSearchValue.current = searchValue;
 
-  const sourceSearchOverrides = useMemo(
-    () =>
-      providers.reduce<Record<string, string>>((overrides, provider) => {
-        if (isSourceNameMatch(searchValue, provider.label)) {
-          overrides[provider.key] = '';
-        }
+  const sourceSearchOverrides = useMemo(() => {
+    const qualifier = parseSourceQualifier(searchValue, providers);
 
-        return overrides;
-      }, {}),
-    [providers, searchValue],
-  );
+    if (qualifier) {
+      return { [qualifier.providerKey]: qualifier.query };
+    }
+
+    return providers.reduce<Record<string, string>>((overrides, provider) => {
+      if (isSourceNameMatch(searchValue, provider.label)) {
+        overrides[provider.key] = '';
+      }
+
+      return overrides;
+    }, {});
+  }, [providers, searchValue]);
 
   const document = useGlobalSearchDocument(
     providers,

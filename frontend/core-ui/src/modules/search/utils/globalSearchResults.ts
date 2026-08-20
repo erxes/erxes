@@ -28,6 +28,50 @@ export const isSourceNameMatch = (
   return toSingular(term) === toSingular(name);
 };
 
+export type TSourceQualifier = {
+  providerKey: string;
+  query: string;
+};
+
+// Detects a leading source/category qualifier such as "deals 7211" or
+// "conversation #123" and returns the owning provider plus the remaining query.
+// Falls back to null so the caller can apply its exact source-name behavior.
+export const parseSourceQualifier = (
+  searchValue: string,
+  providers: { key: string; label?: string | null }[],
+): TSourceQualifier | null => {
+  const term = searchValue.trim().toLowerCase();
+
+  if (!term) {
+    return null;
+  }
+
+  for (const provider of providers) {
+    const label = (provider.label ?? '').trim().toLowerCase();
+
+    if (!label) {
+      continue;
+    }
+
+    const prefix = [label, toSingular(label)].find(
+      (candidate) =>
+        candidate.length > 0 && term.startsWith(`${candidate} `),
+    );
+
+    if (!prefix) {
+      continue;
+    }
+
+    const query = searchValue.slice(prefix.length).trim();
+
+    if (query) {
+      return { providerKey: provider.key, query };
+    }
+  }
+
+  return null;
+};
+
 export const appendUniqueSearchItems = (
   currentItems: TSearchResultItem[],
   nextItems: TSearchResultItem[],
