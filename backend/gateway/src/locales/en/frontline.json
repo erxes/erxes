@@ -1292,5 +1292,19 @@
   "facebook-last-synced": "Meta counts last synced {{time}}",
   "facebook-reports": "Facebook",
   "search-posts-placeholder": "Search post text or id",
-  "search-posts-title": "Filter by post text..."
+  "search-posts-title": "Filter by post text...",
+  "integration-desc-callpro": "Receive Call Pro PBX calls as inbox conversations, with recordings and caller matching.",
+  "callpro-record-url": "Record URL",
+  "callpro-webhook-title": "Point Call Pro at this URL",
+  "callpro-webhook-description": "Configure the Call Pro PBX to POST call events to this address.",
+  "callpro-no-recording": "No recording is available for this call.",
+  "callpro-audio-unsupported": "Your browser cannot play this recording.",
+  "callpro-confirm-or-switch-customer": "Confirm or switch customer",
+  "callpro-no-customers-for-phone": "No customers found for this phone number.",
+  "callpro-current-customer": "Current",
+  "callpro-customer-selected": "Customer attached to the conversation",
+  "callpro-customer-select-failed": "Failed to attach the customer",
+  "callpro-add": "Add Call Pro",
+  "callpro-edit": "Edit Call Pro",
+  "callpro-record-url-description": "The Call Pro recording endpoint; the call id is appended to it."
 }

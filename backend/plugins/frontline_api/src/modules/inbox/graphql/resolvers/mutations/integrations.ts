@@ -37,6 +37,11 @@ import {
   discordRepairIntegrations,
 } from '@/integrations/discord/messageBroker';
 import {
+  callProCreateIntegration,
+  callProRemoveIntegration,
+  callProUpdateIntegration,
+} from '@/integrations/callpro/messageBroker';
+import {
   getUniqueValue,
   sendTRPCMessage,
   markResolvers,
@@ -87,6 +92,16 @@ export const sendCreateIntegration = async (
       case 'discord':
         return await discordCreateIntegrations({ subdomain, data });
 
+      case 'callpro': {
+        const result = await callProCreateIntegration({ subdomain, data });
+
+        if (result.status !== 'success') {
+          throw new Error(result.errorMessage);
+        }
+
+        return result;
+      }
+
       case 'mobinetSms':
         break;
 
@@ -115,6 +130,9 @@ export const sendUpdateIntegration = async (
         return await instagramUpdateIntegrations({ subdomain, data });
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
+
+      case 'callpro':
+        return await callProUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -147,6 +165,9 @@ export const sendRemoveIntegration = async (
 
       case 'discord':
         return await discordRemoveIntegrations({ subdomain, data });
+
+      case 'callpro':
+        return await callProRemoveIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
