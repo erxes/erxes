@@ -1,5 +1,19 @@
 
 
+## [3.0.89](https://github.com/erxes/erxes/compare/3.0.88...3.0.89) (2026-08-20)
+
+
+### Bug Fixes
+
+* **frontline:** assign the agent who answered the call ([bb412ef](https://github.com/erxes/erxes/commit/bb412ef847da1639cc1fbd28d7e4c435e1f4680b))
+* **frontline:** report the ring on unanswered calls ([ca4767c](https://github.com/erxes/erxes/commit/ca4767c12b8ec1bd83c5f26cf1172b6eadae350c))
+* TDB expired invoice handling ([001087c](https://github.com/erxes/erxes/commit/001087c0dc912c758ea2bdc1fa92e05594b9663f))
+
+
+### Features
+
+* **frontline:** add Call Pro integration ([a50f4e1](https://github.com/erxes/erxes/commit/a50f4e127e82fc4a8eabb917f53274c1840f0804))
+
 ## [3.0.88](https://github.com/erxes/erxes/compare/3.0.87...3.0.88) (2026-08-19)
 
 

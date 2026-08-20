@@ -2,13 +2,12 @@ import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
-  determineExtension,
   determinePrimaryPhone,
-  extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
   isHumanAnsweredLeg,
   parseCdrDate,
+  resolveCdrOperator,
 } from '@/integrations/call/services/cdrUtils';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
@@ -67,7 +66,6 @@ const processCdrLocked = async (
   const inboxId = integration.inboxId;
 
   const primaryPhone = determinePrimaryPhone(params);
-  const extension = determineExtension(params);
 
   const customer = await getOrCreateCustomer(models, subdomain, {
     primaryPhone,
@@ -76,33 +74,28 @@ const processCdrLocked = async (
 
   const content = await getConversationContent(models, params);
 
+  const { operator: matchedOperator, extension: operatorExtension } =
+    resolveCdrOperator(integration.operators, params);
+  const operatorUserId = matchedOperator?.userId;
+
   let operatorPhone = '';
-  const operatorId = extractOperatorId(params);
+  if (operatorUserId) {
+    const operator = await sendTRPCMessage({
+      subdomain,
 
-  let matchedOperator: any = null;
-  if (operatorId) {
-    matchedOperator = integration.operators.find(
-      ({ gsUsername }) => gsUsername === operatorId,
-    );
-    if (matchedOperator) {
-      const operator = await sendTRPCMessage({
-        subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: { query: { _id: operatorUserId } },
+    });
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { query: { _id: matchedOperator.userId } },
-      });
-
-      if (operator) {
-        operatorPhone = operator?.details?.operatorPhone || '';
-      }
-    }
+    operatorPhone = operator?.details?.operatorPhone || '';
   }
 
   const isAnsweredLeg = isHumanAnsweredLeg(params);
   const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
+  const assignedUserId = isAnsweredLeg ? operatorUserId : undefined;
 
   let conversationId;
   let isNewConversation = false;
@@ -132,6 +125,7 @@ const processCdrLocked = async (
         content,
         updatedAt: new Date(),
         owner: ownerForConversation,
+        userId: assignedUserId,
         integrationId: inboxId,
       };
       if (customer) payload.customerId = customer?.erxesApiId;
@@ -181,9 +175,8 @@ const processCdrLocked = async (
   }
 
   if (conversationId) {
-    console.log(
-      'conversationId already exists, updating erxes conversation with new content and owner',
-      conversationId,
+    debugCall(
+      `CDR reused conversation ${conversationId} from the matched CallSession`,
     );
   } else if (existingCdr || followmeCdr) {
     conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
@@ -192,6 +185,7 @@ const processCdrLocked = async (
       content: content,
       updatedAt: new Date(),
       owner: ownerForConversation,
+      userId: assignedUserId,
       integrationId: inboxId,
     } as any;
     if (customer) {
@@ -206,6 +200,7 @@ const processCdrLocked = async (
       conversationId: '',
       updatedAt: new Date(),
       owner: ownerForConversation,
+      userId: assignedUserId,
     };
 
     const newErxesConversation = await createOrUpdateErxesConversation(
@@ -242,33 +237,6 @@ const processCdrLocked = async (
   if (params.uniqueid) {
     const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
-      const candidateExtensions = [
-        extension,
-        matchedOperator?.gsUsername,
-        params.dstchannel_ext,
-        params.channel_ext,
-        params.dstanswer,
-        params.new_src,
-        params.userfield === 'Outbound' ? params.src : params.dst,
-      ].filter(Boolean);
-
-      let opForExt: any = null;
-      let operatorExtension: string | undefined;
-      for (const candidate of candidateExtensions) {
-        const op = integration.operators.find(
-          (o: any) => o.gsUsername === candidate,
-        );
-        if (op) {
-          opForExt = op;
-          operatorExtension = candidate;
-          break;
-        }
-      }
-      if (!operatorExtension) {
-        operatorExtension = extension || matchedOperator?.gsUsername;
-      }
-      const operatorUserId = opForExt?.userId || matchedOperator?.userId;
-
       if (!existingSession) {
         const direction =
           params.userfield === 'Outbound' ? 'outgoing' : 'incoming';

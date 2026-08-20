@@ -89,6 +89,17 @@ export const conversationSchemaOptions = {
     type: automatedReplyControlSchema,
     optional: true,
   },
+
+  callProPotentialCustomerIds: {
+    type: ['String'],
+    label: 'Call Pro potential customer ids',
+    optional: true,
+  },
+  callProPhone: {
+    type: 'String',
+    label: 'Call Pro caller phone',
+    optional: true,
+  },
 };
 
 export const conversationSchema = schemaWrapper(

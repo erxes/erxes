@@ -31,6 +31,8 @@ export const types = `
 
     messages: [ConversationMessage]
     callProAudio: String
+    callProPotentialCustomerIds: [String]
+    callProPhone: String
 
     tags: [Tag]
     customer: Customer
