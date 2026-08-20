@@ -1,5 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import type { SortOrder } from 'mongoose';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { agentMeta } from '~/trpc/agentMeta';
@@ -65,6 +66,33 @@ const updateDealProcedure = t.procedure
     });
   });
 
+// Agent-facing reads are ALWAYS bounded. An unbounded find serializes the
+// whole deals collection (observed 2026-08-20: an agent's `deal.find {}` call
+// over 1.27M deals crash-looped the service — exit 139 — taking every
+// subsequent agent call down with it). Defaults also keep a full-document
+// page inside the 64KB agent-tools response budget.
+const AGENT_FIND_DEFAULT_LIMIT = 20;
+const AGENT_FIND_MAX_LIMIT = 100;
+
+// Strict input objects: unknown top-level keys are rejected by name instead
+// of being silently treated as document filters (an invented "arg"/"query"
+// wrapper used to match 0 records and the agent reported "no data" as fact).
+const dealFindInput = z
+  .object({
+    query: z.record(z.unknown()).optional(),
+    skip: z.number().int().min(0).optional(),
+    limit: z.number().int().min(1).optional(),
+    sort: z.record(z.unknown()).optional(),
+    fields: z.array(z.string()).optional(),
+  })
+  .strict();
+
+const dealCountInput = z
+  .object({
+    filter: z.record(z.unknown()).optional(),
+  })
+  .strict();
+
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure
@@ -83,24 +111,29 @@ export const dealTrpcRouter = t.router({
     find: t.procedure
       .meta(
         agentMeta(
-          'Search deals with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Pass a plain filter object without query to match directly. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
+          'Search deals: { query: {...}, skip?, limit?, sort?, fields? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Only the listed fields are accepted. Results are always bounded: limit defaults to 20 and is capped at 100 — paginate with skip, and pass fields to project only the attributes you need. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
           { module: 'deal', action: 'showDeals' },
         ),
       )
-      .input(z.any())
+      .input(dealFindInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
+        const { query = {}, skip = 0, limit, sort = {}, fields } = input;
 
-        const { query, skip, limit, sort = {} } = input;
+        const boundedLimit = Math.min(
+          limit ?? AGENT_FIND_DEFAULT_LIMIT,
+          AGENT_FIND_MAX_LIMIT,
+        );
+        const projection = fields?.length
+          ? Object.fromEntries(fields.map((field) => [field, 1]))
+          : undefined;
 
-        if (!query) {
-          return await models.Deals.find(input).lean();
-        }
-
-        return await models.Deals.find(query)
-          .skip(skip || 0)
-          .limit(limit || 0)
-          .sort(sort)
+        return await models.Deals.find(query, projection)
+          .skip(skip)
+          .limit(boundedLimit)
+          // Sort directions arrive as plain JSON; mongoose validates the
+          // values at query time (external-library boundary cast).
+          .sort(sort as Record<string, SortOrder>)
           .lean();
       }),
 
@@ -113,15 +146,15 @@ export const dealTrpcRouter = t.router({
     count: t.procedure
       .meta(
         agentMeta(
-          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
+          'Count deals matching a MongoDB-style filter: { filter: {...} }, e.g. { filter: { stageId: "..." } }; {} counts every deal. Use for "how many deals ..." questions instead of deal.find.',
           { module: 'deal', action: 'showDeals' },
         ),
       )
-      .input(z.any())
+      .input(dealCountInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return await models.Deals.find(input).countDocuments();
+        return await models.Deals.find(input.filter ?? {}).countDocuments();
       }),
 
     getLink: t.procedure
