@@ -41,25 +41,11 @@ const decodeOffsets = (cursor?: string): number[] => {
 const encodeOffsets = (offsets: number[]): string =>
   Buffer.from(JSON.stringify({ offsets })).toString('base64');
 
-const paginateDataSources = async (
-  sources: TDataSource[],
-  params: TQueryParams,
-) => {
-  const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
-  const sourceCount = sources.length;
-  const offsets = decodeOffsets(params.cursor);
-  while (offsets.length < sourceCount) {
-    offsets.push(0);
-  }
-
-  const perSource = Math.ceil((limit + 1) / sourceCount);
-  const batches = await Promise.all(
-    sources.map((source, index) => source.fetch(offsets[index], perSource)),
-  );
-
-  const counts = await Promise.all(sources.map((source) => source.count()));
-  const totalCount = counts.reduce((sum, count) => sum + count, 0);
-
+const mergeRoundRobin = (
+  batches: TGlobalSearchItem[][],
+  sourceCount: number,
+  limit: number,
+): TGlobalSearchItem[] => {
   const merged: TGlobalSearchItem[] = [];
   const position = new Array(sourceCount).fill(0);
 
@@ -82,6 +68,30 @@ const paginateDataSources = async (
       break;
     }
   }
+
+  return merged;
+};
+
+const paginateDataSources = async (
+  sources: TDataSource[],
+  params: TQueryParams,
+) => {
+  const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
+  const sourceCount = sources.length;
+  const offsets = decodeOffsets(params.cursor);
+  while (offsets.length < sourceCount) {
+    offsets.push(0);
+  }
+
+  const perSource = Math.ceil((limit + 1) / sourceCount);
+  const batches = await Promise.all(
+    sources.map((source, index) => source.fetch(offsets[index], perSource)),
+  );
+
+  const counts = await Promise.all(sources.map((source) => source.count()));
+  const totalCount = counts.reduce((sum, count) => sum + count, 0);
+
+  const merged = mergeRoundRobin(batches, sourceCount, limit);
 
   const nextOffsets = offsets.map((offset, index) => offset + batches[index].length);
   const hasNextPage =

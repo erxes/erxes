@@ -7,7 +7,7 @@ import {
 } from '@/search/constants/globalSearch';
 
 const ALIAS_PATTERN = /^gs_[a-z0-9]+_[a-z0-9_]+$/;
-const VARIABLE_PATTERN = /\$([A-Za-z_][A-Za-z0-9_]*)/g;
+const VARIABLE_PATTERN = /\$([A-Za-z_]\w*)/g;
 
 const VARIABLE_TYPE_DEFS: Record<string, string> = {
   searchValue: 'String!',
@@ -28,7 +28,7 @@ const collectUsedVariables = (selections: TSearchSelection[]): string[] => {
     }
   }
 
-  return [...used].sort();
+  return [...used].sort((a, b) => a.localeCompare(b));
 };
 
 const buildVariableDefs = (selections: TSearchSelection[]): string =>

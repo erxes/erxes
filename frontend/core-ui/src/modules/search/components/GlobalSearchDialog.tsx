@@ -95,6 +95,7 @@ const GlobalSearchResults = ({
   const isAll = category === 'all';
   const isNavCategory = category === 'navigation';
   const isContentCategory = CONTENT_CATEGORIES.has(category);
+  const contentScopeActive = isAll || isContentCategory;
   const scopedContentGroups = visibleGroups.filter(
     (group) => isAll || group.category === category,
   );
@@ -112,26 +113,21 @@ const GlobalSearchResults = ({
     ? Math.min(pluginItemCount, GLOBAL_SEARCH_PREVIEW_LIMIT)
     : pluginItemCount;
   const navigationItems = isNavCategory || isAll ? goToItems : [];
+  const otherItemCount = otherContentGroups.reduce(
+    (total, group) => total + group.items.length,
+    0,
+  );
+  const visibleOtherCount = isAll
+    ? Math.min(otherItemCount, GLOBAL_SEARCH_PREVIEW_LIMIT)
+    : otherItemCount;
   const visibleItemCount =
-    navigationItems.length +
-    visiblePluginCount +
-    otherContentGroups.reduce(
-      (total, group) =>
-        total +
-        Math.min(
-          group.items.length,
-          isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : Number.MAX_SAFE_INTEGER,
-        ),
-      0,
-    );
+    navigationItems.length + visiblePluginCount + visibleOtherCount;
   const waitingForContent =
-    contentSearchReady && contentLoading && (isAll || isContentCategory);
+    contentSearchReady && contentLoading && contentScopeActive;
   const needsMoreCharacters =
-    !contentSearchReady &&
-    visibleItemCount === 0 &&
-    (isAll || isContentCategory);
+    !contentSearchReady && visibleItemCount === 0 && contentScopeActive;
   const showFailure =
-    contentFailure && visibleItemCount === 0 && (isAll || isContentCategory);
+    contentFailure && visibleItemCount === 0 && contentScopeActive;
   const showEmpty =
     visibleItemCount === 0 &&
     !waitingForContent &&

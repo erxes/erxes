@@ -501,56 +501,54 @@ export const generateFilter = async (
           { userId: { $in: uqinueCheckUserIds } },
         ],
       });
-    } else {
-      if (
-        (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
-        !isEligibleSeeAllCards
-      ) {
-        let includeCheckUserIds: string[] = [];
+    } else if (
+      (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
+      !isEligibleSeeAllCards
+    ) {
+      let includeCheckUserIds: string[] = [];
 
-        if (pipeline.isCheckDepartment) {
-          const userDepartmentIds = user?.departmentIds || [];
-          const commonIds = userDepartmentIds.filter((id) =>
-            pipelineDepartmentIds.includes(id),
-          );
+      if (pipeline.isCheckDepartment) {
+        const userDepartmentIds = user?.departmentIds || [];
+        const commonIds = userDepartmentIds.filter((id) =>
+          pipelineDepartmentIds.includes(id),
+        );
 
-          const otherDepartmentUsers = await sendTRPCMessage({
-            subdomain,
+        const otherDepartmentUsers = await sendTRPCMessage({
+          subdomain,
 
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'find',
-            input: {
-              query: { departmentIds: { $in: commonIds } },
-            },
-            defaultValue: [],
-          });
+          pluginName: 'core',
+          method: 'query',
+          module: 'users',
+          action: 'find',
+          input: {
+            query: { departmentIds: { $in: commonIds } },
+          },
+          defaultValue: [],
+        });
 
-          for (const departmentUser of otherDepartmentUsers) {
-            includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
-          }
-
-          if (
-            pipelineDepartmentIds.filter((departmentId) =>
-              userDepartmentIds.includes(departmentId),
-            ).length
-          ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
-          }
+        for (const departmentUser of otherDepartmentUsers) {
+          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
         }
 
-        const uqinueCheckUserIds = [
-          ...new Set(includeCheckUserIds.concat(userId)),
-        ];
-
-        Object.assign(filter, {
-          $or: [
-            { assignedUserIds: { $in: uqinueCheckUserIds } },
-            { userId: { $in: uqinueCheckUserIds } },
-          ],
-        });
+        if (
+          pipelineDepartmentIds.filter((departmentId) =>
+            userDepartmentIds.includes(departmentId),
+          ).length
+        ) {
+          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
+        }
       }
+
+      const uqinueCheckUserIds = [
+        ...new Set(includeCheckUserIds.concat(userId)),
+      ];
+
+      Object.assign(filter, {
+        $or: [
+          { assignedUserIds: { $in: uqinueCheckUserIds } },
+          { userId: { $in: uqinueCheckUserIds } },
+        ],
+      });
     }
   }
 
