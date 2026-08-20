@@ -233,12 +233,13 @@ export const foldLegsIntoCalls = (
   return [...calls.values()];
 };
 
+export const NO_QUEUE = '__no_queue__';
+
 export const summariseQueueStats = (calls: ICall[]) => {
   const byQueue = new Map<string, ICall[]>();
 
   for (const call of calls) {
-    const queue = call.queue;
-    if (!queue) continue;
+    const queue = call.queue ?? NO_QUEUE;
     byQueue.set(queue, [...(byQueue.get(queue) ?? []), call]);
   }
 
@@ -267,7 +268,11 @@ export const summariseQueueStats = (calls: ICall[]) => {
         averageTalkTime: average(totalTalkTime, answered.length),
       };
     })
-    .sort((a, b) => a.queue.localeCompare(b.queue));
+    .sort((a, b) => {
+      if (a.queue === NO_QUEUE) return 1;
+      if (b.queue === NO_QUEUE) return -1;
+      return a.queue.localeCompare(b.queue);
+    });
 };
 
 export const withForwardedCallKeys = (legs: ICdrLeg[]): ICdrLeg[] => {
@@ -480,10 +485,39 @@ export const buildVolumeSeries = (calls: ICall[]) => {
       incoming: dayCalls.filter((call) => call.direction === 'Inbound').length,
       outgoing: dayCalls.filter((call) => call.direction === 'Outbound').length,
       answered: dayCalls.filter((call) => call.isAnswered).length,
+      noAnswer: dayCalls.filter((call) => !call.isAnswered).length,
       abandoned: dayCalls.filter(
         (call) => call.direction === 'Inbound' && !call.isAnswered,
       ).length,
     }));
+};
+
+export const buildDailyHourMatrix = (calls: ICall[]) => {
+  const cells = new Map<string, { day: Date; hour: number; calls: ICall[] }>();
+
+  for (const call of calls) {
+    if (!call.start) continue;
+    const day = pbxDayStart(call.start);
+    const { hour } = pbxDayAndHour(call.start);
+    const key = `${day.getTime()}:${hour}`;
+    const cell = cells.get(key) ?? { day, hour, calls: [] };
+    cell.calls.push(call);
+    cells.set(key, cell);
+  }
+
+  return [...cells.values()]
+    .sort((a, b) => a.day.getTime() - b.day.getTime() || a.hour - b.hour)
+    .map(({ day, hour, calls: cellCalls }) => {
+      const answered = cellCalls.filter((call) => call.isAnswered).length;
+
+      return {
+        day,
+        hour,
+        total: cellCalls.length,
+        answered,
+        noAnswer: cellCalls.length - answered,
+      };
+    });
 };
 
 const CARRIER_BY_PREFIX: Record<string, string> = {
@@ -554,6 +588,7 @@ export const buildHeatmap = (calls: ICall[]) => {
       hour,
       total: cellCalls.length,
       answered,
+      noAnswer: cellCalls.length - answered,
       answerRate: percentage(answered, cellCalls.length),
     };
   });

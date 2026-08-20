@@ -208,6 +208,13 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
   `CallCdrs` through `buildCdrFilter` and fold legs into calls before counting.
   They return nothing in a deployment whose PBX does not post CDRs.
+  `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
+  bucket that no human answered, in both directions — unlike
+  `CallVolumePoint.abandoned`, which stays inbound-only.
+- GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
+  direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
+  day × hour** instead of day-of-week, for the spreadsheet export of the report.
+  Only hours that carry calls produce a row; absent buckets mean zero.
 - HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
   (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
   mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns
@@ -488,6 +495,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   which is the permission guard `callGetQueueStats` used to carry alone. Keep
   that check in the helper so a caller cannot reach another integration's queue
   by pairing it with its own `integrationId`.
+- Queue cards must reconcile with the KPI total. `callGetQueueStats` groups the
+  scoped calls by whatever queue their own legs carry and buckets the ones that
+  never entered a queue under `NO_QUEUE` (`__no_queue__`); it must never drop a
+  call because its queue is missing from `CallIntegrations.queues`. Queue 6500
+  serves two DIDs on the reference deployment, so that whitelist silently hid 18
+  of integration 11365555's 51 August calls from the Queues tab while every
+  other tab still counted them. `CallIntegrations.queues` stays the filter list
+  and the permission guard, not a display filter.
+- Outbound calls are dropped whenever a specific queue is selected —
+  `wantsOutboundCalls` in `callQueries.ts` decides this once for
+  `callKpiScorecard`, `callVolumeSeries`, `callGetAgentStats`, and
+  `callHistoryList`. An outbound leg never carries `QUEUE[..]`, so the outbound
+  branch cannot be narrowed by the queue regex the inbound branch uses; before
+  this rule the whole integration's outbound calls were added to a queue-scoped
+  count and the KPI read 21 next to a 10-call queue card.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -808,26 +830,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-20` — Agent-callable tRPC tools
-
-- **Summary:** Read-only inbox conversation/message, integration, and form
-  submission tRPC procedures — plus the well-scoped
-  `inbox.conversations.changeStatus` action — are now exposed to AI agents
-  through the platform agent-tools manifest, each gated by a frontline
-  permission the plugin registers.
-- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
-  core-api), `src/modules/inbox/trpc/inbox.ts`,
-  `src/modules/form/trpc/form.ts`.
-- **Contracts changed:** New agent-tool manifest entries
-  `inbox.conversations.findOne`, `inbox.conversations.count`,
-  `inbox.getConversationsList`, `inbox.conversations.changeStatus`,
-  `inbox.conversationMessages.findOne`, `inbox.conversationMessages.find`,
-  `inbox.integrations.findOne`, `inbox.integrations.find`,
-  `inbox.integrations.count`, `inbox.getIntegrationKinds`, and
-  `form.submissionsByConversation`, gated by `showConversations`,
-  `conversationsChangeStatus`, `showIntegrations`, and `showFormSubmissions`.
-  No existing GraphQL or tRPC behavior changed.
-
 ### `2026-08-20` — The agent who answered a call is assigned to it
 
 - **Summary:** A call conversation stayed unassigned because the CDR path
@@ -978,3 +980,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None. Values move: calls that entered an IVR and were
   not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
   which also changes the conversation label `getConversationContent` renders.
+
+### `2026-08-17` — Messenger ticket configs tolerate deleted references
+
+- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
+  selection when one id is gone — it persists the configs that still exist and
+  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
+  id out of every integration and returns the removed document.
+- **Affected areas:**
+  `src/modules/inbox/db/models/Integrations.ts`,
+  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
+- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
+  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
+  returns the `TicketConfig` its schema already declared instead of `null`.
