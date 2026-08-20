@@ -1,5 +1,66 @@
 
 
+## [3.0.88](https://github.com/erxes/erxes/compare/3.0.87...3.0.88) (2026-08-19)
+
+
+### Bug Fixes
+
+* deal filter by pipeline config ([#9074](https://github.com/erxes/erxes/issues/9074)) ([edfa087](https://github.com/erxes/erxes/commit/edfa087e6f20ac55f5ff5a23e671fcd4813239aa))
+* **payment:** handle expired TDB invoice status ([182beda](https://github.com/erxes/erxes/commit/182bedaa9e418c72b87427de10474315d4e0ff9d))
+
+## [3.0.87](https://github.com/erxes/erxes/compare/3.0.86...3.0.87) (2026-08-19)
+
+
+### Bug Fixes
+
+* **frontline:** collapse duplicate Facebook posts into one report row ([8647e33](https://github.com/erxes/erxes/commit/8647e3357f2e4abadca11f5bc55dfd260378e3fc))
+
+
+### Features
+
+* **core:** expose safe tRPC procedures as agent-callable tools ([#9056](https://github.com/erxes/erxes/issues/9056)) ([5b76c13](https://github.com/erxes/erxes/commit/5b76c13d3e62a025765cb3b69b3684ce6f3f49d7))
+* handle Toki payments in MS Dynamics sync  ([5e1c7de](https://github.com/erxes/erxes/commit/5e1c7dea2408d81697ec37b195743fbd7d6c8aa8))
+
+## [3.0.86](https://github.com/erxes/erxes/compare/3.0.85...3.0.86) (2026-08-18)
+
+
+### Features
+
+* **frontline:** search Facebook posts and repair post timestamps ([b73a959](https://github.com/erxes/erxes/commit/b73a9597703ba18fd0efc9c411ee74dda3ed8e99))
+
+## [3.0.85](https://github.com/erxes/erxes/compare/3.0.84...3.0.85) (2026-08-18)
+
+
+### Bug Fixes
+
+* **frontline:** surface integration health errors in the UI ([04a0815](https://github.com/erxes/erxes/commit/04a081599105b0c894e9e96fb72f60ab27252407))
+
+
+### Features
+
+* **frontline:** add Facebook report board with Meta engagement sync  ([4a6a68c](https://github.com/erxes/erxes/commit/4a6a68c0392f962ead600506f654f7c1388aa5e9))
+
+## [3.0.84](https://github.com/erxes/erxes/compare/3.0.83...3.0.84) (2026-08-18)
+
+
+### Bug Fixes
+
+* **core:** remove phone number plus prefix  ([4167bb2](https://github.com/erxes/erxes/commit/4167bb2944d8f70383a76d6d6bb3bc3094060d53))
+* frontline report improvement ([#9042](https://github.com/erxes/erxes/issues/9042)) ([cfbc5c0](https://github.com/erxes/erxes/commit/cfbc5c06fd7f261102cad1861bd99908463b5293))
+* **frontline:** load next conversation page on scroll ([#9035](https://github.com/erxes/erxes/issues/9035)) ([b60e039](https://github.com/erxes/erxes/commit/b60e039b55df104d76f823cc10608d10694216d3))
+* **frontline:** stop IVR from swallowing every call outcome ([2aadf6c](https://github.com/erxes/erxes/commit/2aadf6c24b97f1d8e676aa0332382f9c5a8c52f7))
+* products filter by propertiesData ([719b319](https://github.com/erxes/erxes/commit/719b31945b4f662ea4146e7dbd60ca3f5aeb8fbf))
+* update startWaitingDate to use z.coerce.date() for proper date handling ([6c47b1b](https://github.com/erxes/erxes/commit/6c47b1b490e85bdcec33303dbc41c7b176a921e0))
+
+
+### Features
+
+* add automation canvas edge type options and lock action components ([fcf07a7](https://github.com/erxes/erxes/commit/fcf07a7e618bf3f252fdc135f74793910bf3b6d9))
+* **erxes-api-shared:** auto-derived agent capability endpoints ([#9030](https://github.com/erxes/erxes/issues/9030)) ([21b0966](https://github.com/erxes/erxes/commit/21b096656e73e63b3a6875a176eb32e7d189b067))
+* **navigation:** add explicit browser-style tabs ([#9033](https://github.com/erxes/erxes/issues/9033)) ([81c6ffc](https://github.com/erxes/erxes/commit/81c6ffc2f35364f676a5520d38fb5133e4bc5212))
+* **saas-migrations:** migrate product tags to a properties field ([b956f15](https://github.com/erxes/erxes/commit/b956f150aa3a4e6ff6d657190e87645dee26f160))
+* **saas-migrations:** migrate product tags to a properties field ([0c7eec0](https://github.com/erxes/erxes/commit/0c7eec0eccaa80c99255e8f84d8ed06f559ba033))
+
 ## [3.0.83](https://github.com/erxes/erxes/compare/3.0.82...3.0.83) (2026-08-17)
 
 

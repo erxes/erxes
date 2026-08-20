@@ -6,7 +6,6 @@ import {
   SocialLinks,
 } from '@/integrations/erxes-messenger/types/EMStateTypes';
 import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
-import { ScheduleDay } from '@/integrations/erxes-messenger/constants/emHoursSchema';
 import { z } from 'zod';
 
 /**
@@ -53,10 +52,12 @@ export const createDefaultOnlineHours = () => {
   }, {} as Record<Weekday, { from?: string; to?: string; work?: boolean }>);
 };
 
-const VALID_SCHEDULE_KEYS = new Set<string>([
-  ...Object.values(Weekday),
-  ...Object.values(ScheduleDay),
-]);
+/**
+ * Only concrete weekdays are persisted. The `everyday`/`weekday`/`weekend`
+ * group keys exist purely as UI quick-selectors and are derived from the
+ * individual days, so legacy group entries are dropped on load.
+ */
+const VALID_SCHEDULE_KEYS = new Set<string>(Object.values(Weekday));
 
 export const processOnlineHours = (
   onlineHours?: Exclude<

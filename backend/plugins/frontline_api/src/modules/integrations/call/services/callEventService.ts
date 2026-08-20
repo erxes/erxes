@@ -105,8 +105,20 @@ const ensureConversation = async (
   subdomain: string,
   session: any,
   integration: any,
+  assignedUserId?: string,
 ) => {
-  if (session.conversationId) return session.conversationId;
+  if (session.conversationId) {
+    if (assignedUserId) {
+      await createOrUpdateErxesConversation(subdomain, {
+        conversationId: session.conversationId,
+        integrationId: integration.inboxId,
+        content: session.callType || 'incoming',
+        updatedAt: new Date(),
+        userId: assignedUserId,
+      });
+    }
+    return session.conversationId;
+  }
 
   let customerId = session.customerId;
   if (!customerId) {
@@ -124,6 +136,7 @@ const ensureConversation = async (
     conversationId: '',
     updatedAt: new Date(),
     owner: '',
+    userId: assignedUserId,
   });
 
   if (apiResponse?.status !== 'success' || !apiResponse?.data?._id) {
@@ -261,7 +274,13 @@ export const handleCallEvent = async (
           uniqueid: ev.uniqueid,
         });
         try {
-          await ensureConversation(models, subdomain, session, integration);
+          await ensureConversation(
+            models,
+            subdomain,
+            session,
+            integration,
+            userId,
+          );
         } catch (e) {
           debugCall(
             `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
