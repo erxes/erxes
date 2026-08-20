@@ -2,10 +2,40 @@ import {
   TGlobalSearchCategory,
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
+  TGlobalSearchSortOrder,
+  TGlobalSearchSubcategoryOption,
   TNavigationCategoryCounts,
   TSearchProviderCategory,
 } from '@/search/types/GlobalSearch';
 import { TSearchResultItem } from 'erxes-ui';
+
+const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+
+const getObjectIdTimestamp = (id: string): number | null =>
+  OBJECT_ID_PATTERN.test(id) ? Number.parseInt(id.slice(0, 8), 16) : null;
+
+export const compareGlobalSearchItems = (
+  left: TSearchResultItem,
+  right: TSearchResultItem,
+  order: TGlobalSearchSortOrder,
+): number => {
+  const leftTimestamp = getObjectIdTimestamp(left.id);
+  const rightTimestamp = getObjectIdTimestamp(right.id);
+
+  if (leftTimestamp === null || rightTimestamp === null) return 0;
+
+  const difference = leftTimestamp - rightTimestamp;
+
+  return order === 'oldest' ? difference : -difference;
+};
+
+export const sortGlobalSearchItems = <T extends TSearchResultItem>(
+  items: T[],
+  order: TGlobalSearchSortOrder,
+): T[] =>
+  [...items].sort((left, right) =>
+    compareGlobalSearchItems(left, right, order),
+  );
 
 const toSingular = (value: string): string =>
   value.length > 1 && value.endsWith('s') && !value.endsWith('ss')
@@ -29,7 +59,7 @@ export const isSourceNameMatch = (
 };
 
 export type TSourceQualifier = {
-  providerKey: string;
+  providerKeys: string[];
   query: string;
 };
 
@@ -38,7 +68,12 @@ export type TSourceQualifier = {
 // Falls back to null so the caller can apply its exact source-name behavior.
 export const parseSourceQualifier = (
   searchValue: string,
-  providers: { key: string; label?: string | null }[],
+  providers: {
+    key: string;
+    label?: string | null;
+    subcategory?: string | null;
+    subcategoryLabel?: string | null;
+  }[],
 ): TSourceQualifier | null => {
   const term = searchValue.trim().toLowerCase();
 
@@ -46,16 +81,30 @@ export const parseSourceQualifier = (
     return null;
   }
 
-  for (const provider of providers) {
-    const label = (provider.label ?? '').trim().toLowerCase();
+  const qualifiers = new Map<string, string[]>();
 
+  for (const provider of providers) {
+    for (const candidate of [
+      provider.label,
+      provider.subcategory,
+      provider.subcategoryLabel,
+    ]) {
+      const label = (candidate ?? '').trim().toLowerCase();
+
+      if (!label) continue;
+      const keys = qualifiers.get(label) ?? [];
+      if (!keys.includes(provider.key)) keys.push(provider.key);
+      qualifiers.set(label, keys);
+    }
+  }
+
+  for (const [label, providerKeys] of qualifiers) {
     if (!label) {
       continue;
     }
 
     const prefix = [label, toSingular(label)].find(
-      (candidate) =>
-        candidate.length > 0 && term.startsWith(`${candidate} `),
+      (candidate) => candidate.length > 0 && term.startsWith(`${candidate} `),
     );
 
     if (!prefix) {
@@ -65,11 +114,38 @@ export const parseSourceQualifier = (
     const query = searchValue.slice(prefix.length).trim();
 
     if (query) {
-      return { providerKey: provider.key, query };
+      return { providerKeys, query };
     }
   }
 
   return null;
+};
+
+export const buildGlobalSearchSubcategories = (
+  category: TGlobalSearchCategory,
+  groups: TGlobalSearchGroup[],
+): TGlobalSearchSubcategoryOption[] => {
+  if (category !== 'plugins' && category !== 'core-modules') return [];
+
+  const counts = new Map<string, TGlobalSearchSubcategoryOption>();
+  for (const group of getAvailableContentGroups(groups)) {
+    if (group.category !== category) continue;
+    const current = counts.get(group.subcategory);
+    counts.set(group.subcategory, {
+      key: group.subcategory,
+      label: group.subcategoryLabel,
+      count: (current?.count ?? 0) + group.totalCount,
+    });
+  }
+
+  const options = [...counts.values()].sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
+  const total = options.reduce((sum, option) => sum + option.count, 0);
+
+  return total > 0
+    ? [{ key: 'all', label: 'All', count: total }, ...options]
+    : [];
 };
 
 export const appendUniqueSearchItems = (

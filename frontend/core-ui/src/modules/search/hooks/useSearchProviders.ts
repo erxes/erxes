@@ -9,12 +9,15 @@ import { TSearchProviderCategory } from '@/search/types/GlobalSearch';
 const MAX_QUARANTINE_RETRIES = 3;
 
 const CORE_PROVIDER_CATEGORIES: Record<string, TSearchProviderCategory> = {
-  'core-modules': 'core-modules',
+  'core-contacts': 'core-modules',
+  'core-products': 'core-modules',
   settings: 'settings',
 };
 
 export type TSearchProviderWithCategory = ISearchProvider & {
   category: TSearchProviderCategory;
+  subcategory: string;
+  subcategoryLabel: string;
 };
 
 const resolveProviderCategory = (key: string): TSearchProviderCategory =>
@@ -29,24 +32,46 @@ export const useSearchProviders = () => {
   const quarantinedFieldsRef = useRef<Set<string>>(new Set());
 
   const providers = useMemo(() => {
-    const fromPlugins = Object.values(pluginsConfig ?? {}).flatMap(
-      (config): ISearchProvider[] =>
-        Array.isArray(config?.searchProviders) ? config.searchProviders : [],
+    const pluginProviders = Object.values(pluginsConfig ?? {}).flatMap(
+      (config) =>
+        (Array.isArray(config?.searchProviders)
+          ? config.searchProviders
+          : []
+        ).map((provider) => ({
+          provider,
+          subcategory: config.name,
+          subcategoryLabel:
+            config.name.charAt(0).toUpperCase() + config.name.slice(1),
+        })),
     );
 
     const validated = validateSearchProviders([
       ...CORE_SEARCH_PROVIDERS,
-      ...fromPlugins,
+      ...pluginProviders.map(({ provider }) => provider),
     ]);
 
     return validated
-      .map((provider) => ({
-        ...provider,
-        category: resolveProviderCategory(provider.key),
-        selections: provider.selections.filter(
-          (selection) => !quarantinedFields.has(selection.field),
-        ),
-      }))
+      .map((provider) => {
+        const pluginProvider = pluginProviders.find(
+          ({ provider: candidate }) => candidate.key === provider.key,
+        );
+        const category = resolveProviderCategory(provider.key);
+        const coreSubcategory = provider.key.startsWith('core-')
+          ? provider.key.slice('core-'.length)
+          : provider.key;
+
+        return {
+          ...provider,
+          category,
+          subcategory: pluginProvider?.subcategory ?? coreSubcategory,
+          subcategoryLabel:
+            pluginProvider?.subcategoryLabel ??
+            coreSubcategory.charAt(0).toUpperCase() + coreSubcategory.slice(1),
+          selections: provider.selections.filter(
+            (selection) => !quarantinedFields.has(selection.field),
+          ),
+        };
+      })
       .filter((provider) => provider.selections.length > 0)
       .sort(
         (a, b) =>

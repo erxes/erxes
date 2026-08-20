@@ -26,7 +26,7 @@ export const useDealSearch = (search: string) => {
         noSkipArchive: true,
         limit: DEALS_PER_PAGE,
         direction: 'forward',
-        orderBy: { _id: 1 },
+        orderBy: { createdAt: -1 },
       },
       skip: search.length < 2,
       fetchPolicy: 'cache-and-network',

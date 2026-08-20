@@ -24,7 +24,7 @@ const transactionsSearchProvider = defineSearchProvider<TTransactionNode>({
     {
       alias: 'gs_accounting_transactions',
       field: 'accTransactionsMain',
-      args: 'searchValue: $searchValue, limit: $limit',
+      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
       body: '{ list { _id number parentId originId description } totalCount }',
     },
   ],

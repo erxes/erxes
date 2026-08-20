@@ -1,11 +1,10 @@
 import { IconX } from '@tabler/icons-react';
-import { Button, Command, Dialog, Kbd, Tabs } from 'erxes-ui';
+import { Button, Command, Dialog, Kbd, Select, Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
 import {
   GlobalSearchPluginsGroup,
-  GlobalSearchProviderGroup,
   NavigationSearchGroup,
 } from '@/search/components/GlobalSearchGroup';
 import {
@@ -20,6 +19,8 @@ import {
   TGlobalSearchCategory,
   TGlobalSearchCategoryOption,
   TGlobalSearchGroup,
+  TGlobalSearchSortOrder,
+  TGlobalSearchSubcategoryOption,
   TNavigationSearchItem,
 } from '@/search/types/GlobalSearch';
 
@@ -51,6 +52,7 @@ const showMoreHandler = (
 
 const getResultsState = (
   category: TGlobalSearchCategory,
+  subcategory: string,
   groups: TGlobalSearchGroup[],
   goToItems: TNavigationSearchItem[],
   contentSearchReady: boolean,
@@ -65,7 +67,9 @@ const getResultsState = (
   const isContentCategory = CONTENT_CATEGORIES.has(category);
   const contentScopeActive = isAll || isContentCategory;
   const scopedContentGroups = visibleGroups.filter(
-    (group) => isAll || group.category === category,
+    (group) =>
+      (isAll || group.category === category) &&
+      (subcategory === 'all' || group.subcategory === subcategory),
   );
   const pluginGroups = scopedContentGroups.filter(
     (group) => group.category === 'plugins',
@@ -113,6 +117,7 @@ const getResultsState = (
 
 const GlobalSearchResults = ({
   category,
+  subcategory,
   searchValue,
   contentSearchReady,
   contentLoading,
@@ -125,8 +130,10 @@ const GlobalSearchResults = ({
   onNavigationSelect,
   onLoadMore,
   onRetry,
+  sortOrder,
 }: {
   category: TGlobalSearchCategory;
+  subcategory: string;
   searchValue: string;
   contentSearchReady: boolean;
   contentLoading: boolean;
@@ -139,6 +146,7 @@ const GlobalSearchResults = ({
   onNavigationSelect: (path: string, activityId?: string) => void;
   onLoadMore: (providerKey: string) => void;
   onRetry: () => void;
+  sortOrder: TGlobalSearchSortOrder;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
   const isSearching = searchValue.length > 0;
@@ -147,13 +155,14 @@ const GlobalSearchResults = ({
     return (
       <Command.List
         key={category}
-        className="styled-scroll m-0 min-h-32 max-h-[min(60vh,24rem)] p-1"
+        className="styled-scroll m-0 min-h-32 max-h-[min(70vh,36rem)] p-1"
       >
         <NavigationSearchGroup
           actionLabel={t('open-plugin', 'Open plugin')}
           heading={t('quick-access', 'Quick access')}
           items={quickAccessItems}
           searchValue=""
+          sortOrder={sortOrder}
           onSelect={onNavigationSelect}
         />
         {quickAccessItems.length === 0 && <GlobalSearchEmpty />}
@@ -174,17 +183,31 @@ const GlobalSearchResults = ({
     showEmpty,
   } = getResultsState(
     category,
+    subcategory,
     groups,
     goToItems,
     contentSearchReady,
     contentLoading,
     contentFailure,
   );
+  const otherCategoryGroups = [
+    ...new Set(otherContentGroups.map((group) => group.category)),
+  ].map((groupCategory) => ({
+    category: groupCategory,
+    groups: otherContentGroups.filter(
+      (group) => group.category === groupCategory,
+    ),
+  }));
+  const pluginHasMore = pluginGroups.some(
+    (group) =>
+      group.pageInfo.hasNextPage ||
+      group.totalCount > GLOBAL_SEARCH_PREVIEW_LIMIT,
+  );
 
   return (
     <Command.List
       key={category}
-      className="styled-scroll m-0 min-h-32 max-h-[min(60vh,24rem)] p-1"
+      className="styled-scroll m-0 min-h-32 max-h-[min(70vh,36rem)] p-1"
     >
       {navigationItems.length > 0 && (
         <NavigationSearchGroup
@@ -193,6 +216,7 @@ const GlobalSearchResults = ({
           items={navigationItems}
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
+          sortOrder={sortOrder}
           onSelect={onNavigationSelect}
           onShowMore={showMoreHandler(
             isAll && navigationItems.length > GLOBAL_SEARCH_PREVIEW_LIMIT,
@@ -206,38 +230,61 @@ const GlobalSearchResults = ({
         <GlobalSearchPluginsGroup
           actionLabel={t('open-result', 'Open result')}
           groups={pluginGroups}
-          heading={isAll ? t('plugins', 'Plugins') : undefined}
+          heading={
+            subcategory === 'all'
+              ? t('plugins', 'Plugins')
+              : pluginGroups[0]?.subcategoryLabel
+          }
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
-          onLoadMore={onLoadMore}
+          sortOrder={sortOrder}
+          onLoadMore={isAll ? undefined : onLoadMore}
           onSelect={onContentSelect}
           onShowMore={showMoreHandler(
-            isAll && pluginItemCount > GLOBAL_SEARCH_PREVIEW_LIMIT,
+            isAll &&
+              (pluginItemCount > GLOBAL_SEARCH_PREVIEW_LIMIT || pluginHasMore),
             'plugins',
             onCategoryChange,
           )}
         />
       )}
 
-      {otherContentGroups.map((group) => (
-        <GlobalSearchProviderGroup
-          key={group.key}
-          actionLabel={t('open-result', 'Open result')}
-          group={group}
-          previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
-          searchValue={searchValue}
-          onSelect={onContentSelect}
-          onLoadMore={() => onLoadMore(group.key)}
-          onShowMore={showMoreHandler(
-            isAll &&
-              (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
-                group.pageInfo.hasNextPage ||
-                (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT),
-            group.category,
-            onCategoryChange,
-          )}
-        />
-      ))}
+      {otherCategoryGroups.map(
+        ({ category: groupCategory, groups: categoryGroups }) => {
+          const itemCount = categoryGroups.reduce(
+            (total, group) => total + group.items.length,
+            0,
+          );
+          const hasMore = categoryGroups.some(
+            (group) =>
+              group.pageInfo.hasNextPage ||
+              group.totalCount > GLOBAL_SEARCH_PREVIEW_LIMIT,
+          );
+
+          return (
+            <GlobalSearchPluginsGroup
+              key={groupCategory}
+              actionLabel={t('open-result', 'Open result')}
+              groups={categoryGroups}
+              heading={
+                subcategory === 'all'
+                  ? t(groupCategory, groupCategory)
+                  : categoryGroups[0]?.subcategoryLabel
+              }
+              previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
+              searchValue={searchValue}
+              sortOrder={sortOrder}
+              onSelect={onContentSelect}
+              onLoadMore={isAll ? undefined : onLoadMore}
+              onShowMore={showMoreHandler(
+                isAll && (itemCount > GLOBAL_SEARCH_PREVIEW_LIMIT || hasMore),
+                groupCategory,
+                onCategoryChange,
+              )}
+            />
+          );
+        },
+      )}
 
       {waitingForContent && visibleItemCount === 0 && <GlobalSearchLoading />}
       {needsMoreCharacters && <GlobalSearchMinimumLength />}
@@ -255,7 +302,10 @@ export const GlobalSearchDialog = ({
   onClear,
   category,
   categories,
+  subcategory,
+  subcategories,
   onCategoryChange,
+  onSubcategoryChange,
   groups,
   goToItems,
   quickAccessItems,
@@ -267,6 +317,8 @@ export const GlobalSearchDialog = ({
   onNavigationSelect,
   onLoadMore,
   onRetry,
+  sortOrder,
+  onSortOrderChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -275,7 +327,10 @@ export const GlobalSearchDialog = ({
   onClear: () => void;
   category: TGlobalSearchCategory;
   categories: TGlobalSearchCategoryOption[];
+  subcategory: string;
+  subcategories: TGlobalSearchSubcategoryOption[];
   onCategoryChange: (category: TGlobalSearchCategory) => void;
+  onSubcategoryChange: (subcategory: string) => void;
   groups: TGlobalSearchGroup[];
   goToItems: TNavigationSearchItem[];
   quickAccessItems: TNavigationSearchItem[];
@@ -287,6 +342,8 @@ export const GlobalSearchDialog = ({
   onNavigationSelect: (path: string, activityId?: string) => void;
   onLoadMore: (providerKey: string) => void;
   onRetry: () => void;
+  sortOrder: TGlobalSearchSortOrder;
+  onSortOrderChange: (order: TGlobalSearchSortOrder) => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'global-search' });
   const isSearching = value.trim().length > 0;
@@ -305,7 +362,7 @@ export const GlobalSearchDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="w-[calc(100vw-2rem)] max-w-2xl gap-0 overflow-hidden border-0 p-0">
+      <Dialog.Content className="w-[calc(100vw-2rem)] max-w-4xl gap-0 overflow-hidden border-0 p-0">
         <Dialog.Title className="sr-only">
           {t('placeholder', 'Search anything')}
         </Dialog.Title>
@@ -348,34 +405,81 @@ export const GlobalSearchDialog = ({
             </div>
           </div>
 
-          <Tabs value={category} onValueChange={onCategoryChange}>
-            <Tabs.List
-              ref={tabsRef}
-              className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b px-2 py-0"
-              variant="underline"
+          <div className="flex items-center border-b">
+            <Tabs
+              className="min-w-0 flex-1"
+              value={category}
+              onValueChange={onCategoryChange}
             >
-              {categories.map((searchCategory) => (
-                <Tabs.Trigger
-                  className="h-8 shrink-0 px-2 text-xs uppercase tracking-wide"
-                  key={searchCategory.key}
-                  value={searchCategory.key}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <SearchCategoryLabel category={searchCategory} />
-                    {searchCategory.count !== undefined &&
-                      searchCategory.count > 0 && (
-                        <span className="rounded bg-muted px-1 text-[10px] font-medium tabular-nums text-muted-foreground">
-                          {searchCategory.count}
-                        </span>
-                      )}
-                  </span>
-                </Tabs.Trigger>
-              ))}
-            </Tabs.List>
-          </Tabs>
+              <Tabs.List
+                ref={tabsRef}
+                className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b-0 px-2 py-0"
+                variant="underline"
+              >
+                {categories.map((searchCategory) => (
+                  <Tabs.Trigger
+                    className="h-8 shrink-0 px-2 text-xs uppercase tracking-wide"
+                    key={searchCategory.key}
+                    value={searchCategory.key}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <SearchCategoryLabel category={searchCategory} />
+                      {searchCategory.count !== undefined &&
+                        searchCategory.count > 0 && (
+                          <span className="rounded bg-muted px-1 text-[10px] font-medium tabular-nums text-muted-foreground">
+                            {searchCategory.count}
+                          </span>
+                        )}
+                    </span>
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+            </Tabs>
+
+            {isSearching && (
+              <Select
+                value={sortOrder}
+                onValueChange={(order) =>
+                  onSortOrderChange(order as TGlobalSearchSortOrder)
+                }
+              >
+                <Select.Trigger className="mr-2 h-7 w-44 shrink-0 text-xs">
+                  <Select.Value />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="newest">
+                    {t('newest-to-oldest', 'Newest to oldest')}
+                  </Select.Item>
+                  <Select.Item value="oldest">
+                    {t('oldest-to-newest', 'Oldest to newest')}
+                  </Select.Item>
+                </Select.Content>
+              </Select>
+            )}
+          </div>
+
+          {subcategories.length > 1 && (
+            <Tabs value={subcategory} onValueChange={onSubcategoryChange}>
+              <Tabs.List className="hide-scroll flex w-full justify-start gap-1 overflow-x-auto border-b px-2 py-1">
+                {subcategories.map((option) => (
+                  <Tabs.Trigger
+                    className="h-7 shrink-0 gap-1.5 px-2 text-xs"
+                    key={option.key}
+                    value={option.key}
+                  >
+                    {option.label}
+                    <span className="rounded bg-muted px-1 text-[10px] tabular-nums text-muted-foreground">
+                      {option.count}
+                    </span>
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+            </Tabs>
+          )}
 
           <GlobalSearchResults
             category={category}
+            subcategory={subcategory}
             contentFailure={contentFailure}
             contentLoading={contentLoading}
             contentSearchReady={contentSearchReady}
@@ -383,6 +487,7 @@ export const GlobalSearchDialog = ({
             groups={groups}
             quickAccessItems={quickAccessItems}
             searchValue={value.trim()}
+            sortOrder={sortOrder}
             onCategoryChange={onCategoryChange}
             onContentSelect={onContentSelect}
             onLoadMore={onLoadMore}

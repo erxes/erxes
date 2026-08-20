@@ -24,6 +24,6 @@ export const types = `
 `;
 
 export const queries = `
-  coreModulesGlobalSearch(searchValue: String, limit: Int, cursor: String, direction: String): CoreModulesGlobalSearchResult
-  settingsGlobalSearch(searchValue: String, limit: Int, cursor: String, direction: String): SettingsGlobalSearchResult
+  coreModulesGlobalSearch(searchValue: String, module: String, limit: Int, cursor: String, direction: String, orderBy: JSON): CoreModulesGlobalSearchResult
+  settingsGlobalSearch(searchValue: String, limit: Int, cursor: String, direction: String, orderBy: JSON): SettingsGlobalSearchResult
 `;

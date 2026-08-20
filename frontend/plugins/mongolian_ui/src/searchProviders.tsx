@@ -22,7 +22,7 @@ const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
     {
       alias: 'gs_mongolian_put_responses',
       field: 'putResponses',
-      args: 'search: $searchValue, limit: $limit',
+      args: 'search: $searchValue, limit: $limit, orderBy: $orderBy',
       body: '{ list { _id number customerName } totalCount }',
     },
   ],
@@ -52,7 +52,7 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
     {
       alias: 'gs_mongolian_exchange_rates',
       field: 'exchangeRatesMain',
-      args: 'searchValue: $searchValue, limit: $limit',
+      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
       body: '{ list { _id mainCurrency rateCurrency rate } totalCount }',
     },
   ],

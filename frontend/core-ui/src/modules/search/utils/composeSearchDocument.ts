@@ -13,6 +13,9 @@ const VARIABLE_TYPE_DEFS: Record<string, string> = {
   searchValue: 'String!',
   limit: 'Int!',
   cursor: 'String',
+  orderBy: 'JSON!',
+  sortDirection: 'Int!',
+  sortField: 'String!',
 };
 
 const collectUsedVariables = (selections: TSearchSelection[]): string[] => {

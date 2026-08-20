@@ -27,7 +27,7 @@ const dealsSearchProvider = defineSearchProvider<TDealNode>({
     {
       alias: 'gs_sales_deals',
       field: 'deals',
-      args: 'search: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      args: 'search: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
       body: '{ list { _id name number boardId pipeline { _id boardId } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
@@ -63,7 +63,7 @@ const posSearchProvider = defineSearchProvider<TPosNode>({
     {
       alias: 'gs_sales_pos',
       field: 'posList',
-      args: 'search: $searchValue, perPage: $limit',
+      args: 'search: $searchValue, perPage: $limit, sortField: $sortField, sortDirection: $sortDirection',
       body: '{ _id name }',
     },
   ],

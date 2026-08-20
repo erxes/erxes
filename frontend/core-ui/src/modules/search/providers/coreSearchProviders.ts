@@ -1,5 +1,9 @@
 import { IconLayoutDashboard, IconSettings } from '@tabler/icons-react';
-import { defineSearchProvider, ISearchProvider, readCursorList } from 'erxes-ui';
+import {
+  defineSearchProvider,
+  ISearchProvider,
+  readCursorList,
+} from 'erxes-ui';
 
 type TCategorySearchNode = {
   id: string;
@@ -29,51 +33,72 @@ const toItem = (node: TCategorySearchNode) => {
     title: node.title,
     description: label
       ? `${label}: ${node.description ?? ''}`.trim()
-      : (node.description ?? undefined),
+      : node.description ?? undefined,
     path: node.path,
   };
 };
 
-export const coreModulesSearchProvider =
+const createCoreModulesSearchProvider = (
+  key: string,
+  label: string,
+  module: 'contacts' | 'products',
+  order: number,
+) =>
   defineSearchProvider<TCategorySearchNode>({
-    key: 'core-modules',
-    label: 'Core modules',
-    labelKey: 'core-modules',
+    key,
+    label,
     icon: IconLayoutDashboard,
-    order: 10,
+    order,
     selections: [
       {
-        alias: 'gs_core_modules',
+        alias: `gs_core_${module}`,
         field: 'coreModulesGlobalSearch',
-        args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor',
+        args: `searchValue: $searchValue, module: "${module}", limit: $limit, cursor: $cursor, orderBy: $orderBy`,
         body: '{ list { id title description path module } totalCount pageInfo { hasNextPage endCursor } }',
       },
     ],
     select: (payload) =>
-      readCursorList<TCategorySearchNode>(payload, 'gs_core_modules'),
+      readCursorList<TCategorySearchNode>(payload, `gs_core_${module}`),
     toItem,
   });
 
-export const settingsSearchProvider = defineSearchProvider<TCategorySearchNode>({
-  key: 'settings',
-  label: 'Settings',
-  labelKey: 'settings',
-  icon: IconSettings,
-  order: 20,
-selections: [
+export const contactsSearchProvider = createCoreModulesSearchProvider(
+  'core-contacts',
+  'Contacts',
+  'contacts',
+  10,
+);
+
+export const productsSearchProvider = createCoreModulesSearchProvider(
+  'core-products',
+  'Products',
+  'products',
+  11,
+);
+
+export const settingsSearchProvider = defineSearchProvider<TCategorySearchNode>(
+  {
+    key: 'settings',
+    label: 'Settings',
+    labelKey: 'settings',
+    icon: IconSettings,
+    order: 20,
+    selections: [
       {
         alias: 'gs_settings_core',
         field: 'settingsGlobalSearch',
-        args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor',
+        args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, orderBy: $orderBy',
         body: '{ list { id title description path module } totalCount pageInfo { hasNextPage endCursor } }',
       },
     ],
     select: (payload) =>
       readCursorList<TCategorySearchNode>(payload, 'gs_settings_core'),
-  toItem,
-});
+    toItem,
+  },
+);
 
 export const CORE_SEARCH_PROVIDERS: ISearchProvider[] = [
-  coreModulesSearchProvider,
+  contactsSearchProvider,
+  productsSearchProvider,
   settingsSearchProvider,
 ];

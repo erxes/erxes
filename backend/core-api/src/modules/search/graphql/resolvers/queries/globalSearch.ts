@@ -14,9 +14,27 @@ type TGlobalSearchItem = {
 
 type TQueryParams = {
   searchValue?: string;
+  module?: string;
   limit?: number;
   cursor?: string;
   direction?: 'forward' | 'backward';
+  orderBy?: { createdAt?: 1 | -1 };
+};
+
+const IDENTIFIER_SEPARATOR = '[\\s\\-+()./]*';
+
+export const buildIdentifierSearchRegex = (
+  value: string,
+): RegExp | undefined => {
+  const characters = value
+    .trim()
+    .replace(/[\s\-+()./]/g, '')
+    .split('')
+    .map(escapeRegExp);
+
+  return characters.length
+    ? new RegExp(characters.join(IDENTIFIER_SEPARATOR), 'i')
+    : undefined;
 };
 
 type TDataSource = {
@@ -29,9 +47,7 @@ const decodeOffsets = (cursor?: string): number[] => {
   try {
     const data = JSON.parse(Buffer.from(cursor, 'base64').toString());
     return Array.isArray(data.offsets)
-      ? data.offsets.map((value: unknown) =>
-          Math.max(0, Number(value) || 0),
-        )
+      ? data.offsets.map((value: unknown) => Math.max(0, Number(value) || 0))
       : [];
   } catch {
     return [];
@@ -45,11 +61,11 @@ const mergeRoundRobin = (
   batches: TGlobalSearchItem[][],
   sourceCount: number,
   limit: number,
-): TGlobalSearchItem[] => {
+): { list: TGlobalSearchItem[]; consumed: number[] } => {
   const merged: TGlobalSearchItem[] = [];
   const position = new Array(sourceCount).fill(0);
 
-  while (merged.length <= limit) {
+  while (merged.length < limit) {
     let added = false;
 
     for (let i = 0; i < sourceCount; i++) {
@@ -58,7 +74,7 @@ const mergeRoundRobin = (
         position[i] += 1;
         added = true;
 
-        if (merged.length > limit) {
+        if (merged.length === limit) {
           break;
         }
       }
@@ -69,7 +85,7 @@ const mergeRoundRobin = (
     }
   }
 
-  return merged;
+  return { list: merged, consumed: position };
 };
 
 const paginateDataSources = async (
@@ -83,21 +99,20 @@ const paginateDataSources = async (
     offsets.push(0);
   }
 
-  const perSource = Math.ceil((limit + 1) / sourceCount);
   const batches = await Promise.all(
-    sources.map((source, index) => source.fetch(offsets[index], perSource)),
+    sources.map((source, index) => source.fetch(offsets[index], limit)),
   );
 
   const counts = await Promise.all(sources.map((source) => source.count()));
   const totalCount = counts.reduce((sum, count) => sum + count, 0);
 
-  const merged = mergeRoundRobin(batches, sourceCount, limit);
-
-  const nextOffsets = offsets.map((offset, index) => offset + batches[index].length);
-  const hasNextPage =
-    merged.length > limit ||
-    batches.some((batch) => batch.length >= perSource);
-  const list = hasNextPage ? merged.slice(0, limit) : merged;
+  const { list, consumed } = mergeRoundRobin(batches, sourceCount, limit);
+  const nextOffsets = offsets.map(
+    (offset, index) => offset + consumed[index],
+  );
+  const hasNextPage = nextOffsets.some(
+    (offset, index) => offset < counts[index],
+  );
 
   return {
     list,
@@ -117,11 +132,13 @@ export const globalSearchQueries = {
     params: TQueryParams,
     { models }: IContext,
   ) => {
+    const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
     const rawSearch = params.searchValue?.trim() ?? '';
     const escapedSearch = escapeRegExp(rawSearch);
     const searchRegex = escapedSearch
       ? new RegExp(escapedSearch, 'i')
       : undefined;
+    const identifierRegex = buildIdentifierSearchRegex(rawSearch);
 
     const customerQuery = searchRegex
       ? {
@@ -130,7 +147,7 @@ export const globalSearchQueries = {
             { firstName: searchRegex },
             { lastName: searchRegex },
             { primaryEmail: searchRegex },
-            { primaryPhone: searchRegex },
+            { primaryPhone: identifierRegex ?? searchRegex },
           ],
         }
       : { status: { $ne: 'deleted' } };
@@ -141,7 +158,7 @@ export const globalSearchQueries = {
           $or: [
             { primaryName: searchRegex },
             { primaryEmail: searchRegex },
-            { primaryPhone: searchRegex },
+            { primaryPhone: identifierRegex ?? searchRegex },
           ],
         }
       : { status: { $ne: 'deleted' } };
@@ -151,19 +168,19 @@ export const globalSearchQueries = {
           status: { $ne: 'deleted' },
           $or: [
             { name: searchRegex },
-            { code: searchRegex },
+            { code: identifierRegex ?? searchRegex },
             { shortName: searchRegex },
             { description: searchRegex },
           ],
         }
       : { status: { $ne: 'deleted' } };
 
-    const sources: TDataSource[] = [
+    const contactsSources: TDataSource[] = [
       {
         count: () => models.Customers.countDocuments(customerQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Customers.find(customerQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -191,7 +208,7 @@ export const globalSearchQueries = {
         count: () => models.Companies.countDocuments(companyQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Companies.find(companyQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -207,11 +224,13 @@ export const globalSearchQueries = {
           }));
         },
       },
+    ];
+    const productSources: TDataSource[] = [
       {
         count: () => models.Products.countDocuments(productQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Products.find(productQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -228,6 +247,15 @@ export const globalSearchQueries = {
         },
       },
     ];
+    const sourceGroups: Record<string, TDataSource[]> = {
+      contacts: contactsSources,
+      products: productSources,
+    };
+    const selectedModule = params.module?.trim().toLowerCase();
+    const sources =
+      selectedModule && sourceGroups[selectedModule]
+        ? sourceGroups[selectedModule]
+        : [...contactsSources, ...productSources];
 
     return paginateDataSources(sources, params);
   },
@@ -238,6 +266,7 @@ export const globalSearchQueries = {
     { models }: IContext,
   ) => {
     const rawSearch = params.searchValue?.trim() ?? '';
+    const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
     const escapedSearch = escapeRegExp(rawSearch);
     const searchRegex = escapedSearch
       ? new RegExp(escapedSearch, 'i')
@@ -309,7 +338,7 @@ export const globalSearchQueries = {
         count: () => models.Users.countDocuments(userQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Users.find(userQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -330,7 +359,7 @@ export const globalSearchQueries = {
         count: () => models.Branches.countDocuments(branchQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Branches.find(branchQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -350,7 +379,7 @@ export const globalSearchQueries = {
         count: () => models.Departments.countDocuments(departmentQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Departments.find(departmentQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -370,7 +399,7 @@ export const globalSearchQueries = {
         count: () => models.Units.countDocuments(unitQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Units.find(unitQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -390,7 +419,7 @@ export const globalSearchQueries = {
         count: () => models.Positions.countDocuments(positionQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Positions.find(positionQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -410,7 +439,7 @@ export const globalSearchQueries = {
         count: () => models.Brands.countDocuments(brandQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Brands.find(brandQuery)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();

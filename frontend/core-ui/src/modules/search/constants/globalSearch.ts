@@ -9,4 +9,7 @@ export const GLOBAL_SEARCH_ALLOWED_VARIABLES = new Set([
   'searchValue',
   'limit',
   'cursor',
+  'orderBy',
+  'sortDirection',
+  'sortField',
 ]);

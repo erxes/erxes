@@ -1,13 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { IconArrowRight, IconLoader2 } from '@tabler/icons-react';
 import { Button, Command, TSearchResultItem } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   TGlobalSearchGroup,
+  TGlobalSearchSortOrder,
   TNavigationSearchItem,
 } from '@/search/types/GlobalSearch';
 import { GlobalSearchItem } from '@/search/components/GlobalSearchItem';
+import {
+  compareGlobalSearchItems,
+  sortGlobalSearchItems,
+} from '@/search/utils/globalSearchResults';
 
 const SearchGroupHeading = ({
   label,
@@ -46,14 +51,16 @@ export const NavigationSearchGroup = ({
   actionLabel,
   searchValue,
   previewLimit,
+  sortOrder,
   onShowMore,
   onSelect,
 }: {
-  heading: string;
+  heading?: string;
   items: TNavigationSearchItem[];
   actionLabel: string;
   searchValue: string;
   previewLimit?: number;
+  sortOrder: TGlobalSearchSortOrder;
   onShowMore?: () => void;
   onSelect: (path: string, activityId?: string) => void;
 }) => {
@@ -61,8 +68,14 @@ export const NavigationSearchGroup = ({
     return null;
   }
 
+  const sortedItems = useMemo(
+    () => sortGlobalSearchItems(items, sortOrder),
+    [items, sortOrder],
+  );
   const visibleItems =
-    previewLimit === undefined ? items : items.slice(0, previewLimit);
+    previewLimit === undefined
+      ? sortedItems
+      : sortedItems.slice(0, previewLimit);
   const showMoreAction =
     previewLimit !== undefined && items.length > previewLimit
       ? onShowMore
@@ -72,7 +85,9 @@ export const NavigationSearchGroup = ({
     <Command.Group
       className="p-1"
       heading={
-        <SearchGroupHeading label={heading} onShowMore={showMoreAction} />
+        heading ? (
+          <SearchGroupHeading label={heading} onShowMore={showMoreAction} />
+        ) : undefined
       }
     >
       {visibleItems.map((item) => (
@@ -95,6 +110,7 @@ export const GlobalSearchProviderGroup = ({
   searchValue,
   actionLabel,
   previewLimit,
+  sortOrder,
   onShowMore,
   onLoadMore,
   onSelect,
@@ -103,6 +119,7 @@ export const GlobalSearchProviderGroup = ({
   searchValue: string;
   actionLabel: string;
   previewLimit?: number;
+  sortOrder: TGlobalSearchSortOrder;
   onShowMore?: () => void;
   onLoadMore?: () => void;
   onSelect: (path: string) => void;
@@ -117,7 +134,10 @@ export const GlobalSearchProviderGroup = ({
     rootMargin: '160px 0px',
   });
   const label = t(group.labelKey ?? group.key, group.label);
-  const visibleItems = group.items;
+  const visibleItems =
+    previewLimit === undefined
+      ? group.items
+      : group.items.slice(0, previewLimit);
   const canLoadMore =
     Boolean(onLoadMore) &&
     group.pageInfo.hasNextPage &&
@@ -220,6 +240,7 @@ export const GlobalSearchPluginsGroup = ({
   searchValue,
   actionLabel,
   previewLimit,
+  sortOrder,
   heading,
   onLoadMore,
   onShowMore,
@@ -229,6 +250,7 @@ export const GlobalSearchPluginsGroup = ({
   searchValue: string;
   actionLabel: string;
   previewLimit?: number;
+  sortOrder: TGlobalSearchSortOrder;
   heading?: string;
   onLoadMore?: (providerKey: string) => void;
   onShowMore?: () => void;
@@ -241,9 +263,10 @@ export const GlobalSearchPluginsGroup = ({
   const [merged, setMerged] = useState<TPluginsMergedItem[]>([]);
   const streamRef = useRef<{
     search: string;
+    scope: string;
     keys: Set<string>;
     items: TPluginsMergedItem[];
-  }>({ search: '', keys: new Set(), items: [] });
+  }>({ search: '', scope: '', keys: new Set(), items: [] });
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const loadingIndicatorTimer = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -251,9 +274,14 @@ export const GlobalSearchPluginsGroup = ({
 
   useEffect(() => {
     const stream = streamRef.current;
+    const scope = groups
+      .map(({ key }) => key)
+      .sort()
+      .join(':');
 
-    if (stream.search !== searchValue) {
+    if (stream.search !== searchValue || stream.scope !== scope) {
       stream.search = searchValue;
+      stream.scope = scope;
       stream.keys = new Set();
       stream.items = [];
       setMerged([]);
@@ -281,12 +309,20 @@ export const GlobalSearchPluginsGroup = ({
     }
   }, [groups, searchValue]);
 
-  const visibleItems = merged;
+  const sortedItems = useMemo(
+    () =>
+      [...merged].sort((left, right) =>
+        compareGlobalSearchItems(left.item, right.item, sortOrder),
+      ),
+    [merged, sortOrder],
+  );
+  const visibleItems =
+    previewLimit === undefined
+      ? sortedItems
+      : sortedItems.slice(0, previewLimit);
   const pendingSources = groups.filter(
     (group) =>
-      group.pageInfo.hasNextPage &&
-      !group.loadingMore &&
-      !group.loadMoreError,
+      group.pageInfo.hasNextPage && !group.loadingMore && !group.loadMoreError,
   );
   const anyLoading = groups.some((group) => group.loadingMore);
   const anyError = groups.some((group) => group.loadMoreError);

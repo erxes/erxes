@@ -37,7 +37,7 @@ const conversationsSearchProvider = defineSearchProvider<TConversationNode>({
     {
       alias: 'gs_frontline_conversations',
       field: 'conversations',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
       body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
@@ -71,7 +71,7 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args: 'filter: { searchValue: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      args: 'filter: { searchValue: $searchValue, limit: $limit, orderBy: $orderBy }',
       body: '{ list { _id name number } totalCount }',
     },
   ],
@@ -140,7 +140,7 @@ const formsSearchProvider = defineSearchProvider<TFormNode>({
     {
       alias: 'gs_frontline_forms',
       field: 'forms',
-      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
       body: '{ list { _id name title code } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],

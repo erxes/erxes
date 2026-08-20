@@ -22,7 +22,7 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
       body: '{ list { _id name } totalCount }',
     },
   ],
@@ -48,7 +48,7 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit, orderBy: { createdAt: -1 } }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
       body: '{ list { _id name } totalCount }',
     },
   ],

@@ -23,6 +23,7 @@ import {
   parseSourceQualifier,
 } from '@/search/utils/globalSearchResults';
 import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
+import { TGlobalSearchSortOrder } from '@/search/types/GlobalSearch';
 
 type TGroupPageState = {
   items: TSearchResultItem[];
@@ -33,6 +34,7 @@ type TGroupPageState = {
 
 type TPaginationState = {
   searchValue: string;
+  sortOrder: TGlobalSearchSortOrder;
   groups: Record<string, TGroupPageState>;
 };
 
@@ -74,6 +76,8 @@ const resolveProviderGroup = (
     return {
       key: provider.key,
       category: provider.category,
+      subcategory: provider.subcategory,
+      subcategoryLabel: provider.subcategoryLabel,
       label: provider.label,
       labelKey: provider.labelKey,
       labelNamespace: provider.labelNamespace,
@@ -94,6 +98,8 @@ const resolveProviderGroup = (
   return {
     key: provider.key,
     category: provider.category,
+    subcategory: provider.subcategory,
+    subcategoryLabel: provider.subcategoryLabel,
     label: provider.label,
     labelKey: provider.labelKey,
     labelNamespace: provider.labelNamespace,
@@ -109,12 +115,16 @@ const resolveProviderGroup = (
   };
 };
 
-export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
+export const useGlobalSearch = (
+  searchValue: string,
+  sortOrder: TGlobalSearchSortOrder,
+): IGlobalSearchResult => {
   const client = useApolloClient();
   const { providers, quarantineFields, canQuarantineFields } =
     useSearchProviders();
   const [pagination, setPagination] = useState<TPaginationState>({
     searchValue,
+    sortOrder,
     groups: {},
   });
   const loadingProviderKeys = useRef(new Set<string>());
@@ -125,7 +135,12 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     const qualifier = parseSourceQualifier(searchValue, providers);
 
     if (qualifier) {
-      return { [qualifier.providerKey]: qualifier.query };
+      return Object.fromEntries(
+        qualifier.providerKeys.map((providerKey) => [
+          providerKey,
+          qualifier.query,
+        ]),
+      );
     }
 
     return providers.reduce<Record<string, string>>((overrides, provider) => {
@@ -143,17 +158,14 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
 
     return providers.reduce<Record<string, string>>((map, provider) => {
       map[provider.key] =
-        qualifier && qualifier.providerKey === provider.key
+        qualifier && qualifier.providerKeys.includes(provider.key)
           ? qualifier.query
           : raw;
       return map;
     }, {});
   }, [providers, searchValue]);
 
-  const document = useGlobalSearchDocument(
-    providers,
-    sourceSearchOverrides,
-  );
+  const document = useGlobalSearchDocument(providers, sourceSearchOverrides);
 
   const skip =
     searchValue.length < GLOBAL_SEARCH_MIN_LENGTH || providers.length === 0;
@@ -163,6 +175,9 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
       searchValue,
       limit: GLOBAL_SEARCH_PAGE_SIZE,
       cursor: null,
+      orderBy: { createdAt: sortOrder === 'oldest' ? 1 : -1 },
+      sortDirection: sortOrder === 'oldest' ? 1 : -1,
+      sortField: 'createdAt',
     },
     skip,
     errorPolicy: 'all',
@@ -178,8 +193,8 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   }, [invalidFields, quarantineFields]);
 
   useEffect(() => {
-    setPagination({ searchValue, groups: {} });
-  }, [searchValue]);
+    setPagination({ searchValue, sortOrder, groups: {} });
+  }, [searchValue, sortOrder]);
 
   const baseGroups = useMemo<TGlobalSearchGroup[]>(() => {
     if (skip) {
@@ -198,7 +213,9 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
   }, [providers, data, error, skip, effectiveSearchByProvider]);
 
   const activePageGroups =
-    pagination.searchValue === searchValue ? pagination.groups : {};
+    pagination.searchValue === searchValue && pagination.sortOrder === sortOrder
+      ? pagination.groups
+      : {};
 
   const groups = useMemo(
     () =>
@@ -220,8 +237,24 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     [activePageGroups, baseGroups],
   );
 
-  const groupsRef = useRef(groups);
-  groupsRef.current = groups;
+  const retainedGroupsRef = useRef<{
+    searchValue: string;
+    groups: TGlobalSearchGroup[];
+  }>({ searchValue, groups: [] });
+
+  if (groups.length > 0) {
+    retainedGroupsRef.current = { searchValue, groups };
+  }
+
+  const displayedGroups =
+    loading &&
+    groups.length === 0 &&
+    retainedGroupsRef.current.searchValue === searchValue
+      ? retainedGroupsRef.current.groups
+      : groups;
+
+  const groupsRef = useRef(displayedGroups);
+  groupsRef.current = displayedGroups;
 
   const requestState = getGlobalSearchRequestState({
     skipped: skip,
@@ -239,6 +272,7 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
         ({ key }) => key === providerKey,
       );
       const requestSearchValue = searchValue;
+      const requestSortOrder = sortOrder;
       const requestKey = `${requestSearchValue}:${providerKey}:${
         currentGroup?.pageInfo.endCursor ?? ''
       }`;
@@ -256,11 +290,15 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
       loadingProviderKeys.current.add(requestKey);
       setPagination((current) => {
         const currentGroups =
-          current.searchValue === requestSearchValue ? current.groups : {};
+          current.searchValue === requestSearchValue &&
+          current.sortOrder === requestSortOrder
+            ? current.groups
+            : {};
         const currentPage = currentGroups[providerKey];
 
         return {
           searchValue: requestSearchValue,
+          sortOrder: requestSortOrder,
           groups: {
             ...currentGroups,
             [providerKey]: {
@@ -283,6 +321,9 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
             searchValue: requestSearchValue,
             limit: GLOBAL_SEARCH_PAGE_SIZE,
             cursor: currentGroup.pageInfo.endCursor,
+            orderBy: { createdAt: sortOrder === 'oldest' ? 1 : -1 },
+            sortDirection: sortOrder === 'oldest' ? 1 : -1,
+            sortField: 'createdAt',
           },
           errorPolicy: 'all',
           fetchPolicy: 'no-cache',
@@ -302,7 +343,10 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
         );
 
         setPagination((current) => {
-          if (current.searchValue !== requestSearchValue) {
+          if (
+            current.searchValue !== requestSearchValue ||
+            current.sortOrder !== requestSortOrder
+          ) {
             return current;
           }
 
@@ -330,7 +374,10 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
         }
 
         setPagination((current) => {
-          if (current.searchValue !== requestSearchValue) {
+          if (
+            current.searchValue !== requestSearchValue ||
+            current.sortOrder !== requestSortOrder
+          ) {
             return current;
           }
 
@@ -353,11 +400,11 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
         loadingProviderKeys.current.delete(requestKey);
       }
     },
-    [client, providers, searchValue, sourceSearchOverrides],
+    [client, providers, searchValue, sortOrder, sourceSearchOverrides],
   );
 
   return {
-    groups,
+    groups: displayedGroups,
     loading: requestState.loading,
     hasFailure: requestState.hasFailure,
     refetch: () => refetch(),

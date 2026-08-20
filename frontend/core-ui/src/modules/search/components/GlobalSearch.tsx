@@ -7,13 +7,17 @@ import {
 import { useGlobalSearch } from '@/search/hooks/useGlobalSearch';
 import { useSettingsNavigationSearchItems } from '@/search/hooks/useSettingsNavigationSearchItems';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
-import { TGlobalSearchCategory } from '@/search/types/GlobalSearch';
+import {
+  TGlobalSearchCategory,
+  TGlobalSearchSortOrder,
+} from '@/search/types/GlobalSearch';
 import {
   getGlobalSearchCategoryShortcut,
   isGlobalSearchOpenShortcut,
 } from '@/search/utils/globalSearchShortcuts';
 import {
   buildGlobalSearchCategories,
+  buildGlobalSearchSubcategories,
   getGlobalSearchTotalCount,
 } from '@/search/utils/globalSearchResults';
 import {
@@ -37,10 +41,13 @@ export const GlobalSearch = () => {
   const [open, setOpen] = useAtom(globalSearchOpenState);
   const [value, setValue] = useState('');
   const [category, setCategory] = useState<TGlobalSearchCategory>('all');
+  const [subcategory, setSubcategory] = useState('all');
+  const [sortOrder, setSortOrder] =
+    useState<TGlobalSearchSortOrder>('newest');
   const searchValue = value.trim();
   const [debouncedValue] = useDebounce(searchValue, GLOBAL_SEARCH_DEBOUNCE);
   const { groups, loading, hasFailure, refetch, loadMore } =
-    useGlobalSearch(debouncedValue);
+    useGlobalSearch(debouncedValue, sortOrder);
 
   const { goToItems, pluginItems } = useMemo(
     () => buildNavigationSearchItems(activities, settingsItems),
@@ -71,6 +78,10 @@ export const GlobalSearch = () => {
     () => categories.map(({ key }) => key),
     [categories],
   );
+  const subcategories = useMemo(
+    () => buildGlobalSearchSubcategories(category, visibleGroups),
+    [category, visibleGroups],
+  );
   const contentLoading =
     contentSearchReady && (!contentSearchSettled || loading);
   const contentFailure = contentSearchSettled && hasFailure;
@@ -83,16 +94,38 @@ export const GlobalSearch = () => {
   const resetSearch = () => {
     setValue('');
     setCategory('all');
+    setSubcategory('all');
   };
 
   useEffect(() => {
     if (
+      !loading &&
       (!contentSearchReady || contentSearchSettled) &&
       !categoryKeys.includes(category)
     ) {
       setCategory('all');
     }
-  }, [category, categoryKeys, contentSearchReady, contentSearchSettled]);
+  }, [
+    category,
+    categoryKeys,
+    contentSearchReady,
+    contentSearchSettled,
+    loading,
+  ]);
+
+  useEffect(() => {
+    if (
+      !loading &&
+      !subcategories.some(({ key }) => key === subcategory)
+    ) {
+      setSubcategory('all');
+    }
+  }, [loading, subcategory, subcategories]);
+
+  const handleCategoryChange = (nextCategory: TGlobalSearchCategory) => {
+    setCategory(nextCategory);
+    setSubcategory('all');
+  };
 
   useEffect(() => {
     const handleSearchShortcut = (event: KeyboardEvent) => {
@@ -151,6 +184,9 @@ export const GlobalSearch = () => {
     <GlobalSearchDialog
       category={category}
       categories={categories}
+      subcategory={subcategory}
+      subcategories={subcategories}
+      sortOrder={sortOrder}
       contentFailure={contentFailure}
       contentLoading={contentLoading}
       contentSearchReady={contentSearchReady}
@@ -160,13 +196,15 @@ export const GlobalSearch = () => {
       quickAccessItems={pluginItems}
       totalCount={totalCount}
       value={value}
-      onCategoryChange={setCategory}
+      onCategoryChange={handleCategoryChange}
       onClear={resetSearch}
       onContentSelect={openResult}
       onLoadMore={loadMore}
       onNavigationSelect={openNavigationResult}
       onOpenChange={handleOpenChange}
       onRetry={() => refetch()}
+      onSubcategoryChange={setSubcategory}
+      onSortOrderChange={setSortOrder}
       onValueChange={setValue}
     />
   );

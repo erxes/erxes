@@ -10,16 +10,15 @@ export type TGlobalSearchCategory =
   | TSearchProviderCategory
   | (string & {});
 
+export type TGlobalSearchSortOrder = 'newest' | 'oldest';
+
 export type TNavigationSearchItemCategory =
   | 'navigation'
   | 'plugins'
   | 'settings'
   | 'core-modules';
 
-export type TSearchProviderCategory =
-  | 'plugins'
-  | 'settings'
-  | 'core-modules';
+export type TSearchProviderCategory = 'plugins' | 'settings' | 'core-modules';
 
 export type TNavigationCategoryCounts = Record<
   TNavigationSearchItemCategory,
@@ -37,6 +36,8 @@ export type TGlobalSearchGroupStatus = 'ok' | 'error';
 export type TGlobalSearchGroup = {
   key: string;
   category: TSearchProviderCategory;
+  subcategory: string;
+  subcategoryLabel: string;
   label: string;
   labelKey?: string;
   labelNamespace?: string;
@@ -49,6 +50,12 @@ export type TGlobalSearchGroup = {
   loadingMore: boolean;
   loadMoreError: boolean;
   searchValue: string;
+};
+
+export type TGlobalSearchSubcategoryOption = {
+  key: string;
+  label: string;
+  count: number;
 };
 
 export type TGlobalSearchCategoryOption = {
