@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { cfRecordUrl, toCamelCase } from '../utils';
+import { CallOperator } from '@/integrations/call/@types/integrations';
 
 const CDR_TIME_OFFSET = '+08:00';
 const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -403,4 +404,42 @@ export const calculateFileDir = (doc) => {
     fileDir = 'queue';
   }
   return fileDir;
+};
+
+export interface ICdrOperatorParams {
+  userfield?: string;
+  src?: string;
+  dst?: string;
+  dstanswer?: string;
+  dstchannel_ext?: string;
+  channel_ext?: string;
+  new_src?: string;
+  lastapp?: string;
+  action_type?: string;
+}
+
+export const resolveCdrOperator = (
+  operators: CallOperator[] = [],
+  params: ICdrOperatorParams,
+): { operator?: CallOperator; extension?: string } => {
+  const extension = determineExtension(params);
+
+  const candidates = [
+    extension,
+    extractOperatorId(params),
+    params.dstchannel_ext,
+    params.channel_ext,
+    params.dstanswer,
+    params.new_src,
+    params.userfield === 'Outbound' ? params.src : params.dst,
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const operator = operators.find((op) => op.gsUsername === candidate);
+    if (operator) {
+      return { operator, extension: candidate };
+    }
+  }
+
+  return { extension: extension || undefined };
 };

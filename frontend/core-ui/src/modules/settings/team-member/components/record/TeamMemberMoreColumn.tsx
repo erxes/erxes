@@ -61,6 +61,7 @@ export const TeamMemberMoreColumnCell = ({
           'teamMembersInvite',
           'teamMembersResetPassword',
           'teamMembersUpdate',
+          'teamMembersRemove',
         ]}
       >
         <Popover.Trigger asChild>
@@ -94,7 +95,7 @@ export const TeamMemberMoreColumnCell = ({
                 <IconLock /> Reset Password
               </Command.Item>
             </Can>
-            <Can action="teamMembersUpdate">
+            <Can action="teamMembersRemove">
               <Command.Item
                 value="toggle-status"
                 onSelect={() => {

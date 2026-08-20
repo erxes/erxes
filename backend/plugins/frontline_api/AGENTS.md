@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-08-20`
 
 ## Scope
 
@@ -358,6 +358,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   When `callProCustomersByPhone` returns more than one match the conversation
   is created with no `customerId` and the candidate list instead, and only an
   agent's `callProCustomerSelect` attaches one.
+- An inbound call conversation is assigned to the agent who actually answered
+  it. The answering operator is resolved from the leg's answering extension
+  (`dstanswer` / `dstchannel_ext`, via `resolveCdrOperator`) — never from
+  `extractOperatorId` alone, which yields the queue number on Queue legs — and
+  is handed to `create-or-update-conversation` as `userId`. The legacy `owner`
+  lookup through `details.operatorPhone` is a fallback only; assignment must
+  never depend on that optional profile field being set.
 - A personal channel always has exactly one `ChannelMembers` row: its owner,
   with role `admin`. Nothing may add, remove, or demote that member.
   `channelAdd(scope: "personal")` rejects `memberIds`, `channelAddMembers`
@@ -765,6 +772,26 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-20` — The agent who answered a call is assigned to it
+
+- **Summary:** A call conversation stayed unassigned because the CDR path
+  looked the operator up with `extractOperatorId`, which returns the queue/DID
+  number on the inbound Queue legs an agent actually answers, and then carried
+  the match to the inbox as `owner` — the user's optional
+  `details.operatorPhone`. Both the CDR and the CTI path now resolve the
+  answering operator from the leg's answering extension
+  (`resolveCdrOperator`) and pass that operator's `userId` straight to
+  `create-or-update-conversation`, so assignment no longer depends on a
+  profile field being filled in.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/inbox/receiveMessage.ts`.
+- **Contracts changed:** None — `create-or-update-conversation` already
+  accepted `userId`; the call paths now send it, and the create branch no
+  longer leaks `owner`/`userId` onto the new conversation document.
+
 ### `2026-08-19` — Call Pro webhook integration
 
 - **Summary:** Ported the Call Pro PBX integration from the legacy
@@ -907,13 +934,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
   throwing `One or more Configs not found`, and `ticketRemoveConfig` now
   returns the `TicketConfig` its schema already declared instead of `null`.
-
-### `2026-08-17` — "Can move" also guards the status a ticket leaves
-
-- **Summary:** `validateEditPermission` only checked the destination, so a user
-  missing from a status's `canMoveMemberIds` could still drag its tickets
-  elsewhere; a status change now checks the source status as well, the way
-  `sales_api` checks both stages. An empty list still means "everyone".
-- **Affected areas:** `src/modules/ticket/utils/permissionValidator.ts`.
-- **Contracts changed:** None — `updateTicket` can now fail with
-  `You do not have permission to move tickets out of this status`.
