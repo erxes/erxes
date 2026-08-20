@@ -92,8 +92,9 @@ export const callbackHandler = async (req, res) => {
         PAYMENT_STATUS.EXPIRED,
       ].includes(transaction.status)
     ) {
+      await models.Invoices.checkInvoice(transaction.invoiceId, subdomain);
       return res.redirect(
-        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+        `/gateway/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
       );
     }
     if (
