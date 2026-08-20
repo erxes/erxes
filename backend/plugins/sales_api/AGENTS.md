@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-08-21`
 
 ## Scope
 
@@ -69,7 +69,11 @@
   `salesPipelinesAdd`, and `salesPipelinesEdit`.
 - Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
   the listed sales permission action:
-  - `deal.findOne`, `deal.find`, `deal.count`, `deal.getLink` — `showDeals`
+  - `deal.findOne`, `deal.getLink` — `showDeals`
+  - `deal.find` — `showDeals`; strict input `{ query?, skip?, limit?, sort?, fields? }`
+    (unknown keys rejected by name), always bounded (`limit` defaults to 20,
+    hard max 100), `fields` drives a real projection
+  - `deal.count` — `showDeals`; strict input `{ filter? }` (`{}` counts all)
   - `stage.findOne`, `stage.find` — `showDeals`
   - `pipeline.findOne` — `pipelinesWatch`
   - `pos.findOne`, `pos.find` — `posRead`
@@ -116,6 +120,11 @@
   the full total amount.
 - Deal amount fallbacks should preserve the existing `tickUsed` semantics used
   by sales totals.
+- Agent-facing deal reads are always bounded and strictly shaped: `deal.find`
+  clamps `limit` to 1–100 (default 20) on every path and rejects unknown input
+  keys by name, `deal.count` takes `{ filter? }` — an agent's unbounded
+  `deal.find {}` over 1.27M deals crash-looped this service (exit 139) on
+  2026-08-20, and wrapper-shaped input silently matched nothing.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 - Agent tool annotations are admit-only: never annotate raw-mongo helpers
   (`deal.aggregate`, `deal.updateOne`, `orders.updateOne`), system-user
@@ -146,6 +155,25 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-21` — Bounded, strict agent-facing deal reads
+
+- **Summary:** `deal.find` can no longer execute unbounded or mis-shaped
+  queries: input is now a strict zod object (`{ query?, skip?, limit?, sort?, fields? }`
+  — unknown keys such as an invented `arg` wrapper are rejected by name
+  instead of silently matching nothing), results are always bounded (`limit`
+  defaults to 20 and is hard-capped at 100, including the no-query path — an
+  agent's `deal.find {}` over 1.27M deals crash-looped this service with
+  exit 139 on 2026-08-20), and `fields` now drives a real projection so
+  agents stay under the 64KB agent-tools response budget. `deal.count` takes
+  an explicit `{ filter? }` object for the same reason (a `{ query: ... }`
+  wrapper previously counted 0 silently). No cross-plugin tRPC callers of
+  either procedure exist, so the tightened contracts break no consumers.
+- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
+- **Contracts changed:** `deal.find` input is now strict
+  `{ query?, skip?, limit?, sort?, fields? }` (the bare top-level filter form
+  is rejected) with `limit` clamped to 1–100 (default 20); `deal.count` input
+  is now strict `{ filter? }` instead of a bare filter object.
 
 ### `2026-08-19` — Agent-callable tRPC tools
 
