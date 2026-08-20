@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { IField } from '~/modules/properties/@types';
+import { IField, IFieldOptionMigration } from '~/modules/properties/@types';
 
 export const fieldMutations = {
   fieldAdd: async (
@@ -13,12 +13,21 @@ export const fieldMutations = {
   },
   fieldEdit: async (
     _root: any,
-    { _id, ...doc }: { _id: string } & IField,
+    {
+      _id,
+      optionValueMigrations,
+      ...doc
+    }: { _id: string; optionValueMigrations?: IFieldOptionMigration[] } & IField,
     { models, user, checkPermission }: IContext,
   ) => {
     await checkPermission('fieldsManage');
 
-    return await models.Fields.updateField(_id, doc, user);
+    return await models.Fields.updateField(
+      _id,
+      doc,
+      user,
+      optionValueMigrations,
+    );
   },
   fieldRemove: async (
     _root: any,

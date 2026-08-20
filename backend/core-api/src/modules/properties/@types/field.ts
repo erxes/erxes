@@ -39,6 +39,11 @@ export interface IFieldDocument extends IField, Document {
   updatedBy: string;
 }
 
+export interface IFieldOptionMigration {
+  oldValue: string;
+  newValue?: string | null;
+}
+
 export interface IFieldParams extends IListParams {
   contentType: string;
   contentTypeId?: string;

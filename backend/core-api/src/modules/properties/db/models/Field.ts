@@ -8,8 +8,10 @@ import { Model } from 'mongoose';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
-import { IField, IFieldDocument } from '../../@types';
-import { ORDER_GAP } from '../../constants';
+import { IField, IFieldDocument, IFieldOptionMigration } from '../../@types';
+import { CONTENT_TYPE_COLLECTIONS, ORDER_GAP } from '../../constants';
+
+const ARRAY_OPTION_FIELD_TYPES = ['multiSelect', 'check'];
 
 export interface IFieldModel extends Model<IFieldDocument> {
   getField({ _id }: { _id: string }): Promise<IFieldDocument>;
@@ -18,8 +20,15 @@ export interface IFieldModel extends Model<IFieldDocument> {
     _id: string,
     doc: IField,
     user: IUserDocument,
+    optionValueMigrations?: IFieldOptionMigration[],
   ): Promise<IFieldDocument>;
   removeField(_id: string): Promise<IFieldDocument>;
+  migrateOptionValues(
+    fieldId: string,
+    contentType: string,
+    fieldType: string,
+    migrations: IFieldOptionMigration[],
+  ): Promise<void>;
 
   validateFieldValue(_id: string, value: any): Promise<any>;
   validateFieldValues(data: any): Promise<any>;
@@ -75,14 +84,76 @@ export const loadFieldClass = (models: IModels) => {
       _id: string,
       doc: IField,
       user: IUserDocument,
+      optionValueMigrations?: IFieldOptionMigration[],
     ) {
       await this.validateField(doc, _id);
+
+      if (optionValueMigrations?.length) {
+        const field = await this.getField({ _id });
+
+        await this.migrateOptionValues(
+          _id,
+          field.contentType,
+          field.type,
+          optionValueMigrations,
+        );
+      }
 
       return models.Fields.findOneAndUpdate(
         { _id },
         { $set: { ...doc, updatedBy: user._id } },
         { new: true },
       );
+    }
+
+    public static async migrateOptionValues(
+      fieldId: string,
+      contentType: string,
+      fieldType: string,
+      migrations: IFieldOptionMigration[],
+    ) {
+      const collectionName = CONTENT_TYPE_COLLECTIONS[contentType];
+
+      if (!collectionName) {
+        console.warn(
+          `[Fields.migrateOptionValues] No collection mapping for contentType "${contentType}", skipping record cleanup for field ${fieldId}`,
+        );
+        return;
+      }
+
+      const collection = models.Fields.db.collection(collectionName);
+      const path = `propertiesData.${fieldId}`;
+      const isArrayType = ARRAY_OPTION_FIELD_TYPES.includes(fieldType);
+
+      for (const { oldValue, newValue } of migrations) {
+        if (!oldValue || oldValue === newValue) {
+          continue;
+        }
+
+        if (isArrayType) {
+          if (newValue) {
+            await collection.updateMany(
+              { [path]: oldValue },
+              { $addToSet: { [path]: newValue } },
+            );
+          }
+
+          await collection.updateMany(
+            { [path]: oldValue },
+            { $pull: { [path]: oldValue } } as any,
+          );
+        } else if (newValue) {
+          await collection.updateMany(
+            { [path]: oldValue },
+            { $set: { [path]: newValue } },
+          );
+        } else {
+          await collection.updateMany(
+            { [path]: oldValue },
+            { $unset: { [path]: '' } },
+          );
+        }
+      }
     }
 
     public static async removeField(_id: string) {
