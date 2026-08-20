@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
+import { agentMeta } from '~/trpc/agentMeta';
 import {
   addDeal,
   editDeal,
@@ -66,26 +67,42 @@ const updateDealProcedure = t.procedure
 
 export const dealTrpcRouter = t.router({
   deal: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      return await models.Deals.findOne(input).lean();
-    }),
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single deal by any MongoDB-style query, e.g. { _id } or { name: "..." }. Returns null when nothing matches. Call this before updating a deal, and use deal.getLink to give the user a link to it.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        return await models.Deals.findOne(input).lean();
+      }),
 
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'Search deals with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Pass a plain filter object without query to match directly. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
 
-      const { query, skip, limit, sort = {} } = input;
+        const { query, skip, limit, sort = {} } = input;
 
-      if (!query) {
-        return await models.Deals.find(input).lean();
-      }
+        if (!query) {
+          return await models.Deals.find(input).lean();
+        }
 
-      return await models.Deals.find(query)
-        .skip(skip || 0)
-        .limit(limit || 0)
-        .sort(sort)
-        .lean();
-    }),
+        return await models.Deals.find(query)
+          .skip(skip || 0)
+          .limit(limit || 0)
+          .sort(sort)
+          .lean();
+      }),
 
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -93,27 +110,43 @@ export const dealTrpcRouter = t.router({
       return await models.Deals.aggregate(convertNestedDate(input));
     }),
 
-    count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
+    count: t.procedure
+      .meta(
+        agentMeta(
+          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
 
-      return await models.Deals.find(input).countDocuments();
-    }),
+        return await models.Deals.find(input).countDocuments();
+      }),
 
-    getLink: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { _id } = input;
-      const item = await models.Deals.findOne({ _id });
+    getLink: t.procedure
+      .meta(
+        agentMeta(
+          'Get the relative UI link to open a deal on its board: { _id }. Returns a path like "/deal/board?id=...&pipelineId=...&itemId=...". Use after deal.findOne/deal.find to point the user at a deal.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _id } = input;
+        const item = await models.Deals.findOne({ _id });
 
-      if (!item) {
-        throw new Error('Deal not found');
-      }
+        if (!item) {
+          throw new Error('Deal not found');
+        }
 
-      const stage = await models.Stages.getStage(item.stageId);
-      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-      const board = await models.Boards.getBoard(pipeline.boardId);
+        const stage = await models.Stages.getStage(item.stageId);
+        const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+        const board = await models.Boards.getBoard(pipeline.boardId);
 
-      return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
-    }),
+        return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
+      }),
 
     findDealProductIds: t.procedure
       .input(z.any())
@@ -330,40 +363,64 @@ export const dealTrpcRouter = t.router({
   },
 
   stage: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { subdomain, ...rest } = input;
-      return await models.Stages.findOne(rest).lean();
-    }),
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { subdomain, ...rest } = input;
-      return await models.Stages.find(rest).sort({ order: 1 }).lean();
-    }),
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single pipeline stage by any MongoDB-style query, e.g. { _id } or { name: "...", pipelineId: "..." }. Use to resolve a stage name to its _id for deal.find.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { subdomain, ...rest } = input;
+        return await models.Stages.findOne(rest).lean();
+      }),
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline\'s stages in order.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { subdomain, ...rest } = input;
+        return await models.Stages.find(rest).sort({ order: 1 }).lean();
+      }),
   },
   pipeline: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { stageId, ...rest } = input || {};
-      const { query, fields } = rest || {};
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single sales pipeline: { query: { name: "..." } } with optional { fields } projection, or { stageId } to resolve the pipeline containing a stage. Returns {} when nothing matches. Chain with stage.find to list its stages.',
+          { module: 'pipeline', action: 'pipelinesWatch' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { stageId, ...rest } = input || {};
+        const { query, fields } = rest || {};
 
-      let pipeline =
-        query && Object.keys(query).length
-          ? await models.Pipelines.findOne(query, fields).lean()
-          : null;
+        let pipeline =
+          query && Object.keys(query).length
+            ? await models.Pipelines.findOne(query, fields).lean()
+            : null;
 
-      if (!pipeline && stageId) {
-        const stage = await models.Stages.findOne({ _id: stageId }).lean();
-        if (stage) {
-          pipeline = await models.Pipelines.findOne(
-            { _id: stage.pipelineId },
-            fields,
-          ).lean();
+        if (!pipeline && stageId) {
+          const stage = await models.Stages.findOne({ _id: stageId }).lean();
+          if (stage) {
+            pipeline = await models.Pipelines.findOne(
+              { _id: stage.pipelineId },
+              fields,
+            ).lean();
+          }
         }
-      }
 
-      return pipeline || {};
-    }),
+        return pipeline || {};
+      }),
   },
 });
 
