@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-18`
+- **Last synchronized:** `2026-08-20`
 
 ## Scope
 
@@ -33,7 +33,7 @@
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts and products, resolves fixed asset income instance payloads, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -92,7 +92,8 @@
 - Fund rate adjustment is organization-level; branch/department grouping belongs to details and generated transactions, not the root adjustment.
 - Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
-- Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as `contentType/contentId` when present and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
+- Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as normalized `contentType/contentId` when present (`sale` maps to `sales:deal`; other sync types map to `erkhet:<sync_type>`) and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
+- Erkhet migration may create missing core products from source inventory metadata, but fixed asset categories/master records must already exist and only income instances are supplied by transaction payloads.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
@@ -114,9 +115,9 @@
 
 ### `2026-08-18` — `Erkhet Migration Wrapper`
 
-- **Summary:** The Erkhet migration route now resolves account, branch, department, product, fixed-asset, and contact codes before delegating source-content-aware idempotent batches to transaction create/update methods.
+- **Summary:** The Erkhet migration route now resolves account, branch, department, product, fixed-asset, and contact codes, creates missing products from source inventory metadata, and delegates source-content-aware idempotent batches to transaction create/update methods.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts Erkhet-coded `trDocs`, resolves references, and creates or updates by `sync_type/sync_id`-derived content references when present or `contentType: "erkhet:ptr"` plus external pointer id otherwise.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts Erkhet-coded `trDocs` with optional inventory metadata and fixed asset income instance payloads, resolves references, creates missing products, and creates or updates by normalized `sync_type/sync_id` content references when present (`sale` to `sales:deal`, others to `erkhet:<sync_type>`) or `contentType: "erkhet:ptr"` plus external pointer id otherwise.
 
 ### `2026-08-17` — `Related Account Storage Shape`
 

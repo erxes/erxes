@@ -60,6 +60,15 @@ type TContactResolution = {
   _id?: string;
 };
 
+type TErkhetProduct = {
+  code?: string;
+  name?: string;
+  categoryCode?: string;
+  uom?: string;
+  unitPrice?: number;
+  barcodes?: string[];
+};
+
 type TMigrationSuccessRow = {
   externalPtrId: string;
   action: string;
@@ -206,6 +215,70 @@ const indexByCode = <T extends { _id: string; code?: string }>(
     return byCode;
   }, {});
 
+const getProductPayloads = (docs: ITransaction[]) => {
+  const productByCode: Record<string, TErkhetProduct> = {};
+
+  for (const doc of docs) {
+    for (const detail of doc.details || []) {
+      const product = detail.followInfos?.erkhetProduct as
+        | TErkhetProduct
+        | undefined;
+      if (product?.code && !productByCode[product.code]) {
+        productByCode[product.code] = product;
+      }
+    }
+  }
+
+  return productByCode;
+};
+
+const ensureProducts = async (
+  subdomain: string,
+  productCodes: string[],
+  productsByCode: TCodeMap,
+  docs: ITransaction[],
+) => {
+  const productPayloads = getProductPayloads(docs);
+
+  for (const productCode of productCodes) {
+    if (productsByCode[productCode]) {
+      continue;
+    }
+
+    const product = productPayloads[productCode];
+    if (!product?.name) {
+      continue;
+    }
+
+    const created = await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'createProduct',
+      input: {
+        doc: {
+          code: product.code,
+          name: product.name,
+          categoryCode: product.categoryCode,
+          uom: product.uom,
+          unitPrice: product.unitPrice,
+          barcodes: product.barcodes || [],
+          type: 'product',
+          status: 'active',
+        },
+      },
+      defaultValue: {},
+    });
+
+    if (created?._id) {
+      productsByCode[productCode] = created._id;
+    }
+  }
+
+  return productsByCode;
+};
+
 const fetchReferenceMaps = async (
   subdomain: string,
   models: IModels,
@@ -286,6 +359,12 @@ const fetchReferenceMaps = async (
         defaultValue: [],
       })
     : [];
+  const productsByCode = await ensureProducts(
+    subdomain,
+    productCodes,
+    indexByCode(products),
+    docs,
+  );
 
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find(
@@ -360,7 +439,7 @@ const fetchReferenceMaps = async (
     branchesByCode: indexByCode(branches),
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
-    productsByCode: indexByCode(products),
+    productsByCode,
     fixedAssetsByCode,
     fxaInstanceIdsByCode,
     fxaInstanceIdsByAssetAndCode,
