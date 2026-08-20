@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-08-20`
 
 ## Scope
 
@@ -157,6 +157,8 @@
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                 |
 | FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                               |
 | FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                             |
+| Call report filters | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                            | Integration/queue/direction chips, date presets, and the date+time custom range                                                                  |
+| Call report export | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                            | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                        |
 | Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells  |
 | Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                         |
 | Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
@@ -385,11 +387,47 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   queue. Never restore the "select the first queue and gate on it" behaviour: a
   deployment that moves its traffic off queues (to an IVR, say) then renders an
   entirely empty report even though every other tab has data.
+- The call report's date chip has exactly one custom entry, and it is the
+  plugin's own `DateTimeRangeDialog` — the shared `Filter.DialogDateView` is
+  deliberately not mounted here, because its Day tab duplicated the same
+  from–to calendar while silently rounding away the time. Its month, quarter,
+  half-year, and year tabs are covered by the presets (`this-quarter` and
+  `last-quarter` included); values already stored in those formats still parse.
+- The call report's date filter can carry a time window, written as
+  `custom-time:<fromISO>,<toISO>` by `DateTimeRangeDialog` and read by
+  `parseCustomTimeRange` in `report/utils/dateFilters.ts` **before** the value
+  reaches `erxes-ui`'s `parseDateRangeFromString`. That shared parser forces
+  `startOfDay`/`endOfDay` on any `<from>,<to>` value, so a time written into
+  the plain comma format the shared date dialog owns is silently rounded to
+  whole days. Keep the two formats separate; the backend needs no change
+  because `startDate`/`endDate` already travel as full ISO timestamps.
+- `callGetQueueStats` can return the sentinel queue `__no_queue__` for calls
+  that never entered a queue. `NO_QUEUE` in `report/call/utils.ts` mirrors that
+  string in `frontline_api`; `QueuesSection` renders it as a labelled card
+  instead of a raw id. The queue cards are meant to add up to the KPI Total
+  Calls for the same filters — never filter them down to `queueOptions`, which
+  lists only the queues configured on the integration.
 - `callKpiScorecard.serviceLevel` and `averageSpeed` are nullable `Float`s.
   Render them with `fmtPctOrDash` / `fmtDurOrDash` so an absent measurement
   shows `—`; `fmtPct` / `fmtDur` coerce null to `0` and report a fabricated
   metric. Both currently arrive as numbers from the CDR pipelines, so the dash
   is a fallback, not the common case.
+- The overview charts read `noAnswer` from `callVolumeSeries` and `callHeatmap`
+  — every call in the bucket no human answered, both directions. It is not
+  `abandoned` (inbound only) and not `total - answered` computed in the UI; ask
+  the API for it so the chart and the Call history outcome counts agree.
+- The heatmap's Excel export reads `callHeatmapDaily` lazily on click (never
+  with the chart), because that query re-reads the range's CDRs. `heatmapExcel`
+  lays the sheet out as date rows × hour columns with row/column totals and the
+  peak hour of each row filled green, and keys the API's PBX-midnight `day`
+  through `pbxDayKey` — the `+08:00` offset mirrors `PBX_OFFSET_MS` in
+  `frontline_api`'s call report service, so an operator in another timezone
+  still sees each call on its PBX date. Change both together.
+- `HeatmapChart` colours a cell from the selected metric's own maximum, with the
+  hue per metric in `METRIC_HUE` — `var(--heatmap-hue)` for total calls, and
+  literal green / red hues for answered and no answer. `core-ui` defines only
+  the one hue variable, so a new metric hue stays a constant in this component
+  (adding a variable to `core-ui` is out of plugin scope).
 - `detectCarrier` mirrors `carrierExpression` in `frontline_api`'s call report
   service, which is what actually labels the report data — the UI helper only
   covers phone numbers the plugin classifies itself. Change both together.
@@ -592,6 +630,63 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-20` — Date filter takes a time of day
+
+- **Summary:** "Custom range…" now opens a plugin-owned dialog — a two-month
+  range calendar plus start and end `TimeField`s — so a report can be scoped to,
+  say, Aug 20 09:00 — 13:30, and the chip and KPI range label render the times.
+  It replaces the shared date dialog, whose Day tab picked the same from–to
+  range without the time; `This quarter` and `Last quarter` presets took over
+  its period tabs.
+- **Affected areas:**
+  `src/modules/report/call/components/DateTimeRangeDialog.tsx` (new),
+  `src/modules/report/call/components/SubHeader.tsx` (dropped the shared
+  `Filter.Dialog` wiring),
+  `src/modules/report/call/CallReportsPage.tsx`,
+  `src/modules/report/utils/dateFilters.ts`.
+- **Contracts changed:** None — `startDate`/`endDate` already carried full ISO
+  timestamps. The `call-report-date` filter value gained the `custom-time:`
+  form.
+
+### `2026-08-20` — Queue cards add up to Total Calls
+
+- **Summary:** The Queues tab now shows every queue the integration's calls
+  actually hit plus an "Outside a queue" card for IVR, voicemail, direct, and
+  outbound calls, so the cards reconcile with the KPI total instead of silently
+  dropping calls routed through a queue configured on another integration.
+- **Affected areas:**
+  `src/modules/report/call/components/QueuesSection/{QueuesSection,QueueCard}.tsx`,
+  `src/modules/report/call/utils.ts`.
+- **Contracts changed:** None — consumes the existing `callGetQueueStats`,
+  which can now return the `__no_queue__` sentinel.
+
+### `2026-08-20` — Hour × Day Heatmap exports to Excel
+
+- **Summary:** The heatmap card gained an Export Excel action that downloads the
+  selected metric as a date × hour sheet — one row per day in the filtered
+  range, one column per hour that carries calls, row and column totals, and the
+  peak hour of each row highlighted.
+- **Affected areas:** `src/modules/report/call/heatmapExcel.ts` (new),
+  `src/modules/report/call/hooks/useHeatmapExport.ts` (new),
+  `src/modules/report/call/components/OverviewSection/HeatmapChart.tsx`,
+  `src/modules/report/call/types.ts`,
+  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
+- **Contracts changed:** Consumes the new `frontline_api` query
+  `callHeatmapDaily`.
+
+### `2026-08-20` — No answer on the volume chart and heatmap
+
+- **Summary:** Call Volume Over Time now plots a No answer series next to
+  Answered, and Hour × Day Heatmap gained a Total calls / Answered / No answer
+  `ToggleGroup` that repaints the grid from the selected metric, with the
+  answered and no-answer counts added to every cell's tooltip.
+- **Affected areas:**
+  `src/modules/report/call/components/OverviewSection/{VolumeChart,HeatmapChart}.tsx`,
+  `src/modules/report/call/types.ts`,
+  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
+- **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
+  `noAnswer` field from `frontline_api`.
+
 ### `2026-08-19` — Call Pro integration UI
 
 - **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
@@ -682,18 +777,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/types/Integration.ts`.
 - **Contracts changed:** None; reads the already-returned optional `error`
   field inside the `healthStatus` JSON of the `Integrations` query.
-
-### `2026-08-18` — Sync button for Meta post counts
-
-- **Summary:** The Facebook posts card gained a Sync action that pulls
-  Facebook's own comment, reaction, and share counts on demand, an "On Meta"
-  column showing that count with the signed gap against what erxes received,
-  and a "last synced" line; the result toast reports how many posts updated and
-  how many Meta posts erxes has no record of.
-- **Affected areas:**
-  `src/modules/report/components/facebook-charts/{SyncFacebookStatsButton,FacebookPosts}.tsx`,
-  `src/modules/report/graphql/{mutations/facebookReportMutations.ts,queries/getFacebookChart.ts}`,
-  `src/modules/report/{hooks/useFacebookReport.ts,types.ts}`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
-- **Contracts changed:** `None` on this side; consumes the extra
-  `reportTicketPriority` row and the `state: 'all'` value from `frontline_api`.

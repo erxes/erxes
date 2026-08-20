@@ -51,6 +51,7 @@ export const types = `
     incoming: Int
     outgoing: Int
     answered: Int
+    noAnswer: Int
     abandoned: Int
   }
 
@@ -64,7 +65,16 @@ export const types = `
     hour: Int
     total: Int
     answered: Int
+    noAnswer: Int
     answerRate: Float
+  }
+
+  type CallDayHourCell {
+    day: Date
+    hour: Int
+    total: Int
+    answered: Int
+    noAnswer: Int
   }
 
   type TopNumber {
@@ -138,6 +148,7 @@ export const queries = `
   callVolumeSeries(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [CallVolumePoint]
   callCarrierBreakdown(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [CarrierSlice]
   callHeatmap(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [HeatCell]
+  callHeatmapDaily(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String): [CallDayHourCell]
   callTopNumbers(startDate: String!, endDate: String!, integrationId: String, queueId: String, direction: String, limit: Int): [TopNumber]
   callTodayStatistics(queue: String!): CallKeyStatistics
   callCalculateServiceLevel(queue: String!, startDate: String!, endDate: String!, direction: String): Float

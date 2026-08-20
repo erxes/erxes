@@ -6,7 +6,6 @@ import {
   Filter,
   Spinner,
   cn,
-  useFilterContext,
   useFilterQueryState,
 } from 'erxes-ui';
 import {
@@ -16,26 +15,12 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { parseCustomTimeRange } from '@/report/utils/dateFilters';
 import { useCallFilters } from '../hooks/useCallFilters';
+import { DateTimeRangeDialog } from './DateTimeRangeDialog';
 import type { SelectOption } from '../types';
 
 const DATE_FILTER_KEY = 'call-report-date';
-
-function CustomRangeItem({ label }: { label: string }) {
-  const { setDialogView, setOpenDialog } = useFilterContext();
-
-  return (
-    <DropdownMenu.Item
-      onSelect={() => {
-        setDialogView(DATE_FILTER_KEY);
-        setOpenDialog(true);
-      }}
-    >
-      <IconSelector className="h-3.5 w-3.5" />
-      {label}
-    </DropdownMenu.Item>
-  );
-}
 
 interface SubHeaderProps {
   integrationOptions: SelectOption[];
@@ -52,6 +37,8 @@ const DATE_PRESETS: SelectOption[] = [
   { label: 'This month', value: 'this-month' },
   { label: 'Last month', value: 'last-month' },
   { label: 'Last 3 months', value: 'last-3-months' },
+  { label: 'This quarter', value: 'this-quarter' },
+  { label: 'Last quarter', value: 'last-quarter' },
   { label: 'This year', value: 'this-year' },
   { label: 'Last year', value: 'last-year' },
 ];
@@ -82,6 +69,7 @@ export function SubHeader({
 
   const [dateQuery, setDateQuery] =
     useFilterQueryState<string>(DATE_FILTER_KEY);
+  const [timeRangeOpen, setTimeRangeOpen] = useState(false);
   useEffect(() => {
     if (dateQuery) setDateFilter(dateQuery);
   }, [dateQuery, setDateFilter]);
@@ -172,9 +160,10 @@ export function SubHeader({
                   </DropdownMenu.Item>
                 ))}
                 <DropdownMenu.Separator />
-                <CustomRangeItem
-                  label={t('custom-range', { defaultValue: 'Custom range…' })}
-                />
+                <DropdownMenu.Item onSelect={() => setTimeRangeOpen(true)}>
+                  <IconSelector className="h-3.5 w-3.5" />
+                  {t('custom-range', { defaultValue: 'Custom range…' })}
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
             {dateQuery && (
@@ -190,14 +179,12 @@ export function SubHeader({
         </Filter.Bar>
       </div>
 
-      <Filter.Dialog>
-        <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
-          <Filter.DialogDateView
-            filterKey={DATE_FILTER_KEY}
-            label={t('date-range')}
-          />
-        </Filter.View>
-      </Filter.Dialog>
+      <DateTimeRangeDialog
+        open={timeRangeOpen}
+        onOpenChange={setTimeRangeOpen}
+        value={dateQuery ?? dateFilter}
+        onApply={handleSelectPreset}
+      />
     </Filter>
   );
 }
@@ -207,6 +194,27 @@ function formatDateDisplay(value: string): string {
 
   const preset = DATE_PRESETS.find((option) => option.value === value);
   if (preset) return preset.label;
+
+  const timeRange = parseCustomTimeRange(value);
+  if (timeRange) {
+    const day = (date: Date) =>
+      date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+    const clock = (date: Date) =>
+      `${String(date.getHours()).padStart(2, '0')}:${String(
+        date.getMinutes(),
+      ).padStart(2, '0')}`;
+
+    return day(timeRange.from) === day(timeRange.to)
+      ? `${day(timeRange.from)}, ${clock(timeRange.from)} — ${clock(
+          timeRange.to,
+        )}`
+      : `${day(timeRange.from)} ${clock(timeRange.from)} — ${day(
+          timeRange.to,
+        )} ${clock(timeRange.to)}`;
+  }
 
   if (value.includes(',')) {
     const [from, to] = value.split(',');

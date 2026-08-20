@@ -193,6 +193,13 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
   `CallCdrs` through `buildCdrFilter` and fold legs into calls before counting.
   They return nothing in a deployment whose PBX does not post CDRs.
+  `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
+  bucket that no human answered, in both directions — unlike
+  `CallVolumePoint.abandoned`, which stays inbound-only.
+- GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
+  direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
+  day × hour** instead of day-of-week, for the spreadsheet export of the report.
+  Only hours that carry calls produce a row; absent buckets mean zero.
 - HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
   (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
   mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns
@@ -473,6 +480,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   which is the permission guard `callGetQueueStats` used to carry alone. Keep
   that check in the helper so a caller cannot reach another integration's queue
   by pairing it with its own `integrationId`.
+- Queue cards must reconcile with the KPI total. `callGetQueueStats` groups the
+  scoped calls by whatever queue their own legs carry and buckets the ones that
+  never entered a queue under `NO_QUEUE` (`__no_queue__`); it must never drop a
+  call because its queue is missing from `CallIntegrations.queues`. Queue 6500
+  serves two DIDs on the reference deployment, so that whitelist silently hid 18
+  of integration 11365555's 51 August calls from the Queues tab while every
+  other tab still counted them. `CallIntegrations.queues` stays the filter list
+  and the permission guard, not a display filter.
+- Outbound calls are dropped whenever a specific queue is selected —
+  `wantsOutboundCalls` in `callQueries.ts` decides this once for
+  `callKpiScorecard`, `callVolumeSeries`, `callGetAgentStats`, and
+  `callHistoryList`. An outbound leg never carries `QUEUE[..]`, so the outbound
+  branch cannot be narrowed by the queue regex the inbound branch uses; before
+  this rule the whole integration's outbound calls were added to a queue-scoped
+  count and the KPI read 21 next to a 10-call queue card.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -772,6 +794,47 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-20` — Queue stats reconcile with the KPI total
+
+- **Summary:** The Queues tab stopped losing calls: `callGetQueueStats` no
+  longer filters its result against `CallIntegrations.queues` and now reports a
+  `__no_queue__` bucket for calls that never entered a queue, while a selected
+  queue excludes outbound calls across the KPI, volume, agent, and history
+  resolvers so a queue-scoped total is not inflated by queue-less outbound
+  traffic.
+- **Affected areas:** `src/modules/reports/callReportService.ts`
+  (`summariseQueueStats`, `NO_QUEUE`),
+  `src/modules/reports/graphql/resolvers/callQueries.ts`
+  (`resolveReportScope`, `wantsOutboundCalls`, `callGetQueueStats`).
+- **Contracts changed:** None in the schema. Values move: `QueueStats.queue`
+  can now be the sentinel `__no_queue__`, queues outside the integration's
+  configured list appear, and queue-scoped `callKpiScorecard` /
+  `callVolumeSeries` / `callGetAgentStats` / `callHistoryList` no longer include
+  outbound calls.
+
+### `2026-08-20` — Daily hour matrix behind the heatmap export
+
+- **Summary:** Added `callHeatmapDaily`, which folds the same CDR read as
+  `callHeatmap` into calendar-day × hour buckets (`total`, `answered`,
+  `noAnswer`) so the report UI can export the heatmap as a date × hour sheet.
+- **Affected areas:** `src/modules/reports/callReportService.ts`
+  (`buildDailyHourMatrix`),
+  `src/modules/reports/graphql/schema/call.ts`,
+  `src/modules/reports/graphql/resolvers/callQueries.ts`.
+- **Contracts changed:** New query `callHeatmapDaily` returning
+  `[CallDayHourCell]`; additive.
+
+### `2026-08-20` — No-answer counts on the volume series and heatmap
+
+- **Summary:** `callVolumeSeries` and `callHeatmap` now also report the calls
+  no human answered per bucket, so the call report charts can plot no answer
+  next to answered volume.
+- **Affected areas:** `src/modules/reports/callReportService.ts`
+  (`buildVolumeSeries`, `buildHeatmap`),
+  `src/modules/reports/graphql/schema/call.ts`.
+- **Contracts changed:** `CallVolumePoint.noAnswer: Int` and
+  `HeatCell.noAnswer: Int` added; both are additive.
+
 ### `2026-08-20` — The agent who answered a call is assigned to it
 
 - **Summary:** A call conversation stayed unassigned because the CDR path
@@ -889,48 +952,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
   `metaShareCount`, `metaSyncedAt`; the post document gained the same four
   optional fields.
-
-### `2026-08-18` — Facebook report aggregations
-
-- **Summary:** Added a Facebook reporting surface over the plugin's own
-  Messenger, comment, and post collections — page list, KPI summary, daily
-  activity series, per-post engagement, and per-bot coverage — with page and
-  date scoping, plus `pageIds` on the saved-chart filter set so a saved
-  Facebook card restores its page selection.
-- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
-  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
-- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
-  types, and five `reportFacebook*` queries; `TicketReportFilter`,
-  `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.
-
-### `2026-08-17` — Messenger ticket configs tolerate deleted references
-
-- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
-  selection when one id is gone — it persists the configs that still exist and
-  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
-  id out of every integration and returns the removed document.
-- **Affected areas:**
-  `src/modules/inbox/db/models/Integrations.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
-- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
-  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
-  returns the `TicketConfig` its schema already declared instead of `null`.
