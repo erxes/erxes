@@ -4,6 +4,7 @@ export const types = `
     fromDate: String
     toDate: String
     pageIds: [String]
+    searchValue: String
     limit: Int
     page: Int
   }

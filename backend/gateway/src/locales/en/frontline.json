@@ -430,6 +430,7 @@
   "hide-messenger-during-offline-hours": "Hide messenger during offline hours",
   "hide-messenger-during-offline-hours-description": "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors.",
   "visible-online-to-visitor-or-customer": "Visible online to visitor or customer",
+  "quick-set": "Quick set",
   "everyday": "Everyday",
   "monday-friday": "Monday – Friday",
   "weekdays": "Weekdays",
@@ -1254,6 +1255,11 @@
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
   "without-priority": "{{value}} without priority",
+  "few-rate": {
+    "minutes": "A few minutes",
+    "hours": "A few hours",
+    "days": "A few days"
+  },
   "assign-to": "Assign to",
   "change-status": "Change status",
   "change-priority": "Change priority",
@@ -1284,5 +1290,21 @@
   "facebook-sync-partial": "Some pages could not be synced",
   "facebook-sync-failed": "Sync failed",
   "facebook-last-synced": "Meta counts last synced {{time}}",
-  "facebook-reports": "Facebook"
+  "facebook-reports": "Facebook",
+  "search-posts-placeholder": "Search post text or id",
+  "search-posts-title": "Filter by post text...",
+  "integration-desc-callpro": "Receive Call Pro PBX calls as inbox conversations, with recordings and caller matching.",
+  "callpro-record-url": "Record URL",
+  "callpro-webhook-title": "Point Call Pro at this URL",
+  "callpro-webhook-description": "Configure the Call Pro PBX to POST call events to this address.",
+  "callpro-no-recording": "No recording is available for this call.",
+  "callpro-audio-unsupported": "Your browser cannot play this recording.",
+  "callpro-confirm-or-switch-customer": "Confirm or switch customer",
+  "callpro-no-customers-for-phone": "No customers found for this phone number.",
+  "callpro-current-customer": "Current",
+  "callpro-customer-selected": "Customer attached to the conversation",
+  "callpro-customer-select-failed": "Failed to attach the customer",
+  "callpro-add": "Add Call Pro",
+  "callpro-edit": "Edit Call Pro",
+  "callpro-record-url-description": "The Call Pro recording endpoint; the call id is appended to it."
 }

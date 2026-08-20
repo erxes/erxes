@@ -1,12 +1,21 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const uomTrpcRouter = t.router({
   productUoms: t.router({
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'List units of measure (UOM): { query? }. Use to resolve a UOM code/name to the exact value expected in products.createProduct doc.uom.',
+          { module: 'products', action: 'productsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const { query } = input;
 
       const { models } = ctx;
@@ -14,7 +23,15 @@ export const uomTrpcRouter = t.router({
       return models.Uoms.find(query).lean();
     }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single unit of measure by { _id }, { code }, or any MongoDB-style query. Returns {} when nothing matches.',
+          { module: 'products', action: 'productsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
 
       const { models } = ctx;

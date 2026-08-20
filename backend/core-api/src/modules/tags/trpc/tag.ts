@@ -2,19 +2,36 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const tagTrpcRouter = t.router({
   tags: t.router({
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'List tags: { query? }. Tags are scoped per entity type — filter with { type: "core:customer" } for customer tags, "core:company" for companies, "core:product" for products. Use to resolve tag names to _ids before tagging records via customers.tag or setting tagIds in create/update docs.',
+          { module: 'tags', action: 'tagsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
 
       return await models.Tags.find(query).lean();
     }),
 
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single tag by { _id }, { name, type }, or any MongoDB-style query. Returns {} when nothing matches.',
+          { module: 'tags', action: 'tagsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
       const { models } = ctx;
 
@@ -25,7 +42,15 @@ export const tagTrpcRouter = t.router({
       return await models.Tags.findOne(query);
     }),
 
-    findWithChild: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    findWithChild: t.procedure
+      .meta(
+        agentMeta(
+          'Get tags matching { query?, fields? } plus all their child tags (tags nest via parentId). Use when a tagging or filtering operation should include sub-tags.',
+          { module: 'tags', action: 'tagsRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const { query, fields } = input;
       const { models } = ctx;
 
@@ -51,7 +76,15 @@ export const tagTrpcRouter = t.router({
         .sort({ order: 1 })
         .lean();
     }),
-    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+    create: t.procedure
+      .meta(
+        agentMeta(
+          'Create a tag. Input: { data: { name, type, colorCode?, parentId? } } — type scopes the tag, e.g. "core:customer", "core:company", "core:product". Check for an existing tag with tags.find (by name + type) before creating a duplicate. Then attach it with customers.tag or doc.tagIds.',
+          { module: 'tags', action: 'tagsCreate' },
+        ),
+      )
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
       const { data } = input;
       const { models } = ctx;
 

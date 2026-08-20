@@ -84,7 +84,7 @@ export const FacebookPosts = ({
 
   const filterEl = (
     <>
-      <FacebookReportFilter cardId={id} />
+      <FacebookReportFilter cardId={id} showSearch />
       <SyncFacebookStatsButton pageIds={filterConfig.pageIds} />
       <ReportChartActions
         chartType="facebook-posts"
@@ -100,7 +100,7 @@ export const FacebookPosts = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
+  if (!filtersRestored || (loading && !facebookPosts)) {
     return (
       <FrontlineCard
         id={id}
@@ -171,7 +171,12 @@ export const FacebookPosts = ({
             })}
           </p>
         )}
-        <div className="bg-sidebar w-full rounded-lg">
+        <div
+          className={cn(
+            'bg-sidebar w-full rounded-lg transition-opacity',
+            loading && 'opacity-60',
+          )}
+        >
           <RecordTable.Provider
             data={posts}
             columns={postColumns}
@@ -197,7 +202,7 @@ export const FacebookPosts = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
-                disabled={page <= 1}
+                disabled={page <= 1 || loading}
               >
                 <IconChevronLeft className="size-4" />
               </Button>
@@ -210,7 +215,7 @@ export const FacebookPosts = ({
                 onClick={() =>
                   setPage((current) => Math.min(totalPages, current + 1))
                 }
-                disabled={page >= totalPages}
+                disabled={page >= totalPages || loading}
               >
                 <IconChevronRight className="size-4" />
               </Button>

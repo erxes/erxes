@@ -1,5 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { Checkbox, Form, Input } from 'erxes-ui';
+import { Checkbox, Form, Input, Select } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { SelectBrand } from 'ui-modules/modules/brands';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +37,6 @@ const POSTING_FIELDS: MSDynamicTextFieldName[] = [
 
 const DEFAULT_FIELDS: MSDynamicTextFieldName[] = [
   'pricePriority',
-  'syncType',
   'defaultUserCode',
   'locationCode',
   'reminderCode',
@@ -169,6 +168,28 @@ export const MSDynamicConfigFormFields = ({
         </MSDynamicFieldSection>
 
         <MSDynamicFieldSection title={t('defaults')}>
+          <Form.Field
+            control={form.control}
+            name="syncType"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t(getMSDynamicFieldLabel('syncType'))}</Form.Label>
+                <Form.Control>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select sync type" />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="ECOMMERCE">ECOMMERCE</Select.Item>
+                      <Select.Item value="TOKI">TOKI</Select.Item>
+                    </Select.Content>
+                  </Select>
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
           {DEFAULT_FIELDS.map((name) => (
             <MSDynamicTextField
               key={name}
@@ -178,6 +199,7 @@ export const MSDynamicConfigFormFields = ({
             />
           ))}
         </MSDynamicFieldSection>
+
         <MSDynamicFieldSection title="Custom Fields">
           {CUSTOM_FIELDS.map((name) => (
             <MSDynamicPropertyField
@@ -312,23 +334,23 @@ const MSDynamicTextField = ({
 }) => {
   const { t } = useTranslation('mongolian');
   return (
-  <Form.Field
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>{t(getMSDynamicFieldLabel(name))}</Form.Label>
-        <Form.Control>
-          <Input
-            type={type}
-            value={String(field.value ?? '')}
-            onChange={field.onChange}
-            disabled={loading}
-          />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
+    <Form.Field
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{t(getMSDynamicFieldLabel(name))}</Form.Label>
+          <Form.Control>
+            <Input
+              type={type}
+              value={String(field.value ?? '')}
+              onChange={field.onChange}
+              disabled={loading}
+            />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
   );
 };

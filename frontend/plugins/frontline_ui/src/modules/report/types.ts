@@ -71,6 +71,7 @@ export interface ReportChartFilters {
   companyIds?: string[];
   propertyIds?: string[];
   pageIds?: string[];
+  searchValue?: string;
   priority?: number[];
   propertyValueFilters?: TicketPropertyFilter[];
 }

@@ -142,6 +142,27 @@ import {
   loadDiscordConversationMessageClass,
 } from '@/integrations/discord/db/models/ConversationMessages';
 
+import { ICallProIntegrationDocument } from '@/integrations/callpro/@types/integrations';
+import { ICallProCustomerDocument } from '@/integrations/callpro/@types/customers';
+import { ICallProConversationDocument } from '@/integrations/callpro/@types/conversations';
+import { ICallProLogDocument } from '@/integrations/callpro/@types/logs';
+import {
+  ICallProIntegrationModel,
+  loadCallProIntegrationClass,
+} from '@/integrations/callpro/db/models/Integrations';
+import {
+  ICallProCustomerModel,
+  loadCallProCustomerClass,
+} from '@/integrations/callpro/db/models/Customers';
+import {
+  ICallProConversationModel,
+  loadCallProConversationClass,
+} from '@/integrations/callpro/db/models/Conversations';
+import {
+  ICallProLogModel,
+  loadCallProLogClass,
+} from '@/integrations/callpro/db/models/Logs';
+
 import {
   ICustomerImapDocument,
   IIntegrationImapDocument,
@@ -343,6 +364,11 @@ export interface IModels {
   DiscordCustomers: IDiscordCustomerModel;
   DiscordConversations: IDiscordConversationModel;
   DiscordConversationMessages: IDiscordConversationMessageModel;
+
+  CallProIntegrations: ICallProIntegrationModel;
+  CallProCustomers: ICallProCustomerModel;
+  CallProConversations: ICallProConversationModel;
+  CallProLogs: ICallProLogModel;
 
   //imap
   ImapCustomers: ICustomerImapModel;
@@ -616,6 +642,23 @@ export const loadClasses = (
   >(
     'conversation_messages_discord',
     loadDiscordConversationMessageClass(models),
+  );
+
+  models.CallProIntegrations = db.model<
+    ICallProIntegrationDocument,
+    ICallProIntegrationModel
+  >('integrations_callpro', loadCallProIntegrationClass(models));
+  models.CallProCustomers = db.model<
+    ICallProCustomerDocument,
+    ICallProCustomerModel
+  >('customers_callpro', loadCallProCustomerClass(models));
+  models.CallProConversations = db.model<
+    ICallProConversationDocument,
+    ICallProConversationModel
+  >('conversations_callpro', loadCallProConversationClass(models));
+  models.CallProLogs = db.model<ICallProLogDocument, ICallProLogModel>(
+    'logs_callpro',
+    loadCallProLogClass(),
   );
 
   //imap models

@@ -49,6 +49,21 @@ const buildMatch = (
   return match;
 };
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildPostSearchMatch = (filters: IFacebookReportFilters) => {
+  const searchValue = filters.searchValue?.trim();
+
+  if (!searchValue) {
+    return {};
+  }
+
+  const pattern = new RegExp(escapeRegex(searchValue), 'i');
+
+  return { $or: [{ content: pattern }, { postId: pattern }] };
+};
+
 const buildMessageStages = (
   filters: IFacebookReportFilters,
   conversationCollection: string,
@@ -308,7 +323,25 @@ export const reportFacebookQueries = {
     const skip = (page - 1) * limit;
 
     const rows = await models.FacebookPostConversations.aggregate([
-      { $match: buildMatch(filters, 'timestamp') },
+      {
+        $match: {
+          ...buildMatch(filters, 'timestamp'),
+          ...buildPostSearchMatch(filters),
+        },
+      },
+      {
+        $group: {
+          _id: '$postId',
+          postId: { $first: '$postId' },
+          content: { $first: '$content' },
+          permalink_url: { $first: '$permalink_url' },
+          timestamp: { $max: '$timestamp' },
+          metaCommentCount: { $max: '$metaCommentCount' },
+          metaReactionCount: { $max: '$metaReactionCount' },
+          metaShareCount: { $max: '$metaShareCount' },
+          metaSyncedAt: { $max: '$metaSyncedAt' },
+        },
+      },
       {
         $facet: {
           totalCount: [{ $count: 'value' }],

@@ -72,12 +72,15 @@ export const useFacebookActivity = (
 export const useFacebookPosts = (
   options: QueryHookOptions<FacebookPostsResponse>,
 ) => {
-  const { data, loading, error } = useQuery<FacebookPostsResponse>(
-    GET_FACEBOOK_POSTS,
-    options,
-  );
+  const { data, previousData, loading, error } =
+    useQuery<FacebookPostsResponse>(GET_FACEBOOK_POSTS, options);
 
-  return { facebookPosts: data?.reportFacebookPosts, loading, error };
+  return {
+    facebookPosts:
+      data?.reportFacebookPosts ?? previousData?.reportFacebookPosts,
+    loading,
+    error,
+  };
 };
 
 export const useFacebookBots = (
