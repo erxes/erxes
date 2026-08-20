@@ -48,6 +48,7 @@ export type TGlobalSearchGroup = {
   pageInfo: TSearchPageInfo;
   loadingMore: boolean;
   loadMoreError: boolean;
+  searchValue: string;
 };
 
 export type TGlobalSearchCategoryOption = {

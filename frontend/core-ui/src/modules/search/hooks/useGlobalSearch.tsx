@@ -85,6 +85,7 @@ const resolveProviderGroup = (
       pageInfo: { hasNextPage: false, endCursor: null },
       loadingMore: false,
       loadMoreError: false,
+      searchValue: '',
     };
   }
 
@@ -104,6 +105,7 @@ const resolveProviderGroup = (
     pageInfo: result.pageInfo,
     loadingMore: false,
     loadMoreError: false,
+    searchValue: '',
   };
 };
 
@@ -132,6 +134,19 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
       }
 
       return overrides;
+    }, {});
+  }, [providers, searchValue]);
+
+  const effectiveSearchByProvider = useMemo(() => {
+    const qualifier = parseSourceQualifier(searchValue, providers);
+    const raw = searchValue.trim();
+
+    return providers.reduce<Record<string, string>>((map, provider) => {
+      map[provider.key] =
+        qualifier && qualifier.providerKey === provider.key
+          ? qualifier.query
+          : raw;
+      return map;
     }, {});
   }, [providers, searchValue]);
 
@@ -176,9 +191,11 @@ export const useGlobalSearch = (searchValue: string): IGlobalSearchResult => {
     return providers.flatMap((provider) => {
       const group = resolveProviderGroup(provider, payload, error);
 
-      return group ? [group] : [];
+      return group
+        ? [{ ...group, searchValue: effectiveSearchByProvider[provider.key] }]
+        : [];
     });
-  }, [providers, data, error, skip]);
+  }, [providers, data, error, skip, effectiveSearchByProvider]);
 
   const activePageGroups =
     pagination.searchValue === searchValue ? pagination.groups : {};

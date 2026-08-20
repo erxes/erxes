@@ -153,7 +153,7 @@ export const GlobalSearchProviderGroup = ({
           commandValue={`${group.key}:${item.id}`}
           icon={group.icon}
           item={item}
-          searchValue={searchValue}
+          searchValue={group.searchValue ?? searchValue}
           onSelect={onSelect}
         />
       ))}
@@ -330,6 +330,8 @@ export const GlobalSearchPluginsGroup = ({
     return null;
   }
 
+  const effectiveSearchValue =
+    groups.find((group) => group.items.length > 0)?.searchValue ?? searchValue;
   const hasMore =
     previewLimit !== undefined &&
     (merged.length > previewLimit ||
@@ -353,7 +355,7 @@ export const GlobalSearchPluginsGroup = ({
           commandValue={key}
           icon={Icon}
           item={item}
-          searchValue={searchValue}
+          searchValue={effectiveSearchValue}
           onSelect={onSelect}
         />
       ))}

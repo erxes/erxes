@@ -39,6 +39,78 @@ const SearchCategoryLabel = ({
   return <>{t(category.labelKey ?? category.key, category.label)}</>;
 };
 
+const previewCount = (count: number, isAll: boolean): number =>
+  isAll ? Math.min(count, GLOBAL_SEARCH_PREVIEW_LIMIT) : count;
+
+const showMoreHandler = (
+  condition: boolean,
+  target: TGlobalSearchCategory,
+  onCategoryChange: (category: TGlobalSearchCategory) => void,
+): (() => void) | undefined =>
+  condition ? () => onCategoryChange(target) : undefined;
+
+const getResultsState = (
+  category: TGlobalSearchCategory,
+  groups: TGlobalSearchGroup[],
+  goToItems: TNavigationSearchItem[],
+  contentSearchReady: boolean,
+  contentLoading: boolean,
+  contentFailure: boolean,
+) => {
+  const visibleGroups = groups.filter(
+    (group) => group.status === 'ok' && group.items.length > 0,
+  );
+  const isAll = category === 'all';
+  const isNavCategory = category === 'navigation';
+  const isContentCategory = CONTENT_CATEGORIES.has(category);
+  const contentScopeActive = isAll || isContentCategory;
+  const scopedContentGroups = visibleGroups.filter(
+    (group) => isAll || group.category === category,
+  );
+  const pluginGroups = scopedContentGroups.filter(
+    (group) => group.category === 'plugins',
+  );
+  const otherContentGroups = scopedContentGroups.filter(
+    (group) => group.category !== 'plugins',
+  );
+  const pluginItemCount = pluginGroups.reduce(
+    (total, group) => total + group.items.length,
+    0,
+  );
+  const otherItemCount = otherContentGroups.reduce(
+    (total, group) => total + group.items.length,
+    0,
+  );
+  const navigationItems = isNavCategory || isAll ? goToItems : [];
+  const visibleItemCount =
+    navigationItems.length +
+    previewCount(pluginItemCount, isAll) +
+    previewCount(otherItemCount, isAll);
+  const inContentEmptyScope = visibleItemCount === 0 && contentScopeActive;
+  const waitingForContent =
+    contentSearchReady && contentLoading && contentScopeActive;
+  const needsMoreCharacters = !contentSearchReady && inContentEmptyScope;
+  const showFailure = contentFailure && inContentEmptyScope;
+  const showEmpty =
+    visibleItemCount === 0 &&
+    !waitingForContent &&
+    !needsMoreCharacters &&
+    !showFailure;
+
+  return {
+    isAll,
+    pluginGroups,
+    pluginItemCount,
+    otherContentGroups,
+    navigationItems,
+    visibleItemCount,
+    waitingForContent,
+    needsMoreCharacters,
+    showFailure,
+    showEmpty,
+  };
+};
+
 const GlobalSearchResults = ({
   category,
   searchValue,
@@ -89,50 +161,25 @@ const GlobalSearchResults = ({
     );
   }
 
-  const visibleGroups = groups.filter(
-    (group) => group.status === 'ok' && group.items.length > 0,
+  const {
+    isAll,
+    pluginGroups,
+    pluginItemCount,
+    otherContentGroups,
+    navigationItems,
+    visibleItemCount,
+    waitingForContent,
+    needsMoreCharacters,
+    showFailure,
+    showEmpty,
+  } = getResultsState(
+    category,
+    groups,
+    goToItems,
+    contentSearchReady,
+    contentLoading,
+    contentFailure,
   );
-  const isAll = category === 'all';
-  const isNavCategory = category === 'navigation';
-  const isContentCategory = CONTENT_CATEGORIES.has(category);
-  const contentScopeActive = isAll || isContentCategory;
-  const scopedContentGroups = visibleGroups.filter(
-    (group) => isAll || group.category === category,
-  );
-  const pluginGroups = scopedContentGroups.filter(
-    (group) => group.category === 'plugins',
-  );
-  const otherContentGroups = scopedContentGroups.filter(
-    (group) => group.category !== 'plugins',
-  );
-  const pluginItemCount = pluginGroups.reduce(
-    (total, group) => total + group.items.length,
-    0,
-  );
-  const visiblePluginCount = isAll
-    ? Math.min(pluginItemCount, GLOBAL_SEARCH_PREVIEW_LIMIT)
-    : pluginItemCount;
-  const navigationItems = isNavCategory || isAll ? goToItems : [];
-  const otherItemCount = otherContentGroups.reduce(
-    (total, group) => total + group.items.length,
-    0,
-  );
-  const visibleOtherCount = isAll
-    ? Math.min(otherItemCount, GLOBAL_SEARCH_PREVIEW_LIMIT)
-    : otherItemCount;
-  const visibleItemCount =
-    navigationItems.length + visiblePluginCount + visibleOtherCount;
-  const waitingForContent =
-    contentSearchReady && contentLoading && contentScopeActive;
-  const needsMoreCharacters =
-    !contentSearchReady && visibleItemCount === 0 && contentScopeActive;
-  const showFailure =
-    contentFailure && visibleItemCount === 0 && contentScopeActive;
-  const showEmpty =
-    visibleItemCount === 0 &&
-    !waitingForContent &&
-    !needsMoreCharacters &&
-    !showFailure;
 
   return (
     <Command.List
@@ -147,11 +194,11 @@ const GlobalSearchResults = ({
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
           onSelect={onNavigationSelect}
-          onShowMore={
-            isAll && navigationItems.length > GLOBAL_SEARCH_PREVIEW_LIMIT
-              ? () => onCategoryChange('navigation')
-              : undefined
-          }
+          onShowMore={showMoreHandler(
+            isAll && navigationItems.length > GLOBAL_SEARCH_PREVIEW_LIMIT,
+            'navigation',
+            onCategoryChange,
+          )}
         />
       )}
 
@@ -164,11 +211,11 @@ const GlobalSearchResults = ({
           searchValue={searchValue}
           onLoadMore={onLoadMore}
           onSelect={onContentSelect}
-          onShowMore={
-            isAll && pluginItemCount > GLOBAL_SEARCH_PREVIEW_LIMIT
-              ? () => onCategoryChange('plugins')
-              : undefined
-          }
+          onShowMore={showMoreHandler(
+            isAll && pluginItemCount > GLOBAL_SEARCH_PREVIEW_LIMIT,
+            'plugins',
+            onCategoryChange,
+          )}
         />
       )}
 
@@ -181,14 +228,14 @@ const GlobalSearchResults = ({
           searchValue={searchValue}
           onSelect={onContentSelect}
           onLoadMore={() => onLoadMore(group.key)}
-          onShowMore={
+          onShowMore={showMoreHandler(
             isAll &&
-            (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
-              group.pageInfo.hasNextPage ||
-              (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT)
-              ? () => onCategoryChange(group.category)
-              : undefined
-          }
+              (group.items.length > GLOBAL_SEARCH_PREVIEW_LIMIT ||
+                group.pageInfo.hasNextPage ||
+                (group.totalCount ?? 0) > GLOBAL_SEARCH_PREVIEW_LIMIT),
+            group.category,
+            onCategoryChange,
+          )}
         />
       ))}
 
