@@ -113,7 +113,7 @@ export const dealTrpcRouter = t.router({
     count: t.procedure
       .meta(
         agentMeta(
-          'Count deals matching a filter: { query? }, e.g. { query: { stageId: "..." } }. Use for "how many deals ..." questions instead of deal.find.',
+          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
           { module: 'deal', action: 'showDeals' },
         ),
       )

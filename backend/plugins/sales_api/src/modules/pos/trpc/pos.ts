@@ -20,7 +20,7 @@ export const posTrpcRouter = t.router({
     findOne: t.procedure
       .meta(
         agentMeta(
-          'Get a single POS configuration by { query } or { selector } (MongoDB-style), e.g. { query: { name: "..." } } or { query: { token: "..." } }. Returns {} when nothing matches.',
+          'Get a single POS configuration by { query } or { selector } (MongoDB-style), e.g. { query: { name: "..." } } or { query: { token: "..." } }. Returns {} when input is empty, null when nothing matches.',
           { module: 'pos', action: 'posRead' },
         ),
       )
@@ -38,7 +38,7 @@ export const posTrpcRouter = t.router({
     find: t.procedure
       .meta(
         agentMeta(
-          'List POS configurations matching an optional MongoDB-style filter, e.g. { query: { isOnline: true } }. Returns all POS configs when input is empty.',
+          'List POS configurations matching an optional MongoDB-style filter, e.g. { isOnline: true }. Returns all POS configs when input is empty.',
           { module: 'pos', action: 'posRead' },
         ),
       )
@@ -209,7 +209,7 @@ export const posTrpcRouter = t.router({
     findOne: t.procedure
       .meta(
         agentMeta(
-          'Get a single POS order by { query } or { selector } (MongoDB-style), e.g. { query: { number: "..." } } or { query: { _id } }. Returns {} when nothing matches.',
+          'Get a single POS order by { query } or { selector } (MongoDB-style), e.g. { query: { number: "..." } } or { query: { _id } }. Returns {} when input is empty, null when nothing matches.',
           { module: 'pos', action: 'posOrderRead' },
         ),
       )
