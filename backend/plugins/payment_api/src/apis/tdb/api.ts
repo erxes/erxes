@@ -11,7 +11,7 @@ export interface ITDBConfig {
 }
 
 export interface ITDBCreateOrderRequest {
-  typeRid?: 'purch';
+  typeRid?: string;
   amount: number;
   currency: string;
   description: string;
@@ -114,7 +114,7 @@ export class TDBAPI extends BaseAPI {
       apiUrl:
         config.apiUrl ||
         PAYMENTS.tdb.apiUrl ||
-        'https://acsmc.tdbmlabs.mn:8000',
+        'https://www.bankcard.mn:8000',
     });
 
     this.username = config.username;
@@ -128,7 +128,7 @@ export class TDBAPI extends BaseAPI {
     const redirectUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.tdb.kind}?transactionId=${transaction._id}`;
 
     const payload: ITDBCreateOrderRequest = {
-      typeRid: 'purch',
+      typeRid: '1',
       amount: transaction.amount,
       currency: 'MNT',
       description: transaction.description || 'Invoice',

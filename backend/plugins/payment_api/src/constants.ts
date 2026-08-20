@@ -152,7 +152,7 @@ export const PAYMENTS = {
   tdb: {
     title: 'TDB E-Commerce',
     kind: 'tdb',
-    apiUrl: 'https://acsmc.tdbmlabs.mn:8000',
+    apiUrl: 'https://www.bankcard.mn:8000',
     actions: {
       createOrder: '/order',
       getOrderDetail: '/order/:orderId',
