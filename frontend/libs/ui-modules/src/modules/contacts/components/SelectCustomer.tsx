@@ -445,7 +445,7 @@ export const SelectCustomerFilterBar = ({
         value={query || []}
         onValueChange={handleValueChange}
         hideAvatar={hideAvatar}
-        loadSelectedCustomers={!isCardVariant || !hideAvatar || open}
+        loadSelectedCustomers={!hideAvatar || open}
       >
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
           <SelectTriggerOperation variant={variant || 'filter'}>
