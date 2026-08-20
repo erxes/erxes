@@ -586,6 +586,8 @@ const REPORT_CHART_FILTER_KEYS = [
   'customerIds',
   'companyIds',
   'branchIds',
+  'pageIds',
+  'searchValue',
   'propertyIds',
   'priority',
   'propertyValueFilters',

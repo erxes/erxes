@@ -3,6 +3,7 @@ import {
   automationHistorySplitDirectionState,
   automationHistoryViewModeState,
 } from '@/automations/states/automationState';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
   AutomationHistorySplitDirection,
   AutomationHistoryViewMode,
@@ -15,18 +16,24 @@ export const useAutomationHistoryView = () => {
   const [splitDirection, setSplitDirection] = useAtom(
     automationHistorySplitDirectionState,
   );
-  const [selectedExecutionId, setSelectedExecutionId] = useAtom(
+  const { detail } = useAutomation();
+  const automationId = detail?._id || '';
+  const [selection, setSelection] = useAtom(
     automationHistorySelectedExecutionState,
   );
 
+  const selectedExecutionId =
+    selection?.automationId === automationId ? selection.executionId : null;
+
+  const selectExecution = useCallback(
+    (executionId: string | null) =>
+      setSelection(executionId ? { automationId, executionId } : null),
+    [automationId, setSelection],
+  );
+
   const changeViewMode = useCallback(
-    (mode: AutomationHistoryViewMode) => {
-      setViewMode(mode);
-      if (mode === AutomationHistoryViewMode.Sheet) {
-        setSelectedExecutionId(null);
-      }
-    },
-    [setViewMode, setSelectedExecutionId],
+    (mode: AutomationHistoryViewMode) => setViewMode(mode),
+    [setViewMode],
   );
 
   return {
@@ -38,7 +45,7 @@ export const useAutomationHistoryView = () => {
     isVerticalSplit:
       splitDirection === AutomationHistorySplitDirection.Vertical,
     selectedExecutionId,
-    selectExecution: setSelectedExecutionId,
+    selectExecution,
   };
 };
 

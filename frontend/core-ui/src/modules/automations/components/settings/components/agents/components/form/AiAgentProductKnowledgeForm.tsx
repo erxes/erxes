@@ -38,8 +38,8 @@ const normalizeConfig = (
           (id): id is string => typeof id === 'string',
         )
       : legacyProductIds.length
-        ? legacyProductIds
-        : fallbackProductIds,
+      ? legacyProductIds
+      : fallbackProductIds,
     excludeCategoryIds: Array.isArray(value?.excludeCategoryIds)
       ? value.excludeCategoryIds.filter(
           (id): id is string => typeof id === 'string',

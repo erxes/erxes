@@ -370,7 +370,9 @@ const FacebookSelectedCardMessageHeader = () => {
         </p>
       </div>
       <Button
-        aria-label={`Remove ${selectedCard.label || `Page ${selectedCardIndex + 1}`}`}
+        aria-label={`Remove ${
+          selectedCard.label || `Page ${selectedCardIndex + 1}`
+        }`}
         className="text-muted-foreground hover:text-destructive"
         disabled={cards.length <= 1}
         size="icon"
@@ -488,11 +490,7 @@ const FacebookSelectedCardMessagePlaceholder = () => {
 
   return (
     <div className="grid min-h-48 place-items-center rounded-md border border-dashed bg-muted/30 p-6">
-      <Button
-        variant="outline"
-        disabled={cards.length >= 10}
-        onClick={addPage}
-      >
+      <Button variant="outline" disabled={cards.length >= 10} onClick={addPage}>
         <IconPlus className="size-4" /> {t('add-page')}
       </Button>
     </div>

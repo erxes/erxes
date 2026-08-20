@@ -7,7 +7,7 @@ export const useAutomationHistoryResult = () => {
   const { executionDetail, loading, refetch } = useAutomationExecutionDetail();
 
   const { actionsConst } = useAutomation();
-  const { actions = [], status } = executionDetail || {};
+  const { actions = [], status, description } = executionDetail || {};
 
   const getCreatedAtLabel = (createdAt: Date) => {
     const date = createdAt ? new Date(createdAt) : '';
@@ -26,6 +26,7 @@ export const useAutomationHistoryResult = () => {
   return {
     list,
     status: status as IAutomationHistory['status'],
+    executionError: status === 'error' ? description : undefined,
     refetch,
     loading,
   };

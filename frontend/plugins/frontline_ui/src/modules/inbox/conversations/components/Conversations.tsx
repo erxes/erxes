@@ -1,4 +1,3 @@
-import { useInView } from 'react-intersection-observer';
 import { IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
@@ -6,117 +5,26 @@ import { ConversationListContext } from '@/inbox/conversations/context/Conversat
 import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 
-import {
-  Button,
-  EnumCursorDirection,
-  EnumCursorMode,
-  Filter,
-  isUndefinedOrNull,
-  parseDateRangeFromString,
-  Separator,
-  useNonNullMultiQueryState,
-} from 'erxes-ui';
+import { Filter, Separator } from 'erxes-ui';
 
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
-import { CONVERSATIONS_LIMIT } from '@/inbox/constants/conversationsConstants';
-import { ConversationItem } from './ConversationItem';
-import { ConversationThreadList } from './ConversationChannelSection';
+import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
+import { ConversationThreadList } from '@/inbox/conversations/components/ConversationChannelSection';
 import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups';
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
-import { conversationsContainerScrollState } from '@/inbox/conversations/states/conversationsContainerScrollState';
-import { ConversationActions } from './ConversationActions';
+import { useMemo } from 'react';
+import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
 
 export const Conversations = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const refetchNewMessages = useAtomValue(refetchNewMessagesState);
-  const [conversationsContainerScroll, setConversationsContainerScroll] =
-    useAtom(conversationsContainerScrollState);
-  const [rerendered, setRerendered] = useState(false);
-
-  const [ref] = useInView({
-    onChange(inView) {
-      if (inView) {
-        handleFetchMore({
-          direction: EnumCursorDirection.FORWARD,
-        });
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (
-      containerRef.current &&
-      !isUndefinedOrNull(conversationsContainerScroll) &&
-      !rerendered
-    ) {
-      containerRef.current.scrollTo({
-        top: conversationsContainerScroll,
-      });
-      setConversationsContainerScroll(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationsContainerScroll]);
-
-  useEffect(() => {
-    if (refetchNewMessages) {
-      containerRef.current?.scrollTo({
-        top: 0,
-      });
-    }
-  }, [refetchNewMessages]);
-
   const {
-    channelId,
-    integrationId,
-    integrationType,
-    unassigned,
-    status,
-    created,
-    brandId,
-    searchValue,
-  } = useNonNullMultiQueryState<{
-    channelId: string;
-    integrationId: string;
-    integrationType: string;
-    unassigned: string;
-    status: string;
-    conversationId: string;
-    created: string;
-    brandId: string;
-    searchValue: string;
-  }>([
-    'channelId',
-    'integrationId',
-    'integrationType',
-    'unassigned',
-    'status',
-    'conversationId',
-    'created',
-    'brandId',
-    'searchValue',
-  ]);
-
-  const parsedDate = parseDateRangeFromString(created || '');
-
-  const { totalCount, conversations, handleFetchMore, loading, pageInfo } =
-    useConversations({
-      variables: {
-        limit: CONVERSATIONS_LIMIT,
-        channelId,
-        integrationId,
-        integrationType: integrationType,
-        unassigned,
-        status: status || '',
-        startDate: parsedDate?.from,
-        endDate: parsedDate?.to,
-        brandId,
-        searchValue,
-        cursorMode: EnumCursorMode.INCLUSIVE,
-      },
-    });
+    totalCount,
+    conversations,
+    loading,
+    containerRef,
+    fetchingMore,
+    handleConversationSelect,
+    handleScroll,
+  } = useConversations();
 
   const conversationListContextValue = useMemo(
     () => ({ conversations, loading, totalCount }),
@@ -145,10 +53,7 @@ export const Conversations = () => {
           isDiscordConversation(conversation) &&
           !channelMap.has(conversation._id)
         }
-        onConversationSelect={() => {
-          setConversationsContainerScroll(containerRef.current?.scrollTop || 0);
-          setRerendered(true);
-        }}
+        onConversationSelect={handleConversationSelect}
       />
     </ConversationContext.Provider>
   );
@@ -162,24 +67,24 @@ export const Conversations = () => {
           </ConversationsHeader>
         </Filter>
         <Separator />
-        <div className="h-full w-full overflow-y-auto" ref={containerRef}>
-          <ConversationThreadList
-            conversations={conversations || []}
-            threadMap={channelMap}
-            renderItem={renderConversationItem}
-          />
-          {!loading && conversations?.length > 0 && pageInfo?.hasNextPage && (
-            <Button
-              variant="ghost"
-              ref={ref}
-              className="pl-6 h-8 w-full text-muted-foreground"
-              asChild
-            >
-              <div>
+        <div className="relative min-h-0 flex-1">
+          <div
+            className="h-full w-full overflow-y-auto pb-10"
+            ref={containerRef}
+            onScroll={handleScroll}
+          >
+            <ConversationThreadList
+              conversations={conversations || []}
+              threadMap={channelMap}
+              renderItem={renderConversationItem}
+            />
+          </div>
+          {fetchingMore && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+              <div className="flex size-8 items-center justify-center rounded-full border bg-background/95 text-muted-foreground shadow-sm backdrop-blur-sm">
                 <IconLoader className="size-4 animate-spin" />
-                loading more...
               </div>
-            </Button>
+            </div>
           )}
         </div>
       </div>

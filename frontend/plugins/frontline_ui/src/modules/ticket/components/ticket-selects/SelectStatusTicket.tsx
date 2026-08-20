@@ -20,6 +20,9 @@ import {
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
 import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { canMoveTicketToStatus } from '@/ticket/hooks/useTicketPermissions';
 
 interface SelectStatusContextType {
   value: string;
@@ -28,6 +31,7 @@ interface SelectStatusContextType {
   error?: any;
   statuses?: ITicketStatusChoice[];
   pipelineId?: string;
+  restrictToMovable?: boolean;
 }
 
 const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
@@ -48,12 +52,14 @@ export const SelectStatusProvider = ({
   value,
   onValueChange,
   pipelineId,
+  restrictToMovable,
   children,
 }: {
   value: string;
   onValueChange: (status: string) => void;
   children: React.ReactNode;
   pipelineId?: string;
+  restrictToMovable?: boolean;
 }) => {
   const handleValueChange = (status: string) => {
     if (!status) return;
@@ -72,6 +78,7 @@ export const SelectStatusProvider = ({
         loading,
         error,
         pipelineId,
+        restrictToMovable,
       }}
     >
       {children}
@@ -116,19 +123,31 @@ const SelectStatusCommandItem = ({
 }: {
   status: ITicketStatusChoice;
 }) => {
-  const { onValueChange, value } = useSelectStatusContext();
+  const { t } = useTranslation('frontline');
+  const { onValueChange, value, restrictToMovable } = useSelectStatusContext();
+  const currentUser = useAtomValue(currentUserState);
   const { label, value: statusValue, type, color } = status || {};
+
+  const canMove = canMoveTicketToStatus(status, currentUser?._id);
+  const isBlocked = !!restrictToMovable && !canMove && value !== statusValue;
 
   return (
     <Command.Item
       value={statusValue}
+      disabled={isBlocked}
       onSelect={() => {
+        if (isBlocked) return;
         onValueChange(statusValue);
       }}
     >
       <div className="flex items-center gap-2 flex-1">
         <StatusInlineIcon statusType={type} color={color} />
         <span className="font-medium capitalize">{label}</span>
+        {isBlocked && (
+          <span className="text-xs text-muted-foreground">
+            {t('no-move-permission-short', 'No move permission')}
+          </span>
+        )}
       </div>
       <Combobox.Check checked={value === statusValue} />
     </Command.Item>
@@ -192,6 +211,7 @@ const SelectStatusTicketRoot = ({
       pipelineId={pipelineId}
       value={value}
       onValueChange={handleValueChange}
+      restrictToMovable
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <SelectTriggerTicket variant={variant} disabled={disabled}>

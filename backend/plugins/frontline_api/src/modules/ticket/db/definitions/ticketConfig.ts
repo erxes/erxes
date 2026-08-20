@@ -24,6 +24,7 @@ const TicketPropertyFieldSchema = new Schema(
     groupId: { type: String, required: false },
     label: { type: String, required: false },
     placeholder: { type: String, required: false },
+    groupOrder: { type: Number, required: false },
     order: { type: Number, required: false },
     isRequired: { type: Boolean, required: false },
     type: { type: String, required: false },

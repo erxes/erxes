@@ -3,17 +3,28 @@ import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
 import { TR_SIDES } from '~/modules/transactions/types/constants';
 import { CalcReportResult } from '..';
 
+type SummaryRecord = {
+  side?: string;
+  sumAmount?: number;
+  isBetween?: number;
+};
+
+const getItems = (dic: Record<string, unknown>) =>
+  Array.isArray(dic.items) ? (dic.items as SummaryRecord[]) : [];
+
 export const HandleMainAC = (
-  dic: any,
-  groupRule: IGroupRule,
-  attr: string,
+  dic: Record<string, unknown>,
+  _groupRule: IGroupRule,
+  _attr: string,
 ): CalcReportResult => {
-  const { items } = dic;
+  const items = getItems(dic);
   let [fr_diff, tr_dt, tr_ct, lr_diff] = [0, 0, 0, 0];
 
   for (const rec of items) {
     const [dtAmount, ctAmount] =
-      rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
+      rec.side === TR_SIDES.DEBIT
+        ? [rec.sumAmount || 0, 0]
+        : [0, rec.sumAmount || 0];
     const diffAmount = dtAmount - ctAmount;
 
     if (rec.isBetween) {

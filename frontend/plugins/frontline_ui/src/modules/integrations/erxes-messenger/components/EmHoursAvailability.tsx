@@ -8,6 +8,8 @@ import {
   RadioGroup,
   Button,
   cn,
+  Separator,
+  ToggleGroup,
   TimezoneSelect,
   detectTimeZone,
 } from 'erxes-ui';
@@ -124,7 +126,9 @@ export const EMHoursAvailability = () => {
                           <Form.Control>
                             <RadioGroup.Item value={rate} />
                           </Form.Control>
-                          <Form.Label variant="peer">{t('few-rate', { rate })}</Form.Label>
+                          <Form.Label variant="peer">
+                            {t(`few-rate.${rate}`)}
+                          </Form.Label>
                         </Form.Item>
                       ))}
                     </RadioGroup>
@@ -225,23 +229,56 @@ const ALL_DAYS = [...WEEKDAYS, ...WEEKEND_DAYS] as const;
 const DEFAULT_FROM = '09:00:00';
 const DEFAULT_TO = '18:00:00';
 
-/** Set a day's work flag + default times if turning on */
-const setDayWork = (
-  form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>,
-  day: Weekday | ScheduleDay,
-  checked: boolean,
+const DAY_GROUPS = [
+  { key: ScheduleDay.DAILY, label: 'everyday', days: ALL_DAYS },
+  { key: ScheduleDay.WEEKDAY, label: 'weekdays', days: WEEKDAYS },
+  { key: ScheduleDay.WEEKEND, label: 'weekend', days: WEEKEND_DAYS },
+] as const;
+
+type EMHoursFormValues = z.infer<typeof EMHOURS_SCHEMA>;
+type OnlineHours = EMHoursFormValues['onlineHours'];
+
+/**
+ * Writes the given work-flag overrides, fills in default hours for days that
+ * are switched on without times, and keeps the derived group keys
+ * (everyday/weekday/weekend) in sync with the individual days.
+ */
+const applyDayWork = (
+  form: UseFormReturn<EMHoursFormValues>,
+  onlineHours: OnlineHours,
+  overrides: Partial<Record<Weekday, boolean>>,
 ) => {
-  form.setValue(`onlineHours.${day}.work` as never, checked as never);
-  if (checked) {
-    form.setValue(`onlineHours.${day}.from` as never, DEFAULT_FROM as never);
-    form.setValue(`onlineHours.${day}.to` as never, DEFAULT_TO as never);
-  }
+  const nextOnlineHours: OnlineHours = { ...onlineHours };
+
+  ALL_DAYS.forEach((day) => {
+    const work = overrides[day];
+    if (work === undefined) {
+      return;
+    }
+
+    const current = onlineHours?.[day];
+    nextOnlineHours[day] = {
+      ...current,
+      work,
+      from: work ? current?.from || DEFAULT_FROM : current?.from,
+      to: work ? current?.to || DEFAULT_TO : current?.to,
+    };
+  });
+
+  DAY_GROUPS.forEach(({ key, days }) => {
+    nextOnlineHours[key] = {
+      ...onlineHours?.[key],
+      work: days.every((day) => !!nextOnlineHours?.[day]?.work),
+    };
+  });
+
+  form.setValue('onlineHours', nextOnlineHours, { shouldDirty: true });
 };
 
 export const EMHoursTimeTable = ({
   form,
 }: {
-  form: UseFormReturn<z.infer<typeof EMHOURS_SCHEMA>>;
+  form: UseFormReturn<EMHoursFormValues>;
 }) => {
   const { t } = useTranslation('frontline');
   const availabilityMethod = useWatch({
@@ -251,38 +288,6 @@ export const EMHoursTimeTable = ({
 
   // Watch all individual days to derive group states
   const onlineHours = useWatch({ control: form.control, name: 'onlineHours' });
-
-  const isDayOn = (day: Weekday | ScheduleDay) => !!onlineHours?.[day]?.work;
-
-  const allOn = ALL_DAYS.every(isDayOn);
-  const weekdaysOn = WEEKDAYS.every(isDayOn);
-  const weekendOn = WEEKEND_DAYS.every(isDayOn);
-
-  /** Recomputes and syncs the three group keys based on current day states */
-  const syncGroupKeys = (
-    updatedDay?: Weekday | ScheduleDay,
-    updatedValue?: boolean,
-  ) => {
-    const isOn = (day: Weekday | ScheduleDay) =>
-      day === updatedDay ? (updatedValue ?? isDayOn(day)) : isDayOn(day);
-
-    const nextAllOn = ALL_DAYS.every(isOn);
-    const nextWeekdaysOn = WEEKDAYS.every(isOn);
-    const nextWeekendOn = WEEKEND_DAYS.every(isOn);
-
-    form.setValue(
-      `onlineHours.${ScheduleDay.DAILY}.work` as never,
-      nextAllOn as never,
-    );
-    form.setValue(
-      `onlineHours.${ScheduleDay.WEEKDAY}.work` as never,
-      nextWeekdaysOn as never,
-    );
-    form.setValue(
-      `onlineHours.${ScheduleDay.WEEKEND}.work` as never,
-      nextWeekendOn as never,
-    );
-  };
 
   if (availabilityMethod === 'manual') {
     return (
@@ -309,154 +314,133 @@ export const EMHoursTimeTable = ({
     );
   }
 
+  const activeGroup =
+    DAY_GROUPS.find(({ days }) => {
+      const selected = new Set<Weekday>(days);
+      return ALL_DAYS.every(
+        (day) => !!onlineHours?.[day]?.work === selected.has(day),
+      );
+    })?.key ?? '';
+
   return (
-    <ScrollArea className="w-full ">
-      {/* ── Group quick-selectors ─────────────────────────────── */}
-      {(
-        [
-          {
-            key: ScheduleDay.DAILY,
-            label: 'Everyday',
-            days: ALL_DAYS,
-            checked: allOn,
-          },
-          {
-            key: ScheduleDay.WEEKDAY,
-            label: 'Weekdays',
-            days: WEEKDAYS,
-            checked: weekdaysOn,
-          },
-          {
-            key: ScheduleDay.WEEKEND,
-            label: 'Weekend',
-            days: WEEKEND_DAYS,
-            checked: weekendOn,
-          },
-        ] as const
-      ).map(({ key, label, days, checked }) => (
-        <div key={key} className="flex items-center border-b gap-3 py-3 px-1">
-          <Switch
-            checked={checked}
-            onCheckedChange={(value) => {
-              // Fan-out to individual days
-              (days as readonly (Weekday | ScheduleDay)[]).forEach((day) =>
-                setDayWork(form, day, value),
-              );
-              // Re-sync the other group keys
-              syncGroupKeys();
-              // Set this group key itself
-              form.setValue(`onlineHours.${key}.work` as never, value as never);
-            }}
-          />
-          <span
-            className={cn(
-              'font-semibold capitalize leading-7 min-w-20',
-              checked && 'mr-auto',
-            )}
-          >
-            {label}
-          </span>
-          {!checked && (
-            <span className="text-sm text-accent-foreground">
-              Not working on {label.toLowerCase()}
-            </span>
-          )}
-        </div>
-      ))}
+    <div className="flex flex-col gap-4">
+      <Separator />
+
+      {/* ── Quick set presets ─────────────────────────────────── */}
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {t('quick-set')}
+        </span>
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          value={activeGroup}
+          onValueChange={(value) => {
+            const group = DAY_GROUPS.find(({ key }) => key === value);
+            if (!group) {
+              return;
+            }
+            const selected = new Set<Weekday>(group.days);
+            applyDayWork(
+              form,
+              onlineHours,
+              Object.fromEntries(
+                ALL_DAYS.map((day) => [day, selected.has(day)]),
+              ),
+            );
+          }}
+          className="w-fit"
+        >
+          {DAY_GROUPS.map(({ key, label }) => (
+            <ToggleGroup.Item key={key} value={key} aria-label={t(label)}>
+              {t(label)}
+            </ToggleGroup.Item>
+          ))}
+        </ToggleGroup>
+      </div>
+
+      <Separator />
 
       {/* ── Individual day rows ───────────────────────────────── */}
-      {ALL_DAYS.map((day, index) => (
-        <Form.Field
-          name={`onlineHours.${day}.work`}
-          key={index}
-          render={({ field }) => (
-            <Form.Item className="flex items-center border-b gap-3 py-3 px-1 space-y-0">
-              <Form.Control>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={(checked) => {
-                    field.onChange(checked);
-                    if (checked) {
-                      form.setValue(
-                        `onlineHours.${day}.from`,
-                        DEFAULT_FROM as never,
-                      );
-                      form.setValue(
-                        `onlineHours.${day}.to`,
-                        DEFAULT_TO as never,
-                      );
-                    }
-                    // Sync group keys after updating this day
-                    syncGroupKeys(day, checked);
-                  }}
-                />
-              </Form.Control>
-              <Form.Label
-                className={cn(
-                  'font-semibold capitalize leading-7 min-w-20',
-                  !!field.value && 'mr-auto',
-                )}
-                variant="peer"
-              >
-                {day}
-              </Form.Label>
-
-              {field.value ? (
-                <div className="inline-flex gap-3 items-center text-accent-foreground text-sm">
-                  <Form.Field
-                    name={`onlineHours.${day}.from`}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <TimeField
-                          value={
-                            field.value ? safeParseTime(field.value) : null
-                          }
-                          onChange={(value) => {
-                            field.onChange(value?.toString());
-                          }}
-                          aria-label={day + ' from'}
-                        >
-                          <Form.Control>
-                            <DateInput />
-                          </Form.Control>
-                        </TimeField>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                  <span>{t('to')}</span>
-                  <Form.Field
-                    name={`onlineHours.${day}.to`}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <TimeField
-                          value={
-                            field.value ? safeParseTime(field.value) : null
-                          }
-                          onChange={(value) => {
-                            field.onChange(value?.toString());
-                          }}
-                          aria-label={day + ' to'}
-                        >
-                          <Form.Control>
-                            <DateInput />
-                          </Form.Control>
-                        </TimeField>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              ) : (
-                <Form.Label variant="peer" className="text-accent-foreground">
-                  {t('not-working-on-this-day')}
-                </Form.Label>
+      <ScrollArea className="w-full">
+        <div className="flex flex-col">
+          {ALL_DAYS.map((day) => (
+            <Form.Field
+              name={`onlineHours.${day}.work`}
+              key={day}
+              render={({ field }) => (
+                <Form.Item
+                  className={cn(
+                    'flex items-center gap-3 border-b py-2.5 space-y-0 transition-opacity',
+                    !field.value && 'opacity-50',
+                  )}
+                >
+                  <Form.Control>
+                    <Switch
+                      checked={!!field.value}
+                      onCheckedChange={(checked) =>
+                        applyDayWork(form, onlineHours, { [day]: checked })
+                      }
+                    />
+                  </Form.Control>
+                  <Form.Label
+                    className="w-24 flex-none font-medium capitalize"
+                    variant="peer"
+                  >
+                    {day}
+                  </Form.Label>
+                  <div className="flex flex-1 items-center justify-end gap-2">
+                    <EMHoursTimeField
+                      day={day}
+                      boundary="from"
+                      disabled={!field.value}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {t('to')}
+                    </span>
+                    <EMHoursTimeField
+                      day={day}
+                      boundary="to"
+                      disabled={!field.value}
+                    />
+                  </div>
+                </Form.Item>
               )}
-            </Form.Item>
-          )}
-        />
-      ))}
-      <ScrollArea.Bar orientation="horizontal" />
-    </ScrollArea>
+            />
+          ))}
+        </div>
+        <ScrollArea.Bar orientation="horizontal" />
+      </ScrollArea>
+    </div>
   );
 };
+
+const EMHoursTimeField = ({
+  day,
+  boundary,
+  disabled,
+}: {
+  day: Weekday;
+  boundary: 'from' | 'to';
+  disabled: boolean;
+}) => (
+  <Form.Field
+    name={`onlineHours.${day}.${boundary}`}
+    render={({ field }) => (
+      <Form.Item className="space-y-0">
+        <TimeField
+          value={field.value ? safeParseTime(field.value) : null}
+          onChange={(value) => field.onChange(value?.toString())}
+          isDisabled={disabled}
+          aria-label={`${day} ${boundary}`}
+        >
+          <Form.Control>
+            <DateInput className="w-24 justify-center" />
+          </Form.Control>
+        </TimeField>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);

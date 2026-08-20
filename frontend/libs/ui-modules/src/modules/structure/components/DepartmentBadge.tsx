@@ -11,6 +11,7 @@ export const DepartmentBadge = React.forwardRef<
     renderClose?: (department: IDepartment) => React.ReactNode;
     onCompleted?: (department: IDepartment) => void;
     renderAsPlainText?: boolean;
+    showMissingId?: boolean;
   }
 >(
   (
@@ -20,6 +21,7 @@ export const DepartmentBadge = React.forwardRef<
       renderClose,
       onCompleted,
       renderAsPlainText,
+      showMissingId,
       ...props
     },
     ref,
@@ -45,6 +47,24 @@ export const DepartmentBadge = React.forwardRef<
     }
 
     if (!departmentValue) {
+      if (showMissingId && departmentId) {
+        if (renderAsPlainText) {
+          return <TextOverflowTooltip value={departmentId} />;
+        }
+
+        return (
+          <Badge
+            ref={ref}
+            variant="secondary"
+            className="font-mono"
+            title={`Unknown id: ${departmentId}`}
+            onClose={props.onClose}
+          >
+            <span className="max-w-24 truncate">{departmentId}</span>
+          </Badge>
+        );
+      }
+
       return null;
     }
 

@@ -3,6 +3,7 @@ import { AutomationStatsErrorMessages } from '@/automations/components/builder/s
 import { AutomationStatsFilter } from '@/automations/components/builder/stats/components/AutomationStatsFilter';
 import { AutomationStatsNodes } from '@/automations/components/builder/stats/components/AutomationStatsNodes';
 import { AutomationStatsOverview } from '@/automations/components/builder/stats/components/AutomationStatsOverview';
+import { AutomationStatsWindowNav } from '@/automations/components/builder/stats/components/AutomationStatsWindowNav';
 import { useAutomationStats } from '@/automations/components/builder/stats/hooks/useAutomationStats';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { Button, PageSubHeader, Skeleton } from 'erxes-ui';
@@ -20,20 +21,18 @@ const AutomationStatsSkeleton = () => (
 );
 
 export const AutomationStats = () => {
-  const { stats, loading, error, refetch } = useAutomationStats();
+  const { stats, loading, error, refetch, window } = useAutomationStats();
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <PageSubHeader>
         <AutomationStatsFilter />
-        <Button
-          variant="ghost"
-          className="ml-auto"
-          disabled={loading}
-          onClick={() => refetch()}
-        >
-          <IconRefresh />
-        </Button>
+        <div className="ml-auto flex items-center gap-1">
+          <AutomationStatsWindowNav {...window} />
+          <Button variant="ghost" disabled={loading} onClick={() => refetch()}>
+            <IconRefresh />
+          </Button>
+        </div>
       </PageSubHeader>
 
       <div className="flex-1 min-h-0 overflow-y-auto bg-sidebar p-4">
@@ -54,7 +53,11 @@ export const AutomationStats = () => {
         {!loading && !error && stats && (
           <div className="flex flex-col gap-4">
             <AutomationStatsOverview stats={stats} />
-            <AutomationStatsChart timeSeries={stats.timeSeries} />
+            <AutomationStatsChart
+              timeSeries={stats.timeSeries}
+              beginDate={window.beginDate}
+              endDate={window.endDate}
+            />
             <AutomationStatsErrorMessages errorMessages={stats.errorMessages} />
             <AutomationStatsNodes nodes={stats.nodes} />
           </div>

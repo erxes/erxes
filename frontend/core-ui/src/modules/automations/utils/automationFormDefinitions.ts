@@ -115,6 +115,10 @@ export type TAutomationBuilderForm = z.infer<
   typeof automationBuilderFormSchema
 >;
 
+export type TAutomationBuilderSaveValues = TAutomationBuilderForm & {
+  acknowledgeDuplicate?: boolean;
+};
+
 export type TAutomationBuilderActions =
   TAutomationBuilderForm[AutomationNodesType.Actions];
 

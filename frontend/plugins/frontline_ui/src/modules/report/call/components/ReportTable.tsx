@@ -50,7 +50,6 @@ function ReportTableCell({
   ...props
 }: ComponentProps<typeof Table.Cell> & {
   align?: Align;
-
   numeric?: boolean;
 }) {
   return (

@@ -3,10 +3,11 @@ import { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
 export const generateFilter = async (
   filter: any,
-  user: IUserDocument,
+  user: IUserDocument | undefined,
   models: IModels,
 ) => {
   const filterQuery: FilterQuery<ITicketDocument> = {};
@@ -14,6 +15,8 @@ export const generateFilter = async (
   const andConditions: FilterQuery<ITicketDocument>[] = [];
 
   let ownershipOrCondition: FilterQuery<ITicketDocument>['$or'] | null = null;
+
+  const userId = user?._id;
 
   if (filter.pipelineId) {
     const pipeline = await models.Pipeline.findOne({
@@ -25,7 +28,7 @@ export const generateFilter = async (
     }
 
     if (pipeline.visibility === 'private') {
-      const isMember = (pipeline.memberIds || []).includes(user._id);
+      const isMember = !!userId && (pipeline.memberIds || []).includes(userId);
       if (!isMember) {
         throw new Error(
           'Access denied: You do not have access to this private pipeline',
@@ -34,7 +37,7 @@ export const generateFilter = async (
     }
 
     if (pipeline.isCheckDepartment && pipeline.departmentIds?.length) {
-      const userDeptIds = user.departmentIds || [];
+      const userDeptIds = user?.departmentIds || [];
       const hasAccess = pipeline.departmentIds.some((id) =>
         userDeptIds.includes(id),
       );
@@ -46,7 +49,7 @@ export const generateFilter = async (
     }
 
     if (pipeline.isCheckBranch && pipeline.branchIds?.length) {
-      const userBranchIds = user.branchIds || [];
+      const userBranchIds = user?.branchIds || [];
       const hasAccess = pipeline.branchIds.some((id) =>
         userBranchIds.includes(id),
       );
@@ -58,18 +61,16 @@ export const generateFilter = async (
     }
 
     if (
+      userId &&
       pipeline.isCheckUser &&
-      (pipeline.excludeCheckUserIds || []).includes(user._id)
+      !(pipeline.excludeCheckUserIds || []).includes(userId)
     ) {
-      ownershipOrCondition = [
-        { assigneeId: user._id },
-        { createdBy: user._id },
-      ];
+      ownershipOrCondition = [{ assigneeId: userId }, { createdBy: userId }];
     }
   }
 
-  if (filter.myTicketsOnly) {
-    ownershipOrCondition = [{ assigneeId: user._id }, { createdBy: user._id }];
+  if (filter.myTicketsOnly && userId) {
+    ownershipOrCondition = [{ assigneeId: userId }, { createdBy: userId }];
   }
 
   if (filter.searchValue) {
@@ -130,6 +131,16 @@ export const generateFilter = async (
     case 'deleted':
       stateCondition = { state: 'deleted' };
       break;
+  }
+
+  if (userId) {
+    const hiddenStatusIds = await createPermissionValidator(
+      models,
+    ).getHiddenStatusIds(userId, filter.pipelineId);
+
+    if (hiddenStatusIds.length) {
+      andConditions.push({ statusId: { $nin: hiddenStatusIds } });
+    }
   }
 
   if (ownershipOrCondition) {

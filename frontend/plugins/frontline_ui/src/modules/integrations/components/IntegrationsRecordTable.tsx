@@ -11,6 +11,7 @@ import {
   Separator,
   Spinner,
   toast,
+  Tooltip,
   useConfirm,
 } from 'erxes-ui';
 import { useApolloClient, useMutation } from '@apollo/client';
@@ -297,17 +298,37 @@ export const useIntegrationTypeColumns = (
         const healthStatus =
           cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
+        const error = healthStatus?.error;
+
+        if (!status) {
+          return <RecordTableInlineCell />;
+        }
+
+        const badge = (
+          <Badge
+            className="text-xs capitalize mx-auto"
+            variant={status === 'healthy' ? 'success' : 'destructive'}
+          >
+            {status}
+          </Badge>
+        );
 
         return (
           <RecordTableInlineCell>
-            {status ? (
-              <Badge
-                className="text-xs capitalize mx-auto"
-                variant={status === 'healthy' ? 'success' : 'destructive'}
-              >
-                {status}
-              </Badge>
-            ) : null}
+            {error ? (
+              <Tooltip.Provider>
+                <Tooltip delayDuration={0}>
+                  <Tooltip.Trigger asChild>
+                    <span className="mx-auto">{badge}</span>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words">
+                    {error}
+                  </Tooltip.Content>
+                </Tooltip>
+              </Tooltip.Provider>
+            ) : (
+              badge
+            )}
           </RecordTableInlineCell>
         );
       },

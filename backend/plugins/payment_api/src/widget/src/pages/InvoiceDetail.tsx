@@ -68,7 +68,34 @@ const InvoiceDetail = () => {
       invoiceDetailQuery.refetch();
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
+  React.useEffect(() => {
+    if (!id || !invoiceDetail || invoiceDetail.status === 'paid') {
+      return;
+    }
+    const interval = setInterval(async () => {
+      try {
+        const { data } = await checkInvoice({
+          variables: { id },
+        });
 
+        const status = data?.invoicesCheck;
+
+        if (status === 'paid') {
+          clearInterval(interval);
+          return;
+        }
+
+        if (status === 'failed' || status === 'expired') {
+          clearInterval(interval);
+          window.location.href = `/pl:payment/widget/payment-failed/${id}`;
+        }
+      } catch (error) {
+        console.error('[Payment] Automatic invoice check failed:', error);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [id, invoiceDetail?.status, checkInvoice]);
   if (invoiceDetailQuery.loading || paymentsLoading) {
     return (
       <div className="py-12 flex items-center justify-center">

@@ -27,7 +27,13 @@ export const WorkflowEditView = ({ workflowId }: { workflowId: string }) => {
     useWorkflowTemplatePrompt(workflowId);
 
   const handleSave = useCallback(
-    ({ name, description, actions, entryActionId, inputs }: TWorkflowEditorValue) => {
+    ({
+      name,
+      description,
+      actions,
+      entryActionId,
+      inputs,
+    }: TWorkflowEditorValue) => {
       if (workflowIndex < 0) {
         return;
       }

@@ -11,7 +11,9 @@ export const MessageSequenceHeader = () => {
     <>
       <div className="flex flex-row gap-2 items-center px-6 py-2">
         <Label>{t('message-sequence')}</Label>
-        <Badge variant="secondary">{t('n-messages', { count: messages.length })}</Badge>
+        <Badge variant="secondary">
+          {t('n-messages', { count: messages.length })}
+        </Badge>
       </div>
       {maxMessages === 1 && (
         <p className="px-6 pb-2 text-sm text-muted-foreground">

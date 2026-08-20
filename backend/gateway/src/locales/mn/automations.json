@@ -22,6 +22,8 @@
   "save": "Хадгалах",
   "automation-name-placeholder": "Автоматжуулалтын нэр",
   "inactive": "Идэвхгүй",
+  "activate": "Идэвхжүүлэх",
+  "deactivate": "Идэвхгүй болгох",
   "builder": "Бүтээгч",
   "history": "Түүх",
 
@@ -38,6 +40,7 @@
 
   "edit": "Засах",
   "delete": "Устгах",
+  "duplicate": "Хувилах",
   "delete-confirm-title": "Та итгэлтэй байна уу?",
   "delete-confirm-description": "Энэ үйлдлийг буцааж болохгүй.",
   "cancel": "Цуцлах",
@@ -196,6 +199,8 @@
   "trigger-type-description": "Триггер идэвхжүүлдэг автоматжуулалтын төрлөөс эхлэнэ үү",
   "choose-action-type": "Үйлдлийн төрлийг сонгоно уу",
   "action-type-description": "Автоматжуулалт идэвхжсэний дараа юу болохыг сонгоно уу",
+  "choose-workflow": "Workflow сонгоно уу",
+  "workflow-description": "Хадгалсан workflow-г энэ автоматжуулалт дотор дахин ашиглана",
   "search": "Хайх...",
   "filter-by-type": "Төрлөөр шүүх",
   "variables-help-aria-label": "Хувьсагч хэрхэн ажилладаг вэ",

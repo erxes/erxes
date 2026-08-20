@@ -148,10 +148,15 @@ export const loadTicketClass = (
         throw new Error('Ticket not found');
       }
 
+      const editsFields =
+        !!incomingPropertiesData ||
+        Object.keys(rest).some((field) => field !== 'statusId');
+
       await permissionValidator.validateEditPermission(
         ticket.statusId || '',
         doc.statusId || '',
         userId,
+        editsFields,
       );
       if (incomingPropertiesData) {
         await sendTRPCMessage({

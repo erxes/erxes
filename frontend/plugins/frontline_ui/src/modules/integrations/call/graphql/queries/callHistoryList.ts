@@ -2,6 +2,7 @@ export const CALL_HISTORY_LIST = `
   query callHistoryList(
     $startDate: String!
     $endDate: String!
+    $integrationId: String
     $queueId: String
     $direction: String
     $outcome: String
@@ -14,6 +15,7 @@ export const CALL_HISTORY_LIST = `
     callHistoryList(
       startDate: $startDate
       endDate: $endDate
+      integrationId: $integrationId
       queueId: $queueId
       direction: $direction
       outcome: $outcome
