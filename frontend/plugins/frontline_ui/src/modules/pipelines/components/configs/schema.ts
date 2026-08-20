@@ -17,6 +17,7 @@ const ticketPropertyFieldSchema = z.object({
   groupId: z.string().optional().nullable(),
   label: z.string().optional().nullable(),
   placeholder: z.string().optional().nullable(),
+  groupOrder: z.number().optional().nullable(),
   order: z.number().optional().nullable(),
   isRequired: z.boolean().optional().nullable(),
   type: z.string().optional().nullable(),

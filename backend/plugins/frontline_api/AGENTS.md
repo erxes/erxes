@@ -113,7 +113,7 @@
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
-| Reports              | `src/modules/reports/`                                                      | Inbox/ticket/Facebook report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model       |
+| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
 
 ## Contracts
@@ -383,6 +383,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   conversation count must resolve the channel's integration ids first; never
   read `channels.conversationCount` / `channels.openConversationCount`, which
   are stale legacy fields.
+- `conversationBotTypingStatus:<conversationId>` is fire-and-forget: a subscriber
+  that is not connected when an event is published never receives it. A widget
+  starting a new conversation learns its `conversationId` only from the
+  `widgetsInsertMessage` response, so the `typing: true` that mutation publishes
+  inline always reaches nobody. `generateAiContext` therefore re-publishes
+  `typing: true` when the agent starts, and `receiveActions` clears it in a
+  `finally`; neither may be dropped without replacing the other.
+- Messenger availability is always derived, never read from storage.
+  `messengerData.isOnline` on the integration document is only the operator's
+  manual switch; `Integrations.isOnline()` is the one place that resolves it
+  against `availabilityMethod`, `onlineHours`, and `timezone`. Every surface that
+  reports availability — `widgetsMessengerConnect` / `cpConnect` via
+  `getMessengerData`, `widgetsConversationDetail`, `widgetsMessengerSupporters` —
+  must return that computed value, so the stored flag never leaks to a widget as
+  `isOnline`.
 - An integration may never be attached to another user's personal channel. That
   ownership check is the only scope-based restriction on integration creation —
   do not reintroduce a per-kind allowlist for personal channels.
@@ -467,6 +482,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `waittime` is **not a field on `CDRSchema`** — Mongoose strips it on write, so
   anything reading `$waittime` measures zero. Ring time is `duration - billsec`
   on a folded call (`statistics.ts` uses `answer - start` for the same thing).
+- `CallHistoryEntry.waitTime` is how long the caller was held, whichever way
+  the call went: `callSpeedOfAnswer` for an answered call, `callRingSeconds`
+  for one that ended unanswered. They read different fields because an
+  unanswered leg has no `answer` stamp for `answer - start` to use — the ring
+  is `duration - billsec` there. A queue rings several agents at once, so
+  `callRingSeconds` takes the longest of the waiting legs, which is what the
+  caller actually sat through. When no `Queue`/`Dial` leg carries a ring it
+  falls back to the whole call, `max(end) - min(start)`. Subtracting `billsec`
+  is useless there: an IVR files its menu as `billsec`, so `duration - billsec`
+  reads zero on a call where the caller sat through the menu for 26 seconds and
+  hung up. Nothing on a call nobody answered was a conversation, so the span is
+  all wait. `null` only when no leg carries a usable timestamp.
 - A trunk leg carries the dialled DID in `dst`; the answering extension is in
   `dstchannelExt`. `agentOf` takes whichever field holds a four-digit extension,
   so agent attribution must not read `dst` alone.
@@ -542,9 +569,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   returns it as-is; neither it nor `firstCallResolution` is rendered by the UI
   today.
 - `TicketConfig.propertyFields` is stored in display order: the array position
-  is the order and `order` is rewritten to `index + 1` on every save. Never
-  re-sort the incoming list by `order` — the client sends the list as the user
-  arranged it. Every entry must resolve to an existing `frontline:ticket` field
+  is the order, so `order` is rewritten to `index + 1` and `groupOrder` to the
+  rank of the group's first appearance on every save. Both are derived from the
+  submitted array and never read from the submitted values. Never re-sort the
+  incoming list by either — the client sends the list as the user arranged it,
+  with each group's properties in one contiguous block.
+  Every entry must resolve to an existing `frontline:ticket` field
   in core, and duplicates are dropped; `validateTicketPropertyFields` in
   `src/modules/ticket/utils/ticketConfig.ts` is the one implementation. `type`
   and `options` are always taken from the core field definition there, never
@@ -755,6 +785,66 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `Conversation.callProPhone`; a resolver for the previously dangling
   `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
   `sendUpdateIntegration`, and `sendRemoveIntegration`.
+### `2026-08-19` — Call history reports the ring on unanswered calls
+
+- **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
+  answered, so the Waited column showed a dash on exactly the rows a supervisor
+  wants to read — a No answer row said nothing about whether it rang for three
+  seconds or three minutes. Unanswered calls now report `callRingSeconds`,
+  taken from `duration - billsec` on the legs that held the caller, since an
+  unanswered leg has no `answer` stamp for the existing helper to subtract. It
+  falls back to the call's own span when the PBX filed no `Queue`/`Dial` ring,
+  which is how an IVR-only call arrives — its menu time lands in `billsec`, so
+  subtracting it would report zero.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts` (`callRingSeconds`,
+  `ICdrLegTiming.duration`), `src/modules/reports/callHistoryService.ts`,
+  `src/modules/reports/graphql/schema/call.ts`.
+- **Contracts changed:** None. `CallHistoryEntry.waitTime` keeps its type and
+  unit; it is now populated for unanswered calls instead of always `null`.
+
+### `2026-08-19` — Bot typing status survives conversation creation
+
+- **Summary:** `generateAiContext` re-publishes
+  `conversationBotTypingStatus:<conversationId>` with `typing: true` when the AI
+  agent starts, so a widget that only learns its `conversationId` from the
+  `widgetsInsertMessage` response still sees the indicator for the first message
+  of a conversation and for the whole agent run. Also removed the debug
+  `console.log` calls left in `widgetsInsertMessage`.
+- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
+- **Contracts changed:** None — same subscription and payload shape, published
+  once more per agent run.
+
+### `2026-08-19` — Messenger connect returns computed online state
+
+- **Summary:** `getMessengerData` now computes availability with
+  `Integrations.isOnline(integration)` and returns it as `messengerData.isOnline`
+  instead of passing through the stored manual flag, so a widget connecting to an
+  `availabilityMethod: "auto"` integration follows `onlineHours` and `timezone`.
+  The same computed value drives the existing `hideWhenOffline` `showChat`
+  suppression, which no longer recomputes it.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` (`getMessengerData`,
+  shared by `widgetsMessengerConnect` and `cpConnect`).
+- **Contracts changed:** None — `MessengerConnectResponse.messengerData` is
+  `JSON` and still carries `isOnline`, now with the derived value.
+
+### `2026-08-19` — Ticket property fields carry their group's order
+
+- **Summary:** `TicketPropertyField` gained `groupOrder`, the position of the
+  property's group among the groups a configuration uses, so a consumer can
+  rebuild the grouped layout the builder shows without inferring it from array
+  positions. Like `order`, it is derived in `validateTicketPropertyFields` from
+  the submitted array — the rank at which each `groupId` first appears — and
+  never taken from the submitted values.
+- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
+  `src/modules/ticket/db/definitions/ticketConfig.ts`,
+  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
+  `src/modules/ticket/utils/ticketConfig.ts`.
+- **Contracts changed:** `TicketPropertyField` and `TicketPropertyFieldInput`
+  gained an optional `groupOrder: Int`; stored configurations without it keep
+  working and are backfilled on their next save.
 
 ### `2026-08-18` — Manual Meta sync for post engagement
 
@@ -827,70 +917,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/ticket/utils/permissionValidator.ts`.
 - **Contracts changed:** None — `updateTicket` can now fail with
   `You do not have permission to move tickets out of this status`.
-
-### `2026-08-17` — Status management moved onto the frontline permission
-
-- **Summary:** `addTicketStatus`, `updateTicketStatus` and `deleteTicketStatus`
-  now require the new `ticketStatusesManage` action via
-  `context.checkPermission` instead of asserting pipeline ownership; the local
-  `assertPipelineOwner` helper is gone.
-- **Affected areas:** `src/meta/permissions.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/status.ts`.
-- **Contracts changed:** The `ticket` permission module gained the
-  `ticketStatusesManage` action, granted to the `frontline:admin` default
-  group; the three status mutations now fail with `Permission required`
-  (`FORBIDDEN`) for users without it.
-
-### `2026-08-15` — Call reports scope by integration, queue becomes a filter
-
-- **Summary:** Every call report resolver was anchored on `queueId`, so a
-  deployment that stopped routing through its queue reported nothing at all —
-  IVR and direct-to-extension traffic was invisible even though it was the only
-  traffic left. Reports now resolve an integration scope through
-  `resolveReportScope` and bound their CDR reads on `inboxIntegrationId`,
-  applying `QUEUE[<id>]` only when a queue is actually chosen. This also closes
-  the gap where `callCarrierBreakdown`, `callHeatmap`, and `callTopNumbers` had
-  no integration bound at all.
-- **Affected areas:**
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (all nine report
-  resolvers, `resolveReportScope` / `inboxScopeFilter` /
-  `operatorUserIdByExtension` replacing `findQueueIntegration` and
-  `readableQueues`), `src/modules/reports/graphql/schema/call.ts`,
-  `ICallReportArgs` in `src/modules/reports/callReportService.ts`.
-- **Contracts changed:** Nine report queries gained an optional
-  `integrationId: String`; `queueId` stays optional and now accepts `"all"`.
-  Existing callers keep working, and a queue-scoped call returns the same rows
-  as before, additionally bounded to that queue's integration.
-
-### `2026-08-15` — Follow-Me forwards excluded from call volume, credited to agents
-
-- **Summary:** `FOLLOWME[<ext>]` legs — an extension's forward to a staff
-  mobile, one `uniqueid` per attempt — were counted as distinct outbound
-  customer calls, inflating Total Calls to 1,843 against 179 real calls and
-  filling Top Numbers with operator mobiles. `buildCdrFilter` now drops them
-  unless `includeForwarded: true`; `callGetAgentStats` and `callHistoryList` opt
-  in, read the agent out of the `actionType`, and collapse forward attempts made
-  within `FORWARDED_WINDOW_MS` into one call, so extensions reached only by
-  Follow-Me finally appear on the leaderboard without triple-counting and their
-  calls stay traceable in the history under the existing `FOLLOWME` outcome.
-- **Affected areas:** `src/modules/reports/callReportService.ts`
-  (`buildCdrFilter`, `agentOf`, `forwardedExtensionOf`, `withForwardedCallKeys`,
-  `summariseAgentStats`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callGetAgentStats`,
-  `callHistoryList`).
-- **Contracts changed:** None — same query names, arguments, and return types.
-  Values move: Total Calls, Top Numbers, carrier mix, heatmap, volume series,
-  callbacks, and call history all shed forwarded legs, while per-agent totals
-  gain the calls those agents took on their mobiles.
-
-### `2026-08-14` — Instagram bot replies persist to the Instagram collection
-
-- **Summary:** `actionCreateMessage` stored the sent bot reply through
-  `FacebookConversationMessages`, whose `addMessage` looks the parent up in
-  `FacebookConversations` and therefore threw
-  `Conversation not found with id <instagram conversation id>` after the message
-  had already been delivered; it now uses `InstagramConversationMessages`, so the
-  reply is saved and shows up in the Instagram conversation.
-- **Affected areas:**
-  `src/modules/integrations/instagram/meta/automation/messages/index.ts`.
-- **Contracts changed:** None

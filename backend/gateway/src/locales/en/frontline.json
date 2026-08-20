@@ -430,6 +430,7 @@
   "hide-messenger-during-offline-hours": "Hide messenger during offline hours",
   "hide-messenger-during-offline-hours-description": "Forcibly hide the messenger when you're offline. This will hide the messenger from your website visitors.",
   "visible-online-to-visitor-or-customer": "Visible online to visitor or customer",
+  "quick-set": "Quick set",
   "everyday": "Everyday",
   "monday-friday": "Monday – Friday",
   "weekdays": "Weekdays",
@@ -1254,6 +1255,11 @@
   "delete-chart": "Delete chart",
   "confirm-delete-chart": "Are you sure you want to delete \"{{name}}\"?",
   "without-priority": "{{value}} without priority",
+  "few-rate": {
+    "minutes": "A few minutes",
+    "hours": "A few hours",
+    "days": "A few days"
+  },
   "assign-to": "Assign to",
   "change-status": "Change status",
   "change-priority": "Change priority",

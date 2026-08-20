@@ -41,6 +41,7 @@ const GET_TICKET_CONFIGS = gql`
         groupId
         label
         placeholder
+        groupOrder
         order
         isRequired
         type

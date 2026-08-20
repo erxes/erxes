@@ -81,7 +81,7 @@ const PipelineConfig = ({ form }: { form: any }) => {
         control={control}
         name="isCheckDate"
         render={({ field }) => (
-          <Form.Item className="flex flex-1 gap-3 items-center my-4">
+          <Form.Item className="flex flex-1 gap-3 items-center mt-4">
             <Form.Label>{t('Select-day-after-card-created')}</Form.Label>
             <Form.Control>
               <Checkbox
@@ -94,44 +94,45 @@ const PipelineConfig = ({ form }: { form: any }) => {
           </Form.Item>
         )}
       />
+      <div className="flex flex-wrap gap-3 justify-between">
+        <Form.Field
+          control={control}
+          name="isCheckUser"
+          render={({ field }) => (
+            <Form.Item className="flex flex-1 gap-3 items-center my-2">
+              <Form.Label>{t('show-only-user-assigned-deal')}</Form.Label>
+              <Form.Control>
+                <Checkbox
+                  className="mt-0!"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
 
-      <Form.Field
-        control={control}
-        name="isCheckUser"
-        render={({ field }) => (
-          <Form.Item className="flex flex-1 gap-3 items-center my-4">
-            <Form.Label>{t('show-only-user-assigned-deal')}</Form.Label>
-            <Form.Control>
-              <Checkbox
-                className="mt-0!"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={control}
-        name="isCheckDepartment"
-        render={({ field }) => (
-          <Form.Item className="flex flex-1 gap-3 items-center my-4">
-            <Form.Label>
-              {t('show-only-user-assigned-deal-by-department')}
-            </Form.Label>
-            <Form.Control>
-              <Checkbox
-                className="mt-0!"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+        <Form.Field
+          control={control}
+          name="isCheckDepartment"
+          render={({ field }) => (
+            <Form.Item className="flex flex-1 gap-3 items-center my-2">
+              <Form.Label>
+                {t('show-only-user-assigned-deal-by-department')}
+              </Form.Label>
+              <Form.Control>
+                <Checkbox
+                  className="mt-0!"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </div>
 
       {(isCheckUser || isCheckDepartment) && (
         <Form.Field

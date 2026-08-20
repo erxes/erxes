@@ -430,6 +430,7 @@
   "hide-messenger-during-offline-hours": "Оффлайн цагт мессенжерийг нуух",
   "hide-messenger-during-offline-hours-description": "Та оффлайн байх үед мессенжерийг хүчээр нуух. Энэ нь вэбсайтын зочдод мессенжерийг харуулахгүй.",
   "visible-online-to-visitor-or-customer": "Зочин эсвэл харилцагчид онлайн харагдах",
+  "quick-set": "Хурдан тохируулга",
   "everyday": "Өдөр бүр",
   "monday-friday": "Даваа – Баасан",
   "weekdays": "Ажлын өдрүүд",
@@ -1253,6 +1254,11 @@
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
   "without-priority": "{{value}} нь priority-гүй",
+  "few-rate": {
+    "minutes": "Хэдэн минут",
+    "hours": "Хэдэн цаг",
+    "days": "Хэдэн өдөр"
+  },
   "assign-to": "Хуваарилах",
   "change-status": "Төлөв өөрчлөх",
   "change-priority": "Эрэмбэ өөрчлөх",
