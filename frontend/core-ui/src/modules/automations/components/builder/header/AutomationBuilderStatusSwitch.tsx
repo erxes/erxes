@@ -1,3 +1,4 @@
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationBuilderStatusSwitcher } from '@/automations/hooks/useAutomationBuilderStatusSwitcher';
 import {
   TAutomationBuilderForm,
@@ -34,8 +35,9 @@ export const AutomationBuilderStatusSwitch = ({
     isUntouchedDuplicate,
     duplicatedFromName,
   } = useAutomationBuilderStatusSwitcher({ onSave, onError });
+  const { isReadOnly } = useAutomation();
 
-  if (isCreatePage) {
+  if (isCreatePage || isReadOnly) {
     return null;
   }
 

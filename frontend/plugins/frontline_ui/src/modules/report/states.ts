@@ -322,3 +322,43 @@ export const getReportTicketStatusFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+export const reportFacebookPageFilterState = atom<Record<string, string[]>>({});
+
+const facebookPageFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportFacebookPageFilterAtom = (cardId: string) =>
+  getOrCreate(facebookPageFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportFacebookPageFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportFacebookPageFilterState, {
+          ...get(reportFacebookPageFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const reportFacebookSearchFilterState = atom<Record<string, string>>({});
+
+const facebookSearchFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const getReportFacebookSearchFilterAtom = (cardId: string) =>
+  getOrCreate(facebookSearchFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportFacebookSearchFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportFacebookSearchFilterState, {
+          ...get(reportFacebookSearchFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );

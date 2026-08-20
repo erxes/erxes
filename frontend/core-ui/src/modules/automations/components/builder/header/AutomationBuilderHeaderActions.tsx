@@ -9,12 +9,12 @@ import { useAtomValue } from 'jotai';
 
 export const AutomationBuilderHeaderActions = () => {
   const { isEmpty } = useAutomationNodes();
-  const { editingWorkflowId } = useAutomation();
+  const { editingWorkflowId, isReadOnly } = useAutomation();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
   const { isOpenSideBar, activeNode, openNodeLibrary, closeNodeLibrary } =
     useAutomationBuilderSidebarHooks();
 
-  if (activeTab !== 'builder' || editingWorkflowId) {
+  if (activeTab !== 'builder' || editingWorkflowId || isReadOnly) {
     return null;
   }
 

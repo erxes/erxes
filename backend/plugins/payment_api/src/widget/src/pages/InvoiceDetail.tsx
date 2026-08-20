@@ -68,8 +68,7 @@ const InvoiceDetail = () => {
       invoiceDetailQuery.refetch();
     }
   }, [invoiceSubscription.data, transactionSubscription.data]);
-
-          React.useEffect(() => {
+    React.useEffect(() => {
     if (!id || !invoiceDetail || invoiceDetail.status === 'paid') {
       return;
     }
@@ -95,7 +94,6 @@ const InvoiceDetail = () => {
         console.error('[Payment] Automatic invoice check failed:', error);
       }
     }, 15000);
-
     return () => clearInterval(interval);
   }, [id, invoiceDetail?.status, checkInvoice]);
   if (invoiceDetailQuery.loading || paymentsLoading) {

@@ -963,8 +963,6 @@ export const reportCallQueries = {
       ]),
     );
 
-    calls = calls.filter((call) => outcomeByCall.get(call.uniqueid) !== 'IVR');
-
     const repeats = countRepeatCallers(calls);
 
     const agentExtensionsInRange = [

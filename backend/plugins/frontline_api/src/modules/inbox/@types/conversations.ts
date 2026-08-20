@@ -57,6 +57,8 @@ export interface IConversation {
   isBot?: boolean;
   botId?: string;
   automatedReplyControl?: TAutomatedReplyControl;
+  callProPotentialCustomerIds?: string[];
+  callProPhone?: string;
 }
 
 // Conversation schema

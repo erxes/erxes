@@ -1,12 +1,19 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const userTrpcRouter = t.router({
   users: t.router({
     find: t.procedure
+      .meta(
+        agentMeta(
+          'List team members (staff users): { query, fields? }, e.g. { query: { email: "a@b.com" } } or { query: { isActive: true } }. Use fields to limit columns, e.g. { _id: 1, email: 1, "detail.fullName": 1 }. Use to resolve a person\'s name/email to their user _id (needed for ownerId, assignee, etc.).',
+          { module: 'teamMembers', action: 'teamMembersRead' },
+        ),
+      )
       .input(
         z.object({
           query: z.record(z.any()),
@@ -19,7 +26,15 @@ export const userTrpcRouter = t.router({
 
         return models.Users.find(query, fields);
       }),
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single team member by { _id }, { email }, { username }, or any MongoDB-style query. Returns {} when nothing matches.',
+          { module: 'teamMembers', action: 'teamMembersRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const query = input?.query || input?.selector || input;
       const { models } = ctx;
 
@@ -64,7 +79,15 @@ export const userTrpcRouter = t.router({
         return models.Users.setUserActiveOrInactive(_id);
       }),
 
-    getCount: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    getCount: t.procedure
+      .meta(
+        agentMeta(
+          'Count team members matching a filter: { query? }, e.g. { query: { isActive: true } }.',
+          { module: 'teamMembers', action: 'teamMembersRead' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
 

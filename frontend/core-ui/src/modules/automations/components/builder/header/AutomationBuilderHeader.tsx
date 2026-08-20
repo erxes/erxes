@@ -4,6 +4,7 @@ import { AutomationBuilderStatusSwitch } from '@/automations/components/builder/
 import { AutomationDuplicatedFromLink } from '@/automations/components/builder/header/AutomationDuplicatedFromLink';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { AutomationNodeType } from '@/automations/types';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
@@ -11,6 +12,7 @@ import {
   IconAffiliate,
   IconAlertTriangle,
   IconDeviceFloppy,
+  IconEye,
   IconSettings,
 } from '@tabler/icons-react';
 import { Badge, Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
@@ -30,6 +32,7 @@ export const AutomationBuilderHeader = () => {
     gotoAutomationSettings,
   } = useAutomationHeader();
   const { isEmpty } = useAutomationNodes();
+  const { isReadOnly } = useAutomation();
   const { t } = useTranslation('automations');
 
   const isEmptyFlow =
@@ -86,7 +89,12 @@ export const AutomationBuilderHeader = () => {
             onError={handleError}
           />
           <AutomationBuilderNameInput />
-          {isDirty && (
+          {isReadOnly && (
+            <Badge variant="secondary" className="shrink-0">
+              <IconEye className="size-3.5" /> Read only
+            </Badge>
+          )}
+          {isDirty && !isReadOnly && (
             <Badge variant="warning" className="shrink-0">
               <IconAlertTriangle className="size-3.5" /> Unsaved
             </Badge>

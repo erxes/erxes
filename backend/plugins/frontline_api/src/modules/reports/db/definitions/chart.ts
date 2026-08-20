@@ -30,6 +30,8 @@ const reportChartFiltersSchema = new Schema(
     customerIds: { type: [String], default: undefined },
     companyIds: { type: [String], default: undefined },
     branchIds: { type: [String], default: undefined },
+    pageIds: { type: [String], default: undefined },
+    searchValue: { type: String },
     propertyIds: { type: [String], default: undefined },
     priority: { type: [Number], default: undefined },
     propertyValueFilters: {

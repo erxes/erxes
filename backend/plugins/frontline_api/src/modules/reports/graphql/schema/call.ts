@@ -86,13 +86,6 @@ export const types = `
     totalTalkTime: Int
   }
 
-  """
-  A call integration the caller may report on.
-
-  Deliberately narrower than CallsIntegrationDetailResponse: that type carries
-  the operator list, and with it every extension's SIP password. A supervisor
-  who reads reports without taking calls has no reason to receive those.
-  """
   type CallReportIntegration {
     _id: String
     inboxId: String
@@ -100,43 +93,29 @@ export const types = `
     queues: [String]
   }
 
-  """
-  One call, folded from every CDR leg that shares its uniqueid.
-  """
   type CallHistoryEntry {
     uniqueid: String!
     startedAt: Date
     endedAt: Date
     customerPhone: String
-    """Resolved from the contact record by phone; null when unknown."""
     customerName: String
     customerId: String
     carrier: String
     direction: String
-    """
-    ANSWERED, BUSY, NO ANSWER, VOICEMAIL, FAILED or MISSED. Never IVR: a call
-    the menu answered and nothing else did is excluded from this list, because
-    the PBX files the menu leg as a call of its own and it would double every
-    inbound call that reached an agent.
-    """
     outcome: String
     isAnswered: Boolean
-    """Seconds the caller waited before an agent picked up; null when nobody did."""
     waitTime: Float
     talkTime: Int
     agentExtension: String
     agentName: String
-    """How many extensions the PBX rang for this call."""
     rungCount: Int
     queue: String
     recordUrl: String
     conversationId: String
-    """Calls from this number inside the selected range, and how many connected."""
     repeatCount: Int
     repeatAnswered: Int
   }
 
-  """An agent who handled or was rung for a call in the selected range."""
   type CallHistoryAgent {
     extension: String!
     name: String
@@ -145,12 +124,7 @@ export const types = `
   type CallHistoryPage {
     entries: [CallHistoryEntry!]!
     totalCount: Int!
-    """Distinct phone numbers behind those calls."""
     callerCount: Int!
-    """
-    Agents present in the range before the tab's own filters, so the picker
-    keeps its full list after one of them is selected.
-    """
     agents: [CallHistoryAgent!]!
   }
 `;

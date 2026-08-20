@@ -637,7 +637,9 @@ export const orderToDynamic = async (
     }
 
     const customerNo = await getCustomerNo(subdomain, customer);
-
+    const hasTokiPayment = (order.paidAmounts || []).some(
+      (payment) => payment.type === 'toki',
+    );
     const sendData: any = {
       Sell_to_Customer_No: msdCustomer?.No
         ? msdCustomer?.No
@@ -646,7 +648,7 @@ export const orderToDynamic = async (
       Sell_to_E_Mail: customer?.primaryEmail || '',
       External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || '',
-      Sync_Type: config.syncType || '',
+      Sync_Type: hasTokiPayment ? 'TOKI' : config.syncType || '',
       Mobile_Phone_No: customer?.primaryPhone || '',
       VAT_Bus_Posting_Group: config.vatBusPostingGroup || '',
       Payment_Terms_Code: config.paymentTermsCode || '',
