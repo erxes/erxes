@@ -92,8 +92,18 @@ export const callbackHandler = async (req, res) => {
         PAYMENT_STATUS.EXPIRED,
       ].includes(transaction.status)
     ) {
+      try {
+        await models.Invoices.checkInvoice(transaction.invoiceId, subdomain);
+      } catch (error) {
+        console.error('[CALLBACK] Failed to update TDB invoice status', {
+          invoiceId: transaction.invoiceId,
+          transactionId: transaction._id,
+          error,
+        });
+      }
+
       return res.redirect(
-        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+        `/gateway/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
       );
     }
     if (

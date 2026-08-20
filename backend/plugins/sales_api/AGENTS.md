@@ -107,6 +107,10 @@
 - Preserve tenant isolation by using the request `subdomain` for every model,
   service, resolver, worker, and route access.
 - Pipeline stage updates and property selections remain one pipeline mutation.
+- Checked pipeline deal queries preserve master branch department-user
+  visibility and compose with existing filters through `$and`.
+- Do not fetch department visibility data when the pipeline has no
+  `departmentIds`.
 - `excludeLoyaltyAmount` must calculate from the deal total minus
   score-campaign payment amounts, so missing or empty `paymentsData` returns
   the full total amount.
@@ -155,6 +159,12 @@
   `pipeline.findOne`, `pos.findOne`, `pos.find`, `pos.ordersDeliveryInfo`,
   `orders.findOne`, `orders.find`, gated by `showDeals`, `pipelinesWatch`,
   `posRead`, and `posOrderRead`. No existing GraphQL or tRPC behavior changed.
+
+### `2026-08-19` — Checked pipeline deal query filter
+
+- **Summary:** Checked pipeline visibility now uses the master branch department-user rules, skips department lookups without pipeline departments, and preserves existing query filters.
+- **Affected areas:** `src/modules/sales/graphql/resolvers/queries/deals.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-12` — Pipeline-scoped deal properties
 

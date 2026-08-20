@@ -55,12 +55,13 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         timezone: hours?.timezone || '',
         responseRate: hours?.responseRate || EnumResponseRate.MINUTES,
         showTimezone: hours?.displayOperatorTimezone ?? false,
-        onlineHours: Object.entries(hours?.onlineHours || {})
-          .filter(([_, hour]) => hour.work)
-          .map(([day, { work, ...value }]) => ({
+        onlineHours: Object.values(Weekday)
+          .filter((day) => hours?.onlineHours?.[day]?.work)
+          .map((day) => ({
             _id: day,
-            day: day as Weekday,
-            ...value,
+            day,
+            from: hours?.onlineHours?.[day]?.from,
+            to: hours?.onlineHours?.[day]?.to,
           })),
         supporterIds: greeting?.supporterIds || [],
         messages: {

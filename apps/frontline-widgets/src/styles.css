@@ -17,12 +17,10 @@
 
 @theme {
   --font-*: initial;
-  --font-sans:
-    var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono:
-    var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   --text-*: initial;
   --text-xs: 0.75rem;
@@ -82,26 +80,21 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-spinner: spinner 0.96s linear infinite;
+  --animate-shimmer: shimmer var(--shimmer-duration, 2s) linear infinite;
 
-  --shadow-focus:
-    0px 0px 0px 4px oklch(var(--primary) / 0.25),
+  --shadow-focus: 0px 0px 0px 4px oklch(var(--primary) / 0.25),
     0px 0px 0px 1px oklch(var(--primary));
   --shadow-subtle: 0px 0px 0px 1px oklch(var(--primary));
   --shadow-destructive: 0px 0px 0px 1px oklch(var(--destructive));
-  --shadow-focus-destructive:
-    0px 0px 0px 4px oklch(var(--destructive) / 0.25),
+  --shadow-focus-destructive: 0px 0px 0px 4px oklch(var(--destructive) / 0.25),
     0px 0px 0px 1px oklch(var(--destructive));
-  --shadow-xs:
-    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-xs: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow);
-  --shadow-sm:
-    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-sm: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow);
-  --shadow-lg:
-    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-lg: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow);
-  --shadow-xl:
-    0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
+  --shadow-xl: 0 0 0 1px var(--border-shadow), 0 1px 1px var(--shadow),
     0 2px 2px var(--shadow), 0 4px 4px var(--shadow), 0 8px 8px var(--shadow),
     0 16px 16px var(--shadow);
 
@@ -129,6 +122,15 @@
     }
     to {
       opacity: 0.15;
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0 0;
     }
   }
 }
@@ -185,6 +187,46 @@
   }
 }
 
+/*
+  Sweeps a highlight across text (e.g. a "Thinking" status). Both ends of the
+  gradient come from the erxes theme tokens, so it follows light/dark like any
+  other text color. Override --shimmer-base / --shimmer-color per usage to
+  shimmer in another token, e.g. style={{ '--shimmer-color': 'var(--primary)' }}.
+*/
+@utility shimmer {
+  --_angle: var(--shimmer-angle, 0deg);
+  --_spread: var(--shimmer-spread, 15%);
+  --_base: var(--shimmer-base, var(--color-muted-foreground));
+  --_highlight: var(--shimmer-color, var(--color-foreground));
+  --_midpoint: color-mix(in oklch, var(--_highlight), var(--_base) 50%);
+
+  background-image: var(
+    --shimmer-image,
+    linear-gradient(
+      calc(90deg + var(--_angle)),
+      var(--_base) calc(50% - var(--_spread)),
+      var(--_midpoint) calc(50% - var(--_spread) * 0.5),
+      var(--_highlight) 50%,
+      var(--_midpoint) calc(50% + var(--_spread) * 0.5),
+      var(--_base) calc(50% + var(--_spread))
+    )
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  /* Safari paints the glyph fill over the clipped gradient without this. */
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: var(--animate-shimmer);
+
+  @media (prefers-reduced-motion: reduce) {
+    background-image: none;
+    color: var(--_base);
+    -webkit-text-fill-color: currentcolor;
+    animation: none;
+  }
+}
 @layer base {
   :root {
     --font-sans: 'Inter', sans-serif;
@@ -276,9 +318,7 @@
     @apply border-border;
   }
   body {
-    font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
   h1 {
     @apply text-2xl font-bold;

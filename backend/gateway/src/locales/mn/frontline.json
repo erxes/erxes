@@ -430,6 +430,7 @@
   "hide-messenger-during-offline-hours": "Оффлайн цагт мессенжерийг нуух",
   "hide-messenger-during-offline-hours-description": "Та оффлайн байх үед мессенжерийг хүчээр нуух. Энэ нь вэбсайтын зочдод мессенжерийг харуулахгүй.",
   "visible-online-to-visitor-or-customer": "Зочин эсвэл харилцагчид онлайн харагдах",
+  "quick-set": "Хурдан тохируулга",
   "everyday": "Өдөр бүр",
   "monday-friday": "Даваа – Баасан",
   "weekdays": "Ажлын өдрүүд",
@@ -1253,6 +1254,11 @@
   "delete-chart": "Чарт устгах",
   "confirm-delete-chart": "\"{{name}}\" чартыг устгахдаа итгэлтэй байна уу?",
   "without-priority": "{{value}} нь priority-гүй",
+  "few-rate": {
+    "minutes": "Хэдэн минут",
+    "hours": "Хэдэн цаг",
+    "days": "Хэдэн өдөр"
+  },
   "assign-to": "Хуваарилах",
   "change-status": "Төлөв өөрчлөх",
   "change-priority": "Эрэмбэ өөрчлөх",
@@ -1285,5 +1291,19 @@
   "facebook-last-synced": "Meta-гийн тоог сүүлд {{time}}-д татсан",
   "facebook-reports": "Facebook",
   "search-posts-placeholder": "Постын текст эсвэл id хайх",
-  "search-posts-title": "Постын текстээр шүүх..."
+  "search-posts-title": "Постын текстээр шүүх...",
+  "integration-desc-callpro": "Call Pro PBX-ийн дуудлагыг inbox харилцаа болгон хүлээн авч, бичлэг болон харилцагчийн тохируулгатай ажиллана.",
+  "callpro-record-url": "Бичлэгийн URL",
+  "callpro-webhook-title": "Call Pro-г энэ хаяг руу чиглүүл",
+  "callpro-webhook-description": "Call Pro PBX-ийг дуудлагын мэдээллээ энэ хаяг руу POST хийхээр тохируулна уу.",
+  "callpro-no-recording": "Энэ дуудлагын бичлэг байхгүй байна.",
+  "callpro-audio-unsupported": "Таны хөтөч энэ бичлэгийг тоглуулж чадахгүй байна.",
+  "callpro-confirm-or-switch-customer": "Харилцагчийг баталгаажуулах / солих",
+  "callpro-no-customers-for-phone": "Энэ дугаараар харилцагч олдсонгүй.",
+  "callpro-current-customer": "Одоогийн",
+  "callpro-customer-selected": "Харилцагчийг харилцаанд хавсаргалаа",
+  "callpro-customer-select-failed": "Харилцагчийг хавсаргаж чадсангүй",
+  "callpro-add": "Call Pro нэмэх",
+  "callpro-edit": "Call Pro засах",
+  "callpro-record-url-description": "Call Pro-гийн бичлэгийн хаяг; дуудлагын id ард нь залгагдана."
 }

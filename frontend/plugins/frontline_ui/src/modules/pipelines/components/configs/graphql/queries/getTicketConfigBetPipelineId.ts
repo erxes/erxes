@@ -41,6 +41,7 @@ const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql`
         groupId
         label
         placeholder
+        groupOrder
         order
         isRequired
         type
