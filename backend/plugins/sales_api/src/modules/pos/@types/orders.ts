@@ -32,6 +32,14 @@ export interface IMobileAmount {
   amount: number;
 }
 
+export interface IPosOrderReturnInfo {
+  cashAmount?: number;
+  paidAmounts?: IPaidAmount[];
+  returnAt?: Date;
+  returnBy?: string;
+  description?: string;
+}
+
 export interface IPosOrder {
   createdAt: Date;
   status: string;
@@ -69,7 +77,7 @@ export interface IPosOrder {
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
-  returnInfo?: any;
+  returnInfo?: IPosOrderReturnInfo;
   subscriptionInfo?: {
     subscriptionId: string;
     status: string;
