@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-20`
+- **Last synchronized:** `2026-08-21`
 
 ## Scope
 
@@ -333,6 +333,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   one caller number matched several core customers. Both stay unset for the
   ordinary single-customer call, and the id list is emptied once an agent
   picks.
+- `calls_sessions` — one document per PBX leg, keyed by a unique `uniqueid`,
+  carrying the `conversationId` the leg belongs to. Sibling legs of the same
+  call each get their own document but share one `conversationId`; the sibling
+  lookup is bounded by `SIBLING_SESSION_WINDOW_MS` (60s of `updatedAt`
+  recency) and served by the `{ customerPhone: 1, startedAt: -1 }` index.
 - `channels.scope` — `'team' | 'personal'`, default `'team'`. Legacy documents
   have no `scope` field; all reads treat a missing value as `team`, so **no
   backfill migration is required**.
@@ -380,6 +385,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   When `callProCustomersByPhone` returns more than one match the conversation
   is created with no `customerId` and the candidate list instead, and only an
   agent's `callProCustomerSelect` attaches one.
+- One physical call is one inbox conversation, even when the PBX files its legs
+  under different `uniqueid`s (Follow Me / forward to an external number files
+  the answered leg as a separate `Outbound` leg tagged `FOLLOWME[<ext>]`).
+  Both ingestion paths must join an existing conversation before creating one:
+  the CTI path adopts a recent `CallSessions` sibling (same integration, same
+  `customerPhone`) through `CallSessions.findSibling`, and the CDR path walks
+  session → same-`uniqueid` CDR → time-overlapping CDR → sibling session. A
+  merge candidate is only accepted for a leg that belongs to an inbound call
+  (`belongsToInboundCall`) or for a still-live session, so an agent's own
+  callback to the same number stays its own conversation. `linkedid` cannot
+  carry this: the PBX sends it equal to the leg's own `uniqueid`.
+- Call timestamps coming off the PBX are local time without a zone. Every path
+  parses them with `parseCdrDate` (which applies the `+08:00` PBX offset) —
+  never `new Date(value)`, which files the stamp eight hours ahead.
 - An inbound call conversation is assigned to the agent who actually answered
   it. The answering operator is resolved from the leg's answering extension
   (`dstanswer` / `dstchannel_ext`, via `resolveCdrOperator`) — never from
@@ -830,6 +849,35 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-21` — A forwarded call stays one conversation
+
+- **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
+  produced two inbox conversations — the queue leg as `NO ANSWER · Inbound` and
+  the `FOLLOWME` leg, filed by the PBX under a second `uniqueid`, as
+  `ANSWERED · Outbound`. The CTI path created the second one because it looked
+  a session up by `uniqueid` alone, and the CDR path's existing FOLLOWME merge
+  could never run once that session carried a `conversationId`. Both paths now
+  adopt a recent sibling session for the same customer, the CDR path also
+  merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and writes
+  a resolved `conversationId` back onto a session that had none, and a
+  customer-scoped Redis lock keeps sibling legs from racing each other into two
+  conversations. Conversation content is now derived from every leg of the
+  conversation and reports a `FOLLOWME` leg as `Inbound`, so a merged call
+  reads `ANSWERED · Inbound` regardless of which leg's CDR lands last. Fixed
+  the CTI `startedAt`/`endedAt` parsing that stored PBX local time eight hours
+  ahead.
+- **Affected areas:**
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/cdrUtils.ts`
+  (`getConversationContent`),
+  `src/modules/integrations/call/db/models/CallSessions.ts`
+  (`findSibling`), `src/modules/integrations/call/redlock.ts`
+  (`acquireCustomerLock`).
+- **Contracts changed:** None. `POST /call/event`, `/call/receiveCall`, and
+  `/call/cdrReceive` keep their payloads; only how legs are grouped into a
+  conversation changed.
+
 ### `2026-08-20` — The agent who answered a call is assigned to it
 
 - **Summary:** A call conversation stayed unassigned because the CDR path
@@ -980,16 +1028,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** None. Values move: calls that entered an IVR and were
   not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
   which also changes the conversation label `getConversationContent` renders.
-
-### `2026-08-17` — Messenger ticket configs tolerate deleted references
-
-- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
-  selection when one id is gone — it persists the configs that still exist and
-  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
-  id out of every integration and returns the removed document.
-- **Affected areas:**
-  `src/modules/inbox/db/models/Integrations.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
-- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
-  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
-  returns the `TicketConfig` its schema already declared instead of `null`.

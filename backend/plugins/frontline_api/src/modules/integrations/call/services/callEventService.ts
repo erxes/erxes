@@ -1,9 +1,11 @@
 import { IModels } from '~/connectionResolvers';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { redlock } from '@/integrations/call/redlock';
+import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
+import { parseCdrDate } from '@/integrations/call/services/cdrUtils';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 const SESSION_LOCK_TTL_MS = 15_000;
@@ -100,6 +102,19 @@ const publishSession = async (
   }
 };
 
+const isSiblingLeg = (
+  candidate: ICallSessionDocument | null,
+  direction: 'incoming' | 'outgoing',
+) => {
+  if (!candidate?.conversationId) return false;
+
+  return (
+    direction === 'incoming' ||
+    candidate.status === 'ringing' ||
+    candidate.status === 'active'
+  );
+};
+
 const ensureConversation = async (
   models: IModels,
   subdomain: string,
@@ -192,6 +207,13 @@ export const handleCallEvent = async (
     return { status: 'ignored', reason: 'no_integration' };
   }
 
+  const direction: 'incoming' | 'outgoing' =
+    ev.callType ||
+    (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
+
+  const customerPhone =
+    direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
+
   const lockKey = `${subdomain}:call:session:${ev.uniqueid}`;
   let lock;
   try {
@@ -200,18 +222,32 @@ export const handleCallEvent = async (
     throw new Error(`callEvent lock failure for ${ev.uniqueid}: ${e.message}`);
   }
 
+  const customerLock = await acquireCustomerLock(
+    subdomain,
+    integration.inboxId,
+    customerPhone,
+  );
+
   try {
     let session: any = await models.CallSessions.findOne({
       uniqueid: ev.uniqueid,
     });
 
     if (!session) {
-      const direction: 'incoming' | 'outgoing' =
-        ev.callType ||
-        (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
+      const candidate = await models.CallSessions.findSibling({
+        inboxIntegrationId: integration.inboxId,
+        customerPhone,
+        excludeUniqueid: ev.uniqueid,
+      });
 
-      const customerPhone =
-        direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
+      const sibling = isSiblingLeg(candidate, direction) ? candidate : null;
+
+      if (sibling?.conversationId) {
+        debugCall(
+          `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
+            `from sibling leg ${sibling.uniqueid} (phone=${customerPhone})`,
+        );
+      }
 
       session = await models.CallSessions.upsertSession({
         uniqueid: ev.uniqueid,
@@ -221,11 +257,17 @@ export const handleCallEvent = async (
         customerPhone,
         operatorPhone: integration.phone,
         queueName: ev.queueName,
-        startedAt: ev.startedAt ? new Date(ev.startedAt) : new Date(),
+        startedAt: parseCdrDate(ev.startedAt) || new Date(),
         status: 'ringing',
         source: 'cti',
         diversion: ev.diversion,
         raw: ev.raw,
+        ...(sibling?.conversationId
+          ? {
+              conversationId: sibling.conversationId,
+              ...(sibling.customerId ? { customerId: sibling.customerId } : {}),
+            }
+          : {}),
       });
     }
 
@@ -304,7 +346,7 @@ export const handleCallEvent = async (
 
       case 'hangup': {
         await models.CallSessions.markEnded(ev.uniqueid, {
-          endedAt: ev.endedAt ? new Date(ev.endedAt) : new Date(),
+          endedAt: parseCdrDate(ev.endedAt) || new Date(),
           hangupCause: ev.hangupCause,
         });
         session = await models.CallSessions.findOne({
@@ -321,10 +363,12 @@ export const handleCallEvent = async (
       sessionStatus: session?.status,
     };
   } finally {
-    try {
-      await lock?.release();
-    } catch (e) {
-      console.error('handleCallEvent: lock release failed', e);
+    for (const held of [customerLock, lock]) {
+      try {
+        await held?.release();
+      } catch (e) {
+        console.error('handleCallEvent: lock release failed', e);
+      }
     }
   }
 };
