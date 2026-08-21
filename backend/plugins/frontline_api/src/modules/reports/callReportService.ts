@@ -69,6 +69,8 @@ const FORWARDED_ACTION_TYPE = /^FOLLOWME\[([0-9]+)\]/;
 
 const FORWARDED_WINDOW_MS = 10_000;
 
+const FORWARDED_PARENT_WINDOW_MS = 30_000;
+
 export const buildCdrFilter = ({
   startDate,
   endDate,
@@ -275,6 +277,29 @@ export const summariseQueueStats = (calls: ICall[]) => {
     });
 };
 
+const parentCallIdOf = (leg: ICdrLeg, candidates: ICdrLeg[]): string | null => {
+  const startedAt = leg.start?.getTime();
+  if (!startedAt || !leg.src) return null;
+
+  let parent: ICdrLeg | null = null;
+
+  for (const candidate of candidates) {
+    if (!candidate.uniqueid || candidate.src !== leg.src) continue;
+
+    const from = candidate.start?.getTime();
+    if (from === undefined) continue;
+
+    const to = candidate.end?.getTime() ?? from;
+
+    if (startedAt < from - FORWARDED_PARENT_WINDOW_MS) continue;
+    if (startedAt > to + FORWARDED_PARENT_WINDOW_MS) continue;
+
+    if (!parent || (parent.start?.getTime() ?? 0) < from) parent = candidate;
+  }
+
+  return parent?.uniqueid ?? null;
+};
+
 export const withForwardedCallKeys = (legs: ICdrLeg[]): ICdrLeg[] => {
   const forwarded: { leg: ICdrLeg; extension: string }[] = [];
   const rest: ICdrLeg[] = [];
@@ -293,6 +318,11 @@ export const withForwardedCallKeys = (legs: ICdrLeg[]): ICdrLeg[] => {
   const groupIndex = new Map<string, number>();
 
   const keyed = forwarded.map(({ leg, extension }) => {
+    const parentCallId = parentCallIdOf(leg, rest);
+    if (parentCallId) {
+      return { ...leg, uniqueid: parentCallId };
+    }
+
     const startedAt = leg.start?.getTime() ?? 0;
     const opened = openedAt.get(extension);
 

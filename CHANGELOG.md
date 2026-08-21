@@ -1,5 +1,31 @@
 
 
+## [3.0.91](https://github.com/erxes/erxes/compare/3.0.90...3.0.91) (2026-08-21)
+
+
+### Bug Fixes
+
+* **frontline:** count a forwarded call once in the call reports ([e886e72](https://github.com/erxes/erxes/commit/e886e72b7f6d379d1b9fae2e081d983ba7aff96a))
+* **frontline:** file a forwarded call leg under the caller, not the agent's mobile ([873cd3c](https://github.com/erxes/erxes/commit/873cd3cffea6bca11df62e7aca272ba614bf2928))
+* **frontline:** keep a forwarded call in one conversation ([f06fbef](https://github.com/erxes/erxes/commit/f06fbef4cdafe02877c7be984819f613c4e9af3e))
+* **posclient:** restore service charge handling ([e11b682](https://github.com/erxes/erxes/commit/e11b682d19fb1099ee589dac9bec8bba24ed0886))
+* **sales:** bound and strictly validate agent-facing deal reads ([#9102](https://github.com/erxes/erxes/issues/9102)) ([b21e893](https://github.com/erxes/erxes/commit/b21e893853b82bccdccbde1c14ef1436e3d3d62d))
+
+## [3.0.90](https://github.com/erxes/erxes/compare/3.0.89...3.0.90) (2026-08-20)
+
+
+### Bug Fixes
+
+* **frontline:** reconcile call report queue stats with total calls ([c604df0](https://github.com/erxes/erxes/commit/c604df0b1dbcd75874bdeb9223f1868cded29e1a))
+
+
+### Features
+
+* **erxes-api-shared:** cap agent tool call responses at 64KB ([#9094](https://github.com/erxes/erxes/issues/9094)) ([3516cb1](https://github.com/erxes/erxes/commit/3516cb1b37ae9750a50158dfe568e8c348fb28d6))
+* **frontline:** expose safe tRPC procedures as agent-callable tools ([#9079](https://github.com/erxes/erxes/issues/9079)) ([7c82bec](https://github.com/erxes/erxes/commit/7c82bec2cb64d09951c9a23d5188434e75160206))
+* **payment:** enable TDB production API ([#9101](https://github.com/erxes/erxes/issues/9101)) ([f4b7aec](https://github.com/erxes/erxes/commit/f4b7aec28886a1c56787d246c31f6e8edee7a927))
+* **sales:** expose safe tRPC procedures as agent-callable tools ([#9058](https://github.com/erxes/erxes/issues/9058)) ([dc00a3e](https://github.com/erxes/erxes/commit/dc00a3e4054b0584f3408856d648d86ca6483148))
+
 ## [3.0.89](https://github.com/erxes/erxes/compare/3.0.88...3.0.89) (2026-08-20)
 
 
