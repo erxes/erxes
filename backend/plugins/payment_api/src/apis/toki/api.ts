@@ -6,7 +6,6 @@ import { redis } from 'erxes-api-shared/utils';
 import * as QRCode from 'qrcode';
 
 export const tokiCallbackHandler = async (models: IModels, data: any) => {
-  console.log('[TOKI][CALLBACK] Handler called', data);
 
   const { traceOrderId, merchantId, status, amount } = data;
 
@@ -14,21 +13,14 @@ export const tokiCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('traceOrderId is required');
   }
 
-  console.log('[TOKI][CALLBACK] traceOrderId:', traceOrderId);
 
   const transaction = await models.Transactions.getTransaction({
     _id: traceOrderId,
   });
 
-  console.log('[TOKI][CALLBACK] Transaction:', transaction);
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
-  console.log('[TOKI][CALLBACK] Payment:', {
-    paymentId: payment._id,
-    kind: payment.kind,
-    merchantId: payment.config.tokiMerchantId,
-  });
 
   if (payment.kind !== 'toki') {
     throw new Error('Payment config type is mismatched');
@@ -42,30 +34,21 @@ export const tokiCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Amount mismatch');
   }
 
-  console.log('[TOKI][CALLBACK] Callback values:', {
-    merchantId,
-    status,
-    amount,
-  });
 
   if (status !== 'APPROVED') {
     return transaction;
   }
 
   try {
-    console.log('[TOKI][CALLBACK] Creating TokiAPI');
     const api = new TokiAPI(payment.config);
 
-    console.log('[TOKI][CALLBACK] Invoice status check...');
     const invoiceStatus = await api.checkInvoice(transaction);
 
-    console.log('[TOKI][CALLBACK] Invoice status:', invoiceStatus);
 
     if (invoiceStatus !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
-    console.log('[TOKI][CALLBACK] Updating transaction to PAID');
     await models.Transactions.updateOne(
       { _id: transaction._id },
       { status: PAYMENT_STATUS.PAID, updatedAt: new Date() },
@@ -100,22 +83,10 @@ export class TokiAPI extends BaseAPI {
     this.domain = domain;
     this.apiUrl = PAYMENTS.toki.apiUrl;
 
-    console.log('[TOKI] Constructor', {
-      apiUrl: PAYMENTS.toki.apiUrl,
-      merchantId: config.tokiMerchantId,
-      username: config.tokiUsername,
-      hasPassword: !!config.tokiPassword,
-      domain,
-    });
   }
 
   async authorize() {
-    console.log('[TOKI][AUTH] authorize()');
     try {
-      console.log('[TOKI][AUTH] Request', {
-        apiUrl: this.apiUrl,
-        path: PAYMENTS.toki.actions.getToken,
-      });
 
       const res = await this.request({
         method: 'POST',
@@ -129,7 +100,6 @@ export class TokiAPI extends BaseAPI {
         },
       }).then((r) => r.json());
 
-      console.log('[TOKI][AUTH] Response', res);
 
       if (res.error) {
         if (res.error === 'NO_CREDENTIALS') {
@@ -149,13 +119,10 @@ export class TokiAPI extends BaseAPI {
   }
 
   async getHeaders() {
-    console.log('[TOKI][HEADERS] getHeaders()');
 
     const cacheKey = `toki_token_${this.tokiMerchantId}`;
-    console.log('[TOKI][HEADERS] cacheKey:', cacheKey);
 
     const token = await redis.get(cacheKey);
-    console.log('[TOKI][HEADERS] cached token:', !!token);
 
     if (token) {
       return {
@@ -168,19 +135,12 @@ export class TokiAPI extends BaseAPI {
       `${this.tokiUsername}:${this.tokiPassword}`,
     ).toString('base64');
 
-    console.log('[TOKI][HEADERS] has basic token:', !!basicToken);
 
     if (!basicToken) {
       throw new Error('tokiBasicToken is not configured');
     }
 
     try {
-      console.log('[TOKI][HEADERS] Request', {
-        apiUrl: this.apiUrl,
-        path: '/third-party-service/v1/auth/token',
-        merchantId: this.tokiMerchantId,
-        username: this.tokiUsername,
-      });
 
       const response = await this.request({
         method: 'GET',
@@ -191,12 +151,10 @@ export class TokiAPI extends BaseAPI {
         },
       });
 
-      console.log('[TOKI][HEADERS] HTTP status:', response.status);
 
       const res = await response.json().catch(() => ({}));
 
       // Security: do not log raw response body, just token presence
-      console.log('[TOKI][HEADERS] Body: received, accessToken present:', !!res.data?.accessToken);
 
       if (response.status !== 200 || res.error || !res.data?.accessToken) {
         throw new Error(
@@ -206,8 +164,6 @@ export class TokiAPI extends BaseAPI {
         );
       }
 
-      console.log('[TOKI][HEADERS] Access token received successfully');
-      console.log('[TOKI][HEADERS] Saving token to redis');
 
       await redis.set(cacheKey, res.data.accessToken, 'EX', 3600);
 
@@ -231,10 +187,6 @@ export class TokiAPI extends BaseAPI {
   }
 
   async createInvoice(transaction: ITransactionDocument) {
-    console.log('[TOKI][CREATE] createInvoice()', {
-      transactionId: transaction._id,
-      paymentId: transaction.paymentId,
-    });
 
     try {
       const data = {
@@ -246,13 +198,9 @@ export class TokiAPI extends BaseAPI {
         merchantId: this.tokiMerchantId,
       };
 
-      console.log('[TOKI][CREATE] Request payload', data);
 
-      console.log('[TOKI][CREATE] Calling getHeaders()');
       const headers = await this.getHeaders();
-      console.log('[TOKI][CREATE] Headers received');
 
-      console.log('[TOKI][CREATE] Calling invoice API');
       const res = await this.request({
         method: 'POST',
         path: PAYMENTS.toki.actions.invoice,
@@ -260,13 +208,11 @@ export class TokiAPI extends BaseAPI {
         data,
       }).then((r) => r.json());
 
-      console.log('[TOKI][CREATE] Invoice response', res);
 
       if (res.error || res.code !== 200) {
         throw new Error(res.error?.message || 'Failed to create invoice');
       }
 
-      console.log('[TOKI][CREATE] QR generated');
       const qrDataUrl = await QRCode.toDataURL(res.data.requestId);
 
       const result = {
@@ -275,10 +221,6 @@ export class TokiAPI extends BaseAPI {
         qrData: qrDataUrl,
       };
 
-      console.log('[TOKI][CREATE] Success', {
-        requestId: result.requestId,
-        transactionId: result.transactionId,
-      });
 
       return result;
     } catch (e) {
@@ -288,10 +230,6 @@ export class TokiAPI extends BaseAPI {
   }
 
   private async check(transaction: ITransactionDocument) {
-    console.log('[TOKI][CHECK] check()', {
-      transactionId: transaction._id,
-      response: transaction.response,
-    });
 
     try {
       const res = await this.request({
@@ -300,13 +238,11 @@ export class TokiAPI extends BaseAPI {
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
-      console.log('[TOKI][CHECK] Response', res);
 
       if (res.error || res.code !== 200) {
         throw new Error(res.error?.message || 'Failed to check invoice status');
       }
 
-      console.log('[TOKI][CHECK] Status:', res.data?.status);
 
       switch (res.data.status) {
         case 'APPROVED':
@@ -335,7 +271,6 @@ export class TokiAPI extends BaseAPI {
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
-    console.log('[TOKI][CANCEL] cancelInvoice()', invoice._id);
 
     try {
       const res = await this.request({
@@ -344,7 +279,6 @@ export class TokiAPI extends BaseAPI {
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
-      console.log('[TOKI][CANCEL] Response', res);
 
       if (res.error || res.code !== 200) {
         throw new Error(res.error?.message || 'Failed to cancel invoice');

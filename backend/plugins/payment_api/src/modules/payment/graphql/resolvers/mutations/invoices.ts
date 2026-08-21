@@ -110,9 +110,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
           })
           .catch((err) => {
             console.error(
@@ -164,9 +161,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
           })
           .catch((err) => {
             console.error(

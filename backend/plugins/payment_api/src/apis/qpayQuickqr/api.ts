@@ -76,21 +76,12 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
   const { _id } = data;
 
   if (!_id) {
-    console.log('[QuickQR Callback] missing invoice id', data);
     throw new Error('Invoice id is required');
   }
 
-  console.log('[QuickQR Callback] received', {
-    transactionId: _id,
-    data,
-  });
 
   const transaction = await models.Transactions.getTransaction({
     _id,
-  });
-  console.log('[QuickQR Callback] transaction', {
-    id: transaction._id,
-    status: transaction.status,
   });
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
@@ -101,15 +92,12 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
   try {
     const api = new QPayQuickQrAPI(payment.config);
     const status = await api.checkInvoice(transaction);
-    console.log('[QuickQR Callback] checkInvoice status', status);
     if (status !== PAYMENT_STATUS.PAID) {
-      console.log('[QuickQR Callback] transaction still pending');
       return transaction;
     }
 
     transaction.status = status;
     transaction.updatedAt = new Date();
-    console.log('[QuickQR Callback] marking transaction paid');
     await transaction.save();
     return transaction;
   } catch (e) {
@@ -256,10 +244,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   async createInvoice(invoice: ITransactionDocument) {
     const callbackUrl = `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`;
 
-    console.log('[QuickQR] creating invoice', {
-      transactionId: invoice._id,
-      callbackUrl,
-    });
     const res = await this.makeRequest<IInvoiceResponse>({
       method: 'POST',
       path: meta.paths.invoice,
@@ -297,10 +281,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           invoice_id: invoice.response.id,
         },
       });
-      console.log(
-        '[QuickQR] checkInvoice response',
-        JSON.stringify(res, null, 2),
-      );
       if (res.invoice_status === 'PAID') {
         return PAYMENT_STATUS.PAID;
       }
