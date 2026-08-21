@@ -24,8 +24,10 @@ export const RelationWidgetSideTabs = ({
   customerId?: string;
   companyId?: string;
 }) => {
-  const { RelationWidget, relationWidgetsModules } =
-    useRelationWidget(hookOptions);
+  const { RelationWidget, relationWidgetsModules } = useRelationWidget({
+    ...hookOptions,
+    contentType,
+  });
   return (
     <FocusSheet.SideTabs>
       {relationWidgetsModules.map((module) => (
