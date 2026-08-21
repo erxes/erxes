@@ -400,6 +400,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   or for a still-live session, so an agent's own callback to the same number
   stays its own conversation; a leg carrying a `linkedid` is exempt from that
   guard, because the id already proves it belongs to another call.
+- The call reports count a forwarded call once, under the inbound call it came
+  from. `withForwardedCallKeys` re-keys a `FOLLOWME` leg to its parent call's
+  `uniqueid` when a non-forwarded leg with the same `src` overlaps it in time
+  (`FORWARDED_PARENT_WINDOW_MS`), and only falls back to the synthetic
+  `forwarded:<extension>:<index>` key when no parent is in the queried leg set.
+  Reports other than the call history and agent stats never load forwarded legs
+  at all — `buildCdrFilter` excludes them unless `includeForwarded` is set.
 - The customer of a forwarded leg is the original caller, never the number the
   PBX dialled. In an `outgoing_call` CTI payload `caller` is the follow-me
   destination (the agent's mobile) and `callerName` carries the caller's own
@@ -881,7 +888,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   reads `ANSWERED · Inbound` regardless of which leg's CDR lands last. Fixed
   the CTI `startedAt`/`endedAt` parsing that stored PBX local time eight hours
   ahead.
+  The call history and agent stats fold a `FOLLOWME` leg into its parent call
+  instead of listing it as a second, outgoing call placed to the agent's own
+  mobile.
 - **Affected areas:**
+  `src/modules/reports/callReportService.ts` (`withForwardedCallKeys`),
   `src/modules/integrations/call/services/callEventService.ts`,
   `src/modules/integrations/call/services/cdrServices.ts`,
   `src/modules/integrations/call/services/cdrUtils.ts`
