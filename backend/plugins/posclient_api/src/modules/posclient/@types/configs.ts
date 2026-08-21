@@ -62,6 +62,8 @@ export interface IConfig {
   name: string;
   description?: string;
   orderPassword?: string;
+  serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   pdomain?: string;
   productDetails?: string[];
   adminIds: string[];
