@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-08-21`
 
 ## Scope
 
@@ -36,6 +36,8 @@
 - Fund and debt rate adjustment detail account balance grids, plus fund linked transaction rows, render with `RecordTable` instead of raw HTML tables.
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
+- Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
+- Fixed asset income detail instance sheets let users edit per-instance responsible user and original cost on acquisition instances while residual value and opening accumulated depreciation are stored in transaction followInfos before saving.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
@@ -100,6 +102,7 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
+- Fixed asset income instance sheet state must preserve `followInfos.fxaIncomeInstances` residual value and opening accumulated depreciation when detail counts regenerate virtual instances before save.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
@@ -113,11 +116,25 @@
 - Smoke scenario: create a closing adjustment, calculate details, edit a row tax percent, run transactions, and confirm status plus tax impact refresh without a manual page reload.
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
+- Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
+- Smoke scenario: in fixed asset income, open a detail's instance sheet, set residual value and opening accumulated depreciation on an instance, save, refetch, and verify those values remain on the instance rows.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-21` — `Fixed Asset Income Instance Values`
+
+- **Summary:** Fixed asset income instance sheets now capture per-instance residual value and opening accumulated depreciation in transaction followInfos alongside acquisition instance rows.
+- **Affected areas:** `src/modules/transactions/transaction-form/contants/transactionSchema.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm/FxaIncomeInstancesSheet.tsx`.
+- **Contracts changed:** Fixed asset income `followInfos.fxaIncomeInstances` includes optional `salvageValue` and `openingAccumulatedDepreciation`.
+
+### `2026-08-21` — `Fixed Asset Detail Locations`
+
+- **Summary:** Fixed asset transaction forms now share the detailed-view toggle so each detail row can edit its own branch and department.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/Fxa*Form`, `src/modules/transactions/transaction-form/components/forms/FxaDetailLocationCells.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-17` — `Related Account Default Display`
 
@@ -172,15 +189,3 @@
 - **Summary:** Journal report config and renderer registries were split by report family, while the report selector shows full wrapped names inside wider, scrollable, collapsed report groups.
 - **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
 - **Contracts changed:** None.
-
-### `2026-08-14` — `Erkhet Journal Report Coverage`
-
-- **Summary:** Journal report UI now exposes erxes-native product/fixed-asset/customer filters and renders fund, debt, fixed asset, inventory sale/cost/period/price/profit/shipper/document, and inventory seller subsystem variants alongside the main journal reports through the shared grouped report renderer.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
-- **Contracts changed:** None.
-
-### `2026-08-13` — `Journal Report Rendering`
-
-- **Summary:** Journal report rendering now mirrors the Erkhet generated-report templates more closely with transaction-kind filtering, scoped total calculation, all-zero row hiding, immutable detail grouping, and transaction navigation from account-statement detail rows.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/graphql`, `src/modules/journal-reports/hooks`, `src/modules/journal-reports/states`, `src/modules/journal-reports/types`.
-- **Contracts changed:** Consumes optional `trKind`, `trKinds`, and `getTrKind` journal report filters.

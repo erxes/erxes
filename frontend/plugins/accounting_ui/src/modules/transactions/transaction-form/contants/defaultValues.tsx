@@ -310,6 +310,7 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
     moveInBranchId: doc?.followInfos?.moveInBranchId,
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
     responsibleUserId: doc?.followInfos?.responsibleUserId,
+    fxaIncomeInstances: doc?.followInfos?.fxaIncomeInstances || [],
   };
 };
 

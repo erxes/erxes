@@ -21,6 +21,7 @@ type TFixedAsset = {
   _id: string;
   code?: string;
   name?: string;
+  salvageValue?: number;
 };
 
 type TExistingInstance = {
@@ -30,15 +31,27 @@ type TExistingInstance = {
 };
 
 type TFxaIncomeInstance = {
+  _id?: string;
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId: string;
-  code: string;
+  code?: string;
   sequence?: number;
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
   originalCost?: number;
+};
+
+type TFxaIncomeInstanceFollowInfo = {
+  _id?: string;
+  tempId?: string;
+  transactionDetailId?: string;
+  fixedAssetId?: string;
+  code?: string;
+  sequence?: number;
+  salvageValue?: number;
+  openingAccumulatedDepreciation?: number;
 };
 
 const getExistingIncomeInstance = (
@@ -98,6 +111,62 @@ const buildIncomeInstance = ({
       existing?.departmentId || detail.departmentId || trDoc.departmentId,
     responsibleUserId: existing?.responsibleUserId || '',
     originalCost: detail.unitPrice || existing?.originalCost || 0,
+  };
+};
+
+const getExistingIncomeFollowInfo = (
+  previous: TFxaIncomeInstanceFollowInfo[],
+  instance: TFxaIncomeInstance,
+) =>
+  previous.find((followInfo) => {
+    if (instance._id && followInfo._id === instance._id) {
+      return true;
+    }
+
+    if (instance.tempId && followInfo.tempId === instance.tempId) {
+      return true;
+    }
+
+    if (
+      instance.fixedAssetId === followInfo.fixedAssetId &&
+      instance.transactionDetailId === followInfo.transactionDetailId &&
+      instance.sequence &&
+      followInfo.sequence === instance.sequence
+    ) {
+      return true;
+    }
+
+    return (
+      instance.fixedAssetId === followInfo.fixedAssetId &&
+      instance.transactionDetailId === followInfo.transactionDetailId &&
+      !!instance.code &&
+      followInfo.code === instance.code
+    );
+  });
+
+const buildIncomeFollowInfo = ({
+  fixedAssetsById,
+  instance,
+  previous,
+}: {
+  fixedAssetsById: Map<string, TFixedAsset>;
+  instance: TFxaIncomeInstance;
+  previous: TFxaIncomeInstanceFollowInfo[];
+}): TFxaIncomeInstanceFollowInfo => {
+  const existing = getExistingIncomeFollowInfo(previous, instance);
+
+  return {
+    _id: instance._id,
+    tempId: instance.tempId,
+    transactionDetailId: instance.transactionDetailId,
+    fixedAssetId: instance.fixedAssetId,
+    code: instance.code,
+    sequence: instance.sequence,
+    salvageValue:
+      existing?.salvageValue ??
+      fixedAssetsById.get(instance.fixedAssetId)?.salvageValue,
+    openingAccumulatedDepreciation:
+      existing?.openingAccumulatedDepreciation || 0,
   };
 };
 
@@ -200,8 +269,19 @@ export const FxaIncomeInstancesSync = ({
       previous,
       trDoc,
     });
+    const nextFollowInfos = next.map((instance) =>
+      buildIncomeFollowInfo({
+        fixedAssetsById,
+        instance,
+        previous: trDoc.followInfos?.fxaIncomeInstances || [],
+      }),
+    );
 
     form.setValue(`trDocs.${journalIndex}.extraData.fxaInstances`, next);
+    form.setValue(
+      `trDocs.${journalIndex}.followInfos.fxaIncomeInstances`,
+      nextFollowInfos,
+    );
   }, [
     fixedAssetsData,
     form,
@@ -260,7 +340,7 @@ export const FxaIncomeDetailInstancesSheet = ({
           title="Instance мэдээлэл"
         />
       </Sheet.Trigger>
-      <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-4xl">
+      <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-6xl">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
           <div className="min-w-0">
             <Sheet.Title>
@@ -280,6 +360,8 @@ export const FxaIncomeDetailInstancesSheet = ({
                 <Table.Head>Код</Table.Head>
                 <Table.Head>Эд хариуцагч</Table.Head>
                 <Table.Head>Өртөг</Table.Head>
+                <Table.Head>Үлдэх өртөг</Table.Head>
+                <Table.Head>Өмнөх хур. элэгдэл</Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -318,6 +400,30 @@ export const FxaIncomeDetailInstancesSheet = ({
                       <Form.Field
                         control={form.control}
                         name={`trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.originalCost`}
+                        render={({ field }) => (
+                          <InputNumber
+                            value={field.value ?? 0}
+                            onChange={(value) => field.onChange(value || 0)}
+                          />
+                        )}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Form.Field
+                        control={form.control}
+                        name={`trDocs.${journalIndex}.followInfos.fxaIncomeInstances.${instanceIndex}.salvageValue`}
+                        render={({ field }) => (
+                          <InputNumber
+                            value={field.value ?? 0}
+                            onChange={(value) => field.onChange(value || 0)}
+                          />
+                        )}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Form.Field
+                        control={form.control}
+                        name={`trDocs.${journalIndex}.followInfos.fxaIncomeInstances.${instanceIndex}.openingAccumulatedDepreciation`}
                         render={({ field }) => (
                           <InputNumber
                             value={field.value ?? 0}
