@@ -33,10 +33,6 @@ export interface IMobileAmount {
 }
 
 export interface IPosOrderReturnInfo {
-  cashAmount?: number;
-  paidAmounts?: IPaidAmount[];
-  returnAt?: Date;
-  returnBy?: string;
   description?: string;
 }
 
