@@ -180,8 +180,23 @@ export const loginMiddleware = async (req, res) => {
         accountId: account._id,
       });
 
+      console.log('[fblogin] repairing integrations', {
+        accountId: account._id,
+        count: integrations.length,
+        erxesApiIds: integrations.map((i) => i.erxesApiId),
+      });
+
       for (const integration of integrations) {
-        await repairIntegrations(subdomain, integration.erxesApiId);
+        try {
+          await repairIntegrations(subdomain, integration.erxesApiId);
+          console.log('[fblogin] repaired', integration.erxesApiId);
+        } catch (e) {
+          console.log('[fblogin] repair failed', {
+            erxesApiId: integration.erxesApiId,
+            message: e.message,
+            stack: e.stack,
+          });
+        }
       }
     } else {
       const created = await models.FacebookAccounts.create({
@@ -202,6 +217,8 @@ export const loginMiddleware = async (req, res) => {
       ? DOMAIN
       : 'http://localhost:3001';
     const url = `${reactAppUrl}/settings/frontline/channels/fb-auth`;
+
+    console.log('[fblogin] redirecting to', url);
 
     debugResponse(debugFacebook, req, url);
 
