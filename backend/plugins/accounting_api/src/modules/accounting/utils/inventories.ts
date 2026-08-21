@@ -346,7 +346,7 @@ const detailAmountEquals = (detail: ITrDetail, amount: number) =>
   fixNum(detail.amount ?? 0) === fixNum(amount);
 
 const getRelatedDebitDetail = (
-  details: ITrDetail[] = [],
+  details: ITrDetail[],
   oldAmount: number,
 ) => {
   const matchedDetail = details.find((detail) =>
