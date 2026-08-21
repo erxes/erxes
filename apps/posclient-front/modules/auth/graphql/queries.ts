@@ -58,6 +58,8 @@ const currentConfig = gql`
         isCleanTaxPrice
       }
       saveRemainder
+      serviceCharge
+      serviceChargeApplicableProductId
     }
   }
 `

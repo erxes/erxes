@@ -1,5 +1,16 @@
 
 
+## [3.0.91](https://github.com/erxes/erxes/compare/3.0.90...3.0.91) (2026-08-21)
+
+
+### Bug Fixes
+
+* **frontline:** count a forwarded call once in the call reports ([e886e72](https://github.com/erxes/erxes/commit/e886e72b7f6d379d1b9fae2e081d983ba7aff96a))
+* **frontline:** file a forwarded call leg under the caller, not the agent's mobile ([873cd3c](https://github.com/erxes/erxes/commit/873cd3cffea6bca11df62e7aca272ba614bf2928))
+* **frontline:** keep a forwarded call in one conversation ([f06fbef](https://github.com/erxes/erxes/commit/f06fbef4cdafe02877c7be984819f613c4e9af3e))
+* **posclient:** restore service charge handling ([e11b682](https://github.com/erxes/erxes/commit/e11b682d19fb1099ee589dac9bec8bba24ed0886))
+* **sales:** bound and strictly validate agent-facing deal reads ([#9102](https://github.com/erxes/erxes/issues/9102)) ([b21e893](https://github.com/erxes/erxes/commit/b21e893853b82bccdccbde1c14ef1436e3d3d62d))
+
 ## [3.0.90](https://github.com/erxes/erxes/compare/3.0.89...3.0.90) (2026-08-20)
 
 

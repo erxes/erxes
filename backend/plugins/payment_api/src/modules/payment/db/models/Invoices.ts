@@ -32,7 +32,6 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-      console.log('[createInvoice] called');
 
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
@@ -155,10 +154,22 @@ export const loadInvoiceClass = (models: IModels) => {
       if (totalAmount.length === 0) {
         const failed = await models.Transactions.exists({
           invoiceId: _id,
-          status: PAYMENT_STATUS.FAILED,
+          status: {
+            $in: [PAYMENT_STATUS.FAILED, PAYMENT_STATUS.EXPIRED],
+          },
         });
 
         if (failed) {
+          await models.Invoices.updateOne(
+            { _id },
+            {
+              $set: {
+                status: PAYMENT_STATUS.FAILED,
+                resolvedAt: new Date(),
+              },
+            },
+          );
+
           return PAYMENT_STATUS.FAILED;
         }
 
