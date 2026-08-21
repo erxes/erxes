@@ -25,6 +25,7 @@ export interface ICallEventPayload {
   srcTrunkName?: string;
   dstTrunkName?: string;
   callerIdNum?: string;
+  callerIdName?: string;
   calleeIdNum?: string;
   callType?: 'incoming' | 'outgoing';
   queueName?: string;
@@ -102,13 +103,35 @@ const publishSession = async (
   }
 };
 
+const isChildLeg = (ev: ICallEventPayload) =>
+  !!ev.linkedid && ev.linkedid !== ev.uniqueid;
+
+const looksLikePhoneNumber = (value?: string) =>
+  !!value && /^\+?\d{5,}$/.test(value);
+
+const findParentLegSession = async (
+  models: IModels,
+  ev: ICallEventPayload,
+): Promise<ICallSessionDocument | null> => {
+  if (!isChildLeg(ev)) return null;
+
+  return models.CallSessions.findOne({
+    $or: [
+      { uniqueid: ev.linkedid },
+      { linkedid: ev.linkedid, uniqueid: { $ne: ev.uniqueid } },
+    ],
+  }).sort({ startedAt: 1 });
+};
+
 const isSiblingLeg = (
   candidate: ICallSessionDocument | null,
+  ev: ICallEventPayload,
   direction: 'incoming' | 'outgoing',
 ) => {
   if (!candidate?.conversationId) return false;
 
   return (
+    isChildLeg(ev) ||
     direction === 'incoming' ||
     candidate.status === 'ringing' ||
     candidate.status === 'active'
@@ -211,7 +234,7 @@ export const handleCallEvent = async (
     ev.callType ||
     (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
 
-  const customerPhone =
+  const eventPhone =
     direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
 
   const lockKey = `${subdomain}:call:session:${ev.uniqueid}`;
@@ -225,7 +248,7 @@ export const handleCallEvent = async (
   const customerLock = await acquireCustomerLock(
     subdomain,
     integration.inboxId,
-    customerPhone,
+    eventPhone,
   );
 
   try {
@@ -234,18 +257,31 @@ export const handleCallEvent = async (
     });
 
     if (!session) {
-      const candidate = await models.CallSessions.findSibling({
-        inboxIntegrationId: integration.inboxId,
-        customerPhone,
-        excludeUniqueid: ev.uniqueid,
-      });
+      const parent = await findParentLegSession(models, ev);
 
-      const sibling = isSiblingLeg(candidate, direction) ? candidate : null;
+      const customerPhone =
+        parent?.customerPhone ||
+        (isChildLeg(ev) && looksLikePhoneNumber(ev.callerIdName)
+          ? (ev.callerIdName as string)
+          : eventPhone);
+
+      let sibling = parent;
+
+      if (!sibling) {
+        const candidate = await models.CallSessions.findSibling({
+          inboxIntegrationId: integration.inboxId,
+          customerPhone,
+          excludeUniqueid: ev.uniqueid,
+        });
+
+        sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
+      }
 
       if (sibling?.conversationId) {
         debugCall(
           `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
-            `from sibling leg ${sibling.uniqueid} (phone=${customerPhone})`,
+            `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
+            `(phone=${customerPhone})`,
         );
       }
 
@@ -396,6 +432,7 @@ const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
     linkedid: p.linkedid,
     callType: isIncoming ? 'incoming' : 'outgoing',
     callerIdNum: isIncoming ? p.caller : p.extension,
+    callerIdName: p.callerName,
     calleeIdNum: isIncoming ? p.did : p.caller,
     srcTrunkName: isIncoming ? p.trunk : undefined,
     dstTrunkName: isIncoming ? undefined : p.trunk,

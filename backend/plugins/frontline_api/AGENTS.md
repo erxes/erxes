@@ -388,14 +388,26 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - One physical call is one inbox conversation, even when the PBX files its legs
   under different `uniqueid`s (Follow Me / forward to an external number files
   the answered leg as a separate `Outbound` leg tagged `FOLLOWME[<ext>]`).
-  Both ingestion paths must join an existing conversation before creating one:
-  the CTI path adopts a recent `CallSessions` sibling (same integration, same
-  `customerPhone`) through `CallSessions.findSibling`, and the CDR path walks
-  session → same-`uniqueid` CDR → time-overlapping CDR → sibling session. A
-  merge candidate is only accepted for a leg that belongs to an inbound call
-  (`belongsToInboundCall`) or for a still-live session, so an agent's own
-  callback to the same number stays its own conversation. `linkedid` cannot
-  carry this: the PBX sends it equal to the leg's own `uniqueid`.
+  Both ingestion paths must join an existing conversation before creating one.
+  The CTI path first looks for the parent leg by `linkedid` — a forwarded child
+  leg carries the originating call's id there, while a root leg carries its own
+  `uniqueid` — and otherwise falls back to a recent `CallSessions` sibling with
+  the same `customerPhone` (`CallSessions.findSibling`). The CDR path walks
+  session → same-`uniqueid` CDR → time-overlapping CDR → sibling session; the
+  CDR webhook payload carries no `linkedid` at all, so the overlap match is
+  what ties its forwarded legs together. A phone-matched candidate is only
+  accepted for a leg that belongs to an inbound call (`belongsToInboundCall`)
+  or for a still-live session, so an agent's own callback to the same number
+  stays its own conversation; a leg carrying a `linkedid` is exempt from that
+  guard, because the id already proves it belongs to another call.
+- The customer of a forwarded leg is the original caller, never the number the
+  PBX dialled. In an `outgoing_call` CTI payload `caller` is the follow-me
+  destination (the agent's mobile) and `callerName` carries the caller's own
+  number, so the session takes its `customerPhone` from the parent leg, then
+  from `callerIdName` when that looks like a phone number, and only then from
+  the event's own party fields. That resolved number — never the raw event
+  party — is what the phone-based sibling lookup searches on. On the CDR side
+  `determinePrimaryPhone` already reads `src` for a `FOLLOWME` leg.
 - Call timestamps coming off the PBX are local time without a zone. Every path
   parses them with `parseCdrDate` (which applies the `+08:00` PBX offset) —
   never `new Date(value)`, which files the stamp eight hours ahead.
@@ -857,9 +869,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ANSWERED · Outbound`. The CTI path created the second one because it looked
   a session up by `uniqueid` alone, and the CDR path's existing FOLLOWME merge
   could never run once that session carried a `conversationId`. Both paths now
-  adopt a recent sibling session for the same customer, the CDR path also
-  merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and writes
-  a resolved `conversationId` back onto a session that had none, and a
+  adopt the call a leg belongs to before creating one — the CTI path by the
+  child leg's `linkedid`, then by a recent sibling session for the same
+  customer, and it takes a forwarded leg's customer from the parent leg or from
+  `callerName` instead of filing the agent's mobile as the caller. The CDR path
+  also merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and
+  writes a resolved `conversationId` back onto a session that had none, and a
   customer-scoped Redis lock keeps sibling legs from racing each other into two
   conversations. Conversation content is now derived from every leg of the
   conversation and reports a `FOLLOWME` leg as `Inbound`, so a merged call
