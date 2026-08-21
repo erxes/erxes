@@ -4,6 +4,7 @@ import {
   resolveFacebookApp,
 } from '@/integrations/facebook/commonUtils';
 import {
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse,
@@ -14,12 +15,7 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
-/**
- * The OAuth `state` is sent back to us by the shared authorize redirector,
- * which builds the callback url as `${state}/fblogin?code=...`. A query string
- * in `state` would therefore end up before the `/fblogin` path, so the kind is
- * carried as a `/kind/<kind>` path segment instead.
- */
+
 const KIND_PATH_SEGMENT = '/kind/';
 
 const buildStateUrl = (apiDomain: string, kind?: string) =>
@@ -53,25 +49,11 @@ export const loginMiddleware = async (req, res) => {
 
   const app = await resolveFacebookApp(models, kind);
 
-  console.log('[fblogin] request', {
-    subdomain,
-    kind,
-    query: req.query,
-    params: req.params,
-  });
-  console.log('[fblogin] resolved app', {
-    appId: app.appId,
-    isSeparate: app.isSeparate,
-    hasSecret: Boolean(app.appSecret),
-  });
-
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management,pages_manage_posts',
   );
-
-  console.log('[fblogin] FACEBOOK_PERMISSIONS config', FACEBOOK_PERMISSIONS);
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
@@ -89,14 +71,6 @@ export const loginMiddleware = async (req, res) => {
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
-  console.log('[fblogin] oauth conf', {
-    client_id: conf.client_id,
-    redirect_uri: conf.redirect_uri,
-    scope: conf.scope,
-    DOMAIN,
-    API_DOMAIN,
-  });
-
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
@@ -109,18 +83,10 @@ export const loginMiddleware = async (req, res) => {
       state,
     });
 
-    console.log('[fblogin] built auth url', { state, authUrl });
-
     if (!req.query.error) {
       debugResponse(debugFacebook, req, authUrl);
       return res.redirect(authUrl);
     } else {
-      console.log('[fblogin] access denied', {
-        error: req.query.error,
-        error_code: req.query.error_code,
-        error_reason: req.query.error_reason,
-        error_description: req.query.error_description,
-      });
       debugResponse(debugFacebook, req, 'access denied');
       return res.send('access denied');
     }
@@ -135,12 +101,6 @@ export const loginMiddleware = async (req, res) => {
   debugResponse(debugFacebook, req, JSON.stringify(config));
 
   return graph.authorize(config, async (_err, facebookRes) => {
-    console.log('[fblogin] authorize result', {
-      error: _err,
-      hasAccessToken: Boolean(facebookRes && facebookRes.access_token),
-      response: facebookRes,
-    });
-
     const { access_token } = facebookRes;
 
     const userAccount: {
@@ -152,24 +112,10 @@ export const loginMiddleware = async (req, res) => {
       access_token,
     );
 
-    try {
-      const granted = await graphRequest.get('me/permissions', access_token);
-      console.log(
-        '[fblogin] granted permissions',
-        JSON.stringify(granted, null, 2),
-      );
-    } catch (e) {
-      console.log('[fblogin] failed to read me/permissions', e.message);
-    }
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
     const account = await models.FacebookAccounts.findOne(
       facebookAccountSelector(userAccount.id, app),
     );
-
-    console.log('[fblogin] account lookup', {
-      selector: facebookAccountSelector(userAccount.id, app),
-      found: account ? account._id : null,
-    });
 
     if (account) {
       await models.FacebookAccounts.updateOne(
@@ -180,34 +126,20 @@ export const loginMiddleware = async (req, res) => {
         accountId: account._id,
       });
 
-      console.log('[fblogin] repairing integrations', {
-        accountId: account._id,
-        count: integrations.length,
-        erxesApiIds: integrations.map((i) => i.erxesApiId),
-      });
-
       for (const integration of integrations) {
         try {
           await repairIntegrations(subdomain, integration.erxesApiId);
-          console.log('[fblogin] repaired', integration.erxesApiId);
         } catch (e) {
-          console.log('[fblogin] repair failed', {
-            erxesApiId: integration.erxesApiId,
-            message: e.message,
-            stack: e.stack,
-          });
+          debugError(
+            `Failed to repair facebook integration ${integration.erxesApiId}: ${e.message}`,
+          );
         }
       }
     } else {
-      const created = await models.FacebookAccounts.create({
+      await models.FacebookAccounts.create({
         token: access_token,
         name,
         kind: 'facebook',
-        uid: userAccount.id,
-        appId: app.appId,
-      });
-      console.log('[fblogin] created account', {
-        _id: created._id,
         uid: userAccount.id,
         appId: app.appId,
       });
@@ -217,8 +149,6 @@ export const loginMiddleware = async (req, res) => {
       ? DOMAIN
       : 'http://localhost:3001';
     const url = `${reactAppUrl}/settings/frontline/channels/fb-auth`;
-
-    console.log('[fblogin] redirecting to', url);
 
     debugResponse(debugFacebook, req, url);
 
