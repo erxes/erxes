@@ -53,11 +53,25 @@ export const loginMiddleware = async (req, res) => {
 
   const app = await resolveFacebookApp(models, kind);
 
+  console.log('[fblogin] request', {
+    subdomain,
+    kind,
+    query: req.query,
+    params: req.params,
+  });
+  console.log('[fblogin] resolved app', {
+    appId: app.appId,
+    isSeparate: app.isSeparate,
+    hasSecret: Boolean(app.appSecret),
+  });
+
   const FACEBOOK_PERMISSIONS = await getConfig(
     models,
     'FACEBOOK_PERMISSIONS',
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content,business_management,pages_manage_posts',
   );
+
+  console.log('[fblogin] FACEBOOK_PERMISSIONS config', FACEBOOK_PERMISSIONS);
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
@@ -75,6 +89,14 @@ export const loginMiddleware = async (req, res) => {
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
+  console.log('[fblogin] oauth conf', {
+    client_id: conf.client_id,
+    redirect_uri: conf.redirect_uri,
+    scope: conf.scope,
+    DOMAIN,
+    API_DOMAIN,
+  });
+
   debugRequest(debugFacebook, req);
 
   if (!req.query.code) {
@@ -87,10 +109,18 @@ export const loginMiddleware = async (req, res) => {
       state,
     });
 
+    console.log('[fblogin] built auth url', { state, authUrl });
+
     if (!req.query.error) {
       debugResponse(debugFacebook, req, authUrl);
       return res.redirect(authUrl);
     } else {
+      console.log('[fblogin] access denied', {
+        error: req.query.error,
+        error_code: req.query.error_code,
+        error_reason: req.query.error_reason,
+        error_description: req.query.error_description,
+      });
       debugResponse(debugFacebook, req, 'access denied');
       return res.send('access denied');
     }
@@ -105,6 +135,12 @@ export const loginMiddleware = async (req, res) => {
   debugResponse(debugFacebook, req, JSON.stringify(config));
 
   return graph.authorize(config, async (_err, facebookRes) => {
+    console.log('[fblogin] authorize result', {
+      error: _err,
+      hasAccessToken: Boolean(facebookRes && facebookRes.access_token),
+      response: facebookRes,
+    });
+
     const { access_token } = facebookRes;
 
     const userAccount: {
@@ -115,10 +151,26 @@ export const loginMiddleware = async (req, res) => {
       'me?fields=id,first_name,last_name',
       access_token,
     );
+
+    try {
+      const granted = await graphRequest.get('me/permissions', access_token);
+      console.log(
+        '[fblogin] granted permissions',
+        JSON.stringify(granted, null, 2),
+      );
+    } catch (e) {
+      console.log('[fblogin] failed to read me/permissions', e.message);
+    }
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
     const account = await models.FacebookAccounts.findOne(
       facebookAccountSelector(userAccount.id, app),
     );
+
+    console.log('[fblogin] account lookup', {
+      selector: facebookAccountSelector(userAccount.id, app),
+      found: account ? account._id : null,
+    });
+
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
@@ -132,10 +184,15 @@ export const loginMiddleware = async (req, res) => {
         await repairIntegrations(subdomain, integration.erxesApiId);
       }
     } else {
-      await models.FacebookAccounts.create({
+      const created = await models.FacebookAccounts.create({
         token: access_token,
         name,
         kind: 'facebook',
+        uid: userAccount.id,
+        appId: app.appId,
+      });
+      console.log('[fblogin] created account', {
+        _id: created._id,
         uid: userAccount.id,
         appId: app.appId,
       });
