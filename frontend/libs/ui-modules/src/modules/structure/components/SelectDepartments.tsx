@@ -29,6 +29,22 @@ import {
   SelectDepartmentsCreateContainer,
 } from './CreateDepartmentForm';
 
+const cacheSelectedDepartment = (
+  department: IDepartment | undefined,
+  selectedDepartmentIds: string[],
+  setSelectedDepartments: React.Dispatch<React.SetStateAction<IDepartment[]>>,
+) => {
+  if (!department || !selectedDepartmentIds.includes(department._id)) return;
+
+  setSelectedDepartments((previousDepartments) => {
+    if (previousDepartments.some(({ _id }) => _id === department._id)) {
+      return previousDepartments;
+    }
+
+    return [...previousDepartments, department];
+  });
+};
+
 export const SelectDepartmentsProvider = ({
   children,
   value,
@@ -39,7 +55,13 @@ export const SelectDepartmentsProvider = ({
   const [selectedDepartments, setSelectedDepartments] = useState<IDepartment[]>(
     [],
   );
-  const departmentIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let departmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    departmentIds = value;
+  } else if (value) {
+    departmentIds = [value];
+  }
 
   const handleSelectCallback = (department: IDepartment) => {
     if (!department) return;
@@ -89,7 +111,7 @@ export const SelectDepartmentsCommand = ({
 }) => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { selectedDepartments, departmentIds } = useSelectDepartmentsContext();
+  const { departmentIds } = useSelectDepartmentsContext();
   const [noDepartmentsSearchValue, setNoDepartmentsSearchValue] =
     useState<string>('');
 
@@ -121,7 +143,7 @@ export const SelectDepartmentsCommand = ({
       />
 
       <Command.List>
-        {selectedDepartments?.length > 0 && (
+        {(departmentIds?.length ?? 0) > 0 && (
           <>
             <div className="flex flex-wrap justify-start p-2 gap-2">
               <DepartmentsList />
@@ -209,6 +231,7 @@ export const SelectDepartmentsItem = ({
 export const DepartmentsList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof DepartmentBadge>, 'onClose'> & {
   placeholder?: string;
@@ -217,7 +240,13 @@ export const DepartmentsList = ({
   const { value, selectedDepartments, setSelectedDepartments, onSelect } =
     useSelectDepartmentsContext();
 
-  const selectedDepartmentIds = Array.isArray(value) ? value : [value];
+  let selectedDepartmentIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedDepartmentIds = value;
+  } else if (value) {
+    selectedDepartmentIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
@@ -231,18 +260,21 @@ export const DepartmentsList = ({
           departmentId={departmentId}
           department={selectedDepartments.find((d) => d._id === departmentId)}
           renderAsPlainText={renderAsPlainText}
+          showMissingId
           variant={'secondary'}
-          onCompleted={(department) => {
-            if (!department) return;
-            if (selectedDepartmentIds.includes(department._id)) {
-              setSelectedDepartments([...selectedDepartments, department]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              selectedDepartmentIds,
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (d) => d._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((d) => d._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
           {...props}
@@ -253,12 +285,12 @@ export const DepartmentsList = ({
 };
 
 export const SelectDepartmentsValue = () => {
-  const { selectedDepartments, mode } = useSelectDepartmentsContext();
+  const { departmentIds, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1 && mode === 'multiple')
+  if ((departmentIds?.length ?? 0) > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
-        {selectedDepartments.length} departments selected
+        {departmentIds?.length} departments selected
       </span>
     );
 
@@ -326,17 +358,19 @@ const SelectDepartmentsBadgesView = () => {
         <DepartmentBadge
           key={departmentId}
           departmentId={departmentId}
-          onCompleted={(position) => {
-            if (!position) return;
-            if (departmentIds.includes(position._id)) {
-              setSelectedDepartments([...selectedDepartments, position]);
-            }
-          }}
+          showMissingId
+          onCompleted={(department) =>
+            cacheSelectedDepartment(
+              department,
+              departmentIds || [],
+              setSelectedDepartments,
+            )
+          }
           onClose={() =>
             onSelect?.(
-              selectedDepartments.find(
-                (p) => p._id === departmentId,
-              ) as IDepartment,
+              (selectedDepartments.find((p) => p._id === departmentId) ?? {
+                _id: departmentId,
+              }) as IDepartment,
             )
           }
         />

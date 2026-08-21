@@ -29,17 +29,21 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { ScrollArea, Skeleton } from 'erxes-ui';
-import { Suspense, useMemo, useState } from 'react';
+import { Alert, ScrollArea, Skeleton } from 'erxes-ui';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_CARD_CONFIGS,
-  ReportCardConfig,
   ReportComponentProps,
   reportComponents,
 } from '../types/component-registry';
 import { getTopSource } from '../utils';
-import { ReportsViewSkeleton } from './ReportsView';
+import { useReportCharts } from '@/report/hooks/useReportCharts';
+import { ReportChart } from '@/report/types';
+import { useAtomValue } from 'jotai';
+import { getReportDateFilterAtom } from '@/report/states';
+import { getFilters } from '@/report/utils/dateFilters';
+import { OVERVIEW_KPI_DATE_FILTER_ID } from './filter-popover/ReportKpiDateFilter';
 
 interface CardConfig {
   id: string;
@@ -74,21 +78,71 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 
 export const FrontlineReportsList = () => {
   const { t } = useTranslation('frontline');
-  const { conversationOpen, loading: openLoading } = useConversationOpen();
-  const { conversationClosed, loading: closedLoading } =
-    useConversationClosed();
-  const { conversationSources = [], loading: sourcesLoading } =
-    useConversationSources({
-      variables: {
-        filters: {
-          limit: 10,
-        },
+  const kpiDate = useAtomValue(
+    getReportDateFilterAtom(OVERVIEW_KPI_DATE_FILTER_ID),
+  );
+  const kpiFilters = useMemo(() => getFilters(kpiDate || undefined), [kpiDate]);
+  const {
+    conversationOpen,
+    loading: openLoading,
+    error: openError,
+  } = useConversationOpen({
+    variables: { filters: kpiFilters },
+  });
+  const {
+    conversationClosed,
+    loading: closedLoading,
+    error: closedError,
+  } = useConversationClosed({
+    variables: { filters: kpiFilters },
+  });
+  const {
+    conversationSources = [],
+    loading: sourcesLoading,
+    error: sourcesError,
+  } = useConversationSources({
+    variables: {
+      filters: {
+        ...kpiFilters,
+        limit: 10,
       },
-    });
+    },
+  });
+  const { reportCharts } = useReportCharts();
+  const savedConversationCharts = useMemo(
+    () => reportCharts.filter((chart) => reportComponents[chart.chartType]),
+    [reportCharts],
+  );
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
   const [previewColSpan, setPreviewColSpan] = useState<6 | 12>(12);
+
+  const savedChartsById = useMemo(
+    () => new Map(savedConversationCharts.map((chart) => [chart._id, chart])),
+    [savedConversationCharts],
+  );
+
+  useEffect(() => {
+    setCards((current) => {
+      const isKnown = (id: string) =>
+        savedChartsById.has(id) ||
+        DEFAULT_CARD_CONFIGS.some((config) => config.id === id);
+      const kept = current.filter((card) => isKnown(card.id));
+      const onBoard = new Set(kept.map((card) => card.id));
+      const added: CardConfig[] = savedConversationCharts
+        .filter((chart) => !onBoard.has(chart._id))
+        .map((chart) => ({
+          id: chart._id,
+          colSpan: chart.colSpan === 12 ? 12 : 6,
+        }));
+
+      if (!added.length && kept.length === current.length) {
+        return current;
+      }
+
+      return [...kept, ...added];
+    });
+  }, [savedConversationCharts, savedChartsById]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -102,6 +156,8 @@ export const FrontlineReportsList = () => {
   const sources = Array.isArray(conversationSources) ? conversationSources : [];
   const topPerformingSource = getTopSource(sources);
   const topConvertingSource = getTopSource(sources);
+  const kpiError = openError || closedError || sourcesError;
+  const kpiLoading = openLoading || closedLoading || sourcesLoading;
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -109,7 +165,6 @@ export const FrontlineReportsList = () => {
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
-    setOverId(over?.id as string | null);
 
     if (over) {
       const overCard = cards.find((c) => c.id === over.id);
@@ -146,7 +201,6 @@ export const FrontlineReportsList = () => {
     }
 
     setActiveId(null);
-    setOverId(null);
     setPreviewColSpan(12);
   };
 
@@ -158,21 +212,22 @@ export const FrontlineReportsList = () => {
     );
   };
 
-  if (openLoading || closedLoading || sourcesLoading) {
-    return <ReportsViewSkeleton />;
-  }
+  const getCardConfig = (id: string) => {
+    const savedChart: ReportChart | undefined = savedChartsById.get(id);
 
-  const getCardConfig = (id: string): ReportCardConfig | null => {
-    const config = DEFAULT_CARD_CONFIGS.find((c) => c.id === id);
-    const Component = reportComponents[id];
-
-    if (!config || !Component) {
-      return null;
+    if (savedChart) {
+      const Component = reportComponents[savedChart.chartType];
+      if (!Component) return null;
+      return { title: savedChart.name, component: Component, savedChart };
     }
 
+    const config = DEFAULT_CARD_CONFIGS.find((c) => c.id === id);
+    const Component = reportComponents[id];
+    if (!config || !Component) return null;
     return {
-      ...config,
+      title: t(config.title),
       component: Component,
+      savedChart: undefined,
     };
   };
 
@@ -186,7 +241,9 @@ export const FrontlineReportsList = () => {
 
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: t(cardConfig.title),
+      title: cardConfig.title,
+      cardId: id,
+      savedChart: cardConfig.savedChart,
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -207,11 +264,32 @@ export const FrontlineReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      {kpiError && (
+        <Alert variant="destructive">
+          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Description>{kpiError.message}</Alert.Description>
+        </Alert>
+      )}
+      {!kpiError && kpiLoading && (
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      )}
+      <div
+        className={
+          kpiError || kpiLoading
+            ? 'hidden'
+            : 'grid grid-cols-2 xl:grid-cols-4 gap-4'
+        }
+      >
         <KpiCard
           title={t('open-conversations')}
           value={String(conversationOpen?.count ?? 0)}
-          subtitle={t('percent-of-total', { percent: conversationOpen?.percentage ?? 0 })}
+          subtitle={t('percent-of-total', {
+            percent: conversationOpen?.percentage ?? 0,
+          })}
           icon={<IconInbox className="h-5 w-5" />}
           valueClass="text-[var(--chart-1)]"
           iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
@@ -219,7 +297,9 @@ export const FrontlineReportsList = () => {
         <KpiCard
           title={t('closed-conversations')}
           value={String(conversationClosed?.count ?? 0)}
-          subtitle={t('percent-resolved', { percent: conversationClosed?.percentage ?? 0 })}
+          subtitle={t('percent-resolved', {
+            percent: conversationClosed?.percentage ?? 0,
+          })}
           icon={<IconCircleCheck className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
@@ -230,8 +310,15 @@ export const FrontlineReportsList = () => {
           subtitle={
             INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', { name: INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name, percent: topPerformingSource?.percentage ?? 0 })
-              : t('percent-share', { percent: topPerformingSource?.percentage ?? 0 })
+              ? t('source-name-percent', {
+                  name: INTEGRATIONS[
+                    topPerformingSource._id as keyof typeof INTEGRATIONS
+                  ].name,
+                  percent: topPerformingSource?.percentage ?? 0,
+                })
+              : t('percent-share', {
+                  percent: topPerformingSource?.percentage ?? 0,
+                })
           }
           icon={<IconTrophyFilled className="h-5 w-5" />}
           valueClass="text-[var(--chart-2)]"
@@ -243,8 +330,15 @@ export const FrontlineReportsList = () => {
           subtitle={
             INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', { name: INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name, percent: topConvertingSource?.percentage ?? 0 })
-              : t('percent-share', { percent: topConvertingSource?.percentage ?? 0 })
+              ? t('source-name-percent', {
+                  name: INTEGRATIONS[
+                    topConvertingSource._id as keyof typeof INTEGRATIONS
+                  ].name,
+                  percent: topConvertingSource?.percentage ?? 0,
+                })
+              : t('percent-share', {
+                  percent: topConvertingSource?.percentage ?? 0,
+                })
           }
           icon={<IconChartArcs className="h-5 w-5" />}
           valueClass="text-[var(--chart-3)]"

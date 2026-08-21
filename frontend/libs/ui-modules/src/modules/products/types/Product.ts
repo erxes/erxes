@@ -26,6 +26,7 @@ export interface IProduct {
     | 'year';
   currency: CurrencyCode;
   remainder: any;
+  status?: 'active' | 'deleted';
 }
 export interface IBundleRuleItem {
   code: string;

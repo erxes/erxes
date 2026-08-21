@@ -1,5 +1,14 @@
-import { IconCheck, IconProgressCheck, IconProgressX } from '@tabler/icons-react';
-import { Combobox, Command, useMultiQueryState } from 'erxes-ui';
+import {
+  IconCheck,
+  IconProgressCheck,
+  IconProgressX,
+} from '@tabler/icons-react';
+import {
+  Combobox,
+  Command,
+  useFilterContext,
+  useMultiQueryState,
+} from 'erxes-ui';
 
 import { ILogStatusType } from '@/logs/types';
 
@@ -16,12 +25,17 @@ const LOG_STATUS_OPTIONS = [
   },
 ] as const;
 
-export const LogStatusFilter = () => {
+export const LogStatusFilter = ({
+  onValueChange,
+}: {
+  onValueChange?: () => void;
+}) => {
   const [queries, setQueries] = useMultiQueryState<{
     status: string;
     statusOperator: string;
   }>(['status', 'statusOperator']);
   const { status } = queries;
+  const { resetFilterState } = useFilterContext();
 
   return (
     <Command shouldFilter={false}>
@@ -32,12 +46,14 @@ export const LogStatusFilter = () => {
             key={value}
             value={value}
             className="cursor-pointer"
-            onSelect={() =>
+            onSelect={() => {
               setQueries({
                 status: value === status ? null : value,
                 statusOperator: null,
-              })
-            }
+              });
+              resetFilterState();
+              onValueChange?.();
+            }}
           >
             <Icon />
             {label}

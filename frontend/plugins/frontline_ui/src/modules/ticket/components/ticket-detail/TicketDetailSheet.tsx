@@ -1,6 +1,6 @@
 import { TicketDetails } from '@/ticket/components/ticket-detail/TicketDetails';
 import { useGetTicket } from '@/ticket/hooks/useGetTicket';
-import { ticketDetailSheetState } from '@/ticket/states/ticketDetailSheetState';
+import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import {
   FocusSheet,
   ScrollArea,
@@ -9,12 +9,12 @@ import {
   Empty,
   Sheet,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { FieldsInDetail, RelationWidgetSideTabs } from 'ui-modules';
+import { RelationWidgetSideTabs } from 'ui-modules';
 import { TicketSidebar } from './TicketSidebar';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTicketCustomFieldEdit } from '@/ticket/hooks/useTicketCustomFieldEdit';
+import { TicketPipelineProperties } from './TicketPipelineProperties';
 
 export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs = false,
@@ -22,7 +22,7 @@ export const TicketDetailSheet = ({
   hideRelationWidgetSideTabs?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
-  const [activeTicket, setActiveTicket] = useAtom(ticketDetailSheetState);
+  const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const { ticket, loading, error } = useGetTicket({
     variables: { _id: activeTicket },
     skip: !activeTicket,
@@ -72,8 +72,8 @@ export const TicketDetailSheet = ({
                 </Tabs.Content>
 
                 <Tabs.Content value="properties" className="p-6">
-                  <FieldsInDetail
-                    fieldContentType="frontline:ticket"
+                  <TicketPipelineProperties
+                    pipelineId={ticket?.pipelineId || ''}
                     propertiesData={ticket?.propertiesData || {}}
                     mutateHook={useTicketCustomFieldEdit}
                     id={ticket?._id || ''}

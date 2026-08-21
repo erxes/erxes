@@ -1,14 +1,25 @@
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  Button,
+  CommandBar,
   Input,
   RecordTable,
   RecordTableInlineCell,
   PopoverScoped,
   Empty,
+  Separator,
+  Spinner,
+  toast,
+  Tooltip,
+  useConfirm,
 } from 'erxes-ui';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { IIntegrationDetail } from '../types/Integration';
-import { useIntegrations } from '../hooks/useIntegrations';
+import {
+  INTEGRATIONS_PER_PAGE,
+  useIntegrations,
+} from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
 import { useState } from 'react';
@@ -16,18 +27,25 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
 import { integrationMoreColumn } from './IntegrationMoreColumn';
-import { IconMessagesOff } from '@tabler/icons-react';
+import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
+import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationsRecordTable = () => {
+  const { t } = useTranslation('frontline');
   const params = useParams();
-  const columns = useIntegrationTypeColumns();
+  const isDiscord =
+    params?.integrationType === IntegrationType.DISCORD_MESSENGER;
+  const columns = useIntegrationTypeColumns(isDiscord);
+  const integrationName =
+    INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name;
 
-  const { integrations, loading, handleFetchMore } = useIntegrations({
+  const { integrations, loading, pageInfo, handleFetchMore } = useIntegrations({
     variables: {
       kind: params?.integrationType,
       channelId: params?.id,
+      ...(isDiscord ? { limit: INTEGRATIONS_PER_PAGE } : {}),
     },
     skip: !params?.integrationType,
     errorPolicy: 'all',
@@ -43,40 +61,148 @@ export const IntegrationsRecordTable = () => {
             </div>
           </Empty.Media>
           <Empty.Title>
-            No {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}{' '}
-            found
+            {t('no-integration-found', {
+              defaultValue: 'No {{name}} found',
+              name: integrationName,
+            })}
           </Empty.Title>
           <Empty.Description>
-            Get started by adding your first{' '}
-            {INTEGRATIONS[params?.integrationType as keyof typeof INTEGRATIONS]?.name}.
+            {t('get-started-adding-integration', {
+              defaultValue: 'Get started by adding your first {{name}}.',
+              name: integrationName,
+            })}
           </Empty.Description>
         </Empty.Header>
       </Empty>
     );
   }
 
+  const table = (
+    <RecordTable className="w-full">
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+        <RecordTable.RowList />
+        <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+
   return (
     <RecordTable.Provider
       columns={columns}
       data={(integrations || []).filter((integration) => integration)}
-      stickyColumns={['more', 'checkbox', 'name']}
+      tableId={`frontline_${params?.integrationType}_integrations_record_table`}
+      stickyColumns={
+        isDiscord ? ['more', 'checkbox', 'name'] : ['more', 'name']
+      }
     >
-      <RecordTable.Scroll>
-        <RecordTable className="w-full">
-          <RecordTable.Header />
-          <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
-            <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton
-              handleFetchMore={handleFetchMore}
-            />
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
+      {isDiscord ? (
+        <RecordTable.CursorProvider
+          hasPreviousPage={pageInfo?.hasPreviousPage}
+          hasNextPage={pageInfo?.hasNextPage}
+          dataLength={integrations?.length}
+          sessionKey={`frontline_integrations_${params?.integrationType}_${params?.id}`}
+        >
+          {table}
+        </RecordTable.CursorProvider>
+      ) : (
+        <RecordTable.Scroll>{table}</RecordTable.Scroll>
+      )}
+      {isDiscord && <IntegrationsCommandBar />}
     </RecordTable.Provider>
+  );
+};
+
+const IntegrationsCommandBar = () => {
+  const { t } = useTranslation('frontline');
+  const { table } = RecordTable.useRecordTable();
+  const { confirm } = useConfirm();
+  const client = useApolloClient();
+  const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION);
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const ids = selectedRows.map((row) => row.original._id as string);
+
+  const handleDelete = () => {
+    confirm({
+      message: t('confirm-delete-selected-integrations', {
+        defaultValue:
+          "Delete {{count}} selected integrations? This can't be undone.",
+        count: ids.length,
+      }),
+    }).then(async () => {
+      let failed = 0;
+      for (const id of ids) {
+        try {
+          await removeIntegration({ variables: { id } });
+        } catch {
+          failed += 1;
+        }
+      }
+
+      table.resetRowSelection();
+
+      let refreshFailed = false;
+      try {
+        const results = await client.refetchQueries({
+          include: ['Integrations'],
+        });
+        refreshFailed = results.some(
+          (result) => result.error || result.errors?.length,
+        );
+      } catch {
+        refreshFailed = true;
+      }
+
+      const succeeded = ids.length - failed;
+      const description = [
+        failed
+          ? t('integrations-removed-with-failures', {
+              defaultValue: '{{succeeded}} removed, {{failed}} failed',
+              succeeded,
+              failed,
+            })
+          : t('integrations-removed', {
+              defaultValue: '{{count}} integrations removed',
+              count: succeeded,
+            }),
+        refreshFailed &&
+          t('integrations-refresh-failed', {
+            defaultValue:
+              'Could not refresh the list. Reload the page to see the latest data.',
+          }),
+      ]
+        .filter(Boolean)
+        .join(' ');
+
+      toast(
+        failed || refreshFailed
+          ? { title: t('error'), description, variant: 'destructive' }
+          : { title: t('success'), description, variant: 'success' },
+      );
+    });
+  };
+
+  return (
+    <CommandBar open={selectedRows.length > 0}>
+      <CommandBar.Bar>
+        <CommandBar.Value>
+          {t('n-selected', { count: selectedRows.length })}
+        </CommandBar.Value>
+        <Separator.Inline />
+        <Button
+          variant="secondary"
+          className="text-destructive"
+          disabled={loading}
+          onClick={handleDelete}
+        >
+          {loading ? <Spinner /> : <IconTrash />}
+          {t('delete')}
+        </Button>
+      </CommandBar.Bar>
+    </CommandBar>
   );
 };
 
@@ -123,18 +249,19 @@ const NameField = ({
   );
 };
 
-export const BrandField = ({
-  cell,
-}: {
-  cell: CellContext<IIntegrationDetail, unknown>;
-}) => {
+export const BrandField = () => {
   return null;
 };
 
-export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => {
+export const useIntegrationTypeColumns = (
+  withSelection = false,
+): ColumnDef<IIntegrationDetail>[] => {
   const { t } = useTranslation('frontline');
   return [
-    integrationMoreColumn(),
+    integrationMoreColumn(withSelection),
+    ...(withSelection
+      ? [RecordTable.checkboxColumn as ColumnDef<IIntegrationDetail>]
+      : []),
     {
       id: 'name',
       accessorKey: 'name',
@@ -156,7 +283,7 @@ export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => 
               className="text-xs capitalize mx-auto"
               variant={status ? 'success' : 'destructive'}
             >
-              {status ? 'Active' : 'Inactive'}
+              {status ? t('active', 'Active') : t('inactive', 'Inactive')}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -168,19 +295,40 @@ export const useIntegrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => 
       accessorKey: 'healthStatus',
       header: () => <RecordTable.InlineHead label={t('health-status')} />,
       cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-        const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
+        const healthStatus =
+          cell.getValue() as IIntegrationDetail['healthStatus'];
         const status = healthStatus?.status;
+        const error = healthStatus?.error;
+
+        if (!status) {
+          return <RecordTableInlineCell />;
+        }
+
+        const badge = (
+          <Badge
+            className="text-xs capitalize mx-auto"
+            variant={status === 'healthy' ? 'success' : 'destructive'}
+          >
+            {status}
+          </Badge>
+        );
 
         return (
           <RecordTableInlineCell>
-            {status ? (
-              <Badge
-                className="text-xs capitalize mx-auto"
-                variant={status === 'healthy' ? 'success' : 'destructive'}
-              >
-                {status}
-              </Badge>
-            ) : null}
+            {error ? (
+              <Tooltip.Provider>
+                <Tooltip delayDuration={0}>
+                  <Tooltip.Trigger asChild>
+                    <span className="mx-auto">{badge}</span>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words">
+                    {error}
+                  </Tooltip.Content>
+                </Tooltip>
+              </Tooltip.Provider>
+            ) : (
+              badge
+            )}
           </RecordTableInlineCell>
         );
       },

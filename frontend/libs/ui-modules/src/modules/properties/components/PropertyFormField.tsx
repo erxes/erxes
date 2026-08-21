@@ -54,7 +54,7 @@ export function PropertyFormField({
   const id = `${idPrefix}_${field._id}`;
 
   return (
-    <FieldLabel field={field} id={id}>
+    <FieldLabel field={field} id={id} value={value}>
       <FieldComponent
         field={field}
         value={value}

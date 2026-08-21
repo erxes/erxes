@@ -78,6 +78,8 @@ export type NodeData<TConfig = any> = {
     id: string,
     type: AutomationNodeType,
   ) => React.ReactNode;
+  readOnly?: boolean;
+  actionSnapshot?: TAutomationAction;
 };
 
 export type WorkflowNodeData = {
@@ -107,6 +109,8 @@ export interface IAutomationDoc {
   tags?: any[];
   tagIds?: string[];
   approvalLockState?: ApprovalLockState;
+  duplicatedFrom?: string;
+  duplicatedFromName?: string;
 }
 
 export interface IAutomationNoteDoc {
@@ -175,7 +179,60 @@ export enum AutomationNodesType {
 export enum AutomationBuilderTabsType {
   Builder = 'builder',
   History = 'history',
+  Stats = 'stats',
 }
+
+export enum AutomationHistoryViewMode {
+  Sheet = 'sheet',
+  Split = 'split',
+}
+
+export enum AutomationHistorySplitDirection {
+  Vertical = 'vertical',
+  Horizontal = 'horizontal',
+}
+
+export type TAutomationStatsCount = {
+  key: string;
+  count: number;
+};
+
+export type TAutomationStatsBucket = {
+  date: string;
+  total: number;
+  complete: number;
+  error: number;
+  waiting: number;
+};
+
+export type TAutomationStatsNode = {
+  actionId: string;
+  actionType?: string;
+  total: number;
+  success: number;
+  error: number;
+  waiting: number;
+  avgDurationMs?: number;
+  maxDurationMs?: number;
+  errorCodes: TAutomationStatsCount[];
+};
+
+export type TAutomationStatsErrorMessage = {
+  message: string;
+  errorCode: string;
+  actionTypes: string[];
+  count: number;
+  lastAt?: string;
+};
+
+export type TAutomationStats = {
+  total: number;
+  byStatus: TAutomationStatsCount[];
+  byErrorCode: TAutomationStatsCount[];
+  timeSeries: TAutomationStatsBucket[];
+  nodes: TAutomationStatsNode[];
+  errorMessages: TAutomationStatsErrorMessage[];
+};
 
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
@@ -212,6 +269,7 @@ interface ActionComponentConfig<TConfig = any>
     action: IAutomationHistoryAction;
     status: IAutomationHistory['status'];
   }>;
+  actionResultPreview?: (action: IAutomationHistoryAction) => string;
   waitEvent?: LazyAutomationComponent<WaitEventFormComponentProps>;
 }
 

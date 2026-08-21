@@ -31,6 +31,7 @@ export const ProductConfig = ({ form }: ProductConfigProps) => {
                 mode="multiple"
                 value={field.value || []}
                 onValueChange={field.onChange}
+                placeholder={t('select-initial-product-categories')}
               />
             );
           }}
@@ -55,6 +56,7 @@ export const ProductConfig = ({ form }: ProductConfigProps) => {
                   mode="multiple"
                   value={field.value || []}
                   onValueChange={field.onChange}
+                  placeholder={t('select-categories-to-exclude')}
                 />
               </Form.Item>
             )}

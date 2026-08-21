@@ -17,13 +17,9 @@ import {
   IconTag,
   IconTrash,
 } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
-import {
-  posInEbarimtDetailAtom,
-  IPosInEbarimtConfigRow,
-} from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
+import { IPosInEbarimtConfigRow } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
 import { useRemovePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useRemovePosInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { AddPosInEBarimtConfig } from './AddPosInEBarimtConfig';
@@ -60,12 +56,10 @@ export const PosInEBarimtConfigTitleCell = ({
   cell: Cell<IPosInEbarimtConfigRow, unknown>;
 }) => {
   const [, setOpen] = useQueryState('pos_in_ebarimt_id');
-  const setDetail = useSetAtom(posInEbarimtDetailAtom);
   return (
     <RecordTableInlineCell
       className="cursor-pointer"
       onClick={() => {
-        setDetail(cell.row.original);
         setOpen(cell.row.original._id);
       }}
     >
@@ -81,12 +75,10 @@ export const PosInEBarimtConfigMoreCell = ({
 }) => {
   const { t } = useTranslation('mongolian');
   const [, setOpen] = useQueryState('pos_in_ebarimt_id');
-  const setDetail = useSetAtom(posInEbarimtDetailAtom);
   const { removePosInEbarimtConfig } = useRemovePosInEbarimtConfig();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    setDetail(cell.row.original);
     setOpen(cell.row.original._id);
   };
 
@@ -132,7 +124,9 @@ const usePosInEbarimtColumns = (): ColumnDef<IPosInEbarimtConfigRow>[] => {
     {
       id: 'title',
       accessorKey: 'title',
-      header: () => <RecordTable.InlineHead label={t('title')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('title')} icon={IconCode} />
+      ),
       cell: ({ cell }) => <PosInEBarimtConfigTitleCell cell={cell} />,
       size: 200,
     },
@@ -150,7 +144,9 @@ const usePosInEbarimtColumns = (): ColumnDef<IPosInEbarimtConfigRow>[] => {
     {
       id: 'posNo',
       accessorKey: 'posNo',
-      header: () => <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('pos-no')} icon={IconCode} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip value={cell.getValue() as string} />
@@ -180,7 +176,12 @@ export const PosInEBarimtConfigTable = () => {
   const posInEbarimtColumns = usePosInEbarimtColumns();
 
   return (
-    <RecordTable.Provider columns={posInEbarimtColumns} data={rows}>
+    <RecordTable.Provider
+      columns={posInEbarimtColumns}
+      data={rows}
+      stickyColumns={['more', 'checkbox']}
+      tableId="mongolian_ebarimt_pos_in_ebarimt_config_record_table"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

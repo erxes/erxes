@@ -9,6 +9,10 @@ export const ConfigTypes = `
     USE_BRAND_RESTRICTIONS: String
     RELEASE: String
   }
+
+  type FileUploadServiceInfo {
+    videoUploadEnabled: Boolean
+  }
 `;
 
 export const queries = `
@@ -23,6 +27,7 @@ export const queries = `
   configsGetEmailTemplate(name: String): String
   configsGetValue(code:String!):JSON
   configsGetInstallationStatus(name: String!): JSON
+  configsFileUploadInfo: FileUploadServiceInfo
   enabledServices: JSON
 `;
 

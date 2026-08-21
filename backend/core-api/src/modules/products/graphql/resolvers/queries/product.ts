@@ -4,7 +4,6 @@ import {
   cursorPaginateAggregation,
   defaultPaginate,
   escapeRegExp,
-  sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
@@ -19,6 +18,8 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
+import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
+import { withPropertyConditions } from '@/properties/utils';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
@@ -224,6 +225,45 @@ const buildDiscountSortPipeline = (
   ];
 };
 
+/**
+ * Categories configured as a pipeline's initial ones, expanded with their
+ * descendants. Products of these categories are listed before the rest.
+ */
+const getPipelineInitialCategoryIds = async (
+  context: IContext,
+  pipelineId?: string,
+): Promise<string[]> => {
+  if (!pipelineId) {
+    return [];
+  }
+
+  const pipeline = await getPipelineInventoryScope(context, pipelineId);
+
+  if (!pipeline?.initialCategoryIds?.length) {
+    return [];
+  }
+
+  const categories = await context.models.ProductCategories.getChildCategories(
+    pipeline.initialCategoryIds,
+  );
+
+  return categories.map((category) => category._id);
+};
+
+const withInitialCategoryPriority = (
+  pipeline: PipelineStage[],
+  initialCategoryIds: string[],
+): PipelineStage[] => [
+  ...pipeline,
+  {
+    $addFields: {
+      initialCategoryOrder: {
+        $cond: [{ $in: ['$categoryId', initialCategoryIds] }, 0, 1],
+      },
+    },
+  },
+];
+
 const paginateDiscountSortedProducts = async (
   models: IModels,
   filter: FilterQuery<IProductDocument>,
@@ -248,11 +288,11 @@ const paginateDiscountSortedProducts = async (
 };
 
 const generateFilter = async (
-  models: IModels,
-  subdomain: string,
+  context: IContext,
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
+  const { models, subdomain } = context;
   const {
     type,
     categoryIds,
@@ -268,6 +308,7 @@ const generateFilter = async (
     pipelineId,
     segment,
     segmentData,
+    propertiesData,
     branchId,
     departmentId,
     minRemainder,
@@ -300,6 +341,14 @@ const generateFilter = async (
 
   if (params.status) {
     filter.status = params.status;
+  }
+
+  if (propertiesData) {
+    const propertyConditions = withPropertyConditions(propertiesData);
+
+    if (propertyConditions.length) {
+      andFilters.push(...propertyConditions);
+    }
   }
 
   if (type) {
@@ -381,41 +430,23 @@ const generateFilter = async (
   }
 
   if (pipelineId) {
-    const pipeline = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'pipeline',
-      action: 'findOne',
-      input: {
-        query: { _id: pipelineId },
-        fields: {
-          initialCategoryIds: 1,
-          excludeCategoryIds: 1,
-          excludeProductIds: 1,
-        },
-      },
-      defaultValue: {},
-    });
+    const pipeline = await getPipelineInventoryScope(context, pipelineId);
 
-    if (pipeline?.initialCategoryIds?.length) {
-      let incCategories = await models.ProductCategories.getChildCategories(
-        pipeline.initialCategoryIds,
-      );
-
-      if (pipeline?.excludeCategoryIds?.length) {
-        const excCategories = await models.ProductCategories.getChildCategories(
+    if (pipeline?.excludeCategoryIds?.length) {
+      const excludedCategories =
+        await models.ProductCategories.getChildCategories(
           pipeline.excludeCategoryIds,
         );
-        const excCatIds = excCategories.map((c) => c._id);
-        incCategories = incCategories.filter((c) => !excCatIds.includes(c._id));
-      }
 
-      andFilters.push({ categoryId: { $in: incCategories.map((c) => c._id) } });
-
-      if (pipeline?.excludeProductIds?.length) {
-        andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
+      if (excludedCategories.length) {
+        andFilters.push({
+          categoryId: { $nin: excludedCategories.map((c) => c._id) },
+        });
       }
+    }
+
+    if (pipeline?.excludeProductIds?.length) {
+      andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
     }
   }
 
@@ -571,24 +602,34 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async productsMain(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     const sortField = getSortField(params);
 
+    const initialCategoryIds = await getPipelineInitialCategoryIds(
+      context,
+      params.pipelineId,
+    );
+
+    const priorityOrder: Record<string, SortOrder> = initialCategoryIds.length
+      ? { initialCategoryOrder: 1 }
+      : {};
+
     if (isDiscountSortField(params.sortField)) {
+      const discountPipeline = buildDiscountSortPipeline(filter, params);
+
       return await cursorPaginateAggregation({
         model: models.Products,
-        pipeline: buildDiscountSortPipeline(filter, params),
+        pipeline: initialCategoryIds.length
+          ? withInitialCategoryPriority(discountPipeline, initialCategoryIds)
+          : discountPipeline,
         params: {
           ...params,
           orderBy: {
+            ...priorityOrder,
             discountSortValue: (params.sortDirection || 1) as SortOrder,
             _id: 1,
           },
@@ -606,6 +647,24 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
       params.orderBy = { code: 1 };
     }
 
+    if (initialCategoryIds.length) {
+      return await cursorPaginateAggregation({
+        model: models.Products,
+        pipeline: withInitialCategoryPriority(
+          [{ $match: filter }],
+          initialCategoryIds,
+        ),
+        params: {
+          ...params,
+          orderBy: {
+            ...priorityOrder,
+            ...params.orderBy,
+            _id: params.orderBy._id ?? 1,
+          },
+        },
+      });
+    }
+
     return await cursorPaginate({
       model: models.Products,
       params,
@@ -616,14 +675,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async products(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     const { sortDirection } = params;
     const sortField = getSortField(params);
@@ -652,14 +707,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async cpProducts(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     const { sortDirection } = params;
     const sortField = getSortField(params);
@@ -704,14 +755,10 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
   async productsTotalCount(
     _parent: undefined,
     params: IProductParams,
-    { commonQuerySelector, models, subdomain }: IContext,
+    context: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
-      subdomain,
-      commonQuerySelector,
-      params,
-    );
+    const { commonQuerySelector, models } = context;
+    const filter = await generateFilter(context, commonQuerySelector, params);
 
     if (params.groupedSimilarity) {
       return await getSimilaritiesProductsCount(models, filter, {

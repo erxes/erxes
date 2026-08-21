@@ -166,6 +166,11 @@ export const permissions: IPermissionConfig = {
           description: 'Delete tickets',
         },
         {
+          title: 'Manage ticket statuses',
+          name: 'ticketStatusesManage',
+          description: 'Add, edit and remove statuses of a pipeline',
+        },
+        {
           title: 'Export tickets',
           name: 'ticketsExportManage',
           description: 'Export tickets to file',
@@ -222,6 +227,27 @@ export const permissions: IPermissionConfig = {
           title: 'Export form submissions',
           name: 'formSubmissionsExportManage',
           description: 'Export form submissions to file',
+        },
+      ],
+    },
+    {
+      name: 'callReport',
+      description: 'Call centre reports',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All call queues' }],
+      actions: [
+        {
+          title: 'View call reports',
+          name: 'showCallReports',
+          description: 'Open the call reports for queues the user operates',
+          always: true,
+        },
+        {
+          title: 'View all call queues',
+          name: 'showAllCallReports',
+          description:
+            'Read call reports for every queue, not only the ones the user operates',
         },
       ],
     },
@@ -341,6 +367,7 @@ export const permissions: IPermissionConfig = {
             'createTicket',
             'updateTicket',
             'removeTicket',
+            'ticketStatusesManage',
             'ticketsExportManage',
             'ticketsImportManage',
           ],
@@ -360,6 +387,12 @@ export const permissions: IPermissionConfig = {
             'formSubmissionsRemove',
             'formSubmissionsExportManage',
           ],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'callReport',
+          actions: ['showCallReports', 'showAllCallReports'],
           scope: 'all',
         },
         {

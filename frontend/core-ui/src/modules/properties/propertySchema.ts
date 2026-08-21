@@ -1,9 +1,20 @@
 import { z } from 'zod';
 
-export const propertyGroupSchema = z.object({
-  name: z.string().min(1, 'Group name is required'),
-  code: z.string().optional(),
-});
+export const propertyGroupSchema = z
+  .object({
+    name: z.string().min(1, 'Group name is required'),
+    code: z.string().optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    code:
+      data.code?.trim() ||
+      data.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, ''),
+  }));
 
 export const optionSchema = z.object({
   label: z.string().min(1, 'Label is required'),
@@ -22,11 +33,24 @@ export const propertySchema = z
     icon: z.string().default('123'),
     name: z.string().min(1, 'Property name is required'),
     description: z.string().optional(),
-    code: z.string().min(1, 'Code is required'),
+    code: z.string().optional(),
+    groupId: z.string().min(1, 'Group is required'),
     type: z.string().min(1, 'Type is required'),
     relationType: z.string().optional(),
     validation: z.string().optional(),
     isSearchable: z.boolean().default(false),
+    isVisible: z.boolean().nullable().optional().transform((v) => v ?? true),
+    isVisibleToCreate: z
+      .boolean()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? false),
+    isRequired: z.boolean().nullable().optional().transform((v) => v ?? false),
+    isVisibleInCard: z
+      .boolean()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? false),
     logics: z.array(logicSchema).nullable().optional(),
     options: z
       .array(optionSchema)
@@ -52,6 +76,16 @@ export const propertySchema = z
         }
       }),
   })
+  .transform((data) => ({
+    ...data,
+    code:
+      data.code?.trim() ||
+      data.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, ''),
+  }))
   .refine(
     (data) =>
       data.type !== 'relation' ||

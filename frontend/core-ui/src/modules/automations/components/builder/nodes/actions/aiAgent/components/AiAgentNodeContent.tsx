@@ -128,7 +128,10 @@ const AiAgentGenerateText = ({
     prompt = '',
     captureFields = [],
     tools = [],
-  } = (config || {}) as Extract<TAiAgentConfigForm, { goalType: 'generateText' }>;
+  } = (config || {}) as Extract<
+    TAiAgentConfigForm,
+    { goalType: 'generateText' }
+  >;
 
   return (
     <>

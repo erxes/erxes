@@ -1,49 +1,83 @@
 import { useState } from 'react';
-import { IconShieldCheck } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconChevronRight,
+  IconShieldCheck,
+} from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
-  Collapsible,
-  Label,
-  Popover,
+  Command,
   RecordTable,
   Spinner,
   useToast,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
 import {
   useGetPermissionDefaultGroups,
   useGetPermissionGroups,
 } from '@/settings/permissions/hooks/useGetPermissionGroups';
 import { useUsersUpdatePermissionGroups } from '@/settings/permissions/hooks/useUsersUpdatePermissionGroups';
-import {
-  IDefaultPermissionGroup,
-  IGroupedByPlugin,
-  IPermissionGroup,
-} from '@/settings/permissions/types';
+import { IGroupedByPlugin } from '@/settings/permissions/types';
 
-export const TeamMemberAssignPermissions = ({
+export const TeamMemberAssignPermissionsTrigger = ({
+  onSelect,
+}: {
+  onSelect: () => void;
+}) => {
+  return (
+    <Can action="permissionsManage">
+      <Command.Item className="w-full justify-between" onSelect={onSelect}>
+        <span className="flex items-center gap-2">
+          <IconShieldCheck />
+          Assign Permissions
+        </span>
+        <IconChevronRight />
+      </Command.Item>
+    </Can>
+  );
+};
+
+export const TeamMemberAssignPermissionsContent = ({
   teamMemberIds,
+  initialGroupIds,
+  onBack,
+  onClose,
 }: {
   teamMemberIds: string[];
+  initialGroupIds: string[];
+  onBack: () => void;
+  onClose: () => void;
 }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const [selectedGroupIds, setSelectedGroupIds] =
+    useState<string[]>(initialGroupIds);
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();
 
   const { defaultGroups, loading: defaultLoading } =
-    useGetPermissionDefaultGroups({ skip: !open });
-  const { permissionGroups, loading: customLoading } = useGetPermissionGroups({
-    skip: !open,
-  });
+    useGetPermissionDefaultGroups();
+  const { permissionGroups, loading: customLoading } = useGetPermissionGroups();
   const { updatePermissionGroups, loading: updateLoading } =
     useUsersUpdatePermissionGroups();
 
   const toggle = (id: string) => {
-    setSelectedGroupIds((prev) =>
-      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id],
-    );
+    setSelectedGroupIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((groupId) => groupId !== id);
+      }
+
+      if (id.includes(':')) {
+        const pluginPrefix = id.split(':')[0];
+        return [
+          ...prev.filter((groupId) => groupId.split(':')[0] !== pluginPrefix),
+          id,
+        ];
+      }
+
+      return [...prev, id];
+    });
   };
 
   const handleApply = () => {
@@ -54,6 +88,8 @@ export const TeamMemberAssignPermissions = ({
         userIds: teamMemberIds,
         groupIds: selectedGroupIds,
       },
+      refetchQueries: ['Users'],
+      awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
           title: 'Permission groups assigned',
@@ -61,7 +97,7 @@ export const TeamMemberAssignPermissions = ({
           variant: 'success',
         });
         setSelectedGroupIds([]);
-        setOpen(false);
+        onClose();
         table.setRowSelection({});
       },
       onError: (error) => {
@@ -84,109 +120,79 @@ export const TeamMemberAssignPermissions = ({
   const loading = defaultLoading || customLoading;
 
   return (
-    <Can action="permissionsManage">
-      <Popover open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <Button variant="secondary">
-            <IconShieldCheck />
-            Assign Permissions
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content className="w-96 p-0">
-          <div className="max-h-96 overflow-y-auto p-4 space-y-4">
-            {loading ? (
-              <Spinner containerClassName="py-10" />
-            ) : (
-              <>
-                {Object.entries(groupedByPlugin).map(([plugin, groups]) => (
-                  <Collapsible key={plugin} className="group" defaultOpen>
-                    <Collapsible.Trigger asChild>
-                      <Button
-                        variant="secondary"
-                        className="w-full justify-start font-medium"
-                      >
-                        <Collapsible.TriggerIcon />
-                        <span className="capitalize">{plugin}</span>
-                      </Button>
-                    </Collapsible.Trigger>
-                    <Collapsible.Content className="pt-2 space-y-2">
-                      {groups.map((group: IDefaultPermissionGroup) => (
-                        <div
-                          className="flex items-center gap-2 pl-2"
-                          key={group.id}
-                        >
-                          <Checkbox
-                            id={`assign-${group.id}`}
-                            checked={selectedGroupIds.includes(group.id)}
-                            disabled={updateLoading}
-                            onCheckedChange={() => toggle(group.id)}
-                          />
-                          <Label
-                            variant="peer"
-                            htmlFor={`assign-${group.id}`}
-                            className="flex-1"
-                          >
-                            {group.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </Collapsible.Content>
-                  </Collapsible>
+    <Command className="w-96">
+      <Command.Input />
+      <Command.List className="max-h-96">
+        <Command.Group className="p-1">
+          <Command.Item onSelect={onBack}>
+            <IconArrowLeft />
+            {t('back')}
+          </Command.Item>
+        </Command.Group>
+        <Command.Separator />
+        {loading ? (
+          <Command.Item disabled>
+            <Spinner size="sm" />
+          </Command.Item>
+        ) : (
+          <>
+            {Object.entries(groupedByPlugin).map(([plugin, groups]) => (
+              <Command.Group
+                key={plugin}
+                heading={<span className="capitalize">{plugin}</span>}
+              >
+                {groups.map((group) => (
+                  <Command.Item
+                    key={group.id}
+                    value={`${plugin} ${group.name}`}
+                    disabled={updateLoading}
+                    onSelect={() => toggle(group.id)}
+                  >
+                    <Checkbox
+                      checked={selectedGroupIds.includes(group.id)}
+                      className="pointer-events-none"
+                      aria-label={group.name}
+                    />
+                    {group.name}
+                  </Command.Item>
                 ))}
+              </Command.Group>
+            ))}
 
-                {permissionGroups.length > 0 && (
-                  <Collapsible className="group" defaultOpen>
-                    <Collapsible.Trigger asChild>
-                      <Button
-                        variant="secondary"
-                        className="w-full justify-start font-medium"
-                      >
-                        <Collapsible.TriggerIcon />
-                        Custom Permission Groups
-                      </Button>
-                    </Collapsible.Trigger>
-                    <Collapsible.Content className="pt-2 space-y-2">
-                      {permissionGroups.map((group: IPermissionGroup) => (
-                        <div
-                          className="flex items-center gap-2 pl-2"
-                          key={group._id}
-                        >
-                          <Checkbox
-                            id={`assign-${group._id}`}
-                            checked={selectedGroupIds.includes(group._id)}
-                            disabled={updateLoading}
-                            onCheckedChange={() => toggle(group._id)}
-                          />
-                          <Label
-                            variant="peer"
-                            htmlFor={`assign-${group._id}`}
-                            className="flex-1"
-                          >
-                            {group.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </Collapsible.Content>
-                  </Collapsible>
-                )}
-              </>
+            {permissionGroups.length > 0 && (
+              <Command.Group heading="Custom Permission Groups">
+                {permissionGroups.map((group) => (
+                  <Command.Item
+                    key={group._id}
+                    value={`custom ${group.name}`}
+                    disabled={updateLoading}
+                    onSelect={() => toggle(group._id)}
+                  >
+                    <Checkbox
+                      checked={selectedGroupIds.includes(group._id)}
+                      className="pointer-events-none"
+                      aria-label={group.name}
+                    />
+                    {group.name}
+                  </Command.Item>
+                ))}
+              </Command.Group>
             )}
-          </div>
-          <div className="border-t p-3 flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">
-              {selectedGroupIds.length} group(s) · {teamMemberIds.length}{' '}
-              member(s)
-            </span>
-            <Button
-              size="sm"
-              onClick={handleApply}
-              disabled={!selectedGroupIds.length || updateLoading}
-            >
-              {updateLoading ? <Spinner size="sm" /> : 'Apply'}
-            </Button>
-          </div>
-        </Popover.Content>
-      </Popover>
-    </Can>
+          </>
+        )}
+      </Command.List>
+      <div className="flex items-center justify-between gap-2 border-t p-3">
+        <span className="text-xs text-muted-foreground">
+          {selectedGroupIds.length} group(s) · {teamMemberIds.length} member(s)
+        </span>
+        <Button
+          size="sm"
+          onClick={handleApply}
+          disabled={!selectedGroupIds.length || updateLoading}
+        >
+          {updateLoading ? <Spinner size="sm" /> : 'Apply'}
+        </Button>
+      </div>
+    </Command>
   );
 };

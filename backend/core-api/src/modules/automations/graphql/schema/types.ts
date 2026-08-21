@@ -65,6 +65,9 @@ const types = `
     actions: [Action]
     workflows: [Workflow]
 
+    duplicatedFrom: String
+    duplicatedFromName: String
+
     createdUser: User
     updatedUser: User
     approvalLockState(action: String): ApprovalLockState
@@ -105,6 +108,9 @@ const types = `
     status: String
     description: String
     actions: [JSON]
+    failedActionId: String
+    failedActionType: String
+    errorCode: String
     startWaitingDate: Date
     waitingActionId: String
     parentExecutionId: String
@@ -117,6 +123,48 @@ const types = `
     list:[AutomationHistory]
     totalCount: Int
     pageInfo: PageInfo
+  }
+
+  type AutomationStatsCount {
+    key: String
+    count: Int
+  }
+
+  type AutomationStatsBucket {
+    date: String
+    total: Int
+    complete: Int
+    error: Int
+    waiting: Int
+  }
+
+  type AutomationStatsNode {
+    actionId: String
+    actionType: String
+    total: Int
+    success: Int
+    error: Int
+    waiting: Int
+    avgDurationMs: Float
+    maxDurationMs: Float
+    errorCodes: [AutomationStatsCount]
+  }
+
+  type AutomationStatsErrorMessage {
+    message: String
+    errorCode: String
+    actionTypes: [String]
+    count: Int
+    lastAt: Date
+  }
+
+  type AutomationStats {
+    total: Int
+    byStatus: [AutomationStatsCount]
+    byErrorCode: [AutomationStatsCount]
+    timeSeries: [AutomationStatsBucket]
+    nodes: [AutomationStatsNode]
+    errorMessages: [AutomationStatsErrorMessage]
   }
 
   input TriggerInput {

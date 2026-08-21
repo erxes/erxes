@@ -24,6 +24,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { AutomationBuilderTabsType, IAutomation } from '@/automations/types';
 import { AutomationBuilderHeader } from '@/automations/components/builder/header/AutomationBuilderHeader';
 import { AutomationHistories } from '@/automations/components/builder/history/components/AutomationHistories';
+import { AutomationStats } from '@/automations/components/builder/stats/components/AutomationStats';
 
 type AutomationBuilderProps = {
   detail?: IAutomation;
@@ -63,11 +64,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
     if (activeTab !== nextActiveTab) {
       setActiveTab(nextActiveTab);
     }
-  }, [
-    activeTab,
-    queryParams.activeTab,
-    setActiveTab,
-  ]);
+  }, [activeTab, queryParams.activeTab, setActiveTab]);
 
   useEffect(() => {
     if (queryParams.activeNodeId) {
@@ -81,11 +78,11 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
             <AutomationBuilderUnsavedChangesAlert />
-            <Tabs value={activeTab} className="h-screen flex flex-col">
+            <Tabs value={activeTab} className="h-full flex flex-col">
               <AutomationBuilderHeader />
               <Tabs.Content
                 value="builder"
-                className="flex-1 h-full relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+                className="flex-1 min-h-0 relative animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
               >
                 <AutomationBuilderWorkspace />
               </Tabs.Content>
@@ -94,6 +91,12 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
                 className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
               >
                 <AutomationHistories />
+              </Tabs.Content>
+              <Tabs.Content
+                value="stats"
+                className="flex-1 flex flex-col min-h-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+              >
+                <AutomationStats />
               </Tabs.Content>
             </Tabs>
           </FormProvider>

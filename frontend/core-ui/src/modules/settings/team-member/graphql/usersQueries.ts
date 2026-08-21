@@ -76,6 +76,7 @@ const GET_USERS_QUERY = gql`
         brandIds
         score
         positionIds
+        permissionGroupIds
         details {
           avatar
           shortName

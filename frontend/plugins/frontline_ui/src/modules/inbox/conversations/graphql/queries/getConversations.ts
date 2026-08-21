@@ -18,6 +18,7 @@ export const GET_CONVERSATIONS = gql`
     $endDate: String
     $segment: String
     $awaitingResponse: String
+    $automationStatus: String
     $participating: String
     $customerId: String
     $brandId: String
@@ -36,6 +37,7 @@ export const GET_CONVERSATIONS = gql`
       endDate: $endDate
       segment: $segment
       awaitingResponse: $awaitingResponse
+      automationStatus: $automationStatus
       participating: $participating
       customerId: $customerId
       brandId: $brandId

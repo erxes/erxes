@@ -51,7 +51,7 @@ const getDefaultValues = (
   return {
     ...base,
     method: method ?? 'email',
-    fromUserId: '',
+    fromEmail: '',
     email: {
       subject: '',
       sender: '',

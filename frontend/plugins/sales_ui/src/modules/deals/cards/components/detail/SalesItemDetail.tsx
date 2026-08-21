@@ -1,12 +1,7 @@
 'use client';
 
-import {
-  ActivityLogs,
-  AddInternalNote,
-  FieldsInDetail,
-  RelationWidgetSideTabs,
-} from 'ui-modules';
-import { dealCustomActivities } from './DealActivityRows';
+import { RelationWidgetSideTabs } from 'ui-modules';
+import { DealActivityTab } from './DealActivityTab';
 import {
   Empty,
   FocusSheet,
@@ -16,11 +11,10 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
 
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IDeal } from '@/deals/types/deals';
-import Overview from '@/deals/cards/components/detail/overview/Overview';
+import { Overview } from '@/deals/cards/components/detail/overview/Overview';
 import { Products } from '@/deals/cards/components/detail/product/components/Products';
 import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItemDetailHeader';
 import { SalesItemSidebar } from './SalesItemSidebar';
@@ -29,6 +23,7 @@ import { useAtom } from 'jotai';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { useTranslation } from 'react-i18next';
+import { DealPipelineProperties } from './DealPipelineProperties';
 
 const SalesItemDetailView = () => {
   const { isSidebarOpen } = useFocusSheet();
@@ -58,17 +53,17 @@ const SalesItemDetailView = () => {
             >
               <Tabs.Content value="overview" className="h-full">
                 <ScrollArea className="h-full">
-                  <Overview deal={deal || ({} as IDeal)} />
+                  <Overview key={deal?._id} deal={deal || ({} as IDeal)} />
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="properties" className="h-full">
                 <ScrollArea className="h-full">
-                  <div className="p-6">
-                    <FieldsInDetail
+                  <div className="w-full xl:max-w-6xl mx-auto p-6">
+                    <DealPipelineProperties
                       key={`${deal?._id || ''}-${JSON.stringify(
                         deal?.propertiesData || {},
                       )}`}
-                      fieldContentType="sales:deal"
+                      pipelineId={deal?.pipelineId || ''}
                       propertiesData={deal?.propertiesData || {}}
                       mutateHook={useDealCustomFieldEdit}
                       id={deal?._id || ''}
@@ -77,26 +72,7 @@ const SalesItemDetailView = () => {
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="activity" className="h-full">
-                <div className="h-full flex flex-col">
-                  <ScrollArea className="flex-1 min-h-0">
-                    <div className="pt-3">
-                      <ActivityLogs
-                        targetId={deal?._id || ''}
-                        customActivities={dealCustomActivities}
-                        variant="backward"
-                      />
-                    </div>
-                  </ScrollArea>
-
-                  {!!deal?._id && (
-                    <div className="shrink-0 pb-6 pt-2">
-                      <AddInternalNote
-                        contentTypeId={deal._id}
-                        contentType="sales:deal"
-                      />
-                    </div>
-                  )}
-                </div>
+                <DealActivityTab dealId={deal?._id || ''} />
               </Tabs.Content>
               <Tabs.Content value="products" className="h-full p-6">
                 <Products deal={deal || ({} as IDeal)} refetch={refetch} />
@@ -119,18 +95,10 @@ const SalesItemDetailView = () => {
 export const SalesItemDetail = () => {
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
-  const { loading } = useDealDetail();
 
-  const [isOpen, setIsOpen] = useState(
-    (!!activeDealId || !!salesItemId) && !loading,
-  );
-
-  useEffect(() => {
-    setIsOpen((!!activeDealId || !!salesItemId) && !loading);
-  }, [activeDealId, salesItemId, loading]);
+  const isOpen = Boolean(activeDealId) || Boolean(salesItemId);
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (!open) {
       setActiveDealId(null);
       setSalesItemId(null);

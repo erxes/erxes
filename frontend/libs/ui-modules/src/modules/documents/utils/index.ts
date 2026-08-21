@@ -119,6 +119,21 @@ ${BASE_STYLES}
     .label-item:last-child {
       break-after: auto;
       page-break-after: auto;
+    }
+
+    .label-fit {
+      display: flow-root;
+      width: 100%;
+      text-align: left;
+      overflow-wrap: break-word;
+    }
+
+    .label-fit > :first-child {
+      margin-top: 0 !important;
+    }
+
+    .label-fit > :last-child {
+      margin-bottom: 0 !important;
     }`;
 
 const sheetStyles = (
@@ -153,6 +168,12 @@ ${BASE_STYLES}
       transform-origin: ${SCALE_TO_FIT ? 'top center' : 'top left'};
       width: calc(100% / ${SCALE_FACTOR});
       padding: ${margin}mm;
+    }
+
+    .scaled-content .label-item {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: ${Math.max(0, height - margin * 2)}mm !important;
     }
 
     @media print {
@@ -212,6 +233,161 @@ export const syncPageHeight = (iframe: HTMLIFrameElement, config: any) => {
   style.textContent = `@page { size: ${width}mm ${paperHeight}mm; margin: 0; }`;
 
   return paperHeight;
+};
+
+export const waitForImages = async (iframe: HTMLIFrameElement) => {
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return;
+  }
+
+  const pending = Array.from(doc.images).filter((image) => !image.complete);
+
+  await Promise.all(
+    pending.map(
+      (image) =>
+        new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        }),
+    ),
+  );
+};
+
+const FIT_MIN_RATIO = 0.1;
+const FIT_PASSES = 8;
+
+const fitRatio = (box: HTMLElement, content: HTMLElement) => {
+  const availableHeight = box.clientHeight;
+  const availableWidth = box.clientWidth;
+
+  if (!availableHeight || !availableWidth) {
+    return 1;
+  }
+
+  const fitsAt = (ratio: number) => {
+    content.style.width = `${availableWidth / ratio}px`;
+
+    return content.scrollHeight * ratio <= availableHeight;
+  };
+
+  if (fitsAt(1)) {
+    content.style.width = '';
+
+    return 1;
+  }
+
+  if (!fitsAt(FIT_MIN_RATIO)) {
+    content.style.width = '';
+
+    const naturalHeight = content.scrollHeight;
+
+    return naturalHeight ? Math.min(availableHeight / naturalHeight, 1) : 1;
+  }
+
+  let low = FIT_MIN_RATIO;
+  let high = 1;
+
+  for (let pass = 0; pass < FIT_PASSES; pass += 1) {
+    const middle = (low + high) / 2;
+
+    if (fitsAt(middle)) {
+      low = middle;
+    } else {
+      high = middle;
+    }
+  }
+
+  fitsAt(low);
+
+  return low;
+};
+
+export const transformLabels = (iframe: HTMLIFrameElement, config: any) => {
+  const { type } = resolveSize(config);
+
+  if (type !== PAPER_TYPES.ROLL) {
+    return;
+  }
+
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return;
+  }
+
+  const userScale = (Number(config.scale) || 100) / 100;
+  const offsetX = Number(config.offsetX) || 0;
+  const offsetY = Number(config.offsetY) || 0;
+
+  const shift = `translate(${offsetX}mm, ${offsetY}mm)`;
+
+  const fits = Array.from(doc.querySelectorAll<HTMLElement>('.label-fit'));
+
+  if (!fits.length) {
+    const container = doc.querySelector<HTMLElement>('.scaled-content');
+
+    if (container) {
+      container.style.transformOrigin = 'top left';
+      container.style.transform = `${shift} scale(${userScale})`;
+    }
+
+    return;
+  }
+
+  for (const fit of fits) {
+    const box = fit.parentElement;
+
+    fit.style.transform = '';
+    fit.style.width = '';
+
+    const ratio = box ? fitRatio(box, fit) : 1;
+
+    fit.style.transformOrigin = 'top left';
+    fit.style.transform = `${shift} scale(${ratio * userScale})`;
+  }
+};
+
+export const buildLabelPages = (iframe: HTMLIFrameElement, config: any) => {
+  const { isContinuous } = resolveSize(config);
+
+  const doc = iframe.contentDocument;
+
+  if (!doc) {
+    return [];
+  }
+
+  const styles = Array.from(doc.querySelectorAll('style'))
+    .map((style) => style.textContent || '')
+    .join('\n')
+    .replace(/@page\s*\{[^}]*\}/g, '');
+
+  const container = doc.querySelector('.scaled-content');
+
+  if (!container) {
+    return [];
+  }
+
+  const items = Array.from(doc.querySelectorAll('.label-item'));
+
+  const bodies =
+    isContinuous || !items.length
+      ? [container.innerHTML]
+      : items.map((item) => item.outerHTML);
+
+  return bodies.map(
+    (body) => `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>${styles}</style>
+  </head>
+  <body>
+    <div class="scaled-content">${body}</div>
+  </body>
+</html>`,
+  );
 };
 
 export const layout = (

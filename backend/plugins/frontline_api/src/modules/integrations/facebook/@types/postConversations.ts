@@ -12,6 +12,10 @@ export interface IFacebookPostConversation {
   customerId?: string;
   permalink_url: string;
   attachments: string[];
+  metaCommentCount?: number;
+  metaReactionCount?: number;
+  metaShareCount?: number;
+  metaSyncedAt?: Date;
 }
 
 export interface IFacebookPostConversationDocument

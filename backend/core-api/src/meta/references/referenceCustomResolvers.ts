@@ -15,4 +15,11 @@ export const coreReferenceCustomResolvers: TRecordReferencesConfig<IModels>['res
       target.primaryPhone ||
       target.code ||
       target._id,
+
+    companyDisplayName: ({ target }) =>
+      target.primaryName ||
+      target.code ||
+      target.primaryEmail ||
+      target.primaryPhone ||
+      target._id,
   };

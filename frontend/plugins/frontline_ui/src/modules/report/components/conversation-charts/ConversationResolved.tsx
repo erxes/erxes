@@ -3,23 +3,15 @@ import {
   ChartTooltipContent,
   RecordTable,
   RecordTableInlineCell,
-  Skeleton,
   cn,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useConversationResolvedByDate } from '@/report/hooks/useConversationResolvedByDate';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
-import { ResponsesChartType } from '@/report/types';
-import { useState, useMemo, memo, useEffect } from 'react';
+import { ReportChart, ResponsesChartType } from '@/report/types';
+import { useState, useMemo, memo } from 'react';
 import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom } from '@/report/states';
 import {
   Bar,
   BarChart,
@@ -28,6 +20,7 @@ import {
   XAxis,
   YAxis,
   Legend,
+  LabelList,
   Tooltip,
   CartesianGrid,
   PolarGrid,
@@ -41,7 +34,6 @@ import {
   type LegendPayload,
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
-import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import { AreaGradient } from '../chart/AreaGradient';
 import { ReportFilter } from '../filter-popover/report-filter';
@@ -50,9 +42,13 @@ import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 interface ConversationResolvedProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -82,7 +78,7 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 60 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
@@ -99,7 +95,14 @@ export const ResolvedBarChart = memo(function ResolvedBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Tooltip content={<ChartTooltipContent />} />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
       </BarChart>
@@ -381,36 +384,18 @@ const RESOLVED_EXPORT_COLUMNS = [
 
 export const ConversationResolved = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationResolvedProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
-  }, [dateValue]);
 
   const { reports, loading } = useConversationResolvedByDate({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
+    variables: { filters: queryFilters },
+    skip: !filtersRestored,
     notifyOnNetworkStatusChange: true,
   });
 
@@ -431,6 +416,13 @@ export const ConversationResolved = ({
     <>
       <ReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType="conversation-resolved"
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allData}
         columns={RESOLVED_EXPORT_COLUMNS}
@@ -439,7 +431,7 @@ export const ConversationResolved = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}

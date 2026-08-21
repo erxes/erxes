@@ -1,4 +1,4 @@
-import { IChannelDocument } from '@/channel/@types/channel';
+import { ChannelScopes, IChannelDocument } from '@/channel/@types/channel';
 import {
   IArchiveParams,
   IIntegration,
@@ -36,6 +36,11 @@ import {
   discordRemoveIntegrations,
   discordRepairIntegrations,
 } from '@/integrations/discord/messageBroker';
+import {
+  callProCreateIntegration,
+  callProRemoveIntegration,
+  callProUpdateIntegration,
+} from '@/integrations/callpro/messageBroker';
 import {
   getUniqueValue,
   sendTRPCMessage,
@@ -87,8 +92,17 @@ export const sendCreateIntegration = async (
       case 'discord':
         return await discordCreateIntegrations({ subdomain, data });
 
+      case 'callpro': {
+        const result = await callProCreateIntegration({ subdomain, data });
+
+        if (result.status !== 'success') {
+          throw new Error(result.errorMessage);
+        }
+
+        return result;
+      }
+
       case 'mobinetSms':
-        // TODO: Implement MobinetSms integration
         break;
 
       default:
@@ -116,6 +130,9 @@ export const sendUpdateIntegration = async (
         return await instagramUpdateIntegrations({ subdomain, data });
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
+
+      case 'callpro':
+        return await callProUpdateIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -148,6 +165,9 @@ export const sendRemoveIntegration = async (
 
       case 'discord':
         return await discordRemoveIntegrations({ subdomain, data });
+
+      case 'callpro':
+        return await callProRemoveIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -218,9 +238,6 @@ export const sendRepairIntegration = async (
 };
 
 export const integrationMutations = {
-  /**
-   * Creates a new messenger onboarding
-   */
   async integrationsCreateMessengerOnboarding(
     _root,
     doc: IOnboardingParamsEdit,
@@ -316,7 +333,6 @@ export const integrationMutations = {
 
     const integrationDocs = {
       name: 'Default brand',
-      // brandId: brand._id,
       channelId: channel?._id,
     } as IIntegration;
 
@@ -333,10 +349,6 @@ export const integrationMutations = {
     );
   },
 
-  /**
-   * Creates a new messenger integration
-   */
-
   async integrationsCreateMessengerIntegration(
     _root,
     doc: IIntegration,
@@ -345,9 +357,6 @@ export const integrationMutations = {
     return await models.Integrations.createMessengerIntegration(doc, user._id);
   },
 
-  /**
-   * Updates a messenger integration
-   */
   async integrationsEditMessengerIntegration(
     _root,
     { _id, ...fields }: any,
@@ -362,9 +371,6 @@ export const integrationMutations = {
     return await models.Integrations.updateMessengerIntegration(_id, fields);
   },
 
-  /**
-   * Update/save messenger appearance data
-   */
   async integrationsSaveMessengerAppearanceData(
     _root,
     {
@@ -380,9 +386,6 @@ export const integrationMutations = {
     return models.Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
-  /**
-   * Update/save messenger data
-   */
   async integrationsSaveMessengerConfigs(
     _root,
     {
@@ -445,9 +448,6 @@ export const integrationMutations = {
       },
     ];
   },
-  /**
-   * Create a new messenger integration
-   */
   async integrationsCreateLeadIntegration(
     _root,
     doc: IIntegration,
@@ -456,9 +456,6 @@ export const integrationMutations = {
     return await models.Integrations.createLeadIntegration(doc, user._id);
   },
 
-  /**
-   * Edit a lead integration
-   */
   async integrationsEditLeadIntegration(
     _root,
     { _id, ...doc }: any,
@@ -473,15 +470,45 @@ export const integrationMutations = {
     return await models.Integrations.updateLeadIntegration(_id, doc);
   },
 
-  /**
-   * Create external integrations like twitter, gmail etc ...
-   */
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, models, subdomain }: IContext,
   ) {
-    const modifiedDoc: any = { ...doc };
+    const modifiedDoc: IExternalIntegrationParams & {
+      webhookData?: Record<string, unknown>;
+    } = { ...doc };
+    const serviceKind = doc.kind.split('-')[0];
+
+    if (modifiedDoc.channelId) {
+      const channel = await models.Channels.findOne({
+        _id: modifiedDoc.channelId,
+      });
+
+      if (!channel) {
+        throw new Error(
+          `Channel "${modifiedDoc.channelId}" not found — cannot create an integration on a channel that doesn't exist.`,
+        );
+      }
+
+      if (
+        channel.scope === ChannelScopes.PERSONAL &&
+        channel.createdBy !== user._id
+      ) {
+        throw new Error(
+          "Cannot create an integration on another user's personal channel.",
+        );
+      }
+    } else {
+      // No channel named: the integration lands in the connecting user's own
+      // inbox. A personal channel accepts every kind a team channel does, so
+      // this fallback is not restricted by kind.
+      const personalChannel = await models.Channels.getPersonalChannel(
+        user._id,
+      );
+
+      modifiedDoc.channelId = personalChannel._id;
+    }
 
     if (modifiedDoc.kind === 'webhook') {
       modifiedDoc.webhookData = { ...data };
@@ -502,13 +529,12 @@ export const integrationMutations = {
       user._id,
     );
 
-    const kind = doc.kind.split('-')[0];
-    if (kind === 'cloudflarecalls') {
+    if (serviceKind === 'cloudflarecalls') {
       data = { ...data, name: doc.name };
     }
 
     try {
-      if ('webhook' !== kind) {
+      if ('webhook' !== serviceKind) {
         const payload: CreateIntegrationParams = {
           accountId: doc.accountId,
           kind: doc.kind,
@@ -516,7 +542,7 @@ export const integrationMutations = {
           data: data ? JSON.stringify(data) : '',
         };
 
-        await sendCreateIntegration(subdomain, kind, payload);
+        await sendCreateIntegration(subdomain, serviceKind, payload);
       }
     } catch (e) {
       await models.Integrations.deleteOne({ _id: integration._id });
@@ -574,9 +600,6 @@ export const integrationMutations = {
     return updated;
   },
 
-  /**
-   * Deletes an integration
-   */
   async integrationsRemove(
     _root,
     { _id }: { _id: string },
@@ -598,9 +621,6 @@ export const integrationMutations = {
     return models.Integrations.removeIntegration(_id);
   },
 
-  /**
-   * Delete an account
-   */
   async integrationsRemoveAccount(
     _root,
     { _id, kind }: { _id: string; kind?: string },
@@ -666,12 +686,12 @@ export const integrationMutations = {
 
   async integrationsSaveMessengerTicketData(
     _root,
-    { _id, configId }: { _id: string; configId?: string },
+    { _id, configIds }: { _id: string; configIds?: string[] },
     { models }: IContext,
   ) {
     return models.Integrations.integrationsSaveMessengerTicketData(
       _id,
-      configId,
+      configIds,
     );
   },
 };

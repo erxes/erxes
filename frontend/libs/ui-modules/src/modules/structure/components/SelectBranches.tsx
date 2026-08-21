@@ -26,6 +26,22 @@ import {
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
 
+const cacheSelectedBranch = (
+  branch: IBranch | undefined,
+  selectedBranchIds: string[],
+  setSelectedBranches: React.Dispatch<React.SetStateAction<IBranch[]>>,
+) => {
+  if (!branch || !selectedBranchIds.includes(branch._id)) return;
+
+  setSelectedBranches((previousBranches) => {
+    if (previousBranches.some(({ _id }) => _id === branch._id)) {
+      return previousBranches;
+    }
+
+    return [...previousBranches, branch];
+  });
+};
+
 export const SelectBranchesProvider = ({
   children,
   value,
@@ -34,7 +50,13 @@ export const SelectBranchesProvider = ({
 }: ISelectBranchesProviderProps) => {
   const [newBranchName, setNewBranchName] = useState<string>('');
   const [selectedBranches, setSelectedBranches] = useState<IBranch[]>([]);
-  const branchIds = !value ? [] : Array.isArray(value) ? value : [value];
+  let branchIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    branchIds = value;
+  } else if (value) {
+    branchIds = [value];
+  }
 
   const handleSelectCallback = (branch: IBranch) => {
     if (!branch) return;
@@ -201,6 +223,7 @@ export const SelectBranchesItem = ({
 export const BranchesList = ({
   placeholder,
   renderAsPlainText,
+  className,
   ...props
 }: Omit<React.ComponentProps<typeof BranchBadge>, 'onClose'> & {
   placeholder?: string;
@@ -209,7 +232,13 @@ export const BranchesList = ({
   const { value, selectedBranches, setSelectedBranches, onSelect } =
     useSelectBranchesContext();
 
-  const selectedBranchIds = Array.isArray(value) ? value : [value];
+  let selectedBranchIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    selectedBranchIds = value;
+  } else if (value) {
+    selectedBranchIds = [value];
+  }
 
   if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
@@ -225,12 +254,10 @@ export const BranchesList = ({
           renderAsPlainText={renderAsPlainText}
           showMissingId
           variant={'secondary'}
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (selectedBranchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          className={cn('min-w-0', className)}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, selectedBranchIds, setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
               (selectedBranches.find((p) => p._id === branchId) ?? {
@@ -316,12 +343,9 @@ const SelectBranchesBadgesView = () => {
           key={bId}
           branchId={bId}
           showMissingId
-          onCompleted={(branch) => {
-            if (!branch) return;
-            if (branchIds.includes(branch._id)) {
-              setSelectedBranches([...selectedBranches, branch]);
-            }
-          }}
+          onCompleted={(branch) =>
+            cacheSelectedBranch(branch, branchIds || [], setSelectedBranches)
+          }
           onClose={() =>
             onSelect?.(
               (selectedBranches.find((p) => p._id === bId) ?? {

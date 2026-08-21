@@ -11,6 +11,7 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
+  dismissOnPointerEnter?: boolean;
 };
 
 type ActionTypes = {

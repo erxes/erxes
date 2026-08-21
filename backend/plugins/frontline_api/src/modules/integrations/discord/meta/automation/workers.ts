@@ -17,30 +17,30 @@ import {
 } from '@/integrations/discord/utils';
 import { debugError } from '@/integrations/discord/debuggers';
 
-// Splits a comma-separated config value into a lowercased, trimmed list.
 const toFilterList = (value: unknown): string[] =>
   (typeof value === 'string' ? value : '')
     .split(',')
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
 
-/** Coerce a Date or string to an ISO string, or undefined when empty. */
 const toISOString = (value?: Date | string) => {
   if (!value) return undefined;
   return value instanceof Date ? value.toISOString() : String(value);
 };
 
-/** Map a stored message to its AI-history role: bot, agent, or customer. */
+// An execution can start seconds after its message, by which time newer
+// messages exist. History must stay strictly older than the one being handled.
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
   if (message.fromBot) return 'bot' as const;
   if (message.userId) return 'agent' as const;
   return 'customer' as const;
 };
 
-// Best-effort "<bot> is typing…" for a matched Discord trigger. Resolves the
-// bot token from the target and starts the channel typing indicator (which
-// self-caps and is cleared once the reply is sent). Never throws — the trigger
-// match result must not depend on Discord availability.
 const startTypingForMatchedTrigger = async (
   models: IModels,
   target: TDiscordTriggerTarget,
@@ -53,10 +53,6 @@ const startTypingForMatchedTrigger = async (
     }
     const bot = await models.DiscordBots.findById(botId);
     if (bot?.token) {
-      // Longer cap than the default: the reply isn't sent until the automation's
-      // Send Discord Message action fires, and the AI Agent action between here
-      // and there can run for tens of seconds. Keep "…is typing" alive across
-      // the whole compose window instead of self-expiring mid-generation.
       startTypingIndicator(bot.token, channelId, AUTOMATION_TYPING_MAX_MS);
     }
   } catch (e) {
@@ -95,9 +91,6 @@ export const discordAutomationWorkers = {
     }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
     { models }: { models: IModels; subdomain: string },
   ) => {
-    // Discord message trigger: optional content keyword filter. The bridge
-    // transports target/config as untyped records; cast them back to the
-    // shapes the Discord trigger produces.
     if (collectionType === DISCORD_MESSAGE_COLLECTION) {
       const triggerTarget = target as TDiscordTriggerTarget;
       const triggerConfig = config as TDiscordTriggerConfig | undefined;
@@ -108,11 +101,6 @@ export const discordAutomationWorkers = {
         !keywords.length ||
         keywords.some((keyword) => content.includes(keyword));
 
-      // Only now — once an automation's trigger has actually matched — start the
-      // typing indicator, so it shows while the automation composes its reply.
-      // Gating it here (rather than on every inbound message) means channels and
-      // messages with no matching automation never show a typing indicator.
-      // Fire-and-forget so the match result isn't delayed by Discord I/O.
       if (matched) {
         startTypingForMatchedTrigger(models, triggerTarget).catch(
           () => undefined,
@@ -125,8 +113,6 @@ export const discordAutomationWorkers = {
     return false;
   },
 
-  // Feeds the AI Agent action recent conversation history for context-aware
-  // replies. Mirrors Facebook's generateAiContext.
   generateAiContext: async (
     {
       target,
@@ -144,7 +130,9 @@ export const discordAutomationWorkers = {
       version: 1,
       input: {
         text:
-          typeof triggerTarget.content === 'string' ? triggerTarget.content : '',
+          typeof triggerTarget.content === 'string'
+            ? triggerTarget.content
+            : '',
         id: triggerTarget._id,
         createdAt: toISOString(triggerTarget.createdAt),
       },
@@ -164,7 +152,6 @@ export const discordAutomationWorkers = {
       },
     };
 
-    // target.conversationId is the inbox conversation id (erxesApiId).
     const conversation = await models.DiscordConversations.findOne({
       erxesApiId: triggerTarget.conversationId,
     });
@@ -173,10 +160,13 @@ export const discordAutomationWorkers = {
       return context;
     }
 
+    const historyCutoff = toHistoryCutoff(triggerTarget.createdAt);
     const messages = await models.DiscordConversationMessages.find({
       conversationId: conversation._id,
       internal: { $ne: true },
+      deletedAt: { $exists: false },
       messageId: { $ne: triggerTarget._id },
+      ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
     })
       .sort({ createdAt: -1 })
       .limit(12)

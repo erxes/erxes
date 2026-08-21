@@ -36,6 +36,20 @@ const GET_TICKET_CONFIG_BY_PIPELINE_ID = gql`
           placeholder
         }
       }
+      propertyFields {
+        fieldId
+        groupId
+        label
+        placeholder
+        groupOrder
+        order
+        isRequired
+        type
+        options {
+          label
+          value
+        }
+      }
       updatedAt
     }
   }

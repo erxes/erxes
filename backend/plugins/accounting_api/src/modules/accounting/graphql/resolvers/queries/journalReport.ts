@@ -1,6 +1,11 @@
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getFirstGroupRule, getRecMore, getRecords, IGroupRule } from '~/modules/accounting/utils/journalReports';
+import {
+  getFirstGroupRule,
+  getRecMore,
+  getRecords,
+  IGroupRule,
+} from '~/modules/accounting/utils/journalReports';
 
 export interface IReportFilterParams {
   status?: string;
@@ -16,20 +21,31 @@ export interface IReportFilterParams {
   accountCategoryId?: string;
   accountSearchValue?: string;
   accountBrand?: string;
-  accountIsTemp?: boolean,
-  accountIsOutBalance?: boolean,
+  accountIsTemp?: boolean;
+  accountIsOutBalance?: boolean;
   accountBranchId: string;
   accountDepartmentId: string;
   accountCurrency: string;
   accountJournal: string;
 
   brandId?: string;
-  isOutBalance?: boolean,
+  isOutBalance?: boolean;
+  productId?: string;
+  productIds?: string[];
+  fixedAssetId?: string;
+  fixedAssetIds?: string[];
+  customerId?: string;
+  customerIds?: string[];
+  contentType?: string;
+  contentId?: string;
   branchId?: string;
   departmentId?: string;
   currency?: string;
   journal?: string;
   journals?: string[];
+  trKind?: string;
+  trKinds?: string[];
+  getTrKind?: string;
   statuses?: string[];
 
   createdUserId?: string;
@@ -52,8 +68,15 @@ const journalReportQueries = {
     await checkPermission('accountsRead');
     const { groupRule, report, ...filters } = params;
     const firstGroupRules = getFirstGroupRule([], groupRule);
-    const records = await getRecords(subdomain, models, report, firstGroupRules, filters, user);
-    return { records }
+    const records = await getRecords(
+      subdomain,
+      models,
+      report,
+      firstGroupRules,
+      filters,
+      user,
+    );
+    return { records };
   },
 
   async journalReportMore(
@@ -63,8 +86,14 @@ const journalReportQueries = {
   ) {
     await checkPermission('accountsRead');
     const { report, ...filters } = params;
-    const trDetails = await getRecMore(subdomain, models, report, filters, user)
-    return { trDetails }
+    const trDetails = await getRecMore(
+      subdomain,
+      models,
+      report,
+      filters,
+      user,
+    );
+    return { trDetails };
   },
 };
 

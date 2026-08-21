@@ -50,7 +50,7 @@ export const ConfigDetails = () => {
         },
       });
     },
-    [saveTicketsConfig, handleClose],
+    [saveTicketsConfig, handleClose, t],
   );
 
   return (
@@ -62,7 +62,7 @@ export const ConfigDetails = () => {
         }
       }}
     >
-      <Sheet.View className="p-0">
+      <Sheet.View className="p-0 min-w-xl">
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}

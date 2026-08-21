@@ -5,7 +5,6 @@ import { actionHandlerWorker } from './actionHandlerWorker';
 import { triggerHandlerWorker } from './triggerWorker';
 import { debugInfo } from '../debugger';
 import { aiWorker } from './aiWorker';
-import { initScheduleWorker } from './scheduleWorker';
 
 type ICommonJobData = {
   subdomain: string;
@@ -40,7 +39,6 @@ export const initMQWorkers = async (redis: Redis) => {
     generateMQWorker(redis, 'trigger', triggerHandlerWorker),
     generateMQWorker(redis, 'action', actionHandlerWorker),
     generateMQWorker(redis, 'aiAgent', aiWorker),
-    initScheduleWorker(redis),
   ]);
 
   debugInfo('All workers initialized');

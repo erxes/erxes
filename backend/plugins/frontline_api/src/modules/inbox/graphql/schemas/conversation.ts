@@ -31,6 +31,8 @@ export const types = `
 
     messages: [ConversationMessage]
     callProAudio: String
+    callProPotentialCustomerIds: [String]
+    callProPhone: String
 
     tags: [Tag]
     customer: Customer
@@ -124,6 +126,8 @@ export const types = `
 
   type ConversationClientTypingStatusChangedResponse {
     conversationId: String!
+    customerId: String
+    customerName: String
     text: String
   }
 
@@ -176,6 +180,7 @@ const mutationFilterParams = `
   integrationType: String
   participating: String
   awaitingResponse: String
+  automationStatus: String
   starred: String
   startDate: String
   endDate: String
@@ -246,6 +251,7 @@ export const mutations = `
     contentType: String
     extraInfo: JSON
     poll: ConversationPollInput
+    replyToMessageId: String
   ): ConversationMessage
   conversationMessageEdit(
     _id: String!,

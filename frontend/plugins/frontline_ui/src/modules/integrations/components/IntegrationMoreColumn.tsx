@@ -31,6 +31,12 @@ const CallIntegrationActions = lazy(() =>
   })),
 );
 
+const CallProIntegrationActions = lazy(() =>
+  import('../callpro/components/CallProIntegrationDetail').then((module) => ({
+    default: module.CallProIntegrationActions,
+  })),
+);
+
 const ImapIntegrationActions = lazy(() =>
   import('../imap/components/ImapIntegrationDetail').then((module) => ({
     default: module.ImapIntegrationActions,
@@ -79,6 +85,9 @@ export const IntegrationMoreColumnCell = ({
                 {integrationType === IntegrationType.CALL && (
                   <CallIntegrationActions cell={cell} />
                 )}
+                {integrationType === IntegrationType.CALLPRO && (
+                  <CallProIntegrationActions cell={cell} />
+                )}
                 {integrationType === IntegrationType.IMAP && (
                   <ImapIntegrationActions cell={cell} />
                 )}
@@ -126,10 +135,13 @@ export const IntegrationMoreColumnCell = ({
   );
 };
 
-export const integrationMoreColumn = (): ColumnDef<IIntegrationDetail> => ({
+export const integrationMoreColumn = (
+  showColumnSelector = false,
+): ColumnDef<IIntegrationDetail> => ({
   id: 'more',
+  header: showColumnSelector ? () => <RecordTable.ColumnSelector /> : undefined,
   cell: (cell: CellContext<IIntegrationDetail, unknown>) => (
     <IntegrationMoreColumnCell cell={cell} />
   ),
-  size: 15,
+  size: 33,
 });

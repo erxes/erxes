@@ -2,7 +2,6 @@ import {
   IconPackage,
   IconCategory,
   IconShieldCheck,
-  IconCalendar,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -11,35 +10,38 @@ import {
   RecordTableInlineCell,
   Badge,
 } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';
+import { createCreatedAtColumn } from '../shared';
 import { ProductsMoreColumn } from './ProductsMoreColumn';
-
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN');
-};
 
 export const createProductsColumns = (
   onEdit: (product: InsuranceProduct) => void,
   onDelete: (product: InsuranceProduct) => void,
+  labels: {
+    name: string;
+    insuranceType: string;
+    coveredRisks: string;
+    risks: string;
+    riskDetails: string;
+    createdAt: string;
+  },
 ): ColumnDef<InsuranceProduct>[] => [
   {
     id: 'more',
     accessorKey: 'more',
-    header: '',
+    header: () => <RecordTable.ColumnSelector />,
     cell: ({ cell }) => (
       <ProductsMoreColumn cell={cell} onEdit={onEdit} onDelete={onDelete} />
     ),
-    size: 26,
+    size: 33,
   },
   RecordTable.checkboxColumn as ColumnDef<InsuranceProduct>,
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconPackage} label={t('name')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead icon={IconPackage} label={labels.name} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -51,10 +53,12 @@ export const createProductsColumns = (
   {
     id: 'insuranceType',
     accessorKey: 'insuranceType',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCategory} label={t('insurance-type')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconCategory}
+        label={labels.insuranceType}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -68,16 +72,19 @@ export const createProductsColumns = (
   {
     id: 'coveredRisks',
     accessorKey: 'coveredRisks',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('covered-risks')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.coveredRisks}
+      />
+    ),
     cell: ({ cell }) => {
-      const { t } = useTranslation('insurance');
       const risks = cell.row.original.coveredRisks || [];
       return (
         <RecordTableInlineCell>
-          <Badge variant="secondary">{risks.length} {t('risks')}</Badge>
+          <Badge variant="secondary">
+            {risks.length} {labels.risks}
+          </Badge>
         </RecordTableInlineCell>
       );
     },
@@ -85,10 +92,12 @@ export const createProductsColumns = (
   {
     id: 'riskDetails',
     accessorKey: 'riskDetails',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconShieldCheck} label={t('risk-details')} />;
-    },
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconShieldCheck}
+        label={labels.riskDetails}
+      />
+    ),
     cell: ({ cell }) => {
       const risks = cell.row.original.coveredRisks || [];
       const riskNames = risks
@@ -104,19 +113,5 @@ export const createProductsColumns = (
       );
     },
   },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => {
-      const { t } = useTranslation('insurance');
-      return <RecordTable.InlineHead icon={IconCalendar} label={t('created-at')} />;
-    },
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={formatDate(cell.getValue() as Date)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  createCreatedAtColumn<InsuranceProduct>(labels.createdAt),
 ];

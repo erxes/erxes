@@ -16,12 +16,14 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { CustomersInline } from './CustomersInline';
+import { AddCustomer } from './AddCustomer';
 import { ICustomer } from '../types';
-import { IconUser } from '@tabler/icons-react';
+import { IconPlus, IconUser } from '@tabler/icons-react';
 import { SelectCustomerContext } from '../contexts/SelectCustomerContext';
 import { useCustomers } from '../hooks';
 import { useDebounce } from 'use-debounce';
 import { useSelectCustomerContext } from '../hooks/useSelectCustomerContext';
+import { useTranslation } from 'react-i18next';
 
 interface SelectCustomerProviderProps {
   children: React.ReactNode;
@@ -29,6 +31,7 @@ interface SelectCustomerProviderProps {
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   hideAvatar?: boolean;
+  loadSelectedCustomers?: boolean;
 }
 
 const SelectCustomerProvider = ({
@@ -37,30 +40,32 @@ const SelectCustomerProvider = ({
   onValueChange,
   mode = 'single',
   hideAvatar,
+  loadSelectedCustomers = true,
 }: SelectCustomerProviderProps) => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
-  const customerIds = customers.map((c) => c._id);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const valueIds = useMemo(() => {
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    if (!value) {
+      return [];
+    }
+
+    return Array.isArray(value) ? value : [value];
   }, [value]);
+  const customerIds = valueIds;
 
   const { customers: fetchedCustomers } = useCustomers({
     variables: {
       ids: valueIds,
     },
-    skip: valueIds.length === 0,
+    skip: valueIds.length === 0 || !loadSelectedCustomers,
   });
 
   useEffect(() => {
-    if (
-      fetchedCustomers &&
-      fetchedCustomers.length > 0 &&
-      customers.length === 0
-    ) {
+    if (fetchedCustomers?.length) {
       setCustomers(fetchedCustomers);
     }
-  }, [fetchedCustomers, customers.length]);
+  }, [fetchedCustomers]);
 
   const onSelect = (customer: ICustomer) => {
     if (!customer) return;
@@ -85,6 +90,15 @@ const SelectCustomerProvider = ({
     onValueChange?.(isSingleMode ? customer._id : newSelectedCustomerIds);
   };
 
+  const onCreateSuccess = (customerId: string) => {
+    const newSelectedCustomerIds =
+      mode === 'single'
+        ? customerId
+        : Array.from(new Set([...valueIds, customerId]));
+
+    onValueChange?.(newSelectedCustomerIds);
+  };
+
   return (
     <SelectCustomerContext.Provider
       value={{
@@ -96,9 +110,15 @@ const SelectCustomerProvider = ({
         error: null,
         hideAvatar,
         mode,
+        openCreate: () => setCreateOpen(true),
       }}
     >
       {children}
+      <AddCustomer
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={onCreateSuccess}
+      />
     </SelectCustomerContext.Provider>
   );
 };
@@ -106,7 +126,8 @@ const SelectCustomerProvider = ({
 const SelectCustomerContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const { customerIds, customers } = useSelectCustomerContext();
+  const { customerIds, customers, openCreate } = useSelectCustomerContext();
+  const { t } = useTranslation('contact');
   const {
     customers: customersData,
     loading,
@@ -118,6 +139,8 @@ const SelectCustomerContent = () => {
       searchValue: debouncedSearch,
     },
   });
+  const showCreate =
+    debouncedSearch.trim().length > 0 && !loading && !error && totalCount === 0;
 
   return (
     <Command shouldFilter={false}>
@@ -129,6 +152,12 @@ const SelectCustomerContent = () => {
         focusOnMount
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
+        {showCreate && (
+          <Command.Item onSelect={openCreate} className="font-medium">
+            <IconPlus />
+            {t('customer.add._')}
+          </Command.Item>
+        )}
         {customers?.length > 0 && (
           <>
             {customers.map((customer) => (
@@ -413,6 +442,7 @@ export const SelectCustomerFilterBar = ({
       value={query || []}
       onValueChange={handleValueChange}
       hideAvatar={hideAvatar}
+      loadSelectedCustomers={!isCardVariant || !hideAvatar || open}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>

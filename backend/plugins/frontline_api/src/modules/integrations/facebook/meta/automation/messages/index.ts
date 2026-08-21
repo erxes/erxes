@@ -284,6 +284,7 @@ export const actionCreateMessage = async ({
         integration,
         message,
         commentId: isPrivateReply ? commentId : undefined,
+        skipTyping: isCommentTrigger,
       });
 
       if (!sendReplyResult) {

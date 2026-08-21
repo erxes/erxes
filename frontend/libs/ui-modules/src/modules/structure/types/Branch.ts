@@ -11,7 +11,7 @@ export interface IBranch {
 
 export interface ISelectBranchesContext {
   selectedBranches: IBranch[];
-  setSelectedBranches: (Branches: IBranch[]) => void;
+  setSelectedBranches: React.Dispatch<React.SetStateAction<IBranch[]>>;
   value?: string[] | string;
   onSelect: (Branches: IBranch) => void;
   newBranchName: string;

@@ -1,4 +1,4 @@
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DndContext,
@@ -14,7 +14,7 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { ScrollArea, Skeleton } from 'erxes-ui';
+import { Alert, ScrollArea, Skeleton } from 'erxes-ui';
 import {
   IconTicket,
   IconAlertOctagonFilled,
@@ -31,11 +31,15 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable';
 import { useTicketPriority } from '@/report/hooks/useTicketPriority';
-import { ReportsViewSkeleton } from './ReportsView';
+import { useReportCharts } from '@/report/hooks/useReportCharts';
+import { ReportChart } from '@/report/types';
+import { useAtomValue } from 'jotai';
+import { getReportDateFilterAtom } from '@/report/states';
+import { getFilters } from '@/report/utils/dateFilters';
+import { TICKET_PRIORITY_DATE_FILTER_ID } from './filter-popover/ReportKpiDateFilter';
 import {
   ticketReportComponents,
   TICKET_DEFAULT_CARD_CONFIGS,
-  ReportCardConfig,
   ReportComponentProps,
 } from '../types/component-registry';
 
@@ -78,13 +82,62 @@ function PriorityIcon({ priority }: { priority: number }) {
 
 export const TicketReportsList = () => {
   const { t } = useTranslation('frontline');
-  const { priorityData, loading: priorityLoading } = useTicketPriority();
+  const priorityDate = useAtomValue(
+    getReportDateFilterAtom(TICKET_PRIORITY_DATE_FILTER_ID),
+  );
+  const priorityFilters = useMemo(
+    () => getFilters(priorityDate || undefined),
+    [priorityDate],
+  );
+  const {
+    priorityData,
+    loading: priorityLoading,
+    error: priorityError,
+  } = useTicketPriority({
+    variables: { filters: priorityFilters },
+  });
+  const { reportCharts } = useReportCharts();
+
+  const savedTicketCharts = useMemo(
+    () =>
+      reportCharts.filter((chart) => ticketReportComponents[chart.chartType]),
+    [reportCharts],
+  );
 
   const [cards, setCards] = useState<CardConfig[]>(
     TICKET_DEFAULT_CARD_CONFIGS.map((c) => ({ id: c.id, colSpan: c.colSpan })),
   );
   const [activeId, setActiveId] = useState<string | null>(null);
   const [previewColSpan, setPreviewColSpan] = useState<6 | 12>(6);
+
+  const savedChartsById = useMemo(
+    () => new Map(savedTicketCharts.map((chart) => [chart._id, chart])),
+    [savedTicketCharts],
+  );
+
+  useEffect(() => {
+    setCards((current) => {
+      const isKnown = (id: string) =>
+        savedChartsById.has(id) ||
+        TICKET_DEFAULT_CARD_CONFIGS.some((config) => config.id === id);
+
+      const kept = current.filter((card) => isKnown(card.id));
+      const onBoard = new Set(kept.map((card) => card.id));
+
+      const added: CardConfig[] = savedTicketCharts
+        .filter((chart) => !onBoard.has(chart._id))
+        .map((chart) => ({
+          id: chart._id,
+          colSpan: chart.colSpan === 12 ? 12 : 6,
+        }));
+
+      if (!added.length && kept.length === current.length) {
+        return current;
+      }
+
+      return [...kept, ...added];
+    });
+  }, [savedTicketCharts, savedChartsById]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -130,15 +183,28 @@ export const TicketReportsList = () => {
     );
   };
 
-  if (priorityLoading) return <ReportsViewSkeleton />;
-
   const totalCount = priorityData?.reduce((s, r) => s + r.count, 0) ?? 0;
+  const noPriorityCount =
+    priorityData?.find((p) => p.priority === 0)?.count ?? 0;
+  const priorityCards = priorityData?.filter((p) => p.priority > 0) ?? [];
 
-  const getCardConfig = (id: string): ReportCardConfig | null => {
+  const getCardConfig = (id: string) => {
+    const savedChart: ReportChart | undefined = savedChartsById.get(id);
+
+    if (savedChart) {
+      const Component = ticketReportComponents[savedChart.chartType];
+      if (!Component) return null;
+      return { title: savedChart.name, component: Component, savedChart };
+    }
+
     const config = TICKET_DEFAULT_CARD_CONFIGS.find((c) => c.id === id);
     const Component = ticketReportComponents[id];
     if (!config || !Component) return null;
-    return { ...config, component: Component };
+    return {
+      title: t(config.title),
+      component: Component,
+      savedChart: undefined,
+    };
   };
 
   const renderCard = (card: CardConfig, overrideColSpan?: 6 | 12) => {
@@ -147,7 +213,9 @@ export const TicketReportsList = () => {
     if (!cardConfig) return null;
     const Component = cardConfig.component;
     const commonProps: ReportComponentProps = {
-      title: t(cardConfig.title),
+      title: cardConfig.title,
+      cardId: id,
+      savedChart: cardConfig.savedChart,
       colSpan: overrideColSpan ?? colSpan,
       onColSpanChange: (span: 6 | 12) => handleColSpanChange(id, span),
     };
@@ -169,16 +237,39 @@ export const TicketReportsList = () => {
 
   return (
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+      {priorityError && (
+        <Alert variant="destructive">
+          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Description>{priorityError.message}</Alert.Description>
+        </Alert>
+      )}
+      {!priorityError && priorityLoading && (
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      )}
+      <div
+        className={
+          priorityError || priorityLoading
+            ? 'hidden'
+            : 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3'
+        }
+      >
         <KpiCard
           title={t('total-tickets')}
           value={String(totalCount)}
-          subtitle={t('all-priorities')}
+          subtitle={
+            noPriorityCount
+              ? t('without-priority', { value: noPriorityCount })
+              : t('all-priorities')
+          }
           icon={<IconTicket className="h-5 w-5" />}
           valueClass="text-foreground"
           iconClass="bg-muted text-muted-foreground"
         />
-        {priorityData?.map((p) => (
+        {priorityCards.map((p) => (
           <KpiCard
             key={p.priority}
             title={p.name}

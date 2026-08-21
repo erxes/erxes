@@ -19,6 +19,7 @@ export const categoryMoreColumn = (
   mainLanguage?: string,
 ): ColumnDef<ICategory & { hasChildren: boolean }> => ({
   id: 'more',
+  header: () => <RecordTable.ColumnSelector />,
   cell: (props) => (
     <CategoryMoreColumn
       {...props}

@@ -9,7 +9,6 @@ import {
   useFilterContext,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { addTicketSchema } from '@/ticket/types';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
@@ -20,8 +19,10 @@ import {
   SelectTriggerTicket,
   SelectTriggerVariant,
 } from '@/ticket/components/ticket-selects/SelectTicket';
-import { UseFormReturn, useWatch } from 'react-hook-form';
-import { z } from 'zod';
+import { Control, FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
+import { canMoveTicketToStatus } from '@/ticket/hooks/useTicketPermissions';
 
 interface SelectStatusContextType {
   value: string;
@@ -30,6 +31,7 @@ interface SelectStatusContextType {
   error?: any;
   statuses?: ITicketStatusChoice[];
   pipelineId?: string;
+  restrictToMovable?: boolean;
 }
 
 const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
@@ -50,12 +52,14 @@ export const SelectStatusProvider = ({
   value,
   onValueChange,
   pipelineId,
+  restrictToMovable,
   children,
 }: {
   value: string;
   onValueChange: (status: string) => void;
   children: React.ReactNode;
   pipelineId?: string;
+  restrictToMovable?: boolean;
 }) => {
   const handleValueChange = (status: string) => {
     if (!status) return;
@@ -74,6 +78,7 @@ export const SelectStatusProvider = ({
         loading,
         error,
         pipelineId,
+        restrictToMovable,
       }}
     >
       {children}
@@ -88,13 +93,14 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const { value, statuses } = useSelectStatusContext();
   const selectedStatus = statuses?.find((status) => status.value === value);
 
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select status'}
+        {placeholder || t('select-status')}
       </span>
     );
   }
@@ -117,19 +123,31 @@ const SelectStatusCommandItem = ({
 }: {
   status: ITicketStatusChoice;
 }) => {
-  const { onValueChange, value } = useSelectStatusContext();
+  const { t } = useTranslation('frontline');
+  const { onValueChange, value, restrictToMovable } = useSelectStatusContext();
+  const currentUser = useAtomValue(currentUserState);
   const { label, value: statusValue, type, color } = status || {};
+
+  const canMove = canMoveTicketToStatus(status, currentUser?._id);
+  const isBlocked = !!restrictToMovable && !canMove && value !== statusValue;
 
   return (
     <Command.Item
       value={statusValue}
+      disabled={isBlocked}
       onSelect={() => {
+        if (isBlocked) return;
         onValueChange(statusValue);
       }}
     >
       <div className="flex items-center gap-2 flex-1">
         <StatusInlineIcon statusType={type} color={color} />
         <span className="font-medium capitalize">{label}</span>
+        {isBlocked && (
+          <span className="text-xs text-muted-foreground">
+            {t('no-move-permission-short', 'No move permission')}
+          </span>
+        )}
       </div>
       <Combobox.Check checked={value === statusValue} />
     </Command.Item>
@@ -193,6 +211,7 @@ const SelectStatusTicketRoot = ({
       pipelineId={pipelineId}
       value={value}
       onValueChange={handleValueChange}
+      restrictToMovable
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <SelectTriggerTicket variant={variant} disabled={disabled}>
@@ -262,16 +281,24 @@ export const SelectStatusTicketFilterBar = ({
   );
 };
 
-export const SelectStatusTicketFormItem = ({
+export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
   value,
   onValueChange,
   form,
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
+  form?: UseFormReturn<TFieldValues>;
 }) => {
-  const pipelineId = useWatch({ name: 'pipelineId', control: form?.control });
+  // The caller must hand over its own control: this remote and `erxes-ui` hold
+  // separate react-hook-form instances, so `useFormContext` here cannot see the
+  // provider `erxes-ui`'s `Form` renders. The cast is the react-hook-form
+  // generic boundary — `Control<T>` is invariant across schemas.
+  const control = form?.control as Control<FieldValues> | undefined;
+  const pipelineId: string | undefined = useWatch({
+    name: 'pipelineId',
+    control,
+  });
   const { statuses } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,

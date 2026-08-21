@@ -2,7 +2,6 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
 import { useConversationExport } from '@/report/hooks/useConversationExport';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
-import { getFilters } from '@/report/utils/dateFilters';
 import {
   Alert,
   Badge,
@@ -10,7 +9,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
-import { ConversationListItem } from '@/report/types';
+import { ConversationListItem, ReportChart } from '@/report/types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
@@ -22,22 +21,18 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 const PER_PAGE = 10;
 
 interface ConversationListProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -55,51 +50,31 @@ const CONVERSATION_LIST_EXPORT_COLUMNS = [
 
 export const ConversationList = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationListProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
     setPage(1);
-  }, [dateValue]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [channelFilter, memberFilter, sourceFilter, callStatusFilter]);
+  }, [queryFilters]);
 
   const { conversationList, isFetching, isInitialLoad, error } =
     useConversationList({
       variables: {
         filters: {
-          ...filters,
+          ...queryFilters,
           page,
           limit: PER_PAGE,
-          channelIds: channelFilter.length ? channelFilter : undefined,
-          memberIds: memberFilter.length ? memberFilter : undefined,
-          source: sourceFilter !== 'all' ? sourceFilter : undefined,
-          callStatus:
-            sourceFilter === 'calls' && callStatusFilter !== 'all'
-              ? callStatusFilter
-              : undefined,
         },
       },
+      skip: !filtersRestored,
     });
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
@@ -112,16 +87,7 @@ export const ConversationList = ({
     try {
       const result = await fetchExport({
         variables: {
-          filters: {
-            ...filters,
-            channelIds: channelFilter.length ? channelFilter : undefined,
-            memberIds: memberFilter.length ? memberFilter : undefined,
-            source: sourceFilter !== 'all' ? sourceFilter : undefined,
-            callStatus:
-              sourceFilter === 'calls' && callStatusFilter !== 'all'
-                ? callStatusFilter
-                : undefined,
-          },
+          filters: queryFilters,
         },
       });
 
@@ -173,19 +139,18 @@ export const ConversationList = ({
     } finally {
       setExporting(false);
     }
-  }, [
-    fetchExport,
-    filters,
-    channelFilter,
-    memberFilter,
-    sourceFilter,
-    callStatusFilter,
-  ]);
+  }, [fetchExport, queryFilters]);
 
   const filterEl = useMemo(
     () => (
       <>
         <ReportFilter cardId={id} />
+        <ReportChartActions
+          chartType="conversation-list"
+          colSpan={colSpan}
+          filters={filterConfig}
+          savedChart={savedChart}
+        />
         <Button
           variant="ghost"
           size="icon"
@@ -198,10 +163,10 @@ export const ConversationList = ({
         </Button>
       </>
     ),
-    [id, handleExport, exporting],
+    [id, colSpan, filterConfig, savedChart, handleExport, exporting, t],
   );
 
-  if (isInitialLoad) {
+  if (isInitialLoad || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -340,13 +305,13 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
-  const navigate = useNavigate();
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationList}
         columns={conversationListColumns}
         className="m-3"
+        tableId="frontline_conversation_report_record_table"
       >
         <RecordTable.Scroll>
           <RecordTable>
@@ -465,6 +430,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
     size: 33,
     cell: ({ cell }) => <MoreCell cell={cell} />,
   },

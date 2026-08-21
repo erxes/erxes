@@ -13,12 +13,14 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  mountAgentTools,
   registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
+import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
@@ -64,6 +66,9 @@ app.use(express.urlencoded({ limit: '15mb', extended: true }));
 app.use(
   express.json({
     limit: '15mb',
+    verify: (req: IncomingMessage & { rawBody?: Buffer }, _res, buffer) => {
+      req.rawBody = buffer;
+    },
   }),
 );
 
@@ -133,6 +138,21 @@ app.use(
     }),
   }),
 );
+
+// Core predates startPlugin, so it mounts the agent capability endpoints
+// itself. Only tRPC procedures declaring agent metadata are exposed.
+mountAgentTools(app, {
+  plugin: PLUGIN_NAME,
+  trpcRouter: appRouter,
+  createContext: async (
+    subdomain: string,
+    context: Record<string, unknown>,
+  ) => {
+    const models = await generateModels(subdomain, context);
+
+    return { ...context, models };
+  },
+});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');

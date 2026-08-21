@@ -7,7 +7,7 @@ import {
 } from '@/inbox/@types/integrations';
 import { integrationSchema } from '@/inbox/db/definitions/integrations';
 import moment from 'moment-timezone';
-import { Model, Query } from 'mongoose';
+import { isValidObjectId, Model, Query } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IMessengerIntegration {
@@ -24,7 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelId: string;
+  channelId?: string;
 }
 
 interface IIntegrationBasicInfo {
@@ -103,7 +103,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   ): Promise<IIntegrationDocument>;
   integrationsSaveMessengerTicketData(
     _id: string,
-    configId?: string,
+    configIds?: string[],
   ): Promise<IIntegrationDocument>;
   saveMessengerAppearanceData(
     _id: string,
@@ -293,40 +293,35 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async integrationsSaveMessengerTicketData(
       _id: string,
-      configId?: string,
+      configIds?: string[],
     ) {
-      const integration = await models.Integrations.findOne({
-        _id: _id,
-      });
+      const integration = await models.Integrations.findOne({ _id });
       if (!integration) {
         throw new Error('Integration not found');
       }
 
-      if (!configId) {
-        const result = await models.Integrations.updateOne(
-          { _id },
-          { $unset: { ticketConfigId: 1 } },
-          { runValidators: true },
-        );
+      const uniqueConfigIds = [...new Set(configIds || [])].filter((configId) =>
+        isValidObjectId(configId),
+      );
 
-        if (!result.acknowledged) {
-          throw new Error('Failed to update ticket data');
-        }
+      const existingConfigs = await models.TicketConfig.find(
+        { _id: { $in: uniqueConfigIds } },
+        { _id: 1 },
+      ).lean();
 
-        return models.Integrations.findOne({ _id });
-      }
+      const existingConfigIds = new Set(
+        existingConfigs.map((config) => String(config._id)),
+      );
 
-      const config = await models.TicketConfig.findOne({ _id: configId });
-      if (!config) {
-        throw new Error('Config not found');
-      }
+      const validConfigIds = uniqueConfigIds.filter((configId) =>
+        existingConfigIds.has(configId),
+      );
+
       const result = await models.Integrations.updateOne(
         { _id },
-        {
-          $set: {
-            ticketConfigId: configId,
-          },
-        },
+        validConfigIds.length
+          ? { $set: { ticketConfigIds: validConfigIds } }
+          : { $unset: { ticketConfigIds: 1 } },
         { runValidators: true },
       );
 

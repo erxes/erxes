@@ -483,7 +483,7 @@ const buildColumns = ({
         )}
       />
     ),
-    size: 25,
+    size: 33,
   },
   checkboxColumn as ColumnDef<TPosOrderErkhetConfig>,
   {
@@ -580,6 +580,7 @@ export const PosOrderErkhetConfigRecordTable = ({
     <ErkhetConfigRecordTable
       configs={configs}
       columns={buildColumns({ editLoading, onDelete, onEdit, poss })}
+      tableId="mongolian_erkhet_pos_order_config_record_table"
       emptyDescription={t('create-first-pos-order-erkhet-config')}
       commandBar={
         <ErkhetConfigCommandBar

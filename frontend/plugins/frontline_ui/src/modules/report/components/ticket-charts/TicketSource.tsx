@@ -9,8 +9,8 @@ import {
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketSource } from '@/report/hooks/useTicketSource';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
-import { ResponsesChartType, SourceData } from '@/report/types';
-import { memo, useMemo, useState, useEffect } from 'react';
+import { ReportChart, ResponsesChartType, SourceData } from '@/report/types';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAtom } from 'jotai';
 import {
@@ -21,6 +21,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -34,75 +35,42 @@ import {
 } from 'recharts';
 import { ColumnDef } from '@tanstack/table-core';
 import { type LegendPayload } from 'recharts';
-import { getFilters } from '@/report/utils/dateFilters';
-import { getTicketPropertyFilterVariables } from '@/report/utils';
 import { AreaGradient } from '../chart/AreaGradient';
 import { CustomLegendContent } from '../chart/legend';
-import {
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-  getReportPipelineFilterAtom,
-  getReportStateFilterAtom,
-  getReportPriorityFilterAtom,
-  getReportTicketTagFilterAtom,
-  getReportCustomerFilterAtom,
-  getReportCompanyFilterAtom,
-  getReportPropertyFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom } from '@/report/states';
 import { TicketReportFilter } from '../filter-popover/ticket-report-filter';
 import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
+import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
 
 interface TicketSourceProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
 
 export const TicketSource = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: TicketSourceProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useTicketChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [pipelineFilter] = useAtom(getReportPipelineFilterAtom(id));
-  const [stateFilter] = useAtom(getReportStateFilterAtom(id));
-  const [priorityFilter] = useAtom(getReportPriorityFilterAtom(id));
-  const [tagFilter] = useAtom(getReportTicketTagFilterAtom(id));
-  const [customerFilter] = useAtom(getReportCustomerFilterAtom(id));
-  const [companyFilter] = useAtom(getReportCompanyFilterAtom(id));
-  const [propertyFilter] = useAtom(getReportPropertyFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    setFilters(getFilters(dateValue || undefined));
-  }, [dateValue]);
 
   const { ticketSources, loading, error } = useTicketSource({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        pipelineIds: pipelineFilter.length ? pipelineFilter : undefined,
-        state: stateFilter || undefined,
-        priority: priorityFilter.length ? priorityFilter : undefined,
-        tagIds: tagFilter.length ? tagFilter : undefined,
-        customerIds: customerFilter.length ? customerFilter : undefined,
-        companyIds: companyFilter.length ? companyFilter : undefined,
-        ...getTicketPropertyFilterVariables(propertyFilter),
-      },
-    },
+    skip: !filtersRestored,
+    variables: { filters: queryFilters },
   });
 
   const allSources = useMemo(() => ticketSources || [], [ticketSources]);
@@ -132,6 +100,13 @@ export const TicketSource = ({
     <>
       <TicketReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType={TICKET_CHART_TYPES.source}
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allSources}
         columns={exportColumns}
@@ -140,7 +115,7 @@ export const TicketSource = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -185,7 +160,7 @@ export const TicketSource = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -273,7 +248,7 @@ export const TicketSourceBarChart = memo(function TicketSourceBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 10 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} />
@@ -282,7 +257,14 @@ export const TicketSourceBarChart = memo(function TicketSourceBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>

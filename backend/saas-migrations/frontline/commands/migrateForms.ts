@@ -97,6 +97,8 @@ const command = async () => {
   try {
     console.log('🚀 Started migrating forms...');
 
+    console.log(`   source forms: ${await OLD_FORMS.countDocuments()}`);
+
     const forms = OLD_FORMS.find({}).batchSize(BATCH_SIZE);
 
     let forms_bulk: any = [];
@@ -229,11 +231,17 @@ const command = async () => {
   try {
     console.log('🚀 Started migrating form fields...');
 
-    const fields = OLD_FIELDS.find({ contentType: 'form' }).batchSize(
-      BATCH_SIZE,
-    );
+    // A form field is anything that belongs to a migrated form. Selecting only
+    // by `contentType: 'form'` silently yields nothing when the source labels
+    // it differently (e.g. `core:form`), so match on the owning form id too.
+    const formIds = await OLD_FORMS.distinct('_id');
+
+    const fields = OLD_FIELDS.find({
+      $or: [{ contentType: 'form' }, { contentTypeId: { $in: formIds } }],
+    }).batchSize(BATCH_SIZE);
 
     let fields_bulk: any = [];
+    let migratedFieldCount = 0;
 
     for await (const field of fields) {
       if (!field) {
@@ -241,12 +249,17 @@ const command = async () => {
         continue;
       }
 
+      // `_id` comes from the filter on upsert; $set-ing an immutable field fails
+      const { _id, ...rest } = field;
+
       fields_bulk.push({
         updateOne: {
-          filter: { _id: field._id },
+          filter: { _id },
           update: {
-            $setOnInsert: {
-              ...field,
+            $set: {
+              ...rest,
+              // the new Form.fields resolver looks up exactly this value
+              contentType: 'form',
               description: htmlToText(field.description || ''),
               pageNumber: field.pageNumber || 1,
             },
@@ -254,6 +267,8 @@ const command = async () => {
           upsert: true,
         },
       });
+
+      migratedFieldCount++;
 
       if (fields_bulk?.length >= BATCH_SIZE) {
         await NEW_FIELDS.bulkWrite(fields_bulk, {
@@ -268,6 +283,19 @@ const command = async () => {
       await NEW_FIELDS.bulkWrite(fields_bulk, {
         ordered: false,
       });
+    }
+
+    console.log(
+      `   source form fields: ${migratedFieldCount} → target total: ${await NEW_FIELDS.countDocuments(
+        { contentType: 'form' },
+      )}`,
+    );
+
+    if (!migratedFieldCount) {
+      console.log(
+        `⚠️ No form fields found in "${OLD_FIELDS.collectionName}" for ${formIds.length} form(s). ` +
+          `Check that the old collection exists in ${db.databaseName} and holds the form fields.`,
+      );
     }
 
     console.log('✅ Finished migrating form fields...');

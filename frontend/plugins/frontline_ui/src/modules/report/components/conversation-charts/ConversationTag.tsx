@@ -11,7 +11,6 @@ import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
-import { getFilters } from '@/report/utils/dateFilters';
 import {
   Area,
   AreaChart,
@@ -20,6 +19,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Pie,
   PieChart,
   PolarAngleAxis,
@@ -31,29 +31,26 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ResponsesChartType, TagData } from '@/report/types';
+import { ReportChart, ResponsesChartType, TagData } from '@/report/types';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
-import {
-  getReportCallStatusFilterAtom,
-  getReportChartTypeAtom,
-  getReportDateFilterAtom,
-  getReportSourceFilterAtom,
-  getReportChannelFilterAtom,
-  getReportMemberFilterAtom,
-} from '@/report/states';
+import { getReportChartTypeAtom } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
 import { AreaGradient } from '../chart/AreaGradient';
 import {
   useChartPagination,
   ChartPagination,
 } from '../chart-pagination/ChartPagination';
+import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 interface ConversationTagProps {
   title: string;
+  cardId?: string;
+  savedChart?: ReportChart;
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
@@ -64,37 +61,19 @@ interface TagChartProps {
 
 export const ConversationTag = ({
   title,
+  cardId,
+  savedChart,
   colSpan = 6,
   onColSpanChange,
 }: ConversationTagProps) => {
   const { t } = useTranslation('frontline');
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
-  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
-  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
-  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
-  const [filters, setFilters] = useState(() => getFilters());
-
-  useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
-  }, [dateValue]);
 
   const { conversationTags, loading, error } = useConversationTags({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
+    variables: { filters: queryFilters },
+    skip: !filtersRestored,
   });
 
   const allTags = useMemo(() => conversationTags || [], [conversationTags]);
@@ -124,6 +103,13 @@ export const ConversationTag = ({
     <>
       <ReportFilter cardId={id} />
       <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ReportChartActions
+        chartType="conversation-tag"
+        visualType={chartType}
+        colSpan={colSpan}
+        filters={filterConfig}
+        savedChart={savedChart}
+      />
       <ChartExportButton
         data={allTags}
         columns={tagExportColumns}
@@ -132,7 +118,7 @@ export const ConversationTag = ({
     </>
   );
 
-  if (loading) {
+  if (loading || !filtersRestored) {
     return (
       <FrontlineCard
         id={id}
@@ -179,7 +165,7 @@ export const ConversationTag = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -307,7 +293,7 @@ export const TagBarChart = memo(function TagBarChart({
 
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
-      <BarChart data={scaledChartData}>
+      <BarChart data={scaledChartData} margin={{ top: 24 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="tag" tickLine={false} axisLine={false} />
         <YAxis
@@ -316,12 +302,23 @@ export const TagBarChart = memo(function TagBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar dataKey="count" fill="var(--primary)" name="Count" />
-        <Bar
-          dataKey="percentageScaled"
-          fill="var(--success)"
-          name="Percentage"
-        />
+        <Bar dataKey="count" fill="var(--primary)" name="Count">
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
+        </Bar>
+        <Bar dataKey="percentageScaled" fill="var(--success)" name="Percentage">
+          <LabelList
+            dataKey="percentage"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+            formatter={(value) => `${value}%`}
+          />
+        </Bar>
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
         <Tooltip
           content={<ChartTooltipContent />}

@@ -10,6 +10,9 @@ export function Members() {
   const { t } = useTranslation('frontline');
   const { id: channelId } = useParams<{ id: string }>();
   const { members, loading } = useGetChannelMembers({ channelIds: channelId });
+  const activeMembers = members?.filter(
+    (member) => member.member?.isActive !== false,
+  );
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;
@@ -24,13 +27,13 @@ export function Members() {
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
         <RecordTable.Provider
           columns={columns()}
-          data={members || []}
+          data={activeMembers || []}
           stickyColumns={['more', 'checkbox', 'name']}
           className="mt-1.5"
         >
           <RecordTableTree id="members" ordered>
             <RecordTable.Scroll>
-              <RecordTable className="w-full">
+              <RecordTable>
                 <RecordTable.Header />
                 <RecordTable.Body>
                   <RecordTable.RowList Row={RecordTableTree.Row} />

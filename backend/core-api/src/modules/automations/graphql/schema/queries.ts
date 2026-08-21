@@ -34,6 +34,9 @@ const historiesParams = `
   triggerTypes: [String]
   ids:[String]
   parentExecutionId: String
+  failedActionIds: [String]
+  errorCodes: [String]
+  waitingActionIds: [String]
 `;
 
 const emailTemplateParams = `
@@ -57,6 +60,8 @@ const queries = `
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
+  automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
+  automationExecutionCounts(automationIds: [String!]!): [AutomationStatsCount]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationSetPropertyTargets(sourceType: String!): JSON

@@ -2,20 +2,69 @@ import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
-  determineExtension,
   determinePrimaryPhone,
-  extractOperatorId,
   findOrCreateCdr,
   getConversationContent,
   isHumanAnsweredLeg,
   parseCdrDate,
+  resolveCdrOperator,
 } from '@/integrations/call/services/cdrUtils';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
-import { redlock } from '@/integrations/call/redlock';
+import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 
 const CDR_LOCK_TTL_MS = 20_000;
+const FOLLOWME_OVERLAP_BUFFER_MS = 60_000;
+const LEG_OVERLAP_BUFFER_MS = 10_000;
+
+interface ICdrLegTimeParams {
+  action_type?: string;
+  userfield?: string;
+  start?: string;
+  end?: string;
+}
+
+interface IConversationPayload {
+  conversationId: string;
+  content: string;
+  updatedAt: Date;
+  integrationId: string;
+  owner?: string;
+  userId?: string;
+  customerId?: string;
+}
+
+const belongsToInboundCall = (params: ICdrLegTimeParams) =>
+  !!params.action_type?.includes('FOLLOWME') || params.userfield !== 'Outbound';
+
+const findOverlappingLeg = async (
+  models: IModels,
+  params: ICdrLegTimeParams,
+  primaryPhone: string,
+  inboxId: string,
+) => {
+  if (!primaryPhone || !belongsToInboundCall(params)) return null;
+
+  const isFollowmeLeg = !!params.action_type?.includes('FOLLOWME');
+
+  const legStart = parseCdrDate(params.start);
+  if (!legStart || isNaN(legStart.getTime())) return null;
+
+  const legEnd = parseCdrDate(params.end) || legStart;
+  const bufferMs = isFollowmeLeg
+    ? FOLLOWME_OVERLAP_BUFFER_MS
+    : LEG_OVERLAP_BUFFER_MS;
+
+  return models.CallCdrs.findOne({
+    $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+    conversationId: { $exists: true, $ne: '' },
+    inboxIntegrationId: inboxId,
+    start: { $lte: new Date(legEnd.getTime() + bufferMs) },
+    end: { $gte: new Date(legStart.getTime() - bufferMs) },
+  }).sort({ start: -1 });
+};
 
 export const receiveCdr = async (
   models: IModels,
@@ -44,13 +93,22 @@ export const receiveCdr = async (
         `receiveCdr lock failure for ${params.uniqueid}: ${e.message}`,
       );
     }
+
+    const customerLock = await acquireCustomerLock(
+      subdomain,
+      integration.inboxId,
+      determinePrimaryPhone(params),
+    );
+
     try {
       return await processCdrLocked(models, subdomain, params, integration);
     } finally {
-      try {
-        await lock?.release();
-      } catch (e) {
-        console.error('receiveCdr: lock release failed', e);
+      for (const held of [customerLock, lock]) {
+        try {
+          await held?.release();
+        } catch (e) {
+          console.error('receiveCdr: lock release failed', e);
+        }
       }
     }
   }
@@ -67,47 +125,39 @@ const processCdrLocked = async (
   const inboxId = integration.inboxId;
 
   const primaryPhone = determinePrimaryPhone(params);
-  const extension = determineExtension(params);
 
   const customer = await getOrCreateCustomer(models, subdomain, {
     primaryPhone,
     inboxIntegrationId: inboxId,
   });
 
-  const content = await getConversationContent(models, params);
+  const { operator: matchedOperator, extension: operatorExtension } =
+    resolveCdrOperator(integration.operators, params);
+  const operatorUserId = matchedOperator?.userId;
 
   let operatorPhone = '';
-  const operatorId = extractOperatorId(params);
+  if (operatorUserId) {
+    const operator = await sendTRPCMessage({
+      subdomain,
 
-  let matchedOperator: any = null;
-  if (operatorId) {
-    matchedOperator = integration.operators.find(
-      ({ gsUsername }) => gsUsername === operatorId,
-    );
-    if (matchedOperator) {
-      const operator = await sendTRPCMessage({
-        subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: { query: { _id: operatorUserId } },
+    });
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { query: { _id: matchedOperator.userId } },
-      });
-
-      if (operator) {
-        operatorPhone = operator?.details?.operatorPhone || '';
-      }
-    }
+    operatorPhone = operator?.details?.operatorPhone || '';
   }
 
   const isAnsweredLeg = isHumanAnsweredLeg(params);
   const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
+  const assignedUserId = isAnsweredLeg ? operatorUserId : undefined;
 
-  let conversationId;
+  let conversationId: string | undefined;
   let isNewConversation = false;
 
-  let existingSession: any = null;
+  let existingSession: ICallSessionDocument | null = null;
   if (params.uniqueid) {
     const sessionSelectors: any[] = [
       { uniqueid: params.uniqueid },
@@ -127,90 +177,78 @@ const processCdrLocked = async (
       debugCall(
         `CDR matched CallSession ${existingSession._id} for uniqueid=${params.uniqueid}`,
       );
-      const payload: any = {
-        conversationId,
-        content,
-        updatedAt: new Date(),
-        owner: ownerForConversation,
-        integrationId: inboxId,
-      };
-      if (customer) payload.customerId = customer?.erxesApiId;
-      await createOrUpdateErxesConversation(subdomain, payload);
     }
   }
 
-  const cdrUniqueids = [params.uniqueid, params.linkedid].filter(Boolean);
-  const existingCdr = await models.CallCdrs.findOne({
-    uniqueid: { $in: cdrUniqueids },
-    conversationId: { $exists: true, $ne: '' },
-    inboxIntegrationId: inboxId,
-  }).sort({ createdAt: 1 });
+  if (!conversationId) {
+    const cdrUniqueids = [params.uniqueid, params.linkedid].filter(Boolean);
+    const existingCdr = await models.CallCdrs.findOne({
+      uniqueid: { $in: cdrUniqueids },
+      conversationId: { $exists: true, $ne: '' },
+      inboxIntegrationId: inboxId,
+    }).sort({ createdAt: 1 });
 
-  let followmeCdr: any = null;
-  if (!existingCdr) {
-    const isFollowmeLeg = !!params.action_type?.includes('FOLLOWME');
-    const legStart = parseCdrDate(params.start) || null;
-    const legEnd = parseCdrDate(params.end) || legStart;
-
-    const shouldCheck = isFollowmeLeg || params.userfield !== 'Outbound';
-
-    if (shouldCheck && legStart && !isNaN(legStart.getTime()) && legEnd) {
-      const bufferMs = 60 * 1000;
-      const overlapSelector: Record<string, any> = {
-        $or: [{ src: primaryPhone }, { dst: primaryPhone }],
-        conversationId: { $exists: true, $ne: '' },
-        inboxIntegrationId: inboxId,
-        start: { $lte: new Date(legEnd.getTime() + bufferMs) },
-        end: { $gte: new Date(legStart.getTime() - bufferMs) },
-      };
-      if (!isFollowmeLeg) {
-        overlapSelector.actionType = { $regex: 'FOLLOWME' };
-      }
-
-      followmeCdr = await models.CallCdrs.findOne(overlapSelector).sort({
-        start: -1,
-      });
-
-      if (followmeCdr) {
-        debugCall(
-          `FOLLOWME merge: reusing conversation ${followmeCdr.conversationId} ` +
-            `from overlapping CDR ${followmeCdr._id} for phone=${primaryPhone}`,
-        );
-      }
+    if (existingCdr?.conversationId) {
+      conversationId = existingCdr.conversationId;
+      debugCall(
+        `CDR reused conversation ${conversationId} from leg ${existingCdr.acctId}`,
+      );
     }
+  }
+
+  if (!conversationId) {
+    const overlappingCdr = await findOverlappingLeg(
+      models,
+      params,
+      primaryPhone,
+      inboxId,
+    );
+
+    if (overlappingCdr?.conversationId) {
+      conversationId = overlappingCdr.conversationId;
+      debugCall(
+        `Leg merge: reusing conversation ${conversationId} from overlapping ` +
+          `CDR ${overlappingCdr._id} for phone=${primaryPhone}`,
+      );
+    }
+  }
+
+  if (!conversationId && belongsToInboundCall(params)) {
+    const siblingSession = await models.CallSessions.findSibling({
+      inboxIntegrationId: inboxId,
+      customerPhone: primaryPhone,
+      excludeUniqueid: params.uniqueid,
+    });
+
+    if (siblingSession?.conversationId) {
+      conversationId = siblingSession.conversationId;
+      debugCall(
+        `Leg merge: reusing conversation ${conversationId} from sibling ` +
+          `session ${siblingSession.uniqueid} for phone=${primaryPhone}`,
+      );
+    }
+  }
+
+  const content = await getConversationContent(models, params, conversationId);
+
+  const payload: IConversationPayload = {
+    conversationId: conversationId || '',
+    content,
+    updatedAt: new Date(),
+    owner: ownerForConversation,
+    userId: assignedUserId,
+    integrationId: inboxId,
+  };
+  if (customer) {
+    payload.customerId = customer?.erxesApiId;
   }
 
   if (conversationId) {
-    console.log(
-      'conversationId already exists, updating erxes conversation with new content and owner',
-      conversationId,
-    );
-  } else if (existingCdr || followmeCdr) {
-    conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
-    const payload = {
-      conversationId,
-      content: content,
-      updatedAt: new Date(),
-      owner: ownerForConversation,
-      integrationId: inboxId,
-    } as any;
-    if (customer) {
-      payload.customerId = customer?.erxesApiId;
-    }
     await createOrUpdateErxesConversation(subdomain, payload);
   } else {
-    const erxesPayload = {
-      customerId: customer?.erxesApiId,
-      integrationId: inboxId,
-      content: content,
-      conversationId: '',
-      updatedAt: new Date(),
-      owner: ownerForConversation,
-    };
-
     const newErxesConversation = await createOrUpdateErxesConversation(
       subdomain,
-      erxesPayload,
+      payload,
     );
 
     if (newErxesConversation.status === 'success') {
@@ -221,6 +259,19 @@ const processCdrLocked = async (
 
   if (!conversationId) {
     throw new Error('Failed to find or create a conversation ID.');
+  }
+
+  if (existingSession && !existingSession.conversationId) {
+    await models.CallSessions.updateOne(
+      { _id: existingSession._id },
+      {
+        $set: {
+          conversationId,
+          ...(customer?.erxesApiId ? { customerId: customer.erxesApiId } : {}),
+        },
+      },
+    );
+    existingSession.conversationId = conversationId;
   }
 
   const { cdr, created } = await findOrCreateCdr(
@@ -242,33 +293,6 @@ const processCdrLocked = async (
   if (params.uniqueid) {
     const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
-      const candidateExtensions = [
-        extension,
-        matchedOperator?.gsUsername,
-        params.dstchannel_ext,
-        params.channel_ext,
-        params.dstanswer,
-        params.new_src,
-        params.userfield === 'Outbound' ? params.src : params.dst,
-      ].filter(Boolean);
-
-      let opForExt: any = null;
-      let operatorExtension: string | undefined;
-      for (const candidate of candidateExtensions) {
-        const op = integration.operators.find(
-          (o: any) => o.gsUsername === candidate,
-        );
-        if (op) {
-          opForExt = op;
-          operatorExtension = candidate;
-          break;
-        }
-      }
-      if (!operatorExtension) {
-        operatorExtension = extension || matchedOperator?.gsUsername;
-      }
-      const operatorUserId = opForExt?.userId || matchedOperator?.userId;
-
       if (!existingSession) {
         const direction =
           params.userfield === 'Outbound' ? 'outgoing' : 'incoming';

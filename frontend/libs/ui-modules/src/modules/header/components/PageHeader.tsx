@@ -1,4 +1,4 @@
-import { cn, Separator, Sidebar } from 'erxes-ui';
+import { cn, Separator } from 'erxes-ui';
 import React from 'react';
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
 
@@ -16,6 +16,7 @@ export const PageHeaderRoot = React.forwardRef<
         className={cn(
           'flex items-center justify-between h-13 px-3 box-border shrink-0 bg-sidebar overflow-auto styled-scroll',
           className,
+          'pl-[calc(0.75rem_+_var(--navigation-panel-toggle-space,0rem)_+_var(--visited-page-tabs-open-button-space,0rem))]',
         )}
       >
         {children}
@@ -37,8 +38,6 @@ export const PageHeaderStart = React.forwardRef<
       className={cn('flex items-center gap-2 flex-none pr-8', className)}
       {...props}
     >
-      <Sidebar.Trigger />
-      <Separator.Inline />
       {children}
     </div>
   );

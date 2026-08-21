@@ -6,6 +6,7 @@ import {
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
+import { hasFlowChanged } from '../../db/models/utils/duplicateAutomation';
 import {
   mergeAiAgentConnectionSecrets,
   sanitizeAiAgent,
@@ -14,6 +15,7 @@ import {
 
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
+  acknowledgeDuplicate?: boolean;
 }
 const requestScheduleReconcile = async (subdomain: string) => {
   try {
@@ -54,7 +56,7 @@ export const automationMutations = {
    */
   async automationsEdit(
     _root,
-    { _id, ...doc }: IAutomationsEdit,
+    { _id, acknowledgeDuplicate, ...doc }: IAutomationsEdit,
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('automationsUpdate');
@@ -83,17 +85,57 @@ export const automationMutations = {
       );
 
       if (bindingErrors.length) {
-        throw new Error(`Cannot activate automation: ${bindingErrors.join('; ')}`);
+        throw new Error(
+          `Cannot activate automation: ${bindingErrors.join('; ')}`,
+        );
       }
     }
 
+    const isUntouchedDuplicate =
+      !!automation.duplicatedFrom && !hasFlowChanged(automation, doc);
+
+    if (
+      nextStatus === AUTOMATION_STATUSES.ACTIVE &&
+      isUntouchedDuplicate &&
+      !acknowledgeDuplicate
+    ) {
+      throw new Error(
+        'This automation is an unchanged duplicate and would run the same flow twice on the same triggers. Change it first, or confirm the activation.',
+      );
+    }
+
+    const shouldClearDuplicatedFrom =
+      !!automation.duplicatedFrom &&
+      (!isUntouchedDuplicate || !!acknowledgeDuplicate);
+
     await models.Automations.updateOne(
       { _id },
-      { $set: { ...doc, updatedAt: new Date(), updatedBy: user._id } },
+      {
+        $set: { ...doc, updatedAt: new Date(), updatedBy: user._id },
+        ...(shouldClearDuplicatedFrom && { $unset: { duplicatedFrom: '' } }),
+      },
     );
     await requestScheduleReconcile(subdomain);
 
     return models.Automations.getAutomation(_id);
+  },
+
+  async automationsDuplicate(
+    _root,
+    { _id, name }: { _id: string; name?: string },
+    { user, models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('automationsCreate');
+
+    const duplicated = await models.Automations.duplicateAutomation(
+      _id,
+      user._id,
+      name,
+    );
+
+    await requestScheduleReconcile(subdomain);
+
+    return models.Automations.getAutomation(duplicated._id);
   },
 
   /**

@@ -54,3 +54,8 @@ export function getCoreAutomationActionComponent<
   }
   return null;
 }
+
+export function getCoreActionResultPreview(actionName: string) {
+  return (coreActions[actionName as ActionName] as TActionComponents)
+    ?.actionResultPreview;
+}

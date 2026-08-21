@@ -10,6 +10,7 @@ export const types = `
     fromDate: String
     toDate: String
     status: String
+    statusIds: [String]
     source: String
     limit: Int
     page: Int
@@ -25,7 +26,11 @@ export const types = `
     customerIds: [String]
     frequency: String
     branchIds: [String]
+    pageIds: [String]
+    searchValue: String
     propertyIds: [String]
+    groupPropertyId: String
+    groupPropertyValue: String
     propertyValueFilters: [TicketPropertyValueFilter!]
   }
 
@@ -52,6 +57,7 @@ export const types = `
   type ReportTicketCustomProperty {
     _id: String
     name: String
+    group: String
     count: Int
     percentage: Int
   }
@@ -69,8 +75,10 @@ export const types = `
   }
 
   type ReportTicketStatusSummary {
+    _id: String
     statusType: Int
     name: String
+    group: String
     color: String
     count: Int
     percentage: Int

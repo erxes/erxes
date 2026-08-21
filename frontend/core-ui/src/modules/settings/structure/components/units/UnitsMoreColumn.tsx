@@ -82,5 +82,5 @@ export const UnitsMoreColumnCell = ({
 export const UnitsMoreColumn = {
   id: 'more',
   cell: UnitsMoreColumnCell,
-  size: 25,
+  size: 33,
 };

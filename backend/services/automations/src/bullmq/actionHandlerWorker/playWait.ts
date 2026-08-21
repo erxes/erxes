@@ -3,6 +3,7 @@ import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
 import { IJobData } from '../initMQWorkers';
 import { IModels } from '../../connectionResolver';
 import { debugInfo } from '../../debugger';
+import { resolveAutomationErrorCode } from '../../executions/errorCodes';
 import { getExecutionActionsMap } from '../../utils/utils';
 import { executeActions } from '../../executions/executeActions';
 
@@ -39,11 +40,15 @@ export const playWaitingActionWorker = async (
   }).lean();
 
   if (!automation) {
-    await models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.MISSID,
-      description: 'Not found automation of execution',
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.MISSID,
+          description: 'Not found automation of execution',
+        },
+      },
+    );
     debugInfo(
       `Not found automation ${automationId} with action ${waitingActionId} for start action`,
     );
@@ -62,10 +67,16 @@ export const playWaitingActionWorker = async (
       action?.nextActionId,
     );
   } catch (error) {
-    models.Executions.updateOne({
-      _id: execution.id,
-      status: AUTOMATION_EXECUTION_STATUS.ERROR,
-      description: error.message,
-    });
+    await models.Executions.updateOne(
+      { _id: execution._id },
+      {
+        $set: {
+          status: AUTOMATION_EXECUTION_STATUS.ERROR,
+          description: error.message,
+          failedActionId: waitingActionId,
+          errorCode: resolveAutomationErrorCode(error),
+        },
+      },
+    );
   }
 };

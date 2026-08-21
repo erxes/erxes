@@ -6,6 +6,7 @@ import {
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
+import { getMaxMessagesForAction } from '~/widgets/automations/modules/facebook/components/action/constants/ReplyMessage';
 import { FacebookMessages } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessages';
 import { MessageSequenceHeader } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/MessageSequenceHeader';
 import { ReplyMessageProvider } from '~/widgets/automations/modules/facebook/components/action/context/ReplyMessageProvider';
@@ -19,6 +20,8 @@ export const MessageActionForm = ({
   formRef,
   currentAction,
   onSaveActionConfig,
+  trigger,
+  previousActions,
 }: AutomationActionFormProps<TMessageActionForm>) => {
   const form = useForm<TMessageActionForm>({
     resolver: zodResolver(replyMessageFormSchema),
@@ -35,7 +38,14 @@ export const MessageActionForm = ({
   });
 
   return (
-    <ReplyMessageProvider form={form}>
+    <ReplyMessageProvider
+      form={form}
+      maxMessages={getMaxMessagesForAction({
+        trigger,
+        currentActionId: currentAction?.id,
+        previousActions,
+      })}
+    >
       <div className="w-[600px]">
         <MessageSequenceHeader />
         <FacebookMessages />

@@ -1,3 +1,4 @@
+import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -337,13 +338,19 @@ export function buildTicketMatch(filters: IReportFilters) {
     match.statusId = filters.status;
   }
 
-  if (filters.state) {
-    if (filters.state === 'active') {
+  if (filters.statusIds?.length) {
+    match.statusId = { $in: filters.statusIds };
+  }
+
+  const state = filters.state || 'active';
+
+  if (state !== 'all') {
+    if (state === 'active') {
       andConditions.push({
         $or: [{ state: 'active' }, { state: { $exists: false } }],
       });
     } else {
-      match.state = filters.state;
+      match.state = state;
     }
   }
 
@@ -499,74 +506,132 @@ export function buildTicketMatch(filters: IReportFilters) {
   return match;
 }
 
+export async function narrowTicketMatchByContacts(
+  match: Record<string, any>,
+  filters: IReportFilters,
+  subdomain: string,
+) {
+  if (!filters.customerIds?.length && !filters.companyIds?.length) {
+    return match;
+  }
+
+  const contactFilters = [
+    { contentType: 'core:customer', contentIds: filters.customerIds },
+    { contentType: 'core:company', contentIds: filters.companyIds },
+  ].filter((contactFilter) => contactFilter.contentIds?.length);
+
+  const ticketIdSets: Set<string>[] = [];
+
+  for (const { contentType, contentIds } of contactFilters) {
+    const relatedTicketIds: string[] = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'relation',
+      action: 'filterRelationIds',
+      input: {
+        contentType,
+        contentIds,
+        relatedContentType: 'frontline:ticket',
+      },
+      defaultValue: [],
+    });
+
+    ticketIdSets.push(new Set(relatedTicketIds));
+  }
+
+  const [firstSet, ...otherSets] = ticketIdSets;
+  match._id = {
+    $in: [...firstSet].filter((id) => otherSets.every((set) => set.has(id))),
+  };
+
+  return match;
+}
+
 export const buildTicketPipeline = async (
   filters: IReportFilters,
   subdomain: string,
-) => {
-  const pipeline: any[] = [];
-  const match = buildTicketMatch(filters);
+): Promise<any[]> => {
+  const match = await narrowTicketMatchByContacts(
+    buildTicketMatch(filters),
+    filters,
+    subdomain,
+  );
 
-  if (filters.customerIds?.length || filters.companyIds?.length) {
-    const ticketIdSets: Set<string>[] = [];
-
-    if (filters.customerIds?.length) {
-      const relatedTicketIds: string[] = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'relation',
-        action: 'filterRelationIds',
-        input: {
-          contentType: 'core:customer',
-          contentIds: filters.customerIds,
-          relatedContentType: 'frontline:ticket',
-        },
-        defaultValue: [],
-      });
-      ticketIdSets.push(new Set(relatedTicketIds));
-    }
-
-    if (filters.companyIds?.length) {
-      const relatedTicketIds: string[] = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'relation',
-        action: 'filterRelationIds',
-        input: {
-          contentType: 'core:company',
-          contentIds: filters.companyIds,
-          relatedContentType: 'frontline:ticket',
-        },
-        defaultValue: [],
-      });
-      ticketIdSets.push(new Set(relatedTicketIds));
-    }
-
-    // Intersect all sets to get tickets matching ALL contact filters
-    let filteredIds: string[] = [];
-    if (ticketIdSets.length === 1) {
-      filteredIds = [...ticketIdSets[0]];
-    } else if (ticketIdSets.length > 1) {
-      filteredIds = [...ticketIdSets[0]].filter((id) =>
-        ticketIdSets.every((s) => s.has(id)),
-      );
-    }
-
-    if (!filteredIds.length) {
-      match._id = { $in: [] };
-    } else {
-      match._id = { $in: filteredIds };
-    }
-  }
-
-  pipeline.push({ $match: match });
-
-  return pipeline;
+  return [{ $match: match }];
 };
 
 export function buildTicketTagMatch(filters: IReportFilters) {
   const match = buildTicketMatch(filters) as any;
   match.tagIds = { $exists: true, $ne: [] };
   return match;
+}
+
+const REPORT_CHART_FILTER_KEYS = [
+  'date',
+  'fromDate',
+  'toDate',
+  'status',
+  'statusIds',
+  'source',
+  'state',
+  'frequency',
+  'startDate',
+  'targetDate',
+  'groupPropertyId',
+  'channelIds',
+  'memberIds',
+  'pipelineIds',
+  'tagIds',
+  'customerIds',
+  'companyIds',
+  'branchIds',
+  'pageIds',
+  'searchValue',
+  'propertyIds',
+  'priority',
+  'propertyValueFilters',
+] as const satisfies readonly (keyof IReportChartFilters)[];
+
+export function pickReportChartFilters(
+  filters?: IReportFilters,
+): IReportChartFilters {
+  const picked: IReportChartFilters = {};
+
+  if (!filters) {
+    return picked;
+  }
+
+  for (const key of REPORT_CHART_FILTER_KEYS) {
+    const value = filters[key];
+
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    if (typeof value === 'string' && !value.trim()) {
+      continue;
+    }
+
+    if (Array.isArray(value) && !value.length) {
+      continue;
+    }
+
+    Object.assign(picked, { [key]: value });
+  }
+
+  if (picked.propertyValueFilters) {
+    const propertyValueFilters = picked.propertyValueFilters.filter(
+      (propertyFilter) =>
+        propertyFilter?.propertyId && propertyFilter.values?.length,
+    );
+
+    if (propertyValueFilters.length) {
+      picked.propertyValueFilters = propertyValueFilters;
+    } else {
+      delete picked.propertyValueFilters;
+    }
+  }
+
+  return picked;
 }

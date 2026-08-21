@@ -29,6 +29,7 @@ export const types = `
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
+    videos: [Attachment]
     vendorId: String
     scopeBrandIds: [String]
     uom: String
@@ -93,6 +94,7 @@ const queryParams = `
   boardId: String,
   segment: String,
   segmentData: String,
+  propertiesData: String,
   groupedSimilarity: String,
   similarity: Boolean,
   image: String,
@@ -154,6 +156,7 @@ export const mutationParams = `
   propertiesData: JSON
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
+  videos: [AttachmentInput],
   vendorId: String,
   scopeBrandIds: [String],
   uom: String,

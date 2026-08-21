@@ -33,6 +33,11 @@ const PricingPriorityCell = ({ value }: { value: IPricing['priority'] }) => {
 export const pricingColumns = (
   t: TFunction<'loyalty'>,
 ): ColumnDef<IPricing>[] => [
+  {
+    id: 'more',
+    cell: (cell) => <PricingMoreCell {...cell} />,
+    size: 33,
+  },
   RecordTable.checkboxColumn as ColumnDef<IPricing>,
   {
     id: 'name',
@@ -157,10 +162,5 @@ export const pricingColumns = (
         </RelativeDateDisplay>
       );
     },
-  },
-  {
-    id: 'more',
-    cell: (cell) => <PricingMoreCell {...cell} />,
-    size: 33,
   },
 ];

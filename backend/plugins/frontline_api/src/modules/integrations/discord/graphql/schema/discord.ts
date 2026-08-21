@@ -5,6 +5,7 @@ export const types = `
     botUsername: String
     lastVerifiedAt: Date
     lastError: String
+    missingIntents: [String]
   }
 
   type DiscordBot {
@@ -32,6 +33,7 @@ export const types = `
     botUsername: String
     applicationId: String
     hasMessageContentIntent: Boolean
+    hasServerMembersIntent: Boolean
     error: String
   }
 
@@ -45,6 +47,8 @@ export const types = `
     id: String!
     name: String
     type: Int
+    parentId: String
+    parentName: String
   }
 
   # The Discord channel a given inbox conversation originated from, so the
@@ -70,6 +74,19 @@ export const types = `
     avatar: String
   }
 
+  enum DiscordMemberStatus {
+    OK
+    FORBIDDEN
+    TRUNCATED
+    ERROR
+  }
+
+  type DiscordChannelMembersResult {
+    members: [DiscordParticipant!]!
+    status: DiscordMemberStatus!
+    truncated: Boolean!
+  }
+
   # A connected Discord server (guild) with the inbox integrations (one per
   # Discord channel) that belong to it — lets the sidebar group channels under
   # their server instead of mixing every server's channels into one list.
@@ -78,10 +95,18 @@ export const types = `
     name: String
     integrationIds: [String!]!
   }
+
+  # A Discord server already connected to a given inbox channel, with a
+  # representative bot whose token resolves that server's channels server-side —
+  # backs the connect wizard's "add channels to a connected server" picker,
+  # scoped to one inbox channel.
+  type DiscordConnectedServer {
+    guildId: String!
+    guildName: String
+    botId: String!
+  }
 `;
 
-// token is a write-only secret (never exposed on the DiscordBot type).
-// channelIds = inbox channels to surface the conversation in (not Discord channels).
 const addBotParams = `
   name: String!
   applicationId: String!
@@ -114,11 +139,17 @@ export const queries = `
   discordConversationChannel(conversationId: String!): DiscordConversationChannel
   discordConversationChannels(conversationIds: [String!]!): [DiscordConversationChannel]
   discordConversationParticipants(conversationId: String!): [DiscordParticipant]
+  discordChannelMembers(conversationId: String!, query: String!): DiscordChannelMembersResult
   discordServers: [DiscordServer]
+  discordConnectedServers(channelId: String!): [DiscordConnectedServer]
+  discordTakenChannels(channelId: String!): [String]
+  discordNamePresets(channelId: String!): [String]
 `;
 
 export const mutations = `
   discordAddBot(${addBotParams}): DiscordBot
   discordUpdateBot(_id: String!, ${updateBotParams}): DiscordBot
   discordRemoveBot(_id: String!): JSON
+  discordEditMessage(conversationId: String!, messageId: String!, content: String!): JSON
+  discordDeleteMessage(conversationId: String!, messageId: String!): JSON
 `;

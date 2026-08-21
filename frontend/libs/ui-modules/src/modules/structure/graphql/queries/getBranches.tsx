@@ -41,6 +41,7 @@ export const GET_BRANCH_BY_ID = gql`
       code
       order
       workhours
+      holidays
     }
   }
 `;
@@ -66,6 +67,7 @@ export const GET_BRANCHES_MAIN = gql`
         _id
         title
         code
+        parentId
         order
         userCount
       }

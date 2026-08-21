@@ -40,6 +40,14 @@ const CallIntegrationDetail = lazy(() =>
   ),
 );
 
+const CallProIntegrationDetail = lazy(() =>
+  import('@/integrations/callpro/components/CallProIntegrationDetail').then(
+    (module) => ({
+      default: module.CallProIntegrationDetail,
+    }),
+  ),
+);
+
 const InstagramIntegrationDetail = lazy(() =>
   import('@/integrations/instagram/components/InstagramIntegrationDetail').then(
     (module) => ({
@@ -68,7 +76,7 @@ export const IntegrationDetailPage = () => {
     INTEGRATIONS[integrationType as keyof typeof INTEGRATIONS];
 
   return (
-    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden">
+    <div className="mx-auto p-5 w-full max-w-5xl flex flex-col gap-8 overflow-hidden flex-1 min-h-0">
       <div>
         <Button
           variant="ghost"
@@ -108,6 +116,9 @@ export const IntegrationDetailPage = () => {
           <FacebookIntegrationDetail isPost />
         )}
         {integrationType === IntegrationType.CALL && <CallIntegrationDetail />}
+        {integrationType === IntegrationType.CALLPRO && (
+          <CallProIntegrationDetail />
+        )}
         {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
         {integrationType === IntegrationType.INSTAGRAM_MESSENGER && (
           <InstagramIntegrationDetail />
@@ -119,7 +130,9 @@ export const IntegrationDetailPage = () => {
           <DiscordIntegrationDetail />
         )}
       </Suspense>
-      <IntegrationsRecordTable />
+      <div className="flex-1 min-h-0 flex flex-col">
+        <IntegrationsRecordTable />
+      </div>
     </div>
   );
 };

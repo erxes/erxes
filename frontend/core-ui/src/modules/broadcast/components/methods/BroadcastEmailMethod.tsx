@@ -1,29 +1,81 @@
+import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
+import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { z } from 'zod';
 import { BroadcastAttachment } from '../BroadcastAttachment';
-import { SelectBroadcastMember } from '../select/BroadcastSelectMember';
 
-export const BroadcastEmailMethod = () => {
+const isEmail = (value?: string) =>
+  !value || z.string().email().safeParse(value).success;
+
+const ReplyToField = ({
+  name,
+  required,
+}: {
+  name: 'fromEmail' | 'email.replyTo';
+  required?: boolean;
+}) => {
   const { control } = useFormContext();
 
   return (
-    <form className="flex flex-col h-full gap-3">
+    <Form.Field
+      name={name}
+      control={control}
+      rules={{
+        required: required ? 'Reply-to address is required' : undefined,
+        validate: (value?: string) =>
+          isEmail(value) || 'Enter a valid email address',
+      }}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>
+            Reply to
+            {required && <span className="text-destructive">*</span>}
+          </Form.Label>
+          <SelectVerifiedSender
+            value={field.value}
+            onChange={field.onChange}
+            placeholder="Select a confirmed address"
+          />
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const BroadcastEmailFields = () => {
+  const { control, watch } = useFormContext();
+  const { alignedFrom } = useSenderOptions();
+
+  const senderName = watch('email.sender');
+
+  const pickedIsReplyTo = !!alignedFrom;
+
+  return (
+    <>
       <div className="grid grid-cols-2 gap-3">
         <Form.Field
-          name="fromUserId"
+          name="email.sender"
           control={control}
-          rules={{ required: 'From user is required' }}
+          rules={{ required: 'Sender name is required' }}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>From User</Form.Label>
+              <Form.Label>
+                Sender name<span className="text-destructive">*</span>
+              </Form.Label>
               <Form.Control>
-                <SelectBroadcastMember.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  placeholder="Select team members"
-                  variables={{ isVerified: true }}
-                />
+                <Input {...field} placeholder="Sales team" />
               </Form.Control>
+              {alignedFrom && (
+                <Form.Description>
+                  {senderName
+                    ? `${senderName} <${alignedFrom}>`
+                    : `<${alignedFrom}>`}
+                </Form.Description>
+              )}
+              <Form.Message />
             </Form.Item>
           )}
         />
@@ -34,47 +86,54 @@ export const BroadcastEmailMethod = () => {
           rules={{ required: 'Email subject is required' }}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Email Subject</Form.Label>
+              <Form.Label>
+                Subject<span className="text-destructive">*</span>
+              </Form.Label>
               <Form.Control>
                 <Input {...field} placeholder="Subject" />
               </Form.Control>
+              <Form.Message />
             </Form.Item>
           )}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Form.Field
-          name="email.sender"
-          control={control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Sender</Form.Label>
-              <Form.Control>
-                <Input {...field} placeholder="Sender" />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="email.replyTo"
-          control={control}
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Reply To</Form.Label>
-              <Form.Control>
-                <Input {...field} placeholder="Reply To" />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+        {!alignedFrom && (
+          <Form.Field
+            name="fromEmail"
+            control={control}
+            rules={{
+              required: 'From address is required',
+              validate: (value?: string) =>
+                isEmail(value) || 'Enter a valid email address',
+            }}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  From<span className="text-destructive">*</span>
+                </Form.Label>
+                <Form.Control>
+                  <Input {...field} placeholder="sales@yourdomain.com" />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+
+        {pickedIsReplyTo ? (
+          <ReplyToField name="fromEmail" required />
+        ) : (
+          <ReplyToField name="email.replyTo" />
+        )}
       </div>
 
       <Form.Field
         name="email.attachments"
         control={control}
         render={({ field }) => (
-          <Form.Item className='h-full overflow-hidden'>
+          <Form.Item className="h-full overflow-hidden">
             <Form.Label>Attachments</Form.Label>
             <Form.Control>
               <BroadcastAttachment {...field} />
@@ -82,6 +141,14 @@ export const BroadcastEmailMethod = () => {
           </Form.Item>
         )}
       />
-    </form>
+    </>
   );
 };
+
+export const BroadcastEmailMethod = () => (
+  <EmailSenderScopeProvider scope="broadcast">
+    <form className="flex flex-col h-full gap-3">
+      <BroadcastEmailFields />
+    </form>
+  </EmailSenderScopeProvider>
+);

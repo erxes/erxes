@@ -1,4 +1,8 @@
-import { AutomationBuilderTabsType } from '@/automations/types';
+import {
+  AutomationBuilderTabsType,
+  AutomationHistorySplitDirection,
+  AutomationHistoryViewMode,
+} from '@/automations/types';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
@@ -39,9 +43,33 @@ export const toggleAutomationBuilderSecondarySidebar = atom(
   },
 );
 
+export const automationCanvasViewState = atomWithStorage<{
+  showGrid: boolean;
+  showMiniMap: boolean;
+}>('automationCanvasView', { showGrid: true, showMiniMap: true });
+
+export const automationCanvasMarqueeModeState = atom<boolean>(false);
+
 export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',
   true,
 );
+
+export const automationHistoryViewModeState =
+  atomWithStorage<AutomationHistoryViewMode>(
+    'automationHistoryViewMode',
+    AutomationHistoryViewMode.Sheet,
+  );
+
+export const automationHistorySplitDirectionState =
+  atomWithStorage<AutomationHistorySplitDirection>(
+    'automationHistorySplitDirection',
+    AutomationHistorySplitDirection.Vertical,
+  );
+
+export const automationHistorySelectedExecutionState = atom<{
+  automationId: string;
+  executionId: string;
+} | null>(null);
 
 // export const automationBuilder

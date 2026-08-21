@@ -1,22 +1,61 @@
-import { Badge, Tooltip } from 'erxes-ui';
+import { ActionResult, AutomationExecutionActionResultProps } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
-import { AutomationExecutionActionResultProps } from 'ui-modules';
+import { FacebookSentMessageStep } from '~/widgets/automations/modules/facebook/components/history/FacebookSentMessageStep';
+import { useFacebookAutomationHistoryResult } from '~/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult';
 
 export const AutomationHistoryResult = ({
+  action,
   result,
 }: AutomationExecutionActionResultProps) => {
   const { t } = useTranslation('frontline');
-  if (result?.error) {
+  const {
+    commentAttachments,
+    commentText,
+    error,
+    hasError,
+    isCommentReply,
+    isWaiting,
+    messages,
+  } = useFacebookAutomationHistoryResult(action, result);
+
+  if (hasError) {
     return (
-      <Tooltip.Provider>
-        <Tooltip>
-          <Tooltip.Trigger>
-            <Badge variant="destructive">{t('error')}</Badge>
-          </Tooltip.Trigger>
-        </Tooltip>
-      </Tooltip.Provider>
+      <ActionResult.Status status="error">
+        {typeof error === 'string' ? error : t('error')}
+      </ActionResult.Status>
     );
   }
 
-  return <Badge variant="success">{t('sent-successfully')}</Badge>;
+  if (isCommentReply) {
+    return (
+      <>
+        <ActionResult.Status>{t('sent-successfully')}</ActionResult.Status>
+        <ActionResult.Fields>
+          <ActionResult.Field label={t('reply')} value={commentText} />
+          <ActionResult.Field
+            label={t('attachments')}
+            value={commentAttachments.map(({ url }) => url).join(', ')}
+          />
+        </ActionResult.Fields>
+      </>
+    );
+  }
+
+  if (!messages.length) {
+    return <ActionResult.Status>{t('sent-successfully')}</ActionResult.Status>;
+  }
+
+  return (
+    <>
+      <ActionResult.Status status={isWaiting ? 'waiting' : 'success'}>
+        {t('messages-sent', { count: messages.length })}
+      </ActionResult.Status>
+
+      <ol className="min-w-0 space-y-2">
+        {messages.map((message) => (
+          <FacebookSentMessageStep key={message.key} message={message} />
+        ))}
+      </ol>
+    </>
+  );
 };

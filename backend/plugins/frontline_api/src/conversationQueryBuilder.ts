@@ -1,4 +1,8 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTOMATION_STATUS_MAP,
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
@@ -14,12 +18,11 @@ interface IExists {
 export interface IListArgs {
   limit?: number;
   channelId?: string;
-  // Narrow to a single integration (e.g. one Discord channel) for an isolated,
-  // server-side filtered view rather than the all-channels grouped list.
   integrationId?: string;
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
+  automationStatus?: string;
   brandId?: string;
   tag?: string;
   integrationType?: string;
@@ -74,7 +77,6 @@ export default class Builder {
     this.user = user;
   }
 
-  // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
     const selector = await sendTRPCMessage({
       subdomain: this.subdomain,
@@ -132,16 +134,12 @@ export default class Builder {
   public async intersectIntegrationIds(
     ...queries: any[]
   ): Promise<{ integrationId: IIn }> {
-    // filter only queries with $in field
     const withIn = queries.filter((q) => q.integrationId?.$in?.length);
 
-    // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
     const $ins = _.pluck(withIn, 'integrationId');
 
-    // [['id1', 'id2'], ['id3', 'id1', 'id4']]
     const nestedIntegrationIds = _.pluck($ins, '$in');
 
-    // ['id1']
     const integrationids: string[] = _.intersection(...nestedIntegrationIds);
 
     return {
@@ -182,31 +180,30 @@ export default class Builder {
       { integrationId: { $in: availIntegrationIds } },
     ];
 
-    // filter by channel
     if (this.params.channelId) {
       const _channelQuery = await this.channelFilter(this.params.channelId);
       nestedIntegrationIds.push(_channelQuery);
     }
 
-    // filter by brand
     if (this.params.brandId) {
       const brandQuery = await this.brandFilter(this.params.brandId);
       if (brandQuery) nestedIntegrationIds.push(brandQuery);
     }
 
-    // filter by a single integration (e.g. one Discord channel). Intersected
-    // with the access-controlled set above, so it can only narrow what the user
-    // is already allowed to see — never widen it.
     if (this.params.integrationId) {
-      nestedIntegrationIds.push({
-        integrationId: { $in: [this.params.integrationId] },
-      });
+      const ids = this.params.integrationId
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+
+      if (ids.length) {
+        nestedIntegrationIds.push({ integrationId: { $in: ids } });
+      }
     }
 
     return this.intersectIntegrationIds(...nestedIntegrationIds);
   }
 
-  // filter by channel
   public async channelFilter(
     channelId: string,
   ): Promise<{ integrationId: IIn }> {
@@ -234,7 +231,6 @@ export default class Builder {
     };
   }
 
-  // filter by brand
   public async brandFilter(
     brandId: string,
   ): Promise<{ integrationId: IIn } | undefined> {
@@ -249,7 +245,6 @@ export default class Builder {
     return { integrationId: { $in: integrationIds } };
   }
 
-  // filter all unassigned
   public unassignedFilter(): IUnassignedFilter {
     this.unassignedQuery = {
       assignedUserId: { $exists: false },
@@ -258,7 +253,6 @@ export default class Builder {
     return this.unassignedQuery;
   }
 
-  // filter by participating
   public participatingFilter(): { $or: object[] } {
     return {
       $or: [
@@ -268,7 +262,6 @@ export default class Builder {
     };
   }
 
-  // filter by starred
   public starredFilter(): { _id: IIn | { $in: string[] } } {
     return {
       _id: {
@@ -283,14 +276,32 @@ export default class Builder {
     };
   }
 
-  // filter by awaiting Response
   public awaitingResponse(): { isCustomerRespondedLast: boolean } {
     return {
       isCustomerRespondedLast: true,
     };
   }
 
-  // filter by integration type
+  public automationStatusFilter(value: string): {
+    'automatedReplyControl.status'?: IIn | IExists;
+  } {
+    const keys = value.split(',').map((key) => key.trim());
+
+    if (keys.includes(CONVERSATION_AUTOMATION_STATUS.RESPONDED)) {
+      return { 'automatedReplyControl.status': { $exists: true } };
+    }
+
+    const statuses = keys
+      .map((key) => AUTOMATION_STATUS_MAP[key])
+      .filter(Boolean);
+
+    if (!statuses.length) {
+      return {};
+    }
+
+    return { 'automatedReplyControl.status': { $in: statuses } };
+  }
+
   public async integrationTypeFilter(
     integrationType: string,
   ): Promise<IIntersectIntegrationIds[]> {
@@ -299,15 +310,12 @@ export default class Builder {
     });
 
     return [
-      // add channel && brand filter
       this.queries.integrations,
 
-      // filter by integration type
       { integrationId: { $in: _.pluck(integrations, '_id') } },
     ];
   }
 
-  // filter by tag
   public async tagFilter(tagIds: string[]): Promise<{ tagIds: IIn }> {
     let ids: string[] = [];
 
@@ -398,6 +406,12 @@ export default class Builder {
 
     const orConditions: object[] = [{ customerId: { $in: customerIds } }];
 
+    if (!isPhoneSearch) {
+      orConditions.push({
+        content: { $regex: escapeRegex(value), $options: 'i' },
+      });
+    }
+
     const availableIntegrationIds: string[] =
       this.queries?.integrations?.integrationId?.$in || [];
 
@@ -439,9 +453,6 @@ export default class Builder {
     };
   }
 
-  /*
-   * prepare all queries. do not do any action
-   */
   public async buildAllQueries(): Promise<void> {
     this.queries = {
       default: await this.defaultFilters(),
@@ -452,48 +463,46 @@ export default class Builder {
       channel: {},
       integrationType: {},
 
-      // find it using channel && brand
       integrations: {},
 
       participating: {},
       createdAt: {},
       segments: {},
+      automationStatus: {},
     };
 
-    // filter by channel
     if (this.params.channelId) {
       this.queries.channel = await this.channelFilter(this.params.channelId);
     }
 
-    // filter by channelId & brandId
     this.queries.integrations = await this.integrationsFilter();
 
-    // unassigned
     if (this.params.unassigned) {
       this.queries.unassigned = this.unassignedFilter();
     }
 
-    // participating
     if (this.params.participating) {
       this.queries.participating = this.participatingFilter();
     }
 
-    // starred
     if (this.params.starred) {
       this.queries.starred = this.starredFilter();
     }
 
-    // awaiting response
     if (this.params.awaitingResponse) {
       this.queries.awaitingResponse = this.awaitingResponse();
     }
 
-    // filter by status
+    if (this.params.automationStatus) {
+      this.queries.automationStatus = this.automationStatusFilter(
+        this.params.automationStatus,
+      );
+    }
+
     if (this.params.status) {
       this.queries.status = this.statusFilter([this.params.status]);
     }
 
-    // filter by tag
     if (this.params.tag) {
       this.queries.tag = await this.tagFilter(this.params.tag.split(','));
     }
@@ -505,7 +514,6 @@ export default class Builder {
       );
     }
 
-    // filter by segment
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
     }
@@ -525,6 +533,7 @@ export default class Builder {
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
+      ...this.queries.automationStatus,
       ...this.queries.segments,
     };
   }

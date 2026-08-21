@@ -138,6 +138,27 @@ import {
   loadDiscordConversationMessageClass,
 } from '@/integrations/discord/db/models/ConversationMessages';
 
+import { ICallProIntegrationDocument } from '@/integrations/callpro/@types/integrations';
+import { ICallProCustomerDocument } from '@/integrations/callpro/@types/customers';
+import { ICallProConversationDocument } from '@/integrations/callpro/@types/conversations';
+import { ICallProLogDocument } from '@/integrations/callpro/@types/logs';
+import {
+  ICallProIntegrationModel,
+  loadCallProIntegrationClass,
+} from '@/integrations/callpro/db/models/Integrations';
+import {
+  ICallProCustomerModel,
+  loadCallProCustomerClass,
+} from '@/integrations/callpro/db/models/Customers';
+import {
+  ICallProConversationModel,
+  loadCallProConversationClass,
+} from '@/integrations/callpro/db/models/Conversations';
+import {
+  ICallProLogModel,
+  loadCallProLogClass,
+} from '@/integrations/callpro/db/models/Logs';
+
 import {
   ICustomerImapDocument,
   IIntegrationImapDocument,
@@ -280,6 +301,13 @@ import {
   loadInstagramConfigClass,
 } from '@/integrations/instagram/db/models/Config';
 import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
+
+import { IReportChartDocument } from '@/reports/@types/chart';
+import {
+  IReportChartModel,
+  loadReportChartClass,
+} from '@/reports/db/models/Charts';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -331,6 +359,11 @@ export interface IModels {
   DiscordConversations: IDiscordConversationModel;
   DiscordConversationMessages: IDiscordConversationMessageModel;
 
+  CallProIntegrations: ICallProIntegrationModel;
+  CallProCustomers: ICallProCustomerModel;
+  CallProConversations: ICallProConversationModel;
+  CallProLogs: ICallProLogModel;
+
   //imap
   ImapCustomers: ICustomerImapModel;
   ImapIntegrations: IIntegrationImapModel;
@@ -359,6 +392,8 @@ export interface IModels {
   Article: IArticleModel;
   Category: ICategoryModel;
   Topic: ITopicModel;
+
+  ReportCharts: IReportChartModel;
 }
 
 export interface IContext extends IMainContext {
@@ -594,7 +629,27 @@ export const loadClasses = (
   models.DiscordConversationMessages = db.model<
     IDiscordConversationMessageDocument,
     IDiscordConversationMessageModel
-  >('conversation_messages_discord', loadDiscordConversationMessageClass(models));
+  >(
+    'conversation_messages_discord',
+    loadDiscordConversationMessageClass(models),
+  );
+
+  models.CallProIntegrations = db.model<
+    ICallProIntegrationDocument,
+    ICallProIntegrationModel
+  >('integrations_callpro', loadCallProIntegrationClass(models));
+  models.CallProCustomers = db.model<
+    ICallProCustomerDocument,
+    ICallProCustomerModel
+  >('customers_callpro', loadCallProCustomerClass(models));
+  models.CallProConversations = db.model<
+    ICallProConversationDocument,
+    ICallProConversationModel
+  >('conversations_callpro', loadCallProConversationClass(models));
+  models.CallProLogs = db.model<ICallProLogDocument, ICallProLogModel>(
+    'logs_callpro',
+    loadCallProLogClass(),
+  );
 
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
@@ -647,6 +702,11 @@ export const loadClasses = (
   models.Topic = db.model<ITopicDocument, ITopicModel>(
     'knowledgebase_topics',
     loadTopicClass(models),
+  );
+
+  models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
+    'frontline_report_charts',
+    loadReportChartClass(models),
   );
 
   return models;

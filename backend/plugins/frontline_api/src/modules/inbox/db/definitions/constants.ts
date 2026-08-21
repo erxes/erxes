@@ -20,6 +20,20 @@ export const AUTOMATED_REPLY_STATUS = {
   ALL: ['active', 'handoff_requested', 'human_active'],
 } as const;
 
+export const CONVERSATION_AUTOMATION_STATUS = {
+  RESPONDED: 'responded',
+  STANDBY: 'standby',
+  HANDOFF: 'handoff',
+  ALL: ['responded', 'standby', 'handoff'],
+} as const;
+
+export const AUTOMATION_STATUS_MAP: Record<string, string> = {
+  [CONVERSATION_AUTOMATION_STATUS.STANDBY]:
+    AUTOMATED_REPLY_STATUS.HANDOFF_REQUESTED,
+  [CONVERSATION_AUTOMATION_STATUS.HANDOFF]:
+    AUTOMATED_REPLY_STATUS.HUMAN_ACTIVE,
+};
+
 export const AUTOMATED_REPLY_REASON = {
   CUSTOMER_REQUESTED: 'customer_requested',
   OPERATOR_REPLY: 'operator_reply',

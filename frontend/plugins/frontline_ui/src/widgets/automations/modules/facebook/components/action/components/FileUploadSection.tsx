@@ -1,8 +1,4 @@
-import {
-  IconCopy,
-  IconPhotoScan,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconCopy, IconPhotoScan, IconTrash } from '@tabler/icons-react';
 import { Button, cn, Dialog, Label } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -127,9 +123,7 @@ export const FileUploadSection = ({
         ) : (
           <>
             <IconPhotoScan className="w-24 h-24 text-accent-foreground" />
-            <Label>
-              {t('drag-drop-or-upload')}
-            </Label>
+            <Label>{t('drag-drop-or-upload')}</Label>
           </>
         )}
       </label>
