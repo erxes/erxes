@@ -227,7 +227,11 @@ export const SelectTagsCommand = ({
           {search ? (
             <>
               {tags
-                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.filter(
+                  (tag) =>
+                    !tag.isGroup &&
+                    !tags.some((t) => t._id === tag.parentId && t.isGroup),
+                )
                 ?.map((tag) => (
                   <SelectTagsItem
                     key={tag._id}
@@ -260,27 +264,15 @@ export const SelectTagsCommand = ({
                       ))}
                   </Command.Group>
                 ))}
-              {tags
-                ?.filter(
-                  (tag) =>
-                    tag.parentId &&
-                    !tags.some((t) => t._id === tag.parentId) &&
-                    !tag.isGroup,
-                )
-                .map((tag) => (
-                  <SelectTagsItem
-                    key={tag._id}
-                    tag={{
-                      ...tag,
-                      hasChildren: false,
-                    }}
-                  />
-                ))}
             </>
           ) : (
             <>
               {tags
-                ?.filter((tag) => !tag.parentId && !tag.isGroup)
+                ?.filter(
+                  (tag) =>
+                    !tag.isGroup &&
+                    !tags.some((t) => t._id === tag.parentId && t.isGroup),
+                )
                 ?.map((tag) => (
                   <SelectTagsItem
                     key={tag._id}
