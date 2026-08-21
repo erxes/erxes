@@ -1,6 +1,7 @@
 import {
   Breadcrumb,
   Button,
+  Empty,
   PageContainer,
   PageSubHeader,
   Separator,
@@ -10,7 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import { Can, PageHeader, Import, createFavoriteBreadcrumb } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
-import { IconTicket } from '@tabler/icons-react';
+import { IconAlertCircle, IconTicket } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
@@ -29,19 +30,51 @@ const TicketsIndexPage = () => {
   const variables = useTicketsVariables();
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId] = useQueryState<string | null>('pipelineId');
-  const { channels } = useGetChannels();
-  const { pipeline } = useGetPipeline(pipelineId || undefined);
+  const {
+    channels,
+    loading: channelsLoading,
+    error: channelsError,
+  } = useGetChannels();
+  const {
+    pipeline,
+    loading: pipelineLoading,
+    error: pipelineError,
+  } = useGetPipeline(pipelineId || undefined);
   const channel = channels?.find(({ _id }) => _id === channelId);
-  const isFavoriteBreadcrumbReady =
-    (!channelId || Boolean(channel)) && (!pipelineId || Boolean(pipeline));
-  const favoriteBreadcrumb = isFavoriteBreadcrumbReady
-    ? createFavoriteBreadcrumb(channel?.name, pipeline?.name, t('tickets'))
-    : [];
+  const isFavoriteBreadcrumbLoading =
+    Boolean(channelId && channelsLoading) ||
+    Boolean(pipelineId && pipelineLoading);
+  const favoriteBreadcrumbError =
+    (channelId ? channelsError : undefined) ||
+    (pipelineId ? pipelineError : undefined);
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    channel?.name,
+    pipeline?.name,
+    t('tickets'),
+  );
 
   const getFilters = () => {
     const { cursor, limit, orderBy, ...filters } = variables;
     return filters;
   };
+
+  if (favoriteBreadcrumbError) {
+    return (
+      <PageContainer>
+        <Empty className="m-3 rounded-lg bg-sidebar">
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconAlertCircle />
+            </Empty.Media>
+            <Empty.Title>{t('error')}</Empty.Title>
+            <Empty.Description>
+              {favoriteBreadcrumbError.message}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -60,13 +93,13 @@ const TicketsIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
           <Separator.Inline />
-          {isFavoriteBreadcrumbReady ? (
+          {isFavoriteBreadcrumbLoading ? (
+            <Skeleton className="h-8 w-8" />
+          ) : (
             <PageHeader.FavoriteToggleButton
               breadcrumb={favoriteBreadcrumb}
               icon="IconTicket"
             />
-          ) : (
-            <Skeleton className="h-8 w-8" />
           )}
         </PageHeader.Start>
         <PageHeader.End>
