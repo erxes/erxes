@@ -21,7 +21,7 @@ startPlugin({
     return context;
   },
   onServerInit: async () => {
-    // await initMQWorkers(redis);
+    await initMQWorkers(redis);
   },
   meta: {
     permissions,
