@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, InfoCard, Label, useToast } from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -11,183 +11,29 @@ import { SelectPipelineFormItem } from '@/pricing/hooks/useSelectPipeline';
 import {
   RepeatRuleSheet,
   type RepeatRuleConfig,
-  type RepeatRuleType,
 } from '@/pricing/edit-pricing/components/repeat/RepeatRuleSheet';
+import {
+  getOptionsSnapshot,
+  getRepeatRules,
+  mapRepeatRulesToDocument,
+  type OptionsFormValues,
+} from '@/pricing/edit-pricing/components/options/utils';
 
 interface OptionsInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
-  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
-interface OptionsFormValues {
-  departmentIds: string[];
-  branchIds: string[];
-  boardId: string;
-  pipelineId: string;
-}
-
-interface OptionsSnapshot {
-  departmentIds: string[];
-  branchIds: string[];
-  boardId: string;
-  pipelineId: string;
-  repeatRules: RepeatRuleConfig[];
-}
-
-const OPTIONS_FORM_ID = 'pricing-options-form';
-
-const NUMBER_TO_WEEKDAY: Record<string, string> = {
-  '0': 'sunday',
-  '1': 'monday',
-  '2': 'tuesday',
-  '3': 'wednesday',
-  '4': 'thursday',
-  '5': 'friday',
-  '6': 'saturday',
-};
-
-const WEEKDAY_TO_NUMBER: Record<string, string> = {
-  monday: '1',
-  tuesday: '2',
-  wednesday: '3',
-  thursday: '4',
-  friday: '5',
-  saturday: '6',
-  sunday: '0',
-};
-
-const WEEKDAY_TO_LABEL: Record<string, string> = {
-  monday: 'Monday',
-  tuesday: 'Tuesday',
-  wednesday: 'Wednesday',
-  thursday: 'Thursday',
-  friday: 'Friday',
-  saturday: 'Saturday',
-  sunday: 'Sunday',
-};
-
-const getWeekDayFromValue = (value: string) =>
-  NUMBER_TO_WEEKDAY[value] || value;
-
-const getRepeatRuleType = (value?: string): RepeatRuleType => {
-  switch (value) {
-    case 'everyYear':
-    case 'everyMonth':
-    case 'everyWeek':
-    case 'everyDay':
-      return value;
-    default:
-      return 'everyDay';
-  }
-};
-
-const isoToTime = (isoString?: string): string | null => {
-  if (!isoString) return null;
-
-  const date = new Date(isoString);
-  if (Number.isNaN(date.getTime())) return null;
-
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-  return `${hours}:${minutes}`;
-};
-
-const timeToIso = (time: string): string => {
-  const [hours, minutes] = time.split(':');
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(now.getUTCDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}T${hours.padStart(2, '0')}:${minutes.padStart(
-    2,
-    '0',
-  )}:00.000Z`;
-};
-
-const getRepeatRules = (
-  pricingDetail?: IPricingPlanDetail,
-): RepeatRuleConfig[] =>
-  pricingDetail?.repeatRules?.flatMap((rule, index): RepeatRuleConfig[] => {
-    const baseRule: Omit<RepeatRuleConfig, '_id' | 'weekDay' | 'monthDay'> = {
-      ruleType: getRepeatRuleType(rule.type),
-      startTime: isoToTime(rule.dayStartValue),
-      endTime: isoToTime(rule.dayEndValue),
-      startDate: rule.yearStartValue || null,
-      endDate: rule.yearEndValue || null,
-    };
-
-    if (rule.weekValue?.length) {
-      return rule.weekValue.map((weekValue, weekIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_week_${weekIndex}`,
-        weekDay: getWeekDayFromValue(weekValue.value),
-        monthDay: null,
-      }));
-    }
-
-    if (rule.monthValue?.length) {
-      return rule.monthValue.map((monthValue, monthIndex) => ({
-        ...baseRule,
-        _id: `rule_${index}_month_${monthIndex}`,
-        weekDay: null,
-        monthDay: monthValue.value,
-      }));
-    }
-
-    return [
-      {
-        ...baseRule,
-        _id: `rule_${index}`,
-        weekDay: null,
-        monthDay: null,
-      },
-    ];
-  }) || [];
-
-const normalizeIds = (values: string[] = []) =>
-  [...values].filter(Boolean).sort((a, b) => a.localeCompare(b));
-
-const normalizeRepeatRules = (rules: RepeatRuleConfig[] = []) =>
-  rules.map((rule) => ({
-    ruleType: rule.ruleType,
-    startTime: rule.startTime || null,
-    endTime: rule.endTime || null,
-    weekDay: rule.weekDay || null,
-    monthDay: rule.monthDay || null,
-    startDate: rule.startDate || null,
-    endDate: rule.endDate || null,
-  }));
-
-const getOptionsSnapshot = ({
-  values,
-  repeatRules,
-}: {
-  values: OptionsFormValues;
-  repeatRules: RepeatRuleConfig[];
-}): OptionsSnapshot => ({
-  departmentIds: normalizeIds(values.departmentIds),
-  branchIds: normalizeIds(values.branchIds),
-  boardId: values.boardId || '',
-  pipelineId: values.pipelineId || '',
-  repeatRules: normalizeRepeatRules(repeatRules),
-});
-
-export const OptionsInfo = ({
-  pricingId,
-  pricingDetail,
-  onSaveActionChange,
-}: OptionsInfoProps) => {
+export const OptionsInfo = ({ pricingId, pricingDetail }: OptionsInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
   const { t } = useTranslation('loyalty');
 
   const [repeatRules, setRepeatRules] = useState<RepeatRuleConfig[]>([]);
   const [editingRule, setEditingRule] = useState<RepeatRuleConfig | null>(null);
-  const [initialSnapshot, setInitialSnapshot] =
-    useState<OptionsSnapshot | null>(null);
+  const [initialSnapshot, setInitialSnapshot] = useState<ReturnType<
+    typeof getOptionsSnapshot
+  > | null>(null);
 
   const form = useForm<OptionsFormValues>({
     defaultValues: {
@@ -231,27 +77,6 @@ export const OptionsInfo = ({
     setInitialSnapshot(getOptionsSnapshot({ values, repeatRules: rules }));
   }, [pricingDetail, reset]);
 
-  useEffect(() => {
-    if (!onSaveActionChange) {
-      return;
-    }
-
-    onSaveActionChange(
-      hasChanges ? (
-        <Button
-          type="submit"
-          form={OPTIONS_FORM_ID}
-          size="sm"
-          disabled={loading}
-        >
-          {loading ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
-    );
-
-    return () => onSaveActionChange(null);
-  }, [hasChanges, loading, onSaveActionChange, t]);
-
   const handleBoardChange = (value: string) => {
     setValue('boardId', value, { shouldDirty: true });
     setValue('pipelineId', '', { shouldDirty: true });
@@ -283,28 +108,7 @@ export const OptionsInfo = ({
   const handleSave = async (values: OptionsFormValues) => {
     if (!pricingId) return;
 
-    const mappedRepeatRules = repeatRules.map((rule) => {
-      const dayKey = rule.weekDay?.toLowerCase() || '';
-
-      return {
-        type: rule.ruleType,
-        dayStartValue: rule.startTime ? timeToIso(rule.startTime) : undefined,
-        dayEndValue: rule.endTime ? timeToIso(rule.endTime) : undefined,
-        weekValue: rule.weekDay
-          ? [
-              {
-                label: WEEKDAY_TO_LABEL[dayKey] || rule.weekDay,
-                value: WEEKDAY_TO_NUMBER[dayKey] || rule.weekDay,
-              },
-            ]
-          : undefined,
-        monthValue: rule.monthDay
-          ? [{ label: rule.monthDay, value: rule.monthDay }]
-          : undefined,
-        yearStartValue: rule.startDate || undefined,
-        yearEndValue: rule.endDate || undefined,
-      };
-    });
+    const mappedRepeatRules = mapRepeatRulesToDocument(repeatRules);
 
     const departmentIds = values.departmentIds;
     const branchIds = values.branchIds;
@@ -355,7 +159,6 @@ export const OptionsInfo = ({
         <InfoCard.Content>
           <Form {...form}>
             <form
-              id={OPTIONS_FORM_ID}
               onSubmit={handleSubmit(handleSave)}
               className="space-y-8"
               noValidate
@@ -505,6 +308,16 @@ export const OptionsInfo = ({
                   )}
                 </div>
               </section>
+
+              <div className="flex justify-end border-t pt-4">
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={loading || !pricingId || !hasChanges}
+                >
+                  {loading ? t('saving') : t('save-changes')}
+                </Button>
+              </div>
             </form>
           </Form>
         </InfoCard.Content>

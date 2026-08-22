@@ -17,6 +17,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client';
 import { PRICING_FIXED_VALUES_PAGE } from '~/modules/pricing/graphql/queries';
 import { PRICING_FIXED_VALUES_BULK_EDIT } from '~/modules/pricing/graphql/mutations';
+import { IPricingFixedValue } from '@/pricing/types';
 
 type FixedPricingStatus = 'NEW' | 'SAVED' | 'STALE';
 
@@ -209,14 +210,15 @@ export const FixedPricingTable = ({
         newPrice: item.newPrice,
       })),
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageItemsKey, replace]);
 
   const handlePageChange = (newPage: number) => {
-    const hasDirtyRows = watchedFixedValues?.some((fv, index) => {
-      const item = pageItems[index];
-      return item && fv?.newPrice !== item.newPrice;
-    });
+    const hasDirtyRows = watchedFixedValues?.some(
+      (fixedValue: IPricingFixedValue, index: number) => {
+        const item = pageItems[index];
+        return item && fixedValue.newPrice !== item.newPrice;
+      },
+    );
     if (hasDirtyRows) onSave();
     setCurrentPage(newPage);
   };
@@ -252,8 +254,11 @@ export const FixedPricingTable = ({
       } else {
         toast({ title: `Imported ${count} rows successfully` });
       }
-    } catch (err: any) {
-      toast({ title: err?.message || 'Import failed', variant: 'destructive' });
+    } catch (error) {
+      toast({
+        title: error instanceof Error ? error.message : 'Import failed',
+        variant: 'destructive',
+      });
     }
   };
 

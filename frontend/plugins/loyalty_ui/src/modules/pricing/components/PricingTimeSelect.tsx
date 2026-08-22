@@ -1,29 +1,31 @@
-import React from 'react';
-import { Input, cn } from 'erxes-ui';
+import { parseTime } from '@internationalized/date';
+import { DateInput, TimeField } from 'erxes-ui';
 
-interface PricingTimeSelectProps
-  extends Omit<
-    React.ComponentProps<typeof Input>,
-    'type' | 'value' | 'onChange'
-  > {
+interface PricingTimeSelectProps {
   value?: string | null;
   onValueChange?: (value?: string | null) => void;
+  'aria-label': string;
 }
 
-export const PricingTimeSelect = React.forwardRef<
-  HTMLInputElement,
-  PricingTimeSelectProps
->(({ value, onValueChange, className, ...props }, ref) => {
-  return (
-    <Input
-      ref={ref}
-      type="time"
-      value={value || ''}
-      onChange={(e) => onValueChange?.(e.target.value || null)}
-      className={cn('w-full h-9 text-sm', className)}
-      {...props}
-    />
-  );
-});
-
-PricingTimeSelect.displayName = 'PricingTimeSelect';
+export const PricingTimeSelect = ({
+  value,
+  onValueChange,
+  'aria-label': ariaLabel,
+}: PricingTimeSelectProps) => (
+  <TimeField
+    value={value ? parseTime(value) : null}
+    onChange={(nextValue) =>
+      onValueChange?.(
+        nextValue
+          ? `${String(nextValue.hour).padStart(2, '0')}:${String(
+              nextValue.minute,
+            ).padStart(2, '0')}`
+          : null,
+      )
+    }
+    aria-label={ariaLabel}
+    className="w-full"
+  >
+    <DateInput className="h-8" />
+  </TimeField>
+);

@@ -1,5 +1,5 @@
-import { useEffect, type ReactNode } from 'react';
-import { Button, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
+import { useEffect } from 'react';
+import { Button, Form, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useApolloClient } from '@apollo/client';
@@ -21,8 +21,6 @@ import { FixedPricingTable } from './FixedPricingTable';
 interface CommonRuleInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
-  embedded?: boolean;
-  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
 interface CommonRuleFormValues {
@@ -37,8 +35,6 @@ interface CommonRuleFormValues {
 export const CommonRuleInfo = ({
   pricingId,
   pricingDetail,
-  embedded = false,
-  onSaveActionChange,
 }: CommonRuleInfoProps) => {
   const { t } = useTranslation('loyalty');
   const { editPricing, loading } = useEditPricing();
@@ -134,31 +130,9 @@ export const CommonRuleInfo = ({
     }
   };
 
-  useEffect(() => {
-    if (!onSaveActionChange) {
-      return;
-    }
-
-    onSaveActionChange(
-      isDirty ? (
-        <Button
-          type="submit"
-          form="pricing-common-rule-form"
-          size="sm"
-          disabled={loading}
-        >
-          {loading ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
-    );
-
-    return () => onSaveActionChange(null);
-  }, [isDirty, loading, onSaveActionChange]);
-
   const content = (
     <Form {...form}>
       <form
-        id="pricing-common-rule-form"
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4"
         noValidate
@@ -284,17 +258,18 @@ export const CommonRuleInfo = ({
             onSave={form.handleSubmit(handleSubmit)}
           />
         )}
+        <div className="flex justify-end border-t pt-4">
+          <Button
+            type="submit"
+            size="sm"
+            disabled={loading || !pricingId || !isDirty}
+          >
+            {loading ? t('saving') : t('save-changes')}
+          </Button>
+        </div>
       </form>
     </Form>
   );
 
-  if (embedded) {
-    return content;
-  }
-
-  return (
-    <InfoCard title={t('common')}>
-      <InfoCard.Content>{content}</InfoCard.Content>
-    </InfoCard>
-  );
+  return content;
 };

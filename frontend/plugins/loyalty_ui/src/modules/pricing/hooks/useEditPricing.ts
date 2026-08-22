@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { useCallback } from 'react';
 import { PRICING_PLAN_EDIT } from '@/pricing/graphql/mutations';
 import { IPricingPlanDetail } from '@/pricing/types';
 
@@ -20,14 +21,15 @@ export const useEditPricing = () => {
     refetchQueries: ['PricingPlanDetail'],
   });
 
-  const editPricing = (doc: IEditPricingVariables['doc']) => {
-    const { fixedValues, ...rest } = doc as any;
-    return mutate({
-      variables: {
-        doc: rest,
-      },
-    });
-  };
+  const editPricing = useCallback(
+    (doc: IEditPricingVariables['doc']) =>
+      mutate({
+        variables: {
+          doc,
+        },
+      }),
+    [mutate],
+  );
 
   return {
     editPricing,
