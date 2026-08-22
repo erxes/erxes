@@ -23,8 +23,7 @@ interface AddPostFormProps {
   onFormReady?: (formState: {
     form: UseFormReturn<FieldValues>;
     onSubmit: (data?: FieldValues) => Promise<void>;
-    creating: boolean;
-    saving: boolean;
+    loading: boolean;
     handleLanguageChange: (lang: string) => void;
   }) => void;
 }
@@ -103,7 +102,7 @@ export const AddPostForm = ({
     [form],
   );
 
-  const { onSubmit, creating, saving } = usePostSubmission({
+  const { onSubmit, loading } = usePostSubmission({
     websiteId,
     editingPost: currentEditingPost,
     selectedLanguage,
@@ -123,8 +122,6 @@ export const AddPostForm = ({
       options: { silent: boolean },
     ) => Promise<void>,
   });
-
-  const formInitializedRef = useRef(false);
 
   const handleLanguageChangeRef = useRef<(lang: string) => void>(
     () => undefined,
@@ -157,25 +154,14 @@ export const AddPostForm = ({
   );
 
   useEffect(() => {
-    if (onFormReady && form && !formInitializedRef.current) {
-      // Same safe widening as formForColumns — consumers only read known fields.
-      onFormReady({
-        form: form as unknown as UseFormReturn<FieldValues>,
-        onSubmit: onSubmit as unknown as (data?: FieldValues) => Promise<void>,
-        creating,
-        saving,
-        handleLanguageChange: handleLanguageChangeStable,
-      });
-      formInitializedRef.current = true;
-    }
-  }, [
-    form,
-    onSubmit,
-    creating,
-    saving,
-    onFormReady,
-    handleLanguageChangeStable,
-  ]);
+    if (!onFormReady || !form) return;
+    onFormReady({
+      form: form as unknown as UseFormReturn<FieldValues>,
+      onSubmit: onSubmit as unknown as (data?: FieldValues) => Promise<void>,
+      loading,
+      handleLanguageChange: handleLanguageChangeStable,
+    });
+  }, [form, onSubmit, loading, onFormReady, handleLanguageChangeStable]);
 
   // Helper: apply translation (or clear) translatable fields and save default data
   const applyTranslationToForm = useCallback(
