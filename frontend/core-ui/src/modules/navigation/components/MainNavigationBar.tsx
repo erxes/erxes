@@ -1,14 +1,14 @@
-import { NavigationPalette } from '@/navigation/components/NavigationPalette';
 import { NavigationActivityRail } from '@/navigation/components/NavigationActivityRail';
 import { NavigationPanel } from '@/navigation/components/NavigationPanel';
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { usePinnedNavigationActivities } from '@/navigation/hooks/usePinnedNavigationActivities';
 import { usePluginsNavigationGroups } from '@/navigation/hooks/usePluginsNavigationGroups';
 import { findNavigationActivityByPath } from '@/navigation/utils/navigationActivities';
+import { globalSearchOpenState } from '@/search/states/globalSearchState';
 import { AppPath } from '@/types/paths/AppPath';
 import { activePluginState, Sidebar } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export const MainNavigationBar = () => {
@@ -17,7 +17,7 @@ export const MainNavigationBar = () => {
   const { isActivityPinned, setActivityPinned, visibleActivities } =
     usePinnedNavigationActivities(activities);
   const [activeActivityId, setActiveActivityId] = useAtom(activePluginState);
-  const [paletteOpen, setPaletteOpen] = useState(false);
+  const setSearchOpen = useSetAtom(globalSearchOpenState);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { isMobile } = Sidebar.useSidebar();
@@ -64,24 +64,6 @@ export const MainNavigationBar = () => {
     setActiveActivityId,
   ]);
 
-  useEffect(() => {
-    const handleOpenPalette = (event: KeyboardEvent) => {
-      if (
-        event.metaKey !== event.ctrlKey &&
-        !event.altKey &&
-        !event.shiftKey &&
-        event.code === 'KeyM'
-      ) {
-        event.preventDefault();
-        setPaletteOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleOpenPalette);
-
-    return () => window.removeEventListener('keydown', handleOpenPalette);
-  }, []);
-
   const handleSelectActivity = (activity: (typeof activities)[number]) => {
     navigate(`/${activity.defaultPath.replace(/^\/+/, '')}`);
   };
@@ -92,24 +74,21 @@ export const MainNavigationBar = () => {
   };
 
   return (
-    <>
-      <div className="flex h-full min-w-0">
-        <NavigationActivityRail
-          activities={activities}
-          activeActivityId={isInboxActive ? null : activeActivity?.id || null}
-          isInboxActive={isInboxActive}
-          isActivityPinned={isActivityPinned}
-          isSettings={isSettings}
-          mobileExpanded={!hasNavigationPanel}
-          onActivityPinnedChange={setActivityPinned}
-          onSearch={() => setPaletteOpen(true)}
-          onSelectInbox={handleSelectInbox}
-          onSelectActivity={handleSelectActivity}
-          visibleActivities={visibleActivities}
-        />
-        {isMobile && hasNavigationPanel && <NavigationPanel />}
-      </div>
-      <NavigationPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-    </>
+    <div className="flex h-full min-w-0">
+      <NavigationActivityRail
+        activities={activities}
+        activeActivityId={isInboxActive ? null : activeActivity?.id || null}
+        isInboxActive={isInboxActive}
+        isActivityPinned={isActivityPinned}
+        isSettings={isSettings}
+        mobileExpanded={!hasNavigationPanel}
+        onActivityPinnedChange={setActivityPinned}
+        onSearch={() => setSearchOpen(true)}
+        onSelectInbox={handleSelectInbox}
+        onSelectActivity={handleSelectActivity}
+        visibleActivities={visibleActivities}
+      />
+      {isMobile && hasNavigationPanel && <NavigationPanel />}
+    </div>
   );
 };

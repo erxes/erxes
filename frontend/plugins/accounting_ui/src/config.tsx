@@ -53,9 +53,39 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'accounting',
+      name: 'documents',
       icon: IconCashBanknote,
-      path: 'accounting',
+      path: 'accounting/main',
+    },
+    {
+      name: 'records',
+      icon: IconCashBanknote,
+      path: 'accounting/records',
+    },
+    {
+      name: 'odd-transactions',
+      icon: IconCashBanknote,
+      path: 'accounting/odd-transactions',
+    },
+    {
+      name: 'journal-reports',
+      icon: IconCashBanknote,
+      path: 'accounting/journal-reports',
+    },
+    {
+      name: 'check-sync',
+      icon: IconCashBanknote,
+      path: 'accounting/check-sync',
+    },
+    {
+      name: 'config',
+      icon: IconCashBanknote,
+      path: 'settings/accounting/config',
+    },
+    {
+      name: 'fixed-assets',
+      icon: IconCashBanknote,
+      path: 'settings/accounting/fixed-assets',
     },
   ],
   widgets: {

@@ -22,7 +22,7 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
       body: '{ list { _id name } totalCount }',
     },
   ],
@@ -48,7 +48,7 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit }',
+      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
       body: '{ list { _id name } totalCount }',
     },
   ],
@@ -79,9 +79,14 @@ const teamsSearchProvider = defineSearchProvider<TTeamNode>({
       body: '{ _id name }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TTeamNode>(payload, 'gs_operation_teams'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TTeamNode>(payload, 'gs_operation_teams');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (team) => ({
     id: team._id,
     title: team.name || UNNAMED,

@@ -62,12 +62,6 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'sales',
-      icon: IconBriefcase,
-      path: 'sales',
-      hasAutomation: true,
-    },
-    {
       name: 'deals',
       path: 'sales/deals',
     },
@@ -75,6 +69,16 @@ export const CONFIG: IUIConfig = {
       name: 'pos',
       icon: IconBriefcase,
       path: 'sales/pos',
+    },
+    {
+      name: 'POS settings',
+      icon: IconBriefcase,
+      path: 'settings/sales/pos',
+    },
+    {
+      name: 'Deals settings',
+      icon: IconBriefcase,
+      path: 'settings/sales/deals',
     },
   ],
   widgets: {

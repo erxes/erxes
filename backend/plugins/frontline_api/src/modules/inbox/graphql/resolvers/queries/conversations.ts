@@ -9,7 +9,7 @@ import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 

@@ -26,9 +26,14 @@ const contractsSearchProvider = defineSearchProvider<TContractNode>({
       body: '{ id contractNumber }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TContractNode>(payload, 'gs_insurance_contracts'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TContractNode>(payload, 'gs_insurance_contracts');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (contract) => ({
     id: contract.id,
     title: contract.contractNumber || UNNAMED,
@@ -58,9 +63,17 @@ const customersSearchProvider = defineSearchProvider<TInsuranceCustomerNode>({
       body: '{ id firstName lastName companyName email phone }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TInsuranceCustomerNode>(payload, 'gs_insurance_customers'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TInsuranceCustomerNode>(
+      payload,
+      'gs_insurance_customers',
+    );
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (customer) => ({
     id: customer.id,
     title:

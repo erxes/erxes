@@ -22,7 +22,7 @@ const toursSearchProvider = defineSearchProvider<TTourNode>({
     {
       alias: 'gs_tourism_tours',
       field: 'bmsTours',
-      args: 'name: $searchValue, limit: $limit',
+      args: 'name: $searchValue, limit: $limit, orderBy: $orderBy',
       body: '{ list { _id name branchId } totalCount }',
     },
   ],

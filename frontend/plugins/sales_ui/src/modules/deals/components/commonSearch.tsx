@@ -11,6 +11,10 @@ import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+const dealDateFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+});
+
 export const CommonDealSearch = () => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
@@ -52,7 +56,7 @@ export const CommonDealSearch = () => {
   return (
     <Popover open={showDropdown}>
       <Popover.Anchor asChild>
-        <div className="relative w-64">
+        <div className="relative w-80">
           <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="h-8 pl-8"
@@ -68,7 +72,7 @@ export const CommonDealSearch = () => {
       <Popover.Content
         align="end"
         sideOffset={4}
-        className="w-96 overflow-hidden p-0"
+        className="w-[min(42rem,calc(100vw-2rem))] overflow-hidden p-0"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <div className="max-h-120 overflow-y-auto">
@@ -95,16 +99,19 @@ export const CommonDealSearch = () => {
                 key={deal._id}
                 type="button"
                 disabled={!hasPipeline}
-                className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 text-left text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
                 onMouseDown={(event) => {
                   event.preventDefault();
                   handleSelect(deal);
                 }}
               >
-                <span className="font-medium">
-                  {[deal.number, deal.name].filter(Boolean).join(' - ')}
+                <span className="min-w-0 truncate font-medium">
+                  {deal.name || t('unnamed-deal', 'Unnamed deal')}
                 </span>
-                <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
+                  {deal.number ? `#${deal.number}` : '—'}
+                </span>
+                <span className="flex min-w-0 items-center gap-2 truncate text-xs text-muted-foreground">
                   {deal.pipeline?.name || t('no-pipeline')}
                   {deal.status === 'archived' && (
                     <Badge
@@ -115,6 +122,14 @@ export const CommonDealSearch = () => {
                     </Badge>
                   )}
                 </span>
+                <time
+                  className="whitespace-nowrap text-xs text-muted-foreground"
+                  dateTime={deal.createdAt?.toString()}
+                >
+                  {deal.createdAt
+                    ? dealDateFormatter.format(new Date(deal.createdAt))
+                    : '—'}
+                </time>
               </button>
             );
           })}

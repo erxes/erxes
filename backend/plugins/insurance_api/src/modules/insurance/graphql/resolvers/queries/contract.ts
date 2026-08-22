@@ -1,7 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 
 const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 };
 
 export const contractQueries = {

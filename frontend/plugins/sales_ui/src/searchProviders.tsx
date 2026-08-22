@@ -27,8 +27,8 @@ const dealsSearchProvider = defineSearchProvider<TDealNode>({
     {
       alias: 'gs_sales_deals',
       field: 'deals',
-      args: 'search: $searchValue, limit: $limit',
-      body: '{ list { _id name number boardId pipeline { _id boardId } } totalCount }',
+      args: 'search: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id name number boardId pipeline { _id boardId } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TDealNode>(payload, 'gs_sales_deals'),
@@ -63,13 +63,18 @@ const posSearchProvider = defineSearchProvider<TPosNode>({
     {
       alias: 'gs_sales_pos',
       field: 'posList',
-      args: 'search: $searchValue, perPage: $limit',
+      args: 'search: $searchValue, perPage: $limit, sortField: $sortField, sortDirection: $sortDirection',
       body: '{ _id name }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TPosNode>(payload, 'gs_sales_pos'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TPosNode>(payload, 'gs_sales_pos');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (pos) => ({
     id: pos._id,
     title: pos.name || UNNAMED,

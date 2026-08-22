@@ -153,6 +153,7 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql`
           _id
           name
           number
+          createdAt
           status
           pipeline {
             _id

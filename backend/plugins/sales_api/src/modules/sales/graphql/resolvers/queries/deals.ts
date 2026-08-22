@@ -9,6 +9,7 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
+  getCreatedAtSearchFilter,
   getItemList,
 } from '~/modules/sales/utils';
 import {
@@ -456,12 +457,15 @@ export const generateFilter = async (
   if (search) {
     const escaped = escapeRegExp(search);
     const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+    const createdAtFilter = getCreatedAtSearchFilter(search);
 
     Object.assign(filter, {
       $or: [
         { name: { $regex: escaped, $options: 'i' } },
         { number: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
         ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
+        ...(createdAtFilter ? [createdAtFilter] : []),
       ],
     });
   }
@@ -670,6 +674,18 @@ export const generateFilter = async (
       ...(closeDateStartDate && { $gte: new Date(closeDateStartDate) }),
       ...(closeDateEndDate && { $lte: new Date(closeDateEndDate) }),
     };
+  }
+
+  const hasPipelineContext = Boolean(
+    pipelineId || pipelineIds || stageId || boardIds || stageCodes,
+  );
+
+  if (!hasPipelineContext && !filter.stageId) {
+    const validStageIds = await models.Stages.find({
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+    }).distinct('_id');
+
+    filter.stageId = { $in: validStageIds };
   }
 
   return filter;

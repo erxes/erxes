@@ -22,6 +22,29 @@ import {
 import { CLOSE_DATE_TYPES, SALES_STATUSES } from './constants';
 import { generateFilter } from './graphql/resolvers/queries/deals';
 
+export const getCreatedAtSearchFilter = (
+  search: string,
+): { createdAt: { $gte: Date; $lt: Date } } | null => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(search.trim());
+
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const start = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    start.toISOString().slice(0, 10) !== `${year}-${month}-${day}`
+  ) {
+    return null;
+  }
+
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+
+  return { createdAt: { $gte: start, $lt: end } };
+};
+
 export const configReplacer = (config) => {
   const now = new Date();
 
@@ -331,7 +354,16 @@ const generateArchivedItemsFilter = (
   filter.stageId = { $in: stages.map((stage) => stage._id) };
 
   if (search) {
-    Object.assign(filter, regexSearchText(search, 'name'));
+    const createdAtFilter = getCreatedAtSearchFilter(search);
+
+    Object.assign(filter, {
+      $or: [
+        regexSearchText(search, 'name'),
+        regexSearchText(search, 'number'),
+        regexSearchText(search, 'description'),
+        ...(createdAtFilter ? [createdAtFilter] : []),
+      ],
+    });
   }
 
   if (userIds && userIds.length) {

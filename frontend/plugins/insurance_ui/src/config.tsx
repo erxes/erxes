@@ -25,9 +25,37 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'insurance',
+      name: 'insurance-types',
       icon: IconSandbox,
-      path: 'insurance',
+      path: 'insurance/types',
+    },
+    {
+      name: 'products',
+      path: 'insurance/products',
+    },
+    {
+      name: 'risks',
+      path: 'insurance/risks',
+    },
+    {
+      name: 'vendors',
+      path: 'insurance/vendors',
+    },
+    {
+      name: 'vendor-users',
+      path: 'insurance/vendor-users',
+    },
+    {
+      name: 'customers',
+      path: 'insurance/customers',
+    },
+    {
+      name: 'regions',
+      path: 'insurance/regions',
+    },
+    {
+      name: 'contracts',
+      path: 'insurance/contracts',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

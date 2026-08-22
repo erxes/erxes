@@ -7,6 +7,11 @@ export type TSearchResultItem = {
   path: string;
 };
 
+export type TSearchPageInfo = {
+  hasNextPage: boolean;
+  endCursor: string | null;
+};
+
 export type TSearchSelection = {
   /** Globally unique alias. MUST start with `gs_<pluginName>_`. */
   alias: string;
@@ -24,6 +29,7 @@ export type TSearchGroupResult = {
   items: TSearchResultItem[];
   totalCount: number;
   countMode: 'exact' | 'approximate';
+  pageInfo: TSearchPageInfo;
 };
 
 export type TSearchProviderDefinition<TNode> = {
@@ -39,6 +45,7 @@ export type TSearchProviderDefinition<TNode> = {
   select: (payload: TSearchPayload) => {
     nodes: TNode[];
     totalCount?: number;
+    pageInfo: TSearchPageInfo;
   };
   toItem: (node: TNode) => TSearchResultItem | null;
 };
@@ -82,6 +89,7 @@ export type IUIConfig = {
   i18n?: boolean;
   i18nNamespace?: string;
   hasFloatingWidget?: boolean;
+  settingsOnly?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;

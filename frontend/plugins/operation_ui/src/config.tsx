@@ -60,18 +60,32 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'operation',
-      icon: IconListCheck,
-      path: 'operation',
+      name: 'projects',
+      icon: IconClipboard,
+      path: 'operation/projects',
       hasAutomation: true,
+      hasRelationWidget: true,
+    },
+    {
+      name: 'tasks',
+      icon: IconChecklist,
+      path: 'operation/tasks',
+      hasRelationWidget: true,
     },
     {
       name: 'team',
+      icon: IconListCheck,
       path: 'operation/team',
     },
     {
-      name: 'projects',
-      path: 'operation/projects',
+      name: 'teams',
+      icon: IconListCheck,
+      path: 'settings/operation/teams',
+    },
+    {
+      name: 'github-integration',
+      icon: IconListCheck,
+      path: 'settings/operation/github',
     },
   ],
   widgets: {
