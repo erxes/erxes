@@ -7,6 +7,8 @@ import contentCmsPageQueries from '@/cms/graphql/queries/page';
 import customPostTypeQueries from '@/cms/graphql/queries/customPostType';
 import { webQueries } from '~/modules/webbuilder/graphql/resolvers/queries/web';
 import { webPageQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webPage';
+import { postCommentQueries } from '@/cms/graphql/queries/comments';
+import { postRatingQueries } from '@/cms/graphql/queries/ratings';
 
 export const queries = {
   ...webQueries,
@@ -19,4 +21,6 @@ export const queries = {
   ...contentCmsQueries,
   ...webPageQueries,
   ...contentCmsQueries,
+  ...postCommentQueries,
+  ...postRatingQueries,
 };
