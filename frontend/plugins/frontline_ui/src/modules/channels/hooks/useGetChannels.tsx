@@ -9,12 +9,15 @@ interface IGetChannelsQueryResponse {
 export const useGetChannels = (
   options?: QueryHookOptions<IGetChannelsQueryResponse>,
 ) => {
-  const { data, loading } = useQuery<IGetChannelsQueryResponse>(GET_CHANNELS, {
-    fetchPolicy: 'cache-and-network',
-    ...options,
-  });
+  const { data, loading, error } = useQuery<IGetChannelsQueryResponse>(
+    GET_CHANNELS,
+    {
+      fetchPolicy: 'cache-and-network',
+      ...options,
+    },
+  );
 
   const channels = data?.getChannels;
 
-  return { channels, loading };
+  return { channels, loading, error };
 };

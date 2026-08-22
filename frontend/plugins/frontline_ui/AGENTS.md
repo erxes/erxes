@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-20`
+- **Last synchronized:** `2026-08-21`
 
 ## Scope
 
@@ -122,6 +122,10 @@
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
   renders up to 5 tag pills with a "+N" overflow badge below the card body.
+- The ticket index favorite breadcrumb waits only while selected channel or
+  pipeline metadata is loading. A terminally missing selection falls back to
+  the tickets-only breadcrumb, while query failures render an explicit error
+  state.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,
@@ -596,6 +600,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   selected tag as a badge with no cap, which is the long-list look the ticket
   UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
   Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
+- The ticket index favorite control uses selected channel and pipeline query
+  loading states for its skeleton. Missing records after those queries settle
+  are not loading states; they must leave a valid tickets-only breadcrumb.
 
 ## Validation
 
@@ -629,6 +636,15 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
+
+- **Summary:** The ticket index favorite control now stops loading when a
+  selected channel or pipeline is not found, falls back to the tickets-only
+  breadcrumb, and renders query failures explicitly.
+- **Affected areas:** `src/pages/TicketIndexPage.tsx`,
+  `src/modules/channels/hooks/useGetChannels.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-20` — Date filter takes a time of day
 
@@ -765,15 +781,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/facebook/hooks/useFbIntegrationsRepair.tsx`.
 - **Contracts changed:** None; the `FacebookRepair` mutation and its variables
   are unchanged.
-
-### `2026-08-19` — Health status tooltip on the integrations table
-
-- **Summary:** The integrations table's health status badge now shows the
-  provider error message returned with `healthStatus` in a tooltip on hover, so
-  an unhealthy integration (for example a `page-token` Facebook page) explains
-  why it failed without opening anything else.
-- **Affected areas:**
-  `src/modules/integrations/components/IntegrationsRecordTable.tsx`,
-  `src/modules/integrations/types/Integration.ts`.
-- **Contracts changed:** None; reads the already-returned optional `error`
-  field inside the `healthStatus` JSON of the `Integrations` query.
