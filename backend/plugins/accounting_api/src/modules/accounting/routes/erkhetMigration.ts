@@ -1,12 +1,7 @@
 import { Request, Response } from 'express';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { nanoid } from 'nanoid';
 import { IModels, generateModels } from '~/connectionResolvers';
-import {
-  ITransaction,
-  ITransactionDocument,
-  ITrDetail,
-} from '../@types/transaction';
+import { ITransaction, ITrDetail } from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -18,7 +13,6 @@ type ErkhetTransactionBatch = {
 type ErkhetTransactionsRequest = {
   userId?: string;
   dryRun?: boolean;
-  rawSave?: boolean;
   skipAccountPermission?: boolean;
   batches?: ErkhetTransactionBatch[];
 };
@@ -82,23 +76,6 @@ type TMigrationErrorRow = {
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
 
-const getMigrationToken = (req: Request) =>
-  req.headers['x-erkhet-migration-token'] || req.headers['x-migration-token'];
-
-const assertMigrationToken = (req: Request) => {
-  const expectedToken = process.env.ERKHET_MIGRATION_TOKEN;
-
-  if (!expectedToken) {
-    throw new Error('Erkhet migration endpoint is disabled');
-  }
-
-  if (getMigrationToken(req) !== expectedToken) {
-    const error = new Error('Unauthorized');
-    (error as Error & { statusCode?: number }).statusCode = 401;
-    throw error;
-  }
-};
-
 const validateBatch = (batch: ErkhetTransactionBatch) => {
   if (!batch?.externalPtrId) {
     throw new Error('externalPtrId is required');
@@ -135,6 +112,8 @@ const getCodeMap = (docs: ITransaction[]) => {
   const fixedAssetIds: string[] = [];
   const fxaInstanceRefs: string[] = [];
 
+  // Payload дотор ирсэн бүх source code-г эхэлж цуглуулна. Дараагийн шатанд
+  // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
   for (const doc of docs) {
     if (doc.branchId) {
       branchCodes.push(doc.branchId);
@@ -150,6 +129,7 @@ const getCodeMap = (docs: ITransaction[]) => {
     const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
     const accumulatedDepreciationAccountId =
       doc.followInfos?.accumulatedDepreciationAccountId;
+    const fixedAssetAccountId = doc.followInfos?.fixedAssetAccountId;
     const lossAccountId = doc.followInfos?.lossAccountId;
 
     if (moveInBranchId) {
@@ -160,6 +140,9 @@ const getCodeMap = (docs: ITransaction[]) => {
     }
     if (accumulatedDepreciationAccountId) {
       accountCodes.push(accumulatedDepreciationAccountId);
+    }
+    if (fixedAssetAccountId) {
+      accountCodes.push(fixedAssetAccountId);
     }
     if (lossAccountId) {
       accountCodes.push(lossAccountId);
@@ -225,6 +208,25 @@ const indexByCode = <T extends { _id: string; code?: string }>(
     return byCode;
   }, {});
 
+const OMIT_DETAIL_FOLLOW_INFO_KEYS = [
+  'erkhetProduct',
+  'inventoryCode',
+  'invLocationCode',
+  'fxaLocationCode',
+];
+
+// Хуучин migration payload-оос ирсэн audit-only key-үүдийг хадгалахгүй.
+// Erxes тал resolve хийсний дараа хэрэгтэй source code-уудыг өөрөө followInfos-д нэмнэ.
+const cleanDetailFollowInfos = (
+  followInfos: ITrDetail['followInfos'] = {},
+) =>
+  Object.fromEntries(
+    Object.entries(followInfos).filter(
+      ([key, value]) =>
+        value !== undefined && !OMIT_DETAIL_FOLLOW_INFO_KEYS.includes(key),
+    ),
+  );
+
 const fetchReferenceMaps = async (
   subdomain: string,
   models: IModels,
@@ -241,6 +243,8 @@ const fetchReferenceMaps = async (
     fxaInstanceRefs,
   } = getCodeMap(docs);
 
+  // Transaction route лавлах үүсгэхгүй. Reference migration өмнө нь
+  // bootstrap хийсэн байх ёстой бөгөөд энд зөвхөн code -> _id lookup хийнэ.
   const accounts = accountCodes.length
     ? await models.Accounts.find(
         { code: { $in: accountCodes } },
@@ -305,6 +309,7 @@ const fetchReferenceMaps = async (
         defaultValue: [],
       })
     : [];
+  const productsByCode = indexByCode(products);
 
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find(
@@ -379,7 +384,7 @@ const fetchReferenceMaps = async (
     branchesByCode: indexByCode(branches),
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
-    productsByCode: indexByCode(products),
+    productsByCode,
     fixedAssetsByCode,
     fxaInstanceIdsByCode,
     fxaInstanceIdsByAssetAndCode,
@@ -426,6 +431,8 @@ const findOrCreateContact = async ({
     return {};
   }
 
+  // Erkhet-д бүх харилцагч нэг model-д байсан. Erxes дээр company/customer
+  // тусдаа тул source category mapping-ээр ирсэн type-г баримталж олж эсвэл үүсгэнэ.
   const type = contact.type === 'company' ? 'company' : 'customer';
   const module = type === 'company' ? 'companies' : 'customers';
   const findAction =
@@ -494,6 +501,8 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const departmentCode = detail.departmentId;
   const fixedAssetCode = detail.fixedAssetId;
 
+  // Detail дээр байгаа account/product/fixedAsset/branch/department нь
+  // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
   if (accountCode && !maps.accountsByCode[accountCode]) {
     throw new Error(`Account not found: ${accountCode}`);
   }
@@ -526,7 +535,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       ? maps.departmentsByCode[departmentCode] || detail.departmentId
       : detail.departmentId,
     followInfos: {
-      ...detail.followInfos,
+      ...cleanDetailFollowInfos(detail.followInfos),
       accountCode,
       branchCode,
       productCode,
@@ -545,6 +554,8 @@ const resolveFxaInstances = (
     const branchCode = instance.branchId;
     const departmentCode = instance.departmentId;
 
+    // fxaIncome үед Erkhet income_info нь erxes instance болж үүснэ.
+    // fixedAssetId/branchId/departmentId нь мөн source code тул энд resolve хийнэ.
     if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
       throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
     }
@@ -578,6 +589,8 @@ const resolveFxaInstanceIds = (
   maps: TReferenceMaps,
 ) => {
   const usedByCode: Record<string, number> = {};
+  // Нэг ижил income_info code олон ширхэгээр задарсан байж болох тул detail.count
+  // дарааллаар instance reference-үүдийг тааруулж, давхардсан code бүрийг нэг нэгээр хэрэглэнэ.
   const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
     const fixedAssetCode = detail.fixedAssetId;
     const fixedAssetId = fixedAssetCode
@@ -616,8 +629,11 @@ const resolveTransactionFollowInfos = (
   const moveInDepartmentCode = doc.followInfos?.moveInDepartmentId;
   const accumulatedDepreciationAccountCode =
     doc.followInfos?.accumulatedDepreciationAccountId;
+  const fixedAssetAccountCode = doc.followInfos?.fixedAssetAccountId;
   const lossAccountCode = doc.followInfos?.lossAccountId;
 
+  // fxaOut/fxaMove-ийн дагалдах данс, шилжих салбар/хэлтэс нь transaction root
+  // биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж journal handler-т өгнө.
   if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
     throw new Error(`Branch not found: ${moveInBranchCode}`);
   }
@@ -633,6 +649,12 @@ const resolveTransactionFollowInfos = (
   if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
     throw new Error(`Account not found: ${lossAccountCode}`);
   }
+  if (
+    fixedAssetAccountCode &&
+    !maps.accountsByCode[fixedAssetAccountCode]
+  ) {
+    throw new Error(`Account not found: ${fixedAssetAccountCode}`);
+  }
 
   return {
     ...doc.followInfos,
@@ -645,12 +667,16 @@ const resolveTransactionFollowInfos = (
     accumulatedDepreciationAccountId: accumulatedDepreciationAccountCode
       ? maps.accountsByCode[accumulatedDepreciationAccountCode]
       : doc.followInfos?.accumulatedDepreciationAccountId,
+    fixedAssetAccountId: fixedAssetAccountCode
+      ? maps.accountsByCode[fixedAssetAccountCode]
+      : doc.followInfos?.fixedAssetAccountId,
     lossAccountId: lossAccountCode
       ? maps.accountsByCode[lossAccountCode]
       : doc.followInfos?.lossAccountId,
     moveInBranchCode,
     moveInDepartmentCode,
     accumulatedDepreciationAccountCode,
+    fixedAssetAccountCode,
     lossAccountCode,
   };
 };
@@ -664,6 +690,8 @@ const normalizeBatchDocs = async (
   const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs);
   const contactByCode: Record<string, TContactResolution> = {};
 
+  // Нэг batch дотор ижил customer олон transaction дээр давтагддаг тул
+  // contact sync-г code-р cache хийж давхар create хийхээс сэргийлнэ.
   for (const doc of batch.trDocs) {
     const contact = doc.extraData?.erkhetCustomer as TErkhetContact | undefined;
     if (contact?.code && !contactByCode[contact.code]) {
@@ -728,64 +756,12 @@ const normalizeBatchDocs = async (
   });
 };
 
-const cleanRawTransactionDoc = (doc: ITransaction) => {
-  const cleanDoc = { ...doc };
-
-  delete cleanDoc._id;
-  delete cleanDoc.ptrId;
-  delete cleanDoc.parentId;
-  delete cleanDoc.ptrNumber;
-
-  return cleanDoc;
-};
-
-const saveRawBatch = async ({
-  models,
-  trDocs,
-  oldTr,
-  userId,
-}: {
-  models: IModels;
-  trDocs: ITransaction[];
-  oldTr?: ITransactionDocument | null;
-  userId: string;
-}) => {
-  const ptrId = oldTr?.ptrId || nanoid();
-  const parentId = oldTr?.parentId || nanoid();
-  const ptrNumber = oldTr?.ptrNumber || trDocs[0]?.number || '';
-
-  if (oldTr?.parentId) {
-    await models.Transactions.deleteMany({ parentId: oldTr.parentId });
-  }
-
-  const transactions: ITransactionDocument[] = [];
-
-  for (const doc of trDocs) {
-    const cleanDoc = cleanRawTransactionDoc(doc);
-    const transaction = await models.Transactions.createTransaction(
-      {
-        ...cleanDoc,
-        ptrId,
-        parentId,
-        ptrNumber,
-        number: cleanDoc.number || ptrNumber,
-      },
-      userId,
-    );
-
-    transactions.push(transaction);
-  }
-
-  return transactions;
-};
-
 const saveBatch = async ({
   models,
   batch,
   userId,
   skipAccountPermission,
   dryRun,
-  rawSave,
   subdomain,
 }: {
   subdomain: string;
@@ -794,14 +770,17 @@ const saveBatch = async ({
   userId: string;
   skipAccountPermission: boolean;
   dryRun: boolean;
-  rawSave: boolean;
 }) => {
   validateBatch(batch);
 
   const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
+  const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
+  const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
+  // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.
+  // sync_id/sync_type байвал deal/source content-оор, байхгүй бол externalPtrId-р update хийнэ.
   const oldTr = await models.Transactions.findOne({
-    contentType: ERKHET_CONTENT_TYPE,
-    contentId: batch.externalPtrId,
+    contentType: lookupContentType,
+    contentId: lookupContentId,
     $or: [{ originId: { $exists: false } }, { originId: '' }],
   }).lean();
 
@@ -810,22 +789,6 @@ const saveBatch = async ({
       action: oldTr ? 'update' : 'create',
       parentId: oldTr?.parentId,
       count: trDocs.length,
-    };
-  }
-
-  if (rawSave) {
-    const transactions = await saveRawBatch({
-      models,
-      trDocs,
-      oldTr,
-      userId,
-    });
-
-    return {
-      action: oldTr ? 'updated' : 'created',
-      parentId: transactions[0]?.parentId || oldTr?.parentId,
-      ptrId: transactions[0]?.ptrId || oldTr?.ptrId,
-      count: transactions.length,
     };
   }
 
@@ -850,8 +813,6 @@ const saveBatch = async ({
 
 export const importErkhetTransactions = async (req: Request, res: Response) => {
   try {
-    assertMigrationToken(req);
-
     const body = req.body as ErkhetTransactionsRequest;
     const userId = body.userId || String(req.headers.userid || '');
 
@@ -876,7 +837,6 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
           userId,
           skipAccountPermission: body.skipAccountPermission !== false,
           dryRun: Boolean(body.dryRun),
-          rawSave: body.rawSave !== false,
           subdomain,
         });
 

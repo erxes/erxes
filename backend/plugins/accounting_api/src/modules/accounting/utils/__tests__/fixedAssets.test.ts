@@ -277,6 +277,83 @@ describe('fixed asset income instances', () => {
     );
   });
 
+  it('stores income residual value and seeds opening accumulated depreciation', async () => {
+    const models = makeModels();
+    const transaction = makeTransaction({
+      followInfos: {
+        fxaIncomeInstances: [
+          {
+            tempId: 'detail-a-0',
+            transactionDetailId: 'detail-a',
+            fixedAssetId: 'asset-a',
+            code: 'A_001',
+            sequence: 1,
+            salvageValue: 50,
+            openingAccumulatedDepreciation: 120,
+          },
+        ],
+      },
+      extraData: {
+        fxaInstances: [
+          {
+            tempId: 'detail-a-0',
+            transactionDetailId: 'detail-a',
+            fixedAssetId: 'asset-a',
+            code: 'A_001',
+            sequence: 1,
+            originalCost: 500,
+          },
+        ],
+      },
+    });
+
+    await syncFxaIncomeInstances(
+      models as unknown as Parameters<typeof syncFxaIncomeInstances>[0],
+      'user-1',
+      asParam<Parameters<typeof syncFxaIncomeInstances>[2]>(transaction),
+    );
+
+    expect(models.FxaInstances.upsertIncomeInstance).toHaveBeenCalledWith(
+      expect.objectContaining({
+        doc: expect.objectContaining({
+          salvageValue: 50,
+        }),
+      }),
+    );
+    expect(
+      models.AdjustFxaDetails.replaceAdjustFxaDetails,
+    ).toHaveBeenCalledWith({
+      adjustId: 'fxa-opening:tr-1',
+      details: [
+        expect.objectContaining({
+          fxaInstanceId: 'instance-1',
+          fixedAssetId: 'asset-a',
+          accountId: 'asset-account',
+          originalCost: 500,
+          salvageValue: 50,
+          openingBookValue: 380,
+          openingAccumulatedDepreciation: 120,
+          depreciationAmount: 0,
+          closingAccumulatedDepreciation: 120,
+          closingBookValue: 380,
+          transactionId: 'tr-1',
+          transactionDetailId: 'detail-a',
+        }),
+      ],
+    });
+    expect(models.AdjustFixedAssets.updateOne).toHaveBeenCalledWith(
+      { _id: 'fxa-opening:tr-1' },
+      expect.objectContaining({
+        $set: expect.objectContaining({
+          status: ADJ_FXA_STATUSES.PUBLISH,
+          description:
+            'Opening accumulated depreciation for fixed asset income tr-1',
+        }),
+      }),
+      { upsert: true },
+    );
+  });
+
   it('removes income instances by acquisition log detail, not instance transaction fields', async () => {
     const models = makeModels();
     models.FxaInstanceLogs.findByTransaction.mockResolvedValue([
@@ -663,7 +740,8 @@ describe('fixed asset depreciation and sale flow', () => {
     {
       name: 'unsupported depreciation method',
       options: { instance: { depreciationMethod: 'manual' } },
-      message: 'Only straight-line depreciation is supported',
+      message:
+        'Manual fixed asset depreciation requires entered depreciation detail',
     },
   ])(
     'stops daily depreciation validation on $name',
@@ -691,6 +769,50 @@ describe('fixed asset depreciation and sale flow', () => {
       );
     },
   );
+
+  it.each([
+    'straightLine',
+    'sumOfYearsDigits',
+    'doubleDecliningBalance',
+    'decliningBalance',
+  ])('calculates fixed asset depreciation with %s method', async (method) => {
+    const models = makeModels();
+    setupAdjustRun(models, {
+      instance: {
+        depreciationMethod: method,
+        originalCost: 1200,
+        usefulLife: 12,
+        salvageValue: 120,
+      },
+      fixedAsset: {
+        depreciationMethod: method,
+        usefulLife: 12,
+        salvageValue: 120,
+      },
+    });
+
+    await runAdjust(models, new Date(2026, 0, 10));
+
+    expect(
+      models.AdjustFxaDetails.replaceAdjustFxaDetails,
+    ).toHaveBeenCalledWith({
+      adjustId: 'adjust-1',
+      details: [
+        expect.objectContaining({
+          fxaInstanceId: 'instance-a',
+          depreciationAmount: expect.any(Number),
+          error: '',
+        }),
+      ],
+    });
+
+    const detail =
+      models.AdjustFxaDetails.replaceAdjustFxaDetails.mock.calls.at(-1)?.[0]
+        .details[0];
+
+    expect(detail?.depreciationAmount).toBeGreaterThan(0);
+    expect(detail?.closingBookValue).toBeGreaterThanOrEqual(120);
+  });
 
   it.each([
     {

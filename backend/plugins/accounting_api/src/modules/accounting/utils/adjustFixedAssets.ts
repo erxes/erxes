@@ -12,6 +12,7 @@ import {
 } from '../@types/constants';
 import { ITransaction } from '../@types/transaction';
 import {
+  FIXED_ASSET_DEPRECIATION_METHODS,
   FXA_INSTANCE_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '~/modules/fixedAssets/@types/constants';
@@ -32,6 +33,7 @@ type TDepreciationInput = {
   usefulLife?: number;
   startDate: Date;
   endDate: Date;
+  scheduleStartDate?: Date;
   openingAccumulatedDepreciation?: number;
 };
 
@@ -62,58 +64,105 @@ const addDays = (date: Date, days: number) => {
 const isSamePureDate = (left: Date, right: Date) =>
   getPureDate(left).getTime() === getPureDate(right).getTime();
 
-const calculateStraightLineDepreciation = ({
-  originalCost,
-  salvageValue = 0,
-  usefulLife,
-  startDate,
-  endDate,
-  openingAccumulatedDepreciation = 0,
-}: TDepreciationInput) => {
+const getDaysBetween = (startDate: Date, endDate: Date) =>
+  Math.max(
+    0,
+    Math.round(
+      (getPureDate(endDate).getTime() - getPureDate(startDate).getTime()) /
+        DAY_MS,
+    ),
+  );
+
+const getDepreciationBaseError = (
+  usefulLife?: number,
+  originalCost?: number,
+) => {
   if (!usefulLife || usefulLife <= 0) {
+    return 'Useful life is required to calculate depreciation';
+  }
+
+  if (!originalCost || originalCost <= 0) {
+    return 'Original cost is required to calculate depreciation';
+  }
+
+  return '';
+};
+
+const calculateDailyDepreciation = ({
+  calculateDailyAmount,
+  input,
+}: {
+  calculateDailyAmount: (args: {
+    accumulated: number;
+    currentDate: Date;
+    lifetimeDays: number;
+    scheduleStartDate: Date;
+  }) => number;
+  input: TDepreciationInput;
+}) => {
+  const {
+    originalCost,
+    salvageValue = 0,
+    usefulLife,
+    startDate,
+    endDate,
+    scheduleStartDate = startDate,
+    openingAccumulatedDepreciation = 0,
+  } = input;
+  const baseError = getDepreciationBaseError(usefulLife, originalCost);
+
+  if (baseError) {
     return {
       amount: 0,
       closingAccumulatedDepreciation: openingAccumulatedDepreciation,
       closingBookValue: originalCost - openingAccumulatedDepreciation,
-      error: 'Useful life is required to calculate depreciation',
+      error: baseError,
+      warning: '',
     };
   }
 
-  const depreciableAmount = Math.max(originalCost - salvageValue, 0);
-  const lifetimeDays = Math.max(Math.round(usefulLife * 30), 1);
-  const dailyAmount = depreciableAmount / lifetimeDays;
+  const lifetimeDays = Math.max(Math.round((usefulLife || 0) * 30), 1);
   let currentDate = getPureDate(startDate);
   const lastDate = getPureDate(endDate);
   let amount = 0;
   let accumulated = openingAccumulatedDepreciation;
-  let error = '';
   let warning = '';
 
   while (currentDate <= lastDate) {
-    const closingBookValue = originalCost - accumulated - dailyAmount;
+    const remainingAmount = Math.max(
+      originalCost - accumulated - salvageValue,
+      0,
+    );
 
-    if (closingBookValue < 0) {
-      error = `Depreciation makes book value negative on ${currentDate
-        .toISOString()
-        .slice(0, 10)}`;
+    if (remainingAmount <= 0) {
+      warning = warning || 'Depreciation already reached salvage value.';
       break;
     }
 
-    if (closingBookValue < salvageValue) {
-      const remainingAmount = Math.max(
-        originalCost - accumulated - salvageValue,
-        0,
-      );
-      amount += remainingAmount;
-      accumulated += remainingAmount;
+    const dailyAmount = Math.max(
+      calculateDailyAmount({
+        accumulated,
+        currentDate,
+        lifetimeDays,
+        scheduleStartDate,
+      }),
+      0,
+    );
+    const appliedAmount = Math.min(dailyAmount, remainingAmount);
+
+    amount += appliedAmount;
+    accumulated += appliedAmount;
+
+    if (
+      appliedAmount < dailyAmount ||
+      originalCost - accumulated <= salvageValue
+    ) {
       warning = `Depreciation reached salvage value on ${currentDate
         .toISOString()
         .slice(0, 10)}`;
       break;
     }
 
-    amount += dailyAmount;
-    accumulated += dailyAmount;
     currentDate = addDays(currentDate, 1);
   }
 
@@ -121,9 +170,87 @@ const calculateStraightLineDepreciation = ({
     amount,
     closingAccumulatedDepreciation: accumulated,
     closingBookValue: originalCost - accumulated,
-    error,
+    error: '',
     warning,
   };
+};
+
+const calculateStraightLineDepreciation = (input: TDepreciationInput) => {
+  return calculateDailyDepreciation({
+    input,
+    calculateDailyAmount: ({ lifetimeDays }) => {
+      const depreciableAmount = Math.max(
+        input.originalCost - (input.salvageValue || 0),
+        0,
+      );
+
+      return depreciableAmount / lifetimeDays;
+    },
+  });
+};
+
+const calculateSumOfYearsDigitsDepreciation = (input: TDepreciationInput) => {
+  const depreciableAmount = Math.max(
+    input.originalCost - (input.salvageValue || 0),
+    0,
+  );
+
+  return calculateDailyDepreciation({
+    input,
+    calculateDailyAmount: ({
+      currentDate,
+      lifetimeDays,
+      scheduleStartDate,
+    }) => {
+      const ageDay = getDaysBetween(scheduleStartDate, currentDate) + 1;
+      const remainingWeight = Math.max(lifetimeDays - ageDay + 1, 0);
+      const sumOfDigits = (lifetimeDays * (lifetimeDays + 1)) / 2;
+
+      return sumOfDigits
+        ? (depreciableAmount * remainingWeight) / sumOfDigits
+        : 0;
+    },
+  });
+};
+
+const calculateDecliningBalanceDepreciation = (
+  input: TDepreciationInput,
+  multiplier: number,
+) => {
+  const usefulLifeYears = Math.max((input.usefulLife || 0) / 12, 1 / 365);
+  const dailyRate = multiplier / usefulLifeYears / 365;
+
+  return calculateDailyDepreciation({
+    input,
+    calculateDailyAmount: ({ accumulated }) =>
+      (input.originalCost - accumulated) * dailyRate,
+  });
+};
+
+const calculateDepreciationByMethod = (
+  method: string,
+  input: TDepreciationInput,
+) => {
+  switch (method) {
+    case FIXED_ASSET_DEPRECIATION_METHODS.STRAIGHT_LINE:
+      return calculateStraightLineDepreciation(input);
+    case FIXED_ASSET_DEPRECIATION_METHODS.SUM_OF_YEARS_DIGITS:
+      return calculateSumOfYearsDigitsDepreciation(input);
+    case FIXED_ASSET_DEPRECIATION_METHODS.DOUBLE_DECLINING_BALANCE:
+      return calculateDecliningBalanceDepreciation(input, 2);
+    case FIXED_ASSET_DEPRECIATION_METHODS.DECLINING_BALANCE:
+      return calculateDecliningBalanceDepreciation(input, 1);
+    default:
+      return {
+        amount: 0,
+        closingAccumulatedDepreciation:
+          input.openingAccumulatedDepreciation || 0,
+        closingBookValue:
+          input.originalCost - (input.openingAccumulatedDepreciation || 0),
+        error: `Unsupported fixed asset depreciation method: ${method}`,
+        warning: '',
+      };
+  }
 };
 
 const getPreviousAdjustment = async (
@@ -375,8 +502,12 @@ const validateInstanceForDepreciation = ({
     return `Fixed asset account is missing. Instance: ${instance._id}`;
   }
 
-  if (depreciationMethod !== 'straightLine') {
-    return `Only straight-line depreciation is supported for adjustment. Instance: ${instance._id}`;
+  if (depreciationMethod === FIXED_ASSET_DEPRECIATION_METHODS.MANUAL) {
+    return `Manual fixed asset depreciation requires entered depreciation detail. Instance: ${instance._id}`;
+  }
+
+  if (!FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(depreciationMethod)) {
+    return `Unsupported fixed asset depreciation method. Instance: ${instance._id}`;
   }
 
   return '';
@@ -680,13 +811,12 @@ export const runAdjustFixedAsset = async (
     const terminalDate = getFirstTerminalLogDate(logs, instance._id);
     const depreciationEndDate =
       terminalDate && terminalDate < endDate ? terminalDate : endDate;
+    const scheduleStartDate = getPureDate(
+      instance.depreciationStartDate || instance.acquisitionDate || beginDate,
+    );
     const startDate = previousDetail?.closingBookValue
       ? beginDate
-      : getPureDate(
-          instance.depreciationStartDate ||
-            instance.acquisitionDate ||
-            beginDate,
-        );
+      : scheduleStartDate;
 
     if (startDate > depreciationEndDate) {
       continue;
@@ -702,12 +832,13 @@ export const runAdjustFixedAsset = async (
       fixedAsset?.depreciationMethod ||
       'straightLine';
     const accountId = accountByInstanceId.get(instance._id);
-    const result = calculateStraightLineDepreciation({
+    const result = calculateDepreciationByMethod(depreciationMethod, {
       originalCost,
       salvageValue,
       usefulLife: instance.usefulLife || fixedAsset?.usefulLife,
       startDate,
       endDate: depreciationEndDate,
+      scheduleStartDate,
       openingAccumulatedDepreciation,
     });
     const snapshot = getInstanceSnapshotAtDate(
@@ -733,11 +864,7 @@ export const runAdjustFixedAsset = async (
       closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
       closingBookValue: result.closingBookValue,
       error:
-        result.error ||
-        (!accountId ? 'Fixed asset account is missing.' : '') ||
-        (depreciationMethod !== 'straightLine'
-          ? 'Only straight-line depreciation is supported for adjustment.'
-          : ''),
+        result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
       warning: result.warning,
     });
   }

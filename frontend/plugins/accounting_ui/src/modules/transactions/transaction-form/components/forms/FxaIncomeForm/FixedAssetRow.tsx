@@ -8,16 +8,20 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
-import { taxPercentsState } from '../../../states/trStates';
+import {
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TFxaDetail,
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
+import { FxaDetailLocationCells } from '../FxaDetailLocationCells';
 import { FxaIncomeDetailInstancesSheet } from './FxaIncomeInstancesSheet';
 
 export const FixedAssetRow = ({
@@ -38,6 +42,7 @@ export const FixedAssetRow = ({
     name: `trDocs.${journalIndex}`,
   }) as TFxaIncomeJournal;
   const [taxPercents] = useAtom(taxPercentsState);
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const rowPercent = useMemo(() => {
     let percent = taxPercents.sum ?? 0;
 
@@ -396,6 +401,14 @@ export const FixedAssetRow = ({
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>
+      )}
+      {showAdvancedView && (
+        <FxaDetailLocationCells
+          detailId={detail._id}
+          detailIndex={detailIndex}
+          form={form}
+          journalIndex={journalIndex}
+        />
       )}
     </Table.Row>
   );

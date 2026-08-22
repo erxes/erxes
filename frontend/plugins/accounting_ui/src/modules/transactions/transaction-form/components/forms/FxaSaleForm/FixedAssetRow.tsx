@@ -7,8 +7,11 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
+import { showAdvancedViewState } from '../../../states/trStates';
+import { FxaDetailLocationCells } from '../FxaDetailLocationCells';
 import { FxaInstanceSelectionSheet } from '../../helpers/FxaInstanceSelectionSheet';
 
 export const FixedAssetRow = ({
@@ -24,6 +27,7 @@ export const FixedAssetRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   }) as TFxaDetail;
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
   const setAmount = (count?: number, unitPrice?: number) => {
     form.setValue(
@@ -149,6 +153,14 @@ export const FixedAssetRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
+      {showAdvancedView && (
+        <FxaDetailLocationCells
+          detailId={detail._id}
+          detailIndex={detailIndex}
+          form={form}
+          journalIndex={journalIndex}
+        />
+      )}
     </Table.Row>
   );
 };

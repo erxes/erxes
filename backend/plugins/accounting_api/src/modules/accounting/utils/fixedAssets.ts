@@ -19,6 +19,18 @@ export type TFxaInstanceInput = {
   responsibleUserId?: string;
   originalCost?: number;
   depreciationStartDate?: Date;
+};
+
+export type TFxaIncomeInstanceFollowInfo = Pick<
+  TFxaInstanceInput,
+  | '_id'
+  | 'tempId'
+  | 'transactionDetailId'
+  | 'fixedAssetId'
+  | 'code'
+  | 'sequence'
+> & {
+  salvageValue?: number;
   openingAccumulatedDepreciation?: number;
 };
 
@@ -45,6 +57,10 @@ export type TFxaTransactionExtraData = {
 export type TFxaMoveFollowInfos = {
   moveInBranchId?: string;
   moveInDepartmentId?: string;
+};
+
+export type TFxaIncomeFollowInfos = {
+  fxaIncomeInstances?: TFxaIncomeInstanceFollowInfo[];
 };
 
 export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos & {
@@ -81,6 +97,10 @@ export const getFxaDisposalFollowInfos = (
 
 export const getFxaInstanceInputs = (transaction: ITransactionDocument) =>
   getFxaExtraData(transaction).fxaInstances || [];
+
+export const getFxaIncomeFollowInfos = (
+  transaction: ITransaction | ITransactionDocument,
+): TFxaIncomeFollowInfos => transaction.followInfos || {};
 
 export const getUniqueFxaInstanceIds = (ids: string[]) =>
   Array.from(new Set(ids));

@@ -362,6 +362,22 @@ export const fxaRequiredAssetAccountFollowInfosSchema =
     }),
   });
 
+export const fxaIncomeInstanceFollowInfoSchema = z.object({
+  _id: undefed(z.string()),
+  tempId: undefed(z.string()),
+  transactionDetailId: undefed(z.string()),
+  fixedAssetId: undefed(z.string()),
+  code: undefed(z.string()),
+  sequence: undefed(z.number()),
+  salvageValue: undefed(z.number()),
+  openingAccumulatedDepreciation: undefed(z.number()),
+});
+
+export const fxaIncomeFollowInfosSchema =
+  fxaRequiredAssetAccountFollowInfosSchema.extend({
+    fxaIncomeInstances: undefed(z.array(fxaIncomeInstanceFollowInfoSchema)),
+  });
+
 export const fxaDisposalFollowInfosSchema =
   fxaRequiredAssetAccountFollowInfosSchema.extend({
     accumulatedDepreciationAccountId: z.string().refine((val) => val?.length, {
@@ -423,7 +439,7 @@ export const transactionFxaIncomeSchema = z
     departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
-    followInfos: fxaRequiredAssetAccountFollowInfosSchema,
+    followInfos: fxaIncomeFollowInfosSchema,
     followExtras: undefed(fxaFollowExtrasSchema),
     extraData: undefed(fxaExtraDataSchema),
     details: z.array(

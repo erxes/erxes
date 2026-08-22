@@ -3,14 +3,18 @@ import { IconPlus, IconX } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
+  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
+  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
+import { showAdvancedViewState } from '../../../states/trStates';
 import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
 import { FixedAssetRow } from './FixedAssetRow';
 
@@ -35,6 +39,9 @@ export const FixedAssetForm = ({
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
     6;
   const hasCheckedDetails = details.some((detail) => detail.checked);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const removeChecked = () => {
     form.setValue(
@@ -106,6 +113,13 @@ export const FixedAssetForm = ({
             Сонгосныг хасах
           </Button>
         )}
+        <div className="flex items-center">
+          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Switch
+            checked={showAdvancedView}
+            onCheckedChange={(checked) => setShowAdvancedView(checked)}
+          />
+        </div>
       </div>
     </>
   );
@@ -122,6 +136,7 @@ const FixedAssetTableHeader = ({
 }) => {
   const isAllChecked =
     details.length > 0 && details.every((detail) => detail.checked);
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
   return (
     <Table.Header>
@@ -146,6 +161,12 @@ const FixedAssetTableHeader = ({
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
+        {showAdvancedView && (
+          <>
+            <Table.Head>Салбар</Table.Head>
+            <Table.Head>Хэлтэс</Table.Head>
+          </>
+        )}
       </Table.Row>
     </Table.Header>
   );

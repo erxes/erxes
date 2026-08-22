@@ -14,8 +14,19 @@ import {
   IAdjustInventoryDocument,
   ICommonAdjInvDetailInfo,
 } from '../@types/adjustInventory';
-import { JOURNALS, TR_FOLLOW_TYPES, TR_STATUSES } from '../@types/constants';
+import {
+  JOURNALS,
+  TR_FOLLOW_TYPES,
+  TR_SIDES,
+  TR_STATUSES,
+} from '../@types/constants';
 import { ITransactionDocument, ITrDetail } from '../@types/transaction';
+
+const RELATED_OUT_DEBIT_JOURNALS = [
+  JOURNALS.MAIN,
+  JOURNALS.RECEIVABLE,
+  JOURNALS.PAYABLE,
+];
 
 export const activeCost = async (
   models: IModels,
@@ -331,9 +342,45 @@ const calcInvTrs = async (
   await calcTrs(models, { adjustId, aggregateTrs: outAggrs, multiplier: -1 });
 };
 
-// fix:
-const fixRelatedMainJournal = async (
-  models,
+const detailAmountEquals = (detail: ITrDetail, amount: number) =>
+  fixNum(detail.amount ?? 0) === fixNum(amount);
+
+const getRelatedDebitDetail = (
+  details: ITrDetail[],
+  oldAmount: number,
+) => {
+  const matchedDetail = details.find((detail) =>
+    detailAmountEquals(detail, oldAmount),
+  );
+
+  if (matchedDetail) {
+    return matchedDetail;
+  }
+
+  if (details.length === 1) {
+    return details[0];
+  }
+};
+
+const selectRelatedDebitTransaction = (
+  transactions: ITransactionDocument[],
+  oldAmount: number,
+) => {
+  const matchedByTotal = transactions.find(
+    (transaction) => fixNum(transaction.sumDt ?? 0) === fixNum(oldAmount),
+  );
+
+  if (matchedByTotal) {
+    return matchedByTotal;
+  }
+
+  if (transactions.length === 1) {
+    return transactions[0];
+  }
+};
+
+export const fixRelatedMainJournal = async (
+  models: IModels,
   {
     ptrId,
     excludeTrId,
@@ -346,7 +393,56 @@ const fixRelatedMainJournal = async (
     newAmount: number;
   },
 ) => {
-  return;
+  const amountDiff = fixNum(newAmount - oldAmount);
+
+  if (!ptrId || !excludeTrId || !amountDiff) {
+    return [];
+  }
+
+  const relatedDebitTransactions = await models.Transactions.find({
+    ptrId,
+    _id: { $ne: excludeTrId },
+    side: TR_SIDES.DEBIT,
+    journal: { $in: RELATED_OUT_DEBIT_JOURNALS },
+  }).lean();
+
+  const relatedDebitTransaction = selectRelatedDebitTransaction(
+    relatedDebitTransactions,
+    oldAmount,
+  );
+
+  if (!relatedDebitTransaction) {
+    return [];
+  }
+
+  const relatedDebitDetail = getRelatedDebitDetail(
+    relatedDebitTransaction.details,
+    oldAmount,
+  );
+
+  if (!relatedDebitDetail?._id) {
+    return [];
+  }
+
+  const nextAmount = fixNum((relatedDebitDetail.amount ?? 0) + amountDiff);
+
+  if (nextAmount < 0) {
+    throw new Error(
+      'Related debit transaction amount cannot be negative after inventory cost adjustment',
+    );
+  }
+
+  await models.Transactions.updateOne(
+    { _id: relatedDebitTransaction._id },
+    {
+      $set: {
+        'details.$[d].amount': nextAmount,
+      },
+    },
+    { arrayFilters: [{ 'd._id': { $eq: relatedDebitDetail._id } }] },
+  );
+
+  return [relatedDebitTransaction._id];
 };
 
 const afterCalc = async (models: IModels, trIds: string[]) => {
@@ -546,12 +642,13 @@ const fixOutTrs = async (
 
       trIds.push(rec._id);
 
-      await fixRelatedMainJournal(models, {
+      const relatedTrIds = await fixRelatedMainJournal(models, {
         ptrId: rec.ptrId,
         excludeTrId: rec._id,
         oldAmount: amount,
         newAmount: newCost,
       });
+      trIds.push(...relatedTrIds);
     }
 
     // cache out adjustDetail
@@ -566,6 +663,16 @@ const fixOutTrs = async (
       unitCost,
     });
     await afterCalc(models, trIds);
+
+    if (trIds.length) {
+      const ptrIds = [...new Set(records.map((record) => record.ptrId))].filter(
+        Boolean,
+      );
+
+      await Promise.all(
+        ptrIds.map((ptrId) => models.Transactions.checkPtr(ptrId)),
+      );
+    }
   }
 };
 
