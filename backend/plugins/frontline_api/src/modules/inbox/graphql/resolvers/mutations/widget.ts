@@ -426,9 +426,7 @@ export const widgetMutations: Record<string, Resolver> = {
       });
 
       companyData.propertiesData = fieldData?.propertiesData || {};
-
-      // trackData note: trackedData is not used for now
-      // companyData.trackedData = trackedData;
+      companyData.trackedData = fieldData?.trackedData || [];
 
       if (company) {
         company = await sendTRPCMessage({

@@ -21,6 +21,7 @@ export interface IRelationModules {
   pluginName: string;
   icon: Icon;
   label?: string;
+  contentTypes?: string[];
 }
 
 export const RelationWidgetContext = createContext<{
@@ -55,10 +56,12 @@ export const useRelationWidget = (options?: {
   hiddenPlugins?: string[];
   hiddenModules?: string[];
   hideCoreRelations?: boolean;
+  contentType?: string;
 }) => {
   const context = useContext(RelationWidgetContext);
 
-  const { hiddenPlugins, hiddenModules, hideCoreRelations } = options || {};
+  const { hiddenPlugins, hiddenModules, hideCoreRelations, contentType } =
+    options || {};
 
   const hideCore = hideCoreRelations
     ? hideCoreRelations
@@ -66,7 +69,13 @@ export const useRelationWidget = (options?: {
     ? true
     : false;
 
-  let filteredModules = context.relationWidgetsModules;
+  let filteredModules = context.relationWidgetsModules || [];
+
+  filteredModules = filteredModules.filter(
+    (module) =>
+      !module.contentTypes ||
+      (!!contentType && module.contentTypes.includes(contentType)),
+  );
 
   if (hiddenPlugins) {
     filteredModules = filteredModules.filter(

@@ -94,6 +94,10 @@
   invisible to agents.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
+- `widgetsMessengerConnect` stores messenger `companyData` on the core company
+  as both `propertiesData` (keys matching a `core:company` field) and
+  `trackedData` (every remaining key), so arbitrary messenger attributes are
+  preserved instead of dropped.
 
 ## Architecture
 
@@ -312,7 +316,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `EXECUTE_WAIT_TYPES`, `attachmentSchema`.
 - `core` over tRPC — brands, tags, users, structure,
   `configs.getFileUploadConfigs`, `users.findOne`, `fields.find` (validating the
-  ticket property fields chosen in a ticket config).
+  ticket property fields chosen in a ticket config),
+  `fields.generatePropertiesData` (splitting messenger `companyData` into
+  `propertiesData` for keys that match a Core `core:company` field and
+  `trackedData` for every remaining key).
 - Facebook Graph API through `fbgraph` (`graphRequest` in
   `src/modules/integrations/facebook/utils.ts`).
 
@@ -868,6 +875,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-21` — Messenger company attributes are tracked again
+
+- **Summary:** `widgetsMessengerConnect` asked Core for
+  `fields.generatePropertiesData` but assigned only `propertiesData`, leaving
+  the company's `trackedData` permanently empty, so any messenger attribute
+  that did not match a defined `core:company` field was discarded. The company
+  branch now writes the `trackedData` Core returns alongside `propertiesData`.
+- **Affected areas:**
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` (company branch of
+  `widgetsMessengerConnect`).
+- **Contracts changed:** None in this plugin. It now depends on Core's
+  `fields.generatePropertiesData` tRPC procedure returning
+  `{ propertiesData, trackedData }`.
+
 ### `2026-08-21` — A forwarded call stays one conversation
 
 - **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
@@ -1036,21 +1057,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
   types, and five `reportFacebook*` queries; `TicketReportFilter`,
   `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.
