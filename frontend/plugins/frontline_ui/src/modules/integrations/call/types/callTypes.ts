@@ -42,6 +42,27 @@ export interface ICallQueueRealtimeSnapshot {
   stats: Record<string, unknown>;
 }
 
+export interface ICallAgentPauseInterval {
+  start: string;
+  end: string;
+  durationSec: number;
+}
+
+export interface ICallAgentDailyStat {
+  date: string;
+  extension: string;
+  firstName?: string;
+  lastName?: string;
+  status?: string;
+  answer: number;
+  abandon: number;
+  talktime: number;
+  pauseReason?: string;
+  currentPauseStartedAt?: string | null;
+  totalPausedSec: number;
+  pauseIntervals: ICallAgentPauseInterval[];
+}
+
 export interface ICallConversationNote {
   _id: string;
   content: string;

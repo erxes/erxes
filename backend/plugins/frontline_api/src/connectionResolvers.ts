@@ -100,6 +100,10 @@ import {
   loadCallQueueClass,
 } from '@/integrations/call/db/models/QueueStatistics';
 import {
+  ICallAgentPauseStatsModel,
+  loadCallAgentPauseStatsClass,
+} from '@/integrations/call/db/models/AgentPauseStats';
+import {
   ICallSessionModel,
   loadCallSessionClass,
 } from '@/integrations/call/db/models/CallSessions';
@@ -182,6 +186,7 @@ import {
   IChannelMemberDocument,
 } from '@/channel/@types/channel';
 import { ICallQueueStatisticsDocuments } from '@/integrations/call/@types/queueStatistics';
+import { ICallAgentPauseStatsDocument } from '@/integrations/call/@types/agentPauseStats';
 
 import {
   ITicketPipelineModel,
@@ -349,6 +354,7 @@ export interface IModels {
   CallOperators: ICallOperatorModel;
   CallCdrs: ICallCdrModel;
   CallQueueStatistics: ICallQueueStatisticsModel;
+  CallAgentPauseStats: ICallAgentPauseStatsModel;
   CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
@@ -602,6 +608,10 @@ export const loadClasses = (
     ICallQueueStatisticsDocuments,
     ICallQueueStatisticsModel
   >('calls_queue_statistics', loadCallQueueClass());
+  models.CallAgentPauseStats = db.model<
+    ICallAgentPauseStatsDocument,
+    ICallAgentPauseStatsModel
+  >('calls_agent_pause_stats', loadCallAgentPauseStatsClass());
 
   models.CallSessions = db.model<ICallSessionDocument, ICallSessionModel>(
     'calls_sessions',
