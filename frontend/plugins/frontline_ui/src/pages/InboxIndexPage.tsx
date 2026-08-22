@@ -13,7 +13,7 @@ const InboxIndexPage = () => {
   const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('inbox'));
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>
           <Breadcrumb>

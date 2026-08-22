@@ -14,7 +14,11 @@ export const InboxLayout = ({
   const [conversationId] = useQueryState('conversationId');
 
   if (inboxLayout === 'list') {
-    return conversationId ? conversationDetail : conversations;
+    return (
+      <div className="flex-auto min-h-0">
+        {conversationId ? conversationDetail : conversations}
+      </div>
+    );
   }
 
   // The toggle lives in the conversation header, and CSS keeps the list mounted.
