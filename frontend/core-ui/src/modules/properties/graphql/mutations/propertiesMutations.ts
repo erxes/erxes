@@ -96,6 +96,7 @@ export const FIELD_EDIT = gql`
     $contentType: String
     $type: String
     $options: [FieldOptionInput]
+    $optionValueMigrations: [FieldOptionMigrationInput]
     $validations: JSON
     $logics: JSON
     $icon: String
@@ -113,6 +114,7 @@ export const FIELD_EDIT = gql`
       contentType: $contentType
       type: $type
       options: $options
+      optionValueMigrations: $optionValueMigrations
       validations: $validations
       logics: $logics
       icon: $icon
