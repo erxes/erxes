@@ -284,7 +284,7 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
   const activeMembers = memberIds?.length
     ? allMembers.filter((m) => memberIds.includes(m._id))
     : allMembers;
-  const isCurrentUser = activeMembers.some((m) => m._id === currentUser._id);
+  const isCurrentUser = activeMembers.some((m) => m._id === currentUser?._id);
 
   const getDisplayValue = () => {
     if (!activeMembers || activeMembers.length === 0) {
@@ -308,7 +308,7 @@ export const MembersInlineTitle = ({ className }: { className?: string }) => {
         return `You and ${otherMembersCount} others`;
       }
 
-      const otherMember = activeMembers.find((m) => m._id !== currentUser._id);
+      const otherMember = activeMembers.find((m) => m._id !== currentUser?._id);
       return `You and ${otherMember?.details?.fullName}`;
     }
 
