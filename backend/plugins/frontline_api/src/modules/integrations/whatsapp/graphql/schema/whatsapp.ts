@@ -25,6 +25,7 @@ export const queries = `
   whatsappGetIntegrations(kind: String): JSON
   whatsappGetIntegrationDetail(erxesApiId: String): JSON
   whatsappGetConfigs: JSON
+  whatsappGetBusinessAccounts(accountId: String!, pageId: String): JSON
   whatsappConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [WhatsappConversationMessage]
   whatsappConversationMessagesCount(conversationId: String!): Int
 `;

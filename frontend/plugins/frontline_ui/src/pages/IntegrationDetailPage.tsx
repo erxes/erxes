@@ -47,6 +47,14 @@ const InstagramIntegrationDetail = lazy(() =>
   ),
 );
 
+const WhatsappIntegrationDetail = lazy(() =>
+  import('@/integrations/whatsapp/components/WhatsappIntegrationDetail').then(
+    (module) => ({
+      default: module.WhatsappIntegrationDetail,
+    }),
+  ),
+);
+
 export const IntegrationDetailPage = () => {
   const { integrationType, id } = useParams<{
     integrationType: string;
@@ -104,6 +112,9 @@ export const IntegrationDetailPage = () => {
         )}
         {integrationType === IntegrationType.INSTAGRAM_POST && (
           <InstagramIntegrationDetail isPost />
+        )}
+        {integrationType === IntegrationType.WHATSAPP_MESSENGER && (
+          <WhatsappIntegrationDetail />
         )}
       </Suspense>
       <IntegrationsRecordTable />

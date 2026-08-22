@@ -1,9 +1,10 @@
 import { resetConfigsCache } from 'erxes-api-shared/utils';
+import { getWhatsappPhoneNumbers } from '@/integrations/whatsapp/utils';
 import { generateModels } from '~/connectionResolvers';
 
 interface IWhatsappCreateData {
+  pageId?: string;
   phoneNumberId?: string;
-  accessToken?: string;
   businessAccountId?: string;
   verifyToken?: string;
 }
@@ -22,25 +23,51 @@ export const whatsappCreateIntegration = async (
   subdomain: string,
   {
     integrationId,
+    accountId,
     data,
     kind,
   }: {
     integrationId: string;
+    accountId?: string;
     data?: string;
     kind: string;
   },
 ): Promise<{ status: 'success' }> => {
   const models = await generateModels(subdomain);
   const parsedData = JSON.parse(data || '{}') as IWhatsappCreateData;
-  const phoneNumberId = parsedData.phoneNumberId;
-  const accessToken = parsedData.accessToken;
+  const { phoneNumberId, businessAccountId, pageId, verifyToken } = parsedData;
+
+  if (!accountId) {
+    throw new Error('Facebook account is required');
+  }
 
   if (!phoneNumberId) {
     throw new Error('phoneNumberId is required');
   }
 
-  if (!accessToken) {
-    throw new Error('accessToken is required');
+  if (!businessAccountId) {
+    throw new Error('businessAccountId is required');
+  }
+
+  const account = await models.FacebookAccounts.findOne({ _id: accountId });
+
+  if (!account) {
+    throw new Error('Facebook account not found');
+  }
+
+  const accessToken = account.token;
+
+  // Validate client-provided ids against the authenticated Meta context:
+  // the phone number must belong to the selected WhatsApp Business Account.
+  const phoneNumbers = await getWhatsappPhoneNumbers(
+    accessToken,
+    businessAccountId,
+  );
+
+  if (!phoneNumbers.some((phoneNumber) => phoneNumber.id === phoneNumberId)) {
+    throw new Error(
+      'Phone number does not belong to the selected WhatsApp Business Account',
+    );
   }
 
   await models.WhatsappIntegrations.create({
@@ -48,8 +75,9 @@ export const whatsappCreateIntegration = async (
     erxesApiId: integrationId,
     phoneNumberId,
     accessToken,
-    businessAccountId: parsedData.businessAccountId,
-    verifyToken: parsedData.verifyToken,
+    businessAccountId,
+    pageId,
+    verifyToken,
     healthStatus: 'healthy',
     error: '',
   });

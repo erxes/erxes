@@ -13,6 +13,7 @@ interface IIntegrationMessage<TData> {
 
 interface ICreateData {
   integrationId: string;
+  accountId?: string;
   data?: string;
   kind: string;
 }

@@ -37,7 +37,14 @@ export const INTEGRATIONS = {
   },
   [IntegrationType.IMAP]: {
     name: 'IMAP',
-    description: 'Connect and manage IMAP right from your Team Inbox',
+    description:
+      'Connect and manage IMAP right from your Team Inbox',
     img: 'email.webp',
+  },
+  [IntegrationType.WHATSAPP_MESSENGER]: {
+    name: 'WhatsApp',
+    description:
+      'Connect and manage WhatsApp messages right from your Team Inbox',
+    img: 'whatsapp.webp',
   },
 };

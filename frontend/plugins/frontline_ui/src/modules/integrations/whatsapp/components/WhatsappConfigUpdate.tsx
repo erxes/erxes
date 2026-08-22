@@ -48,9 +48,6 @@ export const WhatsappConfigUpdate = () => {
   const form = useForm<z.infer<typeof whatsappConfigSchema>>({
     resolver: zodResolver(whatsappConfigSchema),
     defaultValues: {
-      WHATSAPP_PHONE_NUMBER_ID: '',
-      WHATSAPP_ACCESS_TOKEN: '',
-      WHATSAPP_BUSINESS_ACCOUNT_ID: '',
       WHATSAPP_VERIFY_TOKEN: '',
     },
   });
@@ -88,9 +85,6 @@ export const WhatsappConfigUpdate = () => {
     return (
       <div className="flex flex-col gap-4">
         <Skeleton className="h-8" />
-        <Skeleton className="h-8" />
-        <Skeleton className="h-8" />
-        <Skeleton className="h-8" />
       </div>
     );
   }
@@ -99,44 +93,8 @@ export const WhatsappConfigUpdate = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-3"
+        className="flex flex-col gap-3"
       >
-        <Form.Field
-          name="WHATSAPP_PHONE_NUMBER_ID"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Phone Number ID</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="WHATSAPP_BUSINESS_ACCOUNT_ID"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Business Account ID</Form.Label>
-              <Form.Control>
-                <Input {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          name="WHATSAPP_ACCESS_TOKEN"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Access Token</Form.Label>
-              <Form.Control>
-                <Input {...field} type="password" />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
         <Form.Field
           name="WHATSAPP_VERIFY_TOKEN"
           render={({ field }) => (
@@ -145,11 +103,16 @@ export const WhatsappConfigUpdate = () => {
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
+              <Form.Description>
+                Used by Meta to verify the WhatsApp webhook. Connect WhatsApp
+                from a channel's integration list instead of entering account
+                credentials here.
+              </Form.Description>
               <Form.Message />
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 items-center">
+        <Dialog.Footer className="items-center">
           <Button type="submit" disabled={loading}>
             {loading ? <Spinner /> : 'Save'}
           </Button>

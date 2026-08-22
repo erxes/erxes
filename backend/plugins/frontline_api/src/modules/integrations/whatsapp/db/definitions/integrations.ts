@@ -8,6 +8,7 @@ export const integrationSchema = new Schema({
   phoneNumberId: { type: String, index: true },
   accessToken: String,
   businessAccountId: String,
+  pageId: String,
   verifyToken: String,
   healthStatus: String,
   error: String,

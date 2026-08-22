@@ -6,6 +6,7 @@ export interface IWhatsappIntegration {
   phoneNumberId: string;
   accessToken: string;
   businessAccountId?: string;
+  pageId?: string;
   verifyToken?: string;
   healthStatus?: string;
   error?: string;

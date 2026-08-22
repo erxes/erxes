@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
+import { getWhatsappBusinessAccounts } from '@/integrations/whatsapp/utils';
 
 export interface IKindParams {
   kind?: string;
@@ -14,6 +15,11 @@ export interface IMessagesParams {
   limit?: number;
   skip?: number;
   getFirst?: boolean;
+}
+
+export interface IBusinessAccountsParams {
+  accountId: string;
+  pageId?: string;
 }
 
 const buildSelector = async (conversationId: string, { models }: IContext) => {
@@ -50,6 +56,20 @@ export const whatsappQueries = {
     { models }: IContext,
   ) {
     return models.WhatsappIntegrations.findOne({ erxesApiId });
+  },
+
+  async whatsappGetBusinessAccounts(
+    _root,
+    { accountId, pageId }: IBusinessAccountsParams,
+    { models }: IContext,
+  ) {
+    const account = await models.FacebookAccounts.findOne({ _id: accountId });
+
+    if (!account) {
+      throw new Error('Facebook account not found');
+    }
+
+    return getWhatsappBusinessAccounts(account.token, pageId);
   },
 
   async whatsappConversationMessages(

@@ -10,3 +10,15 @@ export interface IWhatsappConversationMessage {
   internal?: boolean;
   mid?: string;
 }
+
+export interface IWhatsappPhoneNumber {
+  id: string;
+  displayPhoneNumber?: string;
+  verifiedName?: string;
+}
+
+export interface IWhatsappBusinessAccount {
+  id: string;
+  name: string;
+  phoneNumbers: IWhatsappPhoneNumber[];
+}

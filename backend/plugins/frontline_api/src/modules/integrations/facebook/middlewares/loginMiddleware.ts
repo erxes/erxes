@@ -22,6 +22,13 @@ export const loginMiddleware = async (req, res) => {
     'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
   );
 
+  // WhatsApp connections reuse this Facebook OAuth flow, but need extra
+  // scopes to discover WhatsApp Business Accounts after login.
+  const kind = typeof req.query.kind === 'string' ? req.query.kind : '';
+  const extraScopes = kind.startsWith('whatsapp')
+    ? ',business_management,whatsapp_business_management,whatsapp_business_messaging'
+    : '';
+
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
@@ -32,7 +39,8 @@ export const loginMiddleware = async (req, res) => {
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
-    scope: FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list',
+    scope:
+      FACEBOOK_PERMISSIONS + ',pages_read_engagement,pages_show_list' + extraScopes,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL,
   };
 
