@@ -40,6 +40,103 @@ const isSearchReady = (search: string, category: TDealSearchCategory) => {
   return search.length >= 2;
 };
 
+const getDateLabel = (
+  dateRange: DateRange | undefined,
+  fallback: string,
+): string => {
+  if (!dateRange?.from) return fallback;
+  if (!dateRange.to) return dealDateFormatter.format(dateRange.from);
+
+  return `${dealDateFormatter.format(
+    dateRange.from,
+  )} – ${dealDateFormatter.format(dateRange.to)}`;
+};
+
+const getSearchPromptKey = (
+  category: TDealSearchCategory,
+): readonly [string, string] => {
+  if (category === 'date') {
+    return ['select-date-to-search-deals', 'Select a date to search deals'];
+  }
+  if (category === 'number') {
+    return [
+      'enter-number-to-search-deals',
+      'Enter at least 2 characters of the deal number',
+    ];
+  }
+  return [
+    'enter-name-to-search-deals',
+    'Enter at least 2 characters of the name',
+  ];
+};
+
+const DealSearchResult = ({
+  deal,
+  category,
+  nameSearch,
+  numberSearch,
+  onSelect,
+}: {
+  deal: IDeal;
+  category: TDealSearchCategory;
+  nameSearch: string;
+  numberSearch: string;
+  onSelect: (deal: IDeal) => void;
+}) => {
+  const { t } = useTranslation('sales');
+  const hasPipeline = Boolean(
+    deal.pipeline?._id && (deal.boardId || deal.pipeline.boardId),
+  );
+
+  return (
+    <button
+      type="button"
+      disabled={!hasPipeline}
+      className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 text-left text-sm hover:bg-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+      onClick={() => onSelect(deal)}
+    >
+      <span className="min-w-0 truncate font-medium">
+        {highlightMatch(
+          deal.name || t('unnamed-deal', 'Unnamed deal'),
+          category === 'name' ? nameSearch : '',
+        )}
+      </span>
+      <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
+        {deal.number ? (
+          <>
+            #
+            {highlightMatch(
+              deal.number,
+              category === 'number' ? numberSearch : '',
+            )}
+          </>
+        ) : (
+          '—'
+        )}
+      </span>
+      <span className="flex min-w-0 items-center gap-2 truncate text-xs text-muted-foreground">
+        {deal.pipeline?.name || t('no-pipeline')}
+        {deal.status === 'archived' && (
+          <Badge
+            variant="secondary"
+            className="h-4 border-yellow-200 bg-yellow-100 py-0 text-[11px] text-yellow-800"
+          >
+            {t('archived')}
+          </Badge>
+        )}
+      </span>
+      <time
+        className="whitespace-nowrap text-xs text-muted-foreground"
+        dateTime={deal.createdAt?.toString()}
+      >
+        {deal.createdAt
+          ? dealDateFormatter.format(new Date(deal.createdAt))
+          : '—'}
+      </time>
+    </button>
+  );
+};
+
 export const CommonDealSearch = () => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
@@ -57,9 +154,8 @@ export const CommonDealSearch = () => {
   const searchSettled =
     category === 'date' || debouncedSearch === trimmedSearch;
   const searchReady =
-    category === 'date'
-      ? Boolean(dateRange?.from)
-      : isSearchReady(debouncedSearch, category);
+    (category === 'date' && Boolean(dateRange?.from)) ||
+    (category !== 'date' && isSearchReady(debouncedSearch, category));
   const resultsReady = searchReady && searchSettled;
 
   const { deals, loading, loadingMore, totalCount, pageInfo, loadMore } =
@@ -85,13 +181,8 @@ export const CommonDealSearch = () => {
     name: t('search-deals-by-name', 'Search by name'),
   };
 
-  const selectedDateLabel = dateRange?.from
-    ? dateRange.to
-      ? `${dealDateFormatter.format(
-          dateRange.from,
-        )} – ${dealDateFormatter.format(dateRange.to)}`
-      : dealDateFormatter.format(dateRange.from)
-    : placeholders.date;
+  const selectedDateLabel = getDateLabel(dateRange, placeholders.date);
+  const [searchPromptKey, searchPromptFallback] = getSearchPromptKey(category);
 
   const handleSelect = (deal: IDeal) => {
     const pipelineId = deal.pipeline?._id;
@@ -229,20 +320,7 @@ export const CommonDealSearch = () => {
         <div className="max-h-[50vh] min-h-24 overflow-y-auto">
           {searchSettled && !searchReady && (
             <div className="px-3 py-3 text-sm text-muted-foreground">
-              {category === 'date'
-                ? t(
-                    'select-date-to-search-deals',
-                    'Select a date to search deals',
-                  )
-                : category === 'number'
-                ? t(
-                    'enter-number-to-search-deals',
-                    'Enter at least 2 characters of the deal number',
-                  )
-                : t(
-                    'enter-name-to-search-deals',
-                    'Enter at least 2 characters of the name',
-                  )}
+              {t(searchPromptKey, searchPromptFallback)}
             </div>
           )}
 
@@ -260,63 +338,16 @@ export const CommonDealSearch = () => {
           )}
 
           {resultsReady &&
-            deals.map((deal) => {
-              const hasPipeline = Boolean(
-                deal.pipeline?._id && (deal.boardId || deal.pipeline.boardId),
-              );
-
-              return (
-                <button
-                  key={deal._id}
-                  type="button"
-                  disabled={!hasPipeline}
-                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 text-left text-sm hover:bg-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    handleSelect(deal);
-                  }}
-                >
-                  <span className="min-w-0 truncate font-medium">
-                    {highlightMatch(
-                      deal.name || t('unnamed-deal', 'Unnamed deal'),
-                      category === 'name' ? debouncedSearch : '',
-                    )}
-                  </span>
-                  <span className="whitespace-nowrap font-mono text-xs text-muted-foreground">
-                    {deal.number ? (
-                      <>
-                        #
-                        {highlightMatch(
-                          deal.number,
-                          category === 'number' ? dealNumber : '',
-                        )}
-                      </>
-                    ) : (
-                      '—'
-                    )}
-                  </span>
-                  <span className="flex min-w-0 items-center gap-2 truncate text-xs text-muted-foreground">
-                    {deal.pipeline?.name || t('no-pipeline')}
-                    {deal.status === 'archived' && (
-                      <Badge
-                        variant="secondary"
-                        className="h-4 py-0 bg-yellow-100 text-yellow-800 text-[11px] border-yellow-200"
-                      >
-                        {t('archived')}
-                      </Badge>
-                    )}
-                  </span>
-                  <time
-                    className="whitespace-nowrap text-xs text-muted-foreground"
-                    dateTime={deal.createdAt?.toString()}
-                  >
-                    {deal.createdAt
-                      ? dealDateFormatter.format(new Date(deal.createdAt))
-                      : '—'}
-                  </time>
-                </button>
-              );
-            })}
+            deals.map((deal) => (
+              <DealSearchResult
+                key={deal._id}
+                category={category}
+                deal={deal}
+                nameSearch={debouncedSearch}
+                numberSearch={dealNumber}
+                onSelect={handleSelect}
+              />
+            ))}
 
           {resultsReady &&
             pageInfo?.hasNextPage &&

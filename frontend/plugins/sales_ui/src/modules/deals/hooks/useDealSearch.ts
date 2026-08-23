@@ -31,11 +31,8 @@ export const useDealSearch = (
   dateRange?: TDealSearchDateRange,
   dealNumber?: string,
 ) => {
-  const createdEndDate = dateRange?.to
-    ? new Date(dateRange.to.getTime())
-    : dateRange?.from
-    ? new Date(dateRange.from.getTime())
-    : undefined;
+  const endDateSource = dateRange?.to ?? dateRange?.from;
+  const createdEndDate = endDateSource ? new Date(endDateSource) : undefined;
 
   createdEndDate?.setHours(23, 59, 59, 999);
 

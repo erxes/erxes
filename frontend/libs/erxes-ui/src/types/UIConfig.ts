@@ -8,6 +8,8 @@ export type TSearchResultItem = {
   path: string;
   matchFields?: Array<{
     label: string;
+    labelKey?: string;
+    labelNamespace?: string;
     value: string;
   }>;
 };

@@ -83,8 +83,8 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args: 'filter: { searchValue: $searchValue, state: "all", limit: $limit, orderBy: $orderBy }',
-      body: '{ list { _id name number createdAt } totalCount }',
+      args: 'filter: { searchValue: $searchValue, state: "all", limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name number createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

@@ -353,6 +353,10 @@ const generateArchivedItemsFilter = (
 
   filter.stageId = { $in: stages.map((stage) => stage._id) };
 
+  const setInFilter = (field: string, values?: string[]) => {
+    if (values?.length) filter[field] = { $in: values };
+  };
+
   if (search) {
     const createdAtFilter = getCreatedAtSearchFilter(search);
 
@@ -366,25 +370,11 @@ const generateArchivedItemsFilter = (
     });
   }
 
-  if (userIds && userIds.length) {
-    filter.userId = { $in: userIds };
-  }
-
-  if (priorities?.length) {
-    filter.priority = { $in: priorities };
-  }
-
-  if (assignedUserIds?.length) {
-    filter.assignedUserIds = { $in: assignedUserIds };
-  }
-
-  if (labelIds?.length) {
-    filter.labelIds = { $in: labelIds };
-  }
-
-  if (productIds?.length) {
-    filter['productsData.productId'] = { $in: productIds };
-  }
+  setInFilter('userId', userIds);
+  setInFilter('priority', priorities);
+  setInFilter('assignedUserIds', assignedUserIds);
+  setInFilter('labelIds', labelIds);
+  setInFilter('productsData.productId', productIds);
 
   if (startDate) {
     filter.closeDate = {
@@ -402,13 +392,8 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources?.length) {
-    filter.source = { $in: sources };
-  }
-
-  if (hackStages?.length) {
-    filter.hackStages = { $in: hackStages };
-  }
+  setInFilter('source', sources);
+  setInFilter('hackStages', hackStages);
 
   return filter;
 };

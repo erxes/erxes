@@ -21,8 +21,10 @@ import {
   getGlobalSearchRequestState,
   parseSourceQualifier,
 } from '@/search/utils/globalSearchResults';
-import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
-import { TGlobalSearchSortOrder } from '@/search/types/GlobalSearch';
+import {
+  TGlobalSearchGroup,
+  TGlobalSearchSortOrder,
+} from '@/search/types/GlobalSearch';
 
 type TGroupPageState = {
   items: TSearchResultItem[];
@@ -150,10 +152,9 @@ export const useGlobalSearch = (
     const raw = searchValue.trim();
 
     return providers.reduce<Record<string, string>>((map, provider) => {
-      map[provider.key] =
-        qualifier && qualifier.providerKeys.includes(provider.key)
-          ? qualifier.query
-          : raw;
+      map[provider.key] = qualifier?.providerKeys.includes(provider.key)
+        ? qualifier.query
+        : raw;
       return map;
     }, {});
   }, [providers, searchValue]);
@@ -327,8 +328,12 @@ export const useGlobalSearch = (
           return;
         }
 
-        if (getFailedRequiredSelection(provider, result.error)) {
-          throw result.error ?? new Error('Search page failed');
+        const pageError = result.errors?.length
+          ? new ApolloError({ graphQLErrors: [...result.errors] })
+          : undefined;
+
+        if (getFailedRequiredSelection(provider, pageError)) {
+          throw pageError;
         }
 
         const nextPage = provider.resolve(

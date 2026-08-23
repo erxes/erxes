@@ -465,7 +465,7 @@ export const GlobalSearchDialog = ({
                     key={option.key}
                     value={option.key}
                   >
-                    {option.label}
+                    {t(option.labelKey ?? option.key, option.label)}
                     <span className="rounded bg-muted px-1 text-[10px] tabular-nums text-muted-foreground">
                       {option.count}
                     </span>

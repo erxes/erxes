@@ -22,8 +22,8 @@ const voucherCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_voucher_campaigns',
       field: 'voucherCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id title createdAt } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id title createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -45,8 +45,8 @@ const couponCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_coupon_campaigns',
       field: 'couponCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id title createdAt } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id title createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -68,8 +68,8 @@ const assignmentCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_assignment_campaigns',
       field: 'assignmentCampaigns',
-      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id title createdAt } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id title createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -91,8 +91,8 @@ const scoreCampaignsSearchProvider = defineSearchProvider<TCampaignNode>({
     {
       alias: 'gs_loyalty_score_campaigns',
       field: 'scoreCampaigns',
-      args: 'searchValue: $searchValue, status: "all", limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id title createdAt } totalCount }',
+      args: 'searchValue: $searchValue, status: "all", limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id title createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

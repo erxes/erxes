@@ -35,7 +35,7 @@ type TQueryParams = {
   orderBy?: { createdAt?: 1 | -1 };
 };
 
-const IDENTIFIER_SEPARATOR = '[\\s\\-+()./]*';
+const IDENTIFIER_SEPARATOR = String.raw`[\s\-+()./]*`;
 
 export const buildIdentifierSearchRegex = (
   value: string,
@@ -71,6 +71,19 @@ const decodeOffsets = (cursor?: string): number[] => {
 const encodeOffsets = (offsets: number[]): string =>
   Buffer.from(JSON.stringify({ offsets })).toString('base64');
 
+const compareSearchItems = (
+  left: TGlobalSearchItem,
+  right: TGlobalSearchItem,
+  sortDirection: 1 | -1,
+): number => {
+  const dateDifference =
+    (left.createdAt?.getTime() ?? 0) - (right.createdAt?.getTime() ?? 0);
+
+  return dateDifference === 0
+    ? left.id.localeCompare(right.id) * sortDirection
+    : dateDifference * sortDirection;
+};
+
 const mergeSorted = (
   batches: TGlobalSearchItem[][],
   sourceCount: number,
@@ -82,7 +95,7 @@ const mergeSorted = (
 
   while (merged.length < limit) {
     let selectedSource = -1;
-    let selectedTimestamp = 0;
+    let selectedItem: TGlobalSearchItem | undefined;
 
     for (let i = 0; i < sourceCount; i++) {
       const item = batches[i][position[i]];
@@ -91,13 +104,12 @@ const mergeSorted = (
         continue;
       }
 
-      const timestamp = item.createdAt?.getTime() ?? 0;
       if (
-        selectedSource === -1 ||
-        (timestamp - selectedTimestamp) * sortDirection < 0
+        !selectedItem ||
+        compareSearchItems(item, selectedItem, sortDirection) < 0
       ) {
         selectedSource = i;
-        selectedTimestamp = timestamp;
+        selectedItem = item;
       }
     }
 
@@ -208,7 +220,7 @@ export const globalSearchQueries = {
         count: () => models.Customers.countDocuments(customerQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Customers.find(customerQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -243,7 +255,7 @@ export const globalSearchQueries = {
         count: () => models.Companies.countDocuments(companyQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Companies.find(companyQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -271,7 +283,7 @@ export const globalSearchQueries = {
         count: () => models.Products.countDocuments(productQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Products.find(productQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -386,7 +398,7 @@ export const globalSearchQueries = {
         count: () => models.Users.countDocuments(userQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Users.find(userQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -415,7 +427,7 @@ export const globalSearchQueries = {
         count: () => models.Branches.countDocuments(branchQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Branches.find(branchQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -441,7 +453,7 @@ export const globalSearchQueries = {
         count: () => models.Departments.countDocuments(departmentQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Departments.find(departmentQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -467,7 +479,7 @@ export const globalSearchQueries = {
         count: () => models.Units.countDocuments(unitQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Units.find(unitQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -493,7 +505,7 @@ export const globalSearchQueries = {
         count: () => models.Positions.countDocuments(positionQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Positions.find(positionQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();
@@ -514,7 +526,7 @@ export const globalSearchQueries = {
         count: () => models.Brands.countDocuments(brandQuery),
         fetch: async (skip, limit) => {
           const docs = await models.Brands.find(brandQuery)
-            .sort({ createdAt: sortDirection })
+            .sort({ createdAt: sortDirection, _id: sortDirection })
             .skip(skip)
             .limit(limit)
             .lean();

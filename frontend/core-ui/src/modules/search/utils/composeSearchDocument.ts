@@ -57,6 +57,18 @@ const printSelection = (selection: TSearchSelection): string => {
   return `${selection.alias}: ${selection.field}${args}${body}`;
 };
 
+const printOperation = (
+  operationName: string,
+  selections: TSearchSelection[],
+): string => {
+  const variableDefs = buildVariableDefs(selections);
+  const variables = variableDefs ? `(${variableDefs})` : '';
+
+  return `query ${operationName}${variables} { ${selections
+    .map(printSelection)
+    .join('\n')} }`;
+};
+
 const isValidShape = (provider: ISearchProvider): string | null => {
   if (!provider || typeof provider !== 'object') {
     return 'provider is not an object';
@@ -112,9 +124,10 @@ const isValidSyntax = (
 
   try {
     ast = parse(
-      `query ${GLOBAL_SEARCH_OPERATION_NAME}Probe(${buildVariableDefs(
+      printOperation(
+        `${GLOBAL_SEARCH_OPERATION_NAME}Probe`,
         provider.selections,
-      )}) { ${provider.selections.map(printSelection).join('\n')} }`,
+      ),
     );
   } catch (parseError) {
     return `invalid selection syntax: ${(parseError as Error).message}`;
@@ -208,18 +221,11 @@ const buildSearchDocument = (
   operationName: string,
   overrides: Record<string, string> = {},
 ): DocumentNode => {
-  const overrideKey =
-    Object.keys(overrides).length === 0
-      ? ''
-      : `:${Object.entries(overrides)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([key, value]) => `${key}=${value}`)
-          .join(',')}`;
-
-  const cacheKey = `${operationName}:${providers
-    .flatMap((provider) => provider.selections.map((s) => s.alias))
-    .sort((a, b) => a.localeCompare(b))
-    .join('|')}${overrideKey}`;
+  const cacheKey = JSON.stringify({
+    operationName,
+    selections: providers.flatMap((provider) => provider.selections),
+    overrides: Object.entries(overrides).sort(([a], [b]) => a.localeCompare(b)),
+  });
 
   const cached = documentCache.get(cacheKey);
 
@@ -228,13 +234,8 @@ const buildSearchDocument = (
   }
 
   const selections = applyOverridesToSelections(providers, overrides);
-  const selectionsSource = selections.map(printSelection).join('\n');
 
-  const document = parse(
-    `query ${operationName}(${buildVariableDefs(
-      selections,
-    )}) { ${selectionsSource} }`,
-  );
+  const document = parse(printOperation(operationName, selections));
 
   documentCache.set(cacheKey, document);
 

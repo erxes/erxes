@@ -3,6 +3,15 @@ import { getTeamEstimateChoises } from '@/team/utils';
 import { Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
+const findTeamsByIds = (
+  models: IContext['models'],
+  teamIds: string[],
+  orderBy?: ITeamFilter['orderBy'],
+) => {
+  const query = models.Team.find({ _id: { $in: teamIds } });
+  return orderBy ? query.sort(orderBy) : query;
+};
+
 export const teamQueries = {
   getTeam: async (
     _parent: undefined,
@@ -38,8 +47,7 @@ export const teamQueries = {
     const orderBy = params.orderBy;
 
     if (params.teamIds && params.teamIds.length > 0 && !params.userId) {
-      const teamsQuery = models.Team.find({ _id: { $in: params.teamIds } });
-      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
+      return findTeamsByIds(models, params.teamIds, orderBy);
     }
 
     if (params.isTriageEnabled) {
@@ -58,8 +66,7 @@ export const teamQueries = {
         teamIds.push(params.teamId);
       }
 
-      const teamsQuery = models.Team.find({ _id: { $in: teamIds } });
-      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
+      return findTeamsByIds(models, teamIds, orderBy);
     }
 
     if (params.userId) {
@@ -71,8 +78,7 @@ export const teamQueries = {
         teamIds.push(params.teamId);
       }
 
-      const teamsQuery = models.Team.find({ _id: { $in: teamIds } });
-      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
+      return findTeamsByIds(models, teamIds, orderBy);
     }
 
     return models.Team.getTeams(params);

@@ -12,7 +12,9 @@ import { TSearchResultItem } from 'erxes-ui';
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
 const getObjectIdTimestamp = (id: string): number | null =>
-  OBJECT_ID_PATTERN.test(id) ? Number.parseInt(id.slice(0, 8), 16) : null;
+  OBJECT_ID_PATTERN.test(id)
+    ? Number.parseInt(id.slice(0, 8), 16) * 1000
+    : null;
 
 const getCreatedAtTimestamp = (item: TSearchResultItem): number | null => {
   if (item.createdAt) {
@@ -57,17 +59,45 @@ export type TSourceQualifier = {
   query: string;
 };
 
+type TQualifierProvider = {
+  key: string;
+  label?: string | null;
+  subcategory?: string | null;
+  subcategoryLabel?: string | null;
+};
+
+const buildSourceQualifiers = (
+  providers: TQualifierProvider[],
+): Map<string, string[]> => {
+  const qualifiers = new Map<string, string[]>();
+
+  for (const provider of providers) {
+    const candidates = [
+      provider.label,
+      provider.subcategory,
+      provider.subcategoryLabel,
+    ];
+
+    for (const candidate of candidates) {
+      const label = candidate?.trim().toLowerCase();
+
+      if (!label) continue;
+
+      const keys = qualifiers.get(label) ?? [];
+      if (!keys.includes(provider.key)) keys.push(provider.key);
+      qualifiers.set(label, keys);
+    }
+  }
+
+  return qualifiers;
+};
+
 // Detects a leading source/category qualifier such as "deals 7211" or
 // "conversation #123" and returns the owning provider plus the remaining query.
 // Falls back to null so an exact source name remains a normal content query.
 export const parseSourceQualifier = (
   searchValue: string,
-  providers: {
-    key: string;
-    label?: string | null;
-    subcategory?: string | null;
-    subcategoryLabel?: string | null;
-  }[],
+  providers: TQualifierProvider[],
 ): TSourceQualifier | null => {
   const term = searchValue.trim().toLowerCase();
 
@@ -75,22 +105,7 @@ export const parseSourceQualifier = (
     return null;
   }
 
-  const qualifiers = new Map<string, string[]>();
-
-  for (const provider of providers) {
-    for (const candidate of [
-      provider.label,
-      provider.subcategory,
-      provider.subcategoryLabel,
-    ]) {
-      const label = (candidate ?? '').trim().toLowerCase();
-
-      if (!label) continue;
-      const keys = qualifiers.get(label) ?? [];
-      if (!keys.includes(provider.key)) keys.push(provider.key);
-      qualifiers.set(label, keys);
-    }
-  }
+  const qualifiers = buildSourceQualifiers(providers);
 
   for (const [label, providerKeys] of qualifiers) {
     if (!label) {
@@ -138,7 +153,7 @@ export const buildGlobalSearchSubcategories = (
   const total = options.reduce((sum, option) => sum + option.count, 0);
 
   return total > 0
-    ? [{ key: 'all', label: 'All', count: total }, ...options]
+    ? [{ key: 'all', label: 'All', labelKey: 'all', count: total }, ...options]
     : [];
 };
 

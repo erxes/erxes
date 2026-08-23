@@ -55,6 +55,7 @@ export type TGlobalSearchGroup = {
 export type TGlobalSearchSubcategoryOption = {
   key: string;
   label: string;
+  labelKey?: string;
   count: number;
 };
 

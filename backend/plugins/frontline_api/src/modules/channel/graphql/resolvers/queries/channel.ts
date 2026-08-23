@@ -1,6 +1,6 @@
-import { SortOrder } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
-import { IChannelFilter } from '@/channel/@types/channel';
+import { FilterQuery, SortOrder } from 'mongoose';
+import { IContext, IModels } from '~/connectionResolvers';
+import { IChannelDocument, IChannelFilter } from '@/channel/@types/channel';
 import { teamChannelsOnly } from '@/channel/utils';
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { escapeRegExp } from 'erxes-api-shared/utils';
@@ -10,8 +10,42 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 // so none of them can be sorted on in the database.
 const CHANNEL_SORT_FIELDS = ['name', 'createdAt'];
 
+const findChannels = (
+  models: IModels,
+  filter: FilterQuery<IChannelDocument>,
+  sort?: { createdAt: SortOrder },
+) => {
+  const query = models.Channels.find(filter);
+  return sort ? query.sort(sort) : query;
+};
+
+const canViewAllChannels = async (
+  subdomain: string,
+  user: IContext['user'],
+): Promise<boolean> =>
+  Boolean(
+    user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user)),
+  );
+
 export const channelQueries = {
-  getChannel: async (_parent: undefined, { _id }, { models }: IContext) => {
+  getChannel: async (
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, user, subdomain }: IContext,
+  ) => {
+    if (!user?._id) throw new Error('Unauthorized');
+
+    const canView =
+      (await canViewAllChannels(subdomain, user)) ||
+      Boolean(
+        await models.ChannelMembers.exists({
+          channelId: _id,
+          memberId: user._id,
+        }),
+      );
+
+    if (!canView) throw new Error('Permission required');
+
     return models.Channels.getChannel(_id);
   },
 
@@ -87,33 +121,42 @@ export const channelQueries = {
         : undefined;
 
     if (params.channelIds && params.channelIds.length > 0) {
-      const channelQuery = models.Channels.find({
-        _id: { $in: params.channelIds },
-        ...nameFilter,
-        ...scopeFilter,
-      });
-      return sort ? channelQuery.sort(sort) : channelQuery;
+      return findChannels(
+        models,
+        {
+          _id: { $in: params.channelIds },
+          ...nameFilter,
+          ...scopeFilter,
+        },
+        sort,
+      );
     }
 
     if (params.integrationId) {
       const channelIds = await models.Integrations.distinct('channelId', {
         _id: params.integrationId,
       });
-      const channelQuery = models.Channels.find({
-        _id: { $in: channelIds },
-        ...nameFilter,
-        ...scopeFilter,
-      });
-      return sort ? channelQuery.sort(sort) : channelQuery;
+      return findChannels(
+        models,
+        {
+          _id: { $in: channelIds },
+          ...nameFilter,
+          ...scopeFilter,
+        },
+        sort,
+      );
     }
 
     // System owners and users with showAllChannels permission see every channel.
-    if (user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user))) {
-      const channelQuery = models.Channels.find({
-        ...nameFilter,
-        ...scopeFilter,
-      });
-      return sort ? channelQuery.sort(sort) : channelQuery;
+    if (await canViewAllChannels(subdomain, user)) {
+      return findChannels(
+        models,
+        {
+          ...nameFilter,
+          ...scopeFilter,
+        },
+        sort,
+      );
     }
 
     const userId = params.userId || user?._id;
@@ -121,12 +164,15 @@ export const channelQueries = {
       const channelIds = await models.ChannelMembers.find({
         memberId: userId,
       }).distinct('channelId');
-      const channelQuery = models.Channels.find({
-        _id: { $in: channelIds },
-        ...nameFilter,
-        ...scopeFilter,
-      });
-      return sort ? channelQuery.sort(sort) : channelQuery;
+      return findChannels(
+        models,
+        {
+          _id: { $in: channelIds },
+          ...nameFilter,
+          ...scopeFilter,
+        },
+        sort,
+      );
     }
 
     return [];

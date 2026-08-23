@@ -53,7 +53,6 @@ export const types = `
     userId: String
     user: User
 
-    id: String
     posId: Float
     status: String
     message: String

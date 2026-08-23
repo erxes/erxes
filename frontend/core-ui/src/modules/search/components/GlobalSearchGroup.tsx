@@ -107,7 +107,6 @@ export const GlobalSearchProviderGroup = ({
   searchValue: string;
   actionLabel: string;
   previewLimit?: number;
-  sortOrder: TGlobalSearchSortOrder;
   onShowMore?: () => void;
   onLoadMore?: () => void;
   onSelect: (path: string) => void;
@@ -258,7 +257,7 @@ export const GlobalSearchPluginsGroup = ({
     const stream = streamRef.current;
     const scope = groups
       .map(({ key }) => key)
-      .sort()
+      .sort((left, right) => left.localeCompare(right))
       .join(':');
 
     if (stream.search !== searchValue || stream.scope !== scope) {

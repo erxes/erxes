@@ -1,6 +1,6 @@
-import { highlightMatch } from 'erxes-ui';
 import { IconCornerDownLeft } from '@tabler/icons-react';
-import { Command, TSearchResultItem } from 'erxes-ui';
+import { Command, highlightMatch, TSearchResultItem } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const includesSearchValue = (
   value: string | undefined,
@@ -38,6 +38,7 @@ export const GlobalSearchItem = ({
   actionLabel: string;
   onSelect: (path: string) => void;
 }) => {
+  const { t } = useTranslation(['common', 'mongolian']);
   const visibleFieldsMatch =
     includesSearchValue(item.title, searchValue) ||
     includesSearchValue(item.description, searchValue);
@@ -60,16 +61,22 @@ export const GlobalSearchItem = ({
         <span className="block truncate font-medium text-foreground">
           {highlightMatch(item.title, searchValue)}
         </span>
-        {matchedField ? (
+        {matchedField && (
           <span className="block truncate text-xs text-muted-foreground">
-            {matchedField.label}:{' '}
-            {highlightMatch(matchedField.value, searchValue)}
+            {matchedField.labelKey
+              ? t(matchedField.labelKey, {
+                  ns: matchedField.labelNamespace,
+                  defaultValue: matchedField.label,
+                })
+              : matchedField.label}
+            : {highlightMatch(matchedField.value, searchValue)}
           </span>
-        ) : item.description ? (
+        )}
+        {!matchedField && item.description && (
           <span className="block truncate text-xs text-muted-foreground">
             {highlightMatch(item.description, searchValue)}
           </span>
-        ) : null}
+        )}
       </span>
       <Command.Shortcut className="flex shrink-0 items-center gap-2 tracking-normal">
         <span className="hidden sm:inline">{actionLabel}</span>

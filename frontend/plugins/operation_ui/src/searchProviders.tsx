@@ -23,8 +23,8 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
-      body: '{ list { _id name createdAt } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TTaskNode>(payload, 'gs_operation_tasks'),
@@ -51,8 +51,8 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit, orderBy: $orderBy }',
-      body: '{ list { _id name createdAt } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>

@@ -95,7 +95,7 @@ const formQueries: Record<string, Resolver> = {
       params: {
         ...args,
         orderBy: args.orderBy
-          ? { createdDate: args.orderBy.createdAt === -1 ? -1 : 1 }
+          ? { createdAt: args.orderBy.createdAt === -1 ? -1 : 1 }
           : { createdAt: 1 },
       },
       query: { ...qry },
@@ -174,8 +174,6 @@ const formQueries: Record<string, Resolver> = {
     }
 
     counts.total = await count(qry);
-    console.log('count', qry);
-
     return counts;
   },
 

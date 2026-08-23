@@ -26,8 +26,8 @@ const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
     {
       alias: 'gs_mongolian_put_responses',
       field: 'putResponses',
-      args: 'search: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id ebarimtId: id number customerName inactiveId receipts createdAt } totalCount }',
+      args: 'search: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id ebarimtId: id number customerName inactiveId receipts createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -38,10 +38,22 @@ const putResponsesSearchProvider = defineSearchProvider<TPutResponseNode>({
     description: putResponse.customerName || undefined,
     createdAt: putResponse.createdAt ?? undefined,
     matchFields: [
-      { label: 'eBarimt ID', value: putResponse.ebarimtId },
-      { label: 'Inactive ID', value: putResponse.inactiveId },
+      {
+        label: 'eBarimt ID',
+        labelKey: 'globalSearch.ebarimtId',
+        labelNamespace: 'mongolian',
+        value: putResponse.ebarimtId,
+      },
+      {
+        label: 'Inactive ID',
+        labelKey: 'globalSearch.inactiveId',
+        labelNamespace: 'mongolian',
+        value: putResponse.inactiveId,
+      },
       ...(putResponse.receipts ?? []).map((receipt) => ({
         label: 'Receipt ID',
+        labelKey: 'globalSearch.receiptId',
+        labelNamespace: 'mongolian',
         value: receipt.id,
       })),
     ].flatMap(({ label, value }) => (value ? [{ label, value }] : [])),
@@ -66,8 +78,8 @@ const exchangeRatesSearchProvider = defineSearchProvider<TExchangeRateNode>({
     {
       alias: 'gs_mongolian_exchange_rates',
       field: 'exchangeRatesMain',
-      args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id mainCurrency rateCurrency rate createdAt } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id mainCurrency rateCurrency rate createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
