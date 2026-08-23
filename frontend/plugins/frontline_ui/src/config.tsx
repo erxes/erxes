@@ -3,6 +3,7 @@ import {
   IconChartHistogram,
   IconForms,
   IconMail,
+  IconPhone,
   IconSettings,
   IconStackFront,
   IconTicket,
@@ -112,6 +113,16 @@ export const CONFIG: IUIConfig = {
       name: 'reports',
       icon: IconChartHistogram,
       path: 'frontline/reports',
+    },
+    {
+      name: 'call-center-dashboard',
+      icon: IconPhone,
+      path: 'frontline/calls/dashboard',
+    },
+    {
+      name: 'call-center-statistics',
+      icon: IconPhone,
+      path: 'frontline/calls/statistics',
     },
     {
       name: 'forms',

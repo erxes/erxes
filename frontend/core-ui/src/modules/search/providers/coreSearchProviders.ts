@@ -18,7 +18,7 @@ type TCategorySearchNode = {
 const CORE_RESULT_PATHS: Record<string, (id: string) => string> = {
   'contacts-customer': (id) => `/contacts/customers?contactId=${id}`,
   'contacts-company': (id) => `/contacts/companies?companyId=${id}`,
-  'products-product': (id) => `/products?product_id=${id}`,
+  'products-product': (id) => `/settings/products?product_id=${id}`,
   'settings-team-member': (id) => `/settings/team/members?user_id=${id}`,
   'settings-branch': (id) => `/settings/structures/branches?branch_id=${id}`,
   'settings-department': (id) =>

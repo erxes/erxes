@@ -1,4 +1,11 @@
-import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
+import {
+  IconAdjustmentsCode,
+  IconBucketOff,
+  IconCashBanknote,
+  IconFlagStar,
+  IconReceipt,
+  IconScale,
+} from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
@@ -76,6 +83,46 @@ export const CONFIG: IUIConfig = {
       name: 'check-sync',
       icon: IconCashBanknote,
       path: 'accounting/check-sync',
+    },
+    {
+      name: 'fund-rate-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/fundRate',
+    },
+    {
+      name: 'debt-rate-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/debRate',
+    },
+    {
+      name: 'inventory-cost-calc',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/inventory',
+    },
+    {
+      name: 'fixed-asset-adjustment',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/fxa',
+    },
+    {
+      name: 'closing-entry',
+      icon: IconAdjustmentsCode,
+      path: 'accounting/adjustment/closing',
+    },
+    {
+      name: 'inventory-remainders',
+      icon: IconFlagStar,
+      path: 'accounting/inventories/remainders',
+    },
+    {
+      name: 'inventory-count',
+      icon: IconScale,
+      path: 'accounting/inventories/safe-remainders',
+    },
+    {
+      name: 'reserve-remainders',
+      icon: IconBucketOff,
+      path: 'accounting/inventories/reserve-remainders',
     },
     {
       name: 'config',
