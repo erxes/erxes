@@ -58,7 +58,7 @@ const isEmptyValue = (value: unknown) =>
 
 const normalizeForCompare = (value: unknown) =>
   Array.isArray(value)
-    ? [...value].map(String).sort()
+    ? [...value].map(String).sort((a, b) => a.localeCompare(b))
     : value;
 
 const isEqualValue = (a: unknown, b: unknown) => {
@@ -147,6 +147,52 @@ const validateFieldValue = (
 const normalizeFieldValue = (def: FieldDef, value: unknown) =>
   def.type === 'number' ? Number(value) : value;
 
+
+type EntryOutcome =
+  | { reason: string; storageKey?: undefined; normalized?: undefined }
+  | { reason?: undefined; storageKey: string; normalized: unknown };
+
+/** Applies the full policy to one submitted pair against current state. */
+const evaluateEntry = (
+  defByKey: Map<string, FieldDef>,
+  current: Record<string, unknown>,
+  entry: { field: string; value?: unknown },
+): EntryOutcome => {
+  const { field, value } = entry;
+  const def = defByKey.get(field);
+
+  if (!def || def.contentType !== CUSTOMERS_CONTENT_TYPE) {
+    return { reason: 'unknown-field' };
+  }
+
+  const storageKey = String(def._id);
+  const existing = current[storageKey];
+
+  if (!isEmptyValue(existing) && isEmptyValue(value)) {
+    return { reason: 'clear-not-allowed' };
+  }
+
+  if (isEmptyValue(existing) && isEmptyValue(value)) {
+    return { reason: 'already-set' };
+  }
+
+  const validation = validateFieldValue(def, value);
+
+  if (!validation.ok) {
+    return { reason: validation.reason };
+  }
+
+  const normalized = normalizeFieldValue(def, value);
+
+  if (existing != null) {
+    return {
+      reason: isEqualValue(existing, normalized) ? 'already-set' : 'conflict',
+    };
+  }
+
+  return { storageKey, normalized };
+};
+
 export const writeCustomProperties = async (
   deps: WriteCustomPropertiesDeps,
   input: WriteCustomPropertiesInput,
@@ -180,48 +226,16 @@ export const writeCustomProperties = async (
   const changedFields: string[] = [];
   const writes: Record<string, unknown> = {};
 
-  for (const { field, value } of input.values) {
-    const def = defByKey.get(field);
+  for (const entry of input.values) {
+    const outcome = evaluateEntry(defByKey, current, entry);
 
-    if (!def || def.contentType !== CUSTOMERS_CONTENT_TYPE) {
-      skipped.push({ field, reason: 'unknown-field' });
+    if (outcome.reason) {
+      skipped.push({ field: entry.field, reason: outcome.reason });
       continue;
     }
 
-    const storageKey = String(def._id);
-    const existing = current[storageKey];
-
-    if (!isEmptyValue(existing) && isEmptyValue(value)) {
-      skipped.push({ field, reason: 'clear-not-allowed' });
-      continue;
-    }
-
-    if (isEmptyValue(existing) && isEmptyValue(value)) {
-      skipped.push({ field, reason: 'already-set' });
-      continue;
-    }
-
-    const validation = validateFieldValue(def, value);
-
-    if (!validation.ok) {
-      skipped.push({ field, reason: validation.reason });
-      continue;
-    }
-
-    const normalized = normalizeFieldValue(def, value);
-
-    if (existing !== undefined && existing !== null) {
-      skipped.push({
-        field,
-        reason: isEqualValue(existing, normalized)
-          ? 'already-set'
-          : 'conflict',
-      });
-      continue;
-    }
-
-    writes[storageKey] = normalized;
-    changedFields.push(field);
+    writes[outcome.storageKey as string] = outcome.normalized;
+    changedFields.push(entry.field);
   }
 
   if (changedFields.length) {
