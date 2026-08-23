@@ -288,11 +288,10 @@ export const secondOrderColumns: (t: TFunction) => ColumnDef<IOrder>[] = (
     header: () => (
       <RecordTable.InlineHead icon={IconFileX} label="Return Description" />
     ),
-    cell: ({ cell, row }) => {
-      const value = cell.getValue() as string;
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value} />
+          <TextOverflowTooltip value={cell.getValue() as string} />
         </RecordTableInlineCell>
       );
     },
