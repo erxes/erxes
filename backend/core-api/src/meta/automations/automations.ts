@@ -85,6 +85,45 @@ const buildCustomerPrimaryFieldRules = (
 export const initAutomation = (app: Express) =>
   startAutomations(app, 'core', {
     constants: CORE_AUTOMATION_CONSTANTS,
+    receiveActions: async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { collectionType, action, execution } = data;
+
+      if (collectionType !== 'customFields') {
+        throw new Error(
+          `Unsupported core automation collection: ${collectionType}`,
+        );
+      }
+
+      const { writeCustomProperties } = await import(
+        './writeCustomProperties'
+      );
+
+      // Helper-tool executions serialize the full mongoose document, so
+      // model-supplied tool arguments arrive on execution.inputs even though
+      // the producer wire type omits the field.
+      const inputs = (execution as { inputs?: Record<string, unknown> }).inputs ?? {};
+      const config = (action.config ?? {}) as Record<string, unknown>;
+
+      return {
+        result: await writeCustomProperties(
+          {
+            getCustomer: async (customerId) =>
+              models.Customers.findOne({ _id: customerId }).lean(),
+            findFields: async (query) => models.Fields.find(query).lean(),
+            updateCustomer: (customerId, doc) =>
+              models.Customers.updateCustomer(customerId, doc),
+          },
+          {
+            customerId: (inputs.customerId ?? config.customerId) as string,
+            values: (inputs.values ?? config.values) as Array<{
+              field: string;
+              value: unknown;
+            }>,
+          },
+        ),
+      };
+    },
     checkTargetMatch: async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 

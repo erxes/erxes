@@ -229,6 +229,16 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       group: CORE_ACTION_GROUPS.COMMUNICATION_AND_INTEGRATIONS,
       output: AI_AGENT_ACTION_OUTPUT,
     },
+    {
+      moduleName: 'properties',
+      collectionName: 'customFields',
+      method: 'create',
+      icon: 'IconAdjustmentsHorizontal',
+      label: 'Write custom properties',
+      description:
+        'Guarded write of custom property values onto a customer: validates each value against its field definition, fills only missing fields, never overwrites or clears existing data. Designed for AI-agent helper tools.',
+      allowTargetFromActions: true,
+    },
     // Timing & Delays
     {
       type: AUTOMATION_CORE_ACTIONS.DELAY,
