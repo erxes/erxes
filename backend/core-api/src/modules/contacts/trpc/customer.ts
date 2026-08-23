@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { agentMeta } from '~/utils/agentMeta';
 import { createOrUpdate } from '../utils';
-import { writeCustomProperties } from '~/meta/automations/writeCustomProperties';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -147,38 +146,6 @@ export const customerRouter = t.router({
         const { _id, doc } = input;
         const { models } = ctx;
         return models.Customers.updateCustomer(_id, doc);
-      }),
-
-    captureProperties: t.procedure
-      .meta(
-        agentMeta(
-          "Save buyer-requirement custom property values onto a customer, guarded: unknown fields, wrong types and invalid options are rejected per field; already-set values are skipped; conflicting different values are never overwritten; clearing filled fields is refused. Input: { customerId, values: [{ field, value }] } where field is a custom field _id or code discovered via fields.fieldsCombinedByContentType (contentType core:customer). Call customers.findOne first to see current propertiesData. Returns { saved, changedFields, skipped[{field,reason}] }; repeat calls with identical data save nothing.",
-          { module: 'contacts', action: 'contactsUpdate' },
-        ),
-      )
-      .input(
-        z
-          .object({
-            customerId: z.string(),
-            values: z
-              .array(z.object({ field: z.string(), value: z.unknown() }))
-              .min(1),
-          })
-          .strict(),
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
-
-        return writeCustomProperties(
-          {
-            getCustomer: (customerId) => models.Customers.findOne({ _id: customerId }),
-            findFields: async (query) =>
-              models.Fields.find(query).lean(),
-            updateCustomer: (customerId, doc) =>
-              models.Customers.updateCustomer(customerId, doc),
-          },
-          input,
-        );
       }),
 
     updateOne: t.procedure
