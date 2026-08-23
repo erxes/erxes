@@ -16,6 +16,7 @@
 interface FieldDef {
   _id: string;
   contentType?: string | null;
+  code?: string | null;
   type?: string | null;
   validation?: string | null;
   options?: Array<{ value: string }> | null;
@@ -50,22 +51,101 @@ export interface WriteCustomPropertiesResult {
 
 const CUSTOMERS_CONTENT_TYPE = 'core:customer';
 
+const OPTION_BASED_TYPES = ['select', 'radio', 'check'];
+
 const isEmptyValue = (value: unknown) =>
   value === null || value === undefined || value === '';
 
+const normalizeForCompare = (value: unknown) =>
+  Array.isArray(value)
+    ? [...value].map(String).sort()
+    : value;
+
 const isEqualValue = (a: unknown, b: unknown) => {
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
-  }
-  return a === b;
+  const left = normalizeForCompare(a);
+  const right = normalizeForCompare(b);
+
+  return (
+    Array.isArray(left) === Array.isArray(right) &&
+    JSON.stringify(left) === JSON.stringify(right)
+  );
 };
 
-const isValidNumber = (value: unknown) =>
-  typeof value === 'number'
-    ? Number.isFinite(value)
-    : typeof value === 'string' && value.trim() !== ''
-      ? Number.isFinite(Number(value))
-      : false;
+const isValidNumber = (value: unknown) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value);
+  }
+
+  return typeof value === 'string' && value.trim() !== ''
+    ? Number.isFinite(Number(value))
+    : false;
+};
+
+const isValidDate = (value: unknown) =>
+  value instanceof Date ||
+  (typeof value === 'string' && !Number.isNaN(Date.parse(value)));
+
+const isAllowedOption = (def: FieldDef, value: unknown) =>
+  Boolean(def.options?.some((option) => option.value === value));
+
+const isAllowedOptionArray = (def: FieldDef, value: unknown) => {
+  const optionValues = new Set((def.options ?? []).map((o) => o.value));
+
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((member) => optionValues.has(String(member)))
+  );
+};
+
+const isTextual = (value: unknown) => typeof value === 'string';
+
+/**
+ * Per-field definition validation. Returns 'valid' or the skip reason.
+ * Numeric coercion happens only at normalization time — booleans, arrays,
+ * and other non-numeric shapes never validate.
+ */
+const validateFieldValue = (
+  def: FieldDef,
+  value: unknown,
+): { ok: boolean; reason: string } => {
+  switch (def.type) {
+    case 'number': {
+      return { ok: isValidNumber(value), reason: 'invalid-value' };
+    }
+    case 'date': {
+      return { ok: isValidDate(value), reason: 'invalid-value' };
+    }
+    case 'select':
+    case 'radio': {
+      return {
+        ok: isAllowedOption(def, value),
+        reason: 'invalid-option',
+      };
+    }
+    case 'check': {
+      return {
+        ok: isAllowedOptionArray(def, value),
+        reason: 'invalid-option',
+      };
+    }
+    case 'text':
+    case 'textarea':
+    case 'input': {
+      const valid =
+        def.validation === 'number' ? isValidNumber(value) : isTextual(value);
+
+      return { ok: valid, reason: 'invalid-value' };
+    }
+    default: {
+      return { ok: true, reason: '' };
+    }
+  }
+};
+
+/** Normalizes validated values for storage (numeric strings -> numbers). */
+const normalizeFieldValue = (def: FieldDef, value: unknown) =>
+  def.type === 'number' ? Number(value) : value;
 
 export const writeCustomProperties = async (
   deps: WriteCustomPropertiesDeps,
@@ -86,103 +166,57 @@ export const writeCustomProperties = async (
     })) ?? [];
 
   // Definitions resolve by both _id and code; submitted keys keep their
-  // original spelling so changedFields echoes what the caller sent.
+  // original spelling so changedFields echoes what the caller sent, while
+  // storage always uses the canonical field _id.
   const defByKey = new Map<string, FieldDef>();
   for (const def of definitions) {
     defByKey.set(String(def._id), def);
-    if (typeof (def as { code?: unknown }).code === 'string') {
-      defByKey.set((def as unknown as { code: string }).code, def);
+    if (typeof def.code === 'string') {
+      defByKey.set(def.code, def);
     }
   }
 
   const skipped: Array<{ field: string; reason: string }> = [];
   const changedFields: string[] = [];
   const writes: Record<string, unknown> = {};
-  const skip = (field: string, reason: string) =>
-    skipped.push({ field, reason });
 
   for (const { field, value } of input.values) {
     const def = defByKey.get(field);
 
     if (!def || def.contentType !== CUSTOMERS_CONTENT_TYPE) {
-      skip(field, 'unknown-field');
+      skipped.push({ field, reason: 'unknown-field' });
       continue;
     }
 
     const storageKey = String(def._id);
-    const hasCurrent =
-      Object.prototype.hasOwnProperty.call(current, storageKey) &&
-      !isEmptyValue(current[storageKey]);
-
-    if (hasCurrent && isEmptyValue(value)) {
-      skip(field, 'clear-not-allowed');
-      continue;
-    }
-
-    if (!hasCurrent && isEmptyValue(value)) {
-      skip(field, 'already-set');
-      continue;
-    }
-
-    let valid = false;
-
-    switch (def.type) {
-      case 'number': {
-        valid = isValidNumber(value);
-        break;
-      }
-      case 'date': {
-        valid =
-          value instanceof Date ||
-          (typeof value === 'string' && !Number.isNaN(Date.parse(value)));
-        break;
-      }
-      case 'select':
-      case 'radio': {
-        valid = Boolean(def.options?.some((option) => option.value === value));
-        break;
-      }
-      case 'check': {
-        const optionValues = new Set(
-          (def.options ?? []).map((option) => option.value),
-        );
-        valid =
-          Array.isArray(value) &&
-          value.length > 0 &&
-          value.every((member) => optionValues.has(String(member)));
-        break;
-      }
-      case 'text':
-      case 'textarea':
-      case 'input': {
-        valid =
-          def.validation === 'number'
-            ? isValidNumber(value)
-            : typeof value === 'string';
-        break;
-      }
-      default: {
-        valid = true;
-      }
-    }
-
-    if (!valid) {
-      const optionBased = ['select', 'radio', 'check'].includes(def.type ?? '');
-      skip(field, optionBased ? 'invalid-option' : 'invalid-value');
-      continue;
-    }
-
-    const normalized = def.type === 'number' ? Number(value) : value;
-
-    // Always compare and store under the canonical field _id so lookups by
-    // code cannot create duplicate keys.
     const existing = current[storageKey];
 
+    if (!isEmptyValue(existing) && isEmptyValue(value)) {
+      skipped.push({ field, reason: 'clear-not-allowed' });
+      continue;
+    }
+
+    if (isEmptyValue(existing) && isEmptyValue(value)) {
+      skipped.push({ field, reason: 'already-set' });
+      continue;
+    }
+
+    const validation = validateFieldValue(def, value);
+
+    if (!validation.ok) {
+      skipped.push({ field, reason: validation.reason });
+      continue;
+    }
+
+    const normalized = normalizeFieldValue(def, value);
+
     if (existing !== undefined && existing !== null) {
-      skip(
+      skipped.push({
         field,
-        isEqualValue(existing, normalized) ? 'already-set' : 'conflict',
-      );
+        reason: isEqualValue(existing, normalized)
+          ? 'already-set'
+          : 'conflict',
+      });
       continue;
     }
 
