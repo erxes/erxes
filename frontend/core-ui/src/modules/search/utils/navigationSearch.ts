@@ -29,7 +29,8 @@ const getModuleItems = (
   parents: string[],
 ): TNavigationSearchItem[] => {
   const path = normalizePath(module.path);
-  const isSettings = path.startsWith('settings/') || path.startsWith('settings');
+  const isSettings =
+    path.startsWith('settings/') || path.startsWith('settings');
   const itemCategory: TNavigationSearchItemCategory = isSettings
     ? 'settings'
     : category;

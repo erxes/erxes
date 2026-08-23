@@ -1,4 +1,4 @@
-import { highlightMatch } from '@/search/utils/highlightMatch';
+import { highlightMatch } from 'erxes-ui';
 import { IconCornerDownLeft } from '@tabler/icons-react';
 import { Command, TSearchResultItem } from 'erxes-ui';
 

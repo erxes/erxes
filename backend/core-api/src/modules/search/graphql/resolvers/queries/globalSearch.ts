@@ -21,6 +21,11 @@ const compactMatchFields = (
     typeof value === 'string' && value.trim() ? [{ label, value }] : [],
   );
 
+const getCreatedAt = (value: object): Date | undefined =>
+  'createdAt' in value && value.createdAt instanceof Date
+    ? value.createdAt
+    : undefined;
+
 type TQueryParams = {
   searchValue?: string;
   module?: string;
@@ -208,7 +213,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => {
+          return docs.map((doc) => {
             const name =
               [doc.firstName, doc.lastName].filter(Boolean).join(' ') ||
               doc.primaryEmail ||
@@ -223,7 +228,7 @@ export const globalSearchQueries = {
               module: 'contacts-customer',
               category: 'core-modules',
               path: `/contacts/customers?contactId=${doc._id}`,
-              createdAt: doc.createdAt,
+              createdAt: getCreatedAt(doc),
               matchFields: compactMatchFields([
                 { label: 'First name', value: doc.firstName },
                 { label: 'Last name', value: doc.lastName },
@@ -243,7 +248,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.primaryName || 'Unnamed',
             description: doc.primaryEmail || doc.primaryPhone || undefined,
@@ -251,7 +256,7 @@ export const globalSearchQueries = {
             module: 'contacts-company',
             category: 'core-modules',
             path: `/contacts/companies?companyId=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Company name', value: doc.primaryName },
               { label: 'Email', value: doc.primaryEmail },
@@ -271,7 +276,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.name || doc.code || 'Unnamed product',
             description: doc.code || doc.shortName || undefined,
@@ -279,7 +284,7 @@ export const globalSearchQueries = {
             module: 'products-product',
             category: 'core-modules',
             path: `/products?product_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Product name', value: doc.name },
               { label: 'Code', value: doc.code },
@@ -386,7 +391,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title:
               doc.details?.fullName || doc.username || doc.email || 'Unnamed',
@@ -395,7 +400,7 @@ export const globalSearchQueries = {
             module: 'settings-team-member',
             category: 'settings',
             path: `/settings/team/members?user_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Full name', value: doc.details?.fullName },
               { label: 'Username', value: doc.username },
@@ -415,7 +420,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.title || doc.code || 'Branch',
             description: doc.code || doc.address || undefined,
@@ -423,7 +428,7 @@ export const globalSearchQueries = {
             module: 'settings-branch',
             category: 'settings',
             path: `/settings/structures/branches?branch_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Branch', value: doc.title },
               { label: 'Code', value: doc.code },
@@ -441,7 +446,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.title || doc.code || 'Department',
             description: doc.code || doc.description || undefined,
@@ -449,7 +454,7 @@ export const globalSearchQueries = {
             module: 'settings-department',
             category: 'settings',
             path: `/settings/structures/departments?department_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Department', value: doc.title },
               { label: 'Code', value: doc.code },
@@ -467,7 +472,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.title || doc.code || 'Unit',
             description: doc.code || doc.description || undefined,
@@ -475,7 +480,7 @@ export const globalSearchQueries = {
             module: 'settings-unit',
             category: 'settings',
             path: `/settings/structures/units?unit_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
             matchFields: compactMatchFields([
               { label: 'Unit', value: doc.title },
               { label: 'Code', value: doc.code },
@@ -493,7 +498,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.title || doc.code || 'Position',
             description: doc.code || undefined,
@@ -501,7 +506,7 @@ export const globalSearchQueries = {
             module: 'settings-position',
             category: 'settings',
             path: `/settings/structures/positions?position_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
           }));
         },
       },
@@ -514,7 +519,7 @@ export const globalSearchQueries = {
             .limit(limit)
             .lean();
 
-          return docs.map((doc: any) => ({
+          return docs.map((doc) => ({
             id: doc._id.toString(),
             title: doc.name || 'Brand',
             description: doc.description || undefined,
@@ -522,7 +527,7 @@ export const globalSearchQueries = {
             module: 'settings-brand',
             category: 'settings',
             path: `/settings/brands?brand_id=${doc._id}`,
-            createdAt: doc.createdAt,
+            createdAt: getCreatedAt(doc),
           }));
         },
       },

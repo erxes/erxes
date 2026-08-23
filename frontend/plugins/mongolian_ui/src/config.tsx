@@ -1,16 +1,16 @@
 import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
-import { SEARCH_PROVIDERS } from './searchProviders';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const MainNavigation = lazy(() =>
-  import('./modules/MainNavigation').then((module) => ({
+  import('@/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
 
 const SettingsNavigation = lazy(() =>
-  import('./modules/SettingsNavigation').then((module) => ({
+  import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
   })),
 );

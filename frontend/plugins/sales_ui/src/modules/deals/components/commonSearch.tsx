@@ -2,19 +2,22 @@ import { IconCalendar, IconLoader2, IconSearch } from '@tabler/icons-react';
 import {
   Badge,
   Button,
-  CalendarTwoMonths,
+  DateRangeDialogContent,
   Dialog,
+  highlightMatch,
   Input,
+  parseDateRangeFromString,
   Select,
   Skeleton,
   Tabs,
-  ToggleGroup,
 } from 'erxes-ui';
 
 import { IDeal } from '@/deals/types/deals';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { highlightMatch } from '@/deals/utils/highlightMatch';
-import { TDealSearchSortOrder, useDealSearch } from '../hooks/useDealSearch';
+import {
+  TDealSearchSortOrder,
+  useDealSearch,
+} from '@/deals/hooks/useDealSearch';
 import { useDebounce } from 'use-debounce';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
@@ -28,61 +31,6 @@ const dealDateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 type TDealSearchCategory = 'date' | 'number' | 'name';
-type TDateRangeMode = 'day' | 'month' | 'quarter' | 'halfYear' | 'year';
-
-const DATE_RANGE_YEARS = Array.from(
-  { length: 13 },
-  (_, index) => new Date().getFullYear() - 7 + index,
-);
-
-const MONTH_LABELS = Array.from({ length: 12 }, (_, month) =>
-  new Intl.DateTimeFormat(undefined, { month: 'short' }).format(
-    new Date(2024, month, 1),
-  ),
-);
-
-const getPeriodDateRange = (
-  year: number,
-  startMonth: number,
-  monthCount: number,
-): DateRange => ({
-  from: new Date(year, startMonth, 1),
-  to: new Date(year, startMonth + monthCount, 0),
-});
-
-const isSameDateRange = (left?: DateRange, right?: DateRange) =>
-  left?.from?.getTime() === right?.from?.getTime() &&
-  left?.to?.getTime() === right?.to?.getTime();
-
-const getDatePeriodOptions = (mode: TDateRangeMode, year: number) => {
-  if (mode === 'month') {
-    return MONTH_LABELS.map((label, month) => ({
-      label,
-      range: getPeriodDateRange(year, month, 1),
-    }));
-  }
-
-  if (mode === 'quarter') {
-    return Array.from({ length: 4 }, (_, quarter) => ({
-      label: `Q${quarter + 1}`,
-      range: getPeriodDateRange(year, quarter * 3, 3),
-    }));
-  }
-
-  if (mode === 'halfYear') {
-    return Array.from({ length: 2 }, (_, half) => ({
-      label: `H${half + 1}`,
-      range: getPeriodDateRange(year, half * 6, 6),
-    }));
-  }
-
-  return [
-    {
-      label: String(year),
-      range: getPeriodDateRange(year, 0, 12),
-    },
-  ];
-};
 
 const isSearchReady = (search: string, category: TDealSearchCategory) => {
   if (category === 'date') {
@@ -101,8 +49,6 @@ export const CommonDealSearch = () => {
   const [open, setOpen] = useState(false);
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>();
-  const [draftDateRange, setDraftDateRange] = useState<DateRange>();
-  const [dateRangeMode, setDateRangeMode] = useState<TDateRangeMode>('day');
   const [category, setCategory] = useState<TDealSearchCategory>('name');
   const [sortOrder, setSortOrder] = useState<TDealSearchSortOrder>('newest');
   const trimmedSearch = search.trim();
@@ -191,150 +137,25 @@ export const CommonDealSearch = () => {
                 <Button
                   variant="ghost"
                   className="h-10 w-full justify-start rounded-none px-3 font-normal text-muted-foreground hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none"
-                  onClick={() => setDraftDateRange(dateRange)}
                 >
                   <IconCalendar className="size-4" />
                   {selectedDateLabel}
                 </Button>
               </Dialog.Trigger>
-              <Dialog.Content className="max-w-xl gap-0 p-0">
-                <Dialog.Header className="space-y-3 p-6">
-                  <Dialog.Title className="text-sm capitalize">
-                    {t('date-created', 'Date created')}
-                  </Dialog.Title>
-                  <ToggleGroup
-                    type="single"
-                    variant="outline"
-                    size="sm"
-                    value={dateRangeMode}
-                    onValueChange={(value) => {
-                      if (value) {
-                        setDateRangeMode(value as TDateRangeMode);
-                      }
-                    }}
-                    className="inline-flex"
-                  >
-                    <ToggleGroup.Item
-                      className="focus-visible:ring-0 focus-visible:outline-none"
-                      value="day"
-                    >
-                      {t('day', 'Day')}
-                    </ToggleGroup.Item>
-                    <ToggleGroup.Item
-                      className="focus-visible:ring-0 focus-visible:outline-none"
-                      value="month"
-                    >
-                      {t('month', 'Month')}
-                    </ToggleGroup.Item>
-                    <ToggleGroup.Item
-                      className="focus-visible:ring-0 focus-visible:outline-none"
-                      value="quarter"
-                    >
-                      {t('quarter', 'Quarter')}
-                    </ToggleGroup.Item>
-                    <ToggleGroup.Item
-                      className="focus-visible:ring-0 focus-visible:outline-none"
-                      value="halfYear"
-                    >
-                      {t('half-year', 'Half Year')}
-                    </ToggleGroup.Item>
-                    <ToggleGroup.Item
-                      className="focus-visible:ring-0 focus-visible:outline-none"
-                      value="year"
-                    >
-                      {t('year', 'Year')}
-                    </ToggleGroup.Item>
-                  </ToggleGroup>
-                </Dialog.Header>
-                <div className="flex h-88 justify-center overflow-auto border-y border-muted py-6">
-                  {dateRangeMode === 'day' ? (
-                    <CalendarTwoMonths
-                      mode="range"
-                      numberOfMonths={2}
-                      showOutsideDays
-                      fixedWeeks
-                      defaultMonth={draftDateRange?.from}
-                      selected={draftDateRange}
-                      onSelect={setDraftDateRange}
-                      className="focus-visible:outline-none [&_button:focus-visible]:outline-none [&_button:focus-visible]:ring-0"
-                    />
-                  ) : (
-                    <div
-                      className={
-                        dateRangeMode === 'month'
-                          ? 'grid w-full grid-cols-2 gap-6 px-6 pb-6'
-                          : 'flex w-full flex-col gap-6 px-6 pb-6'
-                      }
-                    >
-                      {DATE_RANGE_YEARS.map((year) => (
-                        <section className="space-y-3" key={year}>
-                          {dateRangeMode !== 'year' && (
-                            <h3 className="text-sm font-semibold">{year}</h3>
-                          )}
-                          <div
-                            className={
-                              dateRangeMode === 'month'
-                                ? 'grid grid-cols-3 gap-1'
-                                : dateRangeMode === 'quarter'
-                                ? 'grid grid-cols-4 gap-1'
-                                : dateRangeMode === 'halfYear'
-                                ? 'grid grid-cols-2 gap-1'
-                                : 'grid grid-cols-1 gap-1'
-                            }
-                          >
-                            {getDatePeriodOptions(dateRangeMode, year).map(
-                              (option) => {
-                                const selected = isSameDateRange(
-                                  draftDateRange,
-                                  option.range,
-                                );
-
-                                return (
-                                  <Button
-                                    key={option.label}
-                                    variant="secondary"
-                                    className={
-                                      selected
-                                        ? 'bg-primary text-primary-foreground hover:bg-primary focus-visible:ring-0 focus-visible:outline-none'
-                                        : 'focus-visible:ring-0 focus-visible:outline-none'
-                                    }
-                                    onClick={() =>
-                                      setDraftDateRange(option.range)
-                                    }
-                                  >
-                                    {option.label}
-                                  </Button>
-                                );
-                              },
-                            )}
-                          </div>
-                        </section>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Dialog.Footer className="p-6">
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    className="focus-visible:ring-0 focus-visible:outline-none"
-                    onClick={() => setDateDialogOpen(false)}
-                  >
-                    {t('cancel', 'Cancel')}
-                  </Button>
-                  <Button
-                    size="lg"
-                    disabled={!draftDateRange?.from}
-                    className="focus-visible:ring-0 focus-visible:outline-none"
-                    onClick={() => {
-                      setDateRange(draftDateRange);
-                      setDateDialogOpen(false);
-                    }}
-                  >
-                    {t('apply', 'Apply')}
-                  </Button>
-                </Dialog.Footer>
-              </Dialog.Content>
+              <DateRangeDialogContent
+                label={t('date-created', 'Date created')}
+                value={
+                  dateRange?.from
+                    ? `${dateRange.from.toISOString()},${(
+                        dateRange.to ?? dateRange.from
+                      ).toISOString()}`
+                    : null
+                }
+                onApply={(value) => {
+                  setDateRange(parseDateRangeFromString(value));
+                  setDateDialogOpen(false);
+                }}
+              />
             </Dialog>
           ) : (
             <div className="relative">

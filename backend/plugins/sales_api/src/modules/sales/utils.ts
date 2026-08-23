@@ -18,9 +18,9 @@ import {
   IPipelineDocument,
   IProductData,
   IStageDocument,
-} from './@types';
-import { CLOSE_DATE_TYPES, SALES_STATUSES } from './constants';
-import { generateFilter } from './graphql/resolvers/queries/deals';
+} from '@/sales/@types';
+import { CLOSE_DATE_TYPES, SALES_STATUSES } from '@/sales/constants';
+import { generateFilter } from '@/sales/graphql/resolvers/queries/deals';
 
 export const getCreatedAtSearchFilter = (
   search: string,

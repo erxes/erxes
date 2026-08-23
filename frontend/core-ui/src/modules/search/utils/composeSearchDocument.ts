@@ -231,7 +231,9 @@ const buildSearchDocument = (
   const selectionsSource = selections.map(printSelection).join('\n');
 
   const document = parse(
-    `query ${operationName}(${buildVariableDefs(selections)}) { ${selectionsSource} }`,
+    `query ${operationName}(${buildVariableDefs(
+      selections,
+    )}) { ${selectionsSource} }`,
   );
 
   documentCache.set(cacheKey, document);

@@ -19,7 +19,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import dealResolvers from '../customResolvers/deal';
+import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
 import { fetchSegment } from '~/modules/sales/trpc/deal';
 import { Resolver } from 'erxes-api-shared/core-types';

@@ -42,12 +42,13 @@ export const GlobalSearch = () => {
   const [value, setValue] = useState('');
   const [category, setCategory] = useState<TGlobalSearchCategory>('all');
   const [subcategory, setSubcategory] = useState('all');
-  const [sortOrder, setSortOrder] =
-    useState<TGlobalSearchSortOrder>('newest');
+  const [sortOrder, setSortOrder] = useState<TGlobalSearchSortOrder>('newest');
   const searchValue = value.trim();
   const [debouncedValue] = useDebounce(searchValue, GLOBAL_SEARCH_DEBOUNCE);
-  const { groups, loading, hasFailure, refetch, loadMore } =
-    useGlobalSearch(debouncedValue, sortOrder);
+  const { groups, loading, hasFailure, refetch, loadMore } = useGlobalSearch(
+    debouncedValue,
+    sortOrder,
+  );
 
   const { goToItems, pluginItems } = useMemo(
     () => buildNavigationSearchItems(activities, settingsItems),
@@ -114,10 +115,7 @@ export const GlobalSearch = () => {
   ]);
 
   useEffect(() => {
-    if (
-      !loading &&
-      !subcategories.some(({ key }) => key === subcategory)
-    ) {
+    if (!loading && !subcategories.some(({ key }) => key === subcategory)) {
       setSubcategory('all');
     }
   }, [loading, subcategory, subcategories]);

@@ -91,25 +91,26 @@ export const useSettingsNavigationSearchItems = () => {
       );
     }
 
-    const settingsOnlyPluginItems = Object.values(pluginsMetaData || {}).flatMap(
-      (plugin) => {
-        if (!plugin.settingsOnly || !plugin.modules?.length) return [];
-        if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) return [];
+    const settingsOnlyPluginItems = Object.values(
+      pluginsMetaData || {},
+    ).flatMap((plugin) => {
+      if (!plugin.settingsOnly || !plugin.modules?.length) return [];
+      if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name))
+        return [];
 
-        const sectionLabel =
-          plugin.name.charAt(0).toUpperCase() + plugin.name.slice(1);
+      const sectionLabel =
+        plugin.name.charAt(0).toUpperCase() + plugin.name.slice(1);
 
-        return plugin.modules
-          .filter((module) => module.path.startsWith('settings/'))
-          .map((module) =>
-            toSettingsSearchItem(
-              { name: module.name, icon: module.icon, path: module.path },
-              sectionLabel,
-              settingsPrefix,
-            ),
-          );
-      },
-    );
+      return plugin.modules
+        .filter((module) => module.path.startsWith('settings/'))
+        .map((module) =>
+          toSettingsSearchItem(
+            { name: module.name, icon: module.icon, path: module.path },
+            sectionLabel,
+            settingsPrefix,
+          ),
+        );
+    });
 
     return [...items, ...settingsOnlyPluginItems];
   }, [

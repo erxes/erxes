@@ -1,7 +1,7 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
 
-import { GET_DEALS_SEARCH_DROPDOWN } from '../graphql/queries/DealsQueries';
-import { IDealList } from '../types/deals';
+import { GET_DEALS_SEARCH_DROPDOWN } from '@/deals/graphql/queries/DealsQueries';
+import { IDealList } from '@/deals/types/deals';
 import { useCallback } from 'react';
 
 const DEALS_PER_PAGE = 20;

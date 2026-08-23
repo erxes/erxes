@@ -7,7 +7,7 @@ import { useLocation } from 'react-router';
 import {
   LoyaltyHeaderActionProvider,
   useLoyaltyHeaderAction,
-} from './LoyaltyHeaderActionContext';
+} from '@/loyalties/components/LoyaltyHeaderActionContext';
 
 const LoyaltyHeaderEnd = () => {
   const { action } = useLoyaltyHeaderAction();

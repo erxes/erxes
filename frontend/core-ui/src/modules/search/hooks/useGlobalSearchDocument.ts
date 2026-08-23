@@ -6,7 +6,7 @@ export const useGlobalSearchDocument = (
   providers: ISearchProvider[],
   overrides: Record<string, string> = {},
 ) =>
-  useMemo(() => buildGlobalSearchDocument(providers, overrides), [
-    providers,
-    overrides,
-  ]);
+  useMemo(
+    () => buildGlobalSearchDocument(providers, overrides),
+    [providers, overrides],
+  );

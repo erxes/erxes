@@ -1,28 +1,28 @@
 import { IconCashBanknote, IconReceipt } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { SEARCH_PROVIDERS } from './searchProviders';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const MainNavigation = lazy(() =>
-  import('./modules/MainNavigation').then((module) => ({
+  import('@/MainNavigation').then((module) => ({
     default: module.MainNavigation,
   })),
 );
 
 const AdjustmentNavigation = lazy(() =>
-  import('./modules/AdjustmentNavigation').then((mod) => ({
+  import('@/AdjustmentNavigation').then((mod) => ({
     default: mod.AdjustmentNavigation,
   })),
 );
 
 const InventoriesNavigation = lazy(() =>
-  import('./modules/InventoriesNavigation').then((mod) => ({
+  import('@/InventoriesNavigation').then((mod) => ({
     default: mod.InventoriesNavigation,
   })),
 );
 
 const SettingsNavigation = lazy(() =>
-  import('./modules/SettingsNavigation').then((module) => ({
+  import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
   })),
 );

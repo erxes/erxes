@@ -15,9 +15,7 @@ import {
   requireCmsPermission,
 } from '@/cms/utils/permissions';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
-import {
-  assertCmsAccessByClientPortal,
-} from '@/cms/utils/cms-access';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 
 const applyFieldConstraint = (query: any, field: string, value: any) => {
   if (query[field] === undefined || query[field] === value) {
