@@ -148,6 +148,185 @@ export const customerRouter = t.router({
         return models.Customers.updateCustomer(_id, doc);
       }),
 
+    captureProperties: t.procedure
+      .meta(
+        agentMeta(
+          "Save buyer-requirement custom property values onto a customer, guarded: unknown fields, wrong types, and invalid options are rejected per field; already-set values are skipped; conflicting different values are never overwritten. Input: { customerId, values: [{ field, value }] } where field is a custom field _id discovered via fields.fieldsCombinedByContentType (contentType core:customer). Call customers.findOne first to see current propertiesData. Returns { saved, changedFields, skipped[{field,reason}] }; repeat calls with identical data save nothing.",
+          { module: 'contacts', action: 'contactsUpdate' },
+        ),
+      )
+      .input(
+        z
+          .object({
+            customerId: z.string(),
+            values: z
+              .array(z.object({ field: z.string(), value: z.unknown() }))
+              .min(1),
+          })
+          .strict(),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+
+        const customer = await models.Customers.findOne({
+          _id: input.customerId,
+        });
+
+        if (!customer) {
+          throw new Error('Customer not found');
+        }
+
+        // propertiesData is the authoritative custom-field store (see
+        // Customers.updateCustomer / migratePropertiesData); legacy
+        // customFieldsData is read-only history.
+        type PropertiesDataCarrier = {
+          propertiesData?: Record<string, unknown> | null;
+        };
+        const current: Record<string, unknown> =
+          (customer as unknown as PropertiesDataCarrier).propertiesData ?? {};
+
+        const definitions = await models.Fields.find({
+          _id: { $in: input.values.map((v) => v.field) },
+        });
+        const defById = new Map(
+          (definitions as Array<{
+            _id: unknown;
+            contentType?: string | null;
+            type?: string | null;
+            validation?: string | null;
+            options?: Array<{ value: string }> | null;
+          }>).map((def) => [String(def._id), def]),
+        );
+
+        const skipped: Array<{ field: string; reason: string }> = [];
+        const changedFields: string[] = [];
+        const writes: Record<string, unknown> = {};
+        const skip = (field: string, reason: string) =>
+          skipped.push({ field, reason });
+
+        const isEmptyValue = (value: unknown) =>
+          value === null || value === undefined || value === '';
+
+        const isEqualValue = (a: unknown, b: unknown) => {
+          if (Array.isArray(a) && Array.isArray(b)) {
+            return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+          }
+          return a === b;
+        };
+
+        for (const { field, value } of input.values) {
+          const def = defById.get(field);
+
+          if (!def || def.contentType !== 'core:customer') {
+            skip(field, 'unknown-field');
+            continue;
+          }
+
+          const hasCurrent =
+            Object.prototype.hasOwnProperty.call(current, field) &&
+            !isEmptyValue(current[field]);
+
+          if (hasCurrent && isEmptyValue(value)) {
+            skip(field, 'clear-not-allowed');
+            continue;
+          }
+
+          if (!hasCurrent && isEmptyValue(value)) {
+            skip(field, 'already-set');
+            continue;
+          }
+
+          let valid = false;
+
+          switch (def.type) {
+            case 'number': {
+              valid =
+                typeof value === 'number'
+                  ? Number.isFinite(value)
+                  : typeof value === 'string' && value.trim() !== ''
+                    ? Number.isFinite(Number(value))
+                    : false;
+              break;
+            }
+            case 'date': {
+              valid =
+                value instanceof Date ||
+                (typeof value === 'string' && !Number.isNaN(Date.parse(value)));
+              break;
+            }
+            case 'select':
+            case 'radio': {
+              valid = Boolean(
+                def.options?.some((option) => option.value === value),
+              );
+              break;
+            }
+            case 'check': {
+              const optionValues = new Set(
+                (def.options ?? []).map((option) => option.value),
+              );
+              valid =
+                Array.isArray(value) &&
+                value.length > 0 &&
+                value.every((member) => optionValues.has(String(member)));
+              break;
+            }
+            case 'text':
+            case 'textarea':
+            case 'input': {
+              valid =
+                def.validation === 'number'
+                  ? typeof value === 'number' || Number.isFinite(Number(value))
+                  : typeof value === 'string';
+              break;
+            }
+            default: {
+              valid = true;
+            }
+          }
+
+          if (!valid) {
+            const optionBased = ['select', 'radio', 'check'].includes(
+              def.type ?? '',
+            );
+            skip(field, optionBased ? 'invalid-option' : 'invalid-value');
+            continue;
+          }
+
+          const normalized =
+            def.type === 'number' &&
+            (typeof value === 'string' || typeof value === 'number')
+              ? Number(value)
+              : value;
+
+          const existing = current[field];
+
+          if (existing !== undefined && existing !== null) {
+            if (isEqualValue(existing, normalized)) {
+              skip(field, 'already-set');
+            } else {
+              skip(field, 'conflict');
+            }
+            continue;
+          }
+
+          writes[field] = normalized;
+          changedFields.push(field);
+        }
+
+        if (changedFields.length) {
+          await models.Customers.updateCustomer(input.customerId, {
+            propertiesData: { ...current, ...writes },
+          });
+        }
+
+        return {
+          saved: changedFields.length > 0,
+          changedFields,
+          skipped,
+        };
+      }),
+
     updateOne: t.procedure
       .input(z.object({ query: z.any(), doc: z.any() }))
       .mutation(async ({ ctx, input }) => {
