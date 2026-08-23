@@ -110,6 +110,7 @@ const productsQueryParams = `
   minDiscountPercent: Float
   maxDiscountPercent: Float
   discountConditions: JSON
+  propertiesData: String
 `;
 
 const productCategoriesParams = `
