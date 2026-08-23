@@ -1,3 +1,4 @@
+import { NO_QUEUE } from '../../utils';
 import { useDashboard } from '../../hooks/useDashboard';
 import { useCallFilters } from '../../hooks/useCallFilters';
 import { QueueCard } from './QueueCard';
@@ -52,7 +53,18 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
           <QueueCard
             key={stat.queue}
             stat={stat}
-            label={labelMap[stat.queue] ?? stat.queue}
+            label={
+              stat.queue === NO_QUEUE
+                ? t('no-queue', { defaultValue: 'Outside a queue' })
+                : labelMap[stat.queue] ?? stat.queue
+            }
+            hint={
+              stat.queue === NO_QUEUE
+                ? t('no-queue-hint', {
+                    defaultValue: 'IVR, voicemail, direct and outbound calls',
+                  })
+                : undefined
+            }
           />
         ))}
       </div>

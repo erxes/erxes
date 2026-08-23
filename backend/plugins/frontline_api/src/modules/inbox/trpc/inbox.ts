@@ -11,6 +11,7 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/trpc/agentMeta';
 import { IConversationDocument } from '../@types/conversations';
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
@@ -140,40 +141,48 @@ export const integrationsRouter = t.router({
     }
   }),
 
-  find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    const { query = {}, options } = input;
-    const { models } = ctx;
-    try {
-      const integrations = await models.Integrations.findIntegrations(
-        query,
-        options,
-      );
+  find: t.procedure
+    .meta(
+      agentMeta(
+        'Search active integrations (messenger, lead, webhook, or external kinds): { query?: {...}, options?: projection }, e.g. { query: { kind: "messenger" } } or { query: { channelId: "..." } }. Inactive integrations are excluded automatically. Use inbox.getIntegrationKinds to see valid kind values.',
+        { module: 'integration', action: 'showIntegrations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      const { query = {}, options } = input;
+      const { models } = ctx;
+      try {
+        const integrations = await models.Integrations.findIntegrations(
+          query,
+          options,
+        );
 
-      return {
-        status: 'success',
-        data: integrations,
-        meta: {
-          count: integrations.length,
-        },
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('Failed to fetch integrations:', error);
+        return {
+          status: 'success',
+          data: integrations,
+          meta: {
+            count: integrations.length,
+          },
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error('Failed to fetch integrations:', error);
 
-      return {
-        status: 'error',
-        error: {
-          code: 'INTEGRATIONS_FETCH_FAILED',
-          message: 'Failed to retrieve integrations',
-          details: error instanceof Error ? error.message : undefined,
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
-    }
-  }),
+        return {
+          status: 'error',
+          error: {
+            code: 'INTEGRATIONS_FETCH_FAILED',
+            message: 'Failed to retrieve integrations',
+            details: error instanceof Error ? error.message : undefined,
+            ...(process.env.NODE_ENV === 'development' && {
+              stack: error instanceof Error ? error.stack : undefined,
+            }),
+          },
+          timestamp: new Date().toISOString(),
+        };
+      }
+    }),
 
   copyLeadIntegration: t.procedure
     .input(z.any())
@@ -211,165 +220,197 @@ export const integrationsRouter = t.router({
       }
     }),
 
-  count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    const { models } = ctx;
-    const { selector = {}, filters } = input;
-
-    try {
-      const query = {
-        ...selector,
-        ...(filters && { ...filters }),
-      };
-
-      const count = await models.Integrations.countDocuments(query);
-
-      return {
-        status: 'success',
-        data: count,
-        meta: {
-          filteredBy:
-            Object.keys(query).length > 0 ? Object.keys(query) : ['all'],
-          timestamp: new Date().toISOString(),
-        },
-      };
-    } catch (error) {
-      console.error('Count operation failed:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'COUNT_OPERATION_FAILED',
-          message: 'Failed to count documents',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
-    }
-  }),
-
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    const { models } = ctx;
-    try {
-      const result = await models.Integrations.findOne(input).lean();
-
-      if (!result) {
-        return {
-          status: 'error',
-          error: {
-            code: 'NOT_FOUND',
-            message: 'Integration not found',
-            suggestion: 'Please verify the search criteria',
-          },
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      return {
-        status: 'success',
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('FindOne operation failed:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'FIND_ONE_FAILED',
-          message: 'Failed to find integration',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
-    }
-  }),
-});
-
-export const conversationMessagesRouter = t.router({
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    const { models } = ctx;
-    try {
-      // Build the query from validated input
-      const message = await models.ConversationMessages.findOne(input).lean();
-
-      if (!message) {
-        return {
-          status: 'error',
-          error: {
-            code: 'MESSAGE_NOT_FOUND',
-            message: 'Conversation message not found',
-            suggestion: 'Verify the message identifiers and try again',
-          },
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      return {
-        status: 'success',
-        data: message,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('Failed to find conversation message:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'MESSAGE_FIND_FAILED',
-          message: 'Failed to retrieve message',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
-    }
-  }),
-
-  find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    try {
-      const { skip, limit } = input;
+  count: t.procedure
+    .meta(
+      agentMeta(
+        'Count integrations matching a filter: { selector?: {...}, filters?: {...} }, merged into one Mongo query, e.g. { selector: { kind: "lead" } }. Use for "how many integrations ..." questions instead of inbox.integrations.find.',
+        { module: 'integration', action: 'showIntegrations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
       const { models } = ctx;
+      const { selector = {}, filters } = input;
 
-      if (skip || limit) {
-        const queryParams = { ...input };
-        delete queryParams.skip;
-        delete queryParams.limit;
+      try {
+        const query = {
+          ...selector,
+          ...(filters && { ...filters }),
+        };
 
-        const result = await models.ConversationMessages.find(queryParams)
-          .skip(skip || 0)
-          .limit(limit || 20)
-          .lean();
+        const count = await models.Integrations.countDocuments(query);
+
+        return {
+          status: 'success',
+          data: count,
+          meta: {
+            filteredBy:
+              Object.keys(query).length > 0 ? Object.keys(query) : ['all'],
+            timestamp: new Date().toISOString(),
+          },
+        };
+      } catch (error) {
+        console.error('Count operation failed:', error);
+
+        return {
+          status: 'error',
+          error: {
+            code: 'COUNT_OPERATION_FAILED',
+            message: 'Failed to count documents',
+            details: error instanceof Error ? error.message : 'Database error',
+            ...(process.env.NODE_ENV === 'development' && {
+              stack: error instanceof Error ? error.stack : undefined,
+            }),
+          },
+          timestamp: new Date().toISOString(),
+        };
+      }
+    }),
+
+  findOne: t.procedure
+    .meta(
+      agentMeta(
+        'Get a single integration by any MongoDB-style query, e.g. { _id } or { kind: "messenger", brandId: "..." }. Returns a NOT_FOUND error when nothing matches.',
+        { module: 'integration', action: 'showIntegrations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      try {
+        const result = await models.Integrations.findOne(input).lean();
+
+        if (!result) {
+          return {
+            status: 'error',
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Integration not found',
+              suggestion: 'Please verify the search criteria',
+            },
+            timestamp: new Date().toISOString(),
+          };
+        }
 
         return {
           status: 'success',
           data: result,
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error('FindOne operation failed:', error);
+
+        return {
+          status: 'error',
+          error: {
+            code: 'FIND_ONE_FAILED',
+            message: 'Failed to find integration',
+            details: error instanceof Error ? error.message : 'Database error',
+            ...(process.env.NODE_ENV === 'development' && {
+              stack: error instanceof Error ? error.stack : undefined,
+            }),
+          },
+          timestamp: new Date().toISOString(),
         };
       }
+    }),
+});
 
-      const result = await models.ConversationMessages.find(input).lean();
-      return {
-        status: 'success',
-        data: result,
-      };
-    } catch (error) {
-      console.error('Error fetching conversation messages:', error);
+export const conversationMessagesRouter = t.router({
+  findOne: t.procedure
+    .meta(
+      agentMeta(
+        'Get a single conversation message by any MongoDB-style query, e.g. { _id } or { conversationId: "..." }. Returns a MESSAGE_NOT_FOUND error when nothing matches. Use inbox.conversationMessages.find to list a conversation\'s messages.',
+        { module: 'inbox', action: 'showConversations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      try {
+        // Build the query from validated input
+        const message = await models.ConversationMessages.findOne(input).lean();
 
-      return {
-        status: 'error',
-        message: 'Failed to fetch conversation messages',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
-    }
-  }),
+        if (!message) {
+          return {
+            status: 'error',
+            error: {
+              code: 'MESSAGE_NOT_FOUND',
+              message: 'Conversation message not found',
+              suggestion: 'Verify the message identifiers and try again',
+            },
+            timestamp: new Date().toISOString(),
+          };
+        }
+
+        return {
+          status: 'success',
+          data: message,
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error('Failed to find conversation message:', error);
+
+        return {
+          status: 'error',
+          error: {
+            code: 'MESSAGE_FIND_FAILED',
+            message: 'Failed to retrieve message',
+            details: error instanceof Error ? error.message : 'Database error',
+            ...(process.env.NODE_ENV === 'development' && {
+              stack: error instanceof Error ? error.stack : undefined,
+            }),
+          },
+          timestamp: new Date().toISOString(),
+        };
+      }
+    }),
+
+  find: t.procedure
+    .meta(
+      agentMeta(
+        'List conversation messages matching a MongoDB-style filter, e.g. { conversationId: "...", skip?: number, limit?: number }. When skip or limit is present the result is paged (default limit 20); otherwise every matching message is returned.',
+        { module: 'inbox', action: 'showConversations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      try {
+        const { skip, limit } = input;
+        const { models } = ctx;
+
+        if (skip || limit) {
+          const queryParams = { ...input };
+          delete queryParams.skip;
+          delete queryParams.limit;
+
+          const result = await models.ConversationMessages.find(queryParams)
+            .skip(skip || 0)
+            .limit(limit || 20)
+            .lean();
+
+          return {
+            status: 'success',
+            data: result,
+          };
+        }
+
+        const result = await models.ConversationMessages.find(input).lean();
+        return {
+          status: 'success',
+          data: result,
+        };
+      } catch (error) {
+        console.error('Error fetching conversation messages:', error);
+
+        return {
+          status: 'error',
+          message: 'Failed to fetch conversation messages',
+          error:
+            process.env.NODE_ENV === 'development' ? error.message : undefined,
+        };
+      }
+    }),
 
   updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { filter, updateDoc } = input;
@@ -382,110 +423,134 @@ export const conversationMessagesRouter = t.router({
 });
 
 export const conversationsRouter = t.router({
-  count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    try {
-      const { query = {}, options } = input;
-      const { models } = ctx;
+  count: t.procedure
+    .meta(
+      agentMeta(
+        'Count inbox conversations matching a filter: { query?: {...}, options?: { skip?, limit? } }, e.g. { query: { status: "new", integrationId: "..." } }. Use for "how many conversations ..." questions instead of inbox.getConversationsList.',
+        { module: 'inbox', action: 'showConversations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      try {
+        const { query = {}, options } = input;
+        const { models } = ctx;
 
-      const count = await models.Conversations.find(query)
-        .skip(options?.skip || 0)
-        .limit(options?.limit || 0) // 0 means no limit
-        .countDocuments();
+        const count = await models.Conversations.find(query)
+          .skip(options?.skip || 0)
+          .limit(options?.limit || 0) // 0 means no limit
+          .countDocuments();
 
-      return {
-        status: 'success',
-        data: count,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error) {
-      console.error('Count documents error:', error);
-
-      return {
-        status: 'error',
-        message: 'Failed to count documents',
-        ...(process.env.NODE_ENV === 'development' && {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined,
-        }),
-      };
-    }
-  }),
-
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    try {
-      const { query } = input;
-      const { models } = ctx;
-
-      if (!query) {
-        return {
-          status: 'error',
-          message: 'Query parameter is required',
-        };
-      }
-
-      const conversation = await models.Conversations.findOne(query).lean();
-
-      if (!conversation) {
         return {
           status: 'success',
-          data: null,
-          message: 'No conversation found',
+          data: count,
+          timestamp: new Date().toISOString(),
         };
-      }
+      } catch (error) {
+        console.error('Count documents error:', error);
 
-      return {
-        status: 'success',
-        data: conversation,
-      };
-    } catch (error) {
-      console.error('Error finding conversation:', error);
-      return {
-        status: 'error',
-        message: 'Failed to find conversation',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
-    }
-  }),
-
-  changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-    try {
-      const { id, status } = input;
-      const { models } = ctx;
-
-      if (!id || !status) {
         return {
           status: 'error',
-          message: `Both id and status are required. Received id: ${id}, status: ${status}`,
+          message: 'Failed to count documents',
+          ...(process.env.NODE_ENV === 'development' && {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined,
+          }),
         };
       }
+    }),
 
-      const result = await models.Conversations.updateOne(
-        { _id: id },
-        { status: status },
-      );
+  findOne: t.procedure
+    .meta(
+      agentMeta(
+        'Get a single inbox conversation by a MongoDB-style query: { query: { _id } } or { query: { customerId: "...", integrationId: "..." } }. Returns data null when nothing matches. Use inbox.getConversationsList to browse many conversations.',
+        { module: 'inbox', action: 'showConversations' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      try {
+        const { query } = input;
+        const { models } = ctx;
 
-      if (result.matchedCount === 0) {
+        if (!query) {
+          return {
+            status: 'error',
+            message: 'Query parameter is required',
+          };
+        }
+
+        const conversation = await models.Conversations.findOne(query).lean();
+
+        if (!conversation) {
+          return {
+            status: 'success',
+            data: null,
+            message: 'No conversation found',
+          };
+        }
+
         return {
-          status: 'not_found',
-          message: 'No conversation found with the provided ID',
+          status: 'success',
+          data: conversation,
+        };
+      } catch (error) {
+        console.error('Error finding conversation:', error);
+        return {
+          status: 'error',
+          message: 'Failed to find conversation',
+          error:
+            process.env.NODE_ENV === 'development' ? error.message : undefined,
         };
       }
+    }),
 
-      return {
-        status: 'success',
-        data: result,
-      };
-    } catch (error) {
-      console.error('Update error:', error);
-      return {
-        status: 'error',
-        message: 'Update failed',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
-    }
-  }),
+  changeStatus: t.procedure
+    .meta(
+      agentMeta(
+        'Open, close, or resolve an inbox conversation: { id, status } where status is one of "new", "open", "closed", "resolved". Both fields are required.',
+        { module: 'inbox', action: 'conversationsChangeStatus' },
+      ),
+    )
+    .input(z.any())
+    .query(async ({ ctx, input }) => {
+      try {
+        const { id, status } = input;
+        const { models } = ctx;
+
+        if (!id || !status) {
+          return {
+            status: 'error',
+            message: `Both id and status are required. Received id: ${id}, status: ${status}`,
+          };
+        }
+
+        const result = await models.Conversations.updateOne(
+          { _id: id },
+          { status: status },
+        );
+
+        if (result.matchedCount === 0) {
+          return {
+            status: 'not_found',
+            message: 'No conversation found with the provided ID',
+          };
+        }
+
+        return {
+          status: 'success',
+          data: result,
+        };
+      } catch (error) {
+        console.error('Update error:', error);
+        return {
+          status: 'error',
+          message: 'Update failed',
+          error:
+            process.env.NODE_ENV === 'development' ? error.message : undefined,
+        };
+      }
+    }),
 });
 
 export const visitorRouter = t.router({});
@@ -858,26 +923,40 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    getIntegrationKinds: t.procedure.input(z.any()).query(async () => {
-      try {
-        const data = await getIntegrationsKinds();
-        return {
-          status: 'success',
-          data,
-        };
-      } catch (error) {
-        console.error('Error fetching integration kinds:', {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return {
-          status: 'error',
-          message: 'Failed to fetch integration kinds',
-          error: error instanceof Error ? error.message : String(error),
-        };
-      }
-    }),
+    getIntegrationKinds: t.procedure
+      .meta(
+        agentMeta(
+          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, imap, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
+          { module: 'integration', action: 'showIntegrations' },
+        ),
+      )
+      .input(z.any())
+      .query(async () => {
+        try {
+          const data = await getIntegrationsKinds();
+          return {
+            status: 'success',
+            data,
+          };
+        } catch (error) {
+          console.error('Error fetching integration kinds:', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          return {
+            status: 'error',
+            message: 'Failed to fetch integration kinds',
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+      }),
 
     getConversationsList: t.procedure
+      .meta(
+        agentMeta(
+          'List inbox conversations with cursor pagination: { query: {...}, listParams: { limit?, cursor?, direction?, orderBy? } }, e.g. { query: { status: "new" }, listParams: { limit: 20, orderBy: { updatedAt: -1 } } }. Returns { list, totalCount, pageInfo }; pass pageInfo.endCursor back as listParams.cursor for the next page.',
+          { module: 'inbox', action: 'showConversations' },
+        ),
+      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, listParams } = input;

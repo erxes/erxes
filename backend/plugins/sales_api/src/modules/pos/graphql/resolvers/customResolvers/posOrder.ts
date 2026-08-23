@@ -4,6 +4,9 @@ import { IPosOrderDocument } from '~/modules/pos/@types/orders';
 import { IPosDocument } from '~/modules/pos/@types/pos';
 
 const resolvers = {
+  returnDescription: (order: IPosOrderDocument) =>
+    order.returnInfo?.description ?? null,
+
   putResponses: async (order, _, { subdomain }) => {
     return sendTRPCMessage({
       subdomain,

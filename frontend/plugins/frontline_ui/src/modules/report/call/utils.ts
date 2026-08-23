@@ -14,6 +14,8 @@ export const fmtNum = (n: number | null | undefined): string =>
 
 export const NO_DATA = '—';
 
+export const NO_QUEUE = '__no_queue__';
+
 export const fmtPctOrDash = (n: number | null | undefined): string =>
   n == null ? NO_DATA : fmtPct(n);
 
