@@ -132,8 +132,23 @@ export const useGlobalSearch = (
   const latestSearchValue = useRef(searchValue);
   latestSearchValue.current = searchValue;
 
+  const sourceQualifier = useMemo(
+    () => parseSourceQualifier(searchValue, providers),
+    [providers, searchValue],
+  );
+
+  const activeProviders = useMemo(
+    () =>
+      sourceQualifier
+        ? providers.filter(({ key }) =>
+            sourceQualifier.providerKeys.includes(key),
+          )
+        : providers,
+    [providers, sourceQualifier],
+  );
+
   const sourceSearchOverrides = useMemo(() => {
-    const qualifier = parseSourceQualifier(searchValue, providers);
+    const qualifier = sourceQualifier;
 
     if (qualifier) {
       return Object.fromEntries(
@@ -145,24 +160,25 @@ export const useGlobalSearch = (
     }
 
     return {};
-  }, [providers, searchValue]);
+  }, [sourceQualifier]);
 
   const effectiveSearchByProvider = useMemo(() => {
-    const qualifier = parseSourceQualifier(searchValue, providers);
     const raw = searchValue.trim();
 
-    return providers.reduce<Record<string, string>>((map, provider) => {
-      map[provider.key] = qualifier?.providerKeys.includes(provider.key)
-        ? qualifier.query
-        : raw;
+    return activeProviders.reduce<Record<string, string>>((map, provider) => {
+      map[provider.key] = sourceQualifier ? sourceQualifier.query : raw;
       return map;
     }, {});
-  }, [providers, searchValue]);
+  }, [activeProviders, searchValue, sourceQualifier]);
 
-  const document = useGlobalSearchDocument(providers, sourceSearchOverrides);
+  const document = useGlobalSearchDocument(
+    activeProviders,
+    sourceSearchOverrides,
+  );
 
   const skip =
-    searchValue.length < GLOBAL_SEARCH_MIN_LENGTH || providers.length === 0;
+    searchValue.length < GLOBAL_SEARCH_MIN_LENGTH ||
+    activeProviders.length === 0;
 
   const { data, loading, error, refetch } = useQuery<TSearchPayload>(document, {
     variables: {
@@ -198,14 +214,14 @@ export const useGlobalSearch = (
 
     const payload = data ?? {};
 
-    return providers.flatMap((provider) => {
+    return activeProviders.flatMap((provider) => {
       const group = resolveProviderGroup(provider, payload, error);
 
       return group
         ? [{ ...group, searchValue: effectiveSearchByProvider[provider.key] }]
         : [];
     });
-  }, [providers, data, error, skip, effectiveSearchByProvider]);
+  }, [activeProviders, data, error, skip, effectiveSearchByProvider]);
 
   const activePageGroups =
     pagination.searchValue === searchValue && pagination.sortOrder === sortOrder
@@ -262,7 +278,7 @@ export const useGlobalSearch = (
 
   const loadMore = useCallback(
     async (providerKey: string) => {
-      const provider = providers.find(({ key }) => key === providerKey);
+      const provider = activeProviders.find(({ key }) => key === providerKey);
       const currentGroup = groupsRef.current.find(
         ({ key }) => key === providerKey,
       );
@@ -399,7 +415,7 @@ export const useGlobalSearch = (
         loadingProviderKeys.current.delete(requestKey);
       }
     },
-    [client, providers, searchValue, sortOrder, sourceSearchOverrides],
+    [client, activeProviders, searchValue, sortOrder, sourceSearchOverrides],
   );
 
   return {

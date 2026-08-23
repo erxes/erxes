@@ -107,7 +107,11 @@ export const parseSourceQualifier = (
 
   const qualifiers = buildSourceQualifiers(providers);
 
-  for (const [label, providerKeys] of qualifiers) {
+  const sortedQualifiers = [...qualifiers.entries()].sort(
+    ([left], [right]) => right.length - left.length,
+  );
+
+  for (const [label, providerKeys] of sortedQualifiers) {
     if (!label) {
       continue;
     }

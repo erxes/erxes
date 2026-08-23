@@ -13,11 +13,6 @@ type TContractNode = {
   createdAt?: string | null;
   contractNumber?: string | null;
   insuredObject?: Record<string, unknown> | null;
-  customer?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    registrationNumber?: string | null;
-  } | null;
 };
 
 const contractsSearchProvider = defineSearchProvider<TContractNode>({
@@ -27,14 +22,26 @@ const contractsSearchProvider = defineSearchProvider<TContractNode>({
   order: 260,
   selections: [
     {
-      alias: 'gs_insurance_contracts',
+      alias: 'gs_insurance_contracts_by_number',
       field: 'contracts',
-      args: 'searchValue: $searchValue, orderBy: $orderBy',
-      body: '{ id contractNumber insuredObject customer { firstName lastName registrationNumber } createdAt }',
+      args: 'contractNumber: $searchValue, orderBy: $orderBy',
+      body: '{ id contractNumber insuredObject createdAt }',
+    },
+    {
+      alias: 'gs_insurance_contracts_by_plate',
+      field: 'contracts',
+      args: 'plateNumber: $searchValue, orderBy: $orderBy',
+      body: '{ id contractNumber insuredObject createdAt }',
     },
   ],
   select: (payload) => {
-    const nodes = readArray<TContractNode>(payload, 'gs_insurance_contracts');
+    const nodes = [
+      ...readArray<TContractNode>(payload, 'gs_insurance_contracts_by_number'),
+      ...readArray<TContractNode>(payload, 'gs_insurance_contracts_by_plate'),
+    ].filter(
+      (contract, index, contracts) =>
+        contracts.findIndex(({ id }) => id === contract.id) === index,
+    );
     return {
       nodes,
       totalCount: nodes.length,
@@ -52,16 +59,6 @@ const contractsSearchProvider = defineSearchProvider<TContractNode>({
           typeof contract.insuredObject?.['Улсын дугаар'] === 'string'
             ? contract.insuredObject['Улсын дугаар']
             : undefined,
-      },
-      {
-        label: 'Customer name',
-        value: [contract.customer?.firstName, contract.customer?.lastName]
-          .filter(Boolean)
-          .join(' '),
-      },
-      {
-        label: 'Customer registration',
-        value: contract.customer?.registrationNumber,
       },
     ].flatMap(({ label, value }) => (value ? [{ label, value }] : [])),
     path: `/insurance/contracts/${contract.id}`,
@@ -118,7 +115,7 @@ const customersSearchProvider = defineSearchProvider<TInsuranceCustomerNode>({
           },
         ]
       : undefined,
-    path: `/insurance/customers/${customer.id}`,
+    path: '/insurance/customers',
   }),
 });
 

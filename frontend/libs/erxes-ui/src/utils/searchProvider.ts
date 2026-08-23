@@ -61,10 +61,9 @@ export const defineSearchProvider = <TNode>(
   icon: definition.icon,
   order: definition.order,
   selections: definition.selections,
-  resolve: (payload, limit) => {
+  resolve: (payload) => {
     const { nodes, totalCount, pageInfo } = definition.select(payload);
     const items = nodes
-      .slice(0, limit)
       .map(definition.toItem)
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
