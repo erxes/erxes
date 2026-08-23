@@ -40,7 +40,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 }, // Optional, _id is used as a fallback
+            orderBy: params.orderBy ?? { updatedAt: -1 },
           },
           query: { _id: { $in: params.ids } },
         });
@@ -54,7 +54,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 },
+            orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
           query: { customerId: params.customerId },
@@ -72,7 +72,7 @@ export const conversationQueries = {
         model: models.Conversations,
         params: {
           ...params,
-          orderBy: { updatedAt: -1 },
+          orderBy: params.orderBy ?? { updatedAt: -1 },
           limit: params.limit || 20,
         },
         query: qb.mainQuery(),

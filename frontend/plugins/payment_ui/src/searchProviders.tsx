@@ -9,8 +9,10 @@ const UNNAMED = 'Unnamed';
 
 type TInvoiceNode = {
   _id: string;
+  createdAt?: string | null;
   invoiceNumber?: string | null;
   amount?: number | null;
+  description?: string | null;
 };
 
 const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
@@ -23,7 +25,7 @@ const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
       alias: 'gs_payment_invoices',
       field: 'invoices',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
-      body: '{ list { _id invoiceNumber amount } totalCount pageInfo { hasNextPage endCursor } }',
+      body: '{ list { _id invoiceNumber amount description createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -33,6 +35,10 @@ const invoicesSearchProvider = defineSearchProvider<TInvoiceNode>({
     title: invoice.invoiceNumber || UNNAMED,
     description:
       typeof invoice.amount === 'number' ? String(invoice.amount) : undefined,
+    createdAt: invoice.createdAt ?? undefined,
+    matchFields: invoice.description
+      ? [{ label: 'Description', value: invoice.description }]
+      : undefined,
     path: '/settings/payment/invoices',
   }),
 });

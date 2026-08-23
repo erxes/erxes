@@ -162,7 +162,6 @@ const GlobalSearchResults = ({
           heading={t('quick-access', 'Quick access')}
           items={quickAccessItems}
           searchValue=""
-          sortOrder={sortOrder}
           onSelect={onNavigationSelect}
         />
         {quickAccessItems.length === 0 && <GlobalSearchEmpty />}
@@ -216,7 +215,6 @@ const GlobalSearchResults = ({
           items={navigationItems}
           previewLimit={isAll ? GLOBAL_SEARCH_PREVIEW_LIMIT : undefined}
           searchValue={searchValue}
-          sortOrder={sortOrder}
           onSelect={onNavigationSelect}
           onShowMore={showMoreHandler(
             isAll && navigationItems.length > GLOBAL_SEARCH_PREVIEW_LIMIT,

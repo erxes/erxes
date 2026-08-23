@@ -19,7 +19,6 @@ import { buildGlobalSearchPageDocument } from '@/search/utils/composeSearchDocum
 import {
   appendUniqueSearchItems,
   getGlobalSearchRequestState,
-  isSourceNameMatch,
   parseSourceQualifier,
 } from '@/search/utils/globalSearchResults';
 import { TGlobalSearchGroup } from '@/search/types/GlobalSearch';
@@ -143,13 +142,7 @@ export const useGlobalSearch = (
       );
     }
 
-    return providers.reduce<Record<string, string>>((overrides, provider) => {
-      if (isSourceNameMatch(searchValue, provider.label)) {
-        overrides[provider.key] = '';
-      }
-
-      return overrides;
-    }, {});
+    return {};
   }, [providers, searchValue]);
 
   const effectiveSearchByProvider = useMemo(() => {
@@ -181,7 +174,8 @@ export const useGlobalSearch = (
     },
     skip,
     errorPolicy: 'all',
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   });
 
   const invalidFields = useMemo(() => getInvalidFieldNames(error), [error]);

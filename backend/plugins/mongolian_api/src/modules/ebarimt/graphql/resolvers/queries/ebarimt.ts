@@ -1,5 +1,6 @@
 import {
   cursorPaginate,
+  escapeRegExp,
   getFullDate,
   getTomorrow,
   regexSearchText,
@@ -13,11 +14,13 @@ const generateFilter = async (subdomain, params) => {
   const filter: any = {};
 
   if (params.search) {
+    const escapedSearch = escapeRegExp(params.search);
+
     filter.$or = [
-      { id: new RegExp(`.*${params.search}.*`, 'i') },
-      { inactiveId: new RegExp(`.*${params.search}.*`, 'i') },
-      { number: new RegExp(`.*${params.search}.*`, 'i') },
-      { 'receipts.id': new RegExp(`.*${params.search}.*`, 'i') },
+      { id: new RegExp(escapedSearch, 'i') },
+      { inactiveId: new RegExp(escapedSearch, 'i') },
+      { number: new RegExp(escapedSearch, 'i') },
+      { 'receipts.id': new RegExp(escapedSearch, 'i') },
     ];
   }
 

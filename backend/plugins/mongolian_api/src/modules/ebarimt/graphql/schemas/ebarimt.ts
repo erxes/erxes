@@ -18,6 +18,7 @@ export const types = `
 
   type PutResponse {
     _id: String
+    id: String
     number: String
 
     contentType: String

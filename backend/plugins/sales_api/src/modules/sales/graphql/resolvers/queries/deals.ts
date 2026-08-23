@@ -248,8 +248,8 @@ export const generateFilter = async (
     status
       ? { status }
       : noSkipArchive
-        ? {}
-        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -574,7 +574,7 @@ export const generateFilter = async (
   }
 
   if (number) {
-    filter.number = { $regex: `${number}`, $options: 'mui' };
+    filter.number = { $regex: escapeRegExp(number), $options: 'i' };
   }
 
   if (vendorCustomerIds?.length > 0) {
@@ -680,7 +680,7 @@ export const generateFilter = async (
     pipelineId || pipelineIds || stageId || boardIds || stageCodes,
   );
 
-  if (!hasPipelineContext && !filter.stageId) {
+  if (!noSkipArchive && !hasPipelineContext && !filter.stageId) {
     const validStageIds = await models.Stages.find({
       status: { $ne: SALES_STATUSES.ARCHIVED },
     }).distinct('_id');

@@ -6,6 +6,13 @@ import { useCallback } from 'react';
 
 const DEALS_PER_PAGE = 20;
 
+export type TDealSearchSortOrder = 'newest' | 'oldest';
+
+export type TDealSearchDateRange = {
+  from?: Date;
+  to?: Date;
+};
+
 type DealSearchResponse = {
   deals: IDealList & {
     totalCount: number;
@@ -18,17 +25,33 @@ type DealSearchResponse = {
   };
 };
 
-export const useDealSearch = (search: string) => {
+export const useDealSearch = (
+  search: string,
+  sortOrder: TDealSearchSortOrder,
+  dateRange?: TDealSearchDateRange,
+  dealNumber?: string,
+) => {
+  const createdEndDate = dateRange?.to
+    ? new Date(dateRange.to.getTime())
+    : dateRange?.from
+    ? new Date(dateRange.from.getTime())
+    : undefined;
+
+  createdEndDate?.setHours(23, 59, 59, 999);
+
   const { data, loading, fetchMore, networkStatus } =
     useQuery<DealSearchResponse>(GET_DEALS_SEARCH_DROPDOWN, {
       variables: {
         search,
+        number: dealNumber,
+        createdStartDate: dateRange?.from,
+        createdEndDate,
         noSkipArchive: true,
         limit: DEALS_PER_PAGE,
         direction: 'forward',
-        orderBy: { createdAt: -1 },
+        orderBy: { createdAt: sortOrder === 'oldest' ? 1 : -1 },
       },
-      skip: search.length < 2,
+      skip: search.length < 2 && !dateRange?.from && !dealNumber,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
     });

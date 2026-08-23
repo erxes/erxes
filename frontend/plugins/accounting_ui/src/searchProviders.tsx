@@ -9,6 +9,7 @@ const UNNAMED = 'Unnamed';
 
 type TTransactionNode = {
   _id: string;
+  createdAt?: string | null;
   number?: string | null;
   parentId?: string | null;
   originId?: string | null;
@@ -25,7 +26,7 @@ const transactionsSearchProvider = defineSearchProvider<TTransactionNode>({
       alias: 'gs_accounting_transactions',
       field: 'accTransactionsMain',
       args: 'searchValue: $searchValue, limit: $limit, orderBy: $orderBy',
-      body: '{ list { _id number parentId originId description } totalCount }',
+      body: '{ list { _id number parentId originId description createdAt } totalCount }',
     },
   ],
   select: (payload) =>
@@ -34,6 +35,7 @@ const transactionsSearchProvider = defineSearchProvider<TTransactionNode>({
     id: transaction._id,
     title: transaction.number || UNNAMED,
     description: transaction.description || undefined,
+    createdAt: transaction.createdAt ?? undefined,
     path: `/accounting/transaction/edit?parentId=${
       transaction.parentId ?? ''
     }&trId=${transaction.originId || transaction._id}`,

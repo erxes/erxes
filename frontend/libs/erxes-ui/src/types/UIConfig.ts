@@ -4,7 +4,12 @@ export type TSearchResultItem = {
   id: string;
   title: string;
   description?: string;
+  createdAt?: string;
   path: string;
+  matchFields?: Array<{
+    label: string;
+    value: string;
+  }>;
 };
 
 export type TSearchPageInfo = {

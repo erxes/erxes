@@ -10,7 +10,16 @@ type TGlobalSearchItem = {
   module: string;
   category: string;
   path: string;
+  createdAt?: Date;
+  matchFields?: Array<{ label: string; value: string }>;
 };
+
+const compactMatchFields = (
+  fields: Array<{ label: string; value?: unknown }>,
+): Array<{ label: string; value: string }> =>
+  fields.flatMap(({ label, value }) =>
+    typeof value === 'string' && value.trim() ? [{ label, value }] : [],
+  );
 
 type TQueryParams = {
   searchValue?: string;
@@ -57,32 +66,42 @@ const decodeOffsets = (cursor?: string): number[] => {
 const encodeOffsets = (offsets: number[]): string =>
   Buffer.from(JSON.stringify({ offsets })).toString('base64');
 
-const mergeRoundRobin = (
+const mergeSorted = (
   batches: TGlobalSearchItem[][],
   sourceCount: number,
   limit: number,
+  sortDirection: 1 | -1,
 ): { list: TGlobalSearchItem[]; consumed: number[] } => {
   const merged: TGlobalSearchItem[] = [];
   const position = new Array(sourceCount).fill(0);
 
   while (merged.length < limit) {
-    let added = false;
+    let selectedSource = -1;
+    let selectedTimestamp = 0;
 
     for (let i = 0; i < sourceCount; i++) {
-      if (position[i] < batches[i].length) {
-        merged.push(batches[i][position[i]]);
-        position[i] += 1;
-        added = true;
+      const item = batches[i][position[i]];
 
-        if (merged.length === limit) {
-          break;
-        }
+      if (!item) {
+        continue;
+      }
+
+      const timestamp = item.createdAt?.getTime() ?? 0;
+      if (
+        selectedSource === -1 ||
+        (timestamp - selectedTimestamp) * sortDirection < 0
+      ) {
+        selectedSource = i;
+        selectedTimestamp = timestamp;
       }
     }
 
-    if (!added) {
+    if (selectedSource === -1) {
       break;
     }
+
+    merged.push(batches[selectedSource][position[selectedSource]]);
+    position[selectedSource] += 1;
   }
 
   return { list: merged, consumed: position };
@@ -106,10 +125,14 @@ const paginateDataSources = async (
   const counts = await Promise.all(sources.map((source) => source.count()));
   const totalCount = counts.reduce((sum, count) => sum + count, 0);
 
-  const { list, consumed } = mergeRoundRobin(batches, sourceCount, limit);
-  const nextOffsets = offsets.map(
-    (offset, index) => offset + consumed[index],
+  const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
+  const { list, consumed } = mergeSorted(
+    batches,
+    sourceCount,
+    limit,
+    sortDirection,
   );
+  const nextOffsets = offsets.map((offset, index) => offset + consumed[index]);
   const hasNextPage = nextOffsets.some(
     (offset, index) => offset < counts[index],
   );
@@ -200,6 +223,13 @@ export const globalSearchQueries = {
               module: 'contacts-customer',
               category: 'core-modules',
               path: `/contacts/customers?contactId=${doc._id}`,
+              createdAt: doc.createdAt,
+              matchFields: compactMatchFields([
+                { label: 'First name', value: doc.firstName },
+                { label: 'Last name', value: doc.lastName },
+                { label: 'Email', value: doc.primaryEmail },
+                { label: 'Phone', value: doc.primaryPhone },
+              ]),
             };
           });
         },
@@ -221,6 +251,12 @@ export const globalSearchQueries = {
             module: 'contacts-company',
             category: 'core-modules',
             path: `/contacts/companies?companyId=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Company name', value: doc.primaryName },
+              { label: 'Email', value: doc.primaryEmail },
+              { label: 'Phone', value: doc.primaryPhone },
+            ]),
           }));
         },
       },
@@ -242,7 +278,14 @@ export const globalSearchQueries = {
             icon: 'package',
             module: 'products-product',
             category: 'core-modules',
-            path: `/products?productId=${doc._id}`,
+            path: `/products?product_id=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Product name', value: doc.name },
+              { label: 'Code', value: doc.code },
+              { label: 'Short name', value: doc.shortName },
+              { label: 'Description', value: doc.description },
+            ]),
           }));
         },
       },
@@ -351,7 +394,15 @@ export const globalSearchQueries = {
             icon: 'user-check',
             module: 'settings-team-member',
             category: 'settings',
-            path: `/settings/team-members?userId=${doc._id}`,
+            path: `/settings/team/members?user_id=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Full name', value: doc.details?.fullName },
+              { label: 'Username', value: doc.username },
+              { label: 'Email', value: doc.email },
+              { label: 'Employee ID', value: doc.employeeId },
+              { label: 'Position', value: doc.details?.position },
+            ]),
           }));
         },
       },
@@ -371,7 +422,13 @@ export const globalSearchQueries = {
             icon: 'git-branch',
             module: 'settings-branch',
             category: 'settings',
-            path: '/settings/branches',
+            path: `/settings/structures/branches?branch_id=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Branch', value: doc.title },
+              { label: 'Code', value: doc.code },
+              { label: 'Address', value: doc.address },
+            ]),
           }));
         },
       },
@@ -391,7 +448,13 @@ export const globalSearchQueries = {
             icon: 'building',
             module: 'settings-department',
             category: 'settings',
-            path: '/settings/departments',
+            path: `/settings/structures/departments?department_id=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Department', value: doc.title },
+              { label: 'Code', value: doc.code },
+              { label: 'Description', value: doc.description },
+            ]),
           }));
         },
       },
@@ -411,7 +474,13 @@ export const globalSearchQueries = {
             icon: 'hierarchy',
             module: 'settings-unit',
             category: 'settings',
-            path: '/settings/units',
+            path: `/settings/structures/units?unit_id=${doc._id}`,
+            createdAt: doc.createdAt,
+            matchFields: compactMatchFields([
+              { label: 'Unit', value: doc.title },
+              { label: 'Code', value: doc.code },
+              { label: 'Description', value: doc.description },
+            ]),
           }));
         },
       },
@@ -431,7 +500,8 @@ export const globalSearchQueries = {
             icon: 'briefcase',
             module: 'settings-position',
             category: 'settings',
-            path: '/settings/positions',
+            path: `/settings/structures/positions?position_id=${doc._id}`,
+            createdAt: doc.createdAt,
           }));
         },
       },
@@ -451,7 +521,8 @@ export const globalSearchQueries = {
             icon: 'tag',
             module: 'settings-brand',
             category: 'settings',
-            path: '/settings/brands',
+            path: `/settings/brands?brand_id=${doc._id}`,
+            createdAt: doc.createdAt,
           }));
         },
       },

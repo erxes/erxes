@@ -11,30 +11,38 @@ type TCategorySearchNode = {
   description?: string | null;
   path: string;
   module?: string | null;
+  createdAt?: string | null;
+  matchFields?: Array<{ label: string; value: string }> | null;
 };
 
-const MODULE_LABELS: Record<string, string> = {
-  'contacts-customer': 'Customer',
-  'contacts-company': 'Company',
-  'products-product': 'Product',
-  'settings-team-member': 'Team member',
-  'settings-branch': 'Branch',
-  'settings-department': 'Department',
-  'settings-unit': 'Unit',
-  'settings-position': 'Position',
-  'settings-brand': 'Brand',
+const CORE_RESULT_PATHS: Record<string, (id: string) => string> = {
+  'contacts-customer': (id) => `/contacts/customers?contactId=${id}`,
+  'contacts-company': (id) => `/contacts/companies?companyId=${id}`,
+  'products-product': (id) => `/products?product_id=${id}`,
+  'settings-team-member': (id) => `/settings/team/members?user_id=${id}`,
+  'settings-branch': (id) => `/settings/structures/branches?branch_id=${id}`,
+  'settings-department': (id) =>
+    `/settings/structures/departments?department_id=${id}`,
+  'settings-unit': (id) => `/settings/structures/units?unit_id=${id}`,
+  'settings-position': (id) =>
+    `/settings/structures/positions?position_id=${id}`,
+  'settings-brand': (id) => `/settings/brands?brand_id=${id}`,
+};
+
+const getCoreResultPath = (node: TCategorySearchNode) => {
+  const pathFactory = node.module ? CORE_RESULT_PATHS[node.module] : undefined;
+
+  return pathFactory ? pathFactory(encodeURIComponent(node.id)) : node.path;
 };
 
 const toItem = (node: TCategorySearchNode) => {
-  const label = node.module ? MODULE_LABELS[node.module] : undefined;
-
   return {
     id: node.id,
     title: node.title,
-    description: label
-      ? `${label}: ${node.description ?? ''}`.trim()
-      : node.description ?? undefined,
-    path: node.path,
+    description: node.description ?? undefined,
+    createdAt: node.createdAt ?? undefined,
+    path: getCoreResultPath(node),
+    matchFields: node.matchFields ?? undefined,
   };
 };
 
@@ -54,7 +62,7 @@ const createCoreModulesSearchProvider = (
         alias: `gs_core_${module}`,
         field: 'coreModulesGlobalSearch',
         args: `searchValue: $searchValue, module: "${module}", limit: $limit, cursor: $cursor, orderBy: $orderBy`,
-        body: '{ list { id title description path module } totalCount pageInfo { hasNextPage endCursor } }',
+        body: '{ list { id title description path module createdAt matchFields } totalCount pageInfo { hasNextPage endCursor } }',
       },
     ],
     select: (payload) =>
@@ -88,7 +96,7 @@ export const settingsSearchProvider = defineSearchProvider<TCategorySearchNode>(
         alias: 'gs_settings_core',
         field: 'settingsGlobalSearch',
         args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, orderBy: $orderBy',
-        body: '{ list { id title description path module } totalCount pageInfo { hasNextPage endCursor } }',
+        body: '{ list { id title description path module createdAt matchFields } totalCount pageInfo { hasNextPage endCursor } }',
       },
     ],
     select: (payload) =>

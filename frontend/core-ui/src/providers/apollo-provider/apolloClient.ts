@@ -118,6 +118,9 @@ const typePolicies = {
   customers: {
     keyFields: ['_id'],
   },
+  GlobalSearchResultItem: {
+    keyFields: ['module', 'id'],
+  },
 };
 
 // Creating Apollo-client

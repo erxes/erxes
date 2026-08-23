@@ -8,6 +8,8 @@ export const types = `
     module: String!
     category: String!
     path: String!
+    createdAt: Date
+    matchFields: JSON
   }
 
   type CoreModulesGlobalSearchResult {

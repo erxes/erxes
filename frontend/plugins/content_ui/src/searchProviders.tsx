@@ -26,6 +26,7 @@ const readPageInfo = (value: unknown): TSearchPageInfo => {
 
 type TPostNode = {
   _id: string;
+  createdAt?: string | null;
   title?: string | null;
   clientPortalId: string;
 };
@@ -64,19 +65,21 @@ const postsSearchProvider = defineSearchProvider<TPostNode>({
       alias: 'gs_content_posts',
       field: 'cmsPostList',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
-      body: '{ posts { _id title clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
+      body: '{ posts { _id title clientPortalId createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readPostsPage(payload, 'gs_content_posts'),
   toItem: (post) => ({
     id: post._id,
     title: post.title || UNNAMED,
+    createdAt: post.createdAt ?? undefined,
     path: `/content/cms/${post.clientPortalId}/posts/detail/${post._id}`,
   }),
 });
 
 type TPageNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
   clientPortalId: string;
 };
@@ -115,13 +118,14 @@ const pagesSearchProvider = defineSearchProvider<TPageNode>({
       alias: 'gs_content_pages',
       field: 'cmsPageList',
       args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
-      body: '{ pages { _id name clientPortalId } totalCount pageInfo { hasNextPage endCursor } }',
+      body: '{ pages { _id name clientPortalId createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readPagesPage(payload, 'gs_content_pages'),
   toItem: (page) => ({
     id: page._id,
     title: page.name || UNNAMED,
+    createdAt: page.createdAt ?? undefined,
     path: `/content/cms/${page.clientPortalId}/pages/detail/${page._id}`,
   }),
 });

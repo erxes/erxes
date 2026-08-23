@@ -3,6 +3,7 @@ import { IContext } from '~/connectionResolvers';
 import { IChannelFilter } from '@/channel/@types/channel';
 import { teamChannelsOnly } from '@/channel/utils';
 import { canGroup } from 'erxes-api-shared/core-modules';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 // Sortable document paths. `memberCount` and the other counts are field
 // resolvers rather than stored fields, and `updatedAt` is not a schema path,
@@ -29,7 +30,9 @@ export const channelQueries = {
       memberId: userId,
     }).distinct('channelId');
 
-    const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
+    const nameFilter = name
+      ? { name: { $regex: escapeRegExp(name), $options: 'i' } }
+      : {};
 
     // Sorting is resolved here rather than in the UI so the list stays ordered
     // across refetches. Unknown fields are rejected so a client cannot sort by
@@ -72,38 +75,45 @@ export const channelQueries = {
     { models, user, subdomain }: IContext,
   ) => {
     const nameFilter = params.name
-      ? { name: { $regex: params.name, $options: 'i' } }
+      ? { name: { $regex: escapeRegExp(params.name), $options: 'i' } }
       : {};
 
     // This listing is team channels only, on every branch. Personal inboxes are
     // reached through `getPersonalChannel`.
     const scopeFilter = teamChannelsOnly();
+    const sort: { createdAt: SortOrder } | undefined =
+      params.sortField === 'createdAt'
+        ? { createdAt: params.sortDirection === 1 ? 1 : -1 }
+        : undefined;
 
     if (params.channelIds && params.channelIds.length > 0) {
-      return models.Channels.find({
+      const channelQuery = models.Channels.find({
         _id: { $in: params.channelIds },
         ...nameFilter,
         ...scopeFilter,
       });
+      return sort ? channelQuery.sort(sort) : channelQuery;
     }
 
     if (params.integrationId) {
       const channelIds = await models.Integrations.distinct('channelId', {
         _id: params.integrationId,
       });
-      return models.Channels.find({
+      const channelQuery = models.Channels.find({
         _id: { $in: channelIds },
         ...nameFilter,
         ...scopeFilter,
       });
+      return sort ? channelQuery.sort(sort) : channelQuery;
     }
 
     // System owners and users with showAllChannels permission see every channel.
     if (user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user))) {
-      return models.Channels.find({
+      const channelQuery = models.Channels.find({
         ...nameFilter,
         ...scopeFilter,
       });
+      return sort ? channelQuery.sort(sort) : channelQuery;
     }
 
     const userId = params.userId || user?._id;
@@ -111,11 +121,12 @@ export const channelQueries = {
       const channelIds = await models.ChannelMembers.find({
         memberId: userId,
       }).distinct('channelId');
-      return models.Channels.find({
+      const channelQuery = models.Channels.find({
         _id: { $in: channelIds },
         ...nameFilter,
         ...scopeFilter,
       });
+      return sort ? channelQuery.sort(sort) : channelQuery;
     }
 
     return [];

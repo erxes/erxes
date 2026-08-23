@@ -9,10 +9,7 @@ import {
   TNavigationSearchItem,
 } from '@/search/types/GlobalSearch';
 import { GlobalSearchItem } from '@/search/components/GlobalSearchItem';
-import {
-  compareGlobalSearchItems,
-  sortGlobalSearchItems,
-} from '@/search/utils/globalSearchResults';
+import { compareGlobalSearchItems } from '@/search/utils/globalSearchResults';
 
 const SearchGroupHeading = ({
   label,
@@ -51,7 +48,6 @@ export const NavigationSearchGroup = ({
   actionLabel,
   searchValue,
   previewLimit,
-  sortOrder,
   onShowMore,
   onSelect,
 }: {
@@ -60,7 +56,6 @@ export const NavigationSearchGroup = ({
   actionLabel: string;
   searchValue: string;
   previewLimit?: number;
-  sortOrder: TGlobalSearchSortOrder;
   onShowMore?: () => void;
   onSelect: (path: string, activityId?: string) => void;
 }) => {
@@ -68,14 +63,8 @@ export const NavigationSearchGroup = ({
     return null;
   }
 
-  const sortedItems = useMemo(
-    () => sortGlobalSearchItems(items, sortOrder),
-    [items, sortOrder],
-  );
   const visibleItems =
-    previewLimit === undefined
-      ? sortedItems
-      : sortedItems.slice(0, previewLimit);
+    previewLimit === undefined ? items : items.slice(0, previewLimit);
   const showMoreAction =
     previewLimit !== undefined && items.length > previewLimit
       ? onShowMore
@@ -110,7 +99,6 @@ export const GlobalSearchProviderGroup = ({
   searchValue,
   actionLabel,
   previewLimit,
-  sortOrder,
   onShowMore,
   onLoadMore,
   onSelect,
@@ -225,16 +213,10 @@ const toPluginsMergedItem = (
 ): TPluginsMergedItem => ({
   key: `${group.key}:${item.id}`,
   icon: group.icon,
-  item: {
-    ...item,
-    description: item.description
-      ? `${group.label}: ${item.description}`
-      : group.label,
-  },
+  item,
 });
 
 // Renders every plugin source as a single list with no per-source heading.
-// The source plugin is surfaced through each item's description.
 export const GlobalSearchPluginsGroup = ({
   groups,
   searchValue,

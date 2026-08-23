@@ -35,15 +35,18 @@ export const teamQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRead');
+    const orderBy = params.orderBy;
 
     if (params.teamIds && params.teamIds.length > 0 && !params.userId) {
-      return models.Team.find({ _id: { $in: params.teamIds } });
+      const teamsQuery = models.Team.find({ _id: { $in: params.teamIds } });
+      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
     }
 
     if (params.isTriageEnabled) {
-      return models.Team.find({
+      const teamsQuery = models.Team.find({
         $or: [{ triageEnabled: true }, { _id: params.teamId }],
       });
+      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
     }
 
     if (params.projectId) {
@@ -55,7 +58,8 @@ export const teamQueries = {
         teamIds.push(params.teamId);
       }
 
-      return models.Team.find({ _id: { $in: teamIds } });
+      const teamsQuery = models.Team.find({ _id: { $in: teamIds } });
+      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
     }
 
     if (params.userId) {
@@ -67,7 +71,8 @@ export const teamQueries = {
         teamIds.push(params.teamId);
       }
 
-      return models.Team.find({ _id: { $in: teamIds } });
+      const teamsQuery = models.Team.find({ _id: { $in: teamIds } });
+      return orderBy ? teamsQuery.sort(orderBy) : teamsQuery;
     }
 
     return models.Team.getTeams(params);

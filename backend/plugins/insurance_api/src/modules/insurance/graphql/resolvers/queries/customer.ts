@@ -1,17 +1,27 @@
 import { IContext } from '~/connectionResolvers';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export const customerQueries = {
   insuranceCustomers: Object.assign(
     async (_parent: undefined, args: any, { models }: IContext) => {
-      const { search, page = 1, limit = 100, sort, sortField, filter } = args;
+      const {
+        search,
+        page = 1,
+        limit = 100,
+        sort,
+        sortField,
+        filter,
+        orderBy,
+      } = args;
       const query: any = {};
 
       if (search) {
+        const escapedSearch = escapeRegExp(search);
         query.$or = [
-          { firstName: { $regex: search, $options: 'i' } },
-          { lastName: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { registrationNumber: { $regex: search, $options: 'i' } },
+          { firstName: { $regex: escapedSearch, $options: 'i' } },
+          { lastName: { $regex: escapedSearch, $options: 'i' } },
+          { email: { $regex: escapedSearch, $options: 'i' } },
+          { registrationNumber: { $regex: escapedSearch, $options: 'i' } },
         ];
       }
 
@@ -24,7 +34,9 @@ export const customerQueries = {
       }
 
       const sortOptions: any = {};
-      if (sort && sortField) {
+      if (orderBy?.createdAt === 1 || orderBy?.createdAt === -1) {
+        sortOptions.createdAt = orderBy.createdAt;
+      } else if (sort && sortField) {
         sortOptions[sortField] = sort === 'DESC' ? -1 : 1;
       }
 

@@ -14,13 +14,23 @@ const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 const getObjectIdTimestamp = (id: string): number | null =>
   OBJECT_ID_PATTERN.test(id) ? Number.parseInt(id.slice(0, 8), 16) : null;
 
+const getCreatedAtTimestamp = (item: TSearchResultItem): number | null => {
+  if (item.createdAt) {
+    const timestamp = Date.parse(item.createdAt);
+
+    if (!Number.isNaN(timestamp)) return timestamp;
+  }
+
+  return getObjectIdTimestamp(item.id);
+};
+
 export const compareGlobalSearchItems = (
   left: TSearchResultItem,
   right: TSearchResultItem,
   order: TGlobalSearchSortOrder,
 ): number => {
-  const leftTimestamp = getObjectIdTimestamp(left.id);
-  const rightTimestamp = getObjectIdTimestamp(right.id);
+  const leftTimestamp = getCreatedAtTimestamp(left);
+  const rightTimestamp = getCreatedAtTimestamp(right);
 
   if (leftTimestamp === null || rightTimestamp === null) return 0;
 
@@ -42,22 +52,6 @@ const toSingular = (value: string): string =>
     ? value.slice(0, -1)
     : value;
 
-// Matches a source by its name so typing a category/source label (e.g. "deals",
-// "conversations") surfaces that source's results instead of only content text.
-export const isSourceNameMatch = (
-  searchValue: string,
-  label?: string | null,
-): boolean => {
-  const term = searchValue.trim().toLowerCase();
-  const name = (label ?? '').trim().toLowerCase();
-
-  if (!term || !name) {
-    return false;
-  }
-
-  return toSingular(term) === toSingular(name);
-};
-
 export type TSourceQualifier = {
   providerKeys: string[];
   query: string;
@@ -65,7 +59,7 @@ export type TSourceQualifier = {
 
 // Detects a leading source/category qualifier such as "deals 7211" or
 // "conversation #123" and returns the owning provider plus the remaining query.
-// Falls back to null so the caller can apply its exact source-name behavior.
+// Falls back to null so an exact source name remains a normal content query.
 export const parseSourceQualifier = (
   searchValue: string,
   providers: {
