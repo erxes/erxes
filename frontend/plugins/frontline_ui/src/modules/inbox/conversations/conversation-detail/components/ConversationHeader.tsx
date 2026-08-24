@@ -387,7 +387,7 @@ const ConversationActionsDropdown = ({
           <IconTags className="size-4" />
           {t('tags')}
         </DropdownMenu.Label>
-        <div className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1">
+        <div className="px-1 pb-2 [&>div>div]:flex-col [&>div>div]:items-stretch [&>div>div>button]:order-last [&>div>div>button]:mt-2 [&>div>div>button]:w-full [&>div>div>button]:justify-between [&>div>div>button]:border-dashed [&>div>div>button]:bg-muted/30 [&>div>div>div]:max-h-28 [&>div>div>div]:w-full [&>div>div>div]:overflow-y-auto [&>div>div>div]:pr-1">
           <ConversationTags showAllTags withinDropdown />
         </div>
         <DropdownMenu.Separator />
