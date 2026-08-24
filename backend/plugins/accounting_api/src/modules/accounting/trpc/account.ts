@@ -80,15 +80,20 @@ export const accountTrpcRouter = t.router({
       .meta({
         agent: {
           description:
-            'List active accounting account categories under given parents. Input: { _id } (single parent) or { ids: [...] } (many); returns every non-disabled descendant ordered by their order path. Returns [] when no ids are given.',
+            'List active accounting account categories under given parents. Input: { _id } (single parent) or { ids: [...] } (many, capped at 100 ids); returns non-disabled descendants up to 100 rows ordered by their order path. Returns [] when no ids are given.',
           permission: { module: 'accountCategory', action: 'readAccountCategories' },
         },
       })
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { _id, ids } = input;
-        const categoryIds = _id ? [_id] : ids || [];
+        const { _id, ids, limit } = input || {};
+        // Cap the requested parents so a broad ids list cannot fan out into
+        // an unbounded descendant query.
+        const categoryIds = (_id ? [_id] : ids || []).slice(
+          0,
+          AGENT_FIND_MAX_LIMIT,
+        );
         if (!categoryIds.length) {
           return [];
         }
@@ -113,6 +118,7 @@ export const accountTrpcRouter = t.router({
           $or: orderQry,
         })
           .sort({ order: 1 })
+          .limit(safeAgentLimit(limit))
           .lean();
       }),
   }),

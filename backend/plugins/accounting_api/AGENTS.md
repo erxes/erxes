@@ -64,9 +64,9 @@
   the listed accounting permission action:
   - `accountingAccount.getAccount` — `accountsRead`
   - `accountingAccount.getAccountCategory`, `getAccountCategories`,
-    `getAccountCategoriesWithChilds` — `readAccountCategories`;
-    `getAccountCategories` is a bounded read (`limit` defaults to 20, hard
-    max 100)
+    `getAccountCategoriesWithChilds` — `readAccountCategories`; both list
+    reads are bounded (`limit` defaults to 20, hard max 100;
+    `getAccountCategoriesWithChilds` also caps requested parents at 100)
   - `accountingTransaction.getTransactions` — `readTransactions`; bounded read
     (`limit` defaults to 20, hard max 100)
 - tRPC service contracts under `src/modules/accounting/trpc` and
@@ -117,9 +117,11 @@
   `accountingTransaction.getFilterMatches` (it trusts a caller-supplied
   `userId` and serves the automation engine), or any future raw-mongo helper
   without bounding it first. The bounded list reads
-  (`accountingTransaction.getTransactions` and
-  `accountingAccount.getAccountCategories`, default 20 / max 100 rows with a
-  floor guard so a fractional limit can never become Mongo's "no limit")
+  (`accountingTransaction.getTransactions`,
+  `accountingAccount.getAccountCategories`, and
+  `accountingAccount.getAccountCategoriesWithChilds` — default 20 / max 100
+  rows with a floor guard so a fractional limit can never become Mongo's
+  "no limit"; WithChilds also caps requested parents at 100)
   are the only exceptions — keep those clamps when touching them.
 
 ## Validation
@@ -140,10 +142,11 @@
 
 - **Summary:** Read-only account, account-category, and transaction tRPC
   procedures are now exposed to AI agents through the platform agent-tools
-  manifest; `getTransactions` and `getAccountCategories` are bounded
-  (default 20, hard max 100) because they have no internal callers and an
-  unbounded find can materialize a whole collection before the agent-tools
-  response cap applies.
+  manifest; the three list reads (`getTransactions`, `getAccountCategories`,
+  `getAccountCategoriesWithChilds`) are bounded (default 20, hard max 100)
+  because they have no internal callers and an unbounded find can
+  materialize a whole collection before the agent-tools response cap
+  applies.
 - **Affected areas:** `src/modules/accounting/trpc/account.ts`,
   `src/modules/accounting/trpc/transaction.ts`.
 - **Contracts changed:** New agent-tool manifest entries
