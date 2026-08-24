@@ -112,6 +112,12 @@ export const PAYMENT_KINDS = {
         validation: { type: 'minLength', value: 1 },
       },
       {
+      key: 'pocketTerminalId',
+      label: 'terminal-id',
+      type: 'number',
+      validation: { type: 'minLength', value: 1 },
+    },
+      {
         key: 'pocketClientId',
         label: 'client-id',
         validation: { type: 'minLength', value: 1 },

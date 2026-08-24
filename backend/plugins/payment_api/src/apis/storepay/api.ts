@@ -5,6 +5,39 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { redis } from 'erxes-api-shared/utils';
 
+export interface IStorePayParams {
+  merchantUsername: string;
+  merchantPassword: string;
+  appUsername: string;
+  appPassword: string;
+  storeId: string;
+}
+
+interface IStorePayResponse {
+  status?: string;
+  value?: any;
+  msgList?: Array<{
+    code?: string;
+    message?: string;
+  }>;
+  error?: string;
+  error_description?: string;
+  access_token?: string;
+  expires_in?: number;
+  isExist?: boolean;
+  isConfirmed?: boolean;
+  loanId?: string | number;
+  depositAmount?: number;
+}
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+};
+
 export const storepayCallbackHandler = async (
   models: IModels,
   data: any
@@ -17,43 +50,43 @@ export const storepayCallbackHandler = async (
 
   const transaction = await models.Transactions.getTransaction(
     {
-      $or: [{ 'response.value': id }, { 'response.value': Number(id) }],
+      $or: [
+        { 'response.value': id },
+        { 'response.value': Number(id) },
+      ],
     },
     true
   );
 
-  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+  const payment = await models.PaymentMethods.getPayment(
+    transaction.paymentId
+  );
 
-  if (payment.kind !== 'storepay') {
+  if (payment.kind !== PAYMENTS.storepay.kind) {
     throw new Error('Payment config type is mismatched');
   }
 
   try {
     const api = new StorePayAPI(payment.config);
-    const invoiceStatus = await api.checkInvoice(id);
+
+    // The callback only tells us which invoice changed.
+    // Verify the invoice status directly with Storepay.
+    const invoiceStatus = await api.checkInvoice(String(id));
 
     if (invoiceStatus !== PAYMENT_STATUS.PAID) {
       return transaction;
     }
 
-    transaction.status = invoiceStatus;
+    transaction.status = PAYMENT_STATUS.PAID;
     transaction.updatedAt = new Date();
+
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
 };
-export interface IStorePayParams {
-  merchantUsername: string;
-  merchantPassword: string;
-
-  appUsername: string;
-  appPassword: string;
-
-  storeId: string;
-}
 
 export class StorePayAPI extends BaseAPI {
   private username: string;
@@ -67,81 +100,90 @@ export class StorePayAPI extends BaseAPI {
     super(config);
 
     const {
-      merchantPassword,
-      merchantUsername,
-      appPassword,
-      appUsername,
-      storeId,
-    } = config || {
-      merchantPassword: '',
-      merchantUsername: '',
-      appPassword: '',
-      appUsername: '',
-      storeId: '',
-    };
+      merchantPassword = '',
+      merchantUsername = '',
+      appPassword = '',
+      appUsername = '',
+      storeId = '',
+    } = config || {};
 
     this.username = merchantUsername;
     this.password = merchantPassword;
     this.app_username = appUsername;
     this.app_password = appPassword;
     this.store_id = storeId;
+
     this.apiUrl = PAYMENTS.storepay.apiUrl;
     this.domain = domain;
   }
 
-  async authorize() {
-    const { username, password, app_password, app_username } = this;
-    const data = {
-      username,
-      password,
-    };
-    try {
-      const requestOptions = {
+  /**
+   * Storepay OAuth2 password grant.
+   *
+   * POST:
+   * /merchant-uaa/oauth/token
+   *
+   * Query:
+   * grant_type=password
+   * username={merchantUsername}
+   * password={merchantPassword}
+   *
+   * Header:
+   * Authorization: Basic base64(appUsername:appPassword)
+   */
+  async authorize(): Promise<{
+    access_token: string;
+    expires_in: number;
+  }> {
+    const query = new URLSearchParams({
+      grant_type: 'password',
+      username: this.username,
+      password: this.password,
+    });
+
+    const response = await fetch(
+      `${this.getBaseUrl()}merchant-uaa/oauth/token?${query.toString()}`,
+      {
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`
+            `${this.app_username}:${this.app_password}`
           ).toString('base64')}`,
-          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
-      };
-
-      const res = await fetch(
-        'http://service-merchant.storepay.mn:7701/oauth/token?' +
-          new URLSearchParams({
-            grant_type: 'password',
-            username,
-            password,
-          }),
-        requestOptions
-      ).then((res) => res.json());
-
-      if (res.error) {
-        if (res.error === 'invalid_client') {
-          throw new Error(
-            'Invalid credentials!!! Please check your credentials'
-          );
-        }
-
-        if (res.error_description) {
-          throw new Error(res.error_description);
-        }
-        throw new Error(res.error);
       }
-    } catch (e) {
-      throw new Error(e.message);
+    );
+
+    const res: IStorePayResponse = await response.json();
+
+    if (!response.ok || res.error || !res.access_token) {
+      if (res.error === 'invalid_client') {
+        throw new Error(
+          'Invalid Storepay API credentials. Please check app username and app password.'
+        );
+      }
+
+      throw new Error(
+        res.error_description ||
+          res.error ||
+          'Failed to get Storepay access token'
+      );
     }
+
+    return {
+      access_token: res.access_token,
+      expires_in: res.expires_in || 7200,
+    };
   }
 
+  /**
+   * Get Storepay API headers.
+   *
+   * Access tokens are cached in Redis for their lifetime minus 60 seconds.
+   */
   async getHeaders() {
-    const { username, password, app_password, app_username, store_id } = this;
-    const data = {
-      username,
-      password,
-    };
+    const tokenKey = `storepay_token_${this.store_id}`;
 
-    const token = await redis.get(`storepay_token_${store_id}`);
+    const token = await redis.get(tokenKey);
 
     if (token) {
       return {
@@ -150,161 +192,308 @@ export class StorePayAPI extends BaseAPI {
       };
     }
 
-    try {
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`
-          ).toString('base64')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      };
+    const auth = await this.authorize();
 
-      const res = await fetch(
-        'http://service-merchant.storepay.mn:7701/oauth/token?' +
-          new URLSearchParams({
-            grant_type: 'password',
-            username,
-            password,
-          }),
-        requestOptions
-      ).then((res) => res.json());
+    await redis.set(
+      tokenKey,
+      auth.access_token,
+      'EX',
+      Math.max(auth.expires_in - 60, 60)
+    );
 
-      await redis.set(
-        `storepay_token_${store_id}`,
-        res.access_token,
-        'EX',
-        res.expires_in - 60
-      );
-
-      return {
-        Authorization: `Bearer ${res.access_token}`,
-        'Content-Type': 'application/json',
-      };
-    } catch (e) {
-      console.error('error ', e);
-      throw new Error(e.message);
-    }
+    return {
+      Authorization: `Bearer ${auth.access_token}`,
+      'Content-Type': 'application/json',
+    };
   }
 
   /**
-   * create invoice on monpay
-   * @param {number} amount - amount
-   * @param {string} description - description
-   * @return {[object]} - Returns invoice object
-   * TODO: update return type
+   * Create a Storepay invoice.
+   *
+   * Storepay v3.0:
+   * POST /merchant/loan
+   *
+   * requestId is generated from the Erxes transaction ID so that
+   * the request can later be checked through:
+   * GET /merchant/loan/checkRequest/{requestId}
    */
   async createInvoice(invoice: ITransactionDocument) {
     const details = invoice.details || {};
 
     try {
-      const data = {
-        amount: invoice.amount,
-        mobileNumber: details.phone,
-        description: invoice.description || 'transaction',
-        storeId: this.store_id,
-        callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
-      };
-
-      const possibleAmount = await this.checkLoanAmount(details.phone);
-
-      if (possibleAmount < invoice.amount) {
+      if (!details.phone) {
         return {
-          error: 'Insufficient amount',
+          error: 'Mobile number is required',
         };
       }
 
-      const res = await this.request({
+      if (!invoice.amount || invoice.amount <= 0) {
+        return {
+          error: 'Amount is required',
+        };
+      }
+
+      const requestId = String(invoice._id);
+
+      const data = {
+        storeId: Number(this.store_id),
+        mobileNumber: Number(details.phone),
+        description: invoice.description || 'transaction',
+        amount: invoice.amount,
+        callbackUrl: this.domain
+          ? `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`
+          : undefined,
+        requestId,
+      };
+
+      const response = await this.request({
         method: 'POST',
         path: 'merchant/loan',
         data,
         headers: await this.getHeaders(),
-      }).then((res) => res.json());
+      });
 
-      if (res.status !== 'Success') {
-        const error =
-          res.msgList.length > 0 ? res.msgList[0].code : 'Unknown error';
+      const res: IStorePayResponse = await response.json();
 
-        return { error };
+      if (
+        !response.ok ||
+        String(res.status || '').toLowerCase() !== 'success'
+      ) {
+        return {
+          error: this.getStorePayError(res),
+        };
       }
 
-      return { ...res, text: `Invoice has sent to ${details.phone}` };
-    } catch (e) {
-      return { error: e.message };
+      return {
+        ...res,
+        requestId,
+        text: `Invoice has been sent to ${details.phone}`,
+      };
+    } catch (error) {
+      return {
+        error: getErrorMessage(error),
+      };
     }
   }
 
   /**
-   * check invoice status
-   * @param {string} uuid - unique identifier of storepay invoice
-   * @return {string} - Returns invoice status
+   * Check invoice confirmation status by Storepay invoice number.
+   *
+   * GET /merchant/loan/check/{loanId}
    */
   async checkInvoice(invoiceNumber: string) {
     try {
-      const res = await this.request({
-        headers: await this.getHeaders(),
+      const response = await this.request({
         method: 'GET',
-        path: `merchant/loan/check/${invoiceNumber}`,
-      }).then((res) => res.json());
+        path: `merchant/loan/check/${encodeURIComponent(invoiceNumber)}`,
+        headers: await this.getHeaders(),
+      });
 
-      if (!res.value) {
+      const res: IStorePayResponse = await response.json();
+
+      if (
+        String(res.status || '').toLowerCase() !== 'success' ||
+        res.value !== true
+      ) {
         return PAYMENT_STATUS.PENDING;
       }
 
       return PAYMENT_STATUS.PAID;
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
     }
   }
 
+  /**
+   * Check invoice creation/confirmation by requestId.
+   *
+   * GET /merchant/loan/checkRequest/{requestId}
+   *
+   * Response contains:
+   * - isExist
+   * - isConfirmed
+   * - loanId
+   * - depositAmount
+   */
+  async checkRequest(requestId: string) {
+    try {
+      const response = await this.request({
+        method: 'GET',
+        path: `merchant/loan/checkRequest/${encodeURIComponent(requestId)}`,
+        headers: await this.getHeaders(),
+      });
+
+      const res: IStorePayResponse = await response.json();
+
+      if (String(res.status || '').toLowerCase() !== 'success') {
+        return {
+          status: PAYMENT_STATUS.PENDING,
+          isExist: false,
+          isConfirmed: false,
+          loanId: null,
+          depositAmount: null,
+          error: this.getStorePayError(res),
+        };
+      }
+
+      return {
+        status:
+          res.isConfirmed === true
+            ? PAYMENT_STATUS.PAID
+            : PAYMENT_STATUS.PENDING,
+        isExist: res.isExist === true,
+        isConfirmed: res.isConfirmed === true,
+        loanId: res.loanId,
+        depositAmount: res.depositAmount,
+      };
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
+  }
+
+  /**
+   * Manual invoice status check.
+   */
   async manualCheck(invoice: ITransactionDocument) {
-    // if (invoice.apiResponse.error) {
-    //   return invoice.apiResponse.error;
-    // }
+    const invoiceNumber = invoice.response?.value;
 
+    if (!invoiceNumber) {
+      return PAYMENT_STATUS.PENDING;
+    }
+
+    return this.checkInvoice(String(invoiceNumber));
+  }
+
+  /**
+   * Cancel an invoice.
+   *
+   * POST /merchant/account/cancel
+   */
+  async cancelInvoice(invoiceNumber: string) {
     try {
-      const res = await this.request({
+      const response = await this.request({
+        method: 'POST',
+        path: 'merchant/account/cancel',
+        data: {
+          accountId: Number(invoiceNumber),
+        },
         headers: await this.getHeaders(),
-        method: 'GET',
-        path: `merchant/loan/check/${invoice.response.value}`,
-      }).then((res) => res.json());
+      });
 
-      if (!res.value) {
-        return PAYMENT_STATUS.PENDING;
+      const res: IStorePayResponse = await response.json();
+
+      if (
+        String(res.status || '').toLowerCase() !== 'success' ||
+        res.value !== true
+      ) {
+        return {
+          success: false,
+          error: this.getStorePayError(res),
+        };
       }
 
-      return PAYMENT_STATUS.PAID;
-    } catch (e) {
-      throw new Error(e.message);
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: getErrorMessage(error),
+      };
     }
   }
 
-  async checkLoanAmount(mobileNumber: string) {
+  /**
+   * Request a loan amount change or cancellation.
+   *
+   * changeTypeId:
+   * 1 = change amount
+   * 2 = cancel
+   *
+   * POST /merchant/loanChange
+   */
+  async changeLoan(
+    loanId: string | number,
+    changeTypeId: 1 | 2,
+    reason: string,
+    amount?: number
+  ) {
     try {
-      const res = await this.request({
-        headers: await this.getHeaders(),
+      const data: {
+        changeTypeId: number;
+        loanId: number;
+        reason: string;
+        amount?: number;
+      } = {
+        changeTypeId,
+        loanId: Number(loanId),
+        reason,
+      };
+
+      if (changeTypeId === 1) {
+        if (!amount || amount <= 0) {
+          throw new Error(
+            'Amount is required when changing the loan amount'
+          );
+        }
+
+        data.amount = amount;
+      }
+
+      const response = await this.request({
         method: 'POST',
-        path: `user/possibleAmount`,
-        data: {
-          mobileNumber,
-        },
-      }).then((res) => res.json());
+        path: 'merchant/loanChange',
+        data,
+        headers: await this.getHeaders(),
+      });
 
-      const { msgList = [], status } = res;
-      if (status === 'Failed' && msgList.length > 0) {
-        throw new Error(msgList[0].code);
+      const res: IStorePayResponse = await response.json();
+
+      if (
+        !response.ok ||
+        String(res.status || '').toLowerCase() !== 'success'
+      ) {
+        return {
+          success: false,
+          error: this.getStorePayError(res),
+        };
       }
 
-      if (!res.value || res.value === 0) {
-        throw new Error('Insufficient loan amount');
-      }
-
-      return res.value;
-    } catch (e) {
-      console.error(e);
-      throw new Error(e.message);
+      return {
+        success: true,
+        ...res,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: getErrorMessage(error),
+      };
     }
+  }
+
+  private getBaseUrl() {
+    return this.apiUrl.endsWith('/')
+      ? this.apiUrl
+      : `${this.apiUrl}/`;
+  }
+
+  private getStorePayError(res: IStorePayResponse) {
+    if (res.error_description) {
+      return res.error_description;
+    }
+
+    if (res.error) {
+      return res.error;
+    }
+
+    if (res.msgList?.length) {
+      return (
+        res.msgList[0].message ||
+        res.msgList[0].code ||
+        'Storepay request failed'
+      );
+    }
+
+    return 'Storepay request failed';
   }
 }
