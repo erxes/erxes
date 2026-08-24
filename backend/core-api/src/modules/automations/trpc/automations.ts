@@ -1,8 +1,16 @@
 import { initTRPC } from '@trpc/server';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
+
+// Agent-facing list reads must stay bounded: an unbounded find can
+// materialize a whole collection in memory before the agent-tools response
+// cap is able to reject the result.
+const AGENT_LIST_DEFAULT_LIMIT = 20;
+const AGENT_LIST_MAX_LIMIT = 100;
 
 export const automationsRouter = t.router({
   automation: t.router({
@@ -24,6 +32,62 @@ export const automationsRouter = t.router({
         const { query } = input;
         const { models } = ctx;
         return await models.Automations.countDocuments(query);
+      }),
+
+    list: t.procedure
+      .meta(
+        agentMeta(
+          'List automations with optional filters: { status?: "draft"|"active"|"archived", searchValue? (matches name), skip?, limit? }. Returns automation summaries (name, status, triggers, timestamps), newest first. Results are capped at 100 rows (default 20). Use automation.executionCounts to see how often an automation has run.',
+          { module: 'automations', action: 'automationsRead' },
+        ),
+      )
+      .input(
+        z.object({
+          status: z.enum(['draft', 'active', 'archived']).optional(),
+          searchValue: z.string().optional(),
+          skip: z.number().int().nonnegative().max(1_000_000).optional(),
+          limit: z.number().int().positive().max(AGENT_LIST_MAX_LIMIT).optional(),
+        }),
+      )
+      .query(async ({ input, ctx }) => {
+        const { models } = ctx;
+        const { status, searchValue, skip, limit } = input;
+
+        const query: Record<string, unknown> = {};
+
+        if (status) {
+          query.status = status;
+        }
+
+        if (searchValue) {
+          query.name = new RegExp(escapeRegExp(searchValue), 'i');
+        }
+
+        return models.Automations.find(query)
+          .sort({ createdAt: -1 })
+          .skip(skip || 0)
+          .limit(Math.min(limit || AGENT_LIST_DEFAULT_LIMIT, AGENT_LIST_MAX_LIMIT))
+          .lean();
+      }),
+
+    executionCounts: t.procedure
+      .meta(
+        agentMeta(
+          'Get how many times each automation has executed. Input: { automationIds: [...] } (1-100 ids, resolve them with automation.list). Returns one count row per id. Pair with automation.list for "what automations exist and how active are they" questions.',
+          { module: 'automations', action: 'automationsRead' },
+        ),
+      )
+      .input(
+        z.object({
+          automationIds: z.array(z.string()).min(1).max(AGENT_LIST_MAX_LIMIT),
+        }),
+      )
+      .query(async ({ input, ctx }) => {
+        const { models } = ctx;
+
+        return models.AutomationExecutions.getExecutionCounts(
+          input.automationIds,
+        );
       }),
   }),
   executions: t.router({
