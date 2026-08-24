@@ -33,7 +33,7 @@ export const types = `
 
 export const queries = `
     getChannel(_id: String!): Channel
-    getChannels(name: String, userId: String, channelIds: [String], integrationId: String): [Channel]
+    getChannels(name: String, userId: String, channelIds: [String], integrationId: String, sortField: String, sortDirection: Int): [Channel]
     getMyChannels(name: String, sortField: String, sortDirection: Int): [Channel]
     getPersonalChannel: Channel
     getChannelMembers(channelId: String, channelIds: [String]): [ChannelMember]

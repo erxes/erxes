@@ -24,18 +24,44 @@ export const FilterDialogDateView = ({
   label?: string;
 }) => {
   const { sessionKey } = useFilterContext();
-  const [tabs, setTabs] = useState('day');
   const [value, setValue] = useFilterQueryState<string>(filterKey, sessionKey);
   const { resetFilterState } = useFilterContext();
+
+  return (
+    <DateRangeDialogContent
+      label={label ?? filterKey}
+      value={value}
+      onApply={(nextValue) => {
+        setValue(nextValue);
+        resetFilterState();
+      }}
+    />
+  );
+};
+
+export const DateRangeDialogContent = ({
+  label,
+  value,
+  onApply,
+}: {
+  label: string;
+  value?: string | null;
+  onApply: (value: string) => void;
+}) => {
+  const [tabs, setTabs] = useState('day');
   const [currentDateRange, setCurrentDateRange] = useState<
     DateRange | undefined
   >(parseDateRangeFromString(value || ''));
-  const [currentValue, setCurrentValue] = useState<string | null>(value);
+  const [currentValue, setCurrentValue] = useState<string | null>(
+    value ?? null,
+  );
 
   useEffect(() => {
     if (value) {
       setTabs(getActiveTab(value));
     }
+    setCurrentValue(value ?? null);
+    setCurrentDateRange(parseDateRangeFromString(value || ''));
   }, [value]);
 
   const handleCalendarChange = (value: DateRange | undefined) => {
@@ -55,8 +81,7 @@ export const FilterDialogDateView = ({
 
   const handleApply = () => {
     if (currentValue) {
-      setValue(currentValue);
-      resetFilterState();
+      onApply(currentValue);
     }
   };
 
@@ -64,9 +89,7 @@ export const FilterDialogDateView = ({
     <Dialog.Content className="max-w-xl p-0">
       <Tabs value={tabs} onValueChange={setTabs}>
         <Dialog.Header className="p-6 space-y-3">
-          <Dialog.Title className="text-sm capitalize">
-            {label ?? filterKey}
-          </Dialog.Title>
+          <Dialog.Title className="text-sm capitalize">{label}</Dialog.Title>
           <div>
             <ToggleGroup
               type="single"
@@ -223,8 +246,7 @@ const DateFilterRadioGroupItem = ({
         ref.current?.scrollIntoView({ behavior: 'instant', block: 'center' });
       }, 100);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [currentValue, value]);
 
   return (
     <Button

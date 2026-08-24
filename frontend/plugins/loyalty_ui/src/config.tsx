@@ -1,9 +1,9 @@
 import { IconAward } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
-import { LoyaltySettingsNavigation } from './LoyaltySettingsNavigation';
+import { LoyaltySettingsNavigation } from '~/LoyaltySettingsNavigation';
 import { Suspense } from 'react';
-import { MainNavigation } from './modules/navigation/MainNavigation';
-import { SEARCH_PROVIDERS } from './searchProviders';
+import { MainNavigation } from '@/navigation/MainNavigation';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 export const CONFIG: IUIConfig = {
   name: 'loyalty',
@@ -25,15 +25,56 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'pricing',
+      name: 'vouchers',
       icon: IconAward,
-      path: 'pricing',
+      path: 'loyalty/vouchers',
+      hasAutomation: true,
+      hasRelationWidget: true,
     },
     {
-      name: 'loyalty',
+      name: 'lotteries',
+      path: 'loyalty/lotteries',
       icon: IconAward,
-      path: 'loyalty',
-      hasAutomation: true,
+    },
+    {
+      name: 'spins',
+      path: 'loyalty/spins',
+      icon: IconAward,
+    },
+    {
+      name: 'donates',
+      path: 'loyalty/donates',
+      icon: IconAward,
+    },
+    {
+      name: 'scores',
+      path: 'loyalty/scores',
+      icon: IconAward,
+    },
+    {
+      name: 'assignments',
+      path: 'loyalty/assignments',
+      icon: IconAward,
+    },
+    {
+      name: 'agents',
+      path: 'loyalty/agents',
+      icon: IconAward,
+    },
+    {
+      name: 'coupons',
+      path: 'loyalty/coupons',
+      icon: IconAward,
+    },
+    {
+      name: 'configs',
+      icon: IconAward,
+      path: 'settings/loyalty/config',
+    },
+    {
+      name: 'pricing',
+      icon: IconAward,
+      path: 'settings/loyalty/pricing',
     },
   ],
   widgets: {

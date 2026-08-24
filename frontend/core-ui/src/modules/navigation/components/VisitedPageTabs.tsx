@@ -13,7 +13,6 @@ import {
   getVisitedPageTabTitle,
 } from '@/navigation/utils/visitedPageTabs';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
-import { GlobalSearchTrigger } from '@/search/components/GlobalSearchTrigger';
 import {
   KeyboardSensor,
   MouseSensor,
@@ -168,7 +167,6 @@ export const VisitedPageTabs = () => {
           })}
         </VisitedPageTabsContent>
       </div>
-      <GlobalSearchTrigger />
       <Button
         aria-keyshortcuts={toggleTabsAriaShortcut}
         aria-label={t('navigation.hide-tabs-row')}

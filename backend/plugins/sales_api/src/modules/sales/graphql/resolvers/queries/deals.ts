@@ -9,6 +9,7 @@ import {
   archivedItems,
   archivedItemsCount,
   checkItemPermByUser,
+  getCreatedAtSearchFilter,
   getItemList,
 } from '~/modules/sales/utils';
 import {
@@ -18,7 +19,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
-import dealResolvers from '../customResolvers/deal';
+import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
 import { fetchSegment } from '~/modules/sales/trpc/deal';
 import { Resolver } from 'erxes-api-shared/core-types';
@@ -247,8 +248,8 @@ export const generateFilter = async (
     status
       ? { status }
       : noSkipArchive
-        ? {}
-        : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
+      ? {}
+      : { status: { $ne: SALES_STATUSES.ARCHIVED }, parentId: undefined },
   );
 
   let filterIds: string[] = [];
@@ -456,12 +457,15 @@ export const generateFilter = async (
   if (search) {
     const escaped = escapeRegExp(search);
     const customerDealIds = await getDealIdsByCustomerPhone(subdomain, search);
+    const createdAtFilter = getCreatedAtSearchFilter(search);
 
     Object.assign(filter, {
       $or: [
         { name: { $regex: escaped, $options: 'i' } },
         { number: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
         ...(customerDealIds.length ? [{ _id: { $in: customerDealIds } }] : []),
+        ...(createdAtFilter ? [createdAtFilter] : []),
       ],
     });
   }
@@ -570,7 +574,7 @@ export const generateFilter = async (
   }
 
   if (number) {
-    filter.number = { $regex: `${number}`, $options: 'mui' };
+    filter.number = { $regex: escapeRegExp(number), $options: 'i' };
   }
 
   if (vendorCustomerIds?.length > 0) {
@@ -670,6 +674,18 @@ export const generateFilter = async (
       ...(closeDateStartDate && { $gte: new Date(closeDateStartDate) }),
       ...(closeDateEndDate && { $lte: new Date(closeDateEndDate) }),
     };
+  }
+
+  const hasPipelineContext = Boolean(
+    pipelineId || pipelineIds || stageId || boardIds || stageCodes,
+  );
+
+  if (!noSkipArchive && !hasPipelineContext && !filter.stageId) {
+    const validStageIds = await models.Stages.find({
+      status: { $ne: SALES_STATUSES.ARCHIVED },
+    }).distinct('_id');
+
+    filter.stageId = { $in: validStageIds };
   }
 
   return filter;
