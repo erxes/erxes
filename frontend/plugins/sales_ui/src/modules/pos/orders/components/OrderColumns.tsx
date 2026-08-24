@@ -45,8 +45,12 @@ const getPaidAmountsMap = (
 
   return paidAmounts.reduce<Record<string, number>>((acc, item) => {
     const amount = Number(item?.amount || 0);
-    if (item?.title) acc[item.title] = (acc[item.title] || 0) + amount;
-    if (item?.type) acc[item.type] = (acc[item.type] || 0) + amount;
+    const key = item?.title || item?.type;
+
+    if (key) {
+      acc[key] = (acc[key] || 0) + amount;
+    }
+
     return acc;
   }, {});
 };
