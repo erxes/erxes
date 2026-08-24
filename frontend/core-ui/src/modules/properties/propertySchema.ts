@@ -52,6 +52,14 @@ export const propertySchema = z
       .optional()
       .transform((v) => v ?? false),
     logics: z.array(logicSchema).nullable().optional(),
+    optionValueMigrations: z
+      .array(
+        z.object({
+          oldValue: z.string(),
+          newValue: z.string().nullable(),
+        }),
+      )
+      .optional(),
     options: z
       .array(optionSchema)
       .optional()

@@ -14,6 +14,11 @@ export const types = `
         coordinates: JSON
     }
 
+    input FieldOptionMigrationInput {
+        oldValue: String!
+        newValue: String
+    }
+
     type Field {
         _id: String
         name: String
@@ -86,6 +91,6 @@ const mutationParams = `
 
 export const mutations = `
     fieldAdd(${mutationParams}): Field
-    fieldEdit(_id: String!, order: Float, ${mutationParams}): Field
+    fieldEdit(_id: String!, order: Float, optionValueMigrations: [FieldOptionMigrationInput], ${mutationParams}): Field
     fieldRemove(_id: String!): Field
 `;
