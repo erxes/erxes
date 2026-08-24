@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-08-23`
+- **Last synchronized:** `2026-08-24`
 
 ## Scope
 
@@ -23,6 +23,9 @@
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
 - Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
+- Similarity-aware POS searches return the starred representative when any
+  product in that similarity group matches, while preserving standalone
+  product matches.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 
 ## Architecture
@@ -59,6 +62,9 @@
 - POS client report queries must require a logged-in POS user.
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
+- Similarity-aware searches must resolve groups from the ungrouped match set;
+  filtering to star product ids before searching hides groups whose non-starred
+  variant is the only match.
 
 ## Validation
 
@@ -69,6 +75,15 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-24` — `Preserve similarity groups in POS search`
+
+- **Summary:** POS product search now returns a group's starred representative
+  when any variant in that group matches the search.
+- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts`
+- **Contracts changed:** `poscProducts` and `poscProductsTotalCount`
+  similarity-search semantics now collapse matching groups to their starred
+  products.
 
 ### `2026-08-23` — `Filter POS products by properties`
 
