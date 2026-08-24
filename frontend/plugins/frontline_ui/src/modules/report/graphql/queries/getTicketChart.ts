@@ -70,10 +70,22 @@ export const GET_TICKET_LIST = gql`
         priority
         assigneeId
         createdAt
+        statusChangedDate
         targetDate
         startDate
         tagIds
         pipelineId
+        activityLog {
+          _id
+          action
+          module
+          metadata {
+            newValue
+            previousValue
+          }
+          createdAt
+          updatedAt
+        }
       }
       page
       totalCount

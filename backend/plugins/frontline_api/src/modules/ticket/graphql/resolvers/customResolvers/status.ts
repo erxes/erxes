@@ -2,6 +2,13 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const Ticket = {
+  async activityLog(
+    { _id }: { _id: string },
+    _params: undefined,
+    { models }: IContext,
+  ) {
+    return models.Activity.find({ contentId: _id }).sort({ createdAt: 1 });
+  },
   async status({ statusId }, _params, { models }: IContext) {
     if (!statusId) {
       return null;
@@ -9,7 +16,7 @@ export const Ticket = {
     return await models.Status.findOne({ _id: statusId });
   },
   async assignee(
-    { assigneeId }: { assigneeId: String },
+    { assigneeId }: { assigneeId: string },
     _params,
     { subdomain }: IContext,
   ) {

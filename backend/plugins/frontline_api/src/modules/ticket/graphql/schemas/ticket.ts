@@ -26,6 +26,7 @@ export const types = `
     updatedAt: Date
     channelId: String
     statusChangedDate: Date
+    activityLog: [TicketActivity]
     number: String
     status: TicketStatus
     assignee: User
