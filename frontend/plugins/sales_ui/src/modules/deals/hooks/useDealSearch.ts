@@ -1,10 +1,18 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
+import { TSearchSortOrder } from 'erxes-ui';
 
-import { GET_DEALS_SEARCH_DROPDOWN } from '../graphql/queries/DealsQueries';
-import { IDealList } from '../types/deals';
+import { GET_DEALS_SEARCH_DROPDOWN } from '@/deals/graphql/queries/DealsQueries';
+import { IDealList } from '@/deals/types/deals';
 import { useCallback } from 'react';
 
 const DEALS_PER_PAGE = 20;
+
+export type TDealSearchSortOrder = TSearchSortOrder;
+
+export type TDealSearchDateRange = {
+  from?: Date;
+  to?: Date;
+};
 
 type DealSearchResponse = {
   deals: IDealList & {
@@ -18,17 +26,30 @@ type DealSearchResponse = {
   };
 };
 
-export const useDealSearch = (search: string) => {
+export const useDealSearch = (
+  search: string,
+  sortOrder: TDealSearchSortOrder,
+  dateRange?: TDealSearchDateRange,
+  dealNumber?: string,
+) => {
+  const endDateSource = dateRange?.to ?? dateRange?.from;
+  const createdEndDate = endDateSource ? new Date(endDateSource) : undefined;
+
+  createdEndDate?.setHours(23, 59, 59, 999);
+
   const { data, loading, fetchMore, networkStatus } =
     useQuery<DealSearchResponse>(GET_DEALS_SEARCH_DROPDOWN, {
       variables: {
         search,
+        number: dealNumber,
+        createdStartDate: dateRange?.from,
+        createdEndDate,
         noSkipArchive: true,
         limit: DEALS_PER_PAGE,
         direction: 'forward',
-        orderBy: { _id: 1 },
+        orderBy: { createdAt: sortOrder === 'oldest' ? 1 : -1 },
       },
-      skip: search.length < 2,
+      skip: search.length < 2 && !dateRange?.from && !dealNumber,
       fetchPolicy: 'cache-and-network',
       notifyOnNetworkStatusChange: true,
     });

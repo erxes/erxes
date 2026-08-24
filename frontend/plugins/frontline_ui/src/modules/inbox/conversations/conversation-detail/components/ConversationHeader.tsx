@@ -7,7 +7,7 @@ import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChan
 import { useConversationListVisibility } from '@/inbox/hooks/useConversationListVisibility';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
 import { useOverflowCompact } from '@/inbox/hooks/useCompactWidth';
-import { refetchConversationsAtom } from '../../states/refetchConversationState';
+import { refetchConversationsAtom } from '@/inbox/conversations/states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
 import {
@@ -37,6 +37,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
+import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useState } from 'react';
 
@@ -377,7 +378,12 @@ export const ConversationHeader = () => {
   const { loading } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useInboxLayout();
-  const { ref: headerRef, isCompact } = useOverflowCompact<HTMLDivElement>();
+  const {
+    ref: headerRef,
+    isCompact,
+    compactLevel,
+  } = useOverflowCompact<HTMLDivElement>();
+  const hideAssignee = compactLevel === 2;
 
   return (
     <div
@@ -402,11 +408,16 @@ export const ConversationHeader = () => {
         <Skeleton className="w-32 h-4 ml-2" />
       )}
       <Separator.Inline />
-      {!isCompact && <AssignConversation />}
+      {!hideAssignee && <AssignConversation />}
       <AutomatedReplyStatusBadge />
       <div className="flex items-center gap-3 ml-auto flex-none">
+        {!isCompact && <ConversationTags />}
         <IntegrationActions />
-        <ConversationActionsDropdown showAssignee={isCompact} />
+        {isCompact ? (
+          <ConversationActionsDropdown showAssignee={hideAssignee} />
+        ) : (
+          <ConversationActions />
+        )}
       </div>
     </div>
   );

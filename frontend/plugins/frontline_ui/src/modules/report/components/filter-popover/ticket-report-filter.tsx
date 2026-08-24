@@ -47,7 +47,6 @@ import {
   REPORT_FIXED_DATES,
   ReportDateFilter,
 } from './ReportDateFilter';
-import { BackButton } from './back-button';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import { IPipeline } from '@/pipelines/types';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/ticket/constants/priorityOption';
@@ -273,9 +272,6 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
           <Filter.View filterKey="tag">
             <Command shouldFilter={false}>
-              <Command.List>
-                <BackButton />
-              </Command.List>
               <SelectTags.Provider
                 mode="multiple"
                 tagType="frontline:ticket"
@@ -289,9 +285,6 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
           <Filter.View filterKey="customer">
             <Command shouldFilter={false}>
-              <Command.List>
-                <BackButton />
-              </Command.List>
               <SelectCustomer.Provider
                 mode="multiple"
                 value={customerFilter}
@@ -304,9 +297,6 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
           <Filter.View filterKey="company">
             <Command shouldFilter={false}>
-              <Command.List>
-                <BackButton />
-              </Command.List>
               <SelectCompany.Provider
                 mode="multiple"
                 value={companyFilter}
@@ -414,7 +404,6 @@ const ChannelFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
@@ -447,7 +436,6 @@ const MemberFilterView = ({
   channelIds: string[];
 }) => (
   <Command.List className="max-h-[500px] overflow-y-auto">
-    <BackButton />
     <SelectMember.Provider
       value={value}
       mode="multiple"
@@ -489,7 +477,6 @@ const PipelineFilterView = ({
   const { t: tPipeline } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {loading ? (
         <Command.Empty>{tPipeline('loading')}</Command.Empty>
       ) : (
@@ -544,7 +531,6 @@ const TicketStatusFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {!pipelineId ? (
         <Command.Empty>{t('pipeline-not-selected')}</Command.Empty>
       ) : loading ? (
@@ -596,7 +582,6 @@ const StateFilterView = ({
   const { t } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       <Command.Item value="all" onSelect={() => onValueChange('all')}>
         <div className="flex items-center gap-2">
           {value === 'all' && <IconCheck className="size-4" />}
@@ -636,7 +621,6 @@ const PriorityFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       <Command.Item value="all" onSelect={() => onValueChange([])}>
         <div className="flex items-center gap-2">
           {value.length === 0 && <IconCheck className="size-4" />}
@@ -674,7 +658,6 @@ const PropertyFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {loading ? (
         <Command.Empty>{t('loading')}</Command.Empty>
       ) : (
@@ -721,7 +704,6 @@ const GroupByFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {loading ? (
         <Command.Empty>{t('loading')}</Command.Empty>
       ) : (
@@ -857,7 +839,6 @@ const PropertyValueFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton view="properties" />
       {options.length === 0 && <Command.Empty>No options found.</Command.Empty>}
       {options.map((option) => (
         <Command.Item
@@ -924,7 +905,6 @@ const PropertyDateFilter = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton view="properties" />
       <div className="space-y-3 px-2 py-2">
         <div className="space-y-1.5">
           <div className="text-muted-foreground px-1 text-xs font-medium">
@@ -1033,7 +1013,6 @@ const FrequencyFilterView = ({
   const { t } = useTranslation('frontline');
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton />
       {FREQUENCY_OPTIONS.map((option) => (
         <Command.Item
           key={option.value}
@@ -1079,7 +1058,6 @@ const DateView = ({
         focusOnMount
       />
       <Command.List>
-        <BackButton />
         {REPORT_FIXED_DATES.map((date) => (
           <Command.Item
             key={date}

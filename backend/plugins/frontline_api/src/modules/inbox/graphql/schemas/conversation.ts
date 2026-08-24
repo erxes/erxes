@@ -31,6 +31,8 @@ export const types = `
 
     messages: [ConversationMessage]
     callProAudio: String
+    callProPotentialCustomerIds: [String]
+    callProPhone: String
 
     tags: [Tag]
     customer: Customer
@@ -180,6 +182,7 @@ const mutationFilterParams = `
   mentioned: String
   unread: String
   awaitingResponse: String
+  automationStatus: String
   starred: String
   startDate: String
   endDate: String

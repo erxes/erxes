@@ -17,7 +17,8 @@ export const OpenAiConnectionForm = ({
 }) => {
   const { control, watch } = useFormContext<TAiAgentForm>();
   const provider = watch('connection.provider') as TAiAgentProvider;
-  const providerLabel = AI_AGENT_PROVIDER_LABELS[provider] || 'OpenAI-compatible';
+  const providerLabel =
+    AI_AGENT_PROVIDER_LABELS[provider] || 'OpenAI-compatible';
   const defaultBaseUrl = AI_AGENT_PROVIDER_DEFAULT_BASE_URLS[provider] || '';
 
   return (

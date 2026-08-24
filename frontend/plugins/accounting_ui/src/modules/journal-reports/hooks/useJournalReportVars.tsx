@@ -8,7 +8,23 @@ import { trsQueryParamTypes } from '~/modules/transactions/types/Transaction';
 import { IJournalReport } from '../types/journalReport';
 import { ReportRules } from '../types/reportsMap';
 
+type JournalReportVariables = NonNullable<
+  QueryHookOptions<ICursorListResponse<IJournalReport>>['variables']
+> & {
+  report?: string;
+  groupRule?: unknown;
+};
+
 const getConvertedValue = (key: string, value: string) => {
+  if (
+    key === 'trKinds' ||
+    key === 'productIds' ||
+    key === 'fixedAssetIds' ||
+    key === 'customerIds'
+  ) {
+    return { [key]: value.split(',') };
+  }
+
   const typeName = trsQueryParamTypes[key];
 
   if (typeName === 'boolean') {
@@ -57,11 +73,22 @@ export const useTransactionsQueryParams = () => {
     accountJournal: string;
     brandId: string;
     isOutBalance: string;
+    productId: string;
+    productIds: string;
+    fixedAssetId: string;
+    fixedAssetIds: string;
+    customerId: string;
+    customerIds: string;
+    contentType: string;
+    contentId: string;
     branchId: string;
     departmentId: string;
     currency: string;
     journal: string;
     statuses: string;
+    trKind: string;
+    trKinds: string;
+    getTrKind: string;
     createdUserId: string;
     modifiedUserId: string;
     fromDate: string;
@@ -87,11 +114,22 @@ export const useTransactionsQueryParams = () => {
     'accountJournal',
     'brandId',
     'isOutBalance',
+    'productId',
+    'productIds',
+    'fixedAssetId',
+    'fixedAssetIds',
+    'customerId',
+    'customerIds',
+    'contentType',
+    'contentId',
     'branchId',
     'departmentId',
     'currency',
     'journal',
     'statuses',
+    'trKind',
+    'trKinds',
+    'getTrKind',
     'createdUserId',
     'modifiedUserId',
     'fromDate',
@@ -108,7 +146,7 @@ export const useJouranlReportVariables = (
   variables?: QueryHookOptions<
     ICursorListResponse<IJournalReport>
   >['variables'],
-): any => {
+): JournalReportVariables => {
   const { report, groupKey, ...queryParams } = useTransactionsQueryParams();
 
   const curVariables = Object.entries(queryParams).reduce(
@@ -121,12 +159,15 @@ export const useJouranlReportVariables = (
     {} as Record<string, string | boolean | Date | string[]>,
   );
 
-  const groupRule = ReportRules[report || '']?.groups?.[groupKey || 'default'];
+  const reportConfig = ReportRules[report || ''];
+  const groups = reportConfig?.groups;
+  const defaultGroupKey = reportConfig?.choices?.[0]?.code || 'default';
+  const groupRule = groups?.[groupKey || defaultGroupKey];
 
   return {
     ...variables,
     ...curVariables,
-    report,
+    report: report || '',
     groupRule,
   };
 };

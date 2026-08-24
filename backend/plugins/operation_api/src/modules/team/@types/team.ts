@@ -21,6 +21,7 @@ export interface ITeamFilter extends ITeam {
   teamIds: string[];
   projectId: string;
   isTriageEnabled: boolean;
+  orderBy?: { createdAt?: 1 | -1 };
 }
 
 export enum TeamMemberRoles {

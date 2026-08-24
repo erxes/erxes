@@ -24,6 +24,7 @@ import {
   CartesianGrid,
   Cell,
   Legend,
+  LabelList,
   Pie,
   PieChart,
   Tooltip,
@@ -237,7 +238,7 @@ const StatusBarChart = memo(function StatusBarChart({
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <BarChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+        margin={{ top: 24, right: 10, left: 10, bottom: 10 }}
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
@@ -251,6 +252,12 @@ const StatusBarChart = memo(function StatusBarChart({
           {chartData.map((entry, i) => (
             <Cell key={i} fill={entry.fill} />
           ))}
+          <LabelList
+            dataKey="count"
+            position="top"
+            className="fill-foreground"
+            fontSize={12}
+          />
         </Bar>
         <Tooltip content={<ChartTooltipContent />} />
       </BarChart>

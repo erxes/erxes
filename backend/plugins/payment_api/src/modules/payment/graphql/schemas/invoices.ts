@@ -78,7 +78,7 @@ export const mutations = `
   invoiceEdit(_id: String!, input: InvoiceEditInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
-  invoiceScanBarcode(code: String!): Invoice
+  invoiceScanBarcode(code: String!, eventSlug: String): Invoice
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
   cpInvoicesCheck(_id:String!): String
@@ -96,14 +96,13 @@ const queryParams = `
   searchValue: String
   kind: String
   status: String
-
   contentType: String
   contentTypeId: String
   ${cursorParams}
 `;
 
 export const queries = `
-  invoices(${queryParams}): InvoicesListResponse
+  invoices(${queryParams} orderBy: JSON): InvoicesListResponse
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]

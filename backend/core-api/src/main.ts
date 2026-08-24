@@ -13,6 +13,7 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
+  mountAgentTools,
   registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
@@ -137,6 +138,21 @@ app.use(
     }),
   }),
 );
+
+// Core predates startPlugin, so it mounts the agent capability endpoints
+// itself. Only tRPC procedures declaring agent metadata are exposed.
+mountAgentTools(app, {
+  plugin: PLUGIN_NAME,
+  trpcRouter: appRouter,
+  createContext: async (
+    subdomain: string,
+    context: Record<string, unknown>,
+  ) => {
+    const models = await generateModels(subdomain, context);
+
+    return { ...context, models };
+  },
+});
 
 app.get('/health', async (_req, res) => {
   res.end('ok');

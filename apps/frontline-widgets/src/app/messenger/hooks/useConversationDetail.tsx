@@ -9,10 +9,9 @@ import {
   ConversationMessageInserted,
   conversationBotTypingStatus,
 } from '../graphql/subscriptions';
-import { useEffect, useRef } from 'react';
-import { useAtom } from 'jotai';
-import { isBotTypingAtom } from '../states';
+import { useEffect } from 'react';
 import { IConversation } from '../types';
+import { useBotTyping } from './useBotTyping';
 
 interface IQueryResponse {
   widgetsConversationDetail: IConversation;
@@ -32,10 +31,7 @@ export const useConversationDetail = (
   options?: QueryHookOptions<IQueryResponse>,
 ) => {
   const client = useApolloClient();
-  const [isBotTyping, setIsBotTyping] = useAtom(isBotTypingAtom);
-  const botTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const { isBotTyping, startBotTyping, stopBotTyping } = useBotTyping();
 
   const { data, loading, refetch, subscribeToMore } = useQuery<IQueryResponse>(
     GET_CONVERSATION_DETAIL,
@@ -64,11 +60,7 @@ export const useConversationDetail = (
         if (!newMessage) return prev;
 
         if (newMessage.fromBot) {
-          setIsBotTyping(false);
-          if (botTypingTimeoutRef.current) {
-            clearTimeout(botTypingTimeoutRef.current);
-            botTypingTimeoutRef.current = null;
-          }
+          stopBotTyping();
         }
 
         const messageExists = prev.widgetsConversationDetail.messages.some(
@@ -89,7 +81,7 @@ export const useConversationDetail = (
     return () => {
       unsubscribe();
     };
-  }, [options?.variables?._id, subscribeToMore]);
+  }, [options?.variables?._id, subscribeToMore, stopBotTyping]);
 
   // Listen for bot message typing
   useEffect(() => {
@@ -103,37 +95,22 @@ export const useConversationDetail = (
       })
       .subscribe({
         next({ data }) {
-          if (data?.conversationBotTypingStatus) {
-            const typingData = data.conversationBotTypingStatus;
-            const isTyping =
-              typeof typingData === 'object' && typingData !== null
-                ? (typingData as any).typing
-                : false;
+          const typingData = data?.conversationBotTypingStatus;
 
-            setIsBotTyping(isTyping);
+          if (!typingData) return;
 
-            if (botTypingTimeoutRef.current) {
-              clearTimeout(botTypingTimeoutRef.current);
-              botTypingTimeoutRef.current = null;
-            }
-
-            if (isTyping) {
-              botTypingTimeoutRef.current = setTimeout(() => {
-                setIsBotTyping(false);
-                botTypingTimeoutRef.current = null;
-              }, 30_000);
-            }
+          if (typingData.typing) {
+            startBotTyping();
+          } else {
+            stopBotTyping();
           }
         },
       });
 
     return () => {
       botTypingSubscription.unsubscribe();
-      if (botTypingTimeoutRef.current) {
-        clearTimeout(botTypingTimeoutRef.current);
-      }
     };
-  }, [options?.variables?._id, client]);
+  }, [options?.variables?._id, client, startBotTyping, stopBotTyping]);
 
   return {
     conversationDetail: data?.widgetsConversationDetail,

@@ -65,7 +65,9 @@ export const FacebookBotPageSelectorSteps = ({
           <Badge className="rounded-xl text-xs font-mono">
             STEP {activeStep}
           </Badge>
-          <h2 className="text-primary font-semibold text-base">{t('connect-page')}</h2>
+          <h2 className="text-primary font-semibold text-base">
+            {t('connect-page')}
+          </h2>
         </div>
 
         <Sheet.Close />

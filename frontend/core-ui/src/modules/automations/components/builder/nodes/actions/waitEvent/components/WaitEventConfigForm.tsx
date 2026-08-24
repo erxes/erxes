@@ -33,7 +33,9 @@ export const WaitEventConfigForm = ({
         defaultValue={waitEventOptions[0]?.id}
         render={({ field }) => (
           <Form.Item className="px-4">
-            <Form.Label>{t('select-target-type')} ({`${field.value}`})</Form.Label>
+            <Form.Label>
+              {t('select-target-type')} ({`${field.value}`})
+            </Form.Label>
             <Select
               value={field.value ?? waitEventOptions[0]?.id}
               onValueChange={onSelectTargetTypeId}

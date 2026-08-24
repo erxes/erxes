@@ -21,6 +21,7 @@ const CHART_CONFIG = {
   incoming: { label: 'Inbound', color: 'var(--chart-2)' },
   outgoing: { label: 'Outbound', color: 'var(--chart-3)' },
   answered: { label: 'Answered', color: 'var(--pos)' },
+  noAnswer: { label: 'No answer', color: 'var(--destructive)' },
 } as const;
 
 export const VolumeChart = memo(function VolumeChart({
@@ -103,6 +104,16 @@ export const VolumeChart = memo(function VolumeChart({
           fill="none"
           strokeWidth={1.5}
           strokeDasharray="4 2"
+          dot={false}
+        />
+        <Area
+          type="monotone"
+          dataKey="noAnswer"
+          name={t('no-answer')}
+          stroke="var(--destructive)"
+          fill="none"
+          strokeWidth={1.5}
+          strokeDasharray="2 3"
           dot={false}
         />
       </AreaChart>

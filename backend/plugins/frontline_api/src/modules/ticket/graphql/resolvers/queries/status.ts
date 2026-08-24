@@ -37,12 +37,16 @@ export const statusQueries = {
       }
     }
 
-    return filteredStatuses.map(({ name, _id, color, type }) => ({
-      label: name,
-      value: _id,
-      color,
-      type,
-    }));
+    return filteredStatuses.map(
+      ({ name, _id, color, type, canMoveMemberIds, canEditMemberIds }) => ({
+        label: name,
+        value: _id,
+        color,
+        type,
+        canMoveMemberIds,
+        canEditMemberIds,
+      }),
+    );
   },
 
   getTicketStatusesChoicesPipeline: async (

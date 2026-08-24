@@ -15,7 +15,8 @@ export function useCallHistoryExport({
   resolution: string;
   searchValue: string;
 }) {
-  const { startDate, endDate, queueId, direction } = useCallFilters();
+  const { startDate, endDate, integrationId, queueId, direction } =
+    useCallFilters();
 
   const [fetchAll, { loading }] = useLazyQuery<{
     callHistoryList: CallHistoryPage;
@@ -26,7 +27,8 @@ export function useCallHistoryExport({
       variables: {
         startDate,
         endDate,
-        queueId: queueId || undefined,
+        integrationId: integrationId || undefined,
+        queueId: queueId && queueId !== 'all' ? queueId : undefined,
         direction: direction !== 'all' ? direction : undefined,
         outcome: outcome !== 'all' ? outcome : undefined,
         agentExtension: agentExtension !== 'all' ? agentExtension : undefined,

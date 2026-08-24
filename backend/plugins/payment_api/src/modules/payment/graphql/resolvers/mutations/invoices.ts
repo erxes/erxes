@@ -110,9 +110,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
           })
           .catch((err) => {
             console.error(
@@ -164,9 +161,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
             if (!res.ok) {
               throw new Error(`HTTP ${res.status} – ${res.statusText}`);
             }
-            console.log(
-              `[invoicesCheck] Callback succeeded for invoice ${_id}`,
-            );
           })
           .catch((err) => {
             console.error(
@@ -182,10 +176,10 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
   async invoiceScanBarcode(
     _root,
-    { code }: { code: string },
+    { code, eventSlug }: { code: string; eventSlug?: string },
     { models }: IContext,
   ) {
-    const scanned = await models.Invoices.scanBarcode(code);
+    const scanned = await models.Invoices.scanBarcode(code, eventSlug);
 
     graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
       invoiceUpdated: scanned,

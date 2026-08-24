@@ -599,7 +599,7 @@ export const checkRemainders = async (
     return products;
   }
 
-  if (!config.isCheckRemainder && config.erkhetConfig?.useRemainder) {
+  if (config.isCheckRemainder && config.erkhetConfig?.useRemainder) {
     return applyErkhetRemainders(models, config, products, paramBranchId);
   }
 

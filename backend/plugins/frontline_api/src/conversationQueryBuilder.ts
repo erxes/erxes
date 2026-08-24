@@ -1,4 +1,8 @@
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import {
+  AUTOMATION_STATUS_MAP,
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
 import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
@@ -18,6 +22,7 @@ export interface IListArgs {
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
+  automationStatus?: string;
   brandId?: string;
   tag?: string;
   integrationType?: string;
@@ -296,6 +301,26 @@ export default class Builder {
     };
   }
 
+  public automationStatusFilter(value: string): {
+    'automatedReplyControl.status'?: IIn | IExists;
+  } {
+    const keys = value.split(',').map((key) => key.trim());
+
+    if (keys.includes(CONVERSATION_AUTOMATION_STATUS.RESPONDED)) {
+      return { 'automatedReplyControl.status': { $exists: true } };
+    }
+
+    const statuses = keys
+      .map((key) => AUTOMATION_STATUS_MAP[key])
+      .filter(Boolean);
+
+    if (!statuses.length) {
+      return {};
+    }
+
+    return { 'automatedReplyControl.status': { $in: statuses } };
+  }
+
   public async integrationTypeFilter(
     integrationType: string,
   ): Promise<IIntersectIntegrationIds[]> {
@@ -464,6 +489,7 @@ export default class Builder {
       unread: {},
       createdAt: {},
       segments: {},
+      automationStatus: {},
     };
 
     if (this.params.channelId) {
@@ -494,6 +520,12 @@ export default class Builder {
 
     if (this.params.awaitingResponse) {
       this.queries.awaitingResponse = this.awaitingResponse();
+    }
+
+    if (this.params.automationStatus) {
+      this.queries.automationStatus = this.automationStatusFilter(
+        this.params.automationStatus,
+      );
     }
 
     if (this.params.status) {
@@ -532,6 +564,7 @@ export default class Builder {
       ...this.queries.tag,
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
+      ...this.queries.automationStatus,
       ...this.queries.segments,
     };
   }

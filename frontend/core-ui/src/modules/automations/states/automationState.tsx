@@ -43,6 +43,13 @@ export const toggleAutomationBuilderSecondarySidebar = atom(
   },
 );
 
+export const automationCanvasViewState = atomWithStorage<{
+  showGrid: boolean;
+  showMiniMap: boolean;
+}>('automationCanvasView', { showGrid: true, showMiniMap: true });
+
+export const automationCanvasMarqueeModeState = atom<boolean>(false);
+
 export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',
   true,
@@ -60,9 +67,9 @@ export const automationHistorySplitDirectionState =
     AutomationHistorySplitDirection.Vertical,
   );
 
-// Only meaningful in split view; the sheet keeps its own open state.
-export const automationHistorySelectedExecutionState = atom<string | null>(
-  null,
-);
+export const automationHistorySelectedExecutionState = atom<{
+  automationId: string;
+  executionId: string;
+} | null>(null);
 
 // export const automationBuilder

@@ -5,6 +5,7 @@ import {
   ICdrLeg,
   buildCarrierBreakdown,
   buildCdrFilter,
+  buildDailyHourMatrix,
   buildHeatmap,
   buildTopNumbers,
   buildVolumeSeries,
@@ -12,6 +13,7 @@ import {
   summariseAgentStats,
   summariseCallbackStats,
   summariseQueueStats,
+  withForwardedCallKeys,
 } from '@/reports/callReportService';
 import {
   buildCallHistoryEntries,
@@ -52,27 +54,6 @@ const seesEveryQueue = async (
   Boolean(user?.permissionGroupIds?.includes(FRONTLINE_ADMIN_GROUP)) ||
   (await canGroup(subdomain, 'showAllCallReports', user));
 
-const readableQueues = async (
-  models: IContext['models'],
-  subdomain: string,
-  user: IContext['user'],
-): Promise<string[]> => {
-  const integrations = (await seesEveryQueue(subdomain, user))
-    ? await models.CallIntegrations.find({}, { queues: 1 }).lean<
-        { queues?: string[] }[]
-      >()
-    : await models.CallIntegrations.find(
-        { 'operators.userId': user?._id },
-        { queues: 1 },
-      ).lean<{ queues?: string[] }[]>();
-
-  return [
-    ...new Set(
-      integrations.flatMap(({ queues }) => (queues ?? []).map(String)),
-    ),
-  ].filter(Boolean);
-};
-
 const EMPTY_SCORECARD = {
   callstotal: 0,
   serviceLevel: null,
@@ -83,24 +64,74 @@ const EMPTY_SCORECARD = {
   occupancy: null,
 };
 
-const findQueueIntegration = async (
+interface IReportScope {
+  inboxIds: string[];
+  operators: { userId?: string; gsUsername?: string }[];
+  queueId?: string;
+}
+
+const resolveReportScope = async (
   models: IContext['models'],
   subdomain: string,
   user: IContext['user'],
-  queueId?: string,
-): Promise<IReportIntegration | null> => {
-  if (!queueId) return null;
+  { integrationId, queueId }: { integrationId?: string; queueId?: string },
+): Promise<IReportScope> => {
+  const narrowed = queueId && queueId !== 'all' ? String(queueId) : undefined;
 
-  const selector: Record<string, unknown> = { queues: String(queueId) };
+  const selector: Record<string, unknown> = {};
+
+  if (integrationId) {
+    selector.inboxId = String(integrationId);
+  } else if (narrowed) {
+    selector.queues = narrowed;
+  }
 
   if (!(await seesEveryQueue(subdomain, user))) {
     selector['operators.userId'] = user?._id;
   }
 
-  return models.CallIntegrations.findOne(
+  const integrations = await models.CallIntegrations.find(
     selector,
-  ).lean<IReportIntegration | null>();
+  ).lean<IReportIntegration[]>();
+
+  const configuredQueues = [
+    ...new Set(
+      integrations.flatMap(({ queues: owned }) => (owned ?? []).map(String)),
+    ),
+  ].filter(Boolean);
+
+  if (narrowed && !configuredQueues.includes(narrowed)) {
+    return { inboxIds: [], operators: [] };
+  }
+
+  return {
+    inboxIds: integrations
+      .map(({ inboxId }) => String(inboxId))
+      .filter(Boolean),
+    operators: integrations.flatMap(({ operators }) => operators ?? []),
+    queueId: narrowed,
+  };
 };
+
+const inboxScopeFilter = ({ inboxIds }: IReportScope): Record<string, unknown> =>
+  inboxIds.length === 1
+    ? { inboxIntegrationId: inboxIds[0] }
+    : { inboxIntegrationId: { $in: inboxIds } };
+
+const wantsOutboundCalls = (
+  { queueId }: IReportScope,
+  direction?: string,
+): boolean =>
+  !queueId && (!direction || direction === 'all' || direction === 'Outbound');
+
+const operatorUserIdByExtension = ({
+  operators,
+}: IReportScope): Map<string, string> =>
+  new Map(
+    operators
+      .filter(({ gsUsername, userId }) => gsUsername && userId)
+      .map(({ gsUsername, userId }) => [String(gsUsername), String(userId)]),
+  );
 
 export const reportCallQueries = {
   async callReportIntegrations(
@@ -125,28 +156,31 @@ export const reportCallQueries = {
   },
   async callGetQueueStats(
     _args,
-    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const queues = (await readableQueues(models, subdomain, user)).map(String);
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
 
-    if (queueId && !queues.includes(String(queueId))) {
+    if (!scope.inboxIds.length) {
       return [];
     }
 
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
-    const allowedQueues = queueId ? [String(queueId)] : queues;
-
-    const calls = foldLegsIntoCalls(cdrs).filter(
-      (call) => call.queue && allowedQueues.includes(call.queue),
-    );
-
-    return summariseQueueStats(calls);
+    return summariseQueueStats(foldLegsIntoCalls(cdrs));
   },
 
   async callGetAgentStats(
@@ -154,34 +188,28 @@ export const reportCallQueries = {
     {
       startDate,
       endDate,
+      integrationId,
       queueId,
       agentId = null,
       direction,
     }: ICallReportArgs & { agentId?: string | null },
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(
-      models,
-      subdomain,
-      user,
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
       queueId,
-    );
+    });
 
-    if (!integration) {
+    if (!scope.inboxIds.length) {
       return [];
     }
 
-    const userIdByExtension = new Map<string, string>(
-      (integration.operators ?? [])
-        .filter(({ gsUsername, userId }) => gsUsername && userId)
-        .map(({ gsUsername, userId }) => [String(gsUsername), String(userId)]),
-    );
+    const userIdByExtension = operatorUserIdByExtension(scope);
     const agentExtensions = new Set(userIdByExtension.keys());
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
@@ -189,10 +217,10 @@ export const reportCallQueries = {
             ...buildCdrFilter({
               startDate,
               endDate,
-              queueId,
+              queueId: scope.queueId,
               direction: 'Inbound',
             }),
-            inboxIntegrationId: integration.inboxId,
+            ...inboxScopeFilter(scope),
           })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -200,8 +228,13 @@ export const reportCallQueries = {
 
       wantsOutbound
         ? models.CallCdrs.find({
-            ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
-            inboxIntegrationId: integration.inboxId,
+            ...buildCdrFilter({
+              startDate,
+              endDate,
+              direction: 'Outbound',
+              includeForwarded: true,
+            }),
+            ...inboxScopeFilter(scope),
           })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -253,28 +286,27 @@ export const reportCallQueries = {
 
   async getCallbackStats(
     _args,
-    { startDate, endDate, queueId }: ICallReportArgs,
+    { startDate, endDate, integrationId, queueId }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(
-      models,
-      subdomain,
-      user,
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
       queueId,
-    );
+    });
 
-    if (queueId && !integration) {
+    if (!scope.inboxIds.length) {
       return [];
     }
 
-    const inboundCdrs = await models.CallCdrs.find(
-      buildCdrFilter({
+    const inboundCdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
         startDate,
         endDate,
-        queueId,
+        queueId: scope.queueId,
         direction: 'Inbound',
       }),
-    )
+      ...inboxScopeFilter(scope),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
@@ -286,7 +318,7 @@ export const reportCallQueries = {
         ).toISOString(),
         direction: 'Outbound',
       }),
-      ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+      ...inboxScopeFilter(scope),
     })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
@@ -294,41 +326,39 @@ export const reportCallQueries = {
     return summariseCallbackStats(
       foldLegsIntoCalls(inboundCdrs),
       foldLegsIntoCalls(outboundCdrs),
-      queueId || 'all',
+      scope.queueId || 'all',
     );
   },
 
   async callKpiScorecard(
     _args,
-    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(
-      models,
-      subdomain,
-      user,
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
       queueId,
-    );
+    });
 
-    if (queueId && !integration) {
+    if (!scope.inboxIds.length) {
       return EMPTY_SCORECARD;
     }
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
-        ? models.CallCdrs.find(
-            buildCdrFilter({
+        ? models.CallCdrs.find({
+            ...buildCdrFilter({
               startDate,
               endDate,
-              queueId,
+              queueId: scope.queueId,
               direction: 'Inbound',
             }),
-          )
+            ...inboxScopeFilter(scope),
+          })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
         : [],
@@ -336,7 +366,7 @@ export const reportCallQueries = {
       wantsOutbound
         ? models.CallCdrs.find({
             ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
-            ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+            ...inboxScopeFilter(scope),
           })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -374,35 +404,33 @@ export const reportCallQueries = {
 
   async callVolumeSeries(
     _args,
-    { startDate, endDate, queueId, direction }: ICallReportArgs,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(
-      models,
-      subdomain,
-      user,
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
       queueId,
-    );
+    });
 
-    if (queueId && !integration) {
+    if (!scope.inboxIds.length) {
       return [];
     }
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
-        ? models.CallCdrs.find(
-            buildCdrFilter({
+        ? models.CallCdrs.find({
+            ...buildCdrFilter({
               startDate,
               endDate,
-              queueId,
+              queueId: scope.queueId,
               direction: 'Inbound',
             }),
-          )
+            ...inboxScopeFilter(scope),
+          })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
         : [],
@@ -410,7 +438,7 @@ export const reportCallQueries = {
       wantsOutbound
         ? models.CallCdrs.find({
             ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
-            ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+            ...inboxScopeFilter(scope),
           })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
@@ -424,12 +452,27 @@ export const reportCallQueries = {
 
   async callCarrierBreakdown(
     _args,
-    { startDate, endDate, queueId, direction }: ICallReportArgs,
-    { models }: IContext,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    if (!scope.inboxIds.length) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
@@ -438,16 +481,60 @@ export const reportCallQueries = {
 
   async callHeatmap(
     _args,
-    { startDate, endDate, queueId, direction }: ICallReportArgs,
-    { models }: IContext,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    if (!scope.inboxIds.length) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
     return buildHeatmap(foldLegsIntoCalls(cdrs));
+  },
+
+  async callHeatmapDaily(
+    _args,
+    { startDate, endDate, integrationId, queueId, direction }: ICallReportArgs,
+    { models, user, subdomain }: IContext,
+  ) {
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    if (!scope.inboxIds.length) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
+      .select(CDR_REPORT_FIELDS)
+      .lean<ICdrLeg[]>();
+
+    return buildDailyHourMatrix(foldLegsIntoCalls(cdrs));
   },
 
   async callTopNumbers(
@@ -455,15 +542,31 @@ export const reportCallQueries = {
     {
       startDate,
       endDate,
+      integrationId,
       queueId,
       direction,
       limit = 12,
     }: ICallReportArgs & { limit?: number },
-    { models }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
-    const cdrs = await models.CallCdrs.find(
-      buildCdrFilter({ startDate, endDate, queueId, direction }),
-    )
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
+      queueId,
+    });
+
+    if (!scope.inboxIds.length) {
+      return [];
+    }
+
+    const cdrs = await models.CallCdrs.find({
+      ...buildCdrFilter({
+        startDate,
+        endDate,
+        queueId: scope.queueId,
+        direction,
+      }),
+      ...inboxScopeFilter(scope),
+    })
       .select(CDR_REPORT_FIELDS)
       .lean<ICdrLeg[]>();
 
@@ -806,6 +909,7 @@ export const reportCallQueries = {
     {
       startDate,
       endDate,
+      integrationId,
       queueId,
       direction,
       outcome,
@@ -824,54 +928,53 @@ export const reportCallQueries = {
     },
     { models, user, subdomain }: IContext,
   ) {
-    const integration = await findQueueIntegration(
-      models,
-      subdomain,
-      user,
+    const scope = await resolveReportScope(models, subdomain, user, {
+      integrationId,
       queueId,
-    );
+    });
 
-    if (queueId && !integration) {
+    if (!scope.inboxIds.length) {
       return { entries: [], totalCount: 0, callerCount: 0, agents: [] };
     }
 
     const wantsInbound =
       !direction || direction === 'all' || direction === 'Inbound';
-    const wantsOutbound =
-      !direction || direction === 'all' || direction === 'Outbound';
+    const wantsOutbound = wantsOutboundCalls(scope, direction);
 
     const [inboundCdrs, outboundCdrs] = await Promise.all([
       wantsInbound
-        ? models.CallCdrs.find(
-            buildCdrFilter({
+        ? models.CallCdrs.find({
+            ...buildCdrFilter({
               startDate,
               endDate,
-              queueId,
+              queueId: scope.queueId,
               direction: 'Inbound',
             }),
-          )
+            ...inboxScopeFilter(scope),
+          })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
         : [],
 
       wantsOutbound
         ? models.CallCdrs.find({
-            ...buildCdrFilter({ startDate, endDate, direction: 'Outbound' }),
-            ...(integration ? { inboxIntegrationId: integration.inboxId } : {}),
+            ...buildCdrFilter({
+              startDate,
+              endDate,
+              direction: 'Outbound',
+              includeForwarded: true,
+            }),
+            ...inboxScopeFilter(scope),
           })
             .select(CDR_REPORT_FIELDS)
             .lean<ICdrLeg[]>()
         : [],
     ]);
 
-    const legs = [...inboundCdrs, ...outboundCdrs];
+    const legs = withForwardedCallKeys([...inboundCdrs, ...outboundCdrs]);
     const legsByCall = groupLegsByCall(legs);
 
-    const userIdByExtension = new Map<string, string>(
-      (integration?.operators ?? [])
-        .filter(({ gsUsername, userId }) => gsUsername && userId)
-        .map(({ gsUsername, userId }) => [String(gsUsername), String(userId)]),
-    );
+    const userIdByExtension = operatorUserIdByExtension(scope);
 
     let calls = foldLegsIntoCalls(legs, new Set(userIdByExtension.keys()));
 
@@ -881,8 +984,6 @@ export const reportCallQueries = {
         deriveCallStatusFromLegs(legsByCall.get(uniqueid) ?? []),
       ]),
     );
-
-    calls = calls.filter((call) => outcomeByCall.get(call.uniqueid) !== 'IVR');
 
     const repeats = countRepeatCallers(calls);
 

@@ -21,3 +21,34 @@ export const INBOX_SIDEBAR_WORK_COUNTS = gql`
     conversationCounts(unread: $unread)
   }
 `;
+
+export const CONVERSATION_FILTER_COUNTS = gql`
+  query FrontlineInboxConversationFilterCounts(
+    $channelId: String
+    $integrationId: String
+    $integrationType: String
+    $brandId: String
+    $startDate: String
+    $endDate: String
+    $searchValue: String
+  ) {
+    unresolved: conversationsTotalCount(
+      channelId: $channelId
+      integrationId: $integrationId
+      integrationType: $integrationType
+      brandId: $brandId
+      startDate: $startDate
+      endDate: $endDate
+      searchValue: $searchValue
+    )
+    conversationCounts(
+      channelId: $channelId
+      integrationId: $integrationId
+      integrationType: $integrationType
+      brandId: $brandId
+      startDate: $startDate
+      endDate: $endDate
+      searchValue: $searchValue
+    )
+  }
+`;

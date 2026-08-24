@@ -5,6 +5,7 @@ import {
 } from 'ui-modules';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutoamtionConfigFormFooter } from './AutomationConfigFormFooter';
 
 export const AutomationSegmentForm = ({
@@ -49,10 +50,17 @@ const AutomationSegmentFormFooter = ({
   saveButtonLabel?: string;
 }) => {
   const { form } = useSegment();
+  const { isReadOnly } = useAutomation();
   const { handleSave } = useSegmentActions({ callback });
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Trigger',
   });
+
+  // Saving here writes the segment immediately, before and regardless of the
+  // automation's own save, so it needs the same permission the automation does
+  if (isReadOnly) {
+    return null;
+  }
 
   return (
     <AutoamtionConfigFormFooter

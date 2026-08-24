@@ -1,4 +1,7 @@
 import { IConversationDocument } from '@/inbox/@types/conversations';
+import { isCallProEnabled } from '@/integrations/callpro/config';
+import { debugCallProError } from '@/integrations/callpro/debuggers';
+import { callProGetAudio } from '@/integrations/callpro/messageBroker';
 
 import { IContext } from '~/connectionResolvers';
 
@@ -75,5 +78,37 @@ export default {
 
   async tags(conv: IConversationDocument) {
     return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+  },
+
+  async callProAudio(
+    conv: IConversationDocument,
+    _args,
+    { models, subdomain, user }: IContext,
+  ) {
+    if (!isCallProEnabled()) {
+      return null;
+    }
+
+    const integration = await models.Integrations.findOne({
+      _id: conv.integrationId,
+    }).lean();
+
+    if (integration?.kind !== 'callpro') {
+      return null;
+    }
+
+    if (!user?.isOwner && user?._id !== conv.assignedUserId) {
+      return null;
+    }
+
+    try {
+      return await callProGetAudio(subdomain, {
+        erxesApiId: conv._id,
+        integrationId: integration._id,
+      });
+    } catch (e) {
+      debugCallProError('Failed to resolve Call Pro audio', e.message);
+      return null;
+    }
   },
 };

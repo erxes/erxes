@@ -2,12 +2,14 @@ export const callReportsDashboard = `
   query CallReportsDashboard(
     $startDate: String!
     $endDate: String!
-    $queueId: String!
+    $integrationId: String
+    $queueId: String
     $direction: String
   ) {
     callGetQueueStats(
       startDate: $startDate
       endDate: $endDate
+      integrationId: $integrationId
       queueId: $queueId
       direction: $direction
     ) {
@@ -23,6 +25,7 @@ export const callReportsDashboard = `
     callGetAgentStats(
       startDate: $startDate
       endDate: $endDate
+      integrationId: $integrationId
       queueId: $queueId
       direction: $direction
     ) {
@@ -44,8 +47,8 @@ export const callReportsDashboard = `
 `;
 
 export const CALL_KPI_SCORECARD = `
-  query CallKpiScorecard($startDate: String!, $endDate: String!, $queueId: String, $direction: String) {
-    callKpiScorecard(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
+  query CallKpiScorecard($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callKpiScorecard(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       callstotal
       serviceLevel
       abandonment
@@ -58,20 +61,21 @@ export const CALL_KPI_SCORECARD = `
 `;
 
 export const CALL_VOLUME_SERIES = `
-  query CallVolumeSeries($startDate: String!, $endDate: String!, $queueId: String, $direction: String) {
-    callVolumeSeries(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
+  query CallVolumeSeries($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callVolumeSeries(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       day
       incoming
       outgoing
       answered
+      noAnswer
       abandoned
     }
   }
 `;
 
 export const CALL_CARRIER_BREAKDOWN = `
-  query CallCarrierBreakdown($startDate: String!, $endDate: String!, $queueId: String, $direction: String) {
-    callCarrierBreakdown(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
+  query CallCarrierBreakdown($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callCarrierBreakdown(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       name
       value
     }
@@ -79,20 +83,33 @@ export const CALL_CARRIER_BREAKDOWN = `
 `;
 
 export const CALL_HEATMAP = `
-  query CallHeatmap($startDate: String!, $endDate: String!, $queueId: String, $direction: String) {
-    callHeatmap(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction) {
+  query CallHeatmap($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callHeatmap(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
       dow
       hour
       total
       answered
+      noAnswer
       answerRate
     }
   }
 `;
 
+export const CALL_HEATMAP_DAILY = `
+  query CallHeatmapDaily($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String) {
+    callHeatmapDaily(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction) {
+      day
+      hour
+      total
+      answered
+      noAnswer
+    }
+  }
+`;
+
 export const CALL_TOP_NUMBERS = `
-  query CallTopNumbers($startDate: String!, $endDate: String!, $queueId: String, $direction: String, $limit: Int) {
-    callTopNumbers(startDate: $startDate, endDate: $endDate, queueId: $queueId, direction: $direction, limit: $limit) {
+  query CallTopNumbers($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String, $direction: String, $limit: Int) {
+    callTopNumbers(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId, direction: $direction, limit: $limit) {
       number
       carrier
       attempts
@@ -104,8 +121,8 @@ export const CALL_TOP_NUMBERS = `
 `;
 
 export const CALL_CALLBACK_STATS = `
-  query GetCallbackStats($startDate: String!, $endDate: String!, $queueId: String) {
-    getCallbackStats(startDate: $startDate, endDate: $endDate, queueId: $queueId) {
+  query GetCallbackStats($startDate: String!, $endDate: String!, $integrationId: String, $queueId: String) {
+    getCallbackStats(startDate: $startDate, endDate: $endDate, integrationId: $integrationId, queueId: $queueId) {
       queue
       totalMissedCalls
       callbackAttempts

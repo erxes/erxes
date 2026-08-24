@@ -1,6 +1,7 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
+import { agentMeta } from '~/utils/agentMeta';
 import { notificationService } from '@/clientportal/services';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
@@ -21,6 +22,12 @@ const notificationDataSchema = z.object({
 export const cpNotificationTrpcRouter = t.router({
   cpNotifications: t.router({
     create: t.procedure
+      .meta(
+        agentMeta(
+          'Send a notification to client portal users (in-app in the customer portal). Input: { cpUserIds: [...], clientPortalId, data: { title, message, type?, priority?, contentType?, contentTypeId?, action? } } — type: "info"|"success"|"warning"|"error", priority: "low"|"medium"|"high"|"urgent". Workflow: customers.findOne → cpUsers.list (erxesCustomerId) to get cpUserIds → this tool. Use to notify end customers about updates to their tickets, orders, etc.',
+          { module: 'clientPortal', action: 'clientPortalManage' },
+        ),
+      )
       .input(
         z.object({
           cpUserIds: z.array(z.string()),
@@ -96,6 +103,12 @@ export const cpNotificationTrpcRouter = t.router({
       }),
 
     list: t.procedure
+      .meta(
+        agentMeta(
+          'List notifications previously sent to a portal user: { cpUserId, clientPortalId?, isRead?, limit?, skip? }. Returns { list, totalCount }. Get cpUserId from cpUsers.list.',
+          { module: 'clientPortal', action: 'clientPortalRead' },
+        ),
+      )
       .input(
         z.object({
           cpUserId: z.string(),

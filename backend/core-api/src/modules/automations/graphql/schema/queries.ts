@@ -34,6 +34,9 @@ const historiesParams = `
   triggerTypes: [String]
   ids:[String]
   parentExecutionId: String
+  failedActionIds: [String]
+  errorCodes: [String]
+  waitingActionIds: [String]
 `;
 
 const emailTemplateParams = `

@@ -210,6 +210,11 @@ import {
   queries as templateQueries,
   mutations as templateMutations,
 } from '@/template/graphql/schemas';
+
+import {
+  types as searchTypes,
+  queries as searchQueries,
+} from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
 
 export const types = `
@@ -263,6 +268,7 @@ export const types = `
     ${BroadcastTypes}
     ${bundleTypes}
     ${templateTypes}
+    ${searchTypes}
   `;
 
 export const queries = `
@@ -305,6 +311,7 @@ export const queries = `
     ${BroadcastQueries}
     ${bundleQueries}
     ${templateQueries}
+    ${searchQueries}
   `;
 
 export const mutations = `

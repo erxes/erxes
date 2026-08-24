@@ -407,6 +407,89 @@ plugin-specific integrations.
   tRPC, HTTP, event, or federation contracts. Never import another service's
   implementation.
 
+### Exposing tRPC procedures as agent-callable tools
+
+AI agents discover and execute erxes capabilities through a strict
+**admit-only** protocol. Every tRPC procedure is invisible to agents by
+default. Developers expose procedures one by one by adding
+`.meta({ agent: { description, permission } })` to the procedure definition.
+Nothing else is needed — the platform auto-mounts the discovery and execution
+endpoints on every plugin that has a `trpcAppRouter`.
+
+#### How it works
+
+1. A procedure **without** `.meta({ agent })` is completely invisible to agents
+   and cannot be called through the agent path under any circumstances.
+2. A procedure **with** `.meta({ agent: { description, permission } })` appears
+   in the plugin's `/agent-tools/manifest` and becomes callable through
+   `/agent-tools/call`, subject to tenant curation, user permissions, and
+   destructive-operation approval.
+3. The platform enforces five security layers automatically: procedure
+   annotation → tenant curation (default-deny per plugin) → HMAC-signed
+   service auth → user permission check → destructive-operation approval guard.
+4. Every `/agent-tools/call` result is capped at a serialized byte budget
+   (default 64KB, overridable with `AGENT_TOOLS_MAX_RESPONSE_BYTES`).
+   Oversized results are rejected with `413` and a `RESPONSE_TOO_LARGE`
+   error telling the agent to paginate, tighten the filter, project fewer
+   fields, or use the matching count/findOne tool — an unbounded payload
+   stalls the agent run and freezes the chat UI.
+
+#### Annotating a procedure
+
+Add `.meta({ agent: { ... } })` between the procedure builder and `.input()`:
+
+```typescript
+// Before: invisible to agents
+findOne: t.procedure
+  .input(z.object({ _id: z.string() }))
+  .query(async ({ ctx, input }) => {
+    return ctx.models.Items.findOne(input).lean();
+  }),
+
+// After: agent-callable, gated by the 'showItems' permission
+findOne: t.procedure
+  .meta({
+    agent: {
+      description: 'Find one item by query criteria',
+      permission: { module: 'inventory', action: 'showItems' },
+    },
+  })
+  .input(z.object({ _id: z.string() }))
+  .query(async ({ ctx, input }) => {
+    return ctx.models.Items.findOne(input).lean();
+  }),
+```
+
+#### Annotation rules
+
+- **`description`** — A short, plain-language sentence describing what the
+  procedure does. The AI agent reads this to decide when to call it.
+- **`permission`** — Must reference a permission `action` that the plugin
+  actually registers. The platform checks this against the acting user before
+  every call. Never use a permission from another plugin or an action the
+  plugin does not own.
+- **Only annotate safe, well-scoped procedures.** Raw-mongo helpers,
+  system-user internals, device-sync endpoints, and bulk-update utilities must
+  never be annotated. When in doubt, do not annotate.
+- **Mutations** are automatically flagged as destructive when their name
+  matches `/(remove|delete|merge|destroy)/i`. These require explicit user
+  approval before execution. Other mutations (create, edit) execute after the
+  standard permission check.
+- **Input schemas** — Use typed Zod schemas (not `z.any()`) so the manifest
+  can extract field names, types, and required flags for the agent. Free-form
+  `z.any()` inputs still work but give the agent less guidance.
+
+#### What NOT to do
+
+- Do not annotate every procedure. Expose only what is safe and useful for an
+  AI agent operating on behalf of a user.
+- Do not use permissions from another plugin or module.
+- Do not annotate internal service-to-service procedures that are not meant
+  for user-facing operations.
+- Do not bypass the annotation system by calling `sendTRPCMessage` or the
+  `/trpc` endpoint directly from agent code. Agents must only use the
+  `/agent-tools/call` path.
+
 ### Frontend plugin requirements
 
 The frontend project owns its routes, navigation, pages, widgets, GraphQL

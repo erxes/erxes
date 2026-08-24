@@ -5,8 +5,11 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
-import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
+import {
+  CONVERSATION_AUTOMATION_STATUS,
+  CONVERSATION_STATUSES,
+} from '@/inbox/db/definitions/constants';
+import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 
@@ -37,7 +40,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 }, // Optional, _id is used as a fallback
+            orderBy: params.orderBy ?? { updatedAt: -1 },
           },
           query: { _id: { $in: params.ids } },
         });
@@ -51,7 +54,7 @@ export const conversationQueries = {
           model: models.Conversations,
           params: {
             ...params,
-            orderBy: { updatedAt: -1 },
+            orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
           query: { customerId: params.customerId },
@@ -69,7 +72,7 @@ export const conversationQueries = {
         model: models.Conversations,
         params: {
           ...params,
-          orderBy: { updatedAt: -1 },
+          orderBy: params.orderBy ?? { updatedAt: -1 },
           limit: params.limit || 20,
         },
         query: qb.mainQuery(),
@@ -207,6 +210,16 @@ export const conversationQueries = {
     response.awaitingResponse = await count(models, {
       ...mainQuery,
       ...qb.awaitingResponse(),
+    });
+
+    const automationCounts = await Promise.all(
+      CONVERSATION_AUTOMATION_STATUS.ALL.map((key) =>
+        count(models, { ...mainQuery, ...qb.automationStatusFilter(key) }),
+      ),
+    );
+
+    CONVERSATION_AUTOMATION_STATUS.ALL.forEach((key, index) => {
+      response[key] = automationCounts[index];
     });
 
     return response;

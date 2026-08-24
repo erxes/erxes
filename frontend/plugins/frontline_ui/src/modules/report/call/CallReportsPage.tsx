@@ -4,7 +4,7 @@ import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { useCallReportIntegrations } from './hooks/useCallReportIntegrations';
-import { getDateRange } from '@/report/utils/dateFilters';
+import { CUSTOM_TIME_PREFIX, getDateRange } from '@/report/utils/dateFilters';
 
 import { CallFiltersContext } from './hooks/useCallFilters';
 import { SubHeader } from './components/SubHeader';
@@ -30,11 +30,13 @@ const TABS = [
 
 type TabValue = (typeof TABS)[number]['value'];
 
+const ALL_QUEUES = 'all';
+
 export function CallReportsPage() {
   const { t } = useTranslation('frontline');
   const [tab, setTab] = useState<TabValue>('overview');
   const [integrationId, setIntegrationId] = useState('');
-  const [queueId, setQueueId] = useState('');
+  const [queueId, setQueueId] = useState(ALL_QUEUES);
   const [direction, setDirection] = useState('all');
   const [dateFilter, setDateFilter] = useState('last-3-months');
 
@@ -52,19 +54,20 @@ export function CallReportsPage() {
   }, [integrationOptions, integrationId]);
 
   const queueOptions = useMemo<SelectOption[]>(
-    () =>
-      (integrations.find((i) => i.inboxId === integrationId)?.queues ?? [])
+    () => [
+      { label: 'All Queues', value: ALL_QUEUES },
+      ...(integrations.find((i) => i.inboxId === integrationId)?.queues ?? [])
         .map(normalizeQueue)
         .filter((q): q is SelectOption => Boolean(q)),
+    ],
     [integrations, integrationId],
   );
 
   const queuesLoading = integrationsLoading;
 
   useEffect(() => {
-    if (!queueOptions.length) return;
     if (!queueOptions.some(({ value }) => value === queueId)) {
-      setQueueId(queueOptions[0].value);
+      setQueueId(ALL_QUEUES);
     }
   }, [queueOptions, queueId]);
 
@@ -72,13 +75,28 @@ export function CallReportsPage() {
     const { fromDate, toDate } = getDateRange(dateFilter);
     const start = fromDate ?? startOfMonth(subMonths(new Date(), 3));
     const end = toDate ?? endOfDay(new Date());
+    const sameDay =
+      format(start, 'MMM dd, yyyy') === format(end, 'MMM dd, yyyy');
+    const withTime = dateFilter.startsWith(CUSTOM_TIME_PREFIX);
+
+    const label = withTime
+      ? sameDay
+        ? `${format(start, 'MMM dd, yyyy')} · ${format(
+            start,
+            'HH:mm',
+          )} — ${format(end, 'HH:mm')}`
+        : `${format(start, 'MMM dd, yyyy HH:mm')} — ${format(
+            end,
+            'MMM dd, yyyy HH:mm',
+          )}`
+      : sameDay
+      ? format(start, 'MMM dd, yyyy')
+      : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`;
+
     return {
       startDate: start.toISOString(),
       endDate: end.toISOString(),
-      dateRangeLabel:
-        format(start, 'MMM dd, yyyy') === format(end, 'MMM dd, yyyy')
-          ? format(start, 'MMM dd, yyyy')
-          : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`,
+      dateRangeLabel: label,
     };
   }, [dateFilter]);
 
@@ -107,7 +125,7 @@ export function CallReportsPage() {
     ],
   );
 
-  const hasQueue = Boolean(queueId);
+  const hasIntegration = Boolean(integrationId);
 
   return (
     <CallFiltersContext.Provider value={filtersCtx}>
@@ -124,22 +142,14 @@ export function CallReportsPage() {
             {t('no-call-integration-found')}
           </div>
         )}
-        {!queuesLoading &&
-          integrationId &&
-          integrationOptions.length > 0 &&
-          !queueOptions.length && (
-            <div className="m-6 rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
-              {t('no-queues-assigned')}
-            </div>
-          )}
 
-        {(integrationsLoading || queuesLoading) && !hasQueue && (
+        {integrationsLoading && !hasIntegration && (
           <div className="flex flex-1 items-center justify-center">
             <Spinner />
           </div>
         )}
 
-        {hasQueue && (
+        {hasIntegration && (
           <Tabs
             value={tab}
             onValueChange={(v) => setTab(v as TabValue)}

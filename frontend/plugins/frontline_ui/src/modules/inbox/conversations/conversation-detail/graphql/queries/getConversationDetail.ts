@@ -14,6 +14,9 @@ export const GET_CONVERSATION_DETAIL = gql`
       updatedAt
       status
       automatedReplyControl
+      callProAudio
+      callProPotentialCustomerIds
+      callProPhone
       customer {
         _id
         firstName
