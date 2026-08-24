@@ -724,6 +724,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'contacts',
           actions: [
+            'contactsRead',
             'contactsCreate',
             'contactsUpdate',
             'contactsDelete',
@@ -739,6 +740,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'products',
           actions: [
+            'productsRead',
             'productsCreate',
             'productsUpdate',
             'productsDelete',
@@ -755,37 +757,49 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'properties',
-          actions: ['fieldsManage', 'fieldGroupsManage'],
+          actions: ['propertiesRead', 'fieldsManage', 'fieldGroupsManage'],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'tags',
-          actions: ['tagsCreate', 'tagsUpdate', 'tagsDelete', 'tagsTag'],
+          actions: [
+            'tagsRead',
+            'tagsCreate',
+            'tagsUpdate',
+            'tagsDelete',
+            'tagsTag',
+          ],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'segments',
-          actions: ['segmentsManage'],
+          actions: ['segmentsRead', 'segmentsManage'],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'documents',
-          actions: ['manageDocuments', 'removeDocuments'],
+          actions: ['documentsRead', 'manageDocuments', 'removeDocuments'],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'brands',
-          actions: ['brandsCreate', 'brandsUpdate', 'brandsDelete'],
+          actions: [
+            'brandsRead',
+            'brandsCreate',
+            'brandsUpdate',
+            'brandsDelete',
+          ],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'organization',
           actions: [
+            'organizationRead',
             'structuresManage',
             'departmentsManage',
             'branchesManage',
@@ -798,6 +812,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'teamMembers',
           actions: [
+            'teamMembersRead',
             'teamMembersInvite',
             'teamMembersUpdate',
             'teamMembersRemove',
@@ -822,19 +837,27 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'bundle',
-          actions: ['bundleRulesManage', 'bundleConditionsManage'],
+          actions: [
+            'bundleRead',
+            'bundleRulesManage',
+            'bundleConditionsManage',
+          ],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'exchangeRates',
-          actions: ['exchangeRatesManage'],
+          actions: ['exchangeRatesRead', 'exchangeRatesManage'],
           scope: 'all',
         },
         {
           plugin: 'core',
           module: 'permissions',
-          actions: ['permissionsManage'],
+          actions: [
+            'permissionsRead',
+            'permissionsManage',
+            'permissionsAgentProfilesManage',
+          ],
           scope: 'all',
         },
         {
@@ -846,7 +869,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'clientPortal',
-          actions: ['clientPortalManage'],
+          actions: ['clientPortalRead', 'clientPortalManage'],
           scope: 'all',
         },
         {
@@ -859,6 +882,7 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'automations',
           actions: [
+            'automationsRead',
             'automationsCreate',
             'automationsUpdate',
             'automationsDelete',
@@ -872,6 +896,18 @@ export const permissions: IPermissionConfig = {
           plugin: 'core',
           module: 'logs',
           actions: ['logsRead'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'importExport',
+          actions: ['importsManage', 'exportsManage'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
+          module: 'internalNotes',
+          actions: ['internalNotesManage'],
           scope: 'all',
         },
       ],

@@ -2,6 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import * as z from 'zod';
 import { IModels } from '~/connectionResolvers';
+import { agentMeta } from '~/trpc/agentMeta';
 import {
   checkVouchersSale,
   confirmVoucherSale,
@@ -207,6 +208,12 @@ const voucherCampaignsInput = z
 export const appRouter = t.router({
   loyalty: t.router({
     checkLoyalties: t.procedure
+      .meta(
+        agentMeta(
+          'Check which vouchers and loyalty benefits apply to a customer or company for a hypothetical cart, without changing anything. Input: { ownerType: "customer"|"company", ownerId, products: [{ productId, quantity, unitPrice? }], discountInfo?: { couponCode?, voucherId? } }. Returns the applicable voucher/check info per product. Pair with pricing.checkPricing for rule-based discounts and coupon.checkCoupon to validate a coupon code.',
+          { module: 'loyalty', action: 'loyaltyCheck' },
+        ),
+      )
       .input(checkLoyaltiesInput)
       .query(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
@@ -268,6 +275,12 @@ export const appRouter = t.router({
 
   pricing: t.router({
     checkPricing: t.procedure
+      .meta(
+        agentMeta(
+          'Calculate which pricing-plan discounts apply to a cart, without changing anything. Input: { prioritizeRule, totalAmount, products: [{ productId, quantity, unitPrice? }], departmentId?, branchId?, pipelineId?, customerType: "customer"|"company"|"user", customerId?, brokerType?, brokerId? }. Returns per-product adjusted prices from the best matching plan.',
+          { module: 'pricing', action: 'pricingView' },
+        ),
+      )
       .input(checkPricingInput)
       .query(async ({ ctx, input }) => {
         const { subdomain } = ctx;
@@ -397,6 +410,12 @@ export const appRouter = t.router({
 
   coupon: t.router({
     checkCoupon: t.procedure
+      .meta(
+        agentMeta(
+          'Validate a coupon code without redeeming it. Input is the coupon check document (e.g. { code, ... }). Returns the coupon check result or an error when the code is invalid or expired.',
+          { module: 'coupon', action: 'couponView' },
+        ),
+      )
       .input(checkCouponInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -409,6 +428,12 @@ export const appRouter = t.router({
 
   score: t.router({
     scoreCampaign: t.procedure
+      .meta(
+        agentMeta(
+          'Get one published-or-draft score campaign by a filter, e.g. { _id } or { title }. Returns the campaign document or null. Use score.getScoreCampaignsByStage to find campaigns attached to a pipeline stage.',
+          { module: 'scoreCampaign', action: 'loyaltyCampaignView' },
+        ),
+      )
       .input(scoreCampaignInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -425,6 +450,12 @@ export const appRouter = t.router({
       }),
 
     getScoreCampaignsByStage: t.procedure
+      .meta(
+        agentMeta(
+          'List published card-based score campaigns attached to a sales pipeline stage. Input: { boardId, pipelineId, stageId }. Returns campaigns ordered for display; use score.scoreCampaign to read one in full.',
+          { module: 'scoreCampaign', action: 'loyaltyCampaignView' },
+        ),
+      )
       .input(getScoreCampaignsByStageInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
@@ -476,6 +507,12 @@ export const appRouter = t.router({
 
   voucher: t.router({
     voucherCampaigns: t.procedure
+      .meta(
+        agentMeta(
+          'List voucher campaigns with an optional narrow filter. Input: { _id?, status?, title?, voucherType? }, e.g. { status: "active" }. Only these filter fields are accepted; pass {} to list all.',
+          { module: 'voucherCampaign', action: 'loyaltyCampaignView' },
+        ),
+      )
       .input(voucherCampaignsInput)
       .query(async ({ ctx, input }) => {
         const { models } = ctx;

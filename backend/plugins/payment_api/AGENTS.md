@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-25`
 
 ## Scope
 
@@ -44,6 +44,10 @@
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
   `invoiceEdit` mutation.
+- The read-only tRPC procedure `payment.getInvoiceWithTransactions` is exposed
+  to AI agents through `/agent-tools/manifest` and `/agent-tools/call` via
+  `.meta(agentMeta(...))`; every other procedure (invoice/transaction writes,
+  gateway status checks, and the raw `invoices.find`) remains invisible.
 
 ## Architecture
 
@@ -57,7 +61,7 @@
 | Ticket PDF       | `src/modules/payment/services/ticketsPdf.ts`          | Renders the QR ticket PDF buffer                                     |
 | Data model       | `src/modules/payment/db/`                             | `Invoices`, `Transactions`, `PaymentMethods` schemas and models      |
 | GraphQL          | `src/modules/payment/graphql/`, `src/apollo/`         | `payment*` queries, mutations, custom resolvers, subscriptions       |
-| tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures                        |
+| tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures; agent tool metadata in `src/trpc/agentMeta.ts`                  |
 | Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                   |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
 
@@ -67,6 +71,8 @@
 
 - HTTP: `GET|POST /pl:payment/callback/<kind>`, widget assets under
   `/pl:payment/widget/`.
+- Agent-callable tRPC tool (admit-only via `.meta({ agent })`):
+  `payment.getInvoiceWithTransactions` — `paymentInvoiceView`.
 - GraphQL: `payment*` queries/mutations/subscriptions (invoices, payments,
   ticket redemption), including
   `invoiceEdit(_id: String!, input: InvoiceEditInput!)` for admin invoice
@@ -126,6 +132,11 @@
 - Because this plugin now declares permissions, core lists `payment` in
   `pluginsWithPermissions`. Non-owner users need `payment:admin`,
   `payment:viewer`, or an equivalent custom group to see payment surfaces at all.
+- Agent tool annotations are admit-only: never annotate `addInvoice`,
+  `addTransaction`, `checkInvoice` (it can flip an invoice to paid and trigger
+  the paid fan-out), or the raw unbounded `invoices.find` (its result shape is
+  depended on by membership resolvers in other plugins). New procedures are
+  agent-invisible unless explicitly annotated.
 
 ## Validation
 
@@ -146,6 +157,17 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-25` — Agent-callable invoice read
+
+- **Summary:** The typed read `payment.getInvoiceWithTransactions` is now
+  exposed to AI agents through the platform agent-tools manifest, gated by
+  `paymentInvoiceView`; all mutating and raw procedures stay hidden.
+- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
+  core-api), `src/trpc/init-trpc.ts`.
+- **Contracts changed:** New agent-tool manifest entry
+  `payment.getInvoiceWithTransactions`. No existing GraphQL or tRPC behavior
+  changed.
 
 ### `2026-08-12` — `Event-scoped ticket redemption`
 

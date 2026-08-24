@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { agentMeta } from '~/trpc/agentMeta';
 import { getOrCreateInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 
 export type PaymentTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -66,6 +67,12 @@ export const appRouter = t.router({
         return await models.Invoices.checkInvoice(input._id, subdomain);
       }),
     getInvoiceWithTransactions: t.procedure
+      .meta(
+        agentMeta(
+          'Get one payment invoice with its transactions and the payment method of each. Input: { _id }. Use this to answer "what is the status of invoice X / has it been paid" — the invoice document carries amount, currency, and status, and each transaction carries its payment details.',
+          { module: 'invoice', action: 'paymentInvoiceView' },
+        ),
+      )
       .input(
         z.object({
           _id: z.string(),

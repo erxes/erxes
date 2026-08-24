@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-08-25`
 
 ## Scope
 
@@ -34,12 +34,17 @@
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Accepts token-protected Erkhet transaction migration batches at `/pl:accounting/migration/erkhet/transactions`; raw-save mode preserves source-side accounting calculations after validation and code resolution.
+- Read-only account, account-category, and transaction tRPC procedures are
+  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
+  via `.meta(agentMeta(...))` annotations; every other procedure (including the
+  automation filter matcher `getFilterMatches`) remains invisible to agents.
 
 ## Architecture
 
 | Area               | Path                                                     | Responsibility                                                                                               |
 | ------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Runtime            | `src/main.ts`                                            | Starts the accounting API plugin service.                                                                    |
+| Agent tool metadata | `src/trpc/agentMeta.ts`                                 | Local `agentMeta` helper for agent-callable tRPC annotations.                                                |
 | Apollo integration | `src/apollo`                                             | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                |
 | Models             | `src/connectionResolvers.ts`                             | Generates tenant-scoped Mongoose models for accounting-owned collections.                                    |
 | Accounting domain  | `src/modules/accounting`                                 | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                           |
@@ -56,6 +61,16 @@
 ### Provides
 
 - Accounting GraphQL schema and resolvers from `src/modules/accounting/graphql`.
+- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
+  the listed accounting permission action:
+  - `accountingAccount.getAccount` — `accountsRead`
+  - `accountingAccount.getAccountCategory`, `getAccountCategories`,
+    `getAccountCategoriesWithChilds` — `readAccountCategories`
+  - `accountingTransaction.getTransactions` — `readTransactions`; bounded read
+    (`limit` defaults to 20, hard max 100)
+- tRPC service contracts under `src/modules/accounting/trpc` and
+  `src/modules/inventories/trpc` for platform and cross-plugin callers (not
+  agent-visible).
 - Fund rate GraphQL contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRun`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged(adjustId: String!)`.
 - Debt rate GraphQL contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged(adjustId: String!)`.
 - Closing adjustment GraphQL contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
@@ -97,6 +112,12 @@
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
+- Agent tool annotations are admit-only: never annotate raw write paths,
+  `accountingTransaction.getFilterMatches` (it trusts a caller-supplied
+  `userId` and serves the automation engine), or any future raw-mongo helper
+  without bounding it first. `accountingTransaction.getTransactions` is the
+  one bounded exception (default 20, max 100 rows) — keep that clamp when
+  touching it.
 
 ## Validation
 
@@ -111,6 +132,25 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-25` — Agent-callable tRPC tools
+
+- **Summary:** Read-only account, account-category, and transaction tRPC
+  procedures are now exposed to AI agents through the platform agent-tools
+  manifest; `getTransactions` is bounded (default 20, hard max 100) because it
+  has no internal callers and an unbounded find over transactions can
+  materialize the whole collection before the agent-tools response cap
+  applies.
+- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
+  core-api), `src/modules/accounting/trpc/account.ts`,
+  `src/modules/accounting/trpc/transaction.ts`.
+- **Contracts changed:** New agent-tool manifest entries
+  `accountingAccount.getAccount`, `accountingAccount.getAccountCategory`,
+  `accountingAccount.getAccountCategories`,
+  `accountingAccount.getAccountCategoriesWithChilds`, and
+  `accountingTransaction.getTransactions`, gated by `accountsRead`,
+  `readAccountCategories`, and `readTransactions`. `getTransactions` gained an
+  optional `limit` clamped to 1–100; no internal callers existed.
 
 ### `2026-08-17` — `Related Account Storage Shape`
 
