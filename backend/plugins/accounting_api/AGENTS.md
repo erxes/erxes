@@ -36,7 +36,7 @@
 - Accepts token-protected Erkhet transaction migration batches at `/pl:accounting/migration/erkhet/transactions`; raw-save mode preserves source-side accounting calculations after validation and code resolution.
 - Read-only account, account-category, and transaction tRPC procedures are
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
-  via `.meta(agentMeta(...))` annotations; every other procedure (including the
+  via inline `.meta({ agent })` annotations; every other procedure (including the
   automation filter matcher `getFilterMatches`) remains invisible to agents.
 
 ## Architecture
@@ -44,7 +44,6 @@
 | Area               | Path                                                     | Responsibility                                                                                               |
 | ------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Runtime            | `src/main.ts`                                            | Starts the accounting API plugin service.                                                                    |
-| Agent tool metadata | `src/trpc/agentMeta.ts`                                 | Local `agentMeta` helper for agent-callable tRPC annotations.                                                |
 | Apollo integration | `src/apollo`                                             | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                |
 | Models             | `src/connectionResolvers.ts`                             | Generates tenant-scoped Mongoose models for accounting-owned collections.                                    |
 | Accounting domain  | `src/modules/accounting`                                 | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                           |
@@ -65,7 +64,9 @@
   the listed accounting permission action:
   - `accountingAccount.getAccount` — `accountsRead`
   - `accountingAccount.getAccountCategory`, `getAccountCategories`,
-    `getAccountCategoriesWithChilds` — `readAccountCategories`
+    `getAccountCategoriesWithChilds` — `readAccountCategories`;
+    `getAccountCategories` is a bounded read (`limit` defaults to 20, hard
+    max 100)
   - `accountingTransaction.getTransactions` — `readTransactions`; bounded read
     (`limit` defaults to 20, hard max 100)
 - tRPC service contracts under `src/modules/accounting/trpc` and
@@ -115,9 +116,11 @@
 - Agent tool annotations are admit-only: never annotate raw write paths,
   `accountingTransaction.getFilterMatches` (it trusts a caller-supplied
   `userId` and serves the automation engine), or any future raw-mongo helper
-  without bounding it first. `accountingTransaction.getTransactions` is the
-  one bounded exception (default 20, max 100 rows) — keep that clamp when
-  touching it.
+  without bounding it first. The bounded list reads
+  (`accountingTransaction.getTransactions` and
+  `accountingAccount.getAccountCategories`, default 20 / max 100 rows with a
+  floor guard so a fractional limit can never become Mongo's "no limit")
+  are the only exceptions — keep those clamps when touching them.
 
 ## Validation
 
@@ -137,19 +140,18 @@
 
 - **Summary:** Read-only account, account-category, and transaction tRPC
   procedures are now exposed to AI agents through the platform agent-tools
-  manifest; `getTransactions` is bounded (default 20, hard max 100) because it
-  has no internal callers and an unbounded find over transactions can
-  materialize the whole collection before the agent-tools response cap
-  applies.
-- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
-  core-api), `src/modules/accounting/trpc/account.ts`,
+  manifest; `getTransactions` and `getAccountCategories` are bounded
+  (default 20, hard max 100) because they have no internal callers and an
+  unbounded find can materialize a whole collection before the agent-tools
+  response cap applies.
+- **Affected areas:** `src/modules/accounting/trpc/account.ts`,
   `src/modules/accounting/trpc/transaction.ts`.
 - **Contracts changed:** New agent-tool manifest entries
   `accountingAccount.getAccount`, `accountingAccount.getAccountCategory`,
   `accountingAccount.getAccountCategories`,
   `accountingAccount.getAccountCategoriesWithChilds`, and
   `accountingTransaction.getTransactions`, gated by `accountsRead`,
-  `readAccountCategories`, and `readTransactions`. `getTransactions` gained an
+  `readAccountCategories`, and `readTransactions`. Both list reads gained an
   optional `limit` clamped to 1–100; no internal callers existed.
 
 ### `2026-08-17` — `Related Account Storage Shape`

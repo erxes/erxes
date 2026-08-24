@@ -853,11 +853,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'permissions',
-          actions: [
-            'permissionsRead',
-            'permissionsManage',
-            'permissionsAgentProfilesManage',
-          ],
+          actions: ['permissionsRead', 'permissionsManage'],
           scope: 'all',
         },
         {

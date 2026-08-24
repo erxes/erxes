@@ -46,7 +46,7 @@
   `invoiceEdit` mutation.
 - The read-only tRPC procedure `payment.getInvoiceWithTransactions` is exposed
   to AI agents through `/agent-tools/manifest` and `/agent-tools/call` via
-  `.meta(agentMeta(...))`; every other procedure (invoice/transaction writes,
+  inline `.meta({ agent })`; every other procedure (invoice/transaction writes,
   gateway status checks, and the raw `invoices.find`) remains invisible.
 
 ## Architecture
@@ -61,7 +61,7 @@
 | Ticket PDF       | `src/modules/payment/services/ticketsPdf.ts`          | Renders the QR ticket PDF buffer                                     |
 | Data model       | `src/modules/payment/db/`                             | `Invoices`, `Transactions`, `PaymentMethods` schemas and models      |
 | GraphQL          | `src/modules/payment/graphql/`, `src/apollo/`         | `payment*` queries, mutations, custom resolvers, subscriptions       |
-| tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures; agent tool metadata in `src/trpc/agentMeta.ts`                  |
+| tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures with inline agent-tool annotations               |
 | Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                   |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
 
@@ -163,8 +163,7 @@
 - **Summary:** The typed read `payment.getInvoiceWithTransactions` is now
   exposed to AI agents through the platform agent-tools manifest, gated by
   `paymentInvoiceView`; all mutating and raw procedures stay hidden.
-- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
-  core-api), `src/trpc/init-trpc.ts`.
+- **Affected areas:** `src/trpc/init-trpc.ts`.
 - **Contracts changed:** New agent-tool manifest entry
   `payment.getInvoiceWithTransactions`. No existing GraphQL or tRPC behavior
   changed.

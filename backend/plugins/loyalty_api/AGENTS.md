@@ -29,7 +29,7 @@
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
 - Read-only loyalty tRPC procedures (voucher/coupon/pricing/score-campaign
   checks) are exposed to AI agents through `/agent-tools/manifest` and
-  `/agent-tools/call` via `.meta(agentMeta(...))` annotations; every mutating
+  `/agent-tools/call` via inline `.meta({ agent })` annotations; every mutating
   ledger procedure remains invisible to agents.
 
 ## Architecture
@@ -37,7 +37,6 @@
 | Area                | Path                                                                             | Responsibility                                                                               |
 | ------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Runtime             | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts`             | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                     |
-| Agent tool metadata | `src/trpc/agentMeta.ts`                                                          | Local `agentMeta` helper for agent-callable tRPC annotations.                                |
 | Score models        | `src/modules/score/db`                                                           | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields. |
 | Score orchestration | `src/utils/utils.ts`, `src/modules/score/utils.ts`, `src/meta/automations/score` | Normalize sales/POS targets, trigger score campaigns, and support score reporting helpers.   |
 | Pricing             | `src/modules/pricing`                                                            | Store pricing plans and calculate eligible discount rules.                                   |
@@ -104,8 +103,7 @@
   are now exposed to AI agents through the platform agent-tools manifest, each
   gated by a registered loyalty permission; all mutating ledger procedures
   stay invisible.
-- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
-  core-api), `src/trpc/init-trpc.ts`.
+- **Affected areas:** `src/trpc/init-trpc.ts`.
 - **Contracts changed:** New agent-tool manifest entries
   `loyalty.checkLoyalties`, `pricing.checkPricing`, `coupon.checkCoupon`,
   `score.scoreCampaign`, `score.getScoreCampaignsByStage`, and
