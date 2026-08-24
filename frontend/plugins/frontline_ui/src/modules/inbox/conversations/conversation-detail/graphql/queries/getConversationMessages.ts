@@ -2,17 +2,21 @@ import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
 
 export const GET_CONVERSATION_MESSAGES = gql`
-  query ConversationMessages(
+  query FrontlineConversationMessages(
     $conversationId: String!
     $skip: Int
     $limit: Int
     $getFirst: Boolean
+    $searchValue: String
+    $pinnedOnly: Boolean
   ) {
     conversationMessages(
       conversationId: $conversationId
       skip: $skip
       limit: $limit
       getFirst: $getFirst
+      searchValue: $searchValue
+      pinnedOnly: $pinnedOnly
     ) {
       _id
       conversationId
@@ -28,7 +32,19 @@ export const GET_CONVERSATION_MESSAGES = gql`
       customerId
       fromBot
       botData
+      replyToMessageId
+      reactions {
+        emoji
+        userIds
+      }
+      pinnedByIds
+      editedAt
+      deletedAt
     }
-    conversationMessagesTotalCount(conversationId: $conversationId)
+    conversationMessagesTotalCount(
+      conversationId: $conversationId
+      searchValue: $searchValue
+      pinnedOnly: $pinnedOnly
+    )
   }
 `;

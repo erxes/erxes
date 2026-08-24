@@ -1,5 +1,7 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useAtomValue } from 'jotai';
+import { useCallback, useEffect } from 'react';
+import { currentUserState } from 'ui-modules';
 import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
@@ -9,7 +11,14 @@ export const useConversationMessages = (
     conversationMessages: IMessage[];
     conversationMessagesTotalCount: number;
   }>,
+  settings: { updateConversationPreview?: boolean } = {},
 ) => {
+  const { updateConversationPreview = true } = settings;
+  const currentUserId = useAtomValue(currentUserState)?._id || '';
+  const searchValue = String(options.variables?.searchValue || '')
+    .trim()
+    .toLowerCase();
+  const pinnedOnly = Boolean(options.variables?.pinnedOnly);
   const { data, loading, fetchMore, subscribeToMore, client } = useQuery<{
     conversationMessages: IMessage[];
     conversationMessagesTotalCount: number;
@@ -20,12 +29,15 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const handleFetchMore = () => {
+  const handleFetchMore = useCallback(async () => {
     if (
-      !loading ||
-      conversationMessagesTotalCount > conversationMessages.length
+      loading ||
+      conversationMessagesTotalCount <= conversationMessages.length
     ) {
-      fetchMore({
+      return false;
+    }
+
+    await fetchMore({
         variables: {
           skip: conversationMessages.length,
           limit: 10,
@@ -43,8 +55,13 @@ export const useConversationMessages = (
           };
         },
       });
-    }
-  };
+    return true;
+  }, [
+    conversationMessages.length,
+    conversationMessagesTotalCount,
+    fetchMore,
+    loading,
+  ]);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{
@@ -58,6 +75,10 @@ export const useConversationMessages = (
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
+        const matchesActiveFilters = (message: IMessage) =>
+          (!searchValue || message.content?.toLowerCase().includes(searchValue)) &&
+          (!pinnedOnly ||
+            Boolean(message.pinnedByIds?.includes(currentUserId)));
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
         // poll's vote tallies refreshing on `extraData`). Replace the existing
@@ -69,12 +90,26 @@ export const useConversationMessages = (
 
         if (existingIndex !== -1) {
           const conversationMessages = [...prev.conversationMessages];
-          conversationMessages[existingIndex] = {
+          const updatedMessage = {
             ...conversationMessages[existingIndex],
             ...newMessage,
           };
+          if (!matchesActiveFilters(updatedMessage)) {
+            conversationMessages.splice(existingIndex, 1);
+            return {
+              ...prev,
+              conversationMessages,
+              conversationMessagesTotalCount: Math.max(
+                0,
+                prev.conversationMessagesTotalCount - 1,
+              ),
+            };
+          }
+          conversationMessages[existingIndex] = updatedMessage;
           return { ...prev, conversationMessages };
         }
+
+        if (!matchesActiveFilters(newMessage)) return prev;
 
         try {
           // Get the cache ID for the conversation
@@ -83,7 +118,11 @@ export const useConversationMessages = (
             _id: options.variables?.conversationId,
           });
 
-          if (conversationId && !newMessage.internal) {
+          if (
+            updateConversationPreview &&
+            conversationId &&
+            !newMessage.internal
+          ) {
             // Update the conversation in the cache
             client.cache.modify({
               id: conversationId,
@@ -105,7 +144,15 @@ export const useConversationMessages = (
       },
     });
     return unsubscribe;
-  }, [options.variables?.conversationId]);
+  }, [
+    client.cache,
+    currentUserId,
+    options.variables?.conversationId,
+    pinnedOnly,
+    searchValue,
+    subscribeToMore,
+    updateConversationPreview,
+  ]);
 
   return {
     messages: conversationMessages,

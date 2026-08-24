@@ -1,18 +1,21 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
 import {
+  Button,
   cn,
   Collapsible,
   IconComponent,
   NavigationMenuGroup,
   Sidebar,
   Skeleton,
+  TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
 
 function LoadingSkeleton() {
   return (
@@ -52,11 +55,43 @@ function ChannelItem({ channel }: ChannelItemProps) {
 }
 
 export function TicketNavigations() {
+  const { t } = useTranslation('frontline');
   const { channels, loading } = useGetChannels();
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
+  const [showUnconfigured, setShowUnconfigured] = useState(false);
+
+  const { configuredChannels, unconfiguredChannels } = useMemo(() => {
+    const availableChannels = channels ?? [];
+
+    return {
+      configuredChannels: availableChannels.filter(
+        (channel) => (channel.pipelineCount ?? 0) > 0,
+      ),
+      unconfiguredChannels: availableChannels.filter(
+        (channel) => (channel.pipelineCount ?? 0) === 0,
+      ),
+    };
+  }, [channels]);
+
+  const visibleUnconfiguredChannels = showUnconfigured
+    ? unconfiguredChannels
+    : [];
+
+  const handleToggleUnconfigured = () => {
+    const nextShowUnconfigured = !showUnconfigured;
+
+    if (
+      !nextShowUnconfigured &&
+      unconfiguredChannels.some((channel) => channel._id === channelId)
+    ) {
+      setChannelId(configuredChannels[0]?._id || null);
+    }
+
+    setShowUnconfigured(nextShowUnconfigured);
+  };
 
   useEffect(() => {
-    if (!channels?.length || !channels[0]?._id) {
+    if (!channels) {
       return;
     }
 
@@ -65,23 +100,68 @@ export function TicketNavigations() {
     );
 
     if (!channelId || !hasSelectedChannel) {
-      setChannelId(channels[0]._id);
+      setChannelId(configuredChannels[0]?._id || null);
     }
-  }, [channels, setChannelId, channelId]);
+  }, [channels, configuredChannels, setChannelId, channelId]);
+
+  useEffect(() => {
+    if (
+      !showUnconfigured &&
+      unconfiguredChannels.some((channel) => channel._id === channelId)
+    ) {
+      setChannelId(configuredChannels[0]?._id || null);
+    }
+  }, [
+    channelId,
+    configuredChannels,
+    setChannelId,
+    showUnconfigured,
+    unconfiguredChannels,
+  ]);
+
   return (
     <>
       <NavigationMenuGroup name="Channels">
         {loading ? (
           <LoadingSkeleton />
         ) : (
-          channels?.map((channel) => (
-            <ChannelItem key={channel._id} channel={channel} />
-          ))
+          <>
+            {configuredChannels.map((channel) => (
+              <ChannelItem key={channel._id} channel={channel} />
+            ))}
+            {visibleUnconfiguredChannels.map((channel) => (
+              <ChannelItem key={channel._id} channel={channel} />
+            ))}
+            {unconfiguredChannels.length > 0 && (
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 px-2 font-medium text-muted-foreground"
+                onClick={handleToggleUnconfigured}
+                aria-expanded={showUnconfigured}
+              >
+                {showUnconfigured ? (
+                  <IconMinus className="size-4 shrink-0" />
+                ) : (
+                  <IconPlus className="size-4 shrink-0" />
+                )}
+                <TextOverflowTooltip
+                  className="min-w-0 flex-1 text-left"
+                  value={t('not-configured-tickets', {
+                    count: unconfiguredChannels.length,
+                    defaultValue_one: '{{count}} not configured ticket',
+                    defaultValue_other: '{{count}} not configured tickets',
+                  })}
+                />
+              </Button>
+            )}
+          </>
         )}
       </NavigationMenuGroup>
-      <NavigationMenuGroup name="Pipelines">
-        {channelId && <Pipelines />}
-      </NavigationMenuGroup>
+      {channelId && (
+        <NavigationMenuGroup name="Pipelines">
+          <Pipelines />
+        </NavigationMenuGroup>
+      )}
     </>
   );
 }
@@ -135,7 +215,9 @@ const Pipelines = () => {
           {!loading && !pipelines?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">{t('no-pipelines')}</span>
+                <span className="capitalize text-foreground">
+                  {t('no-pipelines')}
+                </span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

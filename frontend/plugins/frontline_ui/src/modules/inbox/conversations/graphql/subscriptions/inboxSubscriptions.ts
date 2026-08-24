@@ -11,7 +11,7 @@ export const conversationChanged = gql`
 `;
 
 export const conversationMessageInserted = gql`
-  subscription conversationMessageInserted($_id: String!) {
+  subscription FrontlineLegacyConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
     }
@@ -26,7 +26,7 @@ export const CONVERSATION_CHANGED = gql`
 `;
 
 export const CONVERSATION_MESSAGE_INSERTED = gql`
-  subscription conversationMessageInserted($_id: String!) {
+  subscription FrontlineConversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       _id
       conversationId
@@ -43,6 +43,14 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       botData
       source
       fromBot
+      replyToMessageId
+      reactions {
+        emoji
+        userIds
+      }
+      pinnedByIds
+      editedAt
+      deletedAt
     }
   }
 `;
@@ -54,6 +62,16 @@ export const CONVERSATION_CLIENT_MESSAGE_INSERTED = gql`
       conversationId
       content
       createdAt
+    }
+  }
+`;
+
+export const CONVERSATION_UNREAD_COUNT_CHANGED = gql`
+  subscription FrontlineConversationUnreadCountChanged {
+    conversationUnreadCountChanged {
+      conversationId
+      channelId
+      unreadConversationCount
     }
   }
 `;

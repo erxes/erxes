@@ -6,6 +6,7 @@ export default {
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
 			conversationClientMessageInserted(userId: String!): ConversationMessage
+			conversationUnreadCountChanged: ConversationUnreadCountChangedResponse
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -171,6 +172,18 @@ export default {
       conversationChanged: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
+      },
+
+      conversationUnreadCountChanged: {
+        subscribe: (_root, _args, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Authentication required');
+          }
+
+          return graphqlPubsub.asyncIterator(
+            `conversationUnreadCountChanged:${subdomain}:${user._id}`,
+          );
+        },
       },
 
       /*

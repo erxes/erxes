@@ -12,7 +12,10 @@ export interface IMessageModel extends Model<IMessageDocument> {
   getMessage(_id: string): Promise<IMessageDocument>;
   createMessage(doc: IMessage): Promise<IMessageDocument>;
   addMessage(doc: IMessage, userId?: string): Promise<IMessageDocument>;
-  updateMessage(_id: string, fields: IMessage): Promise<IMessageDocument>;
+  updateMessage(
+    _id: string,
+    fields: Partial<IMessage>,
+  ): Promise<IMessageDocument>;
   getNonAsnweredMessage(conversationId: string);
   getAdminMessages(conversationId: string);
   widgetsGetUnreadMessagesCount(conversationId: string): Promise<number>;
@@ -34,6 +37,9 @@ export const loadClass = (models: IModels) => {
       if (!message) {
         throw new Error('Conversation message not found');
       }
+
+      message.reactions = message.reactions || [];
+      message.pinnedByIds = message.pinnedByIds || [];
 
       return message;
     }
@@ -171,16 +177,16 @@ export const loadClass = (models: IModels) => {
       return this.createMessage({ ...doc, userId });
     }
 
-    public static async updateMessage(_id: string, fields: IMessage) {
-      if (fields.internal) {
-        await models.ConversationMessages.updateOne(
-          { _id },
-          { $set: { ...fields } },
-        );
+    public static async updateMessage(
+      _id: string,
+      fields: Partial<IMessage>,
+    ) {
+      await models.ConversationMessages.updateOne(
+        { _id, internal: true },
+        { $set: fields },
+      );
 
-        return await models.ConversationMessages.findOne({ _id }).lean();
-      }
-      return '';
+      return this.getMessage(_id);
     }
 
     /**

@@ -148,6 +148,7 @@ export const TeamChannelsNav = () => {
   return (
     <NavigationMenuGroup
       name={t('team-inbox')}
+      separate={false}
       actions={
         <NavigationGroupActions>
           <CreateChannel isIconOnly />
@@ -172,7 +173,7 @@ const TeamChannelItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(defaultOpen);
-  const [{ channelId }, setFilters] =
+  const [{ brandId, channelId }, setFilters] =
     useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   // Only the expanded channels cost a request; collapsed ones stay silent.
@@ -184,56 +185,54 @@ const TeamChannelItem = ({
   const handleSelectChannel = () => {
     setFilters({
       ...CLEARED_INBOX_NAVIGATION_FILTERS,
+      brandId,
       channelId: isActive ? null : channel._id,
     });
-    if (!isActive) setOpen(true);
+    setOpen(!isActive);
   };
 
   return (
     <Collapsible className="group/channel" open={open} onOpenChange={setOpen}>
-      <div className="flex w-full items-center">
-        <Collapsible.Trigger asChild>
-          <Button
-            variant="ghost"
-            className="ml-1 size-6 shrink-0 p-0"
-            aria-label={channel.name}
-            aria-expanded={open}
-          >
-            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/channel:rotate-90 text-accent-foreground" />
-          </Button>
-        </Collapsible.Trigger>
-        <Button
-          variant={isActive ? 'secondary' : 'ghost'}
-          className={cn(
-            'min-w-0 flex-auto justify-start gap-2 overflow-hidden py-2 pl-1 pr-2 text-left',
-            unreadCount === 0 && !isActive && 'text-muted-foreground',
-          )}
-          onClick={handleSelectChannel}
-        >
-          {isActive ? (
-            <IconCheck className="size-3.5 shrink-0" />
-          ) : (
-            <IconComponent
-              name={channel.icon}
-              className="size-3.5 text-accent-foreground shrink-0"
-            />
-          )}
-          <TextOverflowTooltip
-            className="flex-1 min-w-0 font-semibold"
-            value={channel.name}
+      <Button
+        variant={isActive ? 'secondary' : 'ghost'}
+        className={cn(
+          'w-full min-w-0 justify-start gap-2 overflow-hidden px-2 text-left',
+          unreadCount === 0 && !isActive && 'text-muted-foreground',
+        )}
+        onClick={handleSelectChannel}
+        aria-expanded={open}
+      >
+        <IconCaretRightFilled className="size-3 shrink-0 text-muted-foreground transition-transform group-data-[state=open]/channel:rotate-90" />
+        {isActive ? (
+          <IconCheck className="size-3.5 shrink-0" />
+        ) : (
+          <IconComponent
+            name={channel.icon}
+            className="size-3.5 text-accent-foreground shrink-0"
           />
-          {members.length > 0 && (
-            <MembersInline.Provider members={members} size="sm">
-              <MembersInline.Avatar size="sm" />
-            </MembersInline.Provider>
-          )}
-          {unreadCount > 0 && (
-            <span className="shrink-0 px-1 text-xs rounded-sm bg-primary text-primary-foreground tabular-nums">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-      </div>
+        )}
+        <TextOverflowTooltip
+          className="flex-1 min-w-0 font-semibold"
+          value={channel.name}
+        />
+        {open && members.length > 0 && (
+          <MembersInline.Provider members={members} size="sm">
+            <MembersInline.Avatar size="sm" />
+          </MembersInline.Provider>
+        )}
+        {unreadCount > 0 && (
+          <span
+            className={cn(
+              'min-w-5 shrink-0 rounded-sm px-1 text-center text-xs tabular-nums',
+              isActive
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-foreground',
+            )}
+          >
+            {unreadCount}
+          </span>
+        )}
+      </Button>
       <Collapsible.Content>
         <Sidebar.Menu>
           {loading && !integrations.length && (

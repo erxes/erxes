@@ -68,7 +68,11 @@ export const InboxWorkNav = () => {
   };
 
   return (
-    <NavigationMenuGroup name={t('actions')}>
+    <NavigationMenuGroup
+      name={t('my-work', { defaultValue: 'My work' })}
+      separate={false}
+      className="pt-1"
+    >
       {loading && (
         <div className="flex flex-col gap-2 px-2 py-1">
           <Skeleton className="h-4 w-32" />
@@ -105,7 +109,10 @@ export const InboxWorkNav = () => {
                     : t(label)}
                 </span>
                 {count > 0 && (
-                  <Badge className="ml-auto min-w-5 justify-center px-1 text-xs tabular-nums">
+                  <Badge
+                    variant={isActive ? 'default' : 'secondary'}
+                    className="ml-auto h-5 min-w-5 justify-center border-0 px-1 text-xs tabular-nums"
+                  >
                     {count}
                   </Badge>
                 )}

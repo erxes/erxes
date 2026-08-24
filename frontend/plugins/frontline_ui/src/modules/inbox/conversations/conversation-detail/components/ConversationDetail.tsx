@@ -1,5 +1,5 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Separator, useQueryState } from 'erxes-ui';
+import { useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
@@ -86,11 +86,13 @@ export const ConversationDetail = () => {
   };
 
   return (
-    <div ref={detailRef} className="relative flex h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-hidden flex-auto min-w-0">
+    <div
+      ref={detailRef}
+      className="relative flex h-full overflow-hidden bg-muted/20"
+    >
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden bg-background">
         <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
-          <Separator />
           <ConversationDetailLayout
             input={
               integration?.kind === 'imap' ? null : (

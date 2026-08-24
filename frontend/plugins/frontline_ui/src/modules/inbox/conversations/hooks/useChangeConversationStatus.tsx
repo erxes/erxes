@@ -13,6 +13,7 @@ export const useChangeConversationStatus = () => {
     changeConversationStatus({
       refetchQueries: [
         'ConversationCounts',
+        'FrontlineInboxNewConversationCount',
         'FrontlineInboxSidebarWorkCounts',
         'GetMyChannels',
       ],

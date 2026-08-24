@@ -151,6 +151,12 @@ export const MessageInput = ({
     setDiscordReplyTo(null);
   }, [conversationId, setDiscordReplyTo]);
 
+  useEffect(() => {
+    if (discordReplyTo?.internal) {
+      setIsInternalNote(true);
+    }
+  }, [discordReplyTo, setIsInternalNote]);
+
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearchValue] = useDebounce(searchValue, 300);
@@ -399,7 +405,9 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
+        ...(((discordReplyTo?.internal && isInternalNote) ||
+          (!discordReplyTo?.internal && isDiscord && !isInternalNote)) &&
+        discordReplyTo
           ? { replyToMessageId: discordReplyTo.messageId }
           : {}),
       },
@@ -495,24 +503,26 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
-          <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
-            <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
-              <IconArrowBackUp className="size-4 flex-none" />
-              <span className="truncate">
-                Replying to: {discordReplyTo.preview}
-              </span>
+        {((discordReplyTo?.internal && isInternalNote) ||
+          (!discordReplyTo?.internal && isDiscord && !isInternalNote)) &&
+          discordReplyTo && (
+            <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
+              <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                <IconArrowBackUp className="size-4 flex-none" />
+                <span className="truncate">
+                  Replying to: {discordReplyTo.preview}
+                </span>
+              </div>
+              <button
+                type="button"
+                aria-label="Cancel reply"
+                onClick={() => setDiscordReplyTo(null)}
+                className="flex-none text-muted-foreground hover:text-foreground"
+              >
+                <IconX size={14} aria-hidden="true" />
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
-              className="flex-none text-muted-foreground hover:text-foreground"
-            >
-              <IconX size={14} aria-hidden="true" />
-            </button>
-          </div>
-        )}
+          )}
 
         <BlockEditor
           editor={editor}

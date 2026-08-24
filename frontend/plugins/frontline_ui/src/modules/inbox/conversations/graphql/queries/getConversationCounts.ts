@@ -22,6 +22,12 @@ export const INBOX_SIDEBAR_WORK_COUNTS = gql`
   }
 `;
 
+export const INBOX_NEW_CONVERSATION_COUNT = gql`
+  query FrontlineInboxNewConversationCount {
+    conversationsTotalCount(status: "new")
+  }
+`;
+
 export const CONVERSATION_FILTER_COUNTS = gql`
   query FrontlineInboxConversationFilterCounts(
     $channelId: String

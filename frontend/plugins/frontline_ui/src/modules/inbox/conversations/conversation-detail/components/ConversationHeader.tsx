@@ -119,23 +119,19 @@ const ConversationHeaderProfile = () => {
   );
 };
 
-const AutomatedReplyStatusBadge = () => {
+const useAutomatedReplyAction = () => {
   const { _id, automatedReplyControl } = useConversationContext();
   const { setAutomatedReplyControl, loading } =
     useConversationAutomatedReplyControl();
   const status = automatedReplyControl?.status;
 
-  if (!status) {
-    return null;
-  }
-
   const isActive = status === 'active';
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-        automatedReplyControl?.reason === 'operator_reply'
-      ? 'Automation paused: operator active'
-      : 'Automation paused';
+      automatedReplyControl?.reason === 'operator_reply'
+    ? 'Automation paused: operator active'
+    : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
@@ -155,6 +151,34 @@ const AutomatedReplyStatusBadge = () => {
       },
     });
   };
+
+  return {
+    status,
+    isActive,
+    label,
+    actionLabel,
+    Icon,
+    ActionIcon,
+    loading,
+    handleToggleAutomation,
+  };
+};
+
+const AutomatedReplyStatusBadge = () => {
+  const {
+    status,
+    isActive,
+    label,
+    actionLabel,
+    Icon,
+    ActionIcon,
+    loading,
+    handleToggleAutomation,
+  } = useAutomatedReplyAction();
+
+  if (!status) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
@@ -180,6 +204,27 @@ const AutomatedReplyStatusBadge = () => {
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
+  );
+};
+
+const AutomatedReplyMenuItem = () => {
+  const { status, actionLabel, ActionIcon, loading, handleToggleAutomation } =
+    useAutomatedReplyAction();
+
+  if (!status) return null;
+
+  return (
+    <>
+      <DropdownMenu.Item
+        className="gap-2"
+        disabled={loading}
+        onSelect={handleToggleAutomation}
+      >
+        <ActionIcon className="size-4" />
+        {actionLabel}
+      </DropdownMenu.Item>
+      <DropdownMenu.Separator />
+    </>
   );
 };
 
@@ -300,8 +345,10 @@ export const ConversationTags = ({
 
 const ConversationActionsDropdown = ({
   showAssignee = false,
+  showAutomation = false,
 }: {
   showAssignee?: boolean;
+  showAutomation?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, status } = useConversationContext();
@@ -341,6 +388,7 @@ const ConversationActionsDropdown = ({
         align="end"
         className="w-80 max-w-[calc(100vw-1rem)] p-1.5"
       >
+        {showAutomation && <AutomatedReplyMenuItem />}
         {showAssignee && (
           <>
             <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
@@ -388,7 +436,7 @@ export const ConversationHeader = () => {
   return (
     <div
       ref={headerRef}
-      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
+      className="h-14 flex items-center border-b bg-background px-4 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
     >
       {view === 'list' ? (
         <Button
@@ -407,14 +455,17 @@ export const ConversationHeader = () => {
       ) : (
         <Skeleton className="w-32 h-4 ml-2" />
       )}
-      <Separator.Inline />
+      <Separator.Inline className="h-6" />
       {!hideAssignee && <AssignConversation />}
-      <AutomatedReplyStatusBadge />
+      {!isCompact && <AutomatedReplyStatusBadge />}
       <div className="flex items-center gap-3 ml-auto flex-none">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
         {isCompact ? (
-          <ConversationActionsDropdown showAssignee={hideAssignee} />
+          <ConversationActionsDropdown
+            showAssignee={hideAssignee}
+            showAutomation
+          />
         ) : (
           <ConversationActions />
         )}

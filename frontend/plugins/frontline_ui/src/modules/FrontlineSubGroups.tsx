@@ -2,7 +2,7 @@ import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
 import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
-import { NavigationMenuGroup } from 'erxes-ui';
+import { NavigationMenuGroup, useQueryState } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { KnowledgeBaseSubGroup } from '@/knowledgebase/components/KnowledgeBaseTopicsNav';
 import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
@@ -14,6 +14,7 @@ import { useLocation } from 'react-router-dom';
 
 export const FrontlineSubGroups = () => {
   const { pathname } = useLocation();
+  const [brandId] = useQueryState<string>('brandId');
   const isInbox = pathname.startsWith('/frontline/inbox');
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
@@ -47,6 +48,7 @@ export const FrontlineSubGroups = () => {
       <DiscordServersNav />
       <NavigationMenuGroup
         name="Brands"
+        defaultOpen={Boolean(brandId)}
         actions={
           <NavigationGroupActions>
             <CreateBrand />

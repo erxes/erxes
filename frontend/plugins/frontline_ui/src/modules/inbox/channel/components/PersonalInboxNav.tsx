@@ -36,7 +36,7 @@ export const PersonalInboxNav = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('me')}
+      name={t('personal-inbox', { defaultValue: 'Personal inbox' })}
       actions={<UnreadSummary count={total} />}
     >
       {loading && !integrationTypes.length && (

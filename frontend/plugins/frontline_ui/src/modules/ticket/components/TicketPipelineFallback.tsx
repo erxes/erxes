@@ -1,8 +1,7 @@
 import { IconBrandTrello, IconSettings } from '@tabler/icons-react';
-import { Button, useQueryState } from 'erxes-ui';
+import { Button, Empty, cn, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import clsx from 'clsx';
 
 export const TicketPipelineFallback = ({
   className,
@@ -11,30 +10,83 @@ export const TicketPipelineFallback = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
+  const settingsPath = channelId
+    ? `/settings/frontline/channels/${channelId}/pipelines`
+    : '/settings/frontline/channels';
+
   return (
-    <div
-      className={clsx(
-        'flex h-full w-full flex-col items-center justify-center text-center p-6 gap-2',
-        className,
-      )}
-    >
-      <IconBrandTrello
-        size={64}
-        stroke={1.5}
-        className="text-muted-foreground"
-      />
-      <h2 className="text-lg font-semibold text-muted-foreground">
-        {t('no-pipeline-yet')}
-      </h2>
-      <p className="text-md text-muted-foreground mb-4">
-        {t('create-pipeline-description')}
-      </p>
-      <Button variant="outline" asChild className="z-10">
-        <Link to={`/settings/frontline/channels/${channelId}/pipelines`}>
-          <IconSettings />
-          {t('manage-pipelines')}
-        </Link>
-      </Button>
-    </div>
+    <Empty className={cn('h-full w-full rounded-none border-0', className)}>
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconBrandTrello />
+        </Empty.Media>
+        <Empty.Title>
+          {channelId
+            ? t('no-pipeline-yet')
+            : t('select-channel-first', { defaultValue: 'Select a channel' })}
+        </Empty.Title>
+        <Empty.Description>
+          {channelId
+            ? t('create-pipeline-description')
+            : t('select-channel-for-tickets-description', {
+                defaultValue:
+                  'Choose or configure a channel before managing ticket pipelines.',
+              })}
+        </Empty.Description>
+      </Empty.Header>
+      <Empty.Content>
+        <Button variant="outline" asChild className="z-10">
+          <Link to={settingsPath}>
+            <IconSettings />
+            {channelId
+              ? t('manage-pipelines')
+              : t('manage-channels', { defaultValue: 'Manage channels' })}
+          </Link>
+        </Button>
+      </Empty.Content>
+    </Empty>
+  );
+};
+
+export const TicketStatusesFallback = ({
+  className,
+}: {
+  className?: string;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [channelId] = useQueryState<string | null>('channelId');
+  const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const settingsPath =
+    channelId && pipelineId
+      ? `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`
+      : channelId
+      ? `/settings/frontline/channels/${channelId}/pipelines`
+      : '/settings/frontline/channels';
+
+  return (
+    <Empty className={cn('h-full w-full rounded-none border-0', className)}>
+      <Empty.Header>
+        <Empty.Media variant="icon">
+          <IconBrandTrello />
+        </Empty.Media>
+        <Empty.Title>
+          {t('no-ticket-lists', { defaultValue: 'No ticket lists available' })}
+        </Empty.Title>
+        <Empty.Description>
+          {t('no-ticket-lists-description', {
+            defaultValue:
+              'Add a status list to this pipeline, or ask for access to an existing list.',
+          })}
+        </Empty.Description>
+      </Empty.Header>
+      <Empty.Content>
+        <Button variant="outline" asChild className="z-10">
+          <Link to={settingsPath}>
+            <IconSettings />
+            {t('manage-pipeline', { defaultValue: 'Manage pipeline' })}
+          </Link>
+        </Button>
+      </Empty.Content>
+    </Empty>
   );
 };

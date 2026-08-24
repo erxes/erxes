@@ -14,7 +14,7 @@ import {
   Sidebar,
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
-import { useConversations } from './inbox/conversations/hooks/useConversations';
+import { useInboxNewConversationCount } from './inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { SearchConversations } from '@/inbox/components/SearchConversations';
@@ -92,11 +92,7 @@ export const FrontlineDestinationLinks = () => {
 };
 
 export const NotificationCount = () => {
-  const { totalCount, loading } = useConversations({
-    variables: {
-      status: 'new',
-    },
-  });
+  const { totalCount, loading } = useInboxNewConversationCount();
 
   if (loading) {
     return <Skeleton className="size-4 rounded-sm" />;

@@ -1,10 +1,14 @@
-import { useQuery } from '@apollo/client';
+import { useQuery, useSubscription } from '@apollo/client';
+import { useAtomValue } from 'jotai';
+import { currentUserState } from 'ui-modules';
 
 import {
   CONVERSATION_COUNTS,
-  INBOX_SIDEBAR_WORK_COUNTS,
   CONVERSATION_FILTER_COUNTS,
+  INBOX_NEW_CONVERSATION_COUNT,
+  INBOX_SIDEBAR_WORK_COUNTS,
 } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 
 export type TConversationCounts = Record<string, number>;
 
@@ -159,6 +163,28 @@ export const useInboxWorkCounts = () => {
       unassigned: data?.conversationCounts?.unassigned ?? 0,
     },
     error,
+    loading,
+  };
+};
+
+export const useInboxNewConversationCount = () => {
+  const userId = useAtomValue(currentUserState)?._id;
+  const { data, loading, refetch } = useQuery<{
+    conversationsTotalCount?: number;
+  }>(INBOX_NEW_CONVERSATION_COUNT, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  useSubscription(CONVERSATION_CLIENT_MESSAGE_INSERTED, {
+    variables: { userId },
+    skip: !userId,
+    onData: () => {
+      void refetch();
+    },
+  });
+
+  return {
+    totalCount: data?.conversationsTotalCount ?? 0,
     loading,
   };
 };

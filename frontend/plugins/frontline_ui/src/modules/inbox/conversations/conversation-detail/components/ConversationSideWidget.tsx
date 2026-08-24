@@ -56,7 +56,7 @@ export const ConversationSideWidget = ({
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (
-    <SideMenu ref={sideMenuRef} className="flex-none">
+    <SideMenu ref={sideMenuRef} className="flex-none border-l bg-background">
       {asSheet && (
         <SideWidgetOutsideClose
           containerRef={sideMenuRef}
@@ -72,8 +72,8 @@ export const ConversationSideWidget = ({
               'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
               asSheet
                 ? // Docked under the conversation header instead of taking a column.
-                  'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
-                : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
+                  'absolute top-14 bottom-0 right-16 z-20 border-l bg-background shadow-xl data-[state=active]:w-[min(22rem,calc(100%_-_4rem))]'
+                : 'flex-none border-l bg-background data-[state=active]:w-72 xl:data-[state=active]:w-80',
             )}
           >
             <RelationWidget

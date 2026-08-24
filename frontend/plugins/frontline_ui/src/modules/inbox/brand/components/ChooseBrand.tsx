@@ -91,9 +91,10 @@ export const ChooseBrand = () => {
 };
 
 const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
-  const [{ brandId }, setFilters] = useMultiQueryState<TInboxNavigationFilters>(
-    INBOX_NAVIGATION_FILTER_KEYS,
-  );
+  const [{ brandId, channelId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(
+      INBOX_NAVIGATION_FILTER_KEYS,
+    );
 
   const isActive = brandId === _id;
 
@@ -104,6 +105,7 @@ const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
       onClick={() =>
         setFilters({
           ...CLEARED_INBOX_NAVIGATION_FILTERS,
+          channelId,
           brandId: isActive ? null : _id,
         })
       }

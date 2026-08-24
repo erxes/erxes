@@ -1,11 +1,11 @@
-import { IconLoader } from '@tabler/icons-react';
+import { IconInbox, IconLoader } from '@tabler/icons-react';
 
 import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationListContext } from '@/inbox/conversations/context/ConversationListContext';
 import { IConversation } from '@/inbox/types/Conversation';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
 
-import { Filter, Separator } from 'erxes-ui';
+import { Empty, Filter, Separator, Skeleton } from 'erxes-ui';
 
 import { ConversationsHeader } from '@/inbox/conversations/components/ConversationsHeader';
 import { ConversationItem } from '@/inbox/conversations/components/ConversationItem';
@@ -14,8 +14,27 @@ import { isDiscordConversation } from '@/inbox/conversations/utils/channelGroups
 import { useDiscordConversationChannels } from '@/integrations/discord/hooks/useDiscordSetup';
 import { useMemo } from 'react';
 import { ConversationActions } from '@/inbox/conversations/components/ConversationActions';
+import { useTranslation } from 'react-i18next';
+
+const ConversationsLoading = () => (
+  <div className="divide-y" aria-label="Loading conversations">
+    {Array.from({ length: 8 }).map((_, index) => (
+      <div key={index} className="flex items-start gap-3 px-4 py-3">
+        <Skeleton className="size-9 shrink-0 rounded-full" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton className="h-3.5 w-28" />
+            <Skeleton className="h-3 w-10" />
+          </div>
+          <Skeleton className="h-3 w-4/5" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 export const Conversations = () => {
+  const { t } = useTranslation('frontline');
   const {
     totalCount,
     conversations,
@@ -73,11 +92,34 @@ export const Conversations = () => {
             ref={containerRef}
             onScroll={handleScroll}
           >
-            <ConversationThreadList
-              conversations={conversations || []}
-              threadMap={channelMap}
-              renderItem={renderConversationItem}
-            />
+            {loading && !conversations?.length ? (
+              <ConversationsLoading />
+            ) : !conversations?.length ? (
+              <Empty className="min-h-full rounded-none border-0">
+                <Empty.Header>
+                  <Empty.Media variant="icon">
+                    <IconInbox />
+                  </Empty.Media>
+                  <Empty.Title>
+                    {t('no-conversations-found', {
+                      defaultValue: 'No conversations found',
+                    })}
+                  </Empty.Title>
+                  <Empty.Description>
+                    {t('no-conversations-description', {
+                      defaultValue:
+                        'Adjust the active filters or wait for a new conversation.',
+                    })}
+                  </Empty.Description>
+                </Empty.Header>
+              </Empty>
+            ) : (
+              <ConversationThreadList
+                conversations={conversations}
+                threadMap={channelMap}
+                renderItem={renderConversationItem}
+              />
+            )}
           </div>
           {fetchingMore && (
             <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">

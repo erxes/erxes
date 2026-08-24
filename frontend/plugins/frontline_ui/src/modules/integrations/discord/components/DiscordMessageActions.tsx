@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import type { ComponentType } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   Button,
   Dialog,
+  Popover,
   Spinner,
   Textarea,
   Tooltip,
@@ -17,9 +18,24 @@ import {
   IconCopy,
   IconHash,
   IconLink,
+  IconMoodPlus,
   IconPencil,
+  IconPhoto,
+  IconPin,
+  IconPinnedOff,
   IconTrash,
 } from '@tabler/icons-react';
+import { currentUserState } from 'ui-modules';
+import {
+  getOptimisticMessage,
+  copyImageToClipboard,
+  toggleReaction,
+} from '@/inbox/conversation-messages/components/MessageActions';
+import {
+  FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
+  FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE,
+} from '@/inbox/conversation-messages/graphql/messageActions';
+import { IMessage } from '@/inbox/types/Conversation';
 import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
@@ -31,6 +47,7 @@ import {
 } from '../states/discordReplyToState';
 
 const PREVIEW_LENGTH = 80;
+const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢'];
 
 const stripToText = (html?: string): string => {
   if (!html) {
@@ -95,15 +112,21 @@ export const DiscordMessageActions = ({
   messageId,
   content,
   isOwnMessage,
+  databaseMessage,
 }: {
   conversationId: string;
   messageId: string;
   content?: string;
   isOwnMessage?: boolean;
+  databaseMessage: IMessage;
 }) => {
+  const currentUserId = useAtomValue(currentUserState)?._id || '';
   const setReplyTo = useSetAtom(discordReplyToState);
   const { confirm } = useConfirm();
   const text = stripToText(content);
+  const imageAttachment = databaseMessage.attachments?.find((attachment) =>
+    attachment.type.startsWith('image'),
+  );
 
   const [editOpen, setEditOpen] = useState(false);
   const [draft, setDraft] = useState('');
@@ -117,6 +140,55 @@ export const DiscordMessageActions = ({
 
   const [editMessage, { loading: editing }] = useMutation(DISCORD_EDIT_MESSAGE);
   const [deleteMessage] = useMutation(DISCORD_DELETE_MESSAGE);
+  const [toggleMessageReaction] = useMutation(
+    FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE,
+  );
+  const [toggleMessagePin] = useMutation(
+    FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
+  );
+  const isPinned =
+    databaseMessage.pinnedByIds?.includes(currentUserId) || false;
+
+  const handleReaction = async (emoji: string) => {
+    const reactions = toggleReaction(
+      databaseMessage.reactions,
+      emoji,
+      currentUserId,
+    );
+    try {
+      await toggleMessageReaction({
+        variables: { _id: databaseMessage._id, emoji },
+        optimisticResponse: {
+          conversationMessageReactionToggle: getOptimisticMessage(
+            databaseMessage,
+            { reactions },
+          ),
+        },
+      });
+    } catch {
+      toast({ title: 'Failed to update reaction', variant: 'destructive' });
+    }
+  };
+
+  const handlePin = async () => {
+    const pinnedByIds = isPinned
+      ? (databaseMessage.pinnedByIds || []).filter(
+          (id) => id !== currentUserId,
+        )
+      : [...(databaseMessage.pinnedByIds || []), currentUserId];
+    try {
+      await toggleMessagePin({
+        variables: { _id: databaseMessage._id },
+        optimisticResponse: {
+          conversationMessagePinToggle: getOptimisticMessage(databaseMessage, {
+            pinnedByIds,
+          }),
+        },
+      });
+    } catch {
+      toast({ title: 'Failed to update pin', variant: 'destructive' });
+    }
+  };
 
   const handleReply = useCallback(() => {
     const preview = text.slice(0, PREVIEW_LENGTH) || 'message';
@@ -133,6 +205,19 @@ export const DiscordMessageActions = ({
     const link = `https://discord.com/channels/${channel.guildId}/${channel.channelId}/${messageId}`;
     await copyToClipboard(link, 'Message link copied');
   }, [loadChannel, messageId]);
+
+  const handleCopyImage = useCallback(async () => {
+    if (!imageAttachment) return;
+
+    try {
+      const copied = await copyImageToClipboard(imageAttachment.url);
+      toast({
+        title: copied === 'image' ? 'Image copied' : 'Image link copied',
+      });
+    } catch {
+      toast({ title: 'Failed to copy image', variant: 'destructive' });
+    }
+  }, [imageAttachment]);
 
   const handleOpenEdit = useCallback(() => {
     setDraft(text);
@@ -187,6 +272,36 @@ export const DiscordMessageActions = ({
   return (
     <Tooltip.Provider delayDuration={0}>
       <div className="flex h-8 shrink-0 items-center gap-px rounded-md border bg-background p-0.5 opacity-0 shadow-xs transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        <Popover>
+          <Popover.Trigger asChild>
+            <span>
+              <DiscordMessageAction
+                label="Add reaction"
+                icon={IconMoodPlus}
+                onClick={() => undefined}
+              />
+            </span>
+          </Popover.Trigger>
+          <Popover.Content side="top" className="flex w-auto gap-1 p-1">
+            {QUICK_REACTIONS.map((emoji) => (
+              <Button
+                key={emoji}
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 text-base"
+                onClick={() => handleReaction(emoji)}
+              >
+                {emoji}
+              </Button>
+            ))}
+          </Popover.Content>
+        </Popover>
+        <DiscordMessageAction
+          label={isPinned ? 'Unpin message' : 'Pin message'}
+          icon={isPinned ? IconPinnedOff : IconPin}
+          onClick={handlePin}
+        />
         <DiscordMessageAction
           label="Reply"
           icon={IconArrowBackUp}
@@ -198,6 +313,13 @@ export const DiscordMessageActions = ({
           disabled={!text}
           onClick={() => copyToClipboard(text, 'Text copied')}
         />
+        {imageAttachment && (
+          <DiscordMessageAction
+            label="Copy image"
+            icon={IconPhoto}
+            onClick={handleCopyImage}
+          />
+        )}
         <DiscordMessageAction
           label="Copy message link"
           icon={IconLink}

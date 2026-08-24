@@ -115,7 +115,11 @@ export const DiscordServersNav = () => {
 
   if (loading || (serversLoading && !servers.length)) {
     return (
-      <NavigationMenuGroup name="Discord Servers">
+      <NavigationMenuGroup
+        name="Discord Servers"
+        separate={false}
+        defaultOpen={false}
+      >
         <div className="flex flex-col gap-1">
           <Skeleton className="w-32 h-4 mt-1" />
           <Skeleton className="w-28 h-4 mt-1" />
@@ -128,8 +132,32 @@ export const DiscordServersNav = () => {
     return null;
   }
 
+  const totalCount = serverGroups.reduce(
+    (sum, group) =>
+      sum +
+      group.integrations.reduce(
+        (groupSum, integration) => groupSum + (counts[integration._id] || 0),
+        0,
+      ),
+    0,
+  );
+
   return (
-    <NavigationMenuGroup name="Discord Servers">
+    <NavigationMenuGroup
+      name="Discord Servers"
+      separate={false}
+      defaultOpen={Boolean(integrationId)}
+      actions={
+        totalCount > 0 ? (
+          <span
+            className="visible text-xs tabular-nums text-muted-foreground"
+            title={`${totalCount} open conversations`}
+          >
+            {totalCount}
+          </span>
+        ) : null
+      }
+    >
       {serverGroups.map((group) => (
         // skipcq: JS-0357
         <DiscordServerItem

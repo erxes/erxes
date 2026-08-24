@@ -1,4 +1,11 @@
-import { Button, Popover, PopoverScoped, ToggleGroup } from 'erxes-ui';
+import {
+  Button,
+  Popover,
+  PopoverScoped,
+  Spinner,
+  ToggleGroup,
+  useQueryState,
+} from 'erxes-ui';
 import {
   IconAdjustmentsHorizontal,
   IconLayoutKanban,
@@ -9,6 +16,8 @@ import { useTranslation } from 'react-i18next';
 import { ticketViewAtom } from '@/ticket/states/ticketViewState';
 import { lazy, Suspense, useState } from 'react';
 import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
+import { TicketStatusesFallback } from '@/ticket/components/TicketPipelineFallback';
 
 const TicketsRecordTable = lazy(() =>
   import('@/ticket/components/TicketsRecordTable').then((mod) => ({
@@ -74,6 +83,27 @@ export const TicketsViewControl = () => {
 
 export const TicketsView = () => {
   const view = useAtomValue(ticketViewAtom);
+  const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const [channelId] = useQueryState<string | null>('channelId');
+  const { statuses, loading } = useGetAccessibleTicketStatuses({
+    variables: {
+      pipelineId: pipelineId || '',
+      channelId: channelId || '',
+    },
+    skip: !pipelineId,
+  });
+
+  if (pipelineId && loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (pipelineId && !statuses.length) {
+    return <TicketStatusesFallback />;
+  }
 
   return (
     <Suspense>

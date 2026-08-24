@@ -12,14 +12,18 @@ import {
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   IconCalendarPlus,
+  IconAt,
+  IconBuildingStore,
   IconCheck,
   IconCheckbox,
+  IconInbox,
   IconLoader,
   IconSquare,
+  IconUserCheck,
   IconUsersGroup,
   IconUserX,
 } from '@tabler/icons-react';
-import { SelectMember } from 'ui-modules';
+import { BrandsInline, SelectMember } from 'ui-modules';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
@@ -35,6 +39,7 @@ import {
   AutomationStatusFilterView,
 } from '@/inbox/conversations/components/AutomationStatusFilter';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
+import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -260,8 +265,13 @@ export const ConversationFilterBar = ({
     awaitingResponse: boolean;
     automationStatus: TAutomationStatusFilter;
     participated: boolean;
+    participating: boolean;
+    mentioned: boolean;
     created: Date;
     channelId: string;
+    integrationId: string;
+    integrationType: string;
+    brandId: string;
     searchValue: string;
   }>([
     'status',
@@ -269,8 +279,13 @@ export const ConversationFilterBar = ({
     'awaitingResponse',
     'automationStatus',
     'participated',
+    'participating',
+    'mentioned',
     'created',
     'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
     'searchValue',
   ]);
 
@@ -320,10 +335,72 @@ export const ConversationFilterBar = ({
           {t('participated')}
         </Filter.BarName>
       </Filter.BarItem>
+      <Filter.BarItem queryKey="participating">
+        <Filter.BarName>
+          <IconUserCheck />
+          {t('assigned-to-me')}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="mentioned">
+        <Filter.BarName>
+          <IconAt />
+          {t('mentions', { defaultValue: 'Mentions' })}
+        </Filter.BarName>
+      </Filter.BarItem>
       <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
+      <IntegrationFilterBar />
+      <BrandFilterBar />
       {children}
     </Filter.Bar>
+  );
+};
+
+const IntegrationFilterBar = () => {
+  const { t } = useTranslation('frontline');
+  const [integrationId] = useQueryState<string>('integrationId');
+  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
+  const { integration, loading } = useIntegrationInline({
+    variables: { _id: integrationIds[0] || '' },
+    skip: integrationIds.length !== 1,
+  });
+
+  if (!integrationId) {
+    return null;
+  }
+
+  const label =
+    integrationIds.length > 1
+      ? t('selected-integrations', {
+          count: integrationIds.length,
+          defaultValue: '{{count}} integrations',
+        })
+      : integration?.name || integration?.kind || t('integration');
+
+  return (
+    <Filter.BarItem queryKey="integrationId">
+      <Filter.BarName>
+        <IconInbox />
+        {loading ? <Skeleton className="h-4 w-20" /> : label}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
+const BrandFilterBar = () => {
+  const [brandId] = useQueryState<string>('brandId');
+
+  if (!brandId) {
+    return null;
+  }
+
+  return (
+    <Filter.BarItem queryKey="brandId">
+      <Filter.BarName>
+        <IconBuildingStore />
+        <BrandsInline brandIds={[brandId]} placeholder={brandId} />
+      </Filter.BarName>
+    </Filter.BarItem>
   );
 };

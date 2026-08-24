@@ -6,14 +6,27 @@ import { useConversationContext } from '../hooks/useConversationContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
+type MarkConversationAsReadResponse = {
+  conversationMarkAsRead: {
+    _id: string;
+    __typename: 'Conversation';
+  };
+};
+
 export const useConversationMarkAsRead = () => {
   const { t } = useTranslation('frontline');
-  const [markAsRead] = useMutation(MARK_AS_READ_CONVERSATION);
+  const [markAsRead] = useMutation<
+    MarkConversationAsReadResponse,
+    { id: string }
+  >(MARK_AS_READ_CONVERSATION);
   const currentUser = useAtomValue(currentUserState);
-  const { readUserIds, _id } = useConversationContext();
+  const { readUserIds, _id, integration } = useConversationContext();
 
   const handleMarkAsRead = (
-    options?: MutationHookOptions<{ _id: string }, { id: string }>,
+    options?: MutationHookOptions<
+      MarkConversationAsReadResponse,
+      { id: string }
+    >,
   ) => {
     if (readUserIds?.includes(currentUser?._id || '')) {
       return;
@@ -23,6 +36,12 @@ export const useConversationMarkAsRead = () => {
       ...options,
       variables: {
         id: _id,
+      },
+      optimisticResponse: {
+        conversationMarkAsRead: {
+          _id,
+          __typename: 'Conversation',
+        },
       },
       // The sidebar badges count conversations this user has not read, so they
       // have to fall as soon as one is read.
@@ -39,6 +58,8 @@ export const useConversationMarkAsRead = () => {
         });
       },
       update: (cache) => {
+        const channelId = integration?.channelId || integration?.channel?._id;
+
         cache.modify({
           id: cache.identify({
             __typename: 'Conversation',
@@ -48,6 +69,18 @@ export const useConversationMarkAsRead = () => {
             readUserIds: () => [...(readUserIds || []), currentUser?._id],
           },
         });
+
+        if (channelId) {
+          cache.modify({
+            id: cache.identify({
+              __typename: 'Channel',
+              _id: channelId,
+            }),
+            fields: {
+              unreadConversationCount: (count = 0) => Math.max(0, count - 1),
+            },
+          });
+        }
       },
     });
   };

@@ -25,6 +25,34 @@ const toQueryUser = (user: IContext['user']) => ({
   role: user.role,
 });
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const buildMessageQuery = ({
+  conversationId,
+  searchValue,
+  pinnedOnly,
+  userId,
+}: {
+  conversationId: string;
+  searchValue?: string;
+  pinnedOnly?: boolean;
+  userId: string;
+}) => {
+  const query: Record<string, unknown> = { conversationId };
+  const normalizedSearch = searchValue?.trim();
+
+  if (normalizedSearch) {
+    query.content = { $regex: escapeRegExp(normalizedSearch), $options: 'i' };
+  }
+
+  if (pinnedOnly) {
+    query.pinnedByIds = userId;
+  }
+
+  return query;
+};
+
 export const conversationQueries = {
   /**
    * Conversations list
@@ -98,15 +126,24 @@ export const conversationQueries = {
       skip,
       limit,
       getFirst,
+      searchValue,
+      pinnedOnly,
     }: {
       conversationId: string;
       skip: number;
       limit: number;
       getFirst: boolean;
+      searchValue?: string;
+      pinnedOnly?: boolean;
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    const query = { conversationId };
+    const query = buildMessageQuery({
+      conversationId,
+      searchValue,
+      pinnedOnly,
+      userId: user._id,
+    });
 
     let messages: IMessageDocument[] = [];
 
@@ -133,10 +170,25 @@ export const conversationQueries = {
    */
   async conversationMessagesTotalCount(
     _root,
-    { conversationId }: { conversationId: string },
-    { models }: IContext,
+    {
+      conversationId,
+      searchValue,
+      pinnedOnly,
+    }: {
+      conversationId: string;
+      searchValue?: string;
+      pinnedOnly?: boolean;
+    },
+    { models, user }: IContext,
   ) {
-    return models.ConversationMessages.countDocuments({ conversationId });
+    return models.ConversationMessages.countDocuments(
+      buildMessageQuery({
+        conversationId,
+        searchValue,
+        pinnedOnly,
+        userId: user._id,
+      }),
+    );
   },
 
   /**

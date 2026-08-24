@@ -14,14 +14,14 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IAttachment, IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
   sendTRPCMessage,
   markResolvers,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
 import strip from 'strip';
@@ -39,6 +39,30 @@ const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
+
+export interface ConversationMessageEditArgs {
+  _id: string;
+  content?: string;
+  mentionedUserIds?: string[];
+  attachments?: IAttachment[];
+  contentType?: string;
+}
+
+const ensureOwnInternalMessage = async (
+  models: IModels,
+  messageId: string,
+  userId: string,
+) => {
+  const message = await models.ConversationMessages.getMessage(messageId);
+
+  if (!message.internal || message.userId !== userId) {
+    throw new Error(
+      'You cannot change this message. Only the author of an internal note can change it.',
+    );
+  }
+
+  return message;
+};
 
 const buildFacebookMessengerTextPayload = ({
   recipientId,
@@ -267,12 +291,10 @@ export const conversationNotifReceivers = (
   return userIds;
 };
 export const publishConversationsChanged = async (
-  subdomain: string,
+  _subdomain: string,
   _ids: string[],
   type: string,
 ): Promise<string[]> => {
-  const models = await generateModels(subdomain);
-
   for (const _id of _ids) {
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
@@ -492,8 +514,9 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation =
-        await models.Conversations.getConversation(conversationId);
+      const conversation = await models.Conversations.getConversation(
+        conversationId,
+      );
       if (!conversation?.integrationId) {
         return false;
       }
@@ -668,11 +691,12 @@ export const conversationMutations = {
           );
         }
 
-        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
-          ...doc,
-          ...(displayContent ? { content: displayContent } : {}),
-          ...(extraData ? { extraData } : {}),
-        };
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
+          {
+            ...doc,
+            ...(displayContent ? { content: displayContent } : {}),
+            ...(extraData ? { extraData } : {}),
+          };
 
         const message = await models.ConversationMessages.addMessage(
           messageDoc,
@@ -718,16 +742,115 @@ export const conversationMutations = {
 
   async conversationMessageEdit(
     _root,
-    { _id, ...fields }: any,
+    fields: ConversationMessageEditArgs,
+    { user, models }: IContext,
+  ) {
+    const { _id } = fields;
+    const message = await ensureOwnInternalMessage(models, _id, user._id);
+
+    const content = fields.content?.trim() ?? message.content;
+    const attachments = fields.attachments ?? message.attachments ?? [];
+
+    if (!content && attachments.length === 0) {
+      throw new Error('Content or an attachment is required');
+    }
+
+    const updatedMessage = await models.ConversationMessages.updateMessage(
+      _id,
+      {
+        content,
+        attachments,
+        mentionedUserIds:
+          fields.mentionedUserIds ?? message.mentionedUserIds ?? [],
+        contentType: fields.contentType ?? message.contentType,
+        editedAt: new Date(),
+      },
+    );
+
+    await publishMessage(models, updatedMessage);
+    return updatedMessage;
+  },
+
+  async conversationMessageRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models }: IContext,
+  ) {
+    await ensureOwnInternalMessage(models, _id, user._id);
+
+    const updatedMessage = await models.ConversationMessages.updateMessage(
+      _id,
+      {
+        content: '',
+        attachments: [],
+        mentionedUserIds: [],
+        deletedAt: new Date(),
+      },
+    );
+
+    await publishMessage(models, updatedMessage);
+    return updatedMessage;
+  },
+
+  async conversationMessageReactionToggle(
+    _root,
+    { _id, emoji }: { _id: string; emoji: string },
+    { user, models }: IContext,
+  ) {
+    const normalizedEmoji = emoji.trim();
+
+    if (!normalizedEmoji || normalizedEmoji.length > 16) {
+      throw new Error('Choose a valid reaction');
+    }
+
+    const message = await models.ConversationMessages.getMessage(_id);
+
+    if (message.deletedAt) {
+      throw new Error('You cannot react to a deleted message');
+    }
+
+    const reactions = (message.reactions || []).map((reaction) => ({
+      emoji: reaction.emoji,
+      userIds: [...reaction.userIds],
+    }));
+    const reaction = reactions.find(
+      (item) => item.emoji === normalizedEmoji,
+    );
+
+    if (reaction) {
+      reaction.userIds = reaction.userIds.includes(user._id)
+        ? reaction.userIds.filter((userId) => userId !== user._id)
+        : [...reaction.userIds, user._id];
+    } else {
+      reactions.push({ emoji: normalizedEmoji, userIds: [user._id] });
+    }
+
+    await models.ConversationMessages.updateOne(
+      { _id },
+      { $set: { reactions: reactions.filter(({ userIds }) => userIds.length) } },
+    );
+
+    const publishedMessage = await models.ConversationMessages.getMessage(_id);
+    await publishMessage(models, publishedMessage);
+    return publishedMessage;
+  },
+
+  async conversationMessagePinToggle(
+    _root,
+    { _id }: { _id: string },
     { user, models }: IContext,
   ) {
     const message = await models.ConversationMessages.getMessage(_id);
-    if (message.internal && user._id === message.userId) {
-      return await models.ConversationMessages.updateMessage(_id, fields);
-    }
-    throw new Error(
-      `You cannot edit this message. Only the author of an internal message can edit it.`,
-    );
+    const pinnedByIds = message.pinnedByIds || [];
+    const update = pinnedByIds.includes(user._id)
+      ? { $pull: { pinnedByIds: user._id } }
+      : { $addToSet: { pinnedByIds: user._id } };
+
+    await models.ConversationMessages.updateOne({ _id }, update);
+
+    const updatedMessage = await models.ConversationMessages.getMessage(_id);
+    await publishMessage(models, updatedMessage);
+    return updatedMessage;
   },
 
   async conversationsAssign(
@@ -835,9 +958,46 @@ export const conversationMutations = {
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    return await models.Conversations.markAsReadConversation(_id, user._id);
+    const conversation = await models.Conversations.markAsReadConversation(
+      _id,
+      user._id,
+    );
+
+    const integration = await models.Integrations.findOne(
+      { _id: conversation.integrationId },
+      { channelId: 1 },
+    ).lean();
+
+    if (!integration?.channelId) {
+      return conversation;
+    }
+
+    const integrationIds = await models.Integrations.find({
+      channelId: integration.channelId,
+    }).distinct('_id');
+
+    const unreadConversationCount = await models.Conversations.countDocuments({
+      integrationId: { $in: integrationIds },
+      status: {
+        $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+      },
+      readUserIds: { $ne: user._id },
+    });
+
+    await graphqlPubsub.publish(
+      `conversationUnreadCountChanged:${subdomain}:${user._id}`,
+      {
+        conversationUnreadCountChanged: {
+          conversationId: _id,
+          channelId: integration.channelId,
+          unreadConversationCount,
+        },
+      },
+    );
+
+    return conversation;
   },
 
   async changeConversationOperator(

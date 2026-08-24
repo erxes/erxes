@@ -9,17 +9,29 @@ import {
   formatBytes,
   readImage,
 } from 'erxes-ui';
-import { CustomersInline, MembersInline } from 'ui-modules';
+import { CustomersInline, MembersInline, currentUserState } from 'ui-modules';
 
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
+import {
+  MessageActions,
+  MessageReactions,
+  messageToPlainText,
+} from '@/inbox/conversation-messages/components/MessageActions';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
-import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
+import {
+  IconBrain,
+  IconCheck,
+  IconChecks,
+  IconFile,
+  IconPin,
+  IconSparkles,
+} from '@tabler/icons-react';
 
 const Img = (props: JSX.IntrinsicElements['img']) => (
   // skipcq: JS-W1015
@@ -54,8 +66,9 @@ const getMessageBubbleClassName = ({
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
-  const { previousMessage, nextMessage, ...message } =
-    useConversationMessageContext();
+  const message = useConversationMessageContext();
+  const { replyMessage } = message;
+  const currentUserId = useAtomValue(currentUserState)?._id;
   const {
     _id,
     conversationId,
@@ -73,6 +86,10 @@ export const MessageItem = () => {
     isGroupConversation,
     isBotMessage,
     botData,
+    isCustomerRead,
+    editedAt,
+    deletedAt,
+    pinnedByIds,
   } = message;
 
   const poll = extraData?.poll;
@@ -101,7 +118,8 @@ export const MessageItem = () => {
 
   const showBotName = Boolean(fromBot) && separatePrevious;
 
-  const isDeleted = Boolean(extraData?.discordDeletedAt);
+  const isDiscordMessage = Boolean(extraData?.discordMessageId);
+  const isDeleted = Boolean(extraData?.discordDeletedAt || deletedAt);
 
   const hasTextBubble =
     !isDeleted && Boolean(displayContent) && displayContent !== HAS_ATTACHMENT;
@@ -133,9 +151,10 @@ export const MessageItem = () => {
       {/* skipcq: JS-0357 */}
       <MessageWrapper>
         <div
+          id={`conversation-message-${_id}`}
           className={cn(
-            'min-w-0 max-w-[428px]',
-            extraData?.discordMessageId && 'group relative',
+            'min-w-0 max-w-[428px] scroll-m-20 rounded-md transition-shadow',
+            'group relative',
           )}
           key={_id}
         >
@@ -151,7 +170,18 @@ export const MessageItem = () => {
                 messageId={extraData.discordMessageId}
                 content={hasTextBubble ? displayContent : undefined}
                 isOwnMessage={Boolean(userId) || Boolean(fromBot)}
+                databaseMessage={message}
               />
+            </div>
+          )}
+          {!isDiscordMessage && !isDeleted && (
+            <div
+              className={cn(
+                'absolute bottom-0 z-10',
+                userId ? 'right-full mr-1' : 'left-full ml-1',
+              )}
+            >
+              <MessageActions message={message} />
             </div>
           )}
           {isDeleted && (
@@ -162,7 +192,9 @@ export const MessageItem = () => {
                   (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
               )}
             >
-              Message deleted on Discord
+              {extraData?.discordDeletedAt
+                ? 'Message deleted on Discord'
+                : 'Internal note deleted'}
               {separateNext && (
                 <div className="mt-1 text-xs not-italic">
                   <RelativeDateDisplay value={createdAt}>
@@ -187,12 +219,36 @@ export const MessageItem = () => {
               asChild
             >
               <div>
+                {replyMessage && (
+                  <div className="mb-2 border-l-2 border-current/30 pl-2 text-xs opacity-70">
+                    <div className="font-medium">Replying to</div>
+                    <div className="line-clamp-2">
+                      {messageToPlainText(replyMessage.content) || 'Message'}
+                    </div>
+                  </div>
+                )}
                 <MessageContent content={displayContent} internal={internal} />
                 {separateNext && (
-                  <div className="text-muted-foreground mt-1">
+                  <div className="mt-1 flex items-center justify-end gap-1 text-muted-foreground">
+                    {Boolean(editedAt) && <span>edited ·</span>}
+                    {Boolean(
+                      currentUserId && pinnedByIds?.includes(currentUserId),
+                    ) && (
+                      <IconPin className="size-3" aria-label="Pinned" />
+                    )}
                     <RelativeDateDisplay value={createdAt}>
                       <RelativeDateDisplay.Value value={createdAt} />
                     </RelativeDateDisplay>
+                    {Boolean(userId && !internal) && (
+                      <span className="ml-0.5 inline-flex items-center gap-0.5">
+                        {isCustomerRead ? (
+                          <IconChecks className="size-3.5 text-primary" />
+                        ) : (
+                          <IconCheck className="size-3.5" />
+                        )}
+                        <span>{isCustomerRead ? 'Seen' : 'Sent'}</span>
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -206,6 +262,7 @@ export const MessageItem = () => {
           {!isDeleted && <Attachments attachments={attachments} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
+          {!isDeleted && <MessageReactions message={message} />}
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&

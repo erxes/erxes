@@ -22,6 +22,14 @@ export default `
   messengerAppData
   botData
   extraData
+  replyToMessageId
+  reactions {
+    emoji
+    userIds
+  }
+  pinnedByIds
+  editedAt
+  deletedAt
   user {
     _id
     username
