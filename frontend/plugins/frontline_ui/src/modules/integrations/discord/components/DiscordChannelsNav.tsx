@@ -271,11 +271,7 @@ const DiscordCategoryItem = ({
   };
 
   return (
-    <Collapsible
-      className="group/category"
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Collapsible className="group/category" open={open} onOpenChange={setOpen}>
       <div className="flex items-center w-full pr-2">
         <Collapsible.Trigger asChild>
           <Button

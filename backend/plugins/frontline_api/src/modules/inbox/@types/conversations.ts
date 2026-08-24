@@ -69,9 +69,7 @@ export interface IConversationDocument extends IConversation, Document {
 }
 
 export interface IConversationListParams
-  extends IListParams,
-    ICursorPaginateParams,
-    IConversation {
+  extends IListParams, ICursorPaginateParams, IConversation {
   limit?: number;
   channelId?: string;
   status?: string;

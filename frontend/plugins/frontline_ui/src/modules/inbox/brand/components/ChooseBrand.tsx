@@ -5,7 +5,12 @@ import {
   TextOverflowTooltip,
   useMultiQueryState,
 } from 'erxes-ui';
-import { IconBuildingStore, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
+import {
+  IconBuildingStore,
+  IconCheck,
+  IconSearch,
+  IconX,
+} from '@tabler/icons-react';
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { useState, useRef, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
