@@ -5,6 +5,7 @@ import {
   IconUser,
   IconTag,
   IconFileText,
+  IconFileX,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import { TFunction } from 'i18next';
@@ -275,6 +276,21 @@ export const secondOrderColumns: (t: TFunction) => ColumnDef<IOrder>[] = (
     accessorKey: 'description',
     header: () => (
       <RecordTable.InlineHead icon={IconFileText} label="Description" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 200,
+  },
+  {
+    id: 'returnDescription',
+    accessorKey: 'returnDescription',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFileX} label="Return Description" />
     ),
     cell: ({ cell }) => {
       return (

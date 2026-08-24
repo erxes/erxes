@@ -8,22 +8,10 @@ import { usePageTrackerStore } from 'react-page-tracker';
 import { useNavigate } from 'react-router-dom';
 import { pluginsConfigState, useVersion, usePermissionCheck } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
-import { GET_SETTINGS_PATH_DATA } from '../constants/data';
-import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
-
-const SETTINGS_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
-  [SettingsWorkspacePath.Structure]: 'organization',
-  [SettingsWorkspacePath.Tags]: 'tags',
-  [SettingsWorkspacePath.Brands]: 'brands',
-  [SettingsWorkspacePath.Properties]: 'properties',
-  [SettingsWorkspacePath.Products]: 'products',
-  [SettingsWorkspacePath.Automations]: 'automations',
-  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
-  [SettingsWorkspacePath.OAuthClients]: 'apps',
-  [SettingsWorkspacePath.Permissions]: 'permissions',
-  [SettingsWorkspacePath.ApprovalRequests]: 'approval',
-};
+import {
+  GET_SETTINGS_PATH_DATA,
+  SETTINGS_PERMISSION_MAP,
+} from '../constants/data';
 
 export function SettingsSidebar({
   hideExit = false,
