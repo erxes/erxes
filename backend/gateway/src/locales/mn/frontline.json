@@ -221,6 +221,7 @@
   "conversations-resolved": "Харилцаа шийдвэрлэгдлээ",
   "resolve-all": "Бүгдийг шийдвэрлэх",
   "select-assignee": "Хариуцагч сонгох",
+  "add-tags": "Шошго нэмэх",
   "tag-updated": "Шошго шинэчлэгдлээ",
   "failed-to-update-tags": "Шошго шинэчлэхэд алдаа гарлаа",
   "open-label": "Нээлттэй",

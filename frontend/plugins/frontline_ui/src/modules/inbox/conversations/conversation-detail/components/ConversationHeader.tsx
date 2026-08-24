@@ -27,6 +27,7 @@ import {
   Button,
   Combobox,
   DropdownMenu,
+  Popover,
   PopoverScoped,
   Separator,
   Skeleton,
@@ -39,7 +40,7 @@ import { useAtomValue } from 'jotai';
 import {
   CustomersInline,
   SelectMember,
-  SelectTags,
+  TagsSelect,
   useGiveTags,
 } from 'ui-modules';
 import { ConversationTagChips } from '@/inbox/conversations/components/ConversationTagChips';
@@ -257,7 +258,6 @@ export const ConversationTags = ({
   const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
   const { giveTags } = useGiveTags();
-  const [open, setOpen] = useState(false);
 
   if (!_id) return null;
 
@@ -277,12 +277,6 @@ export const ConversationTags = ({
     },
   });
 
-  const handleTagChange = (newTagIds: string[] | string) => {
-    const ids = Array.isArray(newTagIds) ? newTagIds : [newTagIds];
-
-    setTagIds?.(ids);
-  };
-
   const handleRemoveTag = (tagId: string) => {
     const ids = tagIds.filter((id) => id !== tagId);
 
@@ -299,37 +293,37 @@ export const ConversationTags = ({
 
   return (
     <div className="flex-none">
-      <SelectTags.Provider
-        tagType="frontline:conversation"
+      <TagsSelect.Provider
+        type="frontline:conversation"
         mode="multiple"
         value={tagIds}
         targetIds={[_id]}
-        onValueChange={handleTagChange}
+        onValueChange={(newTagIds) => setTagIds?.(newTagIds)}
         options={mutationOptions}
       >
         <div className="flex gap-2 items-center">
-          <PopoverScoped open={open} onOpenChange={setOpen}>
-            <Combobox.Trigger
-              className="text-foreground shadow-none px-2"
+          <Popover.Trigger asChild>
+            <Button
+              className="shrink-0 w-min text-sm font-medium shadow-xs"
               variant="outline"
               onPointerDown={withinDropdown ? stopEventPropagation : undefined}
               onClick={withinDropdown ? stopEventPropagation : undefined}
               onKeyDown={withinDropdown ? stopEventPropagation : undefined}
             >
-              <IconTags className="size-4" />
-              {t('add-tags')}
-            </Combobox.Trigger>
-            <Combobox.Content>
-              <SelectTags.Content />
-            </Combobox.Content>
-          </PopoverScoped>
+              <IconTags className="text-lg" />
+              {t('add-tags', 'Add tags')}
+            </Button>
+          </Popover.Trigger>
           <ConversationTagChips
             tagIds={tagIds}
-            max={showAllTags ? tagIds.length : 2}
+            showAll={showAllTags}
             onRemove={handleRemoveTag}
           />
         </div>
-      </SelectTags.Provider>
+        <Combobox.Content>
+          <TagsSelect.Content />
+        </Combobox.Content>
+      </TagsSelect.Provider>
     </div>
   );
 };

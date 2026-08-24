@@ -1,20 +1,24 @@
-import { Badge, Tooltip } from 'erxes-ui';
+import { Badge, Skeleton, TextOverflowTooltip, cn } from 'erxes-ui';
 import { useGetTags } from 'ui-modules';
 
-const MAX_VISIBLE_TAGS = 3;
+const MAX_VISIBLE_TAGS = 2;
 
 export const ConversationTagChips = ({
   tagIds,
-  max = MAX_VISIBLE_TAGS,
+  showAll,
   onRemove,
 }: {
   tagIds: string[];
-  max?: number;
+  showAll?: boolean;
   onRemove?: (tagId: string) => void;
 }) => {
-  const { tags } = useGetTags({
+  const { tags, loading } = useGetTags({
     variables: { type: 'frontline:conversation' },
   });
+
+  if (loading) {
+    return tagIds.map((tagId) => <Skeleton key={tagId} className="w-8 h-4" />);
+  }
 
   const selectedTags = tagIds
     .map((tagId) => tags?.find((tag) => tag._id === tagId))
@@ -24,49 +28,38 @@ export const ConversationTagChips = ({
     return null;
   }
 
-  const visibleTags = selectedTags.slice(0, max);
-  const remainingCount = selectedTags.length - visibleTags.length;
+  const visibleTags = showAll
+    ? selectedTags
+    : selectedTags.slice(0, MAX_VISIBLE_TAGS);
+  const overflowCount = selectedTags.length - visibleTags.length;
 
   return (
-    <Tooltip.Provider>
-      <div className="flex items-center gap-1 min-w-0">
-        {visibleTags.map((tag) => (
-          <Tooltip key={tag._id} delayDuration={200}>
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="secondary"
-                className="h-5 max-w-32 px-1.5 font-normal"
-                onClose={onRemove ? () => onRemove(tag._id) : undefined}
-              >
-                <span
-                  className="size-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: tag.colorCode }}
-                />
-                <span className="truncate">{tag.name}</span>
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{tag.name}</Tooltip.Content>
-          </Tooltip>
-        ))}
-        {remainingCount > 0 && (
-          <Tooltip delayDuration={200}>
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="secondary"
-                className="h-5 shrink-0 px-1.5 font-normal"
-              >
-                +{remainingCount}
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              {selectedTags
-                .slice(max)
-                .map((tag) => tag.name)
-                .join(', ')}
-            </Tooltip.Content>
-          </Tooltip>
-        )}
-      </div>
-    </Tooltip.Provider>
+    <div
+      className={cn(
+        showAll
+          ? 'flex flex-wrap gap-2 w-full'
+          : 'flex items-center gap-1 min-w-0',
+      )}
+    >
+      {visibleTags.map((tag) => (
+        <Badge
+          key={tag._id}
+          variant="secondary"
+          className={cn(!showAll && 'max-w-24 shrink truncate')}
+          onClose={onRemove ? () => onRemove(tag._id) : undefined}
+        >
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ backgroundColor: tag.colorCode }}
+          />
+          <TextOverflowTooltip value={tag.name} />
+        </Badge>
+      ))}
+      {overflowCount > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-xs">
+          +{overflowCount}
+        </Badge>
+      )}
+    </div>
   );
 };
