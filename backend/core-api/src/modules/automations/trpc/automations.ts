@@ -82,7 +82,7 @@ export const automationsRouter = t.router({
     executionCounts: t.procedure
       .meta(
         agentMeta(
-          'Get how many times each automation has executed. Input: { automationIds: [...] } (1-100 ids, resolve them with automation.list). Returns exactly one { _id, count } row per requested id; never-executed automations report 0. Pair with automation.list for "what automations exist and how active are they" questions.',
+          'Get how many times each automation has executed. Input: { automationIds: [...] } (1-100 ids, resolve them with automation.list). Returns exactly one { _id, count } row per unique requested id (duplicates are collapsed); never-executed automations report 0. Pair with automation.list for "what automations exist and how active are they" questions.',
           { module: 'automations', action: 'automationsRead' },
         ),
       )

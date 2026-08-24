@@ -796,6 +796,9 @@ importers:
       multer:
         specifier: ^1.4.2
         version: 1.4.4
+      mongoose:
+        specifier: ^8.10.0
+        version: 8.13.2(socks@2.8.7)
       nodemailer:
         specifier: ^6.9.10
         version: 6.9.10
