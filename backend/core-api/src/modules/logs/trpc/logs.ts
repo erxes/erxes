@@ -1,4 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
+import { Types } from 'mongoose';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { agentMeta } from '~/utils/agentMeta';
@@ -33,7 +34,13 @@ export const logsRouter = t.router({
           { module: 'logs', action: 'logsRead' },
         ),
       )
-      .input(z.object({ _id: z.string() }))
+              .input(
+          z.object({
+            _id: z
+              .string()
+              .refine(Types.ObjectId.isValid, 'Invalid log id'),
+          }),
+        )
       .query(async ({ input, ctx }) => {
         const { models, userId } = ctx;
 

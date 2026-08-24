@@ -5,9 +5,6 @@ import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
-// Agent-facing list reads must stay bounded: an unbounded find can
-// materialize a whole collection in memory before the agent-tools response
-// cap is able to reject the result.
 const AGENT_LIST_DEFAULT_LIMIT = 20;
 const AGENT_LIST_MAX_LIMIT = 100;
 
@@ -19,19 +16,22 @@ export const similaritiesTrpcRouter = t.router({
         { module: 'products', action: 'productsRead' },
       ),
     )
-    .input(z.any())
+    .input(
+      z.object({
+        query: z.record(z.unknown()).optional(),
+        sort: z.record(z.union([z.literal(1), z.literal(-1)])).optional(),
+        skip: z.number().int().nonnegative().max(1_000_000).optional(),
+        limit: z.number().int().positive().max(AGENT_LIST_MAX_LIMIT).optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const { query = {}, sort = {}, skip, limit } = input || {};
+      const { query, sort, skip, limit } = input;
+      const { models } = ctx;
 
-      const safeLimit =
-        typeof limit === 'number' && Number.isFinite(limit) && limit > 0
-          ? Math.max(1, Math.min(Math.floor(limit), AGENT_LIST_MAX_LIMIT))
-          : AGENT_LIST_DEFAULT_LIMIT;
-
-      return ctx.models.ProductSimilarities.find(query)
-        .sort(sort)
+      return models.ProductSimilarities.find(query || {})
+        .sort(sort || {})
         .skip(skip || 0)
-        .limit(safeLimit)
+        .limit(limit || AGENT_LIST_DEFAULT_LIMIT)
         .lean();
     }),
 
@@ -42,9 +42,11 @@ export const similaritiesTrpcRouter = t.router({
         { module: 'products', action: 'productsRead' },
       ),
     )
-    .input(z.any())
+    .input(z.object({ _id: z.string() }))
     .query(async ({ ctx, input }) => {
-      return ctx.models.ProductSimilarities.findOne(input || {}).lean();
+      return ctx.models.ProductSimilarities.findOne({
+        _id: input._id,
+      }).lean();
     }),
 
   add: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {

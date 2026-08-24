@@ -37,14 +37,14 @@ export const automationsRouter = t.router({
     list: t.procedure
       .meta(
         agentMeta(
-          'List automations with optional filters: { status?: "draft"|"active"|"archived", searchValue? (matches name), skip?, limit? }. Returns automation summaries (name, status, triggers, timestamps), newest first. Results are capped at 100 rows (default 20). Use automation.executionCounts to see how often an automation has run.',
+          'List automations with optional filters: { status?: "draft"|"active"|"archived", searchValue? (matches name), skip?, limit? }. Returns summary rows (_id, name, status, audit timestamps and authors, tagIds), newest first. Results are capped at 100 rows (default 20). Use automation.executionCounts to see how often an automation has run.',
           { module: 'automations', action: 'automationsRead' },
         ),
       )
       .input(
         z.object({
           status: z.enum(['draft', 'active', 'archived']).optional(),
-          searchValue: z.string().optional(),
+          searchValue: z.string().max(200).optional(),
           skip: z.number().int().nonnegative().max(1_000_000).optional(),
           limit: z.number().int().positive().max(AGENT_LIST_MAX_LIMIT).optional(),
         }),
@@ -64,6 +64,15 @@ export const automationsRouter = t.router({
         }
 
         return models.Automations.find(query)
+          .select({
+            name: 1,
+            status: 1,
+            tagIds: 1,
+            createdAt: 1,
+            createdBy: 1,
+            updatedAt: 1,
+            updatedBy: 1,
+          })
           .sort({ createdAt: -1 })
           .skip(skip || 0)
           .limit(Math.min(limit || AGENT_LIST_DEFAULT_LIMIT, AGENT_LIST_MAX_LIMIT))
@@ -73,7 +82,7 @@ export const automationsRouter = t.router({
     executionCounts: t.procedure
       .meta(
         agentMeta(
-          'Get how many times each automation has executed. Input: { automationIds: [...] } (1-100 ids, resolve them with automation.list). Returns one count row per id. Pair with automation.list for "what automations exist and how active are they" questions.',
+          'Get how many times each automation has executed. Input: { automationIds: [...] } (1-100 ids, resolve them with automation.list). Returns exactly one { _id, count } row per requested id; never-executed automations report 0. Pair with automation.list for "what automations exist and how active are they" questions.',
           { module: 'automations', action: 'automationsRead' },
         ),
       )
@@ -84,10 +93,14 @@ export const automationsRouter = t.router({
       )
       .query(async ({ input, ctx }) => {
         const { models } = ctx;
+        const ids = [...new Set(input.automationIds)];
 
-        return models.AutomationExecutions.getExecutionCounts(
-          input.automationIds,
-        );
+        // getExecutionCounts returns rows only for automations with at least
+        // one root execution; normalize so every requested id gets a row.
+        const counts = await models.AutomationExecutions.getExecutionCounts(ids);
+        const countById = new Map(counts.map((row) => [row.key, row.count]));
+
+        return ids.map((id) => ({ _id: id, count: countById.get(id) ?? 0 }));
       }),
   }),
   executions: t.router({
