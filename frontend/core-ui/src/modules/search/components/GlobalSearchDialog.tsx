@@ -1,5 +1,12 @@
 import { IconX } from '@tabler/icons-react';
-import { Button, Command, Dialog, Kbd, Select, Tabs } from 'erxes-ui';
+import {
+  Button,
+  Command,
+  Dialog,
+  Kbd,
+  SearchOrderSelect,
+  Tabs,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useRef } from 'react';
 import { isMacPlatform } from '@/navigation/utils/visitedPageTabShortcuts';
@@ -435,24 +442,13 @@ export const GlobalSearchDialog = ({
             </Tabs>
 
             {isSearching && (
-              <Select
+              <SearchOrderSelect
                 value={sortOrder}
-                onValueChange={(order) =>
-                  onSortOrderChange(order as TGlobalSearchSortOrder)
-                }
-              >
-                <Select.Trigger className="mr-2 h-7 w-44 shrink-0 text-xs">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="newest">
-                    {t('newest-to-oldest', 'Newest to oldest')}
-                  </Select.Item>
-                  <Select.Item value="oldest">
-                    {t('oldest-to-newest', 'Oldest to newest')}
-                  </Select.Item>
-                </Select.Content>
-              </Select>
+                newestLabel={t('newest-to-oldest', 'Newest to oldest')}
+                oldestLabel={t('oldest-to-newest', 'Oldest to newest')}
+                triggerClassName="mr-2 h-7 w-44 shrink-0 text-xs"
+                onValueChange={onSortOrderChange}
+              />
             )}
           </div>
 

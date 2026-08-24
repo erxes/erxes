@@ -1,4 +1,5 @@
 import { NetworkStatus, useQuery } from '@apollo/client';
+import { TSearchSortOrder } from 'erxes-ui';
 
 import { GET_DEALS_SEARCH_DROPDOWN } from '@/deals/graphql/queries/DealsQueries';
 import { IDealList } from '@/deals/types/deals';
@@ -6,7 +7,7 @@ import { useCallback } from 'react';
 
 const DEALS_PER_PAGE = 20;
 
-export type TDealSearchSortOrder = 'newest' | 'oldest';
+export type TDealSearchSortOrder = TSearchSortOrder;
 
 export type TDealSearchDateRange = {
   from?: Date;

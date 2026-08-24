@@ -2,6 +2,7 @@ import {
   TSearchGroupResult,
   TSearchPageInfo,
   TSearchResultItem,
+  TSearchSortOrder,
 } from 'erxes-ui';
 
 export type TGlobalSearchCategory =
@@ -10,7 +11,7 @@ export type TGlobalSearchCategory =
   | TSearchProviderCategory
   | (string & {});
 
-export type TGlobalSearchSortOrder = 'newest' | 'oldest';
+export type TGlobalSearchSortOrder = TSearchSortOrder;
 
 export type TNavigationSearchItemCategory =
   | 'navigation'

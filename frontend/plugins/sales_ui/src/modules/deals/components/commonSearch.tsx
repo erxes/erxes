@@ -7,7 +7,7 @@ import {
   highlightMatch,
   Input,
   parseDateRangeFromString,
-  Select,
+  SearchOrderSelect,
   Skeleton,
   Tabs,
 } from 'erxes-ui';
@@ -297,24 +297,13 @@ export const CommonDealSearch = () => {
             </Tabs.List>
           </Tabs>
 
-          <Select
+          <SearchOrderSelect
             value={sortOrder}
-            onValueChange={(value) =>
-              setSortOrder(value as TDealSearchSortOrder)
-            }
-          >
-            <Select.Trigger className="mr-2 h-7 w-44 shrink-0 text-xs focus:shadow-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="newest">
-                {t('newest-to-oldest', 'Newest to oldest')}
-              </Select.Item>
-              <Select.Item value="oldest">
-                {t('oldest-to-newest', 'Oldest to newest')}
-              </Select.Item>
-            </Select.Content>
-          </Select>
+            newestLabel={t('newest-to-oldest', 'Newest to oldest')}
+            oldestLabel={t('oldest-to-newest', 'Oldest to newest')}
+            triggerClassName="mr-2 h-7 w-44 shrink-0 text-xs focus:shadow-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
+            onValueChange={setSortOrder}
+          />
         </div>
 
         <div className="max-h-[50vh] min-h-24 overflow-y-auto">
