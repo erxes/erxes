@@ -22,13 +22,22 @@ const toSettingsSearchItem = (
   destination: TSettingsDestination,
   section: string,
   settingsPrefix: string,
-): TNavigationSearchItem => ({
-  id: `go-to:settings:${destination.path.replace(/^\/+/, '')}`,
-  title: destination.name,
-  description: `${settingsPrefix} › ${section}`,
-  icon: destination.icon,
-  path: `/${AppPath.Settings}/${destination.path.replace(/^\/+/, '')}`,
-});
+): TNavigationSearchItem => {
+  const normalizedPath = destination.path.replace(/^\/+/, '');
+  const path =
+    normalizedPath === AppPath.Settings ||
+    normalizedPath.startsWith(`${AppPath.Settings}/`)
+      ? normalizedPath
+      : `${AppPath.Settings}/${normalizedPath}`;
+
+  return {
+    id: `go-to:settings:${normalizedPath}`,
+    title: destination.name,
+    description: `${settingsPrefix} › ${section}`,
+    icon: destination.icon,
+    path: `/${path}`,
+  };
+};
 
 export const useSettingsNavigationSearchItems = () => {
   const version = useVersion();
