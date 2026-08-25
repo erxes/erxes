@@ -1,23 +1,14 @@
 import {
   Button,
-  Collapsible,
   IconComponent,
   NavigationMenuGroup,
-  Sidebar,
   Skeleton,
   TextOverflowTooltip,
-  cn,
   useMultiQueryState,
 } from 'erxes-ui';
-import {
-  IconCaretRightFilled,
-  IconCheck,
-  IconMinus,
-  IconPlus,
-} from '@tabler/icons-react';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MembersInline } from 'ui-modules';
 import type { IUser } from 'ui-modules';
 
 import { ChannelScope, IChannel } from '@/channels/types';
@@ -26,12 +17,14 @@ import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegrationType';
+import type { IIntegrationType } from '@/integrations/types/Integration';
 import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
 import {
   TConversationCounts,
-  useConversationCountsByIntegrationType,
+  useAwaitingCountsByIntegrationType,
 } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
+import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
 import { NavigationGroupActions } from '@/NavigationGroupActions';
 
 /**
@@ -175,7 +168,7 @@ const TeamChannelItem = ({
   }>(['channelId', 'integrationType']);
 
   // Only the expanded channels cost a request; collapsed ones stay silent.
-  const { integrationTypes, loading, counts, awaitingCounts } =
+  const { integrationTypes, loading, awaitingCounts } =
     useChannelIntegrationTypes({ channelId: channel._id, skip: !open });
 
   const isActive = channelId === channel._id;
@@ -189,73 +182,40 @@ const TeamChannelItem = ({
   };
 
   return (
-    <Collapsible className="group/channel" open={open} onOpenChange={setOpen}>
-      <div className="flex items-center w-full">
-        <Button
-          variant={isActive ? 'secondary' : 'ghost'}
-          className={cn(
-            'justify-start gap-2 overflow-hidden text-left flex-auto min-w-0 py-2 pl-2 pr-2',
-            unreadCount === 0 && !isActive && 'text-muted-foreground',
-          )}
-          onClick={handleSelectChannel}
-        >
-          {isActive ? (
-            <IconCheck className="size-3.5 shrink-0" />
-          ) : (
-            <IconComponent
-              name={channel.icon}
-              className="size-3.5 text-accent-foreground shrink-0"
-            />
-          )}
-          <TextOverflowTooltip
-            className="flex-1 min-w-0 font-semibold"
-            value={channel.name}
-          />
-          {members.length > 0 && (
-            <MembersInline.Provider members={members} size="sm">
-              <MembersInline.Avatar size="sm" />
-            </MembersInline.Provider>
-          )}
-          {unreadCount > 0 && (
-            <span className="shrink-0 px-1 text-xs rounded-sm bg-primary text-primary-foreground tabular-nums">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-        <Collapsible.Trigger asChild>
-          <Button
-            variant="ghost"
-            className="shrink-0 size-6 p-0"
-            aria-label={channel.name}
-            aria-expanded={open}
-          >
-            <IconCaretRightFilled className="size-3 transition-transform group-data-[state=open]/channel:rotate-90 text-accent-foreground" />
-          </Button>
-        </Collapsible.Trigger>
-      </div>
-      <Collapsible.Content>
-        <Sidebar.Menu>
-          {loading && !integrationTypes.length && (
-            <Skeleton className="w-28 h-4 ml-8 my-1" />
-          )}
-          {!loading && !integrationTypes.length && (
-            <div className="text-sm text-accent-foreground ml-8 my-2">
-              {t('no-integration-found')}
-            </div>
-          )}
-          {integrationTypes.map((integrationType) => (
-            <IntegrationTypeItem
-              key={integrationType._id}
-              {...integrationType}
-              channelId={channel._id}
-              count={counts[integrationType._id] || 0}
-              awaitingCount={awaitingCounts[integrationType._id] || 0}
-              nested
-            />
-          ))}
-        </Sidebar.Menu>
-      </Collapsible.Content>
-    </Collapsible>
+    <ChannelNavItem
+      name={channel.name}
+      icon={
+        <IconComponent
+          name={channel.icon}
+          className="size-3.5 text-accent-foreground shrink-0"
+        />
+      }
+      isActive={isActive}
+      onSelect={handleSelectChannel}
+      open={open}
+      onOpenChange={setOpen}
+      unreadCount={unreadCount}
+      members={members}
+    >
+      {loading && !integrationTypes.length && (
+        <Skeleton className="w-28 h-4 ml-8 my-1" />
+      )}
+      {!loading && !integrationTypes.length && (
+        <div className="text-sm text-accent-foreground ml-8 my-2">
+          {t('no-integration-found')}
+        </div>
+      )}
+      {integrationTypes.map((integrationType) => (
+        <IntegrationTypeItem
+          key={integrationType._id}
+          {...integrationType}
+          channelId={channel._id}
+          count={integrationType.unreadConversationCount || 0}
+          awaitingCount={awaitingCounts[integrationType._id] || 0}
+          nested
+        />
+      ))}
+    </ChannelNavItem>
   );
 };
 
@@ -266,19 +226,18 @@ const useChannelIntegrationTypes = ({
   channelId: string;
   skip: boolean;
 }): {
-  integrationTypes: { _id: string; name: string }[];
+  integrationTypes: IIntegrationType[];
   loading: boolean;
-  counts: TConversationCounts;
   awaitingCounts: TConversationCounts;
 } => {
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     channelId,
     skip,
   });
-  const { counts, awaitingCounts } = useConversationCountsByIntegrationType({
+  const { awaitingCounts } = useAwaitingCountsByIntegrationType({
     channelId,
     skip,
   });
 
-  return { integrationTypes, loading, counts, awaitingCounts };
+  return { integrationTypes, loading, awaitingCounts };
 };
