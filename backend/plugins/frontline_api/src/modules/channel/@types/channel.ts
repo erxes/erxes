@@ -28,6 +28,8 @@ export interface IChannelFilter extends IChannel {
   userId: string;
   channelIds: string[];
   integrationId: string;
+  sortField?: string;
+  sortDirection?: number;
 }
 
 export enum ChannelMemberRoles {

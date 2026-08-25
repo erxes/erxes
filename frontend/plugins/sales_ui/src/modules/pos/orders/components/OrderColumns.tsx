@@ -5,6 +5,7 @@ import {
   IconUser,
   IconTag,
   IconFileText,
+  IconFileX,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import { TFunction } from 'i18next';
@@ -45,8 +46,12 @@ const getPaidAmountsMap = (
 
   return paidAmounts.reduce<Record<string, number>>((acc, item) => {
     const amount = Number(item?.amount || 0);
-    if (item?.title) acc[item.title] = (acc[item.title] || 0) + amount;
-    if (item?.type) acc[item.type] = (acc[item.type] || 0) + amount;
+    const key = item?.title || item?.type;
+
+    if (key) {
+      acc[key] = (acc[key] || 0) + amount;
+    }
+
     return acc;
   }, {});
 };
@@ -271,6 +276,21 @@ export const secondOrderColumns: (t: TFunction) => ColumnDef<IOrder>[] = (
     accessorKey: 'description',
     header: () => (
       <RecordTable.InlineHead icon={IconFileText} label="Description" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 200,
+  },
+  {
+    id: 'returnDescription',
+    accessorKey: 'returnDescription',
+    header: () => (
+      <RecordTable.InlineHead icon={IconFileX} label="Return Description" />
     ),
     cell: ({ cell }) => {
       return (

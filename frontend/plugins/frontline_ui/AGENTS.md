@@ -122,6 +122,10 @@
   count trigger — a tag icon plus placeholder, or "Tag +N" once tags are
   selected — instead of listing every selected tag inline; the board card also
   renders up to 5 tag pills with a "+N" overflow badge below the card body.
+- The ticket index favorite breadcrumb waits only while selected channel or
+  pipeline metadata is loading. A terminally missing selection falls back to
+  the tickets-only breadcrumb, while query failures render an explicit error
+  state.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,
@@ -596,6 +600,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   selected tag as a badge with no cap, which is the long-list look the ticket
   UI intentionally avoids in favor of a "Tag +N" count trigger, matching how
   Sales' `DealTagsChip` calls `TagsSelect.Trigger` with `showSelectedTagsOutside={false}`.
+- The ticket index favorite control uses selected channel and pipeline query
+  loading states for its skeleton. Missing records after those queries settle
+  are not loading states; they must leave a valid tickets-only breadcrumb.
 
 ## Validation
 

@@ -64,6 +64,8 @@ export const usePluginsNavigationGroups = () => {
       (acc, plugin) => {
         if (!plugin?.modules?.length) return acc;
 
+        if (plugin.settingsOnly) return acc;
+
         if (isLoaded && !isWildcard && !hasPluginPermission(plugin.name)) {
           return acc;
         }
@@ -72,7 +74,11 @@ export const usePluginsNavigationGroups = () => {
 
         const existingGroup = acc[groupName] || {
           contents: [],
-          defaultPath: plugin.path,
+          defaultPath:
+            plugin.navigationGroup?.defaultPath ||
+            plugin.path ||
+            plugin.modules?.[0]?.path ||
+            '',
           subGroups: [],
           modules: [],
         };
@@ -89,10 +95,18 @@ export const usePluginsNavigationGroups = () => {
 
         acc[groupName] = {
           name: groupName,
-          icon: plugin.navigationGroup?.icon || existingGroup.icon,
+          icon:
+            plugin.navigationGroup?.icon ||
+            plugin.icon ||
+            existingGroup.icon ||
+            plugin.modules?.[0]?.icon,
           contents: updatedContents,
           defaultPath:
-            plugin.navigationGroup?.defaultPath || existingGroup.defaultPath,
+            plugin.navigationGroup?.defaultPath ||
+            existingGroup.defaultPath ||
+            plugin.path ||
+            plugin.modules?.[0]?.path ||
+            '',
           subGroups: updatedSubGroups,
           modules: [...existingGroup.modules, ...(plugin.modules || [])],
           i18n: plugin.i18n || existingGroup.i18n,

@@ -4,7 +4,19 @@ export type TSearchResultItem = {
   id: string;
   title: string;
   description?: string;
+  createdAt?: string;
   path: string;
+  matchFields?: Array<{
+    label: string;
+    labelKey?: string;
+    labelNamespace?: string;
+    value: string;
+  }>;
+};
+
+export type TSearchPageInfo = {
+  hasNextPage: boolean;
+  endCursor: string | null;
 };
 
 export type TSearchSelection = {
@@ -24,6 +36,7 @@ export type TSearchGroupResult = {
   items: TSearchResultItem[];
   totalCount: number;
   countMode: 'exact' | 'approximate';
+  pageInfo: TSearchPageInfo;
 };
 
 export type TSearchProviderDefinition<TNode> = {
@@ -39,6 +52,7 @@ export type TSearchProviderDefinition<TNode> = {
   select: (payload: TSearchPayload) => {
     nodes: TNode[];
     totalCount?: number;
+    pageInfo: TSearchPageInfo;
   };
   toItem: (node: TNode) => TSearchResultItem | null;
 };
@@ -82,6 +96,7 @@ export type IUIConfig = {
   i18n?: boolean;
   i18nNamespace?: string;
   hasFloatingWidget?: boolean;
+  settingsOnly?: boolean;
   settingsNavigation?: () => React.ReactNode;
   navigationGroup?: {
     name: string;

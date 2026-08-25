@@ -1,10 +1,10 @@
-import { IconBox, IconDirections } from '@tabler/icons-react';
+import { IconDirections } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { SEARCH_PROVIDERS } from './searchProviders';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const TourismNavigation = lazy(() =>
-  import('./modules/TourismNavigation').then((module) => ({
+  import('@/TourismNavigation').then((module) => ({
     default: module.TourismNavigation,
   })),
 );
@@ -24,10 +24,15 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'tourism',
-      icon: IconBox,
-      path: 'tourism',
+      name: 'PMS',
+      icon: IconDirections,
+      path: 'tourism/pms',
       hasRelationWidget: true,
+    },
+    {
+      name: 'TMS',
+      icon: IconDirections,
+      path: 'tourism/tms',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,
