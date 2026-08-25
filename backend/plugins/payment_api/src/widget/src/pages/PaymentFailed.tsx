@@ -11,11 +11,7 @@ const PaymentFailed = () => {
     skip: !id,
   });
 
-  const handleBack = () => {
-    const redirectUri = data?.invoiceDetail?.redirectUri;
-
-    window.location.href = redirectUri || '/';
-  };
+  const redirectUri = data?.invoiceDetail?.redirectUri;
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
@@ -29,11 +25,11 @@ const PaymentFailed = () => {
         </p>
 
         <Button
-          onClick={handleBack}
+          asChild
           className="w-full"
-          disabled={loading}
+          disabled={loading || !redirectUri}
         >
-          Нүүр хуудас руу буцах
+          <a href={redirectUri || '/'}>Нүүр хуудас руу буцах</a>
         </Button>
       </div>
     </div>
