@@ -64,6 +64,7 @@ export const CONFIG: IUIConfig = {
     {
       name: 'deals',
       path: 'sales/deals',
+      hasAutomation: true,
     },
     {
       name: 'pos',
