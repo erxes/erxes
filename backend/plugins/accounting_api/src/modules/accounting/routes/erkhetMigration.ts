@@ -102,7 +102,12 @@ const validateBatch = (batch: ErkhetTransactionBatch) => {
   }
 };
 
-const uniq = (values: string[]) => [...new Set(values.filter(Boolean))];
+const normalizeSourceCode = (value?: string) =>
+  typeof value === 'string' ? value.trim() : value || '';
+
+const uniq = (values: string[]) => [
+  ...new Set(values.map((value) => normalizeSourceCode(value)).filter(Boolean)),
+];
 
 const getCodeMap = (docs: ITransaction[]) => {
   const accountCodes: string[] = [];
@@ -118,13 +123,13 @@ const getCodeMap = (docs: ITransaction[]) => {
   // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
   for (const doc of docs) {
     if (doc.branchId) {
-      branchCodes.push(doc.branchId);
+      branchCodes.push(normalizeSourceCode(doc.branchId));
     }
     if (doc.departmentId) {
-      departmentCodes.push(doc.departmentId);
+      departmentCodes.push(normalizeSourceCode(doc.departmentId));
     }
     if (doc.customerId) {
-      customerCodes.push(doc.customerId);
+      customerCodes.push(normalizeSourceCode(doc.customerId));
     }
 
     const moveInBranchId = doc.followInfos?.moveInBranchId;
@@ -135,55 +140,55 @@ const getCodeMap = (docs: ITransaction[]) => {
     const lossAccountId = doc.followInfos?.lossAccountId;
 
     if (moveInBranchId) {
-      branchCodes.push(moveInBranchId);
+      branchCodes.push(normalizeSourceCode(moveInBranchId));
     }
     if (moveInDepartmentId) {
-      departmentCodes.push(moveInDepartmentId);
+      departmentCodes.push(normalizeSourceCode(moveInDepartmentId));
     }
     if (accumulatedDepreciationAccountId) {
-      accountCodes.push(accumulatedDepreciationAccountId);
+      accountCodes.push(normalizeSourceCode(accumulatedDepreciationAccountId));
     }
     if (fixedAssetAccountId) {
-      accountCodes.push(fixedAssetAccountId);
+      accountCodes.push(normalizeSourceCode(fixedAssetAccountId));
     }
     if (lossAccountId) {
-      accountCodes.push(lossAccountId);
+      accountCodes.push(normalizeSourceCode(lossAccountId));
     }
 
     const fxaInstances =
       (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
     for (const instance of fxaInstances) {
       if (instance.fixedAssetId) {
-        fixedAssetCodes.push(instance.fixedAssetId);
+        fixedAssetCodes.push(normalizeSourceCode(instance.fixedAssetId));
       }
       if (instance.branchId) {
-        branchCodes.push(instance.branchId);
+        branchCodes.push(normalizeSourceCode(instance.branchId));
       }
       if (instance.departmentId) {
-        departmentCodes.push(instance.departmentId);
+        departmentCodes.push(normalizeSourceCode(instance.departmentId));
       }
     }
 
     for (const instanceRef of doc.extraData?.fxaInstanceIds || []) {
-      fxaInstanceRefs.push(instanceRef);
+      fxaInstanceRefs.push(normalizeSourceCode(instanceRef));
     }
 
     for (const detail of doc.details || []) {
       if (detail.accountId) {
-        accountCodes.push(detail.accountId);
+        accountCodes.push(normalizeSourceCode(detail.accountId));
       }
       if (detail.fixedAssetId) {
-        fixedAssetCodes.push(detail.fixedAssetId);
-        fixedAssetIds.push(detail.fixedAssetId);
+        fixedAssetCodes.push(normalizeSourceCode(detail.fixedAssetId));
+        fixedAssetIds.push(normalizeSourceCode(detail.fixedAssetId));
       }
       if (detail.branchId) {
-        branchCodes.push(detail.branchId);
+        branchCodes.push(normalizeSourceCode(detail.branchId));
       }
       if (detail.departmentId) {
-        departmentCodes.push(detail.departmentId);
+        departmentCodes.push(normalizeSourceCode(detail.departmentId));
       }
       if (detail.productId) {
-        productCodes.push(detail.productId);
+        productCodes.push(normalizeSourceCode(detail.productId));
       }
     }
   }
@@ -497,11 +502,11 @@ const findOrCreateContact = async ({
 };
 
 const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
-  const accountCode = detail.accountId;
-  const branchCode = detail.branchId;
-  const productCode = detail.productId;
-  const departmentCode = detail.departmentId;
-  const fixedAssetCode = detail.fixedAssetId;
+  const accountCode = normalizeSourceCode(detail.accountId);
+  const branchCode = normalizeSourceCode(detail.branchId);
+  const productCode = normalizeSourceCode(detail.productId);
+  const departmentCode = normalizeSourceCode(detail.departmentId);
+  const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
 
   // Detail дээр байгаа account/product/fixedAsset/branch/department нь
   // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
@@ -552,9 +557,9 @@ const resolveFxaInstances = (
   maps: TReferenceMaps,
 ) =>
   instances.map((instance) => {
-    const fixedAssetCode = instance.fixedAssetId;
-    const branchCode = instance.branchId;
-    const departmentCode = instance.departmentId;
+    const fixedAssetCode = normalizeSourceCode(instance.fixedAssetId);
+    const branchCode = normalizeSourceCode(instance.branchId);
+    const departmentCode = normalizeSourceCode(instance.departmentId);
 
     // fxaIncome үед Erkhet income_info нь erxes instance болж үүснэ.
     // fixedAssetId/branchId/departmentId нь мөн source code тул энд resolve хийнэ.
@@ -594,7 +599,7 @@ const resolveFxaInstanceIds = (
   // Нэг ижил income_info code олон ширхэгээр задарсан байж болох тул detail.count
   // дарааллаар instance reference-үүдийг тааруулж, давхардсан code бүрийг нэг нэгээр хэрэглэнэ.
   const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
-    const fixedAssetCode = detail.fixedAssetId;
+    const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
     const fixedAssetId = fixedAssetCode
       ? maps.fixedAssetsByCode[fixedAssetCode] || fixedAssetCode
       : undefined;
@@ -602,7 +607,9 @@ const resolveFxaInstanceIds = (
 
     return Array.from({ length: count }, () => fixedAssetId);
   });
-  return refs.map((ref, index) => {
+  return refs.map((rawRef, index) => {
+    const ref = normalizeSourceCode(rawRef);
+
     if (maps.fxaInstanceIdsById[ref]) {
       return ref;
     }
@@ -722,12 +729,16 @@ const resolveTransactionFollowInfos = (
   doc: ITransaction,
   maps: TReferenceMaps,
 ) => {
-  const moveInBranchCode = doc.followInfos?.moveInBranchId;
-  const moveInDepartmentCode = doc.followInfos?.moveInDepartmentId;
+  const moveInBranchCode = normalizeSourceCode(doc.followInfos?.moveInBranchId);
+  const moveInDepartmentCode = normalizeSourceCode(
+    doc.followInfos?.moveInDepartmentId,
+  );
   const accumulatedDepreciationAccountCode =
-    doc.followInfos?.accumulatedDepreciationAccountId;
-  const fixedAssetAccountCode = doc.followInfos?.fixedAssetAccountId;
-  const lossAccountCode = doc.followInfos?.lossAccountId;
+    normalizeSourceCode(doc.followInfos?.accumulatedDepreciationAccountId);
+  const fixedAssetAccountCode = normalizeSourceCode(
+    doc.followInfos?.fixedAssetAccountId,
+  );
+  const lossAccountCode = normalizeSourceCode(doc.followInfos?.lossAccountId);
 
   // fxaOut/fxaMove-ийн дагалдах данс, шилжих салбар/хэлтэс нь transaction root
   // биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж journal handler-т өгнө.
@@ -801,9 +812,9 @@ const normalizeBatchDocs = async (
   }
 
   return Promise.all(batch.trDocs.map(async (doc) => {
-    const customerCode = doc.customerId;
-    const branchCode = doc.branchId;
-    const departmentCode = doc.departmentId;
+    const customerCode = normalizeSourceCode(doc.customerId);
+    const branchCode = normalizeSourceCode(doc.branchId);
+    const departmentCode = normalizeSourceCode(doc.departmentId);
 
     const contact = customerCode ? contactByCode[customerCode] : undefined;
     const fxaInstances =

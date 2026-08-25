@@ -125,6 +125,27 @@ const buildDefaultIncomeInputs = async (
   return result;
 };
 
+const shouldPersistIncomeInstanceInputs = (
+  transaction: ITransactionDocument,
+  hadExplicitInputs: boolean,
+) => {
+  const extraData = transaction.extraData || {};
+
+  // Erkhet opening migration дээр instance identity source талд байхгүй.
+  // Иймээс count-аар auto үүсгэсэн олон мянган input-ийг transaction дээр
+  // буцааж хадгалбал Mongo document limit давна. Instance/log нь тусдаа
+  // collection-д бүртгэгдсэн тул opening үед array хадгалах шаардлагагүй.
+  if (
+    extraData.migrationSource === 'erkhet' &&
+    extraData.migrationMode === 'opening' &&
+    !hadExplicitInputs
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
 const getInputDetailId = (input: TFxaInstanceInput) =>
   input.transactionDetailId || '';
 
@@ -528,6 +549,7 @@ export const syncFxaIncomeInstances = async (
   userId: string,
   transaction: ITransactionDocument,
 ) => {
+  const hadExplicitInputs = getFxaInstanceInputs(transaction).length > 0;
   const inputs = await buildDefaultIncomeInputs(models, transaction);
   const removedInstanceIds = await matchFxaIncomeInputsToExisting(
     models,
@@ -604,13 +626,21 @@ export const syncFxaIncomeInstances = async (
     userId,
   });
 
-  transaction.extraData = {
-    ...transaction.extraData,
-    fxaInstances: inputs,
-  };
+  if (shouldPersistIncomeInstanceInputs(transaction, hadExplicitInputs)) {
+    transaction.extraData = {
+      ...transaction.extraData,
+      fxaInstances: inputs,
+    };
+
+    await models.Transactions.updateOne(
+      { _id: transaction._id },
+      { $set: { 'extraData.fxaInstances': inputs } },
+    );
+    return;
+  }
 
   await models.Transactions.updateOne(
     { _id: transaction._id },
-    { $set: { 'extraData.fxaInstances': inputs } },
+    { $unset: { 'extraData.fxaInstances': '' } },
   );
 };
