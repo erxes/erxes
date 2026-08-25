@@ -20,7 +20,10 @@ export const PropertyFormSelectFields = ({
     : 0;
 
   const setOptions = (next: NonNullable<IPropertyForm['options']>) =>
-    form.setValue('options', next, { shouldDirty: true });
+    form.setValue('options', next, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
 
   if (!['multiSelect', 'select', 'check', 'radio'].includes(type)) {
     return <></>;
