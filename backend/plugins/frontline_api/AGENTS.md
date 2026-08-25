@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-24`
 
 ## Scope
 
@@ -868,6 +868,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-24` — Ticket exposes only its status change log
+
+- **Summary:** `Ticket.statusChangeLog` returns the ticket's `STATUS`/`CHANGED`
+  activities, oldest first and lean, so the report list can derive status
+  timings without pulling every activity module and its metadata for every row.
+- **Affected areas:**
+  `src/modules/ticket/graphql/schemas/ticket.ts`,
+  `src/modules/ticket/graphql/resolvers/customResolvers/status.ts`.
+- **Contracts changed:** `Ticket` gained `statusChangeLog: [TicketActivity]`.
+  The unreleased, unfiltered `Ticket.activityLog` field it replaces is gone;
+  `getTicketActivities` still serves the full per-ticket activity feed.
+
 ### `2026-08-21` — A forwarded call stays one conversation
 
 - **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
@@ -1036,21 +1048,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
   types, and five `reportFacebook*` queries; `TicketReportFilter`,
   `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.

@@ -4,6 +4,7 @@ import {
   Button,
   RecordTable,
   RecordTableInlineCell,
+  Tooltip,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useTicketList, TicketListItem } from '@/report/hooks/useTicketList';
@@ -27,8 +28,32 @@ import { ReportChartActions } from '../report-chart/ReportChartActions';
 import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
 import { ReportChart } from '@/report/types';
 import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
+import {
+  formatDays,
+  formatElapsedTime,
+  formatTimestamp,
+  getAverageStatusUpdateTime,
+  getDaysToFinalStatus,
+} from '@/report/utils/ticketMetrics';
 
 const PER_PAGE = 10;
+
+const TranslatedHeader = ({
+  i18nKey,
+  prefix,
+}: {
+  i18nKey: string;
+  prefix?: string;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <span>
+      {prefix}
+      {t(i18nKey)}
+    </span>
+  );
+};
 
 interface TicketListProps {
   title: string;
@@ -245,23 +270,25 @@ const TicketListTable = memo(function TicketListTable({
   tickets: TicketListItem[];
 }) {
   return (
-    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider
-        data={tickets}
-        columns={ticketListColumns}
-        className="m-3"
-        tableId="frontline_ticket_report_record_table"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
-    </div>
+    <Tooltip.Provider>
+      <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
+        <RecordTable.Provider
+          data={tickets}
+          columns={ticketListColumns}
+          className="m-3"
+          tableId="frontline_ticket_report_record_table"
+        >
+          <RecordTable.Scroll>
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                <RecordTable.RowList />
+              </RecordTable.Body>
+            </RecordTable>
+          </RecordTable.Scroll>
+        </RecordTable.Provider>
+      </div>
+    </Tooltip.Provider>
   );
 });
 
@@ -293,8 +320,9 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
     header: 'Status',
     accessorKey: 'status',
     size: 160,
-    cell: ({ cell }) => {
+    cell: ({ cell, row }) => {
       const status = cell.getValue<TicketListItem['status']>();
+      const statusChangedDate = row.original.statusChangedDate;
 
       if (!status) {
         return (
@@ -306,24 +334,64 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
 
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge
-            variant="secondary"
-            className="text-xs gap-1 max-w-40 truncate"
-            style={{
-              backgroundColor: status.color ? `${status.color}1a` : undefined,
-              color: status.color,
-            }}
-          >
-            <StatusInlineIcon
-              statusType={status.type}
-              color={status.color}
-              className="size-3"
-            />
-            <span className="truncate">{status.name}</span>
-          </Badge>
+          <Tooltip delayDuration={200}>
+            <Tooltip.Trigger asChild>
+              <Badge
+                variant="secondary"
+                className="text-xs gap-1 max-w-40 truncate cursor-default"
+                style={{
+                  backgroundColor: status.color
+                    ? `${status.color}1a`
+                    : undefined,
+                  color: status.color,
+                }}
+              >
+                <StatusInlineIcon
+                  statusType={status.type}
+                  color={status.color}
+                  className="size-3"
+                />
+                <span className="truncate">{status.name}</span>
+              </Badge>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              {formatTimestamp(statusChangedDate)}
+            </Tooltip.Content>
+          </Tooltip>
         </RecordTableInlineCell>
       );
     },
+  },
+  {
+    id: 'statusChangedDate',
+    header: () => <TranslatedHeader i18nKey="updated-at-label" />,
+    accessorKey: 'statusChangedDate',
+    size: 145,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-xs text-muted-foreground">
+        {formatTimestamp(cell.getValue<string | undefined>())}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'averageStatusUpdateTime',
+    header: () => <TranslatedHeader prefix="Avg. " i18nKey="duration" />,
+    size: 120,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="text-xs text-muted-foreground">
+        {formatElapsedTime(getAverageStatusUpdateTime(row.original))}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'daysToFinalStatus',
+    header: () => <TranslatedHeader i18nKey="days" />,
+    size: 110,
+    cell: ({ row }) => (
+      <RecordTableInlineCell className="text-xs text-muted-foreground">
+        {formatDays(getDaysToFinalStatus(row.original))}
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'state',

@@ -1,6 +1,12 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TICKET_LIST } from '@/report/graphql/queries/getTicketChart';
 
+interface TicketStatusActivity {
+  _id: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface TicketListItem {
   _id: string;
   name: string;
@@ -15,10 +21,12 @@ export interface TicketListItem {
   priority: number;
   assigneeId: string;
   createdAt: string;
+  statusChangedDate?: string;
   targetDate?: string;
   startDate?: string;
   tagIds?: string[];
   pipelineId?: string;
+  statusChangeLog?: TicketStatusActivity[];
 }
 
 interface TicketListResult {

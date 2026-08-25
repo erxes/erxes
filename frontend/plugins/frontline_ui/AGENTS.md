@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-24`
 
 ## Scope
 
@@ -637,14 +637,20 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
+### `2026-08-24` — Ticket list reports status timings
 
-- **Summary:** The ticket index favorite control now stops loading when a
-  selected channel or pipeline is not found, falls back to the tickets-only
-  breadcrumb, and renders query failures explicitly.
-- **Affected areas:** `src/pages/TicketIndexPage.tsx`,
-  `src/modules/channels/hooks/useGetChannels.tsx`.
-- **Contracts changed:** None.
+- **Summary:** The report ticket list adds a status changed-at column, an
+  average time between status changes, and days to a final status
+  (resolved / closed / cancelled), plus the changed-at date in a tooltip on the
+  status badge. The derivations live in `report/utils/ticketMetrics.ts`, not in
+  the table component.
+- **Affected areas:**
+  `src/modules/report/utils/ticketMetrics.ts` (new),
+  `src/modules/report/components/ticket-charts/TicketList.tsx`,
+  `src/modules/report/graphql/queries/getTicketChart.ts`,
+  `src/modules/report/hooks/useTicketList.ts`.
+- **Contracts changed:** `GET_TICKET_LIST` now selects `statusChangedDate` and
+  `statusChangeLog { _id createdAt updatedAt }` from `Ticket`.
 
 ### `2026-08-20` — Date filter takes a time of day
 
