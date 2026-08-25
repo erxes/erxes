@@ -75,14 +75,8 @@ export const GET_TICKET_LIST = gql`
         startDate
         tagIds
         pipelineId
-        activityLog {
+        statusChangeLog {
           _id
-          action
-          module
-          metadata {
-            newValue
-            previousValue
-          }
           createdAt
           updatedAt
         }

@@ -28,138 +28,29 @@ import { ReportChartActions } from '../report-chart/ReportChartActions';
 import { useTicketChartCard } from '@/report/hooks/useTicketChartCard';
 import { ReportChart } from '@/report/types';
 import { TICKET_CHART_TYPES } from '@/report/types/component-registry';
-import { TICKET_STATUS_TYPES } from '@/status/constants';
+import {
+  formatDays,
+  formatElapsedTime,
+  formatTimestamp,
+  getAverageStatusUpdateTime,
+  getDaysToFinalStatus,
+} from '@/report/utils/ticketMetrics';
 
 const PER_PAGE = 10;
-const MILLISECONDS_PER_MINUTE = 60 * 1000;
-const MINUTES_PER_HOUR = 60;
-const HOURS_PER_DAY = 24;
-const MILLISECONDS_PER_DAY =
-  MILLISECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
-const FINAL_STATUS_TYPES = new Set<number>([
-  TICKET_STATUS_TYPES.RESOLVED,
-  TICKET_STATUS_TYPES.CLOSED,
-  TICKET_STATUS_TYPES.CANCELLED,
-]);
 
-const toTimestamp = (value?: string): number | undefined => {
-  if (!value) {
-    return undefined;
-  }
-
-  const timestamp = new Date(value).getTime();
-  return Number.isNaN(timestamp) ? undefined : timestamp;
-};
-
-const formatTimestamp = (value?: string): string => {
-  const timestamp = toTimestamp(value);
-  return timestamp === undefined
-    ? '—'
-    : formatDate(timestamp, 'dd/MM/yyyy HH:mm:ss');
-};
-
-const getStatusActivities = (ticket: TicketListItem) =>
-  ticket.activityLog
-    .filter(
-      (activity) =>
-        activity.module === 'STATUS' && activity.action === 'CHANGED',
-    )
-    .sort((first, second) => {
-      const firstTimestamp =
-        toTimestamp(first.updatedAt) ?? toTimestamp(first.createdAt) ?? 0;
-      const secondTimestamp =
-        toTimestamp(second.updatedAt) ?? toTimestamp(second.createdAt) ?? 0;
-      return firstTimestamp - secondTimestamp;
-    });
-
-const getAverageStatusUpdateTime = (
-  ticket: TicketListItem,
-): number | undefined => {
-  let previousTimestamp = toTimestamp(ticket.createdAt);
-  const durations: number[] = [];
-
-  for (const activity of getStatusActivities(ticket)) {
-    const currentTimestamp =
-      toTimestamp(activity.updatedAt) ?? toTimestamp(activity.createdAt);
-
-    if (
-      previousTimestamp !== undefined &&
-      currentTimestamp !== undefined &&
-      currentTimestamp >= previousTimestamp
-    ) {
-      durations.push(currentTimestamp - previousTimestamp);
-    }
-
-    if (currentTimestamp !== undefined) {
-      previousTimestamp = currentTimestamp;
-    }
-  }
-
-  if (!durations.length) {
-    return undefined;
-  }
-
-  return (
-    durations.reduce((total, duration) => total + duration, 0) /
-    durations.length
-  );
-};
-
-const formatElapsedTime = (milliseconds?: number): string => {
-  if (milliseconds === undefined || milliseconds < 0) {
-    return '—';
-  }
-
-  const totalMinutes = Math.round(milliseconds / MILLISECONDS_PER_MINUTE);
-  const days = Math.floor(totalMinutes / (MINUTES_PER_HOUR * HOURS_PER_DAY));
-  const hours = Math.floor(
-    (totalMinutes % (MINUTES_PER_HOUR * HOURS_PER_DAY)) / MINUTES_PER_HOUR,
-  );
-  const minutes = totalMinutes % MINUTES_PER_HOUR;
-
-  return [days ? `${days}d` : '', hours ? `${hours}h` : '', `${minutes}m`]
-    .filter(Boolean)
-    .join(' ');
-};
-
-const getDaysToFinalStatus = (ticket: TicketListItem): number | undefined => {
-  if (
-    ticket.status?.type === undefined ||
-    !FINAL_STATUS_TYPES.has(ticket.status.type)
-  ) {
-    return undefined;
-  }
-
-  const createdAt = toTimestamp(ticket.createdAt);
-  const statusChangedAt = toTimestamp(ticket.statusChangedDate);
-
-  if (createdAt === undefined || statusChangedAt === undefined) {
-    return undefined;
-  }
-
-  return Math.max(0, (statusChangedAt - createdAt) / MILLISECONDS_PER_DAY);
-};
-
-const formatDays = (days?: number): string => {
-  if (days === undefined) {
-    return '—';
-  }
-
-  return `${Number(days.toFixed(1))}d`;
-};
-
-const TicketMetricHeader = ({
-  translationKey,
+const TranslatedHeader = ({
+  i18nKey,
   prefix,
 }: {
-  translationKey: 'updated-at-label' | 'duration' | 'days';
+  i18nKey: string;
   prefix?: string;
 }) => {
   const { t } = useTranslation('frontline');
+
   return (
     <span>
       {prefix}
-      {t(translationKey)}
+      {t(i18nKey)}
     </span>
   );
 };
@@ -473,23 +364,18 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'statusChangedDate',
-    header: () => <TicketMetricHeader translationKey="updated-at-label" />,
+    header: () => <TranslatedHeader i18nKey="updated-at-label" />,
     accessorKey: 'statusChangedDate',
     size: 145,
-    cell: ({ cell }) => {
-      const statusChangedDate = cell.getValue() as string | undefined;
-      return (
-        <RecordTableInlineCell className="text-xs text-muted-foreground">
-          {formatTimestamp(statusChangedDate)}
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => (
+      <RecordTableInlineCell className="text-xs text-muted-foreground">
+        {formatTimestamp(cell.getValue<string | undefined>())}
+      </RecordTableInlineCell>
+    ),
   },
   {
     id: 'averageStatusUpdateTime',
-    header: () => (
-      <TicketMetricHeader prefix="Avg. " translationKey="duration" />
-    ),
+    header: () => <TranslatedHeader prefix="Avg. " i18nKey="duration" />,
     size: 120,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">
@@ -499,7 +385,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'daysToFinalStatus',
-    header: () => <TicketMetricHeader translationKey="days" />,
+    header: () => <TranslatedHeader i18nKey="days" />,
     size: 110,
     cell: ({ row }) => (
       <RecordTableInlineCell className="text-xs text-muted-foreground">

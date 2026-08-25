@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-20`
+- **Last synchronized:** `2026-08-24`
 
 ## Scope
 
@@ -630,6 +630,21 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-24` — Ticket list reports status timings
+
+- **Summary:** The report ticket list adds a status changed-at column, an
+  average time between status changes, and days to a final status
+  (resolved / closed / cancelled), plus the changed-at date in a tooltip on the
+  status badge. The derivations live in `report/utils/ticketMetrics.ts`, not in
+  the table component.
+- **Affected areas:**
+  `src/modules/report/utils/ticketMetrics.ts` (new),
+  `src/modules/report/components/ticket-charts/TicketList.tsx`,
+  `src/modules/report/graphql/queries/getTicketChart.ts`,
+  `src/modules/report/hooks/useTicketList.ts`.
+- **Contracts changed:** `GET_TICKET_LIST` now selects `statusChangedDate` and
+  `statusChangeLog { _id createdAt updatedAt }` from `Ticket`.
+
 ### `2026-08-20` — Date filter takes a time of day
 
 - **Summary:** "Custom range…" now opens a plugin-owned dialog — a two-month
@@ -765,15 +780,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/facebook/hooks/useFbIntegrationsRepair.tsx`.
 - **Contracts changed:** None; the `FacebookRepair` mutation and its variables
   are unchanged.
-
-### `2026-08-19` — Health status tooltip on the integrations table
-
-- **Summary:** The integrations table's health status badge now shows the
-  provider error message returned with `healthStatus` in a tooltip on hover, so
-  an unhealthy integration (for example a `page-token` Facebook page) explains
-  why it failed without opening anything else.
-- **Affected areas:**
-  `src/modules/integrations/components/IntegrationsRecordTable.tsx`,
-  `src/modules/integrations/types/Integration.ts`.
-- **Contracts changed:** None; reads the already-returned optional `error`
-  field inside the `healthStatus` JSON of the `Integrations` query.

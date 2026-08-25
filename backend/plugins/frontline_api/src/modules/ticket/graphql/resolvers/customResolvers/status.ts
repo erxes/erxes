@@ -2,12 +2,18 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 export const Ticket = {
-  async activityLog(
+  async statusChangeLog(
     { _id }: { _id: string },
     _params: undefined,
     { models }: IContext,
   ) {
-    return models.Activity.find({ contentId: _id }).sort({ createdAt: 1 });
+    return models.Activity.find({
+      contentId: _id,
+      module: 'STATUS',
+      action: 'CHANGED',
+    })
+      .sort({ createdAt: 1 })
+      .lean();
   },
   async status({ statusId }, _params, { models }: IContext) {
     if (!statusId) {
