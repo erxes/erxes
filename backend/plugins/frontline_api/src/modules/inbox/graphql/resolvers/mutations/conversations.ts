@@ -792,49 +792,6 @@ export const conversationMutations = {
     return updatedMessage;
   },
 
-  async conversationMessageReactionToggle(
-    _root,
-    { _id, emoji }: { _id: string; emoji: string },
-    { user, models }: IContext,
-  ) {
-    const normalizedEmoji = emoji.trim();
-
-    if (!normalizedEmoji || normalizedEmoji.length > 16) {
-      throw new Error('Choose a valid reaction');
-    }
-
-    const message = await models.ConversationMessages.getMessage(_id);
-
-    if (message.deletedAt) {
-      throw new Error('You cannot react to a deleted message');
-    }
-
-    const reactions = (message.reactions || []).map((reaction) => ({
-      emoji: reaction.emoji,
-      userIds: [...reaction.userIds],
-    }));
-    const reaction = reactions.find(
-      (item) => item.emoji === normalizedEmoji,
-    );
-
-    if (reaction) {
-      reaction.userIds = reaction.userIds.includes(user._id)
-        ? reaction.userIds.filter((userId) => userId !== user._id)
-        : [...reaction.userIds, user._id];
-    } else {
-      reactions.push({ emoji: normalizedEmoji, userIds: [user._id] });
-    }
-
-    await models.ConversationMessages.updateOne(
-      { _id },
-      { $set: { reactions: reactions.filter(({ userIds }) => userIds.length) } },
-    );
-
-    const publishedMessage = await models.ConversationMessages.getMessage(_id);
-    await publishMessage(models, publishedMessage);
-    return publishedMessage;
-  },
-
   async conversationMessagePinToggle(
     _root,
     { _id }: { _id: string },

@@ -78,6 +78,17 @@ const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
       : block,
   );
 
+const ATTACHMENT_BLOCK_TYPES = new Set([
+  'image',
+  'video',
+  'audio',
+  'file',
+  'gallery',
+]);
+
+const excludeAttachmentBlocks = (blocks?: Block[]) =>
+  blocks?.filter((block) => !ATTACHMENT_BLOCK_TYPES.has(block.type));
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -382,11 +393,14 @@ export const MessageInput = ({
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
 
+    const contentWithoutAttachments = excludeAttachmentBlocks(content);
     const outgoingBlocks =
-      isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
+      isDiscord && !isInternalNote
+        ? encodeDiscordMentions(contentWithoutAttachments)
+        : contentWithoutAttachments;
 
     const sendContent = isInternalNote
-      ? JSON.stringify(content)
+      ? JSON.stringify(contentWithoutAttachments)
       : await editor?.blocksToHTMLLossy(outgoingBlocks);
 
     const blockAttachments = getBlockAttachments(content || []);

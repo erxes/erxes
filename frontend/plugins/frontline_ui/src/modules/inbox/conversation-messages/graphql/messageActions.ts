@@ -11,10 +11,6 @@ const MESSAGE_ACTION_FIELDS = `
   createdAt
   isCustomerRead
   replyToMessageId
-  reactions {
-    emoji
-    userIds
-  }
   pinnedByIds
   editedAt
   deletedAt
@@ -35,17 +31,6 @@ export const FRONTLINE_CONVERSATION_MESSAGE_EDIT = gql`
 export const FRONTLINE_CONVERSATION_MESSAGE_REMOVE = gql`
   mutation FrontlineConversationMessageRemove($_id: String!) {
     conversationMessageRemove(_id: $_id) {
-      ${MESSAGE_ACTION_FIELDS}
-    }
-  }
-`;
-
-export const FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE = gql`
-  mutation FrontlineConversationMessageReactionToggle(
-    $_id: String!
-    $emoji: String!
-  ) {
-    conversationMessageReactionToggle(_id: $_id, emoji: $emoji) {
       ${MESSAGE_ACTION_FIELDS}
     }
   }

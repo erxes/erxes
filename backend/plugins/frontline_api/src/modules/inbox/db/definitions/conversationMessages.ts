@@ -26,14 +26,6 @@ export const engageDataSchema = new Schema(
   { _id: false },
 );
 
-const messageReactionSchema = new Schema(
-  {
-    emoji: { type: String, required: true },
-    userIds: { type: [String], default: [] },
-  },
-  { _id: false },
-);
-
 export const messageSchema = new Schema({
   _id: mongooseStringRandomId,
   content: { type: String, optional: true },
@@ -59,7 +51,6 @@ export const messageSchema = new Schema({
   // Discord rich content (e.g. `{ poll }`), extensible to embeds/stickers.
   extraData: { type: Object },
   replyToMessageId: { type: String },
-  reactions: { type: [messageReactionSchema], default: [] },
   pinnedByIds: { type: [String], default: [] },
   editedAt: { type: Date },
   deletedAt: { type: Date },

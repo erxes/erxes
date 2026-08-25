@@ -37,11 +37,6 @@ export const permissions: IPermissionConfig = {
           description: 'Remove own internal notes',
         },
         {
-          title: 'React to message',
-          name: 'conversationMessageReactionToggle',
-          description: 'Add or remove a reaction on a message',
-        },
-        {
           title: 'Pin message',
           name: 'conversationMessagePinToggle',
           description: 'Pin or unpin a conversation message',
@@ -342,7 +337,6 @@ export const permissions: IPermissionConfig = {
             'conversationMessageAdd',
             'conversationMessageEdit',
             'conversationMessageRemove',
-            'conversationMessageReactionToggle',
             'conversationMessagePinToggle',
             'conversationsAssign',
             'conversationsUnassign',
@@ -450,7 +444,6 @@ export const permissions: IPermissionConfig = {
             'conversationMessageAdd',
             'conversationMessageEdit',
             'conversationMessageRemove',
-            'conversationMessageReactionToggle',
             'conversationMessagePinToggle',
             'conversationsAssign',
             'conversationsChangeStatus',

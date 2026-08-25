@@ -58,11 +58,6 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
-export interface IMessageReaction {
-  emoji: string;
-  userIds: string[];
-}
-
 export interface IMessage {
   _id: string;
   conversationId?: string;
@@ -84,7 +79,6 @@ export interface IMessage {
   fromBot?: boolean;
   isCustomerRead?: boolean;
   replyToMessageId?: string;
-  reactions?: IMessageReaction[];
   pinnedByIds?: string[];
   editedAt?: string;
   deletedAt?: string;

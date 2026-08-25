@@ -23,10 +23,6 @@ export default `
   botData
   extraData
   replyToMessageId
-  reactions {
-    emoji
-    userIds
-  }
   pinnedByIds
   editedAt
   deletedAt

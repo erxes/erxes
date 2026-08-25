@@ -5,7 +5,7 @@ import { currentUserState } from 'ui-modules';
 import {
   CONVERSATION_COUNTS,
   CONVERSATION_FILTER_COUNTS,
-  INBOX_NEW_CONVERSATION_COUNT,
+  INBOX_UNREAD_CONVERSATION_COUNT,
   INBOX_SIDEBAR_WORK_COUNTS,
 } from '@/inbox/conversations/graphql/queries/getConversationCounts';
 import { CONVERSATION_CLIENT_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
@@ -167,11 +167,11 @@ export const useInboxWorkCounts = () => {
   };
 };
 
-export const useInboxNewConversationCount = () => {
+export const useInboxUnreadConversationCount = () => {
   const userId = useAtomValue(currentUserState)?._id;
   const { data, loading, refetch } = useQuery<{
     conversationsTotalCount?: number;
-  }>(INBOX_NEW_CONVERSATION_COUNT, {
+  }>(INBOX_UNREAD_CONVERSATION_COUNT, {
     fetchPolicy: 'cache-and-network',
   });
 

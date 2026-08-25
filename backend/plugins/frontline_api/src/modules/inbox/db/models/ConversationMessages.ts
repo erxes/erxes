@@ -38,7 +38,6 @@ export const loadClass = (models: IModels) => {
         throw new Error('Conversation message not found');
       }
 
-      message.reactions = message.reactions || [];
       message.pinnedByIds = message.pinnedByIds || [];
 
       return message;

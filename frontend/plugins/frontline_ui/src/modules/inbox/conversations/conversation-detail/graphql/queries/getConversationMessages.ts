@@ -7,7 +7,6 @@ export const GET_CONVERSATION_MESSAGES = gql`
     $skip: Int
     $limit: Int
     $getFirst: Boolean
-    $searchValue: String
     $pinnedOnly: Boolean
   ) {
     conversationMessages(
@@ -15,7 +14,6 @@ export const GET_CONVERSATION_MESSAGES = gql`
       skip: $skip
       limit: $limit
       getFirst: $getFirst
-      searchValue: $searchValue
       pinnedOnly: $pinnedOnly
     ) {
       _id
@@ -33,17 +31,12 @@ export const GET_CONVERSATION_MESSAGES = gql`
       fromBot
       botData
       replyToMessageId
-      reactions {
-        emoji
-        userIds
-      }
       pinnedByIds
       editedAt
       deletedAt
     }
     conversationMessagesTotalCount(
       conversationId: $conversationId
-      searchValue: $searchValue
       pinnedOnly: $pinnedOnly
     )
   }

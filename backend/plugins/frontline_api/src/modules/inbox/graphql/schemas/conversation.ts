@@ -80,7 +80,6 @@ export const types = `
     messengerAppData: JSON
     extraData: JSON
     replyToMessageId: String
-    reactions: [ConversationMessageReaction!]!
     pinnedByIds: [String!]!
     editedAt: Date
     deletedAt: Date
@@ -89,11 +88,6 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
-  }
-
-  type ConversationMessageReaction {
-    emoji: String!
-    userIds: [String!]!
   }
 
   type Email {
@@ -247,13 +241,11 @@ export const queries = `
     skip: Int
     limit: Int
     getFirst: Boolean
-    searchValue: String
     pinnedOnly: Boolean
   ): [ConversationMessage]
 
   conversationMessagesTotalCount(
     conversationId: String!
-    searchValue: String
     pinnedOnly: Boolean
   ): Int
   conversationCounts(${filterParams}, only: String): JSON
@@ -287,10 +279,6 @@ export const mutations = `
     extraInfo: JSON
   ): ConversationMessage
   conversationMessageRemove(_id: String!): ConversationMessage
-  conversationMessageReactionToggle(
-    _id: String!
-    emoji: String!
-  ): ConversationMessage
   conversationMessagePinToggle(_id: String!): ConversationMessage
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]

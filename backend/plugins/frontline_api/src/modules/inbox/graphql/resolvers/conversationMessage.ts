@@ -1,13 +1,6 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 
 export default {
-  reactions(message: IMessageDocument) {
-    return (message.reactions || []).map((reaction) => ({
-      emoji: reaction.emoji,
-      userIds: reaction.userIds || [],
-    }));
-  },
-
   pinnedByIds(message: IMessageDocument) {
     return message.pinnedByIds || [];
   },

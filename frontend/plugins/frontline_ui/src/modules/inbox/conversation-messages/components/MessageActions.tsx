@@ -2,7 +2,6 @@ import { useMutation } from '@apollo/client';
 import {
   IconArrowBackUp,
   IconCopy,
-  IconMoodPlus,
   IconPencil,
   IconPhoto,
   IconPin,
@@ -14,7 +13,6 @@ import { useCallback, useState, type ComponentType } from 'react';
 import {
   Button,
   Dialog,
-  Popover,
   Textarea,
   Tooltip,
   cn,
@@ -27,18 +25,87 @@ import { currentUserState } from 'ui-modules';
 import {
   FRONTLINE_CONVERSATION_MESSAGE_EDIT,
   FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
-  FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE,
   FRONTLINE_CONVERSATION_MESSAGE_REMOVE,
 } from '@/inbox/conversation-messages/graphql/messageActions';
-import { IMessage, IMessageReaction } from '@/inbox/types/Conversation';
+import { IMessage } from '@/inbox/types/Conversation';
 import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
 
-const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢'];
+type JsonRecord = Record<string, unknown>;
+
+const isJsonRecord = (value: unknown): value is JsonRecord =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const inlineContentToText = (value: unknown): string => {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(inlineContentToText).join('');
+  if (!isJsonRecord(value)) return '';
+  if (typeof value.text === 'string') return value.text;
+  return inlineContentToText(value.content);
+};
+
+const blockToText = (value: unknown): string => {
+  if (!isJsonRecord(value)) return inlineContentToText(value);
+
+  const content = inlineContentToText(value.content);
+  const children = Array.isArray(value.children)
+    ? value.children.map(blockToText).filter(Boolean).join('\n')
+    : '';
+
+  return [content, children].filter(Boolean).join('\n');
+};
+
+const parseBlockNoteText = (content: string) => {
+  try {
+    const parsed: unknown = JSON.parse(content);
+    if (!Array.isArray(parsed)) return null;
+    return parsed.map(blockToText).join('\n').trim();
+  } catch {
+    return null;
+  }
+};
 
 export const messageToPlainText = (content?: string) => {
   if (!content) return '';
+
+  const blockNoteText = parseBlockNoteText(content);
+  if (blockNoteText !== null) return blockNoteText;
+
   const document = new DOMParser().parseFromString(content, 'text/html');
   return (document.body.textContent || '').trim();
+};
+
+const serializeInternalNote = (text: string, originalContent?: string) => {
+  let originalBlock: JsonRecord | undefined;
+
+  try {
+    const parsed: unknown = JSON.parse(originalContent || '');
+    if (Array.isArray(parsed) && isJsonRecord(parsed[0])) {
+      originalBlock = parsed[0];
+    }
+  } catch {
+    originalBlock = undefined;
+  }
+
+  const props = isJsonRecord(originalBlock?.props)
+    ? originalBlock.props
+    : {
+        textColor: 'default',
+        backgroundColor: 'default',
+        textAlignment: 'left',
+      };
+
+  return JSON.stringify(
+    text.split('\n').map((line, index) => ({
+      id:
+        index === 0 && typeof originalBlock?.id === 'string'
+          ? originalBlock.id
+          : crypto.randomUUID(),
+      type: 'paragraph',
+      props,
+      content: [{ type: 'text', text: line, styles: {} }],
+      children: [],
+    })),
+  );
 };
 
 const convertImageToPng = async (blob: Blob) => {
@@ -85,26 +152,6 @@ export const getOptimisticMessage = (
   ...message,
   ...fields,
 });
-
-export const toggleReaction = (
-  reactions: IMessageReaction[] = [],
-  emoji: string,
-  userId: string,
-) => {
-  const next = reactions.map((reaction) => ({
-    ...reaction,
-    userIds: [...reaction.userIds],
-  }));
-  const reaction = next.find((item) => item.emoji === emoji);
-
-  if (!reaction) return [...next, { emoji, userIds: [userId] }];
-
-  reaction.userIds = reaction.userIds.includes(userId)
-    ? reaction.userIds.filter((id) => id !== userId)
-    : [...reaction.userIds, userId];
-
-  return next.filter((item) => item.userIds.length > 0);
-};
 
 export const MessageActionButton = ({
   label,
@@ -165,9 +212,6 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
   const [removeMessage] = useMutation(
     FRONTLINE_CONVERSATION_MESSAGE_REMOVE,
   );
-  const [toggleMessageReaction] = useMutation(
-    FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE,
-  );
   const [toggleMessagePin] = useMutation(
     FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
   );
@@ -193,26 +237,6 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
       toast({ title: 'Failed to copy image', variant: 'destructive' });
     }
   }, [imageAttachment]);
-
-  const handleReaction = async (emoji: string) => {
-    const reactions = toggleReaction(
-      message.reactions,
-      emoji,
-      currentUserId,
-    );
-    try {
-      await toggleMessageReaction({
-        variables: { _id: message._id, emoji },
-        optimisticResponse: {
-          conversationMessageReactionToggle: getOptimisticMessage(message, {
-            reactions,
-          }),
-        },
-      });
-    } catch {
-      toast({ title: 'Failed to update reaction', variant: 'destructive' });
-    }
-  };
 
   const handlePin = async () => {
     const pinnedByIds = isPinned
@@ -240,12 +264,16 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
       return;
     }
 
+    const storedContent = message.internal
+      ? serializeInternalNote(content, message.content)
+      : content;
+
     try {
       await editMessage({
-        variables: { _id: message._id, content },
+        variables: { _id: message._id, content: storedContent },
         optimisticResponse: {
           conversationMessageEdit: getOptimisticMessage(message, {
-            content,
+            content: storedContent,
             editedAt: new Date().toISOString(),
           }),
         },
@@ -297,31 +325,6 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
               })
             }
           />
-          <Popover>
-            <Popover.Trigger asChild>
-              <span>
-                <MessageActionButton
-                  label="Add reaction"
-                  icon={IconMoodPlus}
-                  onClick={() => undefined}
-                />
-              </span>
-            </Popover.Trigger>
-            <Popover.Content side="top" className="flex w-auto gap-1 p-1">
-              {QUICK_REACTIONS.map((emoji) => (
-                <Button
-                  key={emoji}
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-base"
-                  onClick={() => handleReaction(emoji)}
-                >
-                  {emoji}
-                </Button>
-              ))}
-            </Popover.Content>
-          </Popover>
           <MessageActionButton
             label={isPinned ? 'Unpin message' : 'Pin message'}
             icon={isPinned ? IconPinnedOff : IconPin}
@@ -388,55 +391,5 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
         </Dialog.Content>
       </Dialog>
     </>
-  );
-};
-
-export const MessageReactions = ({ message }: { message: IMessage }) => {
-  const currentUserId = useAtomValue(currentUserState)?._id || '';
-  const [toggleMessageReaction] = useMutation(
-    FRONTLINE_CONVERSATION_MESSAGE_REACTION_TOGGLE,
-  );
-
-  if (!message.reactions?.length || message.deletedAt) return null;
-
-  return (
-    <div className="mt-1 flex flex-wrap gap-1">
-      {message.reactions.map(({ emoji, userIds }) => (
-        <Button
-          key={emoji}
-          type="button"
-          variant="secondary"
-          size="sm"
-          className={cn(
-            'h-6 gap-1 rounded-full px-2 text-xs',
-            userIds.includes(currentUserId) && 'border border-primary/40',
-          )}
-          onClick={() => {
-            const reactions = toggleReaction(
-              message.reactions,
-              emoji,
-              currentUserId,
-            );
-            toggleMessageReaction({
-              variables: { _id: message._id, emoji },
-              optimisticResponse: {
-                conversationMessageReactionToggle: getOptimisticMessage(
-                  message,
-                  { reactions },
-                ),
-              },
-            }).catch(() =>
-              toast({
-                title: 'Failed to update reaction',
-                variant: 'destructive',
-              }),
-            );
-          }}
-        >
-          <span>{emoji}</span>
-          <span>{userIds.length}</span>
-        </Button>
-      ))}
-    </div>
   );
 };

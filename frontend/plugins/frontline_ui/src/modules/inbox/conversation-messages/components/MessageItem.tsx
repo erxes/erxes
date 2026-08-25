@@ -18,7 +18,6 @@ import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageE
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import {
   MessageActions,
-  MessageReactions,
   messageToPlainText,
 } from '@/inbox/conversation-messages/components/MessageActions';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
@@ -262,7 +261,6 @@ export const MessageItem = () => {
           {!isDeleted && <Attachments attachments={attachments} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
-          {!isDeleted && <MessageReactions message={message} />}
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&

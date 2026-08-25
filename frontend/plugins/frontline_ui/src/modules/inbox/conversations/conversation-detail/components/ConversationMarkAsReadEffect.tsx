@@ -7,11 +7,9 @@ export const ConversationMarkAsReadEffect = () => {
   const { markAsRead } = useConversationMarkAsRead();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      markAsRead();
-    }, 3000); // 3 seconds
+    if (!_id) return;
 
-    return () => clearTimeout(timer); // Cleanup
+    markAsRead();
   }, [_id]);
 
   return <></>;

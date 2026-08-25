@@ -44,10 +44,6 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       source
       fromBot
       replyToMessageId
-      reactions {
-        emoji
-        userIds
-      }
       pinnedByIds
       editedAt
       deletedAt

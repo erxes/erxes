@@ -15,9 +15,6 @@ export const useConversationMessages = (
 ) => {
   const { updateConversationPreview = true } = settings;
   const currentUserId = useAtomValue(currentUserState)?._id || '';
-  const searchValue = String(options.variables?.searchValue || '')
-    .trim()
-    .toLowerCase();
   const pinnedOnly = Boolean(options.variables?.pinnedOnly);
   const { data, loading, fetchMore, subscribeToMore, client } = useQuery<{
     conversationMessages: IMessage[];
@@ -76,9 +73,7 @@ export const useConversationMessages = (
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
         const matchesActiveFilters = (message: IMessage) =>
-          (!searchValue || message.content?.toLowerCase().includes(searchValue)) &&
-          (!pinnedOnly ||
-            Boolean(message.pinnedByIds?.includes(currentUserId)));
+          !pinnedOnly || Boolean(message.pinnedByIds?.includes(currentUserId));
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
         // poll's vote tallies refreshing on `extraData`). Replace the existing
@@ -149,7 +144,6 @@ export const useConversationMessages = (
     currentUserId,
     options.variables?.conversationId,
     pinnedOnly,
-    searchValue,
     subscribeToMore,
     updateConversationPreview,
   ]);

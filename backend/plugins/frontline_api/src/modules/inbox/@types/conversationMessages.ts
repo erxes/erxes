@@ -1,11 +1,6 @@
 import { Document } from 'mongoose';
 import { IAttachment } from 'erxes-api-shared/core-types';
 
-export interface IMessageReaction {
-  emoji: string;
-  userIds: string[];
-}
-
 interface IEngageDataRules {
   kind: string;
   text: string;
@@ -46,7 +41,6 @@ export interface IMessage {
   messengerAppData?: unknown;
   extraData?: Record<string, unknown>;
   replyToMessageId?: string;
-  reactions?: IMessageReaction[];
   pinnedByIds?: string[];
   editedAt?: Date;
   deletedAt?: Date;

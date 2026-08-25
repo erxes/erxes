@@ -5,12 +5,17 @@ import { currentUserState } from 'ui-modules';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { INBOX_UNREAD_CONVERSATION_COUNT } from '@/inbox/conversations/graphql/queries/getConversationCounts';
 
 type MarkConversationAsReadResponse = {
   conversationMarkAsRead: {
     _id: string;
     __typename: 'Conversation';
   };
+};
+
+type InboxUnreadCountResponse = {
+  conversationsTotalCount?: number;
 };
 
 export const useConversationMarkAsRead = () => {
@@ -28,7 +33,9 @@ export const useConversationMarkAsRead = () => {
       { id: string }
     >,
   ) => {
-    if (readUserIds?.includes(currentUser?._id || '')) {
+    const currentUserId = currentUser?._id;
+
+    if (!_id || !currentUserId || readUserIds?.includes(currentUserId)) {
       return;
     }
 
@@ -48,6 +55,7 @@ export const useConversationMarkAsRead = () => {
       refetchQueries: [
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
+        'FrontlineInboxUnreadConversationCount',
         'GetMyChannels',
       ],
       onError: (error) => {
@@ -66,7 +74,7 @@ export const useConversationMarkAsRead = () => {
             _id,
           }),
           fields: {
-            readUserIds: () => [...(readUserIds || []), currentUser?._id],
+            readUserIds: () => [...(readUserIds || []), currentUserId],
           },
         });
 
@@ -78,6 +86,22 @@ export const useConversationMarkAsRead = () => {
             }),
             fields: {
               unreadConversationCount: (count = 0) => Math.max(0, count - 1),
+            },
+          });
+        }
+
+        const unreadCount = cache.readQuery<InboxUnreadCountResponse>({
+          query: INBOX_UNREAD_CONVERSATION_COUNT,
+        });
+
+        if (typeof unreadCount?.conversationsTotalCount === 'number') {
+          cache.writeQuery<InboxUnreadCountResponse>({
+            query: INBOX_UNREAD_CONVERSATION_COUNT,
+            data: {
+              conversationsTotalCount: Math.max(
+                0,
+                unreadCount.conversationsTotalCount - 1,
+              ),
             },
           });
         }
