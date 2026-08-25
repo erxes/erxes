@@ -1,5 +1,5 @@
 import { Button, Form, InfoCard, Input } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
@@ -13,12 +13,17 @@ export const PropertyFormSelectFields = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
-  const options = (form.formState.defaultValues?.options as unknown[])?.length ?? 0;
+  const options = form.watch('options') || [];
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'options' as never,
-  });
+  const savedOptionCount = isEdit
+    ? form.formState.defaultValues?.options?.length ?? 0
+    : 0;
+
+  const setOptions = (next: NonNullable<IPropertyForm['options']>) =>
+    form.setValue('options', next, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
 
   if (!['multiSelect', 'select', 'check', 'radio'].includes(type)) {
     return <></>;
@@ -28,10 +33,10 @@ export const PropertyFormSelectFields = ({
     <InfoCard title={t('select-options', 'Select options')}>
       <InfoCard.Content>
         <div className="flex flex-col gap-3">
-          {fields.map((field, index) => {
-            const isExisting = !!isEdit && index < options;
+          {options.map((_, index) => {
+            const isExisting = index < savedOptionCount;
             return (
-            <div className="flex gap-2" key={field.id}>
+            <div className="flex gap-2" key={index}>
               <Form.Field
                 control={form.control}
                 name={`options.${index}.label`}
@@ -59,7 +64,9 @@ export const PropertyFormSelectFields = ({
                 )}
               />
               <Button
-                onClick={() => remove(index)}
+                onClick={() =>
+                  setOptions(options.filter((_, i) => i !== index))
+                }
                 variant="secondary"
                 size="icon"
                 className="mt-auto size-8"
@@ -71,7 +78,7 @@ export const PropertyFormSelectFields = ({
             );
           })}
           <Button
-            onClick={() => append({ label: '', value: '' })}
+            onClick={() => setOptions([...options, { label: '', value: '' }])}
             variant="secondary"
           >
             <IconPlus /> {t('add-option', 'Add option')}

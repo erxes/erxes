@@ -39,11 +39,11 @@ export const customerQueries: Record<
   async cpCustomers(
     _parent: undefined,
     params: ICustomerQueryFilterParams,
-    { models, subdomain }: IContext,
+    { models, subdomain, clientPortal }: IContext,
   ) {
     const filter: FilterQuery<ICustomerDocument> = await generateFilter(
       subdomain,
-      params,
+      { ...params, clientPortalId: params.clientPortalId || clientPortal?._id },
       models,
     );
 
