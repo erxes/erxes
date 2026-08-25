@@ -2,7 +2,6 @@ import { useQuery } from '@apollo/client';
 import { IconChecklist } from '@tabler/icons-react';
 import {
   Button,
-  Checkbox,
   CurrencyCode,
   CurrencyFormatedDisplay,
   Sheet,
@@ -16,18 +15,29 @@ import { FXA_INSTANCES_QUERY } from '../../graphql/queries/fixedAssets';
 import { ITransactionGroupForm, TFxaDetail } from '../../types/JournalForms';
 import { MembersInline, SelectBranches, SelectDepartments } from 'ui-modules';
 import { getFxaCodeSequence, getFxaInstanceDisplayCode } from './fxaHelpers';
+import { TrJournalEnum } from '@/transactions/types/constants';
 
 type IFxaInstance = {
   _id: string;
   fixedAssetId: string;
   code: string;
   sequence?: number;
+  count?: number;
+  currentCount?: number;
   originalCost?: number;
   accumulatedDepreciation?: number;
   bookValue?: number;
   branchId?: string;
+  currentBranchId?: string;
   departmentId?: string;
+  currentDepartmentId?: string;
   responsibleUserId?: string;
+  currentResponsibleUserId?: string;
+};
+
+type TFxaInstanceSelection = {
+  fxaInstanceId: string;
+  count: number;
 };
 
 const AmountCell = ({ amount }: { amount?: number }) => (
@@ -39,38 +49,77 @@ const AmountCell = ({ amount }: { amount?: number }) => (
   />
 );
 
-const getExpectedCountsByAsset = (details: TFxaDetail[]) =>
-  details.reduce<Record<string, number>>((result, detail) => {
-    if (detail.fixedAssetId) {
-      result[detail.fixedAssetId] =
-        (result[detail.fixedAssetId] || 0) + Math.max(0, detail.count || 0);
-    }
-
-    return result;
-  }, {});
-
-const getSelectedCountsByAsset = (
-  instances: IFxaInstance[],
-  selectedIds: string[],
-) => {
-  const selectedIdSet = new Set(selectedIds);
-
-  return instances.reduce<Record<string, number>>((result, instance) => {
-    if (selectedIdSet.has(instance._id)) {
-      result[instance.fixedAssetId] = (result[instance.fixedAssetId] || 0) + 1;
-    }
-
-    return result;
-  }, {});
-};
-
-const getTotalCount = (countsByAsset: Record<string, number>) =>
-  Object.values(countsByAsset).reduce((sum, count) => sum + count, 0);
-
 const getUniqueIds = (ids: string[]) => Array.from(new Set(ids));
 
 const getFlatSelectedIds = (idsByDetailId: Record<string, string[]>) =>
   getUniqueIds(Object.values(idsByDetailId).flat());
+
+const getSelectionCountById = (selections: TFxaInstanceSelection[]) =>
+  selections.reduce<Record<string, number>>((result, selection) => {
+    result[selection.fxaInstanceId] =
+      (result[selection.fxaInstanceId] || 0) +
+      Math.max(0, selection.count || 0);
+
+    return result;
+  }, {});
+
+const normalizeSelections = (selections?: TFxaInstanceSelection[]) =>
+  (selections || [])
+    .map((selection) => ({
+      fxaInstanceId: selection.fxaInstanceId,
+      count: Math.max(0, Math.trunc(selection.count || 0)),
+    }))
+    .filter((selection) => selection.fxaInstanceId && selection.count > 0);
+
+const idsToSelections = (ids: string[]) =>
+  getUniqueIds(ids).map((fxaInstanceId) => ({ fxaInstanceId, count: 1 }));
+
+const getFlatSelections = (
+  selectionsByDetailId: Record<string, TFxaInstanceSelection[]>,
+) => Object.values(selectionsByDetailId).flatMap(normalizeSelections);
+
+export const clearFxaInstanceSelectionForDetail = ({
+  detailId,
+  form,
+  journalIndex,
+  selectedIdsByDetailId,
+  selectedSelectionsByDetailId,
+}: {
+  detailId?: string;
+  form: ITransactionGroupForm;
+  journalIndex: number;
+  selectedIdsByDetailId?: Record<string, string[]>;
+  selectedSelectionsByDetailId?: Record<string, TFxaInstanceSelection[]>;
+}) => {
+  if (!detailId) {
+    return;
+  }
+
+  const nextSelectionsByDetailId = {
+    ...(selectedSelectionsByDetailId || {}),
+  };
+  const nextIdsByDetailId = { ...(selectedIdsByDetailId || {}) };
+
+  delete nextSelectionsByDetailId[detailId];
+  delete nextIdsByDetailId[detailId];
+
+  form.setValue(
+    `trDocs.${journalIndex}.extraData.fxaInstanceSelectionsByDetailId`,
+    nextSelectionsByDetailId,
+  );
+  form.setValue(
+    `trDocs.${journalIndex}.extraData.fxaInstanceSelections`,
+    getFlatSelections(nextSelectionsByDetailId),
+  );
+  form.setValue(
+    `trDocs.${journalIndex}.extraData.fxaInstanceIdsByDetailId`,
+    nextIdsByDetailId,
+  );
+  form.setValue(
+    `trDocs.${journalIndex}.extraData.fxaInstanceIds`,
+    getFlatSelectedIds(nextIdsByDetailId),
+  );
+};
 
 export const FxaInstanceSelectionSheet = ({
   form,
@@ -91,40 +140,65 @@ export const FxaInstanceSelectionSheet = ({
   });
   const details = (trDoc?.details || []) as TFxaDetail[];
   const detail = detailIndex !== undefined ? details[detailIndex] : undefined;
-  const fixedAssetIds = Array.from(
-    new Set(details.map((detail) => detail.fixedAssetId).filter(Boolean)),
-  );
-  const expectedByAsset = getExpectedCountsByAsset(details);
-  const expectedCount = getTotalCount(expectedByAsset);
   const selectedIdsByDetailId: Record<string, string[]> =
     trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
-  const hasDetailSelectionMap = Object.keys(selectedIdsByDetailId).length > 0;
+  const selectedSelectionsByDetailId: Record<string, TFxaInstanceSelection[]> =
+    trDoc?.extraData?.fxaInstanceSelectionsByDetailId || {};
+  const flatSelections = normalizeSelections(
+    trDoc?.extraData?.fxaInstanceSelections,
+  );
+  const hasDetailSelectionMap =
+    Object.keys(selectedSelectionsByDetailId).length > 0 ||
+    Object.keys(selectedIdsByDetailId).length > 0;
   const detailId = detail?._id || '';
   const flatSelectedIds: string[] = getUniqueIds(
     trDoc?.extraData?.fxaInstanceIds || [],
   );
-  const selectedIds: string[] = detailId
+  const selectedSelections: TFxaInstanceSelection[] = detailId
     ? hasDetailSelectionMap
-      ? selectedIdsByDetailId[detailId] || []
-      : flatSelectedIds
-    : flatSelectedIds;
-  const otherDetailSelectedIds = new Set(
+      ? normalizeSelections(selectedSelectionsByDetailId[detailId]).length
+        ? normalizeSelections(selectedSelectionsByDetailId[detailId])
+        : idsToSelections(selectedIdsByDetailId[detailId] || [])
+      : flatSelections.length
+      ? flatSelections
+      : idsToSelections(flatSelectedIds)
+    : flatSelections.length
+    ? flatSelections
+    : idsToSelections(flatSelectedIds);
+  const selectedIds = selectedSelections.map(
+    (selection) => selection.fxaInstanceId,
+  );
+  const otherDetailSelectionCounts = getSelectionCountById(
     hasDetailSelectionMap
-      ? Object.entries(selectedIdsByDetailId)
-          .filter(([key]) => key !== detailId)
-          .flatMap(([, ids]) => ids)
+      ? [
+          ...Object.entries(selectedSelectionsByDetailId)
+            .filter(([key]) => key !== detailId)
+            .flatMap(([, selections]) => normalizeSelections(selections)),
+          ...Object.entries(selectedIdsByDetailId)
+            .filter(([key]) => key !== detailId)
+            .flatMap(([, ids]) => idsToSelections(ids)),
+        ]
       : [],
   );
+  const allSelectionIds = getUniqueIds(
+    [
+      ...flatSelections,
+      ...getFlatSelections(selectedSelectionsByDetailId),
+      ...idsToSelections(flatSelectedIds),
+    ].map((selection) => selection.fxaInstanceId),
+  );
   const querySelectedIds = detailId
-    ? getUniqueIds([...selectedIds, ...flatSelectedIds])
-    : flatSelectedIds;
+    ? getUniqueIds([...selectedIds, ...flatSelectedIds, ...allSelectionIds])
+    : getUniqueIds([...flatSelectedIds, ...allSelectionIds]);
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedFixedAssetId = detail?.fixedAssetId;
   const { data: activeInstancesData } = useQuery<{
     fxaInstances: IFxaInstance[];
   }>(FXA_INSTANCES_QUERY, {
-    variables: { fixedAssetIds, status: 'active' },
-    skip: !fixedAssetIds.length,
+    variables: {
+      fixedAssetIds: selectedFixedAssetId ? [selectedFixedAssetId] : undefined,
+      status: 'active',
+    },
     fetchPolicy: 'network-only',
   });
   const { data: selectedInstancesData } = useQuery<{
@@ -138,11 +212,11 @@ export const FxaInstanceSelectionSheet = ({
     fxaInstances: IFxaInstance[];
   }>(FXA_INSTANCES_QUERY, {
     variables: {
-      fixedAssetIds,
+      fixedAssetIds: selectedFixedAssetId ? [selectedFixedAssetId] : undefined,
       transactionId: trDoc?._id,
       disposalTransactionId: trDoc?._id,
     },
-    skip: !fixedAssetIds.length || !trDoc?._id,
+    skip: !trDoc?._id,
     fetchPolicy: 'network-only',
   });
   const instances = useMemo(() => {
@@ -162,9 +236,12 @@ export const FxaInstanceSelectionSheet = ({
 
     return Array.from(instancesById.values());
   }, [activeInstancesData, selectedInstancesData, transactionInstancesData]);
+  const visibleAssetIds = Array.from(
+    new Set(instances.map((instance) => instance.fixedAssetId).filter(Boolean)),
+  );
   const { fixedAssets } = useFixedAssets({
-    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
-    skip: !fixedAssetIds.length,
+    variables: { ids: visibleAssetIds, limit: visibleAssetIds.length },
+    skip: !visibleAssetIds.length,
   });
   const fixedAssetsById = new Map(
     (fixedAssets || []).map((fixedAsset) => [fixedAsset._id, fixedAsset]),
@@ -179,10 +256,12 @@ export const FxaInstanceSelectionSheet = ({
     }
 
     const availableIds = new Set(instances.map((instance) => instance._id));
-    const nextSelectedIds = selectedIds.filter((id) => availableIds.has(id));
+    const nextSelectedSelections = selectedSelections.filter((selection) =>
+      availableIds.has(selection.fxaInstanceId),
+    );
 
-    if (nextSelectedIds.length !== selectedIds.length) {
-      updateSelectedIds(nextSelectedIds);
+    if (nextSelectedSelections.length !== selectedSelections.length) {
+      updateSelectedSelections(nextSelectedSelections);
     }
   }, [
     activeInstancesData,
@@ -190,7 +269,7 @@ export const FxaInstanceSelectionSheet = ({
     instances,
     journalIndex,
     querySelectedIds,
-    selectedIds,
+    selectedSelections,
     selectedInstancesData,
   ]);
 
@@ -203,15 +282,12 @@ export const FxaInstanceSelectionSheet = ({
   ).filter(
     (instance) =>
       selectedIdSet.has(instance._id) ||
-      !otherDetailSelectedIds.has(instance._id),
+      (instance.currentCount ?? instance.count ?? 1) >
+        (otherDetailSelectionCounts[instance._id] || 0),
   );
-  const selectedByAsset = getSelectedCountsByAsset(instances, selectedIds);
-  const selectedCount = selectedFixedAssetId
-    ? selectedByAsset[selectedFixedAssetId] || 0
-    : selectedIds.length;
-  const visibleExpectedCount = selectedFixedAssetId
-    ? expectedByAsset[selectedFixedAssetId] || 0
-    : expectedCount;
+  const selectedSelection = selectedSelections[0];
+  const selectedCount = selectedSelection?.count || 0;
+  const detailCount = Math.max(0, Math.trunc(detail?.count || 0));
   const getDisplaySequence = (instance: IFxaInstance) => {
     const fixedAssetCode = fixedAssetsById.get(instance.fixedAssetId)?.code;
 
@@ -234,8 +310,10 @@ export const FxaInstanceSelectionSheet = ({
     );
   };
 
-  const updateSelectedIds = (nextSelectedIds: string[]) => {
-    const uniqueNextSelectedIds = getUniqueIds(nextSelectedIds);
+  const updateSelectedSelections = (
+    nextSelectedSelections: TFxaInstanceSelection[],
+  ) => {
+    const normalizedSelections = normalizeSelections(nextSelectedSelections);
     ignoreNextCloseRef.current = true;
 
     window.setTimeout(() => {
@@ -243,25 +321,63 @@ export const FxaInstanceSelectionSheet = ({
     }, 0);
 
     if (!detailId) {
-      form.setValue(
-        `trDocs.${journalIndex}.extraData.fxaInstanceIds`,
-        uniqueNextSelectedIds,
+      const flatIds = getUniqueIds(
+        normalizedSelections.map((selection) => selection.fxaInstanceId),
       );
+
+      form.setValue(
+        `trDocs.${journalIndex}.extraData.fxaInstanceSelections`,
+        normalizedSelections,
+      );
+      form.setValue(`trDocs.${journalIndex}.extraData.fxaInstanceIds`, flatIds);
       return;
     }
 
-    const nextSelectedIdsByDetailId = {
-      ...selectedIdsByDetailId,
-      [detailId]: uniqueNextSelectedIds,
+    const nextSelectedSelectionsByDetailId = {
+      ...selectedSelectionsByDetailId,
+      [detailId]: normalizedSelections,
     };
+    const flatSelections = getFlatSelections(nextSelectedSelectionsByDetailId);
+    const nextSelectedIdsByDetailId = Object.fromEntries(
+      Object.entries(nextSelectedSelectionsByDetailId).map(([key, value]) => [
+        key,
+        normalizeSelections(value).map((selection) => selection.fxaInstanceId),
+      ]),
+    );
     const flatIds = getFlatSelectedIds(nextSelectedIdsByDetailId);
 
+    form.setValue(
+      `trDocs.${journalIndex}.extraData.fxaInstanceSelectionsByDetailId`,
+      nextSelectedSelectionsByDetailId,
+    );
+    form.setValue(
+      `trDocs.${journalIndex}.extraData.fxaInstanceSelections`,
+      flatSelections,
+    );
     form.setValue(
       `trDocs.${journalIndex}.extraData.fxaInstanceIdsByDetailId`,
       nextSelectedIdsByDetailId,
     );
     form.setValue(`trDocs.${journalIndex}.extraData.fxaInstanceIds`, flatIds);
   };
+
+  useEffect(() => {
+    if (
+      !detailId ||
+      selectedSelections.length !== 1 ||
+      detailCount <= 0 ||
+      selectedSelections[0].count === detailCount
+    ) {
+      return;
+    }
+
+    updateSelectedSelections([
+      {
+        ...selectedSelections[0],
+        count: detailCount,
+      },
+    ]);
+  }, [detailCount, detailId, JSON.stringify(selectedSelections)]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && ignoreNextCloseRef.current) {
@@ -271,17 +387,75 @@ export const FxaInstanceSelectionSheet = ({
     setOpen(nextOpen);
   };
 
-  const toggleInstance = (instance: IFxaInstance, checked: boolean) => {
-    if (checked) {
-      if (selectedIdSet.has(instance._id)) {
-        return;
-      }
+  const getAvailableCount = (instance: IFxaInstance) =>
+    Math.max(
+      0,
+      (instance.currentCount ?? instance.count ?? 1) -
+        (otherDetailSelectionCounts[instance._id] || 0),
+    );
 
-      updateSelectedIds([...selectedIds, instance._id]);
+  const updateDetailFromInstance = (instance: IFxaInstance, count: number) => {
+    if (detailIndex === undefined) {
       return;
     }
 
-    updateSelectedIds(selectedIds.filter((id) => id !== instance._id));
+    const unitPrice = instance.originalCost || 0;
+    const branchId = instance.currentBranchId || instance.branchId || '';
+    const departmentId =
+      instance.currentDepartmentId || instance.departmentId || '';
+
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`,
+      instance.fixedAssetId,
+    );
+    form.setValue(`trDocs.${journalIndex}.details.${detailIndex}.count`, count);
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.branchId`,
+      branchId,
+    );
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.departmentId`,
+      departmentId,
+    );
+
+    if (trDoc?.journal === TrJournalEnum.FXA_SALE) {
+      form.setValue(
+        `trDocs.${journalIndex}.details.${detailIndex}.amount`,
+        count * (detail?.unitPrice || 0),
+      );
+      return;
+    }
+
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.unitPrice`,
+      unitPrice,
+    );
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.amount`,
+      count * unitPrice,
+    );
+  };
+
+  const selectInstance = (instance: IFxaInstance) => {
+    const otherCount = otherDetailSelectionCounts[instance._id] || 0;
+    const availableCount = Math.max(
+      0,
+      (instance.currentCount ?? instance.count ?? 1) - otherCount,
+    );
+    const nextCount = Math.min(
+      availableCount,
+      Math.max(1, Math.trunc(detail?.count || 0)),
+    );
+
+    if (nextCount <= 0) {
+      return;
+    }
+
+    updateDetailFromInstance(instance, nextCount);
+    updateSelectedSelections([
+      { fxaInstanceId: instance._id, count: nextCount },
+    ]);
+    setOpen(false);
   };
 
   return (
@@ -291,12 +465,15 @@ export const FxaInstanceSelectionSheet = ({
           type="button"
           variant="secondary"
           className={compact ? 'h-8 px-2' : undefined}
-          disabled={compact && !selectedFixedAssetId}
         >
           <IconChecklist />
           {compact
-            ? `${selectedCount}/${visibleExpectedCount}`
-            : `Instance сонгох (${selectedCount}/${visibleExpectedCount})`}
+            ? selectedCount
+              ? `Instance (${selectedCount})`
+              : 'Instance'
+            : selectedCount
+            ? `Instance сонгосон (${selectedCount})`
+            : 'Instance сонгох'}
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-4xl">
@@ -308,15 +485,11 @@ export const FxaInstanceSelectionSheet = ({
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
-          {selectedCount !== visibleExpectedCount && (
-            <p className="mb-3 text-sm text-destructive">
-              Detail тоо болон сонгосон instance-ийн тоо таарах ёстой.
-            </p>
-          )}
           <Table>
             <Table.Header>
               <Table.Row>
-                <Table.Head className="w-10" />
+                <Table.Head className="w-24">Сонголт</Table.Head>
+                <Table.Head>Үлдэгдэл</Table.Head>
                 <Table.Head>Үндсэн хөрөнгийн дугаар</Table.Head>
                 <Table.Head>Instance код</Table.Head>
                 <Table.Head>Хөрөнгө</Table.Head>
@@ -331,22 +504,23 @@ export const FxaInstanceSelectionSheet = ({
             <Table.Body>
               {visibleInstances.map((instance) => {
                 const selected = selectedIdSet.has(instance._id);
-                const selectedAssetCount =
-                  selectedByAsset[instance.fixedAssetId] || 0;
-                const limit = expectedByAsset[instance.fixedAssetId] || 0;
+                const availableCount = getAvailableCount(instance);
                 const fixedAsset = fixedAssetsById.get(instance.fixedAssetId);
 
                 return (
                   <Table.Row key={instance._id}>
                     <Table.Cell>
-                      <Checkbox
-                        checked={selected}
-                        disabled={!selected && selectedAssetCount >= limit}
-                        onCheckedChange={(checked) =>
-                          toggleInstance(instance, Boolean(checked))
-                        }
-                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={selected ? 'secondary' : 'ghost'}
+                        disabled={!selected && availableCount <= 0}
+                        onClick={() => selectInstance(instance)}
+                      >
+                        {selected ? 'Сонгосон' : 'Сонгох'}
+                      </Button>
                     </Table.Cell>
+                    <Table.Cell>{availableCount}</Table.Cell>
                     <Table.Cell>
                       {getFixedAssetSequenceLabel(instance)}
                     </Table.Cell>
@@ -371,29 +545,37 @@ export const FxaInstanceSelectionSheet = ({
                       <AmountCell amount={instance.bookValue} />
                     </Table.Cell>
                     <Table.Cell>
-                      {instance.branchId ? (
+                      {instance.currentBranchId || instance.branchId ? (
                         <SelectBranches.InlineCell
                           mode="single"
-                          value={instance.branchId}
+                          value={instance.currentBranchId || instance.branchId}
                         />
                       ) : (
                         '-'
                       )}
                     </Table.Cell>
                     <Table.Cell>
-                      {instance.departmentId ? (
+                      {instance.currentDepartmentId || instance.departmentId ? (
                         <SelectDepartments.InlineCell
                           mode="single"
-                          value={instance.departmentId}
+                          value={
+                            instance.currentDepartmentId ||
+                            instance.departmentId
+                          }
                         />
                       ) : (
                         '-'
                       )}
                     </Table.Cell>
                     <Table.Cell>
-                      {instance.responsibleUserId ? (
+                      {instance.currentResponsibleUserId ||
+                      instance.responsibleUserId ? (
                         <MembersInline
-                          memberIds={[instance.responsibleUserId]}
+                          memberIds={[
+                            instance.currentResponsibleUserId ||
+                              instance.responsibleUserId ||
+                              '',
+                          ]}
                           placeholder="-"
                         />
                       ) : (

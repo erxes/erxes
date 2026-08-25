@@ -35,15 +35,34 @@ const fixedAssets = {
     }
 
     if (status) {
-      filter.status = status;
+      filter.$or = [
+        { currentStatus: status },
+        { currentStatus: { $exists: false }, status },
+      ];
     }
 
     if (branchId) {
-      filter.branchId = branchId;
+      filter.$and = [
+        ...((filter.$and as Record<string, unknown>[]) || []),
+        {
+          $or: [
+            { currentBranchId: branchId },
+            { currentBranchId: { $exists: false }, branchId },
+          ],
+        },
+      ];
     }
 
     if (departmentId) {
-      filter.departmentId = departmentId;
+      filter.$and = [
+        ...((filter.$and as Record<string, unknown>[]) || []),
+        {
+          $or: [
+            { currentDepartmentId: departmentId },
+            { currentDepartmentId: { $exists: false }, departmentId },
+          ],
+        },
+      ];
     }
 
     const transactionIds = Array.from(

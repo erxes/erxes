@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
@@ -10,6 +11,7 @@ import {
   getDetailId,
   getFxaIncomeFollowInfos,
   getFxaInstanceInputs,
+  rebuildFxaInstanceCurrentStates,
   TFxaIncomeInstanceRemoveOptions,
   TFxaIncomeInstanceFollowInfo,
   TFxaInstanceInput,
@@ -95,34 +97,76 @@ const buildDefaultIncomeInputs = async (
   transaction: ITransactionDocument,
 ) => {
   const inputs = getFxaInstanceInputs(transaction);
-
-  if (inputs.length) {
-    return inputs;
-  }
-
-  const result: TFxaInstanceInput[] = [];
+  const detailIdsWithInputs = new Set(
+    inputs.map((input) => input.transactionDetailId).filter(Boolean),
+  );
+  const result: TFxaInstanceInput[] = [...inputs];
 
   for (const detail of transaction.details || []) {
     const count = detail.count || 0;
     const fixedAssetId = detail.fixedAssetId || '';
 
-    if (!fixedAssetId || count <= 0) {
+    if (
+      !fixedAssetId ||
+      count <= 0 ||
+      detailIdsWithInputs.has(getDetailId(detail))
+    ) {
       continue;
     }
 
-    for (let index = 0; index < count; index++) {
-      result.push({
-        tempId: nanoid(),
-        transactionDetailId: getDetailId(detail),
-        fixedAssetId,
-        branchId: detail.branchId || transaction.branchId,
-        departmentId: detail.departmentId || transaction.departmentId,
-        originalCost: detail.unitPrice || detail.amount || 0,
-      });
-    }
+    result.push({
+      tempId: nanoid(),
+      transactionDetailId: getDetailId(detail),
+      fixedAssetId,
+      count,
+      branchId: detail.branchId || transaction.branchId,
+      departmentId: detail.departmentId || transaction.departmentId,
+      originalCost: detail.unitPrice || (detail.amount || 0) / count || 0,
+    });
   }
 
   return result;
+};
+
+const validateExplicitIncomeInputCounts = (
+  transaction: ITransactionDocument,
+  inputs: TFxaInstanceInput[],
+) => {
+  if (!inputs.length) {
+    return;
+  }
+
+  const countByDetailId = inputs.reduce<Record<string, number>>(
+    (result, input) => {
+      const detailId = input.transactionDetailId || '';
+
+      if (!detailId) {
+        return result;
+      }
+
+      result[detailId] =
+        (result[detailId] || 0) + Math.max(0, Math.trunc(input.count || 0));
+
+      return result;
+    },
+    {},
+  );
+
+  for (const detail of transaction.details || []) {
+    const detailId = getDetailId(detail);
+
+    if (!detail.fixedAssetId || !countByDetailId[detailId]) {
+      continue;
+    }
+
+    const expectedCount = Math.max(0, Math.trunc(detail.count || 0));
+
+    if (countByDetailId[detailId] !== expectedCount) {
+      throw new Error(
+        'Fixed asset income instance counts must match detail count',
+      );
+    }
+  }
 };
 
 const shouldPersistIncomeInstanceInputs = (
@@ -258,6 +302,15 @@ const buildIncomeInstanceDoc = ({
 }) => {
   const transactionDetailId =
     input.transactionDetailId || getDetailId(detail || {});
+  const count = Math.max(1, Math.trunc(input.count || 1));
+  const branchId = input.branchId || detail?.branchId || transaction.branchId;
+  const departmentId =
+    input.departmentId || detail?.departmentId || transaction.departmentId;
+  const responsibleUserId = input.responsibleUserId;
+  const originalCost =
+    detail?.unitPrice ||
+    input.originalCost ||
+    ((detail?.amount || 0) && count ? (detail?.amount || 0) / count : 0);
 
   return {
     fixedAssetId,
@@ -268,9 +321,11 @@ const buildIncomeInstanceDoc = ({
         ? `${fixedAsset.code}_${String(input.sequence).padStart(3, '0')}`
         : nanoid(6)),
     sequence: input.sequence,
+    count,
+    currentCount: count,
     status: FXA_INSTANCE_STATUSES.ACTIVE,
-    originalCost:
-      detail?.unitPrice || input.originalCost || detail?.amount || 0,
+    currentStatus: FXA_INSTANCE_STATUSES.ACTIVE,
+    originalCost,
     depreciationMethod: fixedAsset?.depreciationMethod,
     usefulLife: fixedAsset?.usefulLife,
     salvageValue: followInfo?.salvageValue ?? fixedAsset?.salvageValue,
@@ -279,10 +334,12 @@ const buildIncomeInstanceDoc = ({
     taxSalvageValue: fixedAsset?.taxSalvageValue,
     acquisitionDate: date,
     depreciationStartDate: input.depreciationStartDate,
-    branchId: input.branchId || detail?.branchId || transaction.branchId,
-    departmentId:
-      input.departmentId || detail?.departmentId || transaction.departmentId,
-    responsibleUserId: input.responsibleUserId,
+    branchId,
+    currentBranchId: branchId,
+    departmentId,
+    currentDepartmentId: departmentId,
+    responsibleUserId,
+    currentResponsibleUserId: responsibleUserId,
     transactionDetailId,
   };
 };
@@ -481,9 +538,17 @@ const syncOpeningAccumulatedDepreciation = async ({
       const fixedAssetId = input.fixedAssetId || detail?.fixedAssetId || '';
       const fixedAsset = fixedAssetsById.get(fixedAssetId);
       const originalCost = detail?.unitPrice || input.originalCost || 0;
+      const count = Math.max(1, Math.trunc(input.count || 1));
       const salvageValue =
         followInfo?.salvageValue ?? fixedAsset?.salvageValue ?? 0;
-      const openingBookValue = originalCost - openingAccumulatedDepreciation;
+      const totalOriginalCost = fixNum(originalCost * count);
+      const totalSalvageValue = fixNum(salvageValue * count);
+      const totalOpeningAccumulatedDepreciation = fixNum(
+        openingAccumulatedDepreciation * count,
+      );
+      const openingBookValue = fixNum(
+        totalOriginalCost - totalOpeningAccumulatedDepreciation,
+      );
 
       return {
         adjustId,
@@ -496,13 +561,13 @@ const syncOpeningAccumulatedDepreciation = async ({
           input.departmentId ||
           detail?.departmentId ||
           transaction.departmentId,
-        originalCost,
-        salvageValue,
+        originalCost: totalOriginalCost,
+        salvageValue: totalSalvageValue,
         openingBookValue,
-        openingAccumulatedDepreciation,
+        openingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
         depreciationAmount: 0,
         bookDepreciationAmount: 0,
-        closingAccumulatedDepreciation: openingAccumulatedDepreciation,
+        closingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
         closingBookValue: openingBookValue,
         transactionId: transaction._id,
         transactionDetailId: input.transactionDetailId,
@@ -551,6 +616,7 @@ export const syncFxaIncomeInstances = async (
 ) => {
   const hadExplicitInputs = getFxaInstanceInputs(transaction).length > 0;
   const inputs = await buildDefaultIncomeInputs(models, transaction);
+  validateExplicitIncomeInputCounts(transaction, inputs);
   const removedInstanceIds = await matchFxaIncomeInputsToExisting(
     models,
     transaction,
@@ -560,6 +626,7 @@ export const syncFxaIncomeInstances = async (
   const fixedAssetsById = await getFixedAssetsById(models, inputs);
   await assignMissingInstanceSequences(models, inputs, fixedAssetsById);
   const followInfosByKey = getIncomeFollowInfosByKey(transaction, inputs);
+  const syncedInstanceIds: string[] = [];
 
   await removeFxaIncomeInstanceIds(models, removedInstanceIds);
   await models.FxaInstanceLogs.deleteByTransaction(
@@ -597,14 +664,18 @@ export const syncFxaIncomeInstances = async (
     }
 
     input._id = instance._id;
+    input.primaryInstanceId = instance.primaryInstanceId || instance._id;
     input.code = instance.code;
     input.sequence = instance.sequence;
+    input.count = instance.count || input.count || 1;
+    syncedInstanceIds.push(instance._id);
 
     await models.FxaInstanceLogs.createLog({
       fxaInstanceId: instance._id,
       fixedAssetId,
       eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
       eventDate: date,
+      countDelta: instance.count || input.count || 1,
       transactionId: transaction._id,
       transactionDetailId: instance.transactionDetailId,
       toBranchId: instance.branchId,
@@ -615,6 +686,8 @@ export const syncFxaIncomeInstances = async (
       createdAt: new Date(),
     });
   }
+
+  await rebuildFxaInstanceCurrentStates(models, syncedInstanceIds);
 
   await syncOpeningAccumulatedDepreciation({
     date,

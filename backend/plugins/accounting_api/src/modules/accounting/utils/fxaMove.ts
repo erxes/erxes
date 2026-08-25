@@ -15,7 +15,9 @@ import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
   getFxaMoveFollowInfos,
-  getSelectedInstanceIds,
+  getSelectedInstanceSelections,
+  getUniqueFxaInstanceIds,
+  rebuildFxaInstanceCurrentStates,
 } from './fixedAssets';
 
 export const removeFxaMoveInstances = async (
@@ -31,16 +33,42 @@ export const removeFxaMoveInstances = async (
     return;
   }
 
-  for (const log of logs) {
-    await models.FxaInstances.restoreMoveInstance(log.fxaInstanceId, {
-      branchId: log.fromBranchId,
-      departmentId: log.fromDepartmentId,
-      responsibleUserId: log.fromResponsibleUserId,
-      status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
-    });
-  }
+  const positiveMoveInstanceIds = logs
+    .filter((log) => (log.countDelta || 0) > 0)
+    .map((log) => log.fxaInstanceId);
+  const affectedInstanceIds = logs
+    .filter((log) => (log.countDelta || 0) <= 0)
+    .map((log) => log.fxaInstanceId);
+  const uniquePositiveMoveInstanceIds = getUniqueFxaInstanceIds(
+    positiveMoveInstanceIds,
+  );
 
   await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
+
+  const remainingPositiveLogs = uniquePositiveMoveInstanceIds.length
+    ? await models.FxaInstanceLogs.find({
+        fxaInstanceId: { $in: uniquePositiveMoveInstanceIds },
+      })
+        .select({ fxaInstanceId: 1 })
+        .lean()
+    : [];
+  const instanceIdsWithRemainingLogs = new Set(
+    remainingPositiveLogs.map((log) => log.fxaInstanceId),
+  );
+  const removableInstanceIds = uniquePositiveMoveInstanceIds.filter(
+    (instanceId) => !instanceIdsWithRemainingLogs.has(instanceId),
+  );
+
+  await models.FxaInstances.removeByIds(removableInstanceIds);
+  await rebuildFxaInstanceCurrentStates(
+    models,
+    getUniqueFxaInstanceIds([
+      ...affectedInstanceIds,
+      ...uniquePositiveMoveInstanceIds.filter(
+        (instanceId) => !removableInstanceIds.includes(instanceId),
+      ),
+    ]),
+  );
 };
 
 export const createFxaMoveInFollowTr = async (
@@ -110,7 +138,10 @@ export const syncFxaMoveInstances = async (
 ) => {
   await removeFxaMoveInstances(models, transaction);
 
-  const instanceIds = await getSelectedInstanceIds(models, transaction);
+  const selections = await getSelectedInstanceSelections(models, transaction);
+  const instanceIds = getUniqueFxaInstanceIds(
+    selections.map((selection) => selection.fxaInstanceId),
+  );
 
   if (!instanceIds.length) {
     return;
@@ -126,14 +157,25 @@ export const syncFxaMoveInstances = async (
   }
 
   const instances = await models.FxaInstances.findByIds(instanceIds);
+  const instancesById = new Map(
+    instances.map((instance) => [instance._id, instance]),
+  );
+  const affectedInstanceIds = [...instanceIds];
 
-  for (const instance of instances) {
-    await models.FxaInstances.applyMove({
-      instanceId: instance._id,
-      branchId: destinationBranchId,
-      departmentId: destinationDepartmentId,
-      userId,
-    });
+  for (const selection of selections) {
+    const instance = instancesById.get(selection.fxaInstanceId);
+
+    if (!instance) {
+      continue;
+    }
+
+    const availableCount = instance.currentCount ?? instance.count ?? 1;
+    const sourceBranchId = instance.currentBranchId || instance.branchId;
+    const sourceDepartmentId =
+      instance.currentDepartmentId || instance.departmentId;
+    const sourceResponsibleUserId =
+      instance.currentResponsibleUserId || instance.responsibleUserId;
+    const sourceStatus = instance.currentStatus || instance.status;
 
     await models.FxaInstanceLogs.createLog({
       fxaInstanceId: instance._id,
@@ -141,16 +183,51 @@ export const syncFxaMoveInstances = async (
       eventType: FXA_LOG_EVENT_TYPES.MOVE,
       eventDate: date,
       transactionId: transaction._id,
-      fromBranchId: instance.branchId,
+      countDelta: -selection.count,
+      fromBranchId: sourceBranchId,
+      toBranchId: sourceBranchId,
+      fromDepartmentId: sourceDepartmentId,
+      toDepartmentId: sourceDepartmentId,
+      fromResponsibleUserId: sourceResponsibleUserId,
+      toResponsibleUserId: sourceResponsibleUserId,
+      fromStatus: sourceStatus,
+      toStatus:
+        selection.count >= availableCount
+          ? FXA_INSTANCE_STATUSES.INACTIVE
+          : sourceStatus || FXA_INSTANCE_STATUSES.ACTIVE,
+      createdBy: userId,
+      createdAt: new Date(),
+    });
+
+    const movedInstance = await models.FxaInstances.findOrCreateMovementBucket({
+      sourceInstance: instance,
+      branchId: destinationBranchId,
+      departmentId: destinationDepartmentId,
+      responsibleUserId: sourceResponsibleUserId,
+      userId,
+    });
+
+    affectedInstanceIds.push(movedInstance._id);
+
+    await models.FxaInstanceLogs.createLog({
+      fxaInstanceId: movedInstance._id,
+      fixedAssetId: movedInstance.fixedAssetId,
+      eventType: FXA_LOG_EVENT_TYPES.MOVE,
+      eventDate: date,
+      transactionId: transaction._id,
+      countDelta: selection.count,
+      fromBranchId: sourceBranchId,
       toBranchId: destinationBranchId,
-      fromDepartmentId: instance.departmentId,
+      fromDepartmentId: sourceDepartmentId,
       toDepartmentId: destinationDepartmentId,
-      fromResponsibleUserId: instance.responsibleUserId,
-      toResponsibleUserId: instance.responsibleUserId,
-      fromStatus: instance.status,
-      toStatus: instance.status,
+      fromResponsibleUserId: sourceResponsibleUserId,
+      toResponsibleUserId: sourceResponsibleUserId,
+      fromStatus: sourceStatus,
+      toStatus: FXA_INSTANCE_STATUSES.ACTIVE,
       createdBy: userId,
       createdAt: new Date(),
     });
   }
+
+  await rebuildFxaInstanceCurrentStates(models, affectedInstanceIds);
 };

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -37,7 +37,8 @@
 - Closing adjustment list renders account fields inline, and detail can calculate temporary-account balances grouped by branch/department, show validation state, render read-only branch/department code-title labels plus account inline names, edit tax percentage per row in collapsible `RecordTable` groups, show generated transactions in a `TBalance`-style transactions tab, run closing transactions, publish, cancel, and show tax impact.
 - Inventory transaction rows fill prices from product master, current inventory cost, or last completed inventory income price depending on journal behavior.
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
-- Fixed asset income detail instance sheets let users edit per-instance responsible user and original cost on acquisition instances while residual value and opening accumulated depreciation are stored in transaction followInfos before saving.
+- Fixed asset income detail sheets start with no managed bucket rows by default; saving zero rows lets the backend create one default bucket, while the add-instance button shows the remaining quantity and lets users split the detail count into explicit count-bearing buckets with responsible user, unit cost, residual value, and opening accumulated depreciation.
+- Fixed asset out, move, and sale rows pick one available primary bucket instance per detail; picking an instance fills the detail asset, count, branch, department, and non-sale cost fields while sale keeps the user-entered sale price.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
@@ -102,7 +103,8 @@
 - Account currency create/edit, inline edit, and filter selectors must use the same system `dealCurrency` options.
 - Currency amount inputs display rounded values by default but expose configured edit precision while focused.
 - Transaction currency amount synchronization must react to manual amount-field changes and avoid hook cycles.
-- Fixed asset income instance sheet state must preserve `followInfos.fxaIncomeInstances` residual value and opening accumulated depreciation when detail counts regenerate virtual instances before save.
+- Fixed asset income instance sheet state must preserve `followInfos.fxaIncomeInstances` residual value and opening accumulated depreciation for explicit bucket rows; the add-instance button is disabled at zero remaining quantity and shows the remaining quantity as the user-facing status instead of separate mismatch text.
+- Fixed asset disposal, move, and sale selection state must write `extraData.fxaInstanceSelections` and `extraData.fxaInstanceSelectionsByDetailId` as the primary contract with at most one selected primary bucket per detail; legacy id arrays may be kept only as compatibility mirrors.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
@@ -117,18 +119,25 @@
 - Smoke scenario: in cash, bank, payable, and receivable transaction forms, manually edit main and foreign currency amounts and verify paired amount syncing does not loop or lose precision after refetch.
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
-- Smoke scenario: in fixed asset income, open a detail's instance sheet, set residual value and opening accumulated depreciation on an instance, save, refetch, and verify those values remain on the instance rows.
+- Smoke scenario: in fixed asset income, open a detail's instance sheet, verify it starts empty for unsplit details, confirm the add-instance button shows the remaining quantity in red while positive and disables at zero, add bucket rows whose counts total the detail count, set responsible users plus residual/opening depreciation values, save, refetch, and verify explicit buckets remain.
+- Smoke scenario: in fixed asset out, move, and sale forms, select one available bucket instance on a detail, verify the detail asset/count/branch/department fill from the instance, out/move amount follows unit cost, sale keeps user-entered sale price, and follow transaction preview uses the selected instance cost multiplied by selected count.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-21` — `Fixed Asset Income Instance Values`
+### `2026-08-26` — `Fixed Asset Primary Bucket Selection`
 
-- **Summary:** Fixed asset income instance sheets now capture per-instance residual value and opening accumulated depreciation in transaction followInfos alongside acquisition instance rows.
-- **Affected areas:** `src/modules/transactions/transaction-form/contants/transactionSchema.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm/FxaIncomeInstancesSheet.tsx`.
-- **Contracts changed:** Fixed asset income `followInfos.fxaIncomeInstances` includes optional `salvageValue` and `openingAccumulatedDepreciation`.
+- **Summary:** Fixed asset forms now expose `primaryInstanceId` and keep out, move, and sale detail selection to one primary bucket per detail.
+- **Affected areas:** `src/modules/transactions/transaction-form/contants`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm`, `src/modules/transactions/transaction-form/components/forms/Fxa*Form/FixedAssetRow.tsx`, `src/modules/transactions/transaction-form/components/helpers/FxaInstanceSelectionSheet.tsx`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`.
+- **Contracts changed:** Fixed asset instance queries include `primaryInstanceId`; transaction `extraData` still writes `{ fxaInstanceId, count }` selections with one selected bucket per detail.
+
+### `2026-08-25` — `Fixed Asset Quantity Selection`
+
+- **Summary:** Fixed asset forms now support optional explicit income bucket rows and single bucket-instance selection per out, move, or sale detail.
+- **Affected areas:** `src/modules/transactions/transaction-form/contants`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm`, `src/modules/transactions/transaction-form/components/forms/hooks/useFxaDisposalFollowTrs.ts`, `src/modules/transactions/transaction-form/components/helpers/FxaInstanceSelectionSheet.tsx`.
+- **Contracts changed:** Fixed asset transaction `extraData` writes `fxaInstanceSelections` and `fxaInstanceSelectionsByDetailId` with `{ fxaInstanceId, count }` while mirroring legacy id arrays.
 
 ### `2026-08-21` — `Fixed Asset Detail Locations`
 
@@ -176,16 +185,4 @@
 
 - **Summary:** Journal report headers and footers now come from a shared layout registry so displayed columns stay aligned with the recursive renderer, date range filters use consistent formatting and layout, and renderer lookup uses the Erkhet-aligned `getCalcReport` name.
 - **Affected areas:** `src/modules/journal-reports/components`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Detail Deduplication`
-
-- **Summary:** Journal report detail rows are rebuilt from the latest query result instead of appended onto previous render state, preventing repeated account-statement detail rows after rerenders or refetches.
-- **Affected areas:** `src/modules/journal-reports/components`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Structure`
-
-- **Summary:** Journal report config and renderer registries were split by report family, while the report selector shows full wrapped names inside wider, scrollable, collapsed report groups.
-- **Affected areas:** `src/modules/journal-reports/components`, `src/modules/journal-reports/types`.
 - **Contracts changed:** None.

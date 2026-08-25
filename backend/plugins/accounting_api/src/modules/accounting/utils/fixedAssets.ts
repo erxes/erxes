@@ -12,8 +12,10 @@ export type TFxaInstanceInput = {
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId?: string;
+  primaryInstanceId?: string;
   code?: string;
   sequence?: number;
+  count?: number;
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
@@ -52,6 +54,13 @@ export type TFxaTransactionExtraData = {
   fxaInstances?: TFxaInstanceInput[];
   fxaInstanceIds?: string[];
   fxaInstanceIdsByDetailId?: Record<string, string[]>;
+  fxaInstanceSelections?: TFxaInstanceSelection[];
+  fxaInstanceSelectionsByDetailId?: Record<string, TFxaInstanceSelection[]>;
+};
+
+export type TFxaInstanceSelection = {
+  fxaInstanceId: string;
+  count: number;
 };
 
 export type TFxaMoveFollowInfos = {
@@ -109,7 +118,7 @@ export const getFxaInstanceIdsByDetailId = (
   transaction: ITransaction | ITransactionDocument,
 ) => getFxaExtraData(transaction).fxaInstanceIdsByDetailId || {};
 
-export const getFlatSelectedFxaInstanceIds = (
+const getLegacyFlatSelectedFxaInstanceIds = (
   transaction: ITransaction | ITransactionDocument,
 ) => {
   const idsByDetailId = getFxaInstanceIdsByDetailId(transaction);
@@ -121,6 +130,98 @@ export const getFlatSelectedFxaInstanceIds = (
 
   return getUniqueFxaInstanceIds(
     getFxaExtraData(transaction).fxaInstanceIds || [],
+  );
+};
+
+export const getFlatSelectedFxaInstanceIds = (
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const selections = getFlatFxaInstanceSelections(transaction);
+
+  if (selections.length) {
+    return getUniqueFxaInstanceIds(
+      selections.map((selection) => selection.fxaInstanceId),
+    );
+  }
+
+  return getLegacyFlatSelectedFxaInstanceIds(transaction);
+};
+
+const normalizeFxaInstanceSelection = (
+  selection: TFxaInstanceSelection,
+): TFxaInstanceSelection | undefined => {
+  const count = Math.max(0, Math.trunc(selection.count || 0));
+
+  if (!selection.fxaInstanceId || count <= 0) {
+    return;
+  }
+
+  return {
+    fxaInstanceId: selection.fxaInstanceId,
+    count,
+  };
+};
+
+export const getFxaInstanceSelectionsByDetailId = (
+  transaction: ITransaction | ITransactionDocument,
+) => getFxaExtraData(transaction).fxaInstanceSelectionsByDetailId || {};
+
+export const getFxaInstanceSelectionsForDetail = (
+  transaction: ITransaction | ITransactionDocument,
+  detailId?: string,
+) => {
+  if (!detailId) {
+    return [];
+  }
+
+  const selections = getFxaInstanceSelectionsByDetailId(transaction)[detailId];
+
+  if (selections?.length) {
+    return selections
+      .map(normalizeFxaInstanceSelection)
+      .filter((selection): selection is TFxaInstanceSelection =>
+        Boolean(selection),
+      );
+  }
+
+  return (getFxaInstanceIdsByDetailId(transaction)[detailId] || []).map(
+    (fxaInstanceId) => ({
+      fxaInstanceId,
+      count: 1,
+    }),
+  );
+};
+
+export const getFlatFxaInstanceSelections = (
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const selectionsByDetailId = getFxaInstanceSelectionsByDetailId(transaction);
+  const mappedSelections = Object.values(selectionsByDetailId)
+    .flat()
+    .map(normalizeFxaInstanceSelection)
+    .filter((selection): selection is TFxaInstanceSelection =>
+      Boolean(selection),
+    );
+
+  if (mappedSelections.length) {
+    return mappedSelections;
+  }
+
+  const selections = getFxaExtraData(transaction).fxaInstanceSelections || [];
+
+  if (selections.length) {
+    return selections
+      .map(normalizeFxaInstanceSelection)
+      .filter((selection): selection is TFxaInstanceSelection =>
+        Boolean(selection),
+      );
+  }
+
+  return getLegacyFlatSelectedFxaInstanceIds(transaction).map(
+    (fxaInstanceId) => ({
+      fxaInstanceId,
+      count: 1,
+    }),
   );
 };
 
@@ -148,18 +249,24 @@ export const getExpectedInstanceCountsByAsset = (
 };
 
 export const getSelectedInstanceCountsByAsset = (
-  instances: Array<{ fixedAssetId?: string }>,
+  selections: TFxaInstanceSelection[],
+  instances: Array<{ _id: string; fixedAssetId?: string }>,
 ) => {
   const selectedByAsset = new Map<string, number>();
+  const instancesById = new Map(
+    instances.map((instance) => [instance._id, instance]),
+  );
 
-  for (const instance of instances) {
-    if (!instance.fixedAssetId) {
+  for (const selection of selections) {
+    const instance = instancesById.get(selection.fxaInstanceId);
+
+    if (!instance?.fixedAssetId) {
       continue;
     }
 
     selectedByAsset.set(
       instance.fixedAssetId,
-      (selectedByAsset.get(instance.fixedAssetId) || 0) + 1,
+      (selectedByAsset.get(instance.fixedAssetId) || 0) + selection.count,
     );
   }
 
@@ -173,12 +280,30 @@ export const getSelectedInstanceIds = async (
   models: IModels,
   transaction: ITransaction | ITransactionDocument,
 ) => {
-  const uniqueIds = getFlatSelectedFxaInstanceIds(transaction);
+  return (await getSelectedInstanceSelections(models, transaction)).map(
+    (selection) => selection.fxaInstanceId,
+  );
+};
+
+export const getSelectedInstanceSelections = async (
+  models: IModels,
+  transaction: ITransaction | ITransactionDocument,
+) => {
+  const selections = getFlatFxaInstanceSelections(transaction);
+  const uniqueIds = getUniqueFxaInstanceIds(
+    selections.map((selection) => selection.fxaInstanceId),
+  );
   const expectedByAsset = getExpectedInstanceCountsByAsset(transaction);
   const expectedCount = getMapTotalCount(expectedByAsset);
+  const selectedCount = selections.reduce(
+    (sum, selection) => sum + selection.count,
+    0,
+  );
 
-  if (expectedCount !== uniqueIds.length) {
-    throw new Error('Selected fixed asset instances must match detail counts');
+  if (expectedCount !== selectedCount) {
+    throw new Error(
+      'Selected fixed asset instance counts must match detail counts',
+    );
   }
 
   const instances = await models.FxaInstances.findByIds(uniqueIds);
@@ -192,9 +317,18 @@ export const getSelectedInstanceIds = async (
   const transactionInstanceIds = new Set(
     transactionLogs.map((log) => log.fxaInstanceId),
   );
+  const transactionReleasedCountByInstanceId = transactionLogs.reduce(
+    (map, log) =>
+      map.set(
+        log.fxaInstanceId,
+        (map.get(log.fxaInstanceId) || 0) - Math.min(log.countDelta || 0, 0),
+      ),
+    new Map<string, number>(),
+  );
   const availableInstances = instances.filter(
     (instance) =>
-      instance.status === FXA_INSTANCE_STATUSES.ACTIVE ||
+      (instance.currentStatus || instance.status) ===
+        FXA_INSTANCE_STATUSES.ACTIVE ||
       transactionInstanceIds.has(instance._id),
   );
 
@@ -202,7 +336,56 @@ export const getSelectedInstanceIds = async (
     throw new Error('Selected fixed asset instances are not available');
   }
 
-  const selectedByAsset = getSelectedInstanceCountsByAsset(availableInstances);
+  const instancesById = new Map(
+    availableInstances.map((instance) => [instance._id, instance]),
+  );
+
+  for (const detail of transaction.details || []) {
+    const detailSelections = getFxaInstanceSelectionsForDetail(
+      transaction,
+      detail._id,
+    );
+
+    if (!detailSelections.length) {
+      continue;
+    }
+
+    if (detailSelections.length > 1) {
+      throw new Error(
+        'Only one fixed asset instance can be selected for each detail',
+      );
+    }
+
+    const [selection] = detailSelections;
+    const instance = instancesById.get(selection.fxaInstanceId);
+    const detailCount = Math.max(0, Math.trunc(detail.count || 0));
+
+    if (selection.count !== detailCount) {
+      throw new Error(
+        'Selected fixed asset instance count must match detail count',
+      );
+    }
+
+    if (instance?.fixedAssetId !== detail.fixedAssetId) {
+      throw new Error('Selected fixed asset instance must match detail asset');
+    }
+  }
+
+  for (const selection of selections) {
+    const instance = instancesById.get(selection.fxaInstanceId);
+    const availableCount =
+      (instance?.currentCount ?? instance?.count ?? 1) +
+      (transactionReleasedCountByInstanceId.get(selection.fxaInstanceId) || 0);
+
+    if (!instance || selection.count > availableCount) {
+      throw new Error('Selected fixed asset instance count is not available');
+    }
+  }
+
+  const selectedByAsset = getSelectedInstanceCountsByAsset(
+    selections,
+    availableInstances,
+  );
 
   for (const [fixedAssetId, count] of expectedByAsset) {
     if ((selectedByAsset.get(fixedAssetId) || 0) !== count) {
@@ -210,7 +393,94 @@ export const getSelectedInstanceIds = async (
     }
   }
 
-  return uniqueIds;
+  return selections;
+};
+
+export const rebuildFxaInstanceCurrentStates = async (
+  models: IModels,
+  instanceIds: string[],
+) => {
+  const uniqueIds = getUniqueFxaInstanceIds(instanceIds).filter(Boolean);
+
+  if (!uniqueIds.length) {
+    return;
+  }
+
+  const [instances, logs] = await Promise.all([
+    models.FxaInstances.findByIds(uniqueIds),
+    models.FxaInstanceLogs.find({ fxaInstanceId: { $in: uniqueIds } })
+      .sort({ eventDate: 1, createdAt: 1 })
+      .lean(),
+  ]);
+  const logsByInstanceId = new Map<string, typeof logs>();
+
+  for (const log of logs) {
+    logsByInstanceId.set(log.fxaInstanceId, [
+      ...(logsByInstanceId.get(log.fxaInstanceId) || []),
+      log,
+    ]);
+  }
+
+  for (const instance of instances) {
+    const instanceLogs = logsByInstanceId.get(instance._id) || [];
+    const hasCountLogs = instanceLogs.some(
+      (log) => typeof log.countDelta === 'number',
+    );
+    const currentCount = hasCountLogs
+      ? fixNum(
+          instanceLogs.reduce((sum, log) => sum + (log.countDelta || 0), 0),
+        )
+      : instance.currentCount ?? instance.count ?? 1;
+    const latestLog = instanceLogs[instanceLogs.length - 1];
+    const currentStatus =
+      currentCount <= 0
+        ? latestLog?.toStatus || FXA_INSTANCE_STATUSES.DISPOSED
+        : FXA_INSTANCE_STATUSES.ACTIVE;
+    const currentBranchId = latestLog?.toBranchId || instance.branchId;
+    const currentDepartmentId =
+      latestLog?.toDepartmentId || instance.departmentId;
+    const currentResponsibleUserId =
+      latestLog?.toResponsibleUserId || instance.responsibleUserId;
+    const $set: Record<string, string | number | Date> = {
+      currentCount,
+      currentStatus,
+      status: currentStatus,
+      updatedAt: new Date(),
+    };
+    const $unset: Record<string, string> = {};
+
+    if (currentBranchId) {
+      $set.currentBranchId = currentBranchId;
+      $set.branchId = currentBranchId;
+    } else {
+      $unset.currentBranchId = '';
+      $unset.branchId = '';
+    }
+
+    if (currentDepartmentId) {
+      $set.currentDepartmentId = currentDepartmentId;
+      $set.departmentId = currentDepartmentId;
+    } else {
+      $unset.currentDepartmentId = '';
+      $unset.departmentId = '';
+    }
+
+    if (currentResponsibleUserId) {
+      $set.currentResponsibleUserId = currentResponsibleUserId;
+      $set.responsibleUserId = currentResponsibleUserId;
+    } else {
+      $unset.currentResponsibleUserId = '';
+      $unset.responsibleUserId = '';
+    }
+
+    await models.FxaInstances.updateOne(
+      { _id: instance._id },
+      {
+        $set,
+        ...(Object.keys($unset).length ? { $unset } : {}),
+      },
+    );
+  }
 };
 
 const getLatestAdjustmentDetailsByInstanceId = async (
@@ -237,12 +507,14 @@ export const getFxaDisposalSummaries = async (
   models: IModels,
   transaction: ITransaction | ITransactionDocument,
 ) => {
-  const instanceIds = await getSelectedInstanceIds(models, transaction);
+  const selections = await getSelectedInstanceSelections(models, transaction);
+  const instanceIds = getUniqueFxaInstanceIds(
+    selections.map((selection) => selection.fxaInstanceId),
+  );
   const instances = await models.FxaInstances.findByIds(instanceIds);
   const instancesById = new Map(
     instances.map((instance) => [instance._id, instance]),
   );
-  const instanceIdsByDetailId = getFxaInstanceIdsByDetailId(transaction);
   const adjustmentDetails = await getLatestAdjustmentDetailsByInstanceId(
     models,
     instanceIds,
@@ -250,38 +522,49 @@ export const getFxaDisposalSummaries = async (
 
   return (transaction.details || [])
     .map((detail) => {
-      const detailInstanceIds = detail._id
-        ? instanceIdsByDetailId[detail._id] || []
-        : [];
-      const detailInstances = detailInstanceIds.length
-        ? detailInstanceIds
-            .map((instanceId) => instancesById.get(instanceId))
-            .filter(
-              (instance): instance is (typeof instances)[number] => !!instance,
-            )
-        : instances.filter(
-            (instance) => instance.fixedAssetId === detail.fixedAssetId,
-          );
+      const detailSelections = getFxaInstanceSelectionsForDetail(
+        transaction,
+        detail._id,
+      );
+      const matchedSelections = detailSelections.length
+        ? detailSelections
+        : selections.filter((selection) => {
+            const instance = instancesById.get(selection.fxaInstanceId);
+
+            return instance?.fixedAssetId === detail.fixedAssetId;
+          });
       const accumulatedDepreciation = fixNum(
-        detailInstances.reduce(
-          (sum, instance) =>
+        matchedSelections.reduce((sum, selection) => {
+          const instance = instancesById.get(selection.fxaInstanceId);
+
+          if (!instance) {
+            return sum;
+          }
+
+          return (
             sum +
             (adjustmentDetails.get(instance._id)
-              ?.closingAccumulatedDepreciation || 0),
-          0,
-        ),
+              ?.closingAccumulatedDepreciation || 0) *
+              selection.count
+          );
+        }, 0),
       );
       const originalCost = fixNum(
-        detailInstances.reduce(
-          (sum, instance) => sum + (instance.originalCost || 0),
-          0,
-        ),
+        matchedSelections.reduce((sum, selection) => {
+          const instance = instancesById.get(selection.fxaInstanceId);
+
+          return sum + (instance?.originalCost || 0) * selection.count;
+        }, 0),
+      );
+      const count = matchedSelections.reduce(
+        (sum, selection) => sum + selection.count,
+        0,
       );
 
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        count: detailInstances.length,
+        count,
         originalCost,
         accumulatedDepreciation,
         bookValue: fixNum(originalCost - accumulatedDepreciation),

@@ -19,6 +19,8 @@ export const fxaInstanceLogSchema = new Schema({
   eventDate: { type: Date, label: 'Event date', index: true },
   // Үйл явдлын нэмэлт тайлбар
   description: { type: String, optional: true, label: 'Description' },
+  // Тухайн event-ээр өөрчлөгдөх тоо: орлого +, зарлага/борлуулалт -
+  countDelta: { type: Number, optional: true, label: 'Count delta' },
   // Холбоотой accounting transaction байвал түүний id
   transactionId: { type: String, optional: true, label: 'Transaction' },
   // Холбоотой accounting transaction detail байвал түүний id
@@ -62,4 +64,5 @@ export const fxaInstanceLogSchema = new Schema({
 });
 
 fxaInstanceLogSchema.index({ fxaInstanceId: 1, eventDate: 1 });
+fxaInstanceLogSchema.index({ fixedAssetId: 1, eventDate: 1 });
 fxaInstanceLogSchema.index({ transactionId: 1, transactionDetailId: 1 });

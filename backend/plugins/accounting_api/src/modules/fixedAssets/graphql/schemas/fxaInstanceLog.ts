@@ -6,6 +6,7 @@ export const types = `
     eventType: String
     eventDate: Date
     description: String
+    countDelta: Float
 
     transactionId: String
     transactionDetailId: String

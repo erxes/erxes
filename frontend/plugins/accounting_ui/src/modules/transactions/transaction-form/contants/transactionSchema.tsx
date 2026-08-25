@@ -413,8 +413,10 @@ export const fxaInstanceInputSchema = z.object({
   tempId: undefed(z.string()),
   transactionDetailId: z.string(),
   fixedAssetId: z.string(),
+  primaryInstanceId: undefed(z.string()),
   code: undefed(z.string()),
   sequence: undefed(z.number()),
+  count: undefed(z.number()),
   branchId: undefed(z.string()),
   departmentId: undefed(z.string()),
   responsibleUserId: undefed(z.string()),
@@ -422,10 +424,19 @@ export const fxaInstanceInputSchema = z.object({
   depreciationStartDate: undefed(z.date()),
 });
 
+export const fxaInstanceSelectionSchema = z.object({
+  fxaInstanceId: z.string(),
+  count: z.number().gt(0),
+});
+
 export const fxaExtraDataSchema = z.object({
   fxaInstances: undefed(z.array(fxaInstanceInputSchema)),
   fxaInstanceIds: undefed(z.array(z.string())),
   fxaInstanceIdsByDetailId: undefed(z.record(z.array(z.string()))),
+  fxaInstanceSelections: undefed(z.array(fxaInstanceSelectionSchema)),
+  fxaInstanceSelectionsByDetailId: undefed(
+    z.record(z.array(fxaInstanceSelectionSchema)),
+  ),
 });
 
 export const transactionFxaIncomeSchema = z

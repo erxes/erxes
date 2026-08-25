@@ -338,6 +338,9 @@ const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => ({
   fxaInstances: doc?.extraData?.fxaInstances || [],
   fxaInstanceIds: doc?.extraData?.fxaInstanceIds || [],
   fxaInstanceIdsByDetailId: doc?.extraData?.fxaInstanceIdsByDetailId || {},
+  fxaInstanceSelections: doc?.extraData?.fxaInstanceSelections || [],
+  fxaInstanceSelectionsByDetailId:
+    doc?.extraData?.fxaInstanceSelectionsByDetailId || {},
 });
 
 const FXA_INCOME_JOURNAL_DEFAULT_VALUES = (

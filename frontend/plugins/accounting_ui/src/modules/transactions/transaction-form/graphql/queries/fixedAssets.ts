@@ -34,15 +34,22 @@ export const FXA_INSTANCES_QUERY = gql`
     ) {
       _id
       fixedAssetId
+      primaryInstanceId
       code
       sequence
+      count
+      currentCount
       status
+      currentStatus
       originalCost
       accumulatedDepreciation
       bookValue
       branchId
+      currentBranchId
       departmentId
+      currentDepartmentId
       responsibleUserId
+      currentResponsibleUserId
     }
   }
 `;

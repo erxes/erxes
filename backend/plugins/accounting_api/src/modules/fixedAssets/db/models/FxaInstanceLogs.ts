@@ -11,7 +11,10 @@ export interface IFxaInstanceLogModel extends Model<IFxaInstanceLogDocument> {
     allowedEventType: string,
   ): Promise<boolean>;
   deleteForInstances(instanceIds: string[]): Promise<void>;
-  deleteByTransaction(transactionId: string, eventType?: string): Promise<void>;
+  deleteByTransaction(
+    transactionId: string,
+    eventType?: string | string[],
+  ): Promise<void>;
   findByTransaction(
     transactionId: string,
     eventType: string | string[],
@@ -52,12 +55,14 @@ export const loadFxaInstanceLogClass = () => {
     public static async deleteByTransaction(
       this: IFxaInstanceLogModel,
       transactionId: string,
-      eventType?: string,
+      eventType?: string | string[],
     ) {
       const selector: Record<string, unknown> = { transactionId };
 
       if (eventType) {
-        selector.eventType = eventType;
+        selector.eventType = Array.isArray(eventType)
+          ? { $in: eventType }
+          : eventType;
       }
 
       await this.deleteMany(selector);

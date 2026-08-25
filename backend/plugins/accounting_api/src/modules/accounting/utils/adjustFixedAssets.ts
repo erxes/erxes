@@ -49,6 +49,23 @@ type TFxaSnapshot = {
   status?: string;
 };
 
+type TPreviousPrimaryDetail = {
+  closingAccumulatedDepreciation: number;
+  closingBookValue: number;
+};
+
+type TPrimaryGroupDepreciationRow = {
+  depreciationAmount: number;
+  originalCost: number;
+  salvageValue: number;
+  openingBookValue: number;
+  openingAccumulatedDepreciation: number;
+  closingAccumulatedDepreciation: number;
+  closingBookValue: number;
+  error: string;
+  warning: string;
+};
+
 const getPureDate = (value: Date) => {
   const date = new Date(value);
   date.setHours(0, 0, 0, 0);
@@ -309,6 +326,40 @@ const getPreviousDetailMap = async (models: IModels, adjustId?: string) => {
   return map;
 };
 
+const getPrimaryInstanceId = (instance: IFxaInstanceDocument) =>
+  instance.primaryInstanceId || instance._id;
+
+const getPreviousPrimaryDetailMap = (
+  previousDetails: Map<string, IAdjustFxaDetail>,
+  instances: IFxaInstanceDocument[],
+) => {
+  const map = new Map<string, TPreviousPrimaryDetail>();
+
+  for (const instance of instances) {
+    const previousDetail = previousDetails.get(instance._id);
+
+    if (!previousDetail) {
+      continue;
+    }
+
+    const primaryInstanceId = getPrimaryInstanceId(instance);
+    const current = map.get(primaryInstanceId) || {
+      closingAccumulatedDepreciation: 0,
+      closingBookValue: 0,
+    };
+
+    map.set(primaryInstanceId, {
+      closingAccumulatedDepreciation:
+        current.closingAccumulatedDepreciation +
+        (previousDetail.closingAccumulatedDepreciation || 0),
+      closingBookValue:
+        current.closingBookValue + (previousDetail.closingBookValue || 0),
+    });
+  }
+
+  return map;
+};
+
 const getInstanceAccountMap = async (
   models: IModels,
   instances: { _id: string; transactionDetailId?: string }[],
@@ -358,33 +409,12 @@ const getUncompletedFixedAssetTransaction = async (
     .lean();
 };
 
-const getFxaPeriodLogs = async (
-  models: IModels,
-  beginDate: Date,
-  endDate: Date,
-) => {
+const getFxaPeriodLogs = async (models: IModels, endDate: Date) => {
   return models.FxaInstanceLogs.find({
-    eventDate: { $gte: beginDate, $lte: endDate },
+    eventDate: { $lte: endDate },
   })
     .sort({ eventDate: 1, createdAt: 1 })
     .lean();
-};
-
-const getFirstTerminalLogDate = (
-  logs: IFxaInstanceLogDocument[],
-  instanceId: string,
-) => {
-  const terminalLog = logs.find(
-    (log) =>
-      log.fxaInstanceId === instanceId &&
-      [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE].includes(
-        log.eventType,
-      ),
-  );
-
-  return terminalLog?.eventDate
-    ? getPureDate(terminalLog.eventDate)
-    : undefined;
 };
 
 const getInstanceSnapshotAtDate = (
@@ -417,6 +447,67 @@ const getInstanceSnapshotAtDate = (
   return snapshot;
 };
 
+const getInstanceCountAtDate = (
+  instance: IFxaInstanceDocument,
+  logs: IFxaInstanceLogDocument[],
+  date: Date,
+) => {
+  const instanceLogs = logs.filter(
+    (log) =>
+      log.fxaInstanceId === instance._id &&
+      getPureDate(log.eventDate).getTime() <= date.getTime(),
+  );
+  const hasCountLogs = instanceLogs.some(
+    (log) => typeof log.countDelta === 'number',
+  );
+
+  if (hasCountLogs) {
+    return Math.max(
+      0,
+      instanceLogs.reduce((sum, log) => sum + (log.countDelta || 0), 0),
+    );
+  }
+
+  const acquisitionDate = instance.acquisitionDate
+    ? getPureDate(instance.acquisitionDate)
+    : undefined;
+
+  if (!acquisitionDate || acquisitionDate > date) {
+    return 0;
+  }
+
+  return instance.currentCount ?? instance.count ?? 1;
+};
+
+const getRawInstanceCountAtDate = (
+  instance: IFxaInstanceDocument,
+  logs: IFxaInstanceLogDocument[],
+  date: Date,
+) => {
+  const instanceLogs = logs.filter(
+    (log) =>
+      log.fxaInstanceId === instance._id &&
+      getPureDate(log.eventDate).getTime() <= date.getTime(),
+  );
+  const hasCountLogs = instanceLogs.some(
+    (log) => typeof log.countDelta === 'number',
+  );
+
+  if (hasCountLogs) {
+    return instanceLogs.reduce((sum, log) => sum + (log.countDelta || 0), 0);
+  }
+
+  const acquisitionDate = instance.acquisitionDate
+    ? getPureDate(instance.acquisitionDate)
+    : undefined;
+
+  if (!acquisitionDate || acquisitionDate > date) {
+    return 0;
+  }
+
+  return instance.currentCount ?? instance.count ?? 1;
+};
+
 const isInstanceActiveOnDate = (
   instance: IFxaInstanceDocument,
   logs: IFxaInstanceLogDocument[],
@@ -430,9 +521,7 @@ const isInstanceActiveOnDate = (
     return false;
   }
 
-  const terminalDate = getFirstTerminalLogDate(logs, instance._id);
-
-  return !terminalDate || terminalDate >= date;
+  return getInstanceCountAtDate(instance, logs, date) > 0;
 };
 
 const validateFxaLog = (log: IFxaInstanceLogDocument) => {
@@ -513,6 +602,124 @@ const validateInstanceForDepreciation = ({
   return '';
 };
 
+const calculatePrimaryGroupDepreciationByDay = ({
+  beginDate,
+  depreciationMethod,
+  endDate,
+  fixedAsset,
+  instances,
+  logs,
+  openingAccumulatedDepreciation,
+  scheduleStartDate,
+}: {
+  beginDate: Date;
+  depreciationMethod: string;
+  endDate: Date;
+  fixedAsset?: { salvageValue?: number; usefulLife?: number };
+  instances: IFxaInstanceDocument[];
+  logs: IFxaInstanceLogDocument[];
+  openingAccumulatedDepreciation: number;
+  scheduleStartDate: Date;
+}) => {
+  const [primaryInstance] = instances;
+  const originalCost = primaryInstance?.originalCost || 0;
+  const salvageValue =
+    primaryInstance?.salvageValue ?? fixedAsset?.salvageValue ?? 0;
+  const openingCount = instances.reduce(
+    (sum, instance) =>
+      sum + getInstanceCountAtDate(instance, logs, addDays(beginDate, -1)),
+    0,
+  );
+  const activeCount = instances.reduce(
+    (sum, instance) => sum + getInstanceCountAtDate(instance, logs, beginDate),
+    0,
+  );
+  const depreciationByInstanceId = new Map<string, number>();
+  let currentDate = beginDate;
+  let warning = '';
+  let error = '';
+  let perUnitAccumulated =
+    openingCount > 0
+      ? openingAccumulatedDepreciation / openingCount
+      : openingAccumulatedDepreciation / Math.max(activeCount, 1);
+
+  while (currentDate <= endDate) {
+    const counts = instances.map((instance) => ({
+      instance,
+      count: getInstanceCountAtDate(instance, logs, currentDate),
+    }));
+    const totalCount = counts.reduce((sum, item) => sum + item.count, 0);
+
+    if (totalCount <= 0) {
+      currentDate = addDays(currentDate, 1);
+      continue;
+    }
+
+    const dailyResult = calculateDepreciationByMethod(depreciationMethod, {
+      originalCost,
+      salvageValue,
+      usefulLife: primaryInstance?.usefulLife || fixedAsset?.usefulLife,
+      startDate: currentDate,
+      endDate: currentDate,
+      scheduleStartDate,
+      openingAccumulatedDepreciation: perUnitAccumulated,
+    });
+    const perUnitDepreciation = dailyResult.amount;
+
+    for (const { instance, count } of counts) {
+      if (count <= 0) {
+        continue;
+      }
+
+      depreciationByInstanceId.set(
+        instance._id,
+        (depreciationByInstanceId.get(instance._id) || 0) +
+          perUnitDepreciation * count,
+      );
+    }
+
+    perUnitAccumulated = dailyResult.closingAccumulatedDepreciation;
+    warning = warning || dailyResult.warning;
+    error = error || dailyResult.error;
+    currentDate = addDays(currentDate, 1);
+  }
+
+  return instances.reduce<Map<string, TPrimaryGroupDepreciationRow>>(
+    (map, instance) => {
+      const openingInstanceCount = getInstanceCountAtDate(
+        instance,
+        logs,
+        addDays(beginDate, -1),
+      );
+      const closingCount = getInstanceCountAtDate(instance, logs, endDate);
+      const openingAccumulated =
+        openingCount > 0
+          ? openingAccumulatedDepreciation *
+            (openingInstanceCount / openingCount)
+          : 0;
+      const closingAccumulated = perUnitAccumulated * closingCount;
+      const closingOriginalCost = originalCost * closingCount;
+      const closingSalvageValue = salvageValue * closingCount;
+
+      map.set(instance._id, {
+        depreciationAmount: depreciationByInstanceId.get(instance._id) || 0,
+        originalCost: closingOriginalCost,
+        salvageValue: closingSalvageValue,
+        openingBookValue:
+          originalCost * openingInstanceCount - openingAccumulated,
+        openingAccumulatedDepreciation: openingAccumulated,
+        closingAccumulatedDepreciation: closingAccumulated,
+        closingBookValue: closingOriginalCost - closingAccumulated,
+        error,
+        warning,
+      });
+
+      return map;
+    },
+    new Map(),
+  );
+};
+
 const validateFxaAdjustmentByDay = async ({
   adjustId,
   accountByInstanceId,
@@ -576,6 +783,15 @@ const validateFxaAdjustmentByDay = async ({
     }
 
     for (const instance of instances) {
+      const rawCount = getRawInstanceCountAtDate(instance, logs, currentDate);
+
+      if (rawCount < 0) {
+        return {
+          successDate: addDays(currentDate, -1),
+          error: `Fixed asset instance quantity became negative. Instance: ${instance._id}`,
+        };
+      }
+
       if (!isInstanceActiveOnDate(instance, logs, currentDate)) {
         continue;
       }
@@ -763,10 +979,14 @@ export const runAdjustFixedAsset = async (
     adjust,
   );
   const endDate = getPureDate(adjust.date);
-  const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
   const instances = await models.FxaInstances.find({
     acquisitionDate: { $lte: endDate },
   }).lean();
+  const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
+  const previousPrimaryDetails = getPreviousPrimaryDetailMap(
+    previousDetails,
+    instances,
+  );
   const fixedAssets = await models.FixedAssets.find({
     _id: { $in: instances.map((instance) => instance.fixedAssetId) },
   }).lean();
@@ -774,7 +994,7 @@ export const runAdjustFixedAsset = async (
     fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
   );
   const accountByInstanceId = await getInstanceAccountMap(models, instances);
-  const logs = await getFxaPeriodLogs(models, beginDate, endDate);
+  const logs = await getFxaPeriodLogs(models, endDate);
   const validationResult = await validateFxaAdjustmentByDay({
     adjustId: adjust._id,
     accountByInstanceId,
@@ -805,68 +1025,94 @@ export const runAdjustFixedAsset = async (
     });
   }
 
-  for (const instance of instances) {
-    const fixedAsset = fixedAssetById.get(instance.fixedAssetId);
-    const previousDetail = previousDetails.get(instance._id);
-    const terminalDate = getFirstTerminalLogDate(logs, instance._id);
-    const depreciationEndDate =
-      terminalDate && terminalDate < endDate ? terminalDate : endDate;
-    const scheduleStartDate = getPureDate(
-      instance.depreciationStartDate || instance.acquisitionDate || beginDate,
+  const instancesByPrimaryId = instances.reduce<
+    Map<string, IFxaInstanceDocument[]>
+  >((map, instance) => {
+    const primaryInstanceId = getPrimaryInstanceId(instance);
+
+    map.set(primaryInstanceId, [
+      ...(map.get(primaryInstanceId) || []),
+      instance,
+    ]);
+
+    return map;
+  }, new Map());
+
+  for (const [primaryInstanceId, primaryInstances] of instancesByPrimaryId) {
+    const primaryInstance =
+      primaryInstances.find((instance) => instance._id === primaryInstanceId) ||
+      primaryInstances[0];
+    const fixedAsset = fixedAssetById.get(primaryInstance.fixedAssetId);
+    const previousPrimaryDetail = previousPrimaryDetails.get(primaryInstanceId);
+    const activeCount = primaryInstances.reduce(
+      (sum, instance) => sum + getInstanceCountAtDate(instance, logs, endDate),
+      0,
     );
-    const startDate = previousDetail?.closingBookValue
+    const depreciationEndDate = endDate;
+    const scheduleStartDate = getPureDate(
+      primaryInstance.depreciationStartDate ||
+        primaryInstance.acquisitionDate ||
+        beginDate,
+    );
+    const startDate = previousPrimaryDetail?.closingBookValue
       ? beginDate
       : scheduleStartDate;
 
-    if (startDate > depreciationEndDate) {
+    if (startDate > depreciationEndDate || activeCount <= 0) {
       continue;
     }
 
-    const originalCost = instance.originalCost || 0;
-    const salvageValue = instance.salvageValue ?? fixedAsset?.salvageValue ?? 0;
     const openingAccumulatedDepreciation =
-      previousDetail?.closingAccumulatedDepreciation || 0;
-    const openingBookValue = originalCost - openingAccumulatedDepreciation;
+      previousPrimaryDetail?.closingAccumulatedDepreciation || 0;
     const depreciationMethod =
-      instance.depreciationMethod ||
+      primaryInstance.depreciationMethod ||
       fixedAsset?.depreciationMethod ||
       'straightLine';
-    const accountId = accountByInstanceId.get(instance._id);
-    const result = calculateDepreciationByMethod(depreciationMethod, {
-      originalCost,
-      salvageValue,
-      usefulLife: instance.usefulLife || fixedAsset?.usefulLife,
-      startDate,
+    const resultByInstanceId = calculatePrimaryGroupDepreciationByDay({
+      beginDate: startDate,
+      depreciationMethod,
       endDate: depreciationEndDate,
+      fixedAsset,
+      instances: primaryInstances,
+      logs,
       scheduleStartDate,
       openingAccumulatedDepreciation,
     });
-    const snapshot = getInstanceSnapshotAtDate(
-      instance,
-      logs,
-      depreciationEndDate,
-    );
 
-    details.push({
-      adjustId: adjust._id,
-      fxaInstanceId: instance._id,
-      fixedAssetId: instance.fixedAssetId,
-      categoryId: instance.categoryId || fixedAsset?.categoryId,
-      accountId,
-      branchId: snapshot.branchId,
-      departmentId: snapshot.departmentId,
-      originalCost,
-      salvageValue,
-      openingBookValue,
-      openingAccumulatedDepreciation,
-      depreciationAmount: result.amount,
-      bookDepreciationAmount: result.amount,
-      closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
-      closingBookValue: result.closingBookValue,
-      error:
-        result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
-      warning: result.warning,
-    });
+    for (const instance of primaryInstances) {
+      const result = resultByInstanceId.get(instance._id);
+      const accountId = accountByInstanceId.get(instance._id);
+      const snapshot = getInstanceSnapshotAtDate(
+        instance,
+        logs,
+        depreciationEndDate,
+      );
+
+      if (!result || result.originalCost <= 0) {
+        continue;
+      }
+
+      details.push({
+        adjustId: adjust._id,
+        fxaInstanceId: instance._id,
+        fixedAssetId: instance.fixedAssetId,
+        categoryId: instance.categoryId || fixedAsset?.categoryId,
+        accountId,
+        branchId: snapshot.branchId,
+        departmentId: snapshot.departmentId,
+        originalCost: result.originalCost,
+        salvageValue: result.salvageValue,
+        openingBookValue: result.openingBookValue,
+        openingAccumulatedDepreciation: result.openingAccumulatedDepreciation,
+        depreciationAmount: result.depreciationAmount,
+        bookDepreciationAmount: result.depreciationAmount,
+        closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
+        closingBookValue: result.closingBookValue,
+        error:
+          result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
+        warning: result.warning,
+      });
+    }
   }
 
   await models.AdjustFxaDetails.replaceAdjustFxaDetails({

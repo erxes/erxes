@@ -6,6 +6,7 @@ export interface IFxaInstanceLog {
   eventType: string;
   eventDate: Date;
   description?: string;
+  countDelta?: number;
 
   transactionId?: string;
   transactionDetailId?: string;

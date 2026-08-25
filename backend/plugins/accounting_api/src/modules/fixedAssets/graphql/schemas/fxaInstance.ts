@@ -2,9 +2,13 @@ export const types = `
   type FxaInstance @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     fixedAssetId: String
+    primaryInstanceId: String
     categoryId: String
     code: String
     sequence: Int
+    count: Float
+    currentCount: Float
+    currentStatus: String
     status: String
 
     originalCost: Float
@@ -23,6 +27,9 @@ export const types = `
     branchId: String
     departmentId: String
     responsibleUserId: String
+    currentBranchId: String
+    currentDepartmentId: String
+    currentResponsibleUserId: String
 
     transactionDetailId: String
 

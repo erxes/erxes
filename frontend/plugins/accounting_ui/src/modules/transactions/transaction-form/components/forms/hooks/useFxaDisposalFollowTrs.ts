@@ -13,9 +13,16 @@ import { fixSumDtCt, getTempId } from '../../utils';
 type TFxaDisposalInstance = {
   _id: string;
   fixedAssetId: string;
+  count?: number;
+  currentCount?: number;
   originalCost?: number;
   accumulatedDepreciation?: number;
   bookValue?: number;
+};
+
+type TFxaInstanceSelection = {
+  fxaInstanceId: string;
+  count: number;
 };
 
 type TFxaDisposalSummary = {
@@ -27,57 +34,110 @@ type TFxaDisposalSummary = {
   bookValue: number;
 };
 
-const getDetailInstances = (
-  detail: TFxaDetail,
-  instances: TFxaDisposalInstance[],
-  instanceIdsByDetailId?: Record<string, string[]>,
-) =>
-  instanceIdsByDetailId?.[detail._id || '']?.length
-    ? instances.filter((instance) =>
-        instanceIdsByDetailId[detail._id || ''].includes(instance._id),
-      )
-    : instances.filter(
-        (instance) => instance.fixedAssetId === detail.fixedAssetId,
-      );
+const normalizeSelections = (selections?: TFxaInstanceSelection[]) =>
+  (selections || [])
+    .map((selection) => ({
+      fxaInstanceId: selection.fxaInstanceId,
+      count: Math.max(0, Math.trunc(selection.count || 0)),
+    }))
+    .filter((selection) => selection.fxaInstanceId && selection.count > 0);
+
+const idsToSelections = (ids?: string[]) =>
+  (ids || []).map((fxaInstanceId) => ({ fxaInstanceId, count: 1 }));
+
+const getDetailSelections = ({
+  detail,
+  instanceIdsByDetailId,
+  instances,
+  selections,
+  selectionsByDetailId,
+}: {
+  detail: TFxaDetail;
+  instanceIdsByDetailId?: Record<string, string[]>;
+  instances: TFxaDisposalInstance[];
+  selections: TFxaInstanceSelection[];
+  selectionsByDetailId?: Record<string, TFxaInstanceSelection[]>;
+}) => {
+  const detailId = detail._id || '';
+  const mappedSelections = normalizeSelections(selectionsByDetailId?.[detailId]);
+
+  if (mappedSelections.length) {
+    return mappedSelections;
+  }
+
+  const legacySelections = idsToSelections(instanceIdsByDetailId?.[detailId]);
+
+  if (legacySelections.length) {
+    return legacySelections;
+  }
+
+  return selections.filter((selection) =>
+    instances.some(
+      (instance) =>
+        instance._id === selection.fxaInstanceId &&
+        instance.fixedAssetId === detail.fixedAssetId,
+    ),
+  );
+};
 
 const buildSummary = (
   details: TFxaDetail[],
   instances: TFxaDisposalInstance[] = [],
+  selections: TFxaInstanceSelection[] = [],
   instanceIdsByDetailId?: Record<string, string[]>,
+  selectionsByDetailId?: Record<string, TFxaInstanceSelection[]>,
 ) =>
   details
     .map((detail) => {
-      const detailInstances = getDetailInstances(
+      const detailSelections = getDetailSelections({
         detail,
         instances,
+        selections,
         instanceIdsByDetailId,
+        selectionsByDetailId,
+      });
+      const instancesById = new Map(
+        instances.map((instance) => [instance._id, instance]),
+      );
+      const count = detailSelections.reduce(
+        (sum, selection) => sum + selection.count,
+        0,
       );
 
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        count: detailInstances.length,
+        count,
         originalCost: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.originalCost || 0),
-            0,
-          ),
+          detailSelections.reduce((sum, selection) => {
+            const instance = instancesById.get(selection.fxaInstanceId);
+
+            return sum + (instance?.originalCost || 0) * selection.count;
+          }, 0),
         ),
         accumulatedDepreciation: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.accumulatedDepreciation || 0),
-            0,
-          ),
+          detailSelections.reduce((sum, selection) => {
+            const instance = instancesById.get(selection.fxaInstanceId);
+            const currentCount = instance?.currentCount ?? instance?.count ?? 1;
+            const perUnitAccumulated = currentCount
+              ? (instance?.accumulatedDepreciation || 0) / currentCount
+              : 0;
+
+            return sum + perUnitAccumulated * selection.count;
+          }, 0),
         ),
         bookValue: fixNum(
-          detailInstances.reduce(
-            (sum, instance) =>
-              sum +
-              (instance.bookValue ??
-                (instance.originalCost || 0) -
-                  (instance.accumulatedDepreciation || 0)),
-            0,
-          ),
+          detailSelections.reduce((sum, selection) => {
+            const instance = instancesById.get(selection.fxaInstanceId);
+            const currentCount = instance?.currentCount ?? instance?.count ?? 1;
+            const perUnitBookValue = currentCount
+              ? (instance?.bookValue ||
+                  (instance?.originalCost || 0) * currentCount -
+                    (instance?.accumulatedDepreciation || 0)) / currentCount
+              : 0;
+
+            return sum + perUnitBookValue * selection.count;
+          }, 0),
         ),
       };
     })
@@ -199,9 +259,17 @@ export const useFxaDisposalFollowTrs = ({
     name: `trDocs.${journalIndex}`,
   }) as ITransaction;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
-  const selectedIds = trDoc?.extraData?.fxaInstanceIds || [];
+  const selections = normalizeSelections(
+    trDoc?.extraData?.fxaInstanceSelections,
+  );
+  const selectedIds =
+    selections.length > 0
+      ? Array.from(new Set(selections.map((selection) => selection.fxaInstanceId)))
+      : trDoc?.extraData?.fxaInstanceIds || [];
   const selectedIdsByDetailId =
     trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
+  const selectionsByDetailId =
+    trDoc?.extraData?.fxaInstanceSelectionsByDetailId || {};
   const { data } = useQuery<{ fxaInstances: TFxaDisposalInstance[] }>(
     FXA_INSTANCES_QUERY,
     {
@@ -218,7 +286,9 @@ export const useFxaDisposalFollowTrs = ({
     const summaries = buildSummary(
       (trDoc?.details || []) as TFxaDetail[],
       data?.fxaInstances || [],
+      selections,
       selectedIdsByDetailId,
+      selectionsByDetailId,
     );
 
     const currentDetails = (trDoc?.details || []) as TFxaDetail[];

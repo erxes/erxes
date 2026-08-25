@@ -9,10 +9,17 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useWatch } from 'react-hook-form';
-import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TFxaDetail,
+  TTrDoc,
+} from '../../../types/JournalForms';
 import { showAdvancedViewState } from '../../../states/trStates';
 import { FxaDetailLocationCells } from '../FxaDetailLocationCells';
-import { FxaInstanceSelectionSheet } from '../../helpers/FxaInstanceSelectionSheet';
+import {
+  clearFxaInstanceSelectionForDetail,
+  FxaInstanceSelectionSheet,
+} from '../../helpers/FxaInstanceSelectionSheet';
 
 export const FixedAssetRow = ({
   form,
@@ -27,7 +34,30 @@ export const FixedAssetRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   }) as TFxaDetail;
+  const trDoc = useWatch({
+    control: form.control,
+    name: `trDocs.${journalIndex}`,
+  }) as TTrDoc;
   const showAdvancedView = useAtomValue(showAdvancedViewState);
+
+  const handleFixedAssetChange = (fixedAssetId: string | string[]) => {
+    const nextFixedAssetId = Array.isArray(fixedAssetId)
+      ? fixedAssetId[0] || ''
+      : fixedAssetId || '';
+
+    form.setValue(
+      `trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`,
+      nextFixedAssetId,
+    );
+    clearFxaInstanceSelectionForDetail({
+      detailId: detail._id,
+      form,
+      journalIndex,
+      selectedIdsByDetailId: trDoc.extraData?.fxaInstanceIdsByDetailId,
+      selectedSelectionsByDetailId:
+        trDoc.extraData?.fxaInstanceSelectionsByDetailId,
+    });
+  };
 
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">
@@ -78,7 +108,7 @@ export const FixedAssetRow = ({
               <SelectFixedAsset.FormItem
                 mode="single"
                 value={field.value || ''}
-                onValueChange={field.onChange}
+                onValueChange={handleFixedAssetChange}
                 placeholder="Үндсэн хөрөнгө"
                 className="h-8 min-w-60"
               />

@@ -2,9 +2,13 @@ import { Document } from 'mongoose';
 
 export interface IFxaInstance {
   fixedAssetId: string;
+  primaryInstanceId?: string;
   categoryId?: string;
   code: string;
   sequence?: number;
+  count?: number;
+  currentCount?: number;
+  currentStatus?: string;
   status: string;
 
   originalCost: number;
@@ -21,6 +25,9 @@ export interface IFxaInstance {
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
+  currentBranchId?: string;
+  currentDepartmentId?: string;
+  currentResponsibleUserId?: string;
 
   transactionDetailId?: string;
 

@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IFxaInstance, IFxaInstanceDocument } from '../../@types/fxaInstance';
+import { FXA_INSTANCE_STATUSES } from '../../@types/constants';
 import { fxaInstanceSchema } from '../definitions/fxaInstance';
 
 type TFxaSequenceAsset = {
@@ -27,6 +28,14 @@ type TFxaOptionalLocationUpdate = {
   status?: string;
 };
 
+type TFxaMovementBucketParams = {
+  sourceInstance: IFxaInstanceDocument;
+  branchId?: string;
+  departmentId?: string;
+  responsibleUserId?: string;
+  userId: string;
+};
+
 export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
   getCodeSequence(code: string, fixedAssetCode: string): number;
   getSequenceState(
@@ -49,6 +58,9 @@ export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
     doc: IFxaInstance;
     userId: string;
   }): Promise<IFxaInstanceDocument | null>;
+  findOrCreateMovementBucket(
+    params: TFxaMovementBucketParams,
+  ): Promise<IFxaInstanceDocument>;
   restoreDisposalInstance(params: {
     instanceId: string;
     status: string;
@@ -87,6 +99,8 @@ const buildOptionalFieldUpdate = (
 
   return Object.keys($unset).length ? { $set, $unset } : { $set };
 };
+
+const normalizeBucketValue = (value?: string) => value || '';
 
 export const loadFxaInstanceClass = () => {
   class FxaInstance {
@@ -194,7 +208,10 @@ export const loadFxaInstanceClass = () => {
       { status, endDate }: { status: string; endDate: Date },
     ) {
       return this.find({
-        status,
+        $or: [
+          { currentStatus: status },
+          { currentStatus: { $exists: false }, status },
+        ],
         acquisitionDate: { $lte: endDate },
       }).lean();
     }
@@ -217,6 +234,7 @@ export const loadFxaInstanceClass = () => {
           {
             $set: {
               ...doc,
+              primaryInstanceId: doc.primaryInstanceId || _id,
               modifiedBy: userId,
               updatedAt: new Date(),
             },
@@ -225,9 +243,67 @@ export const loadFxaInstanceClass = () => {
         ).lean();
       }
 
+      const instanceId = nanoid();
+
+      return this.create({
+        _id: instanceId,
+        ...doc,
+        primaryInstanceId: doc.primaryInstanceId || instanceId,
+        createdBy: userId,
+        createdAt: new Date(),
+      });
+    }
+
+    public static async findOrCreateMovementBucket(
+      this: IFxaInstanceModel,
+      {
+        sourceInstance,
+        branchId,
+        departmentId,
+        responsibleUserId,
+        userId,
+      }: TFxaMovementBucketParams,
+    ) {
+      const primaryInstanceId =
+        sourceInstance.primaryInstanceId || sourceInstance._id;
+      const bucketKey = {
+        primaryInstanceId,
+        branchId: normalizeBucketValue(branchId),
+        departmentId: normalizeBucketValue(departmentId),
+        responsibleUserId: normalizeBucketValue(responsibleUserId),
+      };
+      const existing = await this.findOne(bucketKey).lean();
+
+      if (existing) {
+        return existing;
+      }
+
       return this.create({
         _id: nanoid(),
-        ...doc,
+        fixedAssetId: sourceInstance.fixedAssetId,
+        primaryInstanceId,
+        categoryId: sourceInstance.categoryId,
+        code: `${sourceInstance.code || sourceInstance._id}-M${nanoid(4)}`,
+        count: 0,
+        currentCount: 0,
+        originalCost: sourceInstance.originalCost,
+        depreciationMethod: sourceInstance.depreciationMethod,
+        usefulLife: sourceInstance.usefulLife,
+        salvageValue: sourceInstance.salvageValue,
+        taxDepreciationMethod: sourceInstance.taxDepreciationMethod,
+        taxUsefulLife: sourceInstance.taxUsefulLife,
+        taxSalvageValue: sourceInstance.taxSalvageValue,
+        acquisitionDate: sourceInstance.acquisitionDate,
+        depreciationStartDate: sourceInstance.depreciationStartDate,
+        branchId: bucketKey.branchId,
+        currentBranchId: bucketKey.branchId,
+        departmentId: bucketKey.departmentId,
+        currentDepartmentId: bucketKey.departmentId,
+        responsibleUserId: bucketKey.responsibleUserId,
+        currentResponsibleUserId: bucketKey.responsibleUserId,
+        status: FXA_INSTANCE_STATUSES.ACTIVE,
+        currentStatus: FXA_INSTANCE_STATUSES.ACTIVE,
+        transactionDetailId: sourceInstance.transactionDetailId,
         createdBy: userId,
         createdAt: new Date(),
       });
@@ -248,6 +324,7 @@ export const loadFxaInstanceClass = () => {
         {
           $set: {
             status,
+            currentStatus: status,
             updatedAt: new Date(),
           },
         },
@@ -259,9 +336,16 @@ export const loadFxaInstanceClass = () => {
       instanceId: string,
       fields: TFxaOptionalLocationUpdate,
     ) {
+      const currentFields = {
+        currentBranchId: fields.branchId,
+        currentDepartmentId: fields.departmentId,
+        currentResponsibleUserId: fields.responsibleUserId,
+        currentStatus: fields.status,
+      };
+
       await this.updateOne(
         { _id: instanceId },
-        buildOptionalFieldUpdate(fields),
+        buildOptionalFieldUpdate({ ...fields, ...currentFields }),
       );
     }
 
@@ -282,6 +366,7 @@ export const loadFxaInstanceClass = () => {
         {
           $set: {
             status,
+            currentStatus: status,
             modifiedBy: userId,
             updatedAt: new Date(),
           },
@@ -308,7 +393,9 @@ export const loadFxaInstanceClass = () => {
         {
           $set: {
             branchId,
+            currentBranchId: branchId,
             departmentId,
+            currentDepartmentId: departmentId,
             modifiedBy: userId,
             updatedAt: new Date(),
           },

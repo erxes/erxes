@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-25`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -25,9 +25,10 @@
 ## Current Capabilities
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
-- Fixed asset income follow-info inputs can store per-instance residual value and opening accumulated depreciation, and opening depreciation values seed a transaction-linked published fixed asset adjustment for later depreciation calculations.
-- Fixed asset income can create instances from detail counts; Erkhet opening migration deliberately avoids persisting the generated instance input array on the transaction to stay under Mongo document limits.
-- Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day; manual depreciation is reserved for a separate entered-detail flow.
+- Fixed asset income follow-info inputs store bucket residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment for later depreciation calculations.
+- Fixed asset income creates one count-bearing bucket instance per fixed-asset detail when no explicit bucket rows are provided; explicit bucket rows are honored per detail, and any detail without explicit rows still gets the default bucket.
+- Fixed asset disposal, sale, and move journals select one bucket instance per detail with an explicit quantity matching that detail; every move writes a source quantity-out log and a destination quantity-in log against a bucket found or created by primary instance, branch, department, and responsible user.
+- Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from each primary instance's shared cost base, allocates depreciation to bucket instances by daily active quantity, validates active bucket quantities from instance log deltas, and reserves manual depreciation for a separate entered-detail flow.
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, VAT, CTAX, inventory, fixed asset, and journal report GraphQL contracts.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
@@ -38,7 +39,7 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories/master records by source code before transactions are imported.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset income instance payloads, auto-selects fixed asset disposal/move instances when Erkhet sends only counts, rejects missing product/fixed-asset references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset income bucket payloads, auto-selects fixed asset disposal/move quantity selections when Erkhet sends only counts, rejects missing product/fixed-asset references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -88,10 +89,12 @@
 - Closing calculation stores `status: "process"`, `beginDate`, `successDate`, `checkedAt`, grouped details, `error`, and `warning`; transaction execution creates linked `main` journal parent/child transactions and marks status `complete`.
 - Accounting transaction documents store journal, side, date, status, details, branch/department/customer context, parent transaction linkage, and plugin-specific `extraData`.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
-- Fixed asset instance, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
-- Fixed asset income transactions may create system opening fixed asset adjustments with `_id` shaped as `fxa-opening:<transactionId>`; those adjustments are maintained only from the acquisition transaction's instance inputs.
-- Fixed asset income transaction `followInfos.fxaIncomeInstances` owns per-instance residual and opening depreciation inputs; instance documents store residual value for depreciation calculation but do not store opening accumulated depreciation.
-- Erkhet count-only opening fixed asset income transactions store created instances and acquisition logs in fixed asset collections, but do not store generated `extraData.fxaInstances` arrays on the transaction document.
+- Fixed asset instance, fixed asset instance log, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
+- Fixed asset income transactions may create system opening fixed asset adjustments with `_id` shaped as `fxa-opening:<transactionId>`; those adjustments are maintained from explicit or default acquisition bucket inputs.
+- Fixed asset income transaction `followInfos.fxaIncomeInstances` owns bucket residual and opening depreciation inputs; instance documents store residual value for depreciation calculation but do not store opening accumulated depreciation.
+- Fixed asset transaction `extraData.fxaInstanceSelections` and `extraData.fxaInstanceSelectionsByDetailId` store `{ fxaInstanceId, count }` selections; mapped selections must contain at most one instance per detail and match the detail's fixed asset and count, while legacy `fxaInstanceIds` fields are read-compatible only as one-count selections.
+- Fixed asset instance documents store acquisition identity, `primaryInstanceId`, unit cost, bucket count, and current-state cache fields; historical quantity and location state must be derived from `fxa_instance_logs.countDelta` and event dates.
+- Erkhet count-only opening fixed asset income transactions store created bucket instances and acquisition logs in fixed asset collections, but do not store generated `extraData.fxaInstances` arrays on the transaction document.
 
 ## Local Invariants
 
@@ -104,7 +107,7 @@
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
 - Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as normalized `contentType/contentId` when present (`sale` maps to `sales:deal`; other sync types map to `erkhet:<sync_type>`) and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
 - Erkhet migration source codes must be trimmed before lookup and persistence metadata so leading/trailing whitespace in legacy Erkhet references does not block account, branch, department, product, fixed-asset, customer, or instance resolution.
-- Erkhet fixed asset disposal, sale, and move imports may omit instance refs when Erkhet only knows a count; the migration route must then select active erxes instances deterministically by fixed asset, preferring matching branch/department and falling back to the earliest active instances for that fixed asset.
+- Erkhet fixed asset disposal, sale, and move imports may omit instance refs when Erkhet only knows a count; the migration route must then build deterministic `{ fxaInstanceId, count }` selections by fixed asset, preferring matching branch/department and falling back to the earliest active bucket instances for that fixed asset.
 - Erkhet reference migration is the only product and fixed-asset master-data bootstrap path; transaction migration must not create products or fixed asset master records and must strip obsolete detail follow-info keys before persistence.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
@@ -112,7 +115,12 @@
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - System opening fixed asset adjustments must stay published, dated one day before their acquisition transaction, and regenerated or removed from fixed asset income instance synchronization.
-- Erkhet opening fixed asset income must not persist generated count-based `extraData.fxaInstances`; regular fixed asset income with explicit instance inputs still persists those inputs for edit/match behavior.
+- Erkhet opening fixed asset income must not persist auto-generated bucket `extraData.fxaInstances`; regular fixed asset income may persist explicit bucket inputs for edit/match behavior.
+- Fixed asset income explicit bucket counts must match the parent detail count for that detail; details without explicit buckets are allowed because the backend creates one default bucket for them.
+- Fixed asset disposal, sale, and move mapped selections must keep `one detail = one selected instance bucket`; mixing multiple buckets requires multiple transaction details so branch and department remain unambiguous.
+- Fixed asset move always creates or reuses a destination bucket keyed by `primaryInstanceId`, `branchId`, `departmentId`, and `responsibleUserId`; full moves must not mutate the source bucket's branch or department in place.
+- Fixed asset depreciation must be calculated once per `primaryInstanceId` cost base and allocated across bucket instances by active quantity for each day.
+- Fixed asset instance status, count, branch, department, and responsible-user cache fields must be updated through log rebuild after income, disposal, sale, and move synchronization; journal utilities must not rely on direct status/location mutation as the source of truth.
 - Automatic fixed asset adjustment calculation supports every fixed asset depreciation method except `manual`; `manual` must fail validation until an entered-depreciation detail flow exists.
 
 ## Validation
@@ -130,9 +138,21 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-26` — `Fixed Asset Primary Buckets`
+
+- **Summary:** Fixed asset buckets now carry `primaryInstanceId`, move-in quantities merge by primary/location/responsible key, and depreciation is calculated per primary cost base then allocated by daily bucket quantity.
+- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/fixedAssets`.
+- **Contracts changed:** Fixed asset instances expose `primaryInstanceId`; move synchronization creates or reuses destination buckets instead of mutating source bucket location.
+
+### `2026-08-25` — `Fixed Asset Quantity Instance Logs`
+
+- **Summary:** Fixed asset income now creates count-bearing bucket instances, disposal/sale/move journals validate one selected bucket per detail before writing count-delta logs, adjustment reads active quantities from logs, and current instance cache is rebuilt from logs after synchronization.
+- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaOut.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/fixedAssets`.
+- **Contracts changed:** Fixed asset transaction `extraData` accepts `fxaInstanceSelections` and `fxaInstanceSelectionsByDetailId` with `{ fxaInstanceId, count }`; fixed asset instances and logs expose count/current-state fields.
+
 ### `2026-08-25` — `Erkhet Opening Fixed Asset Storage`
 
-- **Summary:** Count-only Erkhet opening fixed asset income now creates instances and logs without writing the generated instance input array back onto the transaction document.
+- **Summary:** Count-only Erkhet opening fixed asset income now creates bucket instances and logs without writing auto-generated bucket inputs back onto the transaction document.
 - **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`.
 - **Contracts changed:** None.
 
@@ -153,18 +173,6 @@
 - **Summary:** Inventory out adjustment recalculation now updates related main, receivable, or payable debit transaction amounts to preserve pointer balance while leaving cash/bank debit amounts unchanged.
 - **Affected areas:** `src/modules/accounting/utils/inventories.ts`, `src/modules/accounting/db/models/Transactions.ts`, `src/modules/accounting/utils/__tests__/inventories.test.ts`.
 - **Contracts changed:** None.
-
-### `2026-08-21` — `Fixed Asset Depreciation Methods`
-
-- **Summary:** Fixed asset adjustment calculation now supports straight-line, sum-of-years-digits, double-declining-balance, and declining-balance depreciation methods by day while keeping manual method validation explicit.
-- **Affected areas:** `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-21` — `Fixed Asset Opening Depreciation`
-
-- **Summary:** Fixed asset income synchronization now reads residual value and opening accumulated depreciation from transaction followInfos and seeds transaction-linked opening depreciation adjustment details.
-- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/fixedAssets`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
-- **Contracts changed:** Fixed asset income `followInfos.fxaIncomeInstances` accepts optional `salvageValue` and `openingAccumulatedDepreciation`.
 
 ### `2026-08-21` — `Erkhet Contract Cleanup`
 
@@ -188,22 +196,4 @@
 
 - **Summary:** Related account storage no longer creates nested `_id` values, transaction updates clear omitted custom overrides, and pointer status refreshes trim or unset empty custom related-account overrides while recalculating default debit and credit codes.
 - **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`, `src/modules/accounting/db/models/Transactions.ts`, `src/modules/accounting/db/models/utils.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-16` — `Related Account Override Normalization`
-
-- **Summary:** Transaction create/update paths now discard empty related-account override payloads before persistence, and pointer status refreshes recalculate related accounts from every transaction sharing the same `ptrId`.
-- **Affected areas:** `src/modules/accounting/@types/transaction.ts`, `src/modules/accounting/db/models/Transactions.ts`, `src/modules/accounting/db/models/utils.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Erkhet Report Naming`
-
-- **Summary:** Journal report internals now use Erkhet-aligned names such as `ReportBase`, `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
-- **Affected areas:** `src/modules/accounting/utils/journalReports`.
-- **Contracts changed:** None.
-
-### `2026-08-14` — `Journal Report Balance Boundaries`
-
-- **Summary:** Journal report aggregation now matches Erkhet date splitting with opening rows before the begin date and between rows from the begin date, preserves explicit journal filters by intersecting strategy filters, and groups branch/department from detail-level values before falling back to transaction root values.
-- **Affected areas:** `src/modules/accounting/utils/journalReports`.
 - **Contracts changed:** None.

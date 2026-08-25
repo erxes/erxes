@@ -9,12 +9,31 @@ export const fxaInstanceSchema = new Schema({
   _id: mongooseStringRandomId,
   // Харьяалагдах үндсэн хөрөнгийн master/card
   fixedAssetId: { type: String, label: 'Fixed asset', index: true },
+  // Анхны орлогоор үүссэн үндсэн bucket instance-ийн тогтвортой холбоос
+  primaryInstanceId: {
+    type: String,
+    optional: true,
+    label: 'Primary instance',
+    index: true,
+  },
   // Тайлан, шүүлтэд зориулж хадгалсан бүлгийн холбоос
   categoryId: { type: String, optional: true, label: 'Category', index: true },
   // Тухайн нэгж хөрөнгийн дотоод код
   code: { type: String, label: 'Code', index: true },
   // Fixed asset master code-той хамт харуулах, засварлагдахгүй дарааллын дугаар
   sequence: { type: Number, optional: true, label: 'Sequence', index: true },
+  // Энэ instance bucket-д анх бүртгэгдсэн тоо
+  count: { type: Number, optional: true, label: 'Count' },
+  // Log-уудаас сэргээн хадгалсан одоогийн үлдэгдэл тоо
+  currentCount: { type: Number, optional: true, label: 'Current count' },
+  // Log-уудаас сэргээн хадгалсан одоогийн төлөв
+  currentStatus: {
+    type: String,
+    optional: true,
+    enum: FXA_INSTANCE_STATUSES.ALL,
+    label: 'Current status',
+    index: true,
+  },
   // Тухайн нэгж хөрөнгийн одоогийн төлөв
   status: {
     type: String,
@@ -67,6 +86,13 @@ export const fxaInstanceSchema = new Schema({
   },
   // Одоогийн салбар
   branchId: { type: String, optional: true, label: 'Branch', index: true },
+  // Log-уудаас сэргээн хадгалсан одоогийн салбар
+  currentBranchId: {
+    type: String,
+    optional: true,
+    label: 'Current branch',
+    index: true,
+  },
   // Одоогийн хэлтэс
   departmentId: {
     type: String,
@@ -74,11 +100,25 @@ export const fxaInstanceSchema = new Schema({
     label: 'Department',
     index: true,
   },
+  // Log-уудаас сэргээн хадгалсан одоогийн хэлтэс
+  currentDepartmentId: {
+    type: String,
+    optional: true,
+    label: 'Current department',
+    index: true,
+  },
   // Одоогийн эд хариуцагч
   responsibleUserId: {
     type: String,
     optional: true,
     label: 'Responsible user',
+    index: true,
+  },
+  // Log-уудаас сэргээн хадгалсан одоогийн эд хариуцагч
+  currentResponsibleUserId: {
+    type: String,
+    optional: true,
+    label: 'Current responsible user',
     index: true,
   },
   // Анх орлогодсон accounting transaction detail-ийн холбоос
@@ -98,6 +138,19 @@ export const fxaInstanceSchema = new Schema({
 });
 
 fxaInstanceSchema.index({ fixedAssetId: 1, status: 1 });
+fxaInstanceSchema.index({ fixedAssetId: 1, currentStatus: 1, currentCount: 1 });
+fxaInstanceSchema.index(
+  {
+    primaryInstanceId: 1,
+    branchId: 1,
+    departmentId: 1,
+    responsibleUserId: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: { primaryInstanceId: { $exists: true } },
+  },
+);
 fxaInstanceSchema.index(
   { fixedAssetId: 1, sequence: 1 },
   {
@@ -106,4 +159,9 @@ fxaInstanceSchema.index(
   },
 );
 fxaInstanceSchema.index({ branchId: 1, departmentId: 1, status: 1 });
+fxaInstanceSchema.index({
+  currentBranchId: 1,
+  currentDepartmentId: 1,
+  currentStatus: 1,
+});
 fxaInstanceSchema.index({ transactionDetailId: 1 });

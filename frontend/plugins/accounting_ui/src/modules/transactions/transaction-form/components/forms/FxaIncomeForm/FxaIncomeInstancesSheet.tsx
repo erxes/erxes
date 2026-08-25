@@ -1,5 +1,16 @@
 import { useQuery } from '@apollo/client';
-import { Form, Input, InputNumber, RecordTable, Sheet, Table } from 'erxes-ui';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  Button,
+  cn,
+  Form,
+  Input,
+  InputNumber,
+  RecordTable,
+  Sheet,
+  Table,
+  Tooltip,
+} from 'erxes-ui';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
@@ -16,6 +27,7 @@ import {
   getFxaCodeSequence,
   getFxaInstanceDisplayCode,
 } from '../../helpers/fxaHelpers';
+import { getTempId } from '../../utils';
 
 type TFixedAsset = {
   _id: string;
@@ -35,8 +47,10 @@ type TFxaIncomeInstance = {
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId: string;
+  primaryInstanceId?: string;
   code?: string;
   sequence?: number;
+  count?: number;
   branchId?: string;
   departmentId?: string;
   responsibleUserId?: string;
@@ -48,70 +62,11 @@ type TFxaIncomeInstanceFollowInfo = {
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId?: string;
+  primaryInstanceId?: string;
   code?: string;
   sequence?: number;
   salvageValue?: number;
   openingAccumulatedDepreciation?: number;
-};
-
-const getExistingIncomeInstance = (
-  previous: TFxaIncomeInstance[],
-  detail: TFxaDetail,
-  index: number,
-) =>
-  previous.find(
-    (instance) =>
-      instance.transactionDetailId === detail._id &&
-      instance.fixedAssetId === detail.fixedAssetId &&
-      instance.tempId?.endsWith(`-${index}`),
-  );
-
-const buildIncomeInstance = ({
-  detail,
-  fixedAssetsById,
-  index,
-  nextSequenceByAsset,
-  previous,
-  trDoc,
-}: {
-  detail: TFxaDetail;
-  fixedAssetsById: Map<string, TFixedAsset>;
-  index: number;
-  nextSequenceByAsset: Map<string, number>;
-  previous: TFxaIncomeInstance[];
-  trDoc: TFxaIncomeJournal;
-}): TFxaIncomeInstance | undefined => {
-  const existing = getExistingIncomeInstance(previous, detail, index);
-  const assetCode = fixedAssetsById.get(detail.fixedAssetId)?.code;
-
-  if (!assetCode) {
-    return;
-  }
-
-  const sequence = nextSequenceByAsset.get(detail.fixedAssetId) || 0;
-  const instanceSequence = existing?.sequence || sequence + 1;
-  const code =
-    existing?.code ||
-    `${assetCode}_${String(instanceSequence).padStart(3, '0')}`;
-
-  nextSequenceByAsset.set(
-    detail.fixedAssetId,
-    Math.max(sequence, instanceSequence, getFxaCodeSequence(code, assetCode)),
-  );
-
-  return {
-    ...existing,
-    tempId: existing?.tempId || `${detail._id}-${index}`,
-    transactionDetailId: detail._id,
-    fixedAssetId: detail.fixedAssetId,
-    code,
-    sequence: instanceSequence,
-    branchId: existing?.branchId || detail.branchId || trDoc.branchId,
-    departmentId:
-      existing?.departmentId || detail.departmentId || trDoc.departmentId,
-    responsibleUserId: existing?.responsibleUserId || '',
-    originalCost: detail.unitPrice || existing?.originalCost || 0,
-  };
 };
 
 const getExistingIncomeFollowInfo = (
@@ -160,6 +115,7 @@ const buildIncomeFollowInfo = ({
     tempId: instance.tempId,
     transactionDetailId: instance.transactionDetailId,
     fixedAssetId: instance.fixedAssetId,
+    primaryInstanceId: instance.primaryInstanceId,
     code: instance.code,
     sequence: instance.sequence,
     salvageValue:
@@ -170,33 +126,86 @@ const buildIncomeFollowInfo = ({
   };
 };
 
-const buildFxaIncomeInstances = ({
+const normalizeFxaIncomeInstances = ({
   details,
   fixedAssetsById,
-  nextSequenceByAsset,
   previous,
   trDoc,
 }: {
   details: TFxaDetail[];
   fixedAssetsById: Map<string, TFixedAsset>;
-  nextSequenceByAsset: Map<string, number>;
   previous: TFxaIncomeInstance[];
   trDoc: TFxaIncomeJournal;
 }) =>
-  details.flatMap((detail) =>
-    Array.from(
-      { length: Math.max(0, Math.trunc(detail.count || 0)) },
-      (_, index) =>
-        buildIncomeInstance({
-          detail,
-          fixedAssetsById,
-          index,
-          nextSequenceByAsset,
-          previous,
-          trDoc,
-        }),
-    ).filter((instance): instance is TFxaIncomeInstance => !!instance),
+  previous.reduce<TFxaIncomeInstance[]>((result, instance) => {
+    const detail = details.find(
+      (item) =>
+        item._id === instance.transactionDetailId &&
+        item.fixedAssetId === instance.fixedAssetId,
+    );
+
+    if (!detail || !fixedAssetsById.has(detail.fixedAssetId)) {
+      return result;
+    }
+
+    result.push({
+      ...instance,
+      transactionDetailId: detail._id,
+      fixedAssetId: detail.fixedAssetId,
+      branchId: instance.branchId || detail.branchId || trDoc.branchId,
+      departmentId:
+        instance.departmentId || detail.departmentId || trDoc.departmentId,
+      originalCost: instance.originalCost ?? detail.unitPrice ?? 0,
+    });
+
+    return result;
+  }, []);
+
+const getDetailInstanceCount = (instances: TFxaIncomeInstance[]) =>
+  instances.reduce(
+    (sum, instance) => sum + Math.max(0, Math.trunc(instance.count || 0)),
+    0,
   );
+
+const getNextSequence = ({
+  assetCode,
+  existingInstances,
+  fixedAssetId,
+  managedInstances,
+}: {
+  assetCode?: string;
+  existingInstances: TExistingInstance[];
+  fixedAssetId: string;
+  managedInstances: TFxaIncomeInstance[];
+}) => {
+  if (!assetCode) {
+    return 1;
+  }
+
+  return (
+    Math.max(
+      0,
+      ...existingInstances
+        .filter((instance) => instance.fixedAssetId === fixedAssetId)
+        .map((instance) =>
+          Math.max(
+            instance.sequence || 0,
+            getFxaCodeSequence(instance.code || '', assetCode),
+            getFxaCodeSequence(instance.code || '', fixedAssetId),
+          ),
+        ),
+      ...managedInstances
+        .filter((instance) => instance.fixedAssetId === fixedAssetId)
+        .map((instance) =>
+          Math.max(
+            instance.sequence || 0,
+            getFxaCodeSequence(instance.code || '', assetCode),
+            getFxaCodeSequence(instance.code || '', fixedAssetId),
+          ),
+        ),
+    ) + 1
+  );
+};
 
 export const FxaIncomeInstancesSync = ({
   form,
@@ -223,15 +232,8 @@ export const FxaIncomeInstancesSync = ({
       skip: !fixedAssetIds.length,
     },
   );
-  const { data: instancesData } = useQuery<{
-    fxaInstances: TExistingInstance[];
-  }>(FXA_INSTANCES_QUERY, {
-    variables: { fixedAssetIds },
-    skip: !fixedAssetIds.length,
-  });
-
   useEffect(() => {
-    if (fixedAssetIds.length && (!fixedAssetsData || !instancesData)) {
+    if (fixedAssetIds.length && !fixedAssetsData) {
       return;
     }
 
@@ -239,33 +241,9 @@ export const FxaIncomeInstancesSync = ({
     const fixedAssetsById = new Map(
       (fixedAssetsData?.fixedAssets || []).map((asset) => [asset._id, asset]),
     );
-    const nextSequenceByAsset = new Map<string, number>();
-
-    for (const instance of [
-      ...(instancesData?.fxaInstances || []),
-      ...previous,
-    ]) {
-      const assetCode = fixedAssetsById.get(instance.fixedAssetId)?.code;
-
-      if (!assetCode) {
-        continue;
-      }
-
-      nextSequenceByAsset.set(
-        instance.fixedAssetId,
-        Math.max(
-          nextSequenceByAsset.get(instance.fixedAssetId) || 0,
-          instance.sequence || 0,
-          getFxaCodeSequence(instance.code || '', assetCode),
-          getFxaCodeSequence(instance.code || '', instance.fixedAssetId),
-        ),
-      );
-    }
-
-    const next = buildFxaIncomeInstances({
+    const next = normalizeFxaIncomeInstances({
       details: trDoc.details || [],
       fixedAssetsById,
-      nextSequenceByAsset,
       previous,
       trDoc,
     });
@@ -277,18 +255,20 @@ export const FxaIncomeInstancesSync = ({
       }),
     );
 
-    form.setValue(`trDocs.${journalIndex}.extraData.fxaInstances`, next);
-    form.setValue(
-      `trDocs.${journalIndex}.followInfos.fxaIncomeInstances`,
-      nextFollowInfos,
-    );
-  }, [
-    fixedAssetsData,
-    form,
-    instancesData,
-    journalIndex,
-    JSON.stringify(trDoc.details),
-  ]);
+    if (JSON.stringify(previous) !== JSON.stringify(next)) {
+      form.setValue(`trDocs.${journalIndex}.extraData.fxaInstances`, next);
+    }
+
+    if (
+      JSON.stringify(trDoc.followInfos?.fxaIncomeInstances || []) !==
+      JSON.stringify(nextFollowInfos)
+    ) {
+      form.setValue(
+        `trDocs.${journalIndex}.followInfos.fxaIncomeInstances`,
+        nextFollowInfos,
+      );
+    }
+  }, [fixedAssetsData, form, journalIndex, JSON.stringify(trDoc.details)]);
 
   return null;
 };
@@ -317,8 +297,19 @@ export const FxaIncomeDetailInstancesSheet = ({
       skip: !detail?.fixedAssetId,
     },
   );
+  const { data: instancesData } = useQuery<{
+    fxaInstances: TExistingInstance[];
+  }>(FXA_INSTANCES_QUERY, {
+    variables: {
+      fixedAssetIds: detail?.fixedAssetId ? [detail.fixedAssetId] : [],
+    },
+    skip: !detail?.fixedAssetId,
+  });
   const fixedAsset = data?.fixedAssets?.[0];
-  const instances = (trDoc.extraData?.fxaInstances || [])
+  const managedInstances = (trDoc.extraData?.fxaInstances ||
+    []) as TFxaIncomeInstance[];
+  const followInfos = trDoc.followInfos?.fxaIncomeInstances || [];
+  const instances = managedInstances
     .map((instance, instanceIndex) => ({
       instance: instance as TFxaIncomeInstance,
       instanceIndex,
@@ -328,6 +319,82 @@ export const FxaIncomeDetailInstancesSheet = ({
   const detailTitle = [fixedAsset?.code, fixedAsset?.name]
     .filter(Boolean)
     .join(' - ');
+  const managedCount = getDetailInstanceCount(
+    instances.map(({ instance }) => instance),
+  );
+  const detailCount = Math.max(0, Math.trunc(detail?.count || 0));
+  const remainingCount = Math.max(0, detailCount - managedCount);
+  const hasManagedRows = instances.length > 0;
+  const addButtonTip = !detail?.fixedAssetId
+    ? 'Эхлээд үндсэн хөрөнгө сонгоно уу.'
+    : remainingCount > 0
+    ? `Нэмэгдээгүй ${remainingCount} ширхэг байна. Хэрэв мөр нэмэхгүй хадгалбал backend нэг default bucket instance үүсгэнэ.`
+    : hasManagedRows
+    ? 'Instance мөрүүдийн тоо detail-ийн тоотой таарсан.'
+    : 'Мөр нэмээгүй хадгалбал backend detail-ийн тоогоор нэг default bucket instance үүсгэнэ.';
+  const fixedAssetsById = new Map(
+    (data?.fixedAssets || []).map((asset) => [asset._id, asset]),
+  );
+
+  const syncIncomeRows = (
+    nextInstances: TFxaIncomeInstance[],
+    nextFollowInfos: TFxaIncomeInstanceFollowInfo[],
+  ) => {
+    form.setValue(
+      `trDocs.${journalIndex}.extraData.fxaInstances`,
+      nextInstances,
+    );
+    form.setValue(
+      `trDocs.${journalIndex}.followInfos.fxaIncomeInstances`,
+      nextFollowInfos,
+    );
+  };
+
+  const addInstance = () => {
+    if (!detail?.fixedAssetId || !fixedAsset || remainingCount <= 0) {
+      return;
+    }
+
+    const sequence = getNextSequence({
+      assetCode: fixedAsset.code,
+      existingInstances: instancesData?.fxaInstances || [],
+      fixedAssetId: detail.fixedAssetId,
+      managedInstances,
+    });
+    const instance: TFxaIncomeInstance = {
+      tempId: `${detail._id}-${getTempId()}`,
+      transactionDetailId: detail._id,
+      fixedAssetId: detail.fixedAssetId,
+      code: fixedAsset.code
+        ? `${fixedAsset.code}_${String(sequence).padStart(3, '0')}`
+        : undefined,
+      sequence,
+      count: remainingCount,
+      branchId: detail.branchId || trDoc.branchId,
+      departmentId: detail.departmentId || trDoc.departmentId,
+      responsibleUserId: '',
+      originalCost: detail.unitPrice || 0,
+    };
+
+    syncIncomeRows(
+      [...managedInstances, instance],
+      [
+        ...followInfos,
+        buildIncomeFollowInfo({
+          fixedAssetsById,
+          instance,
+          previous: followInfos,
+        }),
+      ],
+    );
+  };
+
+  const removeInstance = (instanceIndex: number) => {
+    syncIncomeRows(
+      managedInstances.filter((_, index) => index !== instanceIndex),
+      followInfos.filter((_, index) => index !== instanceIndex),
+    );
+  };
 
   return (
     <Sheet>
@@ -347,9 +414,30 @@ export const FxaIncomeDetailInstancesSheet = ({
               {detailTitle || 'Үндсэн хөрөнгийн instance'}
             </Sheet.Title>
             <Sheet.Description>
-              Тоо: {detail?.count || 0} | Нэгж үнэ: {detail?.unitPrice || 0}
+              Тоо: {detailCount} | Managed: {managedCount} | Үлдсэн:{' '}
+              {remainingCount}
             </Sheet.Description>
           </div>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className={cn(
+                    remainingCount > 0 &&
+                      'border-destructive text-destructive hover:text-destructive',
+                  )}
+                  disabled={!detail?.fixedAssetId || remainingCount <= 0}
+                  onClick={addInstance}
+                >
+                  <IconPlus />
+                  Instance нэмэх ({remainingCount})
+                </Button>
+              </span>
+            </Tooltip.Trigger>
+            <Tooltip.Content>{addButtonTip}</Tooltip.Content>
+          </Tooltip>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
@@ -358,10 +446,12 @@ export const FxaIncomeDetailInstancesSheet = ({
               <Table.Row>
                 <Table.Head>Үндсэн хөрөнгийн дугаар</Table.Head>
                 <Table.Head>Код</Table.Head>
+                <Table.Head>Тоо</Table.Head>
                 <Table.Head>Эд хариуцагч</Table.Head>
                 <Table.Head>Өртөг</Table.Head>
                 <Table.Head>Үлдэх өртөг</Table.Head>
                 <Table.Head>Өмнөх хур. элэгдэл</Table.Head>
+                <Table.Head className="w-10" />
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -379,6 +469,18 @@ export const FxaIncomeDetailInstancesSheet = ({
                           <Input
                             value={field.value || ''}
                             onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Form.Field
+                        control={form.control}
+                        name={`trDocs.${journalIndex}.extraData.fxaInstances.${instanceIndex}.count`}
+                        render={({ field }) => (
+                          <InputNumber
+                            value={field.value ?? 0}
+                            onChange={(value) => field.onChange(value || 0)}
                           />
                         )}
                       />
@@ -432,9 +534,29 @@ export const FxaIncomeDetailInstancesSheet = ({
                         )}
                       />
                     </Table.Cell>
+                    <Table.Cell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeInstance(instanceIndex)}
+                      >
+                        <IconTrash />
+                      </Button>
+                    </Table.Cell>
                   </Table.Row>
                 );
               })}
+              {!instances.length && (
+                <Table.Row>
+                  <Table.Cell
+                    colSpan={8}
+                    className="text-center text-muted-foreground"
+                  >
+                    Instance мөр алга.
+                  </Table.Cell>
+                </Table.Row>
+              )}
             </Table.Body>
           </Table>
         </Sheet.Content>

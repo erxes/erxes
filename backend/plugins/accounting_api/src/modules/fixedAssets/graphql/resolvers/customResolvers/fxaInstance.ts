@@ -1,3 +1,4 @@
+import { fixNum } from 'erxes-api-shared/utils';
 import { IFxaInstanceDocument } from '@/fixedAssets/@types/fxaInstance';
 import { IContext } from '~/connectionResolvers';
 
@@ -16,8 +17,9 @@ export const FxaInstance = {
     context: IContext,
   ) {
     const detail = await getLatestAdjustmentDetail(instance, context);
+    const count = instance.currentCount ?? instance.count ?? 1;
 
-    return detail?.closingAccumulatedDepreciation || 0;
+    return fixNum((detail?.closingAccumulatedDepreciation || 0) * count);
   },
 
   async bookValue(
@@ -26,8 +28,10 @@ export const FxaInstance = {
     context: IContext,
   ) {
     const detail = await getLatestAdjustmentDetail(instance, context);
-    const accumulatedDepreciation = detail?.closingAccumulatedDepreciation || 0;
+    const count = instance.currentCount ?? instance.count ?? 1;
+    const accumulatedDepreciation =
+      (detail?.closingAccumulatedDepreciation || 0) * count;
 
-    return (instance.originalCost || 0) - accumulatedDepreciation;
+    return fixNum((instance.originalCost || 0) * count - accumulatedDepreciation);
   },
 };
