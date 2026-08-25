@@ -119,6 +119,9 @@ export const generateFilter = async (
   let stateCondition: FilterQuery<ITicketDocument> | null = null;
 
   switch (filter.state) {
+    case 'all':
+      stateCondition = { state: { $ne: 'deleted' } };
+      break;
     case 'active':
     default:
       stateCondition = {

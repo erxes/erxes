@@ -1,8 +1,8 @@
-import { IContext } from '~/connectionResolvers';
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
+import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { IContext } from '~/connectionResolvers';
 
 class PageQueryResolver extends BaseQueryResolver {
   async cmsPages(_parent: any, args: any, context: IContext) {

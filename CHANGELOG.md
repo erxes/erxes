@@ -1,5 +1,24 @@
 
 
+## [3.0.92](https://github.com/erxes/erxes/compare/3.0.91...3.0.92) (2026-08-24)
+
+
+### Bug Fixes
+
+* **content:** return all client portal pages ([#9106](https://github.com/erxes/erxes/issues/9106)) ([103c0c5](https://github.com/erxes/erxes/commit/103c0c56ae25ee14efc036cbc90c693369fc33c3))
+* **frontline:** keep facebook login redirect alive when repair fails ([dc7825e](https://github.com/erxes/erxes/commit/dc7825e59defe4f0f16bb1ff605810e8a70dd356))
+* handle pipeline edits and invalid permission cache ([a6756d2](https://github.com/erxes/erxes/commit/a6756d27d5c988c03d2249a4e01289eb40281f54))
+* **payment:** mark invoices failed for expired transactions ([#9111](https://github.com/erxes/erxes/issues/9111)) ([c707599](https://github.com/erxes/erxes/commit/c707599ba0179576e0cb84bc4765f15285ae957d))
+* **posclient:** keep similarity search grouped  ([8d3c3a4](https://github.com/erxes/erxes/commit/8d3c3a46cb664ee78ec94be3d96aeb83f78475ae))
+* prevent POS payment amounts from doubling ([#9120](https://github.com/erxes/erxes/issues/9120)) ([e3d585d](https://github.com/erxes/erxes/commit/e3d585d8e5b72d64bef4c0d5bdb611f85c246604))
+* products filter by propterties data on posclient ([efef025](https://github.com/erxes/erxes/commit/efef0252d390f4072e21c0a188d289f01866b188))
+
+
+### Features
+
+* **pos:** ReturnDescription field added ([#9112](https://github.com/erxes/erxes/issues/9112)) ([d6ea294](https://github.com/erxes/erxes/commit/d6ea294c4fceb4f6f0c15c5b848cc1929453e793))
+* **sales:** add stage filter when list view ([#9095](https://github.com/erxes/erxes/issues/9095)) ([cb8fe75](https://github.com/erxes/erxes/commit/cb8fe7562a7a4fee242611a4446f10343a390786))
+
 ## [3.0.91](https://github.com/erxes/erxes/compare/3.0.90...3.0.91) (2026-08-21)
 
 
