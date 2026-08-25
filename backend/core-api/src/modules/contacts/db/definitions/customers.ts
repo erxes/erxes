@@ -191,6 +191,13 @@ export const customerSchema = schemaWrapper(
         index: true,
         esType: 'keyword',
       },
+      clientPortalId: {
+        type: String,
+        optional: true,
+        label: 'Client portal',
+        index: true,
+        esType: 'keyword',
+      },
 
       // Merged customer ids
       mergedIds: { type: [String], optional: true },
