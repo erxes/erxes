@@ -189,11 +189,14 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       return sendOAuthError(res, 400, 'invalid_request', 'Missing userCode');
     }
 
-    const deviceCode = await models.OAuthDeviceCodes.findOne({
-      userCodeHash: hashToken(userCode),
-      status: 'pending',
-      expiresAt: { $gt: new Date() },
-    });
+    const [deviceCode, user] = await Promise.all([
+      models.OAuthDeviceCodes.findOne({
+        userCodeHash: hashToken(userCode),
+        status: 'pending',
+        expiresAt: { $gt: new Date() },
+      }),
+      models.Users.findOne({ _id: userId, isActive: true }),
+    ]);
 
     if (!deviceCode) {
       return sendOAuthError(res, 404, 'invalid_grant', 'Invalid device code');
@@ -209,11 +212,35 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
       );
     }
 
-    const grantedScopes: string[] = Array.isArray(req.body?.grantedScopes)
-      ? req.body.grantedScopes.filter(
-          (s: unknown) => typeof s === 'string' && s.trim(),
-        )
+    if (!user) {
+      return sendOAuthError(res, 401, 'invalid_grant', 'User not found');
+    }
+
+    const availableScopes = await getAvailableOAuthScopesForUser({
+      subdomain,
+      user,
+    });
+    const availableScopeNames = new Set(
+      availableScopes.map(({ scope }) => scope),
+    );
+    const submittedScopes: string[] = Array.isArray(req.body?.grantedScopes)
+      ? req.body.grantedScopes
+          .filter(
+            (scope: unknown): scope is string => typeof scope === 'string',
+          )
+          .map((scope) => scope.trim())
+          .filter(Boolean)
       : [];
+    const grantedScopes = [...new Set(submittedScopes)];
+
+    if (grantedScopes.some((scope) => !availableScopeNames.has(scope))) {
+      return sendOAuthError(
+        res,
+        400,
+        'invalid_scope',
+        'One or more requested permissions are not available to this user',
+      );
+    }
 
     const [oauthClientApp] = await Promise.all([
       getOAuthClientApp(models, deviceCode.clientId),

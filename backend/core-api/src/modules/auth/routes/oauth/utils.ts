@@ -44,16 +44,6 @@ export const getAvailableOAuthScopesForUser = async ({
 
     for (const module of modules) {
       for (const action of module.actions || []) {
-        const actionScopes = action.oauthScopes?.length
-          ? action.oauthScopes
-          : action.oauthScope
-          ? [action.oauthScope]
-          : [];
-
-        if (actionScopes.length === 0) {
-          continue;
-        }
-
         const allowed =
           user.isOwner || (await canGroup(subdomain, action.name, user));
 
@@ -61,13 +51,15 @@ export const getAvailableOAuthScopesForUser = async ({
           continue;
         }
 
-        for (const actionScope of actionScopes) {
-          if (!scopeMap.has(actionScope)) {
-            scopeMap.set(actionScope, {
-              scope: actionScope,
-              description: action.description || action.title || actionScope,
-            });
-          }
+        // OAuth delegates the existing permission action directly. No plugin
+        // needs a second OAuth-specific permission catalog.
+        if (!scopeMap.has(action.name)) {
+          scopeMap.set(action.name, {
+            scope: action.name,
+            description: `${pluginName} / ${
+              module.description || module.name
+            }: ${action.description || action.title || action.name}`,
+          });
         }
       }
     }
