@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
+import { FXA_INSTANCE_STATUSES } from '@/fixedAssets/@types/constants';
 import { ITransaction, ITrDetail } from '../@types/transaction';
+import { JOURNALS } from '../@types/constants';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -621,6 +623,101 @@ const resolveFxaInstanceIds = (
   });
 };
 
+const getAutoFxaInstanceSelector = (
+  doc: ITransaction,
+  detail: ITrDetail,
+  fixedAssetId: string,
+  requireLocation: boolean,
+) => {
+  const branchId = detail.branchId || doc.branchId;
+  const departmentId = detail.departmentId || doc.departmentId;
+  const selector: Record<string, unknown> = {
+    fixedAssetId,
+    status: FXA_INSTANCE_STATUSES.ACTIVE,
+  };
+
+  if (requireLocation) {
+    if (branchId) {
+      selector.branchId = branchId;
+    }
+    if (departmentId) {
+      selector.departmentId = departmentId;
+    }
+  }
+
+  return selector;
+};
+
+const resolveAutoFxaInstanceIds = async (
+  models: IModels,
+  doc: ITransaction,
+  explicitIds: string[],
+) => {
+  if (
+    explicitIds.length ||
+    ![JOURNALS.FXA_OUT, JOURNALS.FXA_MOVE, JOURNALS.FXA_SALE].includes(
+      doc.journal || '',
+    )
+  ) {
+    return explicitIds;
+  }
+
+  const selectedIds: string[] = [];
+  const usedIds = new Set<string>();
+
+  for (const detail of doc.details || []) {
+    const count = Math.max(0, Math.trunc(detail.count || 0));
+
+    if (!detail.fixedAssetId || !count) {
+      continue;
+    }
+
+    const findCandidates = async (requireLocation: boolean) =>
+      models.FxaInstances.find({
+        ...getAutoFxaInstanceSelector(
+          doc,
+          detail,
+          detail.fixedAssetId || '',
+          requireLocation,
+        ),
+        _id: { $nin: Array.from(usedIds) },
+      })
+        .sort({
+          acquisitionDate: 1,
+          createdAt: 1,
+          sequence: 1,
+          code: 1,
+          _id: 1,
+        })
+        .limit(count)
+        .select({ _id: 1 })
+        .lean();
+
+    // Erkhet migration-д instance identity байхгүй үед эхлээд тухайн
+    // branch/department дээрх хөрөнгийг, хүрэхгүй бол тухайн төрлийн эхний
+    // active instance-үүдийг сонгоно. Ингэснээр зарлага/хөдөлгөөн count-д
+    // тулгуурлан deterministic байдлаар үргэлжилнэ.
+    let candidates = await findCandidates(true);
+
+    if (candidates.length < count) {
+      candidates = await findCandidates(false);
+    }
+
+    if (candidates.length < count) {
+      throw new Error(
+        `Fixed asset active instances not enough: ${detail.fixedAssetId}`,
+      );
+    }
+
+    for (const candidate of candidates) {
+      usedIds.add(candidate._id);
+      selectedIds.push(candidate._id);
+    }
+  }
+
+  return selectedIds;
+};
+
 const resolveTransactionFollowInfos = (
   doc: ITransaction,
   maps: TReferenceMaps,
@@ -703,7 +800,7 @@ const normalizeBatchDocs = async (
     }
   }
 
-  return batch.trDocs.map((doc) => {
+  return Promise.all(batch.trDocs.map(async (doc) => {
     const customerCode = doc.customerId;
     const branchCode = doc.branchId;
     const departmentCode = doc.departmentId;
@@ -723,7 +820,7 @@ const normalizeBatchDocs = async (
       throw new Error(`Department not found: ${departmentCode}`);
     }
 
-    return {
+    const resolvedDoc = {
       ...doc,
       date: new Date(doc.date),
       customerType: contact?.type || doc.customerType,
@@ -753,7 +850,15 @@ const normalizeBatchDocs = async (
         departmentCode,
       },
     };
-  });
+
+    resolvedDoc.extraData.fxaInstanceIds = await resolveAutoFxaInstanceIds(
+      models,
+      resolvedDoc,
+      resolvedDoc.extraData.fxaInstanceIds || [],
+    );
+
+    return resolvedDoc;
+  }));
 };
 
 const saveBatch = async ({

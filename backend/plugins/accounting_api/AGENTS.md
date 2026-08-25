@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-25`
 
 ## Scope
 
@@ -37,7 +37,7 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories/master records by source code before transactions are imported.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts, resolves fixed asset income instance payloads, rejects missing product/fixed-asset references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route resolves source codes, syncs missing contacts, resolves fixed asset income instance payloads, auto-selects fixed asset disposal/move instances when Erkhet sends only counts, rejects missing product/fixed-asset references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -101,6 +101,7 @@
 - Debt rate adjustment filters customer type only when a concrete customer id is selected; selecting only customer type must not exclude other customers.
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
 - Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as normalized `contentType/contentId` when present (`sale` maps to `sales:deal`; other sync types map to `erkhet:<sync_type>`) and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
+- Erkhet fixed asset disposal, sale, and move imports may omit instance refs when Erkhet only knows a count; the migration route must then select active erxes instances deterministically by fixed asset, preferring matching branch/department and falling back to the earliest active instances for that fixed asset.
 - Erkhet reference migration is the only product and fixed-asset master-data bootstrap path; transaction migration must not create products or fixed asset master records and must strip obsolete detail follow-info keys before persistence.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
@@ -124,6 +125,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-25` — `Erkhet Fixed Asset Count Fallback`
+
+- **Summary:** Erkhet transaction migration now auto-selects active fixed asset instances for disposal, sale, and move journals when the source payload provides fixed asset counts without explicit instance refs.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts count-only fixed asset disposal/move payloads and resolves instance ids during import.
 
 ### `2026-08-21` — `Inventory Related Debit Cost Sync`
 
