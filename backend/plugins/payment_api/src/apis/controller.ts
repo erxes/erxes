@@ -24,19 +24,12 @@ import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
 export const callbackHandler = async (req, res) => {
-  console.log('[CALLBACK] Incoming request', {
-    path: req.path,
-    method: req.method,
-    query: req.query,
-    body: req.body,
-  });
   const { route, body, query } = req;
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const kind = query.kind || route.path.split('/').slice(-1).pop();
-  console.log('[CALLBACK] kind =', kind);
   if (!kind) {
     return res.status(400).send('kind is required');
   }
@@ -78,7 +71,6 @@ export const callbackHandler = async (req, res) => {
         transaction = await tdbCallbackHandler(models, subdomain, data);
         break;
       case PAYMENTS.toki.kind:
-        console.log('[CALLBACK] Dispatching to tokiCallbackHandler');
         transaction = await tokiCallbackHandler(models, data);
         break;
       default:
@@ -92,8 +84,18 @@ export const callbackHandler = async (req, res) => {
         PAYMENT_STATUS.EXPIRED,
       ].includes(transaction.status)
     ) {
+      try {
+        await models.Invoices.checkInvoice(transaction.invoiceId, subdomain);
+      } catch (error) {
+        console.error('[CALLBACK] Failed to update TDB invoice status', {
+          invoiceId: transaction.invoiceId,
+          transactionId: transaction._id,
+          error,
+        });
+      }
+
       return res.redirect(
-        `/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
+        `/gateway/pl:payment/widget/payment-failed/${transaction.invoiceId}`,
       );
     }
     if (

@@ -194,7 +194,7 @@ const PipelineNameColumnCell = ({
   cell: Cell<IPipeline & { hasChildren: boolean; type?: string }, unknown>;
 }) => {
   const { pipelineEdit, loading } = usePipelineEdit();
-  const { _id, name, type } = cell.row.original;
+  const { _id, boardId, name, visibility } = cell.row.original;
   const [open, setOpen] = useState(false);
   const [editedName, setEditedName] = useState(name);
 
@@ -202,9 +202,10 @@ const PipelineNameColumnCell = ({
     if (name !== editedName) {
       pipelineEdit({
         variables: {
-          id: _id,
-          type,
+          _id,
+          boardId,
           name: editedName,
+          visibility: visibility || 'public',
         },
       });
     }

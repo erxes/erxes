@@ -94,10 +94,29 @@ export const facebookWebhook = async (req, res, next) => {
 
   const models = await generateModels(subdomain);
   const data = req.body;
+
+  console.log('[fbWebhook] received', {
+    subdomain,
+    object: data?.object,
+    entryCount: data?.entry?.length ?? 0,
+    body: JSON.stringify(data),
+  });
+
   if (data.object !== 'page' && !checkIsAdsOpenThread(data?.entry)) {
+    console.log('[fbWebhook] ignored, not a page event', {
+      object: data?.object,
+      isAdsOpenThread: checkIsAdsOpenThread(data?.entry),
+    });
     return;
   }
   for (const entry of data.entry) {
+    console.log('[fbWebhook] entry', {
+      id: entry.id,
+      hasMessaging: Boolean(entry.messaging),
+      hasStandby: Boolean(entry.standby),
+      changeItems: (entry.changes || []).map((c) => c?.value?.item),
+    });
+
     // receive chat
     try {
       if (entry.messaging) {
@@ -109,14 +128,24 @@ export const facebookWebhook = async (req, res, next) => {
           subdomain,
           accessTokensByPageId,
         );
+        console.log('[fbWebhook] messaging processed', entry.id);
       }
       if (entry.standby) {
         const activities = await processStandbyEvents(entry, models);
+        console.log('[fbWebhook] standby activities', {
+          entryId: entry.id,
+          count: activities.length,
+        });
         for (const { activity, integration } of activities) {
           await receiveMessage(models, subdomain, integration, activity);
         }
       }
     } catch (error) {
+      console.log('[fbWebhook] entry failed', {
+        entryId: entry.id,
+        message: error.message,
+        stack: error.stack,
+      });
       debugFacebook(`Error processing entry: ${error.message}`);
       // Optionally, send a response or log the error
       res.status(500).send('Internal Server Error');
@@ -125,13 +154,25 @@ export const facebookWebhook = async (req, res, next) => {
     // receive post and comment
     if (entry.changes) {
       for (const event of entry.changes) {
+        console.log('[fbWebhook] change event', {
+          entryId: entry.id,
+          item: event.value?.item,
+          verb: event.value?.verb,
+          value: JSON.stringify(event.value),
+        });
+
         if (event.value.item === 'comment') {
           debugFacebook(`Received comment data ${JSON.stringify(event.value)}`);
           try {
             await receiveComment(models, subdomain, event.value, entry.id);
+            console.log('[fbWebhook] comment saved', event.value?.comment_id);
             debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
             return res.end('success');
           } catch (e) {
+            console.log('[fbWebhook] comment failed', {
+              message: e.message,
+              stack: e.stack,
+            });
             debugError(`Error processing comment: ${e.message}`);
             return res.end('success');
           }
@@ -141,20 +182,31 @@ export const facebookWebhook = async (req, res, next) => {
           try {
             debugFacebook(`Received post data ${JSON.stringify(event.value)}`);
             await receivePost(models, subdomain, event.value, entry.id);
+            console.log('[fbWebhook] post saved', event.value?.post_id);
             debugFacebook(
               `Successfully saved post ${JSON.stringify(event.value)}`,
             );
             return res.end('success');
           } catch (e) {
+            console.log('[fbWebhook] post failed', {
+              message: e.message,
+              stack: e.stack,
+            });
             debugError(`Error processing post: ${e.message}`);
             return res.end('success');
           }
         } else {
+          console.log('[fbWebhook] unhandled change item', event.value?.item);
           return res.end('success');
         }
       }
     }
   }
+
+  console.log('[fbWebhook] finished without sending a response', {
+    subdomain,
+    object: data?.object,
+  });
 };
 
 export async function processMessagingEvent(

@@ -7,7 +7,7 @@ import {
 import { STATUS_TYPES } from '@/status/constants/types';
 import { differenceInCalendarDays } from 'date-fns';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import moment from 'moment';
 import { FilterQuery, Types } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -37,7 +37,7 @@ export const projectQueries: Record<string, Resolver> = {
     }
 
     if (filter.name) {
-      filterQuery.name = { $regex: filter.name, $options: 'i' };
+      filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
     }
 
     if (filter.status) {
@@ -126,7 +126,7 @@ export const projectQueries: Record<string, Resolver> = {
         model: models.Project,
         params: {
           ...filter,
-          orderBy: {
+          orderBy: filter.orderBy ?? {
             status: 1,
             createdAt: -1,
           },
