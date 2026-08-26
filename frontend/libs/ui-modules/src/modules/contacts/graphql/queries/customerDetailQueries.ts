@@ -27,6 +27,10 @@ export const CUSTOMER_DETAIL = gql`
       primaryPhone
       score
       code
+      trackedData
+      isOnline
+      lastSeenAt
+      sessionCount
       companies {
         _id
         avatar
