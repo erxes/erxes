@@ -60,6 +60,6 @@ const mutationParams = `
 export const mutations = `
     fieldGroupAdd(${mutationParams}): FieldGroup
     fieldGroupEdit(_id: String!, order: Float, ${mutationParams}): FieldGroup
-    fieldGroupsUpdateOrder(orders: [FieldGroupOrderItem]): [FieldGroup]
+    fieldGroupsUpdateOrder(orders: [FieldGroupOrderItem!]!): [FieldGroup]
     fieldGroupRemove(_id: String!): FieldGroup
 `;

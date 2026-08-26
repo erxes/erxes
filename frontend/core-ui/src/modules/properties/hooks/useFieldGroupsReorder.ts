@@ -1,19 +1,30 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { arrayMove } from '@dnd-kit/sortable';
 import { toast } from 'erxes-ui';
+import { useRef } from 'react';
 import { FIELD_GROUPS_QUERY } from 'ui-modules';
 import { FIELD_GROUPS_UPDATE_ORDER } from '../graphql/mutations/propertiesMutations';
 import { IFieldGroup } from '../types/Properties';
+
+type FieldGroupsReorder = {
+  reorderFieldGroups: (
+    fieldGroups: IFieldGroup[],
+    activeId: string,
+    overId: string,
+  ) => Promise<void>;
+  loading: boolean;
+};
 
 export const useFieldGroupsReorder = ({
   contentType,
 }: {
   contentType: string;
-}) => {
+}): FieldGroupsReorder => {
   const client = useApolloClient();
   const [mutate, { loading }] = useMutation(FIELD_GROUPS_UPDATE_ORDER);
+  const pendingRef = useRef<Promise<void>>(Promise.resolve());
 
-  const reorderFieldGroups = async (
+  const applyReorder = async (
     fieldGroups: IFieldGroup[],
     activeId: string,
     overId: string,
@@ -60,6 +71,21 @@ export const useFieldGroupsReorder = ({
         variant: 'destructive',
       });
     }
+  };
+
+  // A drop only writes the cache before its request goes out, so a second drag
+  // already reads the new order. Chaining the requests keeps them from landing
+  // out of order and overwriting each other on the server.
+  const reorderFieldGroups = (
+    fieldGroups: IFieldGroup[],
+    activeId: string,
+    overId: string,
+  ) => {
+    pendingRef.current = pendingRef.current.then(() =>
+      applyReorder(fieldGroups, activeId, overId),
+    );
+
+    return pendingRef.current;
   };
 
   return {
