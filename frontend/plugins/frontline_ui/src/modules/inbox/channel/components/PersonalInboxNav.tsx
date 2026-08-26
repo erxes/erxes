@@ -1,5 +1,6 @@
-import { NavigationMenuGroup, Skeleton, useMultiQueryState } from 'erxes-ui';
+import { Skeleton, useMultiQueryState } from 'erxes-ui';
 import { IconUser } from '@tabler/icons-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ChannelScope } from '@/channels/types';
@@ -16,6 +17,7 @@ import {
 
 export const PersonalInboxNav = () => {
   const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(true);
   const { channels } = useGetMyChannels();
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     scope: ChannelScope.PERSONAL,
@@ -69,19 +71,16 @@ export const PersonalInboxNav = () => {
   };
 
   return (
-    <NavigationMenuGroup
-      name={t('personal-inbox', { defaultValue: 'Personal inbox' })}
+    <ChannelNavItem
+      name={t('my-conversations', { defaultValue: 'My conversations' })}
+      icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}
+      isActive={isActive}
+      onSelect={handleSelectChannel}
+      open={open}
+      onOpenChange={setOpen}
+      unreadCount={personalChannel?.unreadConversationCount || 0}
     >
-      <ChannelNavItem
-        name={t('personal-channel')}
-        icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}
-        isActive={isActive}
-        onSelect={handleSelectChannel}
-        unreadCount={personalChannel?.unreadConversationCount || 0}
-        collapsible={false}
-      >
-        {renderContent()}
-      </ChannelNavItem>
-    </NavigationMenuGroup>
+      {renderContent()}
+    </ChannelNavItem>
   );
 };
