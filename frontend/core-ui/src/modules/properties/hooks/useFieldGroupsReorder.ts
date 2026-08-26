@@ -36,9 +36,6 @@ export const useFieldGroupsReorder = ({
       return;
     }
 
-    // The list arrives sorted by `order`, so the existing order values can be
-    // handed out again by position: only the groups between the drag source and
-    // the target end up with a different value.
     const orders = fieldGroups.map((group) => group.order);
     const nextList = arrayMove(fieldGroups, from, to).map((group, index) => ({
       ...group,
@@ -51,19 +48,25 @@ export const useFieldGroupsReorder = ({
       .filter((group) => previousOrders.get(group._id) !== group.order)
       .map(({ _id, order }) => ({ _id, order }));
 
-    client.cache.updateQuery(
-      { query: FIELD_GROUPS_QUERY, variables: { params: { contentType } } },
-      (data) =>
-        data && {
-          ...data,
-          fieldGroups: { ...data.fieldGroups, list: nextList },
-        },
-    );
+    const writeList = (list: IFieldGroup[]) =>
+      client.cache.updateQuery(
+        { query: FIELD_GROUPS_QUERY, variables: { params: { contentType } } },
+        (data) =>
+          data && {
+            ...data,
+            fieldGroups: { ...data.fieldGroups, list },
+          },
+      );
+
+    writeList(nextList);
 
     try {
       await mutate({ variables: { orders: changed } });
     } catch (error) {
-      await client.refetchQueries({ include: [FIELD_GROUPS_QUERY] });
+      writeList(fieldGroups);
+      await client
+        .refetchQueries({ include: [FIELD_GROUPS_QUERY] })
+        .catch(() => undefined);
 
       toast({
         title: 'Error',
@@ -73,17 +76,14 @@ export const useFieldGroupsReorder = ({
     }
   };
 
-  // A drop only writes the cache before its request goes out, so a second drag
-  // already reads the new order. Chaining the requests keeps them from landing
-  // out of order and overwriting each other on the server.
   const reorderFieldGroups = (
     fieldGroups: IFieldGroup[],
     activeId: string,
     overId: string,
   ) => {
-    pendingRef.current = pendingRef.current.then(() =>
-      applyReorder(fieldGroups, activeId, overId),
-    );
+    pendingRef.current = pendingRef.current
+      .then(() => applyReorder(fieldGroups, activeId, overId))
+      .catch(() => undefined);
 
     return pendingRef.current;
   };

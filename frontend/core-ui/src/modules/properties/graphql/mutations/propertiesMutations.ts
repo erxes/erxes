@@ -43,7 +43,7 @@ export const FIELD_GROUP_EDIT = gql`
 `;
 
 export const FIELD_GROUPS_UPDATE_ORDER = gql`
-  mutation PropertiesFieldGroupsUpdateOrder($orders: [FieldGroupOrderItem!]!) {
+  mutation propertiesFieldGroupsUpdateOrder($orders: [FieldGroupOrderItem!]!) {
     fieldGroupsUpdateOrder(orders: $orders) {
       _id
       order
