@@ -6,18 +6,6 @@ export const FACEBOOK_UPDATE_CONFIGS = gql`
   }
 `;
 
-export const FACEBOOK_CONNECT_PAGE_TOKEN = gql`
-  mutation FacebookConnectPageToken(
-    $pageAccessToken: String!
-    $integrationKind: String!
-  ) {
-    facebookConnectPageToken(
-      pageAccessToken: $pageAccessToken
-      integrationKind: $integrationKind
-    )
-  }
-`;
-
 export const FACEBOOK_REPAIR = gql`
   mutation FacebookRepair($_id: String!, $kind: String!) {
     integrationsRepair(_id: $_id, kind: $kind)

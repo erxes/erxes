@@ -4,11 +4,7 @@ import {
   updateConfigs,
 } from '@/integrations/facebook/helpers';
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
-import { graphRequest, sendReply } from '@/integrations/facebook/utils';
-import {
-  facebookAccountSelector,
-  resolveFacebookApp,
-} from '@/integrations/facebook/commonUtils';
+import { sendReply } from '@/integrations/facebook/utils';
 import {
   ICreatePostArgs,
   publishPagePost,
@@ -16,59 +12,6 @@ import {
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
-  async facebookConnectPageToken(
-    _root,
-    {
-      pageAccessToken,
-      integrationKind,
-    }: { pageAccessToken: string; integrationKind: string },
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('integrationsEdit');
-
-    const token = pageAccessToken.trim();
-
-    if (!token) {
-      throw new Error('Page access token is required');
-    }
-
-    const page = (await graphRequest.get(
-      '/me?fields=id,name,category',
-      token,
-    )) as { id?: string; name?: string; category?: string };
-
-    if (!page.id || !page.name || !page.category) {
-      throw new Error('The token must belong to a Facebook Page');
-    }
-
-    const app = await resolveFacebookApp(models, integrationKind);
-    const selector = facebookAccountSelector(page.id, app);
-    const accountData = {
-      kind: 'facebook',
-      token,
-      scope: 'page_access_token',
-      name: page.name,
-      uid: page.id,
-      appId: app.appId,
-    };
-    const existingAccount = await models.FacebookAccounts.findOne(selector);
-    const account = existingAccount
-      ? await models.FacebookAccounts.findByIdAndUpdate(
-          existingAccount._id,
-          { $set: accountData },
-          { new: true },
-        )
-      : await models.FacebookAccounts.create(accountData);
-
-    if (!account) {
-      throw new Error('Failed to save the Facebook Page account');
-    }
-
-    return {
-      account: { _id: account._id, name: account.name },
-      page: { id: page.id, name: page.name },
-    };
-  },
   async facebookUpdateConfigs(
     _root,
     { configsMap },

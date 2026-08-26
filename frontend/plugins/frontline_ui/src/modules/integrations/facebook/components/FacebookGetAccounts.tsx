@@ -3,17 +3,11 @@ import {
   Button,
   cn,
   Command,
-  Form,
   Input,
   REACT_APP_API_URL,
   RadioGroup,
   Spinner,
-  useToast,
 } from 'erxes-ui';
-import { useMutation } from '@apollo/client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { useFacebookAccounts } from '../hooks/useFacebookAccounts';
 import { IconBrandFacebook } from '@tabler/icons-react';
 import { useAtom, useSetAtom } from 'jotai';
@@ -29,14 +23,6 @@ import {
 import { useFacebookPages } from '../hooks/useFacebookPages';
 import { useFbAuthPopup } from '../hooks/useFbAuthPopup';
 import { useFbIntegrationContext } from '../contexts/FbIntegrationContext';
-import { SecretInput } from '@/integrations/components/SecretInput';
-import { FACEBOOK_CONNECT_PAGE_TOKEN } from '../graphql/mutations/fbConfig';
-
-const PAGE_TOKEN_SCHEMA = z.object({
-  pageAccessToken: z.string().trim().min(1, 'Page access token is required'),
-});
-
-type TPageTokenForm = z.infer<typeof PAGE_TOKEN_SCHEMA>;
 
 const FacebookAccountRow = ({
   account,
@@ -90,17 +76,6 @@ export const FacebookGetAccounts = () => {
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { toast } = useToast();
-  const pageTokenForm = useForm<TPageTokenForm>({
-    resolver: zodResolver(PAGE_TOKEN_SCHEMA),
-    defaultValues: { pageAccessToken: '' },
-  });
-  const [connectPageToken, { loading: connectingPageToken }] = useMutation<{
-    facebookConnectPageToken: {
-      account: { _id: string; name: string };
-      page: { id: string; name: string };
-    };
-  }>(FACEBOOK_CONNECT_PAGE_TOKEN);
 
   const { popupWindow } = useFbAuthPopup(() => {
     refetch();
@@ -115,33 +90,6 @@ export const FacebookGetAccounts = () => {
       660,
       750,
     );
-  };
-
-  const handlePageTokenConnect = async ({
-    pageAccessToken,
-  }: TPageTokenForm) => {
-    await connectPageToken({
-      variables: { pageAccessToken, integrationKind },
-      onCompleted: ({ facebookConnectPageToken }) => {
-        setSelectedAccount(facebookConnectPageToken.account._id);
-        pageTokenForm.reset();
-        refetch();
-        toast({
-          title: t('success'),
-          description: t('facebook-page-token-connected', {
-            defaultValue: 'Facebook Page connected',
-          }),
-          variant: 'success',
-        });
-      },
-      onError: (error) => {
-        toast({
-          title: t('error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
   };
 
   const onNext = () => setActiveStep(2);
@@ -212,49 +160,6 @@ export const FacebookGetAccounts = () => {
               )}
             </Button>
           </div>
-
-          <Form {...pageTokenForm}>
-            <form
-              className="flex items-start gap-2 px-1 pb-2"
-              onSubmit={pageTokenForm.handleSubmit(handlePageTokenConnect)}
-            >
-              <Form.Field
-                control={pageTokenForm.control}
-                name="pageAccessToken"
-                render={({ field }) => (
-                  <Form.Item className="flex-1">
-                    <Form.Label>
-                      {t('facebook-page-access-token', {
-                        defaultValue: 'Page access token',
-                      })}
-                    </Form.Label>
-                    <Form.Control>
-                      <SecretInput
-                        {...field}
-                        autoComplete="off"
-                        placeholder={t('paste-facebook-page-access-token', {
-                          defaultValue: 'Paste a Page access token',
-                        })}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                className="mt-6"
-                disabled={connectingPageToken}
-              >
-                {connectingPageToken ? (
-                  <Spinner className="size-4" />
-                ) : (
-                  t('connect-page-token', { defaultValue: 'Connect token' })
-                )}
-              </Button>
-            </form>
-          </Form>
 
           <RadioGroup
             value={selectedAccount}

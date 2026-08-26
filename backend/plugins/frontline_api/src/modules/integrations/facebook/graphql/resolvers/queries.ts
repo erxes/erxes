@@ -279,22 +279,7 @@ export const facebookQueries = {
     let pages: any[] = [];
 
     try {
-      if (account.scope === 'page_access_token') {
-        const integration = await models.FacebookIntegrations.findOne({
-          facebookPageIds: account.uid,
-          kind,
-        });
-
-        pages = [
-          {
-            id: account.uid,
-            name: account.name,
-            isUsed: Boolean(integration),
-          },
-        ];
-      } else {
-        pages = await getPageList(models, accessToken, kind);
-      }
+      pages = await getPageList(models, accessToken, kind);
     } catch (e) {
       if (!e.message.includes('Application request limit reached')) {
         await models.Integrations.updateOne(

@@ -173,7 +173,6 @@ export const queries = `
 
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
-  facebookConnectPageToken(pageAccessToken: String!, integrationKind: String!): JSON
   facebookRepair(_id: String!): JSON
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
   facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): JSON

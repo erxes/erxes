@@ -16,7 +16,7 @@ export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('26.0');
+    graph.setVersion('7.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -123,7 +123,7 @@ export const uploadUnpublishedPhotoFromKey = async (
 
   try {
     const response = await fetch(
-      `https://graph.facebook.com/v26.0/${pageId}/photos`,
+      `https://graph.facebook.com/v7.0/${pageId}/photos`,
       { method: 'POST', body: form },
     );
 
@@ -411,10 +411,7 @@ export const refreshPageAccessToken = async (
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
 
-  const pageAccessToken =
-    account.scope === 'page_access_token'
-      ? account.token
-      : await getPageAccessToken(pageId, account.token);
+  const pageAccessToken = await getPageAccessToken(pageId, account.token);
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
