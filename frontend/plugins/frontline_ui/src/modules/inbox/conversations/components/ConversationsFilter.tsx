@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
   IntegrationTypeFilterBar,
@@ -323,6 +324,7 @@ export const ConversationFilterBar = ({
       <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
+      <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
   );
