@@ -25,6 +25,10 @@ import {
 } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
 import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
 import { NavigationGroupActions } from '@/NavigationGroupActions';
 
 /**
@@ -162,10 +166,8 @@ const TeamChannelItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(defaultOpen);
-  const [{ channelId }, setFilters] = useMultiQueryState<{
-    channelId: string;
-    integrationType: string;
-  }>(['channelId', 'integrationType']);
+  const [{ channelId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   // Only the expanded channels cost a request; collapsed ones stay silent.
   const { integrationTypes, loading, awaitingCounts } =
@@ -176,6 +178,7 @@ const TeamChannelItem = ({
   const handleSelectChannel = () => {
     setFilters({
       channelId: isActive ? null : channel._id,
+      integrationId: null,
       integrationType: null,
     });
     if (!isActive) setOpen(true);

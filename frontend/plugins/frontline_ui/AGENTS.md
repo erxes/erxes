@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-25`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -328,6 +328,14 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- The inbox navigation is a single-selection tree over three query params that
+  intersect on the server: `channelId`, `integrationId`, and `integrationType`.
+  Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
+  it does not own — a channel row clears `integrationId` and `integrationType`, a
+  Discord row clears `channelId` and `integrationType`. Setting one without
+  clearing the others strands a filter and empties the list. `ConversationFilterBar`
+  carries a chip for all three, so whatever is selected stays visible and
+  removable.
 - The per-kind figure beside an integration row comes from
   `integrationsGetUsedTypesByChannel`, which already returns
   `unreadConversationCount` scoped to the channel and to the caller. Read it from
@@ -672,6 +680,23 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-26` — Sidebar selections no longer strand each other
+
+- **Summary:** Selecting a Discord channel and then a team or personal channel
+  left `integrationId` set alongside `channelId`, and the two intersect to
+  nothing, so the list emptied with no chip explaining why. Every inbox
+  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
+  and clears the params it does not own, and a Discord selection finally shows as
+  its own removable chip in the filter bar.
+- **Affected areas:**
+  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
+  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
+  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
+  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
+  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
+  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-08-25` — Integration rows show their unread count again
 
 - **Summary:** The inbox navigation now reads `unreadConversationCount` from the
@@ -803,18 +828,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
   the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
   conversation fields. Adds the `callpro` integration type.
-
-### `2026-08-19` — Messenger availability schedule follows the design canvas
-
-- **Summary:** `EMHoursTimeTable` was rewritten to the Availability Schedule
-  design: the three `everyday` / `weekday` / `weekend` switch rows became one
-  `ToggleGroup` quick-set control under a `Quick set` caption, separated by
-  `Separator`s from the day list, and every day row now keeps its two
-  `TimeField`s visible — disabled and dimmed when the day is off — instead of
-  swapping them for a "not working" label. All work-flag writes go through one
-  `applyDayWork` helper that writes the whole `onlineHours` object once, so the
-  group keys stay derived and the `as never` casts are gone.
-- **Affected areas:**
-  `src/modules/integrations/erxes-messenger/components/EmHoursAvailability.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (new `quick-set` key).
-- **Contracts changed:** None — the `onlineHours` form shape is unchanged.

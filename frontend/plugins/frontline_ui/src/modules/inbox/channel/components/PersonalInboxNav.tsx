@@ -9,6 +9,10 @@ import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegration
 import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
 import { useAwaitingCountsByIntegrationType } from '@/inbox/conversations/hooks/useConversationCounts';
 import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
 
 export const PersonalInboxNav = () => {
   const { t } = useTranslation('frontline');
@@ -16,10 +20,8 @@ export const PersonalInboxNav = () => {
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     scope: ChannelScope.PERSONAL,
   });
-  const [{ channelId }, setFilters] = useMultiQueryState<{
-    channelId: string;
-    integrationType: string;
-  }>(['channelId', 'integrationType']);
+  const [{ channelId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   const personalChannel = channels?.find(
     (channel) => channelScopeOf(channel) === ChannelScope.PERSONAL,
@@ -36,6 +38,7 @@ export const PersonalInboxNav = () => {
 
     setFilters({
       channelId: isActive ? null : personalChannel._id,
+      integrationId: null,
       integrationType: null,
     });
   };
