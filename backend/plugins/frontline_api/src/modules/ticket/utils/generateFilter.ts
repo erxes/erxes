@@ -10,6 +10,8 @@ export const generateFilter = async (
   user: IUserDocument | undefined,
   models: IModels,
 ) => {
+  filter = filter ?? {};
+
   const filterQuery: FilterQuery<ITicketDocument> = {};
 
   const andConditions: FilterQuery<ITicketDocument>[] = [];
