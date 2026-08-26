@@ -7,9 +7,9 @@ import {
 } from 'erxes-ui';
 import { IconFile } from '@tabler/icons-react';
 
-const AttachmentImage = (props: JSX.IntrinsicElements['img']) => (
+const AttachmentImage = ({ alt = '', ...props }: JSX.IntrinsicElements['img']) => (
   // skipcq: JS-W1015
-  <img {...props} />
+  <img alt={alt} {...props} />
 );
 
 const MessageAttachment = ({

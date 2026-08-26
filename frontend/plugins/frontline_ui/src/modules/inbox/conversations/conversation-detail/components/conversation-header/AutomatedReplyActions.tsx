@@ -10,12 +10,17 @@ const useAutomatedReplyAction = () => {
     useConversationAutomatedReplyControl();
   const status = automatedReplyControl?.status;
   const isActive = status === 'active';
-  const label = isActive
-    ? 'Automation active'
-    : status === 'human_active' &&
-      automatedReplyControl?.reason === 'operator_reply'
-    ? 'Automation paused: operator active'
-    : 'Automation paused';
+  const isPausedByOperator =
+    status === 'human_active' &&
+    automatedReplyControl?.reason === 'operator_reply';
+
+  const getAutomationLabel = () => {
+    if (isActive) return 'Automation active';
+    if (isPausedByOperator) return 'Automation paused: operator active';
+    return 'Automation paused';
+  };
+
+  const label = getAutomationLabel();
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;

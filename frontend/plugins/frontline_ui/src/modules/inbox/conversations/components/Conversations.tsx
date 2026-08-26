@@ -77,6 +77,43 @@ export const Conversations = () => {
     </ConversationContext.Provider>
   );
 
+  const renderContent = () => {
+    if (loading && !conversations?.length) {
+      return <ConversationsLoading />;
+    }
+
+    if (!conversations?.length) {
+      return (
+        <Empty className="min-h-full rounded-none border-0">
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconInbox />
+            </Empty.Media>
+            <Empty.Title>
+              {t('no-conversations-found', {
+                defaultValue: 'No conversations found',
+              })}
+            </Empty.Title>
+            <Empty.Description>
+              {t('no-conversations-description', {
+                defaultValue:
+                  'Adjust the active filters or wait for a new conversation.',
+              })}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
+      );
+    }
+
+    return (
+      <ConversationThreadList
+        conversations={conversations}
+        threadMap={channelMap}
+        renderItem={renderConversationItem}
+      />
+    );
+  };
+
   return (
     <ConversationListContext.Provider value={conversationListContextValue}>
       <div className="flex flex-col h-full overflow-hidden w-full">
@@ -92,34 +129,7 @@ export const Conversations = () => {
             ref={containerRef}
             onScroll={handleScroll}
           >
-            {loading && !conversations?.length ? (
-              <ConversationsLoading />
-            ) : !conversations?.length ? (
-              <Empty className="min-h-full rounded-none border-0">
-                <Empty.Header>
-                  <Empty.Media variant="icon">
-                    <IconInbox />
-                  </Empty.Media>
-                  <Empty.Title>
-                    {t('no-conversations-found', {
-                      defaultValue: 'No conversations found',
-                    })}
-                  </Empty.Title>
-                  <Empty.Description>
-                    {t('no-conversations-description', {
-                      defaultValue:
-                        'Adjust the active filters or wait for a new conversation.',
-                    })}
-                  </Empty.Description>
-                </Empty.Header>
-              </Empty>
-            ) : (
-              <ConversationThreadList
-                conversations={conversations}
-                threadMap={channelMap}
-                renderItem={renderConversationItem}
-              />
-            )}
+            {renderContent()}
           </div>
           {fetchingMore && (
             <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">

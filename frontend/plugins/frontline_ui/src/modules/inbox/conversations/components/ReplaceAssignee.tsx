@@ -21,6 +21,7 @@ export const ReplaceAssignee = () => {
             'Conversations',
             'ConversationCounts',
             'FrontlineInboxSidebarWorkCounts',
+            'GetMyChannels',
           ],
         });
       }}

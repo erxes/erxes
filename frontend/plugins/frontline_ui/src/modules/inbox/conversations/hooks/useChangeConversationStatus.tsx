@@ -11,7 +11,9 @@ export const useChangeConversationStatus = () => {
 
   const handleChangeConversationStatus = (options: MutationHookOptions) => {
     changeConversationStatus({
+      ...options,
       refetchQueries: [
+        ...(options.refetchQueries ?? []),
         'ConversationCounts',
         'FrontlineInboxNewConversationCount',
         'FrontlineInboxSidebarWorkCounts',
@@ -39,7 +41,6 @@ export const useChangeConversationStatus = () => {
           variant: 'destructive',
         });
       },
-      ...options,
     });
   };
 

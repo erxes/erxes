@@ -149,6 +149,7 @@ const AssignConversation = ({
         'Conversations',
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
       ],
     });
   };

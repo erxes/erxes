@@ -56,12 +56,16 @@ export const TicketStatusesFallback = ({
   const { t } = useTranslation('frontline');
   const [channelId] = useQueryState<string | null>('channelId');
   const [pipelineId] = useQueryState<string | null>('pipelineId');
-  const settingsPath =
-    channelId && pipelineId
-      ? `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`
-      : channelId
-      ? `/settings/frontline/channels/${channelId}/pipelines`
-      : '/settings/frontline/channels';
+
+  const getSettingsPath = () => {
+    if (!channelId) return '/settings/frontline/channels';
+    if (pipelineId) {
+      return `/settings/frontline/channels/${channelId}/pipelines/${pipelineId}`;
+    }
+    return `/settings/frontline/channels/${channelId}/pipelines`;
+  };
+
+  const settingsPath = getSettingsPath();
 
   return (
     <Empty className={cn('h-full w-full rounded-none border-0', className)}>

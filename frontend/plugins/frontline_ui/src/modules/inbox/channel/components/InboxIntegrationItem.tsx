@@ -72,12 +72,14 @@ export const InboxIntegrationItem = ({
       )}
       <TextOverflowTooltip className="min-w-0 flex-1" value={name} />
       {awaitingCount > 0 && (
-        <span
-          aria-label={t('awaiting-your-reply')}
-          className="size-1.5 shrink-0 rounded-full bg-warning"
-          role="img"
-          title={t('awaiting-your-reply')}
-        />
+        <>
+          <span className="sr-only">{t('awaiting-your-reply')}</span>
+          <span
+            aria-hidden
+            className="size-1.5 shrink-0 rounded-full bg-warning"
+            title={t('awaiting-your-reply')}
+          />
+        </>
       )}
       {count > 0 && (
         <span className="shrink-0 text-xs tabular-nums">{count}</span>

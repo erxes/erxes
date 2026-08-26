@@ -88,38 +88,34 @@ export const PinnedMessagesBar = ({
               {messages.map((message) => (
                 <div
                   key={message._id}
-                  role="button"
-                  tabIndex={0}
-                  className="flex w-full items-start gap-2 px-3 py-2.5 text-left hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
-                  onClick={() => {
-                    setOpen(false);
-                    onSelectMessage(message._id);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
+                  className="flex w-full items-start gap-2 px-3 py-2.5"
+                >
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 items-start gap-2 text-left hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                    onClick={() => {
                       setOpen(false);
                       onSelectMessage(message._id);
-                    }
-                  }}
-                >
-                  {message.attachments
-                    ?.filter((attachment) =>
-                      attachment.type.startsWith('image'),
-                    )
-                    .slice(0, 1)
-                    .map((attachment) => (
-                      <img
-                        key={attachment.url}
-                        src={readImage(attachment.url)}
-                        alt={attachment.name || 'Pinned image'}
-                        className="size-12 shrink-0 rounded object-cover"
-                      />
-                    ))}
-                  <p className="line-clamp-3 min-w-0 flex-1 text-sm leading-5">
-                    {messageToPlainText(message.content) ||
-                      'Attachment or rich message'}
-                  </p>
+                    }}
+                  >
+                    {message.attachments
+                      ?.filter((attachment) =>
+                        attachment.type.startsWith('image'),
+                      )
+                      .slice(0, 1)
+                      .map((attachment) => (
+                        <img
+                          key={attachment.url}
+                          src={readImage(attachment.url)}
+                          alt={attachment.name || 'Pinned image'}
+                          className="size-12 shrink-0 rounded object-cover"
+                        />
+                      ))}
+                    <p className="line-clamp-3 min-w-0 flex-1 text-sm leading-5">
+                      {messageToPlainText(message.content) ||
+                        'Attachment or rich message'}
+                    </p>
+                  </button>
                   <Button
                     type="button"
                     variant="ghost"

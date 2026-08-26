@@ -1,4 +1,8 @@
-import { useQuery, useSubscription } from '@apollo/client';
+import {
+  ApolloError,
+  useQuery,
+  useSubscription,
+} from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
 
@@ -68,13 +72,18 @@ export const useConversationFilterCounts = (
   };
 };
 
+export type TUseAwaitingCountsByIntegrationTypeResult = {
+  awaitingCounts: TConversationCounts;
+  loading: boolean;
+};
+
 export const useAwaitingCountsByIntegrationType = ({
   channelId,
   skip,
 }: {
   channelId?: string;
   skip?: boolean;
-}) => {
+}): TUseAwaitingCountsByIntegrationTypeResult => {
   const { data, loading } = useQuery<TConversationCountsResponse>(
     CONVERSATION_COUNTS,
     {
@@ -94,13 +103,19 @@ export const useAwaitingCountsByIntegrationType = ({
   };
 };
 
+export type TUseConversationCountsByIntegrationResult = {
+  counts: TConversationCounts;
+  awaitingCounts: TConversationCounts;
+  loading: boolean;
+};
+
 export const useConversationCountsByIntegration = ({
   channelId,
   skip,
 }: {
   channelId: string;
   skip?: boolean;
-}) => {
+}): TUseConversationCountsByIntegrationResult => {
   const { data, loading } = useQuery<TConversationCountsResponse>(
     CONVERSATION_COUNTS,
     {
@@ -130,7 +145,13 @@ export const useConversationCountsByIntegration = ({
   };
 };
 
-export const useInboxWorkCounts = () => {
+export type TUseInboxWorkCountsResult = {
+  counts: TInboxWorkCounts;
+  error: ApolloError | undefined;
+  loading: boolean;
+};
+
+export const useInboxWorkCounts = (): TUseInboxWorkCountsResult => {
   const { data, loading, error } = useQuery<{
     conversationCounts?: Partial<TInboxWorkCounts>;
   }>(INBOX_SIDEBAR_WORK_COUNTS, {

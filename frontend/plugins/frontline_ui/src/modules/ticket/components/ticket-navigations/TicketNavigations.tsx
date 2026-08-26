@@ -33,7 +33,7 @@ interface ChannelItemProps {
   pipelineId?: string;
 }
 
-function ChannelItem({ channel, pipelineId }: ChannelItemProps) {
+function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
   const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (

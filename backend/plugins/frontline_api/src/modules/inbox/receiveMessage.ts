@@ -57,8 +57,12 @@ export const receiveInboxMessage = async (
   data,
 ): Promise<RPResult> => {
   const { action, metaInfo, payload } = data;
-  const { Integrations, ConversationMessages, Conversations } =
-    await generateModels(subdomain);
+  const {
+    ChannelMembers,
+    Integrations,
+    ConversationMessages,
+    Conversations,
+  } = await generateModels(subdomain);
   let doc = JSON.parse(JSON.stringify(payload) || '{}');
   if (typeof doc === 'string') {
     doc = JSON.parse(doc);
@@ -296,6 +300,35 @@ export const receiveInboxMessage = async (
         conversationMessageInserted: message,
       },
     );
+
+    const conversation = await Conversations.findOne(
+      { _id: message.conversationId },
+      { integrationId: 1 },
+    ).lean();
+    const integration = conversation?.integrationId
+      ? await Integrations.findOne(
+          { _id: conversation.integrationId },
+          { channelId: 1 },
+        ).lean()
+      : null;
+
+    if (integration?.channelId) {
+      const memberIds = await ChannelMembers.find({
+        channelId: integration.channelId,
+      }).distinct('memberId');
+
+      await Promise.all(
+        memberIds.map((memberId) =>
+          graphqlPubsub.publish(
+            `conversationClientMessageInserted:${subdomain}:${memberId}`,
+            {
+              conversationClientMessageInserted: message,
+            },
+          ),
+        ),
+      );
+    }
+
     return sendSuccess({ _id: message._id });
   }
 

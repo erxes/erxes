@@ -949,32 +949,31 @@ export const conversationMutations = {
       { channelId: 1 },
     ).lean();
 
-    if (!integration?.channelId) {
-      return conversation;
-    }
+    if (integration?.channelId) {
+      const integrationIds = await models.Integrations.find({
+        channelId: integration.channelId,
+      }).distinct('_id');
 
-    const integrationIds = await models.Integrations.find({
-      channelId: integration.channelId,
-    }).distinct('_id');
+      const unreadConversationCount =
+        await models.Conversations.countDocuments({
+          integrationId: { $in: integrationIds },
+          status: {
+            $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+          },
+          readUserIds: { $ne: user._id },
+        });
 
-    const unreadConversationCount = await models.Conversations.countDocuments({
-      integrationId: { $in: integrationIds },
-      status: {
-        $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
-      },
-      readUserIds: { $ne: user._id },
-    });
-
-    await graphqlPubsub.publish(
-      `conversationUnreadCountChanged:${subdomain}:${user._id}`,
-      {
-        conversationUnreadCountChanged: {
-          conversationId: _id,
-          channelId: integration.channelId,
-          unreadConversationCount,
+      await graphqlPubsub.publish(
+        `conversationUnreadCountChanged:${subdomain}:${user._id}`,
+        {
+          conversationUnreadCountChanged: {
+            conversationId: _id,
+            channelId: integration.channelId,
+            unreadConversationCount,
+          },
         },
-      },
-    );
+      );
+    }
 
     return conversation;
   },

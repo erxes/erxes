@@ -7,6 +7,7 @@ export type TInboxNavigationFilters = {
   integrationType: string;
   mentioned: boolean;
   participating: boolean;
+  searchValue: string;
   unassigned: boolean;
 };
 
@@ -26,6 +27,7 @@ export const INBOX_NAVIGATION_FILTER_KEYS: Array<
   'integrationType',
   'brandId',
   'conversationId',
+  'searchValue',
 ];
 
 export const CLEARED_INBOX_NAVIGATION_FILTERS: TInboxNavigationFilterValues = {
@@ -37,5 +39,6 @@ export const CLEARED_INBOX_NAVIGATION_FILTERS: TInboxNavigationFilterValues = {
   integrationType: null,
   mentioned: null,
   participating: null,
+  searchValue: null,
   unassigned: null,
 };
