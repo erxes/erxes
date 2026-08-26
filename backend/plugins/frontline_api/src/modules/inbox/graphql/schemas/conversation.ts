@@ -79,6 +79,10 @@ export const types = `
     formWidgetData: JSON
     messengerAppData: JSON
     extraData: JSON
+    replyToMessageId: String
+    pinnedByIds: [String!]!
+    editedAt: Date
+    deletedAt: Date
     botGreetMessage: String
     user: User
     mailData: MailData
@@ -122,6 +126,12 @@ export const types = `
   type ConversationChangedResponse {
     conversationId: String!
     type: String!
+  }
+
+  type ConversationUnreadCountChangedResponse {
+    conversationId: String!
+    channelId: String!
+    unreadConversationCount: Int!
   }
 
   type ConversationClientTypingStatusChangedResponse {
@@ -229,9 +239,13 @@ export const queries = `
     skip: Int
     limit: Int
     getFirst: Boolean
+    pinnedOnly: Boolean
   ): [ConversationMessage]
 
-  conversationMessagesTotalCount(conversationId: String!): Int
+  conversationMessagesTotalCount(
+    conversationId: String!
+    pinnedOnly: Boolean
+  ): Int
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
@@ -262,6 +276,8 @@ export const mutations = `
     contentType: String
     extraInfo: JSON
   ): ConversationMessage
+  conversationMessageRemove(_id: String!): ConversationMessage
+  conversationMessagePinToggle(_id: String!): ConversationMessage
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

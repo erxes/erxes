@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { IAttachment } from 'erxes-api-shared/core-types';
 
 interface IEngageDataRules {
   kind: string;
@@ -25,7 +26,7 @@ interface IEngageDataDocument extends IEngageData, Document {
 export interface IMessage {
   content?: string;
   createdAt?: Date;
-  attachments?: any;
+  attachments?: IAttachment[];
   mentionedUserIds?: string[];
   conversationId: string;
   internal?: boolean;
@@ -35,10 +36,14 @@ export interface IMessage {
   fromBot?: boolean;
   getStarted?: boolean;
   isCustomerRead?: boolean;
-  formWidgetData?: any;
-  botData?: any;
-  messengerAppData?: any;
+  formWidgetData?: unknown;
+  botData?: unknown;
+  messengerAppData?: unknown;
   extraData?: Record<string, unknown>;
+  replyToMessageId?: string;
+  pinnedByIds?: string[];
+  editedAt?: Date;
+  deletedAt?: Date;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;
@@ -62,9 +67,9 @@ export interface IConversationMessageAdd {
   content: string;
   mentionedUserIds?: string[];
   internal?: boolean;
-  attachments?: any;
+  attachments?: IAttachment[];
   userId?: string;
-  extraInfo?: any;
+  extraInfo?: unknown;
   responseTemplateId?: string;
   poll?: {
     question: string;

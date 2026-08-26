@@ -1,6 +1,10 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 
 export default {
+  pinnedByIds(message: IMessageDocument) {
+    return message.pinnedByIds || [];
+  },
+
   user(message: IMessageDocument) {
     return message.userId && { __typename: 'User', _id: message.userId };
   },

@@ -1,5 +1,4 @@
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
-import { useConversationAutomatedReplyControl } from '@/inbox/conversations/hooks/useConversationAutomatedReplyControl';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useDiscordConversationChannel } from '@/integrations/discord/hooks/useDiscordSetup';
 import { IntegrationType } from '@/types/Integration';
@@ -17,8 +16,6 @@ import {
   IconDots,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
-  IconPlayerPause,
-  IconPlayerPlay,
   IconTags,
   IconUser,
 } from '@tabler/icons-react';
@@ -31,7 +28,6 @@ import {
   Separator,
   Skeleton,
   Tooltip,
-  cn,
   toast,
   useQueryState,
 } from 'erxes-ui';
@@ -40,6 +36,10 @@ import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useState } from 'react';
+import {
+  AutomatedReplyMenuItem,
+  AutomatedReplyStatusBadge,
+} from '@/inbox/conversations/conversation-detail/components/conversation-header/AutomatedReplyActions';
 
 const stopEventPropagation = (event: SyntheticEvent) => {
   event.stopPropagation();
@@ -119,70 +119,6 @@ const ConversationHeaderProfile = () => {
   );
 };
 
-const AutomatedReplyStatusBadge = () => {
-  const { _id, automatedReplyControl } = useConversationContext();
-  const { setAutomatedReplyControl, loading } =
-    useConversationAutomatedReplyControl();
-  const status = automatedReplyControl?.status;
-
-  if (!status) {
-    return null;
-  }
-
-  const isActive = status === 'active';
-  const label = isActive
-    ? 'Automation active'
-    : status === 'human_active' &&
-        automatedReplyControl?.reason === 'operator_reply'
-      ? 'Automation paused: operator active'
-      : 'Automation paused';
-  const nextStatus = isActive ? 'human_active' : 'active';
-  const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
-  const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
-  const ActionIcon = isActive ? IconPlayerPause : IconPlayerPlay;
-
-  const handleToggleAutomation = () => {
-    setAutomatedReplyControl({
-      variables: {
-        _id,
-        status: nextStatus,
-        reason: 'manual',
-      },
-      onCompleted: () => {
-        toast({
-          title: isActive ? 'Automation paused' : 'Automation resumed',
-        });
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          className={cn(
-            'h-7 flex-none gap-1.5 rounded-md border px-2 text-xs font-medium shadow-none',
-            isActive
-              ? 'border-border bg-muted/50 text-muted-foreground hover:bg-muted'
-              : 'border-primary/20 bg-primary/10 text-primary hover:bg-primary/15',
-          )}
-          disabled={loading}
-        >
-          <Icon className="size-3.5 flex-none" />
-          <span className="max-w-[280px] truncate">{label}</span>
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="start" className="min-w-[220px]">
-        <DropdownMenu.Item disabled={loading} onClick={handleToggleAutomation}>
-          <ActionIcon className="size-4" />
-          {actionLabel}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-};
-
 const AssignConversation = ({
   withinDropdown = false,
 }: {
@@ -208,7 +144,13 @@ const AssignConversation = ({
           variant: 'destructive',
         });
       },
-      refetchQueries: ['ConversationDetail', 'Conversations'],
+      refetchQueries: [
+        'ConversationDetail',
+        'Conversations',
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
     });
   };
 
@@ -295,8 +237,10 @@ export const ConversationTags = ({
 
 const ConversationActionsDropdown = ({
   showAssignee = false,
+  showAutomation = false,
 }: {
   showAssignee?: boolean;
+  showAutomation?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, status } = useConversationContext();
@@ -336,6 +280,7 @@ const ConversationActionsDropdown = ({
         align="end"
         className="w-80 max-w-[calc(100vw-1rem)] p-1.5"
       >
+        {showAutomation && <AutomatedReplyMenuItem />}
         {showAssignee && (
           <>
             <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
@@ -383,7 +328,7 @@ export const ConversationHeader = () => {
   return (
     <div
       ref={headerRef}
-      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
+      className="h-14 flex items-center border-b bg-background px-4 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
     >
       {view === 'list' ? (
         <Button
@@ -402,14 +347,17 @@ export const ConversationHeader = () => {
       ) : (
         <Skeleton className="w-32 h-4 ml-2" />
       )}
-      <Separator.Inline />
+      <Separator.Inline className="h-6" />
       {!hideAssignee && <AssignConversation />}
-      <AutomatedReplyStatusBadge />
+      {!isCompact && <AutomatedReplyStatusBadge />}
       <div className="flex items-center gap-3 ml-auto flex-none">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
         {isCompact ? (
-          <ConversationActionsDropdown showAssignee={hideAssignee} />
+          <ConversationActionsDropdown
+            showAssignee={hideAssignee}
+            showAutomation
+          />
         ) : (
           <ConversationActions />
         )}

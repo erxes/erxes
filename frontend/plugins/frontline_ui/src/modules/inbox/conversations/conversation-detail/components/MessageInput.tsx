@@ -32,7 +32,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
 import { useMutation } from '@apollo/client';
-import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
+import { CONVERSATION_AGENT_TYPING } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationAgentTyping';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useTranslation } from 'react-i18next';
@@ -51,11 +51,11 @@ import { discordReplyToState } from '@/integrations/discord/states/discordReplyT
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
-import { ResponseTemplateSelector } from './ResponseTemplateSelector';
-import { PollComposer, PollDraft } from './PollComposer';
+import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
+import { PollComposer, PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { getPreviewText } from '@/inbox/types/inbox';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
-import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
+import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
@@ -77,6 +77,17 @@ const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
         } as Block)
       : block,
   );
+
+const ATTACHMENT_BLOCK_TYPES = new Set([
+  'image',
+  'video',
+  'audio',
+  'file',
+  'gallery',
+]);
+
+const excludeAttachmentBlocks = (blocks?: Block[]) =>
+  blocks?.filter((block) => !ATTACHMENT_BLOCK_TYPES.has(block.type));
 
 export const MessageInput = ({
   conversationId,
@@ -150,6 +161,12 @@ export const MessageInput = ({
   useEffect(() => {
     setDiscordReplyTo(null);
   }, [conversationId, setDiscordReplyTo]);
+
+  useEffect(() => {
+    if (discordReplyTo?.internal) {
+      setIsInternalNote(true);
+    }
+  }, [discordReplyTo, setIsInternalNote]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
@@ -376,11 +393,14 @@ export const MessageInput = ({
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
 
+    const contentWithoutAttachments = excludeAttachmentBlocks(content);
     const outgoingBlocks =
-      isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
+      isDiscord && !isInternalNote
+        ? encodeDiscordMentions(contentWithoutAttachments)
+        : contentWithoutAttachments;
 
     const sendContent = isInternalNote
-      ? JSON.stringify(content)
+      ? JSON.stringify(contentWithoutAttachments)
       : await editor?.blocksToHTMLLossy(outgoingBlocks);
 
     const blockAttachments = getBlockAttachments(content || []);
@@ -399,7 +419,9 @@ export const MessageInput = ({
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
+        ...(((discordReplyTo?.internal && isInternalNote) ||
+          (!discordReplyTo?.internal && isDiscord && !isInternalNote)) &&
+        discordReplyTo
           ? { replyToMessageId: discordReplyTo.messageId }
           : {}),
       },
@@ -416,7 +438,11 @@ export const MessageInput = ({
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
       },
-      refetchQueries: ['Conversations'],
+      refetchQueries: [
+        'Conversations',
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+      ],
       onError: (err) =>
         toast({
           title: t('failed-to-send', { message: err.message }),
@@ -445,7 +471,11 @@ export const MessageInput = ({
       try {
         await addConversationMessage({
           variables: { conversationId, content: '', internal: false, poll },
-          refetchQueries: ['Conversations'],
+          refetchQueries: [
+            'Conversations',
+            'ConversationCounts',
+            'FrontlineInboxSidebarWorkCounts',
+          ],
         });
         toast({ title: 'Poll sent!', variant: 'default' });
         return true;
@@ -487,24 +517,26 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
-          <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
-            <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
-              <IconArrowBackUp className="size-4 flex-none" />
-              <span className="truncate">
-                Replying to: {discordReplyTo.preview}
-              </span>
+        {((discordReplyTo?.internal && isInternalNote) ||
+          (!discordReplyTo?.internal && isDiscord && !isInternalNote)) &&
+          discordReplyTo && (
+            <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
+              <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+                <IconArrowBackUp className="size-4 flex-none" />
+                <span className="truncate">
+                  Replying to: {discordReplyTo.preview}
+                </span>
+              </div>
+              <button
+                type="button"
+                aria-label="Cancel reply"
+                onClick={() => setDiscordReplyTo(null)}
+                className="flex-none text-muted-foreground hover:text-foreground"
+              >
+                <IconX size={14} aria-hidden="true" />
+              </button>
             </div>
-            <button
-              type="button"
-              aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
-              className="flex-none text-muted-foreground hover:text-foreground"
-            >
-              <IconX size={14} aria-hidden="true" />
-            </button>
-          </div>
-        )}
+          )}
 
         <BlockEditor
           editor={editor}

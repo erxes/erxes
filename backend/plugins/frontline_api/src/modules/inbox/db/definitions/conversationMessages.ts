@@ -50,6 +50,10 @@ export const messageSchema = new Schema({
   // Channel-specific structured payload that has no generic column — currently
   // Discord rich content (e.g. `{ poll }`), extensible to embeds/stickers.
   extraData: { type: Object },
+  replyToMessageId: { type: String },
+  pinnedByIds: { type: [String], default: [] },
+  editedAt: { type: Date },
+  deletedAt: { type: Date },
   engageData: { type: engageDataSchema },
   contentType: {
     type: String,
@@ -59,3 +63,6 @@ export const messageSchema = new Schema({
   botId: { type: String },
   responseTemplateId: { type: String },
 });
+
+messageSchema.index({ conversationId: 1, createdAt: -1 });
+messageSchema.index({ conversationId: 1, pinnedByIds: 1, createdAt: -1 });

@@ -1,24 +1,24 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Separator, useQueryState } from 'erxes-ui';
+import { useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
-import { ConversationHeader } from './ConversationHeader';
-import { useConversationDetail } from '../hooks/useConversationDetail';
+import { ConversationHeader } from '@/inbox/conversations/conversation-detail/components/ConversationHeader';
+import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
-import { ConversationDetailLayout } from './ConversationDetailLayout';
+import { ConversationDetailLayout } from '@/inbox/conversations/conversation-detail/components/ConversationDetailLayout';
 import { ConversationIntegrationDetail } from '@/integrations/components/ConversationIntegrationDetail';
-import { MessageInput } from './MessageInput';
+import { MessageInput } from '@/inbox/conversations/conversation-detail/components/MessageInput';
 
 import { ConversationMessages } from '@/inbox/conversation-messages/components/ConversationMessages';
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
-import { NoConversationSelected } from './NoConversationSelected';
-import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
+import { NoConversationSelected } from '@/inbox/conversations/conversation-detail/components/NoConversationSelected';
+import { ConversationMarkAsReadEffect } from '@/inbox/conversations/conversation-detail/components/ConversationMarkAsReadEffect';
 import { IConversation } from '@/inbox/types/Conversation';
 import { IIntegration } from '@/integrations/types/Integration';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
 import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';
@@ -86,11 +86,13 @@ export const ConversationDetail = () => {
   };
 
   return (
-    <div ref={detailRef} className="relative flex h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-hidden flex-auto min-w-0">
+    <div
+      ref={detailRef}
+      className="relative flex h-full overflow-hidden bg-muted/20"
+    >
+      <div className="flex min-w-0 flex-auto flex-col overflow-hidden bg-background">
         <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
-          <Separator />
           <ConversationDetailLayout
             input={
               integration?.kind === 'imap' ? null : (

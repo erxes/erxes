@@ -8,14 +8,24 @@ export const ConversationDetailLayout = ({
   input: React.ReactNode;
 }) => {
   return (
-    <Resizable.PanelGroup direction="vertical">
-      <Resizable.Panel defaultSize={input ? 70 : 100}>
+    <Resizable.PanelGroup direction="vertical" className="min-h-0">
+      <Resizable.Panel
+        defaultSize={input ? 76 : 100}
+        minSize={input ? 48 : undefined}
+      >
         <div className="relative h-full overflow-hidden">{children}</div>
       </Resizable.Panel>
       {input && (
         <>
-          <Resizable.Handle className="bg-transparent hover:bg-border" />
-          <Resizable.Panel defaultSize={30}>{input}</Resizable.Panel>
+          <Resizable.Handle className="border-y bg-muted/30 transition-colors hover:bg-muted" />
+          <Resizable.Panel
+            defaultSize={24}
+            minSize={18}
+            maxSize={42}
+            className="bg-background"
+          >
+            {input}
+          </Resizable.Panel>
         </>
       )}
     </Resizable.PanelGroup>

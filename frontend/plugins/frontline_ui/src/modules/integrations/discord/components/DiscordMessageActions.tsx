@@ -1,7 +1,10 @@
 import { useCallback, useState } from 'react';
 import type { ComponentType } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useSetAtom } from 'jotai';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   Button,
   Dialog,
@@ -18,19 +21,35 @@ import {
   IconHash,
   IconLink,
   IconPencil,
+  IconPhoto,
+  IconPin,
+  IconPinnedOff,
   IconTrash,
 } from '@tabler/icons-react';
-import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
+import { currentUserState } from 'ui-modules';
+import {
+  getOptimisticMessage,
+  copyImageToClipboard,
+} from '@/inbox/conversation-messages/utils/messageActions';
+import { FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE } from '@/inbox/conversation-messages/graphql/messageActions';
+import { IMessage } from '@/inbox/types/Conversation';
+import { DISCORD_CONVERSATION_CHANNEL } from '@/integrations/discord/graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
-} from '../graphql/mutations';
+} from '@/integrations/discord/graphql/mutations';
 import {
   DiscordReplyTarget,
   discordReplyToState,
-} from '../states/discordReplyToState';
+} from '@/integrations/discord/states/discordReplyToState';
 
 const PREVIEW_LENGTH = 80;
+
+const EDIT_MESSAGE_SCHEMA = z.object({
+  content: z.string().trim().min(1),
+});
+
+type EditMessageFormValues = z.infer<typeof EDIT_MESSAGE_SCHEMA>;
 
 const stripToText = (html?: string): string => {
   if (!html) {
@@ -95,18 +114,27 @@ export const DiscordMessageActions = ({
   messageId,
   content,
   isOwnMessage,
+  databaseMessage,
 }: {
   conversationId: string;
   messageId: string;
   content?: string;
   isOwnMessage?: boolean;
+  databaseMessage: IMessage;
 }) => {
+  const currentUserId = useAtomValue(currentUserState)?._id || '';
   const setReplyTo = useSetAtom(discordReplyToState);
   const { confirm } = useConfirm();
   const text = stripToText(content);
+  const imageAttachment = databaseMessage.attachments?.find((attachment) =>
+    attachment.type.startsWith('image'),
+  );
 
   const [editOpen, setEditOpen] = useState(false);
-  const [draft, setDraft] = useState('');
+  const editForm = useForm<EditMessageFormValues>({
+    resolver: zodResolver(EDIT_MESSAGE_SCHEMA),
+    defaultValues: { content: '' },
+  });
 
   const [loadChannel] = useLazyQuery<{
     discordConversationChannel: DiscordConversationChannel | null;
@@ -117,6 +145,31 @@ export const DiscordMessageActions = ({
 
   const [editMessage, { loading: editing }] = useMutation(DISCORD_EDIT_MESSAGE);
   const [deleteMessage] = useMutation(DISCORD_DELETE_MESSAGE);
+  const [toggleMessagePin] = useMutation(
+    FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
+  );
+  const isPinned =
+    databaseMessage.pinnedByIds?.includes(currentUserId) || false;
+
+  const handlePin = async () => {
+    const pinnedByIds = isPinned
+      ? (databaseMessage.pinnedByIds || []).filter(
+          (id) => id !== currentUserId,
+        )
+      : [...(databaseMessage.pinnedByIds || []), currentUserId];
+    try {
+      await toggleMessagePin({
+        variables: { _id: databaseMessage._id },
+        optimisticResponse: {
+          conversationMessagePinToggle: getOptimisticMessage(databaseMessage, {
+            pinnedByIds,
+          }),
+        },
+      });
+    } catch {
+      toast({ title: 'Failed to update pin', variant: 'destructive' });
+    }
+  };
 
   const handleReply = useCallback(() => {
     const preview = text.slice(0, PREVIEW_LENGTH) || 'message';
@@ -134,13 +187,26 @@ export const DiscordMessageActions = ({
     await copyToClipboard(link, 'Message link copied');
   }, [loadChannel, messageId]);
 
-  const handleOpenEdit = useCallback(() => {
-    setDraft(text);
-    setEditOpen(true);
-  }, [text]);
+  const handleCopyImage = useCallback(async () => {
+    if (!imageAttachment) return;
 
-  const handleSaveEdit = useCallback(async () => {
-    const next = draft.trim();
+    try {
+      const copied = await copyImageToClipboard(imageAttachment.url);
+      toast({
+        title: copied === 'image' ? 'Image copied' : 'Image link copied',
+      });
+    } catch {
+      toast({ title: 'Failed to copy image', variant: 'destructive' });
+    }
+  }, [imageAttachment]);
+
+  const handleOpenEdit = useCallback(() => {
+    editForm.reset({ content: text });
+    setEditOpen(true);
+  }, [editForm, text]);
+
+  const handleSaveEdit = editForm.handleSubmit(async ({ content }) => {
+    const next = content.trim();
 
     if (!next || next === text) {
       setEditOpen(false);
@@ -159,7 +225,7 @@ export const DiscordMessageActions = ({
         variant: 'destructive',
       });
     }
-  }, [editMessage, conversationId, messageId, draft, text]);
+  });
 
   const handleDelete = useCallback(() => {
     confirm({
@@ -188,6 +254,11 @@ export const DiscordMessageActions = ({
     <Tooltip.Provider delayDuration={0}>
       <div className="flex h-8 shrink-0 items-center gap-px rounded-md border bg-background p-0.5 opacity-0 shadow-xs transition-opacity focus-within:opacity-100 group-hover:opacity-100">
         <DiscordMessageAction
+          label={isPinned ? 'Unpin message' : 'Pin message'}
+          icon={isPinned ? IconPinnedOff : IconPin}
+          onClick={handlePin}
+        />
+        <DiscordMessageAction
           label="Reply"
           icon={IconArrowBackUp}
           onClick={handleReply}
@@ -198,6 +269,13 @@ export const DiscordMessageActions = ({
           disabled={!text}
           onClick={() => copyToClipboard(text, 'Text copied')}
         />
+        {imageAttachment && (
+          <DiscordMessageAction
+            label="Copy image"
+            icon={IconPhoto}
+            onClick={handleCopyImage}
+          />
+        )}
         <DiscordMessageAction
           label="Copy message link"
           icon={IconLink}
@@ -233,27 +311,27 @@ export const DiscordMessageActions = ({
               The message is updated in Discord and marked as edited there.
             </Dialog.Description>
           </Dialog.Header>
-          <Textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={5}
-            autoFocus
-          />
-          <Dialog.Footer>
-            <Dialog.Close asChild>
-              <Button variant="ghost" type="button">
-                Cancel
+          <form onSubmit={handleSaveEdit}>
+            <Textarea
+              {...editForm.register('content')}
+              rows={5}
+              autoFocus
+            />
+            <Dialog.Footer>
+              <Dialog.Close asChild>
+                <Button variant="ghost" type="button">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button
+                type="submit"
+                disabled={editing || !editForm.watch('content')?.trim()}
+              >
+                {editing && <Spinner size="sm" />}
+                Save
               </Button>
-            </Dialog.Close>
-            <Button
-              type="button"
-              disabled={editing || !draft.trim()}
-              onClick={handleSaveEdit}
-            >
-              {editing && <Spinner size="sm" />}
-              Save
-            </Button>
-          </Dialog.Footer>
+            </Dialog.Footer>
+          </form>
         </Dialog.Content>
       </Dialog>
     </Tooltip.Provider>

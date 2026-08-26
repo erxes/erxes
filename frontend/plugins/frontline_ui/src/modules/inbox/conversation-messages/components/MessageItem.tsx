@@ -2,29 +2,29 @@ import { useAtomValue } from 'jotai';
 import {
   Avatar,
   Button,
-  Dialog,
-  IAttachment,
   RelativeDateDisplay,
   cn,
-  formatBytes,
-  readImage,
 } from 'erxes-ui';
-import { CustomersInline, MembersInline } from 'ui-modules';
+import { CustomersInline, MembersInline, currentUserState } from 'ui-modules';
 
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
+import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
+import { MessageAttachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { messageToPlainText } from '@/inbox/conversation-messages/utils/messageActions';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
-import { IconBrain, IconFile, IconSparkles } from '@tabler/icons-react';
-
-const Img = (props: JSX.IntrinsicElements['img']) => (
-  // skipcq: JS-W1015
-  <img {...props} />
-);
+import {
+  IconBrain,
+  IconCheck,
+  IconChecks,
+  IconPin,
+  IconSparkles,
+} from '@tabler/icons-react';
 
 const getMessageBubbleClassName = ({
   userId,
@@ -54,8 +54,9 @@ const getMessageBubbleClassName = ({
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
-  const { previousMessage, nextMessage, ...message } =
-    useConversationMessageContext();
+  const message = useConversationMessageContext();
+  const { replyMessage } = message;
+  const currentUserId = useAtomValue(currentUserState)?._id;
   const {
     _id,
     conversationId,
@@ -73,6 +74,10 @@ export const MessageItem = () => {
     isGroupConversation,
     isBotMessage,
     botData,
+    isCustomerRead,
+    editedAt,
+    deletedAt,
+    pinnedByIds,
   } = message;
 
   const poll = extraData?.poll;
@@ -101,7 +106,8 @@ export const MessageItem = () => {
 
   const showBotName = Boolean(fromBot) && separatePrevious;
 
-  const isDeleted = Boolean(extraData?.discordDeletedAt);
+  const isDiscordMessage = Boolean(extraData?.discordMessageId);
+  const isDeleted = Boolean(extraData?.discordDeletedAt || deletedAt);
 
   const hasTextBubble =
     !isDeleted && Boolean(displayContent) && displayContent !== HAS_ATTACHMENT;
@@ -133,9 +139,10 @@ export const MessageItem = () => {
       {/* skipcq: JS-0357 */}
       <MessageWrapper>
         <div
+          id={`conversation-message-${_id}`}
           className={cn(
-            'min-w-0 max-w-[428px]',
-            extraData?.discordMessageId && 'group relative',
+            'min-w-0 max-w-[428px] scroll-m-20 rounded-md transition-shadow',
+            'group relative',
           )}
           key={_id}
         >
@@ -151,7 +158,18 @@ export const MessageItem = () => {
                 messageId={extraData.discordMessageId}
                 content={hasTextBubble ? displayContent : undefined}
                 isOwnMessage={Boolean(userId) || Boolean(fromBot)}
+                databaseMessage={message}
               />
+            </div>
+          )}
+          {!isDiscordMessage && !isDeleted && (
+            <div
+              className={cn(
+                'absolute bottom-0 z-10',
+                userId ? 'right-full mr-1' : 'left-full ml-1',
+              )}
+            >
+              <MessageActions message={message} />
             </div>
           )}
           {isDeleted && (
@@ -162,7 +180,9 @@ export const MessageItem = () => {
                   (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
               )}
             >
-              Message deleted on Discord
+              {extraData?.discordDeletedAt
+                ? 'Message deleted on Discord'
+                : 'Internal note deleted'}
               {separateNext && (
                 <div className="mt-1 text-xs not-italic">
                   <RelativeDateDisplay value={createdAt}>
@@ -187,12 +207,36 @@ export const MessageItem = () => {
               asChild
             >
               <div>
+                {replyMessage && (
+                  <div className="mb-2 border-l-2 border-current/30 pl-2 text-xs opacity-70">
+                    <div className="font-medium">Replying to</div>
+                    <div className="line-clamp-2">
+                      {messageToPlainText(replyMessage.content) || 'Message'}
+                    </div>
+                  </div>
+                )}
                 <MessageContent content={displayContent} internal={internal} />
                 {separateNext && (
-                  <div className="text-muted-foreground mt-1">
+                  <div className="mt-1 flex items-center justify-end gap-1 text-muted-foreground">
+                    {Boolean(editedAt) && <span>edited ·</span>}
+                    {Boolean(
+                      currentUserId && pinnedByIds?.includes(currentUserId),
+                    ) && (
+                      <IconPin className="size-3" aria-label="Pinned" />
+                    )}
                     <RelativeDateDisplay value={createdAt}>
                       <RelativeDateDisplay.Value value={createdAt} />
                     </RelativeDateDisplay>
+                    {Boolean(userId && !internal) && (
+                      <span className="ml-0.5 inline-flex items-center gap-0.5">
+                        {isCustomerRead ? (
+                          <IconChecks className="size-3.5 text-primary" />
+                        ) : (
+                          <IconCheck className="size-3.5" />
+                        )}
+                        <span>{isCustomerRead ? 'Seen' : 'Sent'}</span>
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -203,7 +247,7 @@ export const MessageItem = () => {
             )
           )}
           {/* skipcq: JS-0357 */}
-          {!isDeleted && <Attachments attachments={attachments} />}
+          {!isDeleted && <MessageAttachments attachments={attachments} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
           {!isDeleted &&
@@ -285,95 +329,5 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
     </div>
-  );
-};
-
-const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
-  if (!attachments?.length) {
-    return null;
-  }
-
-  const single = attachments.length === 1;
-
-  return (
-    <div className={cn(single ? 'flex' : 'grid grid-cols-3 gap-2')}>
-      {attachments.map((attachment, index) => (
-        <Attachment
-          key={`${attachment.url}-${index}`}
-          attachment={attachment}
-          length={attachments.length}
-        />
-      ))}
-    </div>
-  );
-};
-
-const Attachment = ({
-  attachment,
-  length,
-}: {
-  attachment: IAttachment;
-  length?: number;
-}) => {
-  const isImage = attachment.type.startsWith('image');
-  const single = length === 1;
-  if (!isImage) {
-    return (
-      <a
-        href={readImage(attachment.url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          {
-            'col-span-2': length === 1,
-            'col-span-1': length !== 1,
-          },
-          'w-full px-3 py-2 rounded bg-accent flex items-center gap-3 cursor-pointer no-underline hover:bg-accent/70',
-        )}
-      >
-        <IconFile className="size-8 shrink-0 text-muted-foreground" />
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-primary">
-            {attachment.name || 'File'}
-          </span>
-          {Boolean(attachment.size) && (
-            <span className="text-xs text-muted-foreground">
-              {formatBytes(attachment.size)}
-            </span>
-          )}
-        </div>
-      </a>
-    );
-  }
-  return (
-    <Dialog>
-      <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
-            single ? 'w-fit max-w-full' : 'w-full aspect-square',
-          )}
-        >
-          <Img
-            src={readImage(attachment.url)}
-            alt={attachment.name}
-            loading="lazy"
-            className={cn(
-              single
-                ? 'block max-h-96 max-w-full object-contain'
-                : 'size-full object-cover',
-            )}
-          />
-        </button>
-      </Dialog.Trigger>
-      <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
-        <Img
-          src={readImage(attachment.url)}
-          alt={attachment.name}
-          className="max-w-[90vw] max-h-[90vh] rounded-lg object-contain"
-        />
-      </Dialog.Content>
-    </Dialog>
   );
 };

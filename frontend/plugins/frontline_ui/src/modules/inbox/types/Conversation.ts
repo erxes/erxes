@@ -1,7 +1,7 @@
 import { IAttachment } from 'erxes-ui';
 import { ICustomerInline, IUser } from 'ui-modules';
 import { IIntegration } from '@/integrations/types/Integration';
-import { IFormWidgetItem } from './FormWidget';
+import { IFormWidgetItem } from '@/inbox/types/FormWidget';
 
 export interface IConversation {
   _id: string;
@@ -77,6 +77,11 @@ export interface IMessage {
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  isCustomerRead?: boolean;
+  replyToMessageId?: string;
+  pinnedByIds?: string[];
+  editedAt?: string;
+  deletedAt?: string;
 }
 
 export enum ConversationStatus {
