@@ -29,6 +29,7 @@ export const useChannelUnreadUpdates = () => {
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
         'GetMyChannels',
+        'IntegrationsGetUsedTypesByChannel',
       ],
     });
   };

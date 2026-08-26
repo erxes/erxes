@@ -1,9 +1,14 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
+import { ITicket } from '@/ticket/types';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   cn,
   Collapsible,
+  Empty,
+  ICursorListResponse,
   IconComponent,
   NavigationMenuGroup,
   Sidebar,
@@ -12,10 +17,10 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
 
 function LoadingSkeleton() {
   return (
@@ -29,15 +34,48 @@ function LoadingSkeleton() {
 
 interface ChannelItemProps {
   channel: IChannel;
+  pipelineId?: string;
 }
 
-function ChannelItem({ channel }: ChannelItemProps) {
+interface ChannelTicketProbeProps {
+  channelId: string;
+  onResolved: (channelId: string, pipelineId: string | null) => void;
+}
+
+function ChannelTicketProbe({
+  channelId,
+  onResolved,
+}: ChannelTicketProbeProps) {
+  const { data, loading } = useQuery<ICursorListResponse<ITicket>>(
+    GET_TICKETS,
+    {
+      variables: {
+        filter: { channelId, limit: 1, direction: 'forward' },
+      },
+      fetchPolicy: 'cache-and-network',
+    },
+  );
+
+  useEffect(() => {
+    if (!loading && data?.getTickets) {
+      onResolved(channelId, data.getTickets.list[0]?.pipelineId ?? null);
+    }
+  }, [channelId, data, loading, onResolved]);
+
+  return null;
+}
+
+function ChannelItem({ channel, pipelineId }: ChannelItemProps) {
   const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>
-        <Link to={`frontline/tickets?channelId=${channel._id}`}>
+        <Link
+          to={`frontline/tickets?channelId=${channel._id}${
+            pipelineId ? `&pipelineId=${pipelineId}` : ''
+          }`}
+        >
           {!!channel.icon && (
             <IconComponent
               name={channel.icon}
@@ -59,19 +97,41 @@ export function TicketNavigations() {
   const { channels, loading } = useGetChannels();
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
   const [showUnconfigured, setShowUnconfigured] = useState(false);
+  const [channelPipelineIds, setChannelPipelineIds] = useState<
+    Record<string, string | null>
+  >({});
+
+  const handleTicketAvailabilityResolved = useCallback(
+    (resolvedChannelId: string, resolvedPipelineId: string | null) => {
+      setChannelPipelineIds((current) =>
+        current[resolvedChannelId] === resolvedPipelineId
+          ? current
+          : { ...current, [resolvedChannelId]: resolvedPipelineId },
+      );
+    },
+    [],
+  );
 
   const { configuredChannels, unconfiguredChannels } = useMemo(() => {
     const availableChannels = channels ?? [];
 
     return {
-      configuredChannels: availableChannels.filter(
-        (channel) => (channel.pipelineCount ?? 0) > 0,
+      configuredChannels: availableChannels.filter((channel) =>
+        Boolean(channelPipelineIds[channel._id]),
       ),
       unconfiguredChannels: availableChannels.filter(
-        (channel) => (channel.pipelineCount ?? 0) === 0,
+        (channel) => channelPipelineIds[channel._id] === null,
       ),
     };
-  }, [channels]);
+  }, [channelPipelineIds, channels]);
+
+  const navigationLoading =
+    loading ||
+    Boolean(
+      channels?.some(
+        (channel) => channelPipelineIds[channel._id] === undefined,
+      ),
+    );
 
   const visibleUnconfiguredChannels = showUnconfigured
     ? unconfiguredChannels
@@ -91,7 +151,7 @@ export function TicketNavigations() {
   };
 
   useEffect(() => {
-    if (!channels) {
+    if (!channels || navigationLoading) {
       return;
     }
 
@@ -102,10 +162,17 @@ export function TicketNavigations() {
     if (!channelId || !hasSelectedChannel) {
       setChannelId(configuredChannels[0]?._id || null);
     }
-  }, [channels, configuredChannels, setChannelId, channelId]);
+  }, [
+    channels,
+    configuredChannels,
+    navigationLoading,
+    setChannelId,
+    channelId,
+  ]);
 
   useEffect(() => {
     if (
+      !navigationLoading &&
       !showUnconfigured &&
       unconfiguredChannels.some((channel) => channel._id === channelId)
     ) {
@@ -114,6 +181,7 @@ export function TicketNavigations() {
   }, [
     channelId,
     configuredChannels,
+    navigationLoading,
     setChannelId,
     showUnconfigured,
     unconfiguredChannels,
@@ -121,13 +189,24 @@ export function TicketNavigations() {
 
   return (
     <>
+      {channels?.map((channel) => (
+        <ChannelTicketProbe
+          key={channel._id}
+          channelId={channel._id}
+          onResolved={handleTicketAvailabilityResolved}
+        />
+      ))}
       <NavigationMenuGroup name="Channels">
-        {loading ? (
+        {navigationLoading ? (
           <LoadingSkeleton />
         ) : (
           <>
             {configuredChannels.map((channel) => (
-              <ChannelItem key={channel._id} channel={channel} />
+              <ChannelItem
+                key={channel._id}
+                channel={channel}
+                pipelineId={channelPipelineIds[channel._id] || undefined}
+              />
             ))}
             {visibleUnconfiguredChannels.map((channel) => (
               <ChannelItem key={channel._id} channel={channel} />
@@ -146,11 +225,18 @@ export function TicketNavigations() {
                 )}
                 <TextOverflowTooltip
                   className="min-w-0 flex-1 text-left"
-                  value={t('not-configured-tickets', {
-                    count: unconfiguredChannels.length,
-                    defaultValue_one: '{{count}} not configured ticket',
-                    defaultValue_other: '{{count}} not configured tickets',
-                  })}
+                  value={
+                    showUnconfigured
+                      ? t('hide-not-configured-tickets', {
+                          defaultValue: 'Hide not configured tickets',
+                        })
+                      : t('not-configured-tickets', {
+                          count: unconfiguredChannels.length,
+                          defaultValue_one: '{{count}} not configured ticket',
+                          defaultValue_other:
+                            '{{count}} not configured tickets',
+                        })
+                  }
                 />
               </Button>
             )}
@@ -213,13 +299,14 @@ const Pipelines = () => {
             ))
           )}
           {!loading && !pipelines?.length && (
-            <Sidebar.MenuItem>
-              <Sidebar.MenuButton disabled={true}>
-                <span className="capitalize text-foreground">
-                  {t('no-pipelines')}
-                </span>
-              </Sidebar.MenuButton>
-            </Sidebar.MenuItem>
+            <Empty className="py-6">
+              <Empty.Header>
+                <Empty.Media>
+                  <IconGitBranch />
+                </Empty.Media>
+                <Empty.Title>{t('no-pipelines')}</Empty.Title>
+              </Empty.Header>
+            </Empty>
           )}
         </Sidebar.Menu>
       </Sidebar.GroupContent>

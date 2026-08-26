@@ -1,5 +1,5 @@
 import { useTicketsColumns } from '@/ticket/components/TicketsColumn';
-import { isUndefinedOrNull, RecordTable, useQueryState } from 'erxes-ui';
+import { Empty, isUndefinedOrNull, RecordTable, useQueryState } from 'erxes-ui';
 import { useTickets } from '@/ticket/hooks/useGetTickets';
 import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
 import { useSetAtom } from 'jotai';
@@ -7,7 +7,10 @@ import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
 import { TicketCommandBar } from './ticket-command-bar/TicketCommandbar';
+import { IconTicket } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 export const TicketsRecordTable = () => {
+  const { t } = useTranslation('frontline');
   const setTicketTotalCount = useSetAtom(ticketTotalCountAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [channelId] = useQueryState<string | null>('channelId');
@@ -64,6 +67,16 @@ export const TicketsRecordTable = () => {
         </RecordTable.CursorProvider>
         <TicketCommandBar />
       </RecordTable.Provider>
+      {!loading && pipelineId && tickets?.length === 0 && (
+        <Empty className="absolute inset-x-3 top-12 bottom-3 z-10 rounded-lg bg-background">
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconTicket />
+            </Empty.Media>
+            <Empty.Title>{t('no-tickets-found')}</Empty.Title>
+          </Empty.Header>
+        </Empty>
+      )}
     </div>
   );
 };

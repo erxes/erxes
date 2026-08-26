@@ -5,17 +5,12 @@ import { currentUserState } from 'ui-modules';
 import { useConversationContext } from '../hooks/useConversationContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { INBOX_UNREAD_CONVERSATION_COUNT } from '@/inbox/conversations/graphql/queries/getConversationCounts';
 
 type MarkConversationAsReadResponse = {
   conversationMarkAsRead: {
     _id: string;
     __typename: 'Conversation';
   };
-};
-
-type InboxUnreadCountResponse = {
-  conversationsTotalCount?: number;
 };
 
 export const useConversationMarkAsRead = () => {
@@ -25,7 +20,7 @@ export const useConversationMarkAsRead = () => {
     { id: string }
   >(MARK_AS_READ_CONVERSATION);
   const currentUser = useAtomValue(currentUserState);
-  const { readUserIds, _id, integration } = useConversationContext();
+  const { readUserIds, _id } = useConversationContext();
 
   const handleMarkAsRead = (
     options?: MutationHookOptions<
@@ -57,6 +52,7 @@ export const useConversationMarkAsRead = () => {
         'FrontlineInboxSidebarWorkCounts',
         'FrontlineInboxUnreadConversationCount',
         'GetMyChannels',
+        'IntegrationsGetUsedTypesByChannel',
       ],
       onError: (error) => {
         toast({
@@ -66,8 +62,6 @@ export const useConversationMarkAsRead = () => {
         });
       },
       update: (cache) => {
-        const channelId = integration?.channelId || integration?.channel?._id;
-
         cache.modify({
           id: cache.identify({
             __typename: 'Conversation',
@@ -77,34 +71,6 @@ export const useConversationMarkAsRead = () => {
             readUserIds: () => [...(readUserIds || []), currentUserId],
           },
         });
-
-        if (channelId) {
-          cache.modify({
-            id: cache.identify({
-              __typename: 'Channel',
-              _id: channelId,
-            }),
-            fields: {
-              unreadConversationCount: (count = 0) => Math.max(0, count - 1),
-            },
-          });
-        }
-
-        const unreadCount = cache.readQuery<InboxUnreadCountResponse>({
-          query: INBOX_UNREAD_CONVERSATION_COUNT,
-        });
-
-        if (typeof unreadCount?.conversationsTotalCount === 'number') {
-          cache.writeQuery<InboxUnreadCountResponse>({
-            query: INBOX_UNREAD_CONVERSATION_COUNT,
-            data: {
-              conversationsTotalCount: Math.max(
-                0,
-                unreadCount.conversationsTotalCount - 1,
-              ),
-            },
-          });
-        }
       },
     });
   };
