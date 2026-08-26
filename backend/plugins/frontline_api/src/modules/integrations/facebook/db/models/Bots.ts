@@ -891,7 +891,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       let pageTokenResponse;
 
       try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
+        pageTokenResponse =
+          account.scope === 'page_access_token'
+            ? account.token
+            : await getPageAccessToken(pageId, account.token);
       } catch (e) {
         console.error(
           `Error ocurred while trying to get page access token with ${e.message}`,
@@ -959,10 +962,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           throw new Error('Not found account');
         }
 
-        const pageAccessToken = await getPageAccessToken(
-          bot.pageId,
-          relatedAccount.token,
-        );
+        const pageAccessToken =
+          relatedAccount.scope === 'page_access_token'
+            ? relatedAccount.token
+            : await getPageAccessToken(bot.pageId, relatedAccount.token);
 
         if (bot.token !== pageAccessToken) {
           bot.token = pageAccessToken;

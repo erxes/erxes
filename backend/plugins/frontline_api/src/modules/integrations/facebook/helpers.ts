@@ -52,7 +52,10 @@ export const removeIntegration = async (
       let pageTokenResponse;
 
       try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
+        pageTokenResponse =
+          account.scope === 'page_access_token'
+            ? account.token
+            : await getPageAccessToken(pageId, account.token);
       } catch (e) {
         debugError(
           `Error occurred while trying to get page access token with ${e.message}`,
@@ -294,7 +297,10 @@ export const facebookCreateIntegration = async (
     for (const pageId of facebookPageIds) {
       try {
         // Get the access token for the page
-        const pageAccessToken = await getPageAccessToken(pageId, account.token);
+        const pageAccessToken =
+          account.scope === 'page_access_token'
+            ? account.token
+            : await getPageAccessToken(pageId, account.token);
         facebookPageTokensMap[pageId] = pageAccessToken;
 
         try {

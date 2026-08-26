@@ -20,11 +20,8 @@ export const INTEGRATION_KINDS = {
 };
 
 export const SUBSCRIBED_FIELDS = [
-  'conversations',
   'feed',
   'messages',
-  'standby',
-  'messaging_handovers',
   'messaging_postbacks',
   'messaging_referrals',
 ];
