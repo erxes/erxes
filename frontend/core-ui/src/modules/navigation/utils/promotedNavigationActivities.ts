@@ -1,6 +1,6 @@
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 
-/** Rail order under Search: Command, then AI Agent. Matched on plugin defaultPath. */
+/** Rail order under Search: Command, then AI Agent. Matched on plugin defaultPath. If neither remote loaded, keep the old rail. */
 const PROMOTED_NAVIGATION_RANK: Record<string, number> = {
   'cf-os': 0,
   'erxes-agent': 1,
