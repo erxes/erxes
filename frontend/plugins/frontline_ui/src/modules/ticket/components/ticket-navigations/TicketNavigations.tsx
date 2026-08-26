@@ -1,14 +1,10 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
-import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
-import { ITicket } from '@/ticket/types';
-import { useQuery } from '@apollo/client';
 import {
   Button,
   cn,
   Collapsible,
   Empty,
-  ICursorListResponse,
   IconComponent,
   NavigationMenuGroup,
   Sidebar,
@@ -17,7 +13,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
@@ -35,34 +31,6 @@ function LoadingSkeleton() {
 interface ChannelItemProps {
   channel: IChannel;
   pipelineId?: string;
-}
-
-interface ChannelTicketProbeProps {
-  channelId: string;
-  onResolved: (channelId: string, pipelineId: string | null) => void;
-}
-
-function ChannelTicketProbe({
-  channelId,
-  onResolved,
-}: ChannelTicketProbeProps) {
-  const { data, loading } = useQuery<ICursorListResponse<ITicket>>(
-    GET_TICKETS,
-    {
-      variables: {
-        filter: { channelId, limit: 1, direction: 'forward' },
-      },
-      fetchPolicy: 'cache-and-network',
-    },
-  );
-
-  useEffect(() => {
-    if (!loading && data?.getTickets) {
-      onResolved(channelId, data.getTickets.list[0]?.pipelineId ?? null);
-    }
-  }, [channelId, data, loading, onResolved]);
-
-  return null;
 }
 
 function ChannelItem({ channel, pipelineId }: ChannelItemProps) {
@@ -95,21 +63,28 @@ function ChannelItem({ channel, pipelineId }: ChannelItemProps) {
 export function TicketNavigations() {
   const { t } = useTranslation('frontline');
   const { channels, loading } = useGetChannels();
+  const { pipelines, loading: pipelinesLoading } = useGetPipelines({
+    variables: {
+      filter: {
+        applyVisibilityFilter: true,
+        direction: 'forward',
+        limit: 1000,
+      },
+    },
+  });
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
   const [showUnconfigured, setShowUnconfigured] = useState(false);
-  const [channelPipelineIds, setChannelPipelineIds] = useState<
-    Record<string, string | null>
-  >({});
 
-  const handleTicketAvailabilityResolved = useCallback(
-    (resolvedChannelId: string, resolvedPipelineId: string | null) => {
-      setChannelPipelineIds((current) =>
-        current[resolvedChannelId] === resolvedPipelineId
-          ? current
-          : { ...current, [resolvedChannelId]: resolvedPipelineId },
-      );
-    },
-    [],
+  const channelPipelineIds = useMemo(
+    () =>
+      (pipelines ?? []).reduce<Record<string, string>>((result, pipeline) => {
+        if (pipeline.channelId && !result[pipeline.channelId]) {
+          result[pipeline.channelId] = pipeline._id;
+        }
+
+        return result;
+      }, {}),
+    [pipelines],
   );
 
   const { configuredChannels, unconfiguredChannels } = useMemo(() => {
@@ -120,18 +95,12 @@ export function TicketNavigations() {
         Boolean(channelPipelineIds[channel._id]),
       ),
       unconfiguredChannels: availableChannels.filter(
-        (channel) => channelPipelineIds[channel._id] === null,
+        (channel) => !channelPipelineIds[channel._id],
       ),
     };
   }, [channelPipelineIds, channels]);
 
-  const navigationLoading =
-    loading ||
-    Boolean(
-      channels?.some(
-        (channel) => channelPipelineIds[channel._id] === undefined,
-      ),
-    );
+  const navigationLoading = loading || pipelinesLoading;
 
   const visibleUnconfiguredChannels = showUnconfigured
     ? unconfiguredChannels
@@ -189,13 +158,6 @@ export function TicketNavigations() {
 
   return (
     <>
-      {channels?.map((channel) => (
-        <ChannelTicketProbe
-          key={channel._id}
-          channelId={channel._id}
-          onResolved={handleTicketAvailabilityResolved}
-        />
-      ))}
       <NavigationMenuGroup name="Channels">
         {navigationLoading ? (
           <LoadingSkeleton />

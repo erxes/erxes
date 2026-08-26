@@ -8,7 +8,7 @@ import { currentUserState } from 'ui-modules';
 import {
   getOptimisticMessage,
   messageToPlainText,
-} from '@/inbox/conversation-messages/components/MessageActions';
+} from '@/inbox/conversation-messages/utils/messageActions';
 import { FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE } from '@/inbox/conversation-messages/graphql/messageActions';
 import { IMessage } from '@/inbox/types/Conversation';
 

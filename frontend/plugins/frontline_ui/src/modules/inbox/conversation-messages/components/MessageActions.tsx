@@ -12,11 +12,11 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useState, type ComponentType } from 'react';
 import {
   Button,
+  CopyText,
   Dialog,
   Textarea,
   Tooltip,
   cn,
-  readImage,
   toast,
   useConfirm,
 } from 'erxes-ui';
@@ -29,129 +29,12 @@ import {
 } from '@/inbox/conversation-messages/graphql/messageActions';
 import { IMessage } from '@/inbox/types/Conversation';
 import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
-
-type JsonRecord = Record<string, unknown>;
-
-const isJsonRecord = (value: unknown): value is JsonRecord =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
-const inlineContentToText = (value: unknown): string => {
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return value.map(inlineContentToText).join('');
-  if (!isJsonRecord(value)) return '';
-  if (typeof value.text === 'string') return value.text;
-  return inlineContentToText(value.content);
-};
-
-const blockToText = (value: unknown): string => {
-  if (!isJsonRecord(value)) return inlineContentToText(value);
-
-  const content = inlineContentToText(value.content);
-  const children = Array.isArray(value.children)
-    ? value.children.map(blockToText).filter(Boolean).join('\n')
-    : '';
-
-  return [content, children].filter(Boolean).join('\n');
-};
-
-const parseBlockNoteText = (content: string) => {
-  try {
-    const parsed: unknown = JSON.parse(content);
-    if (!Array.isArray(parsed)) return null;
-    return parsed.map(blockToText).join('\n').trim();
-  } catch {
-    return null;
-  }
-};
-
-export const messageToPlainText = (content?: string) => {
-  if (!content) return '';
-
-  const blockNoteText = parseBlockNoteText(content);
-  if (blockNoteText !== null) return blockNoteText;
-
-  const document = new DOMParser().parseFromString(content, 'text/html');
-  return (document.body.textContent || '').trim();
-};
-
-const serializeInternalNote = (text: string, originalContent?: string) => {
-  let originalBlock: JsonRecord | undefined;
-
-  try {
-    const parsed: unknown = JSON.parse(originalContent || '');
-    if (Array.isArray(parsed) && isJsonRecord(parsed[0])) {
-      originalBlock = parsed[0];
-    }
-  } catch {
-    originalBlock = undefined;
-  }
-
-  const props = isJsonRecord(originalBlock?.props)
-    ? originalBlock.props
-    : {
-        textColor: 'default',
-        backgroundColor: 'default',
-        textAlignment: 'left',
-      };
-
-  return JSON.stringify(
-    text.split('\n').map((line, index) => ({
-      id:
-        index === 0 && typeof originalBlock?.id === 'string'
-          ? originalBlock.id
-          : crypto.randomUUID(),
-      type: 'paragraph',
-      props,
-      content: [{ type: 'text', text: line, styles: {} }],
-      children: [],
-    })),
-  );
-};
-
-const convertImageToPng = async (blob: Blob) => {
-  if (blob.type === 'image/png') return blob;
-
-  const bitmap = await createImageBitmap(blob);
-  const canvas = document.createElement('canvas');
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  canvas.getContext('2d')?.drawImage(bitmap, 0, 0);
-  bitmap.close();
-
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((pngBlob) => {
-      if (pngBlob) resolve(pngBlob);
-      else reject(new Error('Could not convert image'));
-    }, 'image/png');
-  });
-};
-
-export const copyImageToClipboard = async (url: string) => {
-  const resolvedUrl = readImage(url);
-
-  try {
-    const response = await fetch(resolvedUrl);
-    if (!response.ok) throw new Error('Could not load image');
-
-    const pngBlob = await convertImageToPng(await response.blob());
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': pngBlob }),
-    ]);
-    return 'image' as const;
-  } catch {
-    await navigator.clipboard.writeText(resolvedUrl);
-    return 'link' as const;
-  }
-};
-
-export const getOptimisticMessage = (
-  message: IMessage,
-  fields: Partial<IMessage>,
-) => ({
-  __typename: 'ConversationMessage',
-  ...message,
-  ...fields,
-});
+import {
+  copyImageToClipboard,
+  getOptimisticMessage,
+  messageToPlainText,
+  serializeInternalNote,
+} from '@/inbox/conversation-messages/utils/messageActions';
 
 export const MessageActionButton = ({
   label,
@@ -215,15 +98,6 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
   const [toggleMessagePin] = useMutation(
     FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE,
   );
-
-  const handleCopy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({ title: 'Message copied' });
-    } catch {
-      toast({ title: 'Failed to copy message', variant: 'destructive' });
-    }
-  }, [text]);
 
   const handleCopyImage = useCallback(async () => {
     if (!imageAttachment) return;
@@ -332,11 +206,13 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
             onClick={handlePin}
           />
           {text && (
-            <MessageActionButton
-              label="Copy text"
-              icon={IconCopy}
-              onClick={handleCopy}
-            />
+            <CopyText
+              value={text}
+              className="h-6 rounded-sm px-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <IconCopy className="size-4" />
+              <span className="sr-only">Copy text</span>
+            </CopyText>
           )}
           {imageAttachment && (
             <MessageActionButton

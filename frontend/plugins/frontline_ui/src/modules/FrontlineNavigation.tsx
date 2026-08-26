@@ -11,27 +11,13 @@ import {
   Button,
   Skeleton,
   Badge,
-  Sidebar,
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useInboxUnreadConversationCount } from './inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
-import { SearchConversations } from '@/inbox/components/SearchConversations';
 
 export const FrontlineNavigation = () => {
-  const { pathname } = useLocation();
-
-  return (
-    <>
-      <FrontlineDestinationLinks />
-      {pathname.startsWith('/frontline/inbox') && (
-        <Sidebar.MenuItem className="pt-1">
-          <SearchConversations />
-        </Sidebar.MenuItem>
-      )}
-    </>
-  );
+  return <FrontlineDestinationLinks />;
 };
 
 export const FrontlineDestinationLinks = () => {

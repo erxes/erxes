@@ -2,12 +2,8 @@ import { useAtomValue } from 'jotai';
 import {
   Avatar,
   Button,
-  Dialog,
-  IAttachment,
   RelativeDateDisplay,
   cn,
-  formatBytes,
-  readImage,
 } from 'erxes-ui';
 import { CustomersInline, MembersInline, currentUserState } from 'ui-modules';
 
@@ -16,10 +12,9 @@ import { ConversationFormDisplay } from '@/inbox/conversation-messages/component
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
-import {
-  MessageActions,
-  messageToPlainText,
-} from '@/inbox/conversation-messages/components/MessageActions';
+import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
+import { MessageAttachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { messageToPlainText } from '@/inbox/conversation-messages/utils/messageActions';
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
@@ -27,15 +22,9 @@ import {
   IconBrain,
   IconCheck,
   IconChecks,
-  IconFile,
   IconPin,
   IconSparkles,
 } from '@tabler/icons-react';
-
-const Img = (props: JSX.IntrinsicElements['img']) => (
-  // skipcq: JS-W1015
-  <img {...props} />
-);
 
 const getMessageBubbleClassName = ({
   userId,
@@ -258,7 +247,7 @@ export const MessageItem = () => {
             )
           )}
           {/* skipcq: JS-0357 */}
-          {!isDeleted && <Attachments attachments={attachments} />}
+          {!isDeleted && <MessageAttachments attachments={attachments} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
           {!isDeleted &&
@@ -340,95 +329,5 @@ export const MessageWrapper = ({ children }: { children: React.ReactNode }) => {
         </div>
       )}
     </div>
-  );
-};
-
-const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
-  if (!attachments?.length) {
-    return null;
-  }
-
-  const single = attachments.length === 1;
-
-  return (
-    <div className={cn(single ? 'flex' : 'grid grid-cols-3 gap-2')}>
-      {attachments.map((attachment, index) => (
-        <Attachment
-          key={`${attachment.url}-${index}`}
-          attachment={attachment}
-          length={attachments.length}
-        />
-      ))}
-    </div>
-  );
-};
-
-const Attachment = ({
-  attachment,
-  length,
-}: {
-  attachment: IAttachment;
-  length?: number;
-}) => {
-  const isImage = attachment.type.startsWith('image');
-  const single = length === 1;
-  if (!isImage) {
-    return (
-      <a
-        href={readImage(attachment.url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          {
-            'col-span-2': length === 1,
-            'col-span-1': length !== 1,
-          },
-          'w-full px-3 py-2 rounded bg-accent flex items-center gap-3 cursor-pointer no-underline hover:bg-accent/70',
-        )}
-      >
-        <IconFile className="size-8 shrink-0 text-muted-foreground" />
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-primary">
-            {attachment.name || 'File'}
-          </span>
-          {Boolean(attachment.size) && (
-            <span className="text-xs text-muted-foreground">
-              {formatBytes(attachment.size)}
-            </span>
-          )}
-        </div>
-      </a>
-    );
-  }
-  return (
-    <Dialog>
-      <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'overflow-hidden rounded bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
-            single ? 'w-fit max-w-full' : 'w-full aspect-square',
-          )}
-        >
-          <Img
-            src={readImage(attachment.url)}
-            alt={attachment.name}
-            loading="lazy"
-            className={cn(
-              single
-                ? 'block max-h-96 max-w-full object-contain'
-                : 'size-full object-cover',
-            )}
-          />
-        </button>
-      </Dialog.Trigger>
-      <Dialog.Content className="max-w-fit border-0 bg-transparent p-0 shadow-none">
-        <Img
-          src={readImage(attachment.url)}
-          alt={attachment.name}
-          className="max-w-[90vw] max-h-[90vh] rounded-lg object-contain"
-        />
-      </Dialog.Content>
-    </Dialog>
   );
 };

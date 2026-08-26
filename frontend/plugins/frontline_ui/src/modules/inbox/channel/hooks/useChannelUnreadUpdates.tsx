@@ -28,6 +28,7 @@ export const useChannelUnreadUpdates = () => {
       include: [
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
+        'FrontlineInboxUnreadConversationCount',
         'GetMyChannels',
         'IntegrationsGetUsedTypesByChannel',
       ],

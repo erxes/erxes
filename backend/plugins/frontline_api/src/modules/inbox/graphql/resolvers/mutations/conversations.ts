@@ -25,6 +25,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
 import strip from 'strip';
+import { publishMentionUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 
 interface DispatchConversationData {
   action: string;
@@ -635,6 +636,13 @@ export const conversationMutations = {
           doc,
           userId,
         );
+        await publishMentionUnreadCounts({
+          conversationId,
+          integrationId,
+          mentionedUserIds: doc.mentionedUserIds?.filter((id) => id !== userId),
+          models,
+          subdomain,
+        });
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
         );
@@ -702,6 +710,13 @@ export const conversationMutations = {
           messageDoc,
           userId,
         );
+        await publishMentionUnreadCounts({
+          conversationId,
+          integrationId,
+          mentionedUserIds: doc.mentionedUserIds?.filter((id) => id !== userId),
+          models,
+          subdomain,
+        });
 
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
@@ -718,6 +733,13 @@ export const conversationMutations = {
       }
 
       const message = await models.ConversationMessages.addMessage(doc, userId);
+      await publishMentionUnreadCounts({
+        conversationId,
+        integrationId,
+        mentionedUserIds: doc.mentionedUserIds?.filter((id) => id !== userId),
+        models,
+        subdomain,
+      });
       const dbMessage = await models.ConversationMessages.getMessage(
         message._id,
       );
