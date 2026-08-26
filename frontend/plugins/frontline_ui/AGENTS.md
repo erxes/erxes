@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -146,9 +146,9 @@
 | Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                        |
 | Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                 |
 | Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header   |
-| Nav header count   | `src/modules/inbox/channel/components/UnreadSummary.tsx`                                                                                     | The "N unread" figure in a group header's actions slot                                           |
+| Channel nav row    | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                      |
 | Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                           |
-| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | `conversationCounts` reads per integration type inside one channel                               |
+| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel            |
 | Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                     |
 | Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                           |
 | Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                        |
@@ -328,6 +328,49 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- The inbox navigation is a single-selection tree over three query params that
+  intersect on the server: `channelId`, `integrationId`, and `integrationType`.
+  Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
+  it does not own — a channel row clears `integrationId` and `integrationType`, a
+  Discord row clears `channelId` and `integrationType`. Setting one without
+  clearing the others strands a filter and empties the list. `ConversationFilterBar`
+  carries a chip for all three, so whatever is selected stays visible and
+  removable.
+- The per-kind figure beside an integration row comes from
+  `integrationsGetUsedTypesByChannel`, which already returns
+  `unreadConversationCount` scoped to the channel and to the caller. Read it from
+  that query rather than recomputing it through `conversationCounts`, so a row
+  and its channel row count the same thing and the sidebar does not pay for a
+  second request per expanded channel. `useAwaitingCountsByIntegrationType`
+  exists only for the awaiting-reply dot, which that query does not carry.
+- `useConversations` is mounted more than once (the inbox list, the navigation
+  count badge, the relation widget). Only the instance that passes no options
+  owns the shared inbox state: it alone registers `refetchConversationsAtom`,
+  consumes `refetchNewMessagesState`, raises `newMessagesCountState`, and plays
+  the notification sound. A secondary consumer that took these over would
+  refetch the wrong query after a mutation and multiply the badge and the sound
+  by the number of mounted consumers.
+- The live subscription in `useConversations` must not be keyed on Apollo's
+  `subscribeToMore` identity — it is a new function each render, so the effect
+  would tear the websocket subscription down and back up continuously and drop
+  the events landing in the gap. Key it on the viewer and the serialized query
+  variables, and reach `subscribeToMore` through a ref.
+- Passing `options` to `useConversations` overrides the query variables
+  wholesale; it no longer discards the rest of the Apollo options. Callers that
+  want the sidebar filters applied must not pass `variables` at all.
+- Both inbox nav groups render channels through `ChannelNavItem`, so `Me` and
+  `Team inbox` stay structurally identical: the row itself selects the whole
+  channel (`channelId` set, `integrationType` cleared) and the caret expands the
+  integration types inside it, each of which narrows the same channel by source.
+  A `NavigationMenuGroup` header is itself a collapse control, so a group that
+  holds exactly one channel renders that channel with `collapsible={false}`:
+  the personal row therefore has no caret of its own, since a second caret there
+  would collapse the very rows the group header already collapses. Do not turn a
+  group header into a selection control to work around this.
+- The personal channel row is labelled `personal-channel` ("Personal channel"),
+  the same word the settings breadcrumb uses. `inbox` and `my-inbox` are already
+  taken in the same sidebar — by the frontline `Inbox` entry and by core's
+  notification inbox in Favorites — so neither may label this row.
 - Every Call Pro surface is gated on `useCallProConfig().enabled`, which reads
   the backend's `CALLPRO_ENABLED`. The frontend has no env var of its own for
   this — never add a `REACT_APP_*` flag, since injecting one means editing
@@ -637,6 +680,69 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-26` — Sidebar selections no longer strand each other
+
+- **Summary:** Selecting a Discord channel and then a team or personal channel
+  left `integrationId` set alongside `channelId`, and the two intersect to
+  nothing, so the list emptied with no chip explaining why. Every inbox
+  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
+  and clears the params it does not own, and a Discord selection finally shows as
+  its own removable chip in the filter bar.
+- **Affected areas:**
+  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
+  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
+  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
+  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
+  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
+  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-25` — Integration rows show their unread count again
+
+- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
+  `integrationsGetUsedTypesByChannel` query it already makes, instead of
+  recomputing the figure through a second `conversationCounts` request per
+  expanded channel that was rendering blank; a row and its channel row now count
+  the same thing.
+- **Affected areas:**
+  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
+  `src/modules/integrations/types/Integration.ts`,
+  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
+  (`useConversationCountsByIntegrationType` narrowed to
+  `useAwaitingCountsByIntegrationType`),
+  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
+- **Contracts changed:** None on the API; the by-channel used-types document now
+  selects `unreadConversationCount`.
+
+### `2026-08-25` — New conversations reach the open inbox list live
+
+- **Summary:** A conversation created by an incoming message now appears in the
+  filtered list without a manual refresh: the client-message subscription is no
+  longer rebuilt on every render, its refetch fallback is deduped, and the
+  previously unrendered `ConversationRefetch` control now sits in the list
+  header so the unread-arrival count is visible and recoverable in one click.
+- **Affected areas:**
+  `src/modules/inbox/conversations/hooks/useConversations.tsx`,
+  `src/modules/inbox/conversations/components/ConversationActions.tsx`.
+- **Contracts changed:** None; `useConversations` keeps its signature, and
+  passing `options` still overrides the query variables.
+
+### `2026-08-25` — The `Me` inbox group selects like a team channel
+
+- **Summary:** The `Me` group now lists the personal channel as one selectable,
+  collapsible channel row carrying its unread badge, so selecting it shows every
+  source at once and the integration types underneath still filter down to one,
+  matching how a team channel behaves. The row reuses the `personal-channel`
+  label so it collides with neither the frontline `Inbox` entry nor Favorites'
+  `My inbox`.
+- **Affected areas:**
+  `src/modules/inbox/channel/components/ChannelNavItem.tsx` (new, shared by both
+  nav groups), `src/modules/inbox/channel/components/PersonalInboxNav.tsx`,
+  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`,
+  `src/modules/inbox/channel/components/UnreadSummary.tsx` (removed; the row
+  badge replaces the group-header figure).
+- **Contracts changed:** None.
+
 ### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
 
 - **Summary:** The ticket index favorite control now stops loading when a
@@ -722,62 +828,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
   the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
   conversation fields. Adds the `callpro` integration type.
-
-### `2026-08-19` — Messenger availability schedule follows the design canvas
-
-- **Summary:** `EMHoursTimeTable` was rewritten to the Availability Schedule
-  design: the three `everyday` / `weekday` / `weekend` switch rows became one
-  `ToggleGroup` quick-set control under a `Quick set` caption, separated by
-  `Separator`s from the day list, and every day row now keeps its two
-  `TimeField`s visible — disabled and dimmed when the day is off — instead of
-  swapping them for a "not working" label. All work-flag writes go through one
-  `applyDayWork` helper that writes the whole `onlineHours` object once, so the
-  group keys stay derived and the `as never` casts are gone.
-- **Affected areas:**
-  `src/modules/integrations/erxes-messenger/components/EmHoursAvailability.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (new `quick-set` key).
-- **Contracts changed:** None — the `onlineHours` form shape is unchanged.
-
-### `2026-08-19` — Messenger online hours only save real weekdays
-
-- **Summary:** Saving messenger availability no longer sends the `everyday`,
-  `weekday`, and `weekend` group toggles as if they were schedule entries — the
-  payload is now built from `Object.values(Weekday)`, so only days the user
-  actually enabled are persisted, with their own times. Loading an integration
-  also drops legacy group entries, which is what let a stale `everyday`
-  `9:00 PM – 3:00 AM` row survive round-trips.
-- **Affected areas:**
-  `src/modules/integrations/erxes-messenger/states/EMStateValues.ts`,
-  `src/modules/integrations/erxes-messenger/utils/emStateUtils.ts`.
-- **Contracts changed:** None — the `saveConfigVariables.messengerData.onlineHours`
-  shape is unchanged, only which entries it contains.
-
-### `2026-08-19` — Ticket properties are a two-level drag-and-drop accordion
-
-- **Summary:** The separate `Edit property fields` section is gone: switching a
-  property on now reveals its label, placeholder, and required inputs directly
-  under its row, which halves the height of the configuration sheet. The list
-  itself became an `Accordion` of field groups with two drag levels inside one
-  `DndContext` — groups reorder among themselves, selected properties reorder
-  inside their group — and both are stored as array positions, which the API
-  renumbers into `order` and the new `groupOrder`. Group order is seeded from
-  the saved configuration on first load and held in local state after that.
-- **Affected areas:**
-  `src/modules/pipelines/components/configs/components/TicketPropertyFields.tsx`,
-  `.../configs/schema.ts`,
-  `.../configs/graphql/queries/{getTicketConfigs,getConfigDetail,getTicketConfigBetPipelineId}.ts`.
-- **Contracts changed:** `PIPELINE_CONFIG_SCHEMA.propertyFields` entries gained
-  an optional `groupOrder`, selected by all three config queries.
-
-### `2026-08-19` — Facebook repair reports real failures
-
-- **Summary:** `integrationsRepair` answers a failed Facebook repair with a
-  `{ status: 'error', errorMessage }` payload instead of a GraphQL error, so the
-  Repair action now inspects the payload and shows that message as a destructive
-  toast rather than claiming success while the badge stays unhealthy.
-- **Affected areas:**
-  `src/modules/integrations/utils/repairResult.ts` (new),
-  `src/modules/integrations/facebook/components/FacebookIntegrationRepair.tsx`,
-  `src/modules/integrations/facebook/hooks/useFbIntegrationsRepair.tsx`.
-- **Contracts changed:** None; the `FacebookRepair` mutation and its variables
-  are unchanged.

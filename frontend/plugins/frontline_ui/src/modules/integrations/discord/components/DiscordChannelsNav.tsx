@@ -14,11 +14,16 @@ import {
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
+  useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
 
 import { IntegrationType } from '@/types/Integration';
 import { IIntegration } from '@/integrations/types/Integration';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
 import {
   INTEGRATIONS_PER_PAGE,
   useIntegrations,
@@ -238,8 +243,8 @@ const DiscordCategoryItem = ({
   integrations: IIntegration[];
   counts: ChannelCounts;
 }) => {
-  const [integrationId, setIntegrationId] =
-    useQueryState<string>('integrationId');
+  const [{ integrationId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
   const [open, setOpen] = useState(true);
 
   const totalCount = integrations.reduce(
@@ -257,16 +262,16 @@ const DiscordCategoryItem = ({
     groupIds.every((id) => selectedIds.includes(id));
 
   const handleSelectGroup = () => {
-    setIntegrationId(isGroupActive ? null : groupIds.join(','));
+    setFilters({
+      integrationId: isGroupActive ? null : groupIds.join(','),
+      channelId: null,
+      integrationType: null,
+    });
     setOpen(true);
   };
 
   return (
-    <Collapsible
-      className="group/category"
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Collapsible className="group/category" open={open} onOpenChange={setOpen}>
       <div className="flex items-center w-full pr-2">
         <Collapsible.Trigger asChild>
           <Button
@@ -319,14 +324,18 @@ const DiscordChannelItem = ({
   count: number;
   nested?: boolean;
 }) => {
-  const [integrationId, setIntegrationId] =
-    useQueryState<string>('integrationId');
+  const [{ integrationId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   const isActive = integrationId === integration._id;
   const label = channelLabelFromIntegration(integration);
 
   const handleClick = () => {
-    setIntegrationId(isActive ? null : integration._id);
+    setFilters({
+      integrationId: isActive ? null : integration._id,
+      channelId: null,
+      integrationType: null,
+    });
   };
 
   return (

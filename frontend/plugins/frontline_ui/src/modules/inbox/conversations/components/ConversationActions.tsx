@@ -9,6 +9,7 @@ import { FilterConversationsPopover } from '@/inbox/conversations/components/Con
 import { ConversationTag } from './ConversationTag';
 import { ConversationDisplay } from './ConversationDisplay';
 import { ResolveAll } from './ResolveAll';
+import { ConversationRefetch } from '@/inbox/conversations/components/ConversationRefetch';
 
 export const ConversationActions = () => {
   return (
@@ -17,6 +18,7 @@ export const ConversationActions = () => {
         <ConversationSelectAll />
         <FilterConversationsPopover />
         <ConversationDisplay />
+        <ConversationRefetch />
       </div>
       <ConversationsCommandBar />
     </>

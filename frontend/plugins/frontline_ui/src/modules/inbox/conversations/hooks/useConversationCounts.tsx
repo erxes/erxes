@@ -55,30 +55,14 @@ export const useConversationFilterCounts = (
   };
 };
 
-/**
- * Open conversations per integration kind inside one channel, together with the
- * subset the customer spoke last in — what the sidebar marks with a dot. Both
- * are skipped while the channel is collapsed, so a closed group costs nothing.
- */
-export const useConversationCountsByIntegrationType = ({
+export const useAwaitingCountsByIntegrationType = ({
   channelId,
   skip,
 }: {
   channelId?: string;
   skip?: boolean;
 }) => {
-  const disabled = skip || !channelId;
-
   const { data, loading } = useQuery<TConversationCountsResponse>(
-    CONVERSATION_COUNTS,
-    {
-      variables: { only: 'byIntegrationTypes', channelId },
-      skip: disabled,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
-
-  const { data: awaitingData } = useQuery<TConversationCountsResponse>(
     CONVERSATION_COUNTS,
     {
       variables: {
@@ -86,14 +70,13 @@ export const useConversationCountsByIntegrationType = ({
         channelId,
         awaitingResponse: 'true',
       },
-      skip: disabled,
+      skip: skip || !channelId,
       fetchPolicy: 'cache-and-network',
     },
   );
 
   return {
-    counts: data?.conversationCounts?.byIntegrationTypes ?? {},
-    awaitingCounts: awaitingData?.conversationCounts?.byIntegrationTypes ?? {},
+    awaitingCounts: data?.conversationCounts?.byIntegrationTypes ?? {},
     loading,
   };
 };

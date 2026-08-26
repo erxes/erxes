@@ -34,4 +34,5 @@ export interface IIntegrationDetail extends IIntegration {
 export interface IIntegrationType {
   _id: string;
   name: string;
+  unreadConversationCount?: number;
 }

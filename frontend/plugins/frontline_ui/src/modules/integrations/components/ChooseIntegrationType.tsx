@@ -14,6 +14,10 @@ import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
 import { IIntegrationType } from '../types/Integration';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookPostSheet } from '../facebook/components/FacebookPostSheet';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
 
 type Props = {
   allowedIntegrationTypes?: string[];
@@ -68,10 +72,7 @@ export const IntegrationTypeItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [{ channelId: selectedChannelId, integrationType }, setFilters] =
-    useMultiQueryState<{
-      channelId: string;
-      integrationType: string;
-    }>(['channelId', 'integrationType']);
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   const isActive =
     integrationType === _id && (!channelId || selectedChannelId === channelId);
@@ -79,6 +80,7 @@ export const IntegrationTypeItem = ({
   const handleClick = () => {
     setFilters({
       integrationType: isActive ? null : _id,
+      integrationId: null,
       ...(channelId ? { channelId: isActive ? null : channelId } : {}),
     });
   };
