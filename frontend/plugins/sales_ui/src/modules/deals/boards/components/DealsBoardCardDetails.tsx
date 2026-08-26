@@ -5,7 +5,7 @@ import {
   IconPackage,
   IconUsers,
 } from '@tabler/icons-react';
-import { Avatar, Badge, Tooltip, cn } from 'erxes-ui';
+import { Avatar, Tooltip, cn } from 'erxes-ui';
 
 export interface DealCardProductItem {
   _id: string;
@@ -22,12 +22,6 @@ export interface DealCardRelationItem {
   avatar?: string;
 }
 
-export interface DealCardDetailItem {
-  _id?: string;
-  name: string;
-  colorCode?: string;
-}
-
 type DealCardProductsProps = {
   items: DealCardProductItem[];
   label: string;
@@ -40,14 +34,8 @@ type DealCardRelationDetailsProps = {
   type: 'customer' | 'company' | 'department' | 'branch';
 };
 
-type DealCardDetailsProps = {
-  items: DealCardDetailItem[];
-  color: string;
-};
-
 const MAX_VISIBLE_PRODUCTS = 3;
 const MAX_VISIBLE_AVATARS = 3;
-const MAX_VISIBLE_DETAILS = 5;
 
 const RELATION_ICONS = {
   customer: IconUsers,
@@ -223,61 +211,6 @@ export const DealCardRelationDetails = ({
           <TooltipItemList items={items.map((item) => item.name)} />
         </Tooltip.Content>
       </Tooltip>
-    </Tooltip.Provider>
-  );
-};
-
-export const DealCardDetails = ({ items, color }: DealCardDetailsProps) => {
-  if (!items.length) {
-    return null;
-  }
-
-  const visibleItems = items.slice(0, MAX_VISIBLE_DETAILS);
-  const remainingCount = items.length - visibleItems.length;
-
-  return (
-    <Tooltip.Provider>
-      <div className="flex flex-wrap gap-1">
-        {visibleItems.map((item, index) => (
-          <Tooltip
-            key={`${item._id ?? item.name}-${index}`}
-            delayDuration={200}
-          >
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="secondary"
-                className="h-5 max-w-full cursor-default px-1.5 font-normal"
-              >
-                <span
-                  className="size-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: item.colorCode || color }}
-                />
-                <span className="truncate">{item.name}</span>
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{item.name}</Tooltip.Content>
-          </Tooltip>
-        ))}
-        {remainingCount > 0 && (
-          <Tooltip delayDuration={200}>
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="ghost"
-                className="h-5 cursor-default px-1.5 hover:bg-muted"
-              >
-                +{remainingCount}
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <TooltipItemList
-                items={items
-                  .slice(MAX_VISIBLE_DETAILS)
-                  .map((item) => item.name)}
-              />
-            </Tooltip.Content>
-          </Tooltip>
-        )}
-      </div>
     </Tooltip.Provider>
   );
 };

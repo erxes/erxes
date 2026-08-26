@@ -16,14 +16,14 @@ import {
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
 import {
+  CardDetailBadges,
   formatFieldValue,
   hasFieldValue,
   useManageRelations,
   useFields,
+  type CardDetailBadgeItem,
 } from 'ui-modules';
 import {
-  type DealCardDetailItem,
-  DealCardDetails,
   DealCardProducts,
   DealCardRelationDetails,
 } from './DealsBoardCardDetails';
@@ -49,7 +49,7 @@ const normalizeSelectedIds = (value?: string | string[]) => {
 const normalizeCustomProperty = (
   property: unknown,
   index: number,
-): DealCardDetailItem | null => {
+): CardDetailBadgeItem | null => {
   if (typeof property !== 'object' || property === null) {
     return null;
   }
@@ -161,7 +161,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   const customPropertyItems = Array.isArray(customProperties)
     ? customProperties
         .map((property, index) => normalizeCustomProperty(property, index))
-        .filter((item): item is DealCardDetailItem => Boolean(item))
+        .filter((item): item is CardDetailBadgeItem => Boolean(item))
     : [];
 
   if (
@@ -198,9 +198,21 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
         tags?.length || customPropertyItems.length || cardPropertyItems.length,
       ) && (
         <div className="mt-1 flex flex-col gap-1">
-          <DealCardDetails items={tags || []} color="#FF6600" />
-          <DealCardDetails items={customPropertyItems} color="#FF9900" />
-          <DealCardDetails items={cardPropertyItems} color="#0EA5E9" />
+          <CardDetailBadges
+            items={tags || []}
+            color="#FF6600"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={customPropertyItems}
+            color="#FF9900"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={cardPropertyItems}
+            color="#0EA5E9"
+            maxVisibleItems={5}
+          />
         </div>
       )}
     </div>
