@@ -171,16 +171,18 @@ export const PropertiesGroupSection = ({
       onOpenChange={handleOpenChange}
     >
       <div className="relative flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 shrink-0 cursor-grab text-muted-foreground"
-          aria-label={t('reorder-group', 'Reorder group')}
-          {...attributes}
-          {...listeners}
-        >
-          <IconGripVertical />
-        </Button>
+        <Can action="fieldGroupsManage">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0 cursor-grab text-muted-foreground"
+            aria-label={t('reorder-group', 'Reorder group')}
+            {...attributes}
+            {...listeners}
+          >
+            <IconGripVertical />
+          </Button>
+        </Can>
         <Collapsible.Trigger asChild>
           <Button
             variant="secondary"
