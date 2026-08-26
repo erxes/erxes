@@ -1,50 +1,37 @@
 import { Badge, Tooltip } from 'erxes-ui';
-import { useFields, useGetTags, type IField } from 'ui-modules';
+import {
+  formatFieldValue,
+  hasFieldValue,
+  useFields,
+  useGetTags,
+  type IField,
+} from 'ui-modules';
 
-const MAX_VISIBLE_DETAILS = 5;
-
-const hasFieldValue = (value: unknown) => {
-  if (value === null || value === undefined || value === '') return false;
-  if (Array.isArray(value) && value.length === 0) return false;
-  return true;
-};
-
-const formatFieldValue = (field: IField, value: unknown): string => {
-  if (Array.isArray(value)) {
-    if (field.options?.length) {
-      return value
-        .map(
-          (item) =>
-            field.options?.find((option) => option.value === item)?.label ??
-            String(item),
-        )
-        .join(', ');
-    }
-    return value.join(', ');
-  }
-  if (field.options?.length) {
-    return (
-      field.options.find((option) => option.value === value)?.label ??
-      String(value)
-    );
-  }
-  if (field.type === 'boolean' || field.type === 'check') {
-    return value ? 'Yes' : 'No';
-  }
-  if (field.type === 'date') {
-    const date = new Date(value as string);
-    return Number.isNaN(date.getTime())
-      ? String(value)
-      : date.toLocaleDateString();
-  }
-  return String(value);
-};
+const MAX_VISIBLE_TAGS = 5;
+const MAX_VISIBLE_PROPERTIES = 3;
+const TAG_COLOR = '#FF6600';
+const PROPERTY_COLOR = '#0EA5E9';
 
 type CardDetailItem = {
   _id: string;
   name: string;
   colorCode?: string;
 };
+
+const getPropertyItems = (
+  fields: IField[],
+  propertiesData?: Record<string, unknown>,
+): CardDetailItem[] =>
+  fields
+    .filter((field) => hasFieldValue(propertiesData?.[field._id]))
+    .slice(0, MAX_VISIBLE_PROPERTIES)
+    .map((field) => ({
+      _id: field._id,
+      name: `${field.name}: ${formatFieldValue(
+        field,
+        propertiesData?.[field._id],
+      )}`,
+    }));
 
 const TooltipItemList = ({ items }: { items: string[] }) => (
   <div className="flex max-w-64 flex-col gap-1">
@@ -56,61 +43,58 @@ const TooltipItemList = ({ items }: { items: string[] }) => (
   </div>
 );
 
-const CardDetails = ({
+const DetailBadges = ({
   items,
   color,
+  maxVisibleItems,
 }: {
   items: CardDetailItem[];
   color: string;
+  maxVisibleItems: number;
 }) => {
   if (!items.length) {
     return null;
   }
 
-  const visibleItems = items.slice(0, MAX_VISIBLE_DETAILS);
+  const visibleItems = items.slice(0, maxVisibleItems);
   const remainingCount = items.length - visibleItems.length;
+  const remainingItems = items.slice(maxVisibleItems).map((item) => item.name);
 
   return (
-    <Tooltip.Provider>
-      <div className="flex flex-wrap gap-1">
-        {visibleItems.map((item, index) => (
-          <Tooltip key={`${item._id}-${index}`} delayDuration={200}>
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="secondary"
-                className="h-5 max-w-full cursor-default px-1.5 font-normal"
-              >
-                <span
-                  className="size-1.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: item.colorCode || color }}
-                />
-                <span className="truncate">{item.name}</span>
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{item.name}</Tooltip.Content>
-          </Tooltip>
-        ))}
-        {remainingCount > 0 && (
-          <Tooltip delayDuration={200}>
-            <Tooltip.Trigger asChild>
-              <Badge
-                variant="ghost"
-                className="h-5 cursor-default px-1.5 hover:bg-muted"
-              >
-                +{remainingCount}
-              </Badge>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <TooltipItemList
-                items={items
-                  .slice(MAX_VISIBLE_DETAILS)
-                  .map((item) => item.name)}
+    <div className="flex flex-wrap gap-1">
+      {visibleItems.map((item) => (
+        <Tooltip key={item._id} delayDuration={200}>
+          <Tooltip.Trigger asChild>
+            <Badge
+              variant="secondary"
+              className="h-5 max-w-full cursor-default px-1.5 font-normal"
+            >
+              <span
+                className="size-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: item.colorCode || color }}
               />
-            </Tooltip.Content>
-          </Tooltip>
-        )}
-      </div>
-    </Tooltip.Provider>
+              <span className="truncate">{item.name}</span>
+            </Badge>
+          </Tooltip.Trigger>
+          <Tooltip.Content>{item.name}</Tooltip.Content>
+        </Tooltip>
+      ))}
+      {remainingCount > 0 && (
+        <Tooltip delayDuration={200}>
+          <Tooltip.Trigger asChild>
+            <Badge
+              variant="ghost"
+              className="h-5 cursor-default px-1.5 hover:bg-muted"
+            >
+              +{remainingCount}
+            </Badge>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
+            <TooltipItemList items={remainingItems} />
+          </Tooltip.Content>
+        </Tooltip>
+      )}
+    </div>
   );
 };
 
@@ -130,29 +114,26 @@ export const TicketCardDetails = ({
     .map((tagId) => tags?.find((tag) => tag._id === tagId))
     .filter((tag): tag is NonNullable<typeof tag> => Boolean(tag));
 
-  const propertyItems = (fields || [])
-    .filter(
-      (field) =>
-        field.isVisibleInCard && hasFieldValue(propertiesData?.[field._id]),
-    )
-    .map((field) => ({
-      _id: field._id,
-      name: `${field.name}: ${formatFieldValue(
-        field,
-        propertiesData?.[field._id],
-      )}`,
-    }));
+  const propertyItems = getPropertyItems(fields || [], propertiesData);
 
   if (!selectedTags.length && !propertyItems.length) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-1 p-3 pt-0">
-      <div className="mt-1 flex flex-col gap-1">
-        <CardDetails items={selectedTags} color="#FF6600" />
-        <CardDetails items={propertyItems} color="#0EA5E9" />
+    <Tooltip.Provider>
+      <div className="mt-1 flex flex-col gap-1 p-3 pt-0">
+        <DetailBadges
+          items={selectedTags}
+          color={TAG_COLOR}
+          maxVisibleItems={MAX_VISIBLE_TAGS}
+        />
+        <DetailBadges
+          items={propertyItems}
+          color={PROPERTY_COLOR}
+          maxVisibleItems={MAX_VISIBLE_PROPERTIES}
+        />
       </div>
-    </div>
+    </Tooltip.Provider>
   );
 };

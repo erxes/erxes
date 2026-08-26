@@ -15,7 +15,12 @@ import {
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import { useManageRelations, useFields, type IField } from 'ui-modules';
+import {
+  formatFieldValue,
+  hasFieldValue,
+  useManageRelations,
+  useFields,
+} from 'ui-modules';
 import {
   type DealCardDetailItem,
   DealCardDetails,
@@ -39,43 +44,6 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   }
 
   return Array.isArray(value) ? value : [value];
-};
-
-const hasFieldValue = (value: unknown) => {
-  if (value === null || value === undefined || value === '') return false;
-  if (Array.isArray(value) && value.length === 0) return false;
-  return true;
-};
-
-const formatFieldValue = (field: IField, value: unknown): string => {
-  if (Array.isArray(value)) {
-    if (field.options?.length) {
-      return value
-        .map(
-          (v) =>
-            field.options?.find((option) => option.value === v)?.label ??
-            String(v),
-        )
-        .join(', ');
-    }
-    return value.join(', ');
-  }
-  if (field.options?.length) {
-    return (
-      field.options.find((option) => option.value === value)?.label ??
-      String(value)
-    );
-  }
-  if (field.type === 'boolean' || field.type === 'check') {
-    return value ? 'Yes' : 'No';
-  }
-  if (field.type === 'date') {
-    const date = new Date(value as string);
-    return Number.isNaN(date.getTime())
-      ? String(value)
-      : date.toLocaleDateString();
-  }
-  return String(value);
 };
 
 const normalizeCustomProperty = (
