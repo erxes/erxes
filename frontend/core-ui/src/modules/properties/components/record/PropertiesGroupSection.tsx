@@ -1,7 +1,16 @@
-import { IconDots, IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  IconDots,
+  IconEdit,
+  IconGripVertical,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import {
   Badge,
   Button,
+  cn,
   Collapsible,
   DropdownMenu,
   EnumCursorDirection,
@@ -98,6 +107,14 @@ export const PropertiesGroupSection = ({
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const navigate = useNavigate();
   const [needsToRefresh, setNeedsToRefresh] = useAtom(needsToRefreshState);
+  const {
+    attributes,
+    isDragging,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: group._id });
   const { fields, totalCount, loading, refetch, handleFetchMore, pageInfo } =
     useFields({
       contentType,
@@ -146,8 +163,26 @@ export const PropertiesGroupSection = ({
   };
 
   return (
-    <Collapsible className="group" open={open} onOpenChange={handleOpenChange}>
+    <Collapsible
+      ref={setNodeRef}
+      className={cn('group', isDragging && 'z-10 opacity-40')}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <div className="relative flex items-center gap-1">
+        <Can action="fieldGroupsManage">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0 cursor-grab text-muted-foreground"
+            aria-label={t('reorder-group', 'Reorder group')}
+            {...attributes}
+            {...listeners}
+          >
+            <IconGripVertical />
+          </Button>
+        </Can>
         <Collapsible.Trigger asChild>
           <Button
             variant="secondary"
