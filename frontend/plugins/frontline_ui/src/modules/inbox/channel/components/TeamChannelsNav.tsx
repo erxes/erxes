@@ -1,23 +1,14 @@
 import {
   Button,
-  Collapsible,
   IconComponent,
   NavigationMenuGroup,
-  Sidebar,
   Skeleton,
   TextOverflowTooltip,
-  cn,
   useMultiQueryState,
 } from 'erxes-ui';
-import {
-  IconCaretRightFilled,
-  IconCheck,
-  IconMinus,
-  IconPlus,
-} from '@tabler/icons-react';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MembersInline } from 'ui-modules';
 import type { IUser } from 'ui-modules';
 
 import { ChannelScope, IChannel } from '@/channels/types';
@@ -25,32 +16,35 @@ import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
-import type { IIntegration } from '@/integrations/types/Integration';
-import { useIntegrations } from '@/integrations/hooks/useIntegrations';
-import { useConversationCountsByIntegration } from '@/inbox/conversations/hooks/useConversationCounts';
-import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
-import { NavigationGroupActions } from '@/NavigationGroupActions';
-import { InboxIntegrationItem } from '@/inbox/channel/components/InboxIntegrationItem';
+import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegrationType';
+import type { IIntegrationType } from '@/integrations/types/Integration';
+import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
 import {
-  CLEARED_INBOX_NAVIGATION_FILTERS,
-  INBOX_NAVIGATION_FILTER_KEYS,
-  TInboxNavigationFilters,
-} from '@/inbox/types/InboxNavigation';
+  TConversationCounts,
+  useAwaitingCountsByIntegrationType,
+} from '@/inbox/conversations/hooks/useConversationCounts';
+import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
+import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
+import { NavigationGroupActions } from '@/NavigationGroupActions';
 
 /**
  * The "Team inbox" group: every team channel this user belongs to, each one
- * collapsible over the actual inboxes and mailboxes connected to it. Channels
- * carry their unread count, order follows the name order the API returns, and
- * channels with nothing waiting fold behind a single "quiet teams" row.
+ * collapsible over the integration types in use inside it. Channels carry their
+ * unread count, order follows the name order the API returns, and channels with
+ * nothing waiting fold away behind a single "quiet teams" row.
  */
 export const TeamChannelsNav = () => {
   const { t } = useTranslation('frontline');
-  const { channels, loading } = useGetMyChannels();
+  const { channels, loading, refetch } = useGetMyChannels();
   const [showQuiet, setShowQuiet] = useState(false);
 
   // An incoming customer message changes an unread count, so the badges follow
   // the inbox live instead of waiting for a navigation.
-  useChannelUnreadUpdates();
+  useChannelUnreadUpdates(refetch);
   const [{ channelId }] = useMultiQueryState<{ channelId: string }>([
     'channelId',
   ]);
@@ -148,7 +142,6 @@ export const TeamChannelsNav = () => {
   return (
     <NavigationMenuGroup
       name={t('team-inbox')}
-      separate={false}
       actions={
         <NavigationGroupActions>
           <CreateChannel isIconOnly />
@@ -173,129 +166,81 @@ const TeamChannelItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(defaultOpen);
-  const [{ brandId, channelId }, setFilters] =
-    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
+  const [{ channelId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   // Only the expanded channels cost a request; collapsed ones stay silent.
-  const { integrations, loading, error, counts, awaitingCounts } =
-    useChannelIntegrations({ channelId: channel._id, skip: !open });
+  const { integrationTypes, loading, awaitingCounts } =
+    useChannelIntegrationTypes({ channelId: channel._id, skip: !open });
 
   const isActive = channelId === channel._id;
 
   const handleSelectChannel = () => {
     setFilters({
-      ...CLEARED_INBOX_NAVIGATION_FILTERS,
-      brandId,
       channelId: isActive ? null : channel._id,
+      integrationId: null,
+      integrationType: null,
     });
-    setOpen(!isActive);
+    if (!isActive) setOpen(true);
   };
 
   return (
-    <Collapsible className="group/channel" open={open} onOpenChange={setOpen}>
-      <Button
-        variant={isActive ? 'secondary' : 'ghost'}
-        className={cn(
-          'w-full min-w-0 justify-start gap-2 overflow-hidden px-2 text-left',
-          unreadCount === 0 && !isActive && 'text-muted-foreground',
-        )}
-        onClick={handleSelectChannel}
-        aria-expanded={open}
-      >
-        <IconCaretRightFilled className="size-3 shrink-0 text-muted-foreground transition-transform group-data-[state=open]/channel:rotate-90" />
-        {isActive ? (
-          <IconCheck className="size-3.5 shrink-0" />
-        ) : (
-          <IconComponent
-            name={channel.icon}
-            className="size-3.5 text-accent-foreground shrink-0"
-          />
-        )}
-        <TextOverflowTooltip
-          className="flex-1 min-w-0 font-semibold"
-          value={channel.name}
+    <ChannelNavItem
+      name={channel.name}
+      icon={
+        <IconComponent
+          name={channel.icon}
+          className="size-3.5 text-accent-foreground shrink-0"
         />
-        {open && members.length > 0 && (
-          <MembersInline.Provider members={members} size="sm">
-            <MembersInline.Avatar size="sm" />
-          </MembersInline.Provider>
-        )}
-        {unreadCount > 0 && (
-          <span
-            className={cn(
-              'min-w-5 shrink-0 rounded-sm px-1 text-center text-xs tabular-nums',
-              isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-foreground',
-            )}
-          >
-            {unreadCount}
-          </span>
-        )}
-      </Button>
-      <Collapsible.Content>
-        <Sidebar.Menu>
-          {loading && !integrations.length && (
-            <Skeleton className="w-28 h-4 ml-8 my-1" />
-          )}
-          {!loading && error && (
-            <div className="ml-8 my-2 text-xs text-destructive">
-              {t('error')}
-            </div>
-          )}
-          {!loading && !error && !integrations.length && (
-            <div className="text-sm text-accent-foreground ml-8 my-2">
-              {t('no-integration-found')}
-            </div>
-          )}
-          {integrations.map((integration) => (
-            <InboxIntegrationItem
-              key={integration._id}
-              {...integration}
-              count={counts[integration._id] || 0}
-              awaitingCount={awaitingCounts[integration._id] || 0}
-            />
-          ))}
-        </Sidebar.Menu>
-      </Collapsible.Content>
-    </Collapsible>
+      }
+      isActive={isActive}
+      onSelect={handleSelectChannel}
+      open={open}
+      onOpenChange={setOpen}
+      unreadCount={unreadCount}
+      members={members}
+    >
+      {loading && !integrationTypes.length && (
+        <Skeleton className="w-28 h-4 ml-8 my-1" />
+      )}
+      {!loading && !integrationTypes.length && (
+        <div className="text-sm text-accent-foreground ml-8 my-2">
+          {t('no-integration-found')}
+        </div>
+      )}
+      {integrationTypes.map((integrationType) => (
+        <IntegrationTypeItem
+          key={integrationType._id}
+          {...integrationType}
+          channelId={channel._id}
+          count={integrationType.unreadConversationCount || 0}
+          awaitingCount={awaitingCounts[integrationType._id] || 0}
+          nested
+        />
+      ))}
+    </ChannelNavItem>
   );
 };
 
-const useChannelIntegrations = ({
+const useChannelIntegrationTypes = ({
   channelId,
   skip,
 }: {
   channelId: string;
   skip: boolean;
 }): {
-  integrations: IIntegration[];
+  integrationTypes: IIntegrationType[];
   loading: boolean;
-  error?: Error;
-  counts: Record<string, number>;
-  awaitingCounts: Record<string, number>;
+  awaitingCounts: TConversationCounts;
 } => {
-  const {
-    integrations = [],
-    loading,
-    error,
-  } = useIntegrations({
-    variables: { channelId, limit: 100 },
+  const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
+    channelId,
     skip,
-    fetchPolicy: 'cache-and-network',
   });
-  const { counts, awaitingCounts } = useConversationCountsByIntegration({
+  const { awaitingCounts } = useAwaitingCountsByIntegrationType({
     channelId,
     skip,
   });
 
-  return {
-    integrations: integrations.filter(
-      (integration) => integration.isActive !== false,
-    ),
-    loading,
-    error,
-    counts,
-    awaitingCounts,
-  };
+  return { integrationTypes, loading, awaitingCounts };
 };

@@ -25,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 import { BrandsInline, SelectMember } from 'ui-modules';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
   IntegrationTypeFilterBar,
@@ -352,6 +353,7 @@ export const ConversationFilterBar = ({
       <IntegrationTypeFilterBar iconOnly />
       <IntegrationFilterBar />
       <BrandFilterBar />
+      <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
   );

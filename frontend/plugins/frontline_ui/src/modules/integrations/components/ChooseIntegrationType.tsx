@@ -82,6 +82,7 @@ export const IntegrationTypeItem = ({
     setFilters({
       ...CLEARED_INBOX_NAVIGATION_FILTERS,
       integrationType: isActive ? null : _id,
+      integrationId: null,
       ...(channelId ? { channelId: isActive ? null : channelId } : {}),
     });
   };

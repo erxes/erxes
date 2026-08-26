@@ -1,4 +1,5 @@
-import { NavigationMenuGroup, Skeleton } from 'erxes-ui';
+import { NavigationMenuGroup, Skeleton, useMultiQueryState } from 'erxes-ui';
+import { IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { ChannelScope } from '@/channels/types';
@@ -6,56 +7,79 @@ import { channelScopeOf } from '@/channels/utils/channelScope';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegrationType';
 import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
-import { useConversationCountsByIntegrationType } from '@/inbox/conversations/hooks/useConversationCounts';
-import { UnreadSummary } from '@/inbox/channel/components/UnreadSummary';
+import { useAwaitingCountsByIntegrationType } from '@/inbox/conversations/hooks/useConversationCounts';
+import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
+import {
+  INBOX_TARGET_KEYS,
+  InboxTarget,
+} from '@/inbox/conversations/constants/inboxTarget';
 
-/**
- * The "Me" group: the integration types connected to this user's own personal
- * channel, listed flat because a personal inbox is a single channel. Each row
- * carries its open count, and the group header carries their total.
- */
 export const PersonalInboxNav = () => {
   const { t } = useTranslation('frontline');
   const { channels } = useGetMyChannels();
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     scope: ChannelScope.PERSONAL,
   });
+  const [{ channelId }, setFilters] =
+    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
 
   const personalChannel = channels?.find(
     (channel) => channelScopeOf(channel) === ChannelScope.PERSONAL,
   );
 
-  const { counts, awaitingCounts } = useConversationCountsByIntegrationType({
+  const { awaitingCounts } = useAwaitingCountsByIntegrationType({
     channelId: personalChannel?._id,
   });
 
-  const total = integrationTypes.reduce(
-    (sum, integrationType) => sum + (counts[integrationType._id] || 0),
-    0,
-  );
+  const isActive = !!personalChannel && channelId === personalChannel._id;
 
-  return (
-    <NavigationMenuGroup
-      name={t('personal-inbox', { defaultValue: 'Personal inbox' })}
-      actions={<UnreadSummary count={total} />}
-    >
-      {loading && !integrationTypes.length && (
-        <Skeleton className="w-32 h-4 mt-1" />
-      )}
-      {!loading && !integrationTypes.length && (
-        <div className="text-sm text-accent-foreground ml-3 my-4">
+  const handleSelectChannel = () => {
+    if (!personalChannel) return;
+
+    setFilters({
+      channelId: isActive ? null : personalChannel._id,
+      integrationId: null,
+      integrationType: null,
+    });
+  };
+
+  const renderContent = () => {
+    if (loading && !integrationTypes.length) {
+      return <Skeleton className="w-28 h-4 ml-8 my-1" />;
+    }
+
+    if (!integrationTypes.length) {
+      return (
+        <div className="text-sm text-accent-foreground ml-8 my-2">
           {t('no-personal-inbox')}
         </div>
-      )}
-      {integrationTypes.map((integrationType) => (
-        <IntegrationTypeItem
-          key={integrationType._id}
-          {...integrationType}
-          channelId={personalChannel?._id}
-          count={counts[integrationType._id] || 0}
-          awaitingCount={awaitingCounts[integrationType._id] || 0}
-        />
-      ))}
+      );
+    }
+
+    return integrationTypes.map((integrationType) => (
+      <IntegrationTypeItem
+        key={integrationType._id}
+        {...integrationType}
+        channelId={personalChannel?._id}
+        count={integrationType.unreadConversationCount || 0}
+        awaitingCount={awaitingCounts[integrationType._id] || 0}
+        nested
+      />
+    ));
+  };
+
+  return (
+    <NavigationMenuGroup name={t('me')}>
+      <ChannelNavItem
+        name={t('personal-channel')}
+        icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}
+        isActive={isActive}
+        onSelect={handleSelectChannel}
+        unreadCount={personalChannel?.unreadConversationCount || 0}
+        collapsible={false}
+      >
+        {renderContent()}
+      </ChannelNavItem>
     </NavigationMenuGroup>
   );
 };

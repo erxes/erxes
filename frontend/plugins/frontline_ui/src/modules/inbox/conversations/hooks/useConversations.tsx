@@ -63,30 +63,48 @@ export const useConversations = (
   );
   const parsedDate = parseDateRangeFromString(created || '');
 
+  const filterVariables = useMemo(
+    () => ({
+      limit: CONVERSATIONS_LIMIT,
+      channelId,
+      integrationId,
+      integrationType,
+      unassigned: getBooleanFilterVariable(unassigned),
+      awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+      automationStatus,
+      participating: getBooleanFilterVariable(participating || participated),
+      mentioned: getBooleanFilterVariable(mentioned),
+      status: status || '',
+      startDate: parsedDate?.from,
+      endDate: parsedDate?.to,
+      brandId,
+      searchValue,
+      cursorMode: EnumCursorMode.INCLUSIVE,
+    }),
+    [
+      channelId,
+      integrationId,
+      integrationType,
+      unassigned,
+      awaitingResponse,
+      automationStatus,
+      participating,
+      participated,
+      mentioned,
+      status,
+      parsedDate?.from,
+      parsedDate?.to,
+      brandId,
+      searchValue,
+    ],
+  );
+
+  const variables = options?.variables ?? filterVariables;
+  const ownsInboxState = !options;
+
   const { data, fetchMore, subscribeToMore, loading, refetch } = useQuery<
     ICursorListResponse<IConversation>
-  >(
-    GET_CONVERSATIONS,
-    options || {
-      variables: {
-        limit: CONVERSATIONS_LIMIT,
-        channelId,
-        integrationId,
-        integrationType,
-        unassigned: getBooleanFilterVariable(unassigned),
-        awaitingResponse: getBooleanFilterVariable(awaitingResponse),
-        automationStatus,
-        participating: getBooleanFilterVariable(participating || participated),
-        mentioned: getBooleanFilterVariable(mentioned),
-        status: status || '',
-        startDate: parsedDate?.from,
-        endDate: parsedDate?.to,
-        brandId,
-        searchValue,
-        cursorMode: EnumCursorMode.INCLUSIVE,
-      },
-    },
-  );
+  >(GET_CONVERSATIONS, { ...options, variables });
   const refetchRef = useRef(refetch);
   refetchRef.current = refetch;
   const { _id: userId } = useAtomValue(currentUserState) || {};
@@ -106,6 +124,24 @@ export const useConversations = (
   const activeConversation = useAtomValue(activeConversationState);
   const activeConversationRef = useRef(activeConversation);
   activeConversationRef.current = activeConversation;
+  const subscribeToMoreRef = useRef(subscribeToMore);
+  subscribeToMoreRef.current = subscribeToMore;
+  const playNotificationSoundRef = useRef(playNotificationSound);
+  playNotificationSoundRef.current = playNotificationSound;
+  const pendingRefetchRef = useRef(false);
+  const variablesKey = useMemo(() => JSON.stringify(variables), [variables]);
+
+  const scheduleRefetch = useCallback(() => {
+    if (pendingRefetchRef.current) {
+      return;
+    }
+
+    pendingRefetchRef.current = true;
+    setTimeout(() => {
+      pendingRefetchRef.current = false;
+      refetchRef.current().catch(() => undefined);
+    }, 0);
+  }, []);
   const { t } = useTranslation('frontline');
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -118,15 +154,21 @@ export const useConversations = (
   );
 
   useEffect(() => {
+    if (!ownsInboxState) {
+      return;
+    }
+
     setRefetch(() => refetch);
-  }, [refetch, setRefetch]);
+  }, [ownsInboxState, refetch, setRefetch]);
 
   useEffect(() => {
-    if (refetchNewMessages) {
-      refetch();
-      resetNewMessagesStates();
+    if (!ownsInboxState || !refetchNewMessages) {
+      return;
     }
-  }, [refetch, refetchNewMessages, resetNewMessagesStates]);
+
+    refetch();
+    resetNewMessagesStates();
+  }, [ownsInboxState, refetch, refetchNewMessages, resetNewMessagesStates]);
 
   const handleFetchMore = useCallback(
     async ({ direction }: { direction: EnumCursorDirection }) => {
@@ -158,7 +200,11 @@ export const useConversations = (
   );
 
   useEffect(() => {
-    const unsubscribe = subscribeToMore<{
+    if (!userId) {
+      return;
+    }
+
+    const unsubscribe = subscribeToMoreRef.current<{
       conversationClientMessageInserted: {
         _id: string;
         conversationId: string;
@@ -171,25 +217,26 @@ export const useConversations = (
         userId,
       },
       updateQuery: (prev, { subscriptionData }) => {
-        if (subscriptionData.data) {
+        if (subscriptionData.data && ownsInboxState) {
           setNewMessagesCount((prev) => prev + 1);
           const incomingConversationId =
             subscriptionData.data.conversationClientMessageInserted
               .conversationId;
           if (incomingConversationId !== activeConversationRef.current?._id) {
-            playNotificationSound();
+            playNotificationSoundRef.current();
           }
         }
-        if (!subscriptionData.data || !prev) return prev;
+        if (!subscriptionData.data) return prev;
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
         const conversationId = newMessage?.conversationId;
-        const index = prev.conversations.list.findIndex(
-          (conversation) => conversation._id === conversationId,
-        );
+        const index =
+          prev?.conversations.list.findIndex(
+            (conversation) => conversation._id === conversationId,
+          ) ?? -1;
         // Not in the list yet, or nothing to order it by — let the server say.
-        if (index === -1 || !newMessage.createdAt) {
-          setTimeout(() => refetchRef.current(), 0);
+        if (!prev || index === -1 || !newMessage.createdAt) {
+          scheduleRefetch();
           return prev;
         }
 
@@ -215,7 +262,13 @@ export const useConversations = (
     return () => {
       unsubscribe();
     };
-  }, [playNotificationSound, setNewMessagesCount, subscribeToMore, userId]);
+  }, [
+    ownsInboxState,
+    scheduleRefetch,
+    setNewMessagesCount,
+    userId,
+    variablesKey,
+  ]);
 
   useEffect(() => {
     if (conversationSelected) {

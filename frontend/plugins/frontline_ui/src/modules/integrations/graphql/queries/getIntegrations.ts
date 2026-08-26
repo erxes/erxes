@@ -56,6 +56,7 @@ export const GET_INTEGRATION_KINDS_BY_CHANNEL = gql`
     integrationsGetUsedTypesByChannel(channelId: $channelId, scope: $scope) {
       _id
       name
+      unreadConversationCount
     }
   }
 `;
