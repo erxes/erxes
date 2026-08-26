@@ -18,7 +18,7 @@ const REFRESH_DELAY = 500;
  * message landed in, so one subscription covers all of this user's channels;
  * active sidebar queries are then refreshed together.
  */
-export const useChannelUnreadUpdates = () => {
+export const useChannelUnreadUpdates = (refetch: unknown) => {
   const client = useApolloClient();
   const currentUser = useAtomValue(currentUserState);
   const userId = currentUser?._id;

@@ -69,7 +69,7 @@ export const InboxWorkNav = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('my-work', { defaultValue: 'My work' })}
+      name={t('work-queue', { defaultValue: 'Work queue' })}
     >
       {loading && (
         <div className="flex flex-col gap-2 px-2 py-1">

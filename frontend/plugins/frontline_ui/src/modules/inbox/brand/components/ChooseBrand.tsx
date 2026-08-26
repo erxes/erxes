@@ -4,6 +4,7 @@ import {
   Skeleton,
   TextOverflowTooltip,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import {
   IconBuildingStore,
@@ -20,19 +21,31 @@ import {
   INBOX_NAVIGATION_FILTER_KEYS,
   TInboxNavigationFilters,
 } from '@/inbox/types/InboxNavigation';
+import { useIntegrations } from '@/integrations/hooks/useIntegrations';
 
 export const ChooseBrand = () => {
   const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 300);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [channelId] = useQueryState<string>('channelId');
 
   const { brands, loading } = useBrands({
     variables: { searchValue: debouncedSearch || undefined },
   });
+  const { integrations, loading: integrationsLoading } = useIntegrations({
+    variables: { channelId, limit: 100 },
+    skip: !channelId,
+  });
+  const channelBrandIds = new Set(
+    integrations?.flatMap(({ brandId }) => (brandId ? [brandId] : [])) ?? [],
+  );
+  const visibleBrands = channelId
+    ? brands?.filter(({ _id }) => channelBrandIds.has(_id))
+    : brands;
 
   let brandContent: ReactNode;
-  if (loading) {
+  if (loading || integrationsLoading) {
     brandContent = (
       <>
         <Skeleton className="w-32 h-4 mt-1" />
@@ -40,14 +53,14 @@ export const ChooseBrand = () => {
         <Skeleton className="w-32 h-4 mt-1" />
       </>
     );
-  } else if (!brands?.length) {
+  } else if (!visibleBrands?.length) {
     brandContent = (
       <div className="text-sm text-accent-foreground ml-1 my-2">
         {t('no-brands-found')}
       </div>
     );
   } else {
-    brandContent = brands.map((brand) => (
+    brandContent = visibleBrands.map((brand) => (
       <BrandItem
         key={brand._id}
         _id={brand._id}

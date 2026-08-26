@@ -22,6 +22,8 @@ import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
+import { ChannelScope } from '@/channels/types';
+import { channelScopeOf } from '@/channels/utils/channelScope';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -179,7 +181,9 @@ export const SelectChannelsFormItem = ({
     <SelectChannelProvider
       {...props}
       onValueChange={(value) => {
-        props.mode === 'single' && setOpen(false);
+        if (props.mode === 'single') {
+          setOpen(false);
+        }
         props.onValueChange?.(value);
       }}
     >
@@ -243,6 +247,13 @@ export const SelectChannelFilterBar = ({
     queryKey || 'channelId',
   );
   const [open, setOpen] = useState(false);
+  const { channels: myChannels } = useGetMyChannels();
+  const selectedChannelId = Array.isArray(channelId) ? undefined : channelId;
+  const isPersonalChannelSelected = myChannels?.some(
+    (channel) =>
+      channel._id === selectedChannelId &&
+      channelScopeOf(channel) === ChannelScope.PERSONAL,
+  );
 
   if (!channelId) {
     return null;
@@ -270,7 +281,11 @@ export const SelectChannelFilterBar = ({
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey || 'channelId'}>
-              <SelectChannelsValue />
+              {isPersonalChannelSelected ? (
+                t('my-inbox', { defaultValue: 'My Inbox' })
+              ) : (
+                <SelectChannelsValue />
+              )}
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>

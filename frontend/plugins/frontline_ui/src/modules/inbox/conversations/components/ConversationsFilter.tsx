@@ -23,7 +23,8 @@ import {
   IconUsersGroup,
   IconUserX,
 } from '@tabler/icons-react';
-import { BrandsInline, SelectMember } from 'ui-modules';
+import { SelectMember } from 'ui-modules';
+import { gql, useQuery } from '@apollo/client';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
@@ -55,6 +56,15 @@ type ConversationFilterQueries = {
   created: string;
   searchValue: string;
 };
+
+const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql`
+  query FrontlineInboxBrandFilterDetail($_id: String!) {
+    brandDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
 
 type ConversationFilterQueryValues = {
   [Key in keyof ConversationFilterQueries]:
@@ -392,16 +402,29 @@ const IntegrationFilterBar = () => {
 
 const BrandFilterBar = () => {
   const [brandId] = useQueryState<string>('brandId');
+  const { data, loading } = useQuery<{
+    brandDetail?: { _id: string; name?: string };
+  }>(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: { _id: brandId || '' },
+    skip: !brandId,
+  });
 
   if (!brandId) {
     return null;
   }
 
+  const brandName =
+    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
+
   return (
     <Filter.BarItem queryKey="brandId">
       <Filter.BarName>
         <IconBuildingStore />
-        <BrandsInline brandIds={[brandId]} placeholder={brandId} />
+        {loading || !brandName ? (
+          <Skeleton className="h-4 w-20" />
+        ) : (
+          brandName
+        )}
       </Filter.BarName>
     </Filter.BarItem>
   );

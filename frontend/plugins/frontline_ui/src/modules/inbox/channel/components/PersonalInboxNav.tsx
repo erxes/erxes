@@ -1,6 +1,5 @@
-import { Skeleton, useMultiQueryState } from 'erxes-ui';
-import { IconUser } from '@tabler/icons-react';
-import { useState } from 'react';
+import { NavigationMenuGroup, Skeleton, useMultiQueryState } from 'erxes-ui';
+import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ChannelScope } from '@/channels/types';
@@ -9,7 +8,6 @@ import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import { IntegrationTypeItem } from '@/integrations/components/ChooseIntegrationType';
 import { useUsedIntegrationTypesByChannel } from '@/integrations/hooks/useUsedIntegrationTypes';
 import { useAwaitingCountsByIntegrationType } from '@/inbox/conversations/hooks/useConversationCounts';
-import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
 import {
   INBOX_TARGET_KEYS,
   InboxTarget,
@@ -17,14 +15,12 @@ import {
 
 export const PersonalInboxNav = () => {
   const { t } = useTranslation('frontline');
-  const [open, setOpen] = useState(true);
   const { channels } = useGetMyChannels();
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     scope: ChannelScope.PERSONAL,
   });
   const [{ channelId }, setFilters] =
     useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
-
   const personalChannel = channels?.find(
     (channel) => channelScopeOf(channel) === ChannelScope.PERSONAL,
   );
@@ -33,10 +29,30 @@ export const PersonalInboxNav = () => {
     channelId: personalChannel?._id,
   });
 
-  const isActive = !!personalChannel && channelId === personalChannel._id;
+  const handleGroupClickCapture = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as Element;
 
-  const handleSelectChannel = () => {
-    if (!personalChannel) return;
+    if (!target.closest('[data-sidebar="group-label"]')) {
+      return;
+    }
+
+    // The caret remains the sole control that can close the group. Clicking
+    // the label opens a closed group, but never closes an open one.
+    if (target.closest('svg')) {
+      return;
+    }
+
+    const groupLabel = target.closest('[data-sidebar="group-label"]');
+
+    if (groupLabel?.getAttribute('aria-expanded') !== 'false') {
+      event.stopPropagation();
+    }
+
+    if (!personalChannel) {
+      return;
+    }
+
+    const isActive = channelId === personalChannel._id;
 
     setFilters({
       channelId: isActive ? null : personalChannel._id,
@@ -65,22 +81,16 @@ export const PersonalInboxNav = () => {
         channelId={personalChannel?._id}
         count={integrationType.unreadConversationCount || 0}
         awaitingCount={awaitingCounts[integrationType._id] || 0}
-        nested
       />
     ));
   };
 
   return (
-    <ChannelNavItem
-      name={t('my-conversations', { defaultValue: 'My conversations' })}
-      icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}
-      isActive={isActive}
-      onSelect={handleSelectChannel}
-      open={open}
-      onOpenChange={setOpen}
-      unreadCount={personalChannel?.unreadConversationCount || 0}
+    <NavigationMenuGroup
+      name={t('my-inbox', { defaultValue: 'My Inbox' })}
+      onClickCapture={handleGroupClickCapture}
     >
       {renderContent()}
-    </ChannelNavItem>
+    </NavigationMenuGroup>
   );
 };
