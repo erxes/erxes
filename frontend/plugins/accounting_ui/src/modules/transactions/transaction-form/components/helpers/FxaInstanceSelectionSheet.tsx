@@ -214,7 +214,6 @@ export const FxaInstanceSelectionSheet = ({
     variables: {
       fixedAssetIds: selectedFixedAssetId ? [selectedFixedAssetId] : undefined,
       transactionId: trDoc?._id,
-      disposalTransactionId: trDoc?._id,
     },
     skip: !trDoc?._id,
     fetchPolicy: 'network-only',

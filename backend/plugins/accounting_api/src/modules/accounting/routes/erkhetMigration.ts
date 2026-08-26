@@ -49,6 +49,11 @@ type TFxaInstanceMigrationInput = {
   openingAccumulatedDepreciation?: number;
 };
 
+type TFxaInstanceSelectionMigrationInput = {
+  fxaInstanceId: string;
+  count: number;
+};
+
 type TErkhetContact = {
   type?: string;
   code?: string;
@@ -640,37 +645,47 @@ const getAutoFxaInstanceSelector = (
   const departmentId = detail.departmentId || doc.departmentId;
   const selector: Record<string, unknown> = {
     fixedAssetId,
-    status: FXA_INSTANCE_STATUSES.ACTIVE,
+    currentStatus: FXA_INSTANCE_STATUSES.ACTIVE,
+    currentCount: { $gt: 0 },
   };
 
   if (requireLocation) {
     if (branchId) {
-      selector.branchId = branchId;
+      selector.currentBranchId = branchId;
     }
     if (departmentId) {
-      selector.departmentId = departmentId;
+      selector.currentDepartmentId = departmentId;
     }
   }
 
   return selector;
 };
 
-const resolveAutoFxaInstanceIds = async (
+const resolveAutoFxaInstanceSelections = async (
   models: IModels,
   doc: ITransaction,
   explicitIds: string[],
+  explicitSelections: TFxaInstanceSelectionMigrationInput[],
 ) => {
   if (
     explicitIds.length ||
+    explicitSelections.length ||
     ![JOURNALS.FXA_OUT, JOURNALS.FXA_MOVE, JOURNALS.FXA_SALE].includes(
       doc.journal || '',
     )
   ) {
-    return explicitIds;
+    return {
+      fxaInstanceSelections: explicitSelections,
+      fxaInstanceSelectionsByDetailId: {},
+    };
   }
 
-  const selectedIds: string[] = [];
-  const usedIds = new Set<string>();
+  const usedCountByInstanceId = new Map<string, number>();
+  const fxaInstanceSelections: TFxaInstanceSelectionMigrationInput[] = [];
+  const fxaInstanceSelectionsByDetailId: Record<
+    string,
+    TFxaInstanceSelectionMigrationInput[]
+  > = {};
 
   for (const detail of doc.details || []) {
     const count = Math.max(0, Math.trunc(detail.count || 0));
@@ -687,7 +702,6 @@ const resolveAutoFxaInstanceIds = async (
           detail.fixedAssetId || '',
           requireLocation,
         ),
-        _id: { $nin: Array.from(usedIds) },
       })
         .sort({
           acquisitionDate: 1,
@@ -696,33 +710,53 @@ const resolveAutoFxaInstanceIds = async (
           code: 1,
           _id: 1,
         })
-        .limit(count)
-        .select({ _id: 1 })
+        .select({ _id: 1, count: 1, currentCount: 1 })
         .lean();
 
     // Erkhet migration-д instance identity байхгүй үед эхлээд тухайн
     // branch/department дээрх хөрөнгийг, хүрэхгүй бол тухайн төрлийн эхний
     // active instance-үүдийг сонгоно. Ингэснээр зарлага/хөдөлгөөн count-д
     // тулгуурлан deterministic байдлаар үргэлжилнэ.
-    let candidates = await findCandidates(true);
+    const findAvailableCandidate = async (requireLocation: boolean) => {
+      const candidates = await findCandidates(requireLocation);
 
-    if (candidates.length < count) {
-      candidates = await findCandidates(false);
+      return candidates.find(
+        (item) =>
+          (item.currentCount ?? item.count ?? 1) -
+            (usedCountByInstanceId.get(item._id) || 0) >=
+          count,
+      );
+    };
+
+    let candidate = await findAvailableCandidate(true);
+
+    if (!candidate) {
+      candidate = await findAvailableCandidate(false);
     }
 
-    if (candidates.length < count) {
+    if (!candidate) {
       throw new Error(
         `Fixed asset active instances not enough: ${detail.fixedAssetId}`,
       );
     }
 
-    for (const candidate of candidates) {
-      usedIds.add(candidate._id);
-      selectedIds.push(candidate._id);
+    const selection = {
+      fxaInstanceId: candidate._id,
+      count,
+    };
+
+    usedCountByInstanceId.set(
+      candidate._id,
+      (usedCountByInstanceId.get(candidate._id) || 0) + count,
+    );
+    fxaInstanceSelections.push(selection);
+
+    if (detail._id) {
+      fxaInstanceSelectionsByDetailId[detail._id] = [selection];
     }
   }
 
-  return selectedIds;
+  return { fxaInstanceSelections, fxaInstanceSelectionsByDetailId };
 };
 
 const resolveTransactionFollowInfos = (
@@ -820,6 +854,10 @@ const normalizeBatchDocs = async (
     const fxaInstances =
       (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
     const fxaInstanceIds = doc.extraData?.fxaInstanceIds || [];
+    const fxaInstanceSelections =
+      (doc.extraData
+        ?.fxaInstanceSelections as TFxaInstanceSelectionMigrationInput[]) ||
+      [];
 
     if (customerCode && !contact?._id && !maps.customersByCode[customerCode]) {
       throw new Error(`Customer not found: ${customerCode}`);
@@ -862,11 +900,22 @@ const normalizeBatchDocs = async (
       },
     };
 
-    resolvedDoc.extraData.fxaInstanceIds = await resolveAutoFxaInstanceIds(
+    const autoSelection = await resolveAutoFxaInstanceSelections(
       models,
       resolvedDoc,
       resolvedDoc.extraData.fxaInstanceIds || [],
+      fxaInstanceSelections,
     );
+
+    if (autoSelection.fxaInstanceSelections.length) {
+      resolvedDoc.extraData.fxaInstanceSelections =
+        autoSelection.fxaInstanceSelections;
+    }
+
+    if (Object.keys(autoSelection.fxaInstanceSelectionsByDetailId).length) {
+      resolvedDoc.extraData.fxaInstanceSelectionsByDetailId =
+        autoSelection.fxaInstanceSelectionsByDetailId;
+    }
 
     return resolvedDoc;
   }));

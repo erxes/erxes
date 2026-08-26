@@ -138,10 +138,16 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-26` — `Erkhet Bucket Selection Migration`
+
+- **Summary:** Erkhet migration now adapts count-only fixed asset disposal, sale, and move rows to the new `{ fxaInstanceId, count }` bucket selection contract.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` auto-builds bucket selections instead of legacy one-id-per-unit selections when Erkhet omits instance refs.
+
 ### `2026-08-26` — `Fixed Asset Primary Buckets`
 
 - **Summary:** Fixed asset buckets now carry `primaryInstanceId`, move-in quantities merge by primary/location/responsible key, and depreciation is calculated per primary cost base then allocated by daily bucket quantity.
-- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/fixedAssets`.
+- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`, `src/modules/fixedAssets`.
 - **Contracts changed:** Fixed asset instances expose `primaryInstanceId`; move synchronization creates or reuses destination buckets instead of mutating source bucket location.
 
 ### `2026-08-25` — `Fixed Asset Quantity Instance Logs`

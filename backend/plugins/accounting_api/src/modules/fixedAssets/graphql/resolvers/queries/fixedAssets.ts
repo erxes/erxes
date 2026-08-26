@@ -12,7 +12,6 @@ const fixedAssets = {
       branchId,
       departmentId,
       transactionId,
-      disposalTransactionId,
     }: {
       ids?: string[];
       fixedAssetIds?: string[];
@@ -20,7 +19,6 @@ const fixedAssets = {
       branchId?: string;
       departmentId?: string;
       transactionId?: string;
-      disposalTransactionId?: string;
     },
     { models }: IContext,
   ) => {
@@ -65,9 +63,7 @@ const fixedAssets = {
       ];
     }
 
-    const transactionIds = Array.from(
-      new Set([transactionId, disposalTransactionId].filter(Boolean)),
-    );
+    const transactionIds = Array.from(new Set([transactionId].filter(Boolean)));
 
     if (transactionIds.length) {
       const logsByTransaction = await Promise.all(

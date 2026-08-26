@@ -21,13 +21,6 @@ type TFxaIncomeInstanceMatch = Pick<
   transactionDetailId?: string;
 };
 
-type TFxaOptionalLocationUpdate = {
-  branchId?: string;
-  departmentId?: string;
-  responsibleUserId?: string;
-  status?: string;
-};
-
 type TFxaMovementBucketParams = {
   sourceInstance: IFxaInstanceDocument;
   branchId?: string;
@@ -61,44 +54,7 @@ export interface IFxaInstanceModel extends Model<IFxaInstanceDocument> {
   findOrCreateMovementBucket(
     params: TFxaMovementBucketParams,
   ): Promise<IFxaInstanceDocument>;
-  restoreDisposalInstance(params: {
-    instanceId: string;
-    status: string;
-  }): Promise<void>;
-  restoreMoveInstance(
-    instanceId: string,
-    fields: TFxaOptionalLocationUpdate,
-  ): Promise<void>;
-  applyDisposal(params: {
-    instanceId: string;
-    status: string;
-    userId: string;
-  }): Promise<void>;
-  applyMove(params: {
-    instanceId: string;
-    branchId: string;
-    departmentId?: string;
-    userId: string;
-  }): Promise<void>;
 }
-
-const buildOptionalFieldUpdate = (
-  fields: Record<string, string | undefined>,
-) => {
-  const $set: Record<string, string | Date> = { updatedAt: new Date() };
-  const $unset: Record<string, string> = {};
-
-  for (const [field, value] of Object.entries(fields)) {
-    if (value) {
-      $set[field] = value;
-      continue;
-    }
-
-    $unset[field] = '';
-  }
-
-  return Object.keys($unset).length ? { $set, $unset } : { $set };
-};
 
 const normalizeBucketValue = (value?: string) => value || '';
 
@@ -307,100 +263,6 @@ export const loadFxaInstanceClass = () => {
         createdBy: userId,
         createdAt: new Date(),
       });
-    }
-
-    public static async restoreDisposalInstance(
-      this: IFxaInstanceModel,
-      {
-        instanceId,
-        status,
-      }: {
-        instanceId: string;
-        status: string;
-      },
-    ) {
-      await this.updateOne(
-        { _id: instanceId },
-        {
-          $set: {
-            status,
-            currentStatus: status,
-            updatedAt: new Date(),
-          },
-        },
-      );
-    }
-
-    public static async restoreMoveInstance(
-      this: IFxaInstanceModel,
-      instanceId: string,
-      fields: TFxaOptionalLocationUpdate,
-    ) {
-      const currentFields = {
-        currentBranchId: fields.branchId,
-        currentDepartmentId: fields.departmentId,
-        currentResponsibleUserId: fields.responsibleUserId,
-        currentStatus: fields.status,
-      };
-
-      await this.updateOne(
-        { _id: instanceId },
-        buildOptionalFieldUpdate({ ...fields, ...currentFields }),
-      );
-    }
-
-    public static async applyDisposal(
-      this: IFxaInstanceModel,
-      {
-        instanceId,
-        status,
-        userId,
-      }: {
-        instanceId: string;
-        status: string;
-        userId: string;
-      },
-    ) {
-      await this.updateOne(
-        { _id: instanceId },
-        {
-          $set: {
-            status,
-            currentStatus: status,
-            modifiedBy: userId,
-            updatedAt: new Date(),
-          },
-        },
-      );
-    }
-
-    public static async applyMove(
-      this: IFxaInstanceModel,
-      {
-        instanceId,
-        branchId,
-        departmentId,
-        userId,
-      }: {
-        instanceId: string;
-        branchId: string;
-        departmentId?: string;
-        userId: string;
-      },
-    ) {
-      await this.updateOne(
-        { _id: instanceId },
-        {
-          $set: {
-            branchId,
-            currentBranchId: branchId,
-            departmentId,
-            currentDepartmentId: departmentId,
-            modifiedBy: userId,
-            updatedAt: new Date(),
-          },
-        },
-      );
     }
   }
 

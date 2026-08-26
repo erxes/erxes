@@ -23,14 +23,12 @@ export const FXA_INSTANCES_QUERY = gql`
     $fixedAssetIds: [String]
     $status: String
     $transactionId: String
-    $disposalTransactionId: String
   ) {
     fxaInstances(
       ids: $ids
       fixedAssetIds: $fixedAssetIds
       status: $status
       transactionId: $transactionId
-      disposalTransactionId: $disposalTransactionId
     ) {
       _id
       fixedAssetId

@@ -131,7 +131,7 @@
 
 - **Summary:** Fixed asset forms now expose `primaryInstanceId` and keep out, move, and sale detail selection to one primary bucket per detail.
 - **Affected areas:** `src/modules/transactions/transaction-form/contants`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm`, `src/modules/transactions/transaction-form/components/forms/Fxa*Form/FixedAssetRow.tsx`, `src/modules/transactions/transaction-form/components/helpers/FxaInstanceSelectionSheet.tsx`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`.
-- **Contracts changed:** Fixed asset instance queries include `primaryInstanceId`; transaction `extraData` still writes `{ fxaInstanceId, count }` selections with one selected bucket per detail.
+- **Contracts changed:** Fixed asset instance queries include `primaryInstanceId` and use `transactionId` for transaction-linked bucket lookup; transaction `extraData` still writes `{ fxaInstanceId, count }` selections with one selected bucket per detail.
 
 ### `2026-08-25` — `Fixed Asset Quantity Selection`
 

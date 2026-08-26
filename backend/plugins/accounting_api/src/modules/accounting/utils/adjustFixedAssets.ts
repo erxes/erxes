@@ -692,17 +692,34 @@ const calculatePrimaryGroupDepreciationByDay = ({
         addDays(beginDate, -1),
       );
       const closingCount = getInstanceCountAtDate(instance, logs, endDate);
+      let periodDate = beginDate;
+      let maxPeriodCount = 0;
+
+      while (periodDate <= endDate) {
+        maxPeriodCount = Math.max(
+          maxPeriodCount,
+          getInstanceCountAtDate(instance, logs, periodDate),
+        );
+        periodDate = addDays(periodDate, 1);
+      }
+
+      const depreciationAmount =
+        depreciationByInstanceId.get(instance._id) || 0;
+      const resultCount =
+        closingCount > 0 || depreciationAmount <= 0
+          ? closingCount
+          : maxPeriodCount;
       const openingAccumulated =
         openingCount > 0
           ? openingAccumulatedDepreciation *
             (openingInstanceCount / openingCount)
           : 0;
-      const closingAccumulated = perUnitAccumulated * closingCount;
-      const closingOriginalCost = originalCost * closingCount;
-      const closingSalvageValue = salvageValue * closingCount;
+      const closingAccumulated = perUnitAccumulated * resultCount;
+      const closingOriginalCost = originalCost * resultCount;
+      const closingSalvageValue = salvageValue * resultCount;
 
       map.set(instance._id, {
-        depreciationAmount: depreciationByInstanceId.get(instance._id) || 0,
+        depreciationAmount,
         originalCost: closingOriginalCost,
         salvageValue: closingSalvageValue,
         openingBookValue:
@@ -1044,10 +1061,6 @@ export const runAdjustFixedAsset = async (
       primaryInstances[0];
     const fixedAsset = fixedAssetById.get(primaryInstance.fixedAssetId);
     const previousPrimaryDetail = previousPrimaryDetails.get(primaryInstanceId);
-    const activeCount = primaryInstances.reduce(
-      (sum, instance) => sum + getInstanceCountAtDate(instance, logs, endDate),
-      0,
-    );
     const depreciationEndDate = endDate;
     const scheduleStartDate = getPureDate(
       primaryInstance.depreciationStartDate ||
@@ -1058,7 +1071,23 @@ export const runAdjustFixedAsset = async (
       ? beginDate
       : scheduleStartDate;
 
-    if (startDate > depreciationEndDate || activeCount <= 0) {
+    if (startDate > depreciationEndDate) {
+      continue;
+    }
+
+    let periodDate = startDate;
+    let periodActiveCount = 0;
+
+    while (periodDate <= depreciationEndDate) {
+      periodActiveCount += primaryInstances.reduce(
+        (sum, instance) =>
+          sum + getInstanceCountAtDate(instance, logs, periodDate),
+        0,
+      );
+      periodDate = addDays(periodDate, 1);
+    }
+
+    if (periodActiveCount <= 0) {
       continue;
     }
 

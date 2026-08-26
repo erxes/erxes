@@ -35,6 +35,12 @@ const queryResult = <T>(value: T) => ({
   sort: jest.fn().mockReturnValue({
     lean: jest.fn().mockResolvedValue(value),
   }),
+  select: jest.fn().mockReturnValue({
+    lean: jest.fn().mockResolvedValue(value),
+    sort: jest.fn().mockReturnValue({
+      lean: jest.fn().mockResolvedValue(value),
+    }),
+  }),
 });
 
 const lean = queryResult;
@@ -110,16 +116,32 @@ const makeModels = () => ({
         acquisitionDate: new Date(2026, 0, 1),
       }),
     ),
-    findByIds: jest.fn(),
+    findByIds: jest.fn().mockResolvedValue([]),
     findAdjustable: jest.fn().mockResolvedValue([]),
+    updateOne: jest.fn().mockResolvedValue(undefined),
     upsertIncomeInstance: jest.fn(async ({ _id, doc }) => ({
       _id: _id || `instance-${doc.sequence}`,
       ...doc,
     })),
-    restoreDisposalInstance: jest.fn().mockResolvedValue(undefined),
-    restoreMoveInstance: jest.fn().mockResolvedValue(undefined),
-    applyDisposal: jest.fn().mockResolvedValue(undefined),
-    applyMove: jest.fn().mockResolvedValue(undefined),
+    findOrCreateMovementBucket: jest.fn(
+      async ({
+        sourceInstance,
+        branchId,
+        departmentId,
+        responsibleUserId,
+      }) => ({
+        ...sourceInstance,
+        _id: 'moved-instance-a',
+        primaryInstanceId:
+          sourceInstance.primaryInstanceId || sourceInstance._id,
+        branchId: branchId || '',
+        currentBranchId: branchId || '',
+        departmentId: departmentId || '',
+        currentDepartmentId: departmentId || '',
+        responsibleUserId: responsibleUserId || '',
+        currentResponsibleUserId: responsibleUserId || '',
+      }),
+    ),
   },
   FxaInstanceLogs: {
     find: jest.fn().mockReturnValue(queryResult([])),
@@ -245,8 +267,8 @@ describe('fixed asset income instances', () => {
       asParam<Parameters<typeof syncFxaIncomeInstances>[2]>(transaction),
     );
 
-    expect(models.FxaInstances.upsertIncomeInstance).toHaveBeenCalledTimes(3);
-    expect(models.FxaInstanceLogs.createLog).toHaveBeenCalledTimes(3);
+    expect(models.FxaInstances.upsertIncomeInstance).toHaveBeenCalledTimes(1);
+    expect(models.FxaInstanceLogs.createLog).toHaveBeenCalledTimes(1);
 
     const firstDoc =
       models.FxaInstances.upsertIncomeInstance.mock.calls[0][0].doc;
@@ -255,6 +277,7 @@ describe('fixed asset income instances', () => {
         fixedAssetId: 'asset-a',
         code: 'A_001',
         sequence: 1,
+        count: 3,
         status: FXA_INSTANCE_STATUSES.ACTIVE,
         originalCost: 500,
         transactionDetailId: 'detail-a',
@@ -272,6 +295,7 @@ describe('fixed asset income instances', () => {
         eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
         transactionId: 'tr-1',
         transactionDetailId: 'detail-a',
+        countDelta: 3,
         toStatus: FXA_INSTANCE_STATUSES.ACTIVE,
       }),
     );
@@ -418,26 +442,24 @@ describe('fixed asset selected instance validation', () => {
     const models = makeModels();
     models.FxaInstances.findByIds.mockResolvedValue([
       {
-        _id: 'instance-a',
-        fixedAssetId: 'asset-a',
-        status: FXA_INSTANCE_STATUSES.ACTIVE,
-      },
-      {
         _id: 'instance-b',
         fixedAssetId: 'asset-a',
         status: FXA_INSTANCE_STATUSES.DISPOSED,
+        count: 2,
+        currentCount: 0,
       },
     ]);
     models.FxaInstanceLogs.findByTransaction.mockResolvedValue([
       {
         fxaInstanceId: 'instance-b',
         eventType: FXA_LOG_EVENT_TYPES.DISPOSAL,
+        countDelta: -2,
       },
     ]);
     const transaction = makeTransaction({
       extraData: {
-        fxaInstanceIdsByDetailId: {
-          'detail-a': ['instance-a', 'instance-b'],
+        fxaInstanceSelectionsByDetailId: {
+          'detail-a': [{ fxaInstanceId: 'instance-b', count: 2 }],
         },
       },
     });
@@ -447,7 +469,7 @@ describe('fixed asset selected instance validation', () => {
         models as unknown as Parameters<typeof getSelectedInstanceIds>[0],
         asParam<Parameters<typeof getSelectedInstanceIds>[1]>(transaction),
       ),
-    ).resolves.toEqual(['instance-a', 'instance-b']);
+    ).resolves.toEqual(['instance-b']);
   });
 
   it('rejects inactive instances that do not belong to the transaction being edited', async () => {
@@ -484,11 +506,6 @@ describe('fixed asset selected instance validation', () => {
     const models = makeModels();
     models.FxaInstances.findByIds.mockResolvedValue([
       {
-        _id: 'instance-a',
-        fixedAssetId: 'asset-a',
-        status: FXA_INSTANCE_STATUSES.ACTIVE,
-      },
-      {
         _id: 'instance-b',
         fixedAssetId: 'asset-b',
         status: FXA_INSTANCE_STATUSES.ACTIVE,
@@ -496,8 +513,8 @@ describe('fixed asset selected instance validation', () => {
     ]);
     const transaction = makeTransaction({
       extraData: {
-        fxaInstanceIdsByDetailId: {
-          'detail-a': ['instance-a', 'instance-b'],
+        fxaInstanceSelectionsByDetailId: {
+          'detail-a': [{ fxaInstanceId: 'instance-b', count: 2 }],
         },
       },
     });
@@ -507,7 +524,7 @@ describe('fixed asset selected instance validation', () => {
         models as unknown as Parameters<typeof getSelectedInstanceIds>[0],
         asParam<Parameters<typeof getSelectedInstanceIds>[1]>(transaction),
       ),
-    ).rejects.toThrow('Selected instances must match each fixed asset detail');
+    ).rejects.toThrow('Selected fixed asset instance must match detail asset');
   });
 });
 
@@ -955,8 +972,18 @@ describe('fixed asset depreciation and sale flow', () => {
         {
           fxaInstanceId: 'instance-a',
           fixedAssetId: 'asset-a',
+          eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
+          eventDate: new Date(2026, 0, 1),
+          countDelta: 1,
+          transactionDetailId: 'income-detail-a',
+          toStatus: FXA_INSTANCE_STATUSES.ACTIVE,
+        },
+        {
+          fxaInstanceId: 'instance-a',
+          fixedAssetId: 'asset-a',
           eventType: FXA_LOG_EVENT_TYPES.SALE,
-          eventDate: new Date(2026, 0, 5),
+          eventDate: new Date(2026, 0, 6),
+          countDelta: -1,
           toStatus: FXA_INSTANCE_STATUSES.SOLD,
         },
       ]),
@@ -1314,7 +1341,7 @@ describe('fixed asset depreciation and sale flow', () => {
     );
   });
 
-  it('restores sold instances when a sale transaction is removed after depreciation', async () => {
+  it('rebuilds sold instances when a sale transaction is removed after depreciation', async () => {
     const models = makeModels();
     models.FxaInstanceLogs.findByTransaction.mockResolvedValue([
       {
@@ -1335,23 +1362,22 @@ describe('fixed asset depreciation and sale flow', () => {
       ),
     );
 
-    expect(models.FxaInstances.restoreDisposalInstance).toHaveBeenCalledWith({
-      instanceId: 'instance-a',
-      status: FXA_INSTANCE_STATUSES.ACTIVE,
-    });
     expect(models.FxaInstanceLogs.deleteByTransaction).toHaveBeenCalledWith(
       'sale-tr-1',
     );
+    expect(models.FxaInstances.findByIds).toHaveBeenCalledWith(['instance-a']);
   });
 });
 
 describe('fixed asset disposal and move snapshots', () => {
   const setupActiveSelection = (models: TModels) => {
-    models.FxaInstances.findByIds.mockResolvedValue([
+    const instances = [
       {
         _id: 'instance-a',
         fixedAssetId: 'asset-a',
         status: FXA_INSTANCE_STATUSES.ACTIVE,
+        count: 1,
+        currentCount: 1,
         branchId: 'branch-a',
         departmentId: 'dept-a',
         responsibleUserId: 'user-a',
@@ -1360,20 +1386,37 @@ describe('fixed asset disposal and move snapshots', () => {
         _id: 'instance-b',
         fixedAssetId: 'asset-a',
         status: FXA_INSTANCE_STATUSES.ACTIVE,
+        count: 1,
+        currentCount: 1,
         branchId: 'branch-a',
         departmentId: 'dept-a',
         responsibleUserId: 'user-b',
       },
-    ]);
+    ];
+
+    models.FxaInstances.findByIds.mockImplementation((ids: string[]) =>
+      Promise.resolve(
+        instances.filter((instance) => ids.includes(instance._id)),
+      ),
+    );
   };
 
-  it('writes disposal status to the instance and transaction provenance to logs', async () => {
+  it('writes disposal count-delta and transaction provenance to logs', async () => {
     const models = makeModels();
     setupActiveSelection(models);
     const transaction = makeTransaction({
+      details: [
+        {
+          _id: 'detail-a',
+          fixedAssetId: 'asset-a',
+          count: 1,
+          unitPrice: 100,
+          amount: 100,
+        },
+      ],
       extraData: {
-        fxaInstanceIdsByDetailId: {
-          'detail-a': ['instance-a', 'instance-b'],
+        fxaInstanceSelectionsByDetailId: {
+          'detail-a': [{ fxaInstanceId: 'instance-a', count: 1 }],
         },
       },
     });
@@ -1386,15 +1429,11 @@ describe('fixed asset disposal and move snapshots', () => {
       FXA_INSTANCE_STATUSES.DISPOSED,
     );
 
-    expect(models.FxaInstances.applyDisposal).toHaveBeenCalledWith({
-      instanceId: 'instance-a',
-      status: FXA_INSTANCE_STATUSES.DISPOSED,
-      userId: 'user-1',
-    });
     expect(models.FxaInstanceLogs.createLog).toHaveBeenCalledWith(
       expect.objectContaining({
         fxaInstanceId: 'instance-a',
         eventType: FXA_LOG_EVENT_TYPES.DISPOSAL,
+        countDelta: -1,
         transactionId: 'tr-1',
         fromStatus: FXA_INSTANCE_STATUSES.ACTIVE,
         toStatus: FXA_INSTANCE_STATUSES.DISPOSED,
@@ -1402,7 +1441,7 @@ describe('fixed asset disposal and move snapshots', () => {
     );
   });
 
-  it('restores disposed instances from their logs when a disposal transaction is removed', async () => {
+  it('rebuilds disposed instances from logs when a disposal transaction is removed', async () => {
     const models = makeModels();
     models.FxaInstanceLogs.findByTransaction.mockResolvedValue([
       {
@@ -1422,29 +1461,35 @@ describe('fixed asset disposal and move snapshots', () => {
       ),
     );
 
-    expect(models.FxaInstances.restoreDisposalInstance).toHaveBeenCalledTimes(
-      2,
-    );
-    expect(models.FxaInstances.restoreDisposalInstance).toHaveBeenCalledWith({
-      instanceId: 'instance-a',
-      status: FXA_INSTANCE_STATUSES.ACTIVE,
-    });
     expect(models.FxaInstanceLogs.deleteByTransaction).toHaveBeenCalledWith(
       'tr-1',
     );
+    expect(models.FxaInstances.findByIds).toHaveBeenCalledWith([
+      'instance-a',
+      'instance-b',
+    ]);
   });
 
-  it('moves instance branch snapshot and keeps move provenance in logs', async () => {
+  it('moves quantity to a destination bucket and keeps move provenance in logs', async () => {
     const models = makeModels();
     setupActiveSelection(models);
     const transaction = makeTransaction({
+      details: [
+        {
+          _id: 'detail-a',
+          fixedAssetId: 'asset-a',
+          count: 1,
+          unitPrice: 100,
+          amount: 100,
+        },
+      ],
       followInfos: {
         moveInBranchId: 'branch-b',
         moveInDepartmentId: 'dept-b',
       },
       extraData: {
-        fxaInstanceIdsByDetailId: {
-          'detail-a': ['instance-a', 'instance-b'],
+        fxaInstanceSelectionsByDetailId: {
+          'detail-a': [{ fxaInstanceId: 'instance-a', count: 1 }],
         },
       },
     });
@@ -1455,16 +1500,30 @@ describe('fixed asset disposal and move snapshots', () => {
       asParam<Parameters<typeof syncFxaMoveInstances>[2]>(transaction),
     );
 
-    expect(models.FxaInstances.applyMove).toHaveBeenCalledWith({
-      instanceId: 'instance-a',
-      branchId: 'branch-b',
-      departmentId: 'dept-b',
-      userId: 'user-1',
-    });
+    expect(models.FxaInstances.findOrCreateMovementBucket).toHaveBeenCalledWith(
+      {
+        sourceInstance: expect.objectContaining({ _id: 'instance-a' }),
+        branchId: 'branch-b',
+        departmentId: 'dept-b',
+        responsibleUserId: 'user-a',
+        userId: 'user-1',
+      },
+    );
     expect(models.FxaInstanceLogs.createLog).toHaveBeenCalledWith(
       expect.objectContaining({
         fxaInstanceId: 'instance-a',
         eventType: FXA_LOG_EVENT_TYPES.MOVE,
+        countDelta: -1,
+        transactionId: 'tr-1',
+        fromBranchId: 'branch-a',
+        toBranchId: 'branch-a',
+      }),
+    );
+    expect(models.FxaInstanceLogs.createLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fxaInstanceId: 'moved-instance-a',
+        eventType: FXA_LOG_EVENT_TYPES.MOVE,
+        countDelta: 1,
         transactionId: 'tr-1',
         fromBranchId: 'branch-a',
         toBranchId: 'branch-b',
