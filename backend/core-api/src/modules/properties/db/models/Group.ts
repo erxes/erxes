@@ -1,4 +1,5 @@
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IOrderInput, IUserDocument } from 'erxes-api-shared/core-types';
+import { updateOrder } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { fieldGroupSchema } from '~/modules/properties/db/definitions/group';
@@ -17,6 +18,7 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
     user: IUserDocument,
   ): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<IFieldGroupDocument>;
+  updateOrder(orders: IOrderInput[]): Promise<IFieldGroupDocument[]>;
 }
 
 export const loadFieldGroupClass = (models: IModels) => {
@@ -66,6 +68,10 @@ export const loadFieldGroupClass = (models: IModels) => {
       }
 
       return models.FieldsGroups.findOneAndDelete({ _id });
+    }
+
+    public static async updateOrder(orders: IOrderInput[]) {
+      return updateOrder(models.FieldsGroups, orders);
     }
 
     public static async generateOrder({
