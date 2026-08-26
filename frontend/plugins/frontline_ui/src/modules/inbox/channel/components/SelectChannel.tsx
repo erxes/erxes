@@ -249,7 +249,7 @@ export const SelectChannelFilterBar = ({
   const [open, setOpen] = useState(false);
   const { channels: myChannels } = useGetMyChannels();
   const selectedChannelId = Array.isArray(channelId) ? undefined : channelId;
-  const isPersonalChannelSelected = myChannels?.some(
+  const selectedPersonalChannel = myChannels?.find(
     (channel) =>
       channel._id === selectedChannelId &&
       channelScopeOf(channel) === ChannelScope.PERSONAL,
@@ -281,8 +281,8 @@ export const SelectChannelFilterBar = ({
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey || 'channelId'}>
-              {isPersonalChannelSelected ? (
-                t('my-inbox', { defaultValue: 'My Inbox' })
+              {selectedPersonalChannel ? (
+                selectedPersonalChannel.name || t('personal-channel')
               ) : (
                 <SelectChannelsValue />
               )}
