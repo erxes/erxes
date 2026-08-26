@@ -42,6 +42,15 @@ export const FIELD_GROUP_EDIT = gql`
   }
 `;
 
+export const FIELD_GROUPS_UPDATE_ORDER = gql`
+  mutation FieldGroupsUpdateOrder($orders: [FieldGroupOrderItem]) {
+    fieldGroupsUpdateOrder(orders: $orders) {
+      _id
+      order
+    }
+  }
+`;
+
 export const FIELD_GROUP_REMOVE = gql`
   mutation FieldGroupRemove($id: String!) {
     fieldGroupRemove(_id: $id) {

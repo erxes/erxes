@@ -2,7 +2,7 @@ import { useApolloClient, useMutation } from '@apollo/client';
 import { arrayMove } from '@dnd-kit/sortable';
 import { toast } from 'erxes-ui';
 import { FIELD_GROUPS_QUERY } from 'ui-modules';
-import { FIELD_GROUP_EDIT } from '../graphql/mutations/propertiesMutations';
+import { FIELD_GROUPS_UPDATE_ORDER } from '../graphql/mutations/propertiesMutations';
 import { IFieldGroup } from '../types/Properties';
 
 export const useFieldGroupsReorder = ({
@@ -11,7 +11,7 @@ export const useFieldGroupsReorder = ({
   contentType: string;
 }) => {
   const client = useApolloClient();
-  const [mutate, { loading }] = useMutation(FIELD_GROUP_EDIT);
+  const [mutate, { loading }] = useMutation(FIELD_GROUPS_UPDATE_ORDER);
 
   const reorderFieldGroups = async (
     fieldGroups: IFieldGroup[],
@@ -26,35 +26,31 @@ export const useFieldGroupsReorder = ({
     }
 
     // The list arrives sorted by `order`, so the existing order values can be
-    // handed out again by position: only the groups between the drag source
-    // and target end up with a different value.
+    // handed out again by position: only the groups between the drag source and
+    // the target end up with a different value.
     const orders = fieldGroups.map((group) => group.order);
-    const reordered = arrayMove(fieldGroups, from, to).map((group, index) => ({
+    const nextList = arrayMove(fieldGroups, from, to).map((group, index) => ({
       ...group,
       order: orders[index],
     }));
     const previousOrders = new Map(
       fieldGroups.map((group) => [group._id, group.order]),
     );
-    const changed = reordered.filter(
-      (group) => previousOrders.get(group._id) !== group.order,
-    );
-
-    const variables = { params: { contentType } };
+    const changed = nextList
+      .filter((group) => previousOrders.get(group._id) !== group.order)
+      .map(({ _id, order }) => ({ _id, order }));
 
     client.cache.updateQuery(
-      { query: FIELD_GROUPS_QUERY, variables },
+      { query: FIELD_GROUPS_QUERY, variables: { params: { contentType } } },
       (data) =>
         data && {
           ...data,
-          fieldGroups: { ...data.fieldGroups, list: reordered },
+          fieldGroups: { ...data.fieldGroups, list: nextList },
         },
     );
 
     try {
-      for (const group of changed) {
-        await mutate({ variables: { id: group._id, order: group.order } });
-      }
+      await mutate({ variables: { orders: changed } });
     } catch (error) {
       await client.refetchQueries({ include: [FIELD_GROUPS_QUERY] });
 
