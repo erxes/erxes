@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { MessageItem } from './MessageItem';
+import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
 import { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { useConversationTypingStatus } from '@/inbox/conversation-messages/hooks/useConversationTypingStatus';

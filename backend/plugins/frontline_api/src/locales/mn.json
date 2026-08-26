@@ -8,5 +8,12 @@
   "username": "Нэр",
   "password": "Нууц үг",
   "hide-conversations": "Яриануудыг нуух",
-  "show-conversations": "Яриануудыг харуулах"
+  "show-conversations": "Яриануудыг харуулах",
+  "personal-inbox": "Хувийн inbox",
+  "no-form-responses": "Формын хариулт одоогоор байхгүй",
+  "form-responses-empty-description": "Илгээсэн формын дэлгэрэнгүй мэдээлэл энд харагдана.",
+  "not-configured-tickets_one": "{{count}} тохируулаагүй тикет",
+  "not-configured-tickets_other": "{{count}} тохируулаагүй тикет",
+  "hide-not-configured-tickets": "Тохируулаагүй тикетүүдийг нуух",
+  "no-tickets-found": "Тикет олдсонгүй"
 }

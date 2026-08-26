@@ -1,8 +1,8 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { MARK_AS_READ_CONVERSATION } from '../graphql/mutations/markAsReadConversation';
+import { MARK_AS_READ_CONVERSATION } from '@/inbox/conversations/conversation-detail/graphql/mutations/markAsReadConversation';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { useConversationContext } from '../hooks/useConversationContext';
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 

@@ -1,6 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { CONVERSATION_CHANGE_STATUS } from '../graphql/mutations/conversationChangeStatus';
+import { CONVERSATION_CHANGE_STATUS } from '@/inbox/conversations/graphql/mutations/conversationChangeStatus';
 import { useTranslation } from 'react-i18next';
 
 export const useChangeConversationStatus = () => {

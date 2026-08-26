@@ -2,9 +2,12 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { currentUserState } from 'ui-modules';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
-import { IMessage } from '../../types/Conversation';
+import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
+import {
+  CONVERSATION_MESSAGE_INSERTED,
+  CONVERSATION_MESSAGE_UPDATED,
+} from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
   options: QueryHookOptions<{
@@ -147,6 +150,38 @@ export const useConversationMessages = (
     subscribeToMore,
     updateConversationPreview,
   ]);
+
+  // Read-state and other edits to existing messages arrive on their own
+  // subscription. A message outside the loaded page is ignored — it must never
+  // be appended or counted as a new insert.
+  useEffect(() => {
+    const unsubscribe = subscribeToMore<{
+      conversationMessageUpdated: IMessage;
+    }>({
+      document: CONVERSATION_MESSAGE_UPDATED,
+      variables: {
+        _id: options.variables?.conversationId,
+      },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!prev || !subscriptionData.data) return prev;
+
+        const updated = subscriptionData.data.conversationMessageUpdated;
+        const existingIndex = prev.conversationMessages.findIndex(
+          (msg: IMessage) => msg._id === updated._id,
+        );
+
+        if (existingIndex === -1) return prev;
+
+        const conversationMessages = [...prev.conversationMessages];
+        conversationMessages[existingIndex] = {
+          ...conversationMessages[existingIndex],
+          ...updated,
+        };
+        return { ...prev, conversationMessages };
+      },
+    });
+    return unsubscribe;
+  }, [options.variables?.conversationId, subscribeToMore]);
 
   return {
     messages: conversationMessages,

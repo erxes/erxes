@@ -3,7 +3,7 @@ import { IconMessages } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslation } from 'react-i18next';
-import { InboxMessagesSkeleton } from './InboxMessagesSkeleton';
+import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
 export const InboxMessagesContainer = ({
   fetchMore,

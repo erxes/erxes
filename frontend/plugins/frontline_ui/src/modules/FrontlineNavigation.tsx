@@ -13,7 +13,7 @@ import {
   Badge,
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
-import { useInboxUnreadConversationCount } from './inbox/conversations/hooks/useConversationCounts';
+import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
 
 export const FrontlineNavigation = () => {

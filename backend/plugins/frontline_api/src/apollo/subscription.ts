@@ -5,6 +5,7 @@ export default {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
+			conversationMessageUpdated(_id: String!): ConversationMessage
 			conversationClientMessageInserted(userId: String!): ConversationMessage
 			conversationUnreadCountChanged: ConversationUnreadCountChangedResponse
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
@@ -205,6 +206,22 @@ export default {
               return true;
             }
             return false;
+          },
+        ),
+      },
+
+      /*
+       * An existing message changed (e.g. read state) — never a new insert
+       */
+      conversationMessageUpdated: {
+        resolve: (payload) => payload.conversationMessageUpdated,
+        subscribe: withFilter(
+          (_, { _id }) =>
+            graphqlPubsub.asyncIterator(`conversationMessageUpdated:${_id}`),
+          async (payload, variables) => {
+            const conversationId =
+              payload.conversationMessageUpdated.conversationId;
+            return !!conversationId && variables._id === conversationId;
           },
         ),
       },

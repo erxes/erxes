@@ -3,9 +3,9 @@ import { IMessage } from '@/inbox/types/Conversation';
 import React from 'react';
 import { ConversationFormDisplay } from '@/inbox/conversation-messages/components/ConversationFormDisplay';
 import { InternalNoteDisplay } from 'ui-modules';
-import { MessageInput } from './MessageInput';
-import { ConversationDetailLayout } from './ConversationDetailLayout';
-import { useFormWidgetData } from '../hooks/useFormWidgetData';
+import { MessageInput } from '@/inbox/conversations/conversation-detail/components/MessageInput';
+import { ConversationDetailLayout } from '@/inbox/conversations/conversation-detail/components/ConversationDetailLayout';
+import { useFormWidgetData } from '@/inbox/conversations/conversation-detail/hooks/useFormWidgetData';
 import { IconForms } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 

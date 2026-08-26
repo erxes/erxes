@@ -911,9 +911,9 @@ export const widgetMutations: Record<string, Resolver> = {
     await Promise.all(
       unreadMessages.map((message) =>
         graphqlPubsub.publish(
-          `conversationMessageInserted:${args.conversationId}`,
+          `conversationMessageUpdated:${args.conversationId}`,
           {
-            conversationMessageInserted: {
+            conversationMessageUpdated: {
               ...message,
               isCustomerRead: true,
             },

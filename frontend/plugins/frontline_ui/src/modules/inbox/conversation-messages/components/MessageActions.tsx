@@ -10,6 +10,9 @@ import {
 } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useState, type ComponentType } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Button,
   CopyText,
@@ -73,13 +76,22 @@ export const MessageActionButton = ({
   </Tooltip>
 );
 
+export const EDIT_NOTE_SCHEMA = z.object({
+  content: z.string().trim().min(1),
+});
+
+type EditNoteFormValues = z.infer<typeof EDIT_NOTE_SCHEMA>;
+
 export const MessageActions = ({ message }: { message: IMessage }) => {
   const setReplyTo = useSetAtom(discordReplyToState);
   const currentUserId = useAtomValue(currentUserState)?._id || '';
   const { confirm } = useConfirm();
   const [editOpen, setEditOpen] = useState(false);
-  const [draft, setDraft] = useState(messageToPlainText(message.content));
   const text = messageToPlainText(message.content);
+  const editForm = useForm<EditNoteFormValues>({
+    resolver: zodResolver(EDIT_NOTE_SCHEMA),
+    defaultValues: { content: text },
+  });
   const imageAttachment = message.attachments?.find((attachment) =>
     attachment.type.startsWith('image'),
   );
@@ -131,16 +143,16 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
     }
   };
 
-  const handleEdit = async () => {
-    const content = draft.trim();
-    if (!content || content === text) {
+  const handleEdit = editForm.handleSubmit(async ({ content }) => {
+    const trimmed = content.trim();
+    if (!trimmed || trimmed === text) {
       setEditOpen(false);
       return;
     }
 
     const storedContent = message.internal
-      ? serializeInternalNote(content, message.content)
-      : content;
+      ? serializeInternalNote(trimmed, message.content)
+      : trimmed;
 
     try {
       await editMessage({
@@ -160,7 +172,7 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
         variant: 'destructive',
       });
     }
-  };
+  });
 
   const handleRemove = () => {
     confirm({ message: 'Delete this internal note?' }).then(async () => {
@@ -227,7 +239,7 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
                 label="Edit note"
                 icon={IconPencil}
                 onClick={() => {
-                  setDraft(text);
+                  editForm.reset({ content: text });
                   setEditOpen(true);
                 }}
               />
@@ -250,20 +262,24 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
               Changes are shown to everyone viewing this conversation.
             </Dialog.Description>
           </Dialog.Header>
-          <Textarea
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            rows={5}
-            autoFocus
-          />
-          <Dialog.Footer>
-            <Button variant="secondary" onClick={() => setEditOpen(false)}>
-              Cancel
-            </Button>
-            <Button disabled={editing || !draft.trim()} onClick={handleEdit}>
-              Save
-            </Button>
-          </Dialog.Footer>
+          <form onSubmit={handleEdit}>
+            <Textarea
+              {...editForm.register('content')}
+              rows={5}
+              autoFocus
+            />
+            <Dialog.Footer>
+              <Button variant="secondary" onClick={() => setEditOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={editing || !editForm.watch('content')?.trim()}
+              >
+                Save
+              </Button>
+            </Dialog.Footer>
+          </form>
         </Dialog.Content>
       </Dialog>
     </>

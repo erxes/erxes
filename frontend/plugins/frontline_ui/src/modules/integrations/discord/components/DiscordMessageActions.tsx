@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react';
 import type { ComponentType } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   Button,
@@ -30,17 +33,23 @@ import {
 } from '@/inbox/conversation-messages/utils/messageActions';
 import { FRONTLINE_CONVERSATION_MESSAGE_PIN_TOGGLE } from '@/inbox/conversation-messages/graphql/messageActions';
 import { IMessage } from '@/inbox/types/Conversation';
-import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
+import { DISCORD_CONVERSATION_CHANNEL } from '@/integrations/discord/graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
-} from '../graphql/mutations';
+} from '@/integrations/discord/graphql/mutations';
 import {
   DiscordReplyTarget,
   discordReplyToState,
-} from '../states/discordReplyToState';
+} from '@/integrations/discord/states/discordReplyToState';
 
 const PREVIEW_LENGTH = 80;
+
+const EDIT_MESSAGE_SCHEMA = z.object({
+  content: z.string().trim().min(1),
+});
+
+type EditMessageFormValues = z.infer<typeof EDIT_MESSAGE_SCHEMA>;
 
 const stripToText = (html?: string): string => {
   if (!html) {
@@ -122,7 +131,10 @@ export const DiscordMessageActions = ({
   );
 
   const [editOpen, setEditOpen] = useState(false);
-  const [draft, setDraft] = useState('');
+  const editForm = useForm<EditMessageFormValues>({
+    resolver: zodResolver(EDIT_MESSAGE_SCHEMA),
+    defaultValues: { content: '' },
+  });
 
   const [loadChannel] = useLazyQuery<{
     discordConversationChannel: DiscordConversationChannel | null;
@@ -189,12 +201,12 @@ export const DiscordMessageActions = ({
   }, [imageAttachment]);
 
   const handleOpenEdit = useCallback(() => {
-    setDraft(text);
+    editForm.reset({ content: text });
     setEditOpen(true);
-  }, [text]);
+  }, [editForm, text]);
 
-  const handleSaveEdit = useCallback(async () => {
-    const next = draft.trim();
+  const handleSaveEdit = editForm.handleSubmit(async ({ content }) => {
+    const next = content.trim();
 
     if (!next || next === text) {
       setEditOpen(false);
@@ -213,7 +225,7 @@ export const DiscordMessageActions = ({
         variant: 'destructive',
       });
     }
-  }, [editMessage, conversationId, messageId, draft, text]);
+  });
 
   const handleDelete = useCallback(() => {
     confirm({
@@ -299,27 +311,27 @@ export const DiscordMessageActions = ({
               The message is updated in Discord and marked as edited there.
             </Dialog.Description>
           </Dialog.Header>
-          <Textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={5}
-            autoFocus
-          />
-          <Dialog.Footer>
-            <Dialog.Close asChild>
-              <Button variant="ghost" type="button">
-                Cancel
+          <form onSubmit={handleSaveEdit}>
+            <Textarea
+              {...editForm.register('content')}
+              rows={5}
+              autoFocus
+            />
+            <Dialog.Footer>
+              <Dialog.Close asChild>
+                <Button variant="ghost" type="button">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Button
+                type="submit"
+                disabled={editing || !editForm.watch('content')?.trim()}
+              >
+                {editing && <Spinner size="sm" />}
+                Save
               </Button>
-            </Dialog.Close>
-            <Button
-              type="button"
-              disabled={editing || !draft.trim()}
-              onClick={handleSaveEdit}
-            >
-              {editing && <Spinner size="sm" />}
-              Save
-            </Button>
-          </Dialog.Footer>
+            </Dialog.Footer>
+          </form>
         </Dialog.Content>
       </Dialog>
     </Tooltip.Provider>

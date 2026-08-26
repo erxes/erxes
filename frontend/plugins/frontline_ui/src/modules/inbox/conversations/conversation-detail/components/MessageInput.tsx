@@ -32,7 +32,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
 import { useMutation } from '@apollo/client';
-import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
+import { CONVERSATION_AGENT_TYPING } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationAgentTyping';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useTranslation } from 'react-i18next';
@@ -51,11 +51,11 @@ import { discordReplyToState } from '@/integrations/discord/states/discordReplyT
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
-import { ResponseTemplateSelector } from './ResponseTemplateSelector';
-import { PollComposer, PollDraft } from './PollComposer';
+import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
+import { PollComposer, PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { getPreviewText } from '@/inbox/types/inbox';
-import { messageExtraInfoState } from '../states/messageExtraInfoState';
-import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
+import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
+import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 

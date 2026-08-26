@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { ATTACHMENT_GQL } from 'erxes-ui';
-import messageFields from './messageFields';
+import messageFields from '@/inbox/conversations/graphql/subscriptions/messageFields';
 
 export const conversationChanged = gql`
   subscription conversationChanged($_id: String!) {
@@ -47,6 +47,16 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       pinnedByIds
       editedAt
       deletedAt
+    }
+  }
+`;
+
+export const CONVERSATION_MESSAGE_UPDATED = gql`
+  subscription FrontlineConversationMessageUpdated($_id: String!) {
+    conversationMessageUpdated(_id: $_id) {
+      _id
+      conversationId
+      isCustomerRead
     }
   }
 `;

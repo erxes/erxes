@@ -6,14 +6,14 @@ import {
   cn,
   useMultiQueryState,
 } from 'erxes-ui';
-import { INTEGRATION_ICONS } from '../constants/integrationImages';
+import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
 import { IconCheck, IconInbox } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
-import { IIntegrationType } from '../types/Integration';
+import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
+import { IIntegrationType } from '@/integrations/types/Integration';
 import { IntegrationType } from '@/types/Integration';
-import { FacebookPostSheet } from '../facebook/components/FacebookPostSheet';
+import { FacebookPostSheet } from '@/integrations/facebook/components/FacebookPostSheet';
 import {
   CLEARED_INBOX_NAVIGATION_FILTERS,
   INBOX_NAVIGATION_FILTER_KEYS,

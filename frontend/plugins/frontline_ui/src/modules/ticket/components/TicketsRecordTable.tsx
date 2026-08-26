@@ -6,7 +6,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { ticketTotalCountAtom } from '@/ticket/states/ticketsTotalCountState';
 import { TicketPipelineFallback } from '@/ticket/components/TicketPipelineFallback';
-import { TicketCommandBar } from './ticket-command-bar/TicketCommandbar';
+import { TicketCommandBar } from '@/ticket/components/ticket-command-bar/TicketCommandbar';
 import { IconTicket } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 export const TicketsRecordTable = () => {
