@@ -21,10 +21,6 @@ import {
 import { IntegrationType } from '@/types/Integration';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
-  INBOX_TARGET_KEYS,
-  InboxTarget,
-} from '@/inbox/conversations/constants/inboxTarget';
-import {
   INTEGRATIONS_PER_PAGE,
   useIntegrations,
 } from '@/integrations/hooks/useIntegrations';
@@ -35,6 +31,11 @@ import {
   channelLabelFromIntegration,
 } from '@/inbox/conversations/utils/channelGroups';
 import { CONVERSATION_COUNTS } from '@/inbox/conversations/graphql/queries/getConversationCounts';
+import {
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
 
 type ChannelCounts = Record<string, number>;
 
@@ -114,7 +115,11 @@ export const DiscordServersNav = () => {
 
   if (loading || (serversLoading && !servers.length)) {
     return (
-      <NavigationMenuGroup name="Discord Servers">
+      <NavigationMenuGroup
+        name="Discord Servers"
+        separate={false}
+        defaultOpen={false}
+      >
         <div className="flex flex-col gap-1">
           <Skeleton className="w-32 h-4 mt-1" />
           <Skeleton className="w-28 h-4 mt-1" />
@@ -127,8 +132,32 @@ export const DiscordServersNav = () => {
     return null;
   }
 
+  const totalCount = serverGroups.reduce(
+    (sum, group) =>
+      sum +
+      group.integrations.reduce(
+        (groupSum, integration) => groupSum + (counts[integration._id] || 0),
+        0,
+      ),
+    0,
+  );
+
   return (
-    <NavigationMenuGroup name="Discord Servers">
+    <NavigationMenuGroup
+      name="Discord Servers"
+      separate={false}
+      defaultOpen={Boolean(integrationId)}
+      actions={
+        totalCount > 0 ? (
+          <span
+            className="visible text-xs tabular-nums text-muted-foreground"
+            title={`${totalCount} open conversations`}
+          >
+            {totalCount}
+          </span>
+        ) : null
+      }
+    >
       {serverGroups.map((group) => (
         // skipcq: JS-0357
         <DiscordServerItem
@@ -244,7 +273,7 @@ const DiscordCategoryItem = ({
   counts: ChannelCounts;
 }) => {
   const [{ integrationId }, setFilters] =
-    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
   const [open, setOpen] = useState(true);
 
   const totalCount = integrations.reduce(
@@ -263,9 +292,8 @@ const DiscordCategoryItem = ({
 
   const handleSelectGroup = () => {
     setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
       integrationId: isGroupActive ? null : groupIds.join(','),
-      channelId: null,
-      integrationType: null,
     });
     setOpen(true);
   };
@@ -325,16 +353,15 @@ const DiscordChannelItem = ({
   nested?: boolean;
 }) => {
   const [{ integrationId }, setFilters] =
-    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive = integrationId === integration._id;
   const label = channelLabelFromIntegration(integration);
 
   const handleClick = () => {
     setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
       integrationId: isActive ? null : integration._id,
-      channelId: null,
-      integrationType: null,
     });
   };
 

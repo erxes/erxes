@@ -25,6 +25,24 @@ const toQueryUser = (user: IContext['user']) => ({
   role: user.role,
 });
 
+const buildMessageQuery = ({
+  conversationId,
+  pinnedOnly,
+  userId,
+}: {
+  conversationId: string;
+  pinnedOnly?: boolean;
+  userId: string;
+}) => {
+  const query: Record<string, unknown> = { conversationId };
+
+  if (pinnedOnly) {
+    query.pinnedByIds = userId;
+  }
+
+  return query;
+};
+
 export const conversationQueries = {
   /**
    * Conversations list
@@ -98,15 +116,21 @@ export const conversationQueries = {
       skip,
       limit,
       getFirst,
+      pinnedOnly,
     }: {
       conversationId: string;
       skip: number;
       limit: number;
       getFirst: boolean;
+      pinnedOnly?: boolean;
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
-    const query = { conversationId };
+    const query = buildMessageQuery({
+      conversationId,
+      pinnedOnly,
+      userId: user._id,
+    });
 
     let messages: IMessageDocument[] = [];
 
@@ -133,10 +157,22 @@ export const conversationQueries = {
    */
   async conversationMessagesTotalCount(
     _root,
-    { conversationId }: { conversationId: string },
-    { models }: IContext,
+    {
+      conversationId,
+      pinnedOnly,
+    }: {
+      conversationId: string;
+      pinnedOnly?: boolean;
+    },
+    { models, user }: IContext,
   ) {
-    return models.ConversationMessages.countDocuments({ conversationId });
+    return models.ConversationMessages.countDocuments(
+      buildMessageQuery({
+        conversationId,
+        pinnedOnly,
+        userId: user._id,
+      }),
+    );
   },
 
   /**
@@ -186,6 +222,12 @@ export const conversationQueries = {
     response.participating = await count(models, {
       ...mainQuery,
       ...qb.participatingFilter(),
+    });
+
+    // conversations where the current user was mentioned
+    response.mentioned = await count(models, {
+      ...mainQuery,
+      ...(await qb.mentionedFilter()),
     });
 
     // starred count

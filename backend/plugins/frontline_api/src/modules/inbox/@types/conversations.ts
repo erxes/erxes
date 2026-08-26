@@ -69,9 +69,7 @@ export interface IConversationDocument extends IConversation, Document {
 }
 
 export interface IConversationListParams
-  extends IListParams,
-    ICursorPaginateParams,
-    IConversation {
+  extends IListParams, ICursorPaginateParams, IConversation {
   limit?: number;
   channelId?: string;
   status?: string;
@@ -81,6 +79,8 @@ export interface IConversationListParams
   tag?: string;
   integrationType?: string;
   participating?: string;
+  mentioned?: string;
+  unread?: string;
   starred?: string;
   ids?: string[];
   startDate?: string;

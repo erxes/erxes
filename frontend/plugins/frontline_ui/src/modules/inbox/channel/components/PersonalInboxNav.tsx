@@ -69,7 +69,9 @@ export const PersonalInboxNav = () => {
   };
 
   return (
-    <NavigationMenuGroup name={t('me')}>
+    <NavigationMenuGroup
+      name={t('personal-inbox', { defaultValue: 'Personal inbox' })}
+    >
       <ChannelNavItem
         name={t('personal-channel')}
         icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}

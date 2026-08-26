@@ -3,13 +3,23 @@ import {
   Input,
   Skeleton,
   TextOverflowTooltip,
-  useQueryState,
+  useMultiQueryState,
 } from 'erxes-ui';
-import { IconBuildingStore, IconCheck, IconSearch, IconX } from '@tabler/icons-react';
+import {
+  IconBuildingStore,
+  IconCheck,
+  IconSearch,
+  IconX,
+} from '@tabler/icons-react';
 import { useBrands } from 'ui-modules/modules/brands/hooks/useBrands';
 import { useState, useRef, type ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
+import {
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
 
 export const ChooseBrand = () => {
   const { t } = useTranslation('frontline');
@@ -81,7 +91,10 @@ export const ChooseBrand = () => {
 };
 
 const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
-  const [brandId, setBrandId] = useQueryState<string>('brandId');
+  const [{ brandId, channelId }, setFilters] =
+    useMultiQueryState<TInboxNavigationFilters>(
+      INBOX_NAVIGATION_FILTER_KEYS,
+    );
 
   const isActive = brandId === _id;
 
@@ -89,7 +102,13 @@ const BrandItem = ({ _id, name }: { _id: string; name: string }) => {
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
       className="justify-start relative overflow-hidden text-left flex-auto p-2"
-      onClick={() => setBrandId(_id === brandId ? null : _id)}
+      onClick={() =>
+        setFilters({
+          ...CLEARED_INBOX_NAVIGATION_FILTERS,
+          channelId,
+          brandId: isActive ? null : _id,
+        })
+      }
     >
       {isActive ? (
         <IconCheck className="" />

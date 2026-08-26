@@ -1,6 +1,6 @@
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
-import { CONVERSATION_CHANGE_STATUS } from '../graphql/mutations/conversationChangeStatus';
+import { CONVERSATION_CHANGE_STATUS } from '@/inbox/conversations/graphql/mutations/conversationChangeStatus';
 import { useTranslation } from 'react-i18next';
 
 export const useChangeConversationStatus = () => {
@@ -11,6 +11,14 @@ export const useChangeConversationStatus = () => {
 
   const handleChangeConversationStatus = (options: MutationHookOptions) => {
     changeConversationStatus({
+      ...options,
+      refetchQueries: [
+        ...(options.refetchQueries ?? []),
+        'ConversationCounts',
+        'FrontlineInboxNewConversationCount',
+        'FrontlineInboxSidebarWorkCounts',
+        'GetMyChannels',
+      ],
       update: (cache) => {
         try {
           options.variables?.ids.forEach((id: string) => {
@@ -33,7 +41,6 @@ export const useChangeConversationStatus = () => {
           variant: 'destructive',
         });
       },
-      ...options,
     });
   };
 

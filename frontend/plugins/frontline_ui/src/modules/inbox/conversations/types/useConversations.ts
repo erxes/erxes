@@ -5,7 +5,9 @@ export type InboxConversationQueryState = {
   unassigned: boolean;
   awaitingResponse: boolean;
   automationStatus: string;
+  participating: boolean;
   participated: boolean;
+  mentioned: boolean;
   status: string;
   conversationId: string;
   created: string;

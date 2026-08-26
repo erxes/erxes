@@ -8,5 +8,12 @@
   "username": "Username",
   "password": "Password",
   "hide-conversations": "Hide conversations",
-  "show-conversations": "Show conversations"
+  "show-conversations": "Show conversations",
+  "personal-inbox": "Personal inbox",
+  "no-form-responses": "No form responses yet",
+  "form-responses-empty-description": "Submitted form details will appear here.",
+  "not-configured-tickets_one": "{{count}} not configured ticket",
+  "not-configured-tickets_other": "{{count}} not configured tickets",
+  "hide-not-configured-tickets": "Hide not configured tickets",
+  "no-tickets-found": "No tickets found"
 }
