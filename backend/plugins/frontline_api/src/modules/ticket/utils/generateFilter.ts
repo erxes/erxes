@@ -68,6 +68,8 @@ export const generateFilter = async (
   user: IUserDocument | undefined,
   models: IModels,
 ) => {
+  filter = filter ?? {};
+
   const {
     segmentIds,
     createdStartDate,
