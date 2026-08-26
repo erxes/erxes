@@ -1,5 +1,28 @@
 
 
+## [3.0.93](https://github.com/erxes/erxes/compare/3.0.92...3.0.93) (2026-08-26)
+
+
+### Bug Fixes
+
+* **core-ui:** property options frozen after removing one  ([6e0f098](https://github.com/erxes/erxes/commit/6e0f098f5b594a761cc22d97ee8072d5f37479a9))
+* **frontline:** rework the Me inbox group and its live counts ([853424b](https://github.com/erxes/erxes/commit/853424b9f63cfc9a77f6ef089f1b33413059c9a5))
+* **frontline:** stop inbox sidebar selections from stranding each other ([05c4579](https://github.com/erxes/erxes/commit/05c457952a7ecc4b9d841fd4675e55c2911dd220))
+* mongolian putresponses without date ([56f3af0](https://github.com/erxes/erxes/commit/56f3af09ba25e896a006ad42f6323b893bebd872))
+* **payment:** redirect failed payment to invoice URL ([#9147](https://github.com/erxes/erxes/issues/9147)) ([073deb3](https://github.com/erxes/erxes/commit/073deb38ef4b6946263784ce16f36f55f5ea5790))
+* **ui:** restore plugin config integrations ([#9146](https://github.com/erxes/erxes/issues/9146)) ([c2ffcad](https://github.com/erxes/erxes/commit/c2ffcadd8f389bdff27e2a7386fa9249c8aa8a2c))
+
+
+### Features
+
+* add clientportal filter in customers ([7b153ee](https://github.com/erxes/erxes/commit/7b153ee9ab047ccd3a721d6fa219dda4c4defd8b))
+* **nav:** pin Command and AI Agent only when those plugins load ([#9168](https://github.com/erxes/erxes/issues/9168)) ([daac217](https://github.com/erxes/erxes/commit/daac2177e2c55c40b1fbbc70ba025c6f13536e4c))
+
+
+### Performance Improvements
+
+* **properties:** order field groups by their own order and reorder them by drag  ([acaaa66](https://github.com/erxes/erxes/commit/acaaa66136fb788d2ef767ab4a6b505a9baf280c))
+
 ## [3.0.92](https://github.com/erxes/erxes/compare/3.0.91...3.0.92) (2026-08-24)
 
 
