@@ -18,8 +18,28 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
-- Integration connect/detail UIs for IMAP, Facebook, Instagram, Discord, calls,
-  Call Pro, and the erxes messenger.
+- Integration connect/detail UIs for IMAP, Mail, Facebook, Instagram, Discord,
+  calls, Call Pro, and the erxes messenger.
+- The mail conversation surface: the threaded reader, its compose box, the
+  quoted-content toggle, the sandboxed email body renderer, and delivery state
+  and resend.
+- The mail channel's Cloudflare section in Integrations config: paste an API token,
+  pick one of that account's domains, watch the fourteen provisioning steps, and
+  repair, update or disconnect afterwards. The connected card also reports whether
+  replies leave through that account and, when they do, its sending quota.
+- The mail inbox's four-step add wizard — basics, receiving, sending, done — and
+  the matching edit dialog. The sending step chooses between the default sender and
+  one of the workspace's own sending domains, and can add a domain inline without
+  leaving the wizard.
+- The workspace's sending domains in Integrations config: add a domain, copy the
+  DKIM and `_erxes-verify` records it returns, re-check verification, and remove one
+  that no inbox uses. Whether provider credentials are optional there depends on
+  the deployment: with a platform sender configured they are a disclosure the form
+  leaves closed and the deployment signs for the domain, and without one the form
+  opens that section and will not submit until it is filled in.
+- The mail inbox's delivery check: a button in the integration dialog that runs
+  `mailCheckConnection` and reports whether inbound mail reaches this workspace,
+  naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
@@ -166,6 +186,13 @@
 | Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells  |
 | Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                         |
 | Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
+| Mail conversation  | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                        | Thread reader, compose box, delivery badges and resend, quoted-content toggle                    |
+| Mail body          | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                     | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                 |
+| Mail data          | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                      | `mailConversationDetail` window, send and retry mutations, form sheet atom                       |
+| Mail provider setup | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                        | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect  |
+| Mail add wizard    | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                               |
+| Mail sending setup | `src/modules/integrations/mail/components/MailSending{Choice,AccountForm,Accounts}.tsx`, `src/modules/integrations/mail/hooks/useMailSendingAccounts.tsx` | Per-inbox sender choice, inline domain creation whose provider credentials are optional only when the deployment has a platform sender, DNS records, verification and removal |
+| Mail delivery check | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                   |
 | Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                      |
 
 ## Contracts
@@ -264,6 +291,42 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   appears without a refetch or a reload. Do not reintroduce a per-chart-type
   query: the mutation would then write to a different cache entry than the
   board reads.
+- `frontline_api` GraphQL `mailConversationDetail(conversationId!, limit)` —
+  returns `{ messages, hasMore }`, the newest `limit` messages oldest-first, not
+  a bare list. `mailSendMail` and `mailMessageRetry` return the delivery outcome
+  (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the caller
+  reads `deliveryStatus` instead of assuming the send worked.
+  New mail arrives through `conversationMessageInserted`. An
+  attachment the server could not store still carries a `url` — the mail worker's
+  own signed link, kept as a fallback — plus an `error` saying why it was not
+  re-hosted. The chip therefore stays clickable and puts the reason in its
+  tooltip; only an attachment with no link at all falls back to the dimmed state.
+  `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
+  `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
+  the Cloudflare section. The token is sent to fetch the domain list and again to
+  connect; it is never read back, so the form always starts empty and a connected
+  workspace shows the zone and worker origin instead.
+- `frontline_api` GraphQL `mailCloudflareSendingQuota` — the connected account's
+  sending allowance, read live from Cloudflare. It is skipped while
+  `sendingEnabled` is false, so a workspace that only receives mail never pays for
+  the round trip, and it is refetched with `mailCloudflareProvision` and
+  `mailCloudflareConnect` so enabling sending fills the row in without a reload.
+- `frontline_api` GraphQL `mailSendingAccounts`, `mailSendingAccountAdd`,
+  `mailSendingAccountVerify` and `mailSendingAccountRemove` — the workspace's sending
+  domains. `provider` and every credential are optional arguments on add; omitting
+  them marks the domain `platformManaged` and the deployment signs for it, which
+  the server rejects when it has no sending provider of its own. Every mutation
+  refetches the list with `awaitRefetchQueries`, so the wizard, the edit dialog and
+  Integrations config all show the same verification state without a reload.
+  Credentials are write-only; the query never returns them.
+- `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
+  integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
+  verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
+  the diagnostic itself. It is a deployment-wide check shown on an integration,
+  so it is not refetched with integration data.
+- `dompurify` — already a repository dependency, used to sanitise mail bodies
+  before they reach the reader's iframe.
 - `frontline_api` GraphQL `reportFacebookSyncPostStats` — the Sync button on
   the posts card. It is the only place this UI causes a Meta API call, it is
   always user-initiated, and it refetches `reportFacebookPosts` and
@@ -325,6 +388,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   storage keys) and `useFacebookPostTargets` owns its channel and page
   selection; both live inside the sheet body, so closing the sheet unmounts the
   draft — the same reset-on-close behavior as `CreateBrand`.
+- The mail thread keeps its page size in local state and passes it as the
+  `limit` variable: "Show earlier messages" widens the window rather than
+  merging pages, so the subscription's `refetch` keeps every loaded message and
+  still picks up the new one. `previousData` backs the render while a wider
+  window is in flight, so the thread never blanks. Whether the quoted part of a
+  message and whether its remote images are shown are per-message component
+  state and deliberately not persisted.
 
 ## Local Invariants
 
@@ -371,6 +441,28 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   the same word the settings breadcrumb uses. `inbox` and `my-inbox` are already
   taken in the same sidebar — by the frontline `Inbox` entry and by core's
   notification inbox in Favorites — so neither may label this row.
+- A subscription payload the gateway could not resolve arrives as a null field, so
+  `useConversations` treats a null `conversationClientMessageInserted` as "a message
+  landed, ask the server" — it refetches the list and never reads the message. Any
+  new `subscribeToMore` over a gateway-merged subscription reads its field the same
+  optional way.
+- A mail body is never rendered into the page. It goes through `DOMPurify`, then
+  into an iframe `srcDoc` whose CSP is `default-src 'none'; style-src
+  'unsafe-inline'` with `img-src` narrowed to `data:` plus the origins of that
+  message's own stored attachments. Remote images are stripped of their `src`
+  until the reader presses "Show images", which widens `img-src` to `https:`.
+  The sandbox stays script-free — `allow-same-origin allow-popups
+  allow-popups-to-escape-sandbox` only — and every link is rewritten to
+  `target="_blank" rel="noopener noreferrer"`, so adding `allow-scripts` or
+  rendering the body with `dangerouslySetInnerHTML` would undo the whole guard.
+- The mail UI reports the delivery outcome the server returned. `mailSendMail`
+  resolving is not success: the toast and the per-message badge read
+  `deliveryStatus`, and a `failed` message shows its error plus a resend action
+  wired to `mailMessageRetry`. Never restore an unconditional "email sent"
+  message.
+- An inbound message whose `senderMismatch` is set renders an unverified-sender
+  warning above its body. The server decides that flag from the SMTP envelope;
+  the UI never re-derives it from the visible addresses.
 - Every Call Pro surface is gated on `useCallProConfig().enabled`, which reads
   the backend's `CALLPRO_ENABLED`. The frontend has no env var of its own for
   this — never add a `REACT_APP_*` flag, since injecting one means editing
@@ -664,6 +756,34 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   that quiet channels fold behind the "N quiet teams" row
   and expand when it is clicked; and that creating a channel from `Team inbox`
   adds it to that group without a reload.
+- Smoke (mail): open a mail conversation and confirm the thread loads the newest
+  20 messages with "Show earlier messages" above them when more exist; that a
+  message with quoted history shows the `•••` toggle and expands it; that an
+  external image is hidden until "Show images" is pressed while an inline image
+  from the message's own attachments renders straight away; that a link opens in
+  a new tab; and that a reply which the server could not deliver shows the
+  failure with a working resend instead of a success toast.
+- Smoke (mail sending): with a Cloudflare account connected, open Integrations
+  config and confirm the card names the domain replies leave through and shows the
+  quota underneath. Break it by revoking the token's Email Sending permission and
+  running *Update worker*: the card must say sending is inactive, name the step
+  that failed, and keep reporting the inbound connection as healthy.
+- Smoke (mail add wizard): add a mail inbox and confirm each step gates the next —
+  step 1 will not advance without a name and a brand, and Create is only enabled
+  when the sending choice is complete. Pick "send from your own domain" with no
+  account yet: the inline form opens, saving it shows the DNS records, and the
+  inbox is still creatable while that domain is `pending`. The done step names both
+  the forwarding address and where replies will leave from.
+- Smoke (mail sending domains): in Integrations config add a domain with the
+  provider disclosure left closed, confirm the DKIM records **and** the
+  `_erxes-verify` TXT render with a working copy button, press *Check again* and see
+  the badge move, then try to remove a domain an inbox still uses — the server
+  refusal must surface as a toast, not a silent failure. Open the disclosure and
+  enter an AWS key id without a region: Save must stay disabled and say why.
+- Smoke (mail delivery check): open a mail integration's edit dialog, press
+  "Check connection", and confirm a healthy deployment reports success with the
+  tenant and endpoint, while an unset `MAIL_WORKER_URL` or a wrong
+  `MAIL_WEBHOOK_SECRET` reports the failure inline instead of a success state.
 - Smoke: in the automation builder attach a Facebook message action to a
   `frontline:facebook.comments` trigger and confirm the sequence header shows
   the single-message notice and every "Add …" button is disabled once one
@@ -696,6 +816,23 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
   `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
 - **Contracts changed:** None.
+
+### `2026-08-26` — Mail automation surface and the draft card removed
+
+- **Summary:** The mail channel's automation widgets (trigger form and both
+  action forms) are gone along with their `AutomationRemoteEntry` registration,
+  and so is the reply-draft card in the thread — the backend action that was the
+  only thing able to create a draft was removed with them.
+- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
+  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
+  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
+  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
+  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** Stops consuming `mailConversationDraft`,
+  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
+  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
+  Removed the five now-unused `draft` translation keys.
 
 ### `2026-08-25` — Integration rows show their unread count again
 
@@ -743,6 +880,70 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   badge replaces the group-header figure).
 - **Contracts changed:** None.
 
+### `2026-08-25` — Sending credentials are required when the deployment has none
+
+- **Summary:** `MailSendingAccountForm` kept its provider fields collapsed and
+  optional even on a deployment that sets no `MAIL_SENDING_*`, so adding a domain
+  looked complete and then failed server-side with a message naming a server env
+  var. The form now reads `mailSendingReadiness.platform.ready`; when no platform
+  sender exists the credentials section opens with the form, the fields count
+  toward the submit guard, and the copy stops promising that erxes will send on
+  the workspace's behalf.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailSendingAccountForm.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** None. New `frontline` translation keys
+  `mail-sending-provider-required` and
+  `mail-sending-provider-required-description`.
+
+### `2026-08-24` — The sending-account form respects the provider you picked
+
+- **Summary:** `MailSendingAccountForm` read whichever credential had text in it,
+  so a SendGrid key typed before switching to Amazon SES still decided the
+  account; it now reads and submits only the selected provider's fields, and its
+  two `Spinner`s asked for a `size` the component does not define. Removing a
+  sending domain now confirms first, like every other destructive action here.
+  `useMailSendingAccounts` was split so a screen needing only the mutations
+  (`useMailSendingAccountActions`) no longer fires a second and third copy of the
+  accounts query.
+- **Affected areas:**
+  `.../integrations/mail/components/{MailSendingAccountForm,MailSendingAccounts,MailSendingChoice}.tsx`,
+  `.../integrations/mail/hooks/useMailSendingAccounts.tsx`.
+- **Contracts changed:** None. New `frontline` translation key
+  `confirm-remove-sending-account`.
+
+### `2026-08-24` — A null client message no longer takes the inbox down
+
+- **Summary:** When the gateway cannot resolve a client message it delivers the
+  subscription field as null, and `useConversations` read `.conversationId` off it,
+  crashing the inbox on a mail reply. The hook now reads the field optionally,
+  refetching the list when it is null and counting the unread badge and the
+  notification sound only for a message it actually received.
+- **Affected areas:**
+  `.../inbox/conversations/hooks/useConversations.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-24` — Adding a sending domain no longer asks for provider credentials
+
+- **Summary:** `MailSendingAccountForm` now asks only for a name and a domain;
+  the SES and SendGrid fields moved behind a "Use your own provider" disclosure and
+  Save no longer waits on them. With them closed the deployment signs for the
+  domain, so a workspace publishes DNS records and nothing else. Opening them and
+  entering an AWS key id without a region now blocks Save with a reason instead of
+  failing server-side. `MailSendingChoice`'s `CLOUDFLARE_SENDER` became
+  `DEFAULT_SENDER` and names whichever sender will actually carry the reply — the
+  connected Cloudflare zone, else the deployment domain — and the wizard's Create
+  gate and readiness both read the new `platform` branch.
+- **Affected areas:**
+  `.../components/MailSending{AccountForm,Choice}.tsx`,
+  `.../components/MailIntegrationForm.tsx`,
+  `.../hooks/useMailSendingAccounts.tsx`,
+  `.../graphql/queries/mailSendingQueries.ts`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** consumes `MailSendingReadiness.platform` and
+  `MailSendingAccount.platformManaged`; sends `mailSendingAccountAdd` without
+  `provider` or credentials when the disclosure is left closed.
+
 ### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
 
 - **Summary:** The ticket index favorite control now stops loading when a
@@ -751,80 +952,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - **Affected areas:** `src/pages/TicketIndexPage.tsx`,
   `src/modules/channels/hooks/useGetChannels.tsx`.
 - **Contracts changed:** None.
-
-### `2026-08-20` — Date filter takes a time of day
-
-- **Summary:** "Custom range…" now opens a plugin-owned dialog — a two-month
-  range calendar plus start and end `TimeField`s — so a report can be scoped to,
-  say, Aug 20 09:00 — 13:30, and the chip and KPI range label render the times.
-  It replaces the shared date dialog, whose Day tab picked the same from–to
-  range without the time; `This quarter` and `Last quarter` presets took over
-  its period tabs.
-- **Affected areas:**
-  `src/modules/report/call/components/DateTimeRangeDialog.tsx` (new),
-  `src/modules/report/call/components/SubHeader.tsx` (dropped the shared
-  `Filter.Dialog` wiring),
-  `src/modules/report/call/CallReportsPage.tsx`,
-  `src/modules/report/utils/dateFilters.ts`.
-- **Contracts changed:** None — `startDate`/`endDate` already carried full ISO
-  timestamps. The `call-report-date` filter value gained the `custom-time:`
-  form.
-
-### `2026-08-20` — Queue cards add up to Total Calls
-
-- **Summary:** The Queues tab now shows every queue the integration's calls
-  actually hit plus an "Outside a queue" card for IVR, voicemail, direct, and
-  outbound calls, so the cards reconcile with the KPI total instead of silently
-  dropping calls routed through a queue configured on another integration.
-- **Affected areas:**
-  `src/modules/report/call/components/QueuesSection/{QueuesSection,QueueCard}.tsx`,
-  `src/modules/report/call/utils.ts`.
-- **Contracts changed:** None — consumes the existing `callGetQueueStats`,
-  which can now return the `__no_queue__` sentinel.
-
-### `2026-08-20` — Hour × Day Heatmap exports to Excel
-
-- **Summary:** The heatmap card gained an Export Excel action that downloads the
-  selected metric as a date × hour sheet — one row per day in the filtered
-  range, one column per hour that carries calls, row and column totals, and the
-  peak hour of each row highlighted.
-- **Affected areas:** `src/modules/report/call/heatmapExcel.ts` (new),
-  `src/modules/report/call/hooks/useHeatmapExport.ts` (new),
-  `src/modules/report/call/components/OverviewSection/HeatmapChart.tsx`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
-- **Contracts changed:** Consumes the new `frontline_api` query
-  `callHeatmapDaily`.
-
-### `2026-08-20` — No answer on the volume chart and heatmap
-
-- **Summary:** Call Volume Over Time now plots a No answer series next to
-  Answered, and Hour × Day Heatmap gained a Total calls / Answered / No answer
-  `ToggleGroup` that repaints the grid from the selected metric, with the
-  answered and no-answer counts added to every cell's tooltip.
-- **Affected areas:**
-  `src/modules/report/call/components/OverviewSection/{VolumeChart,HeatmapChart}.tsx`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
-- **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
-  `noAnswer` field from `frontline_api`.
-
-### `2026-08-19` — Call Pro integration UI
-
-- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
-  built on the `call` module's shape — add/edit `Sheet`s over one shared form
-  carrying the webhook URL to configure, the recording player in the
-  conversation panel, and a `Command`-based customer picker/switcher for a
-  caller number that matches several customers. Everything is hidden unless the
-  backend reports Call Pro as enabled.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/integrations.ts`,
-  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/inbox/types/Conversation.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
-- **Contracts changed:** Consumes new `frontline_api` operations
-  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
-  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
-  conversation fields. Adds the `callpro` integration type.

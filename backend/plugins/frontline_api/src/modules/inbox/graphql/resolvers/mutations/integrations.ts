@@ -18,6 +18,11 @@ import {
   imapRemoveIntegrations,
 } from '~/modules/integrations/imap/messageBroker';
 import {
+  mailCreateIntegration,
+  mailUpdateIntegration,
+  mailRemoveIntegrations,
+} from '~/modules/integrations/mail/messageBroker';
+import {
   facebookCreateIntegrations,
   facebookRemoveAccount,
   facebookRemoveIntegrations,
@@ -86,6 +91,9 @@ export const sendCreateIntegration = async (
       case 'imap':
         return await imapCreateIntegration({ subdomain, data });
 
+      case 'mail':
+        return await mailCreateIntegration({ subdomain, data });
+
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });
 
@@ -131,6 +139,9 @@ export const sendUpdateIntegration = async (
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
 
+      case 'mail':
+        return await mailUpdateIntegration({ subdomain, data });
+
       case 'callpro':
         return await callProUpdateIntegration({ subdomain, data });
 
@@ -162,6 +173,9 @@ export const sendRemoveIntegration = async (
         return await instagramRemoveIntegrations({ subdomain, data });
       case 'imap':
         return await imapRemoveIntegrations({ subdomain, data });
+
+      case 'mail':
+        return await mailRemoveIntegrations({ subdomain, data });
 
       case 'discord':
         return await discordRemoveIntegrations({ subdomain, data });
@@ -542,11 +556,21 @@ export const integrationMutations = {
           data: data ? JSON.stringify(data) : '',
         };
 
-        await sendCreateIntegration(subdomain, serviceKind, payload);
+        const result = await sendCreateIntegration(
+          subdomain,
+          serviceKind,
+          payload,
+        );
+
+        if (result?.status === 'error') {
+          throw new Error(
+            result.errorMessage || 'Failed to create integration',
+          );
+        }
       }
     } catch (e) {
       await models.Integrations.deleteOne({ _id: integration._id });
-      throw new Error(e);
+      throw e instanceof Error ? e : new Error(String(e));
     }
 
     return integration;

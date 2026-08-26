@@ -46,4 +46,9 @@ export const INTEGRATIONS = {
     descriptionKey: 'integration-desc-imap',
     img: 'email.webp',
   },
+  [IntegrationType.MAIL]: {
+    name: 'Email',
+    descriptionKey: 'integration-desc-mail',
+    img: 'email.webp',
+  },
 };

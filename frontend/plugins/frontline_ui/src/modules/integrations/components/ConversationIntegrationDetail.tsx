@@ -8,6 +8,12 @@ const IMapConversationDetail = lazy(() =>
   ),
 );
 
+const MailConversationDetail = lazy(() =>
+  import('@/integrations/mail/components/MailConversationDetail').then(
+    (module) => ({ default: module.MailConversationDetail }),
+  ),
+);
+
 const FbPostConversationDetail = lazy(() =>
   import('@/integrations/facebook/components/FbPostConversationDetail').then(
     (module) => ({ default: module.FbPostConversationDetail }),
@@ -49,6 +55,7 @@ export const ConversationIntegrationDetail = () => {
   return (
     <Suspense fallback={<div />}>
       {integration?.kind === IntegrationType.IMAP && <IMapConversationDetail />}
+      {integration?.kind === IntegrationType.MAIL && <MailConversationDetail />}
       {integration?.kind === IntegrationType.CALL && <CallConversationDetail />}
       {integration?.kind === IntegrationType.CALLPRO && (
         <CallProConversationDetail />

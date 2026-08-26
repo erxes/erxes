@@ -1,0 +1,12 @@
+{
+  "to": "support-a7f3@erx.es",
+  "messageId": "<fixture-001@example.com>",
+  "references": [],
+  "from": { "name": "Bat Bold", "address": "batbold@example.com" },
+  "recipients": [{ "address": "support-a7f3@erx.es" }],
+  "cc": [],
+  "bcc": [],
+  "subject": "Захиалгын талаар асуулт",
+  "html": "<div dir=\"ltr\">Сайн байна уу. Захиалга #1042 хэзээ ирэх вэ?</div>\n",
+  "attachments": []
+}

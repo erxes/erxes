@@ -173,6 +173,31 @@ import {
   ILogImapDocument,
   loadImapLogClass,
 } from '@/integrations/imap/models';
+import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
+import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
+import { IMailMessageDocument } from '@/integrations/mail/@types/message';
+import { IMailCloudflareDocument } from '@/integrations/mail/@types/cloudflare';
+import { IMailSendingAccountDocument } from '@/integrations/mail/@types/sending';
+import {
+  IMailIntegrationModel,
+  loadMailIntegrationClass,
+} from '@/integrations/mail/db/models/Integrations';
+import {
+  IMailCustomerModel,
+  loadMailCustomerClass,
+} from '@/integrations/mail/db/models/Customers';
+import {
+  IMailMessageModel,
+  loadMailMessageClass,
+} from '@/integrations/mail/db/models/Messages';
+import {
+  IMailCloudflareModel,
+  loadMailCloudflareClass,
+} from '@/integrations/mail/db/models/CloudflareConnections';
+import {
+  IMailSendingAccountModel,
+  loadMailSendingAccountClass,
+} from '@/integrations/mail/db/models/SendingAccounts';
 import {
   IChannelMemberModel,
   loadChannelMemberClass,
@@ -369,6 +394,12 @@ export interface IModels {
   ImapIntegrations: IIntegrationImapModel;
   ImapMessages: IMessageImapModel;
   ImapLogs: ILogImapModel;
+
+  MailIntegrations: IMailIntegrationModel;
+  MailCustomers: IMailCustomerModel;
+  MailMessages: IMailMessageModel;
+  MailCloudflare: IMailCloudflareModel;
+  MailSendingAccounts: IMailSendingAccountModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -668,6 +699,28 @@ export const loadClasses = (
     'imap_logs',
     loadImapLogClass(models),
   );
+
+  models.MailIntegrations = db.model<
+    IMailIntegrationDocument,
+    IMailIntegrationModel
+  >('mail_integrations', loadMailIntegrationClass(models));
+  models.MailCustomers = db.model<IMailCustomerDocument, IMailCustomerModel>(
+    'mail_customers',
+    loadMailCustomerClass(models),
+  );
+  models.MailMessages = db.model<IMailMessageDocument, IMailMessageModel>(
+    'mail_messages',
+    loadMailMessageClass(models),
+  );
+  models.MailCloudflare = db.model<
+    IMailCloudflareDocument,
+    IMailCloudflareModel
+  >('mail_cloudflare', loadMailCloudflareClass(models), 'mail_cloudflare');
+  models.MailSendingAccounts = db.model<
+    IMailSendingAccountDocument,
+    IMailSendingAccountModel
+  >('mail_sending_accounts', loadMailSendingAccountClass(models));
+
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
     loadMessengerAppClass(models),

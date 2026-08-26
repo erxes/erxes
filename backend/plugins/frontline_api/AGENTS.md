@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -21,8 +21,8 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, IMAP, Discord, Call (SIP/CDR), and Call Pro (webhook
-  PBX).
+  comments), Instagram, IMAP, Mail (Cloudflare Email Routing), Discord,
+  Call (SIP/CDR), and Call Pro (webhook PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -86,6 +86,29 @@
   do not send Messenger typing indicators.
 - Boots the Call app, the IMAP poller, and the Discord gateway client from
   `onServerInit`.
+- Runs the **mail** channel: an inbox owns a generated catch-all address, a
+  Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
+  signature, and the controller turns it into a core customer, a conversation,
+  and a stored message with its attachments uploaded to storage. Threading
+  resolves by reply tag, then by `In-Reply-To`/`References`, then by an open
+  conversation for the same customer whose latest message carries the same
+  normalized subject. Replies leave through the first transport the inbox can use —
+  its own sending domain, else the connected Cloudflare account's Email Sending,
+  else the deployment's `MAIL_SENDING_*` account — from the inbox's own address,
+  with a per-conversation tagged `Reply-To`; delivery is recorded per message (`pending` →
+  `sent` / `bounced` / `failed`) and a failed message can be resent with
+  `mailMessageRetry`. `mailCheckConnection` asks the worker to deliver a
+  probe back, so an administrator can tell a broken delivery path from an inbox
+  nobody has forwarded mail to yet.
+- A workspace can run the mail channel on **its own Cloudflare account**. It pastes
+  an API token in Settings → Integrations config, picks one of its domains, and the
+  plugin provisions the whole path there: Email Routing, an R2 bucket with its
+  retention rule, the inbound and dead-letter queues, the worker script and its
+  secret, the catch-all rule, and the domain's Email Sending onboarding. Inbox
+  addresses are then generated on that domain, inbound mail is verified against that
+  connection's own key, and replies leave from the inbox's own address on that
+  domain. A workspace without one receives on the platform's Cloudflare and must
+  register an SES or SendGrid sending account to reply.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
 - Read-only inbox, integration, and form-submission tRPC procedures are
@@ -104,12 +127,17 @@
 | GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
 | tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
 | Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                            |
-| HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook`, `/instagram`, and (when enabled) `/callpro` webhook routers                         |
+| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers            |
 | Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, callpro, trpc                                                 |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, mail, discord, call, callpro, trpc                                           |
+| Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                         |
+| Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` resolves the transport per inbox, `deliver.ts` runs the provider-neutral pipeline (sender guard, suppression, delivery log), `cloudflare.ts` and `provider.ts` are the two `IMailTransport`s |
+| Mail sending accounts | `src/modules/integrations/mail/db/models/SendingAccounts.ts`               | Workspace-owned SES/SendGrid domains: registration, DNS records, verification state |
+| Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape |
+| Mail worker bundle   | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker` |
 | Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL            |
 | Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
@@ -199,6 +227,72 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
   `/facebook/kind/:kind/fblogin`, and `/instagram/iglogin`.
+- HTTP: `POST /mail/receive` — the mail worker's inbound webhook. The body is
+  capped at `15mb` by the `express.json` parser `startPlugin` installs, and is
+  kept as a `Buffer` there for the HMAC check. That cap belongs to
+  `erxes-api-shared`, so this plugin cannot raise it and a route-level parser
+  cannot either — the global one has already consumed the stream. The worker's own
+  deliveries stay well under it: it puts attachments in R2 and sends a signed
+  `url`, so the body carries headers and text only. Base64 `content` is accepted
+  too — the local fixtures use it — and there the attachment itself spends the
+  cap. A payload over it is answered `413` and dead-lettered by the worker
+  without a retry, since only 5xx and 401/403/408/425/429 are retried. The
+  signature covers `${timestamp}.${rawBody}` and is keyed by `HMAC-SHA256(MAIL_WEBHOOK_SECRET, tenant)`, so both
+  `x-erxes-signature` and `x-erxes-timestamp` are required. Answers `401` on a bad
+  or missing signature or a timestamp more than five minutes off, and its `error`
+  names which of those it was — a clock that has drifted reads as such instead of
+  as a bad key, which is the difference between a five-minute fix and a hunt.
+  Answers `400` on a
+  payload without `messageId`/`to`/`from`, `404`
+  for an address no integration owns, `429` when the inbox is over its inbound
+  rate limit (with `retry-after`), `{ status: 'duplicate' }` for a message id
+  already stored, and `{ status: 'ignored' }` for a self-addressed message. A
+  failure returns a generic `500` — the exception text stays in the log. The
+  payload carries `envelopeFrom` — the SMTP envelope sender Cloudflare observed,
+  which a forwarder rewrites and the `From` header does not. It is
+  provider-supplied metadata behind the mismatch and self-address checks, not
+  proof of who sent the mail: nothing on either side evaluates SPF or DMARC, and
+  a sending server can set the envelope as freely as the header. Each attachment
+  arrives either as base64 `content` or as a signed `url` the plugin downloads
+  before re-uploading it to erxes storage; the `200` body carries `keepStored: true` when any attachment could not
+  be stored, which tells the worker to hold its copy instead of deleting it. A body
+  carrying `probe: true` is answered `{ status: 'ok', probe: true }`
+  immediately after the signature check — the reachability half of
+  `mailCheckConnection`, which is why it is answered before the address lookup.
+- GraphQL: `mailConversationDetail(conversationId!, limit): MailConversationMessages`
+  — a `{ messages, hasMore }` window over the **newest** `limit` messages of a
+  thread (default 20, server cap 500), returned oldest first. Each message
+  carries `mailData` with the addresses, body, the quoted-reply split
+  (`newContent` / `replies`), attachments, the delivery fields
+  (`deliveryStatus`, `deliveryError`, `deliveryRetryable`, `bouncedRecipients`),
+  and the inbound sender check (`envelopeFrom`, `senderMismatch`).
+- GraphQL: `mailSendMail(...)` and `mailMessageRetry(_id!)` — both require
+  `conversationMessageAdd` and return only the delivery outcome of the stored
+  message (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the
+  caller reads what actually happened instead of assuming success. `mailSendMail`
+  persists the message **before** the transport call, so a send failure never
+  loses an agent's reply.
+- GraphQL: `mailCheckConnection: MailConnectionCheck` — requires
+  `integrationsEdit`. Signs a request with this deployment's tenant key and posts
+  it to the mail worker's `POST /verify`, which delivers a probe back to whatever
+  endpoint it holds for the tenant. Returns `{ ok, tenant, endpoint, error }`; a
+  wrong secret, a missing routing entry, an unreachable host and an unset
+  `MAIL_WORKER_URL` all surface as `ok: false` with the reason rather than as a
+  thrown error, because the caller is a diagnostic screen.
+- GraphQL `mailSendingAccounts` — the workspace's SES/SendGrid sending domains with
+  their verification state and DNS records, never their credentials. Mutations
+  `mailSendingAccountAdd(name, provider, domain, ...credentials)`,
+  `mailSendingAccountVerify(_id)` and `mailSendingAccountRemove(_id)`. All require
+  `integrationsEdit`; removal is refused while an inbox still replies through it.
+- GraphQL `mailCloudflareSendingQuota` — the connected account's sending allowance,
+  read live from Cloudflare, `null` when no account is connected or the domain is
+  not onboarded for sending. Requires `integrationsEdit`.
+- GraphQL `mailCloudflareConnection` and `mailCloudflareZones(token)` — the stored
+  connection (never its token or webhook secret) and the domains a token can reach.
+- GraphQL `mailCloudflareConnect(token, zoneId)`, `mailCloudflareProvision` and
+  `mailCloudflareDisconnect` — connect an account and run the provisioner, re-run it
+  after a failure or a worker update, and hand the domain back. All five require
+  `integrationsEdit`.
 - GraphQL `callQueueList(integrationId)` — the queues configured on the call
   integration, each merged with its `CallQueueStatistics` row when the PBX has
   reported one. A queue with no live statistics is still listed, as
@@ -315,6 +409,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   ticket property fields chosen in a ticket config).
 - Facebook Graph API through `fbgraph` (`graphRequest` in
   `src/modules/integrations/facebook/utils.ts`).
+- Mail: `core` tRPC `customers.findOne` / `customers.createCustomer`,
+  `uploadFileToStorage` for inbound attachments, `redis` for the inbound rate
+  limit, `receiveInboxMessage` for conversation creation, and
+  `sendAutomationTrigger`. Outbound never touches the workspace email provider —
+  the mail module does not read `configs.getConfigs` at all.
+- Cloudflare's REST API (`api.cloudflare.com/client/v4`) with a token a workspace
+  supplied, for zones, Email Routing, R2, Queues, Workers scripts and Email
+  Sending. Provisioning reaches it, and so does every reply
+  (`POST /accounts/{id}/email/sending/send`); inbound mail never touches it.
+- Mail: the mail worker's `POST /verify` at `MAIL_WORKER_URL`, used only by
+  `mailCheckConnection`. Inbound mail never depends on it, so an unset
+  `MAIL_WORKER_URL` costs the diagnostic and nothing else.
+- Mail: `core` tRPC `emailSuppression.blocked` to drop addresses core has closed
+  before a reply is handed to Cloudflare, and `emailDeliveries.create` /
+  `emailDeliveries.recordHandoff` so every reply appears in Settings → Email
+  Delivery under the `custom` provider. Sender verification is **not** consulted —
+  Cloudflare signs for the onboarded domain the inbox address already lives on, so
+  `emailSenders.alignedFrom` / `emailSenders.isAllowed` play no part in mail.
 
 ## Data and State
 
@@ -351,6 +463,46 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   subdocument with explicit fields, and `createdBy`. Tenant-scoped like every
   other collection here; charts are visible to the whole tenant, not only their
   author.
+- Mail collections: `mail_integrations` (one per inbox: `inboxId`, the generated
+  `address`, `forwardFrom`, `sendingAccountId` / `sendingAddress` when it replies
+  through a workspace-owned domain, `healthStatus`, `error`), `mail_customers` (an
+  `email` → core `contactsId` mirror, `email` unique), `mail_messages`,
+  `mail_sending_accounts` (workspace-owned SES/SendGrid domains — provider, domain,
+  credentials, the provider's own sender id, verification status and DNS records),
+  and `mail_cloudflare` — at most one document per workspace holding
+  the connected account, zone, worker name and origin, the API token, the webhook
+  secret, the deployed script version, `sendingEnabled` / `sendingTag` for Email
+  Sending, and every provisioning step's outcome.
+- `mail:cloudflare:{subdomain}` caches the zone, tenant, webhook secret and worker
+  origin for 60 seconds, including a `none` marker for workspaces without a
+  connection, so the inbound path does not read Mongo per message. It carries
+  nothing outbound needs: the API token and `sendingEnabled` are read from Mongo by
+  `readSendingAccount` when a reply is actually about to go out. `connect`,
+  `provision` and `disconnect` all clear it.
+- `mail_messages` carries a compound unique index
+  `{ inboxIntegrationId: 1, messageId: 1 }` — the inbound dedup gate — plus
+  indexes on `inboxConversationId`, `inReplyTo`, `references`, sparse `replyTag`,
+  and `createdAt`. Outbound rows additionally hold `deliveryStatus`,
+  `deliveryError`, `deliveryRetryable`, `bouncedRecipients`, and
+  `providerMessageId` (sparse index — inbound threading looks replies up by it, but
+  only rows written before Cloudflare became the transport ever carry one).
+  Inbound rows hold `envelopeFrom` and `senderMismatch`.
+- `ensureMailIndexes` reconciles those indexes on the tenant's own database the
+  first time this process creates a mail inbox or receives mail for that
+  subdomain, so a deployment never depends on someone remembering a migration. It
+  drops `messageId_1` **only when that index is unique**, and creates the
+  replacement lookup as `messageId_1_lookup`. It owns that key alone — the schema
+  deliberately does not mark `messageId` with `index: true`, because mongoose's
+  autoIndex would then keep trying to recreate `messageId_1` on a database where
+  the legacy unique index of that name has been dropped, and MongoDB refuses a
+  second index on the same key under a different name. A `messageId_1` mongoose
+  already created on an older deployment still satisfies the lookup and is left
+  alone. Failures are logged and the subdomain is left unreconciled so the next
+  message retries.
+- Inbound rate limiting lives in Redis under
+  `mail:inbound:rate:{subdomain}:{inboxIntegrationId}`, a 60-second counter
+  bounded by `MAIL_INBOUND_RATE_LIMIT` (default 120, `0` disables it). A Redis
+  outage fails open.
 - Facebook reports own no collection of their own. They aggregate
   `conversations_facebooks` (`timestamp`, `botId`/`isBot`),
   `conversation_messages_facebooks` (`createdAt`, `fromBot`, `userId`,
@@ -809,6 +961,258 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   drill-down) rather than the chart. Widening the stored filter set means adding
   the field to the `filters` subschema, the `ReportChartFilters` output type,
   and that key list together, or it will be silently dropped on save.
+- Outbound mail has exactly one entry point, `sendMail` in `utils/transports/`, and
+  it is split in two: `deliver.ts` owns everything true of **any** transport — the
+  `From`-versus-sending-domain guard, the empty-recipient guard, core suppression,
+  the Email Delivery log lifecycle, and the `ISendMailResult` shape — while an
+  `IMailTransport` owns only what its provider needs (payload shape, limits, error
+  classification). Adding a transport means adding an `IMailTransport` and a branch
+  in `resolveTransport`, never a second call site and never a second copy of the
+  pipeline; a transport that re-implemented suppression or delivery logging would
+  drift from the other one within a release.
+- Credentials and domains are separate concerns and the split is the whole design.
+  A workspace supplies the **domain** it wants on the envelope; whose provider
+  account signs for it is the deployment's business. That is why a workspace can
+  reply from its own address without holding an AWS or SendGrid account, and why
+  SaaS and self-hosted differ in exactly one place — where `MAIL_SENDING_*` comes
+  from. Never reintroduce a path that demands provider credentials from a
+  workspace before it can send at all.
+- `resolveTransport` keys off the **inbox** first and the workspace second: a
+  `sendingAccountId` replies through that account as `sendingAddress`; otherwise
+  the lane is whichever one can sign for the domain the inbox already answers
+  from — the connected Cloudflare account when that domain is its zone, the
+  deployment credentials when it is `MAIL_DOMAIN`. A workspace's own configuration
+  always outranks the deployment's, never the other way round.
+  `resolveSendingAddress` is the single place that decision turns into a `From`;
+  nothing else may derive it. No rung ever changes the `From` — every rung sends as
+  the same address, so a reply can change transport without changing identity. The
+  lane is chosen by that domain rather than by preference precisely because
+  connecting a zone does not re-address the inboxes that already exist: those keep
+  answering on `MAIL_DOMAIN`, and the deployment account is still the only one that
+  can sign for them. When no lane matches, the failure is a non-retryable
+  `MailSendError` naming the domain, never a silent fall-through to a signer that
+  would rewrite the sender.
+- `readSendingReadiness` and `assertSendableIntegration` still ask
+  `readUsablePlatformConfig`, not `readPlatformSendingConfig`, because they answer
+  a different question — whether a **new** inbox can be created — and a new inbox
+  on a workspace with a connected zone is addressed on that zone, where the
+  deployment account cannot sign.
+- The deployment sending account is shared by every workspace, so it carries two
+  guards that a workspace-owned account does not need. `checkPlatformSendRate`
+  caps replies per workspace per day — on the default sender **and** on any
+  `platformManaged` sending domain, since both spend the same allowance — and a
+  `platformManaged` domain is not verified until the workspace proves it owns that
+  domain. Removing either guard, or applying the cap to only one of those two
+  paths, hands one workspace the ability to spend everyone else's reputation.
+- A mail integration cannot be created or repointed without a working outbound
+  path. `assertSendableIntegration` runs on both create and edit, and refuses with
+  the same reason the UI shows. An inbox that receives but can never reply is not a
+  degraded inbox, it is a broken one, so this gate is a product rule and not a
+  convenience — never relax it to "warn and continue".
+- `readSendingReadiness` is the single source for "can this workspace send at all":
+  the Cloudflare account's state, the deployment credentials, plus every sending
+  domain. The wizard, the edit dialog and the create gate all read it, so the
+  button, the banner and the server can never disagree about why an inbox is
+  refused. Its `ready` must stay the exact disjunction `resolveTransport` walks —
+  a readiness that says yes where the transport says no is a wizard that ends in
+  an undeliverable inbox.
+- A sending domain is verified only when **both** halves agree. The provider's DKIM
+  state answers "can this account sign for the domain"; the `_erxes-verify` TXT
+  token answers "does this workspace own it". On the shared deployment account the
+  first is a global fact — one workspace verifying `acme.com` would otherwise hand
+  every other workspace an instantly-verified claim on it. A `platformManaged`
+  account therefore starts `pending` no matter what the provider reports, and
+  `verify` re-reads the TXT every time. An account with its own credentials skips
+  the TXT: holding those credentials already proves control of the identity.
+- An inbox may answer with `Reply-To` on its own domain only when
+  `forwardFrom === resolveSendingAddress(integration)` — the forwarding rule is
+  what carries the reply back in. `resolveReplyToAddress` owns that test. Any other
+  case falls back to the tagged inbox address, because a reply that cannot come
+  home is worse than one that shows the erxes address.
+- The plugin still never reads the workspace Mail Config and never consults
+  `emailSenders`. A sending account carries its own credentials and its own
+  provider-verified domain, which is what authorises the `From`.
+- A sending account is only usable while the provider says `verified`.
+  `usableOrThrow` checks that on **every** send, not just at pick time, because a
+  domain loses verification when its DNS records are edited away. The domain itself
+  is checked once, in `deliver.ts`, for both transports.
+- Credentials live in `mail_sending_accounts.config` and are **never** returned over
+  GraphQL — `toPublicSendingAccount` is the only serialiser and it has no `config`
+  branch. This matches the Cloudflare `apiToken`, which is also stored and never
+  read back. Neither is encrypted at rest yet; encrypting one without the other
+  would be a false comfort.
+- `readSendingAccount` answers only for the workspace's own Cloudflare account, and
+  only when it is `connected` **and** `sendingEnabled`. A connected-but-not-onboarded
+  account is an error, not a fallback. Both failure branches return
+  `{ ok: false, reason }` naming the exact fix, because that reason is what the
+  agent reads on the failed message and what the wizard shows before creation.
+- The sending account's `domain` is mandatory on every branch and `sendMail`
+  compares it against the `From` before the request. An empty domain must never
+  make that comparison skippable: Cloudflare would answer with a bare
+  `Sender domain not verified` that names neither the address nor the env var.
+- The `From` on a reply **is** `integration.address`. That domain is onboarded on
+  the account doing the sending, so Cloudflare's DKIM signs for it. The tagged
+  `Reply-To` is what brings the answer back into the same conversation.
+- Cloudflare owns the `Message-ID`: it is on the forbidden-header list
+  (`E_HEADER_NOT_ALLOWED`), it is stamped on a **Cloudflare** domain, and the REST
+  response returns only `delivered` / `permanent_bounces` / `queued`. So
+  `providerMessageId` is unobtainable and is no longer written. `In-Reply-To` and
+  `References` *are* allowlisted and are still sent, which is why
+  `buildThreadingHeaders` takes `includeMessageId` rather than being edited in place.
+- Because our own `messageId` never reaches a real header, `toWireReferences`
+  rewrites the chain before it goes out: an id belonging to one of our `SENT` rows
+  is swapped for its legacy `providerMessageId`, or dropped. Emitting an id no
+  client has ever seen breaks threading on the recipient's side. The stored
+  `inReplyTo` / `references` are left untouched — inbound matching needs them.
+- Threading therefore stands on two legs, and both must hold. A thread that started
+  inbound survives on `findRelatedConversation`'s `{ messageId: { $in: references } }`
+  branch, which matches the customer's own quoted ids against our stored inbound
+  rows — deleting that branch breaks every reply chain. A thread that started
+  outbound survives on the reply tag, which is why `createSendMail` mints one
+  unconditionally rather than only when the conversation already has one.
+- `createSendMail` refuses a message with no `conversationId`. Such a message was
+  never deliverable in the first place — it stored an orphan row that no inbox view
+  renders and no reply can thread back to — and Cloudflare removed the last header
+  that could have rescued it.
+- Suppression runs in `deliver.ts`, before the transport is called and before the
+  delivery log is written: `emailSuppression.blocked` is asked about to/cc/bcc,
+  closed addresses are filtered out, and when nothing is left in `to` the send is
+  skipped entirely and every suppressed address is reported as `bounced`. Core's
+  suppression list governs mail replies the same way it governs every other erxes
+  email, and it cannot be bypassed by a new transport.
+- Cloudflare's send API caps a message at `MAIL_SEND_MAX_BYTES` (5 MiB, its
+  documented `email.sending.error.email.too_big`) **after** base64 encoding, 50
+  recipients across to/cc/bcc, and 16 KB of headers. All three are
+  checked before the request so the failure names the attachment or the recipient
+  list instead of surfacing a bare 400, and a `References` chain that outgrows the
+  header budget is trimmed from its second entry so the thread root survives.
+- Email Sending is a **paid** product: it needs a Workers Paid plan ($5/month,
+  3,000 messages included, $0.35 per 1,000 after), the domain onboarded once under
+  Compute & AI · Email Service · Email Sending, and an **Account** · Email Sending ·
+  Edit token permission — there is no zone-scoped equivalent. A free-plan account
+  fails the zone endpoints with a bare `Unauthorized` (code 2036) that names none of
+  this, which is why `explainFailure` treats any 401/403 as a permission problem —
+  not only Cloudflare's generic code 10000 — and the hint leads with the plan.
+- Email Sending onboarding is provisioned but **optional**: `enableEmailSending` and
+  `checkSendingDns` are the only steps whose failure does not fail the connection.
+  They record themselves as failed and `sendingEnabled` stays false, which costs the
+  workspace its replies but keeps its inbound mail. Making them fatal would take
+  inbound down over an outbound DNS conflict, because a connection in `error` status
+  is invisible to `readConnectedCloudflare` and inbound verification loses its key.
+- Only inbound mail announces itself as a client message. `receiveMessage`
+  publishes through `pConversationClientMessageInserted` (the unread badge, the
+  notification sound, and the thread), and the payload carries `createdAt` so the
+  conversation list can reorder without the gateway having to resolve the message.
+  A reply publishes `conversationMessageInserted:<conversationId>` directly — a
+  mail message lives in `mail_messages`, so `conversationMessage(_id)` cannot
+  resolve it, and announcing an agent's own reply as a client message rang the
+  notification for every channel member.
+- An outbound message is stored before it is handed to the transport, and its
+  `deliveryStatus` is the only source of truth for the UI: `pending` → `sent`,
+  `bounced` (Cloudflare returned a permanent bounce or core suppressed a recipient),
+  or `failed`. Never report success from an HTTP 200 alone. `mailMessageRetry`
+  accepts only a `failed` outbound message.
+- A send failure is classified by its own transport into `MailSendError.retryable`
+  (for Cloudflare, HTTP 408/425/429/5xx are transient), which is what the UI turns
+  into "try again" versus "fix the configuration". `deliver.ts` wraps anything that
+  reaches it without that type as retryable. A recipient Cloudflare returns under
+  `permanent_bounces` is not a failure at all — it is `bounced`, like a core
+  suppression.
+- The provider transport reads an error's own verdict before its own heuristic: an
+  AWS SDK error carries `statusCode` and `retryable`, and `retryable` wins, so an SES
+  `MessageRejected` (an unverified identity, a sandboxed account) is reported as
+  permanent. Only a bare SMTP `responseCode` falls back to the SMTP reading, where
+  4xx is transient and 5xx is not — an HTTP 4xx must never be read that way.
+- A generated inbox address is `<tenant>--<slug>-<suffix6>@MAIL_DOMAIN`, and the
+  tenant comes from `resolveMailTenant` (`MAIL_TENANT`, else the request
+  subdomain). The `--` separator is safe because `slugify` collapses runs of
+  non-alphanumerics to a single `-`, so it can never appear inside a slug. The slug
+  budget shrinks as the tenant grows, keeping the local part inside RFC 5321's 64
+  octets even with a `+<tag10>` reply tag; a tenant over 41 characters is rejected
+  at build time rather than producing an invalid address.
+- `MAIL_TENANT` is ignored when `VERSION=saas`. The tenant is the identity a
+  deployment answers as, not a credential, so a shared deployment must never be
+  able to override it: one static value would give every organization the same
+  address prefix and the same derived webhook key, funnelling all inbound mail to
+  a single host. Ignoring it yields the correct value (the request subdomain),
+  which is why it is dropped silently rather than rejected.
+- When the tenant is derived from the subdomain it must survive `slugify`
+  unchanged, otherwise `resolveMailTenant` throws. `slugify` collapses runs of
+  non-alphanumerics, so `acme--corp` and `acme-corp` are both DNS-legal
+  subdomains that would otherwise share one mail tenant. The check turns that
+  silent collision into an error when the address is generated.
+- The endpoint a provisioned worker posts to comes from `MAIL_RECEIVE_URL` when it
+  is set, and from `DOMAIN` otherwise. The override exists because the plugin is
+  not always reachable at the host `DOMAIN` names — a local run behind a tunnel is
+  the ordinary case. The value is baked into the uploaded script, so changing it
+  means running `mailCloudflareProvision` again.
+- Inbound verification tries a **list** of keys, never one: the connected Cloudflare
+  account's key first (`HMAC-SHA256(connection.webhookSecret, connection.tenant)`),
+  then the deployment's platform key. That is what lets a workspace move onto its own
+  account without losing mail that is still in flight on the platform worker, and it
+  is why `verifySignature` takes keys rather than a subdomain. A workspace with no
+  connection and no `MAIL_WEBHOOK_SECRET` gets an empty list and a `401` that says so.
+- A workspace's Cloudflare API token never leaves the server. `MailCloudflareConnection`
+  has no field for it, `toPublicConnection` is the only shape a resolver may return,
+  and `mailCloudflareZones` takes a token as an argument without storing it. The token
+  is stored as written, exactly as Facebook page tokens are — anyone who can read the
+  tenant database can act on that Cloudflare account, which is the accepted risk.
+- `worker/bundle.generated.ts` is generated, never edited. It is the minified worker
+  from `cloudflare/mail-worker`, base64 encoded so no escaping can corrupt it, and it
+  carries the sha256 prefix the UI compares against a connection's `scriptVersion` to
+  offer an update. Change the worker, then run `npm run bundle` in
+  `cloudflare/mail-worker` and commit the result, or every tenant keeps the old script.
+- The provisioner is a fixed order of idempotent steps and the catch-all rule is
+  always last, because that rule is what opens the mail flow — the bucket, the queues,
+  the script and its secret must all exist before a message can arrive. Each step
+  records its own outcome, so `mailCloudflareProvision` repairs a half-finished
+  account instead of starting over.
+- The worker's `MAIL_ROUTES` binding is optional. A tenant's own worker serves one
+  install and gets no routing namespace, so `routeFor` must keep falling back to
+  `ERXES_ENDPOINT`; reading the binding unguarded throws on every message there.
+- An inbox address on a connected zone is exactly `<slug of the name>@<zone>` —
+  no tenant prefix, no random suffix. That worker answers for a single install and
+  the workspace owns the whole namespace, so an inbox named Support is reachable at
+  `support@acme.com` and nowhere else. A name whose address is already taken is
+  **rejected**, never silently decorated: a second Support inbox has to be named
+  something else, because an address nobody chose is worse than an error. Without a
+  connection the address stays `<tenant>--<slug>-<suffix>@MAIL_DOMAIN`, where both
+  the prefix and the suffix are load-bearing: that domain is shared by every
+  workspace, so a guessable address would collide and could be enumerated.
+- The webhook is never signed with `MAIL_WEBHOOK_SECRET` itself. Both sides derive
+  `HMAC-SHA256(MAIL_WEBHOOK_SECRET, tenant)` — the worker from the address it
+  routed, the API from its **own** subdomain. Verifying with a tenant taken from
+  the payload would defeat the whole scheme: the point is that a payload signed for
+  one tenant fails at every other tenant's host. An install answering on its own
+  domain is registered in the worker's routing namespace with a secret of its own,
+  which becomes the master on both sides; the derivation, and everything in this
+  plugin, is unchanged by that.
+- An attachment that cannot be fetched or stored keeps the worker's signed source
+  `url` plus an `error` explaining why, exactly as Discord's `rehostImageAttachments`
+  falls back to the CDN URL. Inbound delivery still succeeds — one unreachable
+  attachment must not cost the message.
+- That fallback only works because the response carries `keepStored: true` when any
+  attachment failed, and the worker skips its usual delete. Storing the reason
+  without holding the object would leave a link that 404s a second later. The
+  objects are then bounded by the bucket's retention rule, so a deployment with
+  broken file storage does not accumulate mail forever.
+- Every inbound message is scoped by `inboxIntegrationId` — dedup, thread lookup,
+  and reply-tag lookup all carry it, so two inboxes that receive the same mail
+  each keep their own copy.
+- Threading order is fixed: reply tag, then `In-Reply-To`/`References`, then an
+  open conversation for the same customer **whose latest message has the same
+  normalized subject** (`Re:`/`Fwd:`-style prefixes stripped). Dropping that last
+  check merges unrelated subjects into one thread.
+- A message flagged `isAuto` (vacation/auto-responder headers) is stored and
+  shown but never reopens a resolved conversation; that check plus the
+  self-addressed guard is what stops an auto-reply loop. The self-addressed guard
+  tests the `From` header **and** `envelopeFrom`.
+- The customer of an inbound mail is still resolved from the `From` header, not
+  from `envelopeFrom`. Mail reaches an inbox by forwarding, so the envelope
+  routinely carries the forwarder rather than the person who wrote the mail —
+  keying identity off it would collapse every customer of a forwarded inbox into
+  one. The envelope is used for the `senderMismatch` flag instead, and that flag
+  stays off when the envelope matches `integration.forwardFrom` or its domain.
 - Agent tool annotations are admit-only: never annotate webhook ingestion or
   notification plumbing (`inbox.integrations.receive`,
   `inbox.integrationsNotification`, `inbox.sendNotifications`,
@@ -845,6 +1249,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   kind such as a webhook; creating an integration against another user's
   personal `channelId` is rejected; `channelAddMembers` on it fails; no user's
   `getChannels` lists it — not even the owner's.
+- Smoke (mail): send a mail to an inbox address → a conversation with the stored
+  message appears; reply from the UI → the recipient sees
+  `From: <inbox>@<sending-domain>` with a DKIM signature for that domain and
+  `Reply-To: <local>+<tag>@<domain>`, answering it lands in the same conversation,
+  and the send shows up in Settings → Email Delivery as the `custom` provider with
+  no workspace Mail Config configured at all; a new subject from the same customer
+  opens a **new** conversation.
+- Smoke (mail sending gate): on a workspace with no Cloudflare connection and no
+  verified sending account, the add-inbox wizard must refuse at its sending step and
+  offer both routes; calling `integrationsCreateExternalIntegration` directly must
+  fail with the same reason. Attach a file over
+  `MAIL_SEND_MAX_BYTES` → the reply fails before the request with a message naming
+  the attachment, not a bare Cloudflare 400. Suppress the recipient in core →
+  the reply is `bounced` with that address listed and no request is made.
 - Smoke: comment on a subscribed Facebook page post that matches an active
   comment trigger, then confirm the public comment reply is posted and the
   private reply arrives in Messenger without a `#10` or `Invalid parameter`
@@ -867,6 +1285,109 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-26` — Mail automation and reply drafts removed
+
+- **Summary:** The mail channel no longer registers automation. The
+  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
+  actions, their workers and the AI-context builder are gone, and so is the reply
+  draft they were the only producer of — nothing else could create one, so the
+  draft model, its GraphQL surface and its inbox card would have been unreachable
+  code.
+- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
+  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
+  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
+  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
+  `src/apollo/subscription.ts`,
+  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
+  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
+- **Contracts changed:** Removed the `frontline:mail.messages` automation
+  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
+  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
+  `mailDraftChanged` subscription.
+
+### `2026-08-26` — The platform mail domain is `erx.es`
+
+- **Summary:** `MAIL_DOMAIN` defaulted to `mail.erxes.io`, a host nobody owns, so
+  a deployment that forgot the variable would mint inbox addresses that can never
+  receive. The default is now `erx.es`, the domain erxes actually runs Email
+  Routing on. `erxes.io` and any subdomain of it are ruled out: Cloudflare refuses
+  to onboard a zone whose apex carries another provider's MX, and it serves an
+  Email Routing subdomain only once that apex is onboarded.
+- **Affected areas:** `src/modules/integrations/mail/utils/platformConfig.ts`,
+  `.env.sample`, `cloudflare/mail-worker/{README.md,fixtures/*.json}`.
+- **Contracts changed:** None — only the fallback value of `MAIL_DOMAIN`.
+
+### `2026-08-24` — The sending lane follows the inbox address, and an inbox can be edited again
+
+- **Summary:** `mailSendingReadiness` returned no `platform` block, so the only
+  workspace that could pick the default sender was one with Cloudflare Email
+  Sending; the field the schema already declared is now populated.
+  `resolveTransport` picks its lane by the domain the inbox actually answers from
+  instead of preferring Cloudflare globally, so inboxes still addressed on
+  `MAIL_DOMAIN` keep replying after their workspace connects its own zone.
+  Re-saving an inbox that replies through a sending account matched its own
+  `sendingAddress` and failed as taken — the uniqueness check now skips the inbox
+  being edited. `mailSendingAccountAdd` honours the `provider` argument it has
+  always accepted rather than inferring it from whichever credential arrived, an
+  automated inbound message no longer reopens a closed conversation, and the
+  self-addressed guard also covers the inbox's own `sendingAddress` so a reply
+  forwarded back cannot loop. Provisioning also refuses two setups it used to walk
+  straight into: `checkZone` rejects a zone whose apex MX still points at another
+  mail host, because `enableEmailRouting` would replace those records and silently
+  stop every mailbox on that domain; and `uploadScript` rejects an account whose
+  worker already carries a different `DEFAULT_TENANT`, because one account's worker
+  holds a single endpoint and signing key, so a second workspace would silently
+  take the first one's inbound mail. `attachConsumer` no longer deletes a consumer
+  belonging to another script for the same reason.
+- **Affected areas:** `src/modules/integrations/mail/graphql/resolvers/queries.ts`,
+  `.../utils/transports/{index,common,provider,cloudflare}.ts`,
+  `.../messageBroker.ts`, `.../controller/receiveMessage.ts`,
+  `.../db/models/SendingAccounts.ts`, `.../db/definitions/messages.ts`,
+  `.../utils/errors.ts` (new), `.../utils/cloudflare/{provision,api}.ts`.
+- **Contracts changed:** None — `MailSendingReadiness.platform` was already in the
+  schema and is now actually resolved.
+
+### `2026-08-24` — A reply no longer rings the inbox as an incoming message
+
+- **Summary:** Sending a reply published `conversationClientMessageInserted`, which
+  bumped the unread badge and played the notification sound for every channel
+  member and sent the gateway looking for the message in `conversation_messages`,
+  where mail never lives; it now publishes `conversationMessageInserted` for the
+  open thread only. Inbound mail keeps the client-message announcement and now
+  carries `createdAt` in it, so the conversation list reorders without a refetch.
+  A provider send failure that reports its own verdict is trusted, so an SES
+  `MessageRejected` reads as permanent instead of "try again".
+- **Affected areas:** `src/modules/integrations/mail/db/models/Messages.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`,
+  `src/modules/integrations/mail/utils/transports/provider.ts`.
+- **Contracts changed:** None — same subscriptions; the inbound
+  `conversationClientMessageInserted` payload gains `createdAt`.
+
+### `2026-08-24` — A workspace supplies the domain, the deployment supplies the provider
+
+- **Summary:** Sending no longer demands provider credentials from a workspace.
+  `MAIL_SENDING_*` gives the deployment its own SES or SendGrid account, which
+  becomes the last rung of `resolveTransport` (replying as the inbox's own address
+  on `MAIL_DOMAIN`) and also signs a workspace's own domain once it adds one with
+  no credentials of its own. Because that account is shared, a `platformManaged`
+  sending domain now has to prove ownership with an `_erxes-verify` TXT token
+  before it verifies, and `checkPlatformSendRate` caps replies per workspace per
+  day. `mailCreateIntegration` no longer accepts a client-supplied `address`, and
+  replies now carry the inbox name as the display name plus a `Reply-To` on the
+  workspace's own domain when its forwarding address matches what it sends as.
+- **Affected areas:** `src/modules/integrations/mail/utils/`
+  (`platformConfig.ts`, `dnsProof.ts` are new; `transports/{index,provider}.ts`,
+  `transports/readiness.ts`, `rateLimit.ts`),
+  `src/modules/integrations/mail/db/{definitions,models}/sending.ts`,
+  `src/modules/integrations/mail/db/models/Messages.ts`,
+  `src/modules/integrations/mail/@types/sending.ts`,
+  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
+  `src/modules/integrations/mail/graphql/`.
+- **Contracts changed:** `mailSendingAccountAdd.provider` is now optional and
+  credentials may be omitted; `MailSendingAccount` gains `platformManaged`;
+  `MailSendingReadiness` gains `platform { ready domain }`. `mailCreateIntegration`
+  silently ignores `data.address` instead of honouring it.
 
 ### `2026-08-21` — A forwarded call stays one conversation
 
@@ -904,6 +1425,54 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `/call/cdrReceive` keep their payloads; only how legs are grouped into a
   conversation changed.
 
+### `2026-08-21` — Replies can leave through a workspace SES or SendGrid domain
+
+- **Summary:** An inbox can now reply as an address on the workspace's own domain
+  without moving that domain to Cloudflare. A workspace registers a sending account
+  (SES or SendGrid), the provider returns the DKIM/SPF records to publish, and once
+  it reports the domain verified any inbox can point its `sendingAccountId` /
+  `sendingAddress` at it. Cloudflare stays the default for every inbox that does
+  not. The transport layer was split first so both paths share one suppression,
+  delivery-log and sender-guard pipeline.
+- **Affected areas:** `src/modules/integrations/mail/utils/transports/`
+  (`deliver.ts`, `provider.ts`, `index.ts` are new),
+  `src/modules/integrations/mail/db/{definitions,models}/sending*`,
+  `src/modules/integrations/mail/@types/sending.ts`,
+  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
+  `src/modules/integrations/mail/graphql/`, `src/connectionResolvers.ts`.
+- **Contracts changed:** adds `mailSendingAccounts`, `mailSendingAccountAdd`,
+  `mailSendingAccountVerify`, `mailSendingAccountRemove`, and the
+  `sendingAccountId` / `sendingAddress` fields on a mail integration's `data`.
+
+### `2026-08-21` — Cloudflare Email Sending is the only outbound transport
+
+- **Summary:** Outbound mail no longer touches the workspace Mail Config. `sendMail`
+  moved to `utils/transports/` and sends every reply through Cloudflare Email
+  Sending — the tenant's own connected account, or the platform account from
+  `MAIL_SENDING_*` — from the inbox's own address. Core suppression is applied in
+  the transport before the request; sender verification and `deliverEmail` are gone.
+  Threading was repaired for the transport's constraints: Cloudflare owns the
+  `Message-ID`, so `providerMessageId` is no longer written, the emitted
+  `In-Reply-To`/`References` chain is rewritten to ids the recipient has actually
+  seen, every outbound message mints a reply tag, and a message with no conversation
+  is refused instead of stored as an orphan. The platform account now requires a
+  domain so the `From` check can never be skipped.
+  The layer is split into a provider-neutral `deliver.ts` pipeline and an
+  `IMailTransport`, so a second transport can be added without duplicating
+  suppression, delivery logging or the sender guard.
+- **Affected areas:** `src/modules/integrations/mail/utils/transports/` (replacing
+  `utils/send.ts` and the interim `utils/outbound/`),
+  `src/modules/integrations/mail/utils/{emailPorts,attachments}.ts`,
+  `src/modules/integrations/mail/utils/cloudflare/{api,provision,sending,connection,serialize}.ts`,
+  `src/modules/integrations/mail/db/{definitions,models}/{cloudflare,Messages}.ts`,
+  `src/modules/integrations/mail/graphql/{schema,resolvers}/`,
+  `src/modules/integrations/mail/constants.ts`.
+- **Contracts changed:** adds `mailCloudflareSendingQuota` and the `sendingEnabled`
+  field on `MailCloudflareConnection`; `MAIL_PROVISION_STEPS` gains
+  `enableEmailSending` and `checkSendingDns`; `mailSendMail` now rejects a call
+  without `conversationId`; the plugin no longer consumes
+  `emailSenders.alignedFrom` / `emailSenders.isAllowed`.
+
 ### `2026-08-20` — The agent who answered a call is assigned to it
 
 - **Summary:** A call conversation stayed unassigned because the CDR path
@@ -924,133 +1493,22 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   accepted `userId`; the call paths now send it, and the create branch no
   longer leaks `owner`/`userId` onto the new conversation document.
 
-### `2026-08-19` — Call Pro webhook integration
+### `2026-08-20` — A workspace can run mail on its own Cloudflare account
 
-- **Summary:** Ported the Call Pro PBX integration from the legacy
-  `plugin-integrations-api`: a `CALLPRO_ENABLED`-gated `/callpro/receive`
-  webhook turns each call event into an inbox conversation with the caller
-  attached and the recording URL resolved, and defers attribution to the agent
-  when one number matches several customers.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/connectionResolvers.ts`, `src/routes.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts,resolvers/mutations.ts}`,
-  `src/modules/inbox/{@types,db/definitions}/conversations.ts`,
-  `src/modules/inbox/graphql/schemas/conversation.ts`,
-  `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`,
-  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
-- **Contracts changed:** Added `POST /callpro/receive`; queries `callProConfig`,
-  `callProIntegrationDetail`, `callProCustomersByPhone`; mutation
-  `callProCustomerSelect`; `Conversation.callProPotentialCustomerIds` and
-  `Conversation.callProPhone`; a resolver for the previously dangling
-  `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
-  `sendUpdateIntegration`, and `sendRemoveIntegration`.
-
-### `2026-08-19` — Call history reports the ring on unanswered calls
-
-- **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
-  answered, so the Waited column showed a dash on exactly the rows a supervisor
-  wants to read — a No answer row said nothing about whether it rang for three
-  seconds or three minutes. Unanswered calls now report `callRingSeconds`,
-  taken from `duration - billsec` on the legs that held the caller, since an
-  unanswered leg has no `answer` stamp for the existing helper to subtract. It
-  falls back to the call's own span when the PBX filed no `Queue`/`Dial` ring,
-  which is how an IVR-only call arrives — its menu time lands in `billsec`, so
-  subtracting it would report zero.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts` (`callRingSeconds`,
-  `ICdrLegTiming.duration`), `src/modules/reports/callHistoryService.ts`,
-  `src/modules/reports/graphql/schema/call.ts`.
-- **Contracts changed:** None. `CallHistoryEntry.waitTime` keeps its type and
-  unit; it is now populated for unanswered calls instead of always `null`.
-
-### `2026-08-19` — Bot typing status survives conversation creation
-
-- **Summary:** `generateAiContext` re-publishes
-  `conversationBotTypingStatus:<conversationId>` with `typing: true` when the AI
-  agent starts, so a widget that only learns its `conversationId` from the
-  `widgetsInsertMessage` response still sees the indicator for the first message
-  of a conversation and for the whole agent run. Also removed the debug
-  `console.log` calls left in `widgetsInsertMessage`.
-- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
-- **Contracts changed:** None — same subscription and payload shape, published
-  once more per agent run.
-
-### `2026-08-19` — Messenger connect returns computed online state
-
-- **Summary:** `getMessengerData` now computes availability with
-  `Integrations.isOnline(integration)` and returns it as `messengerData.isOnline`
-  instead of passing through the stored manual flag, so a widget connecting to an
-  `availabilityMethod: "auto"` integration follows `onlineHours` and `timezone`.
-  The same computed value drives the existing `hideWhenOffline` `showChat`
-  suppression, which no longer recomputes it.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` (`getMessengerData`,
-  shared by `widgetsMessengerConnect` and `cpConnect`).
-- **Contracts changed:** None — `MessengerConnectResponse.messengerData` is
-  `JSON` and still carries `isOnline`, now with the derived value.
-
-### `2026-08-19` — Ticket property fields carry their group's order
-
-- **Summary:** `TicketPropertyField` gained `groupOrder`, the position of the
-  property's group among the groups a configuration uses, so a consumer can
-  rebuild the grouped layout the builder shows without inferring it from array
-  positions. Like `order`, it is derived in `validateTicketPropertyFields` from
-  the submitted array — the rank at which each `groupId` first appears — and
-  never taken from the submitted values.
-- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts`.
-- **Contracts changed:** `TicketPropertyField` and `TicketPropertyFieldInput`
-  gained an optional `groupOrder: Int`; stored configurations without it keep
-  working and are backfilled on their next save.
-
-### `2026-08-18` — Manual Meta sync for post engagement
-
-- **Summary:** Added `reportFacebookSyncPostStats`, an on-demand pull of
-  Facebook's own comment, reaction, and share counts onto stored post
-  documents, so the post report can show Meta's number next to the number
-  erxes received and name the gap.
-- **Affected areas:** `src/modules/reports/facebookSyncService.ts`,
-  `src/modules/reports/graphql/{schema/facebook.ts,resolvers/facebookMutations.ts,resolvers/facebookQueries.ts}`,
-  `src/modules/integrations/facebook/db/definitions/postConversations.ts`,
-  `src/modules/integrations/facebook/@types/postConversations.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/mutations.ts}`.
-- **Contracts changed:** New `reportFacebookSyncPostStats` mutation and
-  `ReportFacebookSyncResult`/`ReportFacebookSyncError` types;
-  `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
-  `metaShareCount`, `metaSyncedAt`; the post document gained the same four
-  optional fields.
-
-### `2026-08-18` — Facebook report aggregations
-
-- **Summary:** Added a Facebook reporting surface over the plugin's own
-  Messenger, comment, and post collections — page list, KPI summary, daily
-  activity series, per-post engagement, and per-bot coverage — with page and
-  date scoping, plus `pageIds` on the saved-chart filter set so a saved
-  Facebook card restores its page selection.
-- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
-  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
-- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
-  types, and five `reportFacebook*` queries; `TicketReportFilter`,
-  `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.
+- **Summary:** Settings → Integrations config gained a mail section. A workspace
+  pastes a Cloudflare API token, picks one of its domains, and the plugin provisions
+  that account end to end — Email Routing, the R2 bucket and its retention rule, the
+  inbound and dead-letter queues, the worker script, its secret and the catch-all
+  rule — in twelve idempotent steps whose outcomes are stored, so a failure can be
+  repaired rather than restarted. Inbox addresses are then generated on that domain,
+  and inbound verification tries the connection's key before the platform's, which
+  keeps mail already in flight working through the move.
+- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/`,
+  `src/modules/integrations/mail/worker/`,
+  `src/modules/integrations/mail/utils/{signature,inboundKeys,connection,address}.ts`,
+  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
+  `src/modules/integrations/mail/db/{definitions,models}/`,
+  `src/connectionResolvers.ts`, `cloudflare/mail-worker/src/{routes,types}.ts`.
+- **Contracts changed:** adds `mailCloudflareConnection`, `mailCloudflareZones`,
+  `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect`;
+  `verifySignature` now takes a list of keys.
