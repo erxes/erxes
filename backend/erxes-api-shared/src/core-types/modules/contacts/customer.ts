@@ -66,10 +66,13 @@ export interface ICustomerDocument extends ICustomer, Document {
 
   location?: ILocation;
   searchText?: string;
+  searchTokens?: string[];
+  searchTokenVersion?: number;
 }
 
 export interface ICustomerQueryFilterParams
-  extends ICursorPaginateParams, IListParams {
+  extends ICursorPaginateParams,
+    IListParams {
   createdAt?: Date;
   type?: string;
   status?: string;
@@ -79,6 +82,9 @@ export interface ICustomerQueryFilterParams
   tagIds?: string[];
   excludeTagIds?: string[];
   tagWithRelated?: boolean;
+
+  /** Membership as the segmentation worker materialised it onto the record. */
+  segmentIds?: string[];
 
   integrationIds?: string[];
   integrationTypes?: string[];

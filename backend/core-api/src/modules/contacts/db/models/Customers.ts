@@ -1,4 +1,7 @@
-import { customerSchema } from '@/contacts/db/definitions/customers';
+import {
+  customerSchema,
+  customerSearchTokenConfig,
+} from '@/contacts/db/definitions/customers';
 import {
   IBrowserInfo,
   ICustomer,
@@ -6,7 +9,10 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { validSearchText } from 'erxes-api-shared/utils';
+import {
+  generateConfiguredSearchTokens,
+  validSearchText,
+} from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { generateCustomerUpdateActivityLogs } from '../../meta/activity-log/customers';
@@ -953,6 +959,11 @@ export const loadCustomerClass = (
       }
 
       searchText = validSearchText([searchText]);
+      const searchTokens = generateConfiguredSearchTokens(
+        customer,
+        customerSearchTokenConfig,
+      );
+      const searchTokenVersion = customerSearchTokenConfig.version ?? 1;
 
       let state = customer.state || 'visitor';
 
@@ -960,7 +971,13 @@ export const loadCustomerClass = (
         state = 'lead';
       }
 
-      return { profileScore: score, searchText, state };
+      return {
+        profileScore: score,
+        searchText,
+        searchTokens,
+        searchTokenVersion,
+        state,
+      };
     }
 
     /**

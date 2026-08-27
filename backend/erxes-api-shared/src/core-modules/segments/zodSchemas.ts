@@ -1,5 +1,38 @@
 import { z } from 'zod';
+import { SegmentOperator } from './fieldMeta';
+import { SegmentNode } from './nodes';
 import { TSegmentProducers } from './types';
+
+export const SegmentNodeSchema: z.ZodType<SegmentNode> = z.lazy(() =>
+  z.union([
+    z.object({
+      kind: z.literal('group'),
+      conjunction: z.enum(['and', 'or']),
+      children: z.array(SegmentNodeSchema),
+    }),
+    z.object({
+      kind: z.literal('field'),
+      contentType: z.string(),
+      fieldKey: z.string(),
+      operator: z.nativeEnum(SegmentOperator),
+      value: z.any().optional(),
+    }),
+    z.object({
+      kind: z.literal('relation'),
+      relationKey: z.string(),
+      measure: z.union([
+        z.object({ op: z.enum(['exists', 'none', 'count']) }),
+        z.object({
+          op: z.enum(['sum', 'avg', 'min', 'max']),
+          fieldKey: z.string(),
+        }),
+      ]),
+      child: SegmentNodeSchema.optional(),
+      operator: z.nativeEnum(SegmentOperator).optional(),
+      value: z.any().optional(),
+    }),
+  ]),
+);
 
 export const SegmentBaseInput = z.object({
   subdomain: z.string(),
@@ -51,6 +84,93 @@ export const EsTypesMapInput = SegmentBaseInput.extend({
   data: EsTypesMapInputData,
 });
 
+const EvaluateFieldsInputData = z.object({
+  /** Content type of the ids in `subjectIds`. */
+  subjectType: z.string(),
+  subjectIds: z.array(z.string()),
+  requests: z.array(
+    z.union([
+      z.object({
+        kind: z.literal('field'),
+        ref: z.string(),
+        contentType: z.string(),
+        fieldKey: z.string(),
+      }),
+      z.object({
+        kind: z.literal('relation'),
+        ref: z.string(),
+        relationKey: z.string(),
+        measure: z.union([
+          z.object({ op: z.enum(['exists', 'none', 'count']) }),
+          z.object({
+            op: z.enum(['sum', 'avg', 'min', 'max']),
+            fieldKey: z.string(),
+          }),
+        ]),
+        child: SegmentNodeSchema.optional(),
+        edges: z.record(z.string(), z.array(z.string())).optional(),
+      }),
+    ]),
+  ),
+});
+
+export const EvaluateFieldsInput = SegmentBaseInput.extend({
+  data: EvaluateFieldsInputData,
+});
+
+/**
+ * The tree travels, not a compiled filter: the owning plugin compiles it with
+ * its own declarations, so no caller can hand a plugin an arbitrary query.
+ */
+const SegmentMemberQueryInputData = z.object({
+  contentType: z.string(),
+  node: SegmentNodeSchema,
+  /** Narrows the query to these records, for checking a known set. */
+  ids: z.array(z.string()).optional(),
+});
+
+const ListSegmentMembersInputData = SegmentMemberQueryInputData.extend({
+  /** Last `_id` of the previous page. */
+  cursor: z.string().optional(),
+  limit: z.number().int().positive().max(10000).optional(),
+});
+
+export const ListSegmentMembersInput = SegmentBaseInput.extend({
+  data: ListSegmentMembersInputData,
+});
+
+export const CountSegmentMembersInput = SegmentBaseInput.extend({
+  data: SegmentMemberQueryInputData,
+});
+
+/**
+ * Settled membership for one content type, batched across segments.
+ *
+ * One event can settle a record against dozens of segments at once, so the
+ * whole fan-out travels in a single call and lands in a single bulk write.
+ * `undecided` subjects appear in neither list - their membership must not
+ * change.
+ */
+const ApplyMembershipInputData = z.object({
+  contentType: z.string(),
+  updates: z.array(
+    z.object({
+      segmentId: z.string(),
+      matched: z.array(z.string()),
+      notMatched: z.array(z.string()),
+    }),
+  ),
+  /**
+   * Segments to strip from every record that still carries them - a rebuild
+   * clearing the old answer, or a segment that no longer exists.
+   */
+  forget: z.array(z.string()).optional(),
+});
+
+export const ApplyMembershipInput = SegmentBaseInput.extend({
+  data: ApplyMembershipInputData,
+});
+
 export const InitialSelectorInput = SegmentBaseInput.extend({
   data: InitialSelectorInputData,
 });
@@ -74,4 +194,12 @@ export type TSegmentProducersInput = {
     typeof InitialSelectorInputData
   >;
   [TSegmentProducers.ES_TYPES_MAP]: z.infer<typeof EsTypesMapInputData>;
+  [TSegmentProducers.EVALUATE_FIELDS]: z.infer<typeof EvaluateFieldsInputData>;
+  [TSegmentProducers.LIST_MEMBERS]: z.infer<typeof ListSegmentMembersInputData>;
+  [TSegmentProducers.COUNT_MEMBERS]: z.infer<
+    typeof SegmentMemberQueryInputData
+  >;
+  [TSegmentProducers.APPLY_MEMBERSHIP]: z.infer<
+    typeof ApplyMembershipInputData
+  >;
 };

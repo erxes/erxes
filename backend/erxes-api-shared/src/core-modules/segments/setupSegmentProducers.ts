@@ -5,9 +5,13 @@ import { nanoid } from 'nanoid';
 import { createTRPCContext, initializePluginConfig } from '../../utils';
 import { SegmentConfigs, TSegmentProducers } from './types';
 import {
+  ApplyMembershipInput,
   AssociationFilterInput,
+  CountSegmentMembersInput,
   EsTypesMapInput,
+  EvaluateFieldsInput,
   InitialSelectorInput,
+  ListSegmentMembersInput,
   PropertyConditionExtenderInput,
 } from './zodSchemas';
 
@@ -27,6 +31,10 @@ export const initSegmentProducers = async (
     associationFilter,
     initialSelector,
     esTypesMap,
+    evaluateFields,
+    listSegmentMembers,
+    countSegmentMembers,
+    applyMembership,
   } = config || {};
 
   const segmentProducers: Partial<Record<TSegmentProducers, AnyProcedure>> = {};
@@ -54,6 +62,30 @@ export const initSegmentProducers = async (
     segmentProducers[TSegmentProducers.ES_TYPES_MAP] = t.procedure
       .input(EsTypesMapInput)
       .query(async ({ ctx, input }) => esTypesMap(input, ctx));
+  }
+
+  if (evaluateFields) {
+    segmentProducers[TSegmentProducers.EVALUATE_FIELDS] = t.procedure
+      .input(EvaluateFieldsInput)
+      .query(async ({ ctx, input }) => evaluateFields(input, ctx));
+  }
+
+  if (listSegmentMembers) {
+    segmentProducers[TSegmentProducers.LIST_MEMBERS] = t.procedure
+      .input(ListSegmentMembersInput)
+      .query(async ({ ctx, input }) => listSegmentMembers(input, ctx));
+  }
+
+  if (countSegmentMembers) {
+    segmentProducers[TSegmentProducers.COUNT_MEMBERS] = t.procedure
+      .input(CountSegmentMembersInput)
+      .query(async ({ ctx, input }) => countSegmentMembers(input, ctx));
+  }
+
+  if (applyMembership) {
+    segmentProducers[TSegmentProducers.APPLY_MEMBERSHIP] = t.procedure
+      .input(ApplyMembershipInput)
+      .mutation(async ({ ctx, input }) => applyMembership(input, ctx));
   }
 
   if (!Object.keys(segmentProducers)?.length) {

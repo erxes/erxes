@@ -50,8 +50,8 @@ export const findSalesObject = async (
       typeof doc?._id === 'string'
         ? doc._id
         : doc?._id
-          ? String(doc._id)
-          : undefined,
+        ? String(doc._id)
+        : undefined,
     object: doc || null,
     matchedBy: {
       field,

@@ -1,4 +1,10 @@
-import { Combobox, Command, Popover, SelectTree, TextOverflowTooltip } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  SelectTree,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 import { useSelectSegments } from '../hooks/useSelectSegments';
 import { ISegment } from '../types';
 

@@ -13,7 +13,7 @@ import {
   PRODUCT_SIMILARITY_STATUSES,
   PRODUCT_STATUSES,
 } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
+import { collectSegmentMembers } from '@/segments/utils/runSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
@@ -356,8 +356,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -582,7 +583,7 @@ const generateFilter = async (
       : await models.Segments.findOne({ _id: segment }).lean();
 
     if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
+      const segmentProductIds = await collectSegmentMembers(
         models,
         subdomain,
         segmentObj,
@@ -794,8 +795,9 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         );
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

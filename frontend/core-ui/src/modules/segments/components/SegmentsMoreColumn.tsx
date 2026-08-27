@@ -15,7 +15,7 @@ import { useRemoveSegments } from '../hooks/useRemoveSegments';
 export const SegmentMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<{ order: string; hasChildren: boolean } & ISegment, unknown>;
+  cell: Cell<ISegment, unknown>;
 }) => {
   const { _id, name } = cell.row.original;
   const [, setSegmentId] = useQueryState<string>('segmentId');

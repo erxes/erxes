@@ -257,7 +257,17 @@ import {
   IFieldGroupModel,
   loadFieldGroupClass,
 } from './modules/properties/db/models/Group';
+import {
+  ISegmentDailyCountDocument,
+  ISegmentTransitionDocument,
+} from './modules/segments/db/definitions/segmentHistory';
 import { ISegmentDocument } from './modules/segments/db/definitions/segments';
+import {
+  ISegmentDailyCountModel,
+  ISegmentTransitionModel,
+  loadSegmentDailyCountClass,
+  loadSegmentTransitionClass,
+} from './modules/segments/db/models/SegmentHistory';
 import {
   ISegmentModel,
   loadSegmentClass,
@@ -327,6 +337,8 @@ export interface IModels {
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
   Segments: ISegmentModel;
+  SegmentTransitions: ISegmentTransitionModel;
+  SegmentDailyCounts: ISegmentDailyCountModel;
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
@@ -572,6 +584,16 @@ export const loadClasses = (
     'segments',
     loadSegmentClass(models),
   );
+
+  models.SegmentTransitions = db.model<
+    ISegmentTransitionDocument,
+    ISegmentTransitionModel
+  >('segment_transitions', loadSegmentTransitionClass(models));
+
+  models.SegmentDailyCounts = db.model<
+    ISegmentDailyCountDocument,
+    ISegmentDailyCountModel
+  >('segment_daily_counts', loadSegmentDailyCountClass(models));
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',

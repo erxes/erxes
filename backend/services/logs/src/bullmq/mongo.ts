@@ -97,6 +97,19 @@ const withCollectionType = (
   collectionType: getCollectionType(contentType, collectionName),
 });
 
+const hasUpdateChanges = (
+  updateDescription?: Record<string, unknown>,
+): boolean =>
+  ['added', 'removed', 'updated'].some((changeType) => {
+    const changes = updateDescription?.[changeType];
+
+    return (
+      changes !== null &&
+      typeof changes === 'object' &&
+      Object.keys(changes).some((field) => field !== 'updatedAt')
+    );
+  });
+
 const createLogDocument = async (
   Logs: Model<ILogDocument>,
   docId: string,
@@ -173,6 +186,10 @@ const handleUpdate = async (
 ) => {
   if (!payload.docId) {
     throw new Error('Document ID is required for update operation');
+  }
+
+  if (!hasUpdateChanges(payload.updateDescription)) {
+    return null;
   }
 
   const logPayload = {

@@ -1,79 +1,154 @@
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Card, Label } from 'erxes-ui';
-import { useFieldArray } from 'react-hook-form';
-import { SegmentProperty } from './SegmentProperty';
-import { useSegment } from '../../context/SegmentProvider';
+import { Button, cn } from 'erxes-ui';
+import { FieldPath, useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SegmentGroupProvider } from '../../context/SegmentGroupProvider';
-import { SegmentGroupAddButton } from './SegmentGroupAddButton';
-import { TConditionFieldPath } from '../../types';
+import { useSegment } from '../../context/SegmentProvider';
+import { childPath, TNodePath, TSegmentForm } from '../../types';
+import {
+  emptyCondition,
+  emptyGroup,
+  TSegmentNode,
+} from '../../types/segmentNode';
+import { SegmentCondition } from './SegmentCondition';
+import { SegmentConjunctionRail } from './SegmentConjunctionRail';
 
-type Props = {
-  parentFieldName?: `conditionSegments.${number}`;
-  onRemove?: () => void;
-  withoutAssociationTypes?: boolean;
-};
-
+/**
+ * A group of conditions, joined by and / or.
+ *
+ * It renders itself for nested groups, and each level is lighter than the one
+ * above: the root carries the surface, everything below is the gutter and its
+ * badge. Repeating the full card at every depth is what made three levels
+ * unreadable.
+ */
 export const SegmentGroup = ({
-  parentFieldName,
+  path,
   onRemove,
-  withoutAssociationTypes,
-}: Props) => {
-  const { form } = useSegment();
-  const { control } = form;
+  depth = 0,
+  contextType,
+}: {
+  path: TNodePath;
+  onRemove?: () => void;
+  depth?: number;
+  /** The entity the rows inside this group describe. */
+  contextType?: string;
+}) => {
+  const { form, contentType: segmentType } = useSegment();
+  const contentType = contextType || segmentType;
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
-  const fieldPath: TConditionFieldPath = parentFieldName
-    ? `${parentFieldName}.conditions`
-    : 'conditions';
-  const {
-    fields: conditionFields,
-    append,
-    remove,
-  } = useFieldArray({
-    control: control,
-    name: fieldPath,
+
+  const { fields, append, remove, update } = useFieldArray({
+    control: form.control,
+    name: `${path}.children` as never,
   });
+
+  const conjunctionName = `${path}.conjunction` as FieldPath<TSegmentForm>;
+  // `useWatch` subscribes to this one path; `watch` would re-render the whole
+  // group - and every row inside it - on any keystroke anywhere in the form.
+  const conjunction =
+    useWatch({ control: form.control, name: conjunctionName }) === 'or'
+      ? 'or'
+      : 'and';
+
+  // With a single child there is nothing to join, so the gutter would be
+  // decoration.
+  const showRail = fields.length > 1;
+  const isRoot = depth === 0;
+
   return (
-    <SegmentGroupProvider
-      append={append}
-      fieldPath={fieldPath}
-      remove={remove}
-      conditionFields={conditionFields}
-      withoutAssociationTypes={withoutAssociationTypes}
+    <div
+      className={cn(
+        'group/group rounded-md',
+        isRoot ? 'border bg-background p-2' : 'bg-accent/40 p-2',
+      )}
     >
-      <Card className="bg-accent rounded-md">
-        <Card.Header className="flex flex-row gap-2 items-center px-6 py-1 group [&>div]:items-center [&>div]:flex [&>div]:m-0">
-          <div className="w-2/5 ">
-            <Label>{t('property')}</Label>
-          </div>
-          <div className="w-1/5 ">
-            <Label>{t('condition')}</Label>
-          </div>
-          <div className="w-2/5 pl-4">
-            <Label>{t('value')}</Label>
-          </div>
-          {onRemove && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onRemove()}
-              className={`opacity-0 group-hover:opacity-100 transition-opacity text-destructive`}
-            >
-              <IconTrash />
-            </Button>
-          )}
-        </Card.Header>
-        <Card className="mx-1 p-2 bg-background rounded-md">
-          <div className="flex flex-col ">
-            {(conditionFields || []).map((field, index) => (
-              <div key={field.id}>
-                <SegmentProperty index={index} />
+      <div className="flex items-start">
+        {showRail && (
+          <SegmentConjunctionRail
+            conjunction={conjunction}
+            onToggle={() =>
+              form.setValue(
+                conjunctionName,
+                conjunction === 'and' ? 'or' : 'and',
+                { shouldDirty: true },
+              )
+            }
+          />
+        )}
+
+        <div className={cn('flex-1 min-w-0 flex flex-col', showRail && 'pl-8')}>
+          {fields.map((entry, index) => {
+            const child = form.getValues(
+              childPath(path, index) as FieldPath<TSegmentForm>,
+            ) as TSegmentNode | undefined;
+
+            return child?.kind === 'group' ? (
+              <div key={entry.id} className="py-1.5">
+                <SegmentGroup
+                  path={childPath(path, index)}
+                  depth={depth + 1}
+                  contextType={contextType}
+                  onRemove={() => remove(index)}
+                />
               </div>
-            ))}
-          </div>
-          <SegmentGroupAddButton />
-        </Card>
-      </Card>
-    </SegmentGroupProvider>
+            ) : (
+              <SegmentCondition
+                key={entry.id}
+                path={childPath(path, index)}
+                contextType={contextType}
+                onRemove={() => remove(index)}
+                onReplace={(next) => update(index, next as never)}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1 pt-1.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          type="button"
+          className="text-muted-foreground"
+          onClick={() => append(emptyCondition(contentType))}
+        >
+          <IconPlus />
+          {t('add-condition')}
+        </Button>
+        {/* Nesting deeper than a couple of levels stops being readable, and
+            production segments never went past three. */}
+        {depth < 2 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            className="text-muted-foreground"
+            onClick={() =>
+              append({
+                ...emptyGroup(),
+                children: [emptyCondition(contentType)],
+              })
+            }
+          >
+            <IconPlus />
+            {t('add-group')}
+          </Button>
+        )}
+
+        <div className="flex-1" />
+
+        {onRemove && (
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            title={t('remove-group')}
+            onClick={onRemove}
+            className="opacity-0 group-hover/group:opacity-100 transition-opacity text-destructive"
+          >
+            <IconTrash />
+          </Button>
+        )}
+      </div>
+    </div>
   );
 };

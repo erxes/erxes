@@ -1,0 +1,1338 @@
+EVENT-DRIVEN MATERIALIZED SEGMENTATION — ЭЦСИЙН ТӨЛӨВЛӨГӨӨ
+
+Үндсэн шийдэл
+==============
+
+Segment-ийг ашиглах бүрдээ MongoDB/Elasticsearch дээр хүнд query ажиллуулахгүй.
+Data болон time event бүрийн дараа нөлөөлөх segment-үүдийг reevaluate хийгээд,
+тухайн record-ийн segmentIds-ийг materialize хийнэ.
+
+Дараагийн feature-үүд:
+
+  Customers.find({ segmentIds: segmentId });
+  Deals.find({ segmentIds: segmentId });
+
+гэдэг тогтмол, indexed query ашиглана.
+
+
+1. ЕРӨНХИЙ АРХИТЕКТУР
+=====================
+
+Mongo mutation
+    |
+    v
+put_log queue
+    |
+    v
+logs-service eventLogHandler
+    |
+    +-- audit Log хадгална
+    +-- existing afterProcess
+    +-- segmentation dispatcher queue
+              |
+              v
+      segmentation event worker
+              |
+              +-- contentType + changedFields
+              +-- хамаарах active segment plan-ууд
+              +-- affected subject IDs
+              +-- evaluation jobs
+                        |
+                        v
+              segment evaluation worker
+                        |
+           +------------+-------------+
+           v            v             v
+        core tRPC    sales tRPC    frontline tRPC
+           |            |             |
+           +------------+-------------+
+                        |
+                        v
+              matched/notMatched/unknown
+                        |
+                        v
+              subject plugin membership apply
+                        |
+              $addToSet / $pull segmentIds
+                        |
+                        v
+              membership transition event
+                        |
+                        v
+              segment_stats.memberCount +/-1
+
+Initial catch-up болон realtime evaluation хоёулаа ижил evaluator ашиглана.
+
+
+2. АЛЬ SERVICE ЮУ ХАРИУЦАХ ВЭ?
+===============================
+
+2.1 logs-service
+----------------
+
+Байрлал:
+
+  backend/services/logs/src/segmentation/
+
+Хариуцлага:
+
+- Хадгалагдсан Mongo event-ийг segmentation event болгох.
+- Segmentation BullMQ worker-үүд ажиллуулах.
+- contentType, changedFields-ээр segment plan сонгох.
+- Related subject IDs олох.
+- Plugin evaluator-уудыг batch/parallel дуудах.
+- Membership transition удирдах.
+- Catch-up worker ажиллуулах.
+- Temporal scheduler ажиллуулах.
+- Retry, DLQ, checkpoint, replay хийх.
+
+logs-service segment definition-ийн business owner болохгүй. Зөвхөн
+orchestration/runtime engine байна.
+
+2.2 core-api/segments
+---------------------
+
+Байрлал:
+
+  backend/core-api/src/modules/segments/
+
+Хариуцлага:
+
+- Segment definition.
+- Compiled execution plan.
+- Dependency registry.
+- Revision/build төлөв.
+- Segment statistics.
+- Plugin meta-гаас condition/evaluator-уудыг цуглуулах.
+- Dispatcher-д active plans өгөх.
+- UI/GraphQL contract.
+
+2.3 Plugin бүр
+--------------
+
+Жишээ байрлал:
+
+  backend/plugins/sales_api/src/modules/sales/meta/segments/
+  backend/plugins/frontline_api/src/meta/segments/
+  backend/core-api/src/meta/segments.ts
+
+Хариуцлага:
+
+- Өөрийн data-г өөрөө evaluate хийх.
+- Event-ээс related subject IDs гаргах.
+- Өөрийн subject record дээр membership apply хийх.
+- Catch-up-д subject ID-уудаа cursor-аар өгөх.
+- Segment-д ашиглаж болох field/operator meta бүртгэх.
+
+Нэг plugin нөгөөгийн Mongo collection-ийг шууд уншихгүй.
+
+
+3. SEGMENT DOCUMENT
+===================
+
+Одоогийн segments collection-ийг өргөтгөнө.
+
+Файл:
+
+  backend/core-api/src/modules/segments/db/definitions/segments.ts
+
+Schema-ийн санал:
+
+  interface ISegment {
+    _id: string;
+    name: string;
+    description?: string;
+
+    // Segment-ийн үр дүн ямар entity байх вэ?
+    contentType: string;
+
+    status: 'draft' | 'building' | 'active' | 'paused' | 'failed';
+
+    scope: 'organization' | 'team' | 'private';
+    ownerId?: string;
+    teamId?: string;
+
+    executionMode: 'materialized' | 'dynamic';
+
+    activeRevision: number;
+    buildingRevision?: number;
+
+    conditions: ICondition[];
+    conditionsConjunction: 'and' | 'or';
+
+    compiledPlan?: ISegmentCompiledPlan;
+
+    createdAt: Date;
+    updatedAt: Date;
+  }
+
+config: Object, meta: Object хэвээр байж болно. Runtime engine-д хэрэгтэй
+талбаруудыг typed explicit field болгоно.
+
+3.1 Compiled plan
+-----------------
+
+  interface ISegmentCompiledPlan {
+    subjectType: string;
+
+    dependencies: Array<{
+      sourceContentType: string;
+      fields: string[];
+      evaluatorPlugin: string;
+      evaluatorKey: string;
+      relationResolverKey?: string;
+    }>;
+
+    evaluators: Array<{
+      id: string;
+      pluginName: string;
+      evaluatorKey: string;
+      condition: ISegmentCondition;
+    }>;
+
+    temporalDependencies: Array<{
+      evaluatorId: string;
+      strategy: 'bucket' | 'scheduled';
+      timezone: string;
+    }>;
+  }
+
+Segment event бүр дээр condition tree-г дахин parse хийхгүй. Create/update хийх
+үед compiled plan бэлдэнэ.
+
+
+4. DEPENDENCY COLLECTION
+========================
+
+Шинэ collection:
+
+  segment_dependencies
+
+Core API эзэмшинэ.
+
+  interface ISegmentDependency {
+    _id: string;
+    segmentId: string;
+    revision: number;
+    subjectType: string;
+    sourceContentType: string;
+    relevantFields: string[];
+    evaluatorPlugin: string;
+    evaluatorKey: string;
+    relationResolverKey?: string;
+    status: 'active' | 'building';
+  }
+
+Indexes:
+
+  { sourceContentType: 1, status: 1, relevantFields: 1 }
+  { segmentId: 1, revision: 1 }
+
+Жишээ event:
+
+  {
+    contentType: 'sales:sales.deals',
+    changedFields: ['amount', 'status']
+  }
+
+Dispatcher query:
+
+  SegmentDependencies.find({
+    sourceContentType: 'sales:sales.deals',
+    status: 'active',
+    relevantFields: { $in: ['amount', 'status'] }
+  });
+
+Ингэснээр бүх segment-ийг loop хийхгүй.
+
+- create: contentType-ийн бүх active dependency.
+- delete: contentType-ийн бүх active dependency.
+- update: changedFields огтлолцсон dependency.
+
+
+5. PLUGIN SEGMENT META
+======================
+
+Одоогийн SegmentConfigs дээр materialization contract нэмнэ.
+
+Файл:
+
+  backend/erxes-api-shared/src/core-modules/segments/types.ts
+
+  interface SegmentConfigs {
+    // existing fields...
+
+    materialization?: {
+      evaluators: SegmentEvaluatorMeta[];
+      relationResolvers?: SegmentRelationResolverMeta[];
+      subjects?: SegmentSubjectMeta[];
+      temporalEvaluators?: SegmentTemporalEvaluatorMeta[];
+    };
+  }
+
+5.1 Evaluator meta
+------------------
+
+  interface SegmentEvaluatorMeta {
+    key: string;
+    subjectTypes: string[];
+    sourceContentTypes: string[];
+
+    fields: Array<{
+      name: string;
+      type: 'string' | 'number' | 'boolean' | 'date' | 'id';
+      operators: string[];
+    }>;
+
+    evaluateBatch: (
+      input: SegmentEvaluateBatchInput,
+      context: SegmentContext,
+    ) => Promise<SegmentEvaluateBatchResult>;
+  }
+
+Sales жишээ:
+
+  materialization: {
+    evaluators: [
+      {
+        key: 'customerDealTotal',
+        subjectTypes: ['core:contacts.customers'],
+        sourceContentTypes: ['sales:sales.deals'],
+        fields: [
+          {
+            name: 'totalPurchasedAmount',
+            type: 'number',
+            operators: ['gt', 'gte', 'lt', 'lte', 'between'],
+          },
+        ],
+        evaluateBatch,
+      },
+    ],
+  }
+
+5.2 Relation resolver meta
+--------------------------
+
+  interface SegmentRelationResolverMeta {
+    key: string;
+    sourceContentType: string;
+    subjectType: string;
+
+    resolveAffectedSubjects: (
+      input: { events: SegmentSourceEvent[] },
+      context: SegmentContext,
+    ) => Promise<Array<{
+      eventId: string;
+      subjectIds: string[];
+    }>>;
+  }
+
+Event payload дотор relation IDs байгаа бол resolver дуудахгүй. Meta resolver нь
+fallback байна.
+
+5.3 Subject meta
+----------------
+
+Record-ийн segmentIds-ийг зөвхөн owning plugin өөрчилнө.
+
+  interface SegmentSubjectMeta {
+    contentType: string;
+
+    listSubjectIds: (
+      input: { cursor?: string; limit: number },
+      context: SegmentContext,
+    ) => Promise<{
+      ids: string[];
+      nextCursor?: string;
+    }>;
+
+    applyMembershipBatch: (
+      input: {
+        segmentId: string;
+        revision: number;
+        operations: Array<{
+          subjectId: string;
+          expected: 'matched' | 'notMatched';
+          evaluationVersion: string;
+        }>;
+      },
+      context: SegmentContext,
+    ) => Promise<SegmentMembershipApplyResult>;
+  }
+
+
+6. RECORD ДЭЭР MEMBERSHIP ХАДГАЛАХ
+==================================
+
+Customer/deal зэрэг segment-ийн subject болж болох schema бүрд:
+
+  segmentIds: {
+    type: [String],
+    default: [],
+  }
+
+Index:
+
+  schema.index({ segmentIds: 1, _id: 1 });
+
+Хэрэв tenant нэг collection дотор тусдаа талбартай бол:
+
+  { subdomain: 1, segmentIds: 1, _id: 1 }
+
+Нэмэх:
+
+  await Model.updateOne(
+    { _id: subjectId, segmentIds: { $ne: segmentId } },
+    { $addToSet: { segmentIds: segmentId } },
+  );
+
+Хасах:
+
+  await Model.updateOne(
+    { _id: subjectId, segmentIds: segmentId },
+    { $pull: { segmentIds: segmentId } },
+  );
+
+$push ашиглахгүй. Duplicate event-ээс хамгаалахын тулд $addToSet ашиглана.
+
+segmentIds array нь зөвхөн:
+
+- executionMode: materialized;
+- status: active;
+- automation/campaign/shared operational хэрэглээтэй
+
+segment-үүдийг хадгална. Бүх private saved filter-ийг автоматаар materialize
+хийж болохгүй.
+
+
+7. SEGMENT STATISTICS
+=====================
+
+Шинэ collection:
+
+  segment_stats
+
+  interface ISegmentStat {
+    segmentId: string;
+    revision: number;
+    memberCount: number;
+
+    status:
+      | 'building'
+      | 'catchingUp'
+      | 'ready'
+      | 'paused'
+      | 'failed';
+
+    lastProcessedEventSequence?: number;
+    lastReconciledAt?: Date;
+
+    buildProgress?: {
+      processed: number;
+      matched: number;
+      cursor?: string;
+    };
+
+    updatedAt: Date;
+  }
+
+Unique index:
+
+  { segmentId: 1, revision: 1 }
+
+Feature-үүд:
+
+  List  -> records.find({ segmentIds })
+  Count -> segment_stats.memberCount
+
+countDocuments({ segmentIds })-ийг request бүр дээр ажиллуулахгүй.
+
+
+8. EVENT CONTRACT
+=================
+
+Одоогийн put_log payload-аас segmentation-д зориулсан normalized event үүсгэнэ.
+
+  interface SegmentSourceEvent {
+    eventId: string;
+    sequence: number;
+    subdomain: string;
+
+    source: 'mongo' | 'clock' | 'catchup' | 'reconciliation';
+
+    contentType: string;
+    contentId: string;
+    action: 'create' | 'update' | 'delete';
+    changedFields: string[];
+
+    previousValues?: Record<string, unknown>;
+    currentValues?: Record<string, unknown>;
+
+    relatedEntities?: Record<string, string[]>;
+
+    relationChanges?: Record<
+      string,
+      {
+        added: string[];
+        removed: string[];
+        current: string[];
+      }
+    >;
+
+    entityVersion?: string;
+    occurredAt: Date;
+  }
+
+updateDescription.added/removed/updated key-үүдээс changedFields гаргана.
+
+8.1 Reliability анхааруулга
+---------------------------
+
+Одоогийн auto-capture:
+
+- update/delete-ийг барьдаг;
+- create бүх schema дээр баригдахгүй;
+- best-effort queue publish хийдэг;
+- failure нь original write-ийг унагадаггүй.
+
+Тиймээс production segmentation-ийн message алдахгүй баталгаанд одоогийн audit
+capture дангаараа хангалтгүй.
+
+Сонголт A — MVP:
+
+- Одоогийн put_log event ашиглана.
+- Хурдан хэрэгжинэ.
+- Local benchmark хийхэд хангалттай.
+- Message loss боломжтой.
+- Production exact membership баталгаа өгөхгүй.
+
+Сонголт B — production:
+
+- Plugin mutation болон durable outbox-ийг нэг Mongo transaction-д бичнэ.
+- Entity update + segmentation_outbox insert.
+- Logs service outbox-ийг publish хийнэ.
+
+Standalone Mongo transaction дэмжихгүй бол schema hook event + durable journal +
+reconciliation хослуулж eventual repair хийнэ.
+
+
+9. LOGS SERVICE ФАЙЛЫН БҮТЭЦ
+============================
+
+  backend/services/logs/src/segmentation/
+    types.ts
+    constants.ts
+
+    dispatcher/
+      enqueueSegmentEvent.ts
+      normalizeLogEvent.ts
+      resolveDependencies.ts
+      dispatchEvaluations.ts
+
+    evaluation/
+      evaluateSubject.ts
+      evaluateConditionTree.ts
+      mergeEvaluationResults.ts
+      callPluginEvaluators.ts
+      applyMembership.ts
+
+    catchup/
+      startSegmentBuild.ts
+      processCatchupBatch.ts
+      finalizeSegmentBuild.ts
+      replayFromWatermark.ts
+
+    temporal/
+      temporalScheduler.ts
+      processClockTick.ts
+      processDueEvaluations.ts
+      calculateNextEvaluationAt.ts
+
+    reconciliation/
+      reconcileSegment.ts
+      reconcileSubject.ts
+
+    workers/
+      eventWorker.ts
+      evaluationWorker.ts
+      catchupWorker.ts
+      temporalWorker.ts
+      reconciliationWorker.ts
+
+    queues.ts
+    metrics.ts
+
+backend/services/logs/src/bullmq/index.ts дотор:
+
+  Promise.all([
+    eventLogWorker(),
+    activityLogWorker(),
+    segmentEventWorker(),
+    segmentEvaluationWorker(),
+    segmentCatchupWorker(),
+    segmentTemporalWorker(),
+    segmentReconciliationWorker(),
+  ]);
+
+Queue нэр:
+
+  logs:segment-event
+  logs:segment-evaluation
+  logs:segment-catchup
+  logs:segment-temporal
+  logs:segment-reconciliation
+  logs:segment-dlq
+
+Automation queue-тай тусдаа байна. Automation ачаалал segmentation-ийг,
+segmentation automation-ийг хаахгүй.
+
+
+10. LOG INGESTION-ЭЭС SEGMENTATION САЛБАРЛУУЛАХ
+================================================
+
+Одоогийн файл:
+
+  backend/services/logs/src/bullmq/eventLogs/eventLogHandler.ts
+
+Audit log амжилттай хадгалсны дараа:
+
+  await enqueueSegmentationEvent({
+    logId: resultDoc._id,
+    subdomain,
+    source,
+    action,
+    contentType,
+    payload,
+  });
+
+Event handler дотор evaluator ажиллуулахгүй. Зөвхөн жижиг normalized job enqueue
+хийнэ:
+
+  put_log worker
+    -> log хадгалах
+    -> segment-event queue
+    -> шууд дуусах
+
+handleAfterProcess, automation, segmentation queue зэрэгцээ салбарлана.
+
+  await Promise.allSettled([
+    handleAfterProcess(...),
+    enqueueSegmentationEvent(...),
+    enqueueAutomationTrigger(...),
+  ]);
+
+Production reliability дээр Promise.allSettled дангаараа хангалтгүй. Dispatch
+төлөв эсвэл outbox retry хэрэгтэй.
+
+
+11. SEGMENT СОНГОХ АЛГОРИТМ
+===========================
+
+  async function resolveAffectedSegments(event: SegmentSourceEvent) {
+    return coreTRPC.segmentMaterialization.findDependencies({
+      sourceContentType: event.contentType,
+      changedFields: event.changedFields,
+      statuses: ['active', 'building'],
+    });
+  }
+
+Дүрэм:
+
+- create: contentType-ийн бүх active dependency.
+- delete: contentType-ийн бүх active dependency.
+- update: changedFields огтлолцсон dependency.
+- Relation field өөрчлөгдвөл хуучин/шинэ subject хоёуланг reevaluate хийнэ.
+- updatedAt ганцаараа өөрчлөгдвөл skip.
+- Segment өөрийн membership update event-ийг дахин segmentation trigger болгохгүй.
+
+Infinite loop хамгаалалт:
+
+  ignoredFields: [
+    'segmentIds',
+    'segmentEvaluationVersion',
+    'updatedAt',
+  ]
+
+эсвэл:
+
+  origin: 'segmentation'
+
+байвал dispatcher skip хийнэ.
+
+
+12. EVALUATION LIFECYCLE
+========================
+
+Нэг evaluation job:
+
+  interface SegmentEvaluationJob {
+    eventId: string;
+    subdomain: string;
+    segmentId: string;
+    revision: number;
+    subjectType: string;
+    subjectIds: string[];
+    reason:
+      | 'domainEvent'
+      | 'clock'
+      | 'catchup'
+      | 'reconciliation';
+  }
+
+Нэг subject-ээр queue job үүсгэхгүй. 100-1000 ID-аар batch хийнэ.
+
+12.1 Plugin дуудлага
+--------------------
+
+Independent evaluator-уудыг parallel дуудна.
+
+  const results = await Promise.allSettled(
+    evaluatorGroups.map((group) =>
+      sendTRPCMessage({
+        pluginName: group.pluginName,
+        module: 'segments',
+        action: 'evaluateBatch',
+        input: group.input,
+      }),
+    ),
+  );
+
+Result:
+
+  type SegmentEvaluationState =
+    | 'matched'
+    | 'notMatched'
+    | 'unknown';
+
+AND:
+
+- Аль нэг notMatched -> notMatched.
+- Бүгд matched -> matched.
+- Бусад -> unknown.
+
+OR:
+
+- Аль нэг matched -> matched.
+- Бүгд notMatched -> notMatched.
+- Бусад -> unknown.
+
+unknown үед membership өөрчлөхгүй. Retry хийнэ. Plugin timeout бол notMatched
+гэж үзэж болохгүй.
+
+
+13. MEMBERSHIP UPDATE RELIABILITY
+=================================
+
+Зөвхөн $addToSet/$pull хийгээд дараа нь count өөрчлөхөд distributed failure
+үүснэ:
+
+  record update амжилттай
+    -> response-оос өмнө timeout
+    -> retry дээр modifiedCount = 0
+    -> counter update алдагдана
+
+Тиймээс plugin membership apply нь transition event/outbox үүсгэнэ.
+
+Subject plugin-ийн DB дотор:
+
+  record.segmentIds update
+  + segment_membership_outbox insert
+
+боломжтой бол transaction-д хийнэ.
+
+  interface ISegmentMembershipTransition {
+    transitionId: string;
+    segmentId: string;
+    revision: number;
+    subjectType: string;
+    subjectId: string;
+    from: boolean;
+    to: boolean;
+    evaluationVersion: string;
+    createdAt: Date;
+    publishedAt?: Date;
+  }
+
+Unique index:
+
+  { transitionId: 1 }
+
+эсвэл:
+
+  {
+    segmentId: 1,
+    revision: 1,
+    subjectId: 1,
+    evaluationVersion: 1
+  }
+
+Core stat consumer transition-ийг idempotent боловсруулна:
+
+- false -> true: count +1.
+- true -> false: count -1.
+- бусад: no-op.
+
+
+14. CATCH-UP BUILD
+==================
+
+Segment create/update хийхэд realtime mode руу шууд орохгүй.
+
+  draft -> building -> catchingUp -> ready/active
+
+Шинэ collection:
+
+  segment_builds
+
+  interface ISegmentBuild {
+    segmentId: string;
+    revision: number;
+    subjectType: string;
+
+    status:
+      | 'pending'
+      | 'scanning'
+      | 'replaying'
+      | 'ready'
+      | 'failed';
+
+    cursor?: string;
+    watermark: number;
+    processedCount: number;
+    matchedCount: number;
+    retryCount: number;
+    error?: string;
+    startedAt: Date;
+    updatedAt: Date;
+    completedAt?: Date;
+  }
+
+Алгоритм:
+
+1. Segment revision 2 compile.
+2. Current event watermark W авна.
+3. Subject plugin listSubjectIds(cursor, 1000) дуудна.
+4. evaluateBatch ажиллуулна.
+5. Revision 2 membership-үүдийг build namespace-д бичнэ.
+6. Cursor checkpoint хадгална.
+7. Дараагийн batch руу орно.
+8. Base scan дуусна.
+9. W-с хойших event-үүд replay хийнэ.
+10. Revision 2 ready болно.
+11. activeRevision = 2 болгоно.
+12. Revision 1 membership-ийг background cleanup хийнэ.
+
+Build үеийн membership-ийг шууд active segmentIds array-д холихгүй.
+
+Сонголт 1 — revision key:
+
+  segmentMembershipKeys: ['segment-1:revision-2']
+
+Activation дараа query active revision key ашиглана.
+
+Сонголт 2 — shadow collection:
+
+  segment_membership_builds
+
+дотор хадгалаад ready болоход subject records руу bulk apply хийнэ.
+
+Эхний implementation-д revision key ашиглах нь энгийн.
+
+
+15. TIME-BASED SEGMENT
+======================
+
+15.1 Bucket-based
+-----------------
+
+Тохиромжтой:
+
+- Birthday.
+- Anniversary.
+- Month/day.
+- Daily window.
+
+Customer дээр derived field:
+
+  segmentFacts: {
+    temporal: {
+      birthMonthDay: 822,
+    },
+  }
+
+Index:
+
+  { 'segmentFacts.temporal.birthMonthDay': 1, _id: 1 }
+
+Өдөр тутмын scheduler candidate bucket-үүдийг л авна.
+
+15.2 Exact next evaluation
+--------------------------
+
+Тохиромжтой:
+
+- lastSeenAt + 30 days.
+- closeDate - 7 days.
+- Subscription expiry.
+- SLA.
+
+Collection:
+
+  segment_temporal_schedules
+
+  interface ISegmentTemporalSchedule {
+    segmentId: string;
+    revision: number;
+    subjectType: string;
+    subjectId: string;
+    evaluatorId: string;
+    nextEvaluationAt: Date;
+    timezone: string;
+    sourceVersion: string;
+    leaseUntil?: Date;
+  }
+
+Index:
+
+  { nextEvaluationAt: 1, leaseUntil: 1 }
+
+Scheduler query:
+
+  {
+    nextEvaluationAt: { $lte: now },
+    leaseUntil: { $not: { $gt: now } }
+  }
+
+Temporal evaluator:
+
+  {
+    state: 'matched',
+    nextEvaluationAt: nextBoundary,
+  }
+
+Time worker due subject-ийг ердийн segment-evaluation queue руу оруулна.
+
+
+16. PLUGIN EVALUATOR-ИЙН ЖИШЭЭ
+==============================
+
+16.1 Core customer property
+---------------------------
+
+  evaluateBatch({
+    subjectIds,
+    condition: {
+      propertyName: 'profileScore',
+      operator: 'gte',
+      propertyValue: 50,
+    },
+  });
+
+Plugin query:
+
+  Customers.find({
+    _id: { $in: subjectIds },
+    profileScore: { $gte: 50 },
+  }).distinct('_id');
+
+Matching IDs-ийг set болгоод бүх subject-д result буцаана.
+
+16.2 Customer + deals
+---------------------
+
+Subject:
+
+  core:contacts.customers
+
+Condition:
+
+  sales total purchased amount >= 1M
+
+Sales evaluator:
+
+  Deals.aggregate([
+    {
+      $match: {
+        customerIds: { $in: subjectIds },
+        status: 'won',
+      },
+    },
+    {
+      $group: {
+        _id: '$customerIds',
+        totalAmount: { $sum: '$amount' },
+      },
+    },
+  ]);
+
+Энэ query request бүр дээр 4M customer-д ажиллахгүй. Зөвхөн event/catch-up
+batch дээр ажиллана.
+
+Дараагийн optimization:
+
+  segmentFacts.sales.totalPurchasedAmount
+
+projection ашиглах.
+
+16.3 Facebook conversation
+---------------------------
+
+Frontline evaluator subject IDs-аар batch query хийнэ:
+
+  customerIds IN batch
+  AND integration.kind = facebook
+
+Boolean result буцаана.
+
+
+17. SEGMENT QUERY CONTRACT
+==========================
+
+Одоогийн fetchSegment-ийг эхний өдөр шууд устгахгүй.
+
+Шинэ API:
+
+  segmentMembers({
+    segmentId,
+    cursor,
+    limit,
+  });
+
+Core segment-аас:
+
+- contentType.
+- activeRevision.
+- status.
+
+авна. Дараа нь subject plugin руу:
+
+  listBySegment({
+    segmentId,
+    cursor,
+    limit,
+  });
+
+Subject plugin query:
+
+  Model.find({
+    segmentIds: segmentId,
+    _id: { $gt: cursor },
+  })
+    .sort({ _id: 1 })
+    .limit(limit + 1);
+
+Count:
+
+  segmentStat({ segmentId });
+
+segment_stats.memberCount буцаана.
+
+Compatibility:
+
+- dynamic segment -> хуучин fetchSegment.
+- materialized + ready -> segmentIds.
+- materialized + building -> UI progress эсвэл legacy query fallback.
+- failed -> last ready revision.
+
+
+18. SEGMENT CREATE/UPDATE/DELETE
+===============================
+
+18.1 Create
+-----------
+
+1. Definition validate.
+2. Plugin meta field/operator validate.
+3. Compile plan.
+4. Dependency rows үүсгэх.
+5. status=building.
+6. Catch-up job enqueue.
+7. Ready болсон үед active.
+
+18.2 Update
+-----------
+
+1. Active revision 1 хэвээр байна.
+2. Revision 2 compile.
+3. Revision 2 catch-up.
+4. Watermark replay.
+5. Atomically activeRevision=2.
+6. Revision 1 cleanup.
+
+18.3 Delete
+-----------
+
+1. status=paused/deleting.
+2. Шинэ events авахаа зогсоох.
+3. Subject plugin-ээр segmentId pull хийх.
+4. Dependencies/stats/build/schedules cleanup.
+5. Definition delete.
+
+4M record дээрх segmentIds cleanup synchronous mutation байж болохгүй. Cursor
+background job байна.
+
+
+19. PRIVATE/TEAM/ORG SEGMENT
+===========================
+
+  scope: 'organization' | 'team' | 'private'
+
+нь permission.
+
+  executionMode: 'dynamic' | 'materialized'
+
+нь runtime strategy.
+
+Хоёрыг хольж болохгүй.
+
+Default:
+
+- Private saved filter -> dynamic.
+- Team shared -> dynamic эсвэл materialized.
+- Org operational -> materialized.
+- Automation хэрэглэсэн -> materialized.
+- Campaign хэрэглэсэн -> materialized.
+
+5K private segment бүгд realtime materialized болохгүй.
+
+Segment хэрэглэж эхлэх үед:
+
+  dynamic -> building -> materialized
+
+болгож promote хийж болно.
+
+
+20. RETRY, ORDERING, REPLAY
+===========================
+
+Queue settings:
+
+- Exponential backoff.
+- Finite retries.
+- Failed job хадгалах.
+- DLQ.
+- Explicit replay command.
+- Queue concurrency env-аар тохируулах.
+- Tenant fairness.
+
+Ordering:
+
+Event дээр entityVersion эсвэл monotonically increasing sequence ашиглана.
+
+  if (incomingVersion <= processedVersion) {
+    return;
+  }
+
+Coalescing:
+
+Нэг subject дээр богино хугацаанд олон event ирвэл:
+
+  segmentId + subjectId
+
+job key ашиглаж collapse/debounce хийнэ. Evaluation current state шалгадаг тул
+хамгийн сүүлийн нэг evaluation хангалттай.
+
+Unknown:
+
+  plugin timeout -> unknown
+  unknown -> membership unchanged
+  unknown -> retry
+  retry exhausted -> DLQ + segment health warning
+
+
+21. RECONCILIATION
+==================
+
+Realtime system байсан ч repair path заавал байна.
+
+  segment-reconciliation worker
+
+Дэмжих ажиллагаа:
+
+- Rebuild whole segment.
+- Recheck one subject.
+- Recheck cursor range.
+- Recount membership.
+- Replay event range.
+- Repair counter.
+
+Schedule:
+
+- Critical active segment -> periodic sample.
+- Count mismatch -> full recount background.
+- DLQ recovery -> targeted reevaluation.
+- Admin manual rebuild.
+
+
+22. METRICS
+===========
+
+  segment_event_lag_seconds
+  segment_events_processed_total
+  segment_evaluations_total
+  segment_evaluation_duration_ms
+  segment_unknown_results_total
+  segment_membership_added_total
+  segment_membership_removed_total
+  segment_catchup_progress
+  segment_catchup_eta
+  segment_dlq_size
+  plugin_evaluator_duration_ms
+  plugin_evaluator_failure_total
+  temporal_schedule_lag_seconds
+
+Structured log бүрд:
+
+  eventId
+  segmentId
+  revision
+  subjectType
+  batchSize
+  pluginName
+  durationMs
+  resultCounts
+
+байна. Subject data/PII бүхэлд нь log хийхгүй.
+
+
+23. ХИЙХ ДАРААЛАЛ
+=================
+
+Phase 1 — single-entity MVP
+---------------------------
+
+Зөвхөн:
+
+- Customer өөрийн property.
+- Deal өөрийн property.
+
+Хийх зүйл:
+
+- Meta evaluator.
+- Dispatcher.
+- Evaluation queue.
+- segmentIds.
+- Index.
+- Stats.
+- Cursor catch-up.
+
+Acceptance:
+
+- 4M customers.
+- 20M deals.
+- List indexed.
+- Count stats-аас.
+- Create/update/delete event membership шинэчилнэ.
+- Catch-up resume хийнэ.
+
+Phase 2 — related entity
+------------------------
+
+- customer <- deals.
+- customer <- conversations.
+- deal <- customer.
+- Relation resolver.
+- Batch parallel evaluator.
+- Old/new relation handling.
+- unknown.
+- Retry/DLQ.
+
+Phase 3 — reliable production pipeline
+--------------------------------------
+
+- Durable outbox.
+- Transition outbox.
+- Entity version.
+- Watermark replay.
+- Reconciliation.
+- Coalescing.
+
+Phase 4 — temporal
+------------------
+
+- Daily bucket.
+- nextEvaluationAt.
+- Timezone.
+- Missed tick replay.
+- Leap-day birthday policy.
+
+Phase 5 — migration
+-------------------
+
+- Existing segments default dynamic.
+- Selected segment materialize.
+- Legacy fetch result vs materialized membership comparison.
+- Mismatch metrics.
+- Rollout feature flag.
+- Хуучин query path-ийг дараа нь deprecate.
+
+
+24. IMPLEMENTATION BOUNDARY
+===========================
+
+Энэ ажил repository-level бөгөөд олон service/plugin хамарна. Нэг PR-д бүгдийг
+хийхгүй.
+
+Зөв хуваалт:
+
+1. Shared segment materialization contracts.
+2. Core segment definition/dependency/build/stat models.
+3. Logs segmentation runtime and queues.
+4. Core customer subject/evaluator.
+5. Sales deal subject/evaluator.
+6. Related customer/deal evaluation.
+7. Catch-up + watermark.
+8. Temporal scheduler.
+9. UI build/progress/status.
+10. Legacy migration.
+
+Plugin source өөрчлөх бүрд тухайн plugin-ийн:
+
+  backend/plugins/<name>_api/AGENTS.md
+
+шинэчлэгдэнэ.
+
+Core/log/shared өөрчлөлт нь хэрэглэгчийн зөвшөөрсөн тусдаа repository-level scope
+болохыг PR description-д тодорхой бичнэ.
+
+
+25. ХИЙЖ БОЛОХГҮЙ ЗҮЙЛС
+========================
+
+- Event бүр дээр бүх segment-ийг loop хийхгүй.
+- Subject бүрээр нэг tRPC request хийхгүй.
+- Plugin failure-г false гэж үзэхгүй.
+- $push ашиглахгүй.
+- Request-time exact countDocuments ашиглахгүй.
+- 4M ID-г service хооронд array-аар дамжуулахгүй.
+- Catch-up хийж байхдаа realtime event алдахгүй.
+- Build дуусаагүй revision-ийг active болгохгүй.
+- segmentIds update event өөрийгөө дахин trigger хийлгэхгүй.
+- Audit log queue-г transactionally reliable outbox гэж андуурахгүй.
+- Нэг plugin нөгөөгийн collection руу шууд орохгүй.
+
+
+ЭЦСИЙН CONTRACT
+===============
+
+Plugin meta:
+  Юу evaluate хийж чадах вэ?
+
+Logs segmentation runtime:
+  Ямар event ямар subject/segment-д нөлөөлөв?
+
+Plugin evaluator:
+  Одоо condition давж байна уу?
+
+Subject plugin:
+  Membership-ийг idempotent apply хийх.
+
+Core segment state:
+  Plan, build, revision, exact counter.
+
+Catch-up/temporal/reconciliation:
+  Realtime event-ээс гадуурх correctness.
+
+Энэ төлөвлөгөөгөөр post-event segmentation нь automation шиг extensible боловч
+query-time segmentation-ийн 4M customer / 20M deal scale-ийн асуудлыг downstream
+feature бүрээс тусгаарлана.

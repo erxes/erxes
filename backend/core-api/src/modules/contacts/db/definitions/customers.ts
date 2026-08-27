@@ -1,14 +1,35 @@
-
 import { Schema } from 'mongoose';
 
 import {
   CUSTOMER_SELECT_OPTIONS,
   customFieldSchema,
 } from 'erxes-api-shared/core-modules';
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import {
+  ISearchTokenConfig,
+  mongooseStringRandomId,
+  schemaWrapper,
+} from 'erxes-api-shared/utils';
 
 const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map((option) => option.value);
+};
+
+export const customerSearchTokenConfig: ISearchTokenConfig = {
+  enabled: true,
+  version: 1,
+  legacy: { enabled: true, minLength: 3 },
+  fields: [
+    { path: 'firstName', mode: 'prefix', minLength: 2 },
+    { path: 'middleName', mode: 'prefix', minLength: 2 },
+    { path: 'lastName', mode: 'prefix', minLength: 2 },
+    { path: 'primaryEmail', mode: 'word-prefix', minLength: 3 },
+    { path: 'emails', mode: 'word-prefix', minLength: 3 },
+    { path: 'primaryPhone', mode: 'word-prefix', minLength: 1 },
+    { path: 'phones', mode: 'word-prefix', minLength: 1 },
+    { path: 'code', mode: 'exact', minLength: 1 },
+    { path: 'visitorContactInfo.email', mode: 'word-prefix', minLength: 3 },
+    { path: 'visitorContactInfo.phone', mode: 'word-prefix', minLength: 1 },
+  ],
 };
 
 export const visitorContactSchema = new Schema(
@@ -252,7 +273,10 @@ export const customerSchema = schemaWrapper(
       timestamps: true,
     },
   ),
+  { search: customerSearchTokenConfig },
 );
 
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });
 customerSchema.index({ state: 1, status: 1, createdAt: -1 });
+customerSchema.index({ state: 1, createdAt: -1, _id: 1 });
+customerSchema.index({ searchTokens: 1, state: 1, status: 1 });

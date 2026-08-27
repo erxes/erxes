@@ -1,0 +1,369 @@
+Claude-д өгөх контекст — MongoDB customer search хэмжилт ба ярилцлагын дүгнэлт
+Огноо: 2026-08-18
+
+============================================================
+1. ЯРИАНЫ ШИЙДВЭР
+============================================================
+
+Асуулт:
+"Хэр ирээдүйтэй гэж бодож байна чиний бүлтрэлт?"
+
+Гарсан үндсэн дүгнэлт:
+
+- MongoDB-ээс PostgreSQL рүү одоо нүүхгүй.
+- MongoDB-ийг operational source of truth хэвээр үлдээнэ.
+- Одоогийн Elasticsearch-ийг шууд авахгүй.
+- Full-text search болон segment-ийг тусдаа workload гэж үзнэ.
+- Custom property нь searchable, segmentable, sortable, sensitive гэсэн тусдаа capability-тай байна.
+- Segment-ийг Mongo дээр боломжийн query/index, background job, cached/materialized membership ашиглан эхлээд сайжруулна.
+- Mongo бодитоор хүрэхгүй болсон workload-ийг хэмжилтийн дараа л салгана.
+- PostgreSQL, ClickHouse, mongot зэргийг урьдчилан сонгож migration хийхгүй.
+
+Энгийн зүйрлэлээр:
+
+"Багахан шаварт суухад шууд tank авахгүй. Эхлээд дугуй, тохиргоо, жолоодлогоо сайжруулна. Одоогийн машинаар үнэхээр давах боломжгүй газар тулсны дараа дараагийн шийдлийг сонгоно."
+
+Эцсийн практик байр суурь:
+
+1. Mongo query/index-ийн бодит муу хэсгийг засна.
+2. Segment-ийг тусгаарласан, эвтэйхэн кодоор ажиллуулна.
+3. Custom property-г full-text search-д бүрэн оруулна.
+4. Хүнд segment-ийг background job/cache болгоно.
+5. Бодит client, бодит data дээр хэмжинэ.
+
+============================================================
+2. CUSTOMER SEARCH QUERY
+============================================================
+
+MongoDB version: 4.4.25
+Collection: erxes.customers
+
+Ажиллуулсан query:
+
+db.customers.find({
+  status: { $ne: 'deleted' },
+  $or: [
+    { searchText: { $regex: 'bat', $options: 'i' } },
+    { primaryEmail: { $regex: 'bat', $options: 'i' } },
+    { emails: { $regex: 'bat', $options: 'i' } },
+    { primaryPhone: { $regex: 'bat', $options: 'i' } },
+    { phones: { $regex: 'bat', $options: 'i' } },
+    { firstName: { $regex: 'bat', $options: 'i' } },
+    { lastName: { $regex: 'bat', $options: 'i' } },
+    { middleName: { $regex: 'bat', $options: 'i' } }
+  ]
+}).explain('executionStats')
+
+Гол executionStats:
+
+executionSuccess: true
+nReturned: 4912
+executionTimeMillis: 3339
+totalKeysExamined: 613036
+totalDocsExamined: 613035
+
+Winning plan:
+
+- IXSCAN ашигласан индекс: status_1
+- Index bounds:
+  [MinKey, "deleted")
+  ("deleted", MaxKey]
+- Дараа нь FETCH stage дээр 8 regex predicate ажилласан.
+- rejectedPlans: []
+
+Үндсэн execution дүр зураг:
+
+status_1 IXSCAN
+  -> deleted биш 613,035 customer
+  -> бүх document-ийг FETCH
+  -> document бүрийн 8 field дээр case-insensitive substring regex
+  -> 4,912 result
+
+Харьцаа:
+
+613,035 / 4,912 = нэг буцаасан result тутамд ойролцоогоор 125 document шалгасан.
+
+Collection-ийн нийт 614,024 customer-аас 613,035-ыг шалгасан:
+
+613,035 / 614,024 = ойролцоогоор 99.84%.
+
+Тиймээс query нь collection-ийн бараг бүх customer document-ийг шалгаж байна.
+
+Шалтгаан:
+
+- /bat/i нь unanchored substring regex.
+- Case-insensitive.
+- 8 field дээр $or.
+- status != deleted нь low-selectivity predicate.
+- searchText индекс байсан ч энэ query-д ашиглагдаагүй.
+- "bat" текстийг phone field-үүд дээр хүртэл шалгаж байна.
+- searchText бусад нэр/email/phone field-ийг аль хэдийн агуулдаг бол давхардсан ажиллагаа байж болно.
+- Query дээр limit байгаагүй тул 4,912 result бүгдийг гаргасан.
+
+Дүгнэлт:
+
+Энэ нь MongoDB data хэмжээ эсвэл RAM хүрэхгүй байгаагийн нотолгоо биш. Full-text/substring search-ийг Mongo B-tree index ашиглах боломжгүй query хэлбэрээр хийж байгаагийн нотолгоо.
+
+============================================================
+3. WIREDTIGER CACHE ХЭМЖИЛТ
+============================================================
+
+db.serverStatus().uptime:
+
+11952591 секунд
+= ойролцоогоор 138 өдөр 8 цаг 9 минут 51 секунд
+
+Тиймээс WiredTiger counters нь 138 хоногийн cumulative утга.
+
+Гол cache утгууд:
+
+maximum bytes configured: 16269705216 bytes
+bytes currently in the cache: 13002217945 bytes
+tracked dirty bytes in the cache: 19719479 bytes
+pages currently held in the cache: 140519
+cache overflow score: 0
+eviction currently operating in aggressive mode: 0
+operations timed out waiting for space in cache: 0
+eviction server unable to reach eviction goal: 0
+pages evicted by application threads: 387
+
+Тооцоолол:
+
+Cache usage:
+13002217945 / 16269705216 = ойролцоогоор 79.9%
+
+Dirty cache:
+19719479 / 16269705216 = ойролцоогоор 0.12%
+
+Энэ нь WiredTiger cache target орчимдоо ажиллаж байгааг харуулж байгаа бөгөөд acute cache pressure-ийн шинж биш.
+
+138 хоногийн cumulative I/O counters:
+
+pages read into cache: 208664408
+bytes read into cache: 16750723078732
+pages written from cache: 140781464
+bytes written from cache: 3032777866593
+
+Урт хугацааны дундаж:
+
+pages read/sec:
+208664408 / 11952591 = ойролцоогоор 17.5 page/sec
+
+bytes read/sec:
+16750723078732 / 11952591 = ойролцоогоор 1.4 MB/sec
+
+pages written/sec:
+140781464 / 11952591 = ойролцоогоор 11.8 page/sec
+
+bytes written/sec:
+3032777866593 / 11952591 = ойролцоогоор 0.25 MB/sec
+
+Application page read counters:
+
+application threads page read from disk to cache count: 208656306
+application threads page read from disk to cache time: 17140831722 microseconds
+
+Historical average:
+
+17140831722 / 208656306 = ойролцоогоор 82 microseconds/page
+= 0.082 milliseconds/page
+
+Анхаарах зүйл:
+
+- Энэ 82 microseconds нь server ассан цагаас хойших historical average.
+- OS filesystem cache болон storage controller cache нөлөөлнө.
+- 613,035 document бүр тусдаа disk page read хийсэн гэсэн үг биш.
+- Олон document нэг page дотор байж болно.
+- Ихэнх page WiredTiger cache-д аль хэдийн байж болно.
+- Regex CPU хугацаа энэ тоонд орохгүй.
+
+Cache-ийн ерөнхий дүгнэлт:
+
+- Cache timeout байхгүй.
+- Aggressive eviction байхгүй.
+- Overflow байхгүй.
+- Dirty data маш бага.
+- Application thread eviction маш бага.
+- Snapshot-аас харахад RAM/cache гол bottleneck биш.
+
+============================================================
+4. CUSTOMERS COLLECTION STATS
+============================================================
+
+Ажиллуулсан command:
+
+db.customers.stats({
+  scale: 1024 * 1024,
+})
+
+Scale нь MB.
+
+Гол утгууд:
+
+namespace: erxes.customers
+count: 614024
+size: 475 MB
+avgObjSize: 812 bytes
+storageSize: 211 MB
+freeStorageSize: 99 MB
+nindexes: 9
+totalIndexSize: 102 MB
+totalSize: 314 MB
+
+WiredTiger collection-specific cache:
+
+bytes currently in the cache: 551099158 bytes
+= ойролцоогоор 551 MB
+
+WiredTiger global cache max ойролцоогоор 15.2 GiB тул customers collection одоогоор global cache-ийн ойролцоогоор 3.6%-тай тэнцэх cache footprint-тэй.
+
+Disk хэмжээ cache-аас бага байгаагийн шалтгаан:
+
+- Disk дээр Snappy compression ашиглаж байна.
+- Cache-д page задлагдсан хэлбэртэй байна.
+- In-memory page structure болон metadata overhead байна.
+
+Collection-ийн index sizes:
+
+_id_: 24 MB
+state_1: 5 MB
+profileScore_1: 3 MB
+status_1: 2 MB
+integrationId_1: 2 MB
+tagIds_1: 2 MB
+searchText_1: 18 MB
+code_1: 3 MB
+_id_1_createdAt_1_searchText_1: 38 MB
+
+Анхаарах индексүүд:
+
+1. searchText_1 — 18 MB
+
+Одоогийн /bat/i query explain дээр ашиглагдаагүй.
+
+2. _id_1_createdAt_1_searchText_1 — 38 MB
+
+Compound index-ийн эхний field _id байна. _id equality-гүй query арын createdAt болон searchText field-үүдийг үр ашигтай ашиглахгүй. _id өөрөө unique учраас энэ индекс redundant эсвэл буруу field order-той байх магадлалтай. Гэхдээ $indexStats болон code usage шалгалгүй устгаж болохгүй.
+
+Index usage шалгах query:
+
+db.customers.aggregate([
+  { $indexStats: {} },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      operations: '$accesses.ops',
+      since: '$accesses.since'
+    }
+  },
+  { $sort: { operations: -1 } }
+])
+
+freeStorageSize:
+
+99 MB нь collection file дотор дахин ашиглаж болох сул block. Алдагдсан RAM биш. Compact хийлээ гээд regex query мэдэгдэхүйц хурдсахгүй.
+
+============================================================
+5. 3 САЯ CUSTOMER БОЛОХОД БҮДҮҮН ТӨСӨӨЛӨЛ
+============================================================
+
+Одоогийн distribution ойролцоо хэвээр гэж маш бүдүүн тооцвол:
+
+614K customers:
+
+- logical data: 475 MB
+- disk data: 211 MB
+- indexes: 102 MB
+
+3M customers нь ойролцоогоор 4.9 дахин их:
+
+- logical data: ойролцоогоор 2.3 GB
+- disk data: ойролцоогоор 1.0 GB
+- indexes: ойролцоогоор 0.5 GB
+
+Энэ нь 15 GB орчим WiredTiger cache-д customer collection талаасаа боломжийн хэмжээ хэвээр.
+
+Гэхдээ одоогийн query хэлбэр хэвээр бол:
+
+- data RAM-д багтсан ч
+- document бүр дээр regex ажиллах тул
+- CPU/document traversal зардал data-тай хамт өснө.
+
+Тиймээс scale асуудал data багтах эсэхээс өмнө query scan amplification дээр гарна.
+
+============================================================
+6. БОГИНО ХУГАЦААНЫ ЗАСВАРЫН САНАЛ
+============================================================
+
+1. UI search query-д хатуу limit тавих, жишээ нь 20 эсвэл 50.
+
+2. Input-ийн төрлөөр хайх field-үүдийг салгах:
+
+- Email хэлбэртэй бол email field.
+- Зөвхөн digit бол normalized phone field.
+- Ердийн текст бол name/search field.
+- "bat" текстийг phone fields дээр шалгахгүй.
+
+3. Exact email/phone lookup-д normalized equality index ашиглах.
+
+4. Name prefix хайлт шаардлагатай бол normalized lowercase field болон case-sensitive anchored prefix ашиглах:
+
+/^bat/
+
+Харин /bat/i болон /^bat/i дээр B-tree index найдвартай ашиглагдахгүй.
+
+5. Contains, token, fuzzy, relevance, олон field, custom-property full-text search-ийг Elasticsearch-д өгөх.
+
+6. status: { $ne: 'deleted' } нь low-selectivity. Боломжтой бол equality эсвэл controlled status set ашиглах. Гэхдээ application semantics-ийг эвдэж болохгүй.
+
+7. searchText бусад field-үүдийг аль хэдийн агуулдаг бол $or дахь давхардсан predicates-ийг цөөлөх.
+
+8. Exact count-ийг search keystroke бүр дээр хийхгүй. Хэрэгтэй бол тусдаа/debounced/background байдлаар хийх.
+
+============================================================
+7. FULL-TEXT SEARCH БА CUSTOM PROPERTY
+============================================================
+
+Custom property definition дээр дараах capability-уудыг тусад нь авч үзнэ:
+
+- searchable: full-text search-д орох эсэх
+- segmentable: structured segment predicate болж болох эсэх
+- sortable: list sorting-д ашиглах эсэх
+- sensitive: PII/permission хамгаалалт шаардлагатай эсэх
+
+Full-text search болон segment-ийг хутгахгүй:
+
+- "note contains барилгын материал" — full-text/search workload
+- "industry equals construction" — structured segment filter
+- "revenue greater than 100000000" — typed numeric segment filter
+
+Search index-д зөвхөн searchable custom properties орно. Sensitive property default-аар searchable биш байна. Unauthorized property-ийн hit/snippet нь data leak үүсгэж болох учраас permission хамгаалалт шаардлагатай.
+
+Одоогийн практик шийдвэр:
+
+- Elasticsearch ажиллаж байгаа бол шууд устгахгүй.
+- Custom property full-text search-ийг ES document/projection-д зөв оруулна.
+- Mongo-г exact lookup, structured filter, operational data-д ашиглана.
+- Segment Mongo дээр тулбал background/materialized байдлаар сайжруулна.
+- Mongot/ClickHouse/PostgreSQL руу зөвхөн бодит хэмжилтийн дараа орно.
+
+============================================================
+8. ЭЦСИЙН НЭГТГЭСЭН ДҮГНЭЛТ
+============================================================
+
+Одоогийн хэмжилтээр:
+
+- Customer data хэт том биш.
+- Customer indexes хэт том биш.
+- Customer collection cache-д төвөггүй багтаж байна.
+- WiredTiger acute cache pressure-д ороогүй.
+- Disk I/O урт хугацааны дунджаар өндөр харагдахгүй.
+- 3.3 секундийн search query collection-ийн 99.84%-ийг FETCH хийж байна.
+- Найман case-insensitive substring regex ажиллаж байна.
+- searchText_1 индекс winning plan-д ашиглагдаагүй.
+- Гол bottleneck нь MongoDB engine эсвэл RAM биш, query shape.
+
+Иймээс одоогийн шийдвэр:
+
+"MongoDB-ээ солихгүй. Query болон index design-аа засна. Full-text search-ийг Elasticsearch-д зөв өгнө. Segment-ийг Mongo дээр background/materialized болгоно. Бодитоор хүрэхээ больсон workload-ийг хэмжилтийн дараа л тусдаа engine рүү салгана."

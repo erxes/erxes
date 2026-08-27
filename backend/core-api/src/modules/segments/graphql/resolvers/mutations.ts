@@ -1,32 +1,37 @@
+import {
+  sendSegmentForget,
+  sendSegmentRebuild,
+} from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import { ISegment } from '../../db/definitions/segments';
-import { ISegmentsEdit } from '../../types';
+import { ISegmentCreate } from '../../db/models/Segments';
 
+/**
+ * Every write here queues the membership work it implies.
+ *
+ * Record-driven recomputation only ever re-decides the records that moved,
+ * which cannot notice that the question itself changed. So a saved definition
+ * asks for a rebuild, and a deleted one asks for its id to come off the records
+ * still carrying it - otherwise both keep answering with yesterday's segment.
+ */
 export const segmentMutations = {
-  /**
-   * Create new segment
-   */
   async segmentsAdd(
     _root,
-    doc: ISegment,
-    { models, __, checkPermission }: IContext,
+    doc: ISegmentCreate,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
-    const extendedDoc: any = __(doc);
+    const segment = await models.Segments.createSegment(doc, user._id);
 
-    const { conditionSegments = [] } = extendedDoc || {};
+    sendSegmentRebuild({ subdomain, segmentId: segment._id });
 
-    return await models.Segments.createSegment(extendedDoc, conditionSegments);
+    return segment;
   },
 
-  /**
-   * Update segment
-   */
   async segmentsEdit(
     _root,
-    { _id, ...doc }: ISegmentsEdit,
-    { models, checkPermission }: IContext,
+    { _id, ...doc }: ISegmentCreate & { _id: string },
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
@@ -36,28 +41,50 @@ export const segmentMutations = {
       throw new Error('Segment not found');
     }
 
-    const { conditionSegments = [] } = doc || {};
+    const updated = await models.Segments.updateSegment(_id, doc, user._id);
 
-    return await models.Segments.updateSegment(_id, doc, conditionSegments);
+    // Only a changed tree changes who belongs; renaming or recolouring does
+    // not, and rebuilding for those would empty the segment for no reason.
+    if (doc.root) {
+      sendSegmentRebuild({ subdomain, segmentId: _id });
+    }
+
+    return updated;
   },
 
-  /**
-   * Delete segment
-   */
   async segmentsRemove(
     _root,
-    { _id, ids }: { _id: string; ids: string[] },
-    { models, checkPermission }: IContext,
+    { ids }: { ids: string[] },
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
-    if (!_id && !ids?.length) {
+    if (!ids?.length) {
       throw new Error('You should provide segment');
     }
 
-    if (ids.length) {
-      return await models.Segments.removeSegments(ids);
+    // Read before the delete: once the segments are gone, nothing knows which
+    // collections are still carrying their ids.
+    const removing = await models.Segments.find(
+      { _id: { $in: ids } },
+      { _id: 1, contentType: 1 },
+    ).lean();
+
+    const result = await models.Segments.removeSegments(ids);
+
+    const byContentType = new Map<string, string[]>();
+
+    for (const segment of removing) {
+      byContentType.set(segment.contentType, [
+        ...(byContentType.get(segment.contentType) || []),
+        segment._id,
+      ]);
     }
-    return await models.Segments.removeSegment(_id);
+
+    for (const [contentType, segmentIds] of byContentType) {
+      sendSegmentForget({ subdomain, contentType, segmentIds });
+    }
+
+    return result;
   },
 };

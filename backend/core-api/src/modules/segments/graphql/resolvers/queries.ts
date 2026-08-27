@@ -1,21 +1,18 @@
 import {
-  gatherDependentServicesType,
   ISegmentContentType,
+  resolveSegmentFieldOperators,
+  SEGMENT_NUMBER_OPERATORS,
+  SegmentFieldMeta,
+  SegmentNode,
+  SegmentRelationMeta,
 } from 'erxes-api-shared/core-modules';
-import {
-  getPlugin,
-  getPlugins,
-  getEsIndexTotalCount,
-  isEnabled,
-} from 'erxes-api-shared/utils';
+import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { fetchSegment } from '../../utils/fetchSegment';
-import { IPreviewParams } from '../../types';
-
-interface IAssociatedType {
-  type: string;
-  description: string;
-}
+import { ISegmentDocument } from '../../db/definitions/segments';
+import {
+  countSegmentMembers,
+  listSegmentMembers,
+} from '../../utils/runSegment';
 
 export const segmentQueries = {
   async segmentsGetTypes() {
@@ -31,7 +28,8 @@ export const segmentQueries = {
               return [];
             }
             return {
-              contentType: `${serviceName}:${ct.moduleName}.${ct.type}`,
+              contentType:
+                ct.contentType || `${serviceName}:${ct.moduleName}.${ct.type}`,
               description: ct.description,
             };
           },
@@ -42,164 +40,234 @@ export const segmentQueries = {
     return types;
   },
 
-  async segmentsGetAssociationTypes(_root, { contentType }) {
-    const [pluginName] = contentType.split(':');
-    const plugin = await getPlugin(pluginName);
-    const meta = plugin.config.meta || {};
-    if (!meta.segments) {
-      return [];
-    }
-    // get current services content types
-    const serviceCts = meta.segments.contentTypes || [];
-    const associatedTypes: IAssociatedType[] = serviceCts.map(
-      (ct: ISegmentContentType) => ({
-        type: `${pluginName}:${ct.moduleName}.${ct.type}`,
-        description: ct.description,
-      }),
-    );
-
-    // gather dependent services contentTypes
-    const dependentModules = meta.segments.dependentModules || [];
-    for (const dModule of dependentModules) {
-      if (!(await isEnabled(dModule.name))) {
-        continue;
-      }
-      const depModule = await getPlugin(dModule.name);
-      const depServiceMeta = depModule.config.meta || {};
-      if (depServiceMeta.segments) {
-        let contentTypes = depServiceMeta.segments.contentTypes || [];
-        if (!!dModule?.types?.length) {
-          contentTypes = contentTypes.filter(({ type }) =>
-            (dModule?.types || []).includes(type),
-          );
-        }
-        contentTypes.forEach((ct: ISegmentContentType) => {
-          associatedTypes.push({
-            type: `${dModule.name}:${ct.moduleName}.${ct.type}`,
-            description: ct.description,
-          });
-        });
-      }
-    }
-    // gather contentTypes of services that are dependent on current service
-    await gatherDependentServicesType(
-      pluginName,
-      (ct: ISegmentContentType, sName: string) => {
-        associatedTypes.push({
-          type: `${sName}:${ct.moduleName}.${ct.type}`,
-          description: ct.description,
-        });
-      },
-    );
-    return associatedTypes.map((atype) => ({
-      value: atype.type,
-      description: atype.description,
-    }));
-  },
-
   /**
-   * Segments list
+   * Get one segment
    */
   async segments(
     _root,
     {
       contentTypes,
-      config,
       ids,
       searchValue,
       excludeIds,
     }: {
       contentTypes: string[];
-      config?: any;
-      ids: string[];
-      searchValue: string;
-      excludeIds: string[];
+      ids?: string[];
+      searchValue?: string;
+      excludeIds?: string[];
     },
     { models, commonQuerySelector }: IContext,
   ) {
-    let selector: any = {
+    let selector: Record<string, unknown> = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true, $nin: [null, '', undefined] },
+      // A segment saved in the old shape has no tree, and no name either -
+      // nothing here can read one, and returning it breaks the non-null
+      // contract on the way out. They stay in the collection until the
+      // migration converts them; they just are not segments yet.
+      root: { $exists: true },
     };
-
-    if (config) {
-      for (const key of Object.keys(config)) {
-        selector[`config.${key}`] = config[key];
-      }
-    }
 
     if (searchValue) {
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
+
     if (excludeIds?.length) {
       selector._id = { $nin: excludeIds };
     }
 
-    if (ids) {
+    // An explicitly requested id comes back even when it falls outside the
+    // filter, so a selected segment never disappears from its own picker.
+    if (ids?.length) {
       selector = { $or: [{ _id: { $in: ids } }, { ...selector }] };
     }
 
     return models.Segments.find(selector).sort({ name: 1 });
   },
 
-  /**
-   * Only segment that has no sub segments
-   */
-  async segmentsGetHeads(
-    _root,
-    { contentType },
-    { models, commonQuerySelector }: IContext,
-  ) {
-    let selector: any = {};
-
-    if (contentType) {
-      selector.contentType = contentType;
-    }
-    return models.Segments.find({
-      ...commonQuerySelector,
-      ...selector,
-      name: { $exists: true },
-      $or: [{ subOf: { $exists: false } }, { subOf: '' }],
-    });
-  },
-
-  /**
-   * Get one segment
-   */
   async segmentDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Segments.findOne({ _id });
+    return models.Segments.findOne({ _id, root: { $exists: true } });
   },
 
   /**
-   * Preview count
+   * Filterable fields for a content type, as the owning plugin declares them.
    */
-  async segmentsPreviewCount(
+  async segmentFields(_root, { contentType }: { contentType: string }) {
+    const [pluginName] = contentType.split(':');
+    const plugin = await getPlugin(pluginName);
+    const declared = plugin.config?.meta?.segments?.segmentFields || {};
+
+    // The declaration stores operator keys; the form needs their labels and
+    // what each one asks the user for, and presence is added here for
+    // projected fields rather than being repeated in every plugin's list.
+    return (declared[contentType] || []).map((field: SegmentFieldMeta) => ({
+      ...field,
+      operators: resolveSegmentFieldOperators(field),
+    }));
+  },
+
+  /**
+   * Relations into this content type, gathered from every plugin - the plugin
+   * that owns the related records is the one that declares the traversal, so
+   * the list cannot come from the subject's own service alone.
+   */
+  async segmentRelations(_root, { subjectType }: { subjectType: string }) {
+    const pluginNames = await getPlugins();
+    const relations: SegmentRelationMeta[] = [];
+
+    for (const pluginName of pluginNames) {
+      const plugin = await getPlugin(pluginName);
+      const declared: SegmentRelationMeta[] =
+        plugin.config?.meta?.segments?.segmentRelations || [];
+
+      relations.push(
+        ...declared
+          .filter((relation) => relation.subjectType === subjectType)
+          .map((relation) => ({
+            ...relation,
+            // A measured relation is a number, so it takes the number
+            // operators - the same list the platform gives any number field.
+            measureOperators: resolveSegmentFieldOperators({
+              key: relation.key,
+              label: relation.label,
+              operators: SEGMENT_NUMBER_OPERATORS,
+              kind: 'projected',
+              path: relation.key,
+              input: 'number',
+            }),
+          })),
+      );
+    }
+
+    return relations;
+  },
+
+  async segmentMembers(
+    _root,
+    {
+      segmentId,
+      cursor,
+      limit,
+    }: { segmentId: string; cursor?: string; limit?: number },
+    { models, subdomain }: IContext,
+  ) {
+    const segment = await models.Segments.getSegment(segmentId);
+
+    if (!segment) {
+      return { ids: [] };
+    }
+
+    return listSegmentMembers(models, subdomain, segment, { cursor, limit });
+  },
+
+  async segmentMemberCount(
+    _root,
+    { segmentId }: { segmentId: string },
+    { models, subdomain }: IContext,
+  ) {
+    const segment = await models.Segments.getSegment(segmentId);
+
+    return segment
+      ? countSegmentMembers(models, subdomain, segment)
+      : { count: 0 };
+  },
+
+  /**
+   * A segment's membership and movement, day by day.
+   *
+   * Two sources, because they answer different halves of the question: the
+   * daily rows say where membership stood, the transitions say what moved it.
+   * A day with no row is left without a count rather than shown as zero - the
+   * worker not having settled that day is not the same as the segment having
+   * emptied.
+   */
+  async segmentGrowth(
+    _root,
+    { segmentId, days }: { segmentId: string; days?: number },
+    { models }: IContext,
+  ) {
+    const span = Math.min(days || 30, 365);
+    const since = new Date(Date.now() - span * 86_400_000);
+    const from = since.toISOString().slice(0, 10);
+
+    const [levels, movements] = await Promise.all([
+      models.SegmentDailyCounts.find({
+        segmentId,
+        date: { $gte: from },
+      }).lean(),
+      models.SegmentTransitions.aggregate([
+        { $match: { segmentId, createdAt: { $gte: since } } },
+        {
+          $group: {
+            _id: {
+              date: {
+                $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+              },
+              action: '$action',
+            },
+            total: { $sum: 1 },
+          },
+        },
+      ]),
+    ]);
+
+    const byDate = new Map<
+      string,
+      { date: string; count: number | null; joined: number; left: number }
+    >();
+
+    const at = (date: string) => {
+      const day = byDate.get(date) || { date, count: null, joined: 0, left: 0 };
+      byDate.set(date, day);
+      return day;
+    };
+
+    for (const level of levels) {
+      at(level.date).count = level.count;
+    }
+
+    for (const movement of movements) {
+      const day = at(movement._id.date);
+
+      if (movement._id.action === 'joined') {
+        day.joined = movement.total;
+      } else {
+        day.left = movement.total;
+      }
+    }
+
+    return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  },
+
+  /**
+   * The segment already asking this question.
+   *
+   * Offered to the form before it saves, so a duplicate is answered with the
+   * segment that already exists rather than with a second one.
+   */
+  async segmentSameDefinition(
     _root,
     {
       contentType,
-      conditions,
-      subOf,
-      config,
-      conditionsConjunction,
-    }: IPreviewParams,
+      root,
+      excludeId,
+    }: { contentType: string; root: SegmentNode; excludeId?: string },
+    { models }: IContext,
+  ) {
+    return models.Segments.findSameDefinition(contentType, root, excludeId);
+  },
+
+  /**
+   * How many records an unsaved tree would match, for the segment form.
+   */
+  async segmentsPreviewCount(
+    _root,
+    { contentType, root }: { contentType: string; root: SegmentNode },
     { models, subdomain }: IContext,
   ) {
-    const total = await getEsIndexTotalCount(contentType);
-    const count = await fetchSegment(
-      models,
-      subdomain,
-      {
-        name: 'preview',
-        color: '#fff',
-        subOf: subOf || '',
-        config,
-        contentType,
-        conditions,
-        conditionsConjunction,
-      },
-      { returnCount: true },
-    );
-    return { count, total };
+    return countSegmentMembers(models, subdomain, {
+      contentType,
+      root,
+    } as ISegmentDocument);
   },
 };

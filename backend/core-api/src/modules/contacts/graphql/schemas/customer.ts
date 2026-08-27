@@ -85,6 +85,8 @@ const queryParams = `
   excludeTagIds: [String]
   tagWithRelated: Boolean
 
+  segmentIds: [String]
+
   brandIds: [String]
 
   integrationIds: [String]

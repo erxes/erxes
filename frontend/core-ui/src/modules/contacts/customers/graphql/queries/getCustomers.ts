@@ -8,6 +8,7 @@ import {
 export const GET_CUSTOMERS = gql`
   query customersRecordTable(
     $segment: String
+    $segmentIds: [String]
     $tagIds: [String]
     $type: String
     $searchValue: String
@@ -27,6 +28,7 @@ export const GET_CUSTOMERS = gql`
   ) {
     customers(
       segment: $segment
+      segmentIds: $segmentIds
       tagIds: $tagIds
       type: $type
       searchValue: $searchValue

@@ -29,6 +29,9 @@ logsSchema.index(
   { expireAfterSeconds: LOG_RETENTION_SECONDS },
 );
 
+// Match the default logsMainList cursor order for index-only pagination.
+logsSchema.index({ createdAt: -1, _id: 1 });
+
 logsSchema.index(
   { docId: 1, createdAt: -1 },
   { partialFilterExpression: { docId: { $exists: true } } },

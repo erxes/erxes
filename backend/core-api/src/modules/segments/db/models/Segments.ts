@@ -1,3 +1,9 @@
+import {
+  canonicalSegmentText,
+  gatherSegmentRelations,
+  segmentDependencies,
+  segmentFingerprint,
+} from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -6,155 +12,167 @@ import {
   segmentSchema,
 } from '../definitions/segments';
 
-const createOrUpdateSubSegments = async (
-  models: IModels,
-  segments: ISegment[],
-) => {
-  const updatedSubSegments: Array<{
-    subSegmentId: string;
-    type: 'subSegment';
-  }> = [];
+/**
+ * Segments are whole documents now: the condition tree lives inside `root`, so
+ * there are no child segment rows to create, cascade or leave dangling.
+ */
 
-  for (const segment of segments) {
-    const { _id } = segment || {};
+/** What a caller supplies; the model fills in ownership and revision. */
+export type ISegmentCreate = Omit<
+  ISegment,
+  | 'revision'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'ownerId'
+  | 'dependsOn'
+  | 'fingerprint'
+> & { ownerId?: string };
 
-    if (_id) {
-      updatedSubSegments.push({
-        subSegmentId: _id,
-        type: 'subSegment',
-      });
-
-      delete segment._id;
-
-      await models.Segments.updateOne({ _id }, { $set: segment });
-      // create
-    } else {
-      const item = await models.Segments.create(segment);
-
-      updatedSubSegments.push({
-        subSegmentId: item._id,
-        type: 'subSegment',
-      });
-    }
-  }
-
-  return updatedSubSegments;
-};
 export interface ISegmentModel extends Model<ISegmentDocument> {
-  getSegment(_id: string): Promise<ISegmentDocument>;
-  createSegment(
-    doc: ISegment,
-    conditionSegments: ISegment[],
-  ): Promise<ISegmentDocument>;
+  getSegment(_id: string): Promise<ISegmentDocument | null>;
+  createSegment(doc: ISegmentCreate, userId: string): Promise<ISegmentDocument>;
   updateSegment(
     _id: string,
-    doc: ISegment,
-    conditionSegments: ISegment[],
-  ): Promise<ISegmentDocument>;
-  removeSegment(_id: string): Promise<void>;
-  removeSegments(ids: string[]): Promise<void>;
+    doc: Partial<ISegmentCreate>,
+    userId: string,
+  ): Promise<ISegmentDocument | null>;
+  removeSegments(ids: string[]): Promise<{ deletedCount?: number }>;
+  /** A segment that already asks this, if one exists. */
+  findSameDefinition(
+    contentType: string,
+    root: ISegment['root'],
+    excludeId?: string,
+  ): Promise<ISegmentDocument | null>;
 }
 
+/** The content types a tree reads, resolved through the live relation registry. */
+const dependenciesOf = async (contentType: string, root: ISegment['root']) => {
+  const { relations } = await gatherSegmentRelations(contentType);
+
+  return segmentDependencies(contentType, root, relations);
+};
+
 export const loadSegmentClass = (models: IModels) => {
+  /**
+   * The segment already answering this question, if there is one.
+   *
+   * The fingerprint narrows to candidates and the canonical text settles them,
+   * so a hash collision costs a comparison rather than a wrong answer.
+   */
+  const sameDefinition = async (
+    contentType: string,
+    root: ISegment['root'],
+    excludeId?: string,
+  ) => {
+    const candidates = await models.Segments.find({
+      contentType,
+      fingerprint: segmentFingerprint(contentType, root),
+      ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+    }).lean<ISegmentDocument[]>();
+
+    const text = canonicalSegmentText(contentType, root);
+
+    return (
+      candidates.find(
+        (candidate) =>
+          candidate.root &&
+          canonicalSegmentText(contentType, candidate.root) === text,
+      ) || null
+    );
+  };
+
   class Segment {
-    /*
-     * Get a segment
+    /**
+     * Returns `null` for a missing segment instead of throwing: a caller
+     * resolving several segments should skip the one that is gone, not lose
+     * the whole batch.
      */
     public static async getSegment(_id: string) {
-      const segment = await models.Segments.findOne({ _id }).lean();
-
-      if (!segment) {
-        throw new Error('Segment not found');
-      }
-
-      return segment;
+      return models.Segments.findOne({ _id }).lean<ISegmentDocument>();
     }
 
-    /**
-     * Create a segment
-     * @param  {Object} segmentObj object
-     * @return {Promise} Newly created segment object
-     */
-    public static async createSegment(
-      doc: ISegment,
-      conditionSegments: ISegment[],
+    public static async findSameDefinition(
+      contentType: string,
+      root: ISegment['root'],
+      excludeId?: string,
     ) {
-      if (conditionSegments?.length) {
-        const conditions = await createOrUpdateSubSegments(
-          models,
-          conditionSegments,
-        );
-
-        doc.conditions = conditions;
-      }
-
-      return models.Segments.create(doc);
+      return sameDefinition(contentType, root, excludeId);
     }
 
-    /*
-     * Update segment
-     */
+    public static async createSegment(doc: ISegmentCreate, userId: string) {
+      // Guarded here rather than only in the form: a second segment asking the
+      // same question doubles every evaluation and every membership write for
+      // one answer, whichever path created it.
+      const existing = await sameDefinition(doc.contentType, doc.root);
+
+      if (existing) {
+        throw new Error(
+          `A segment with these conditions already exists: ${existing.name}`,
+        );
+      }
+
+      return models.Segments.create({
+        ...doc,
+        fingerprint: segmentFingerprint(doc.contentType, doc.root),
+        dependsOn: await dependenciesOf(doc.contentType, doc.root),
+        revision: 1,
+        ownerId: doc.ownerId || userId,
+        createdBy: userId,
+      });
+    }
+
     public static async updateSegment(
       _id: string,
-      doc: ISegment,
-      conditionSegments: ISegment[],
+      doc: Partial<ISegmentCreate>,
+      userId: string,
     ) {
-      if (conditionSegments?.length) {
-        const conditions = await createOrUpdateSubSegments(
-          models,
-          conditionSegments,
-        );
+      // A changed tree is a new revision, so anything caching membership by
+      // revision knows to rebuild rather than serve a stale list.
+      const bumpsRevision = Boolean(doc.root);
 
-        doc.conditions = conditions;
-      }
+      // Recomputed with the tree, never separately: a stale `dependsOn` means
+      // the worker stops being told about changes the segment now reads.
+      const contentType =
+        doc.contentType || (await models.Segments.getSegment(_id))?.contentType;
 
-      await models.Segments.updateOne({ _id }, { $set: doc });
+      if (doc.root && contentType) {
+        const existing = await sameDefinition(contentType, doc.root, _id);
 
-      return models.Segments.findOne({ _id });
-    }
-
-    /*
-     * Remove segment
-     */
-    public static async removeSegment(_id: string) {
-      const segmentObj = await models.Segments.findOne({ _id });
-
-      const subSegmentIds: string[] = [];
-
-      if (!segmentObj) {
-        throw new Error(`Segment not found with id ${_id}`);
-      }
-
-      if (segmentObj.conditions) {
-        for (const condition of segmentObj.conditions) {
-          if (condition.subSegmentId) {
-            subSegmentIds.push(condition.subSegmentId);
-          }
+        if (existing) {
+          throw new Error(
+            `A segment with these conditions already exists: ${existing.name}`,
+          );
         }
       }
 
-      await models.Segments.deleteMany({ _id: { $in: subSegmentIds } });
-      await segmentObj.deleteOne();
-      return segmentObj;
+      const dependsOn = doc.root
+        ? await dependenciesOf(
+            doc.contentType ||
+              (
+                await models.Segments.getSegment(_id)
+              )?.contentType ||
+              '',
+            doc.root,
+          )
+        : undefined;
+
+      await models.Segments.updateOne(
+        { _id },
+        {
+          $set: {
+            ...doc,
+            ...(dependsOn ? { dependsOn } : {}),
+            updatedBy: userId,
+          },
+          ...(bumpsRevision ? { $inc: { revision: 1 } } : {}),
+        },
+      );
+
+      return models.Segments.findOne({ _id }).lean<ISegmentDocument>();
     }
 
     public static async removeSegments(ids: string[]) {
-      const segments = await models.Segments.find({ _id: { $in: ids } }).lean();
-
-      const segmentIds: string[] = [];
-
-      for (const segment of segments) {
-        segmentIds.push(segment._id);
-        if (segment.conditions) {
-          for (const condition of segment.conditions) {
-            if (condition.subSegmentId) {
-              segmentIds.push(condition.subSegmentId);
-            }
-          }
-        }
-      }
-
-      return await models.Segments.deleteMany({ _id: { $in: segmentIds } });
+      return models.Segments.deleteMany({ _id: { $in: ids } });
     }
   }
 

@@ -14,8 +14,15 @@ import {
   normalizeLogEventInput,
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
+import { sendSegmentChanged } from '../../segments/events';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
+
+/** One id or many, as the action recorded it, with the empties dropped. */
+const toIdList = (ids?: string | string[]): string[] =>
+  (Array.isArray(ids) ? ids : [ids]).filter(
+    (id): id is string => typeof id === 'string' && id.length > 0,
+  );
 
 /**
  * Create an event dispatcher instance with methods for logging and automation triggers
@@ -83,6 +90,16 @@ export function createEventHandlers(
       .catch((err) => {
         console.error('sendDbEventLog queue.add failed', err);
       });
+
+    // Whoever changed decides who has to be re-checked. A delete is queued
+    // too: writing membership onto ids that are gone is a no-op, but the
+    // segment's member count is read back from the collection and so corrects
+    // itself.
+    sendSegmentChanged({
+      subdomain,
+      contentType,
+      docIds: toIdList(eventPayload.docIds ?? eventPayload.docId),
+    });
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
       const eventUpdateDescription = payload?.updateDescription;

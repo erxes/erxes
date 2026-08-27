@@ -1,62 +1,40 @@
 import { useLazyQuery } from '@apollo/client';
 import { toast } from 'erxes-ui/hooks';
 import { useState } from 'react';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { SEGMENTS_PREVIEW_COUNT } from 'ui-modules/modules/segments/graphql/queries';
-import { generateParamsSegmentPreviewCount } from 'ui-modules/modules/segments/utils/segmentFormUtils';
+import { useSegment } from '../context/SegmentProvider';
+import { SEGMENTS_PREVIEW_COUNT } from '../graphql/queries';
 
-type StatsType = {
-  total?: number;
-  targeted?: number;
-  percentage?: number;
-  loading?: boolean;
+type TStats = {
+  count: number;
+  /** Parts of the tree the count could not cover, so it is narrower. */
+  unsupported?: string[];
 };
+
+/** How many records the tree currently in the form would match. */
 export const useSegmentStats = () => {
   const { contentType, form } = useSegment();
-  const [stats, setStats] = useState<StatsType>();
-  const [countSegment, { called, loading }] = useLazyQuery(
+  const [stats, setStats] = useState<TStats>();
+
+  const [previewCount, { called, loading }] = useLazyQuery(
     SEGMENTS_PREVIEW_COUNT,
   );
 
   const handleCalculateStats = async () => {
-    const {
-      conditionsConjunction,
-      conditions,
-      conditionSegments,
-      config,
-      subOf,
-    } = form.getValues();
-    const { data } = await countSegment({
-      query: SEGMENTS_PREVIEW_COUNT,
-      variables: {
-        contentType,
-        conditions: generateParamsSegmentPreviewCount(
-          conditionSegments || ([] as any[]),
-        ),
-        subOf: form.getValues('subOf'),
-        config: form.getValues('config'),
-        conditionsConjunction: form.getValues('conditionsConjunction'),
-      },
-      onError: (error) => {
+    const { data } = await previewCount({
+      // The form holds the stored shape, so the tree is sent as it is.
+      variables: { contentType, root: form.getValues('root') },
+      onError: (error) =>
         toast({
-          title: 'Error',
-          variant: 'destructive',
+          title: 'Could not count the segment',
           description: error.message,
-        });
-      },
+          variant: 'destructive',
+        }),
     });
 
-    const { count = 0, total = 0 } = data?.segmentsPreviewCount || {};
-    setStats({
-      total,
-      targeted: count,
-      percentage: total > 0 ? Number(((count / total) * 100).toFixed(2)) : 0,
-    });
+    if (data?.segmentsPreviewCount) {
+      setStats(data.segmentsPreviewCount);
+    }
   };
 
-  return {
-    handleCalculateStats,
-    stats,
-    loading: called && loading,
-  };
+  return { handleCalculateStats, stats, loading: called && loading };
 };

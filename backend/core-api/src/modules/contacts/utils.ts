@@ -1,4 +1,8 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  buildSearchTokenFilter,
+  ISearchTokenConfig,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
 import { withPropertyConditions } from '@/properties/utils';
@@ -7,6 +11,7 @@ export const generateFilter = async (
   subdomain: string,
   params: any,
   models: IModels,
+  searchConfig?: ISearchTokenConfig,
 ) => {
   const {
     searchValue,
@@ -22,6 +27,7 @@ export const generateFilter = async (
     status,
     ids,
     excludeIds,
+    segmentIds,
   } = params;
 
   const filter: any = {
@@ -37,18 +43,22 @@ export const generateFilter = async (
   }
 
   if (searchValue) {
-    const regex = { $regex: searchValue, $options: 'i' };
+    if (searchConfig?.enabled) {
+      Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
+    } else {
+      const regex = { $regex: searchValue, $options: 'i' };
 
-    filter['$or'] = [
-      { searchText: regex },
-      { primaryEmail: regex },
-      { emails: regex },
-      { primaryPhone: regex },
-      { phones: regex },
-      { firstName: regex },
-      { lastName: regex },
-      { middleName: regex },
-    ];
+      filter['$or'] = [
+        { searchText: regex },
+        { primaryEmail: regex },
+        { emails: regex },
+        { primaryPhone: regex },
+        { phones: regex },
+        { firstName: regex },
+        { lastName: regex },
+        { middleName: regex },
+      ];
+    }
   }
 
   if (ids?.length) {
@@ -109,6 +119,13 @@ export const generateFilter = async (
     } else if (excludeTagIds?.length) {
       filter['tagIds'] = { $nin: baseTagIds };
     }
+  }
+
+  // Membership is read off the record, not recomputed: the segmentation worker
+  // maintains `segmentIds`, so filtering by segment is an indexed lookup rather
+  // than a run of the whole definition.
+  if (segmentIds?.length) {
+    filter['segmentIds'] = { $in: segmentIds };
   }
 
   if (dateFilters) {
