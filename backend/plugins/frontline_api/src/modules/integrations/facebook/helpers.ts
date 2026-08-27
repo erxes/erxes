@@ -52,7 +52,10 @@ export const removeIntegration = async (
       let pageTokenResponse;
 
       try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
+        pageTokenResponse =
+          account.scope === 'page_access_token'
+            ? account.token
+            : await getPageAccessToken(pageId, account.token);
       } catch (e) {
         debugError(
           `Error occurred while trying to get page access token with ${e.message}`,
@@ -176,7 +179,7 @@ export const repairIntegrations = async (
       integration,
     );
 
-    await subscribePage(models, pageId, pageTokens[pageId]);
+    await subscribePage(models, pageId, pageTokens[pageId], integration.kind);
 
     models.FacebookBots.reviveByPageId({
       pageId,
@@ -294,12 +297,15 @@ export const facebookCreateIntegration = async (
     for (const pageId of facebookPageIds) {
       try {
         // Get the access token for the page
-        const pageAccessToken = await getPageAccessToken(pageId, account.token);
+        const pageAccessToken =
+          account.scope === 'page_access_token'
+            ? account.token
+            : await getPageAccessToken(pageId, account.token);
         facebookPageTokensMap[pageId] = pageAccessToken;
 
         try {
           // Subscribe the page using the access token
-          await subscribePage(models, pageId, pageAccessToken);
+          await subscribePage(models, pageId, pageAccessToken, kind);
           debugFacebook(`Successfully subscribed page ${pageId}`);
         } catch (e) {
           // Log and throw error if subscription fails

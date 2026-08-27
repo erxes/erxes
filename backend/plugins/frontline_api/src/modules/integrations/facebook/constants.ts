@@ -19,12 +19,11 @@ export const INTEGRATION_KINDS = {
   ALL: ['facebook-post', 'facebook-messenger'],
 };
 
-export const SUBSCRIBED_FIELDS = [
-  'conversations',
-  'feed',
-  'messages',
-  'standby',
-  'messaging_handovers',
-  'messaging_postbacks',
-  'messaging_referrals',
-];
+export const SUBSCRIBED_FIELDS_BY_KIND: Record<string, string[]> = {
+  [INTEGRATION_KINDS.MESSENGER]: [
+    'messages',
+    'messaging_postbacks',
+    'messaging_referrals',
+  ],
+  [INTEGRATION_KINDS.POST]: ['feed'],
+};

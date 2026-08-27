@@ -9,14 +9,14 @@ import * as AWS from 'aws-sdk';
 import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
-import { SUBSCRIBED_FIELDS } from './constants';
+import { SUBSCRIBED_FIELDS_BY_KIND } from './constants';
 import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
     graph.setAccessToken(accessToken);
-    graph.setVersion('7.0');
+    graph.setVersion('26.0');
 
     return new Promise((resolve, reject) => {
       graph[method](path, ...otherParams, (error, response) => {
@@ -123,7 +123,7 @@ export const uploadUnpublishedPhotoFromKey = async (
 
   try {
     const response = await fetch(
-      `https://graph.facebook.com/v7.0/${pageId}/photos`,
+      `https://graph.facebook.com/v26.0/${pageId}/photos`,
       { method: 'POST', body: form },
     );
 
@@ -411,7 +411,10 @@ export const refreshPageAccessToken = async (
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
 
-  const pageAccessToken = await getPageAccessToken(pageId, account.token);
+  const pageAccessToken =
+    account.scope === 'page_access_token'
+      ? account.token
+      : await getPageAccessToken(pageId, account.token);
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
@@ -429,9 +432,10 @@ export const subscribePage = async (
   models: IModels,
   pageId,
   pageToken,
+  kind: string,
 ): Promise<{ success: true } | any> => {
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields: SUBSCRIBED_FIELDS,
+    subscribed_fields: SUBSCRIBED_FIELDS_BY_KIND[kind] || [],
   });
 };
 
