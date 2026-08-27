@@ -1,6 +1,126 @@
-import { SideMenu, cn, useSideMenuContext } from 'erxes-ui';
+import { IconActivity, IconListDetails } from '@tabler/icons-react';
+import {
+  FieldsInDetail,
+  ActivityLogs,
+  AddInternalNote,
+  getRelationWidgetLabel,
+  useCustomerDetail,
+  useCustomerEdit,
+  useRelationWidget,
+} from 'ui-modules';
+import {
+  ScrollArea,
+  SideMenu,
+  Spinner,
+  cn,
+  toast,
+  useSideMenuContext,
+} from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
-import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+
+const ACTIVITY_MODULE = {
+  name: 'activity',
+  icon: IconActivity,
+};
+
+const PROPERTIES_MODULE = {
+  name: 'properties',
+  icon: IconListDetails,
+};
+
+const ConversationCustomerActivity = ({
+  customerId,
+}: {
+  customerId: string;
+}) => (
+  <>
+    <SideMenu.Header
+      Icon={ACTIVITY_MODULE.icon}
+      label={getRelationWidgetLabel(ACTIVITY_MODULE)}
+    />
+    <ScrollArea className="flex-1 min-h-0">
+      <div className="py-3">
+        <ActivityLogs targetId={customerId} variant="backward" />
+      </div>
+    </ScrollArea>
+    <div className="shrink-0 py-2">
+      <AddInternalNote
+        key={customerId}
+        contentTypeId={customerId}
+        contentType="core:customer"
+      />
+    </div>
+  </>
+);
+
+const useInboxCustomerCustomFieldEdit = () => {
+  const { t } = useTranslation(['frontline', 'common']);
+  const { customerEdit, loading } = useCustomerEdit();
+
+  return {
+    mutate: (variables: { _id: string } & Record<string, unknown>) => {
+      customerEdit({
+        variables: { ...variables },
+        onCompleted: () => {
+          toast({
+            title: t('common:properties'),
+            description: t('save-successful'),
+          });
+        },
+      });
+    },
+    loading,
+  };
+};
+
+const ConversationCustomerProperties = ({
+  customerId,
+}: {
+  customerId: string;
+}) => {
+  const { t } = useTranslation(['frontline', 'common']);
+  const { customerDetail, loading, error } = useCustomerDetail({
+    variables: { _id: customerId },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  return (
+    <>
+      <SideMenu.Header
+        Icon={PROPERTIES_MODULE.icon}
+        label={t('common:properties')}
+      />
+      <ScrollArea className="flex-1 min-h-0">
+        {loading && !customerDetail ? (
+          <Spinner containerClassName="py-12" />
+        ) : error ? (
+          <div className="p-4 text-sm text-destructive">
+            <p>
+              {t('common:load-error', {
+                label: t('common:properties'),
+              })}
+            </p>
+            <p>{error.message}</p>
+          </div>
+        ) : customerDetail ? (
+          <div className="p-4">
+            <FieldsInDetail
+              fieldContentType="core:customer"
+              propertiesData={customerDetail.propertiesData || {}}
+              mutateHook={useInboxCustomerCustomFieldEdit}
+              id={customerId}
+            />
+          </div>
+        ) : (
+          <div className="p-4 text-sm text-muted-foreground">
+            {t('no-custom-properties-found')}
+          </div>
+        )}
+      </ScrollArea>
+    </>
+  );
+};
 
 // Bounded to the conversation area so the widget's own portals do not count.
 const SideWidgetOutsideClose = ({
@@ -52,8 +172,15 @@ export const ConversationSideWidget = ({
   asSheet?: boolean;
   boundaryRef: RefObject<HTMLElement>;
 }) => {
+  const { t } = useTranslation('common');
   const { relationWidgetsModules, RelationWidget } = useRelationWidget();
   const sideMenuRef = useRef<HTMLDivElement>(null);
+  const contentClassName = cn(
+    'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
+    asSheet
+      ? 'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
+      : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
+  );
 
   return (
     <SideMenu ref={sideMenuRef} className="flex-none">
@@ -68,13 +195,7 @@ export const ConversationSideWidget = ({
           <SideMenu.Content
             value={module.name}
             key={module.name}
-            className={cn(
-              'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
-              asSheet
-                ? // Docked under the conversation header instead of taking a column.
-                  'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
-                : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
-            )}
+            className={contentClassName}
           >
             <RelationWidget
               key={module.name}
@@ -87,6 +208,22 @@ export const ConversationSideWidget = ({
           </SideMenu.Content>
         );
       })}
+      {!!customerId && (
+        <SideMenu.Content
+          value={ACTIVITY_MODULE.name}
+          className={contentClassName}
+        >
+          <ConversationCustomerActivity customerId={customerId} />
+        </SideMenu.Content>
+      )}
+      {!!customerId && (
+        <SideMenu.Content
+          value={PROPERTIES_MODULE.name}
+          className={contentClassName}
+        >
+          <ConversationCustomerProperties customerId={customerId} />
+        </SideMenu.Content>
+      )}
 
       <SideMenu.Sidebar>
         {relationWidgetsModules.map((module) => {
@@ -99,6 +236,20 @@ export const ConversationSideWidget = ({
             />
           );
         })}
+        {!!customerId && (
+          <SideMenu.Trigger
+            value={ACTIVITY_MODULE.name}
+            label={getRelationWidgetLabel(ACTIVITY_MODULE)}
+            Icon={ACTIVITY_MODULE.icon}
+          />
+        )}
+        {!!customerId && (
+          <SideMenu.Trigger
+            value={PROPERTIES_MODULE.name}
+            label={t('properties')}
+            Icon={PROPERTIES_MODULE.icon}
+          />
+        )}
       </SideMenu.Sidebar>
     </SideMenu>
   );
