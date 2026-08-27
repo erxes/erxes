@@ -182,26 +182,26 @@ export const msdynamicQueries = {
     const response = body ? JSON.parse(body) : {};
     const values = response?.value || [];
 
-    const remainderByProduct: Record<
+    const remainderByProduct = new Map<
       string,
-      {
-        No: string;
-        Inventory: number;
-      }
-    > = {};
+      { No: string; Inventory: number }
+    >();
 
     for (const item of values) {
-      if (!remainderByProduct[item.No]) {
-        remainderByProduct[item.No] = {
+      let remainder = remainderByProduct.get(item.No);
+
+      if (!remainder) {
+        remainder = {
           No: item.No,
           Inventory: 0,
         };
+        remainderByProduct.set(item.No, remainder);
       }
 
-      remainderByProduct[item.No].Inventory += Number(item.Inventory) || 0;
+      remainder.Inventory += Number(item.Inventory) || 0;
     }
 
-    return Object.values(remainderByProduct);
+    return [...remainderByProduct.values()];
   },
 
   async msdCustomerRelations(
