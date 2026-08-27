@@ -33,3 +33,11 @@ export const GET_TICKETS = gql`
     }
   }
 `;
+
+export const GET_TICKET_CHANNEL_COUNT = gql`
+  query FrontlineTicketChannelCount($filter: ITicketFilter) {
+    getTickets(filter: $filter) {
+      totalCount
+    }
+  }
+`;

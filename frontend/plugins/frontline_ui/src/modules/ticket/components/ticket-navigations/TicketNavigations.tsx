@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
+import { useGetChannelTicketCounts } from '@/ticket/hooks/useGetChannelTicketCounts';
 
 function LoadingSkeleton() {
   return (
@@ -74,6 +75,12 @@ export function TicketNavigations() {
   });
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
   const [showUnconfigured, setShowUnconfigured] = useState(false);
+  const channelIds = useMemo(
+    () => (channels ?? []).map((channel) => channel._id),
+    [channels],
+  );
+  const { ticketCounts, loading: ticketCountsLoading } =
+    useGetChannelTicketCounts(channelIds);
 
   const channelPipelineIds = useMemo(
     () =>
@@ -87,20 +94,20 @@ export function TicketNavigations() {
     [pipelines],
   );
 
-  const { configuredChannels, unconfiguredChannels } = useMemo(() => {
+  const { channelsWithTickets, unconfiguredChannels } = useMemo(() => {
     const availableChannels = channels ?? [];
 
     return {
-      configuredChannels: availableChannels.filter((channel) =>
-        Boolean(channelPipelineIds[channel._id]),
+      channelsWithTickets: availableChannels.filter(
+        (channel) => ticketCounts[channel._id] !== 0,
       ),
       unconfiguredChannels: availableChannels.filter(
-        (channel) => !channelPipelineIds[channel._id],
+        (channel) => ticketCounts[channel._id] === 0,
       ),
     };
-  }, [channelPipelineIds, channels]);
+  }, [channels, ticketCounts]);
 
-  const navigationLoading = loading || pipelinesLoading;
+  const navigationLoading = loading || pipelinesLoading || ticketCountsLoading;
 
   const visibleUnconfiguredChannels = showUnconfigured
     ? unconfiguredChannels
@@ -113,7 +120,7 @@ export function TicketNavigations() {
       !nextShowUnconfigured &&
       unconfiguredChannels.some((channel) => channel._id === channelId)
     ) {
-      setChannelId(configuredChannels[0]?._id || null);
+      setChannelId(channelsWithTickets[0]?._id || null);
     }
 
     setShowUnconfigured(nextShowUnconfigured);
@@ -129,11 +136,11 @@ export function TicketNavigations() {
     );
 
     if (!channelId || !hasSelectedChannel) {
-      setChannelId(configuredChannels[0]?._id || null);
+      setChannelId(channelsWithTickets[0]?._id || null);
     }
   }, [
     channels,
-    configuredChannels,
+    channelsWithTickets,
     navigationLoading,
     setChannelId,
     channelId,
@@ -145,11 +152,11 @@ export function TicketNavigations() {
       !showUnconfigured &&
       unconfiguredChannels.some((channel) => channel._id === channelId)
     ) {
-      setChannelId(configuredChannels[0]?._id || null);
+      setChannelId(channelsWithTickets[0]?._id || null);
     }
   }, [
     channelId,
-    configuredChannels,
+    channelsWithTickets,
     navigationLoading,
     setChannelId,
     showUnconfigured,
@@ -163,7 +170,7 @@ export function TicketNavigations() {
           <LoadingSkeleton />
         ) : (
           <>
-            {configuredChannels.map((channel) => (
+            {channelsWithTickets.map((channel) => (
               <ChannelItem
                 key={channel._id}
                 channel={channel}
