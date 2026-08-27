@@ -25,24 +25,6 @@ const toQueryUser = (user: IContext['user']) => ({
   role: user.role,
 });
 
-const buildMessageQuery = ({
-  conversationId,
-  pinnedOnly,
-  userId,
-}: {
-  conversationId: string;
-  pinnedOnly?: boolean;
-  userId: string;
-}) => {
-  const query: Record<string, unknown> = { conversationId };
-
-  if (pinnedOnly) {
-    query.pinnedByIds = userId;
-  }
-
-  return query;
-};
-
 export const conversationQueries = {
   /**
    * Conversations list
@@ -116,21 +98,15 @@ export const conversationQueries = {
       skip,
       limit,
       getFirst,
-      pinnedOnly,
     }: {
       conversationId: string;
       skip: number;
       limit: number;
       getFirst: boolean;
-      pinnedOnly?: boolean;
     },
-    { models, user }: IContext,
+    { models }: IContext,
   ) {
-    const query = buildMessageQuery({
-      conversationId,
-      pinnedOnly,
-      userId: user._id,
-    });
+    const query = { conversationId };
 
     let messages: IMessageDocument[] = [];
 
@@ -157,22 +133,10 @@ export const conversationQueries = {
    */
   async conversationMessagesTotalCount(
     _root,
-    {
-      conversationId,
-      pinnedOnly,
-    }: {
-      conversationId: string;
-      pinnedOnly?: boolean;
-    },
-    { models, user }: IContext,
+    { conversationId }: { conversationId: string },
+    { models }: IContext,
   ) {
-    return models.ConversationMessages.countDocuments(
-      buildMessageQuery({
-        conversationId,
-        pinnedOnly,
-        userId: user._id,
-      }),
-    );
+    return models.ConversationMessages.countDocuments({ conversationId });
   },
 
   /**

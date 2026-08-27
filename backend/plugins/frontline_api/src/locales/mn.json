@@ -9,13 +9,8 @@
   "password": "Нууц үг",
   "hide-conversations": "Яриануудыг нуух",
   "show-conversations": "Яриануудыг харуулах",
-  "personal-inbox": "Хувийн inbox",
   "no-form-responses": "Формын хариулт одоогоор байхгүй",
   "form-responses-empty-description": "Илгээсэн формын дэлгэрэнгүй мэдээлэл энд харагдана.",
-  "not-configured-tickets_one": "{{count}} тохируулаагүй тикет",
-  "not-configured-tickets_other": "{{count}} тохируулаагүй тикет",
-  "hide-not-configured-tickets": "Тохируулаагүй тикетүүдийг нуух",
-  "no-tickets-found": "Тикет олдсонгүй",
   "discord-open-conversations_one": "{{count}} нээлттэй харилцан яриа",
   "discord-open-conversations_other": "{{count}} нээлттэй харилцан яриа"
 }
