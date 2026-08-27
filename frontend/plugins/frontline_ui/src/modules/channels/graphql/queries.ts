@@ -22,6 +22,7 @@ const GET_CHANNELS = gql`
       updatedAt
       memberCount
       pipelineCount
+      hasTickets
       responseTemplateCount
       formCount
       integrationCount

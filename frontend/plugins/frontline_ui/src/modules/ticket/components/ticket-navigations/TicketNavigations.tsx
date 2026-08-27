@@ -1,5 +1,7 @@
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipelines } from '@/pipelines/hooks/useGetPipelines';
+import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
+import { useSubscription } from '@apollo/client';
 import {
   Button,
   cn,
@@ -17,7 +19,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
-import { useGetChannelTicketCounts } from '@/ticket/hooks/useGetChannelTicketCounts';
 
 function LoadingSkeleton() {
   return (
@@ -32,6 +33,12 @@ function LoadingSkeleton() {
 interface ChannelItemProps {
   channel: IChannel;
   pipelineId?: string;
+}
+
+interface ITicketListChangedResponse {
+  ticketListChanged: {
+    type: string;
+  };
 }
 
 function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
@@ -63,7 +70,16 @@ function ChannelItem({ channel, pipelineId }: Readonly<ChannelItemProps>) {
 
 export function TicketNavigations() {
   const { t } = useTranslation('frontline');
-  const { channels, loading } = useGetChannels();
+  const { channels, loading, refetch } = useGetChannels();
+  useSubscription<ITicketListChangedResponse>(TICKET_LIST_CHANGED, {
+    onData: ({ data }) => {
+      const eventType = data.data?.ticketListChanged.type;
+
+      if (eventType === 'create' || eventType === 'delete') {
+        void refetch();
+      }
+    },
+  });
   const { pipelines, loading: pipelinesLoading } = useGetPipelines({
     variables: {
       filter: {
@@ -75,12 +91,6 @@ export function TicketNavigations() {
   });
   const [channelId, setChannelId] = useQueryState<string | null>('channelId');
   const [showUnconfigured, setShowUnconfigured] = useState(false);
-  const channelIds = useMemo(
-    () => (channels ?? []).map((channel) => channel._id),
-    [channels],
-  );
-  const { ticketCounts, loading: ticketCountsLoading } =
-    useGetChannelTicketCounts(channelIds);
 
   const channelPipelineIds = useMemo(
     () =>
@@ -99,15 +109,15 @@ export function TicketNavigations() {
 
     return {
       channelsWithTickets: availableChannels.filter(
-        (channel) => ticketCounts[channel._id] !== 0,
+        (channel) => channel.hasTickets,
       ),
       unconfiguredChannels: availableChannels.filter(
-        (channel) => ticketCounts[channel._id] === 0,
+        (channel) => !channel.hasTickets,
       ),
     };
-  }, [channels, ticketCounts]);
+  }, [channels]);
 
-  const navigationLoading = loading || pipelinesLoading || ticketCountsLoading;
+  const navigationLoading = loading || pipelinesLoading;
 
   const visibleUnconfiguredChannels = showUnconfigured
     ? unconfiguredChannels
@@ -267,7 +277,7 @@ const Pipelines = () => {
               </Sidebar.MenuItem>
             ))
           )}
-          {!loading && !pipelines?.length && (
+          {!loading && pipelines?.length === 0 && (
             <Empty className="py-6">
               <Empty.Header>
                 <Empty.Media>
