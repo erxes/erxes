@@ -218,6 +218,7 @@
     "select-relation-type": "Select relation type",
     "multiple": "Multiple",
     "no-fields-found": "No fields found",
+    "no-groups-found": "No field groups found",
     "edit": "Edit",
     "reorder-group": "Reorder group",
     "delete": "Delete",
