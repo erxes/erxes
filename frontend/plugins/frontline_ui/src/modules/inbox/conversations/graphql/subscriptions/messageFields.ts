@@ -22,10 +22,6 @@ export default `
   messengerAppData
   botData
   extraData
-  replyToMessageId
-  pinnedByIds
-  editedAt
-  deletedAt
   user {
     _id
     username

@@ -13,6 +13,13 @@ type MarkConversationAsReadResponse = {
   };
 };
 
+type MarkConversationAsReadOptions = MutationHookOptions<
+  MarkConversationAsReadResponse,
+  { id: string }
+> & {
+  force?: boolean;
+};
+
 export const useConversationMarkAsRead = () => {
   const { t } = useTranslation('frontline');
   const [markAsRead] = useMutation<
@@ -22,15 +29,17 @@ export const useConversationMarkAsRead = () => {
   const currentUser = useAtomValue(currentUserState);
   const { readUserIds, _id } = useConversationContext();
 
-  const handleMarkAsRead = (
-    options?: MutationHookOptions<
-      MarkConversationAsReadResponse,
-      { id: string }
-    >,
-  ) => {
+  const handleMarkAsRead = ({
+    force = false,
+    ...options
+  }: MarkConversationAsReadOptions = {}) => {
     const currentUserId = currentUser?._id;
 
-    if (!_id || !currentUserId || readUserIds?.includes(currentUserId)) {
+    if (
+      !_id ||
+      !currentUserId ||
+      (!force && readUserIds?.includes(currentUserId))
+    ) {
       return;
     }
 
