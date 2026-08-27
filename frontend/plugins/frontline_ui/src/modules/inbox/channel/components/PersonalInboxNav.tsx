@@ -46,6 +46,7 @@ export const PersonalInboxNav = () => {
       integrationId: null,
       integrationType: null,
     });
+    if (!isActive) setOpen(true);
   };
 
   const handleGroupClickCapture = (event: MouseEvent<HTMLDivElement>) => {
@@ -67,6 +68,7 @@ export const PersonalInboxNav = () => {
       integrationId: null,
       integrationType: null,
     });
+    setOpen(true);
   };
 
   const renderContent = () => {

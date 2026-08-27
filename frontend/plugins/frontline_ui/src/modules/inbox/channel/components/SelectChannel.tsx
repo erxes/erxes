@@ -181,7 +181,7 @@ export const SelectChannelsFormItem = ({
     <SelectChannelProvider
       {...props}
       onValueChange={(value) => {
-        if (props.mode === 'single') {
+        if ((props.mode ?? 'single') === 'single') {
           setOpen(false);
         }
         props.onValueChange?.(value);

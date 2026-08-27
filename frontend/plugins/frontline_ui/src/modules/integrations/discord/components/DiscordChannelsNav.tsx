@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 import {
   IconBrandDiscord,
   IconCaretRightFilled,
@@ -78,6 +79,7 @@ export const DiscordServersNav = () => {
   const { counts } = useDiscordChannelCounts();
   const { channels } = useGetMyChannels();
   const [integrationId] = useQueryState<string>('integrationId');
+  const { t } = useTranslation('frontline');
 
   const serverGroups = useMemo(() => {
     const myChannelIds = new Set(
@@ -151,7 +153,7 @@ export const DiscordServersNav = () => {
         totalCount > 0 ? (
           <span
             className="visible text-xs tabular-nums text-muted-foreground"
-            title={`${totalCount} open conversations`}
+            title={t('discord-open-conversations', { count: totalCount })}
           >
             {totalCount}
           </span>

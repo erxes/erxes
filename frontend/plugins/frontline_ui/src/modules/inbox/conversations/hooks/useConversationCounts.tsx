@@ -125,9 +125,8 @@ export const useConversationCountsByIntegration = ({
     },
   );
 
-  const { data: awaitingData } = useQuery<TConversationCountsResponse>(
-    CONVERSATION_COUNTS,
-    {
+  const { data: awaitingData, loading: awaitingLoading } =
+    useQuery<TConversationCountsResponse>(CONVERSATION_COUNTS, {
       variables: {
         only: 'byIntegrations',
         channelId,
@@ -135,13 +134,12 @@ export const useConversationCountsByIntegration = ({
       },
       skip,
       fetchPolicy: 'cache-and-network',
-    },
-  );
+    });
 
   return {
     counts: data?.conversationCounts?.byIntegrations ?? {},
     awaitingCounts: awaitingData?.conversationCounts?.byIntegrations ?? {},
-    loading,
+    loading: loading || awaitingLoading,
   };
 };
 

@@ -8,6 +8,7 @@ export type InboxConversationQueryState = {
   participating: boolean;
   participated: boolean;
   mentioned: boolean;
+  unread: boolean;
   status: string;
   conversationId: string;
   created: string;

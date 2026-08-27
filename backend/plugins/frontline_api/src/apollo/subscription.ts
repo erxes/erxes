@@ -227,8 +227,14 @@ export default {
       conversationMessageUpdated: {
         resolve: (payload) => payload.conversationMessageUpdated,
         subscribe: withFilter(
-          (_, { _id }) =>
-            graphqlPubsub.asyncIterator(`conversationMessageUpdated:${_id}`),
+          (_root, { _id }, { subdomain, user }) => {
+            if (!user?._id) {
+              throw new Error('Authentication required');
+            }
+            return graphqlPubsub.asyncIterator(
+              `conversationMessageUpdated:${subdomain}:${_id}`,
+            );
+          },
           async (payload, variables) => {
             const conversationId =
               payload.conversationMessageUpdated.conversationId;

@@ -15,5 +15,7 @@
   "not-configured-tickets_one": "{{count}} not configured ticket",
   "not-configured-tickets_other": "{{count}} not configured tickets",
   "hide-not-configured-tickets": "Hide not configured tickets",
-  "no-tickets-found": "No tickets found"
+  "no-tickets-found": "No tickets found",
+  "discord-open-conversations_one": "{{count}} open conversation",
+  "discord-open-conversations_other": "{{count}} open conversations"
 }

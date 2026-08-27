@@ -9,17 +9,23 @@ export const useChangeConversationStatus = () => {
     CONVERSATION_CHANGE_STATUS,
   );
 
+  const REQUIRED_REFETCH_QUERIES = [
+    'ConversationCounts',
+    'FrontlineInboxNewConversationCount',
+    'FrontlineInboxSidebarWorkCounts',
+    'GetMyChannels',
+  ];
+
   const handleChangeConversationStatus = (options: MutationHookOptions) => {
+    const callerRefetchQueries = options.refetchQueries;
+    const refetchQueries = Array.isArray(callerRefetchQueries)
+      ? [...new Set([...callerRefetchQueries, ...REQUIRED_REFETCH_QUERIES])]
+      : (callerRefetchQueries ?? REQUIRED_REFETCH_QUERIES);
+
     changeConversationStatus({
       ...options,
-      refetchQueries: [
-        ...(options.refetchQueries ?? []),
-        'ConversationCounts',
-        'FrontlineInboxNewConversationCount',
-        'FrontlineInboxSidebarWorkCounts',
-        'GetMyChannels',
-      ],
-      update: (cache) => {
+      refetchQueries,
+      update: (cache, data, mutationOptions) => {
         try {
           options.variables?.ids.forEach((id: string) => {
             cache.modify({
@@ -31,10 +37,11 @@ export const useChangeConversationStatus = () => {
           });
         } catch (error) {
           console.error(error);
-          return;
         }
+        options.update?.(cache, data, mutationOptions);
       },
       onError: (error) => {
+        options.onError?.(error);
         toast({
           title: t('error'),
           description: error.message,

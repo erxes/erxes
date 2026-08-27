@@ -24,7 +24,7 @@ const conversationClientMessageInserted = `
 `;
 
 const conversationMessageUpdated = `
-  subscription conversationMessageUpdated($_id: String!) {
+  subscription frontlineConversationMessageUpdated($_id: String!) {
     conversationMessageUpdated(_id: $_id) {
       _id
       isCustomerRead

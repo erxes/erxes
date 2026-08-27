@@ -13,6 +13,7 @@ export const INBOX_CONVERSATION_QUERY_KEYS: (keyof InboxConversationQueryState)[
     'participating',
     'participated',
     'mentioned',
+    'unread',
     'status',
     'conversationId',
     'created',

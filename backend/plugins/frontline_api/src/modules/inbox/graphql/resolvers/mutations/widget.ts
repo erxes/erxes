@@ -890,7 +890,7 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const unreadMessages = await models.ConversationMessages.find({
       conversationId: args.conversationId,
@@ -911,7 +911,7 @@ export const widgetMutations: Record<string, Resolver> = {
     await Promise.all(
       unreadMessages.map((message) =>
         graphqlPubsub.publish(
-          `conversationMessageUpdated:${args.conversationId}`,
+          `conversationMessageUpdated:${subdomain}:${args.conversationId}`,
           {
             conversationMessageUpdated: {
               ...message,
