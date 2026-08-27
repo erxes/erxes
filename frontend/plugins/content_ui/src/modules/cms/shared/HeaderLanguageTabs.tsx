@@ -27,10 +27,8 @@ export const HeaderLanguageTabs = ({
   const availableLanguages: string[] = cmsConfig?.languages || [];
   const defaultLanguage: string = cmsConfig?.language || 'en';
 
-  // In editor mode (onLanguageChange provided) the form owns the active
-  // language and mirrors it into this atom, so the tabs simply reflect it —
-  // exactly like the sidebar selector. We must not reset or write the atom
-  // here, or we'd fight the form and desync the highlight from the content.
+  // In editor mode (onLanguageChange provided) the form owns the content for
+  // the active language and mirrors it into this atom.
   const isEditorMode = Boolean(onLanguageChange);
 
   useEffect(() => {
@@ -56,12 +54,13 @@ export const HeaderLanguageTabs = ({
   const activeLanguage = selectedLanguage || defaultLanguage;
 
   const handleClick = (lang: string) => {
-    // Editor mode: drive the form, which mirrors the choice back into the atom.
-    // List mode: this atom is the source of truth for the list query.
+    // Commit the header selection immediately. This also re-synchronizes the
+    // atom when the editor already has the requested language and its handler
+    // therefore has no local state change to mirror back.
+    setSelectedLanguage(lang);
+
     if (onLanguageChange) {
       onLanguageChange(lang);
-    } else {
-      setSelectedLanguage(lang);
     }
   };
 
