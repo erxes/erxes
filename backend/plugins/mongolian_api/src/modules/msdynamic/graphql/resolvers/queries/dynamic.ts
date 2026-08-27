@@ -175,14 +175,33 @@ export const msdynamicQueries = {
     });
 
     const body = await res.text();
-
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${body}`);
     }
 
     const response = body ? JSON.parse(body) : {};
+    const values = response?.value || [];
 
-    return response?.value || [];
+    const remainderByProduct: Record<
+      string,
+      {
+        No: string;
+        Inventory: number;
+      }
+    > = {};
+
+    for (const item of values) {
+      if (!remainderByProduct[item.No]) {
+        remainderByProduct[item.No] = {
+          No: item.No,
+          Inventory: 0,
+        };
+      }
+
+      remainderByProduct[item.No].Inventory += Number(item.Inventory) || 0;
+    }
+
+    return Object.values(remainderByProduct);
   },
 
   async msdCustomerRelations(
