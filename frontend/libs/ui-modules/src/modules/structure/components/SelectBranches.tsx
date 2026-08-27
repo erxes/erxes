@@ -272,7 +272,11 @@ export const BranchesList = ({
   );
 };
 
-export const SelectBranchesValue = () => {
+export const SelectBranchesValue = ({
+  placeholder,
+}: {
+  placeholder?: string;
+}) => {
   const { branchIds, mode } = useSelectBranchesContext();
 
   if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
@@ -284,7 +288,7 @@ export const SelectBranchesValue = () => {
 
   return (
     <BranchesList
-      placeholder="Select branches"
+      placeholder={placeholder ?? 'Select branches'}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -302,6 +306,54 @@ export const SelectBranchesContent = () => {
   }
   return <SelectBranchesCommand />;
 };
+
+export const SelectBranchesRoot = React.forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> &
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      placeholder?: string;
+      scope?: string;
+    }
+>(
+  (
+    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    ref,
+  ) => {
+    const [open, setOpen] = useState<boolean>(false);
+
+    return (
+      <SelectBranchesProvider
+        mode={mode}
+        value={value}
+        onValueChange={(newValue) => {
+          if (mode === 'single') {
+            setOpen(false);
+          }
+          onValueChange?.(newValue);
+        }}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <Combobox.Trigger
+            className={cn('inline-flex w-full', className)}
+            variant="outline"
+            ref={ref}
+            {...props}
+          >
+            <SelectBranchesValue placeholder={placeholder} />
+          </Combobox.Trigger>
+          <Combobox.Content>
+            <SelectBranchesContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectBranchesProvider>
+    );
+  },
+);
+
+SelectBranchesRoot.displayName = 'SelectBranchesRoot';
 
 export const SelectBranchesInlineCell = ({
   onValueChange,
@@ -593,6 +645,7 @@ export const SelectBranchesFilterBar = ({
 };
 
 export const SelectBranches = Object.assign(SelectBranchesProvider, {
+  Root: SelectBranchesRoot,
   CommandBarItem: SelectBranchesCommandbarItem,
   Content: SelectBranchesContent,
   Command: SelectBranchesCommand,

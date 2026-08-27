@@ -2,6 +2,10 @@ import { SelectCompany, SelectCustomer } from 'ui-modules/modules/contacts';
 import { SpecificFieldProps } from './Field';
 import { useState } from 'react';
 import { SelectProduct } from 'ui-modules/modules/products';
+import {
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules/modules/structure';
 import { SelectMember } from 'ui-modules/modules/team-members';
 
 export const FieldRelation = ({
@@ -29,6 +33,14 @@ export const FieldRelation = ({
     if (field.relationType === 'core:teamMembers') {
       return inCell ? SelectMember.InlineCell : SelectMember;
     }
+
+    if (field.relationType === 'core:branch') {
+      return inCell ? SelectBranches.InlineCell : SelectBranches.Root;
+    }
+
+    if (field.relationType === 'core:department') {
+      return inCell ? SelectDepartments.InlineCell : SelectDepartments.Root;
+    }
   })();
 
   if (!SelectRelationComponent) {
@@ -41,7 +53,7 @@ export const FieldRelation = ({
       value={currentValue ?? undefined}
       mode={'single'}
       onValueChange={(val) => {
-        setCurrentValue(val);
+        setCurrentValue(val ?? null);
         val !== value && handleChange(val);
       }}
       placeholder=""

@@ -284,7 +284,11 @@ export const DepartmentsList = ({
   );
 };
 
-export const SelectDepartmentsValue = () => {
+export const SelectDepartmentsValue = ({
+  placeholder,
+}: {
+  placeholder?: string;
+}) => {
   const { departmentIds, mode } = useSelectDepartmentsContext();
 
   if ((departmentIds?.length ?? 0) > 1 && mode === 'multiple')
@@ -296,7 +300,7 @@ export const SelectDepartmentsValue = () => {
 
   return (
     <DepartmentsList
-      placeholder="Select departments"
+      placeholder={placeholder ?? 'Select departments'}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -314,6 +318,54 @@ export const SelectDepartmentsContent = () => {
   }
   return <SelectDepartmentsCommand />;
 };
+
+export const SelectDepartmentsRoot = React.forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  Omit<React.ComponentProps<typeof SelectDepartmentsProvider>, 'children'> &
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      placeholder?: string;
+      scope?: string;
+    }
+>(
+  (
+    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    ref,
+  ) => {
+    const [open, setOpen] = useState<boolean>(false);
+
+    return (
+      <SelectDepartmentsProvider
+        mode={mode}
+        value={value}
+        onValueChange={(newValue) => {
+          if (mode === 'single') {
+            setOpen(false);
+          }
+          onValueChange?.(newValue);
+        }}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <Combobox.Trigger
+            className={cn('inline-flex w-full', className)}
+            variant="outline"
+            ref={ref}
+            {...props}
+          >
+            <SelectDepartmentsValue placeholder={placeholder} />
+          </Combobox.Trigger>
+          <Combobox.Content>
+            <SelectDepartmentsContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectDepartmentsProvider>
+    );
+  },
+);
+
+SelectDepartmentsRoot.displayName = 'SelectDepartmentsRoot';
 
 export const SelectDepartmentsInlineCell = ({
   onValueChange,
@@ -612,6 +664,7 @@ export const SelectDepartmentsFilterBar = ({
 };
 
 export const SelectDepartments = Object.assign(SelectDepartmentsProvider, {
+  Root: SelectDepartmentsRoot,
   CommandBarItem: SelectDepartmentsCommandbarItem,
   Content: SelectDepartmentsContent,
   Command: SelectDepartmentsCommand,

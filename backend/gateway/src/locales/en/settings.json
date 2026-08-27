@@ -169,6 +169,8 @@
       "core-company": "Company",
       "core-product": "Product & Service",
       "core-user": "Team member",
+      "core-branch": "Branches",
+      "core-department": "Departments",
       "sales-deal": "Sales pipelines"
     },
     "add-group": "Add Group",
