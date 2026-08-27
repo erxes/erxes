@@ -1,93 +1,172 @@
 'use client';
 
+import { useApolloClient, useMutation } from '@apollo/client/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from 'erxes-ui/components/form';
+import { toast } from 'erxes-ui/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
-import { Button } from '@/modules/ui/Button';
-import { Field, TextInput } from '@/modules/ui/Field';
-import { Icon } from '@/modules/ui/Icon';
-import { useSession } from '../SessionProvider';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
+import { Button } from '@/modules/ui/components/Button';
+import { Icon } from '@/modules/ui/components/Icon';
+import { authErrorMessage } from '../utils/errors';
+import { AUTH_PORTAL_LOGIN } from '../graphql/mutations/auth';
+import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
+import { useSession } from './SessionProvider';
+import {
+  displayName,
+  loginToken,
+  type CurrentUserResponse,
+  type LoginResponse,
+} from '../types';
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const signInSchema = z.object({
+  email: z.string().email('Имэйл хаяг буруу байна.'),
+  password: z.string().min(1, 'Нууц үгээ оруулна уу.'),
+});
 
-const nameFromEmail = (email: string) =>
-  email
-    .split('@')[0]
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(' ') || email;
+type SignInValues = z.infer<typeof signInSchema>;
 
 export const SignInForm = () => {
   const router = useRouter();
+  const client = useApolloClient();
   const { signIn } = useSession();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [login, { loading }] = useMutation<LoginResponse>(AUTH_PORTAL_LOGIN);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const form = useForm<SignInValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-    const next: { email?: string; password?: string } = {};
+  const onSubmit = async ({ email, password }: SignInValues) => {
+    const address = email.trim();
 
-    if (!emailPattern.test(email.trim())) {
-      next.email = 'Имэйл хаяг буруу байна.';
+    try {
+      const { data } = await login({
+        variables: { email: address, password },
+      });
+
+      /*
+       * Depending on the portal's delivery method the token either comes back
+       * here or was just set as a cookie. The follow-up read has to carry it
+       * explicitly, because it is not in storage yet.
+       */
+      const token = loginToken(
+        data?.clientPortalUserLoginWithCredentials ?? null,
+      );
+
+      const { data: session } = await client.query<CurrentUserResponse>({
+        query: AUTH_PORTAL_CURRENT_USER,
+        fetchPolicy: 'network-only',
+        context: token
+          ? { headers: { 'client-auth-token': token } }
+          : undefined,
+      });
+
+      const current = session?.clientPortalCurrentUser;
+
+      if (!current) {
+        throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
+      }
+
+      signIn(
+        {
+          name: displayName(current),
+          email: current.email ?? address,
+          cpUserId: current._id,
+        },
+        token,
+      );
+
+      toast({
+        variant: 'success',
+        title: 'Амжилттай нэвтэрлээ',
+        description: `Тавтай морил, ${displayName(current)}.`,
+      });
+
+      router.push('/');
+    } catch (caught) {
+      const message = authErrorMessage(caught);
+
+      form.setError('root', { message });
+      toast({
+        variant: 'destructive',
+        title: 'Нэвтэрч чадсангүй',
+        description: message,
+      });
     }
-
-    if (password.length < 6) {
-      next.password = 'Нууц үг дор хаяж 6 тэмдэгт байна.';
-    }
-
-    setErrors(next);
-
-    if (Object.keys(next).length) {
-      return;
-    }
-
-    signIn({ name: nameFromEmail(email.trim()), email: email.trim() });
-    router.push('/');
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      <Field label="Имэйл" htmlFor="signin-email" required error={errors.email}>
-        <TextInput
-          id="signin-email"
-          type="email"
-          value={email}
-          invalid={Boolean(errors.email)}
-          onChange={(event) => {
-            setEmail(event.target.value);
-            setErrors((current) => ({ ...current, email: undefined }));
-          }}
-          placeholder="name@example.com"
-          autoComplete="email"
-        />
-      </Field>
-
-      <Field
-        label="Нууц үг"
-        htmlFor="signin-password"
-        required
-        error={errors.password}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
       >
-        <TextInput
-          id="signin-password"
-          type="password"
-          value={password}
-          invalid={Boolean(errors.password)}
-          onChange={(event) => {
-            setPassword(event.target.value);
-            setErrors((current) => ({ ...current, password: undefined }));
-          }}
-          placeholder="••••••••"
-          autoComplete="current-password"
+        <Form.Field
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Имэйл
+              </Form.Label>
+              <Form.Control>
+                <TextInput
+                  {...field}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
         />
-      </Field>
 
-      <Button type="submit" className="w-full">
-        <Icon name="lock" size={16} />
-        Нэвтрэх
-      </Button>
-    </form>
+        <Form.Field
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Нууц үг
+              </Form.Label>
+              <Form.Control>
+                <PasswordInput
+                  {...field}
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        {form.formState.errors.root ? (
+          <p
+            role="alert"
+            className="flex items-start gap-2 rounded-lg bg-danger-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-danger"
+          >
+            <Icon name="alert" size={15} className="mt-px shrink-0" />
+            {form.formState.errors.root.message}
+          </p>
+        ) : null}
+
+        <Button type="submit" disabled={loading} className="mt-2 w-full">
+          <Icon name="lock" size={15} />
+          {loading ? 'Нэвтэрч байна…' : 'Нэвтрэх'}
+        </Button>
+      </form>
+    </Form>
   );
 };

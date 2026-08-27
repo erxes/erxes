@@ -1,12 +1,8 @@
 import Link from 'next/link';
-import { Icon } from '@/modules/ui/Icon';
-import type { PortalTopic } from '../normalize';
-import { sectionArticleCount } from '../selectors';
+import { Icon } from '@/modules/ui/components/Icon';
+import type { PortalTopic } from '../utils/normalize';
+import { sectionArticleCount } from '../utils/selectors';
 
-/**
- * Compact section list for the portal landing page. The full card browse lives
- * at `/knowledge-base`.
- */
 export const TopicOutline = ({ topic }: { topic: PortalTopic }) => (
   <ul className="grid gap-2 sm:grid-cols-2">
     {topic.sections.map((section) => (
@@ -25,7 +21,7 @@ export const TopicOutline = ({ topic }: { topic: PortalTopic }) => (
           <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
             {section.title}
           </span>
-          <span className="shrink-0 text-[13px] text-muted">
+          <span className="shrink-0 text-[13px] text-muted-foreground">
             {sectionArticleCount(section)}
           </span>
         </Link>

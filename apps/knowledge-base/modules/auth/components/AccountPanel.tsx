@@ -1,12 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Avatar } from '@/modules/ui/Avatar';
-import { Button, ButtonLink } from '@/modules/ui/Button';
-import { Card } from '@/modules/ui/Card';
-import { EmptyState } from '@/modules/ui/EmptyState';
-import { Icon } from '@/modules/ui/Icon';
-import { useSession } from '../SessionProvider';
+import { Avatar } from '@/modules/ui/components/Avatar';
+import { Button, ButtonLink } from '@/modules/ui/components/Button';
+import { Card } from '@/modules/ui/components/Card';
+import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { Icon } from '@/modules/ui/components/Icon';
+import { useSession } from './SessionProvider';
 
 export const AccountPanel = () => {
   const router = useRouter();
@@ -32,7 +32,11 @@ export const AccountPanel = () => {
         icon="user"
         title="Та нэвтрээгүй байна"
         description="Хувийн мэдээлэл болон хүсэлтийн түүхээ харахын тулд нэвтэрнэ үү."
-        action={<ButtonLink href="/sign-in" size="sm">Нэвтрэх</ButtonLink>}
+        action={
+          <ButtonLink href="/sign-in" size="sm">
+            Нэвтрэх
+          </ButtonLink>
+        }
       />
     );
   }
@@ -43,7 +47,9 @@ export const AccountPanel = () => {
         <Avatar name={user.name} size={56} />
         <div className="min-w-0">
           <p className="text-lg font-semibold text-ink">{user.name}</p>
-          <p className="mt-0.5 truncate text-sm text-muted">{user.email}</p>
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">
+            {user.email}
+          </p>
         </div>
       </div>
 

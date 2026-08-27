@@ -1,7 +1,6 @@
-import { Badge, type BadgeTone } from '@/modules/ui/Badge';
+import { Badge, type BadgeTone } from '@/modules/ui/components/Badge';
 import { priorityLabel, type TicketStatusRef } from '../types';
 
-/** Pipeline status types: 1 = active, 2 = in progress, 3 = resolved/closed. */
 const toneForStatusType = (type: number | null): BadgeTone => {
   if (type === 3) {
     return 'success';

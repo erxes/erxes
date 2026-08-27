@@ -1,11 +1,11 @@
 'use client';
 
 import { useQuery } from '@apollo/client/react';
-import { useSession } from '@/modules/auth/SessionProvider';
-import { ButtonLink } from '@/modules/ui/Button';
-import { Card } from '@/modules/ui/Card';
-import { EmptyState } from '@/modules/ui/EmptyState';
-import { LoadError } from '@/modules/ui/PortalState';
+import { useSession } from '@/modules/auth/components/SessionProvider';
+import { ButtonLink } from '@/modules/ui/components/Button';
+import { Card } from '@/modules/ui/components/Card';
+import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { LoadError } from '@/modules/ui/components/PortalState';
 import { TICKET_PORTAL_LIST } from '../graphql/queries/tickets';
 import type { Ticket } from '../types';
 import { TicketListItem } from './TicketListItem';

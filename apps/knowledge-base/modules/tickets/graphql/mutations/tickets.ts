@@ -7,7 +7,6 @@ export const TICKET_PORTAL_CREATE = gql`
     $channelId: String!
     $pipelineId: String!
     $statusId: String!
-    $priority: Int
   ) {
     cpCreateTicket(
       name: $name
@@ -15,7 +14,6 @@ export const TICKET_PORTAL_CREATE = gql`
       channelId: $channelId
       pipelineId: $pipelineId
       statusId: $statusId
-      priority: $priority
     ) {
       _id
       number

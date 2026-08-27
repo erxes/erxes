@@ -17,7 +17,6 @@ const TICKET_FIELDS = `
   }
 `;
 
-/** Requests raised by one client-portal user. */
 export const TICKET_PORTAL_LIST = gql`
   query ticketPortalList($filter: ICpTicketFilter) {
     cpGetTickets(filter: $filter) {

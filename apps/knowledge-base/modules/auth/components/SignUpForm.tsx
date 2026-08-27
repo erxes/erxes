@@ -1,133 +1,270 @@
 'use client';
 
+import { useApolloClient, useMutation } from '@apollo/client/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from 'erxes-ui/components/form';
+import { toast } from 'erxes-ui/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
-import { Button } from '@/modules/ui/Button';
-import { Field, TextInput } from '@/modules/ui/Field';
-import { Icon } from '@/modules/ui/Icon';
-import { useSession } from '../SessionProvider';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
+import { Button } from '@/modules/ui/components/Button';
+import { Icon } from '@/modules/ui/components/Icon';
+import { authErrorMessage } from '../utils/errors';
+import {
+  AUTH_PORTAL_LOGIN,
+  AUTH_PORTAL_REGISTER,
+} from '../graphql/mutations/auth';
+import { AUTH_PORTAL_CURRENT_USER } from '../graphql/queries/auth';
+import { useSession } from './SessionProvider';
+import {
+  displayName,
+  loginToken,
+  type CurrentUserResponse,
+  type LoginResponse,
+  type RegisterResponse,
+} from '../types';
 
-type Values = {
-  name: string;
-  email: string;
-  password: string;
-  confirm: string;
-};
+/** Mirrors the portal's own rule, so the server never rejects what passed here. */
+const PASSWORD_RULE = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
-type Errors = Partial<Record<keyof Values, string>>;
+const signUpSchema = z
+  .object({
+    name: z.string().refine((value) => value.trim().length > 0, {
+      message: 'Нэрээ оруулна уу.',
+    }),
+    email: z.string().email('Имэйл хаяг буруу байна.'),
+    password: z
+      .string()
+      .regex(
+        PASSWORD_RULE,
+        'Нууц үг том, жижиг үсэг, тоо агуулсан 8-аас доошгүй тэмдэгт байх ёстой.',
+      ),
+    confirm: z.string(),
+  })
+  .refine((values) => values.confirm === values.password, {
+    message: 'Нууц үг таарахгүй байна.',
+    path: ['confirm'],
+  });
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type SignUpValues = z.infer<typeof signUpSchema>;
 
 export const SignUpForm = () => {
   const router = useRouter();
+  const client = useApolloClient();
   const { signIn } = useSession();
-  const [values, setValues] = useState<Values>({
-    name: '',
-    email: '',
-    password: '',
-    confirm: '',
+
+  const [register, { loading: registering }] =
+    useMutation<RegisterResponse>(AUTH_PORTAL_REGISTER);
+  const [login, { loading: signingIn }] =
+    useMutation<LoginResponse>(AUTH_PORTAL_LOGIN);
+
+  const loading = registering || signingIn;
+
+  const form = useForm<SignUpValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { name: '', email: '', password: '', confirm: '' },
   });
-  const [errors, setErrors] = useState<Errors>({});
 
-  const update = (key: keyof Values, value: string) => {
-    setValues((current) => ({ ...current, [key]: value }));
-    setErrors((current) => ({ ...current, [key]: undefined }));
-  };
+  const onSubmit = async ({ name, email, password }: SignUpValues) => {
+    const address = email.trim();
+    const [firstName, ...rest] = name.trim().split(/\s+/);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    try {
+      const { data } = await register({
+        variables: {
+          email: address,
+          password,
+          firstName,
+          lastName: rest.join(' ') || null,
+        },
+      });
 
-    const next: Errors = {};
+      const created = data?.clientPortalUserRegister;
 
-    if (!values.name.trim()) {
-      next.name = 'Нэрээ оруулна уу.';
+      if (!created) {
+        throw new Error('Бүртгэл үүсгэж чадсангүй.');
+      }
+
+      /*
+       * Portals that require email verification create the account unverified,
+       * and logging in before it is confirmed is rejected by the API.
+       */
+      if (!created.isVerified) {
+        toast({
+          title: 'Бүртгэл үүслээ',
+          description:
+            'Имэйл рүү илгээсэн зааврын дагуу бүртгэлээ баталгаажуулаад нэвтэрнэ үү.',
+        });
+        router.push('/sign-in');
+        return;
+      }
+
+      const { data: loggedIn } = await login({
+        variables: { email: address, password },
+      });
+
+      const token = loginToken(
+        loggedIn?.clientPortalUserLoginWithCredentials ?? null,
+      );
+
+      const { data: session } = await client.query<CurrentUserResponse>({
+        query: AUTH_PORTAL_CURRENT_USER,
+        fetchPolicy: 'network-only',
+        context: token
+          ? { headers: { 'client-auth-token': token } }
+          : undefined,
+      });
+
+      const current = session?.clientPortalCurrentUser;
+
+      if (!current) {
+        throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
+      }
+
+      signIn(
+        {
+          name: displayName(current),
+          email: current.email ?? address,
+          cpUserId: current._id,
+        },
+        token,
+      );
+
+      toast({
+        variant: 'success',
+        title: 'Бүртгэл амжилттай үүслээ',
+        description: `Тавтай морил, ${displayName(current)}.`,
+      });
+
+      router.push('/');
+    } catch (caught) {
+      const message = authErrorMessage(caught);
+
+      form.setError('root', { message });
+      toast({
+        variant: 'destructive',
+        title: 'Бүртгүүлж чадсангүй',
+        description: message,
+      });
     }
-
-    if (!emailPattern.test(values.email.trim())) {
-      next.email = 'Имэйл хаяг буруу байна.';
-    }
-
-    if (values.password.length < 6) {
-      next.password = 'Нууц үг дор хаяж 6 тэмдэгт байна.';
-    }
-
-    if (values.confirm !== values.password) {
-      next.confirm = 'Нууц үг таарахгүй байна.';
-    }
-
-    setErrors(next);
-
-    if (Object.keys(next).length) {
-      return;
-    }
-
-    signIn({ name: values.name.trim(), email: values.email.trim() });
-    router.push('/');
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      <Field label="Нэр" htmlFor="signup-name" required error={errors.name}>
-        <TextInput
-          id="signup-name"
-          value={values.name}
-          invalid={Boolean(errors.name)}
-          onChange={(event) => update('name', event.target.value)}
-          placeholder="Таны нэр"
-          autoComplete="name"
-        />
-      </Field>
-
-      <Field label="Имэйл" htmlFor="signup-email" required error={errors.email}>
-        <TextInput
-          id="signup-email"
-          type="email"
-          value={values.email}
-          invalid={Boolean(errors.email)}
-          onChange={(event) => update('email', event.target.value)}
-          placeholder="name@example.com"
-          autoComplete="email"
-        />
-      </Field>
-
-      <Field
-        label="Нууц үг"
-        htmlFor="signup-password"
-        required
-        error={errors.password}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
       >
-        <TextInput
-          id="signup-password"
-          type="password"
-          value={values.password}
-          invalid={Boolean(errors.password)}
-          onChange={(event) => update('password', event.target.value)}
-          placeholder="••••••••"
-          autoComplete="new-password"
+        <Form.Field
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Нэр
+              </Form.Label>
+              <Form.Control>
+                <TextInput
+                  {...field}
+                  autoComplete="name"
+                  placeholder="Таны нэр"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
         />
-      </Field>
 
-      <Field
-        label="Нууц үг давтах"
-        htmlFor="signup-confirm"
-        required
-        error={errors.confirm}
-      >
-        <TextInput
-          id="signup-confirm"
-          type="password"
-          value={values.confirm}
-          invalid={Boolean(errors.confirm)}
-          onChange={(event) => update('confirm', event.target.value)}
-          placeholder="••••••••"
-          autoComplete="new-password"
+        <Form.Field
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Имэйл
+              </Form.Label>
+              <Form.Control>
+                <TextInput
+                  {...field}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
         />
-      </Field>
 
-      <Button type="submit" className="w-full">
-        <Icon name="user" size={16} />
-        Бүртгүүлэх
-      </Button>
-    </form>
+        <Form.Field
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Нууц үг
+              </Form.Label>
+              <Form.Control>
+                <PasswordInput
+                  {...field}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        <Form.Field
+          control={form.control}
+          name="confirm"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label
+                className="text-[13px] font-medium text-ink"
+                variant="peer"
+              >
+                Нууц үг давтах
+              </Form.Label>
+              <Form.Control>
+                <PasswordInput
+                  {...field}
+                  autoComplete="new-password"
+                  placeholder="••••••••"
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+
+        {form.formState.errors.root ? (
+          <p
+            role="alert"
+            className="flex items-start gap-2 rounded-lg bg-danger-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-danger"
+          >
+            <Icon name="alert" size={15} className="mt-px shrink-0" />
+            {form.formState.errors.root.message}
+          </p>
+        ) : null}
+
+        <Button type="submit" disabled={loading} className="mt-2 w-full">
+          <Icon name="user" size={15} />
+          {loading ? 'Бүртгэж байна…' : 'Бүртгүүлэх'}
+        </Button>
+      </form>
+    </Form>
   );
 };

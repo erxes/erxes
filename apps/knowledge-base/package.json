@@ -11,10 +11,23 @@
   "dependencies": {
     "@apollo/client": "^4.2.12",
     "@apollo/client-integration-nextjs": "^0.14.5",
+    "@hookform/resolvers": "^3.10.0",
+    "@tabler/icons-react": "^3.46.0",
+    "@types/sanitize-html": "^2.16.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "graphql": "^16.14.2",
     "next": "16.3.2",
+    "radix-ui": "^1.6.7",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-hook-form": "^7.86.0",
+    "react-imask": "^7.6.1",
+    "sanitize-html": "^2.17.5",
+    "tailwind-merge": "^2.6.1",
+    "tailwindcss-animate": "^1.0.7",
+    "type-fest": "^4.41.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

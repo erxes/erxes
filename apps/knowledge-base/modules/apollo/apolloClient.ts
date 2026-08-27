@@ -5,9 +5,8 @@ import {
   InMemoryCache,
   registerApolloClient,
 } from '@apollo/client-integration-nextjs';
-import { readPortalEnv } from './env';
+import { readPortalEnv } from './utils/env';
 
-/** Apollo client for React Server Components. */
 export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
   const { apiUrl, appToken } = readPortalEnv();
 

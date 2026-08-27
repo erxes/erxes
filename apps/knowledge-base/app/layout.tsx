@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
 import './globals.css';
-import { ApolloWrapper } from '@/modules/apollo/ApolloWrapper';
-import { SessionProvider } from '@/modules/auth/SessionProvider';
+import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
+import { SessionProvider } from '@/modules/auth/components/SessionProvider';
 import { getPortalIdentity } from '@/modules/layout/api';
-import { SiteFooter } from '@/modules/layout/SiteFooter';
-import { SiteHeader } from '@/modules/layout/SiteHeader';
-import { site } from '@/modules/layout/site';
+import { site } from '@/modules/layout/constants/site';
+import { Toaster } from '@/modules/ui/components/Toaster';
 
 /**
  * Knowledge base and CMS content is read through Apollo rather than `fetch`,
@@ -30,19 +29,16 @@ export const generateMetadata = async (): Promise<Metadata> => {
   };
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { title } = await getPortalIdentity();
-
   return (
     <html lang="mn" className={`${openSans.variable} h-full`}>
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-subtle text-ink">
         <ApolloWrapper>
           <SessionProvider>
-            <SiteHeader title={title} />
-            <main className="flex flex-1 flex-col">{children}</main>
-            <SiteFooter title={title} />
+            {children}
+            <Toaster />
           </SessionProvider>
         </ApolloWrapper>
       </body>

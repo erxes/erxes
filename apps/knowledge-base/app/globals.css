@@ -1,13 +1,19 @@
 @import 'tailwindcss';
 
+/*
+ * Form controls come from `erxes-ui`, whose source lives outside this app and
+ * is therefore invisible to Tailwind's automatic content detection.
+ */
+@source '../../../frontend/libs/erxes-ui/src';
+
+@plugin 'tailwindcss-animate';
+
 @theme {
   --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
 
-  --color-canvas: #ffffff;
   --color-subtle: #f7f6fb;
   --color-ink: #17162a;
   --color-ink-soft: #3d3b55;
-  --color-muted: #7b7a92;
   --color-line: #e9e7f1;
 
   --color-brand: #4f33af;
@@ -24,4 +30,140 @@
   --color-warning-soft: #fdf1e0;
   --color-danger: #c73b3b;
   --color-danger-soft: #fdeced;
+
+  /* `erxes-ui` reads its palette through these names, so they are mapped onto
+   * the portal's own colors rather than pulling in a second design system. */
+  --color-background: #ffffff;
+  --color-foreground: var(--color-ink);
+  --color-border: var(--color-line);
+  --color-ring: var(--color-brand);
+
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: #ffffff;
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+
+  --color-muted: var(--color-line);
+  --color-muted-foreground: #7b7a92;
+  --color-accent: var(--color-subtle);
+  --color-accent-foreground: var(--color-muted-foreground);
+
+  /* `Input` and `Textarea` have no border of their own: `shadow-xs` draws it
+   * and `shadow-focus` replaces it while focused. */
+  --shadow-xs: 0 0 0 1px var(--color-line), 0 1px 1px rgb(23 22 42 / 5%),
+    0 2px 2px rgb(23 22 42 / 5%);
+  --shadow-focus: 0 0 0 4px rgb(79 51 175 / 25%), 0 0 0 1px var(--color-brand);
+}
+
+/*
+ * Knowledge base and CMS bodies arrive as raw HTML, so the elements Tailwind's
+ * preflight resets have to be styled here instead of with utility classes.
+ */
+@layer base {
+  .kb-article {
+    @apply text-[15px] leading-relaxed text-ink-soft;
+  }
+
+  .kb-article > * + * {
+    @apply mt-4;
+  }
+
+  .kb-article :is(h1, h2, h3, h4) {
+    @apply font-semibold leading-snug text-ink;
+  }
+
+  .kb-article :is(h1, h2, h3, h4):not(:first-child) {
+    @apply mt-8;
+  }
+
+  .kb-article h1 {
+    @apply text-2xl;
+  }
+
+  .kb-article h2 {
+    @apply text-xl;
+  }
+
+  .kb-article h3 {
+    @apply text-[17px];
+  }
+
+  .kb-article h4 {
+    @apply text-base;
+  }
+
+  .kb-article strong {
+    @apply font-semibold text-ink;
+  }
+
+  .kb-article a {
+    @apply text-brand underline underline-offset-2 hover:text-brand-strong;
+  }
+
+  .kb-article :is(ul, ol) {
+    @apply pl-5;
+  }
+
+  .kb-article ul {
+    @apply list-disc;
+  }
+
+  .kb-article ol {
+    @apply list-decimal;
+  }
+
+  .kb-article li + li {
+    @apply mt-1.5;
+  }
+
+  .kb-article li::marker {
+    @apply text-muted-foreground;
+  }
+
+  .kb-article blockquote {
+    @apply border-l-[3px] border-line pl-4 text-muted-foreground;
+  }
+
+  .kb-article :is(img, video) {
+    @apply h-auto max-w-full rounded-xl;
+  }
+
+  .kb-article code {
+    @apply rounded border border-line bg-subtle px-1.5 py-0.5 text-[0.875em];
+  }
+
+  .kb-article pre {
+    @apply overflow-x-auto rounded-xl border border-line bg-subtle p-4;
+  }
+
+  .kb-article pre code {
+    @apply border-0 bg-transparent p-0;
+  }
+
+  .kb-article hr {
+    @apply my-6 border-line;
+  }
+
+  .kb-article table {
+    @apply block w-full overflow-x-auto border-collapse;
+  }
+
+  .kb-article :is(th, td) {
+    @apply border border-line px-3 py-2 text-left;
+  }
+
+  .kb-article th {
+    @apply bg-subtle font-semibold text-ink;
+  }
+}
+
+/* Motion is decoration here, so anyone who asks for less simply gets none. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

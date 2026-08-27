@@ -1,40 +1,44 @@
 'use client';
 
 import { useLazyQuery } from '@apollo/client/react';
-import { useState, type FormEvent } from 'react';
-import { Button } from '@/modules/ui/Button';
-import { EmptyState } from '@/modules/ui/EmptyState';
-import { Field, TextInput } from '@/modules/ui/Field';
-import { Icon } from '@/modules/ui/Icon';
-import { LoadError } from '@/modules/ui/PortalState';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from 'erxes-ui/components/form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/modules/ui/components/Button';
+import { Card } from '@/modules/ui/components/Card';
+import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { TextInput } from '@/modules/ui/components/FormInput';
+import { Icon } from '@/modules/ui/components/Icon';
+import { LoadError } from '@/modules/ui/components/PortalState';
 import { TICKET_PORTAL_LIST } from '../graphql/queries/tickets';
 import type { Ticket } from '../types';
 import { TicketListItem } from './TicketListItem';
 
 type ListResponse = { cpGetTickets: Ticket[] | null };
 
-export const TrackTicketForm = () => {
-  const [ticketNumber, setTicketNumber] = useState('');
-  const [error, setError] = useState<string | undefined>();
+const trackFormSchema = z.object({
+  ticketNumber: z.string().refine((value) => value.trim().length > 0, {
+    message: 'Хүсэлтийн дугаарыг оруулна уу.',
+  }),
+});
 
+type TrackFormValues = z.infer<typeof trackFormSchema>;
+
+export const TrackTicketForm = () => {
   const [runSearch, { data, loading, error: queryError, called }] =
     useLazyQuery<ListResponse>(TICKET_PORTAL_LIST, {
       fetchPolicy: 'network-only',
     });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const form = useForm<TrackFormValues>({
+    resolver: zodResolver(trackFormSchema),
+    defaultValues: { ticketNumber: '' },
+  });
 
-    const term = ticketNumber.trim();
-
-    if (!term) {
-      setError('Хүсэлтийн дугаарыг оруулна уу.');
-      return;
-    }
-
-    setError(undefined);
+  const onSubmit = ({ ticketNumber }: TrackFormValues) => {
     void runSearch({
-      variables: { filter: { searchValue: term, perPage: 10 } },
+      variables: { filter: { searchValue: ticketNumber.trim(), perPage: 10 } },
     });
   };
 
@@ -42,37 +46,42 @@ export const TrackTicketForm = () => {
 
   return (
     <div className="space-y-6">
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="rounded-xl border border-line bg-white p-6 sm:p-8"
-      >
-        <Field
-          label="Хүсэлтийн дугаар"
-          htmlFor="ticket-number"
-          required
-          error={error}
-          hint="Хүсэлт үүсгэхэд олгогдсон дугаараа оруулна уу."
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          noValidate
+          className="rounded-xl border border-line bg-white p-5 sm:p-6"
         >
-          <TextInput
-            id="ticket-number"
-            value={ticketNumber}
-            invalid={Boolean(error)}
-            onChange={(event) => {
-              setTicketNumber(event.target.value);
-              setError(undefined);
-            }}
-            placeholder="Жишээ: 1042"
+          <Form.Field
+            control={form.control}
+            name="ticketNumber"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label
+                  className="text-[13px] font-medium text-ink"
+                  variant="peer"
+                >
+                  Хүсэлтийн дугаар
+                </Form.Label>
+                <Form.Control>
+                  <TextInput {...field} placeholder="Жишээ: 1042" />
+                </Form.Control>
+                <Form.Description>
+                  Хүсэлт үүсгэхэд олгогдсон дугаараа оруулна уу.
+                </Form.Description>
+                <Form.Message />
+              </Form.Item>
+            )}
           />
-        </Field>
 
-        <div className="mt-6">
-          <Button type="submit" disabled={loading}>
-            <Icon name="binoculars" size={16} />
-            {loading ? 'Хайж байна…' : 'Хүсэлт хайх'}
-          </Button>
-        </div>
-      </form>
+          <div className="mt-5">
+            <Button type="submit" disabled={loading}>
+              <Icon name="binoculars" size={15} />
+              {loading ? 'Хайж байна…' : 'Хүсэлт хайх'}
+            </Button>
+          </div>
+        </form>
+      </Form>
 
       {queryError ? (
         <LoadError
@@ -80,19 +89,19 @@ export const TrackTicketForm = () => {
           message={queryError.message}
         />
       ) : loading ? (
-        <div className="rounded-xl border border-line bg-white p-6">
+        <Card className="p-5">
           <span className="block h-4 w-40 animate-pulse rounded bg-subtle" />
           <span className="mt-3 block h-4 w-full animate-pulse rounded bg-subtle" />
-        </div>
+        </Card>
       ) : called ? (
         results.length ? (
-          <div className="rounded-xl border border-line bg-white p-2">
+          <Card className="p-2">
             <ul className="divide-y divide-line">
               {results.map((ticket) => (
                 <TicketListItem key={ticket._id} ticket={ticket} />
               ))}
             </ul>
-          </div>
+          </Card>
         ) : (
           <EmptyState
             icon="binoculars"

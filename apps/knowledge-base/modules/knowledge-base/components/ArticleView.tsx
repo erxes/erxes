@@ -1,8 +1,9 @@
-import { Avatar } from '@/modules/ui/Avatar';
-import { EmptyState } from '@/modules/ui/EmptyState';
-import { Icon } from '@/modules/ui/Icon';
-import type { PortalArticle } from '../normalize';
-import { formatDate } from '../selectors';
+import { Avatar } from '@/modules/ui/components/Avatar';
+import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { Icon } from '@/modules/ui/components/Icon';
+import { RichText } from '@/modules/ui/components/RichText';
+import type { PortalArticle } from '../utils/normalize';
+import { formatDate } from '../utils/selectors';
 
 export const ArticleView = ({ article }: { article: PortalArticle }) => (
   <article className="rounded-xl border border-line bg-white p-6 sm:p-8">
@@ -10,7 +11,7 @@ export const ArticleView = ({ article }: { article: PortalArticle }) => (
       {article.title}
     </h1>
 
-    <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted">
+    <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
       <span className="flex items-center gap-2.5">
         <Avatar name={article.author} size={32} />
         <span>
@@ -33,10 +34,7 @@ export const ArticleView = ({ article }: { article: PortalArticle }) => (
     <hr className="my-6 border-line" />
 
     {article.content ? (
-      <div
-        className="kb-article"
-        dangerouslySetInnerHTML={{ __html: article.content }}
-      />
+      <RichText html={article.content} />
     ) : (
       <EmptyState
         icon="article"

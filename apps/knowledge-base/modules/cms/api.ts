@@ -3,7 +3,7 @@ import {
   cmsGate,
   errorMessage,
   type PortalResult,
-} from '@/modules/apollo/result';
+} from '@/modules/apollo/utils/result';
 import {
   CMS_PORTAL_ANNOUNCEMENTS,
   CMS_PORTAL_PAGE,
@@ -11,7 +11,6 @@ import {
 } from './graphql/queries/cmsPortal';
 import type { CmsPage, CmsPost } from './types';
 
-/** Slug of the CMS page that holds the portal's own copy. */
 export const PORTAL_COPY_SLUG = 'knowledge-base-portal';
 
 export const getAnnouncements = async (
@@ -69,10 +68,6 @@ export const getAnnouncement = async (
   }
 };
 
-/**
- * Portal copy from the CMS. A missing page is not an error — the caller falls
- * back to the knowledge base topic's own title and description.
- */
 export const getPortalCopy = async (
   slug: string = PORTAL_COPY_SLUG,
 ): Promise<CmsPage | null> => {
