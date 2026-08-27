@@ -85,7 +85,7 @@ export const TicketsView = () => {
   const view = useAtomValue(ticketViewAtom);
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [channelId] = useQueryState<string | null>('channelId');
-  const { statuses, loading } = useGetAccessibleTicketStatuses({
+  const { statuses, loading, error } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: pipelineId || '',
       channelId: channelId || '',
@@ -101,7 +101,7 @@ export const TicketsView = () => {
     );
   }
 
-  if (pipelineId && !statuses.length) {
+  if (pipelineId && !error && !statuses.length) {
     return <TicketStatusesFallback />;
   }
 
