@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-08-26`
 
 ## Scope
 
@@ -69,9 +69,6 @@
   a multi-select over the selected channel's `ticketConfigs`.
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
-- Conversation detail exposes the linked customer's activity timeline, internal
-  note composer, and editable custom properties beside the existing relation
-  widgets. These customer-only tabs stay hidden until a customer is attached.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -140,37 +137,36 @@
 
 ## Architecture
 
-| Area                     | Path                                                                                                                                         | Responsibility                                                                                                                  |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Host registration        | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                |
-| Federation               | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                                                      |
-| Routes                   | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                                                           |
-| Navigation groups        | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                                                         |
-| Settings routes          | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                                                       |
-| Channel picker           | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                                                |
-| Inbox nav trees          | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                  |
-| Channel nav row          | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                                                     |
-| Nav group actions        | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                          |
-| Sidebar counts           | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                           |
-| Live unread              | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                    |
-| Channel settings         | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                          |
-| Personal channel         | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                       |
-| Inbox                    | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                |
-| Conversation side widget | `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`                                                  | Relation widgets plus linked-customer activity, internal notes, and editable custom properties                                  |
-| Integrations             | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                     |
-| Call Pro                 | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker |
-| Ticket                   | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                              |
-| Forms                    | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                              |
-| Knowledge base           | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                    |
-| Automation widgets       | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                |
-| FB message action        | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                              |
-| FB post composer         | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                            |
-| Call report filters      | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                          | Integration/queue/direction chips, date presets, and the date+time custom range                                                 |
-| Call report export       | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                               | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                      |
-| Call report tables       | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                 |
-| Reports board            | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                        |
-| Saved charts             | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                |
-| Notifications            | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                     |
+| Area               | Path                                                                                                                                         | Responsibility                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Host registration  | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes |
+| Federation         | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                       |
+| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                            |
+| Navigation groups  | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                          |
+| Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                        |
+| Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                 |
+| Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header   |
+| Channel nav row    | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                      |
+| Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                           |
+| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel            |
+| Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                     |
+| Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                           |
+| Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                        |
+| Inbox              | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                 |
+| Integrations       | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                      |
+| Call Pro           | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                  |
+| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                               |
+| Forms              | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                               |
+| Knowledge base     | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                     |
+| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                 |
+| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                               |
+| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                             |
+| Call report filters | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                            | Integration/queue/direction chips, date presets, and the date+time custom range                                                                  |
+| Call report export | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                            | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                        |
+| Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells  |
+| Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                         |
+| Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
+| Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                      |
 
 ## Contracts
 
@@ -284,10 +280,6 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 - Apollo Client for all server state; GraphQL documents live next to the feature
   they serve and use `frontline`/module-prefixed operation names.
-- The conversation side widget reads the linked customer through the public
-  `ui-modules` customer detail hook. Custom-property edits use its customer edit
-  hook, which optimistically updates Apollo's normalized customer record; the
-  activity log and internal-note composer stay scoped to `core:customer`.
 - `GET_MY_CHANNELS` backs the inbox navigation and is refetched after
   `ChannelAdd`. `useGetMyChannels` pins `sortField: 'name', sortDirection: 1`
   for every caller, so the list arrives ordered and all consumers share one
@@ -336,9 +328,6 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
-- Customer activity and properties in `ConversationSideWidget` are keyed by the
-  conversation's `customerId`, never its conversation id, and render only when
-  that id exists. Relation widgets remain keyed by the conversation `_id`.
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
   Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
@@ -494,7 +483,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
   single implementation and is called once per end — the board checks the card's
   own column and then the column being dropped on, `useTicketPermissions({
-status })` returns the leaving side as `canMoveTicket` (what disables the
+  status })` returns the leaving side as `canMoveTicket` (what disables the
   status field in ticket detail), and `SelectStatusTicket` disables the options a
   user may not move into when the surface passes `restrictToMovable` (moves only
   — never on filter or create surfaces, where no ticket is being moved). An empty
@@ -686,25 +675,10 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-- Smoke: open a conversation with a linked customer, open Activity and confirm
-  the timeline and note composer target that customer, then open Properties and
-  edit a custom property; the saved value must update immediately. A conversation
-  without a customer must show neither customer tab.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-08-27` — Customer activity and properties in conversation detail
-
-- **Summary:** Added customer Activity and Properties tabs to the conversation
-  side menu, including internal notes, editable custom fields with mutation
-  feedback, loading/error/empty states, and the existing compact overlay
-  behavior.
-- **Affected areas:**
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationSideWidget.tsx`.
-- **Contracts changed:** None; consumes existing public `ui-modules` customer,
-  activity-log, internal-note, property, and relation-widget APIs.
 
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
@@ -834,3 +808,23 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
 - **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
   `noAnswer` field from `frontline_api`.
+
+### `2026-08-19` — Call Pro integration UI
+
+- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
+  built on the `call` module's shape — add/edit `Sheet`s over one shared form
+  carrying the webhook URL to configure, the recording player in the
+  conversation panel, and a `Command`-based customer picker/switcher for a
+  caller number that matches several customers. Everything is hidden unless the
+  backend reports Call Pro as enabled.
+- **Affected areas:** `src/modules/integrations/callpro/` (new),
+  `src/modules/types/Integration.ts`,
+  `src/modules/integrations/constants/integrations.ts`,
+  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
+  `src/pages/IntegrationDetailPage.tsx`,
+  `src/modules/inbox/types/Conversation.ts`,
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
+- **Contracts changed:** Consumes new `frontline_api` operations
+  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
+  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
+  conversation fields. Adds the `callpro` integration type.
