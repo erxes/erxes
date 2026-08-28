@@ -183,6 +183,7 @@ export const start = async (
       //     },
       //   });
     } catch (e) {
+      console.error('Error creating activity log:', e);
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
@@ -267,6 +268,7 @@ export const sendBulkSms = async (
         },
       ); // end sms creation
     } catch (e) {
+      console.error('SMS sending failed:', e);
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'failure',
@@ -291,6 +293,7 @@ export const sendBulkSms = async (
       //     },
       //   });
     } catch (e) {
+      console.error('Error creating activity log:', e);
       //   await models.Logs.createLog(
       //     engageMessageId,
       //     'regular',
