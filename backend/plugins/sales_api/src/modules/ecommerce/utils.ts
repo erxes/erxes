@@ -412,8 +412,10 @@ export const sanitizeEcommerceData = (data: any, type: string): any => {
 
     case 'address':
       if (sanitized.coordinate) {
-        sanitized.coordinate.lat = parseFloat(sanitized.coordinate.lat) || 0;
-        sanitized.coordinate.lng = parseFloat(sanitized.coordinate.lng) || 0;
+        sanitized.coordinate.lat =
+          Number.parseFloat(sanitized.coordinate.lat) || 0;
+        sanitized.coordinate.lng =
+          Number.parseFloat(sanitized.coordinate.lng) || 0;
       }
       break;
   }
