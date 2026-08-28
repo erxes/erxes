@@ -122,7 +122,7 @@ export const ToolFormPage = () => {
 
   const onMutationError = (e: any) =>
     toast({
-      title: t('could-not-save-tool'),
+      title: t('could-not-save-tool', 'Could not save tool'),
       description: e.message,
       variant: 'destructive',
     });
@@ -219,14 +219,16 @@ export const ToolFormPage = () => {
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
                   <Link to="/settings/mastra/tools">
-                    <IconTool /> {t('tools')}
+                    <IconTool /> {t('tools', 'Tools')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
                 <span className="text-muted-foreground">
-                  {isEdit ? t('edit-tool') : t('new-tool')}
+                  {isEdit
+                    ? t('edit-tool', 'Edit Tool')
+                    : t('new-tool', 'New Tool')}
                 </span>
               </Breadcrumb.Item>
             </Breadcrumb.List>
@@ -236,11 +238,15 @@ export const ToolFormPage = () => {
         <PageHeader.End>
           <Button variant="outline" asChild>
             <Link to="/settings/mastra/tools">
-              <IconArrowLeft /> {t('back')}
+              <IconArrowLeft /> {t('back', 'Back')}
             </Link>
           </Button>
           <Button type="submit" form="tool-form" disabled={isSaving}>
-            {isSaving ? t('saving') : isEdit ? t('save-changes') : t('create-tool')}
+            {isSaving
+              ? t('saving', 'Saving…')
+              : isEdit
+                ? t('save-changes', 'Save Changes')
+                : t('create-tool', 'Create Tool')}
           </Button>
         </PageHeader.End>
       </PageHeader>
@@ -254,8 +260,15 @@ export const ToolFormPage = () => {
           {/* Tool type */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
-              <Card.Title className="text-base">{t('tool-type')}</Card.Title>
-              <Card.Description>{t('choose-what-powers-this-tool')}</Card.Description>
+              <Card.Title className="text-base">
+                {t('tool-type', 'Tool Type')}
+              </Card.Title>
+              <Card.Description>
+                {t(
+                  'choose-what-powers-this-tool',
+                  'Choose what powers this tool.',
+                )}
+              </Card.Description>
             </Card.Header>
             <Card.Content>
               <ChoiceboxGroup
@@ -264,15 +277,21 @@ export const ToolFormPage = () => {
                 onValueChange={(v) => set('type', v as 'builtin' | 'erxes')}
               >
                 <ChoiceboxGroup.Item value="builtin" title="Category">
-                  {t('built-in')}
+                  {t('built-in', 'Built-in')}
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    {t('built-in-description')}
+                    {t(
+                      'built-in-description',
+                      'Web search, fetch URL, calculator',
+                    )}
                   </p>
                 </ChoiceboxGroup.Item>
                 <ChoiceboxGroup.Item value="erxes" title="Category">
-                  {t('erxes-operation')}
+                  {t('erxes-operation', 'erxes Operation')}
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    {t('erxes-operation-description')}
+                    {t(
+                      'erxes-operation-description',
+                      'Any erxes GraphQL query or mutation',
+                    )}
                   </p>
                 </ChoiceboxGroup.Item>
               </ChoiceboxGroup>
@@ -284,7 +303,7 @@ export const ToolFormPage = () => {
             <Card className="shadow-none">
               <Card.Header className="pb-3">
                 <Card.Title className="text-base">
-                  {t('select-built-in-tool')}
+                  {t('select-built-in-tool', 'Select Built-in Tool')}
                 </Card.Title>
               </Card.Header>
               <Card.Content>
@@ -321,14 +340,17 @@ export const ToolFormPage = () => {
             <Card className="shadow-none">
               <Card.Header className="pb-3">
                 <Card.Title className="text-base">
-                  {t('select-erxes-operation')}
+                  {t('select-erxes-operation', 'Select erxes Operation')}
                 </Card.Title>
                 <Card.Description>
-                  {t('operations-discovered-at-runtime')}
+                  {t(
+                    'operations-discovered-at-runtime',
+                    'Operations are discovered from the gateway at runtime.',
+                  )}
                 </Card.Description>
               </Card.Header>
               <Card.Content className="space-y-4">
-                <Field label={t('plugin-required')}>
+                <Field label={t('plugin-required', 'Plugin *')}>
                   {loadingErxes ? (
                     <Skeleton className="h-9 w-full" />
                   ) : (
@@ -342,7 +364,9 @@ export const ToolFormPage = () => {
                       required
                     >
                       <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
-                        <Select.Value placeholder={t('select-plugin')} />
+                        <Select.Value
+                          placeholder={t('select-plugin', 'Select plugin…')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
                         {plugins.map((p: any) => (
@@ -356,13 +380,16 @@ export const ToolFormPage = () => {
                 </Field>
 
                 {form.erxesPlugin && (
-                  <Field label={t('operation-required')}>
+                  <Field label={t('operation-required', 'Operation *')}>
                     <div className="relative mb-1.5">
                       <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
                       <Input
                         value={opSearch}
                         onChange={(e) => setOpSearch(e.target.value)}
-                        placeholder={t('search-operations-placeholder')}
+                        placeholder={t(
+                          'search-operations-placeholder',
+                          'Search by what it does or its name… (e.g. "create deal")',
+                        )}
                         className="pl-8 h-8 text-sm"
                       />
                     </div>
@@ -375,7 +402,11 @@ export const ToolFormPage = () => {
                       <div className="p-2 space-y-0.5">
                         {filteredOps.length === 0 && (
                           <p className="text-sm text-muted-foreground text-center py-8">
-                            {t('no-operations-match', { query: opSearch })}
+                            {t(
+                              'no-operations-match',
+                              'No operations match "{{query}}".',
+                              { query: opSearch },
+                            )}
                           </p>
                         )}
                         {filteredOps.map((op: any) => {
@@ -417,7 +448,7 @@ export const ToolFormPage = () => {
                                       variant="success"
                                       className="text-[10px]"
                                     >
-                                      {t('added')}
+                                      {t('added', 'Added')}
                                     </Badge>
                                   )}
                                   <Badge
@@ -429,8 +460,8 @@ export const ToolFormPage = () => {
                                     className="text-[10px]"
                                   >
                                     {op.operationType === 'mutation'
-                                      ? t('write')
-                                      : t('read')}
+                                      ? t('write', 'write')
+                                      : t('read', 'read')}
                                   </Badge>
                                 </div>
                               </div>
@@ -440,14 +471,14 @@ export const ToolFormPage = () => {
                                 </span>
                                 {requiredArgs.length > 0 && (
                                   <span className="text-[11px] text-muted-foreground">
-                                    · {t('needs')}{' '}
+                                    · {t('needs', 'needs')}{' '}
                                     {requiredArgs.slice(0, 4).join(', ')}
                                     {requiredArgs.length > 4 ? '…' : ''}
                                   </span>
                                 )}
                                 {added && (
                                   <span className="text-[11px] text-primary">
-                                    · {t('click-to-edit')}
+                                    · {t('click-to-edit', 'click to edit')}
                                   </span>
                                 )}
                               </div>
@@ -461,8 +492,11 @@ export const ToolFormPage = () => {
 
                 {form.erxesOperation && (
                   <Field
-                    label={t('response-fields')}
-                    hint={t('response-fields-hint')}
+                    label={t('response-fields', 'Response Fields')}
+                    hint={t(
+                      'response-fields-hint',
+                      'Space-separated GraphQL fields to return. Used only when the operation returns an object type.',
+                    )}
                   >
                     <Input
                       value={form.erxesResponseFields}
@@ -481,15 +515,23 @@ export const ToolFormPage = () => {
           {/* Identity */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
-              <Card.Title className="text-base">{t('identity')}</Card.Title>
+              <Card.Title className="text-base">
+                {t('identity', 'Identity')}
+              </Card.Title>
               <Card.Description>
-                {t('identity-description')}
+                {t(
+                  'identity-description',
+                  'The LLM uses the name and description to decide when to call this tool.',
+                )}
               </Card.Description>
             </Card.Header>
             <Card.Content className="space-y-4">
               <Field
-                label={t('tool-id-required')}
-                hint={t('tool-id-hint')}
+                label={t('tool-id-required', 'Tool ID *')}
+                hint={t(
+                  'tool-id-hint',
+                  'Unique machine identifier. Auto-generated from name.',
+                )}
               >
                 <Input
                   value={form.toolId}
@@ -503,20 +545,23 @@ export const ToolFormPage = () => {
                 />
               </Field>
 
-              <Field label={t('name-required')}>
+              <Field label={t('name-required', 'Name *')}>
                 <Input
                   value={form.name}
                   onChange={(e) => set('name', e.target.value)}
-                  placeholder={t('tool-display-name')}
+                  placeholder={t('tool-display-name', 'Tool display name')}
                   required
                 />
               </Field>
 
-              <Field label={t('description')}>
+              <Field label={t('description', 'Description')}>
                 <Textarea
                   value={form.description}
                   onChange={(e: any) => set('description', e.target.value)}
-                  placeholder={t('description-placeholder')}
+                  placeholder={t(
+                    'description-placeholder',
+                    'What this tool does — the LLM uses this to decide when to call it',
+                  )}
                   rows={3}
                 />
               </Field>
@@ -528,9 +573,14 @@ export const ToolFormPage = () => {
             <Card.Content className="pt-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <Label className="font-medium">{t('enabled')}</Label>
+                  <Label className="font-medium">
+                    {t('enabled', 'Enabled')}
+                  </Label>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {t('disabled-tools-hint')}
+                    {t(
+                      'disabled-tools-hint',
+                      "Disabled tools won't be available to any agent",
+                    )}
                   </p>
                 </div>
                 <Switch
@@ -544,10 +594,14 @@ export const ToolFormPage = () => {
           {/* Mobile submit */}
           <div className="flex gap-3 pb-4 sm:hidden">
             <Button type="submit" disabled={isSaving}>
-              {isSaving ? t('saving') : isEdit ? t('save-changes') : t('create-tool')}
+              {isSaving
+              ? t('saving', 'Saving…')
+              : isEdit
+                ? t('save-changes', 'Save Changes')
+                : t('create-tool', 'Create Tool')}
             </Button>
             <Button type="button" variant="outline" asChild>
-              <Link to="/settings/mastra/tools">{t('cancel')}</Link>
+              <Link to="/settings/mastra/tools">{t('cancel', 'Cancel')}</Link>
             </Button>
           </div>
         </form>
