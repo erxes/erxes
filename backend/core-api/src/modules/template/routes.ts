@@ -1,11 +1,70 @@
 import crypto from 'crypto';
-import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import {
+  extractUserFromHeader,
+  getSubdomain,
+  redis,
+} from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
+// `ipKeyGenerator` is the documented v7/v8 helper for producing IPv6-subnet-safe
+// rate-limit keys. The library itself warns when a custom keyGenerator uses
+// `req.ip` without it, so any change away from this helper would reintroduce
+// the IPv6-mapped bypass class fixed by GHSA-46wh-pxpv-q5gq.
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
 import { generateModels } from '~/connectionResolvers';
 
 const router: Router = Router();
 
 const ALGORITHM = 'aes-256-gcm';
+
+// Redis-backed rate limiter for POST /import/template.
+// Counter is shared across all core-api replicas via the erxes-api-shared
+// ioredis singleton, so the 30-req/15-min cap applies cluster-wide and cannot
+// be bypassed by load-balancing across instances. Fail-open if Redis is
+// unreachable so an outage does not take template import down — the route
+// also requires authentication, so this is defense-in-depth, not the only gate.
+//
+// Keying strategy: prefer authenticated user + tenant subdomain so that users
+// sharing an IP (VPN, corporate NAT) are not throttled as a group. Fall back
+// to an IPv6-safe IP key (via `ipKeyGenerator`) for unauthenticated requests,
+// which the route's auth gate will reject anyway. This addresses the case
+// where IP-only limiting can punish legitimate multi-tenant traffic.
+const importTemplateLimiter = rateLimit({
+  store: new RedisStore({
+    prefix: 'rl:import-template:',
+    sendCommand: (...args: string[]) =>
+      redis.call(...(args as [string, ...string[]])) as Promise<any>,
+  }),
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // 30 imports per user/tenant per window — generous for humans, tight for bots
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Fail open if Redis is unreachable so an outage doesn't take import down.
+  skip: () => redis.status !== 'ready',
+  keyGenerator: (req) => {
+    try {
+      const user = extractUserFromHeader(req.headers) as { _id?: string } | null;
+      if (user && user._id) {
+        const subdomain = getSubdomain(req);
+        return `u:${subdomain}:${user._id}`;
+      }
+    } catch {
+      // fall through to IP-based key
+    }
+    // Fall back to an IPv6-safe IP key. If `req.ip` is not available (e.g.,
+    // `trust proxy` misconfigured), prefer the raw socket address before
+    // collapsing all unknown sources into a single shared bucket.
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    return `ip:${ipKeyGenerator(ip)}`;
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message:
+        'Too many template import requests, please try again later.',
+    });
+  },
+});
 
 /** Reads and validates the TEMPLATE_EXPORT_KEY environment variable. */
 const getEncryptionKey = (): string => {
@@ -141,7 +200,7 @@ router.get(
   },
 );
 
-router.post('/import/template', async (req: Request, res: Response) => {
+router.post('/import/template', importTemplateLimiter, async (req: Request, res: Response) => {
   const user = authenticateRequest(req, res);
   if (!user) return null;
 
