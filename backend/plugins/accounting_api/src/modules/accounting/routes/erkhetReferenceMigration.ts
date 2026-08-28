@@ -29,24 +29,12 @@ type TErkhetFixedAssetCategory = {
   defaultSalvageValue?: number;
 };
 
-type TErkhetFixedAsset = {
-  code?: string;
-  name?: string;
-  categoryCode?: string;
-  description?: string;
-  usefulLife?: number;
-  salvageValue?: number;
-  accountCode?: string;
-  accumulatedDepreciationAccountCode?: string;
-};
-
 type TErkhetReferencesRequest = {
   userId?: string;
   dryRun?: boolean;
   productCategories?: TErkhetProductCategory[];
   products?: TErkhetProduct[];
   fixedAssetCategories?: TErkhetFixedAssetCategory[];
-  fixedAssets?: TErkhetFixedAsset[];
 };
 
 type TReferenceRow = {
@@ -384,100 +372,6 @@ const syncFixedAssetCategories = async ({
   return { rows, categoryIdsByCode };
 };
 
-const syncFixedAssets = async ({
-  models,
-  userId,
-  dryRun,
-  fixedAssets,
-  categoryIdsByCode,
-}: {
-  models: IModels;
-  userId?: string;
-  dryRun: boolean;
-  fixedAssets: TErkhetFixedAsset[];
-  categoryIdsByCode: TCodeMap;
-}) => {
-  const rows: TReferenceRow[] = [];
-  const assetIdsByCode = indexByCode(
-    await models.FixedAssets.find(
-      { code: { $in: uniq(fixedAssets.map((asset) => asset.code || '')) } },
-      { _id: 1, code: 1 },
-    ).lean(),
-  );
-
-  for (const asset of fixedAssets) {
-    try {
-      requireCodeAndName('Fixed asset', asset);
-      const code = asset.code || '';
-
-      const categoryId = asset.categoryCode
-        ? categoryIdsByCode[asset.categoryCode]
-        : '';
-
-      // Transaction migration fixedAssetId-г master code гэж үзэж resolve хийнэ.
-      // Тиймээс master record энд заавал category-тэйгээ үүссэн байх ёстой.
-      if (asset.categoryCode && !categoryId) {
-        throw new Error(`Fixed asset category not found: ${asset.categoryCode}`);
-      }
-
-      const doc = cleanDoc({
-        code,
-        name: asset.name,
-        categoryId,
-        description: asset.description,
-        usefulLife: asset.usefulLife,
-        salvageValue: asset.salvageValue,
-        status: 'active',
-        propertiesData: cleanDoc({
-          erkhetAccountCode: asset.accountCode,
-          erkhetAccumulatedDepreciationAccountCode:
-            asset.accumulatedDepreciationAccountCode,
-        }),
-      });
-      const existingId = assetIdsByCode[code];
-      const action = existingId ? 'update' : 'create';
-
-      if (!dryRun) {
-        if (existingId) {
-          await models.FixedAssets.updateOne(
-            { _id: existingId },
-            {
-              $set: {
-                ...doc,
-                modifiedBy: userId,
-                updatedAt: new Date(),
-              },
-            },
-          );
-        } else {
-          const saved = await models.FixedAssets.create({
-            ...doc,
-            createdBy: userId,
-            createdAt: new Date(),
-          });
-          assetIdsByCode[code] = saved._id;
-        }
-      }
-
-      rows.push({
-        type: 'fixedAsset',
-        code,
-        action,
-        _id: assetIdsByCode[code],
-      });
-    } catch (error) {
-      rows.push({
-        type: 'fixedAsset',
-        code: asset.code,
-        action: 'error',
-        error: getErrorMessage(error, 'Fixed asset sync failed'),
-      });
-    }
-  }
-
-  return rows;
-};
-
 export const importErkhetReferences = async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -486,7 +380,7 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
   const rows: TReferenceRow[] = [];
 
   // Reference sync нь transaction sync-ээс өмнөх bootstrap шат.
-  // Эхлээд category tree, дараа нь item/master record-уудыг resolve хийнэ.
+  // Бараа дээр category + product үүсгэнэ, fixed asset дээр зөвхөн category tree үүсгэнэ.
   const productCategoryResult = await syncProductCategories({
     subdomain,
     userId: body.userId,
@@ -524,32 +418,6 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
     categories: body.fixedAssetCategories || [],
   });
   rows.push(...fixedAssetCategoryResult.rows);
-
-  const fixedAssetCategoryIdsByCode = {
-    ...fixedAssetCategoryResult.categoryIdsByCode,
-    ...indexByCode(
-      await models.FixedAssetCategories.find(
-        {
-          code: {
-            $in: uniq(
-              (body.fixedAssets || []).map((asset) => asset.categoryCode || ''),
-            ),
-          },
-        },
-        { _id: 1, code: 1 },
-      ).lean(),
-    ),
-  };
-
-  rows.push(
-    ...(await syncFixedAssets({
-      models,
-      userId: body.userId,
-      dryRun,
-      fixedAssets: body.fixedAssets || [],
-      categoryIdsByCode: fixedAssetCategoryIdsByCode,
-    })),
-  );
 
   const errorRows = rows.filter((row) => row.action === 'error');
 

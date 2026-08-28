@@ -41,7 +41,7 @@
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
-- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories/master records by source code before transactions are imported.
+- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
 - Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
@@ -58,7 +58,7 @@
 | Rate adjustments   | `src/modules/accounting/utils/adjust*Rates.ts`              | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                           |
 | Closing adjustment | `src/modules/accounting/utils/adjustClosings.ts`            | Owns temporary account closing calculation, tax impact calculation, and transaction execution.               |
 | Fixed assets       | `src/modules/fixedAssets`                                   | Owns fixed asset categories, acquisition-backed fixed assets, optional owner-record ledger rows, and adjustment models. |
-| Erkhet migration   | `src/modules/accounting/routes/erkhetReferenceMigration.ts` | Upserts required product and fixed-asset reference data from Erkhet codes before transaction import.         |
+| Erkhet migration   | `src/modules/accounting/routes/erkhetReferenceMigration.ts` | Upserts required product references and fixed asset category references from Erkhet codes before transaction import. |
 | Erkhet migration   | `src/modules/accounting/routes/erkhetMigration.ts`          | Validates migration batches, resolves external codes, and imports transactions.                              |
 
 ## Contracts
@@ -138,7 +138,7 @@
 - `node_modules/.bin/tsc -p backend/plugins/accounting_api/tsconfig.build.json --noEmit`
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
-- Smoke scenario: send a dry-run Erkhet references batch and verify product category/product plus fixed asset category/master rows report create/update actions without missing parent/category code errors.
+- Smoke scenario: send a dry-run Erkhet references batch and verify product category/product plus fixed asset category rows report create/update actions without missing parent/category code errors.
 - Smoke scenario: send a dry-run Erkhet batch and verify code resolution, contact match/create planning, idempotent create/update selection, and per-batch success/error rows.
 - Smoke scenario: run `journalReportData` for account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset reports with account/category/currency, Erkhet `trKind`, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and `journalReportMore` detail rows match the selected account details.
 
@@ -148,9 +148,9 @@
 
 ### `2026-08-29` — `Fixed Asset Owner Record Ledger`
 
-- **Summary:** Finalized owner records as `received`/`handedOver` ledger rows keyed by fixed asset and owner, removed obsolete allocation-model assumptions, added balance-only aggregation for selection, direct owner-record mutations, and honored transaction-level owner fallback during journal save.
-- **Affected areas:** `src/connectionResolvers.ts`, `src/apollo/schema/schema.ts`, `src/modules/fixedAssets`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `fxaOwnerRecords` and `fxaOwnerRecordsCount` now use `action`, `ownerId`, and `balanceOnly`; adds `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`; owner records expose ledger fields only.
+- **Summary:** Finalized owner records as `received`/`handedOver` ledger rows keyed by fixed asset and owner, removed obsolete allocation-model assumptions, added balance-only aggregation for selection, direct owner-record mutations, honored transaction-level owner fallback during journal save, and kept Erkhet reference sync fixed asset category-only.
+- **Affected areas:** `src/connectionResolvers.ts`, `src/apollo/schema/schema.ts`, `src/modules/fixedAssets`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
+- **Contracts changed:** `fxaOwnerRecords` and `fxaOwnerRecordsCount` now use `action`, `ownerId`, `sourceOwnerId`, and `balanceOnly`; adds `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`; owner records expose ledger fields only; `/pl:accounting/migration/erkhet/references` no longer creates fixed asset master rows.
 
 ### `2026-08-28` — `Fixed Asset Location Remainder Query`
 
@@ -168,7 +168,7 @@
 
 - **Summary:** Erkhet transaction migration now resolves fixed asset income category/acquisition fields and owner-record payloads, including owner balance selection for disposal, sale, and move movements.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName`, and owner-record `extraData.fxaOwnerRecords` rows with `ownerId`; legacy responsible-user fields are accepted only as migration fallbacks.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName`, and owner-record `extraData.fxaOwnerRecords` rows with `ownerId` and optional `sourceOwnerId`; legacy responsible-user fields are accepted only as migration fallbacks.
 
 ### `2026-08-28` — `Fixed Asset Owner Record Movements`
 

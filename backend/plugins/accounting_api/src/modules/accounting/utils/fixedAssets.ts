@@ -18,6 +18,7 @@ export type TFxaOwnerRecordInput = {
   sequence?: number;
   count?: number;
   ownerId?: string;
+  sourceOwnerId?: string;
 };
 
 export type TFxaIncomeDetailFollowInfo = Pick<
@@ -252,6 +253,7 @@ const getSourceInput = (
     ...input,
     fixedAssetId: input.fixedAssetId || source?.fixedAssetId,
     ownerId: input.ownerId || source?.ownerId,
+    sourceOwnerId: input.sourceOwnerId || source?.ownerId,
     code: input.code || source?.code,
   };
 };
@@ -294,16 +296,17 @@ export const syncFxaOwnerRecordMovements = async ({
       : undefined;
     const count = normalizeCount(input.count);
     const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
-    const ownerId = resolvedInput.ownerId || '';
+    const sourceOwnerId = resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
+    const ownerId = resolvedInput.ownerId || sourceOwnerId;
 
-    if (!detail || !fixedAssetId || !ownerId || count <= 0) {
+    if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
       continue;
     }
 
     const balance = await getOwnerRecordBalance({
       fixedAssetId,
       models,
-      ownerId,
+      ownerId: sourceOwnerId,
     });
 
     if (balance < count) {
@@ -316,7 +319,10 @@ export const syncFxaOwnerRecordMovements = async ({
         count,
         detailId: getDetailId(detail),
         fixedAssetId,
-        input: resolvedInput,
+        input: {
+          ...resolvedInput,
+          ownerId: sourceOwnerId,
+        },
         transaction,
         userId,
       }),
@@ -329,7 +335,10 @@ export const syncFxaOwnerRecordMovements = async ({
           count,
           detailId: getDetailId(detail),
           fixedAssetId,
-          input: resolvedInput,
+          input: {
+            ...resolvedInput,
+            ownerId,
+          },
           transaction,
           userId,
         }),

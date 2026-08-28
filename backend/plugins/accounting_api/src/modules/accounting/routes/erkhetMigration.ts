@@ -45,6 +45,7 @@ type TFxaOwnerRecordMigrationInput = {
   sequence?: number;
   count?: number;
   ownerId?: string;
+  sourceOwnerId?: string;
   responsibleUserId?: string;
   sourceResponsibleUserId?: string;
 };
@@ -169,6 +170,9 @@ const getCodeMap = (docs: ITransaction[]) => {
       }
       if (ownerRecord.ownerId) {
         userRefs.push(normalizeSourceCode(ownerRecord.ownerId));
+      }
+      if (ownerRecord.sourceOwnerId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.sourceOwnerId));
       }
       if (ownerRecord.responsibleUserId) {
         userRefs.push(normalizeSourceCode(ownerRecord.responsibleUserId));
@@ -560,6 +564,7 @@ const resolveFxaOwnerRecords = (
   ownerRecords.map((ownerRecord) => {
     const fixedAssetCode = normalizeSourceCode(ownerRecord.fixedAssetId);
     const ownerRef = normalizeSourceCode(ownerRecord.ownerId);
+    const sourceOwnerRef = normalizeSourceCode(ownerRecord.sourceOwnerId);
     const responsibleUserRef = normalizeSourceCode(
       ownerRecord.responsibleUserId,
     );
@@ -574,6 +579,9 @@ const resolveFxaOwnerRecords = (
     }
     if (ownerRef && !maps.usersByRef[ownerRef]) {
       throw new Error(`User not found: ${ownerRef}`);
+    }
+    if (sourceOwnerRef && !maps.usersByRef[sourceOwnerRef]) {
+      throw new Error(`User not found: ${sourceOwnerRef}`);
     }
     if (responsibleUserRef && !maps.usersByRef[responsibleUserRef]) {
       throw new Error(`User not found: ${responsibleUserRef}`);
@@ -598,6 +606,11 @@ const resolveFxaOwnerRecords = (
         : responsibleUserRef
           ? maps.usersByRef[responsibleUserRef]
           : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+      sourceOwnerId: sourceOwnerRef
+        ? maps.usersByRef[sourceOwnerRef]
+        : sourceResponsibleUserRef
+          ? maps.usersByRef[sourceResponsibleUserRef]
+          : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
       sourceResponsibleUserId: sourceResponsibleUserRef
         ? maps.usersByRef[sourceResponsibleUserRef]
         : undefined,
@@ -638,49 +651,71 @@ const resolveOwnerRecordSources = async (
 
       const detail = detailById.get(input.transactionDetailId);
       const fixedAssetId = input.fixedAssetId || detail?.fixedAssetId;
-      const ownerId = input.ownerId || input.sourceResponsibleUserId;
+      const preferredSourceOwnerId =
+        input.sourceOwnerId || input.sourceResponsibleUserId;
       const count = Math.max(0, Math.trunc(input.count || detail?.count || 0));
 
-      if (!detail || !fixedAssetId || !ownerId || count <= 0) {
+      if (!detail || !fixedAssetId || count <= 0) {
         return input;
       }
 
       const selector: Record<string, unknown> = {
         fixedAssetId,
-        ownerId,
         status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
       };
+      if (preferredSourceOwnerId) {
+        selector.ownerId = preferredSourceOwnerId;
+      }
 
       const candidates = await models.FxaOwnerRecords.find(selector, {
         _id: 1,
         count: 1,
         action: 1,
+        ownerId: 1,
       })
         .limit(200)
         .lean();
-      const ownerKey = `${fixedAssetId}:${ownerId}`;
-      const balance = candidates.reduce((sum, candidate) => {
-        const sign =
-          candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
-            ? 1
-            : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
-              ? -1
-              : 0;
+      const balanceByOwner = candidates.reduce<Record<string, number>>(
+        (result, candidate) => {
+          const candidateOwnerId = candidate.ownerId || '';
+          const sign =
+            candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
+              ? 1
+              : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
+                ? -1
+                : 0;
 
-        return sum + sign * Math.max(0, Math.trunc(candidate.count || 0));
-      }, 0);
-      const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
+          result[candidateOwnerId] =
+            (result[candidateOwnerId] || 0) +
+            sign * Math.max(0, Math.trunc(candidate.count || 0));
 
-      if (balance - usedCount < count) {
+          return result;
+        },
+        {},
+      );
+      const selectedSourceOwnerId = Object.keys(balanceByOwner).find(
+        (candidateOwnerId) => {
+          const ownerKey = `${fixedAssetId}:${candidateOwnerId}`;
+          const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
+
+          return balanceByOwner[candidateOwnerId] - usedCount >= count;
+        },
+      );
+
+      if (!selectedSourceOwnerId) {
         throw new Error(`Fixed asset owner record not found: ${fixedAssetId}`);
       }
+
+      const ownerKey = `${fixedAssetId}:${selectedSourceOwnerId}`;
+      const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
 
       usedCountByOwnerKey.set(ownerKey, usedCount + count);
 
       return {
         ...input,
         fixedAssetId,
-        ownerId,
+        ownerId: input.ownerId || selectedSourceOwnerId,
+        sourceOwnerId: selectedSourceOwnerId,
         count,
       };
     }),
