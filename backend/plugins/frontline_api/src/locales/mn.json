@@ -8,5 +8,9 @@
   "username": "Нэр",
   "password": "Нууц үг",
   "hide-conversations": "Яриануудыг нуух",
-  "show-conversations": "Яриануудыг харуулах"
+  "show-conversations": "Яриануудыг харуулах",
+  "no-form-responses": "Формын хариулт одоогоор байхгүй",
+  "form-responses-empty-description": "Илгээсэн формын дэлгэрэнгүй мэдээлэл энд харагдана.",
+  "discord-open-conversations_one": "{{count}} нээлттэй харилцан яриа",
+  "discord-open-conversations_other": "{{count}} нээлттэй харилцан яриа"
 }

@@ -14,6 +14,7 @@ export const types = `
         updatedAt: Date
         memberCount: Int
         pipelineCount: Int
+        hasTickets: Boolean
         responseTemplateCount: Int
         formCount: Int
         integrationCount: Int
