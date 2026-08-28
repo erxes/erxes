@@ -45,6 +45,15 @@
       }
     },
 
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "cwd": "backend/plugins/content_api",
+        "command": "pnpm test"
+      }
+    },
+
     "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f backend/plugins/content_api/Dockerfile . -t erxes/erxes-next-content_api"
