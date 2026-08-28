@@ -10,6 +10,7 @@ import { FieldRelation } from './FieldRelation';
 import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
+import { FieldStringMultiple } from './FieldStringMultiple';
 import { FieldPhone } from './FieldPhone';
 import { FieldTextarea } from './FieldTextarea';
 
@@ -71,6 +72,8 @@ export const Field = (props: FieldProps) => {
             return <FieldPhone {...fieldProps} />;
           case 'textarea':
             return <FieldTextarea {...fieldProps} />;
+          case 'list':
+            return <FieldStringMultiple {...fieldProps} />;
           case 'number':
             return <FieldNumber {...fieldProps} />;
           case 'boolean':
@@ -157,6 +160,8 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
             return <FieldPhone {...fieldProps} />;
           case 'textarea':
             return <FieldTextarea {...fieldProps} />;
+          case 'list':
+            return <FieldStringMultiple {...fieldProps} />;
           case 'number':
             return <FieldNumber {...fieldProps} />;
           case 'boolean':

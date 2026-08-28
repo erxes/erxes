@@ -13,12 +13,14 @@ import { FieldRelation } from './FieldRelation';
 import { FieldSelect } from './FieldSelect';
 import { FieldSelectMultiple } from './FieldSelectMultiple';
 import { FieldString } from './FieldString';
+import { FieldStringMultiple } from './FieldStringMultiple';
 import { FieldTextarea } from './FieldTextarea';
 
 const FIELD_COMPONENT_MAP: Record<string, ComponentType<SpecificFieldProps>> = {
   text: FieldString,
   phone: FieldPhone,
   textarea: FieldTextarea,
+  list: FieldStringMultiple,
   number: FieldNumber,
   boolean: FieldBoolean,
   date: FieldDate,

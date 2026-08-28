@@ -46,6 +46,15 @@ const parseValue = (field, value) => {
           return value;
         }
 
+      // v2 stored string lists comma-joined. Keep the entries verbatim — unlike
+      // multiSelect/check these are free text, not option values.
+      case 'list':
+        if (Array.isArray(value)) {
+          return value;
+        }
+
+        return typeof value === 'string' ? value.split(',') : value;
+
       case 'select':
         return Array.isArray(value)
           ? value.join(',').toLowerCase()

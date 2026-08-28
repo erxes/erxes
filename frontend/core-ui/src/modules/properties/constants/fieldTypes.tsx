@@ -5,6 +5,7 @@ import {
   IconChevronsDown,
   IconCircleCheck,
   IconFile,
+  IconList,
   IconNumbers,
   IconPhone,
   IconRelationManyToMany,
@@ -16,6 +17,7 @@ import {
 export const FIELD_TYPES = [
   { value: 'text', label: 'Text', icon: IconTextSize },
   { value: 'textarea', label: 'Textarea', icon: IconTextScan2 },
+  { value: 'list', label: 'String List', icon: IconList },
   { value: 'number', label: 'Number', icon: IconNumbers },
   { value: 'boolean', label: 'True/False', icon: IconCheck },
   { value: 'date', label: 'Date', icon: IconCalendarEvent },

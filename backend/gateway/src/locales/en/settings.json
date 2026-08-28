@@ -183,6 +183,7 @@
     "field-type": {
       "text": "Text",
       "textarea": "Textarea",
+      "list": "String List",
       "number": "Number",
       "boolean": "True/False",
       "date": "Date",
