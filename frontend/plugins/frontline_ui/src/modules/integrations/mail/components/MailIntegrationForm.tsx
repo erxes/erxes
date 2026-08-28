@@ -20,13 +20,15 @@ import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
-import { IMailSendingValue, MailSendingChoice } from './MailSendingChoice';
 import { MailSendingRequired } from './MailSendingRequired';
-import { useMailSendingReadiness } from '../hooks/useMailSendingAccounts';
+import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
+
+export const MAIL_SENDER_NAME_MAX_LENGTH = 64;
 
 export const mailFormSchema = z.object({
   name: z.string().min(1),
   forwardFrom: z.string().email().optional().or(z.literal('')),
+  senderName: z.string().trim().max(MAIL_SENDER_NAME_MAX_LENGTH).optional(),
   brandId: z.string().min(1, 'Brand is required'),
 });
 
@@ -52,6 +54,12 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
     label: 'forwarding-address',
     placeholder: 'forwarding-address-placeholder',
     description: 'forwarding-address-description',
+  },
+  {
+    name: 'senderName',
+    label: 'sender-name',
+    placeholder: 'sender-name-placeholder',
+    description: 'sender-name-description',
   },
 ];
 
@@ -125,6 +133,48 @@ export const MailAddressCallout = ({ address }: { address: string }) => {
   );
 };
 
+export const MailSenderPreview = ({
+  senderName,
+  address,
+}: {
+  senderName: string;
+  address: string;
+}) => (
+  <p className="text-xs text-muted-foreground">
+    <span className="font-medium text-foreground">{senderName}</span>{' '}
+    <span className="font-mono">&lt;{address}&gt;</span>
+  </p>
+);
+
+const MailSendingSummary = ({
+  domain,
+  senderName,
+}: {
+  domain?: string | null;
+  senderName: string;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  if (!domain) {
+    return <Spinner className="p-10" />;
+  }
+
+  return (
+    <Alert>
+      <IconCircleCheck className="h-4 w-4" />
+      <Alert.Title className="font-medium">
+        {t('mail-sending-sender-default', { domain })}
+      </Alert.Title>
+      <Alert.Description className="mt-1 space-y-2 text-sm text-muted-foreground">
+        <span className="block">
+          {t('mail-sending-sender-default-description')}
+        </span>
+        <MailSenderPreview senderName={senderName} address={`…@${domain}`} />
+      </Alert.Description>
+    </Alert>
+  );
+};
+
 const STEP_DETAILS = [
   { title: 'mail-step-basics', description: 'mail-step-basics-description' },
   {
@@ -137,10 +187,12 @@ const STEP_DETAILS = [
 
 const MailIntegrationCreated = ({
   integrationId,
-  sending,
+  sendingDomain,
+  senderName,
 }: {
   integrationId: string;
-  sending: IMailSendingValue;
+  sendingDomain?: string | null;
+  senderName: string;
 }) => {
   const { t } = useTranslation('frontline');
   const { integrationDetail, loading } = useIntegrationDetail({
@@ -182,10 +234,13 @@ const MailIntegrationCreated = ({
       <div className="space-y-1">
         <p className="text-sm font-medium">{t('mail-sending')}</p>
         <p className="text-sm text-muted-foreground">
-          {sending.sendingAddress
-            ? t('mail-sending-done-own', { address: sending.sendingAddress })
+          {sendingDomain
+            ? t('mail-sending-done', { domain: sendingDomain })
             : t('mail-sending-done-platform')}
         </p>
+        {address && (
+          <MailSenderPreview senderName={senderName} address={address} />
+        )}
       </div>
 
       <div className="space-y-1">
@@ -198,23 +253,17 @@ const MailIntegrationCreated = ({
   );
 };
 
-const EMPTY_SENDING: IMailSendingValue = {
-  sendingAccountId: '',
-  sendingAddress: '',
-};
-
 // skipcq: JS-R1005
 export const MailIntegrationFormSheet = () => {
   const { t } = useTranslation('frontline');
   const [isOpen, setIsOpen] = useAtom(mailFormSheetAtom);
   const [step, setStep] = useState(1);
   const [createdId, setCreatedId] = useState<string | null>(null);
-  const [sending, setSending] = useState<IMailSendingValue>(EMPTY_SENDING);
   const { id } = useParams();
 
   const form = useForm<MailFormValues>({
     resolver: zodResolver(mailFormSchema),
-    defaultValues: { name: '', forwardFrom: '', brandId: '' },
+    defaultValues: { name: '', forwardFrom: '', senderName: '', brandId: '' },
   });
 
   const { addIntegration, loading } = useIntegrationAdd();
@@ -224,7 +273,6 @@ export const MailIntegrationFormSheet = () => {
     setIsOpen(false);
     setStep(1);
     setCreatedId(null);
-    setSending(EMPTY_SENDING);
     form.reset();
   };
 
@@ -232,9 +280,10 @@ export const MailIntegrationFormSheet = () => {
 
   const basicsReady = Boolean(values.name?.trim() && values.brandId);
 
-  const sendingReady = sending.sendingAccountId
-    ? Boolean(sending.sendingAddress.split('@')[0])
-    : Boolean(readiness?.cloudflare?.ready || readiness?.platform?.ready);
+  const sendingDomain =
+    readiness?.cloudflare?.domain || readiness?.platform?.domain || null;
+
+  const sendingReady = Boolean(readiness?.ready);
 
   const onSubmit = (data: MailFormValues) =>
     addIntegration({
@@ -245,8 +294,7 @@ export const MailIntegrationFormSheet = () => {
         brandId: data.brandId,
         data: {
           forwardFrom: data.forwardFrom,
-          sendingAccountId: sending.sendingAccountId,
-          sendingAddress: sending.sendingAddress,
+          senderName: data.senderName,
         },
       },
       onCompleted(created) {
@@ -301,6 +349,21 @@ export const MailIntegrationFormSheet = () => {
                         {...MAIL_FORM_FIELDS[0]}
                         control={form.control}
                       />
+                      <MailFormField
+                        {...MAIL_FORM_FIELDS[2]}
+                        control={form.control}
+                      />
+                      {!!sendingDomain &&
+                        !!(values.senderName?.trim() || values.name?.trim()) && (
+                          <MailSenderPreview
+                            senderName={
+                              values.senderName?.trim() ||
+                              values.name?.trim() ||
+                              ''
+                            }
+                            address={`…@${sendingDomain}`}
+                          />
+                        )}
                       <Form.Field
                         name="brandId"
                         control={form.control}
@@ -337,13 +400,14 @@ export const MailIntegrationFormSheet = () => {
 
                   {step === 3 &&
                     (readiness && !readiness.ready ? (
-                      <MailSendingRequired />
+                      <MailSendingRequired
+                        reason={readiness.cloudflare?.reason}
+                      />
                     ) : (
-                      <MailSendingChoice
-                        value={sending}
-                        onChange={setSending}
-                        suggestedLocalPart={
-                          values.forwardFrom?.split('@')[0] || undefined
+                      <MailSendingSummary
+                        domain={sendingDomain}
+                        senderName={
+                          values.senderName?.trim() || values.name?.trim() || ''
                         }
                       />
                     ))}
@@ -351,7 +415,10 @@ export const MailIntegrationFormSheet = () => {
                   {step === 4 && createdId && (
                     <MailIntegrationCreated
                       integrationId={createdId}
-                      sending={sending}
+                      sendingDomain={sendingDomain}
+                      senderName={
+                        values.senderName?.trim() || values.name?.trim() || ''
+                      }
                     />
                   )}
                 </div>

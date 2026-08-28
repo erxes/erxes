@@ -22,11 +22,12 @@ import {
   MailAddressCallout,
   MailFormField,
   MailFormValues,
+  MailSenderPreview,
   mailFormSchema,
 } from './MailIntegrationForm';
 import { MailConnectionCheck } from './MailConnectionCheck';
-import { IMailSendingValue, MailSendingChoice } from './MailSendingChoice';
 import { MailIntegrationFormLayout } from './MailIntegrationFormLayout';
+import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
@@ -69,15 +70,14 @@ const MailIntegrationEditForm = ({
     integrationId: id,
   });
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
+  const { readiness } = useMailSendingReadiness();
 
   const form = useForm<MailFormValues>({
     resolver: zodResolver(mailFormSchema),
   });
 
-  const [sending, setSending] = useState<IMailSendingValue>({
-    sendingAccountId: '',
-    sendingAddress: '',
-  });
+  const sendingDomain =
+    readiness?.cloudflare?.domain || readiness?.platform?.domain || null;
 
   const details = integrationDetail?.details?.data ?? {};
 
@@ -91,12 +91,8 @@ const MailIntegrationEditForm = ({
     form.reset({
       name: integrationDetail.name ?? '',
       forwardFrom: d.forwardFrom ?? '',
+      senderName: d.senderName ?? '',
       brandId: integrationDetail.brandId ?? '',
-    });
-
-    setSending({
-      sendingAccountId: d.sendingAccountId ?? '',
-      sendingAddress: d.sendingAddress ?? '',
     });
   }, [integrationDetail, form]);
 
@@ -109,8 +105,7 @@ const MailIntegrationEditForm = ({
         brandId: data.brandId,
         details: {
           forwardFrom: data.forwardFrom,
-          sendingAccountId: sending.sendingAccountId,
-          sendingAddress: sending.sendingAddress,
+          senderName: data.senderName,
         },
       },
       refetchQueries: ['Integrations', 'IntegrationDetail'],
@@ -166,15 +161,23 @@ const MailIntegrationEditForm = ({
 
           <Separator />
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <p className="text-sm font-medium">{t('mail-sending')}</p>
-            <MailSendingChoice
-              value={sending}
-              onChange={setSending}
-              suggestedLocalPart={
-                form.watch('forwardFrom')?.split('@')[0] || undefined
-              }
-            />
+            <p className="text-sm text-muted-foreground">
+              {sendingDomain
+                ? t('mail-sending-sender-default', { domain: sendingDomain })
+                : t('mail-sending-sender-default-unavailable')}
+            </p>
+            {details.address && (
+              <MailSenderPreview
+                senderName={
+                  form.watch('senderName')?.trim() ||
+                  form.watch('name')?.trim() ||
+                  ''
+                }
+                address={details.address}
+              />
+            )}
           </div>
 
           <Separator />

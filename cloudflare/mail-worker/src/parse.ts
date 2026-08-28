@@ -16,12 +16,17 @@ const HTML_ESCAPES: Record<string, string> = {
 
 const FORWARDED_HEADERS = [
   'auto-submitted',
+  'delivered-to',
   'precedence',
   'return-path',
   'x-autoreply',
   'x-autorespond',
   'x-autoresponder',
 ];
+
+// A forwarded message carries one Delivered-To per hop, and the mailbox that
+// forwarded it is only one of them, so every value has to travel.
+const REPEATED_HEADERS = ['delivered-to'];
 
 const textToHtml = (text: string) =>
   `<div>${text
@@ -41,8 +46,17 @@ const pickHeaders = (headers?: Header[]) => {
   for (const { key, value } of headers ?? []) {
     const name = key.toLowerCase();
 
-    if (FORWARDED_HEADERS.includes(name) && !(name in picked)) {
+    if (!FORWARDED_HEADERS.includes(name)) {
+      continue;
+    }
+
+    if (!(name in picked)) {
       picked[name] = value;
+      continue;
+    }
+
+    if (REPEATED_HEADERS.includes(name)) {
+      picked[name] = `${picked[name]}, ${value}`;
     }
   }
 

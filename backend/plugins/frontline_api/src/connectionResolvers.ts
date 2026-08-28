@@ -177,7 +177,6 @@ import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration
 import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
 import { IMailMessageDocument } from '@/integrations/mail/@types/message';
 import { IMailCloudflareDocument } from '@/integrations/mail/@types/cloudflare';
-import { IMailSendingAccountDocument } from '@/integrations/mail/@types/sending';
 import {
   IMailIntegrationModel,
   loadMailIntegrationClass,
@@ -194,10 +193,6 @@ import {
   IMailCloudflareModel,
   loadMailCloudflareClass,
 } from '@/integrations/mail/db/models/CloudflareConnections';
-import {
-  IMailSendingAccountModel,
-  loadMailSendingAccountClass,
-} from '@/integrations/mail/db/models/SendingAccounts';
 import {
   IChannelMemberModel,
   loadChannelMemberClass,
@@ -399,7 +394,6 @@ export interface IModels {
   MailCustomers: IMailCustomerModel;
   MailMessages: IMailMessageModel;
   MailCloudflare: IMailCloudflareModel;
-  MailSendingAccounts: IMailSendingAccountModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -716,11 +710,6 @@ export const loadClasses = (
     IMailCloudflareDocument,
     IMailCloudflareModel
   >('mail_cloudflare', loadMailCloudflareClass(models), 'mail_cloudflare');
-  models.MailSendingAccounts = db.model<
-    IMailSendingAccountDocument,
-    IMailSendingAccountModel
-  >('mail_sending_accounts', loadMailSendingAccountClass(models));
-
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
     loadMessengerAppClass(models),

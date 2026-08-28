@@ -1,6 +1,6 @@
 import { TMailAttachmentDisposition } from '@/integrations/mail/@types/message';
 
-export type TEmailDeliveryProvider = 'SES' | 'sendgrid' | 'custom';
+export type TEmailDeliveryProvider = 'custom';
 
 export interface ISendMailAttachment {
   name?: string;

@@ -55,14 +55,28 @@ const resolveReceivedAt = (value?: string) => {
   return Number.isNaN(parsed.getTime()) || parsed > now ? now : parsed;
 };
 
+const readDeliveredTo = (headers?: Record<string, string>) =>
+  (headers?.['delivered-to'] ?? '')
+    .split(',')
+    .map((entry) => normalizeAddress(entry).replace(/^<|>$/g, ''))
+    .filter(Boolean);
+
+// A forwarding mailbox hands the message over under its provider's own envelope
+// sender — Gmail uses a rotating postmaster@mail-....google.com relay — so the
+// envelope can never name the mailbox itself. Delivered-To can, and does.
 const isForwardedBy = (
   integration: IMailIntegrationDocument,
   envelopeFrom: string,
+  deliveredTo: string[],
 ) => {
   const forwardFrom = normalizeAddress(integration.forwardFrom);
 
   if (!forwardFrom) {
     return false;
+  }
+
+  if (deliveredTo.includes(forwardFrom)) {
+    return true;
   }
 
   return (
@@ -75,13 +89,14 @@ const isSenderMismatch = (
   integration: IMailIntegrationDocument,
   headerFrom: string,
   envelopeFrom: string,
+  deliveredTo: string[],
 ) =>
   Boolean(
     headerFrom &&
       envelopeFrom &&
       parseTaggedAddress(envelopeFrom).address !==
         parseTaggedAddress(headerFrom).address &&
-      !isForwardedBy(integration, envelopeFrom),
+      !isForwardedBy(integration, envelopeFrom, deliveredTo),
   );
 
 const normalizeSubject = (subject?: string) =>
@@ -326,10 +341,7 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'from.address is required' });
   }
 
-  const selfAddresses = [
-    normalizeAddress(integration.address),
-    normalizeAddress(integration.sendingAddress),
-  ].filter(Boolean);
+  const selfAddresses = [normalizeAddress(integration.address)].filter(Boolean);
 
   const claimed = [senderAddress, envelopeFrom]
     .filter(Boolean)
@@ -348,7 +360,12 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
       {
         address: senderAddress,
         envelopeFrom: envelopeFrom || undefined,
-        mismatch: isSenderMismatch(integration, headerFrom, envelopeFrom),
+        mismatch: isSenderMismatch(
+          integration,
+          headerFrom,
+          envelopeFrom,
+          readDeliveredTo(payload.headers),
+        ),
         replyTag: tag,
       },
     );

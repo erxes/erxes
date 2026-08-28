@@ -36,21 +36,40 @@ export const verifyToken = async (token: string) =>
     '/user/tokens/verify',
   );
 
+const ZONES_PER_PAGE = 50;
+
+// Cloudflare caps a page at 50 and the shared request helper drops `result_info`,
+// so a short page is what tells us the listing is done. The page ceiling keeps a
+// pathological account from spinning here forever.
+const ZONES_MAX_PAGES = 20;
+
 export const listZones = async (
   token: string,
 ): Promise<IMailCloudflareZone[]> => {
-  const zones = await cloudflareRequest<ICloudflareZone[]>(
-    token,
-    '/zones?per_page=50',
-  );
+  const collected: IMailCloudflareZone[] = [];
 
-  return (zones ?? []).map((zone) => ({
-    id: zone.id,
-    name: zone.name,
-    status: zone.status,
-    accountId: zone.account?.id ?? '',
-    accountName: zone.account?.name ?? '',
-  }));
+  for (let page = 1; page <= ZONES_MAX_PAGES; page++) {
+    const zones = await cloudflareRequest<ICloudflareZone[]>(
+      token,
+      `/zones?per_page=${ZONES_PER_PAGE}&page=${page}`,
+    );
+
+    collected.push(
+      ...(zones ?? []).map((zone) => ({
+        id: zone.id,
+        name: zone.name,
+        status: zone.status,
+        accountId: zone.account?.id ?? '',
+        accountName: zone.account?.name ?? '',
+      })),
+    );
+
+    if ((zones ?? []).length < ZONES_PER_PAGE) {
+      break;
+    }
+  }
+
+  return collected;
 };
 
 export const getZone = async (token: string, zoneId: string) =>
@@ -157,6 +176,17 @@ export const deleteQueueConsumer = async (
     { method: 'DELETE' },
   );
 
+export const deleteQueue = async (
+  token: string,
+  accountId: string,
+  queueId: string,
+) =>
+  await cloudflareRequest<unknown>(
+    token,
+    `/accounts/${accountId}/queues/${queueId}`,
+    { method: 'DELETE' },
+  );
+
 export const attachQueueConsumer = async (
   token: string,
   accountId: string,
@@ -204,6 +234,17 @@ export const uploadScript = async (
     { method: 'PUT', body: form },
   );
 };
+
+export const deleteScript = async (
+  token: string,
+  accountId: string,
+  scriptName: string,
+) =>
+  await cloudflareRequest<unknown>(
+    token,
+    `/accounts/${accountId}/workers/scripts/${scriptName}`,
+    { method: 'DELETE' },
+  );
 
 interface ICloudflareScriptSettings {
   bindings?: { type?: string; name?: string; text?: string }[];

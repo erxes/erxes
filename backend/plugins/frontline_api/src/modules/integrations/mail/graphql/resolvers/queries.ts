@@ -3,7 +3,6 @@ import { IMailAddress } from '@/integrations/mail/@types/message';
 import { listCloudflareZones } from '@/integrations/mail/utils/cloudflare/connect';
 import { readSendingQuota } from '@/integrations/mail/utils/cloudflare/sending';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
-import { toPublicSendingAccount } from '@/integrations/mail/utils/sendingSerialize';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -52,35 +51,14 @@ export const mailQueries = {
     return toPublicConnection(await models.MailCloudflare.current());
   },
 
-  async mailSendingAccounts(
-    _root: undefined,
-    _args: undefined,
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('integrationsEdit');
-
-    const accounts = await models.MailSendingAccounts.find({}).sort({
-      createdAt: -1,
-    });
-
-    return accounts.map(toPublicSendingAccount);
-  },
-
   async mailSendingReadiness(
     _root: undefined,
     _args: undefined,
-    { models, subdomain, checkPermission }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('integrationsEdit');
 
-    const readiness = await readSendingReadiness(models, subdomain);
-
-    return {
-      ready: readiness.ready,
-      cloudflare: readiness.cloudflare,
-      platform: readiness.platform,
-      accounts: readiness.accounts.map(toPublicSendingAccount),
-    };
+    return await readSendingReadiness(subdomain);
   },
 
   async mailCloudflareSendingQuota(

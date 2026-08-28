@@ -65,18 +65,5 @@ export const MAIL_SEND_MAX_HEADER_BYTES = 16 * 1024;
 
 export const MAIL_SEND_MAX_SUBJECT_LENGTH = 998;
 
-export const MAIL_SENDING_STATUSES = {
-  PENDING: 'pending',
-  VERIFIED: 'verified',
-  FAILED: 'failed',
-} as const;
+export const MAIL_SENDER_NAME_MAX_LENGTH = 64;
 
-export const MAIL_SENDING_PROVIDERS = ['SES', 'sendgrid'] as const;
-
-export const MAIL_SENDING_ENV_PREFIX = 'MAIL_SENDING_';
-
-export const MAIL_SENDING_PROOF_HOST = '_erxes-verify';
-
-export const MAIL_SENDING_PROOF_PREFIX = 'erxes-verification=';
-
-export const MAIL_SENDING_PROOF_LENGTH = 32;

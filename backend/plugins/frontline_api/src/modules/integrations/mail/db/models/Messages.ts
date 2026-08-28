@@ -17,7 +17,6 @@ import {
   buildMessageId,
   isRetryableFailure,
   resolveReplyToAddress,
-  resolveSendingAddress,
   sendMail,
 } from '@/integrations/mail/utils/transports';
 
@@ -130,7 +129,14 @@ export const loadMailMessageClass = (models: IModels) => {
         );
       }
 
-      const fromAddress = resolveSendingAddress(integration);
+      const fromAddress = integration.address;
+
+      const inbox = await models.Integrations.findOne({
+        _id: integration.inboxId,
+      });
+
+      const senderName = integration.senderName || inbox?.name || '';
+
       const replyTag = await Message.resolveReplyTag(conversationId);
 
       const referenceChain = [
@@ -151,7 +157,7 @@ export const loadMailMessageClass = (models: IModels) => {
         replyTag,
         subject,
         body: body ?? '',
-        from: toAddresses([fromAddress]),
+        from: [{ name: senderName || fromAddress, address: fromAddress }],
         to: toAddresses(to),
         cc: toAddresses(cc),
         bcc: toAddresses(bcc),
@@ -249,10 +255,10 @@ export const loadMailMessageClass = (models: IModels) => {
       );
 
       try {
-        const result = await sendMail(subdomain, integration, {
+        const result = await sendMail(subdomain, {
           messageId: message.messageId,
-          from: resolveSendingAddress(integration),
-          fromName: inbox?.name || undefined,
+          from: integration.address,
+          fromName: integration.senderName || inbox?.name || undefined,
           replyTo: replyToAddress,
           to: message.to.map((entry) => entry.address),
           cc: message.cc.map((entry) => entry.address),

@@ -11,13 +11,9 @@ export const mailIntegrationSchema = new Schema({
     label: 'Address inbound mail is routed to',
   },
   forwardFrom: { type: String, label: 'Address the tenant forwards from' },
-  sendingAccountId: {
+  senderName: {
     type: String,
-    label: 'Sending account replies leave through — empty means Cloudflare',
-  },
-  sendingAddress: {
-    type: String,
-    label: 'From address on that account, empty means the inbox address',
+    label: 'Display name on replies, empty means the inbox name',
   },
   healthStatus: { type: String, default: MAIL_HEALTH_STATUSES.HEALTHY },
   error: { type: String, default: '' },

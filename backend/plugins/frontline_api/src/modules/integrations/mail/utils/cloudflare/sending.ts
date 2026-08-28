@@ -23,7 +23,7 @@ export const readSendingAccount = async (
     return {
       ok: false,
       reason:
-        'No Cloudflare account is connected — connect one under Settings → Integrations config, or reply through an SES or SendGrid sending account instead',
+        'No Cloudflare account is connected — connect one under Settings → Integrations config to send from your own domain',
     };
   }
 

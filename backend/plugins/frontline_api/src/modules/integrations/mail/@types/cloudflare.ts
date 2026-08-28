@@ -43,6 +43,8 @@ export interface IMailCloudflareZone {
   status: string;
   accountId: string;
   accountName: string;
+  eligible?: boolean;
+  reason?: string;
 }
 
 export interface IMailCloudflareConnectArgs {
@@ -95,6 +97,7 @@ export interface ICloudflareSendPayload {
 }
 
 export interface ICloudflareSendResult {
+  message_id?: string;
   delivered?: string[];
   permanent_bounces?: string[];
   queued?: string[];

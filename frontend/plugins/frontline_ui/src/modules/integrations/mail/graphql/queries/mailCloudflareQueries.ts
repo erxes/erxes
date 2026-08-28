@@ -37,6 +37,8 @@ export const MAIL_CLOUDFLARE_ZONES_QUERY = gql`
       name
       status
       accountName
+      eligible
+      reason
       __typename
     }
   }

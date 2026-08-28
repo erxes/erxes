@@ -18,7 +18,6 @@ import {
   getSendingDns,
   listSendingSubdomains,
   listQueueConsumers,
-  listMxRecords,
   createQueue,
   enableEmailRouting,
   enableWorkersDev,
@@ -38,6 +37,11 @@ import {
   workerScriptVersion,
 } from '@/integrations/mail/utils/cloudflare/worker';
 import { forgetCloudflareCache } from '@/integrations/mail/utils/cloudflare/connection';
+import {
+  foreignMailHost,
+  foreignMailReason,
+  inactiveZoneReason,
+} from '@/integrations/mail/utils/cloudflare/zones';
 
 type TProvisionStep = (typeof MAIL_PROVISION_STEPS)[number];
 
@@ -87,23 +91,6 @@ const explainFailure = (step: TProvisionStep, error: unknown) => {
   }
 
   return described;
-};
-
-const CLOUDFLARE_MX = /\.mx\.cloudflare\.net\.?$/i;
-
-const foreignMailHost = async (
-  token: string,
-  zoneId: string,
-  zoneName: string,
-) => {
-  const records = await listMxRecords(token, zoneId);
-
-  const foreign = (records ?? []).find(
-    (record) =>
-      record.name === zoneName && !CLOUDFLARE_MX.test(record.content ?? ''),
-  );
-
-  return foreign?.content;
 };
 
 const deployedTenant = async (context: IProvisionContext) => {
@@ -212,10 +199,10 @@ const STEP_RUNNERS: Record<
     const { connection } = context;
     const zone = await getZone(connection.apiToken, connection.zoneId);
 
-    if (zone.status !== 'active') {
-      throw new Error(
-        `The domain ${zone.name} is ${zone.status} on Cloudflare — it must be active before mail can be routed`,
-      );
+    const inactive = inactiveZoneReason(zone.name, zone.status);
+
+    if (inactive) {
+      throw new Error(inactive);
     }
 
     const inUse = await foreignMailHost(
@@ -225,9 +212,7 @@ const STEP_RUNNERS: Record<
     );
 
     if (inUse) {
-      throw new Error(
-        `${zone.name} already receives its mail through ${inUse}. Connecting it would replace those MX records with Cloudflare Email Routing and stop every message to that domain — including everyone's mailbox on it. Use a domain dedicated to erxes mail instead.`,
-      );
+      throw new Error(foreignMailReason(zone.name, inUse));
     }
   },
 
@@ -291,7 +276,7 @@ const STEP_RUNNERS: Record<
 
     if (serving && serving !== connection.tenant) {
       throw new Error(
-        `The worker ${connection.workerName} on this Cloudflare account already serves the workspace "${serving}". One Cloudflare account can only serve one workspace — its worker carries a single endpoint and a single signing key, so connecting this one would silently stop mail reaching "${serving}". Connect a separate Cloudflare account for this workspace`,
+        `The worker ${connection.workerName} on this Cloudflare account already serves the workspace "${serving}". A worker carries a single endpoint and a single signing key, so taking it over would silently stop mail reaching "${serving}". Disconnect that workspace first, or connect this one under a different tenant name`,
       );
     }
 
@@ -354,7 +339,7 @@ const STEP_RUNNERS: Record<
       throw new Error(
         `The queue ${connection.queueName} on this Cloudflare account is already read by ${owner.join(
           ', ',
-        )}. This account is running erxes mail for another workspace, and one account can only serve one: connect a separate Cloudflare account for this workspace, or detach that consumer first`,
+        )}. A queue accepts a single consumer, so this workspace cannot share it: disconnect the workspace that owns it, or detach that consumer first`,
       );
     }
 

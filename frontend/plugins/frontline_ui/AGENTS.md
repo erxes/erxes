@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-26`
+- **Last synchronized:** `2026-08-27`
 
 ## Scope
 
@@ -23,20 +23,16 @@
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
   and resend.
-- The mail channel's Cloudflare section in Integrations config: paste an API token,
+- The mail channel's **Bring your own Cloudflare Email Routing & Sending** section
+  in Integrations config: paste an API token,
   pick one of that account's domains, watch the fourteen provisioning steps, and
   repair, update or disconnect afterwards. The connected card also reports whether
   replies leave through that account and, when they do, its sending quota.
 - The mail inbox's four-step add wizard — basics, receiving, sending, done — and
-  the matching edit dialog. The sending step chooses between the default sender and
-  one of the workspace's own sending domains, and can add a domain inline without
-  leaving the wizard.
-- The workspace's sending domains in Integrations config: add a domain, copy the
-  DKIM and `_erxes-verify` records it returns, re-check verification, and remove one
-  that no inbox uses. Whether provider credentials are optional there depends on
-  the deployment: with a platform sender configured they are a disclosure the form
-  leaves closed and the deployment signs for the domain, and without one the form
-  opens that section and will not submit until it is filled in.
+  the matching edit dialog. The sending step names the domain replies will leave
+  from and takes the sender display name, or blocks with the reason when neither
+  the workspace's Cloudflare account nor the deployment's can sign. A preview
+  renders the exact `Name <address>` recipients will see.
 - The mail inbox's delivery check: a button in the integration dialog that runs
   `mailCheckConnection` and reports whether inbound mail reaches this workspace,
   naming the tenant and the endpoint the worker delivers to.
@@ -191,7 +187,7 @@
 | Mail data          | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                      | `mailConversationDetail` window, send and retry mutations, form sheet atom                       |
 | Mail provider setup | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                        | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect  |
 | Mail add wizard    | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                               |
-| Mail sending setup | `src/modules/integrations/mail/components/MailSending{Choice,AccountForm,Accounts}.tsx`, `src/modules/integrations/mail/hooks/useMailSendingAccounts.tsx` | Per-inbox sender choice, inline domain creation whose provider credentials are optional only when the deployment has a platform sender, DNS records, verification and removal |
+| Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx` | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config |
 | Mail delivery check | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                   |
 | Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                      |
 
@@ -312,14 +308,11 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `sendingEnabled` is false, so a workspace that only receives mail never pays for
   the round trip, and it is refetched with `mailCloudflareProvision` and
   `mailCloudflareConnect` so enabling sending fills the row in without a reload.
-- `frontline_api` GraphQL `mailSendingAccounts`, `mailSendingAccountAdd`,
-  `mailSendingAccountVerify` and `mailSendingAccountRemove` — the workspace's sending
-  domains. `provider` and every credential are optional arguments on add; omitting
-  them marks the domain `platformManaged` and the deployment signs for it, which
-  the server rejects when it has no sending provider of its own. Every mutation
-  refetches the list with `awaitRefetchQueries`, so the wizard, the edit dialog and
-  Integrations config all show the same verification state without a reload.
-  Credentials are write-only; the query never returns them.
+- `frontline_api` GraphQL `mailSendingReadiness` — whether this workspace can reply
+  and from which domain. `cloudflare.domain` wins over `platform.domain` when both
+  are ready, because a connected account addresses its inboxes on its own zone. The
+  wizard gates Create on `ready` and the edit dialog reads the same query, so the
+  button and the banner can never disagree with the server.
 - `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
   integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
   verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
@@ -770,16 +763,11 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   that failed, and keep reporting the inbound connection as healthy.
 - Smoke (mail add wizard): add a mail inbox and confirm each step gates the next —
   step 1 will not advance without a name and a brand, and Create is only enabled
-  when the sending choice is complete. Pick "send from your own domain" with no
-  account yet: the inline form opens, saving it shows the DNS records, and the
-  inbox is still creatable while that domain is `pending`. The done step names both
-  the forwarding address and where replies will leave from.
-- Smoke (mail sending domains): in Integrations config add a domain with the
-  provider disclosure left closed, confirm the DKIM records **and** the
-  `_erxes-verify` TXT render with a working copy button, press *Check again* and see
-  the badge move, then try to remove a domain an inbox still uses — the server
-  refusal must surface as a toast, not a silent failure. Open the disclosure and
-  enter an AWS key id without a region: Save must stay disabled and say why.
+  once `mailSendingReadiness` reports `ready`. Step 3 must name the domain replies
+  leave from. Unset the deployment's `MAIL_SENDING_ACCOUNT_ID` on a workspace with
+  no Cloudflare connection: step 3 must block with the reason and a link to
+  Integrations config instead of offering a credentials form. The done step names
+  both the forwarding address and where replies will leave from.
 - Smoke (mail delivery check): open a mail integration's edit dialog, press
   "Check connection", and confirm a healthy deployment reports success with the
   tenant and endpoint, while an unset `MAIL_WORKER_URL` or a wrong
@@ -799,6 +787,87 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-28` — The domain picker is searchable and says which domains are usable
+
+- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
+  a token reached, which on an account with hundreds of domains is unusable — and
+  a domain already carrying another provider's MX only failed after Connect. It is
+  now a `Combobox` + `Command` with search, matching how the rest of the plugin
+  picks from many. Ineligible zones stay listed but disabled, with the server's
+  short reason under the name: shown rather than hidden, so nobody wonders why
+  their domain is missing. The server returns usable domains first.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
+  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
+  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
+
+### `2026-08-28` — A sent message shows who sent it, not who received it
+
+- **Summary:** `MailConversationDetail` took the first recipient as the "sender"
+  of an outbound message, so a reply was titled with the customer's address while
+  the `to:` line underneath repeated it and the agent-side sender never appeared —
+  including the `senderName` an inbox now sets. The avatar colour and initial came
+  from the same recipient, so every bubble in a thread looked alike. The header now
+  always reads `mailData.from`, which makes outbound and inbound symmetric and
+  gives agent messages their own avatar.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConversationDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-27` — The mail config section says what connecting actually does
+
+- **Summary:** The Integrations config panel was titled `Email`, taken from the
+  shared `INTEGRATIONS[MAIL].name` that also labels the integration list and the
+  channel chips, so it read as the channel rather than as what the panel does. It
+  now carries its own title, **Bring your own Cloudflare Email Routing & Sending**,
+  while the logo still comes from the shared constant. The trigger wraps instead
+  of clipping the longer title.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** None.
+
+### `2026-08-27` — The basics step takes a sender name and previews it
+
+- **Summary:** The add wizard's **first** step and the edit dialog now carry a
+  `senderName` field, and both render a `Name <address>` preview of what a
+  recipient sees. It sits next to the inbox name it defaults from, and on step 1
+  rather than the sending step because that step falls back to
+  `MailSendingRequired` when nothing can sign yet — which put the field out of
+  reach exactly when an inbox was being created. Left empty the inbox name is
+  used, which is the previous behaviour. The `sender-name*` labels were missing
+  from the locale files, so the field had been rendering its raw key.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/{MailIntegrationForm,MailIntegrationDetail}.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** sends `data.senderName` on integration create and
+  `details.senderName` on edit; reads `senderName` from integration details.
+
+### `2026-08-27` — The Sending domains panel is gone; replies are Cloudflare-only
+
+- **Summary:** Settings → Integrations config no longer carries a Sending domains
+  section, and the add-inbox wizard and edit dialog no longer offer a per-inbox
+  sender. Replies always leave from the inbox's own address, signed by the
+  workspace's connected Cloudflare account or, failing that, the deployment's.
+  Step 3 of the wizard became a confirmation naming that domain, and blocks with
+  `mailSendingReadiness.cloudflare.reason` plus a link to Integrations config when
+  neither account can sign. The SES/SendGrid form, its DNS-record and verification
+  UI and the account mutations are deleted.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/{MailSendingChoice,MailSendingAccountForm,MailSendingAccounts}.tsx`
+  and `src/modules/integrations/mail/graphql/mutations/mailSendingMutations.ts`
+  deleted; `MailSendingRequired.tsx` reduced to the Cloudflare route;
+  `useMailSendingAccounts.tsx` replaced by `hooks/useMailSendingReadiness.tsx`;
+  `graphql/queries/mailSendingQueries.ts`, `MailIntegrationForm.tsx`,
+  `MailIntegrationDetail.tsx`, `src/pages/IntegrationConfigPage.tsx`.
+- **Contracts changed:** stops sending `data.sendingAccountId` /
+  `data.sendingAddress` on integration create and edit; stops using
+  `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
+  `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
+  `frontline_api` removed.
 
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
@@ -878,77 +947,4 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/channel/components/TeamChannelsNav.tsx`,
   `src/modules/inbox/channel/components/UnreadSummary.tsx` (removed; the row
   badge replaces the group-header figure).
-- **Contracts changed:** None.
-
-### `2026-08-25` — Sending credentials are required when the deployment has none
-
-- **Summary:** `MailSendingAccountForm` kept its provider fields collapsed and
-  optional even on a deployment that sets no `MAIL_SENDING_*`, so adding a domain
-  looked complete and then failed server-side with a message naming a server env
-  var. The form now reads `mailSendingReadiness.platform.ready`; when no platform
-  sender exists the credentials section opens with the form, the fields count
-  toward the submit guard, and the copy stops promising that erxes will send on
-  the workspace's behalf.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailSendingAccountForm.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** None. New `frontline` translation keys
-  `mail-sending-provider-required` and
-  `mail-sending-provider-required-description`.
-
-### `2026-08-24` — The sending-account form respects the provider you picked
-
-- **Summary:** `MailSendingAccountForm` read whichever credential had text in it,
-  so a SendGrid key typed before switching to Amazon SES still decided the
-  account; it now reads and submits only the selected provider's fields, and its
-  two `Spinner`s asked for a `size` the component does not define. Removing a
-  sending domain now confirms first, like every other destructive action here.
-  `useMailSendingAccounts` was split so a screen needing only the mutations
-  (`useMailSendingAccountActions`) no longer fires a second and third copy of the
-  accounts query.
-- **Affected areas:**
-  `.../integrations/mail/components/{MailSendingAccountForm,MailSendingAccounts,MailSendingChoice}.tsx`,
-  `.../integrations/mail/hooks/useMailSendingAccounts.tsx`.
-- **Contracts changed:** None. New `frontline` translation key
-  `confirm-remove-sending-account`.
-
-### `2026-08-24` — A null client message no longer takes the inbox down
-
-- **Summary:** When the gateway cannot resolve a client message it delivers the
-  subscription field as null, and `useConversations` read `.conversationId` off it,
-  crashing the inbox on a mail reply. The hook now reads the field optionally,
-  refetching the list when it is null and counting the unread badge and the
-  notification sound only for a message it actually received.
-- **Affected areas:**
-  `.../inbox/conversations/hooks/useConversations.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-24` — Adding a sending domain no longer asks for provider credentials
-
-- **Summary:** `MailSendingAccountForm` now asks only for a name and a domain;
-  the SES and SendGrid fields moved behind a "Use your own provider" disclosure and
-  Save no longer waits on them. With them closed the deployment signs for the
-  domain, so a workspace publishes DNS records and nothing else. Opening them and
-  entering an AWS key id without a region now blocks Save with a reason instead of
-  failing server-side. `MailSendingChoice`'s `CLOUDFLARE_SENDER` became
-  `DEFAULT_SENDER` and names whichever sender will actually carry the reply — the
-  connected Cloudflare zone, else the deployment domain — and the wizard's Create
-  gate and readiness both read the new `platform` branch.
-- **Affected areas:**
-  `.../components/MailSending{AccountForm,Choice}.tsx`,
-  `.../components/MailIntegrationForm.tsx`,
-  `.../hooks/useMailSendingAccounts.tsx`,
-  `.../graphql/queries/mailSendingQueries.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** consumes `MailSendingReadiness.platform` and
-  `MailSendingAccount.platformManaged`; sends `mailSendingAccountAdd` without
-  `provider` or credentials when the disclosure is left closed.
-
-### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
-
-- **Summary:** The ticket index favorite control now stops loading when a
-  selected channel or pipeline is not found, falls back to the tickets-only
-  breadcrumb, and renders query failures explicitly.
-- **Affected areas:** `src/pages/TicketIndexPage.tsx`,
-  `src/modules/channels/hooks/useGetChannels.tsx`.
 - **Contracts changed:** None.

@@ -320,7 +320,7 @@ const EmailRow: React.FC<{
   const [showQuoted, setShowQuoted] = useState(false);
   const { mailData, createdAt } = message;
   const isSent = mailData.type === 'SENT';
-  const sender = isSent ? mailData.to?.[0] : mailData.from?.[0];
+  const sender = mailData.from?.[0];
   const multiRecipient =
     (mailData.to?.length ?? 0) + (mailData.cc?.length ?? 0) > 1;
   const bg = avatarBg(sender?.name, sender?.email);

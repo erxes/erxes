@@ -23,6 +23,8 @@ export const types = `
     status: String
     accountId: String
     accountName: String
+    eligible: Boolean
+    reason: String
   }
 
   type MailProvisionStep {
@@ -30,26 +32,6 @@ export const types = `
     state: String
     error: String
     ranAt: Date
-  }
-
-  type MailSendingDnsRecord {
-    type: String
-    host: String
-    data: String
-    valid: Boolean
-  }
-
-  type MailSendingAccount {
-    _id: String
-    name: String
-    provider: String
-    domain: String
-    platformManaged: Boolean
-    status: String
-    dnsRecords: [MailSendingDnsRecord]
-    error: String
-    verifiedAt: Date
-    createdAt: Date
   }
 
   type MailSendingCloudflare {
@@ -67,7 +49,6 @@ export const types = `
     ready: Boolean
     cloudflare: MailSendingCloudflare
     platform: MailSendingPlatform
-    accounts: [MailSendingAccount]
   }
 
   type MailCloudflareSendingQuota {
@@ -95,7 +76,6 @@ export const queries = `
     limit: Int
   ): MailConversationMessages
 
-  mailSendingAccounts: [MailSendingAccount]
   mailSendingReadiness: MailSendingReadiness
 
   mailCloudflareConnection: MailCloudflareConnection
@@ -121,20 +101,6 @@ export const mutations = `
   ): JSON
 
   mailMessageRetry(_id: String!): JSON
-
-  mailSendingAccountAdd(
-    name: String!
-    provider: String
-    domain: String!
-    awsAccessKeyId: String
-    awsSecretAccessKey: String
-    awsRegion: String
-    sendgridApiKey: String
-  ): MailSendingAccount
-
-  mailSendingAccountVerify(_id: String!): MailSendingAccount
-
-  mailSendingAccountRemove(_id: String!): Boolean
 
   mailCheckConnection: MailConnectionCheck
 

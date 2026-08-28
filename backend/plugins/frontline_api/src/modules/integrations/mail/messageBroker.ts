@@ -1,8 +1,10 @@
 import { generateModels, IModels } from '~/connectionResolvers';
 import { withErrorHandling } from '../../../shared/utils';
-import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 import {
-  addressDomain,
+  MAIL_HEALTH_STATUSES,
+  MAIL_SENDER_NAME_MAX_LENGTH,
+} from '@/integrations/mail/constants';
+import {
   buildInboxAddress,
   buildOwnDomainAddress,
   isEmailAddress,
@@ -52,53 +54,24 @@ const buildAddress = async (
   return address;
 };
 
-const resolveSending = async (
-  models: IModels,
-  parsed: Record<string, unknown>,
-  ownInboxId?: string,
-) => {
-  const sendingAccountId =
-    typeof parsed.sendingAccountId === 'string'
-      ? parsed.sendingAccountId.trim()
-      : '';
+const normalizeSenderName = (value: unknown) => {
+  const senderName = typeof value === 'string' ? value.trim() : '';
 
-  if (!sendingAccountId) {
-    return { sendingAccountId: '', sendingAddress: '' };
+  if (!senderName) {
+    return '';
   }
 
-  const account = await models.MailSendingAccounts.findOne({
-    _id: sendingAccountId,
-  });
-
-  if (!account) {
-    throw new Error('That sending account no longer exists');
+  if (/[\r\n]/.test(senderName)) {
+    throw new Error('A sender name cannot contain line breaks');
   }
 
-  const sendingAddress =
-    typeof parsed.sendingAddress === 'string'
-      ? parsed.sendingAddress.trim().toLowerCase()
-      : '';
-
-  if (!isEmailAddress(sendingAddress)) {
-    throw new Error(`"${sendingAddress}" is not a valid email address`);
-  }
-
-  if (addressDomain(sendingAddress) !== account.domain) {
+  if (senderName.length > MAIL_SENDER_NAME_MAX_LENGTH) {
     throw new Error(
-      `${sendingAddress} is not on ${account.domain} — pick an address on the domain this account sends for`,
+      `A sender name can be at most ${MAIL_SENDER_NAME_MAX_LENGTH} characters`,
     );
   }
 
-  const taken = await models.MailIntegrations.findOne({
-    sendingAddress,
-    ...(ownInboxId ? { inboxId: { $ne: ownInboxId } } : {}),
-  });
-
-  if (taken) {
-    throw new Error(`${sendingAddress} already answers for another inbox`);
-  }
-
-  return { sendingAccountId, sendingAddress };
+  return senderName;
 };
 
 const normalizeForwardFrom = (value: unknown, address: string) => {
@@ -138,19 +111,13 @@ export const mailCreateIntegration = withErrorHandling(
       inbox?.name || 'inbox',
     );
 
-    const sending = await resolveSending(models, parsed);
-
-    await assertSendableIntegration(
-      models,
-      subdomain,
-      sending.sendingAccountId,
-    );
+    await assertSendableIntegration(subdomain);
 
     return models.MailIntegrations.create({
       inboxId: integrationId,
       address,
       forwardFrom: normalizeForwardFrom(parsed.forwardFrom, address),
-      ...sending,
+      senderName: normalizeSenderName(parsed.senderName),
       healthStatus: MAIL_HEALTH_STATUSES.HEALTHY,
       error: '',
     });
@@ -182,16 +149,8 @@ export const mailUpdateIntegration = withErrorHandling(
       );
     }
 
-    if (parsed.sendingAccountId !== undefined) {
-      const sending = await resolveSending(models, parsed, integration.inboxId);
-
-      await assertSendableIntegration(
-        models,
-        subdomain,
-        sending.sendingAccountId,
-      );
-
-      Object.assign(update, sending);
+    if (parsed.senderName !== undefined) {
+      update.senderName = normalizeSenderName(parsed.senderName);
     }
 
     return models.MailIntegrations.updateOne(

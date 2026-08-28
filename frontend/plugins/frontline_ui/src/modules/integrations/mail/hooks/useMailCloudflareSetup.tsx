@@ -16,6 +16,8 @@ export interface IMailCloudflareZone {
   name: string;
   status: string;
   accountName?: string | null;
+  eligible?: boolean | null;
+  reason?: string | null;
 }
 
 interface IZonesResponse {

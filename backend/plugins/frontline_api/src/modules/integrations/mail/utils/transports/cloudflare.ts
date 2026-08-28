@@ -9,6 +9,7 @@ import {
   MAIL_SEND_MAX_SUBJECT_LENGTH,
 } from '@/integrations/mail/constants';
 import { readAttachmentBytes } from '@/integrations/mail/utils/attachments';
+import { debugError } from '@/integrations/mail/debuggers';
 import { describeError } from '@/integrations/mail/utils/errors';
 import { sendEmail } from '@/integrations/mail/utils/cloudflare/api';
 import {
@@ -209,7 +210,16 @@ export const createCloudflareTransport = (
         payload,
       );
 
+      // The id Cloudflare assigns is the only one that reaches a recipient, so
+      // losing it silently costs header threading on every later reply.
+      if (!result?.message_id) {
+        debugError(
+          `Cloudflare accepted ${input.messageId} without returning a message_id — replies to it can only be threaded by reply tag or subject`,
+        );
+      }
+
       return {
+        providerMessageId: result?.message_id || undefined,
         delivered: result?.delivered ?? [],
         bounced: result?.permanent_bounces ?? [],
         queued: result?.queued ?? [],

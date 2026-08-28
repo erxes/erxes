@@ -11,14 +11,17 @@ import {
   Alert,
   Button,
   Collapsible,
+  Combobox,
+  Command,
   Form,
   getPluginAssetsUrl,
-  Select,
+  Popover,
   Skeleton,
   Spinner,
   toast,
   useConfirm,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +35,7 @@ import {
   IMailProvisionStep,
   useMailCloudflareConnection,
 } from '../hooks/useMailCloudflareConnection';
+import { IMailCloudflareZone } from '../hooks/useMailCloudflareSetup';
 import { useMailCloudflareSendingQuota } from '../hooks/useMailCloudflareSendingQuota';
 import { useMailCloudflareSetup } from '../hooks/useMailCloudflareSetup';
 
@@ -64,15 +68,102 @@ const connectSchema = z.object({
 
 type ConnectValues = z.infer<typeof connectSchema>;
 
+const MailDomainCombobox = ({
+  zones,
+  value,
+  onChange,
+}: {
+  zones: IMailCloudflareZone[];
+  value?: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const term = search.trim().toLowerCase();
+
+  const matches = term
+    ? zones.filter((zone) => zone.name.toLowerCase().includes(term))
+    : zones;
+
+  const selected = zones.find((zone) => zone.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Form.Control>
+        <Combobox.Trigger className="w-full">
+          {selected?.name ?? (
+            <span className="text-muted-foreground">
+              {t('select-a-domain')}
+            </span>
+          )}
+        </Combobox.Trigger>
+      </Form.Control>
+
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.Input
+            variant="secondary"
+            focusOnMount
+            placeholder={t('search-domains')}
+            value={search}
+            onValueChange={setSearch}
+          />
+          <Command.List className="max-h-[300px] overflow-y-auto">
+            {!matches.length && (
+              <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+                {t('no-domains-match')}
+              </div>
+            )}
+            {matches.map((zone) => {
+              const blocked = zone.eligible === false;
+
+              return (
+                <Command.Item
+                  key={zone.id}
+                  value={zone.id}
+                  disabled={blocked}
+                  onSelect={() => {
+                    if (blocked) {
+                      return;
+                    }
+
+                    onChange(zone.id);
+                    setOpen(false);
+                  }}
+                  className="flex items-start gap-2"
+                >
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="truncate">{zone.name}</span>
+                    {blocked && zone.reason && (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {zone.reason}
+                      </span>
+                    )}
+                  </span>
+                  {zone.id === value && <Combobox.Check checked />}
+                </Command.Item>
+              );
+            })}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
 export const MailConfigUpdateCollapse = () => {
+  const { t } = useTranslation('frontline');
+
   return (
     <Collapsible className="w-full bg-muted rounded-lg">
       <Collapsible.Trigger asChild>
         <Button
           variant="secondary"
-          className="w-full h-auto flex justify-start group bg-transparent hover:bg-transparent gap-3 px-3 font-semibold"
+          className="w-full h-auto flex justify-start group bg-transparent hover:bg-transparent gap-3 px-3 font-semibold text-left whitespace-normal"
         >
-          <Collapsible.TriggerIcon className="text-accent-foreground" />
+          <Collapsible.TriggerIcon className="text-accent-foreground shrink-0" />
           <IntegrationLogo
             img={getPluginAssetsUrl(
               'frontline',
@@ -80,7 +171,7 @@ export const MailConfigUpdateCollapse = () => {
             )}
             name={INTEGRATIONS[IntegrationType.MAIL].name}
           />
-          {INTEGRATIONS[IntegrationType.MAIL].name}
+          {t('mail-cloudflare-config-title')}
         </Button>
       </Collapsible.Trigger>
       <Collapsible.Content className="shadow-xs rounded-lg p-3 bg-background">
@@ -371,20 +462,11 @@ const ConnectForm = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>{t('cloudflare-domain')}</Form.Label>
-                <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <Select.Trigger className="w-full">
-                      <Select.Value placeholder={t('select-a-domain')} />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {zones.map((zone) => (
-                        <Select.Item key={zone.id} value={zone.id}>
-                          {zone.name}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
+                <MailDomainCombobox
+                  zones={zones}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
                 <Form.Description>
                   {t('cloudflare-domain-help')}
                 </Form.Description>

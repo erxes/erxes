@@ -4,8 +4,7 @@ export interface IMailIntegration {
   inboxId: string;
   address: string;
   forwardFrom?: string;
-  sendingAccountId?: string;
-  sendingAddress?: string;
+  senderName?: string;
   healthStatus?: string;
   error?: string;
 }
