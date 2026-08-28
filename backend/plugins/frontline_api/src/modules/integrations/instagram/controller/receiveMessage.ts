@@ -3,7 +3,7 @@ import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/i
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { getOrCreateCustomer } from '@/integrations/instagram/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
+import { debugInstagram } from '@/integrations/instagram/debuggers';
 import { IMessageData } from '@/integrations/instagram/@types/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
@@ -11,6 +11,7 @@ import {
   checkIsBot,
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
+import { normalizeInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -23,13 +24,104 @@ export const receiveMessage = async (
   const userId = activity.sender.id;
   const { recipient, timestamp } = activity;
 
-  let message = activity.message as any;
-  const postback = activity.postback as any;
+  let message = activity.message;
+  const postback = activity.postback;
 
   const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
-  const mid = message?.mid || postback?.mid;
-  const attachments = message?.attachments;
+  const mid =
+    message?.mid ||
+    postback?.mid ||
+    `${activity.sender.id}:${activity.timestamp}`;
+
+  if (activity.reaction) {
+    const target = await models.InstagramConversationMessages.findOne({
+      mid: activity.reaction.mid,
+    });
+    if (!target) return;
+
+    const reactions = (target.reactions || []).filter(
+      (reaction) => reaction.senderId !== activity.sender.id,
+    );
+    if (activity.reaction.action === 'react') {
+      reactions.push({
+        senderId: activity.sender.id,
+        reaction: activity.reaction.reaction,
+        emoji: activity.reaction.emoji,
+      });
+    }
+    target.reactions = reactions;
+    await target.save();
+    const targetConversation = await models.InstagramConversations.findOne({
+      _id: target.conversationId,
+    });
+    if (!targetConversation?.erxesApiId) return;
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${targetConversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...target.toObject(),
+          conversationId: targetConversation.erxesApiId,
+        },
+      },
+    );
+    return;
+  }
+
+  if (activity.read || activity.delivery) {
+    const status = activity.read ? 'read' : 'delivered';
+    const mids =
+      activity.delivery?.mids ||
+      (activity.read?.mid ? [activity.read.mid] : []);
+    const pageId = integration.instagramPageId;
+    const customerInstagramId = [
+      activity.sender.id,
+      activity.recipient.id,
+    ].find((id) => id !== pageId);
+    const statusConversation = customerInstagramId
+      ? await models.InstagramConversations.findOne({
+          senderId: customerInstagramId,
+          recipientId: pageId,
+        })
+      : null;
+    const watermark = activity.read?.watermark || activity.delivery?.watermark;
+    const statusQuery = mids.length
+      ? { mid: { $in: mids } }
+      : statusConversation && watermark
+      ? {
+          conversationId: statusConversation._id,
+          userId: { $exists: true },
+          createdAt: { $lte: new Date(watermark) },
+        }
+      : null;
+    if (!statusQuery) return;
+
+    const statusMessages = await models.InstagramConversationMessages.find(
+      statusQuery,
+    );
+    await models.InstagramConversationMessages.updateMany(statusQuery, {
+      $set: { deliveryStatus: status },
+    });
+    if (statusConversation?.erxesApiId) {
+      await Promise.all(
+        statusMessages.map((statusMessage) =>
+          graphqlPubsub.publish(
+            `conversationMessageInserted:${statusConversation.erxesApiId}`,
+            {
+              conversationMessageInserted: {
+                ...statusMessage.toObject(),
+                conversationId: statusConversation.erxesApiId,
+                deliveryStatus: status,
+              },
+            },
+          ),
+        ),
+      );
+    }
+    return;
+  }
+
+  if (message?.is_echo) return;
 
   debugInstagram(`Received message from ${userId} → page ${pageId}`);
 
@@ -96,12 +188,8 @@ export const receiveMessage = async (
     await conversation.save();
   }
 
-  const formattedAttachments = (attachments || [])
-    .filter((att) => att.type !== 'fallback')
-    .map((att) => ({
-      type: att.type,
-      url: att.payload?.url ?? '',
-    }));
+  const normalizedMessage = normalizeInstagramMessage(activity);
+  const formattedAttachments = normalizedMessage.attachments || [];
 
   try {
     const apiConversationResponse = await receiveInboxMessage(subdomain, {
@@ -109,7 +197,11 @@ export const receiveMessage = async (
       payload: JSON.stringify({
         customerId: customer.erxesApiId,
         integrationId: integration.erxesApiId,
-        content: text || '',
+        content:
+          normalizedMessage.content ||
+          normalizedMessage.providerData?.previewText ||
+          normalizedMessage.providerData?.fallbackReason ||
+          '',
         attachments: formattedAttachments,
         conversationId: conversation.erxesApiId,
         updatedAt: timestamp,
@@ -121,7 +213,9 @@ export const receiveMessage = async (
       await conversation.save();
     } else {
       throw new Error(
-        `Conversation creation failed: ${JSON.stringify(apiConversationResponse)}`,
+        `Conversation creation failed: ${JSON.stringify(
+          apiConversationResponse,
+        )}`,
       );
     }
   } catch (e) {
@@ -135,10 +229,30 @@ export const receiveMessage = async (
     mid,
   });
 
+  if (existingMessage && normalizedMessage.messageKind === 'deleted') {
+    existingMessage.content = '';
+    existingMessage.attachments = [];
+    existingMessage.messageKind = 'deleted';
+    existingMessage.deliveryStatus = 'deleted';
+    existingMessage.providerData = normalizedMessage.providerData;
+    await existingMessage.save();
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...existingMessage.toObject(),
+          conversationId: conversation.erxesApiId,
+        },
+      },
+    );
+    return;
+  }
+
   if (!existingMessage) {
     try {
       const content =
-        text || (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
+        normalizedMessage.content ||
+        (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
 
       const created = await models.InstagramConversationMessages.create({
         conversationId: conversation._id,
@@ -148,6 +262,11 @@ export const receiveMessage = async (
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
         botId,
+        messageKind: normalizedMessage.messageKind,
+        providerData: normalizedMessage.providerData,
+        replyTo: normalizedMessage.replyTo,
+        deliveryStatus: normalizedMessage.deliveryStatus,
+        expiresAt: normalizedMessage.expiresAt,
       });
 
       const doc = {
@@ -156,20 +275,6 @@ export const receiveMessage = async (
       };
 
       await pConversationClientMessageInserted(subdomain, doc);
-
-      try {
-        await graphqlPubsub.publish(
-          `conversationMessageInserted:${conversation.erxesApiId}`,
-          {
-            conversationMessageInserted: {
-              ...created.toObject(),
-              conversationId: conversation.erxesApiId,
-            },
-          },
-        );
-      } catch (err) {
-        debugError(`Error publishing conversationMessageInserted: ${err.message}`);
-      }
 
       await triggerInstagramAutomation(subdomain, {
         conversationMessage: created.toObject(),

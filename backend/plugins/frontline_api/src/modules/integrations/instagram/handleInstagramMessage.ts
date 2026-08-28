@@ -19,7 +19,10 @@ function sanitizeAndFormat(html: string): string {
   let output = html;
   do {
     prev = output;
-    output = output.replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '');
+    output = output
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|blockquote)>/gi, '\n')
+      .replace(/<[^>]+>/g, '');
   } while (output !== prev);
   return output.trim();
 }
@@ -35,92 +38,144 @@ export const handleInstagramMessage = async (
     return models.ConversationMessages.addMessage(doc, doc.userId);
   }
 
- if (action === 'reply-post') {
-  const { conversationId, content = '', attachments = [], userId } = doc;
-
-  const commentConversation =
-    await models.InstagramCommentConversation.findOne({
+  if (action === 'react-messenger') {
+    const {
+      integrationId,
+      conversationId,
+      messageId,
+      reaction,
+      remove,
+      userId,
+    } = doc;
+    const conversation = await models.InstagramConversations.findOne({
       erxesApiId: conversationId,
     });
 
-  if (!commentConversation) {
-    throw new Error('Comment not found');
-  }
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
 
-  if (!commentConversation.comment_id) {
-    throw new Error('Missing Instagram comment_id');
-  }
-
-  const post = await models.InstagramPostConversations.findOne({
-    postId: commentConversation.postId,
-  });
-
-  if (!post) {
-    throw new Error('Post not found');
-  }
-
-  let strippedContent = stripHtml(content).result.trim();
-  strippedContent = strippedContent.replace(/&amp;/g, '&');
-
-  if (!strippedContent && attachments.length === 0) {
-    throw new Error('Message content is empty');
-  }
-
-  const data: { message: string } = {
-    message: strippedContent,
-  };
-
-  try {
-    const inboxConversation = await models.Conversations.findOne({
-      _id: conversationId,
+    const target = await models.InstagramConversationMessages.findOne({
+      conversationId: conversation._id,
+      mid: messageId,
     });
 
-    if (!inboxConversation) {
-      throw new Error('Conversation not found');
+    if (!target) {
+      throw new Error('Message not found in this Instagram conversation');
     }
 
     await sendReply(
       models,
-      `${commentConversation.comment_id}/replies`,
-      data,
-      inboxConversation.integrationId,
+      'me/messages',
+      {
+        recipient: { id: conversation.senderId },
+        sender_action: remove ? 'unreact' : 'react',
+        payload: {
+          message_id: messageId,
+          ...(!remove && reaction && { reaction }),
+        },
+      },
+      integrationId,
     );
 
-    await models.InstagramCommentConversationReply.create({
-      recipientId: commentConversation.recipientId,
-      senderId: commentConversation.senderId,
-      attachments: [],
-      userId,
-      createdAt: new Date(),
-      content: strippedContent,
-      parentId: commentConversation.comment_id,
-    });
+    const reactions = (target.reactions || []).filter(
+      (item) => item.senderId !== userId,
+    );
+    if (!remove && reaction) {
+      reactions.push({ senderId: userId, reaction });
+    }
+    target.reactions = reactions;
+    await target.save();
 
-    const user = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'users',
-      action: 'findOne',
-      input: { _id: userId },
-    });
+    return { status: 'success', data: target.toObject() };
+  }
 
-    if (user && user._id) {
-      await sendNotifications(subdomain, {
-        user,
-        conversations: [inboxConversation],
-        type: 'conversationStateChange',
-        mobile: true,
-        messageContent: strippedContent,
+  if (action === 'reply-post') {
+    const { conversationId, content = '', attachments = [], userId } = doc;
+
+    const commentConversation =
+      await models.InstagramCommentConversation.findOne({
+        erxesApiId: conversationId,
       });
+
+    if (!commentConversation) {
+      throw new Error('Comment not found');
     }
 
-    return { status: 'success' };
-  } catch (e) {
-    debugError(`Instagram comment reply error: ${e.message}`);
-    throw new Error(e.message);
+    if (!commentConversation.comment_id) {
+      throw new Error('Missing Instagram comment_id');
+    }
+
+    const post = await models.InstagramPostConversations.findOne({
+      postId: commentConversation.postId,
+    });
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    let strippedContent = stripHtml(content).result.trim();
+    strippedContent = strippedContent.replace(/&amp;/g, '&');
+
+    if (!strippedContent && attachments.length === 0) {
+      throw new Error('Message content is empty');
+    }
+
+    const data: { message: string } = {
+      message: strippedContent,
+    };
+
+    try {
+      const inboxConversation = await models.Conversations.findOne({
+        _id: conversationId,
+      });
+
+      if (!inboxConversation) {
+        throw new Error('Conversation not found');
+      }
+
+      await sendReply(
+        models,
+        `${commentConversation.comment_id}/replies`,
+        data,
+        inboxConversation.integrationId,
+      );
+
+      await models.InstagramCommentConversationReply.create({
+        recipientId: commentConversation.recipientId,
+        senderId: commentConversation.senderId,
+        attachments: [],
+        userId,
+        createdAt: new Date(),
+        content: strippedContent,
+        parentId: commentConversation.comment_id,
+      });
+
+      const user = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'users',
+        action: 'findOne',
+        input: { _id: userId },
+      });
+
+      if (user && user._id) {
+        await sendNotifications(subdomain, {
+          user,
+          conversations: [inboxConversation],
+          type: 'conversationStateChange',
+          mobile: true,
+          messageContent: strippedContent,
+        });
+      }
+
+      return { status: 'success' };
+    } catch (e) {
+      debugError(`Instagram comment reply error: ${e.message}`);
+      throw new Error(e.message);
+    }
   }
-}
 
   if (action === 'reply-messenger') {
     const {
@@ -147,7 +202,6 @@ export const handleInstagramMessage = async (
     if (!conversation) {
       throw new Error('Conversation not found');
     }
-
 
     const { senderId } = conversation;
     let localMessage;

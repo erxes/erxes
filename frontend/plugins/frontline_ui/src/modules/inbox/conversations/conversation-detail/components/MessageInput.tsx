@@ -8,6 +8,7 @@ import {
   cn,
   getBlockAttachments,
   getMentionedUserIds,
+  readImage,
   toast,
   useBlockEditor,
   usePreviousHotkeyScope,
@@ -29,7 +30,7 @@ import {
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounce, useThrottledCallback } from 'use-debounce';
 import { useMutation } from '@apollo/client';
 import { CONVERSATION_AGENT_TYPING } from '../graphql/mutations/conversationAgentTyping';
@@ -47,7 +48,6 @@ import {
   useDiscordChannelMemberSearch,
   useDiscordConversationParticipants,
 } from '@/integrations/discord/hooks/useDiscordSetup';
-import { discordReplyToState } from '@/integrations/discord/states/discordReplyToState';
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
@@ -58,6 +58,8 @@ import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { messageReplyState } from '../states/messageReplyState';
+import type { IAttachment } from 'erxes-ui';
 
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
   blocks?.map((block) =>
@@ -78,6 +80,21 @@ const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
       : block,
   );
 
+const ATTACHMENT_BLOCK_TYPES = new Set(['audio', 'file', 'image', 'video']);
+
+const withoutAttachmentBlocks = (blocks?: Block[]) =>
+  blocks?.filter((block) => !ATTACHMENT_BLOCK_TYPES.has(block.type));
+
+const draftKey = (conversationId: string) =>
+  `frontline:conversation-draft:${conversationId}`;
+
+type AttachmentPreview = {
+  name: string;
+  type: string;
+  size: number;
+  data: string;
+};
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -91,7 +108,7 @@ export const MessageInput = ({
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
-  const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
+  const [replyTo, setReplyTo] = useAtom(messageReplyState);
 
   const discordParticipants = useDiscordConversationParticipants(
     conversationId,
@@ -148,8 +165,8 @@ export const MessageInput = ({
   }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   useEffect(() => {
-    setDiscordReplyTo(null);
-  }, [conversationId, setDiscordReplyTo]);
+    setReplyTo(null);
+  }, [conversationId, setReplyTo]);
 
   const { channels: availableChannels } = useGetChannels();
   const [searchValue, setSearchValue] = useState('');
@@ -165,11 +182,32 @@ export const MessageInput = ({
   });
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  const [attachments, setAttachments] = useState<IAttachment[]>([]);
+  const [attachmentPreview, setAttachmentPreview] =
+    useState<AttachmentPreview | null>(null);
 
   const editor = useBlockEditor();
+  const restoringDraftRef = useRef(false);
   const { addConversationMessage, loading } = useConversationMessageAdd();
+
+  useEffect(() => {
+    if (!editor || !conversationId) return;
+    restoringDraftRef.current = true;
+    try {
+      const stored = window.localStorage.getItem(draftKey(conversationId));
+      const blocks = stored ? (JSON.parse(stored) as Block[]) : [];
+      editor.replaceBlocks(editor.document, blocks);
+      setContent(blocks.length ? blocks : undefined);
+    } catch {
+      window.localStorage.removeItem(draftKey(conversationId));
+      editor.replaceBlocks(editor.document, []);
+      setContent(undefined);
+    } finally {
+      window.setTimeout(() => {
+        restoringDraftRef.current = false;
+      }, 0);
+    }
+  }, [conversationId, editor]);
 
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
   const pingAgentTyping = useThrottledCallback(
@@ -217,6 +255,26 @@ export const MessageInput = ({
     (files: FileList) => {
       if (!files?.length) return;
 
+      const maximumBytes = isDiscord ? 10 * 1024 * 1024 : 25 * 1024 * 1024;
+      const selectedFiles = Array.from(files);
+      const oversized = selectedFiles.find((file) => file.size > maximumBytes);
+      if (oversized) {
+        toast({
+          title: `${oversized.name} exceeds the ${
+            maximumBytes / 1024 / 1024
+          } MB channel limit`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (attachments.length + selectedFiles.length > 10) {
+        toast({
+          title: 'You can attach up to 10 files to one message',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       upload({
         files,
         beforeUpload: () =>
@@ -230,7 +288,7 @@ export const MessageInput = ({
         },
       });
     },
-    [upload],
+    [attachments.length, isDiscord, t, upload],
   );
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,8 +303,8 @@ export const MessageInput = ({
     handleFileUpload(e.dataTransfer.files);
   };
 
-  const handleDeleteAttachment = (name: string) => {
-    setAttachments((prev) => prev.filter((f) => f.name !== name));
+  const handleDeleteAttachment = (url: string) => {
+    setAttachments((prev) => prev.filter((file) => file.url !== url));
     toast({ title: t('attachment-removed'), variant: 'default' });
   };
 
@@ -256,49 +314,55 @@ export const MessageInput = ({
     return tmp.textContent || tmp.innerText || '';
   };
 
-  const handleTemplateSelect = async (
-    templateContent: string,
-    templateId?: string,
-  ) => {
-    if (!editor) {
-      return toast({ title: t('editor-not-ready'), variant: 'destructive' });
-    }
+  const handleTemplateSelect = useCallback(
+    async (templateContent: string, templateId?: string) => {
+      if (!editor) {
+        return toast({ title: t('editor-not-ready'), variant: 'destructive' });
+      }
 
-    const parseTemplateToBlocks = (content: string) => {
+      const parseTemplateToBlocks = (content: string) => {
+        try {
+          const parsed = JSON.parse(content);
+          return Array.isArray(parsed)
+            ? parsed
+            : [{ type: 'paragraph', content, props: {} }];
+        } catch (e) {
+          console.warn(
+            'Template JSON parse failed, fallback to plain text:',
+            e,
+          );
+          const clean = stripHtml(content).trim();
+          return [{ type: 'paragraph', content: clean, props: {} }];
+        }
+      };
+
       try {
-        const parsed = JSON.parse(content);
-        return Array.isArray(parsed)
-          ? parsed
-          : [{ type: 'paragraph', content, props: {} }];
-      } catch (e) {
-        console.warn('Template JSON parse failed, fallback to plain text:', e);
-        const clean = stripHtml(content).trim();
-        return [{ type: 'paragraph', content: clean, props: {} }];
+        const blocksToInsert = parseTemplateToBlocks(templateContent);
+
+        const existingBlocks = editor.document;
+        if (existingBlocks?.length) {
+          await editor.removeBlocks(existingBlocks.map((b) => b.id));
+        }
+
+        await editor.insertBlocks(
+          blocksToInsert,
+          editor.topLevelBlocks[0]?.id,
+          'before',
+        );
+
+        await editor.focus();
+        setShowSuggestions(false);
+        setResponseTemplateId(templateId || null);
+      } catch (error) {
+        console.error('Error inserting template:', error);
+        toast({
+          title: t('failed-to-insert-template'),
+          variant: 'destructive',
+        });
       }
-    };
-
-    try {
-      const blocksToInsert = parseTemplateToBlocks(templateContent);
-
-      const existingBlocks = editor.document;
-      if (existingBlocks?.length) {
-        await editor.removeBlocks(existingBlocks.map((b) => b.id));
-      }
-
-      await editor.insertBlocks(
-        blocksToInsert,
-        editor.topLevelBlocks[0]?.id,
-        'before',
-      );
-
-      await editor.focus();
-      setShowSuggestions(false);
-      setResponseTemplateId(templateId || null);
-    } catch (error) {
-      console.error('Error inserting template:', error);
-      toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
-    }
-  };
+    },
+    [editor, t],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -331,7 +395,7 @@ export const MessageInput = ({
           break;
       }
     },
-    [showSuggestions, selectedIndex, suggestions],
+    [handleTemplateSelect, selectedIndex, showSuggestions, suggestions],
   );
 
   useEffect(() => {
@@ -354,6 +418,7 @@ export const MessageInput = ({
   }, [preparedResponses, debouncedSearchValue]);
 
   const handleChange = useCallback(async () => {
+    if (restoringDraftRef.current) return;
     const blocks = await editor?.document;
     blocks?.pop();
     setContent(blocks as Block[]);
@@ -371,7 +436,15 @@ export const MessageInput = ({
     }
 
     setMentionedUserIds(getMentionedUserIds(blocks));
-  }, [editor, pingAgentTyping]);
+    if (conversationId && blocks?.length) {
+      window.localStorage.setItem(
+        draftKey(conversationId),
+        JSON.stringify(blocks),
+      );
+    } else if (conversationId) {
+      window.localStorage.removeItem(draftKey(conversationId));
+    }
+  }, [conversationId, editor, pingAgentTyping]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
@@ -379,9 +452,26 @@ export const MessageInput = ({
     const outgoingBlocks =
       isDiscord && !isInternalNote ? encodeDiscordMentions(content) : content;
 
+    const messageBlocks = isInternalNote
+      ? content
+      : withoutAttachmentBlocks(outgoingBlocks);
     const sendContent = isInternalNote
       ? JSON.stringify(content)
-      : await editor?.blocksToHTMLLossy(outgoingBlocks);
+      : await editor?.blocksToHTMLLossy(messageBlocks);
+    const quotedContent =
+      replyTo && !replyTo.nativeReply && !isInternalNote
+        ? `<blockquote><strong>Replying to</strong><br/>${replyTo.preview.replace(
+            /[&<>"']/g,
+            (character) =>
+              ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+              }[character] || character),
+          )}</blockquote>`
+        : '';
 
     const blockAttachments = getBlockAttachments(content || []);
     const paperclipUrls = new Set(attachments.map((a) => a.url));
@@ -393,14 +483,14 @@ export const MessageInput = ({
     addConversationMessage({
       variables: {
         conversationId,
-        content: sendContent,
+        content: `${quotedContent}${sendContent || ''}`,
         mentionedUserIds: isDiscord && !isInternalNote ? [] : mentionedUserIds,
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
         responseTemplateId: responseTemplateId,
-        ...(isDiscord && !isInternalNote && discordReplyTo
-          ? { replyToMessageId: discordReplyTo.messageId }
+        ...(!isInternalNote && replyTo?.nativeReply && replyTo.providerMessageId
+          ? { replyToMessageId: replyTo.providerMessageId }
           : {}),
       },
       onCompleted: () => {
@@ -414,7 +504,8 @@ export const MessageInput = ({
         setAttachmentPreview(null);
         setShowSuggestions(false);
         setResponseTemplateId(null);
-        setDiscordReplyTo(null);
+        setReplyTo(null);
+        window.localStorage.removeItem(draftKey(conversationId));
       },
       refetchQueries: [
         'Conversations',
@@ -434,14 +525,15 @@ export const MessageInput = ({
     mentionedUserIds,
     isInternalNote,
     isDiscord,
-    discordReplyTo,
-    setDiscordReplyTo,
+    replyTo,
+    setReplyTo,
     messageExtraInfo,
     attachments,
     editor,
     addConversationMessage,
     setIsInternalNote,
     responseTemplateId,
+    t,
   ]);
 
   const handleSendPoll = useCallback(
@@ -475,13 +567,13 @@ export const MessageInput = ({
   if (hideInput) return null;
 
   return (
-    <div className="p-2 h-full">
+    <div className="flex h-full items-end p-3">
       <div
         onDrop={handleDrop}
         onKeyDown={handleKeyDown}
         onDragOver={(e) => e.preventDefault()}
         className={cn(
-          'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
+          'mx-auto flex max-h-full min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
           isInternalNote && 'bg-warning/20',
         )}
       >
@@ -497,18 +589,31 @@ export const MessageInput = ({
           />
         )}
 
-        {isDiscord && !isInternalNote && discordReplyTo && (
-          <div className="mx-6 mb-1 flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-1.5 text-sm">
+        {!isInternalNote && replyTo && (
+          <div className="mx-6 mb-1 flex flex-none items-center justify-between gap-3 rounded-md border-l-2 border-primary/60 bg-muted px-3 py-1.5 text-sm">
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
-              <span className="truncate">
-                Replying to: {discordReplyTo.preview}
+              {replyTo.attachment?.type?.startsWith('image') && (
+                <img
+                  src={readImage(replyTo.attachment.url)}
+                  alt={replyTo.attachment.name || 'Reply attachment'}
+                  className="size-8 flex-none rounded object-cover"
+                />
+              )}
+              <span className="min-w-0">
+                <span className="block truncate text-xs font-medium text-foreground">
+                  {replyTo.nativeReply ? 'Replying to' : 'Quoting'}{' '}
+                  {replyTo.authorName || 'message'}
+                </span>
+                <span className="block truncate text-xs">
+                  {replyTo.preview}
+                </span>
               </span>
             </div>
             <button
               type="button"
               aria-label="Cancel reply"
-              onClick={() => setDiscordReplyTo(null)}
+              onClick={() => setReplyTo(null)}
               className="flex-none text-muted-foreground hover:text-foreground"
             >
               <IconX size={14} aria-hidden="true" />
@@ -521,7 +626,7 @@ export const MessageInput = ({
           onChange={handleChange}
           disabled={loading}
           className={cn(
-            'h-full w-full overflow-y-auto',
+            'min-h-12 max-h-40 w-full flex-none overflow-y-auto',
             isInternalNote && 'internal-note',
           )}
           onFocus={() =>
@@ -569,7 +674,7 @@ export const MessageInput = ({
                   📁 {file.name} ({Math.round(file.size / 1024)} KB)
                 </span>
                 <button
-                  onClick={() => handleDeleteAttachment(file.name)}
+                  onClick={() => handleDeleteAttachment(file.url)}
                   className="text-destructive hover:text-red-700"
                 >
                   <IconX size={14} />
@@ -579,7 +684,7 @@ export const MessageInput = ({
           </div>
         )}
 
-        <div className="flex min-w-0 flex-wrap items-center gap-1 px-2 mt-2 sm:gap-4 sm:px-6">
+        <div className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 pt-2 sm:px-4">
           <Toggle
             pressed={isInternalNote}
             size="lg"

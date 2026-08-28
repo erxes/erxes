@@ -7,7 +7,7 @@ export interface IConversation {
   _id: string;
   content: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   customer: ICustomerInline;
   customerId?: string;
   integrationId?: string;
@@ -58,8 +58,24 @@ export interface IMessageEmbed {
   timestamp?: string;
 }
 
+export interface IMessageSticker {
+  id: string;
+  name: string;
+  formatType: number;
+  url?: string;
+}
+
+export interface IMessageForwardedSnapshot {
+  content?: string;
+  attachments?: IAttachment[];
+  embeds?: IMessageEmbed[];
+  stickers?: IMessageSticker[];
+  createdAt?: string;
+}
+
 export interface IMessage {
   _id: string;
+  mid?: string;
   conversationId?: string;
   userId?: string;
   customerId?: string;
@@ -71,12 +87,59 @@ export interface IMessage {
   extraData?: {
     poll?: IMessagePoll;
     embeds?: IMessageEmbed[];
+    stickers?: IMessageSticker[];
+    voiceMessage?: boolean;
+    forwardedSnapshot?: IMessageForwardedSnapshot;
+    discordEditedAt?: string;
     discordMessageId?: string;
     discordDeletedAt?: string;
+    discordPinned?: boolean;
+    reactions?: Array<{
+      senderId: string;
+      emoji?: string;
+      reaction?: string;
+    }>;
+    forwardedFrom?: {
+      conversationId: string;
+      messageId: string;
+    };
   };
   internal?: boolean;
   botData?: unknown[];
   fromBot?: boolean;
+  messageKind?:
+    | 'text'
+    | 'image'
+    | 'video'
+    | 'audio'
+    | 'file'
+    | 'share'
+    | 'story_mention'
+    | 'story_reply'
+    | 'sticker'
+    | 'voice'
+    | 'forwarded'
+    | 'deleted'
+    | 'unsupported';
+  providerData?: {
+    attachmentType?: string;
+    fallbackReason?: string;
+    previewText?: string;
+    storyUrl?: string;
+    messageId?: string;
+  };
+  replyTo?: {
+    messageId: string;
+    content?: string;
+    authorName?: string;
+  };
+  reactions?: Array<{
+    senderId: string;
+    emoji?: string;
+    reaction?: string;
+  }>;
+  deliveryStatus?: 'sent' | 'delivered' | 'read' | 'deleted';
+  expiresAt?: string;
 }
 
 export enum ConversationStatus {

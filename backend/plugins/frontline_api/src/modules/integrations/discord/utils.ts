@@ -429,8 +429,16 @@ const postDiscordMessage = async ({
 export const sendChannelMessage = async (
   args: TSendChannelMessageArgs,
 ): Promise<APIMessage> => {
-  const { token, channelId, content, embeds, components, files, poll, messageReference } =
-    args;
+  const {
+    token,
+    channelId,
+    content,
+    embeds,
+    components,
+    files,
+    poll,
+    messageReference,
+  } = args;
   const { chunks, truncated } = splitDiscordContent(content || '');
 
   if (truncated) {
@@ -647,6 +655,56 @@ export const listGuildChannels = async (token: string, guildId: string) => {
       (a, b) => a.parentPosition - b.parentPosition || a.position - b.position,
     );
 };
+
+export const addChannelMessageReaction = (
+  token: string,
+  channelId: string,
+  messageId: string,
+  emoji: string,
+) =>
+  discordRequest<void>({
+    token,
+    method: 'PUT',
+    path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
+      emoji,
+    )}/@me`,
+  });
+
+export const removeChannelMessageReaction = (
+  token: string,
+  channelId: string,
+  messageId: string,
+  emoji: string,
+) =>
+  discordRequest<void>({
+    token,
+    method: 'DELETE',
+    path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
+      emoji,
+    )}/@me`,
+  });
+
+export const pinChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+) =>
+  discordRequest<void>({
+    token,
+    method: 'PUT',
+    path: `/channels/${channelId}/pins/${messageId}`,
+  });
+
+export const unpinChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+) =>
+  discordRequest<void>({
+    token,
+    method: 'DELETE',
+    path: `/channels/${channelId}/pins/${messageId}`,
+  });
 
 export const listChannelMessages = async (
   token: string,

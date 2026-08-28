@@ -4,9 +4,15 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const conversationMessageSchema = new Schema({
   _id: mongooseStringRandomId,
-  messageId: { type: String, unique: true, sparse: true, label: 'Discord message id' },
+  messageId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    label: 'Discord message id',
+  },
   content: { type: String },
   attachments: [attachmentSchema],
+  replyTo: { type: Object, optional: true },
   conversationId: { type: String, index: true },
   customerId: { type: String, index: true },
   userId: { type: String, index: true },

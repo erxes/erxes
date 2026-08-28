@@ -1,36 +1,20 @@
 import { useCallback, useState } from 'react';
-import type { ComponentType } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { useSetAtom } from 'jotai';
 import {
   Button,
   Dialog,
   Spinner,
   Textarea,
   Tooltip,
-  cn,
   toast,
   useConfirm,
 } from 'erxes-ui';
-import {
-  IconArrowBackUp,
-  IconCopy,
-  IconHash,
-  IconLink,
-  IconPencil,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconLink, IconPencil, IconTrash } from '@tabler/icons-react';
 import { DISCORD_CONVERSATION_CHANNEL } from '../graphql/queries';
 import {
   DISCORD_DELETE_MESSAGE,
   DISCORD_EDIT_MESSAGE,
 } from '../graphql/mutations';
-import {
-  DiscordReplyTarget,
-  discordReplyToState,
-} from '../states/discordReplyToState';
-
-const PREVIEW_LENGTH = 80;
 
 const stripToText = (html?: string): string => {
   if (!html) {
@@ -54,42 +38,6 @@ type DiscordConversationChannel = {
   guildId?: string;
 };
 
-const DiscordMessageAction = ({
-  label,
-  icon: Icon,
-  disabled,
-  destructive,
-  onClick,
-}: {
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  disabled?: boolean;
-  destructive?: boolean;
-  onClick: () => void;
-}) => (
-  <Tooltip>
-    <Tooltip.Trigger asChild>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label={label}
-        disabled={disabled}
-        onClick={onClick}
-        className={cn(
-          'size-6 rounded-sm p-0 text-muted-foreground hover:bg-accent hover:text-foreground',
-          destructive && 'hover:bg-destructive/10 hover:text-destructive',
-        )}
-      >
-        <Icon className="size-4" />
-      </Button>
-    </Tooltip.Trigger>
-    <Tooltip.Content side="top" sideOffset={4}>
-      {label}
-    </Tooltip.Content>
-  </Tooltip>
-);
-
 export const DiscordMessageActions = ({
   conversationId,
   messageId,
@@ -101,7 +49,6 @@ export const DiscordMessageActions = ({
   content?: string;
   isOwnMessage?: boolean;
 }) => {
-  const setReplyTo = useSetAtom(discordReplyToState);
   const { confirm } = useConfirm();
   const text = stripToText(content);
 
@@ -117,11 +64,6 @@ export const DiscordMessageActions = ({
 
   const [editMessage, { loading: editing }] = useMutation(DISCORD_EDIT_MESSAGE);
   const [deleteMessage] = useMutation(DISCORD_DELETE_MESSAGE);
-
-  const handleReply = useCallback(() => {
-    const preview = text.slice(0, PREVIEW_LENGTH) || 'message';
-    setReplyTo({ messageId, preview } as DiscordReplyTarget);
-  }, [setReplyTo, messageId, text]);
 
   const handleCopyLink = useCallback(async () => {
     const { data } = await loadChannel();
@@ -185,45 +127,56 @@ export const DiscordMessageActions = ({
   }, [confirm, deleteMessage, conversationId, messageId]);
 
   return (
-    <Tooltip.Provider delayDuration={0}>
-      <div className="flex h-8 shrink-0 items-center gap-px rounded-md border bg-background p-0.5 opacity-0 shadow-xs transition-opacity focus-within:opacity-100 group-hover:opacity-100">
-        <DiscordMessageAction
-          label="Reply"
-          icon={IconArrowBackUp}
-          onClick={handleReply}
-        />
-        <DiscordMessageAction
-          label="Copy text"
-          icon={IconCopy}
-          disabled={!text}
-          onClick={() => copyToClipboard(text, 'Text copied')}
-        />
-        <DiscordMessageAction
-          label="Copy message link"
-          icon={IconLink}
-          onClick={handleCopyLink}
-        />
-        <DiscordMessageAction
-          label="Copy message ID"
-          icon={IconHash}
-          onClick={() => copyToClipboard(messageId, 'Message ID copied')}
-        />
-        {isOwnMessage && (
-          <>
-            <DiscordMessageAction
-              label="Edit message"
-              icon={IconPencil}
-              onClick={handleOpenEdit}
-            />
-            <DiscordMessageAction
-              label="Delete message"
-              icon={IconTrash}
-              destructive
-              onClick={handleDelete}
-            />
-          </>
-        )}
-      </div>
+    <>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Copy Discord message link"
+            onClick={handleCopyLink}
+            className="rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <IconLink className="size-4" />
+          </Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Copy message link</Tooltip.Content>
+      </Tooltip>
+      {isOwnMessage && (
+        <>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Edit Discord message"
+                onClick={handleOpenEdit}
+                className="rounded-full text-muted-foreground hover:text-foreground"
+              >
+                <IconPencil className="size-4" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Edit message</Tooltip.Content>
+          </Tooltip>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Delete Discord message"
+                onClick={handleDelete}
+                className="rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              >
+                <IconTrash className="size-4" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Delete message</Tooltip.Content>
+          </Tooltip>
+        </>
+      )}
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <Dialog.Content className="max-w-lg">
@@ -256,6 +209,6 @@ export const DiscordMessageActions = ({
           </Dialog.Footer>
         </Dialog.Content>
       </Dialog>
-    </Tooltip.Provider>
+    </>
   );
 };

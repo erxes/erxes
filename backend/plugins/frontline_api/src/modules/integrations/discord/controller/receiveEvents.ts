@@ -5,6 +5,7 @@ import {
   DiscordActivity,
   DiscordMessageDeleteEvent,
   DiscordPollVoteEvent,
+  DiscordReactionEvent,
   DiscordTypingEvent,
 } from '@/integrations/discord/@types/activity';
 import {
@@ -99,6 +100,12 @@ export const receiveDiscordMessageEdit = async ({
     });
   }
 
+  if (typeof activity.raw?.pinned === 'boolean') {
+    await updateInboxMessageExtra(models, activity.messageId, {
+      discordPinned: activity.raw.pinned,
+    });
+  }
+
   const editedContent =
     typeof activity.raw?.content === 'string' ? activity.content : undefined;
 
@@ -186,7 +193,9 @@ export const receiveDiscordPollVote = async ({
     poll = normalizeDiscordPoll(fetched?.poll);
   } catch (e) {
     debugError(
-      `Failed to fetch Discord poll ${event.messageId}: ${(e as Error).message}`,
+      `Failed to fetch Discord poll ${event.messageId}: ${
+        (e as Error).message
+      }`,
     );
     return;
   }
@@ -202,6 +211,33 @@ export const receiveDiscordPollVote = async ({
   if (updated) {
     debugDiscord(`Updated Discord poll ${event.messageId} tallies`);
   }
+};
+
+export const receiveDiscordReaction = async ({
+  models,
+  event,
+}: {
+  models: IModels;
+  event: DiscordReactionEvent;
+}) => {
+  const inboxMessage = await models.ConversationMessages.findOne({
+    'extraData.discordMessageId': event.messageId,
+  });
+  if (!inboxMessage) return;
+
+  const extraData = inboxMessage.extraData || {};
+  const current = Array.isArray(extraData.reactions)
+    ? (extraData.reactions as Array<{ senderId: string; emoji: string }>)
+    : [];
+  const reactions = current.filter(
+    (reaction) =>
+      reaction.senderId !== event.userId || reaction.emoji !== event.emoji,
+  );
+  if (event.added) {
+    reactions.push({ senderId: event.userId, emoji: event.emoji });
+  }
+
+  await updateInboxMessageExtra(models, event.messageId, { reactions });
 };
 
 export const receiveDiscordTyping = async ({

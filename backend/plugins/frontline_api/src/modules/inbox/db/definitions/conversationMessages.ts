@@ -50,6 +50,12 @@ export const messageSchema = new Schema({
   // Channel-specific structured payload that has no generic column — currently
   // Discord rich content (e.g. `{ poll }`), extensible to embeds/stickers.
   extraData: { type: Object },
+  messageKind: { type: String, optional: true },
+  providerData: { type: Object, optional: true },
+  replyTo: { type: Object, optional: true },
+  reactions: { type: [Object], optional: true },
+  deliveryStatus: { type: String, optional: true },
+  expiresAt: { type: Date, optional: true },
   engageData: { type: engageDataSchema },
   contentType: {
     type: String,

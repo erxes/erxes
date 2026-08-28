@@ -24,6 +24,12 @@ export const conversationMessageSchema = schemaWrapper(
     internal: { type: Boolean, label: 'Internal' },
     botId: { type: String, label: 'Bot', optional: true },
     botData: { type: Object, optional: true },
+    messageKind: { type: String, optional: true },
+    providerData: { type: Schema.Types.Mixed, optional: true },
+    replyTo: { type: Schema.Types.Mixed, optional: true },
+    reactions: { type: [Schema.Types.Mixed], optional: true },
+    deliveryStatus: { type: String, optional: true },
+    expiresAt: { type: Date, optional: true },
   }),
 );
 

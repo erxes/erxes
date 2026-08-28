@@ -7,6 +7,7 @@ import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/sub
 
 export interface IInstagramConversationMessagesQuery {
   instagramConversationMessages: IInstagramConversationMessage[];
+  instagramConversationMessagesCount: number;
 }
 export interface IInstagramConversationMessagesQueryVariables {
   _id?: string;
@@ -53,6 +54,8 @@ export const useInstagramConversationMessages = () => {
               ...fetchMoreResult.instagramConversationMessages,
               ...prev.instagramConversationMessages,
             ],
+            instagramConversationMessagesCount:
+              fetchMoreResult.instagramConversationMessagesCount,
           };
         },
       });
@@ -106,6 +109,8 @@ export const useInstagramConversationMessages = () => {
               __typename: 'InstagramConversationMessage',
             },
           ],
+          instagramConversationMessagesCount:
+            prev.instagramConversationMessagesCount + 1,
         };
       },
     });
@@ -114,6 +119,10 @@ export const useInstagramConversationMessages = () => {
 
   return {
     instagramConversationMessages,
+    totalCount: Math.max(
+      data?.instagramConversationMessagesCount || 0,
+      instagramConversationMessages?.length || 0,
+    ),
     handleFetchMore,
     loading,
     error,

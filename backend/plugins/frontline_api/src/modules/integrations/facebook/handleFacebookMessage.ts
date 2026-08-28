@@ -84,7 +84,7 @@ export const handleFacebookMessage = async (
 
     // Prepare data for sending reply to Facebook
     const id = commentConversationResult.comment_id || post.postId;
-    let data = {
+    const data = {
       message: strippedContent,
       attachment_url: attachment.payload ? attachment.payload.url : undefined,
     };
@@ -175,7 +175,10 @@ export const handleFacebookMessage = async (
       let output = html;
       do {
         prev = output;
-        output = output.replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '');
+        output = output
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<\/(p|blockquote)>/gi, '\n')
+          .replace(/<[^>]+>/g, '');
       } while (output !== prev);
 
       return output.trim();

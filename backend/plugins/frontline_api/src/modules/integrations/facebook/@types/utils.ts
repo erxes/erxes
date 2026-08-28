@@ -103,6 +103,7 @@ export interface IChannelData {
       type: string;
       payload: {
         url: string;
+        sticker_id?: string;
       };
     }>;
     quick_reply?: {

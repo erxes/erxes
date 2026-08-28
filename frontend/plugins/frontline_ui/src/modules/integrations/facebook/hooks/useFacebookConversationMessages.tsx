@@ -7,6 +7,7 @@ import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/sub
 
 export interface IFacebookConversationMessagesQuery {
   facebookConversationMessages: IFacebookConversationMessage[];
+  facebookConversationMessagesCount: number;
 }
 export interface IFacebookConversationMessagesQueryVariables {
   _id?: string;
@@ -55,6 +56,8 @@ export const useFacebookConversationMessages = () => {
               ...fetchMoreResult.facebookConversationMessages,
               ...prev.facebookConversationMessages,
             ],
+            facebookConversationMessagesCount:
+              fetchMoreResult.facebookConversationMessagesCount,
           };
         },
       });
@@ -113,6 +116,8 @@ export const useFacebookConversationMessages = () => {
               __typename: 'FacebookConversationMessage',
             },
           ],
+          facebookConversationMessagesCount:
+            prev.facebookConversationMessagesCount + 1,
         };
       },
     });
@@ -121,6 +126,10 @@ export const useFacebookConversationMessages = () => {
 
   return {
     facebookConversationMessages,
+    totalCount: Math.max(
+      data?.facebookConversationMessagesCount || 0,
+      facebookConversationMessages?.length || 0,
+    ),
     handleFetchMore,
     loading,
     error,

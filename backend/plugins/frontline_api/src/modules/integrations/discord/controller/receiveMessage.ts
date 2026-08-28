@@ -9,6 +9,7 @@ import {
   DiscordAttachment,
   DiscordEmbed,
   DiscordPoll,
+  DiscordSticker,
 } from '@/integrations/discord/@types/activity';
 import {
   isIgnorableActivity,
@@ -143,7 +144,12 @@ const attemptGetOrCreateCustomer = async (
   // row back on failure so no permanently-unlinked row is left behind — a
   // racer waiting on it sees it vanish and takes creation over itself.
   try {
-    customer.erxesApiId = await syncCustomerToCore(subdomain, bot, firstName, avatar);
+    customer.erxesApiId = await syncCustomerToCore(
+      subdomain,
+      bot,
+      firstName,
+      avatar,
+    );
     await customer.save();
   } catch (e) {
     await models.DiscordCustomers.deleteOne({ _id: customer._id });
@@ -244,11 +250,27 @@ const buildMessagePreview = (
   displayContent: string,
   poll?: DiscordPoll,
   embeds?: DiscordEmbed[],
+  attachments?: DiscordAttachment[],
+  stickers?: DiscordSticker[],
+  voiceMessage?: boolean,
+  forwarded?: boolean,
 ) =>
   displayContent ||
   (poll ? poll.question || 'Poll' : '') ||
   embeds?.find((embed) => embed.title || embed.url)?.title ||
-  (embeds?.length ? 'Link' : '');
+  (embeds?.length ? 'Shared a link' : '') ||
+  (voiceMessage ? 'Voice message' : '') ||
+  (stickers?.length ? `Sticker · ${stickers[0].name}` : '') ||
+  (forwarded ? 'Forwarded a message' : '') ||
+  (attachments?.some((item) => item.type.startsWith('image/'))
+    ? 'Sent an image'
+    : attachments?.some((item) => item.type.startsWith('video/'))
+    ? 'Sent a video'
+    : attachments?.some((item) => item.type.startsWith('audio/'))
+    ? 'Sent an audio file'
+    : attachments?.length
+    ? 'Sent a file'
+    : 'Unsupported message');
 
 /**
  * Resolves a Discord channel id to its display name and, if it's a thread,
@@ -274,7 +296,9 @@ const resolveDiscordChannelInfo = async (token: string, channelId: string) => {
           (await getChannel(token, channelInfo.parent_id))?.name ?? undefined;
       } catch (e) {
         debugError(
-          `Failed to resolve Discord parent channel ${channelInfo.parent_id}: ${getErrorMessage(e)}`,
+          `Failed to resolve Discord parent channel ${
+            channelInfo.parent_id
+          }: ${getErrorMessage(e)}`,
         );
       }
     }
@@ -462,9 +486,7 @@ const syncConversationToCore = async (
       return claimed;
     }
 
-    const winner = await models.DiscordConversations.findById(
-      conversation._id,
-    );
+    const winner = await models.DiscordConversations.findById(conversation._id);
     if (winner?.erxesApiId) {
       return winner;
     }
@@ -533,6 +555,7 @@ const persistAndDispatchMessage = async ({
       content: displayContent,
       customerId: customer.erxesApiId,
       attachments: storedAttachments,
+      replyTo: activity.replyTo,
     });
 
     // Persist the message into the inbox message store (so the conversation
@@ -549,6 +572,16 @@ const persistAndDispatchMessage = async ({
         createdAt: timestamp,
         attachments: storedAttachments,
         extraData,
+        providerData: { messageId },
+        messageKind: activity.voiceMessage
+          ? 'voice'
+          : activity.stickers?.length
+          ? 'sticker'
+          : activity.forwardedSnapshot
+          ? 'forwarded'
+          : undefined,
+        replyTo: activity.replyTo,
+        deliveryStatus: 'delivered',
       }),
     });
 
@@ -622,7 +655,16 @@ export const receiveDiscordMessage = async ({
     return;
   }
 
-  const { messageId, content, attachments, poll, embeds } = activity;
+  const {
+    messageId,
+    content,
+    attachments,
+    poll,
+    embeds,
+    stickers,
+    voiceMessage,
+    forwardedSnapshot,
+  } = activity;
 
   // What we store + show in the inbox: `<@ID>` mentions rewritten to `@Name`.
   // The raw `content` is still used for automation triggers so trigger matching
@@ -631,7 +673,10 @@ export const receiveDiscordMessage = async ({
 
   // Re-host inbound images to erxes storage so they survive Discord's ~24h CDN
   // URL expiry; videos/files keep their CDN URL. Best-effort, never throws.
-  const storedAttachments = await rehostImageAttachments(subdomain, attachments);
+  const storedAttachments = await rehostImageAttachments(
+    subdomain,
+    attachments,
+  );
 
   // Structured payloads (poll, embed preview cards) travel on the message's
   // `extraData` and render as cards. The Discord message id is *always* stamped
@@ -644,12 +689,29 @@ export const receiveDiscordMessage = async ({
   const extraData = {
     ...(poll && { poll }),
     ...(embeds?.length && { embeds }),
+    ...(stickers?.length && { stickers }),
+    ...(voiceMessage && { voiceMessage: true }),
+    ...(forwardedSnapshot && { forwardedSnapshot }),
     discordMessageId: messageId,
+    discordPinned: Boolean(activity.raw?.pinned),
   };
-  const previewContent = buildMessagePreview(displayContent, poll, embeds);
+  const previewContent = buildMessagePreview(
+    displayContent,
+    poll,
+    embeds,
+    storedAttachments,
+    stickers,
+    voiceMessage,
+    Boolean(forwardedSnapshot),
+  );
 
   try {
-    const customer = await getOrCreateCustomer(models, subdomain, bot, activity);
+    const customer = await getOrCreateCustomer(
+      models,
+      subdomain,
+      bot,
+      activity,
+    );
 
     const created = await findOrCreateDiscordConversation(
       models,
@@ -677,6 +739,19 @@ export const receiveDiscordMessage = async ({
     });
 
     if (existingMessage) {
+      if (activity.replyTo && !existingMessage.replyTo) {
+        await models.DiscordConversationMessages.updateOne(
+          { _id: existingMessage._id },
+          { $set: { replyTo: activity.replyTo } },
+        );
+        await models.ConversationMessages.updateOne(
+          {
+            'extraData.discordMessageId': messageId,
+            replyTo: { $exists: false },
+          },
+          { $set: { replyTo: activity.replyTo } },
+        );
+      }
       return;
     }
 

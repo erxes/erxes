@@ -159,7 +159,8 @@ export const receiveMessage = async (
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
     const { recipient, from, timestamp, channelData } = activity;
-    let { message, postback } = channelData;
+    let { message } = channelData;
+    const { postback } = channelData;
     const pageId = sanitizeString(recipient.id);
     const userId = sanitizeString(from.id);
     const kind = INTEGRATION_KINDS.MESSENGER;
@@ -255,11 +256,30 @@ export const receiveMessage = async (
     }
 
     const formattedAttachments = (attachments || [])
-      .filter((att) => att.type !== 'fallback')
       .map((att) => ({
-        type: att.type,
+        type: att.type === 'fallback' ? 'share' : att.type,
         url: att.payload ? att.payload.url : '',
-      }));
+      }))
+      .filter((attachment) => Boolean(attachment.url));
+    const primaryAttachment = attachments?.[0];
+    const attachmentPreview = primaryAttachment?.payload?.sticker_id
+      ? 'Sent a sticker'
+      : primaryAttachment?.type === 'image'
+      ? 'Sent an image'
+      : primaryAttachment?.type === 'video'
+      ? 'Sent a video'
+      : primaryAttachment?.type === 'audio'
+      ? 'Voice message'
+      : primaryAttachment?.type === 'file'
+      ? 'Sent a file'
+      : primaryAttachment
+      ? 'Shared content'
+      : message?.quick_reply
+      ? 'Selected a quick reply'
+      : postback
+      ? postback.title || 'Selected an action'
+      : 'Unsupported Messenger message';
+    const previewContent = text || attachmentPreview;
 
     // save on api
     try {
@@ -268,7 +288,7 @@ export const receiveMessage = async (
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text || '',
+          content: previewContent,
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
           updatedAt: timestamp,
@@ -308,7 +328,7 @@ export const receiveMessage = async (
           conversationId: conversation._id,
           mid,
           createdAt: timestamp,
-          content: text,
+          content: previewContent,
           customerId: customer.erxesApiId,
           attachments: formattedAttachments,
           botId,
@@ -330,7 +350,7 @@ export const receiveMessage = async (
               },
             },
           );
-        } catch (err) {
+        } catch {
           throw new Error(
             'conversationMessageInserted Error publishing subscription:',
           );

@@ -35,6 +35,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
         size
       }
     }
+    facebookConversationMessagesCount(conversationId: $conversationId)
   }
 `;
 

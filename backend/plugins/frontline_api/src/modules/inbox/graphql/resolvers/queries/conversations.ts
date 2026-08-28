@@ -88,6 +88,16 @@ export const conversationQueries = {
   ) {
     return models.ConversationMessages.findOne({ _id });
   },
+  async conversationPinnedMessages(
+    _root,
+    { conversationId }: { conversationId: string },
+    { models }: IContext,
+  ) {
+    return models.ConversationMessages.find({
+      conversationId,
+      'extraData.discordPinned': true,
+    }).sort({ createdAt: -1 });
+  },
   /**
    * Get conversation messages
    */

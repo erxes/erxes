@@ -1,5 +1,6 @@
 import { cn } from 'erxes-ui';
 import { IMessagePoll } from '@/inbox/types/Conversation';
+import { useEffect, useState } from 'react';
 
 // Voting happens on Discord — the inbox shows the poll read-only (the "Show
 // results" view). Vote tallies stay in sync: Discord poll-vote events refresh
@@ -15,10 +16,25 @@ const timeLeftLabel = (expiry?: string): string => {
 };
 
 /** Pluralize a vote-count label ("1 vote" / "n votes"). */
-const votesLabel = (count: number) => `${count} ${count === 1 ? 'vote' : 'votes'}`;
+const votesLabel = (count: number) =>
+  `${count} ${count === 1 ? 'vote' : 'votes'}`;
 
 /** Renders a Discord poll with per-answer tallies and totals. */
 export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!poll.expiry) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, [poll.expiry]);
+
+  if (!poll.answers?.length) {
+    return (
+      <div className="mt-2 rounded-lg border border-dashed bg-muted/40 px-3 py-3 text-sm text-muted-foreground">
+        Poll results unavailable
+      </div>
+    );
+  }
   const countById = new Map<number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
@@ -26,20 +42,23 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
 
   const closed =
     Boolean(poll.results?.isFinalized) ||
-    (poll.expiry ? new Date(poll.expiry).getTime() <= Date.now() : false);
+    (poll.expiry ? new Date(poll.expiry).getTime() <= now : false);
   const status = closed ? 'Poll closed' : timeLeftLabel(poll.expiry);
 
   return (
     <div className="mt-2 w-full rounded-lg border bg-background p-3">
       <div className="text-sm font-semibold">{poll.question || 'Poll'}</div>
       <div className="mb-2 text-xs text-muted-foreground">
-        {poll.allowMultiselect ? 'Select multiple answers' : 'Select one answer'}
+        {poll.allowMultiselect
+          ? 'Select multiple answers'
+          : 'Select one answer'}
       </div>
 
       <div className="flex flex-col gap-1.5">
         {poll.answers.map((answer) => {
           const count = countById.get(answer.id) ?? 0;
-          const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+          const pct =
+            totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
           return (
             <div
               key={answer.id}

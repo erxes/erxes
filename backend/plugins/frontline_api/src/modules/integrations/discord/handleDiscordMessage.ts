@@ -10,13 +10,17 @@ import {
   sendChannelMessage,
   startTypingIndicator,
   stopTypingIndicator,
+  addChannelMessageReaction,
+  removeChannelMessageReaction,
+  pinChannelMessage,
+  unpinChannelMessage,
 } from '@/integrations/discord/utils';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   normalizeDiscordEmbeds,
   normalizeDiscordPoll,
 } from '@/integrations/discord/activity';
 import { debugError } from '@/integrations/discord/debuggers';
-
 
 type TComposerPoll = {
   question?: string;
@@ -25,9 +29,7 @@ type TComposerPoll = {
   allowMultiselect?: boolean;
 };
 
-
 type TInboxAttachment = { url?: string; name?: string; type?: string };
-
 
 type TInboxRelayDoc = {
   integrationId?: string;
@@ -38,6 +40,18 @@ type TInboxRelayDoc = {
   poll?: TComposerPoll;
   typing?: boolean;
   replyToMessageId?: string;
+  messageId?: string;
+  reaction?: string;
+  remove?: boolean;
+};
+
+const DISCORD_REACTION_EMOJI: Record<string, string> = {
+  love: '❤️',
+  like: '👍',
+  wow: '😮',
+  haha: '😂',
+  sad: '😢',
+  angry: '😠',
 };
 
 const buildPollRequest = (
@@ -133,7 +147,8 @@ const resolveMentionsForReply = async (
     nameByUserId.set(id, name || 'user');
   }
 
-  const toName = (_m: string, id: string) => `@${nameByUserId.get(id) || 'user'}`;
+  const toName = (_m: string, id: string) =>
+    `@${nameByUserId.get(id) || 'user'}`;
 
   return {
     discordText: text.replace(MENTION_TOKEN, (_m, id) => `<@${id}>`),
@@ -158,7 +173,6 @@ const handleDiscordReplyMessenger = async (
   } = doc;
 
   const pollRequest = buildPollRequest(poll);
-
 
   const bot = await models.DiscordBots.findOne({
     erxesApiId: integrationId,
@@ -194,6 +208,22 @@ const handleDiscordReplyMessenger = async (
   const { discordText, mirrorText, displayContent } =
     await resolveMentionsForReply(models, bot.token, text, content);
 
+  const repliedMessage = replyToMessageId
+    ? await models.DiscordConversationMessages.findOne({
+        conversationId: conversation._id,
+        messageId: replyToMessageId,
+      })
+    : null;
+  const replyTo = replyToMessageId
+    ? {
+        messageId: replyToMessageId,
+        content:
+          repliedMessage?.content ||
+          repliedMessage?.attachments?.[0]?.name ||
+          'Original message unavailable',
+      }
+    : undefined;
+
   let sent: APIMessage;
   try {
     sent = await sendChannelMessage({
@@ -225,6 +255,7 @@ const handleDiscordReplyMessenger = async (
     createdAt: new Date(),
     content: mirrorText,
     attachments,
+    replyTo,
     userId,
   });
 
@@ -238,6 +269,9 @@ const handleDiscordReplyMessenger = async (
       content: previewContent,
       displayContent,
       extraData,
+      providerData: { messageId: sent?.id },
+      replyTo,
+      deliveryStatus: 'sent',
     },
   };
 };
@@ -252,6 +286,98 @@ export const handleDiscordMessage = async (
 
   if (action === 'typing') {
     return handleDiscordTypingRelay(models, doc);
+  }
+
+  if (action === 'react-messenger') {
+    const {
+      integrationId,
+      conversationId,
+      messageId,
+      reaction,
+      remove,
+      userId,
+    } = doc;
+    if (!messageId || !reaction) {
+      throw new Error('Message id and reaction are required');
+    }
+    const conversation = await models.DiscordConversations.findOne({
+      erxesApiId: conversationId,
+    });
+    const bot = await models.DiscordBots.findOne({
+      erxesApiId: integrationId,
+    }).sort({ createdAt: -1 });
+    if (!conversation?.channelId || !bot?.token) {
+      throw new Error('Discord conversation is unavailable');
+    }
+    const emoji = DISCORD_REACTION_EMOJI[reaction] || reaction;
+    const updateReaction = remove
+      ? removeChannelMessageReaction
+      : addChannelMessageReaction;
+    await updateReaction(bot.token, conversation.channelId, messageId, emoji);
+
+    const inboxMessage = await models.ConversationMessages.findOne({
+      conversationId,
+      'extraData.discordMessageId': messageId,
+    });
+    if (inboxMessage) {
+      const extraData = inboxMessage.extraData || {};
+      const reactions = Array.isArray(extraData.reactions)
+        ? extraData.reactions.filter(
+            (item) =>
+              typeof item === 'object' &&
+              item !== null &&
+              item.senderId !== userId,
+          )
+        : [];
+      if (!remove) {
+        reactions.push({ senderId: userId || 'agent', reaction, emoji });
+      }
+      inboxMessage.extraData = { ...extraData, reactions };
+      await inboxMessage.save();
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversationId}`,
+        { conversationMessageInserted: inboxMessage },
+      );
+    }
+
+    return { status: 'success' };
+  }
+
+  if (action === 'pin-messenger') {
+    const { integrationId, conversationId, messageId, remove } = doc;
+    if (!messageId) {
+      throw new Error('Message id is required');
+    }
+    const conversation = await models.DiscordConversations.findOne({
+      erxesApiId: conversationId,
+    });
+    const bot = await models.DiscordBots.findOne({
+      erxesApiId: integrationId,
+    }).sort({ createdAt: -1 });
+    if (!conversation?.channelId || !bot?.token) {
+      throw new Error('Discord conversation is unavailable');
+    }
+
+    const updatePin = remove ? unpinChannelMessage : pinChannelMessage;
+    await updatePin(bot.token, conversation.channelId, messageId);
+
+    const inboxMessage = await models.ConversationMessages.findOne({
+      conversationId,
+      'extraData.discordMessageId': messageId,
+    });
+    if (inboxMessage) {
+      inboxMessage.extraData = {
+        ...(inboxMessage.extraData || {}),
+        discordPinned: !remove,
+      };
+      await inboxMessage.save();
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversationId}`,
+        { conversationMessageInserted: inboxMessage },
+      );
+    }
+
+    return { status: 'success', pinned: !remove };
   }
 
   if (action === 'reply-messenger') {

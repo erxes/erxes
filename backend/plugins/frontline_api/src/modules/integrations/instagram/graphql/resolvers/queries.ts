@@ -15,6 +15,7 @@ import {
 } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import { normalizeStoredInstagramMessage } from '@/integrations/instagram/normalizeMessage';
 
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
@@ -239,14 +240,19 @@ export const instagramQueries = {
           .skip(skip || 0)
           .limit(limit);
 
-        return getFirst ? messages : messages.reverse();
+        const orderedMessages = getFirst ? messages : messages.reverse();
+        return orderedMessages.map((message) =>
+          normalizeStoredInstagramMessage(message.toObject()),
+        );
       }
 
       messages = await models.InstagramConversationMessages.find(query)
         .sort({ createdAt: -1 })
         .limit(50);
 
-      return messages.reverse();
+      return messages
+        .reverse()
+        .map((message) => normalizeStoredInstagramMessage(message.toObject()));
     } else {
       let comment: any[] = [];
       const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
@@ -281,7 +287,10 @@ export const instagramQueries = {
     { conversationId }: { conversationId: string },
     { models }: IContext,
   ) {
-    const selector = await buildSelector(conversationId, models.Conversations);
+    const selector = await buildSelector(
+      conversationId,
+      models.InstagramConversations,
+    );
 
     return models.InstagramConversationMessages.countDocuments(selector);
   },
