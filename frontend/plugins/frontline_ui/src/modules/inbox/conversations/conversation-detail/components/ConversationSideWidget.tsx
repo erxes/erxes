@@ -85,39 +85,45 @@ const ConversationCustomerProperties = ({
     fetchPolicy: 'cache-and-network',
   });
 
+  let content = (
+    <div className="p-4 text-sm text-muted-foreground">
+      {t('no-custom-properties-found')}
+    </div>
+  );
+
+  if (loading && !customerDetail) {
+    content = <Spinner containerClassName="py-12" />;
+  } else if (error) {
+    content = (
+      <div className="p-4 text-sm text-destructive">
+        <p>
+          {t('common:load-error', {
+            label: t('common:properties'),
+          })}
+        </p>
+        <p>{error.message}</p>
+      </div>
+    );
+  } else if (customerDetail) {
+    content = (
+      <div className="p-4">
+        <FieldsInDetail
+          fieldContentType="core:customer"
+          propertiesData={customerDetail.propertiesData || {}}
+          mutateHook={useInboxCustomerCustomFieldEdit}
+          id={customerId}
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <SideMenu.Header
         Icon={PROPERTIES_MODULE.icon}
         label={t('common:properties')}
       />
-      <ScrollArea className="flex-1 min-h-0">
-        {loading && !customerDetail ? (
-          <Spinner containerClassName="py-12" />
-        ) : error ? (
-          <div className="p-4 text-sm text-destructive">
-            <p>
-              {t('common:load-error', {
-                label: t('common:properties'),
-              })}
-            </p>
-            <p>{error.message}</p>
-          </div>
-        ) : customerDetail ? (
-          <div className="p-4">
-            <FieldsInDetail
-              fieldContentType="core:customer"
-              propertiesData={customerDetail.propertiesData || {}}
-              mutateHook={useInboxCustomerCustomFieldEdit}
-              id={customerId}
-            />
-          </div>
-        ) : (
-          <div className="p-4 text-sm text-muted-foreground">
-            {t('no-custom-properties-found')}
-          </div>
-        )}
-      </ScrollArea>
+      <ScrollArea className="flex-1 min-h-0">{content}</ScrollArea>
     </>
   );
 };
