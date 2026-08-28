@@ -49,6 +49,16 @@ import {
   loadWebActivityLogClass,
 } from '@/webbuilder/db/models/WebActivityLog';
 import { IWebActivityLogDocument } from './modules/webbuilder/@types/webActivityLog';
+import {
+  IPostCommentDocument,
+} from '@/cms/@types/comments';
+import {
+  IPostCommentModel,
+  loadPostCommentClass,
+} from '@/cms/db/models/Comments';
+import { IPostRatingDocument } from '@/cms/@types/ratings';
+import { IPostRatingModel, loadPostRatingClass } from '@/cms/db/models/Ratings';
+
 export interface IModels {
   CMS: ICMSModel;
   Web: IWebModel;
@@ -57,6 +67,8 @@ export interface IModels {
 
   Posts: IPostModel;
   PostViews: IPostViewModel;
+  PostComments: IPostCommentModel;
+  PostRatings: IPostRatingModel;
   Translations: ITranslationModel;
 
   CustomPostTypes: ICustomPostTypeModel;
@@ -88,6 +100,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.PostViews = db.model<IPostViewDocument, IPostViewModel>(
     'cms_post_views',
     loadPostViewClass(models),
+  );
+
+  models.PostComments = db.model<IPostCommentDocument, IPostCommentModel>(
+    'cms_post_comments',
+    loadPostCommentClass(models),
+  );
+
+  models.PostRatings = db.model<IPostRatingDocument, IPostRatingModel>(
+    'cms_post_ratings',
+    loadPostRatingClass(models),
   );
 
   models.Translations = db.model<ITranslationDocument, ITranslationModel>(
