@@ -48,6 +48,13 @@ export const transactionDetailSchema = new Schema({
   unitPrice: { type: Number, optional: true, label: 'unitPrice' },
 
   fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
+  fixedAssetCategoryId: {
+    type: String,
+    optional: true,
+    label: 'Fixed asset category',
+  },
+  fixedAssetCode: { type: String, optional: true, label: 'Fixed asset code' },
+  fixedAssetName: { type: String, optional: true, label: 'Fixed asset name' },
 });
 
 const relAccountsSchema = new Schema(
@@ -177,6 +184,7 @@ transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
 transactionSchema.index({ 'details.fixedAssetId': 1 });
+transactionSchema.index({ 'details.fixedAssetCategoryId': 1 });
 
 export const transactionCounterSchema = schemaWrapper(
   new Schema({

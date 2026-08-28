@@ -22,6 +22,10 @@ export const fixedAssetFields = `
   categoryId
   description
   status
+  accountId
+  count
+  currentCount
+  originalCost
   depreciationMethod
   usefulLife
   salvageValue
@@ -65,5 +69,85 @@ export const GET_FIXED_ASSET_DETAIL = gql`
     fixedAssetDetail(_id: $id) {
       ${fixedAssetFields}
     }
+  }
+`;
+
+export const GET_FIXED_ASSET_LOCATION_REMAINDER = gql`
+  query fixedAssetLocationRemainder(
+    $fixedAssetId: String!
+    $branchId: String
+    $departmentId: String
+    $date: Date
+    $excludeTransactionId: String
+  ) {
+    fixedAssetLocationRemainder(
+      fixedAssetId: $fixedAssetId
+      branchId: $branchId
+      departmentId: $departmentId
+      date: $date
+      excludeTransactionId: $excludeTransactionId
+    ) {
+      fixedAssetId
+      branchId
+      departmentId
+      remainder
+    }
+  }
+`;
+
+export const fxaOwnerRecordFields = `
+  _id
+  fixedAssetId
+  code
+  sequence
+  count
+  action
+  status
+  ownerId
+  transactionId
+  transactionDetailId
+  createdAt
+  updatedAt
+  createdBy
+  modifiedBy
+`;
+
+export const GET_FXA_OWNER_RECORDS = gql`
+  query AccountingFixedAssetOwnerRecords(
+    $searchValue: String
+    $fixedAssetId: String
+    $categoryId: String
+    $action: String
+    $ownerId: String
+    $status: String
+    $createdFrom: Date
+    $createdTo: Date
+    $page: Int
+    $perPage: Int
+  ) {
+    fxaOwnerRecords(
+      searchValue: $searchValue
+      fixedAssetId: $fixedAssetId
+      categoryId: $categoryId
+      action: $action
+      ownerId: $ownerId
+      status: $status
+      createdFrom: $createdFrom
+      createdTo: $createdTo
+      page: $page
+      perPage: $perPage
+    ) {
+      ${fxaOwnerRecordFields}
+    }
+    fxaOwnerRecordsCount(
+      searchValue: $searchValue
+      fixedAssetId: $fixedAssetId
+      categoryId: $categoryId
+      action: $action
+      ownerId: $ownerId
+      status: $status
+      createdFrom: $createdFrom
+      createdTo: $createdTo
+    )
   }
 `;

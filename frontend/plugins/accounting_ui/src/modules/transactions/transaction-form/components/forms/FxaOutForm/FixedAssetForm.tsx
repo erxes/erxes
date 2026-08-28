@@ -1,5 +1,5 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
@@ -15,7 +15,7 @@ import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
 import { showAdvancedViewState } from '../../../states/trStates';
-import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
+import { AddFixedAssetRow } from './AddFixedAssetRow';
 import { FixedAssetRow } from './FixedAssetRow';
 
 export const FixedAssetForm = ({
@@ -29,15 +29,16 @@ export const FixedAssetForm = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
-  const details = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details`,
-  }) as TFxaDetail[];
+  const details =
+    (useWatch({
+      control: form.control,
+      name: `trDocs.${journalIndex}.details`,
+    }) as TFxaDetail[] | undefined) || [];
   const setHotkeyScope = useSetHotkeyScope();
   const tableRef = useRef<HTMLTableElement>(null);
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    6;
+    7;
   const hasCheckedDetails = details.some((detail) => detail.checked);
   const [showAdvancedView, setShowAdvancedView] = useAtom(
     showAdvancedViewState,
@@ -89,19 +90,11 @@ export const FixedAssetForm = ({
       </RecordTableHotkeyProvider>
 
       <div className="flex justify-center gap-3">
-        <Button
-          type="button"
-          variant="secondary"
-          className="bg-border"
-          onClick={() =>
-            append(
-              getFxaDetailDefaultValues({ accountId: details[0]?.accountId }),
-            )
-          }
-        >
-          <IconPlus />
-          Шинэ мөр
-        </Button>
+        <AddFixedAssetRow
+          append={append}
+          form={form}
+          journalIndex={journalIndex}
+        />
         {hasCheckedDetails && (
           <Button
             type="button"

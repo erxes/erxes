@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { FXA_INSTANCE_STATUSES } from '@/fixedAssets/@types/constants';
-import { ITransaction, ITrDetail } from '../@types/transaction';
+import {
+  FXA_OWNER_RECORD_ACTIONS,
+  FXA_OWNER_RECORD_STATUSES,
+} from '@/fixedAssets/@types/constants';
 import { JOURNALS } from '../@types/constants';
+import { ITransaction, ITrDetail } from '../@types/transaction';
 
 const ERKHET_CONTENT_TYPE = 'erkhet:ptr';
 
@@ -27,31 +30,29 @@ type TReferenceMaps = {
   departmentsByCode: TCodeMap;
   customersByCode: TCodeMap;
   productsByCode: TCodeMap;
+  fixedAssetCategoriesByCode: TCodeMap;
   fixedAssetsByCode: TCodeMap;
-  fxaInstanceIdsByCode: Record<string, string[]>;
-  fxaInstanceIdsByAssetAndCode: Record<string, Record<string, string[]>>;
-  fxaInstanceIdsById: TCodeMap;
+  usersByRef: TCodeMap;
 };
 
-type TFxaInstanceMigrationInput = {
+type TFxaOwnerRecordMigrationInput = {
   _id?: string;
+  fxaOwnerRecordId?: string;
   tempId?: string;
   transactionDetailId?: string;
   fixedAssetId?: string;
   code?: string;
   sequence?: number;
-  branchId?: string;
-  departmentId?: string;
+  count?: number;
+  ownerId?: string;
   responsibleUserId?: string;
-  locationId?: string;
-  originalCost?: number;
-  depreciationStartDate?: Date;
-  openingAccumulatedDepreciation?: number;
+  sourceResponsibleUserId?: string;
 };
 
-type TFxaInstanceSelectionMigrationInput = {
-  fxaInstanceId: string;
-  count: number;
+type TMigrationUser = {
+  _id: string;
+  email?: string;
+  username?: string;
 };
 
 type TErkhetContact = {
@@ -120,9 +121,9 @@ const getCodeMap = (docs: ITransaction[]) => {
   const departmentCodes: string[] = [];
   const customerCodes: string[] = [];
   const productCodes: string[] = [];
+  const fixedAssetCategoryCodes: string[] = [];
   const fixedAssetCodes: string[] = [];
-  const fixedAssetIds: string[] = [];
-  const fxaInstanceRefs: string[] = [];
+  const userRefs: string[] = [];
 
   // Payload дотор ирсэн бүх source code-г эхэлж цуглуулна. Дараагийн шатанд
   // эдгээрийг нэг дор query хийж erxes _id болгон resolve хийх нь N+1 query-гээс хамгаална.
@@ -160,22 +161,21 @@ const getCodeMap = (docs: ITransaction[]) => {
       accountCodes.push(normalizeSourceCode(lossAccountId));
     }
 
-    const fxaInstances =
-      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
-    for (const instance of fxaInstances) {
-      if (instance.fixedAssetId) {
-        fixedAssetCodes.push(normalizeSourceCode(instance.fixedAssetId));
+    const fxaOwnerRecords =
+      (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) || [];
+    for (const ownerRecord of fxaOwnerRecords) {
+      if (ownerRecord.fixedAssetId) {
+        fixedAssetCodes.push(normalizeSourceCode(ownerRecord.fixedAssetId));
       }
-      if (instance.branchId) {
-        branchCodes.push(normalizeSourceCode(instance.branchId));
+      if (ownerRecord.ownerId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.ownerId));
       }
-      if (instance.departmentId) {
-        departmentCodes.push(normalizeSourceCode(instance.departmentId));
+      if (ownerRecord.responsibleUserId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.responsibleUserId));
       }
-    }
-
-    for (const instanceRef of doc.extraData?.fxaInstanceIds || []) {
-      fxaInstanceRefs.push(normalizeSourceCode(instanceRef));
+      if (ownerRecord.sourceResponsibleUserId) {
+        userRefs.push(normalizeSourceCode(ownerRecord.sourceResponsibleUserId));
+      }
     }
 
     for (const detail of doc.details || []) {
@@ -184,7 +184,11 @@ const getCodeMap = (docs: ITransaction[]) => {
       }
       if (detail.fixedAssetId) {
         fixedAssetCodes.push(normalizeSourceCode(detail.fixedAssetId));
-        fixedAssetIds.push(normalizeSourceCode(detail.fixedAssetId));
+      }
+      if (detail.fixedAssetCategoryId) {
+        fixedAssetCategoryCodes.push(
+          normalizeSourceCode(detail.fixedAssetCategoryId),
+        );
       }
       if (detail.branchId) {
         branchCodes.push(normalizeSourceCode(detail.branchId));
@@ -204,9 +208,9 @@ const getCodeMap = (docs: ITransaction[]) => {
     departmentCodes: uniq(departmentCodes),
     customerCodes: uniq(customerCodes),
     productCodes: uniq(productCodes),
+    fixedAssetCategoryCodes: uniq(fixedAssetCategoryCodes),
     fixedAssetCodes: uniq(fixedAssetCodes),
-    fixedAssetIds: uniq(fixedAssetIds),
-    fxaInstanceRefs: uniq(fxaInstanceRefs),
+    userRefs: uniq(userRefs),
   };
 };
 
@@ -250,9 +254,9 @@ const fetchReferenceMaps = async (
     departmentCodes,
     customerCodes,
     productCodes,
+    fixedAssetCategoryCodes,
     fixedAssetCodes,
-    fixedAssetIds,
-    fxaInstanceRefs,
+    userRefs,
   } = getCodeMap(docs);
 
   // Transaction route лавлах үүсгэхгүй. Reference migration өмнө нь
@@ -323,6 +327,13 @@ const fetchReferenceMaps = async (
     : [];
   const productsByCode = indexByCode(products);
 
+  const fixedAssetCategories = fixedAssetCategoryCodes.length
+    ? await models.FixedAssetCategories.find(
+        { code: { $in: fixedAssetCategoryCodes } },
+        { _id: 1, code: 1 },
+      ).lean()
+    : [];
+
   const fixedAssets = fixedAssetCodes.length
     ? await models.FixedAssets.find(
         { code: { $in: fixedAssetCodes } },
@@ -330,65 +341,35 @@ const fetchReferenceMaps = async (
       ).lean()
     : [];
   const fixedAssetsByCode = indexByCode(fixedAssets);
-  const fxaInstanceFixedAssetIds = [
-    ...fixedAssetIds,
-    ...fixedAssetCodes
-      .map((code) => fixedAssetsByCode[code])
-      .filter((fixedAssetId): fixedAssetId is string => !!fixedAssetId),
-  ];
 
-  const fxaInstances = fxaInstanceRefs.length
-    ? await models.FxaInstances.find(
-        {
-          $and: [
-            {
-              $or: [
-                { _id: { $in: fxaInstanceRefs } },
-                { code: { $in: fxaInstanceRefs } },
-              ],
-            },
-            fxaInstanceFixedAssetIds.length
-              ? { fixedAssetId: { $in: uniq(fxaInstanceFixedAssetIds) } }
-              : {},
-          ],
+  const users: TMigrationUser[] = userRefs.length
+    ? ((await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'users',
+        action: 'find',
+        defaultValue: [],
+        input: {
+          query: {
+            $or: [
+              { _id: { $in: userRefs } },
+              { email: { $in: userRefs } },
+              { username: { $in: userRefs } },
+            ],
+          },
+          fields: { _id: 1, email: 1, username: 1 },
         },
-        { _id: 1, code: 1, fixedAssetId: 1 },
-      )
-        .sort({ acquisitionDate: 1, createdAt: 1, _id: 1 })
-        .lean()
+      })) as TMigrationUser[])
     : [];
-
-  const fxaInstanceIdsByCode = fxaInstances.reduce<Record<string, string[]>>(
-    (byCode, instance) => {
-      if (!instance.code) {
-        return byCode;
-      }
-
-      byCode[instance.code] = [...(byCode[instance.code] || []), instance._id];
-      return byCode;
-    },
-    {},
-  );
-  const fxaInstanceIdsByAssetAndCode = fxaInstances.reduce<
-    Record<string, Record<string, string[]>>
-  >((byAssetAndCode, instance) => {
-    if (!instance.fixedAssetId || !instance.code) {
-      return byAssetAndCode;
+  const usersByRef = users.reduce<TCodeMap>((byRef, user) => {
+    byRef[user._id] = user._id;
+    if (user.email) {
+      byRef[user.email] = user._id;
     }
-
-    byAssetAndCode[instance.fixedAssetId] =
-      byAssetAndCode[instance.fixedAssetId] || {};
-    byAssetAndCode[instance.fixedAssetId][instance.code] = [
-      ...(byAssetAndCode[instance.fixedAssetId][instance.code] || []),
-      instance._id,
-    ];
-
-    return byAssetAndCode;
-  }, {});
-
-  const fxaInstanceIdsById = fxaInstances.reduce<TCodeMap>((byId, instance) => {
-    byId[instance._id] = instance._id;
-    return byId;
+    if (user.username) {
+      byRef[user.username] = user._id;
+    }
+    return byRef;
   }, {});
 
   return {
@@ -397,10 +378,9 @@ const fetchReferenceMaps = async (
     departmentsByCode: indexByCode(departments),
     customersByCode: indexByCode(customers),
     productsByCode,
+    fixedAssetCategoriesByCode: indexByCode(fixedAssetCategories),
     fixedAssetsByCode,
-    fxaInstanceIdsByCode,
-    fxaInstanceIdsByAssetAndCode,
-    fxaInstanceIdsById,
+    usersByRef,
   };
 };
 
@@ -512,14 +492,23 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const productCode = normalizeSourceCode(detail.productId);
   const departmentCode = normalizeSourceCode(detail.departmentId);
   const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
+  const fixedAssetCategoryCode = normalizeSourceCode(
+    detail.fixedAssetCategoryId,
+  );
 
-  // Detail дээр байгаа account/product/fixedAsset/branch/department нь
+  // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
   // бүгд source code. Хадгалахаас өмнө erxes _id-р солихгүй бол journal logic ажиллахгүй.
   if (accountCode && !maps.accountsByCode[accountCode]) {
     throw new Error(`Account not found: ${accountCode}`);
   }
   if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
     throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
+  }
+  if (
+    fixedAssetCategoryCode &&
+    !maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode]
+  ) {
+    throw new Error(`Fixed asset category not found: ${fixedAssetCategoryCode}`);
   }
   if (productCode && !maps.productsByCode[productCode]) {
     throw new Error(`Product not found: ${productCode}`);
@@ -537,6 +526,12 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
     fixedAssetId: fixedAssetCode
       ? maps.fixedAssetsByCode[fixedAssetCode] || detail.fixedAssetId
       : detail.fixedAssetId,
+    fixedAssetCategoryId: fixedAssetCategoryCode
+      ? maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode] ||
+        detail.fixedAssetCategoryId
+      : detail.fixedAssetCategoryId,
+    fixedAssetCode: normalizeSourceCode(detail.fixedAssetCode),
+    fixedAssetName: normalizeSourceCode(detail.fixedAssetName),
     branchId: branchCode
       ? maps.branchesByCode[branchCode] || detail.branchId
       : detail.branchId,
@@ -553,210 +548,143 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       productCode,
       departmentCode,
       fixedAssetCode,
+      fixedAssetCategoryCode,
     },
   };
 };
 
-const resolveFxaInstances = (
-  instances: TFxaInstanceMigrationInput[],
+const resolveFxaOwnerRecords = (
+  ownerRecords: TFxaOwnerRecordMigrationInput[],
   maps: TReferenceMaps,
 ) =>
-  instances.map((instance) => {
-    const fixedAssetCode = normalizeSourceCode(instance.fixedAssetId);
-    const branchCode = normalizeSourceCode(instance.branchId);
-    const departmentCode = normalizeSourceCode(instance.departmentId);
+  ownerRecords.map((ownerRecord) => {
+    const fixedAssetCode = normalizeSourceCode(ownerRecord.fixedAssetId);
+    const ownerRef = normalizeSourceCode(ownerRecord.ownerId);
+    const responsibleUserRef = normalizeSourceCode(
+      ownerRecord.responsibleUserId,
+    );
+    const sourceResponsibleUserRef = normalizeSourceCode(
+      ownerRecord.sourceResponsibleUserId,
+    );
 
-    // fxaIncome үед Erkhet income_info нь erxes instance болж үүснэ.
-    // fixedAssetId/branchId/departmentId нь мөн source code тул энд resolve хийнэ.
+    // extraData.fxaOwnerRecords нь хөрөнгийн санхүүгийн хөдөлгөөн биш,
+    // зөвхөн эд хариуцагч/serial allocation ownerRecord. Ирсэн code-уудыг энд _id болгоно.
     if (fixedAssetCode && !maps.fixedAssetsByCode[fixedAssetCode]) {
       throw new Error(`Fixed asset not found: ${fixedAssetCode}`);
     }
-    if (branchCode && !maps.branchesByCode[branchCode]) {
-      throw new Error(`Branch not found: ${branchCode}`);
+    if (ownerRef && !maps.usersByRef[ownerRef]) {
+      throw new Error(`User not found: ${ownerRef}`);
     }
-    if (departmentCode && !maps.departmentsByCode[departmentCode]) {
-      throw new Error(`Department not found: ${departmentCode}`);
+    if (responsibleUserRef && !maps.usersByRef[responsibleUserRef]) {
+      throw new Error(`User not found: ${responsibleUserRef}`);
+    }
+    if (sourceResponsibleUserRef && !maps.usersByRef[sourceResponsibleUserRef]) {
+      throw new Error(`User not found: ${sourceResponsibleUserRef}`);
     }
 
     return {
-      ...instance,
+      _id: ownerRecord._id,
+      fxaOwnerRecordId: ownerRecord.fxaOwnerRecordId,
+      tempId: ownerRecord.tempId,
+      transactionDetailId: ownerRecord.transactionDetailId,
+      code: ownerRecord.code,
+      sequence: ownerRecord.sequence,
+      count: ownerRecord.count,
       fixedAssetId: fixedAssetCode
         ? maps.fixedAssetsByCode[fixedAssetCode]
-        : instance.fixedAssetId,
-      branchId: branchCode
-        ? maps.branchesByCode[branchCode]
-        : instance.branchId,
-      departmentId: departmentCode
-        ? maps.departmentsByCode[departmentCode]
-        : instance.departmentId,
-      depreciationStartDate: instance.depreciationStartDate
-        ? new Date(instance.depreciationStartDate)
-        : instance.depreciationStartDate,
+        : ownerRecord.fixedAssetId,
+      ownerId: ownerRef
+        ? maps.usersByRef[ownerRef]
+        : responsibleUserRef
+          ? maps.usersByRef[responsibleUserRef]
+          : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+      sourceResponsibleUserId: sourceResponsibleUserRef
+        ? maps.usersByRef[sourceResponsibleUserRef]
+        : undefined,
     };
   });
 
-const resolveFxaInstanceIds = (
-  refs: string[],
-  doc: ITransaction,
-  maps: TReferenceMaps,
-) => {
-  const usedByCode: Record<string, number> = {};
-  // Нэг ижил income_info code олон ширхэгээр задарсан байж болох тул detail.count
-  // дарааллаар instance reference-үүдийг тааруулж, давхардсан code бүрийг нэг нэгээр хэрэглэнэ.
-  const fixedAssetIdsForRefs = (doc.details || []).flatMap((detail) => {
-    const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
-    const fixedAssetId = fixedAssetCode
-      ? maps.fixedAssetsByCode[fixedAssetCode] || fixedAssetCode
-      : undefined;
-    const count = Math.max(1, Math.trunc(detail.count || 1));
+const isOwnerRecordMovementJournal = (journal?: string) =>
+  [JOURNALS.FXA_OUT, JOURNALS.FXA_SALE, JOURNALS.FXA_MOVE].includes(
+    journal || '',
+  );
 
-    return Array.from({ length: count }, () => fixedAssetId);
-  });
-  return refs.map((rawRef, index) => {
-    const ref = normalizeSourceCode(rawRef);
+const getOwnerRecordInputKey = (input: TFxaOwnerRecordMigrationInput) =>
+  input.fxaOwnerRecordId || input._id || '';
 
-    if (maps.fxaInstanceIdsById[ref]) {
-      return ref;
-    }
+const getDetailId = (detail: ITrDetail) => detail._id?.toString() || '';
 
-    const fixedAssetId = fixedAssetIdsForRefs[index];
-    const instances = fixedAssetId
-      ? maps.fxaInstanceIdsByAssetAndCode[fixedAssetId]?.[ref] || []
-      : maps.fxaInstanceIdsByCode[ref] || [];
-    const usedIndex = usedByCode[ref] || 0;
-    const instanceId = instances[usedIndex];
-
-    if (!instanceId) {
-      throw new Error(`Fixed asset instance not found: ${ref}`);
-    }
-
-    usedByCode[ref] = usedIndex + 1;
-    return instanceId;
-  });
-};
-
-const getAutoFxaInstanceSelector = (
-  doc: ITransaction,
-  detail: ITrDetail,
-  fixedAssetId: string,
-  requireLocation: boolean,
-) => {
-  const branchId = detail.branchId || doc.branchId;
-  const departmentId = detail.departmentId || doc.departmentId;
-  const selector: Record<string, unknown> = {
-    fixedAssetId,
-    currentStatus: FXA_INSTANCE_STATUSES.ACTIVE,
-    currentCount: { $gt: 0 },
-  };
-
-  if (requireLocation) {
-    if (branchId) {
-      selector.currentBranchId = branchId;
-    }
-    if (departmentId) {
-      selector.currentDepartmentId = departmentId;
-    }
-  }
-
-  return selector;
-};
-
-const resolveAutoFxaInstanceSelections = async (
+const resolveOwnerRecordSources = async (
   models: IModels,
   doc: ITransaction,
-  explicitIds: string[],
-  explicitSelections: TFxaInstanceSelectionMigrationInput[],
+  ownerRecords: TFxaOwnerRecordMigrationInput[],
 ) => {
-  if (
-    explicitIds.length ||
-    explicitSelections.length ||
-    ![JOURNALS.FXA_OUT, JOURNALS.FXA_MOVE, JOURNALS.FXA_SALE].includes(
-      doc.journal || '',
-    )
-  ) {
-    return {
-      fxaInstanceSelections: explicitSelections,
-      fxaInstanceSelectionsByDetailId: {},
-    };
+  if (!isOwnerRecordMovementJournal(doc.journal) || !ownerRecords.length) {
+    return ownerRecords;
   }
 
-  const usedCountByInstanceId = new Map<string, number>();
-  const fxaInstanceSelections: TFxaInstanceSelectionMigrationInput[] = [];
-  const fxaInstanceSelectionsByDetailId: Record<
-    string,
-    TFxaInstanceSelectionMigrationInput[]
-  > = {};
+  const detailById = new Map(
+    (doc.details || []).map((detail) => [getDetailId(detail), detail]),
+  );
+  const usedCountByOwnerKey = new Map<string, number>();
 
-  for (const detail of doc.details || []) {
-    const count = Math.max(0, Math.trunc(detail.count || 0));
+  // Зарлага/хөдөлгөөн дээр Erkhet-д owner record id байхгүй байж болно. Тийм үед
+  // fixedAsset + owner-аар хүлээж авсан/өгсөн мөрүүдийг нэгтгэж үлдэгдэл шалгана.
+  return Promise.all(
+    ownerRecords.map(async (input) => {
+      if (getOwnerRecordInputKey(input) || !input.transactionDetailId) {
+        return input;
+      }
 
-    if (!detail.fixedAssetId || !count) {
-      continue;
-    }
+      const detail = detailById.get(input.transactionDetailId);
+      const fixedAssetId = input.fixedAssetId || detail?.fixedAssetId;
+      const ownerId = input.ownerId || input.sourceResponsibleUserId;
+      const count = Math.max(0, Math.trunc(input.count || detail?.count || 0));
 
-    const findCandidates = async (requireLocation: boolean) =>
-      models.FxaInstances.find({
-        ...getAutoFxaInstanceSelector(
-          doc,
-          detail,
-          detail.fixedAssetId || '',
-          requireLocation,
-        ),
+      if (!detail || !fixedAssetId || !ownerId || count <= 0) {
+        return input;
+      }
+
+      const selector: Record<string, unknown> = {
+        fixedAssetId,
+        ownerId,
+        status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+      };
+
+      const candidates = await models.FxaOwnerRecords.find(selector, {
+        _id: 1,
+        count: 1,
+        action: 1,
       })
-        .sort({
-          acquisitionDate: 1,
-          createdAt: 1,
-          sequence: 1,
-          code: 1,
-          _id: 1,
-        })
-        .select({ _id: 1, count: 1, currentCount: 1 })
+        .limit(200)
         .lean();
+      const ownerKey = `${fixedAssetId}:${ownerId}`;
+      const balance = candidates.reduce((sum, candidate) => {
+        const sign =
+          candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
+            ? 1
+            : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
+              ? -1
+              : 0;
 
-    // Erkhet migration-д instance identity байхгүй үед эхлээд тухайн
-    // branch/department дээрх хөрөнгийг, хүрэхгүй бол тухайн төрлийн эхний
-    // active instance-үүдийг сонгоно. Ингэснээр зарлага/хөдөлгөөн count-д
-    // тулгуурлан deterministic байдлаар үргэлжилнэ.
-    const findAvailableCandidate = async (requireLocation: boolean) => {
-      const candidates = await findCandidates(requireLocation);
+        return sum + sign * Math.max(0, Math.trunc(candidate.count || 0));
+      }, 0);
+      const usedCount = usedCountByOwnerKey.get(ownerKey) || 0;
 
-      return candidates.find(
-        (item) =>
-          (item.currentCount ?? item.count ?? 1) -
-            (usedCountByInstanceId.get(item._id) || 0) >=
-          count,
-      );
-    };
+      if (balance - usedCount < count) {
+        throw new Error(`Fixed asset owner record not found: ${fixedAssetId}`);
+      }
 
-    let candidate = await findAvailableCandidate(true);
+      usedCountByOwnerKey.set(ownerKey, usedCount + count);
 
-    if (!candidate) {
-      candidate = await findAvailableCandidate(false);
-    }
-
-    if (!candidate) {
-      throw new Error(
-        `Fixed asset active instances not enough: ${detail.fixedAssetId}`,
-      );
-    }
-
-    const selection = {
-      fxaInstanceId: candidate._id,
-      count,
-    };
-
-    usedCountByInstanceId.set(
-      candidate._id,
-      (usedCountByInstanceId.get(candidate._id) || 0) + count,
-    );
-    fxaInstanceSelections.push(selection);
-
-    if (detail._id) {
-      fxaInstanceSelectionsByDetailId[detail._id] = [selection];
-    }
-  }
-
-  return { fxaInstanceSelections, fxaInstanceSelectionsByDetailId };
+      return {
+        ...input,
+        fixedAssetId,
+        ownerId,
+        count,
+      };
+    }),
+  );
 };
 
 const resolveTransactionFollowInfos = (
@@ -851,13 +779,9 @@ const normalizeBatchDocs = async (
     const departmentCode = normalizeSourceCode(doc.departmentId);
 
     const contact = customerCode ? contactByCode[customerCode] : undefined;
-    const fxaInstances =
-      (doc.extraData?.fxaInstances as TFxaInstanceMigrationInput[]) || [];
-    const fxaInstanceIds = doc.extraData?.fxaInstanceIds || [];
-    const fxaInstanceSelections =
-      (doc.extraData
-        ?.fxaInstanceSelections as TFxaInstanceSelectionMigrationInput[]) ||
-      [];
+    const fxaOwnerRecords =
+      (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) || [];
+    const extraData = { ...doc.extraData };
 
     if (customerCode && !contact?._id && !maps.customersByCode[customerCode]) {
       throw new Error(`Customer not found: ${customerCode}`);
@@ -889,9 +813,8 @@ const normalizeBatchDocs = async (
       contentType: doc.contentType || ERKHET_CONTENT_TYPE,
       contentId: doc.contentId || batch.externalPtrId,
       extraData: {
-        ...doc.extraData,
-        fxaInstances: resolveFxaInstances(fxaInstances, maps),
-        fxaInstanceIds: resolveFxaInstanceIds(fxaInstanceIds, doc, maps),
+        ...extraData,
+        fxaOwnerRecords: resolveFxaOwnerRecords(fxaOwnerRecords, maps),
         migrationSource: 'erkhet',
         externalPtrId: batch.externalPtrId,
         customerCode,
@@ -900,22 +823,11 @@ const normalizeBatchDocs = async (
       },
     };
 
-    const autoSelection = await resolveAutoFxaInstanceSelections(
+    resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
       models,
       resolvedDoc,
-      resolvedDoc.extraData.fxaInstanceIds || [],
-      fxaInstanceSelections,
+      resolvedDoc.extraData.fxaOwnerRecords || [],
     );
-
-    if (autoSelection.fxaInstanceSelections.length) {
-      resolvedDoc.extraData.fxaInstanceSelections =
-        autoSelection.fxaInstanceSelections;
-    }
-
-    if (Object.keys(autoSelection.fxaInstanceSelectionsByDetailId).length) {
-      resolvedDoc.extraData.fxaInstanceSelectionsByDetailId =
-        autoSelection.fxaInstanceSelectionsByDetailId;
-    }
 
     return resolvedDoc;
   }));

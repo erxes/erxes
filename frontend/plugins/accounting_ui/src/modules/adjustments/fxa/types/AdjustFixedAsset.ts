@@ -21,7 +21,6 @@ export interface IAdjustFixedAsset {
 export interface IAdjustFxaDetail {
   _id: string;
   adjustId: string;
-  fxaInstanceId: string;
   fixedAssetId?: string;
   categoryId?: string;
   accountId?: string;

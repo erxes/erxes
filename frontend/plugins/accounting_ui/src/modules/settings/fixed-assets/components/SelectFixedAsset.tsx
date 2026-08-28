@@ -62,13 +62,24 @@ const SelectFixedAssetProvider = ({
   const [fixedAssets, setFixedAssets] = useState<TSelectedFixedAsset[]>(
     initialFixedAssets || [],
   );
-  const fixedAssetIds = Array.isArray(value) ? value : (value && [value]) || [];
+  const fixedAssetIds = useMemo(
+    () => (Array.isArray(value) ? value : (value && [value]) || []),
+    [value],
+  );
 
   useEffect(() => {
     if (initialFixedAssets?.length) {
       setFixedAssets(initialFixedAssets);
     }
   }, [initialFixedAssets]);
+
+  useEffect(() => {
+    setFixedAssets((currentFixedAssets) =>
+      currentFixedAssets.filter((fixedAsset) =>
+        fixedAssetIds.includes(fixedAsset._id),
+      ),
+    );
+  }, [fixedAssetIds]);
 
   const onSelect = useCallback(
     (fixedAsset?: IFixedAsset) => {

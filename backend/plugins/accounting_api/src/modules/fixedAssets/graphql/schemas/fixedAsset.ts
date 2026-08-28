@@ -1,4 +1,11 @@
 export const types = `
+  type FixedAssetLocationRemainder {
+    fixedAssetId: String
+    branchId: String
+    departmentId: String
+    remainder: Float
+  }
+
   type FixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     code: String
@@ -7,6 +14,14 @@ export const types = `
     description: String
     status: String
 
+    accountId: String
+    count: Float
+    currentCount: Float
+    originalCost: Float
+    acquisitionDate: Date
+    depreciationStartDate: Date
+    transactionId: String
+    transactionDetailId: String
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float
@@ -25,6 +40,7 @@ export const types = `
 export const queries = `
   fixedAssets(searchValue: String, ids: [String], categoryId: String, status: String, limit: Int): [FixedAsset]
   fixedAssetDetail(_id: String!): FixedAsset
+  fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder
 `;
 
 export const mutations = `
@@ -34,6 +50,14 @@ export const mutations = `
     categoryId: String!
     description: String
     status: String
+    accountId: String
+    count: Float
+    currentCount: Float
+    originalCost: Float
+    acquisitionDate: Date
+    depreciationStartDate: Date
+    transactionId: String
+    transactionDetailId: String
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float
@@ -50,6 +74,14 @@ export const mutations = `
     categoryId: String!
     description: String
     status: String
+    accountId: String
+    count: Float
+    currentCount: Float
+    originalCost: Float
+    acquisitionDate: Date
+    depreciationStartDate: Date
+    transactionId: String
+    transactionDetailId: String
     depreciationMethod: String
     usefulLife: Float
     salvageValue: Float

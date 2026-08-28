@@ -2,6 +2,7 @@ import {
   Checkbox,
   CurrencyField,
   Form,
+  Input,
   InputNumber,
   PopoverScoped,
   RecordTableHotKeyControl,
@@ -11,7 +12,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
+import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
 import {
   showAdvancedViewState,
   taxPercentsState,
@@ -22,7 +23,7 @@ import {
   TFxaIncomeJournal,
 } from '../../../types/JournalForms';
 import { FxaDetailLocationCells } from '../FxaDetailLocationCells';
-import { FxaIncomeDetailInstancesSheet } from './FxaIncomeInstancesSheet';
+import { FxaIncomeDetailOwnerRecordsSheet } from './FxaIncomeOwnerRecordsSheet';
 
 export const FixedAssetRow = ({
   form,
@@ -36,7 +37,11 @@ export const FixedAssetRow = ({
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
-  }) as TFxaDetail;
+  }) as TFxaDetail & {
+    fixedAssetCategoryId?: string;
+    fixedAssetCode?: string;
+    fixedAssetName?: string;
+  };
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -166,7 +171,7 @@ export const FixedAssetRow = ({
         enableOnFormTags
       >
         <Table.Cell className="w-10">
-          <FxaIncomeDetailInstancesSheet
+          <FxaIncomeDetailOwnerRecordsSheet
             form={form}
             journalIndex={journalIndex}
             detailIndex={detailIndex}
@@ -201,15 +206,77 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCategoryId`}
             render={({ field }) => (
-              <SelectFixedAsset.FormItem
-                mode="single"
-                value={field.value || ''}
-                onValueChange={field.onChange}
-                placeholder="Үндсэн хөрөнгө"
-                className="h-8 min-w-60"
+              <SelectFixedAssetCategory
+                selected={field.value || ''}
+                onSelect={(value) => field.onChange(value || '')}
+                className="h-8 min-w-56"
               />
+            )}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={detail._id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell>
+          <Form.Field
+            control={form.control}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCode`}
+            render={({ field }) => (
+              <PopoverScoped
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCode`}
+                closeOnEnter
+              >
+                <Form.Control>
+                  <RecordTableInlineCell.Trigger className="min-w-36">
+                    {field.value || 'Код'}
+                  </RecordTableInlineCell.Trigger>
+                </Form.Control>
+                <RecordTableInlineCell.Content>
+                  <Input
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    className="h-8 min-w-36"
+                    placeholder="Код"
+                  />
+                </RecordTableInlineCell.Content>
+              </PopoverScoped>
+            )}
+          />
+        </Table.Cell>
+      </RecordTableHotKeyControl>
+      <RecordTableHotKeyControl
+        rowId={detail._id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell>
+          <Form.Field
+            control={form.control}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetName`}
+            render={({ field }) => (
+              <PopoverScoped
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetName`}
+                closeOnEnter
+              >
+                <Form.Control>
+                  <RecordTableInlineCell.Trigger className="min-w-48">
+                    {field.value || 'Нэр'}
+                  </RecordTableInlineCell.Trigger>
+                </Form.Control>
+                <RecordTableInlineCell.Content>
+                  <Input
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    className="h-8 min-w-48"
+                    placeholder="Нэр"
+                  />
+                </RecordTableInlineCell.Content>
+              </PopoverScoped>
             )}
           />
         </Table.Cell>

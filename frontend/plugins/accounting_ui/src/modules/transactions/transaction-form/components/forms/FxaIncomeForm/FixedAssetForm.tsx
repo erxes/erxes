@@ -33,10 +33,11 @@ export const FixedAssetForm = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
-  const details = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details`,
-  }) as TFxaDetail[];
+  const details =
+    (useWatch({
+      control: form.control,
+      name: `trDocs.${journalIndex}.details`,
+    }) as TFxaDetail[] | undefined) || [];
   const setHotkeyScope = useSetHotkeyScope();
   const tableRef = useRef<HTMLTableElement>(null);
   const columnsLength =
@@ -141,7 +142,7 @@ const FixedAssetTableHeader = ({
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
-  }) as TFxaIncomeJournal;
+  }) as TFxaIncomeJournal | undefined;
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const isAllChecked =
     details.length > 0 && details.every((detail) => detail.checked);
@@ -165,13 +166,15 @@ const FixedAssetTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Үндсэн хөрөнгө</Table.Head>
+        <Table.Head>Бүлэг</Table.Head>
+        <Table.Head>Код</Table.Head>
+        <Table.Head>Нэр</Table.Head>
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
-        {trDoc.hasVat && <Table.Head>НӨАТ</Table.Head>}
-        {trDoc.hasCtax && <Table.Head>НХАТ</Table.Head>}
-        {(trDoc.hasVat || trDoc.hasCtax) && (
+        {trDoc?.hasVat && <Table.Head>НӨАТ</Table.Head>}
+        {trDoc?.hasCtax && <Table.Head>НХАТ</Table.Head>}
+        {(trDoc?.hasVat || trDoc?.hasCtax) && (
           <>
             <Table.Head>Татвартай нэгж үнэ</Table.Head>
             <Table.Head>Татвартай дүн</Table.Head>

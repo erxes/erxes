@@ -28,6 +28,12 @@ const InventoriesNavigation = lazy(() =>
   })),
 );
 
+const FixedAssetsNavigation = lazy(() =>
+  import('@/fixedAssets/FixedAssetsNavigation').then((mod) => ({
+    default: mod.FixedAssetsNavigation,
+  })),
+);
+
 const SettingsNavigation = lazy(() =>
   import('@/SettingsNavigation').then((module) => ({
     default: module.SettingsNavigation,
@@ -55,6 +61,7 @@ export const CONFIG: IUIConfig = {
       <Suspense fallback={<div />}>
         <AdjustmentNavigation />
         <InventoriesNavigation />
+        <FixedAssetsNavigation />
       </Suspense>
     ),
   },
@@ -123,6 +130,11 @@ export const CONFIG: IUIConfig = {
       name: 'reserve-remainders',
       icon: IconBucketOff,
       path: 'accounting/inventories/reserve-remainders',
+    },
+    {
+      name: 'fixed-asset-owner-records',
+      icon: IconCashBanknote,
+      path: 'accounting/fixed-assets/owner-records',
     },
     {
       name: 'config',

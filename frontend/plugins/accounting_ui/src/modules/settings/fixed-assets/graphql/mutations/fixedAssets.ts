@@ -101,3 +101,66 @@ export const FIXED_ASSETS_REMOVE = gql`
     fixedAssetsRemove(_id: $_id)
   }
 `;
+
+const ownerRecordFields = `
+  _id
+  fixedAssetId
+  code
+  sequence
+  count
+  action
+  status
+  ownerId
+`;
+
+export const FIXED_ASSET_OWNER_RECORDS_ADD = gql`
+  mutation fixedAssetOwnerRecordsAdd(
+    $fixedAssetId: String!
+    $code: String
+    $sequence: Int
+    $count: Float!
+    $action: String!
+    $status: String
+    $ownerId: String!
+  ) {
+    fixedAssetOwnerRecordsAdd(
+      fixedAssetId: $fixedAssetId
+      code: $code
+      sequence: $sequence
+      count: $count
+      action: $action
+      status: $status
+      ownerId: $ownerId
+    ) {
+      ${ownerRecordFields}
+    }
+  }
+`;
+
+export const FIXED_ASSET_OWNER_RECORDS_TRANSFER = gql`
+  mutation fixedAssetOwnerRecordsTransfer(
+    $fixedAssetId: String!
+    $code: String
+    $sequence: Int
+    $count: Float!
+    $fromOwnerId: String!
+    $toOwnerId: String!
+  ) {
+    fixedAssetOwnerRecordsTransfer(
+      fixedAssetId: $fixedAssetId
+      code: $code
+      sequence: $sequence
+      count: $count
+      fromOwnerId: $fromOwnerId
+      toOwnerId: $toOwnerId
+    ) {
+      ${ownerRecordFields}
+    }
+  }
+`;
+
+export const FIXED_ASSET_OWNER_RECORDS_REMOVE = gql`
+  mutation fixedAssetOwnerRecordsRemove($_id: String!) {
+    fixedAssetOwnerRecordsRemove(_id: $_id)
+  }
+`;

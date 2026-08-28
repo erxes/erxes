@@ -55,11 +55,11 @@ const AccountCell = ({ detail }: { detail: IAdjustFxaDetail }) => (
 
 export const adjustFxaDetailColumns: ColumnDef<IAdjustFxaDetail>[] = [
   {
-    id: 'fxaInstanceId',
+    id: 'fixedAssetId',
     header: () => (
       <RecordTable.InlineHead icon={IconFileBarcode} label="Хөрөнгө" />
     ),
-    accessorKey: 'fxaInstanceId',
+    accessorKey: 'fixedAssetId',
     cell: ({ row }) => <FixedAssetCell detail={row.original} />,
     size: 220,
   },

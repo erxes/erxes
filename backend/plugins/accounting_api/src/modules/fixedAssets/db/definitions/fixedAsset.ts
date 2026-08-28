@@ -15,6 +15,35 @@ export const fixedAssetSchema = new Schema({
   categoryId: { type: String, label: 'Fixed asset category', index: true },
   // Үндсэн хөрөнгийн нэмэлт тайлбар
   description: { type: String, optional: true, label: 'Description' },
+  // Орлого авахад сонгосон үндсэн хөрөнгийн данс
+  accountId: { type: String, optional: true, label: 'Account', index: true },
+  // Анх орлогодсон нийт тоо
+  count: { type: Number, optional: true, label: 'Count' },
+  // Transaction detail-үүдээс сэргээгдсэн одоогийн үлдэгдэл тоо
+  currentCount: { type: Number, optional: true, label: 'Current count' },
+  // Нэгжийн анхны өртөг
+  originalCost: { type: Number, optional: true, label: 'Original cost' },
+  // Анх орлогодсон огноо
+  acquisitionDate: {
+    type: Date,
+    optional: true,
+    label: 'Acquisition date',
+    index: true,
+  },
+  // Элэгдэл бодож эхлэх огноо
+  depreciationStartDate: {
+    type: Date,
+    optional: true,
+    label: 'Depreciation start date',
+  },
+  // Анх орлогодсон accounting transaction-ийн холбоос
+  transactionId: { type: String, optional: true, label: 'Transaction' },
+  // Анх орлогодсон accounting transaction detail-ийн холбоос
+  transactionDetailId: {
+    type: String,
+    optional: true,
+    label: 'Transaction detail',
+  },
   // Үндсэн хөрөнгийн master/card төлөв
   status: {
     type: String,
@@ -66,3 +95,4 @@ export const fixedAssetSchema = new Schema({
 });
 
 fixedAssetSchema.index({ code: 1 }, { unique: true });
+fixedAssetSchema.index({ transactionDetailId: 1 });

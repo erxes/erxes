@@ -8,9 +8,6 @@ import {
   TR_SIDES,
 } from '../@types/constants';
 import {
-  FXA_LOG_EVENT_TYPES,
-} from '@/fixedAssets/@types/constants';
-import {
   ITransaction,
   ITransactionDocument,
   ITrDetail,
@@ -20,9 +17,10 @@ import {
   cleanFxaFollowTr,
   getFxaDisposalFollowInfos,
   getFxaDisposalSummaries,
-  getSelectedInstanceSelections,
-  getUniqueFxaInstanceIds,
-  rebuildFxaInstanceCurrentStates,
+  getUniqueFxaOwnerRecordIds,
+  rebuildFixedAssetCurrentCounts,
+  removeFxaOwnerRecordsByTransaction,
+  syncFxaOwnerRecordMovements,
   TFxaDisposalSummary,
   validateFxaDisposalAccounts,
 } from './fixedAssets';
@@ -31,16 +29,7 @@ export const removeFxaDisposalInstances = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const logs = await models.FxaInstanceLogs.findByTransaction(transaction._id, [
-    FXA_LOG_EVENT_TYPES.DISPOSAL,
-    FXA_LOG_EVENT_TYPES.SALE,
-  ]);
-  const instanceIds = getUniqueFxaInstanceIds(
-    logs.map((log) => log.fxaInstanceId),
-  );
-
-  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
-  await rebuildFxaInstanceCurrentStates(models, instanceIds);
+  await removeFxaOwnerRecordsByTransaction(models, transaction);
 };
 
 const buildFxaDisposalFollowDetails = ({
@@ -245,51 +234,22 @@ export const syncFxaDisposalInstances = async (
   eventType: string,
   status: string,
 ) => {
-  await removeFxaDisposalInstances(models, transaction);
+  await syncFxaOwnerRecordMovements({
+    eventType,
+    models,
+    status,
+    transaction,
+    userId,
+  });
 
-  const selections = await getSelectedInstanceSelections(models, transaction);
-  const instanceIds = getUniqueFxaInstanceIds(
-    selections.map((selection) => selection.fxaInstanceId),
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    getUniqueFxaOwnerRecordIds(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string =>
+          Boolean(fixedAssetId),
+        ),
+    ),
   );
-
-  if (!instanceIds.length) {
-    return;
-  }
-
-  const date = transaction.date || new Date();
-  const instances = await models.FxaInstances.findByIds(instanceIds);
-  const instancesById = new Map(
-    instances.map((instance) => [instance._id, instance]),
-  );
-
-  for (const selection of selections) {
-    const instance = instancesById.get(selection.fxaInstanceId);
-
-    if (!instance) {
-      continue;
-    }
-
-    await models.FxaInstanceLogs.createLog({
-      fxaInstanceId: instance._id,
-      fixedAssetId: instance.fixedAssetId,
-      eventType,
-      eventDate: date,
-      countDelta: -selection.count,
-      transactionId: transaction._id,
-      fromBranchId: instance.currentBranchId || instance.branchId,
-      toBranchId: instance.currentBranchId || instance.branchId,
-      fromDepartmentId: instance.currentDepartmentId || instance.departmentId,
-      toDepartmentId: instance.currentDepartmentId || instance.departmentId,
-      fromResponsibleUserId:
-        instance.currentResponsibleUserId || instance.responsibleUserId,
-      toResponsibleUserId:
-        instance.currentResponsibleUserId || instance.responsibleUserId,
-      fromStatus: instance.currentStatus || instance.status,
-      toStatus: status,
-      createdBy: userId,
-      createdAt: new Date(),
-    });
-  }
-
-  await rebuildFxaInstanceCurrentStates(models, instanceIds);
 };

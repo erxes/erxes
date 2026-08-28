@@ -10,14 +10,11 @@ import {
   TR_SIDES,
   TR_STATUSES,
 } from '../@types/constants';
-import { ITransaction } from '../@types/transaction';
+import { ITransaction, ITransactionDocument } from '../@types/transaction';
 import {
   FIXED_ASSET_DEPRECIATION_METHODS,
-  FXA_INSTANCE_STATUSES,
-  FXA_LOG_EVENT_TYPES,
 } from '~/modules/fixedAssets/@types/constants';
-import { IFxaInstanceDocument } from '~/modules/fixedAssets/@types/fxaInstance';
-import { IFxaInstanceLogDocument } from '~/modules/fixedAssets/@types/fxaInstanceLog';
+import { IFixedAssetDocument } from '~/modules/fixedAssets/@types/fixedAsset';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -42,19 +39,12 @@ type TDailyValidationResult = {
   error?: string;
 };
 
-type TFxaSnapshot = {
-  branchId?: string;
-  departmentId?: string;
-  responsibleUserId?: string;
-  status?: string;
-};
-
-type TPreviousPrimaryDetail = {
+type TPreviousFixedAssetDetail = {
   closingAccumulatedDepreciation: number;
   closingBookValue: number;
 };
 
-type TPrimaryGroupDepreciationRow = {
+type TFixedAssetLocationDepreciationRow = {
   depreciationAmount: number;
   originalCost: number;
   salvageValue: number;
@@ -64,6 +54,17 @@ type TPrimaryGroupDepreciationRow = {
   closingBookValue: number;
   error: string;
   warning: string;
+};
+
+type TFixedAssetMovement = {
+  fixedAssetId: string;
+  date: Date;
+  countDelta: number;
+  branchId?: string;
+  departmentId?: string;
+  accountId?: string;
+  transactionId?: string;
+  transactionDetailId?: string;
 };
 
 const getPureDate = (value: Date) => {
@@ -298,20 +299,58 @@ const getIncompleteBeforeAdjustment = async (
     .lean();
 };
 
+const FXA_MOVEMENT_JOURNALS = [
+  JOURNALS.FXA_INCOME,
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_SALE,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_MOVE_IN,
+];
+
+const getFxaMovementSign = (journal?: string) => {
+  switch (journal) {
+    case JOURNALS.FXA_INCOME:
+    case JOURNALS.FXA_MOVE_IN:
+      return 1;
+    case JOURNALS.FXA_OUT:
+    case JOURNALS.FXA_SALE:
+    case JOURNALS.FXA_MOVE:
+      return -1;
+    default:
+      return 0;
+  }
+};
+
 const getFirstAcquisitionDate = async (models: IModels, endDate: Date) => {
-  const firstInstance = await models.FxaInstances.findOne({
+  const firstTransaction = await models.Transactions.findOne({
+    journal: JOURNALS.FXA_INCOME,
+    date: { $lte: endDate },
+    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    'details.fixedAssetId': { $exists: true, $ne: '' },
+  })
+    .sort({ date: 1 })
+    .lean();
+
+  if (firstTransaction?.date) {
+    return getPureDate(firstTransaction.date);
+  }
+
+  const firstFixedAsset = await models.FixedAssets.findOne({
     acquisitionDate: { $lte: endDate },
   })
     .sort({ acquisitionDate: 1 })
     .lean();
 
-  return firstInstance?.acquisitionDate
-    ? getPureDate(firstInstance.acquisitionDate)
+  return firstFixedAsset?.acquisitionDate
+    ? getPureDate(firstFixedAsset.acquisitionDate)
     : undefined;
 };
 
-const getPreviousDetailMap = async (models: IModels, adjustId?: string) => {
-  const map = new Map<string, IAdjustFxaDetail>();
+const getPreviousFixedAssetDetailMap = async (
+  models: IModels,
+  adjustId?: string,
+) => {
+  const map = new Map<string, TPreviousFixedAssetDetail>();
 
   if (!adjustId) {
     return map;
@@ -320,79 +359,25 @@ const getPreviousDetailMap = async (models: IModels, adjustId?: string) => {
   const details = await models.AdjustFxaDetails.find({ adjustId }).lean();
 
   for (const detail of details) {
-    map.set(detail.fxaInstanceId, detail);
-  }
-
-  return map;
-};
-
-const getPrimaryInstanceId = (instance: IFxaInstanceDocument) =>
-  instance.primaryInstanceId || instance._id;
-
-const getPreviousPrimaryDetailMap = (
-  previousDetails: Map<string, IAdjustFxaDetail>,
-  instances: IFxaInstanceDocument[],
-) => {
-  const map = new Map<string, TPreviousPrimaryDetail>();
-
-  for (const instance of instances) {
-    const previousDetail = previousDetails.get(instance._id);
-
-    if (!previousDetail) {
+    if (!detail.fixedAssetId) {
       continue;
     }
 
-    const primaryInstanceId = getPrimaryInstanceId(instance);
-    const current = map.get(primaryInstanceId) || {
+    const current = map.get(detail.fixedAssetId) || {
       closingAccumulatedDepreciation: 0,
       closingBookValue: 0,
     };
 
-    map.set(primaryInstanceId, {
+    map.set(detail.fixedAssetId, {
       closingAccumulatedDepreciation:
         current.closingAccumulatedDepreciation +
-        (previousDetail.closingAccumulatedDepreciation || 0),
+        (detail.closingAccumulatedDepreciation || 0),
       closingBookValue:
-        current.closingBookValue + (previousDetail.closingBookValue || 0),
+        current.closingBookValue + (detail.closingBookValue || 0),
     });
   }
 
   return map;
-};
-
-const getInstanceAccountMap = async (
-  models: IModels,
-  instances: { _id: string; transactionDetailId?: string }[],
-) => {
-  const detailIds = instances
-    .map((instance) => instance.transactionDetailId)
-    .filter((detailId): detailId is string => Boolean(detailId));
-  const map = new Map<string, string>();
-
-  if (!detailIds.length) {
-    return map;
-  }
-
-  const transactions = await models.Transactions.find({
-    'details._id': { $in: detailIds },
-  }).lean();
-
-  for (const transaction of transactions) {
-    for (const detail of transaction.details || []) {
-      if (detail._id && detail.accountId) {
-        map.set(detail._id, detail.accountId);
-      }
-    }
-  }
-
-  return new Map(
-    instances.map((instance) => [
-      instance._id,
-      instance.transactionDetailId
-        ? map.get(instance.transactionDetailId)
-        : undefined,
-    ]),
-  );
 };
 
 const getUncompletedFixedAssetTransaction = async (
@@ -402,6 +387,7 @@ const getUncompletedFixedAssetTransaction = async (
 ) => {
   return models.Transactions.findOne({
     date: { $gte: beginDate, $lt: endDate },
+    journal: { $in: FXA_MOVEMENT_JOURNALS },
     'details.fixedAssetId': { $exists: true, $ne: '' },
     status: { $nin: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
   })
@@ -409,232 +395,151 @@ const getUncompletedFixedAssetTransaction = async (
     .lean();
 };
 
-const getFxaPeriodLogs = async (models: IModels, endDate: Date) => {
-  return models.FxaInstanceLogs.find({
-    eventDate: { $lte: endDate },
+const getFxaMovements = async (models: IModels, endDate: Date) => {
+  const transactions = await models.Transactions.find({
+    journal: { $in: FXA_MOVEMENT_JOURNALS },
+    date: { $lte: endDate },
+    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+    'details.fixedAssetId': { $exists: true, $ne: '' },
   })
-    .sort({ eventDate: 1, createdAt: 1 })
+    .sort({ date: 1, createdAt: 1 })
     .lean();
+  const movements: TFixedAssetMovement[] = [];
+
+  for (const transaction of transactions) {
+    const sign = getFxaMovementSign(transaction.journal);
+
+    if (!sign) {
+      continue;
+    }
+
+    for (const detail of transaction.details || []) {
+      if (!detail.fixedAssetId) {
+        continue;
+      }
+
+      movements.push({
+        fixedAssetId: detail.fixedAssetId,
+        date: getPureDate(transaction.date),
+        countDelta: sign * Math.max(0, Math.trunc(detail.count || 0)),
+        branchId: detail.branchId || transaction.branchId,
+        departmentId: detail.departmentId || transaction.departmentId,
+        accountId: detail.accountId,
+        transactionId: transaction._id,
+        transactionDetailId: detail._id,
+      });
+    }
+  }
+
+  return movements;
 };
 
-const getInstanceSnapshotAtDate = (
-  instance: IFxaInstanceDocument,
-  logs: IFxaInstanceLogDocument[],
-  date: Date,
-): TFxaSnapshot => {
-  const snapshot: TFxaSnapshot = {
-    branchId: instance.branchId,
-    departmentId: instance.departmentId,
-    responsibleUserId: instance.responsibleUserId,
-    status: FXA_INSTANCE_STATUSES.ACTIVE,
-  };
+const getLocationKey = (branchId?: string, departmentId?: string) =>
+  `${branchId || ''}:${departmentId || ''}`;
 
-  for (const log of logs) {
+const splitLocationKey = (key: string) => {
+  const [branchId, departmentId] = key.split(':');
+
+  return {
+    branchId: branchId || undefined,
+    departmentId: departmentId || undefined,
+  };
+};
+
+const getAssetLocationCountsAtDate = (
+  fixedAssetId: string,
+  movements: TFixedAssetMovement[],
+  date: Date,
+) => {
+  const counts = new Map<string, number>();
+
+  for (const movement of movements) {
     if (
-      log.fxaInstanceId !== instance._id ||
-      getPureDate(log.eventDate).getTime() > date.getTime()
+      movement.fixedAssetId !== fixedAssetId ||
+      getPureDate(movement.date).getTime() > date.getTime()
     ) {
       continue;
     }
 
-    snapshot.branchId = log.toBranchId || snapshot.branchId;
-    snapshot.departmentId = log.toDepartmentId || snapshot.departmentId;
-    snapshot.responsibleUserId =
-      log.toResponsibleUserId || snapshot.responsibleUserId;
-    snapshot.status = log.toStatus || snapshot.status;
+    const key = getLocationKey(movement.branchId, movement.departmentId);
+    counts.set(key, (counts.get(key) || 0) + movement.countDelta);
   }
 
-  return snapshot;
+  return counts;
 };
 
-const getInstanceCountAtDate = (
-  instance: IFxaInstanceDocument,
-  logs: IFxaInstanceLogDocument[],
-  date: Date,
-) => {
-  const instanceLogs = logs.filter(
-    (log) =>
-      log.fxaInstanceId === instance._id &&
-      getPureDate(log.eventDate).getTime() <= date.getTime(),
-  );
-  const hasCountLogs = instanceLogs.some(
-    (log) => typeof log.countDelta === 'number',
-  );
-
-  if (hasCountLogs) {
-    return Math.max(
-      0,
-      instanceLogs.reduce((sum, log) => sum + (log.countDelta || 0), 0),
-    );
-  }
-
-  const acquisitionDate = instance.acquisitionDate
-    ? getPureDate(instance.acquisitionDate)
-    : undefined;
-
-  if (!acquisitionDate || acquisitionDate > date) {
-    return 0;
-  }
-
-  return instance.currentCount ?? instance.count ?? 1;
-};
-
-const getRawInstanceCountAtDate = (
-  instance: IFxaInstanceDocument,
-  logs: IFxaInstanceLogDocument[],
-  date: Date,
-) => {
-  const instanceLogs = logs.filter(
-    (log) =>
-      log.fxaInstanceId === instance._id &&
-      getPureDate(log.eventDate).getTime() <= date.getTime(),
-  );
-  const hasCountLogs = instanceLogs.some(
-    (log) => typeof log.countDelta === 'number',
-  );
-
-  if (hasCountLogs) {
-    return instanceLogs.reduce((sum, log) => sum + (log.countDelta || 0), 0);
-  }
-
-  const acquisitionDate = instance.acquisitionDate
-    ? getPureDate(instance.acquisitionDate)
-    : undefined;
-
-  if (!acquisitionDate || acquisitionDate > date) {
-    return 0;
-  }
-
-  return instance.currentCount ?? instance.count ?? 1;
-};
-
-const isInstanceActiveOnDate = (
-  instance: IFxaInstanceDocument,
-  logs: IFxaInstanceLogDocument[],
-  date: Date,
-) => {
-  const acquisitionDate = instance.acquisitionDate
-    ? getPureDate(instance.acquisitionDate)
-    : undefined;
-
-  if (!acquisitionDate || acquisitionDate > date) {
-    return false;
-  }
-
-  return getInstanceCountAtDate(instance, logs, date) > 0;
-};
-
-const validateFxaLog = (log: IFxaInstanceLogDocument) => {
-  if (!log.fxaInstanceId) {
-    return 'Fixed asset instance log is missing instance id.';
-  }
-
-  if (!log.eventType || !FXA_LOG_EVENT_TYPES.ALL.includes(log.eventType)) {
-    return `Fixed asset instance log has invalid event type. Instance: ${log.fxaInstanceId}`;
-  }
-
-  if (!log.eventDate) {
-    return `Fixed asset instance log is missing event date. Instance: ${log.fxaInstanceId}`;
-  }
-
-  if (
-    log.eventType === FXA_LOG_EVENT_TYPES.ACQUISITION &&
-    !log.transactionDetailId
-  ) {
-    return `Fixed asset acquisition log is missing transaction detail. Instance: ${log.fxaInstanceId}`;
-  }
-
-  if (log.eventType === FXA_LOG_EVENT_TYPES.MOVE && !log.toBranchId) {
-    return `Fixed asset move log is missing destination branch. Instance: ${log.fxaInstanceId}`;
-  }
-
-  if (
-    [FXA_LOG_EVENT_TYPES.DISPOSAL, FXA_LOG_EVENT_TYPES.SALE].includes(
-      log.eventType,
-    ) &&
-    !log.toStatus
-  ) {
-    return `Fixed asset disposal/sale log is missing target status. Instance: ${log.fxaInstanceId}`;
-  }
-
-  return '';
-};
+const getTotalCount = (counts: Map<string, number>) =>
+  Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
 
 const validateInstanceForDepreciation = ({
   accountId,
   fixedAsset,
-  instance,
 }: {
   accountId?: string;
   fixedAsset?: {
+    _id?: string;
+    originalCost?: number;
     depreciationMethod?: string;
     usefulLife?: number;
   };
-  instance: IFxaInstanceDocument;
 }) => {
-  const originalCost = instance.originalCost || 0;
-  const usefulLife = instance.usefulLife || fixedAsset?.usefulLife;
+  const originalCost = fixedAsset?.originalCost || 0;
+  const usefulLife = fixedAsset?.usefulLife;
   const depreciationMethod =
-    instance.depreciationMethod ||
-    fixedAsset?.depreciationMethod ||
-    'straightLine';
+    fixedAsset?.depreciationMethod || 'straightLine';
 
   if (originalCost <= 0) {
-    return `Fixed asset original cost is missing. Instance: ${instance._id}`;
+    return `Fixed asset original cost is missing. Fixed asset: ${fixedAsset?._id}`;
   }
 
   if (!usefulLife || usefulLife <= 0) {
-    return `Fixed asset useful life is missing. Instance: ${instance._id}`;
+    return `Fixed asset useful life is missing. Fixed asset: ${fixedAsset?._id}`;
   }
 
   if (!accountId) {
-    return `Fixed asset account is missing. Instance: ${instance._id}`;
+    return `Fixed asset account is missing. Fixed asset: ${fixedAsset?._id}`;
   }
 
   if (depreciationMethod === FIXED_ASSET_DEPRECIATION_METHODS.MANUAL) {
-    return `Manual fixed asset depreciation requires entered depreciation detail. Instance: ${instance._id}`;
+    return `Manual fixed asset depreciation requires entered depreciation detail. Fixed asset: ${fixedAsset?._id}`;
   }
 
   if (!FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(depreciationMethod)) {
-    return `Unsupported fixed asset depreciation method. Instance: ${instance._id}`;
+    return `Unsupported fixed asset depreciation method. Fixed asset: ${fixedAsset?._id}`;
   }
 
   return '';
 };
 
-const calculatePrimaryGroupDepreciationByDay = ({
+const calculateFixedAssetDepreciationByDay = ({
   beginDate,
   depreciationMethod,
   endDate,
   fixedAsset,
-  instances,
-  logs,
+  movements,
   openingAccumulatedDepreciation,
   scheduleStartDate,
 }: {
   beginDate: Date;
   depreciationMethod: string;
   endDate: Date;
-  fixedAsset?: { salvageValue?: number; usefulLife?: number };
-  instances: IFxaInstanceDocument[];
-  logs: IFxaInstanceLogDocument[];
+  fixedAsset: IFixedAssetDocument;
+  movements: TFixedAssetMovement[];
   openingAccumulatedDepreciation: number;
   scheduleStartDate: Date;
 }) => {
-  const [primaryInstance] = instances;
-  const originalCost = primaryInstance?.originalCost || 0;
-  const salvageValue =
-    primaryInstance?.salvageValue ?? fixedAsset?.salvageValue ?? 0;
-  const openingCount = instances.reduce(
-    (sum, instance) =>
-      sum + getInstanceCountAtDate(instance, logs, addDays(beginDate, -1)),
-    0,
+  const originalCost = fixedAsset.originalCost || 0;
+  const salvageValue = fixedAsset.salvageValue || 0;
+  const openingCounts = getAssetLocationCountsAtDate(
+    fixedAsset._id,
+    movements,
+    addDays(beginDate, -1),
   );
-  const activeCount = instances.reduce(
-    (sum, instance) => sum + getInstanceCountAtDate(instance, logs, beginDate),
-    0,
+  const openingCount = getTotalCount(openingCounts);
+  const activeCount = getTotalCount(
+    getAssetLocationCountsAtDate(fixedAsset._id, movements, beginDate),
   );
-  const depreciationByInstanceId = new Map<string, number>();
+  const depreciationByLocationKey = new Map<string, number>();
   let currentDate = beginDate;
   let warning = '';
   let error = '';
@@ -644,11 +549,12 @@ const calculatePrimaryGroupDepreciationByDay = ({
       : openingAccumulatedDepreciation / Math.max(activeCount, 1);
 
   while (currentDate <= endDate) {
-    const counts = instances.map((instance) => ({
-      instance,
-      count: getInstanceCountAtDate(instance, logs, currentDate),
-    }));
-    const totalCount = counts.reduce((sum, item) => sum + item.count, 0);
+    const counts = getAssetLocationCountsAtDate(
+      fixedAsset._id,
+      movements,
+      currentDate,
+    );
+    const totalCount = getTotalCount(counts);
 
     if (totalCount <= 0) {
       currentDate = addDays(currentDate, 1);
@@ -658,7 +564,7 @@ const calculatePrimaryGroupDepreciationByDay = ({
     const dailyResult = calculateDepreciationByMethod(depreciationMethod, {
       originalCost,
       salvageValue,
-      usefulLife: primaryInstance?.usefulLife || fixedAsset?.usefulLife,
+      usefulLife: fixedAsset.usefulLife,
       startDate: currentDate,
       endDate: currentDate,
       scheduleStartDate,
@@ -666,14 +572,14 @@ const calculatePrimaryGroupDepreciationByDay = ({
     });
     const perUnitDepreciation = dailyResult.amount;
 
-    for (const { instance, count } of counts) {
+    for (const [locationKey, count] of counts) {
       if (count <= 0) {
         continue;
       }
 
-      depreciationByInstanceId.set(
-        instance._id,
-        (depreciationByInstanceId.get(instance._id) || 0) +
+      depreciationByLocationKey.set(
+        locationKey,
+        (depreciationByLocationKey.get(locationKey) || 0) +
           perUnitDepreciation * count,
       );
     }
@@ -684,27 +590,40 @@ const calculatePrimaryGroupDepreciationByDay = ({
     currentDate = addDays(currentDate, 1);
   }
 
-  return instances.reduce<Map<string, TPrimaryGroupDepreciationRow>>(
-    (map, instance) => {
-      const openingInstanceCount = getInstanceCountAtDate(
-        instance,
-        logs,
-        addDays(beginDate, -1),
-      );
-      const closingCount = getInstanceCountAtDate(instance, logs, endDate);
+  const locationKeys = Array.from(
+    new Set([
+      ...Array.from(openingCounts.keys()),
+      ...Array.from(
+        getAssetLocationCountsAtDate(fixedAsset._id, movements, endDate).keys(),
+      ),
+      ...Array.from(depreciationByLocationKey.keys()),
+    ]),
+  );
+
+  return locationKeys.reduce<Map<string, TFixedAssetLocationDepreciationRow>>(
+    (map, locationKey) => {
+      const openingLocationCount = openingCounts.get(locationKey) || 0;
+      const closingCount =
+        getAssetLocationCountsAtDate(fixedAsset._id, movements, endDate).get(
+          locationKey,
+        ) || 0;
       let periodDate = beginDate;
       let maxPeriodCount = 0;
 
       while (periodDate <= endDate) {
         maxPeriodCount = Math.max(
           maxPeriodCount,
-          getInstanceCountAtDate(instance, logs, periodDate),
+          getAssetLocationCountsAtDate(
+            fixedAsset._id,
+            movements,
+            periodDate,
+          ).get(locationKey) || 0,
         );
         periodDate = addDays(periodDate, 1);
       }
 
       const depreciationAmount =
-        depreciationByInstanceId.get(instance._id) || 0;
+        depreciationByLocationKey.get(locationKey) || 0;
       const resultCount =
         closingCount > 0 || depreciationAmount <= 0
           ? closingCount
@@ -712,18 +631,18 @@ const calculatePrimaryGroupDepreciationByDay = ({
       const openingAccumulated =
         openingCount > 0
           ? openingAccumulatedDepreciation *
-            (openingInstanceCount / openingCount)
+            (openingLocationCount / openingCount)
           : 0;
       const closingAccumulated = perUnitAccumulated * resultCount;
       const closingOriginalCost = originalCost * resultCount;
       const closingSalvageValue = salvageValue * resultCount;
 
-      map.set(instance._id, {
+      map.set(locationKey, {
         depreciationAmount,
         originalCost: closingOriginalCost,
         salvageValue: closingSalvageValue,
         openingBookValue:
-          originalCost * openingInstanceCount - openingAccumulated,
+          originalCost * openingLocationCount - openingAccumulated,
         openingAccumulatedDepreciation: openingAccumulated,
         closingAccumulatedDepreciation: closingAccumulated,
         closingBookValue: closingOriginalCost - closingAccumulated,
@@ -739,37 +658,21 @@ const calculatePrimaryGroupDepreciationByDay = ({
 
 const validateFxaAdjustmentByDay = async ({
   adjustId,
-  accountByInstanceId,
   beginDate,
   endDate,
-  fixedAssetById,
-  instances,
-  logs,
+  fixedAssets,
+  movements,
   models,
   userId,
 }: {
   adjustId: string;
-  accountByInstanceId: Map<string, string | undefined>;
   beginDate: Date;
   endDate: Date;
-  fixedAssetById: Map<
-    string,
-    { depreciationMethod?: string; usefulLife?: number }
-  >;
-  instances: IFxaInstanceDocument[];
-  logs: IFxaInstanceLogDocument[];
+  fixedAssets: IFixedAssetDocument[];
+  movements: TFixedAssetMovement[];
   models: IModels;
   userId: string;
 }): Promise<TDailyValidationResult> => {
-  const undatedLog = logs.find((log) => !log.eventDate);
-
-  if (undatedLog) {
-    return {
-      successDate: addDays(beginDate, -1),
-      error: validateFxaLog(undatedLog),
-    };
-  }
-
   let currentDate = beginDate;
 
   while (currentDate <= endDate) {
@@ -789,34 +692,25 @@ const validateFxaAdjustmentByDay = async ({
       };
     }
 
-    for (const log of logs.filter((item) =>
-      isSamePureDate(item.eventDate, currentDate),
-    )) {
-      const error = validateFxaLog(log);
+    for (const fixedAsset of fixedAssets) {
+      const count = getTotalCount(
+        getAssetLocationCountsAtDate(fixedAsset._id, movements, currentDate),
+      );
 
-      if (error) {
-        return { successDate: addDays(currentDate, -1), error };
-      }
-    }
-
-    for (const instance of instances) {
-      const rawCount = getRawInstanceCountAtDate(instance, logs, currentDate);
-
-      if (rawCount < 0) {
+      if (count < 0) {
         return {
           successDate: addDays(currentDate, -1),
-          error: `Fixed asset instance quantity became negative. Instance: ${instance._id}`,
+          error: `Fixed asset quantity became negative. Fixed asset: ${fixedAsset._id}`,
         };
       }
 
-      if (!isInstanceActiveOnDate(instance, logs, currentDate)) {
+      if (count <= 0) {
         continue;
       }
 
       const error = validateInstanceForDepreciation({
-        accountId: accountByInstanceId.get(instance._id),
-        fixedAsset: fixedAssetById.get(instance.fixedAssetId),
-        instance,
+        accountId: fixedAsset.accountId,
+        fixedAsset,
       });
 
       if (error) {
@@ -996,30 +890,20 @@ export const runAdjustFixedAsset = async (
     adjust,
   );
   const endDate = getPureDate(adjust.date);
-  const instances = await models.FxaInstances.find({
+  const fixedAssets = await models.FixedAssets.find({
     acquisitionDate: { $lte: endDate },
   }).lean();
-  const previousDetails = await getPreviousDetailMap(models, beforeAdjust?._id);
-  const previousPrimaryDetails = getPreviousPrimaryDetailMap(
-    previousDetails,
-    instances,
+  const previousFixedAssetDetails = await getPreviousFixedAssetDetailMap(
+    models,
+    beforeAdjust?._id,
   );
-  const fixedAssets = await models.FixedAssets.find({
-    _id: { $in: instances.map((instance) => instance.fixedAssetId) },
-  }).lean();
-  const fixedAssetById = new Map(
-    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
-  );
-  const accountByInstanceId = await getInstanceAccountMap(models, instances);
-  const logs = await getFxaPeriodLogs(models, endDate);
+  const movements = await getFxaMovements(models, endDate);
   const validationResult = await validateFxaAdjustmentByDay({
     adjustId: adjust._id,
-    accountByInstanceId,
     beginDate,
     endDate,
-    fixedAssetById,
-    instances,
-    logs,
+    fixedAssets,
+    movements,
     models,
     userId,
   });
@@ -1042,32 +926,15 @@ export const runAdjustFixedAsset = async (
     });
   }
 
-  const instancesByPrimaryId = instances.reduce<
-    Map<string, IFxaInstanceDocument[]>
-  >((map, instance) => {
-    const primaryInstanceId = getPrimaryInstanceId(instance);
-
-    map.set(primaryInstanceId, [
-      ...(map.get(primaryInstanceId) || []),
-      instance,
-    ]);
-
-    return map;
-  }, new Map());
-
-  for (const [primaryInstanceId, primaryInstances] of instancesByPrimaryId) {
-    const primaryInstance =
-      primaryInstances.find((instance) => instance._id === primaryInstanceId) ||
-      primaryInstances[0];
-    const fixedAsset = fixedAssetById.get(primaryInstance.fixedAssetId);
-    const previousPrimaryDetail = previousPrimaryDetails.get(primaryInstanceId);
+  for (const fixedAsset of fixedAssets) {
+    const previousFixedAssetDetail = previousFixedAssetDetails.get(
+      fixedAsset._id,
+    );
     const depreciationEndDate = endDate;
     const scheduleStartDate = getPureDate(
-      primaryInstance.depreciationStartDate ||
-        primaryInstance.acquisitionDate ||
-        beginDate,
+      fixedAsset.depreciationStartDate || fixedAsset.acquisitionDate || beginDate,
     );
-    const startDate = previousPrimaryDetail?.closingBookValue
+    const startDate = previousFixedAssetDetail?.closingBookValue
       ? beginDate
       : scheduleStartDate;
 
@@ -1079,10 +946,8 @@ export const runAdjustFixedAsset = async (
     let periodActiveCount = 0;
 
     while (periodDate <= depreciationEndDate) {
-      periodActiveCount += primaryInstances.reduce(
-        (sum, instance) =>
-          sum + getInstanceCountAtDate(instance, logs, periodDate),
-        0,
+      periodActiveCount += getTotalCount(
+        getAssetLocationCountsAtDate(fixedAsset._id, movements, periodDate),
       );
       periodDate = addDays(periodDate, 1);
     }
@@ -1092,30 +957,22 @@ export const runAdjustFixedAsset = async (
     }
 
     const openingAccumulatedDepreciation =
-      previousPrimaryDetail?.closingAccumulatedDepreciation || 0;
+      previousFixedAssetDetail?.closingAccumulatedDepreciation || 0;
     const depreciationMethod =
-      primaryInstance.depreciationMethod ||
-      fixedAsset?.depreciationMethod ||
-      'straightLine';
-    const resultByInstanceId = calculatePrimaryGroupDepreciationByDay({
+      fixedAsset.depreciationMethod || 'straightLine';
+    const resultByLocationKey = calculateFixedAssetDepreciationByDay({
       beginDate: startDate,
       depreciationMethod,
       endDate: depreciationEndDate,
       fixedAsset,
-      instances: primaryInstances,
-      logs,
+      movements,
       scheduleStartDate,
       openingAccumulatedDepreciation,
     });
 
-    for (const instance of primaryInstances) {
-      const result = resultByInstanceId.get(instance._id);
-      const accountId = accountByInstanceId.get(instance._id);
-      const snapshot = getInstanceSnapshotAtDate(
-        instance,
-        logs,
-        depreciationEndDate,
-      );
+    for (const [locationKey, result] of resultByLocationKey) {
+      const accountId = fixedAsset.accountId;
+      const snapshot = splitLocationKey(locationKey);
 
       if (!result || result.originalCost <= 0) {
         continue;
@@ -1123,9 +980,8 @@ export const runAdjustFixedAsset = async (
 
       details.push({
         adjustId: adjust._id,
-        fxaInstanceId: instance._id,
-        fixedAssetId: instance.fixedAssetId,
-        categoryId: instance.categoryId || fixedAsset?.categoryId,
+        fixedAssetId: fixedAsset._id,
+        categoryId: fixedAsset.categoryId,
         accountId,
         branchId: snapshot.branchId,
         departmentId: snapshot.departmentId,

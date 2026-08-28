@@ -108,6 +108,12 @@ const InventoryReserveRemainders = lazy(() =>
   })),
 );
 
+const FxaOwnerRecords = lazy(() =>
+  import('~/pages/fixed-assets/FxaOwnerRecordsPage').then((module) => ({
+    default: module.FxaOwnerRecordsPage,
+  })),
+);
+
 const TransactionPrint = lazy(() =>
   import('~/pages/TransactionPrintPage').then((module) => ({
     default: module.TransactionPrintPage,
@@ -191,6 +197,10 @@ const PluginAccounting = () => {
         <Route
           path="/inventories/reserve-remainders"
           element={<InventoryReserveRemainders />}
+        />
+        <Route
+          path="/fixed-assets/owner-records"
+          element={<FxaOwnerRecords />}
         />
         <Route path="adjustment/closing" element={<AdjustClosingList />} />
         <Route

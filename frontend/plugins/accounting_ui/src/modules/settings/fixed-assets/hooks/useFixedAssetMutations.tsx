@@ -7,6 +7,9 @@ import {
   FIXED_ASSETS_ADD,
   FIXED_ASSETS_EDIT,
   FIXED_ASSETS_REMOVE,
+  FIXED_ASSET_OWNER_RECORDS_ADD,
+  FIXED_ASSET_OWNER_RECORDS_REMOVE,
+  FIXED_ASSET_OWNER_RECORDS_TRANSFER,
 } from '../graphql/mutations/fixedAssets';
 
 const withToast = (
@@ -100,6 +103,45 @@ export const useFixedAssetRemove = () => {
   return {
     removeFixedAsset: (options: OperationVariables) =>
       mutate(withToast(options, 'Үндсэн хөрөнгө устгагдлаа')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordAdd = () => {
+  const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_ADD, {
+    refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+  });
+
+  return {
+    addFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн бүртгэл нэмэгдлээ')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordTransfer = () => {
+  const [mutate, { loading }] = useMutation(
+    FIXED_ASSET_OWNER_RECORDS_TRANSFER,
+    {
+      refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+    },
+  );
+
+  return {
+    transferFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн шилжүүлэг бүртгэгдлээ')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordRemove = () => {
+  const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_REMOVE, {
+    refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+  });
+
+  return {
+    removeFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн бүртгэл устгагдлаа')),
     loading,
   };
 };

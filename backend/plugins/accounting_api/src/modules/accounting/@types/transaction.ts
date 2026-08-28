@@ -25,6 +25,9 @@ export interface ITrDetail {
   unitPrice?: number;
 
   fixedAssetId?: string;
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
 }
 
 export interface ITransaction {

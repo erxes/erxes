@@ -1,12 +1,18 @@
 import { gql } from '@apollo/client';
 
 export const FIXED_ASSETS_QUERY = gql`
-  query FixedAssets($searchValue: String, $ids: [String], $limit: Int) {
+  query AccountingFixedAssets($searchValue: String, $ids: [String], $limit: Int) {
     fixedAssets(searchValue: $searchValue, ids: $ids, limit: $limit) {
       _id
       code
       name
       categoryId
+      accountId
+      count
+      currentCount
+      originalCost
+      acquisitionDate
+      depreciationStartDate
       depreciationMethod
       usefulLife
       salvageValue
@@ -17,37 +23,29 @@ export const FIXED_ASSETS_QUERY = gql`
   }
 `;
 
-export const FXA_INSTANCES_QUERY = gql`
-  query FxaInstances(
+export const FXA_OWNER_RECORDS_QUERY = gql`
+  query AccountingFxaOwnerRecords(
     $ids: [String]
     $fixedAssetIds: [String]
     $status: String
     $transactionId: String
+    $balanceOnly: Boolean
   ) {
-    fxaInstances(
+    fxaOwnerRecords(
       ids: $ids
       fixedAssetIds: $fixedAssetIds
       status: $status
       transactionId: $transactionId
+      balanceOnly: $balanceOnly
     ) {
       _id
       fixedAssetId
-      primaryInstanceId
       code
       sequence
       count
-      currentCount
+      action
       status
-      currentStatus
-      originalCost
-      accumulatedDepreciation
-      bookValue
-      branchId
-      currentBranchId
-      departmentId
-      currentDepartmentId
-      responsibleUserId
-      currentResponsibleUserId
+      ownerId
     }
   }
 `;

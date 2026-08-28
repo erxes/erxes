@@ -23,6 +23,9 @@ export const commonTrDetailFields = `
 
   productId
   fixedAssetId
+  fixedAssetCategoryId
+  fixedAssetCode
+  fixedAssetName
   count
   unitPrice
 
