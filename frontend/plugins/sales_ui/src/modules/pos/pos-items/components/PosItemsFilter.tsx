@@ -117,7 +117,7 @@ export const PosItemsFilterPopover = () => {
               mode="single"
               value={customer || ''}
               onValueChange={(value) => {
-                setCustomer(value as string);
+                setCustomer(value);
                 resetFilterState();
               }}
             >
@@ -129,7 +129,7 @@ export const PosItemsFilterPopover = () => {
               mode="single"
               value={company || ''}
               onValueChange={(value) => {
-                setCompany(value as string);
+                setCompany(value);
                 resetFilterState();
               }}
             >
@@ -141,7 +141,7 @@ export const PosItemsFilterPopover = () => {
               mode="single"
               value={user || ''}
               onValueChange={(value) => {
-                setUser(value as string);
+                setUser(value);
                 resetFilterState();
               }}
             >
@@ -210,7 +210,7 @@ export const PosItemsFilter = () => {
             mode="single"
             value={customer || ''}
             onValueChange={(value) => {
-              setCustomer(value as string);
+              setCustomer(value);
               setOpen(false);
             }}
           >
@@ -235,7 +235,7 @@ export const PosItemsFilter = () => {
             mode="single"
             value={company || ''}
             onValueChange={(value) => {
-              setCompany(value as string);
+              setCompany(value);
               setOpen(false);
             }}
           >
@@ -260,7 +260,7 @@ export const PosItemsFilter = () => {
             mode="single"
             value={user || ''}
             onValueChange={(value) => {
-              setUser(value as string);
+              setUser(value);
               setOpen(false);
             }}
           >
