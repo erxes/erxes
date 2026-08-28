@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-28`
+- **Last synchronized:** `2026-08-29`
 
 ## Scope
 
@@ -42,7 +42,7 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories/master records by source code before transactions are imported.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset category/acquisition inputs and owner-record payloads, auto-selects active owner records for disposal/sale/move logs when Erkhet omits owner record ids, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -146,11 +146,11 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-28` — `Fixed Asset Owner Record Ledger`
+### `2026-08-29` — `Fixed Asset Owner Record Ledger`
 
-- **Summary:** Simplified owner records into `received`/`handedOver` ledger rows keyed by fixed asset and owner, removed owner-record log registration, added balance-only aggregation for selection, direct owner-record mutations, and honored transaction-level owner fallback during journal save.
+- **Summary:** Finalized owner records as `received`/`handedOver` ledger rows keyed by fixed asset and owner, removed obsolete allocation-model assumptions, added balance-only aggregation for selection, direct owner-record mutations, and honored transaction-level owner fallback during journal save.
 - **Affected areas:** `src/connectionResolvers.ts`, `src/apollo/schema/schema.ts`, `src/modules/fixedAssets`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `fxaOwnerRecords` and `fxaOwnerRecordsCount` now use `action`, `ownerId`, and `balanceOnly`; adds `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`; owner records no longer expose branch/department/current-state fields.
+- **Contracts changed:** `fxaOwnerRecords` and `fxaOwnerRecordsCount` now use `action`, `ownerId`, and `balanceOnly`; adds `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`; owner records expose ledger fields only.
 
 ### `2026-08-28` — `Fixed Asset Location Remainder Query`
 
@@ -166,15 +166,15 @@
 
 ### `2026-08-28` — `Erkhet Fixed Asset Owner Records`
 
-- **Summary:** Erkhet transaction migration now resolves fixed asset income category/acquisition fields and owner-record payloads, including active owner-record source selection for disposal, sale, and move logs.
+- **Summary:** Erkhet transaction migration now resolves fixed asset income category/acquisition fields and owner-record payloads, including owner balance selection for disposal, sale, and move movements.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName`, and owner-record `extraData.fxaOwnerRecords` rows with `responsibleUserId` or `sourceResponsibleUserId` refs.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName`, and owner-record `extraData.fxaOwnerRecords` rows with `ownerId`; legacy responsible-user fields are accepted only as migration fallbacks.
 
-### `2026-08-28` — `Fixed Asset Owner Record Disposal Logs`
+### `2026-08-28` — `Fixed Asset Owner Record Movements`
 
 - **Summary:** Fixed asset out, sale, and move transactions can persist count-matched owner-record selections as `handedOver` ledger rows while keeping financial movement on transaction details.
 - **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaOut.ts`, `src/modules/accounting/utils/fxaMove.ts`.
-- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries may include `fxaOwnerRecordId` for disposal/sale/move owner-record selection.
+- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries use `ownerId` and count for disposal/sale/move owner movement selection.
 
 ### `2026-08-28` — `Fixed Asset Detail Movement Refactor`
 

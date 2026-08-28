@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-08-28`
+- **Last synchronized:** `2026-08-29`
 
 ## Scope
 
@@ -78,7 +78,7 @@
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
 - Fixed asset owner-record query contract `fxaOwnerRecords(fixedAssetIds, status, balanceOnly)` for disposal/move/sale owner balance selection sheets.
-- Fixed asset owner-record list contracts `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, page, perPage)` and `fxaOwnerRecordsCount(...)`, plus direct `fixedAssetOwnerRecordsAdd` and `fixedAssetOwnerRecordsTransfer` mutations for the fixed asset owner-record page.
+- Fixed asset owner-record list contracts `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, page, perPage)` and `fxaOwnerRecordsCount(...)`, plus direct `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove` mutations for the fixed asset owner-record page.
 - Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
 - Debt rate adjustment contracts: `adjustDebtRates`, `adjustDebtRateDetail`, `adjustDebtRatesAdd`, `adjustDebtRatesEdit`, `adjustDebtRateCalculate`, `adjustDebtRateDoTransaction`, `adjustDebtRatesRemove`, and `accountingAdjustDebtRateChanged`.
 - Closing adjustment contracts: `adjustClosings`, `adjustClosingsCount`, `adjustClosingDetail`, `adjustClosingEntriesCount`, `adjustClosingAdd`, `adjustClosingEdit`, `adjustClosingCalculate`, `adjustClosingDoTransaction`, `adjustClosingRun`, `adjustClosingPublish`, `adjustClosingCancel`, and `adjustClosingRemove`.
@@ -139,15 +139,15 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-28` — `Fixed Asset Owner Ledger`
+### `2026-08-29` — `Fixed Asset Owner Ledger`
 
 - **Summary:** Updated owner-record list, filters, income allocation rows, disposal/move/sale selection sheets, and direct owner-record action sheets for owner ledger rows with `received`/`handedOver` actions and balance-only selection.
 - **Affected areas:** `src/modules/fixedAssets`, `src/modules/settings/fixed-assets`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm/FxaIncomeOwnerRecordsSheet.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`.
-- **Contracts changed:** Owner record UI now consumes `action`, `ownerId`, `balanceOnly`, `fixedAssetOwnerRecordsAdd`, and `fixedAssetOwnerRecordsTransfer` instead of responsible-user/current-state/branch/department owner-record fields.
+- **Contracts changed:** Owner record UI now consumes ledger fields only: `action`, `ownerId`, `balanceOnly`, `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`.
 
 ### `2026-08-28` — `Fixed Asset Owner Record List`
 
-- **Summary:** Added a fixed asset owner-record navigation group, 20-row paged list, filters, and action shortcuts into fixed asset income, move, and out transaction flows.
+- **Summary:** Added a fixed asset owner-record navigation group, 20-row paged list, filters, and direct receive, transfer, and cancel sheets that do not create accounting transactions.
 - **Affected areas:** `src/config.tsx`, `src/modules/AccountingMain.tsx`, `src/modules/fixedAssets`, `src/pages/fixed-assets`, `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/hooks/useFxaOwnerRecords.tsx`.
 - **Contracts changed:** Consumes `fxaOwnerRecords` and `fxaOwnerRecordsCount` with owner/action/status list filters and 20-row page variables.
 
@@ -161,7 +161,7 @@
 
 - **Summary:** Fixed asset out, move, and sale rows now expose an owner-record sheet that lists active owner allocations for the row asset/location and saves count-matched selections through transaction extra data.
 - **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/contants`.
-- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries may include `fxaOwnerRecordId`; `fxaOwnerRecords` query usage includes branch/department filters.
+- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries use `ownerId` and count; `fxaOwnerRecords` selection uses `balanceOnly` owner balances while branch/department quantity remains validated by transaction-detail location remainder.
 
 ### `2026-08-28` — `Fixed Asset Disposal Bulk Selection`
 
