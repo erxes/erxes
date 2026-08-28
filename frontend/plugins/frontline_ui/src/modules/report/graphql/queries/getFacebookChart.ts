@@ -21,6 +21,11 @@ export const GET_FACEBOOK_SUMMARY = gql`
       staffMessages
       botConversations
       botCoverage
+      sentMessages
+      deliveredMessages
+      readMessages
+      deliveryRate
+      readRate
     }
   }
 `;

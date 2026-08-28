@@ -4,7 +4,7 @@ import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const conversationMessageSchema = new Schema({
   _id: mongooseStringRandomId,
-  mid: { type: String, label: 'Facebook message id' },
+  mid: { type: String, index: true, label: 'Facebook message id' },
   content: { type: String },
   // the following derives from inbox
   attachments: [attachmentSchema],
@@ -20,6 +20,8 @@ export const conversationMessageSchema = new Schema({
   createdAt: { type: Date, index: true, label: 'Created At' },
   updatedAt: { type: Date, index: true, label: 'Updated At' },
   isCustomerRead: { type: Boolean, label: 'Is Customer Read' },
+  deliveredAt: { type: Date, label: 'Delivered to the recipient at' },
+  readAt: { type: Date, label: 'Read by the recipient at' },
   internal: { type: Boolean, label: 'Internal' },
   botId: { type: String, label: 'Bot', optional: true },
   botData: { type: Object, optional: true },

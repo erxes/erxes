@@ -50,7 +50,7 @@ router.get('/receive', async (req, res, next) => {
 
 router.post('/receive', async (req, res, next) => {
   try {
-    await facebookWebhook(req, res, next);
+    await facebookWebhook(req, res);
   } catch (err) {
     res.status(500).json({
       success: false,

@@ -24,6 +24,8 @@ import {
 import { Alert, ScrollArea, Skeleton } from 'erxes-ui';
 import {
   IconArticle,
+  IconChecks,
+  IconEye,
   IconMessage,
   IconMessage2Share,
   IconMessages,
@@ -244,7 +246,7 @@ export const FacebookReportsList = () => {
       )}
       {!summaryError && summaryLoading && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 7 }).map((_, index) => (
             <Skeleton key={index} className="h-28 rounded-xl" />
           ))}
         </div>
@@ -298,6 +300,28 @@ export const FacebookReportsList = () => {
           icon={<IconMessage2Share className="h-5 w-5" />}
           valueClass="text-[var(--pos)]"
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
+        />
+        <KpiCard
+          title={t('facebook-delivered')}
+          value={String(summary?.deliveredMessages ?? 0)}
+          subtitle={t('facebook-receipt-rate', {
+            percent: summary?.deliveryRate ?? 0,
+            sent: summary?.sentMessages ?? 0,
+          })}
+          icon={<IconChecks className="h-5 w-5" />}
+          valueClass="text-[var(--chart-3)]"
+          iconClass="bg-[var(--chart-3)]/10 text-[var(--chart-3)]"
+        />
+        <KpiCard
+          title={t('facebook-read')}
+          value={String(summary?.readMessages ?? 0)}
+          subtitle={t('facebook-receipt-rate', {
+            percent: summary?.readRate ?? 0,
+            sent: summary?.sentMessages ?? 0,
+          })}
+          icon={<IconEye className="h-5 w-5" />}
+          valueClass="text-[var(--chart-4)]"
+          iconClass="bg-[var(--chart-4)]/10 text-[var(--chart-4)]"
         />
       </div>
 

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-26`
+- **Last synchronized:** `2026-08-28`
 
 ## Scope
 
@@ -271,7 +271,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   without a reload.
 - `frontline_api` GraphQL `reportFacebookPages`, `reportFacebookSummary`,
   `reportFacebookActivity`, `reportFacebookPosts`, and `reportFacebookBots` —
-  the Facebook board's data. `reportFacebookPosts` pages on the server
+  the Facebook board's data. `reportFacebookSummary` also feeds the Delivered
+  and Read KPI cards; their rates are relative to `sentMessages`, never to
+  `deliveredMessages`. `reportFacebookPosts` pages on the server
   (`limit` + `page` in the filter), every other card pages client-side through
   `useChartPagination`.
 - `react-i18next` with the `frontline` namespace.
@@ -680,6 +682,22 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-28` — Delivered and Read KPI cards on the Facebook board
+
+- **Summary:** The Facebook report's KPI row ended at Comments, so there was no
+  way to see whether a sent Messenger message actually reached the customer.
+  Two cards were added from the new `reportFacebookSummary` fields — Delivered
+  and Read — each showing the count with its share of messages sent as the
+  subtitle. The KPI grid keeps five columns, so the new cards wrap onto a
+  second row and the existing five keep their positions.
+- **Affected areas:**
+  `src/modules/report/components/FacebookReportsList.tsx`,
+  `src/modules/report/graphql/queries/getFacebookChart.ts`
+  (`GET_FACEBOOK_SUMMARY`), `src/modules/report/types.ts` (`FacebookSummary`).
+- **Contracts changed:** None owned here. Consumes five new
+  `ReportFacebookSummary` fields and three new `frontline` translation keys
+  (`facebook-delivered`, `facebook-read`, `facebook-receipt-rate`).
+
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
 - **Summary:** Selecting a Discord channel and then a team or personal channel
@@ -808,23 +826,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
 - **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
   `noAnswer` field from `frontline_api`.
-
-### `2026-08-19` — Call Pro integration UI
-
-- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
-  built on the `call` module's shape — add/edit `Sheet`s over one shared form
-  carrying the webhook URL to configure, the recording player in the
-  conversation panel, and a `Command`-based customer picker/switcher for a
-  caller number that matches several customers. Everything is hidden unless the
-  backend reports Call Pro as enabled.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/integrations.ts`,
-  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/inbox/types/Conversation.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
-- **Contracts changed:** Consumes new `frontline_api` operations
-  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
-  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
-  conversation fields. Adds the `callpro` integration type.

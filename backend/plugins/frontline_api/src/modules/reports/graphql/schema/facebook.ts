@@ -24,6 +24,11 @@ export const types = `
     staffMessages: Int
     botConversations: Int
     botCoverage: Int
+    sentMessages: Int
+    deliveredMessages: Int
+    readMessages: Int
+    deliveryRate: Int
+    readRate: Int
   }
 
   type ReportFacebookActivityPoint {

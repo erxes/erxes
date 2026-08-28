@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-28`
 
 ## Scope
 
@@ -112,6 +112,8 @@
 | Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, callpro, trpc                                                 |
 | Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL            |
 | Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
+| FB webhook           | `src/modules/integrations/facebook/controller/controller.ts`                | `/facebook/receive` ingestion: acks Meta first, then drains every entry/change and logs each event       |
+| FB receipts          | `src/modules/integrations/facebook/controller/receiveDeliveryStatus.ts`     | Applies `message_deliveries` / `message_reads` watermarks to page-sent messages                          |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
 | FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
@@ -374,9 +376,43 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Facebook upload configuration is cached in a module-level variable in
   `src/modules/integrations/facebook/utils.ts` and is **not** keyed by
   subdomain — treat it as a known cross-tenant hazard when touching that file.
+- `conversation_messages_facebooks` carries `deliveredAt` and `readAt`, set
+  only from Meta's `message_deliveries` / `message_reads` receipts. They are
+  never inferred from each other: a read message whose delivery receipt Meta
+  skipped keeps `deliveredAt` unset, so read rate must be computed against
+  messages sent, not against `deliveredAt`.
+- `facebook_logs` holds two kinds of audit row, both expiring after 180 days
+  through the schema's `createdAt` TTL index: `facebook-post-publish` from
+  `postGuard.logPostAttempt`, and `facebook-webhook-event` written by
+  `logWebhookEvent` for every ingested messaging/standby/comment/post change.
+  The webhook rows carry `kind`, `pageId`, `identifier` (comment/post id) and,
+  on failure, a truncated `error`. They are the only record of a dropped
+  event, because Meta stops retrying once the endpoint has acked.
 
 ## Local Invariants
 
+- `facebookWebhook` acknowledges Meta with `200 OK` **before** it does any
+  work, and never throws afterwards — `routes.ts` would then write a second
+  response onto a finished request. Meta requires the ack within 5 seconds and
+  unsubscribes the page after an hour of failures, so no ingestion work may
+  precede it.
+- A `message_deliveries` / `message_reads` receipt must never reach
+  `receiveMessage`. It carries no message, so it would create an empty
+  conversation for the sender. Both the `messaging` and the `standby` paths
+  test `getReceiptKind` first and route the event to `receiveDeliveryStatus`
+  instead. The standby path matters: when another app is the primary receiver,
+  every event — receipts included — arrives there and nowhere else, so
+  skipping it silently loses all receipts for that page.
+- A receipt only ever marks page-sent messages (`customerId: null`) and only
+  those still missing the field, so a replayed webhook cannot move a stamp or
+  backdate an inbound message.
+- `SUBSCRIBED_FIELDS` is applied at subscribe time. Adding a field only
+  affects pages subscribed afterwards; existing pages need `repairIntegrations`
+  (the Repair action) to re-post `subscribed_apps`.
+- The webhook drains **every** `entry` and every `entry.changes` item. Meta
+  batches up to 1000 updates into one delivery, so returning after the first
+  event silently discards the rest. Per-event failures are caught and logged,
+  never propagated out of the loop.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -868,6 +904,63 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-28` — Delivery and read rates on the Facebook report
+
+- **Summary:** `reportFacebookSummary` now also counts the page-sent messages
+  Meta reported as delivered and as read, and returns both as counts and as a
+  percentage of messages sent. The read rate is measured against messages
+  sent rather than against delivered, because Meta sometimes skips the
+  delivery receipt and `deliveredAt` is never inferred from `readAt`.
+- **Affected areas:**
+  `src/modules/reports/graphql/resolvers/facebookQueries.ts`
+  (`reportFacebookSummary`), `src/modules/reports/graphql/schema/facebook.ts`.
+- **Contracts changed:** `ReportFacebookSummary` gains `sentMessages`,
+  `deliveredMessages`, `readMessages`, `deliveryRate`, and `readRate`. Additive
+  only; existing fields are unchanged.
+
+### `2026-08-28` — Delivery and read receipts are recorded
+
+- **Summary:** The page subscribed to neither `message_deliveries` nor
+  `message_reads`, so a sent automation message could only ever be reported as
+  "the Graph API accepted it" — whether it reached the customer was
+  unmeasurable. Both fields are now subscribed and their receipts applied to
+  the page-sent messages they cover, by `mids` when Meta sends them and by
+  watermark otherwise, giving `deliveredAt` / `readAt` on
+  `conversation_messages_facebooks` and a `delivery` / `read` row per receipt
+  in `facebook_logs`.
+- **Affected areas:** `src/modules/integrations/facebook/constants.ts`
+  (`SUBSCRIBED_FIELDS`),
+  `src/modules/integrations/facebook/controller/receiveDeliveryStatus.ts`
+  (new), `src/modules/integrations/facebook/controller/controller.ts`
+  (receipt short-circuit in `processMessagingEvent` and `processStandbyEvents`),
+  `src/modules/integrations/facebook/controller/receiveMessage.ts`
+  (`sanitizeString` exported),
+  `src/modules/integrations/facebook/db/definitions/conversationMessages.ts`
+  (`deliveredAt`, `readAt`, `mid` index) and its `@types`.
+- **Contracts changed:** None. `deliveredAt` / `readAt` are stored but not yet
+  exposed on the `FacebookConversationMessage` GraphQL type. Existing pages
+  keep their old subscription until repaired.
+
+### `2026-08-28` — Facebook webhook stops discarding batched events
+
+- **Summary:** `/facebook/receive` returned after the first `entry.changes`
+  item, so every further comment or post in a batched Meta delivery was
+  discarded and its automation never ran; two other paths (a non-page object,
+  an entry with neither `messaging` nor `changes`) ended the handler without
+  sending any response at all, which counts as a delivery failure and gets the
+  page unsubscribed after an hour. The handler now acks `200 OK` first, then
+  drains every entry and change with per-event error isolation, and records
+  each ingested event in `facebook_logs` so a dropped one is still countable
+  after the ack removes Meta's retries.
+- **Affected areas:**
+  `src/modules/integrations/facebook/controller/controller.ts`
+  (`facebookWebhook`, new `processEntry` / `processChangeEvent` /
+  `logWebhookEvent`, `processMessagingEvent` no longer takes `res`/`next` and
+  now rethrows), `src/modules/integrations/facebook/routes.ts`.
+- **Contracts changed:** None externally. `processMessagingEvent` is exported
+  but has only ever been called from this file; the Instagram controller has
+  its own local function of the same name.
+
 ### `2026-08-21` — A forwarded call stays one conversation
 
 - **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
@@ -1005,52 +1098,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `TicketPropertyField` and `TicketPropertyFieldInput`
   gained an optional `groupOrder: Int`; stored configurations without it keep
   working and are backfilled on their next save.
-
-### `2026-08-18` — Manual Meta sync for post engagement
-
-- **Summary:** Added `reportFacebookSyncPostStats`, an on-demand pull of
-  Facebook's own comment, reaction, and share counts onto stored post
-  documents, so the post report can show Meta's number next to the number
-  erxes received and name the gap.
-- **Affected areas:** `src/modules/reports/facebookSyncService.ts`,
-  `src/modules/reports/graphql/{schema/facebook.ts,resolvers/facebookMutations.ts,resolvers/facebookQueries.ts}`,
-  `src/modules/integrations/facebook/db/definitions/postConversations.ts`,
-  `src/modules/integrations/facebook/@types/postConversations.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/mutations.ts}`.
-- **Contracts changed:** New `reportFacebookSyncPostStats` mutation and
-  `ReportFacebookSyncResult`/`ReportFacebookSyncError` types;
-  `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
-  `metaShareCount`, `metaSyncedAt`; the post document gained the same four
-  optional fields.
-
-### `2026-08-18` — Facebook report aggregations
-
-- **Summary:** Added a Facebook reporting surface over the plugin's own
-  Messenger, comment, and post collections — page list, KPI summary, daily
-  activity series, per-post engagement, and per-bot coverage — with page and
-  date scoping, plus `pageIds` on the saved-chart filter set so a saved
-  Facebook card restores its page selection.
-- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
-  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
-- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
-  types, and five `reportFacebook*` queries; `TicketReportFilter`,
-  `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.

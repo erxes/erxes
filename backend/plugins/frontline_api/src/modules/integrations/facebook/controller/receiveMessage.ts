@@ -22,7 +22,7 @@ import {
  * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
  * injection objects like {"$gt": ""} by converting them to "[object Object]".
  */
-const sanitizeString = (value: unknown): string => {
+export const sanitizeString = (value: unknown): string => {
   if (typeof value === 'string') {
     return value;
   }

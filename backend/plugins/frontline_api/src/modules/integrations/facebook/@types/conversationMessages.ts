@@ -13,6 +13,8 @@ export interface IFacebookConversationMessage {
   userId?: string;
   fromBot?: boolean;
   isCustomerRead?: boolean;
+  deliveredAt?: Date;
+  readAt?: Date;
   internal?: boolean;
   botId?: string;
   botData?: any;

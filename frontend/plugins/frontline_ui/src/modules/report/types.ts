@@ -147,6 +147,11 @@ export interface FacebookSummary {
   staffMessages: number;
   botConversations: number;
   botCoverage: number;
+  sentMessages: number;
+  deliveredMessages: number;
+  readMessages: number;
+  deliveryRate: number;
+  readRate: number;
 }
 
 export interface FacebookActivityPoint {

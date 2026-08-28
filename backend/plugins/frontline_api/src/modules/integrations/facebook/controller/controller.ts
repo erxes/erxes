@@ -3,8 +3,13 @@ import { getConfig } from '@/integrations/facebook/commonUtils';
 import {
   FACEBOOK_POST_TYPES,
   INTEGRATION_KINDS,
+  LOG_TYPES,
 } from '@/integrations/facebook/constants';
 import { receiveComment } from '@/integrations/facebook/controller/receiveComment';
+import {
+  getReceiptKind,
+  receiveDeliveryStatus,
+} from '@/integrations/facebook/controller/receiveDeliveryStatus';
 import { receiveMessage } from '@/integrations/facebook/controller/receiveMessage';
 import { receivePost } from '@/integrations/facebook/controller/receivePost';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
@@ -13,7 +18,6 @@ import {
   getPageAccessTokenFromMap,
 } from '@/integrations/facebook/utils';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
-import { NextFunction, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 
 export const facebookGetPost = async (req, res, next) => {
@@ -87,133 +91,198 @@ export const facebookSubscription = async (req, res, next) => {
     next(e);
   }
 };
-export const facebookWebhook = async (req, res, next) => {
-  const subdomain = isDev ? 'localhost' : getSubdomain(req);
 
-  debugFacebook(`Received webhook request for subdomain: ${subdomain}`);
+type TWebhookEventKind =
+  | 'messaging'
+  | 'standby'
+  | 'comment'
+  | 'post'
+  | 'delivery'
+  | 'read'
+  | 'unhandled';
 
-  const models = await generateModels(subdomain);
-  const data = req.body;
+const logWebhookEvent = async (
+  models: IModels,
+  {
+    kind,
+    pageId,
+    identifier,
+    count,
+    error,
+  }: {
+    kind: TWebhookEventKind;
+    pageId: string;
+    identifier?: string;
+    count?: number;
+    error?: string;
+  },
+) => {
+  // Meta stops retrying once we ack, so a dropped event is only visible here.
+  try {
+    await models.FacebookLogs.createLog({
+      type: error ? LOG_TYPES.ERROR : LOG_TYPES.SUCCESS,
+      value: {
+        action: 'facebook-webhook-event',
+        kind,
+        pageId,
+        identifier,
+        count,
+        error: (error || '').slice(0, 500) || undefined,
+      },
+      specialValue: pageId,
+    });
+  } catch (e) {
+    debugError(`Failed to log webhook event: ${(e as Error).message}`);
+  }
+};
 
-  console.log('[fbWebhook] received', {
-    subdomain,
-    object: data?.object,
-    entryCount: data?.entry?.length ?? 0,
-    body: JSON.stringify(data),
-  });
+const processChangeEvent = async (
+  models: IModels,
+  subdomain: string,
+  pageId: string,
+  event: any,
+) => {
+  const value = event?.value;
 
-  if (data.object !== 'page' && !checkIsAdsOpenThread(data?.entry)) {
-    console.log('[fbWebhook] ignored, not a page event', {
-      object: data?.object,
-      isAdsOpenThread: checkIsAdsOpenThread(data?.entry),
+  if (!value) {
+    return;
+  }
+
+  const isComment = value.item === 'comment';
+  const isPost = FACEBOOK_POST_TYPES.includes(value.item);
+
+  if (!isComment && !isPost) {
+    debugFacebook(`Unhandled change item: ${value.item}`);
+    await logWebhookEvent(models, {
+      kind: 'unhandled',
+      pageId,
+      identifier: value.item,
     });
     return;
   }
-  for (const entry of data.entry) {
-    console.log('[fbWebhook] entry', {
-      id: entry.id,
-      hasMessaging: Boolean(entry.messaging),
-      hasStandby: Boolean(entry.standby),
-      changeItems: (entry.changes || []).map((c) => c?.value?.item),
-    });
 
-    // receive chat
-    try {
-      if (entry.messaging) {
-        await processMessagingEvent(
-          entry,
-          models,
-          res,
-          next,
-          subdomain,
-          accessTokensByPageId,
-        );
-        console.log('[fbWebhook] messaging processed', entry.id);
-      }
-      if (entry.standby) {
-        const activities = await processStandbyEvents(entry, models);
-        console.log('[fbWebhook] standby activities', {
-          entryId: entry.id,
-          count: activities.length,
-        });
-        for (const { activity, integration } of activities) {
-          await receiveMessage(models, subdomain, integration, activity);
-        }
-      }
-    } catch (error) {
-      console.log('[fbWebhook] entry failed', {
-        entryId: entry.id,
-        message: error.message,
-        stack: error.stack,
-      });
-      debugFacebook(`Error processing entry: ${error.message}`);
-      // Optionally, send a response or log the error
-      res.status(500).send('Internal Server Error');
+  const kind: TWebhookEventKind = isComment ? 'comment' : 'post';
+  const identifier = isComment ? value.comment_id : value.post_id;
+
+  try {
+    if (isComment) {
+      await receiveComment(models, subdomain, value, pageId);
+    } else {
+      await receivePost(models, subdomain, value, pageId);
     }
 
-    // receive post and comment
-    if (entry.changes) {
-      for (const event of entry.changes) {
-        console.log('[fbWebhook] change event', {
-          entryId: entry.id,
-          item: event.value?.item,
-          verb: event.value?.verb,
-          value: JSON.stringify(event.value),
-        });
+    await logWebhookEvent(models, { kind, pageId, identifier });
+  } catch (e) {
+    debugError(`Error processing ${kind}: ${(e as Error).message}`);
+    await logWebhookEvent(models, {
+      kind,
+      pageId,
+      identifier,
+      error: (e as Error).message,
+    });
+  }
+};
 
-        if (event.value.item === 'comment') {
-          debugFacebook(`Received comment data ${JSON.stringify(event.value)}`);
-          try {
-            await receiveComment(models, subdomain, event.value, entry.id);
-            console.log('[fbWebhook] comment saved', event.value?.comment_id);
-            debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
-            return res.end('success');
-          } catch (e) {
-            console.log('[fbWebhook] comment failed', {
-              message: e.message,
-              stack: e.stack,
-            });
-            debugError(`Error processing comment: ${e.message}`);
-            return res.end('success');
-          }
-        }
-
-        if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
-          try {
-            debugFacebook(`Received post data ${JSON.stringify(event.value)}`);
-            await receivePost(models, subdomain, event.value, entry.id);
-            console.log('[fbWebhook] post saved', event.value?.post_id);
-            debugFacebook(
-              `Successfully saved post ${JSON.stringify(event.value)}`,
-            );
-            return res.end('success');
-          } catch (e) {
-            console.log('[fbWebhook] post failed', {
-              message: e.message,
-              stack: e.stack,
-            });
-            debugError(`Error processing post: ${e.message}`);
-            return res.end('success');
-          }
-        } else {
-          console.log('[fbWebhook] unhandled change item', event.value?.item);
-          return res.end('success');
-        }
-      }
+const processEntry = async (models: IModels, subdomain: string, entry: any) => {
+  if (entry.messaging) {
+    try {
+      await processMessagingEvent(
+        entry,
+        models,
+        subdomain,
+        accessTokensByPageId,
+      );
+      await logWebhookEvent(models, { kind: 'messaging', pageId: entry.id });
+    } catch (e) {
+      await logWebhookEvent(models, {
+        kind: 'messaging',
+        pageId: entry.id,
+        error: (e as Error).message,
+      });
     }
   }
 
-  console.log('[fbWebhook] finished without sending a response', {
-    subdomain,
-    object: data?.object,
-  });
+  if (entry.standby) {
+    try {
+      // A secondary receiver gets receipts here, not on the messaging channel.
+      for (const standbyEvent of Array.isArray(entry.standby)
+        ? entry.standby
+        : []) {
+        const receiptKind = getReceiptKind(standbyEvent);
+
+        if (!receiptKind) {
+          continue;
+        }
+
+        const count = await receiveDeliveryStatus(
+          models,
+          standbyEvent,
+          receiptKind,
+        );
+
+        await logWebhookEvent(models, {
+          kind: receiptKind,
+          pageId: entry.id,
+          count,
+        });
+      }
+
+      const activities = await processStandbyEvents(entry, models);
+
+      for (const { activity, integration } of activities) {
+        try {
+          await receiveMessage(models, subdomain, integration, activity);
+          await logWebhookEvent(models, { kind: 'standby', pageId: entry.id });
+        } catch (e) {
+          await logWebhookEvent(models, {
+            kind: 'standby',
+            pageId: entry.id,
+            error: (e as Error).message,
+          });
+        }
+      }
+    } catch (e) {
+      await logWebhookEvent(models, {
+        kind: 'standby',
+        pageId: entry.id,
+        error: (e as Error).message,
+      });
+    }
+  }
+
+  // Meta batches up to 1000 updates per delivery; every change must be drained.
+  for (const event of entry.changes || []) {
+    await processChangeEvent(models, subdomain, entry.id, event);
+  }
+};
+
+export const facebookWebhook = async (req, res) => {
+  const data = req.body;
+
+  // Meta requires 200 OK within 5s, else the page is unsubscribed after 1h.
+  res.status(200).send('EVENT_RECEIVED');
+
+  if (data?.object !== 'page' && !checkIsAdsOpenThread(data?.entry)) {
+    debugFacebook(`Ignored non-page webhook object: ${data?.object}`);
+    return;
+  }
+
+  // Response is already sent; throwing here would make routes.ts write twice.
+  try {
+    const subdomain = isDev ? 'localhost' : getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    for (const entry of data.entry || []) {
+      await processEntry(models, subdomain, entry);
+    }
+  } catch (e) {
+    debugError(`Failed to process facebook webhook: ${(e as Error).message}`);
+  }
 };
 
 export async function processMessagingEvent(
   entry: any,
   models: IModels,
-  res: Response,
-  next: NextFunction,
   subdomain: string,
   accessTokensByPageId: Record<string, string>,
 ) {
@@ -226,7 +295,7 @@ export async function processMessagingEvent(
 
     if (messagingEvents.length === 0) {
       debugFacebook('No messaging events found in entry.');
-      return; // Just return, do not call next here — next only for middleware chains
+      return;
     }
 
     for (const activity of messagingEvents) {
@@ -236,6 +305,19 @@ export async function processMessagingEvent(
       }
 
       const pageId = activity.recipient.id;
+      const receiptKind = getReceiptKind(activity);
+
+      // A receipt carries no message; it must never reach receiveMessage.
+      if (receiptKind) {
+        const count = await receiveDeliveryStatus(
+          models,
+          activity,
+          receiptKind,
+        );
+
+        await logWebhookEvent(models, { kind: receiptKind, pageId, count });
+        continue;
+      }
 
       // Find the related Facebook integration
       const integration = await models.FacebookIntegrations.getIntegration({
@@ -294,9 +376,9 @@ export async function processMessagingEvent(
 
       await receiveMessage(models, subdomain, integration, activityData);
     }
-    res.status(200).send('EVENT_RECEIVED');
   } catch (e) {
-    debugFacebook(`Failed to process messaging event: ${(e as Error).message}`);
+    debugError(`Failed to process messaging event: ${(e as Error).message}`);
+    throw e;
   }
 }
 
@@ -318,6 +400,11 @@ export async function processStandbyEvents(data: any, models: IModels) {
       ) {
         debugFacebook('Invalid standby event: missing required fields');
         continue; // Skip invalid event
+      }
+
+      // Secondary receivers also get receipts on the standby channel.
+      if (getReceiptKind(standbyEvent)) {
+        continue;
       }
 
       const integration = await models.FacebookIntegrations.getIntegration({

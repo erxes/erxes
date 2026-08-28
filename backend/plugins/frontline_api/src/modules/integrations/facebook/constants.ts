@@ -27,4 +27,6 @@ export const SUBSCRIBED_FIELDS = [
   'messaging_handovers',
   'messaging_postbacks',
   'messaging_referrals',
+  'message_deliveries',
+  'message_reads',
 ];

@@ -241,12 +241,25 @@ export const reportFacebookQueries = {
                 ],
               },
             },
+            delivered: {
+              $sum: { $cond: [{ $ifNull: ['$deliveredAt', false] }, 1, 0] },
+            },
+            read: { $sum: { $cond: [{ $ifNull: ['$readAt', false] }, 1, 0] } },
           },
         },
       ]),
     ]);
 
-    const { total = 0, bot = 0, staff = 0 } = messageStats[0] || {};
+    const {
+      total = 0,
+      bot = 0,
+      staff = 0,
+      delivered = 0,
+      read = 0,
+    } = messageStats[0] || {};
+
+    // Only page-sent messages can carry a Meta receipt.
+    const sent = bot + staff;
 
     return {
       posts,
@@ -258,6 +271,11 @@ export const reportFacebookQueries = {
       staffMessages: staff,
       botConversations,
       botCoverage: calculatePercentage(botConversations, conversations),
+      sentMessages: sent,
+      deliveredMessages: delivered,
+      readMessages: read,
+      deliveryRate: calculatePercentage(delivered, sent),
+      readRate: calculatePercentage(read, sent),
     };
   },
 
