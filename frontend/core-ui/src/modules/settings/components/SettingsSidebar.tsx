@@ -1,10 +1,10 @@
 import { AppPath } from '@/types/paths/AppPath';
+import { pageHistoryState } from '@/app/states/pageHistoryState';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageTrackerStore } from 'react-page-tracker';
 import { useNavigate } from 'react-router-dom';
 import { pluginsConfigState, useVersion, usePermissionCheck } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
@@ -129,7 +129,7 @@ export function SettingsNavigationGroup({
 
 export function SettingsExitButton() {
   const navigate = useNavigate();
-  const pageHistory = usePageTrackerStore((state) => state.pageHistory);
+  const pageHistory = useAtomValue(pageHistoryState);
 
   const handleExitSettings = () =>
     navigate(
