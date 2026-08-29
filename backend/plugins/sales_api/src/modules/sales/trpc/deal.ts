@@ -1,7 +1,9 @@
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import type { SortOrder } from 'mongoose';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
+import { agentMeta } from '~/trpc/agentMeta';
 import {
   addDeal,
   editDeal,
@@ -64,28 +66,76 @@ const updateDealProcedure = t.procedure
     });
   });
 
+// Agent-facing reads are ALWAYS bounded. An unbounded find serializes the
+// whole deals collection (observed 2026-08-20: an agent's `deal.find {}` call
+// over 1.27M deals crash-looped the service — exit 139 — taking every
+// subsequent agent call down with it). Defaults also keep a full-document
+// page inside the 64KB agent-tools response budget.
+const AGENT_FIND_DEFAULT_LIMIT = 20;
+const AGENT_FIND_MAX_LIMIT = 100;
+
+// Strict input objects: unknown top-level keys are rejected by name instead
+// of being silently treated as document filters (an invented "arg"/"query"
+// wrapper used to match 0 records and the agent reported "no data" as fact).
+const dealFindInput = z
+  .object({
+    query: z.record(z.unknown()).optional(),
+    skip: z.number().int().min(0).optional(),
+    limit: z.number().int().min(1).optional(),
+    sort: z.record(z.unknown()).optional(),
+    fields: z.array(z.string()).optional(),
+  })
+  .strict();
+
+const dealCountInput = z
+  .object({
+    filter: z.record(z.unknown()).optional(),
+  })
+  .strict();
+
 export const dealTrpcRouter = t.router({
   deal: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      return await models.Deals.findOne(input).lean();
-    }),
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single deal by any MongoDB-style query, e.g. { _id } or { name: "..." }. Returns null when nothing matches. Call this before updating a deal, and use deal.getLink to give the user a link to it.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        return await models.Deals.findOne(input).lean();
+      }),
 
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'Search deals: { query: {...}, skip?, limit?, sort?, fields? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Only the listed fields are accepted. Results are always bounded: limit defaults to 20 and is capped at 100 — paginate with skip, and pass fields to project only the attributes you need. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(dealFindInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { query = {}, skip = 0, limit, sort = {}, fields } = input;
 
-      const { query, skip, limit, sort = {} } = input;
+        const boundedLimit = Math.min(
+          limit ?? AGENT_FIND_DEFAULT_LIMIT,
+          AGENT_FIND_MAX_LIMIT,
+        );
+        const projection = fields?.length
+          ? Object.fromEntries(fields.map((field) => [field, 1]))
+          : undefined;
 
-      if (!query) {
-        return await models.Deals.find(input).lean();
-      }
-
-      return await models.Deals.find(query)
-        .skip(skip || 0)
-        .limit(limit || 0)
-        .sort(sort)
-        .lean();
-    }),
+        return await models.Deals.find(query, projection)
+          .skip(skip)
+          .limit(boundedLimit)
+          // Sort directions arrive as plain JSON; mongoose validates the
+          // values at query time (external-library boundary cast).
+          .sort(sort as Record<string, SortOrder>)
+          .lean();
+      }),
 
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
@@ -93,27 +143,43 @@ export const dealTrpcRouter = t.router({
       return await models.Deals.aggregate(convertNestedDate(input));
     }),
 
-    count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
+    count: t.procedure
+      .meta(
+        agentMeta(
+          'Count deals matching a MongoDB-style filter: { filter: {...} }, e.g. { filter: { stageId: "..." } }; {} counts every deal. Use for "how many deals ..." questions instead of deal.find.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(dealCountInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
 
-      return await models.Deals.find(input).countDocuments();
-    }),
+        return await models.Deals.find(input.filter ?? {}).countDocuments();
+      }),
 
-    getLink: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { _id } = input;
-      const item = await models.Deals.findOne({ _id });
+    getLink: t.procedure
+      .meta(
+        agentMeta(
+          'Get the relative UI link to open a deal on its board: { _id }. Returns a path like "/deal/board?id=...&pipelineId=...&itemId=...". Use after deal.findOne/deal.find to point the user at a deal.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _id } = input;
+        const item = await models.Deals.findOne({ _id });
 
-      if (!item) {
-        throw new Error('Deal not found');
-      }
+        if (!item) {
+          throw new Error('Deal not found');
+        }
 
-      const stage = await models.Stages.getStage(item.stageId);
-      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-      const board = await models.Boards.getBoard(pipeline.boardId);
+        const stage = await models.Stages.getStage(item.stageId);
+        const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+        const board = await models.Boards.getBoard(pipeline.boardId);
 
-      return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
-    }),
+        return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`;
+      }),
 
     findDealProductIds: t.procedure
       .input(z.any())
@@ -330,40 +396,64 @@ export const dealTrpcRouter = t.router({
   },
 
   stage: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { subdomain, ...rest } = input;
-      return await models.Stages.findOne(rest).lean();
-    }),
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { subdomain, ...rest } = input;
-      return await models.Stages.find(rest).sort({ order: 1 }).lean();
-    }),
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single pipeline stage by any MongoDB-style query, e.g. { _id } or { name: "...", pipelineId: "..." }. Use to resolve a stage name to its _id for deal.find.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { subdomain, ...rest } = input;
+        return await models.Stages.findOne(rest).lean();
+      }),
+    find: t.procedure
+      .meta(
+        agentMeta(
+          'List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline\'s stages in order.',
+          { module: 'deal', action: 'showDeals' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { subdomain, ...rest } = input;
+        return await models.Stages.find(rest).sort({ order: 1 }).lean();
+      }),
   },
   pipeline: {
-    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      const { stageId, ...rest } = input || {};
-      const { query, fields } = rest || {};
+    findOne: t.procedure
+      .meta(
+        agentMeta(
+          'Get a single sales pipeline: { query: { name: "..." } } with optional { fields } projection, or { stageId } to resolve the pipeline containing a stage. Returns {} when nothing matches. Chain with stage.find to list its stages.',
+          { module: 'pipeline', action: 'pipelinesWatch' },
+        ),
+      )
+      .input(z.any())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { stageId, ...rest } = input || {};
+        const { query, fields } = rest || {};
 
-      let pipeline =
-        query && Object.keys(query).length
-          ? await models.Pipelines.findOne(query, fields).lean()
-          : null;
+        let pipeline =
+          query && Object.keys(query).length
+            ? await models.Pipelines.findOne(query, fields).lean()
+            : null;
 
-      if (!pipeline && stageId) {
-        const stage = await models.Stages.findOne({ _id: stageId }).lean();
-        if (stage) {
-          pipeline = await models.Pipelines.findOne(
-            { _id: stage.pipelineId },
-            fields,
-          ).lean();
+        if (!pipeline && stageId) {
+          const stage = await models.Stages.findOne({ _id: stageId }).lean();
+          if (stage) {
+            pipeline = await models.Pipelines.findOne(
+              { _id: stage.pipelineId },
+              fields,
+            ).lean();
+          }
         }
-      }
 
-      return pipeline || {};
-    }),
+        return pipeline || {};
+      }),
   },
 });
 

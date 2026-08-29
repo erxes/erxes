@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useAtom } from 'jotai';
 import { postMessage } from '../lib/utils';
 import { HeaderHero } from './messenger/components';
@@ -21,6 +22,8 @@ import { Navigation } from './messenger/components/nav/navigation';
 import { ChatInput } from './messenger/components/chat-input';
 import { KnowledgeBaseView } from './messenger/components/faq/components/KnowledgeBaseView';
 import { WebCall } from './messenger/components/web-call';
+import { CustomerFormInline } from './messenger/components/customer-form-inline';
+import { useCustomerData } from './messenger/hooks/useCustomerData';
 
 export function App() {
   const [isMessengerVisible, setIsMessengerVisible] = useState(false);
@@ -31,6 +34,7 @@ export function App() {
   const uiOptions = useAtomValue(uiOptionsAtom);
   const unreadCount = useAtomValue(unreadNotificationCountAtom);
   const faqView = useAtomValue(faqCurrentViewAtom);
+  const { hasEmailOrPhone } = useCustomerData();
   // Always-on subscription: sound + web notifications work on every tab
   useWidgetNotifications();
 
@@ -117,6 +121,10 @@ export function App() {
     }
   };
 
+  const showAuthForm =
+    connection.widgetsMessengerConnect?.messengerData?.requireAuth === true &&
+    !hasEmailOrPhone;
+
   const isFaqArticle =
     activeTab === 'faq' && (faqView === 'article' || faqView === 'category');
   const isFaqNonArticle = activeTab === 'faq' && !isFaqArticle;
@@ -164,9 +172,22 @@ export function App() {
         </div>
       </div>
       {(activeTab === 'default' || activeTab === 'chat') && (
-        <div className="shrink-0 px-2 bg-muted border-t border-border">
-          <ChatInput />
-        </div>
+        <AnimatePresence mode="wait" initial={false}>
+          {showAuthForm ? (
+            <CustomerFormInline key="auth-form" />
+          ) : (
+            <motion.div
+              key="chat-input"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+              className="shrink-0 px-2 bg-muted border-t border-border"
+            >
+              <ChatInput />
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
       {activeTab !== 'chat' && activeTab !== 'web-call' && (
         <Navigation value={uiOptions?.navigationVariant}>

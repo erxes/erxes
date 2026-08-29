@@ -10,6 +10,7 @@ const UNNAMED = 'Unnamed';
 
 type TTaskNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
 };
 
@@ -22,20 +23,22 @@ const tasksSearchProvider = defineSearchProvider<TTaskNode>({
     {
       alias: 'gs_operation_tasks',
       field: 'getTasks',
-      args: 'filter: { name: $searchValue, limit: $limit }',
-      body: '{ list { _id name } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TTaskNode>(payload, 'gs_operation_tasks'),
   toItem: (task) => ({
     id: task._id,
     title: task.name || UNNAMED,
+    createdAt: task.createdAt ?? undefined,
     path: `/operation/tasks/${task._id}`,
   }),
 });
 
 type TProjectNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
 };
 
@@ -48,8 +51,8 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
     {
       alias: 'gs_operation_projects',
       field: 'getProjects',
-      args: 'filter: { name: $searchValue, limit: $limit }',
-      body: '{ list { _id name } totalCount }',
+      args: 'filter: { name: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -57,12 +60,14 @@ const projectsSearchProvider = defineSearchProvider<TProjectNode>({
   toItem: (project) => ({
     id: project._id,
     title: project.name || UNNAMED,
+    createdAt: project.createdAt ?? undefined,
     path: `/operation/projects/${project._id}/overview`,
   }),
 });
 
 type TTeamNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
 };
 
@@ -75,16 +80,22 @@ const teamsSearchProvider = defineSearchProvider<TTeamNode>({
     {
       alias: 'gs_operation_teams',
       field: 'getTeams',
-      args: 'name: $searchValue',
-      body: '{ _id name }',
+      args: 'name: $searchValue, orderBy: $orderBy',
+      body: '{ _id name createdAt }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TTeamNode>(payload, 'gs_operation_teams'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TTeamNode>(payload, 'gs_operation_teams');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (team) => ({
     id: team._id,
     title: team.name || UNNAMED,
+    createdAt: team.createdAt ?? undefined,
     path: `/operation/team/${team._id}/tasks`,
   }),
 });

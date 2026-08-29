@@ -26,6 +26,8 @@ export const types = `
     customerIds: [String]
     frequency: String
     branchIds: [String]
+    pageIds: [String]
+    searchValue: String
     propertyIds: [String]
     groupPropertyId: String
     groupPropertyValue: String

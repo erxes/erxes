@@ -89,7 +89,7 @@ export const CreateConfig = () => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.View className="p-0">
+      <Sheet.View className="p-0 max-w-xl">
         <CreateConfigSheetForm
           methods={methods}
           loading={loading}

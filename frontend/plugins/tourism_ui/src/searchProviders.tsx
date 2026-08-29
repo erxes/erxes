@@ -9,6 +9,7 @@ const UNNAMED = 'Unnamed';
 
 type TTourNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
   branchId?: string | null;
 };
@@ -22,8 +23,8 @@ const toursSearchProvider = defineSearchProvider<TTourNode>({
     {
       alias: 'gs_tourism_tours',
       field: 'bmsTours',
-      args: 'name: $searchValue, limit: $limit',
-      body: '{ list { _id name branchId } totalCount }',
+      args: 'name: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id name branchId createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TTourNode>(payload, 'gs_tourism_tours'),
@@ -35,6 +36,7 @@ const toursSearchProvider = defineSearchProvider<TTourNode>({
     return {
       id: tour._id,
       title: tour.name || UNNAMED,
+      createdAt: tour.createdAt ?? undefined,
       path: `/tourism/tms/branches/${tour.branchId}?activeTab=tour`,
     };
   },

@@ -18,6 +18,9 @@ export interface IConversation {
   tagIds?: string[];
   status?: ConversationStatus;
   automatedReplyControl?: IAutomatedReplyControl;
+  callProAudio?: string | null;
+  callProPotentialCustomerIds?: string[];
+  callProPhone?: string | null;
 }
 
 export interface IAutomatedReplyControl {

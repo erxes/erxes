@@ -26,6 +26,7 @@ export interface IIntegrationDetail extends IIntegration {
   isActive: boolean;
   healthStatus: {
     status: 'healthy' | string;
+    error?: string;
   };
   channel: IChannel;
 }
@@ -33,4 +34,5 @@ export interface IIntegrationDetail extends IIntegration {
 export interface IIntegrationType {
   _id: string;
   name: string;
+  unreadConversationCount?: number;
 }

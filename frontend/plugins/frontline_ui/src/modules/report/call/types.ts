@@ -16,6 +16,7 @@ export interface VolumePoint {
   incoming: number;
   outgoing: number;
   answered: number;
+  noAnswer: number;
   abandoned: number;
 }
 
@@ -29,7 +30,18 @@ export interface HeatCell {
   hour: number;
   total: number;
   answered: number;
+  noAnswer: number;
   answerRate: number;
+}
+
+export type HeatMetric = 'total' | 'answered' | 'noAnswer';
+
+export interface DayHourCell {
+  day: string;
+  hour: number;
+  total: number;
+  answered: number;
+  noAnswer: number;
 }
 
 export interface TopNumber {

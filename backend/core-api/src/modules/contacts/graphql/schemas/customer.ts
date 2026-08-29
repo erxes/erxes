@@ -14,6 +14,7 @@ export const types = `
     updatedAt: Date
     avatar: String
     integrationId: String
+    clientPortalId: String
     firstName: String
     lastName: String
     middleName: String
@@ -91,6 +92,8 @@ const queryParams = `
 
   integrationIds: [String]
   integrationTypes: [String]
+
+  clientPortalId: String
 
   formIds: [String]
 

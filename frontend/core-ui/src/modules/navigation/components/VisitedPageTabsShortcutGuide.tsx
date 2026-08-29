@@ -5,16 +5,9 @@ import { useTranslation } from 'react-i18next';
 
 export const VisitedPageTabsShortcutGuide = () => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
-  const { t: tSearch } = useTranslation('common', {
-    keyPrefix: 'global-search',
-  });
   const isMac = isMacPlatform();
   const modifierKeys = isMac ? ['⌘', '⌥'] : ['Ctrl', 'Alt'];
   const shortcuts = [
-    {
-      label: tSearch('placeholder', 'Search'),
-      keys: [...modifierKeys, 'K'],
-    },
     { label: t('next-tab'), keys: [...modifierKeys, ']'] },
     { label: t('previous-tab'), keys: [...modifierKeys, '['] },
     { label: t('close-current-tab'), keys: [...modifierKeys, 'W'] },

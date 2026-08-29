@@ -530,6 +530,31 @@ export const restorePost = async (
   }
 };
 
+// Meta retired the CONFIRMED_EVENT_UPDATE, POST_PURCHASE_UPDATE and
+// ACCOUNT_UPDATE message tags on 2026-04-27; the Send API rejects them with
+// error 100 "Invalid parameter". HUMAN_AGENT is the only tag still valid for
+// replies outside the 24-hour window (up to 7 days after the customer's last
+// message).
+const DEPRECATED_MESSENGER_TAGS = [
+  'CONFIRMED_EVENT_UPDATE',
+  'POST_PURCHASE_UPDATE',
+  'ACCOUNT_UPDATE',
+];
+
+export const HUMAN_AGENT_MESSENGER_TAG = 'HUMAN_AGENT';
+
+export const normalizeMessengerTag = (
+  tag?: string | null,
+): string | undefined => {
+  const trimmed = tag?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  return DEPRECATED_MESSENGER_TAGS.includes(trimmed)
+    ? HUMAN_AGENT_MESSENGER_TAG
+    : trimmed;
+};
+
 export const sendReply = async (
   models: IModels,
   url: string,
@@ -560,11 +585,16 @@ export const sendReply = async (
     throw new Error(e.message);
   }
 
+  const normalizedTag = normalizeMessengerTag(data?.tag);
+  const requestData = data?.tag ? { ...data, tag: normalizedTag } : data;
+
   try {
     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-      ...data,
+      ...requestData,
     });
-    debugFacebook(`Successfully sent data to facebook ${JSON.stringify(data)}`);
+    debugFacebook(
+      `Successfully sent data to facebook ${JSON.stringify(requestData)}`,
+    );
     return response;
   } catch (e) {
     const targetRecipient = data?.recipient?.id || data?.recipient?.comment_id;

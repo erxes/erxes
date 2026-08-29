@@ -57,6 +57,7 @@ export const types = () => `
 
   type PosOrder {
     ${posOrderFields()}
+    returnDescription: String
   }
 
   type PosOrderDetail {

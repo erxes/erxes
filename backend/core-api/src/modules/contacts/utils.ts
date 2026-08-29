@@ -28,6 +28,7 @@ export const generateFilter = async (
     ids,
     excludeIds,
     segmentIds,
+    clientPortalId,
   } = params;
 
   const filter: any = {
@@ -63,6 +64,10 @@ export const generateFilter = async (
 
   if (ids?.length) {
     filter['_id'] = excludeIds ? { $nin: ids } : { $in: ids };
+  }
+
+  if (clientPortalId) {
+    filter['clientPortalId'] = { $eq: clientPortalId };
   }
 
   if (brandIds || integrationIds || integrationTypes) {

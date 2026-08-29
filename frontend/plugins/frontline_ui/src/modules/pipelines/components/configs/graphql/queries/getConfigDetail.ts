@@ -41,6 +41,7 @@ const GET_CONFIG_DETAIL = gql`
         groupId
         label
         placeholder
+        groupOrder
         order
         isRequired
         type

@@ -427,6 +427,12 @@ endpoints on every plugin that has a `trpcAppRouter`.
 3. The platform enforces five security layers automatically: procedure
    annotation → tenant curation (default-deny per plugin) → HMAC-signed
    service auth → user permission check → destructive-operation approval guard.
+4. Every `/agent-tools/call` result is capped at a serialized byte budget
+   (default 64KB, overridable with `AGENT_TOOLS_MAX_RESPONSE_BYTES`).
+   Oversized results are rejected with `413` and a `RESPONSE_TOO_LARGE`
+   error telling the agent to paginate, tighten the filter, project fewer
+   fields, or use the matching count/findOne tool — an unbounded payload
+   stalls the agent run and freezes the chat UI.
 
 #### Annotating a procedure
 

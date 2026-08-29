@@ -103,6 +103,7 @@ export const getMessengerData = async (
 ) => {
   let messagesByLanguage: IMessengerDataMessagesItem | null = null;
   let messengerData = integration.messengerData;
+  const isOnline = models.Integrations.isOnline(integration) ?? false;
 
   if (messengerData) {
     if (messengerData.toJSON) {
@@ -134,12 +135,10 @@ export const getMessengerData = async (
     if (
       messengerData &&
       messengerData.hideWhenOffline &&
-      messengerData.availabilityMethod === 'auto'
+      messengerData.availabilityMethod === 'auto' &&
+      !isOnline
     ) {
-      const isOnline = models.Integrations.isOnline(integration);
-      if (!isOnline) {
-        messengerData.showChat = false;
-      }
+      messengerData.showChat = false;
     }
   }
 
@@ -168,8 +167,9 @@ export const getMessengerData = async (
     kind: 'website',
     'credentials.integrationId': integration._id,
   });
-  let getStartedCondition: { isSelected?: boolean } | false = false;
   const { automationId } = (messengerData || {}) as any;
+  let getStartedCondition: { isSelected?: boolean } | false = false;
+  let aiAgentLabel = 'erxes';
 
   if (automationId) {
     const automations = await sendTRPCMessage({
@@ -192,15 +192,21 @@ export const getMessengerData = async (
       (automation?.triggers || [])
         .flatMap((t: any) => t.config?.conditions || [])
         .find((c: any) => c.type === 'getStarted') || false;
+
+    aiAgentLabel =
+      (automation?.actions || []).find((a: any) => a.type === 'aiAgent')
+        ?.label ?? 'erxes';
   }
 
   return {
     ...messengerData,
+    isOnline,
     getStarted: getStartedCondition ? getStartedCondition.isSelected : false,
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId ?? messengerData?.knowledgeBaseTopicId,
     websiteApps,
     formCodes,
+    aiAgentLabel,
   };
 };
 
@@ -740,19 +746,6 @@ export const widgetMutations: Record<string, Resolver> = {
       conversationMessageInserted: msg,
     });
 
-    console.log('[widgetsInsertMessage] trigger gate', {
-      contentType,
-      botId,
-      HAS_BOTENDPOINT_URL,
-      operatorStatus: conversation.operatorStatus,
-      parsedPayload,
-      willSendTrigger: !!(
-        botId &&
-        !HAS_BOTENDPOINT_URL &&
-        conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
-      ),
-    });
-
     if (
       botId &&
       !HAS_BOTENDPOINT_URL &&
@@ -767,13 +760,6 @@ export const widgetMutations: Record<string, Resolver> = {
           },
         },
       );
-
-      console.log('[widgetsInsertMessage] sendAutomationTrigger', {
-        contentType,
-        msgContentType: msg.contentType,
-        automationId,
-        parsedPayload,
-      });
 
       sendAutomationTrigger(
         subdomain,
@@ -844,8 +830,6 @@ export const widgetMutations: Record<string, Resolver> = {
           botData,
           fromBot: true,
         });
-        console.log('[botContentType]', botMessage);
-
         graphqlPubsub.publish(
           `conversationBotTypingStatus:${msg.conversationId}`,
           {
@@ -906,8 +890,14 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetsReadConversationMessages(
     _root,
     args: { conversationId: string },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
+    const unreadMessages = await models.ConversationMessages.find({
+      conversationId: args.conversationId,
+      userId: { $exists: true },
+      isCustomerRead: { $ne: true },
+    }).lean();
+
     await models.ConversationMessages.updateMany(
       {
         conversationId: args.conversationId,
@@ -916,6 +906,20 @@ export const widgetMutations: Record<string, Resolver> = {
       },
       { isCustomerRead: true },
       { multi: true },
+    );
+
+    await Promise.all(
+      unreadMessages.map((message) =>
+        graphqlPubsub.publish(
+          `conversationMessageUpdated:${subdomain}:${args.conversationId}`,
+          {
+            conversationMessageUpdated: {
+              ...message,
+              isCustomerRead: true,
+            },
+          },
+        ),
+      ),
     );
 
     return args.conversationId;

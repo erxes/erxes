@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-23`
 
 ## Scope
 
@@ -22,6 +22,7 @@
 
 - Authenticates POS users against POS client context.
 - Serves POS client config, order, cover, user, and daily report GraphQL operations.
+- Serves POS product list and count queries with category, tag, price, remainder, discount, similarity, and product `propertiesData` filters.
 - Calculates daily reports for authorized POS admins and cashiers with report permission.
 
 ## Architecture
@@ -29,6 +30,7 @@
 | Area | Path | Responsibility |
 | ---- | ---- | -------------- |
 | GraphQL reports | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/report.ts` | Calculates daily POS report totals and product summaries. |
+| GraphQL products | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts` | Builds tenant-scoped POS product/category filters, sorting, counts, similarity grouping, and remainder checks. |
 | GraphQL schemas | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas` | Declares POS client GraphQL types and operations. |
 | Config models | `backend/plugins/posclient_api/src/modules/posclient/db` | Stores synced POS client configuration and runtime data. |
 | Sync utilities | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts` | Synchronizes sales POS configuration into POS client config. |
@@ -38,6 +40,7 @@
 ### Provides
 
 - `dailyReport(posUserIds, dateType, startDate, endDate): DailyReport` GraphQL query.
+- `poscProducts(..., propertiesData: String): [PoscProduct]` and `poscProductsTotalCount(..., propertiesData: String): Int` GraphQL queries.
 - POS client GraphQL and tRPC contracts for order, cover, config, and user flows.
 
 ### Consumes
@@ -49,20 +52,29 @@
 
 - Tenant-scoped POS client collections are generated per `subdomain`.
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
+- Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are applied to `Products.propertiesData.<fieldId>`.
 
 ## Local Invariants
 
 - POS client report queries must require a logged-in POS user.
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
+- `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
 
 ## Validation
 
 - `pnpm nx build posclient_api`
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
+- POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-23` — `Filter POS products by properties`
+
+- **Summary:** Added backend `propertiesData` filtering to POS product list and count queries.
+- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas/product.ts`, `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts`
+- **Contracts changed:** `poscProducts` and `poscProductsTotalCount` now accept `propertiesData: String`.
 
 ### `2026-08-12` — `Guard cashier reports`
 

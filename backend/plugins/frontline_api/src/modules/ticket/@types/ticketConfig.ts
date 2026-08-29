@@ -24,6 +24,8 @@ export interface ITicketPropertyField {
   groupId?: string;
   label?: string;
   placeholder?: string;
+  // position of the property's group among the groups of this configuration
+  groupOrder?: number;
   order?: number;
   isRequired?: boolean;
   type?: string;
