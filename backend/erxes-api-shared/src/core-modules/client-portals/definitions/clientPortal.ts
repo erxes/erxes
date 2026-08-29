@@ -221,6 +221,7 @@ export const clientPortalSchema = new Schema(
       type: manualVerificationConfigSchema,
     },
     enableManualVerification: { type: Boolean },
+    useB2B: { type: Boolean },
     testUser: { type: testUserSchema },
     firebaseConfig: { type: firebaseConfigSchema },
   },
