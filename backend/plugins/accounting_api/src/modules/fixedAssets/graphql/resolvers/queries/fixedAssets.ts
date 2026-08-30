@@ -50,6 +50,109 @@ type TFixedAssetLocationRemainderParams = {
   limit?: number;
 };
 
+type TFixedAssetLocationRemainderRow = {
+  fixedAssetId: string;
+  branchId: string;
+  departmentId: string;
+  remainder: number;
+};
+
+type TFixedAssetMovementTransaction = {
+  journal?: string;
+  branchId?: string;
+  departmentId?: string;
+  details?: {
+    fixedAssetId?: string;
+    branchId?: string;
+    departmentId?: string;
+    count?: number;
+  }[];
+};
+
+const getFxaLocationRemainderKey = ({
+  branchId,
+  departmentId,
+  fixedAssetId,
+}: {
+  branchId: string;
+  departmentId: string;
+  fixedAssetId: string;
+}) => `${fixedAssetId}:${branchId}:${departmentId}`;
+
+export const buildFixedAssetLocationRemainderRows = ({
+  branchId,
+  departmentId,
+  fixedAssetIds,
+  transactions,
+}: {
+  branchId?: string;
+  departmentId?: string;
+  fixedAssetIds: string[];
+  transactions: TFixedAssetMovementTransaction[];
+}) => {
+  const fixedAssetIdSet = new Set(fixedAssetIds);
+  const normalizedBranchId = normalizeLocationId(branchId);
+  const normalizedDepartmentId = normalizeLocationId(departmentId);
+  const shouldFilterBranch = typeof branchId === 'string';
+  const shouldFilterDepartment = typeof departmentId === 'string';
+  const remainders = new Map<string, TFixedAssetLocationRemainderRow>();
+
+  for (const transaction of transactions) {
+    const sign = getFxaMovementSign(transaction.journal);
+
+    if (!sign) {
+      continue;
+    }
+
+    for (const detail of transaction.details || []) {
+      if (!detail.fixedAssetId || !fixedAssetIdSet.has(detail.fixedAssetId)) {
+        continue;
+      }
+
+      const detailBranchId = normalizeLocationId(
+        detail.branchId || transaction.branchId,
+      );
+      const detailDepartmentId = normalizeLocationId(
+        detail.departmentId || transaction.departmentId,
+      );
+
+      if (shouldFilterBranch && detailBranchId !== normalizedBranchId) {
+        continue;
+      }
+
+      if (
+        shouldFilterDepartment &&
+        detailDepartmentId !== normalizedDepartmentId
+      ) {
+        continue;
+      }
+
+      const key = getFxaLocationRemainderKey({
+        fixedAssetId: detail.fixedAssetId,
+        branchId: detailBranchId,
+        departmentId: detailDepartmentId,
+      });
+      const current = remainders.get(key) || {
+        fixedAssetId: detail.fixedAssetId,
+        branchId: detailBranchId,
+        departmentId: detailDepartmentId,
+        remainder: 0,
+      };
+
+      current.remainder += sign * Math.max(0, Math.trunc(detail.count || 0));
+      remainders.set(key, current);
+    }
+  }
+
+  return Array.from(remainders.values())
+    .filter((item) => item.remainder > 0)
+    .sort((a, b) =>
+      getFxaLocationRemainderKey(a).localeCompare(
+        getFxaLocationRemainderKey(b),
+      ),
+    );
+};
+
 type TFxaOwnerRecordParams = {
   ids?: string[];
   searchValue?: string;
@@ -317,39 +420,15 @@ const fixedAssets = {
     }
 
     const transactions = await models.Transactions.find(filter).lean();
-    let remainder = 0;
     const normalizedBranchId = normalizeLocationId(branchId);
     const normalizedDepartmentId = normalizeLocationId(departmentId);
-
-    for (const transaction of transactions) {
-      const sign = getFxaMovementSign(transaction.journal);
-
-      if (!sign) {
-        continue;
-      }
-
-      for (const detail of transaction.details || []) {
-        if (detail.fixedAssetId !== fixedAssetId) {
-          continue;
-        }
-
-        const detailBranchId = normalizeLocationId(
-          detail.branchId || transaction.branchId,
-        );
-        const detailDepartmentId = normalizeLocationId(
-          detail.departmentId || transaction.departmentId,
-        );
-
-        if (
-          detailBranchId !== normalizedBranchId ||
-          detailDepartmentId !== normalizedDepartmentId
-        ) {
-          continue;
-        }
-
-        remainder += sign * Math.max(0, Math.trunc(detail.count || 0));
-      }
-    }
+    const remainder =
+      buildFixedAssetLocationRemainderRows({
+        branchId: normalizedBranchId,
+        departmentId: normalizedDepartmentId,
+        fixedAssetIds: [fixedAssetId],
+        transactions,
+      })[0]?.remainder || 0;
 
     return {
       fixedAssetId,
@@ -408,70 +487,14 @@ const fixedAssets = {
       filter.date = { $lte: getEndOfDay(date) };
     }
 
-    const normalizedBranchId = normalizeLocationId(branchId);
-    const normalizedDepartmentId = normalizeLocationId(departmentId);
     const transactions = await models.Transactions.find(filter).lean();
-    const remainders = new Map<
-      string,
-      {
-        fixedAssetId: string;
-        branchId: string;
-        departmentId: string;
-        remainder: number;
-      }
-    >();
 
-    for (const transaction of transactions) {
-      const sign = getFxaMovementSign(transaction.journal);
-
-      if (!sign) {
-        continue;
-      }
-
-      for (const detail of transaction.details || []) {
-        if (
-          !detail.fixedAssetId ||
-          !fixedAssetIds.includes(detail.fixedAssetId)
-        ) {
-          continue;
-        }
-
-        const detailBranchId = normalizeLocationId(
-          detail.branchId || transaction.branchId,
-        );
-        const detailDepartmentId = normalizeLocationId(
-          detail.departmentId || transaction.departmentId,
-        );
-
-        if (branchId && detailBranchId !== normalizedBranchId) {
-          continue;
-        }
-
-        if (departmentId && detailDepartmentId !== normalizedDepartmentId) {
-          continue;
-        }
-
-        const key = `${detail.fixedAssetId}:${detailBranchId}:${detailDepartmentId}`;
-        const current = remainders.get(key) || {
-          fixedAssetId: detail.fixedAssetId,
-          branchId: detailBranchId,
-          departmentId: detailDepartmentId,
-          remainder: 0,
-        };
-
-        current.remainder += sign * Math.max(0, Math.trunc(detail.count || 0));
-        remainders.set(key, current);
-      }
-    }
-
-    return Array.from(remainders.values())
-      .filter((item) => item.remainder > 0)
-      .sort((a, b) =>
-        `${a.fixedAssetId}:${a.branchId}:${a.departmentId}`.localeCompare(
-          `${b.fixedAssetId}:${b.branchId}:${b.departmentId}`,
-        ),
-      )
-      .slice(0, limit || 200);
+    return buildFixedAssetLocationRemainderRows({
+      branchId,
+      departmentId,
+      fixedAssetIds,
+      transactions,
+    }).slice(0, limit || 200);
   },
 
   fixedAssetCategories: async (
