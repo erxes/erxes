@@ -132,6 +132,11 @@ export const CONFIG: IUIConfig = {
       path: 'accounting/inventories/reserve-remainders',
     },
     {
+      name: 'fixed-asset-remainders',
+      icon: IconCashBanknote,
+      path: 'accounting/fixed-assets/remainders',
+    },
+    {
       name: 'fixed-asset-owner-records',
       icon: IconCashBanknote,
       path: 'accounting/fixed-assets/owner-records',

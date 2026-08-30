@@ -114,6 +114,12 @@ const FxaOwnerRecords = lazy(() =>
   })),
 );
 
+const FxaRemainders = lazy(() =>
+  import('~/pages/fixed-assets/FxaRemaindersPage').then((module) => ({
+    default: module.FxaRemaindersPage,
+  })),
+);
+
 const TransactionPrint = lazy(() =>
   import('~/pages/TransactionPrintPage').then((module) => ({
     default: module.TransactionPrintPage,
@@ -202,6 +208,7 @@ const PluginAccounting = () => {
           path="/fixed-assets/owner-records"
           element={<FxaOwnerRecords />}
         />
+        <Route path="/fixed-assets/remainders" element={<FxaRemainders />} />
         <Route path="adjustment/closing" element={<AdjustClosingList />} />
         <Route
           path="adjustment/closing/:id"

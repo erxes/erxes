@@ -40,6 +40,16 @@ const getEndOfDay = (value: Date) => {
   return date;
 };
 
+type TFixedAssetLocationRemainderParams = {
+  searchValue?: string;
+  fixedAssetId?: string;
+  categoryId?: string;
+  branchId?: string;
+  departmentId?: string;
+  date?: Date;
+  limit?: number;
+};
+
 type TFxaOwnerRecordParams = {
   ids?: string[];
   searchValue?: string;
@@ -93,8 +103,8 @@ const buildFxaOwnerRecordFilter = async (
             params.fixedAssetId
               ? fixedAssetId === params.fixedAssetId
               : params.fixedAssetIds?.length
-                ? params.fixedAssetIds.includes(fixedAssetId)
-                : true,
+              ? params.fixedAssetIds.includes(fixedAssetId)
+              : true,
           ),
         }
       : { $in: fixedAssetIds };
@@ -181,7 +191,8 @@ const getFxaOwnerRecordBalances = async (
       modifiedBy: record.modifiedBy,
     };
 
-    current.count += getOwnerRecordCountSign(record.action) * (record.count || 0);
+    current.count +=
+      getOwnerRecordCountSign(record.action) * (record.count || 0);
     current.updatedAt = record.updatedAt || current.updatedAt;
     balances.set(key, current);
   }
@@ -205,11 +216,7 @@ const fixedAssets = {
       return records.slice(skip, perPage ? skip + perPage : undefined);
     }
 
-    return models.FxaOwnerRecords.listByFilter(
-      filter,
-      params.page,
-      perPage,
-    );
+    return models.FxaOwnerRecords.listByFilter(filter, params.page, perPage);
   },
 
   fxaOwnerRecordsCount: async (
@@ -225,9 +232,7 @@ const fixedAssets = {
       return records.length;
     }
 
-    return models.FxaOwnerRecords.countByFilter(
-      filter,
-    );
+    return models.FxaOwnerRecords.countByFilter(filter);
   },
 
   fixedAssets: async (
@@ -352,6 +357,121 @@ const fixedAssets = {
       departmentId: normalizedDepartmentId,
       remainder,
     };
+  },
+
+  fixedAssetLocationRemainders: async (
+    _root: undefined,
+    {
+      searchValue,
+      fixedAssetId,
+      categoryId,
+      branchId,
+      departmentId,
+      date,
+      limit,
+    }: TFixedAssetLocationRemainderParams,
+    { models }: IContext,
+  ) => {
+    const fixedAssetFilter: Record<string, unknown> = {
+      status: { $ne: 'deleted' },
+    };
+
+    if (fixedAssetId) {
+      fixedAssetFilter._id = fixedAssetId;
+    }
+
+    if (categoryId) {
+      fixedAssetFilter.categoryId = categoryId;
+    }
+
+    if (searchValue) {
+      const regex = new RegExp(escapeRegExp(searchValue), 'i');
+      fixedAssetFilter.$or = [{ code: regex }, { name: regex }];
+    }
+
+    const fixedAssets = await models.FixedAssets.find(fixedAssetFilter, {
+      _id: 1,
+    }).lean();
+    const fixedAssetIds = fixedAssets.map((asset) => asset._id);
+
+    if (!fixedAssetIds.length) {
+      return [];
+    }
+
+    const filter: Record<string, unknown> = {
+      journal: { $in: FXA_MOVEMENT_JOURNALS },
+      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      'details.fixedAssetId': { $in: fixedAssetIds },
+    };
+
+    if (date) {
+      filter.date = { $lte: getEndOfDay(date) };
+    }
+
+    const normalizedBranchId = normalizeLocationId(branchId);
+    const normalizedDepartmentId = normalizeLocationId(departmentId);
+    const transactions = await models.Transactions.find(filter).lean();
+    const remainders = new Map<
+      string,
+      {
+        fixedAssetId: string;
+        branchId: string;
+        departmentId: string;
+        remainder: number;
+      }
+    >();
+
+    for (const transaction of transactions) {
+      const sign = getFxaMovementSign(transaction.journal);
+
+      if (!sign) {
+        continue;
+      }
+
+      for (const detail of transaction.details || []) {
+        if (
+          !detail.fixedAssetId ||
+          !fixedAssetIds.includes(detail.fixedAssetId)
+        ) {
+          continue;
+        }
+
+        const detailBranchId = normalizeLocationId(
+          detail.branchId || transaction.branchId,
+        );
+        const detailDepartmentId = normalizeLocationId(
+          detail.departmentId || transaction.departmentId,
+        );
+
+        if (branchId && detailBranchId !== normalizedBranchId) {
+          continue;
+        }
+
+        if (departmentId && detailDepartmentId !== normalizedDepartmentId) {
+          continue;
+        }
+
+        const key = `${detail.fixedAssetId}:${detailBranchId}:${detailDepartmentId}`;
+        const current = remainders.get(key) || {
+          fixedAssetId: detail.fixedAssetId,
+          branchId: detailBranchId,
+          departmentId: detailDepartmentId,
+          remainder: 0,
+        };
+
+        current.remainder += sign * Math.max(0, Math.trunc(detail.count || 0));
+        remainders.set(key, current);
+      }
+    }
+
+    return Array.from(remainders.values())
+      .filter((item) => item.remainder > 0)
+      .sort((a, b) =>
+        `${a.fixedAssetId}:${a.branchId}:${a.departmentId}`.localeCompare(
+          `${b.fixedAssetId}:${b.branchId}:${b.departmentId}`,
+        ),
+      )
+      .slice(0, limit || 200);
   },
 
   fixedAssetCategories: async (

@@ -98,7 +98,8 @@ const getOwnerInputKey = (input: TFxaOwnerRecordInput) =>
   input.fxaOwnerRecordId || input._id || '';
 
 const getTransactionOwnerId = (transaction: ITransactionDocument) =>
-  transaction.followInfos?.ownerId || transaction.followInfos?.responsibleUserId;
+  transaction.followInfos?.ownerId ||
+  transaction.followInfos?.responsibleUserId;
 
 const getOwnerRecordMovementInputs = (transaction: ITransactionDocument) => {
   const inputs = getFxaOwnerRecordInputs(transaction);
@@ -168,8 +169,10 @@ const validateOwnerRecordCounts = (
 
     const detailCount = normalizeCount(detail.count);
 
-    if (selectedCount !== detailCount) {
-      throw new Error('Selected owner record count must match detail count');
+    if (selectedCount > detailCount) {
+      throw new Error(
+        'Selected owner record count must not exceed detail count',
+      );
     }
   }
 };
@@ -186,7 +189,9 @@ const getSourceOwnerRecords = async (
     return new Map();
   }
 
-  const records = await models.FxaOwnerRecords.find({ _id: { $in: ids } }).lean();
+  const records = await models.FxaOwnerRecords.find({
+    _id: { $in: ids },
+  }).lean();
 
   return new Map(records.map((record) => [record._id, record]));
 };
@@ -208,7 +213,8 @@ const getOwnerRecordBalance = async ({
 
   return records.reduce(
     (sum, record) =>
-      sum + getOwnerRecordCountSign(record.action) * normalizeCount(record.count),
+      sum +
+      getOwnerRecordCountSign(record.action) * normalizeCount(record.count),
     0,
   );
 };
@@ -245,7 +251,10 @@ const buildOwnerRecordDoc = ({
 
 const getSourceInput = (
   input: TFxaOwnerRecordInput,
-  sourceRecords: Map<string, { ownerId?: string; fixedAssetId?: string; code?: string }>,
+  sourceRecords: Map<
+    string,
+    { ownerId?: string; fixedAssetId?: string; code?: string }
+  >,
 ) => {
   const source = sourceRecords.get(getOwnerInputKey(input));
 
@@ -274,7 +283,8 @@ export const syncFxaOwnerRecordMovements = async ({
   await removeFxaOwnerRecordsByTransaction(models, transaction);
 
   const inputs = getOwnerRecordMovementInputs(transaction).filter(
-    (input) => input.transactionDetailId && (input.ownerId || getOwnerInputKey(input)),
+    (input) =>
+      input.transactionDetailId && (input.ownerId || getOwnerInputKey(input)),
   );
 
   if (!inputs.length) {
@@ -296,7 +306,8 @@ export const syncFxaOwnerRecordMovements = async ({
       : undefined;
     const count = normalizeCount(input.count);
     const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
-    const sourceOwnerId = resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
+    const sourceOwnerId =
+      resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
     const ownerId = resolvedInput.ownerId || sourceOwnerId;
 
     if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
@@ -388,7 +399,8 @@ const getLatestAdjustmentDetailsByFixedAssetId = async (
       closingAccumulatedDepreciation:
         current.closingAccumulatedDepreciation +
         (detail.closingAccumulatedDepreciation || 0),
-      closingBookValue: current.closingBookValue + (detail.closingBookValue || 0),
+      closingBookValue:
+        current.closingBookValue + (detail.closingBookValue || 0),
     });
   }
 

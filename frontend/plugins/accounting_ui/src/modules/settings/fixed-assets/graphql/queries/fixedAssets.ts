@@ -95,6 +95,33 @@ export const GET_FIXED_ASSET_LOCATION_REMAINDER = gql`
   }
 `;
 
+export const GET_FIXED_ASSET_LOCATION_REMAINDERS = gql`
+  query AccountingFixedAssetLocationRemainders(
+    $searchValue: String
+    $fixedAssetId: String
+    $categoryId: String
+    $branchId: String
+    $departmentId: String
+    $date: Date
+    $limit: Int
+  ) {
+    fixedAssetLocationRemainders(
+      searchValue: $searchValue
+      fixedAssetId: $fixedAssetId
+      categoryId: $categoryId
+      branchId: $branchId
+      departmentId: $departmentId
+      date: $date
+      limit: $limit
+    ) {
+      fixedAssetId
+      branchId
+      departmentId
+      remainder
+    }
+  }
+`;
+
 export const fxaOwnerRecordFields = `
   _id
   fixedAssetId

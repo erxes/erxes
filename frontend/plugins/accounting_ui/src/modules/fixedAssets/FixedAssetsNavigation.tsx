@@ -1,8 +1,4 @@
-import {
-  IconArrowRight,
-  IconClipboardList,
-  IconUserCheck,
-} from '@tabler/icons-react';
+import { IconMoneybag, IconUserCheck } from '@tabler/icons-react';
 import { NavigationMenuGroup, NavigationMenuLinkItem } from 'erxes-ui';
 
 export const FixedAssetsNavigation = () => {
@@ -14,14 +10,9 @@ export const FixedAssetsNavigation = () => {
         path="accounting/fixed-assets/owner-records"
       />
       <NavigationMenuLinkItem
-        name="Хөрөнгийн жагсаалт"
-        icon={IconClipboardList}
-        path="settings/accounting/fixed-assets/assets"
-      />
-      <NavigationMenuLinkItem
-        name="Дотоод хөдөлгөөн"
-        icon={IconArrowRight}
-        path="accounting/transaction/create?defaultJournal=fxaMove"
+        name="Үлдэгдэл"
+        icon={IconMoneybag}
+        path="accounting/fixed-assets/remainders"
       />
     </NavigationMenuGroup>
   );

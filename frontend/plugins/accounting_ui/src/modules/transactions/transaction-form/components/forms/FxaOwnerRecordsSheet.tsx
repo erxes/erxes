@@ -1,20 +1,10 @@
 import { useQuery } from '@apollo/client';
-import {
-  Checkbox,
-  InputNumber,
-  RecordTable,
-  Sheet,
-  Table,
-  cn,
-} from 'erxes-ui';
+import { Checkbox, InputNumber, RecordTable, Sheet, Table, cn } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
 import { SelectMember } from 'ui-modules';
 import { FXA_OWNER_RECORDS_QUERY } from '../../graphql/queries/fixedAssets';
-import {
-  ITransactionGroupForm,
-  TFxaDetail,
-} from '../../types/JournalForms';
+import { ITransactionGroupForm, TFxaDetail } from '../../types/JournalForms';
 import { getTempId } from '../utils';
 
 type TFxaOwnerRecordInput = {
@@ -82,7 +72,7 @@ export const FxaOwnerRecordsSheet = ({
     (sum, record) => sum + getInputCount(record),
     0,
   );
-  const remainingCount = detailCount - selectedCount;
+  const remainingCount = Math.max(0, detailCount - selectedCount);
   const { data, loading } = useQuery<TFxaOwnerRecordsQueryData>(
     FXA_OWNER_RECORDS_QUERY,
     {
@@ -100,7 +90,7 @@ export const FxaOwnerRecordsSheet = ({
   const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
     .filter(Boolean)
     .join(' - ');
-  const isBalanced = remainingCount === 0;
+  const isWithinLimit = selectedCount <= detailCount;
 
   const syncRecords = (nextRecords: TFxaOwnerRecordInput[]) => {
     form.setValue(
@@ -138,15 +128,12 @@ export const FxaOwnerRecordsSheet = ({
   };
 
   const addRecord = (record: TFxaOwnerRecord) => {
-    if (!detail || !detailId) {
+    if (!detail || !detailId || remainingCount <= 0) {
       return;
     }
 
     const currentCount = getRecordCurrentCount(record);
-    const count = Math.min(
-      currentCount,
-      Math.max(1, remainingCount > 0 ? remainingCount : detailCount),
-    );
+    const count = Math.min(currentCount, remainingCount);
 
     syncRecords([
       ...ownerRecords,
@@ -178,9 +165,7 @@ export const FxaOwnerRecordsSheet = ({
         return true;
       }
 
-      return (
-        record.fixedAssetId === detail?.fixedAssetId
-      );
+      return record.fixedAssetId === detail?.fixedAssetId;
     });
 
     if (JSON.stringify(nextRecords) !== JSON.stringify(ownerRecords)) {
@@ -204,9 +189,9 @@ export const FxaOwnerRecordsSheet = ({
           <div className="min-w-0">
             <Sheet.Title>{title || 'Эд хариуцагч сонгох'}</Sheet.Title>
             <Sheet.Description
-              className={cn(!isBalanced && 'text-destructive')}
+              className={cn(!isWithinLimit && 'text-destructive')}
             >
-              Тоо: {detailCount} | Сонгосон: {selectedCount} | Үлдсэн:{' '}
+              Дээд тоо: {detailCount} | Сонгосон: {selectedCount} | Боломжит:{' '}
               {remainingCount}
             </Sheet.Description>
           </div>
@@ -236,6 +221,7 @@ export const FxaOwnerRecordsSheet = ({
                       <div className="flex items-center justify-center">
                         <Checkbox
                           checked={selected}
+                          disabled={!selected && remainingCount <= 0}
                           onCheckedChange={(checked) =>
                             toggleRecord(record, Boolean(checked))
                           }

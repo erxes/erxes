@@ -41,6 +41,7 @@ export const queries = `
   fixedAssets(searchValue: String, ids: [String], categoryId: String, status: String, limit: Int): [FixedAsset]
   fixedAssetDetail(_id: String!): FixedAsset
   fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder
+  fixedAssetLocationRemainders(searchValue: String, fixedAssetId: String, categoryId: String, branchId: String, departmentId: String, date: Date, limit: Int): [FixedAssetLocationRemainder]
 `;
 
 export const mutations = `

@@ -10,7 +10,10 @@ import {
 import { getFxaDisposalSummaries } from '../fixedAssets';
 import { runAdjustFixedAsset } from '../adjustFixedAssets';
 import { syncFxaIncomeDetails } from '../fxaIncome';
-import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from '../fxaOut';
+import {
+  createFxaDisposalFollowTrs,
+  syncFxaDisposalInstances,
+} from '../fxaOut';
 
 type TQuery<T> = {
   lean: jest.Mock<Promise<T>, []>;
@@ -171,7 +174,9 @@ describe('fixed asset income', () => {
     );
     expect(transaction.details[0].fixedAssetId).toBe('asset-a');
     expect(models.FxaOwnerRecords.insertMany).not.toHaveBeenCalled();
-    expect(models.AdjustFxaDetails.replaceAdjustFxaDetails).toHaveBeenCalledWith(
+    expect(
+      models.AdjustFxaDetails.replaceAdjustFxaDetails,
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         adjustId: 'fxa-opening:tr-income',
         details: [
@@ -273,6 +278,97 @@ describe('fixed asset income', () => {
 });
 
 describe('fixed asset owner records', () => {
+  it('allows selected owner record count below detail count', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'out-a',
+      journal: JOURNALS.FXA_OUT,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-02-01T00:00:00.000Z'),
+      followInfos: {},
+      extraData: {
+        fxaOwnerRecords: [
+          {
+            tempId: 'owner-out',
+            transactionDetailId: 'detail-out',
+            fixedAssetId: 'asset-a',
+            count: 3,
+            ownerId: 'user-owner-a',
+          },
+        ],
+      },
+      details: [{ _id: 'detail-out', fixedAssetId: 'asset-a', count: 5 }],
+    };
+
+    models.FxaOwnerRecords.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'owner-in',
+          fixedAssetId: 'asset-a',
+          ownerId: 'user-owner-a',
+          count: 5,
+          action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+          status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+        },
+      ]),
+    );
+    models.Transactions.find.mockReturnValue(queryResult([]));
+
+    await syncFxaDisposalInstances(
+      models as never,
+      'user-a',
+      transaction as never,
+      FXA_LOG_EVENT_TYPES.DISPOSAL,
+      FXA_OWNER_RECORD_STATUSES.INACTIVE,
+    );
+
+    expect(models.FxaOwnerRecords.insertMany).toHaveBeenCalledWith([
+      expect.objectContaining({
+        fixedAssetId: 'asset-a',
+        count: 3,
+        action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
+        ownerId: 'user-owner-a',
+        transactionId: 'out-a',
+        transactionDetailId: 'detail-out',
+      }),
+    ]);
+  });
+
+  it('rejects selected owner record count above detail count', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'out-a',
+      journal: JOURNALS.FXA_OUT,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-02-01T00:00:00.000Z'),
+      followInfos: {},
+      extraData: {
+        fxaOwnerRecords: [
+          {
+            tempId: 'owner-out',
+            transactionDetailId: 'detail-out',
+            fixedAssetId: 'asset-a',
+            count: 6,
+            ownerId: 'user-owner-a',
+          },
+        ],
+      },
+      details: [{ _id: 'detail-out', fixedAssetId: 'asset-a', count: 5 }],
+    };
+
+    await expect(
+      syncFxaDisposalInstances(
+        models as never,
+        'user-a',
+        transaction as never,
+        FXA_LOG_EVENT_TYPES.DISPOSAL,
+        FXA_OWNER_RECORD_STATUSES.INACTIVE,
+      ),
+    ).rejects.toThrow(
+      'Selected owner record count must not exceed detail count',
+    );
+  });
+
   it('creates handed-over owner records from transaction owner when no sheet rows are sent', async () => {
     const models = makeModels();
     const transaction = {
@@ -404,14 +500,10 @@ describe('fixed asset adjustment', () => {
       queryResult([incomeTransaction, moveOutTransaction, moveInTransaction]),
     );
 
-    await runAdjustFixedAsset(
-      models as never,
-      'user-a',
-      {
-        _id: 'adjust-a',
-        date: new Date('2026-01-04T00:00:00.000Z'),
-      } as never,
-    );
+    await runAdjustFixedAsset(models as never, 'user-a', {
+      _id: 'adjust-a',
+      date: new Date('2026-01-04T00:00:00.000Z'),
+    } as never);
 
     const replaceCall =
       models.AdjustFxaDetails.replaceAdjustFxaDetails.mock.calls.at(-1)?.[0];
@@ -437,7 +529,9 @@ describe('fixed asset adjustment', () => {
         ]),
       }),
     );
-    expect(models.AdjustFixedAssets.updateAdjustFixedAsset).toHaveBeenCalledWith(
+    expect(
+      models.AdjustFixedAssets.updateAdjustFixedAsset,
+    ).toHaveBeenCalledWith(
       'adjust-a',
       expect.objectContaining({
         status: ADJ_FXA_STATUSES.PROCESS,
@@ -492,19 +586,17 @@ describe('fixed asset adjustment', () => {
       ]),
     );
 
-    await runAdjustFixedAsset(
-      models as never,
-      'user-a',
-      {
-        _id: 'adjust-a',
-        date: new Date('2026-01-03T00:00:00.000Z'),
-      } as never,
-    );
+    await runAdjustFixedAsset(models as never, 'user-a', {
+      _id: 'adjust-a',
+      date: new Date('2026-01-03T00:00:00.000Z'),
+    } as never);
 
-    expect(models.AdjustFxaDetails.replaceAdjustFxaDetails).toHaveBeenCalledWith(
-      { adjustId: 'adjust-a', details: [] },
-    );
-    expect(models.AdjustFixedAssets.updateAdjustFixedAsset).toHaveBeenCalledWith(
+    expect(
+      models.AdjustFxaDetails.replaceAdjustFxaDetails,
+    ).toHaveBeenCalledWith({ adjustId: 'adjust-a', details: [] });
+    expect(
+      models.AdjustFixedAssets.updateAdjustFixedAsset,
+    ).toHaveBeenCalledWith(
       'adjust-a',
       expect.objectContaining({
         status: ADJ_FXA_STATUSES.PROCESS,
@@ -539,11 +631,14 @@ describe('fixed asset sale and disposal summaries', () => {
       ]),
     );
 
-    const summaries = await getFxaDisposalSummaries(models as never, {
-      _id: 'sale-a',
-      journal: JOURNALS.FXA_SALE,
-      details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 2 }],
-    } as never);
+    const summaries = await getFxaDisposalSummaries(
+      models as never,
+      {
+        _id: 'sale-a',
+        journal: JOURNALS.FXA_SALE,
+        details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 2 }],
+      } as never,
+    );
 
     expect(summaries).toEqual([
       {

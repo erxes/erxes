@@ -39,8 +39,8 @@
 - Fixed asset income, out, move, and sale transaction rows can toggle detailed view to edit branch and department per detail.
 - Fixed asset income rows capture acquisition category, code, name, count, unit cost, tax settings, and optional detail-level branch/department values; code and name are editable inline table cells that participate in transaction-form keyboard navigation, and the backend creates the fixed asset from the saved detail.
 - Fixed asset income detail sheets start with no owner-allocation rows by default; the owner-record add button shows the remaining quantity, lets users split the detail count into responsible-user/serial rows, and keeps residual value plus opening accumulated depreciation as detail-level follow-info.
-- Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records whose counts match the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, and branch/department values stay on each detail.
-- Fixed asset navigation includes an "Үндсэн хөрөнгө" section with an owner-record list that filters by owner record code, fixed asset, category, owner, action, status, and created date, and opens direct owner-record receive, transfer, and cancel sheets.
+- Fixed asset out, move, and sale rows select existing fixed assets directly, while the "Олон хөрөнгө нэмэх" sheet can filter by category and append multiple selected assets as separate details; selected rows refetch fixed asset location remainder whenever fixed asset, branch, department, or date changes, can optionally select active owner records up to the detail count, out/move cost is based on asset data, sale keeps user-entered sale price, and branch/department values stay on each detail.
+- Fixed asset navigation includes an "Үндсэн хөрөнгө" section with an owner-record list and a branch/department fixed asset remainder page; the redundant fixed asset settings and direct internal-move shortcuts are not shown there.
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
@@ -77,6 +77,7 @@
 
 - Accounting API GraphQL contracts for transactions, reports, settings, inventory/fixed asset adjustments, fund rate adjustments, and debt rate adjustments, including journal report `trKind` filters.
 - Fixed asset location remainder contract `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)` for disposal/move/sale row count limits.
+- Fixed asset location remainder list contract `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)` for the fixed asset remainder page.
 - Fixed asset owner-record query contract `fxaOwnerRecords(fixedAssetIds, status, balanceOnly)` for disposal/move/sale owner balance selection sheets.
 - Fixed asset owner-record list contracts `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, page, perPage)` and `fxaOwnerRecordsCount(...)`, plus direct `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove` mutations for the fixed asset owner-record page.
 - Fund rate adjustment contracts: `adjustFundRates`, `adjustFundRateDetail`, `adjustFundRateAdd`, `adjustFundRateChange`, `adjustFundRateCalculate`, `adjustFundRateDoTransaction`, `adjustFundRateRemove`, and `accountingAdjustFundRateChanged`.
@@ -115,7 +116,8 @@
 - Fixed asset income owner sheet state must preserve `followInfos.fxaIncomeDetails` residual value and opening accumulated depreciation per detail; owner rows in `extraData.fxaOwnerRecords` are optional and represent responsible-user/serial allocation only.
 - Fixed asset disposal, move, and sale forms must not require owner-record selection or a row-level category selector; category filtering belongs in the multi-add sheet, while quantity, branch, and department are owned by transaction details.
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
-- Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must equal the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
+- Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
+- Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Module Federation exposes, route paths, and named exports must stay aligned.
 - Journal report total calculation must stay scoped to the rendered report table body and zero-row hiding must preserve rows explicitly marked with `data-draw-zero="1"`.
 - Journal report headers and footers must stay aligned with each report config's two recursive grouping columns plus `colCount` value columns.
@@ -131,13 +133,26 @@
 - Smoke scenario: in inventory sale, income, out, and move rows, change products and verify `unitPrice` plus amount/follow cost values refresh without a manual page reload.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
 - Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual/opening depreciation values, save, refetch, and verify the generated fixed asset plus optional owner records remain.
-- Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows whose counts equal the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
+- Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
 - Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
+- Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
 - Smoke scenario: generate account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset journal reports with and without "Хоосон мөр харуулах" and "Гүйлгээний төрөл", verify parent/footer totals plus detail rows remain correct, and double-click an account statement detail row to open its transaction edit screen.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-29` — `Fixed Asset Remainder Navigation`
+
+- **Summary:** Replaced the fixed asset settings and direct internal-move shortcuts in the accounting sidebar with a fixed asset remainder page filtered by asset, category, branch, department, search, and date.
+- **Affected areas:** `src/config.tsx`, `src/modules/AccountingMain.tsx`, `src/modules/fixedAssets`, `src/pages/fixed-assets/FxaRemaindersPage.tsx`, `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`.
+- **Contracts changed:** Consumes `fixedAssetLocationRemainders`.
+
+### `2026-08-29` — `Fixed Asset Owner Partial Disposal`
+
+- **Summary:** Fixed asset out, move, and sale owner-record sheets now treat the detail quantity as a maximum and allow partially owner-assigned disposal quantities.
+- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-08-29` — `Fixed Asset Owner Ledger`
 
@@ -186,15 +201,3 @@
 - **Summary:** Fixed asset income now captures category, code, and name on transaction details, owner allocation rows are optional, and out/move/sale rows select fixed assets directly instead of owner-record allocations.
 - **Affected areas:** `src/modules/transactions/transaction-form/contants`, `src/modules/transactions/transaction-form/components/forms/Fxa*Form`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/graphql/transactionQueries.ts`, `src/modules/settings/fixed-assets/types/FixedAsset.ts`.
 - **Contracts changed:** Transaction detail forms read and write `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName`; owner-record query usage no longer expects cost/depreciation fields.
-
-### `2026-08-21` — `Fixed Asset Detail Locations`
-
-- **Summary:** Fixed asset transaction forms now share the detailed-view toggle so each detail row can edit its own branch and department.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/Fxa*Form`, `src/modules/transactions/transaction-form/components/forms/FxaDetailLocationCells.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-17` — `Related Account Default Display`
-
-- **Summary:** Related account editing now falls back to backend-calculated default debit/credit codes whenever custom debit/credit override arrays are empty.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/helpers/RelAccountsForm.tsx`.
-- **Contracts changed:** None.

@@ -44,6 +44,7 @@ export interface IFixedAsset {
 export interface IFxaOwnerRecord {
   _id: string;
   fixedAssetId?: string;
+  categoryId?: string;
   code?: string;
   sequence?: number;
   count?: number;
@@ -56,6 +57,13 @@ export interface IFxaOwnerRecord {
   updatedAt?: Date;
   createdBy?: string;
   modifiedBy?: string;
+}
+
+export interface IFixedAssetLocationRemainder {
+  fixedAssetId?: string;
+  branchId?: string;
+  departmentId?: string;
+  remainder?: number;
 }
 
 export type TFixedAssetCategoryForm = z.infer<typeof fixedAssetCategorySchema>;
