@@ -56,7 +56,13 @@ export const ConversationSideWidget = ({
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (
-    <SideMenu ref={sideMenuRef} className="flex-none">
+    <SideMenu
+      ref={sideMenuRef}
+      className={cn(
+        'flex-none',
+        asSheet && 'absolute inset-y-0 right-0 z-30 pointer-events-none',
+      )}
+    >
       {asSheet && (
         <SideWidgetOutsideClose
           containerRef={sideMenuRef}
@@ -88,7 +94,12 @@ export const ConversationSideWidget = ({
         );
       })}
 
-      <SideMenu.Sidebar>
+      <SideMenu.Sidebar
+        className={cn(
+          asSheet &&
+            'pointer-events-auto w-12 border-l bg-sidebar/95 shadow-lg backdrop-blur',
+        )}
+      >
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger

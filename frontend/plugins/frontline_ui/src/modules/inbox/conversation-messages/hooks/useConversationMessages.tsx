@@ -1,8 +1,8 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useQuery, type QueryHookOptions } from '@apollo/client';
 import { useCallback, useEffect } from 'react';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
-import { IMessage } from '../../types/Conversation';
+import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
   options: QueryHookOptions<{

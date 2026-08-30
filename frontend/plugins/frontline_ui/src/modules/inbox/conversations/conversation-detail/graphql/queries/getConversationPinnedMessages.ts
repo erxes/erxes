@@ -6,6 +6,12 @@ export const GET_CONVERSATION_PINNED_MESSAGES = gql`
       _id
       content
       createdAt
+      attachments {
+        url
+        name
+        type
+        size
+      }
       extraData
       providerData
     }

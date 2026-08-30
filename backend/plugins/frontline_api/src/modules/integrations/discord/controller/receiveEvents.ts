@@ -103,11 +103,15 @@ export const receiveDiscordMessageEdit = async ({
   if (typeof activity.raw?.pinned === 'boolean') {
     await updateInboxMessageExtra(models, activity.messageId, {
       discordPinned: activity.raw.pinned,
+      ...(!activity.raw.edited_timestamp && { discordEditedAt: null }),
     });
   }
 
+  const editedAt = activity.raw?.edited_timestamp;
   const editedContent =
-    typeof activity.raw?.content === 'string' ? activity.content : undefined;
+    typeof editedAt === 'string' && typeof activity.raw?.content === 'string'
+      ? activity.content
+      : undefined;
 
   if (editedContent === undefined) {
     return;
@@ -118,6 +122,10 @@ export const receiveDiscordMessageEdit = async ({
     activity.mentions,
   );
 
+  if (displayContent === message.content) {
+    return;
+  }
+
   await models.DiscordConversationMessages.updateOne(
     { _id: message._id },
     { $set: { content: displayContent, updatedAt: new Date() } },
@@ -126,7 +134,7 @@ export const receiveDiscordMessageEdit = async ({
   await updateInboxMessageExtra(
     models,
     activity.messageId,
-    { discordEditedAt: new Date().toISOString() },
+    { discordEditedAt: editedAt },
     { content: displayContent },
   );
 
@@ -215,9 +223,11 @@ export const receiveDiscordPollVote = async ({
 
 export const receiveDiscordReaction = async ({
   models,
+  bot,
   event,
 }: {
   models: IModels;
+  bot: IDiscordBotDocument;
   event: DiscordReactionEvent;
 }) => {
   const inboxMessage = await models.ConversationMessages.findOne({
@@ -227,17 +237,45 @@ export const receiveDiscordReaction = async ({
 
   const extraData = inboxMessage.extraData || {};
   const current = Array.isArray(extraData.reactions)
-    ? (extraData.reactions as Array<{ senderId: string; emoji: string }>)
+    ? (extraData.reactions as Array<{
+        senderId: string;
+        emoji: string;
+        reaction?: string;
+      }>)
     : [];
-  const reactions = current.filter(
-    (reaction) =>
-      reaction.senderId !== event.userId || reaction.emoji !== event.emoji,
+  const isBotReaction = event.userId === bot.applicationId;
+  const hasLocalBotReaction = current.some(
+    (reaction) => reaction.reaction && reaction.emoji === event.emoji,
   );
-  if (event.added) {
+  const reactions = current.filter((reaction) => {
+    if (reaction.senderId === event.userId && reaction.emoji === event.emoji) {
+      return false;
+    }
+
+    // Inbox reactions are attributed to the erxes user so the UI can identify
+    // ownership. Discord emits the corresponding @me removal with the bot's
+    // application id, so remove that local ownership marker by emoji as well.
+    if (
+      !event.added &&
+      isBotReaction &&
+      reaction.reaction &&
+      reaction.emoji === event.emoji
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+  if (event.added && !(isBotReaction && hasLocalBotReaction)) {
     reactions.push({ senderId: event.userId, emoji: event.emoji });
   }
 
-  await updateInboxMessageExtra(models, event.messageId, { reactions });
+  await updateInboxMessageExtra(
+    models,
+    event.messageId,
+    { reactions },
+    { reactions },
+  );
 };
 
 export const receiveDiscordTyping = async ({

@@ -1,10 +1,7 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   Button,
-  Command,
-  Dialog,
   DropdownMenu,
-  Input,
   Spinner,
   Tooltip,
   toast,
@@ -12,25 +9,25 @@ import {
 import {
   IconArrowBackUp,
   IconCopy,
+  IconDots,
   IconMoodSmile,
   IconPin,
   IconPinnedOff,
   IconShare3,
 } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
-import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
 import {
   CONVERSATION_MESSAGE_PIN,
   CONVERSATION_MESSAGE_REACT,
 } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
-import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
-import type { IConversation, IMessage } from '@/inbox/types/Conversation';
+import type { IMessage } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import { currentUserState } from 'ui-modules';
+import { ForwardMessageDialog } from '@/inbox/conversation-messages/components/ForwardMessageDialog';
 
 const REACTIONS = ['love', 'like', 'wow', 'haha', 'sad', 'angry'] as const;
 const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
@@ -42,7 +39,7 @@ const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
   angry: '😠',
 };
 
-const textOf = (html?: string) => {
+export const textOf = (html?: string) => {
   if (!html) return '';
   const document = new DOMParser().parseFromString(html, 'text/html');
   return (document.body.textContent || '').trim();
@@ -54,7 +51,10 @@ const previewOf = (message: IMessage) =>
   message.attachments?.[0]?.name ||
   'Attachment';
 
-const nativeReplyKinds = new Set<string>([IntegrationType.DISCORD_MESSENGER]);
+const nativeReplyKinds = new Set<string>([
+  IntegrationType.DISCORD_MESSENGER,
+  IntegrationType.INSTAGRAM_MESSENGER,
+]);
 const reactionKinds = new Set<string>([
   IntegrationType.DISCORD_MESSENGER,
   IntegrationType.INSTAGRAM_MESSENGER,
@@ -77,11 +77,11 @@ const ActionButton = ({
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           disabled={disabled}
           aria-label={label}
           onClick={onClick}
-          className="rounded-sm text-muted-foreground hover:text-foreground"
+          className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           {children}
         </Button>
@@ -91,7 +91,13 @@ const ActionButton = ({
   </Tooltip>
 );
 
-export const MessageActions = ({ message }: { message: IMessage }) => {
+export const MessageActions = ({
+  message,
+  additionalActions,
+}: {
+  message: IMessage;
+  additionalActions?: React.ReactNode;
+}) => {
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
   const providerMessageId =
@@ -167,9 +173,6 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
   return (
     <Tooltip.Provider delayDuration={0}>
       <div className="flex items-center gap-0.5">
-        <ActionButton label="Reply" onClick={handleReply}>
-          <IconArrowBackUp className="size-4" />
-        </ActionButton>
         <ReactionMenu
           conversationId={conversationId}
           messageId={providerMessageId || ''}
@@ -181,25 +184,60 @@ export const MessageActions = ({ message }: { message: IMessage }) => {
           }
           selectedReaction={ownReaction}
         />
-        <ActionButton label="Forward" onClick={() => setForwardOpen(true)}>
-          <IconShare3 className="size-4" />
+        <ActionButton label="Reply" onClick={handleReply}>
+          <IconArrowBackUp className="size-4" />
         </ActionButton>
-        <ActionButton label="Copy text" disabled={!preview} onClick={copy}>
-          <IconCopy className="size-4" />
-        </ActionButton>
-        {isDiscord && (
-          <ActionButton
-            label={isPinned ? 'Unpin message' : 'Pin message'}
-            disabled={!providerMessageId || pinning}
-            onClick={togglePin}
-          >
-            {isPinned ? (
-              <IconPinnedOff className="size-4" />
-            ) : (
-              <IconPin className="size-4" />
-            )}
-          </ActionButton>
-        )}
+        {additionalActions}
+        <div className="ml-0.5 border-l border-border/70 pl-0.5">
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="More message actions"
+                className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground"
+              >
+                <IconDots className="size-4" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              align="end"
+              sideOffset={6}
+              className="min-w-44 rounded-xl p-1 shadow-lg"
+            >
+              <DropdownMenu.Item
+                className="rounded-lg"
+                onClick={() => setForwardOpen(true)}
+              >
+                <IconShare3 className="size-4" />
+                Forward
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className="rounded-lg"
+                disabled={!preview}
+                onClick={copy}
+              >
+                <IconCopy className="size-4" />
+                Copy text
+              </DropdownMenu.Item>
+              {isDiscord && (
+                <DropdownMenu.Item
+                  className="rounded-lg"
+                  disabled={!providerMessageId || pinning}
+                  onClick={togglePin}
+                >
+                  {isPinned ? (
+                    <IconPinnedOff className="size-4" />
+                  ) : (
+                    <IconPin className="size-4" />
+                  )}
+                  {isPinned ? 'Unpin message' : 'Pin message'}
+                </DropdownMenu.Item>
+              )}
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        </div>
       </div>
       <ForwardMessageDialog
         open={forwardOpen}
@@ -247,10 +285,10 @@ const ReactionMenu = ({
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label="Add reaction"
           disabled={loading}
-          className="rounded-sm text-muted-foreground hover:text-foreground"
+          className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground"
         >
           {loading ? (
             <Spinner size="sm" />
@@ -301,145 +339,5 @@ const ReactionMenu = ({
         ))}
       </DropdownMenu.Content>
     </DropdownMenu>
-  );
-};
-
-const ForwardMessageDialog = ({
-  open,
-  onOpenChange,
-  sourceConversationId,
-  message,
-  preview,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  sourceConversationId: string;
-  message: IMessage;
-  preview: string;
-}) => {
-  const [note, setNote] = useState('');
-  const [selectedId, setSelectedId] = useState('');
-  const { addConversationMessage, loading } = useConversationMessageAdd();
-  const { data, loading: conversationsLoading } = useQuery<{
-    conversations: { list: IConversation[] };
-  }>(GET_CONVERSATIONS, {
-    variables: { limit: 50, status: 'open' },
-    skip: !open,
-    fetchPolicy: 'cache-and-network',
-  });
-  const conversations = useMemo(
-    () =>
-      (data?.conversations.list || []).filter(
-        (conversation) => conversation._id !== sourceConversationId,
-      ),
-    [data?.conversations.list, sourceConversationId],
-  );
-
-  const handleForward = async () => {
-    if (!selectedId) return;
-    const prefix = note.trim() ? `<p>${note.trim()}</p>` : '';
-    const forwarded = `<blockquote><strong>Forwarded message</strong><br/>${preview}</blockquote>`;
-    try {
-      await addConversationMessage({
-        variables: {
-          conversationId: selectedId,
-          content: `${prefix}${forwarded}`,
-          attachments: message.attachments || [],
-          internal: false,
-          extraInfo: {
-            forwardedFrom: {
-              conversationId: sourceConversationId,
-              messageId: message._id,
-            },
-          },
-        },
-        refetchQueries: [
-          'Conversations',
-          'ConversationMessages',
-          'ConversationCounts',
-          'FrontlineInboxSidebarWorkCounts',
-        ],
-      });
-      toast({ title: 'Message forwarded', variant: 'default' });
-      setNote('');
-      setSelectedId('');
-      onOpenChange(false);
-    } catch (error) {
-      toast({
-        title: `Failed to forward: ${(error as Error).message}`,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-lg">
-        <Dialog.Header>
-          <Dialog.Title>Forward message</Dialog.Title>
-          <Dialog.Description>
-            Choose another conversation. The content is sent as a snapshot and
-            will not change if the original is edited.
-          </Dialog.Description>
-        </Dialog.Header>
-        <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
-          <div className="line-clamp-3">{preview}</div>
-        </div>
-        <Command className="rounded-md border">
-          <Command.Input placeholder="Search conversations" />
-          <Command.List className="max-h-64 overflow-y-auto">
-            {conversationsLoading && (
-              <div className="flex justify-center p-4">
-                <Spinner size="sm" />
-              </div>
-            )}
-            <Command.Empty>No conversations found</Command.Empty>
-            {conversations.map((conversation) => {
-              const customer = conversation.customer;
-              const name =
-                [customer?.firstName, customer?.lastName]
-                  .filter(Boolean)
-                  .join(' ') ||
-                conversation.integration?.name ||
-                'Conversation';
-              return (
-                <Command.Item
-                  key={conversation._id}
-                  value={`${name} ${conversation.content || ''}`}
-                  onSelect={() => setSelectedId(conversation._id)}
-                  className={selectedId === conversation._id ? 'bg-accent' : ''}
-                >
-                  <span className="min-w-0 flex-1 truncate">{name}</span>
-                  <span className="max-w-48 truncate text-xs text-muted-foreground">
-                    {textOf(conversation.content)}
-                  </span>
-                </Command.Item>
-              );
-            })}
-          </Command.List>
-        </Command>
-        <Input
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          placeholder="Add a note (optional)"
-        />
-        <Dialog.Footer>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            disabled={!selectedId || loading}
-            onClick={handleForward}
-          >
-            {loading && <Spinner size="sm" />} Forward
-          </Button>
-        </Dialog.Footer>
-      </Dialog.Content>
-    </Dialog>
   );
 };

@@ -3,6 +3,7 @@ import { stripHtml } from 'string-strip-html';
 import { IModels } from '~/connectionResolvers';
 import {
   DiscordMessageAttachment,
+  DiscordApiError,
   DiscordPollRequest,
   getDiscordUser,
   getErrorMessage,
@@ -326,13 +327,17 @@ export const handleDiscordMessage = async (
             (item) =>
               typeof item === 'object' &&
               item !== null &&
-              item.senderId !== userId,
+              item.senderId !== userId &&
+              !(
+                item.senderId === bot.applicationId && item.emoji === emoji
+              ),
           )
         : [];
       if (!remove) {
         reactions.push({ senderId: userId || 'agent', reaction, emoji });
       }
       inboxMessage.extraData = { ...extraData, reactions };
+      inboxMessage.reactions = reactions;
       await inboxMessage.save();
       await graphqlPubsub.publish(
         `conversationMessageInserted:${conversationId}`,
@@ -359,7 +364,19 @@ export const handleDiscordMessage = async (
     }
 
     const updatePin = remove ? unpinChannelMessage : pinChannelMessage;
-    await updatePin(bot.token, conversation.channelId, messageId);
+    try {
+      await updatePin(bot.token, conversation.channelId, messageId);
+    } catch (error) {
+      if (error instanceof DiscordApiError && error.status === 403) {
+        throw new Error(
+          'The Discord bot needs the "Manage Messages" permission in this channel to pin messages. Re-authorize the bot or update the channel role override, then try again.',
+        );
+      }
+      if (error instanceof DiscordApiError && error.status === 404) {
+        throw new Error('This message no longer exists in the Discord channel');
+      }
+      throw error;
+    }
 
     const inboxMessage = await models.ConversationMessages.findOne({
       conversationId,

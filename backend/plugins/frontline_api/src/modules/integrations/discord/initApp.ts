@@ -210,7 +210,7 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
         try {
           const bot = await resolveBot(event.channelId);
           if (!bot) return;
-          await receiveDiscordReaction({ models, event });
+          await receiveDiscordReaction({ models, bot, event });
         } catch (e) {
           debugError(
             `Discord reaction routing failed: ${(e as Error).message}`,

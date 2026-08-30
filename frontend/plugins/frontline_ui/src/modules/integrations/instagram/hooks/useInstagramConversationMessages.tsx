@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../graphql/queries/igConversationQueries';
+import { GET_CONVERSATION_MESSAGES } from '@/integrations/instagram/graphql/queries/igConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import { IInstagramConversationMessage } from '../types/InstagramTypes';
+import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
 import { useEffect } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 

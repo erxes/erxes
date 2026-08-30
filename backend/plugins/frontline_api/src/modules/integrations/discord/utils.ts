@@ -38,9 +38,20 @@ export const resolveAttachmentUrl = (
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  return NODE_ENV === 'development'
-    ? `${DOMAIN}/pl:core/read-file?key=${urlOrKey}`
-    : `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrKey}`;
+  if (NODE_ENV === 'development') {
+    const gatewayUrl = getEnv({
+      name: 'GATEWAY_URL',
+      subdomain,
+      defaultValue: 'http://localhost:4000',
+    });
+    return `${gatewayUrl.replace(/\/$/, '')}/pl:core/read-file?key=${encodeURIComponent(
+      urlOrKey,
+    )}`;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${encodeURIComponent(
+    urlOrKey,
+  )}`;
 };
 
 type InboundAttachment = DiscordAttachment;
@@ -160,6 +171,23 @@ const parseDiscordResponse = (text: string): unknown => {
 };
 
 const MAX_RATE_LIMIT_RETRIES = 5;
+const MAX_NETWORK_RETRIES = 2;
+
+const fetchWithNetworkRetry = async (
+  input: string,
+  init?: RequestInit,
+): Promise<Response> => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(input, init);
+    } catch (error) {
+      if (attempt >= MAX_NETWORK_RETRIES) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+};
 
 const buildRequestHeaders = (
   token: string,
@@ -206,7 +234,7 @@ const discordRequest = async <T>({
   form,
 }: TDiscordRequestArgs): Promise<T> => {
   for (let attempt = 0; ; attempt++) {
-    const response = await fetch(`${DISCORD_API_URL}${path}`, {
+    const response = await fetchWithNetworkRetry(`${DISCORD_API_URL}${path}`, {
       method,
       headers: buildRequestHeaders(token, form),
       body: buildRequestBody(form, body),
@@ -393,7 +421,16 @@ const postDiscordMessage = async ({
     const file = files[i];
     if (!file?.url) continue;
 
-    const res = await fetch(file.url);
+    let res: Response;
+    try {
+      res = await fetchWithNetworkRetry(file.url);
+    } catch (error) {
+      throw new Error(
+        `Could not read attachment ${file.filename || `#${i + 1}`} from storage: ${getErrorMessage(
+          error,
+        )}`,
+      );
+    }
     if (!res.ok) {
       throw new Error(
         `Failed to fetch attachment ${file.url}: HTTP ${res.status}`,

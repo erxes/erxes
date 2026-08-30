@@ -133,10 +133,10 @@ export const DiscordMessageActions = ({
           <Button
             type="button"
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             aria-label="Copy Discord message link"
             onClick={handleCopyLink}
-            className="rounded-full text-muted-foreground hover:text-foreground"
+            className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <IconLink className="size-4" />
           </Button>
@@ -150,10 +150,10 @@ export const DiscordMessageActions = ({
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 aria-label="Edit Discord message"
                 onClick={handleOpenEdit}
-                className="rounded-full text-muted-foreground hover:text-foreground"
+                className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <IconPencil className="size-4" />
               </Button>
@@ -165,10 +165,10 @@ export const DiscordMessageActions = ({
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 aria-label="Delete Discord message"
                 onClick={handleDelete}
-                className="rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                className="size-8 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               >
                 <IconTrash className="size-4" />
               </Button>

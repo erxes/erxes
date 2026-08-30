@@ -7,15 +7,8 @@ import { TypingIndicator } from '@/inbox/conversation-messages/components/Typing
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
 import { useQuery } from '@apollo/client';
-import { Button, DropdownMenu } from 'erxes-ui';
-import { IconPin } from '@tabler/icons-react';
 import { GET_CONVERSATION_PINNED_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationPinnedMessages';
-
-const plainText = (content?: string) =>
-  content
-    ?.replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim() || 'Message';
+import { PinnedMessagesBar } from './PinnedMessagesBar';
 
 export const ConversationMessages = ({
   conversationId,
@@ -23,7 +16,7 @@ export const ConversationMessages = ({
   conversationId: string;
 }) => {
   const [pendingReplyTarget, setPendingReplyTarget] = useState<string>();
-  const { data: pinnedData } = useQuery<{
+  const { data: pinnedData, refetch: refetchPinnedMessages } = useQuery<{
     conversationPinnedMessages: IMessage[];
   }>(GET_CONVERSATION_PINNED_MESSAGES, {
     variables: { conversationId },
@@ -45,6 +38,16 @@ export const ConversationMessages = ({
     useConversationTypingStatus(conversationId);
 
   const lastMessage = messages?.[messages.length - 1];
+  const pinnedMessageSignature = messages
+    .filter((message) => message.extraData?.discordPinned)
+    .map((message) => message._id)
+    .sort()
+    .join(':');
+
+  useEffect(() => {
+    void refetchPinnedMessages();
+  }, [pinnedMessageSignature, refetchPinnedMessages]);
+
   useEffect(() => {
     clearTypist(lastMessage?.customerId);
   }, [lastMessage?._id, lastMessage?.customerId, clearTypist]);
@@ -100,58 +103,42 @@ export const ConversationMessages = ({
       .size > 1;
 
   return (
-    <InboxMessagesContainer
-      fetchMore={handleFetchMore}
-      messagesLength={messages?.length || 0}
-      totalCount={totalCount}
-      loading={loading}
-    >
-      {pinnedMessages.length > 0 && (
-        <div className="sticky top-2 z-20 mb-2 flex justify-center">
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button variant="secondary" size="sm" className="shadow-sm">
-                <IconPin className="size-4" /> {pinnedMessages.length} pinned
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content className="max-h-72 w-80 overflow-y-auto">
-              {pinnedMessages.map((message) => (
-                <DropdownMenu.Item
-                  key={message._id}
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent('frontline:jump-to-message', {
-                        detail:
-                          message.providerData?.messageId ||
-                          message.extraData?.discordMessageId ||
-                          message._id,
-                      }),
-                    )
-                  }
-                >
-                  <IconPin className="size-4" />
-                  <span className="truncate">{plainText(message.content)}</span>
-                </DropdownMenu.Item>
-              ))}
-            </DropdownMenu.Content>
-          </DropdownMenu>
-        </div>
-      )}
-      {messages?.map((message: IMessage, index: number) => (
-        <ConversationMessageContext.Provider
-          value={{
-            ...message,
-            conversationId: message.conversationId || conversationId,
-            previousMessage: messages[index - 1],
-            nextMessage: messages[index + 1],
-            isGroupConversation,
-          }}
-          key={message._id}
+    <div className="flex h-full min-h-0 flex-col">
+      <PinnedMessagesBar
+        conversationId={conversationId}
+        messages={pinnedMessages}
+        onSelectMessage={(messageId) =>
+          window.dispatchEvent(
+            new CustomEvent('frontline:jump-to-message', {
+              detail: messageId,
+            }),
+          )
+        }
+      />
+      <div className="min-h-0 flex-1">
+        <InboxMessagesContainer
+          fetchMore={handleFetchMore}
+          messagesLength={messages?.length || 0}
+          totalCount={totalCount}
+          loading={loading}
         >
-          <MessageItem />
-        </ConversationMessageContext.Provider>
-      ))}
-      <TypingIndicator names={typingNames} />
-    </InboxMessagesContainer>
+          {messages?.map((message: IMessage, index: number) => (
+            <ConversationMessageContext.Provider
+              value={{
+                ...message,
+                conversationId: message.conversationId || conversationId,
+                previousMessage: messages[index - 1],
+                nextMessage: messages[index + 1],
+                isGroupConversation,
+              }}
+              key={message._id}
+            >
+              <MessageItem />
+            </ConversationMessageContext.Provider>
+          ))}
+          <TypingIndicator names={typingNames} />
+        </InboxMessagesContainer>
+      </div>
+    </div>
   );
 };

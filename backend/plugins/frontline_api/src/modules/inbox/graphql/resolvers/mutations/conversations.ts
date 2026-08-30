@@ -691,10 +691,22 @@ export const conversationMutations = {
           );
         }
 
+        const forwardedSnapshot = extraInfo?.forwardedSnapshot;
         const messageDoc = {
           ...doc,
-          ...(displayContent ? { content: displayContent } : {}),
-          ...(extraData ? { extraData } : {}),
+          ...(forwardedSnapshot
+            ? { content: extraInfo.forwardedNote || '' }
+            : displayContent
+            ? { content: displayContent }
+            : {}),
+          ...(extraData || forwardedSnapshot
+            ? {
+                extraData: {
+                  ...(extraData || {}),
+                  ...(forwardedSnapshot && { forwardedSnapshot }),
+                },
+              }
+            : {}),
           ...(providerData ? { providerData } : {}),
           ...(replyTo ? { replyTo } : {}),
           ...(deliveryStatus ? { deliveryStatus } : {}),

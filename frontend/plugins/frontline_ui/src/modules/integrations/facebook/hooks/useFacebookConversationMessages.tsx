@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../graphql/queries/fbConversationQueries';
+import { GET_CONVERSATION_MESSAGES } from '@/integrations/facebook/graphql/queries/fbConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import { IFacebookConversationMessage } from '../types/FacebookTypes';
+import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
 import { useEffect } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 

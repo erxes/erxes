@@ -1,5 +1,3 @@
-import { Resizable } from 'erxes-ui';
-
 export const ConversationDetailLayout = ({
   children,
   input,
@@ -8,21 +6,13 @@ export const ConversationDetailLayout = ({
   input: React.ReactNode;
 }) => {
   return (
-    <Resizable.PanelGroup direction="vertical">
-      <Resizable.Panel
-        defaultSize={input ? 80 : 100}
-        minSize={input ? 55 : 100}
-      >
-        <div className="relative h-full overflow-hidden">{children}</div>
-      </Resizable.Panel>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
       {input && (
-        <>
-          <Resizable.Handle className="bg-transparent hover:bg-border" />
-          <Resizable.Panel defaultSize={20} minSize={18} maxSize={45}>
-            {input}
-          </Resizable.Panel>
-        </>
+        <div className="relative z-20 shrink-0 border-t border-border/60 bg-background/95 backdrop-blur">
+          {input}
+        </div>
       )}
-    </Resizable.PanelGroup>
+    </div>
   );
 };

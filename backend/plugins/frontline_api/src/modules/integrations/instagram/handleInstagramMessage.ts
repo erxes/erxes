@@ -184,6 +184,7 @@ export const handleInstagramMessage = async (
       content = '',
       attachments = [],
       extraInfo,
+      replyToMessageId,
     } = doc;
 
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
@@ -213,7 +214,12 @@ export const handleInstagramMessage = async (
           'me/messages',
           {
             recipient: { id: senderId },
-            message: { text: strippedContent },
+            message: {
+              text: strippedContent,
+              ...(replyToMessageId && {
+                reply_to: { mid: replyToMessageId },
+              }),
+            },
             messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
             ...(tag && { tag }),
           },
@@ -227,6 +233,9 @@ export const handleInstagramMessage = async (
               conversationId: conversation._id,
               integrationId: conversation.integrationId,
               mid: resp.message_id,
+              ...(replyToMessageId && {
+                replyTo: { messageId: replyToMessageId },
+              }),
             },
             doc.userId,
           );

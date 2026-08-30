@@ -225,6 +225,12 @@ export const receiveMessage = async (
     throw new Error(e.message);
   }
 
+  const erxesConversationId = conversation.erxesApiId;
+
+  if (!erxesConversationId) {
+    throw new Error('Erxes conversation ID is unavailable');
+  }
+
   const existingMessage = await models.InstagramConversationMessages.findOne({
     mid,
   });
@@ -249,6 +255,8 @@ export const receiveMessage = async (
   }
 
   if (!existingMessage) {
+    let inboxMessageId: string | undefined;
+
     try {
       const content =
         normalizedMessage.content ||
@@ -269,18 +277,31 @@ export const receiveMessage = async (
         expiresAt: normalizedMessage.expiresAt,
       });
 
-      const doc = {
-        ...created.toObject(),
-        conversationId: conversation.erxesApiId,
-      };
+      const inboxMessage = await models.ConversationMessages.createMessage({
+        conversationId: erxesConversationId,
+        content,
+        customerId: customer.erxesApiId,
+        attachments: formattedAttachments,
+        createdAt: new Date(timestamp),
+        messageKind: normalizedMessage.messageKind,
+        providerData: normalizedMessage.providerData,
+        replyTo: normalizedMessage.replyTo,
+        deliveryStatus: normalizedMessage.deliveryStatus,
+        expiresAt: normalizedMessage.expiresAt,
+      });
+      inboxMessageId = inboxMessage._id;
 
-      await pConversationClientMessageInserted(subdomain, doc);
+      await pConversationClientMessageInserted(subdomain, inboxMessage);
 
       await triggerInstagramAutomation(subdomain, {
         conversationMessage: created.toObject(),
         payload: message?.payload,
       });
     } catch (e) {
+      await models.InstagramConversationMessages.deleteOne({ mid });
+      if (inboxMessageId) {
+        await models.ConversationMessages.deleteOne({ _id: inboxMessageId });
+      }
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'

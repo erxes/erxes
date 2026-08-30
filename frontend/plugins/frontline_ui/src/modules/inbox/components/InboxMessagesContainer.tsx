@@ -19,6 +19,7 @@ export const InboxMessagesContainer = ({
 }>) => {
   const { t } = useTranslation('frontline');
   const viewportRef = useRef<HTMLDivElement>(null);
+  const shouldFollowNewestRef = useRef(true);
 
   const [fetchMoreRef] = useInView({
     threshold: 0,
@@ -39,13 +40,21 @@ export const InboxMessagesContainer = ({
       }
     });
   };
+  const handleScroll = () => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const distanceFromBottom =
+      viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    shouldFollowNewestRef.current = distanceFromBottom < 120;
+  };
   useEffect(() => {
     if (viewportRef.current) {
       if (distanceFromBottomRef.current) {
         viewportRef.current.scrollTop =
           viewportRef.current.scrollHeight - distanceFromBottomRef.current;
         distanceFromBottomRef.current = 0;
-      } else if (messagesLength > 0) {
+      } else if (messagesLength > 0 && shouldFollowNewestRef.current) {
         scrollToBottom();
       }
     }
@@ -53,7 +62,11 @@ export const InboxMessagesContainer = ({
 
   return (
     <ScrollArea.Root className="h-full bg-muted/20">
-      <ScrollArea.Viewport ref={viewportRef} className="h-full">
+      <ScrollArea.Viewport
+        ref={viewportRef}
+        className="h-full"
+        onScroll={handleScroll}
+      >
         {!!messagesLength && totalCount > messagesLength && (
           <p ref={fetchMoreRef} />
         )}
@@ -75,7 +88,7 @@ export const InboxMessagesContainer = ({
             </Empty.Header>
           </Empty>
         ) : (
-          <div className="mx-auto flex w-full max-w-[720px] flex-col px-4 py-6 md:px-6">
+          <div className="mx-auto flex w-full max-w-[720px] min-w-0 flex-col overflow-x-hidden px-3 py-6 sm:px-4 md:px-6">
             {children}
           </div>
         )}
