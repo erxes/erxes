@@ -192,6 +192,66 @@ describe('fixed asset income', () => {
     );
   });
 
+  it('reuses one fixed asset for income details with the same acquisition code', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction({
+      details: [
+        {
+          _id: 'detail-branch-a',
+          accountId: 'asset-account',
+          fixedAssetCategoryId: 'cat-a',
+          fixedAssetCode: 'DELL-001',
+          fixedAssetName: 'Dell laptop',
+          branchId: 'branch-a',
+          departmentId: 'dept-a',
+          count: 3,
+          unitPrice: 500,
+          amount: 1500,
+          followInfos: {
+            fixedAssetTotalCount: 5,
+            fixedAssetTotalAmount: 2500,
+          },
+        },
+        {
+          _id: 'detail-branch-b',
+          accountId: 'asset-account',
+          fixedAssetCategoryId: 'cat-a',
+          fixedAssetCode: 'DELL-001',
+          fixedAssetName: 'Dell laptop',
+          branchId: 'branch-b',
+          departmentId: 'dept-b',
+          count: 2,
+          unitPrice: 500,
+          amount: 1000,
+          followInfos: {
+            fixedAssetTotalCount: 5,
+            fixedAssetTotalAmount: 2500,
+          },
+        },
+      ],
+      followInfos: {
+        fxaIncomeDetails: [],
+      },
+    });
+
+    models.FixedAssets.find.mockReturnValue(queryResult([]));
+    models.Transactions.find.mockReturnValue(queryResult([transaction]));
+
+    await syncFxaIncomeDetails(models as never, 'user-a', transaction as never);
+
+    expect(models.FixedAssets.create).toHaveBeenCalledTimes(1);
+    expect(models.FixedAssets.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        count: 5,
+        originalCost: 500,
+      }),
+    );
+    expect(transaction.details.map((detail) => detail.fixedAssetId)).toEqual([
+      'asset-a',
+      'asset-a',
+    ]);
+  });
+
   it('creates owner records only for the allocated rows sent by the form', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({

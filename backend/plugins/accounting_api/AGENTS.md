@@ -25,7 +25,7 @@
 ## Current Capabilities
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
-- Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults.
+- Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store acquisition quantity/cost from the supplied migration totals.
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
@@ -125,6 +125,7 @@
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - System opening fixed asset adjustments must stay published, dated one day before their acquisition transaction, and regenerated or removed from fixed asset income synchronization.
 - Fixed asset income explicit owner-record counts must match the parent detail count for that detail when any owner rows are provided; details without owner rows are valid and create no owner record unless transaction-level `followInfos.ownerId` is present.
+- Fixed asset income code is the acquisition identity; Erkhet opening balances may split one acquisition across several branch/department details, but those details must resolve to one fixed asset master row and separate owner-record rows.
 - Fixed asset disposal, sale, and move owner-record selections are optional, and selected counts are capped by the detail count instead of being required to exhaust it; saving removes prior owner-record rows for that transaction and writes fresh `handedOver` rows, while move writes a matching `received` row for the owner so owner balance remains net neutral.
 - Fixed asset disposal, sale, and move quantities must come from transaction details; branch and department belong to each detail and mixed locations require multiple details.
 - Fixed asset move source details must be paired with generated `fxaMoveIn` destination details so period/location reporting is derived from transaction history, not owner records.
@@ -148,6 +149,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-30` — `Fixed Asset Income Code Reuse`
+
+- **Summary:** Fixed asset income synchronization now reuses one fixed asset for repeated acquisition codes and stores aggregate acquisition quantity/cost supplied by the migration payload.
+- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-30` — `Fixed Asset Remainder Helper`
 
@@ -202,9 +209,3 @@
 - **Summary:** Fixed asset accounting now treats income details as acquisition cost bases, keeps owner records optional, and calculates adjustment depreciation from transaction detail movements by branch and department.
 - **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaOut.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/fixedAssets`.
 - **Contracts changed:** Transaction details include `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName`; `fxa_owner_records` no longer carries financial cost/depreciation fields and is owner-allocation metadata only.
-
-### `2026-08-25` — `Erkhet Source Code Trim`
-
-- **Summary:** Erkhet transaction migration now trims incoming source codes before reference lookup and follow-info metadata persistence.
-- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` tolerates leading or trailing whitespace in coded Erkhet references.
