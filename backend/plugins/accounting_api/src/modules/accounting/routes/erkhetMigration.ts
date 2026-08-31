@@ -112,6 +112,9 @@ const validateBatch = (batch: ErkhetTransactionBatch) => {
 const normalizeSourceCode = (value?: string) =>
   typeof value === 'string' ? value.trim() : value || '';
 
+const normalizeIdentifierCode = (value?: string) =>
+  normalizeSourceCode(value).replace(/\s+/g, '');
+
 const uniq = (values: string[]) => [
   ...new Set(values.map((value) => normalizeSourceCode(value)).filter(Boolean)),
 ];
@@ -141,16 +144,22 @@ const getCodeMap = (docs: ITransaction[]) => {
 
     const moveInBranchId = doc.followInfos?.moveInBranchId;
     const moveInDepartmentId = doc.followInfos?.moveInDepartmentId;
+    const moveInAccountId = doc.followInfos?.moveInAccountId;
     const accumulatedDepreciationAccountId =
       doc.followInfos?.accumulatedDepreciationAccountId;
     const fixedAssetAccountId = doc.followInfos?.fixedAssetAccountId;
     const lossAccountId = doc.followInfos?.lossAccountId;
+    const saleOutAccountId = doc.followInfos?.saleOutAccountId;
+    const saleCostAccountId = doc.followInfos?.saleCostAccountId;
 
     if (moveInBranchId) {
       branchCodes.push(normalizeSourceCode(moveInBranchId));
     }
     if (moveInDepartmentId) {
       departmentCodes.push(normalizeSourceCode(moveInDepartmentId));
+    }
+    if (moveInAccountId) {
+      accountCodes.push(normalizeSourceCode(moveInAccountId));
     }
     if (accumulatedDepreciationAccountId) {
       accountCodes.push(normalizeSourceCode(accumulatedDepreciationAccountId));
@@ -160,6 +169,12 @@ const getCodeMap = (docs: ITransaction[]) => {
     }
     if (lossAccountId) {
       accountCodes.push(normalizeSourceCode(lossAccountId));
+    }
+    if (saleOutAccountId) {
+      accountCodes.push(normalizeSourceCode(saleOutAccountId));
+    }
+    if (saleCostAccountId) {
+      accountCodes.push(normalizeSourceCode(saleCostAccountId));
     }
 
     const fxaOwnerRecords =
@@ -201,7 +216,12 @@ const getCodeMap = (docs: ITransaction[]) => {
         departmentCodes.push(normalizeSourceCode(detail.departmentId));
       }
       if (detail.productId) {
-        productCodes.push(normalizeSourceCode(detail.productId));
+        productCodes.push(normalizeIdentifierCode(detail.productId));
+      }
+      if (detail.followInfos?.currencyDiffAccountId) {
+        accountCodes.push(
+          normalizeSourceCode(detail.followInfos.currencyDiffAccountId),
+        );
       }
     }
   }
@@ -493,11 +513,14 @@ const findOrCreateContact = async ({
 const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const accountCode = normalizeSourceCode(detail.accountId);
   const branchCode = normalizeSourceCode(detail.branchId);
-  const productCode = normalizeSourceCode(detail.productId);
+  const productCode = normalizeIdentifierCode(detail.productId);
   const departmentCode = normalizeSourceCode(detail.departmentId);
   const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
   const fixedAssetCategoryCode = normalizeSourceCode(
     detail.fixedAssetCategoryId,
+  );
+  const currencyDiffAccountCode = normalizeSourceCode(
+    detail.followInfos?.currencyDiffAccountId,
   );
 
   // Detail дээр байгаа account/product/fixedAsset/category/branch/department нь
@@ -523,6 +546,12 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   if (departmentCode && !maps.departmentsByCode[departmentCode]) {
     throw new Error(`Department not found: ${departmentCode}`);
   }
+  if (
+    currencyDiffAccountCode &&
+    !maps.accountsByCode[currencyDiffAccountCode]
+  ) {
+    throw new Error(`Account not found: ${currencyDiffAccountCode}`);
+  }
 
   return {
     ...detail,
@@ -547,12 +576,16 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       : detail.departmentId,
     followInfos: {
       ...cleanDetailFollowInfos(detail.followInfos),
+      currencyDiffAccountId: currencyDiffAccountCode
+        ? maps.accountsByCode[currencyDiffAccountCode]
+        : detail.followInfos?.currencyDiffAccountId,
       accountCode,
       branchCode,
       productCode,
       departmentCode,
       fixedAssetCode,
       fixedAssetCategoryCode,
+      currencyDiffAccountCode,
     },
   };
 };
@@ -730,20 +763,33 @@ const resolveTransactionFollowInfos = (
   const moveInDepartmentCode = normalizeSourceCode(
     doc.followInfos?.moveInDepartmentId,
   );
+  const moveInAccountCode = normalizeSourceCode(
+    doc.followInfos?.moveInAccountId,
+  );
   const accumulatedDepreciationAccountCode =
     normalizeSourceCode(doc.followInfos?.accumulatedDepreciationAccountId);
   const fixedAssetAccountCode = normalizeSourceCode(
     doc.followInfos?.fixedAssetAccountId,
   );
   const lossAccountCode = normalizeSourceCode(doc.followInfos?.lossAccountId);
+  const saleOutAccountCode = normalizeSourceCode(
+    doc.followInfos?.saleOutAccountId,
+  );
+  const saleCostAccountCode = normalizeSourceCode(
+    doc.followInfos?.saleCostAccountId,
+  );
 
-  // fxaOut/fxaMove-ийн дагалдах данс, шилжих салбар/хэлтэс нь transaction root
-  // биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж journal handler-т өгнө.
+  // fxa болон inventory sale-ийн дагалдах данс, шилжих салбар/хэлтэс нь
+  // transaction root биш followInfos дотор ирдэг. Тэдгээрийг мөн _id-р сольж
+  // journal handler-т өгнө.
   if (moveInBranchCode && !maps.branchesByCode[moveInBranchCode]) {
     throw new Error(`Branch not found: ${moveInBranchCode}`);
   }
   if (moveInDepartmentCode && !maps.departmentsByCode[moveInDepartmentCode]) {
     throw new Error(`Department not found: ${moveInDepartmentCode}`);
+  }
+  if (moveInAccountCode && !maps.accountsByCode[moveInAccountCode]) {
+    throw new Error(`Account not found: ${moveInAccountCode}`);
   }
   if (
     accumulatedDepreciationAccountCode &&
@@ -760,6 +806,18 @@ const resolveTransactionFollowInfos = (
   ) {
     throw new Error(`Account not found: ${fixedAssetAccountCode}`);
   }
+  if (
+    saleOutAccountCode &&
+    !maps.accountsByCode[saleOutAccountCode]
+  ) {
+    throw new Error(`Account not found: ${saleOutAccountCode}`);
+  }
+  if (
+    saleCostAccountCode &&
+    !maps.accountsByCode[saleCostAccountCode]
+  ) {
+    throw new Error(`Account not found: ${saleCostAccountCode}`);
+  }
 
   return {
     ...doc.followInfos,
@@ -769,6 +827,9 @@ const resolveTransactionFollowInfos = (
     moveInDepartmentId: moveInDepartmentCode
       ? maps.departmentsByCode[moveInDepartmentCode]
       : doc.followInfos?.moveInDepartmentId,
+    moveInAccountId: moveInAccountCode
+      ? maps.accountsByCode[moveInAccountCode]
+      : doc.followInfos?.moveInAccountId,
     accumulatedDepreciationAccountId: accumulatedDepreciationAccountCode
       ? maps.accountsByCode[accumulatedDepreciationAccountCode]
       : doc.followInfos?.accumulatedDepreciationAccountId,
@@ -778,11 +839,20 @@ const resolveTransactionFollowInfos = (
     lossAccountId: lossAccountCode
       ? maps.accountsByCode[lossAccountCode]
       : doc.followInfos?.lossAccountId,
+    saleOutAccountId: saleOutAccountCode
+      ? maps.accountsByCode[saleOutAccountCode]
+      : doc.followInfos?.saleOutAccountId,
+    saleCostAccountId: saleCostAccountCode
+      ? maps.accountsByCode[saleCostAccountCode]
+      : doc.followInfos?.saleCostAccountId,
     moveInBranchCode,
     moveInDepartmentCode,
+    moveInAccountCode,
     accumulatedDepreciationAccountCode,
     fixedAssetAccountCode,
     lossAccountCode,
+    saleOutAccountCode,
+    saleCostAccountCode,
   };
 };
 

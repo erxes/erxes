@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-30`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -40,10 +40,11 @@
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
+- Currency transactions compare custom rates with the active exchange rate, create exchange-difference follow transactions only when rates differ, and fail clearly when the active rate is missing.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
-- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products and accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -117,7 +118,12 @@
 - Exchange-difference transactions must be generated only through accounting journal handlers and must keep parent/detail transaction linkage.
 - Erkhet migration imports must validate and resolve external source codes before delegating to transaction create/update methods, using source `sync_type/sync_id` as normalized `contentType/contentId` when present (`sale` maps to `sales:deal`; other sync types map to `erkhet:<sync_type>`) and falling back to `contentType: "erkhet:ptr"` plus the external pointer id for idempotent retries.
 - Erkhet migration source codes must be trimmed before lookup and persistence metadata so leading/trailing whitespace in legacy Erkhet references does not block account, branch, department, product, fixed-asset, customer, or owner-record resolution.
-- Erkhet reference migration is the only product and fixed-asset category bootstrap path; transaction migration must not create products or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
+- Erkhet product reference and transaction lookup codes must remove all whitespace characters because legacy inventory codes may contain leading spaces, embedded tabs, or newlines that are not part of the business code.
+- Erkhet inventory sale and sale-return migration must resolve `followInfos.saleOutAccountId` and `followInfos.saleCostAccountId` from account codes before invoking inventory journal handlers.
+- Erkhet inventory movement migration must resolve `followInfos.moveInAccountId`, `followInfos.moveInBranchId`, and optional `followInfos.moveInDepartmentId` from source codes before invoking inventory move handlers.
+- Erkhet currency transaction migration must resolve detail-level `followInfos.currencyDiffAccountId` from an account code before invoking currency adjustment handlers.
+- Currency transaction handlers must fail with an explicit missing-rate error instead of calculating NaN; required rates are bootstrapped through reference migration before transaction import.
+- Erkhet reference migration is the only product, worker-user, exchange-rate, and fixed-asset category bootstrap path; transaction migration must not create products, users, exchange rates, or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
@@ -150,10 +156,34 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-31` — `Erkhet Exchange Rate References`
+
+- **Summary:** Erkhet reference migration now accepts exchange-rate payloads for Mongolian plugin upserts, verifies create responses return a saved id, and currency transactions fail with explicit missing-rate errors instead of NaN when rates are absent.
+- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/currencyTr.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `exchangeRates` rows with `date`, `mainCurrency`, `rateCurrency`, and `rate`.
+
+### `2026-08-31` — `Erkhet Inventory And Currency Follow Accounts`
+
+- **Summary:** Erkhet transaction migration now resolves inventory sale, movement, and currency-difference account codes from follow info before delegating to journal handlers.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/utils/invMove.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `followInfos.saleOutAccountId`, `followInfos.saleCostAccountId`, inventory movement `followInfos.moveInAccountId`, `followInfos.moveInBranchId`, `followInfos.moveInDepartmentId`, and detail `followInfos.currencyDiffAccountId` as source codes.
+
+### `2026-08-31` — `Erkhet Worker Reference Sync`
+
+- **Summary:** Erkhet reference migration now accepts active worker payloads, creates missing core users by unique email, and skips workers whose email already exists.
+- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
+- **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `workers` rows with email/name/register metadata.
+
 ### `2026-08-30` — `Fixed Asset Income Code Reuse`
 
 - **Summary:** Fixed asset income synchronization now reuses one fixed asset for repeated acquisition codes and stores aggregate acquisition quantity/cost supplied by the migration payload.
 - **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** None.
+
+### `2026-08-30` — `Erkhet Product Code Whitespace`
+
+- **Summary:** Erkhet reference and transaction migration now normalize product lookup codes by removing whitespace before product create/update and transaction resolution.
+- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/routes/erkhetMigration.ts`.
 - **Contracts changed:** None.
 
 ### `2026-08-30` — `Fixed Asset Remainder Helper`
@@ -185,27 +215,3 @@
 - **Summary:** Added a fixed asset location remainder query that totals transaction detail movements by fixed asset, branch, department, and date for disposal/move/sale form validation.
 - **Affected areas:** `src/modules/fixedAssets/graphql/schemas/fixedAsset.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`.
 - **Contracts changed:** Adds `fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder`.
-
-### `2026-08-28` — `Fixed Asset Owner Record Query`
-
-- **Summary:** Renamed the owner allocation collection/model to fixed asset owner records and added paged owner-record list plus count filters for fixed asset, category, owner, action, status, and created date.
-- **Affected areas:** `src/connectionResolvers.ts`, `src/modules/fixedAssets/@types/fxaOwnerRecord.ts`, `src/modules/fixedAssets/db/definitions/fxaOwnerRecord.ts`, `src/modules/fixedAssets/db/models/FxaOwnerRecords.ts`, `src/modules/fixedAssets/graphql/schemas/fxaOwnerRecord.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`.
-- **Contracts changed:** Adds `fxaOwnerRecords(searchValue, fixedAssetId, categoryId, action, ownerId, status, createdFrom, createdTo, transactionId, page, perPage, limit): [FxaOwnerRecord]` and `fxaOwnerRecordsCount(...): Int`; stores owner records in `fxa_owner_records`.
-
-### `2026-08-28` — `Erkhet Fixed Asset Owner Records`
-
-- **Summary:** Erkhet transaction migration now resolves fixed asset income category/acquisition fields and owner-record payloads, including owner balance selection for disposal, sale, and move movements.
-- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName`, and owner-record `extraData.fxaOwnerRecords` rows with `ownerId` and optional `sourceOwnerId`; legacy responsible-user fields are accepted only as migration fallbacks.
-
-### `2026-08-28` — `Fixed Asset Owner Record Movements`
-
-- **Summary:** Fixed asset out, sale, and move transactions can persist count-matched owner-record selections as `handedOver` ledger rows while keeping financial movement on transaction details.
-- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaOut.ts`, `src/modules/accounting/utils/fxaMove.ts`.
-- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries use `ownerId` and count for disposal/sale/move owner movement selection.
-
-### `2026-08-28` — `Fixed Asset Detail Movement Refactor`
-
-- **Summary:** Fixed asset accounting now treats income details as acquisition cost bases, keeps owner records optional, and calculates adjustment depreciation from transaction detail movements by branch and department.
-- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/fxaOut.ts`, `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/fixedAssets`.
-- **Contracts changed:** Transaction details include `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName`; `fxa_owner_records` no longer carries financial cost/depreciation fields and is owner-allocation metadata only.

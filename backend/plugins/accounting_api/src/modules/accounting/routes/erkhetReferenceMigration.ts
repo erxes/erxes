@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getFullDate,
+  getSubdomain,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 
 type TCodeMap = Record<string, string>;
@@ -13,6 +17,7 @@ type TErkhetProductCategory = {
 
 type TErkhetProduct = {
   code?: string;
+  sourceCode?: string;
   name?: string;
   categoryCode?: string;
   uom?: string;
@@ -29,12 +34,34 @@ type TErkhetFixedAssetCategory = {
   defaultSalvageValue?: number;
 };
 
+type TErkhetWorker = {
+  code?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  phone?: string;
+  register?: string;
+  departmentCode?: string;
+  position?: string;
+};
+
+type TErkhetExchangeRate = {
+  code?: string;
+  date?: string;
+  mainCurrency?: string;
+  rateCurrency?: string;
+  rate?: number;
+};
+
 type TErkhetReferencesRequest = {
   userId?: string;
   dryRun?: boolean;
   productCategories?: TErkhetProductCategory[];
   products?: TErkhetProduct[];
   fixedAssetCategories?: TErkhetFixedAssetCategory[];
+  workers?: TErkhetWorker[];
+  exchangeRates?: TErkhetExchangeRate[];
 };
 
 type TReferenceRow = {
@@ -47,6 +74,14 @@ type TReferenceRow = {
 
 const uniq = (values: string[]) => [...new Set(values.filter(Boolean))];
 
+const normalizeSourceCode = (value?: string) =>
+  typeof value === 'string' ? value.trim() : value || '';
+
+const normalizeIdentifierCode = (value?: string) =>
+  normalizeSourceCode(value).replace(/\s+/g, '');
+
+const normalizeEmail = (value?: string) => normalizeSourceCode(value).toLowerCase();
+
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
 
@@ -55,7 +90,8 @@ const indexByCode = <T extends { _id: string; code?: string }>(
 ) =>
   items.reduce<TCodeMap>((byCode, item) => {
     if (item?.code) {
-      byCode[item.code] = item._id;
+      byCode[normalizeSourceCode(item.code)] = item._id;
+      byCode[normalizeIdentifierCode(item.code)] = item._id;
     }
     return byCode;
   }, {});
@@ -64,6 +100,14 @@ const cleanDoc = <T extends Record<string, unknown>>(doc: T) =>
   Object.fromEntries(
     Object.entries(doc).filter(([, value]) => value !== undefined),
   );
+
+const getDateRange = (date: Date) => {
+  const start = getFullDate(date);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
+  return { start, end };
+};
 
 const requireCodeAndName = (
   type: string,
@@ -106,6 +150,35 @@ const fetchCoreCodeMap = async ({
   });
 
   return indexByCode(docs);
+};
+
+const fetchUsersByEmail = async (subdomain: string, emails: string[]) => {
+  if (!emails.length) {
+    return {};
+  }
+
+  const users = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'users',
+    action: 'find',
+    input: {
+      query: { email: { $in: emails } },
+      fields: { _id: 1, email: 1 },
+    },
+    defaultValue: [],
+  });
+
+  return (users as Array<{ _id: string; email?: string }>).reduce(
+    (byEmail: TCodeMap, user) => {
+      if (user?.email) {
+        byEmail[normalizeEmail(user.email)] = user._id;
+      }
+
+      return byEmail;
+    },
+    {},
+  );
 };
 
 const syncProductCategories = async ({
@@ -208,16 +281,26 @@ const syncProducts = async ({
   categoryIdsByCode: TCodeMap;
 }) => {
   const rows: TReferenceRow[] = [];
+  const productCodes = products.reduce<string[]>((codes, product) => {
+    if (product.code) {
+      codes.push(product.code, normalizeIdentifierCode(product.code));
+    }
+    if (product.sourceCode) {
+      codes.push(product.sourceCode, normalizeIdentifierCode(product.sourceCode));
+    }
+
+    return codes;
+  }, []);
   const productIdsByCode = await fetchCoreCodeMap({
     subdomain,
     module: 'products',
-    codes: uniq(products.map((product) => product.code || '')),
+    codes: uniq(productCodes.map((code) => normalizeSourceCode(code))),
   });
 
   for (const product of products) {
     try {
       requireCodeAndName('Product', product);
-      const code = product.code || '';
+      const code = normalizeIdentifierCode(product.code);
 
       const categoryId = product.categoryCode
         ? categoryIdsByCode[product.categoryCode]
@@ -272,6 +355,106 @@ const syncProducts = async ({
         code: product.code,
         action: 'error',
         error: getErrorMessage(error, 'Product sync failed'),
+      });
+    }
+  }
+
+  return rows;
+};
+
+const syncWorkers = async ({
+  subdomain,
+  dryRun,
+  workers,
+}: {
+  subdomain: string;
+  dryRun: boolean;
+  workers: TErkhetWorker[];
+}) => {
+  const rows: TReferenceRow[] = [];
+  const emails = uniq(
+    workers.map((worker) => normalizeEmail(worker.email)).filter(Boolean),
+  );
+  const userIdsByEmail = await fetchUsersByEmail(subdomain, emails);
+
+  for (const worker of workers) {
+    const email = normalizeEmail(worker.email);
+    const code = normalizeSourceCode(worker.code || worker.register || email);
+
+    try {
+      if (!email) {
+        rows.push({
+          type: 'worker',
+          code,
+          action: 'skip',
+          error: 'Worker email is empty',
+        });
+        continue;
+      }
+
+      const existingId = userIdsByEmail[email];
+
+      if (existingId) {
+        rows.push({
+          type: 'worker',
+          code,
+          action: 'skip',
+          _id: existingId,
+        });
+        continue;
+      }
+
+      const firstName = normalizeSourceCode(worker.firstName);
+      const lastName = normalizeSourceCode(worker.lastName);
+      const fullName =
+        normalizeSourceCode(worker.fullName) ||
+        normalizeSourceCode(`${firstName} ${lastName}`);
+
+      let createdId = '';
+
+      if (!dryRun) {
+        const saved = await sendTRPCMessage({
+          subdomain,
+          method: 'mutation',
+          pluginName: 'core',
+          module: 'users',
+          action: 'create',
+          input: {
+            data: {
+              email,
+              isActive: true,
+              notUsePassword: true,
+              details: cleanDoc({
+                firstName,
+                lastName,
+                fullName,
+                operatorPhone: normalizeSourceCode(worker.phone),
+                position: normalizeSourceCode(worker.position),
+                shortName: normalizeSourceCode(worker.register),
+              }),
+            },
+          },
+          defaultValue: {},
+        });
+
+        createdId = saved?._id || '';
+        if (createdId) {
+          userIdsByEmail[email] = createdId;
+        }
+      }
+
+      rows.push({
+        type: 'worker',
+        code,
+        action: 'create',
+        _id: createdId || userIdsByEmail[email],
+      });
+    } catch (error) {
+      rows.push({
+        type: 'worker',
+        code,
+        action: 'error',
+        error: getErrorMessage(error, 'Worker sync failed'),
       });
     }
   }
@@ -372,6 +555,103 @@ const syncFixedAssetCategories = async ({
   return { rows, categoryIdsByCode };
 };
 
+const syncExchangeRates = async ({
+  subdomain,
+  dryRun,
+  exchangeRates,
+}: {
+  subdomain: string;
+  dryRun: boolean;
+  exchangeRates: TErkhetExchangeRate[];
+}) => {
+  const rows: TReferenceRow[] = [];
+
+  for (const exchangeRate of exchangeRates) {
+    const date = normalizeSourceCode(exchangeRate.date);
+    const mainCurrency = normalizeSourceCode(exchangeRate.mainCurrency) || 'MNT';
+    const rateCurrency = normalizeSourceCode(exchangeRate.rateCurrency);
+    const code =
+      normalizeSourceCode(exchangeRate.code) ||
+      `${date}:${mainCurrency}:${rateCurrency}`;
+
+    try {
+      if (!date || !rateCurrency || !exchangeRate.rate) {
+        throw new Error(`Exchange rate date, currency and rate are required: ${code}`);
+      }
+
+      const rateDate = new Date(date);
+      const { start, end } = getDateRange(rateDate);
+      const existing = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'mongolian',
+        module: 'exchangeRates',
+        action: 'findOne',
+        input: {
+          query: {
+            mainCurrency,
+            rateCurrency,
+            date: { $gte: start, $lt: end },
+          },
+        },
+        defaultValue: null,
+      });
+
+      const doc = {
+        date: start,
+        mainCurrency,
+        rateCurrency,
+        rate: exchangeRate.rate,
+      };
+      const existingId = existing?._id;
+      const action = existingId ? 'update' : 'create';
+
+      if (!dryRun) {
+        const saved = await sendTRPCMessage({
+          subdomain,
+          method: 'mutation',
+          pluginName: 'mongolian',
+          module: 'exchangeRates',
+          action: existingId ? 'update' : 'create',
+          input: existingId
+            ? {
+                selector: { _id: existingId },
+                modifier: { $set: { ...doc, modifiedAt: new Date() } },
+            }
+            : { data: doc },
+        });
+
+        if (!existingId && !saved?._id) {
+          throw new Error(`Exchange rate was not created: ${code}`);
+        }
+
+        rows.push({
+          type: 'exchangeRate',
+          code,
+          action,
+          _id: existingId || saved?._id,
+        });
+        continue;
+      }
+
+      rows.push({
+        type: 'exchangeRate',
+        code,
+        action,
+        _id: existingId,
+      });
+    } catch (error) {
+      rows.push({
+        type: 'exchangeRate',
+        code,
+        action: 'error',
+        error: getErrorMessage(error, 'Exchange rate sync failed'),
+      });
+    }
+  }
+
+  return rows;
+};
+
 export const importErkhetReferences = async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -418,6 +698,22 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
     categories: body.fixedAssetCategories || [],
   });
   rows.push(...fixedAssetCategoryResult.rows);
+
+  rows.push(
+    ...(await syncWorkers({
+      subdomain,
+      dryRun,
+      workers: body.workers || [],
+    })),
+  );
+
+  rows.push(
+    ...(await syncExchangeRates({
+      subdomain,
+      dryRun,
+      exchangeRates: body.exchangeRates || [],
+    })),
+  );
 
   const errorRows = rows.filter((row) => row.action === 'error');
 
