@@ -129,7 +129,7 @@ export const disconnectCloudflare = async (subdomain: string) => {
   const connection = await models.MailCloudflare.current();
 
   if (!connection) {
-    return true;
+    return;
   }
 
   try {
@@ -142,8 +142,6 @@ export const disconnectCloudflare = async (subdomain: string) => {
 
   await models.MailCloudflare.clear();
   await forgetCloudflareCache(subdomain);
-
-  return true;
 };
 
 export const listCloudflareZones = async (token: string) => {

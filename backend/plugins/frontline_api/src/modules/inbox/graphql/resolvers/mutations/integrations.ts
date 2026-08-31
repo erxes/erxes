@@ -51,7 +51,7 @@ import {
   sendTRPCMessage,
   markResolvers,
 } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 
 interface IntegrationParams {
   integrationId: string;
@@ -248,6 +248,29 @@ export const sendRepairIntegration = async (
     throw new Error(
       `Your message not sent. Error: ${e.message}. Go to Account list and fix it.`,
     );
+  }
+};
+
+
+const createOnService = async (
+  models: IModels,
+  subdomain: string,
+  serviceKind: string,
+  payload: CreateIntegrationParams,
+) => {
+  if (serviceKind === 'webhook') {
+    return;
+  }
+
+  try {
+    const result = await sendCreateIntegration(subdomain, serviceKind, payload);
+
+    if (result?.status === 'error') {
+      throw new Error(result.errorMessage || 'Failed to create integration');
+    }
+  } catch (e) {
+    await models.Integrations.deleteOne({ _id: payload.integrationId });
+    throw e instanceof Error ? e : new Error(String(e));
   }
 };
 
@@ -547,31 +570,12 @@ export const integrationMutations = {
       data = { ...data, name: doc.name };
     }
 
-    try {
-      if ('webhook' !== serviceKind) {
-        const payload: CreateIntegrationParams = {
-          accountId: doc.accountId,
-          kind: doc.kind,
-          integrationId: integration._id,
-          data: data ? JSON.stringify(data) : '',
-        };
-
-        const result = await sendCreateIntegration(
-          subdomain,
-          serviceKind,
-          payload,
-        );
-
-        if (result?.status === 'error') {
-          throw new Error(
-            result.errorMessage || 'Failed to create integration',
-          );
-        }
-      }
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw e instanceof Error ? e : new Error(String(e));
-    }
+    await createOnService(models, subdomain, serviceKind, {
+      accountId: doc.accountId,
+      kind: doc.kind,
+      integrationId: integration._id,
+      data: data ? JSON.stringify(data) : '',
+    });
 
     return integration;
   },

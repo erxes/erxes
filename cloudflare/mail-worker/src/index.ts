@@ -20,7 +20,7 @@ import { handleVerify } from './verify';
 
 const MAX_INBOUND_BYTES = 25 * 1024 * 1024;
 
-const TRANSIENT_STATUSES = [401, 403, 408, 425, 429];
+const TRANSIENT_STATUSES = new Set([401, 403, 408, 425, 429]);
 
 const VERIFY_PATH = '/verify';
 
@@ -35,7 +35,7 @@ class DeliveryError extends Error {
 
     this.name = 'DeliveryError';
     this.status = status;
-    this.permanent = status < 500 && !TRANSIENT_STATUSES.includes(status);
+    this.permanent = status < 500 && !TRANSIENT_STATUSES.has(status);
   }
 }
 

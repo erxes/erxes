@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -869,6 +869,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
   `frontline_api` removed.
 
+### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
+
+- **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
+- **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
+- **Contracts changed:** None
+
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
 - **Summary:** Selecting a Discord channel and then a team or personal channel
@@ -932,19 +938,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/conversations/components/ConversationActions.tsx`.
 - **Contracts changed:** None; `useConversations` keeps its signature, and
   passing `options` still overrides the query variables.
-
-### `2026-08-25` — The `Me` inbox group selects like a team channel
-
-- **Summary:** The `Me` group now lists the personal channel as one selectable,
-  collapsible channel row carrying its unread badge, so selecting it shows every
-  source at once and the integration types underneath still filter down to one,
-  matching how a team channel behaves. The row reuses the `personal-channel`
-  label so it collides with neither the frontline `Inbox` entry nor Favorites'
-  `My inbox`.
-- **Affected areas:**
-  `src/modules/inbox/channel/components/ChannelNavItem.tsx` (new, shared by both
-  nav groups), `src/modules/inbox/channel/components/PersonalInboxNav.tsx`,
-  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`,
-  `src/modules/inbox/channel/components/UnreadSummary.tsx` (removed; the row
-  badge replaces the group-header figure).
-- **Contracts changed:** None.

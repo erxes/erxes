@@ -46,7 +46,9 @@ export const mailMutations = {
   ) {
     await checkPermission('integrationsEdit');
 
-    return await disconnectCloudflare(subdomain);
+    await disconnectCloudflare(subdomain);
+
+    return true;
   },
 
   async mailSendMail(

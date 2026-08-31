@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -1433,6 +1433,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
   `mail_sending_accounts` collection is orphaned and can be dropped.
 
+### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
+
+- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
+- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
+- **Contracts changed:** None
+
 ### `2026-08-26` — Mail automation and reply drafts removed
 
 - **Summary:** The mail channel no longer registers automation. The
@@ -1464,33 +1470,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/mail/utils/platformConfig.ts`,
   `.env.sample`, `cloudflare/mail-worker/{README.md,fixtures/*.json}`.
 - **Contracts changed:** None — only the fallback value of `MAIL_DOMAIN`.
-
-### `2026-08-24` — The sending lane follows the inbox address, and an inbox can be edited again
-
-- **Summary:** `mailSendingReadiness` returned no `platform` block, so the only
-  workspace that could pick the default sender was one with Cloudflare Email
-  Sending; the field the schema already declared is now populated.
-  `resolveTransport` picks its lane by the domain the inbox actually answers from
-  instead of preferring Cloudflare globally, so inboxes still addressed on
-  `MAIL_DOMAIN` keep replying after their workspace connects its own zone.
-  Re-saving an inbox that replies through a sending account matched its own
-  `sendingAddress` and failed as taken — the uniqueness check now skips the inbox
-  being edited. `mailSendingAccountAdd` honours the `provider` argument it has
-  always accepted rather than inferring it from whichever credential arrived, an
-  automated inbound message no longer reopens a closed conversation, and the
-  self-addressed guard also covers the inbox's own `sendingAddress` so a reply
-  forwarded back cannot loop. Provisioning also refuses two setups it used to walk
-  straight into: `checkZone` rejects a zone whose apex MX still points at another
-  mail host, because `enableEmailRouting` would replace those records and silently
-  stop every mailbox on that domain; and `uploadScript` rejects an account whose
-  worker already carries a different `DEFAULT_TENANT`, because one account's worker
-  holds a single endpoint and signing key, so a second workspace would silently
-  take the first one's inbound mail. `attachConsumer` no longer deletes a consumer
-  belonging to another script for the same reason.
-- **Affected areas:** `src/modules/integrations/mail/graphql/resolvers/queries.ts`,
-  `.../utils/transports/{index,common,provider,cloudflare}.ts`,
-  `.../messageBroker.ts`, `.../controller/receiveMessage.ts`,
-  `.../db/models/SendingAccounts.ts`, `.../db/definitions/messages.ts`,
-  `.../utils/errors.ts` (new), `.../utils/cloudflare/{provision,api}.ts`.
-- **Contracts changed:** None — `MailSendingReadiness.platform` was already in the
-  schema and is now actually resolved.

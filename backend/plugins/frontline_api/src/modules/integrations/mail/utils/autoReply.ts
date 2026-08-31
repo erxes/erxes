@@ -1,4 +1,4 @@
-const AUTOMATED_PRECEDENCES = ['bulk', 'junk', 'auto_reply'];
+const AUTOMATED_PRECEDENCES = new Set(['bulk', 'junk', 'auto_reply']);
 
 const AUTOMATED_MARKER_HEADERS = [
   'x-autoreply',
@@ -6,7 +6,7 @@ const AUTOMATED_MARKER_HEADERS = [
   'x-autoresponder',
 ];
 
-const NULL_RETURN_PATHS = ['<>', ''];
+const NULL_RETURN_PATHS = new Set(['<>', '']);
 
 const read = (headers: Record<string, string> | undefined, key: string) =>
   (headers?.[key] ?? '').trim().toLowerCase();
@@ -22,7 +22,7 @@ export const isAutomatedMessage = (headers?: Record<string, string>) => {
     return true;
   }
 
-  if (AUTOMATED_PRECEDENCES.includes(read(headers, 'precedence'))) {
+  if (AUTOMATED_PRECEDENCES.has(read(headers, 'precedence'))) {
     return true;
   }
 
@@ -34,6 +34,6 @@ export const isAutomatedMessage = (headers?: Record<string, string>) => {
 
   return (
     Object.prototype.hasOwnProperty.call(headers, 'return-path') &&
-    NULL_RETURN_PATHS.includes(returnPath)
+    NULL_RETURN_PATHS.has(returnPath)
   );
 };

@@ -3,13 +3,12 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
-const positional = args.filter((a) => !a.startsWith('--'));
 const flag = (name) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : undefined;
 };
 
-const fixture = positional[0] ?? 'inbound';
+const fixture = args.find((a) => !a.startsWith('--')) ?? 'inbound';
 const secret = process.env.MAIL_WEBHOOK_SECRET;
 const endpoint =
   flag('endpoint') ??

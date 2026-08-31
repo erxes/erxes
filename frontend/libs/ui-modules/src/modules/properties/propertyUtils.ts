@@ -20,6 +20,42 @@ export const hasFieldValue = (value: unknown): boolean => {
   return true;
 };
 
+export const formatFieldValue = (field: IField, value: unknown): string => {
+  if (Array.isArray(value)) {
+    if (field.options?.length) {
+      return value
+        .map(
+          (item) =>
+            field.options?.find((option) => option.value === item)?.label ??
+            String(item),
+        )
+        .join(', ');
+    }
+
+    return value.join(', ');
+  }
+
+  if (field.options?.length) {
+    return (
+      field.options.find((option) => option.value === value)?.label ??
+      String(value)
+    );
+  }
+
+  if (field.type === 'boolean' || field.type === 'check') {
+    return value ? 'Yes' : 'No';
+  }
+
+  if (field.type === 'date') {
+    const date = new Date(value as string);
+    return Number.isNaN(date.getTime())
+      ? String(value)
+      : date.toLocaleDateString();
+  }
+
+  return String(value);
+};
+
 export const isFieldVisibleByLogic = (
   field: Pick<IField, 'logics'>,
   valuesByFieldId: Record<string, unknown>,

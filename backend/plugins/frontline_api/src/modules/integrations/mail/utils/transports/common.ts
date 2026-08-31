@@ -16,10 +16,10 @@ export class MailSendError extends Error {
 export const isRetryableFailure = (error: unknown) =>
   error instanceof MailSendError ? error.retryable : true;
 
-const RETRYABLE_STATUSES = [408, 425, 429];
+const RETRYABLE_STATUSES = new Set([408, 425, 429]);
 
 export const isRetryableStatus = (status: number) =>
-  RETRYABLE_STATUSES.includes(status) || status >= 500;
+  RETRYABLE_STATUSES.has(status) || status >= 500;
 
 export const buildMessageId = (from: string) => {
   const domain = from.split('@').pop() || 'localhost';

@@ -88,6 +88,12 @@ const PAGE_SIZE = 20;
 
 type ComposeMode = 'reply' | 'replyAll' | 'forward';
 
+const COMPOSE_TITLE_KEYS: Record<ComposeMode, string> = {
+  reply: 'reply',
+  replyAll: 'reply-all',
+  forward: 'forward',
+};
+
 const fmt = (emails?: EmailAddress[]) =>
   (emails ?? [])
     .map((e) => e.name || e.email || '')
@@ -143,17 +149,17 @@ const deriveFrom = (msgs: MailMessage[]) => {
   return '';
 };
 
+const DELIVERY_LABEL_KEYS: Partial<Record<MailDeliveryStatus, string>> = {
+  pending: 'email-delivery-pending',
+  bounced: 'email-delivery-bounced',
+};
+
 const DeliveryBadge: React.FC<{ status: MailDeliveryStatus }> = ({
   status,
 }) => {
   const { t } = useTranslation('frontline');
 
-  const label =
-    status === 'pending'
-      ? t('email-delivery-pending')
-      : status === 'bounced'
-      ? t('email-delivery-bounced')
-      : t('email-delivery-failed');
+  const label = t(DELIVERY_LABEL_KEYS[status] ?? 'email-delivery-failed');
 
   return (
     <span
@@ -560,17 +566,10 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
     'flex-1 bg-transparent outline-none text-[13px] text-foreground placeholder:text-[#9aa0a6]';
 
   return (
-    <div
-      className="mx-4 mb-3 border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)]"
-      onKeyDown={onKey}
-    >
+    <div className="mx-4 mb-3 border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)]">
       <div className="flex items-center justify-between px-4 h-10 border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)]">
         <span className="text-[13px] font-medium text-foreground/70">
-          {p.mode === 'forward'
-            ? t('forward')
-            : p.mode === 'replyAll'
-            ? t('reply-all')
-            : t('reply')}
+          {t(COMPOSE_TITLE_KEYS[p.mode])}
         </span>
         <button
           type="button"
@@ -594,6 +593,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
           className={inp}
           value={to}
           onChange={(e) => setTo(e.target.value)}
+          onKeyDown={onKey}
           placeholder={p.mode === 'forward' ? t('recipients') : ''}
           autoFocus={p.mode === 'forward'}
         />
@@ -625,6 +625,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
             className={inp}
             value={cc}
             onChange={(e) => setCc(e.target.value)}
+            onKeyDown={onKey}
             placeholder="cc@example.com"
           />
           <button
@@ -646,6 +647,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
             className={inp}
             value={bcc}
             onChange={(e) => setBcc(e.target.value)}
+            onKeyDown={onKey}
             placeholder="bcc@example.com"
           />
           <button
@@ -666,6 +668,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
           className={inp}
           value={subject}
           onChange={(e) => setSub(e.target.value)}
+          onKeyDown={onKey}
         />
       </div>
 
@@ -674,6 +677,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         className="min-h-[120px] max-h-[260px] overflow-y-auto px-4 py-3 text-[14px] leading-relaxed focus:outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[#9aa0a6]"
         contentEditable
         suppressContentEditableWarning
+        onKeyDown={onKey}
         role="textbox"
         aria-multiline="true"
         aria-label={t('email-body')}
