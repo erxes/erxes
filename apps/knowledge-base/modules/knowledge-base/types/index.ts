@@ -11,6 +11,8 @@ export type KbArticle = {
   title: string | null;
   summary: string | null;
   content: string | null;
+  status: string | null;
+  isPrivate: boolean | null;
   categoryId: string | null;
   viewCount: number | null;
   createdDate: string | null;

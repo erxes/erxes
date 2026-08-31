@@ -11,11 +11,12 @@ const CATEGORY_FIELDS = `
   }
 `;
 
-const ARTICLE_FIELDS = `
+const ARTICLE_LIST_FIELDS = `
   _id
   title
   summary
-  content
+  status
+  isPrivate
   categoryId
   viewCount
   createdDate
@@ -26,6 +27,31 @@ const ARTICLE_FIELDS = `
     details {
       fullName
       avatar
+    }
+  }
+`;
+const ARTICLE_FIELDS = `
+  ${ARTICLE_LIST_FIELDS}
+  content
+`;
+
+const topicWithArticles = (articleFields: string) => `
+  cpKnowledgeBaseTopicDetail(_id: $topicId) {
+    _id
+    title
+    description
+    color
+    parentCategories {
+      ${CATEGORY_FIELDS}
+      articles {
+        ${articleFields}
+      }
+      childrens {
+        ${CATEGORY_FIELDS}
+        articles(status: "publish") {
+          ${articleFields}
+        }
+      }
     }
   }
 `;
@@ -47,66 +73,14 @@ export const KB_PORTAL_TOPIC_OVERVIEW = gql`
   }
 `;
 
-const ARTICLE_LIST_FIELDS = `
-  _id
-  title
-  summary
-  categoryId
-  viewCount
-  createdDate
-  modifiedDate
-  publishedAt
-  createdUser {
-    _id
-    details {
-      fullName
-      avatar
-    }
-  }
-`;
-
 export const KB_PORTAL_TOPIC_ARTICLE_LIST = gql`
   query kbPortalTopicArticleList($topicId: String!) {
-    cpKnowledgeBaseTopicDetail(_id: $topicId) {
-      _id
-      title
-      description
-      color
-      parentCategories {
-        ${CATEGORY_FIELDS}
-        articles {
-          ${ARTICLE_LIST_FIELDS}
-        }
-        childrens {
-          ${CATEGORY_FIELDS}
-          articles(status: "publish") {
-            ${ARTICLE_LIST_FIELDS}
-          }
-        }
-      }
-    }
+    ${topicWithArticles(ARTICLE_LIST_FIELDS)}
   }
 `;
 
 export const KB_PORTAL_TOPIC_ARTICLES = gql`
   query kbPortalTopicArticles($topicId: String!) {
-    cpKnowledgeBaseTopicDetail(_id: $topicId) {
-      _id
-      title
-      description
-      color
-      parentCategories {
-        ${CATEGORY_FIELDS}
-        articles {
-          ${ARTICLE_FIELDS}
-        }
-        childrens {
-          ${CATEGORY_FIELDS}
-          articles(status: "publish") {
-            ${ARTICLE_FIELDS}
-          }
-        }
-      }
-    }
+    ${topicWithArticles(ARTICLE_FIELDS)}
   }
 `;

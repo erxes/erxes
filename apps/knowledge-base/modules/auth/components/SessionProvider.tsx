@@ -64,7 +64,12 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
    */
   const { data: account } = useQuery<CurrentUserResponse>(
     AUTH_PORTAL_CURRENT_USER,
-    { skip: !raw },
+    /*
+     * `all` keeps the response body when the portal answers with an error, so
+     * a rejected session is still readable below as a null user instead of
+     * being collapsed into an error with no data.
+     */
+    { skip: !raw, errorPolicy: 'all' },
   );
 
   const signIn = useCallback((next: SessionUser, token?: string | null) => {
@@ -89,6 +94,21 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
     if (current) {
       updateUser(sessionFromCurrentUser(current, user?.email ?? ''));
+      return;
+    }
+
+    /*
+     * A stored session the portal no longer accepts — a token minted against
+     * another erxes instance, or one the server has since expired — would
+     * otherwise leave the UI signed in against an account that fails every
+     * request, with no way out but clearing storage by hand. Once the portal
+     * has answered and named no user, the stale copy goes. A network failure
+     * leaves `account` undefined and is deliberately left alone: the session
+     * may still be good when the connection returns.
+     */
+    if (account) {
+      writeToken(null);
+      writeSession(null);
     }
   }, [account, user?.email, updateUser]);
 

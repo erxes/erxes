@@ -10,33 +10,20 @@ export const readPortalEnv = (): PortalEnv => ({
   topicId: process.env.NEXT_PUBLIC_ERXES_KB_TOPIC_ID ?? '',
 });
 
-export const missingKbEnvKeys = (env: PortalEnv): string[] => {
-  const missing: string[] = [];
+const missingKeys = (required: [key: string, value: string][]): string[] =>
+  required.filter(([, value]) => !value).map(([key]) => key);
 
-  if (!env.apiUrl) {
-    missing.push('NEXT_PUBLIC_ERXES_API_URL');
-  }
+export const missingKbEnvKeys = (env: PortalEnv): string[] =>
+  missingKeys([
+    ['NEXT_PUBLIC_ERXES_API_URL', env.apiUrl],
+    ['NEXT_PUBLIC_ERXES_KB_TOPIC_ID', env.topicId],
+  ]);
 
-  if (!env.topicId) {
-    missing.push('NEXT_PUBLIC_ERXES_KB_TOPIC_ID');
-  }
-
-  return missing;
-};
-
-export const missingCmsEnvKeys = (env: PortalEnv): string[] => {
-  const missing: string[] = [];
-
-  if (!env.apiUrl) {
-    missing.push('NEXT_PUBLIC_ERXES_API_URL');
-  }
-
-  if (!env.appToken) {
-    missing.push('NEXT_PUBLIC_ERXES_CP_TOKEN');
-  }
-
-  return missing;
-};
+export const missingCmsEnvKeys = (env: PortalEnv): string[] =>
+  missingKeys([
+    ['NEXT_PUBLIC_ERXES_API_URL', env.apiUrl],
+    ['NEXT_PUBLIC_ERXES_CP_TOKEN', env.appToken],
+  ]);
 
 export type FormEnv = {
   channelId: string;
@@ -56,27 +43,13 @@ export const readFormEnv = (): FormEnv => ({
   tagId: process.env.NEXT_PUBLIC_ERXES_FORM_TAG_ID ?? '',
 });
 
-export const missingFormEnvKeys = (env: PortalEnv, form: FormEnv): string[] => {
-  const missing: string[] = [];
-
-  if (!env.apiUrl) {
-    missing.push('NEXT_PUBLIC_ERXES_API_URL');
-  }
-
-  if (!env.appToken) {
-    missing.push('NEXT_PUBLIC_ERXES_CP_TOKEN');
-  }
-
-  if (!form.channelId) {
-    missing.push('NEXT_PUBLIC_ERXES_FORM_CHANNEL_ID');
-  }
-
-  if (!form.tagId) {
-    missing.push('NEXT_PUBLIC_ERXES_FORM_TAG_ID');
-  }
-
-  return missing;
-};
+export const missingFormEnvKeys = (env: PortalEnv, form: FormEnv): string[] =>
+  missingKeys([
+    ['NEXT_PUBLIC_ERXES_API_URL', env.apiUrl],
+    ['NEXT_PUBLIC_ERXES_CP_TOKEN', env.appToken],
+    ['NEXT_PUBLIC_ERXES_FORM_CHANNEL_ID', form.channelId],
+    ['NEXT_PUBLIC_ERXES_FORM_TAG_ID', form.tagId],
+  ]);
 
 export type TicketEnv = {
   pipelineId: string;
@@ -90,20 +63,9 @@ export const readTicketEnv = (): TicketEnv => ({
   statusId: process.env.NEXT_PUBLIC_ERXES_TICKET_STATUS_ID ?? '',
 });
 
-export const missingTicketEnvKeys = (env: TicketEnv): string[] => {
-  const missing: string[] = [];
-
-  if (!env.pipelineId) {
-    missing.push('NEXT_PUBLIC_ERXES_TICKET_PIPELINE_ID');
-  }
-
-  if (!env.channelId) {
-    missing.push('NEXT_PUBLIC_ERXES_TICKET_CHANNEL_ID');
-  }
-
-  if (!env.statusId) {
-    missing.push('NEXT_PUBLIC_ERXES_TICKET_STATUS_ID');
-  }
-
-  return missing;
-};
+export const missingTicketEnvKeys = (env: TicketEnv): string[] =>
+  missingKeys([
+    ['NEXT_PUBLIC_ERXES_TICKET_PIPELINE_ID', env.pipelineId],
+    ['NEXT_PUBLIC_ERXES_TICKET_CHANNEL_ID', env.channelId],
+    ['NEXT_PUBLIC_ERXES_TICKET_STATUS_ID', env.statusId],
+  ]);

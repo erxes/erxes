@@ -51,17 +51,32 @@ const normalizeArticle = (
   viewCount: article.viewCount ?? 0,
 });
 
+/*
+ * A parent category exposes no `status` argument, so the gateway hands back
+ * drafts beside published articles, and erxes treats `isPrivate` as internal.
+ * Neither belongs on a public portal, so both go before anything renders.
+ */
+const isPublished = (article: KbArticle): boolean =>
+  article.status === 'publish' && !article.isPrivate;
+
 const normalizeCategory = (category: KbCategory): PortalCategory => {
-  const articles = (category.articles ?? []).map((article) =>
-    normalizeArticle(article, category._id),
-  );
+  const articles = (category.articles ?? [])
+    .filter(isPublished)
+    .map((article) => normalizeArticle(article, category._id));
 
   return {
     _id: category._id,
     title: category.title?.trim() || 'Нэргүй ангилал',
     description: category.description?.trim() ?? '',
     icon: resolveIcon(category.icon),
-    articleCount: category.numOfArticles ?? articles.length,
+    /*
+     * Where the articles were asked for, the count is what the portal will
+     * actually show; `numOfArticles` only stands in for the overview query,
+     * which reads categories without their articles.
+     */
+    articleCount: category.articles
+      ? articles.length
+      : category.numOfArticles ?? 0,
     authorCount: new Set((category.authors ?? []).map((a) => a._id)).size,
     articles,
   };
