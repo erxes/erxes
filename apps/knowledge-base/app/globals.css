@@ -157,11 +157,49 @@
   }
 }
 
+/*
+ * `AccordionSection` is a plain `<details>`, so it opens by animating its own
+ * content box rather than through JavaScript. `interpolate-size` is what lets
+ * that height run to and from `auto`; browsers without `::details-content`
+ * simply snap open as before.
+ */
+@layer base {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  /*
+   * The gutter is always reserved, so a panel opening far enough to make the
+   * page scroll cannot shunt the whole layout sideways.
+   */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  .disclosure::details-content {
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    /* Evenly paced: a front-loaded curve covers most of the travel at once
+     * and reads as a snap rather than an opening. */
+    transition:
+      height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
+      content-visibility 300ms allow-discrete;
+  }
+
+  .disclosure[open]::details-content {
+    height: auto;
+    opacity: 1;
+  }
+}
+
 /* Motion is decoration here, so anyone who asks for less simply gets none. */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
-  ::after {
+  ::after,
+  ::details-content {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

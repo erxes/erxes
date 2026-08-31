@@ -18,7 +18,7 @@ export default async function TicketPage({ params }: Props) {
     <>
       <Hero headline={headline} />
 
-      <Container width="wide" className="py-10 lg:py-14">
+      <Container className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
             { label: 'Мэдлэгийн сан', href: '/' },

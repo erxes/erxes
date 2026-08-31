@@ -18,7 +18,7 @@ export const AccordionSection = ({
 }) => (
   <details
     open={defaultOpen}
-    className="group overflow-hidden rounded-xl border border-line bg-white"
+    className="disclosure group overflow-hidden rounded-xl border border-line bg-white"
   >
     <summary
       id={id}
@@ -33,7 +33,7 @@ export const AccordionSection = ({
           {description}
         </span>
       </span>
-      <span className="shrink-0 text-muted-foreground transition-transform group-open:rotate-180">
+      <span className="shrink-0 text-muted-foreground transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-open:rotate-180">
         <Icon name="chevronDown" size={20} />
       </span>
     </summary>

@@ -101,7 +101,7 @@ export default async function SearchPage({ searchParams }: Props) {
     return (
       <>
         <Hero headline={headline} searchQuery={term} />
-        <Container width="wide" className="py-10 lg:py-14">
+        <Container className="py-10 lg:py-14">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
           ) : (
@@ -146,7 +146,7 @@ export default async function SearchPage({ searchParams }: Props) {
     <>
       <Hero headline={headline} searchQuery={term} />
 
-      <Container width="wide" className="py-10 lg:py-14">
+      <Container className="py-10 lg:py-14">
         <h1 className="text-2xl font-semibold text-ink">
           {term ? `«${term}» — ${rows.length} үр дүн` : 'Бүх агуулга'}
         </h1>

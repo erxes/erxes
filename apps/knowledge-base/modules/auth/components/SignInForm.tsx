@@ -17,6 +17,7 @@ import { useSession } from './SessionProvider';
 import {
   displayName,
   loginToken,
+  sessionFromCurrentUser,
   type CurrentUserResponse,
   type LoginResponse,
 } from '../types';
@@ -28,7 +29,7 @@ const signInSchema = z.object({
 
 type SignInValues = z.infer<typeof signInSchema>;
 
-export const SignInForm = () => {
+export const SignInForm = ({ next }: { next?: string | null }) => {
   const router = useRouter();
   const client = useApolloClient();
   const { signIn } = useSession();
@@ -70,14 +71,7 @@ export const SignInForm = () => {
         throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
       }
 
-      signIn(
-        {
-          name: displayName(current),
-          email: current.email ?? address,
-          cpUserId: current._id,
-        },
-        token,
-      );
+      signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
@@ -85,7 +79,11 @@ export const SignInForm = () => {
         description: `Тавтай морил, ${displayName(current)}.`,
       });
 
-      router.push('/');
+      /*
+       * Replaced rather than pushed, so going back from the guarded route the
+       * visitor was after does not land them on the sign-in form again.
+       */
+      router.replace(next ?? '/');
     } catch (caught) {
       const message = authErrorMessage(caught);
 

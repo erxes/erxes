@@ -3,7 +3,7 @@
 import { useMutation } from '@apollo/client/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from 'erxes-ui/components/form';
-import { useEffect } from 'react';
+import { toast } from 'erxes-ui/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
@@ -11,16 +11,23 @@ import {
   readTicketEnv,
 } from '@/modules/apollo/utils/env';
 import { useSession } from '@/modules/auth/components/SessionProvider';
+import { AUTH_PORTAL_CUSTOMER_EDIT } from '@/modules/auth/graphql/mutations/auth';
+import type { CustomerEditResponse } from '@/modules/auth/types';
 import { TextareaInput, TextInput } from '@/modules/ui/components/FormInput';
 import { Icon } from '@/modules/ui/components/Icon';
 import { Button, ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { SetupNotice } from '@/modules/ui/components/PortalState';
-import { buildTicketBody } from '../utils/format';
+import { contactErrorMessage } from '../utils/errors';
 import { TICKET_PORTAL_CREATE } from '../graphql/mutations/tickets';
 
 const SUBJECT_MAX = 120;
 const DESCRIPTION_MAX = 4000;
+
+/** A Mongolian number is eight digits; a country code or spacing may precede it. */
+const PHONE_MIN_DIGITS = 8;
+
+const digitsOf = (value: string) => value.replace(/\D/g, '');
 
 const ticketFormSchema = z.object({
   subject: z
@@ -39,7 +46,14 @@ const ticketFormSchema = z.object({
     message: 'Нэрээ бичнэ үү.',
   }),
   contactEmail: z.string().email('Зөв и-мэйл хаяг бичнэ үү.'),
-  contactPhone: z.string(),
+  contactPhone: z
+    .string()
+    .refine((value) => value.trim().length > 0, {
+      message: 'Утасны дугаараа бичнэ үү.',
+    })
+    .refine((value) => digitsOf(value).length >= PHONE_MIN_DIGITS, {
+      message: `Утасны дугаар дор хаяж ${PHONE_MIN_DIGITS} оронтой байна.`,
+    }),
 });
 
 type TicketFormValues = z.infer<typeof ticketFormSchema>;
@@ -52,22 +66,14 @@ type CreatedTicket = {
   } | null;
 };
 
-const buildDescription = (values: TicketFormValues): string =>
-  buildTicketBody(
-    values.description.trim(),
-    [
-      values.contactName.trim(),
-      values.contactEmail.trim(),
-      values.contactPhone.trim(),
-    ]
-      .filter(Boolean)
-      .join(' · '),
-  );
-
 export const TicketForm = () => {
   const ticketEnv = readTicketEnv();
   const missing = missingTicketEnvKeys(ticketEnv);
-  const { user } = useSession();
+  const { user, updateUser } = useSession();
+
+  const [editCustomer] = useMutation<CustomerEditResponse>(
+    AUTH_PORTAL_CUSTOMER_EDIT,
+  );
 
   const [createTicket, { data, loading, error, reset }] =
     useMutation<CreatedTicket>(TICKET_PORTAL_CREATE, {
@@ -82,27 +88,20 @@ export const TicketForm = () => {
       },
     });
 
+  /*
+   * `RequireSession` withholds this form until the session is known, so the
+   * contact fields start out on the signed-in identity and stay editable.
+   */
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
       subject: '',
       description: '',
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
+      contactName: user?.name ?? '',
+      contactEmail: user?.email ?? '',
+      contactPhone: user?.phone ?? '',
     },
   });
-
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    form.reset(
-      { ...form.getValues(), contactName: user.name, contactEmail: user.email },
-      { keepDirtyValues: true },
-    );
-  }, [user, form]);
 
   if (missing.length) {
     return <SetupNotice missing={missing} />;
@@ -110,16 +109,62 @@ export const TicketForm = () => {
 
   const created = data?.cpCreateTicket;
 
+  /*
+   * The contact details go onto the requester's customer record, where an agent
+   * reads them next to the ticket, instead of being pasted into the body.
+   */
+  const syncContact = async (
+    values: TicketFormValues,
+  ): Promise<string | null> => {
+    const name = values.contactName.trim();
+    const phone = values.contactPhone.trim();
+    const [firstName, ...rest] = name.split(/\s+/);
+    const lastName = rest.join(' ');
+
+    try {
+      const { data } = await editCustomer({
+        variables: {
+          firstName,
+          /*
+           * erxes skips a contact field only when it is absent: a `null` slips
+           * past its `!== undefined` guard and is then trimmed, which throws.
+           */
+          ...(lastName ? { lastName } : {}),
+          primaryPhone: phone,
+        },
+      });
+
+      if (!data?.clientPortalCustomerEdit) {
+        return 'Харилцагчийн бүртгэл олдсонгүй.';
+      }
+
+      updateUser({ name, phone });
+      return null;
+    } catch (caught) {
+      return contactErrorMessage(caught);
+    }
+  };
+
   const onSubmit = async (values: TicketFormValues) => {
-    await createTicket({
+    const contactError = await syncContact(values);
+
+    const submitted = await createTicket({
       variables: {
         name: values.subject.trim(),
-        description: buildDescription(values),
+        description: values.description.trim(),
         pipelineId: ticketEnv.pipelineId,
         channelId: ticketEnv.channelId,
         statusId: ticketEnv.statusId,
       },
     }).catch(() => null);
+
+    if (submitted?.data && contactError) {
+      toast({
+        variant: 'warning',
+        title: 'Холбоо барих мэдээлэл хадгалагдсангүй',
+        description: `Хүсэлт илгээгдлээ. ${contactError}`,
+      });
+    }
   };
 
   if (created) {
@@ -242,9 +287,8 @@ export const TicketForm = () => {
           <div className="border-t border-line pt-5">
             <h3 className="text-sm font-semibold text-ink">Холбоо барих</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              {user
-                ? 'Нэвтэрсэн хаягаар урьдчилан бөглөгдсөн. Шаардлагатай бол засна уу.'
-                : 'Хариуг энэ хаягаар илгээнэ.'}
+              Эдгээрийг дэмжлэгийн баг таны хүсэлтийн хажууд харна. Нэр, утсаа
+              засвал бүртгэлд чинь хадгалагдана.
             </p>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -286,11 +330,15 @@ export const TicketForm = () => {
                       <TextInput
                         {...field}
                         type="email"
-                        autoComplete="email"
-                        placeholder="name@company.com"
+                        readOnly
+                        aria-readonly
+                        className="cursor-not-allowed text-muted-foreground"
                       />
                     </Form.Control>
-                    <Form.Message />
+                    <Form.Description>
+                      Бүртгэлийн хаяг. Өөрчлөхийг хүсвэл дэмжлэгийн багт
+                      хандана уу.
+                    </Form.Description>
                   </Form.Item>
                 )}
               />
@@ -314,7 +362,7 @@ export const TicketForm = () => {
                         placeholder="99112233"
                       />
                     </Form.Control>
-                    <Form.Description>Заавал биш.</Form.Description>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />

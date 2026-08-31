@@ -6,10 +6,8 @@ import { cn } from '@/modules/ui/lib/cn';
  * header, the content and the footer always share the same vertical edges.
  */
 const widths = {
-  /** Page chrome and grid-driven pages. */
+  /** The one page frame: chrome and content share it so every edge lines up. */
   shell: 'max-w-7xl',
-  /** Single-column lists and detail pages. */
-  wide: 'max-w-5xl',
   /** Long-form reading and focused forms, kept near 70 characters a line. */
   text: 'max-w-3xl',
   /** Auth cards. */
@@ -20,10 +18,18 @@ export type ContainerWidth = keyof typeof widths;
 
 export const Container = ({
   width = 'shell',
+  column,
   className,
   children,
 }: {
   width?: ContainerWidth;
+  /**
+   * Narrows the content inside the frame without narrowing the frame itself, so
+   * a form or a long read keeps its measure while the page around it stays the
+   * same width as every other page. The column is centred: left-aligning it
+   * under full-width chrome reads as a mistake rather than a choice.
+   */
+  column?: ContainerWidth;
   className?: string;
   children: ReactNode;
 }) => (
@@ -34,6 +40,10 @@ export const Container = ({
       className,
     )}
   >
-    {children}
+    {column ? (
+      <div className={cn('mx-auto w-full', widths[column])}>{children}</div>
+    ) : (
+      children
+    )}
   </div>
 );

@@ -6,7 +6,7 @@ export const metadata = { title: 'Миний хуудас' };
 
 export default function AccountPage() {
   return (
-    <Container width="text" className="py-10 lg:py-14">
+    <Container column="text" className="py-10 lg:py-14">
       <Breadcrumbs
         items={[
           { label: 'Мэдлэгийн сан', href: '/' },

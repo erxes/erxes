@@ -13,7 +13,7 @@ export default async function TrackTicketPage() {
     <>
       <Hero headline={headline} />
 
-      <Container width="text" className="py-10 lg:py-14">
+      <Container column="text" className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
             { label: 'Мэдлэгийн сан', href: '/' },

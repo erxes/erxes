@@ -1,13 +1,23 @@
 import Link from 'next/link';
+import { SessionLink } from '@/modules/auth/components/SessionLink';
+import {
+  NEW_TICKET_REASON,
+  NEW_TICKET_ROUTE,
+} from '@/modules/tickets/constants/guard';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
 
-type FooterLink = { href: string; label: string };
+type FooterLink = { href: string; label: string; reason?: string };
 
 const supportLinks: FooterLink[] = [
-  { href: '/tickets/new', label: 'Хүсэлт илгээх' },
+  {
+    href: NEW_TICKET_ROUTE,
+    label: 'Хүсэлт илгээх',
+    reason: NEW_TICKET_REASON,
+  },
   { href: '/tickets/track', label: 'Хүсэлт хянах' },
   { href: '/tickets', label: 'Миний хүсэлт' },
+  { href: '/forms', label: 'Маягт бөглөх' },
 ];
 
 const knowledgeLinks: FooterLink[] = [
@@ -21,6 +31,8 @@ const accountLinks: FooterLink[] = [
   { href: '/sign-in', label: 'Нэвтрэх' },
   { href: '/sign-up', label: 'Бүртгүүлэх' },
 ];
+
+const linkClass = 'text-sm text-ink-soft transition-colors hover:text-brand';
 
 const FooterColumn = ({
   heading,
@@ -36,12 +48,19 @@ const FooterColumn = ({
     <ul className="mt-4 space-y-3">
       {links.map((link) => (
         <li key={link.href}>
-          <Link
-            href={link.href}
-            className="text-sm text-ink-soft transition-colors hover:text-brand"
-          >
-            {link.label}
-          </Link>
+          {link.reason ? (
+            <SessionLink
+              href={link.href}
+              reason={link.reason}
+              className={linkClass}
+            >
+              {link.label}
+            </SessionLink>
+          ) : (
+            <Link href={link.href} className={linkClass}>
+              {link.label}
+            </Link>
+          )}
         </li>
       ))}
     </ul>

@@ -6,37 +6,55 @@ import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { LoadError } from '@/modules/ui/components/PortalState';
+import { cn } from '@/modules/ui/lib/cn';
 import { TICKET_PORTAL_LIST } from '../graphql/queries/tickets';
 import type { Ticket } from '../types';
 import { TicketListItem } from './TicketListItem';
 
 type ListResponse = { cpGetTickets: Ticket[] | null };
 
-const Skeleton = () => (
-  <Card className="space-y-4 p-6">
-    {[0, 1, 2].map((row) => (
-      <span key={row} className="block space-y-2">
-        <span className="block h-4 w-40 animate-pulse rounded bg-subtle" />
-        <span className="block h-4 w-3/4 animate-pulse rounded bg-subtle" />
-      </span>
-    ))}
-  </Card>
-);
+const Skeleton = ({ framed }: { framed: boolean }) => {
+  const rows = (
+    <div className="space-y-4">
+      {[0, 1, 2].map((row) => (
+        <span key={row} className="block space-y-2">
+          <span className="block h-4 w-40 animate-pulse rounded bg-subtle" />
+          <span className="block h-4 w-3/4 animate-pulse rounded bg-subtle" />
+        </span>
+      ))}
+    </div>
+  );
 
-export const MyTickets = () => {
+  return framed ? <Card className="p-6">{rows}</Card> : rows;
+};
+
+export const MyTickets = ({
+  limit = 20,
+  framed = true,
+}: {
+  limit?: number;
+  /** Off where the list already sits inside a panel, so surfaces do not nest. */
+  framed?: boolean;
+}) => {
   const { user, ready } = useSession();
-  const cpUserId = user?.cpUserId;
+
+  /*
+   * `cpCreateTicket` files a ticket under the requester's linked erxes customer
+   * and only falls back to the portal user id when there is none, so the list
+   * has to be asked for with the same id or it comes back empty.
+   */
+  const requesterId = user?.customerId ?? user?.cpUserId;
 
   const { data, loading, error } = useQuery<ListResponse>(TICKET_PORTAL_LIST, {
-    variables: { filter: { createdBy: cpUserId, perPage: 20 } },
-    skip: !cpUserId,
+    variables: { filter: { createdBy: requesterId, perPage: limit } },
+    skip: !requesterId,
   });
 
   if (!ready) {
-    return <Skeleton />;
+    return <Skeleton framed={framed} />;
   }
 
-  if (!cpUserId) {
+  if (!requesterId) {
     return (
       <EmptyState
         icon="user"
@@ -52,7 +70,7 @@ export const MyTickets = () => {
   }
 
   if (loading) {
-    return <Skeleton />;
+    return <Skeleton framed={framed} />;
   }
 
   if (error) {
@@ -78,13 +96,13 @@ export const MyTickets = () => {
     );
   }
 
-  return (
-    <Card className="p-2">
-      <ul className="divide-y divide-line">
-        {tickets.map((ticket) => (
-          <TicketListItem key={ticket._id} ticket={ticket} />
-        ))}
-      </ul>
-    </Card>
+  const list = (
+    <ul className={cn('divide-y divide-line', !framed && '-mx-2')}>
+      {tickets.map((ticket) => (
+        <TicketListItem key={ticket._id} ticket={ticket} />
+      ))}
+    </ul>
   );
+
+  return framed ? <Card className="p-2">{list}</Card> : list;
 };

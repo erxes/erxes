@@ -1,10 +1,15 @@
+import type { SessionUser } from '../utils/session';
+
 export type CurrentUser = {
   _id: string;
   email: string | null;
+  phone: string | null;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
   isVerified: boolean;
+  /** erxes files this account's tickets and contact details under the customer. */
+  erxesCustomerId: string | null;
 };
 
 export type CurrentUserResponse = {
@@ -22,6 +27,18 @@ export type LoginResponse = {
     | null;
 };
 
+export type PortalCustomer = {
+  _id: string;
+  firstName: string | null;
+  lastName: string | null;
+  primaryEmail: string | null;
+  primaryPhone: string | null;
+};
+
+export type CustomerEditResponse = {
+  clientPortalCustomerEdit: PortalCustomer | null;
+};
+
 export const loginToken = (
   result: LoginResponse['clientPortalUserLoginWithCredentials'],
 ): string | null =>
@@ -32,3 +49,14 @@ export const displayName = (user: CurrentUser): string => {
 
   return full || user.username || user.email || 'Хэрэглэгч';
 };
+
+export const sessionFromCurrentUser = (
+  user: CurrentUser,
+  fallbackEmail = '',
+): SessionUser => ({
+  name: displayName(user),
+  email: user.email ?? fallbackEmail,
+  ...(user.phone ? { phone: user.phone } : {}),
+  ...(user.erxesCustomerId ? { customerId: user.erxesCustomerId } : {}),
+  cpUserId: user._id,
+});

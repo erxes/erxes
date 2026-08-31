@@ -5,10 +5,12 @@ export const AUTH_PORTAL_CURRENT_USER = gql`
     clientPortalCurrentUser {
       _id
       email
+      phone
       firstName
       lastName
       username
       isVerified
+      erxesCustomerId
     }
   }
 `;

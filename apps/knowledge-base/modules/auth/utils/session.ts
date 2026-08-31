@@ -1,6 +1,9 @@
 export type SessionUser = {
   name: string;
   email: string;
+  phone?: string;
+  /** The erxes customer this account is linked to; tickets are filed under it. */
+  customerId?: string;
   cpUserId?: string;
 };
 
@@ -44,8 +47,14 @@ export const parseSession = (raw: string | null): SessionUser | null => {
       typeof (parsed as SessionUser).name === 'string' &&
       typeof (parsed as SessionUser).email === 'string'
     ) {
-      const { name, email, cpUserId } = parsed as SessionUser;
-      return { name, email, ...(cpUserId ? { cpUserId } : {}) };
+      const { name, email, phone, customerId, cpUserId } = parsed as SessionUser;
+      return {
+        name,
+        email,
+        ...(phone ? { phone } : {}),
+        ...(customerId ? { customerId } : {}),
+        ...(cpUserId ? { cpUserId } : {}),
+      };
     }
   } catch {
     return null;

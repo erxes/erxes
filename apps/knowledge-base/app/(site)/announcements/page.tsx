@@ -20,7 +20,7 @@ export default async function AnnouncementsPage() {
     <>
       <Hero headline={headline} />
 
-      <Container width="wide" className="py-10 lg:py-14">
+      <Container className="py-10 lg:py-14">
         <Breadcrumbs
           items={[{ label: 'Нүүр', href: '/' }, { label: 'Мэдээ мэдээлэл' }]}
         />

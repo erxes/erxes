@@ -38,6 +38,46 @@ export const missingCmsEnvKeys = (env: PortalEnv): string[] => {
   return missing;
 };
 
+export type FormEnv = {
+  channelId: string;
+  tagId: string;
+};
+
+/**
+ * Frontline forms are read per channel, and `cpForms` throws without one. The
+ * tag is what marks a form as belonging in this portal: erxes exposes a
+ * `tagId` argument but ignores it, so the portal filters on `tagIds` itself.
+ */
+export const readFormEnv = (): FormEnv => ({
+  channelId:
+    process.env.NEXT_PUBLIC_ERXES_FORM_CHANNEL_ID ||
+    process.env.NEXT_PUBLIC_ERXES_TICKET_CHANNEL_ID ||
+    '',
+  tagId: process.env.NEXT_PUBLIC_ERXES_FORM_TAG_ID ?? '',
+});
+
+export const missingFormEnvKeys = (env: PortalEnv, form: FormEnv): string[] => {
+  const missing: string[] = [];
+
+  if (!env.apiUrl) {
+    missing.push('NEXT_PUBLIC_ERXES_API_URL');
+  }
+
+  if (!env.appToken) {
+    missing.push('NEXT_PUBLIC_ERXES_CP_TOKEN');
+  }
+
+  if (!form.channelId) {
+    missing.push('NEXT_PUBLIC_ERXES_FORM_CHANNEL_ID');
+  }
+
+  if (!form.tagId) {
+    missing.push('NEXT_PUBLIC_ERXES_FORM_TAG_ID');
+  }
+
+  return missing;
+};
+
 export type TicketEnv = {
   pipelineId: string;
   channelId: string;

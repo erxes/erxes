@@ -37,6 +37,12 @@ export const navItems: NavItem[] = [
     icon: 'ticket',
   },
   {
+    href: '/forms',
+    label: 'Маягт',
+    description: 'Бэлэн маягт бөглөх',
+    icon: 'clipboard',
+  },
+  {
     href: '/announcements',
     label: 'Мэдээ мэдээлэл',
     description: 'Шинэ зарлал, шинэчлэлт',

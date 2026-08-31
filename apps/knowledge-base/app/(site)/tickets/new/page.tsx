@@ -1,6 +1,8 @@
+import { RequireSession } from '@/modules/auth/components/RequireSession';
 import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import { TicketForm } from '@/modules/tickets/components/TicketForm';
+import { NEW_TICKET_REASON } from '@/modules/tickets/constants/guard';
 import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { Container } from '@/modules/ui/components/Container';
 
@@ -13,7 +15,7 @@ export default async function NewTicketPage() {
     <>
       <Hero headline={headline} />
 
-      <Container width="text" className="py-10 lg:py-14">
+      <Container column="text" className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
             { label: 'Мэдлэгийн сан', href: '/' },
@@ -31,7 +33,9 @@ export default async function NewTicketPage() {
         </p>
 
         <div className="mt-7">
-          <TicketForm />
+          <RequireSession reason={NEW_TICKET_REASON}>
+            <TicketForm />
+          </RequireSession>
         </div>
       </Container>
     </>

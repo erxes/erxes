@@ -40,6 +40,10 @@ const OPTIONS: sanitizeHtml.IOptions = {
   disallowedTagsMode: 'discard',
 };
 
+/** Exported so server code can clean markup it hands to a client component. */
+export const sanitizePortalHtml = (html: string): string =>
+  sanitizeHtml(html, OPTIONS);
+
 export const RichText = ({
   html,
   className,
@@ -49,6 +53,6 @@ export const RichText = ({
 }) => (
   <div
     className={cn('kb-article', className)}
-    dangerouslySetInnerHTML={{ __html: sanitizeHtml(html, OPTIONS) }}
+    dangerouslySetInnerHTML={{ __html: sanitizePortalHtml(html) }}
   />
 );

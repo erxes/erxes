@@ -1,18 +1,7 @@
-const messageOf = (caught: unknown): string => {
-  if (caught && typeof caught === 'object' && 'errors' in caught) {
-    const { errors } = caught as { errors?: { message?: string }[] };
-    const first = errors?.[0]?.message;
-
-    if (first) {
-      return first;
-    }
-  }
-
-  return caught instanceof Error ? caught.message : '';
-};
+import { graphqlErrorMessage } from '@/modules/apollo/utils/result';
 
 export const authErrorMessage = (caught: unknown): string => {
-  const raw = messageOf(caught);
+  const raw = graphqlErrorMessage(caught);
 
   if (/invalid login/i.test(raw)) {
     return 'Имэйл эсвэл нууц үг буруу байна.';

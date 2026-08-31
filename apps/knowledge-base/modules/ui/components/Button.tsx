@@ -21,8 +21,15 @@ const sizes: Record<Size, string> = {
   lg: 'h-12 px-6 text-[15px]',
 };
 
-const buttonClass = (variant: Variant, size: Size, className?: string) =>
-  cn(base, variants[variant], sizes[size], className);
+export const buttonClass = ({
+  variant = 'primary',
+  size = 'md',
+  className,
+}: {
+  variant?: Variant;
+  size?: Size;
+  className?: string;
+} = {}) => cn(base, variants[variant], sizes[size], className);
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -40,7 +47,7 @@ export const Button = ({
 }: ButtonProps) => (
   <button
     type={type}
-    className={buttonClass(variant, size, className)}
+    className={buttonClass({ variant, size, className })}
     {...props}
   >
     {children}
@@ -58,5 +65,5 @@ export const ButtonLink = ({
   className,
   ...props
 }: ButtonLinkProps) => (
-  <Link className={buttonClass(variant, size, className)} {...props} />
+  <Link className={buttonClass({ variant, size, className })} {...props} />
 );

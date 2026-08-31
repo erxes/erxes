@@ -11,6 +11,7 @@ import { PasswordInput, TextInput } from '@/modules/ui/components/FormInput';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import { authErrorMessage } from '../utils/errors';
+import { withNext } from '../utils/redirect';
 import {
   AUTH_PORTAL_LOGIN,
   AUTH_PORTAL_REGISTER,
@@ -20,6 +21,7 @@ import { useSession } from './SessionProvider';
 import {
   displayName,
   loginToken,
+  sessionFromCurrentUser,
   type CurrentUserResponse,
   type LoginResponse,
   type RegisterResponse,
@@ -49,7 +51,7 @@ const signUpSchema = z
 
 type SignUpValues = z.infer<typeof signUpSchema>;
 
-export const SignUpForm = () => {
+export const SignUpForm = ({ next }: { next?: string | null }) => {
   const router = useRouter();
   const client = useApolloClient();
   const { signIn } = useSession();
@@ -96,7 +98,7 @@ export const SignUpForm = () => {
           description:
             'Имэйл рүү илгээсэн зааврын дагуу бүртгэлээ баталгаажуулаад нэвтэрнэ үү.',
         });
-        router.push('/sign-in');
+        router.replace(withNext('/sign-in', next ?? null));
         return;
       }
 
@@ -122,14 +124,7 @@ export const SignUpForm = () => {
         throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
       }
 
-      signIn(
-        {
-          name: displayName(current),
-          email: current.email ?? address,
-          cpUserId: current._id,
-        },
-        token,
-      );
+      signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
@@ -137,7 +132,7 @@ export const SignUpForm = () => {
         description: `Тавтай морил, ${displayName(current)}.`,
       });
 
-      router.push('/');
+      router.replace(next ?? '/');
     } catch (caught) {
       const message = authErrorMessage(caught);
 
