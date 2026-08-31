@@ -10,6 +10,7 @@ overrides:
   '@mastra/core>zod': ^3.25.0
   '@mastra/memory>zod': ^3.25.0
   '@mastra/libsql>zod': ^3.25.0
+  nanoid@^5.0.0: ^5.1.16
 
 importers:
 
@@ -14974,11 +14975,6 @@ packages:
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
-  nanoid@5.1.11:
-    resolution: {integrity: sha512-v+KEsUv2ps74PaSKv0gHTxTCgMXOIfBEbaqa6w6ISIGC7ZsvHN4N9oJ8d4cmf0n5oTzQz2SLmThbQWhjd/8eKg==}
-    engines: {node: ^18 || >=20}
     hasBin: true
 
   nanoid@5.1.16:
@@ -30044,7 +30040,7 @@ snapshots:
       fast-diff: 1.3.0
       kdbush: 4.1.0
       lodash-es: 4.18.1
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       numfmt: 3.2.6
       ot-json1: 1.0.2
       rbush: 4.0.1
@@ -38452,8 +38448,6 @@ snapshots:
   n-gram@2.0.2: {}
 
   nanoid@3.3.11: {}
-
-  nanoid@5.1.11: {}
 
   nanoid@5.1.16: {}
 
