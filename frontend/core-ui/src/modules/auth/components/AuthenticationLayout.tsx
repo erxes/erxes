@@ -29,7 +29,7 @@ export const AuthenticationLayout = ({
                 </span>
                 <span className="text-sm text-center inline-flex gap-1 justify-center">
                   <a
-                    className="text-primary font-medium hover:underline"
+                    className="text-primary font-medium hover:underline cursor-pointer"
                     href="https://erxes.io/legal/terms"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -38,7 +38,7 @@ export const AuthenticationLayout = ({
                   </a>
                   and
                   <a
-                    className="text-primary font-medium hover:underline"
+                    className="text-primary font-medium hover:underline cursor-pointer"
                     href="https://erxes.io/legal/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
