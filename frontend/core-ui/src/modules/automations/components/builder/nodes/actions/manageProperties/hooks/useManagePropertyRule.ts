@@ -21,6 +21,7 @@ const ARRAY_FIELD_TYPES = new Set([
   'multiSelect',
   'multiselect',
   'list',
+  'objectList',
 ]);
 
 const getManagePropertyOperatorType = (field?: IField) => {

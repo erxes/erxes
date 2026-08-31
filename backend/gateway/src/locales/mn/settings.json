@@ -187,7 +187,8 @@
       "radio": "Радио товч",
       "relation": "Холбоос",
       "file": "Файл",
-      "phone": "Утас"
+      "phone": "Утас",
+      "objectList": "Объектын жагсаалт"
     },
     "icon": "Дүрс",
     "description": "Тайлбар",
@@ -201,6 +202,10 @@
     "value": "Утга",
     "enter-value": "Утга оруулах",
     "add-option": "Сонголт нэмэх",
+    "object-list-fields": "Объектын жагсаалтын талбарууд",
+    "key": "Түлхүүр",
+    "enter-key": "Түлхүүр оруулах",
+    "add-field": "Талбар нэмэх",
     "validation": "Шалгалт",
     "select-validation": "Шалгалт сонгох",
     "validation-text": "Текст",

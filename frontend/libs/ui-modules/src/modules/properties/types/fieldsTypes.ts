@@ -1,9 +1,16 @@
+export type TObjectListFieldConfig = {
+  key: string;
+  label: string;
+  type: 'text' | 'textarea';
+};
+
 export type TFieldSelectionConfig = {
   queryName?: string;
   labelField?: string;
   valueField?: string;
   multi?: boolean;
   component?: string;
+  objectListConfigs?: TObjectListFieldConfig[];
   [key: string]: unknown;
 };
 

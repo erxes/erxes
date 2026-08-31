@@ -59,6 +59,7 @@ const parseValue = (field, value) => {
         return Number(value);
 
       case 'file':
+      case 'objectList':
         return value;
 
       default:
