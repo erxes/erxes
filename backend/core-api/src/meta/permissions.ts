@@ -1,9 +1,10 @@
-import { IPermissionConfig } from 'erxes-api-shared/core-types';
+import {
+  IPermissionConfig,
+  IPermissionGroupPermission,
+  IPermissionModule,
+} from 'erxes-api-shared/core-types';
 
-export const permissions: IPermissionConfig = {
-  plugin: 'core',
-
-  modules: [
+const coreModules: IPermissionModule[] = [
     {
       name: 'contacts',
       description: 'Contact management',
@@ -713,168 +714,30 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
-  ],
+];
+
+// Admin means admin: grant every action this service registers, at 'all'
+// scope. Derived from the registry above so a newly added action can never
+// be silently missing from the default group.
+const coreAdminPermissions: IPermissionGroupPermission[] = coreModules.map(
+  (module) => ({
+    plugin: 'core',
+    module: module.name,
+    actions: module.actions.map((action) => action.name),
+    scope: 'all',
+  }),
+);
+
+export const permissions: IPermissionConfig = {
+  plugin: 'core',
+
+  modules: coreModules,
   defaultGroups: [
     {
       id: 'core:admin',
       name: 'Core modules admin',
       description: 'Full access to Core modules',
-      permissions: [
-        {
-          plugin: 'core',
-          module: 'contacts',
-          actions: [
-            'contactsCreate',
-            'contactsUpdate',
-            'contactsDelete',
-            'contactsMerge',
-            'customersImportManage',
-            'customersExportManage',
-            'companiesImportManage',
-            'companiesExportManage',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'products',
-          actions: [
-            'productsCreate',
-            'productsUpdate',
-            'productsDelete',
-            'productsMerge',
-            'productCategoriesManage',
-            'productsConfigsManage',
-            'uomsManage',
-            'productRulesManage',
-            'productsImportManage',
-            'productsExportManage',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'properties',
-          actions: ['fieldsManage', 'fieldGroupsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'tags',
-          actions: ['tagsCreate', 'tagsUpdate', 'tagsDelete', 'tagsTag'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'segments',
-          actions: ['segmentsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'documents',
-          actions: ['manageDocuments', 'removeDocuments'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'brands',
-          actions: ['brandsCreate', 'brandsUpdate', 'brandsDelete'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'organization',
-          actions: [
-            'structuresManage',
-            'departmentsManage',
-            'branchesManage',
-            'unitsManage',
-            'positionsManage',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'teamMembers',
-          actions: [
-            'teamMembersInvite',
-            'teamMembersUpdate',
-            'teamMembersRemove',
-            'teamMembersResetPassword',
-            'teamMembersImportManage',
-            'teamMembersExportManage',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'broadcasts',
-          actions: [
-            'broadcastRead',
-            'broadcastCreate',
-            'broadcastUpdate',
-            'broadcastDelete',
-            'broadcastConfigsManage',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'bundle',
-          actions: ['bundleRulesManage', 'bundleConditionsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'exchangeRates',
-          actions: ['exchangeRatesManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'permissions',
-          actions: ['permissionsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'apps',
-          actions: ['appsRead', 'appsManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'clientPortal',
-          actions: ['clientPortalManage'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'approval',
-          actions: ['approvalLocksManage', 'approvalLocksForceRelease'],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'automations',
-          actions: [
-            'automationsCreate',
-            'automationsUpdate',
-            'automationsDelete',
-            'automationsAiAgentAdd',
-            'automationsAiAgentEdit',
-            'automationsAiAgentRemove',
-          ],
-          scope: 'all',
-        },
-        {
-          plugin: 'core',
-          module: 'logs',
-          actions: ['logsRead'],
-          scope: 'all',
-        },
-      ],
+      permissions: coreAdminPermissions,
     },
     {
       id: 'core:user',

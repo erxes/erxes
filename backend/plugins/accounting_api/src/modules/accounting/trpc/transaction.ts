@@ -7,15 +7,37 @@ import { generateFilter } from '../graphql/resolvers/queries/transactionsCommon'
 
 const t = initTRPC.context<AccountingTRPCContext>().create();
 
+// Agent-facing reads must stay bounded: an unbounded find over every
+// accounting transaction can materialize the whole collection in memory
+// before the agent-tools response cap can reject it. The floor guard keeps a
+// fractional limit (e.g. 0.5) from becoming 0, which Mongo treats as
+// "no limit".
+const AGENT_FIND_DEFAULT_LIMIT = 20;
+const AGENT_FIND_MAX_LIMIT = 100;
+
 export const transactionTrpcRouter = t.router({
   accountingTransaction: t.router({
     getTransactions: t.procedure
+      .meta({
+        agent: {
+          description:
+            'List accounting transactions matching a Mongo filter. Input: { query?, limit? }, e.g. { query: { journal: "main", "details.debit": 1000 } }. Results are capped at 100 rows (default 20); narrow the filter and page with skip-style filters instead of fetching everything.',
+          permission: { module: 'transaction', action: 'readTransactions' },
+        },
+      })
       .input(z.any())
       .query(async ({ ctx, input }) => {
-        const { query } = input;
+        const { query, limit } = input || {};
         const { models } = ctx;
 
-        return await models.Transactions.find(query).lean();
+        const safeLimit =
+          typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+            ? Math.max(1, Math.min(Math.floor(limit), AGENT_FIND_MAX_LIMIT))
+            : AGENT_FIND_DEFAULT_LIMIT;
+
+        return await models.Transactions.find(query)
+          .limit(safeLimit)
+          .lean();
       }),
     getFilterMatches: t.procedure
       .input(z.any())

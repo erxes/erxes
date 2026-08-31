@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-08-25`
 
 ## Scope
 
@@ -27,6 +27,10 @@
 - POS order score campaign totals count only order item rows that pass campaign product/category/tag restrictions and use item amount or `count * unitPrice` without deal-specific discount filtering.
 - Pricing plans calculate product discounts through the loyalty pricing module and tRPC `pricing.checkPricing`.
 - Voucher, coupon, lottery, spin, reward, and agent modules provide their plugin-owned loyalty behaviors.
+- Read-only loyalty tRPC procedures (voucher/coupon/pricing/score-campaign
+  checks) are exposed to AI agents through `/agent-tools/manifest` and
+  `/agent-tools/call` via inline `.meta({ agent })` annotations; every mutating
+  ledger procedure remains invisible to agents.
 
 ## Architecture
 
@@ -45,6 +49,14 @@
 
 - GraphQL contracts for loyalty modules registered through `src/apollo`.
 - tRPC procedures in `src/trpc/init-trpc.ts`, including `score.scoreCampaign`, `pricing.checkPricing`, and `doScoreCampaign`.
+- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
+  the listed loyalty permission action:
+  - `loyalty.checkLoyalties` — `loyaltyCheck`
+  - `pricing.checkPricing` — `pricingView`
+  - `coupon.checkCoupon` — `couponView`
+  - `score.scoreCampaign`, `score.getScoreCampaignsByStage` —
+    `loyaltyCampaignView`
+  - `voucher.voucherCampaigns` — `loyaltyCampaignView` (voucherCampaign module)
 - Metadata, permission, automation, and after-process handlers under `src/meta`.
 
 ### Consumes
@@ -67,6 +79,12 @@
 - Score campaign mutations must keep owner score caches and score logs consistent, including refunds for cleared or moved targets.
 - Pricing eligibility must fail closed when required core lookups are unavailable.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
+- Agent tool annotations are admit-only: never annotate the mutating ledger
+  procedures (`loyalty.confirmLoyalties`, `loyalty.handleLoyaltyReward`,
+  `loyalty.changeCustomer`, `score.updateScore`, `score.doScoreCampaign`,
+  `score.consumeTargetChange`, `score.refundLoyaltyScore`) — they move score
+  and voucher state and trust caller-supplied payloads. New procedures are
+  agent-invisible unless explicitly annotated.
 
 ## Validation
 
@@ -78,6 +96,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-25` — Agent-callable loyalty reads
+
+- **Summary:** Read-only voucher/coupon/pricing/score-campaign tRPC procedures
+  are now exposed to AI agents through the platform agent-tools manifest, each
+  gated by a registered loyalty permission; all mutating ledger procedures
+  stay invisible.
+- **Affected areas:** `src/trpc/init-trpc.ts`.
+- **Contracts changed:** New agent-tool manifest entries
+  `loyalty.checkLoyalties`, `pricing.checkPricing`, `coupon.checkCoupon`,
+  `score.scoreCampaign`, `score.getScoreCampaignsByStage`, and
+  `voucher.voucherCampaigns`. No existing GraphQL or tRPC behavior changed.
 
 ### `2026-08-12` — `Campaign-specific product totals`
 
