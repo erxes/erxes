@@ -13,7 +13,16 @@ export interface IPocketConfig {
   pocketClientSecret: string;
   pocketTerminalId: number;
 }
+interface IPocketCallbackData {
+  paymentId: string;
+  invoiceId: string | number;
+  [key: string]: unknown;
+}
 
+interface IPocketTokenResponse {
+  access_token: string;
+  expires_in: number;
+}
 interface IPocketInvoiceResponse {
   id: number;
   qr: string;
@@ -39,10 +48,7 @@ interface IPocketInvoiceStatusResponse {
   invoiceType?: string;
 }
 
-export const pocketCallbackHandler = async (
-  models: IModels,
-  data: any,
-) => {
+export const pocketCallbackHandler = async (models: IModels, data: any) => {
   const { paymentId, invoiceId } = data;
 
   if (!paymentId) {
@@ -59,7 +65,24 @@ export const pocketCallbackHandler = async (
   });
 
   const response: any = transaction.response || {};
+  const allowedCallbackKeys = [
+    'invoiceId',
+    'paymentId',
+    'state',
+    'description',
+    'amount',
+    'info',
+    'id',
+    'terminalId',
+    'orderNumber',
+    'invoiceType',
+  ];
 
+  for (const key of allowedCallbackKeys) {
+    if (key in data) {
+      response[key] = data[key];
+    }
+  }
   for (const key of Object.keys(data)) {
     response[key] = data[key];
   }
@@ -77,7 +100,10 @@ export const pocketCallbackHandler = async (
     const status = await api.checkInvoice(transaction);
 
     if (status !== PAYMENT_STATUS.PAID) {
+      transaction.status = status;
+      transaction.updatedAt = new Date();
       await transaction.save();
+
       return transaction;
     }
 
@@ -101,7 +127,12 @@ export class PocketAPI extends BaseAPI {
 
   constructor(config: IPocketConfig, domain?: string) {
     super(config);
-
+    if (
+      !Number.isInteger(config.pocketTerminalId) ||
+      config.pocketTerminalId <= 0
+    ) {
+      throw new Error('Pocket terminal ID must be a valid positive integer');
+    }
     this.pocketMerchant = config.pocketMerchant;
     this.pocketClientId = config.pocketClientId;
     this.pocketClientSecret = config.pocketClientSecret;
@@ -140,11 +171,13 @@ export class PocketAPI extends BaseAPI {
       body: requestBody,
     });
 
-    const res: any = await response.json();
+    const res: IPocketTokenResponse = await response.json();
 
     if (!response.ok || !res.access_token) {
       throw new Error(
-        `Pocket token request failed: ${response.status} ${JSON.stringify(res)}`,
+        `Pocket token request failed: ${response.status} ${JSON.stringify(
+          res,
+        )}`,
       );
     }
 
@@ -187,13 +220,17 @@ export class PocketAPI extends BaseAPI {
 
       if (!response.ok || !res.id) {
         throw new Error(
-          `Pocket invoice creation failed: ${response.status} ${JSON.stringify(res)}`,
+          `Pocket invoice creation failed: ${response.status} ${JSON.stringify(
+            res,
+          )}`,
         );
       }
 
       if (!res.qr || typeof res.qr !== 'string') {
         throw new Error(
-          `Pocket invoice response does not contain a valid QR: ${JSON.stringify(res)}`,
+          `Pocket invoice response does not contain a valid QR: ${JSON.stringify(
+            res,
+          )}`,
         );
       }
 
@@ -234,7 +271,9 @@ export class PocketAPI extends BaseAPI {
 
     if (!response.ok) {
       throw new Error(
-        `Pocket invoice check failed: ${response.status} ${JSON.stringify(res)}`,
+        `Pocket invoice check failed: ${response.status} ${JSON.stringify(
+          res,
+        )}`,
       );
     }
 
