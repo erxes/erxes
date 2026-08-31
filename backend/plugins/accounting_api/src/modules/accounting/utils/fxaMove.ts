@@ -35,8 +35,8 @@ export const createFxaMoveInFollowTr = async (
 ) => {
   const followInfos = getFxaMoveFollowInfos(transaction);
 
-  if (!followInfos.moveInBranchId) {
-    throw new Error('Move destination branch is required');
+  if (!followInfos.moveInBranchId && !followInfos.moveInDepartmentId) {
+    throw new Error('Move destination branch or department is required');
   }
 
   const oldMoveInTr = await cleanFxaFollowTr(

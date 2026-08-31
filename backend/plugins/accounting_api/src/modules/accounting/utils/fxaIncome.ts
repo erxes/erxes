@@ -474,8 +474,10 @@ const validateOwnerInputCounts = (
     const expectedCount = Math.max(0, Math.trunc(detail.count || 0));
     const actualCount = countByDetailId[getDetailId(detail)] || 0;
 
-    if (actualCount && actualCount !== expectedCount) {
-      throw new Error('Fixed asset owner record counts must match detail count');
+    if (actualCount > expectedCount) {
+      throw new Error(
+        'Fixed asset owner record count must not exceed detail count',
+      );
     }
   }
 };

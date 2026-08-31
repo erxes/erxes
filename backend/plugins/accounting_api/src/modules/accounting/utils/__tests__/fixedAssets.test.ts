@@ -14,6 +14,7 @@ import {
   createFxaDisposalFollowTrs,
   syncFxaDisposalInstances,
 } from '../fxaOut';
+import { createFxaMoveInFollowTr } from '../fxaMove';
 
 type TQuery<T> = {
   lean: jest.Mock<Promise<T>, []>;
@@ -255,6 +256,18 @@ describe('fixed asset income', () => {
   it('creates owner records only for the allocated rows sent by the form', async () => {
     const models = makeModels();
     const transaction = makeIncomeTransaction({
+      details: [
+        {
+          _id: 'detail-income',
+          accountId: 'asset-account',
+          fixedAssetCategoryId: 'cat-a',
+          fixedAssetCode: 'DELL-001',
+          fixedAssetName: 'Dell laptop',
+          count: 10,
+          unitPrice: 500,
+          amount: 5000,
+        },
+      ],
       extraData: {
         fxaOwnerRecords: [
           {
@@ -303,6 +316,32 @@ describe('fixed asset income', () => {
         transactionDetailId: 'detail-income',
       }),
     ]);
+  });
+
+  it('rejects income owner record counts above detail count', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction({
+      extraData: {
+        fxaOwnerRecords: [
+          {
+            tempId: 'owner-1',
+            transactionDetailId: 'detail-income',
+            code: 'DELL-001_001',
+            sequence: 1,
+            count: 4,
+            ownerId: 'user-owner-a',
+          },
+        ],
+      },
+    });
+
+    models.FixedAssets.find.mockReturnValueOnce(queryResult([]));
+
+    await expect(
+      syncFxaIncomeDetails(models as never, 'user-a', transaction as never),
+    ).rejects.toThrow(
+      'Fixed asset owner record count must not exceed detail count',
+    );
   });
 
   it('creates owner records from transaction owner when no explicit owner rows are sent', async () => {
@@ -475,6 +514,62 @@ describe('fixed asset owner records', () => {
         transactionDetailId: 'detail-out',
       }),
     ]);
+  });
+});
+
+describe('fixed asset move follow transaction', () => {
+  it('allows department-only move destinations', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'move-a',
+      journal: JOURNALS.FXA_MOVE,
+      status: TR_STATUSES.COMPLETE,
+      parentId: 'move-a',
+      date: new Date('2026-01-03T00:00:00.000Z'),
+      branchId: 'branch-a',
+      departmentId: '',
+      followInfos: {
+        moveInDepartmentId: 'dept-call-center',
+      },
+      details: [
+        {
+          _id: 'detail-move',
+          fixedAssetId: 'asset-a',
+          accountId: 'asset-account',
+          count: 1,
+          unitPrice: 100,
+          amount: 100,
+        },
+      ],
+    };
+
+    models.Transactions.find.mockReturnValue(queryResult([]));
+
+    await createFxaMoveInFollowTr(models as never, 'user-a', transaction as never);
+
+    expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        journal: JOURNALS.FXA_MOVE_IN,
+        branchId: undefined,
+        departmentId: 'dept-call-center',
+      }),
+      'user-a',
+    );
+  });
+
+  it('rejects move destinations without branch and department', async () => {
+    const models = makeModels();
+    const transaction = {
+      _id: 'move-a',
+      journal: JOURNALS.FXA_MOVE,
+      status: TR_STATUSES.COMPLETE,
+      followInfos: {},
+      details: [],
+    };
+
+    await expect(
+      createFxaMoveInFollowTr(models as never, 'user-a', transaction as never),
+    ).rejects.toThrow('Move destination branch or department is required');
   });
 });
 

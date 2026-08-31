@@ -29,7 +29,7 @@
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
-- Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id and use the generated `fxaMoveIn` transaction for the destination branch/department.
+- Fixed asset out, sale, move, and move-in journals derive quantity and branch/department movement from transaction details; internal moves keep the same fixed asset id and use the generated `fxaMoveIn` transaction for the destination branch and/or department.
 - Provides `fixedAssetLocationRemainder`, which returns fixed asset quantity at a branch/department/date location from business-active fixed asset transaction detail movements, excluding the edited transaction when requested.
 - Provides `fixedAssetLocationRemainders`, which lists positive fixed asset quantities grouped by fixed asset, branch, and department with fixed asset, category, location, date, and search filters using the same transaction movement aggregation helper as `fixedAssetLocationRemainder`.
 - Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from transaction detail movements, caches period-end rows in `adjust_fxa_details`, and allocates depreciation by active branch/department quantity while ignoring responsible-user allocation.
@@ -44,7 +44,7 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, skips Erkhet fixed asset movement follower rows because erxes generates the destination move-in transaction from the source row, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -130,11 +130,11 @@
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - System opening fixed asset adjustments must stay published, dated one day before their acquisition transaction, and regenerated or removed from fixed asset income synchronization.
-- Fixed asset income explicit owner-record counts must match the parent detail count for that detail when any owner rows are provided; details without owner rows are valid and create no owner record unless transaction-level `followInfos.ownerId` is present.
+- Fixed asset income explicit owner-record counts must not exceed the parent detail count for that detail; partially owner-assigned income quantities are valid and details without owner rows create no owner record unless transaction-level `followInfos.ownerId` is present.
 - Fixed asset income code is the acquisition identity; Erkhet opening balances may split one acquisition across several branch/department details, but those details must resolve to one fixed asset master row and separate owner-record rows.
 - Fixed asset disposal, sale, and move owner-record selections are optional, and selected counts are capped by the detail count instead of being required to exhaust it; saving removes prior owner-record rows for that transaction and writes fresh `handedOver` rows, while move writes a matching `received` row for the owner so owner balance remains net neutral.
 - Fixed asset disposal, sale, and move quantities must come from transaction details; branch and department belong to each detail and mixed locations require multiple details.
-- Fixed asset move source details must be paired with generated `fxaMoveIn` destination details so period/location reporting is derived from transaction history, not owner records.
+- Fixed asset move source details must be paired with generated `fxaMoveIn` destination details so period/location reporting is derived from transaction history, not owner records; move destinations may be branch-only, department-only, or branch plus department.
 - Fixed asset depreciation must be calculated once per fixed asset acquisition cost base and allocated across branch/department locations by active quantity for each day.
 - Fixed asset current quantity cache must be rebuilt from business-active fixed asset income, out, sale, move, and move-in transaction details.
 - Fixed asset location remainder must be calculated from business-active fixed asset transaction details and must support excluding the current edited transaction so edit forms do not double-count their own movement.
@@ -156,11 +156,29 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-31` — `Erkhet Fixed Asset Move Followers`
+
+- **Summary:** Erkhet fixed asset movement follower transaction rows are ignored during migration so the source move row remains the only imported financial movement and erxes generates its own move-in side.
+- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
+- **Contracts changed:** None.
+
 ### `2026-08-31` — `Erkhet Exchange Rate References`
 
 - **Summary:** Erkhet reference migration now accepts exchange-rate payloads for Mongolian plugin upserts, verifies create responses return a saved id, and currency transactions fail with explicit missing-rate errors instead of NaN when rates are absent.
 - **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/currencyTr.ts`.
 - **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `exchangeRates` rows with `date`, `mainCurrency`, `rateCurrency`, and `rate`.
+
+### `2026-08-31` — `Fixed Asset Move Department Destinations`
+
+- **Summary:** Fixed asset move follow transactions now allow destination department-only mappings while still rejecting completely empty destinations.
+- **Affected areas:** `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** None.
+
+### `2026-08-31` — `Fixed Asset Income Partial Owners`
+
+- **Summary:** Fixed asset income owner-record validation now allows partial owner assignment while still rejecting owner counts above the detail quantity.
+- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-31` — `Erkhet Inventory And Currency Follow Accounts`
 
@@ -197,21 +215,3 @@
 - **Summary:** Added a fixed asset remainder list query that groups positive quantities by fixed asset, branch, and department for the accounting UI remainder page.
 - **Affected areas:** `src/modules/fixedAssets/graphql/schemas/fixedAsset.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`.
 - **Contracts changed:** Adds `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit): [FixedAssetLocationRemainder]`.
-
-### `2026-08-29` — `Fixed Asset Owner Partial Disposal`
-
-- **Summary:** Fixed asset disposal, sale, and move owner-record validation now allows selected owner quantities below the transaction detail quantity while still rejecting over-selection.
-- **Affected areas:** `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-29` — `Fixed Asset Owner Record Ledger`
-
-- **Summary:** Finalized owner records as `received`/`handedOver` ledger rows keyed by fixed asset and owner, removed obsolete allocation-model assumptions, added balance-only aggregation for selection, direct owner-record mutations, honored transaction-level owner fallback during journal save, and kept Erkhet reference sync fixed asset category-only.
-- **Affected areas:** `src/connectionResolvers.ts`, `src/apollo/schema/schema.ts`, `src/modules/fixedAssets`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
-- **Contracts changed:** `fxaOwnerRecords` and `fxaOwnerRecordsCount` now use `action`, `ownerId`, `sourceOwnerId`, and `balanceOnly`; adds `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`; owner records expose ledger fields only; `/pl:accounting/migration/erkhet/references` no longer creates fixed asset master rows.
-
-### `2026-08-28` — `Fixed Asset Location Remainder Query`
-
-- **Summary:** Added a fixed asset location remainder query that totals transaction detail movements by fixed asset, branch, department, and date for disposal/move/sale form validation.
-- **Affected areas:** `src/modules/fixedAssets/graphql/schemas/fixedAsset.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`.
-- **Contracts changed:** Adds `fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder`.
