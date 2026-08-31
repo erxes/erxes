@@ -157,6 +157,7 @@ type ClientPortal {
     smsProvidersConfig: SMSProvidersConfig
     manualVerificationConfig: ManualVerificationConfig
     enableManualVerification: Boolean
+    useB2B: Boolean
     testUser: TestUser
     firebaseConfig: FirebaseConfig
 
@@ -320,6 +321,7 @@ type ClientPortal {
     smsProvidersConfig: SMSProvidersConfigInput
     manualVerificationConfig: ManualVerificationConfigInput
     enableManualVerification: Boolean
+    useB2B: Boolean
     testUser: TestUserInput
     firebaseConfig: FirebaseConfigInput
   }

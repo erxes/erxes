@@ -131,6 +131,12 @@ export const types = `
     text: String
   }
 
+  type ConversationUnreadCountChangedResponse {
+    conversationId: String!
+    channelId: String!
+    unreadConversationCount: Int!
+  }
+
 type ConversationListResponse {
   list: [Conversation]
   totalCount: Int
@@ -179,6 +185,8 @@ const mutationFilterParams = `
   tag: String
   integrationType: String
   participating: String
+  mentioned: String
+  unread: String
   awaitingResponse: String
   automationStatus: String
   starred: String
