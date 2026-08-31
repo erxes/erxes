@@ -1,4 +1,12 @@
 import { spawnSync } from 'node:child_process';
+import { resolve } from 'node:path';
+const WRANGLER = resolve(
+  import.meta.dirname,
+  '..',
+  'node_modules',
+  '.bin',
+  'wrangler',
+);
 
 const RETENTION_DAYS = Number(process.env.MAIL_RETENTION_DAYS ?? 14);
 
@@ -8,10 +16,12 @@ const BUCKET = 'erxes-mail-inbound';
 const NAMESPACE = 'MAIL_ROUTES';
 const LIFECYCLE_RULE = 'expire-stored-mail';
 
+const NAMESPACE_ID = /"?id"?\s*[:=]\s*"([0-9a-f]{32})"/i;
+
 const run = (label, args) => {
   process.stdout.write(`\n▸ ${label}\n`);
 
-  const result = spawnSync('npx', ['wrangler', ...args], {
+  const result = spawnSync(WRANGLER, args, {
     encoding: 'utf8',
     stdio: ['inherit', 'pipe', 'pipe'],
   });
@@ -69,7 +79,7 @@ for (const [label, args] of steps) {
   }
 }
 
-const namespaceId = namespaceOutput.match(/"?id"?\s*[:=]\s*"([0-9a-f]{32})"/i);
+const namespaceId = NAMESPACE_ID.exec(namespaceOutput);
 
 process.stdout.write('\n────────────────────────────────────────\n');
 

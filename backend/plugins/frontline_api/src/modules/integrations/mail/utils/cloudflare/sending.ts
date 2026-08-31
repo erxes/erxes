@@ -19,7 +19,7 @@ export const readSendingAccount = async (
   const models = await generateModels(subdomain);
   const connection = await models.MailCloudflare.current();
 
-  if (!connection || connection.status !== MAIL_CLOUDFLARE_STATUSES.CONNECTED) {
+  if (connection?.status !== MAIL_CLOUDFLARE_STATUSES.CONNECTED) {
     return {
       ok: false,
       reason:

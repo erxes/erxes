@@ -31,8 +31,7 @@ import { describeError } from '@/integrations/mail/utils/errors';
 import { verifySignature } from '@/integrations/mail/utils/signature';
 import { resolveInboundKeys } from '@/integrations/mail/utils/inboundKeys';
 
-const SUBJECT_PREFIX =
-  /^(?:\s*(?:re|fwd?|aw|antw|sv|vs)(?:\s*\[\d+\])?\s*:)+\s*/i;
+const SUBJECT_PREFIX = /^\s*(?:re|fwd?|aw|antw|sv|vs)(?:\s*\[\d+\])?\s*:\s*/i;
 
 interface IInboundSender {
   address: string;
@@ -99,8 +98,15 @@ const isSenderMismatch = (
       !isForwardedBy(integration, envelopeFrom, deliveredTo),
   );
 
-const normalizeSubject = (subject?: string) =>
-  (subject || '').replace(SUBJECT_PREFIX, '').trim().toLowerCase();
+const normalizeSubject = (subject?: string) => {
+  let value = (subject || '').trim();
+
+  while (SUBJECT_PREFIX.test(value)) {
+    value = value.replace(SUBJECT_PREFIX, '');
+  }
+
+  return value.toLowerCase();
+};
 
 const continuesSubject = async (
   models: IModels,
@@ -341,13 +347,13 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'from.address is required' });
   }
 
-  const selfAddresses = [normalizeAddress(integration.address)].filter(Boolean);
+  const selfAddress = normalizeAddress(integration.address);
 
-  const claimed = [senderAddress, envelopeFrom]
-    .filter(Boolean)
-    .map((entry) => parseTaggedAddress(entry).address);
+  const claimsSelf = [senderAddress, envelopeFrom].some(
+    (entry) => entry && parseTaggedAddress(entry).address === selfAddress,
+  );
 
-  if (claimed.some((entry) => selfAddresses.includes(entry))) {
+  if (selfAddress && claimsSelf) {
     return res.json({ status: 'ignored', reason: 'self-addressed' });
   }
 

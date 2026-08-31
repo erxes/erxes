@@ -35,9 +35,11 @@ import {
   IMailProvisionStep,
   useMailCloudflareConnection,
 } from '../hooks/useMailCloudflareConnection';
-import { IMailCloudflareZone } from '../hooks/useMailCloudflareSetup';
+import {
+  IMailCloudflareZone,
+  useMailCloudflareSetup,
+} from '../hooks/useMailCloudflareSetup';
 import { useMailCloudflareSendingQuota } from '../hooks/useMailCloudflareSendingQuota';
-import { useMailCloudflareSetup } from '../hooks/useMailCloudflareSetup';
 
 const TOKEN_PERMISSIONS = [
   { key: 'workers_scripts', type: 'edit' },
@@ -59,7 +61,7 @@ const CLOUDFLARE_TOKEN_URL = `https://dash.cloudflare.com/profile/api-tokens?${n
   },
 ).toString()}`;
 
-const SENDING_STEPS = ['enableEmailSending', 'checkSendingDns'];
+const SENDING_STEPS = new Set(['enableEmailSending', 'checkSendingDns']);
 
 const connectSchema = z.object({
   token: z.string().min(1),
@@ -236,7 +238,7 @@ const SendingStatus = ({
   const { quota } = useMailCloudflareSendingQuota(!enabled);
 
   const failure = (connection.steps ?? []).find(
-    (step) => SENDING_STEPS.includes(step.name) && step.state === 'failed',
+    (step) => SENDING_STEPS.has(step.name) && step.state === 'failed',
   )?.error;
 
   return (

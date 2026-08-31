@@ -50,8 +50,8 @@ export const cloudflareRequest = async <T>(
     ...init,
     headers: {
       authorization: `Bearer ${token}`,
-      ...(isForm ? {} : { 'content-type': 'application/json' }),
-      ...(init.headers ?? {}),
+      ...(isForm ? undefined : { 'content-type': 'application/json' }),
+      ...init.headers,
     },
   });
 

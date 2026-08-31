@@ -21,8 +21,7 @@ const readFromDb = async (subdomain: string) => {
   const connection = await models.MailCloudflare.current();
 
   if (
-    !connection ||
-    connection.status !== MAIL_CLOUDFLARE_STATUSES.CONNECTED ||
+    connection?.status !== MAIL_CLOUDFLARE_STATUSES.CONNECTED ||
     !connection.webhookSecret
   ) {
     return null;

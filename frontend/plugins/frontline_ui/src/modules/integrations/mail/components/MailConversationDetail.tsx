@@ -126,7 +126,7 @@ const avatarBg = (name?: string, email?: string) => {
   const s = name || email || '?';
   let h = 0;
   for (let i = 0; i < s.length; i++)
-    h = (h * 31 + s.charCodeAt(i)) & 0xffffffff;
+    h = (h * 31 + (s.codePointAt(i) ?? 0)) & 0xffffffff;
   return AVATAR_BG[Math.abs(h) % AVATAR_BG.length];
 };
 
@@ -493,16 +493,28 @@ interface ComposeProps {
   onClose: () => void;
 }
 
-const ComposeSection: React.FC<ComposeProps> = (p) => {
+const ComposeSection: React.FC<ComposeProps> = ({
+  mode,
+  defaultTo,
+  defaultCc,
+  defaultFrom,
+  defaultSubject,
+  defaultBody,
+  conversationId,
+  integrationId,
+  replyToMessageId,
+  references,
+  onClose,
+}) => {
   const { t } = useTranslation('frontline');
-  const [to, setTo] = useState(p.defaultTo.join(', '));
-  const [cc, setCc] = useState(p.defaultCc?.join(', ') ?? '');
+  const [to, setTo] = useState(defaultTo.join(', '));
+  const [cc, setCc] = useState(defaultCc?.join(', ') ?? '');
   const [bcc, setBcc] = useState('');
   const [subject, setSub] = useState(() => {
-    const base = stripPrefix(p.defaultSubject);
-    return p.mode === 'forward' ? `Fwd: ${base}` : `Re: ${base}`;
+    const base = stripPrefix(defaultSubject);
+    return mode === 'forward' ? `Fwd: ${base}` : `Re: ${base}`;
   });
-  const [showCc, setShowCc] = useState(Boolean(p.defaultCc?.length));
+  const [showCc, setShowCc] = useState(Boolean(defaultCc?.length));
   const [showBcc, setShowBcc] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const { mailSendMail, loading } = useMailSendMail();
@@ -511,9 +523,9 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
     bodyRef.current?.focus();
   }, []);
   useEffect(() => {
-    if (bodyRef.current && p.defaultBody)
-      bodyRef.current.innerHTML = p.defaultBody;
-  }, [p.defaultBody]);
+    if (bodyRef.current && defaultBody)
+      bodyRef.current.innerHTML = defaultBody;
+  }, [defaultBody]);
 
   const split = (v: string) =>
     v
@@ -537,17 +549,17 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
 
     mailSendMail(
       {
-        integrationId: p.integrationId,
-        conversationId: p.conversationId,
+        integrationId: integrationId,
+        conversationId: conversationId,
         subject,
         body,
         to: toList,
         cc: showCc && cc ? split(cc) : undefined,
         bcc: showBcc && bcc ? split(bcc) : undefined,
-        replyToMessageId: p.mode !== 'forward' ? p.replyToMessageId : undefined,
-        references: p.mode !== 'forward' ? p.references : undefined,
+        replyToMessageId: mode !== 'forward' ? replyToMessageId : undefined,
+        references: mode !== 'forward' ? references : undefined,
       },
-      p.onClose,
+      onClose,
     );
   };
 
@@ -569,12 +581,12 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
     <div className="mx-4 mb-3 border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)]">
       <div className="flex items-center justify-between px-4 h-10 border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)]">
         <span className="text-[13px] font-medium text-foreground/70">
-          {t(COMPOSE_TITLE_KEYS[p.mode])}
+          {t(COMPOSE_TITLE_KEYS[mode])}
         </span>
         <button
           type="button"
           className="p-1 rounded text-[#5f6368] hover:text-foreground hover:bg-background/10 transition-colors"
-          onClick={p.onClose}
+          onClick={onClose}
           aria-label={t('discard')}
         >
           <IconX size={14} />
@@ -584,7 +596,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
       <div className={row}>
         <span className={lbl}>{t('from')}</span>
         <span className="text-[13px] text-[#5f6368] dark:text-[#9aa0a6] truncate">
-          {p.defaultFrom}
+          {defaultFrom}
         </span>
       </div>
       <div className={row}>
@@ -594,8 +606,8 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
           value={to}
           onChange={(e) => setTo(e.target.value)}
           onKeyDown={onKey}
-          placeholder={p.mode === 'forward' ? t('recipients') : ''}
-          autoFocus={p.mode === 'forward'}
+          placeholder={mode === 'forward' ? t('recipients') : ''}
+          autoFocus={mode === 'forward'}
         />
         <div className="flex gap-3 flex-none text-[11px] text-[#5f6368]">
           {!showCc && (
@@ -678,6 +690,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
         contentEditable
         suppressContentEditableWarning
         onKeyDown={onKey}
+        tabIndex={0}
         role="textbox"
         aria-multiline="true"
         aria-label={t('email-body')}
@@ -695,7 +708,7 @@ const ComposeSection: React.FC<ComposeProps> = (p) => {
           <button
             type="button"
             className="text-[12px] text-[#5f6368] hover:text-foreground px-2 py-1 rounded transition-colors"
-            onClick={p.onClose}
+            onClick={onClose}
             disabled={loading}
           >
             {t('discard')}

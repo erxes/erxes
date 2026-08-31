@@ -57,9 +57,11 @@ export const loadMailMessageClass = (models: IModels) => {
       ];
 
       if (inReplyTo) {
-        $or.push({ messageId: inReplyTo });
-        $or.push({ providerMessageId: inReplyTo });
-        $or.push({ references: { $in: [inReplyTo] } });
+        $or.push(
+          { messageId: inReplyTo },
+          { providerMessageId: inReplyTo },
+          { references: { $in: [inReplyTo] } },
+        );
       }
 
       const related = await models.MailMessages.findOne({

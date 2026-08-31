@@ -1,14 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+const ANGLE_FROM = /^From:[^<\n]*<([^>]+)>/im;
+const PLAIN_FROM = /^From:\s*(\S+@\S+)/im;
+
 const args = process.argv.slice(2);
-const positional = args.filter((a) => !a.startsWith('--'));
 const flag = (name) => {
   const hit = args.find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : undefined;
 };
 
-const emlPath = positional[0];
+const emlPath = args.find((a) => !a.startsWith('--'));
 const to = flag('to');
 const worker = flag('worker') ?? 'http://localhost:8787';
 
@@ -22,8 +24,8 @@ if (!emlPath || !to) {
 const raw = await readFile(resolve(emlPath), 'utf8');
 
 const from =
-  raw.match(/^From:[^<\n]*<([^>]+)>/im)?.[1] ??
-  raw.match(/^From:\s*(\S+@\S+)/im)?.[1] ??
+  ANGLE_FROM.exec(raw)?.[1] ??
+  PLAIN_FROM.exec(raw)?.[1] ??
   'sender@example.com';
 
 const url = new URL('/cdn-cgi/handler/email', worker);
