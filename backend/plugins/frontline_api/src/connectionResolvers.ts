@@ -230,6 +230,10 @@ import {
   loadFormSubmissionClass,
 } from './modules/form/db/models/Forms';
 
+import { IPollDocument, IPollVoteDocument } from '@/poll/@types/poll';
+import { IPollModel, loadPollClass } from '@/poll/db/models/Polls';
+import { IPollVoteModel, loadPollVoteClass } from '@/poll/db/models/PollVotes';
+
 import { IArticleDocument } from '@/knowledgebase/@types/article';
 import { ICategoryDocument } from '@/knowledgebase/@types/category';
 import { ITopicDocument } from '@/knowledgebase/@types/topic';
@@ -387,6 +391,8 @@ export interface IModels {
   Fields: IFieldModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
+  Polls: IPollModel;
+  PollVotes: IPollVoteModel;
 
   //knowledgebase
   Article: IArticleModel;
@@ -688,6 +694,15 @@ export const loadClasses = (
     IFormSubmissionDocument,
     IFormSubmissionModel
   >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Polls = db.model<IPollDocument, IPollModel>(
+    'frontline_polls',
+    loadPollClass(models),
+  );
+  models.PollVotes = db.model<IPollVoteDocument, IPollVoteModel>(
+    'frontline_poll_votes',
+    loadPollVoteClass(models),
+  );
 
   models.Article = db.model<IArticleDocument, IArticleModel>(
     'knowledgebase_articles',

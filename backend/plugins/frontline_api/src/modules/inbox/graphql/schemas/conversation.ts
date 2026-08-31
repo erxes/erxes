@@ -180,6 +180,7 @@ const mutationFilterParams = `
   integrationType: String
   participating: String
   awaitingResponse: String
+  withPoll: String
   automationStatus: String
   starred: String
   startDate: String

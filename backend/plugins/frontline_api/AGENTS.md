@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -27,6 +27,8 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
+- Polls: channel-scoped poll definitions, the snapshot an agent posts into a
+  messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
 - Frontline reports, including the saved report charts that persist a named
@@ -50,6 +52,25 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- Polls are a reusable definition (`title`, `question`, ordered `options`,
+  `allowMultiselect`, optional `durationHours`, `active`/`archived` status)
+  owned by a channel through `channelId`. An agent posts one into a messenger
+  conversation with `pollSendToConversation`,
+  which writes a snapshot to the message's `extraData.poll` and bumps the
+  poll's `sentCount` and sets `hasPoll` on the conversation. Customers vote
+  through `widgetsPollVote`; each vote recomputes the tallies, marks the
+  conversation as customer-responded and unread, then republishes the message
+  through `pConversationClientMessageInserted`, so the conversation rises in
+  the agent's list and both the inbox and the widget update without a refresh.
+- Every conversation filter query accepts `withPoll: String` — `"true"` keeps
+  only conversations carrying a poll (the denormalized `hasPoll` flag).
+- A poll also embeds on a customer's own website. `widgetsPollConnect` serves
+  the poll by `code` for a channel, and `widgetsPollSubmit` resolves or creates
+  the visitor's customer, opens a conversation on the channel's messenger
+  integration carrying the poll snapshot, records the vote, and returns
+  `ok` / `alreadyVoted` — so a site answer lands in the inbox the way a form
+  submission does.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
@@ -117,6 +138,7 @@
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
+| Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                          |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
@@ -124,6 +146,21 @@
 ## Contracts
 
 ### Provides
+
+- GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
+  `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
+  `pollEdit`, `pollRemove(_ids)`, `pollToggleStatus(_ids, status)`, and
+  `pollSendToConversation(_id, conversationId)` which returns the created
+  `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
+  vote ledger across every conversation the poll was sent to.
+- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
+  pollCode, cachedCustomerId)` returns the active poll plus the caller's
+  previous selection; `widgetsPollSubmit(pollCode, optionIds,
+  cachedCustomerId)` files a site answer as a new conversation.
+- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
+  customerId, visitorId)` returns the voter's own selections for the
+  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
+  records a vote and returns the refreshed `ConversationMessage`.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
@@ -318,6 +355,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- `frontline_polls` — poll definitions with an indexed `channelId` and embedded
+  `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
+  message, with a unique `(messageId, voterId)` index so a repeat vote replaces
+  the previous selection instead of stacking. `voterId` is the `customerId`
+  when there is one, otherwise the `visitorId`.
+- A poll message stores a *snapshot* under `extraData.poll`
+  (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
+  `results`). Editing the poll definition afterwards never rewrites messages
+  already sent.
+
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
@@ -376,6 +423,31 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   subdomain — treat it as a known cross-tenant hazard when touching that file.
 
 ## Local Invariants
+
+- Poll answer ids in a message snapshot are the poll option `_id`s, not array
+  indexes, so option reordering cannot reassign existing votes. Discord's
+  native polls keep their own numeric ids in the same `extraData.poll` shape;
+  any renderer must accept both.
+- `widgetsPollVote` is the only write path for votes. It rejects a closed poll,
+  a multi-select payload on a single-answer poll, and any option id absent from
+  the message snapshot, then recomputes `extraData.poll.results` from the
+  ledger — counts are never incremented in place.
+- `hasPoll` is a denormalized conversation flag set by `pollSendToConversation`
+  and read by the `withPoll` filter — the same shape as `isCustomerRespondedLast`
+  behind `awaitingResponse`. The filter param is deliberately named `withPoll`
+  because `IConversationListParams` extends `IConversation`, so reusing
+  `hasPoll` would collide with the boolean document field.
+- A poll's `code` is a unique nanoid minted on create; the embed snippet and
+  `widgetsPollConnect` address the poll by it, never by `_id` alone.
+- `widgetsPollSubmit` files the conversation under the channel's `messenger`
+  integration; a channel without one rejects the submit rather than inventing
+  an integration.
+- `pollSendToConversation` only accepts a `messenger` integration, and refuses
+  a poll whose `channelId` differs from the integration's channel. Discord
+  polls keep their own native path through `conversationMessageAdd(poll:)`.
+- `pollList` / `pollTotalCount` without a `channelId` are scoped to the caller's
+  `ChannelMembers` channels (plus channel-less polls) unless the user is an
+  owner — the same visibility rule the forms queries apply.
 
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
@@ -868,6 +940,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-31` — Messenger polls
+
+- **Summary:** Added a reusable poll module an agent can post into a messenger
+  conversation, with a per-voter ledger, live tally refresh, and permissions.
+- **Affected areas:** `src/modules/poll/**`, `src/connectionResolvers.ts`,
+  `src/apollo/{schema/schema.ts,resolvers/{queries,mutations,resolvers}.ts}`,
+  `src/meta/permissions.ts`.
+- **Contracts changed:** Added `pollList`, `pollDetail`, `pollTotalCount`,
+  `pollAdd`, `pollEdit`, `pollRemove`, `pollToggleStatus`,
+  `pollSendToConversation`, `widgetsPollVotes`, `widgetsPollVote`, and the
+  `poll` permission module. `Poll` carries `channelId` / `channel`, the list
+  queries accept `channelId`, every conversation filter query accepts
+  `withPoll`, and the public widget surface gained `widgetsPollConnect` /
+  `widgetsPollSubmit`.
+
 ### `2026-08-21` — A forwarded call stays one conversation
 
 - **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
@@ -1036,21 +1123,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
   types, and five `reportFacebook*` queries; `TicketReportFilter`,
   `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.

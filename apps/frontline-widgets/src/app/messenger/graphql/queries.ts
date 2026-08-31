@@ -44,6 +44,7 @@ const GET_CONVERSATION_DETAIL = gql`
         createdAt
         fromBot
         contentType
+        extraData
         botData
         internal
       }
@@ -102,6 +103,7 @@ const GET_WIDGETS_CONVERSATIONS = gql`
         createdAt
         content
         fromBot
+        extraData
         botData
         customerId
         isCustomerRead
@@ -123,6 +125,23 @@ const GET_WIDGETS_CONVERSATIONS = gql`
           }
         }
       }
+    }
+  }
+`;
+
+const GET_WIDGETS_POLL_VOTES = gql`
+  query widgetsPollVotes(
+    $conversationId: String!
+    $customerId: String
+    $visitorId: String
+  ) {
+    widgetsPollVotes(
+      conversationId: $conversationId
+      customerId: $customerId
+      visitorId: $visitorId
+    ) {
+      messageId
+      optionIds
     }
   }
 `;
@@ -222,6 +241,7 @@ const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
 export {
   GET_CONVERSATION_DETAIL,
   GET_WIDGETS_CONVERSATIONS,
+  GET_WIDGETS_POLL_VOTES,
   messengerSupportersQuery,
   GET_KNOWLEDGE_BASE_TOPIC_DETAILS,
 };

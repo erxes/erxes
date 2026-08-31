@@ -19,7 +19,7 @@ const votesLabel = (count: number) => `${count} ${count === 1 ? 'vote' : 'votes'
 
 /** Renders a Discord poll with per-answer tallies and totals. */
 export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
-  const countById = new Map<number, number>(
+  const countById = new Map<string | number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
   const totalVotes = [...countById.values()].reduce((sum, n) => sum + n, 0);

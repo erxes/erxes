@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-26`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -23,6 +23,10 @@
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
+- Polls UI: per-channel poll management inside channel settings (list,
+  create/edit sheet, archive, remove), the read-only results board on the main
+  `frontline/polls` route, and the composer dialog that posts a saved poll into
+  a messenger conversation.
 - Knowledge base UI: topics, categories, and articles.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
@@ -45,6 +49,27 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Polls are split across two routes, mirroring how forms are laid out.
+  `settings/frontline/channels/:id/polls` manages the channel's polls: a
+  `RecordTable` list, the sheet that creates or edits one (title, question,
+  2–10 unique options, duration, multi-answer switch), the per-row results
+  dialog, and a command bar that archives or removes a selection. The channel
+  detail page reaches it through the `Manage channel polls` row.
+  `frontline/polls` is read-only — a card board of aggregated `Poll.results`
+  per poll, with status/search filters and no create control.
+- In a messenger conversation the composer's poll button opens
+  `SendPollDialog`, scoped to the conversation integration's `channelId`, which
+  posts a saved poll through `pollSendToConversation`.
+  `MessagePoll` then renders the tallies read-only, refreshed by the message
+  subscription.
+- A poll row's `Install script` action hands over the `pollBundle.js` snippet
+  (`window.erxesSettings.polls` with the poll `code` and channel id) plus the
+  optional `data-erxes-poll` trigger attribute, so the poll can run as a popup
+  on the customer's own website.
+- An expanded team channel lists a `Polls` row under its integration types when
+  the channel has open poll conversations; selecting it filters the inbox with
+  `withPoll=true` scoped to that channel.
 
 - Ticket pipeline settings include a Properties route that lists only Core
   `frontline:ticket` properties, grouped by their Core field group. Checked
@@ -157,6 +182,13 @@
 | Call Pro           | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                  |
 | Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                               |
 | Forms              | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                               |
+| Polls management   | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                    | Channel-scoped list, create/edit sheet, results dialog, command bar                              |
+| Polls channel row  | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                   | `Manage channel polls` row on the channel detail page                                            |
+| Polls results      | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                   | Read-only aggregated results board on `frontline/polls`                                          |
+| Polls data         | `src/modules/poll/{graphql,hooks,types,constants}/`                                                                                          | Poll GraphQL documents, list/detail/mutation hooks, Zod schema                                   |
+| Send poll          | `src/modules/inbox/conversations/conversation-detail/components/SendPollDialog.tsx`                                                           | Picks an active poll and posts it into the open messenger conversation                           |
+| Poll inbox row     | `src/modules/poll/components/ChannelPollNavItem.tsx`                                                                                         | `Polls` row inside an expanded team channel, filtering the inbox by `withPoll`                   |
+| Poll install       | `src/modules/poll/components/poll-page/PollInstallScript.tsx`                                                                                 | Website embed snippet for the poll popup                                                         |
 | Knowledge base     | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                     |
 | Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                 |
 | FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                               |
@@ -171,6 +203,12 @@
 ## Contracts
 
 ### Provides
+
+- Route `frontline/polls` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the read-only poll results board.
+- Settings route `settings/frontline/channels/:id/polls` (registered in the
+  channels `Settings.tsx` as `FrontlinePaths.ChannelPolls`) — the channel's
+  poll management page.
 
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
@@ -327,6 +365,28 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   draft — the same reset-on-close behavior as `CreateBrand`.
 
 ## Local Invariants
+
+- Creating, editing, archiving, and removing a poll lives only under a
+  channel's settings page. `frontline/polls` must stay read-only —
+  `PollSubHeader` only renders the create button when passed `canCreate`, and
+  a poll created there always carries the route's `channelId`.
+- The inbox `withPoll` filter lives in `INBOX_CONVERSATION_QUERY_KEYS` and
+  `INBOX_TARGET_KEYS`, so selecting the channel `Polls` row clears
+  `integrationType`/`integrationId` the same way an integration row does.
+  `ChannelPollNavItem` counts through its own light
+  `frontlineChannelPollConversationCount` query — never `useConversations`,
+  which owns inbox state and subscriptions.
+- `usePollList({ withResults: true })` switches to the `pollResultsList`
+  document because `Poll.results` runs two aggregations per poll; the
+  management list must not select it.
+- The composer shows two different poll controls by integration kind:
+  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `SendPollDialog` (saved poll) for `messenger`. Neither is a fallback for the
+  other — sending an erxes poll to Discord or a Discord poll to messenger is
+  not supported.
+- `IMessagePoll` answer ids are `string | number`: erxes polls carry the poll
+  option `_id`, Discord polls carry Discord's numeric answer id. `MessagePoll`
+  must keep handling both.
 
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
@@ -680,6 +740,24 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-31` — Messenger polls
+
+- **Summary:** Added the poll module — per-channel management under
+  `settings/frontline/channels/:id/polls` (list, create/edit sheet, results
+  dialog, command bar), a read-only results board on `frontline/polls`, and the
+  composer dialog that posts a saved poll into a messenger conversation.
+- **Affected areas:** `src/modules/poll/**`,
+  `src/pages/{PollsIndexPage,ChannelPollsPage}.tsx`, `src/config.tsx`,
+  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
+  `src/modules/types/FrontlinePaths.ts`,
+  `src/modules/channels/components/settings/{Settings.tsx,channel-details/{ChannelDetails,PollsSection}.tsx}`,
+  `src/modules/inbox/conversations/conversation-detail/components/{SendPollDialog,MessageInput}.tsx`,
+  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessagePoll.tsx}`.
+- **Contracts changed:** New routes `frontline/polls` and
+  `settings/frontline/channels/:id/polls`, with a `polls` entry in
+  `CONFIG.modules`; `IMessagePoll` answer ids widened to `string | number`;
+  the conversation queries and inbox query state gained `withPoll`.
+
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
 - **Summary:** Selecting a Discord channel and then a team or personal channel
@@ -808,23 +886,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
 - **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
   `noAnswer` field from `frontline_api`.
-
-### `2026-08-19` — Call Pro integration UI
-
-- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
-  built on the `call` module's shape — add/edit `Sheet`s over one shared form
-  carrying the webhook URL to configure, the recording player in the
-  conversation panel, and a `Command`-based customer picker/switcher for a
-  caller number that matches several customers. Everything is hidden unless the
-  backend reports Call Pro as enabled.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/integrations.ts`,
-  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/inbox/types/Conversation.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
-- **Contracts changed:** Consumes new `frontline_api` operations
-  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
-  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
-  conversation fields. Adds the `callpro` integration type.

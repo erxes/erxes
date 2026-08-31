@@ -10,6 +10,7 @@ export const INBOX_CONVERSATION_QUERY_KEYS: (
   'integrationType',
   'unassigned',
   'awaitingResponse',
+  'withPoll',
   'automationStatus',
   'participated',
   'status',
