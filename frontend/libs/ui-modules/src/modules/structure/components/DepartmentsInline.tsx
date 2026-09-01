@@ -12,7 +12,7 @@ export const DepartmentsInline = ({
   departments?: IDepartment[];
   placeholder?: string;
 }) => {
-  const skip = !!departments || departmentIds.length === 0;
+  const skip = Boolean(departments) || departmentIds.length === 0;
 
   const { departments: fetchedDepartments, loading } = useDepartments({
     variables: { ids: departmentIds, limit: departmentIds.length },

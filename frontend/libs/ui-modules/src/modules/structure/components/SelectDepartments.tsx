@@ -67,23 +67,28 @@ export const SelectDepartmentsProvider = ({
     if (!department) return;
 
     const isSingleMode = mode === 'single';
+
+    if (isSingleMode) {
+      const isCurrent = value === department._id;
+
+      setSelectedDepartments(isCurrent ? [] : [department]);
+      onValueChange?.(isCurrent ? undefined : department._id);
+      return;
+    }
+
     const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(department._id);
+    const isSelected = multipleValue.includes(department._id);
 
-    const newSelectedDepartmentIds = isSingleMode
-      ? [department._id]
-      : isSelected
-        ? multipleValue.filter((d) => d !== department._id)
-        : [...multipleValue, department._id];
+    const newSelectedDepartmentIds = isSelected
+      ? multipleValue.filter((d) => d !== department._id)
+      : [...multipleValue, department._id];
 
-    const newSelectedDepartments = isSingleMode
-      ? [department]
-      : isSelected
-        ? selectedDepartments.filter((d) => d._id !== department._id)
-        : [...selectedDepartments, department];
+    const newSelectedDepartments = isSelected
+      ? selectedDepartments.filter((d) => d._id !== department._id)
+      : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
-    onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
+    onValueChange?.(newSelectedDepartmentIds);
   };
 
   return (

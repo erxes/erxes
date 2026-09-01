@@ -12,7 +12,7 @@ export const BranchesInline = ({
   branches?: IBranch[];
   placeholder?: string;
 }) => {
-  const skip = !!branches || branchIds.length === 0;
+  const skip = Boolean(branches) || branchIds.length === 0;
 
   const { branches: fetchedBranches, loading } = useBranches({
     variables: { ids: branchIds, limit: branchIds.length },

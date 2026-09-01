@@ -62,23 +62,28 @@ export const SelectBranchesProvider = ({
     if (!branch) return;
 
     const isSingleMode = mode === 'single';
+
+    if (isSingleMode) {
+      const isCurrent = value === branch._id;
+
+      setSelectedBranches(isCurrent ? [] : [branch]);
+      onValueChange?.(isCurrent ? undefined : branch._id);
+      return;
+    }
+
     const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(branch._id);
+    const isSelected = multipleValue.includes(branch._id);
 
-    const newSelectedBranchIds = isSingleMode
-      ? [branch._id]
-      : isSelected
-        ? multipleValue.filter((p) => p !== branch._id)
-        : [...multipleValue, branch._id];
+    const newSelectedBranchIds = isSelected
+      ? multipleValue.filter((p) => p !== branch._id)
+      : [...multipleValue, branch._id];
 
-    const newSelectedBranches = isSingleMode
-      ? [branch]
-      : isSelected
-        ? selectedBranches.filter((p) => p._id !== branch._id)
-        : [...selectedBranches, branch];
+    const newSelectedBranches = isSelected
+      ? selectedBranches.filter((p) => p._id !== branch._id)
+      : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
-    onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
+    onValueChange?.(newSelectedBranchIds);
   };
 
   return (
