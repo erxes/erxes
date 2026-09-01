@@ -1,5 +1,5 @@
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { STATUS_TYPES } from '@/status/constants/types';
@@ -45,7 +45,7 @@ export const taskQueries = {
     const filterQuery: FilterQuery<ITaskDocument> = {};
 
     if (filter.name) {
-      filterQuery.name = { $regex: filter.name, $options: 'i' };
+      filterQuery.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
     }
 
     if (filter.status) {
@@ -213,8 +213,9 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects =
-          await models.Project.find(projectFilter).distinct('_id');
+        const matchingProjects = await models.Project.find(
+          projectFilter,
+        ).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };
@@ -267,7 +268,7 @@ export const taskQueries = {
       model: models.Task,
       params: {
         ...filter,
-        orderBy: {
+        orderBy: filter.orderBy ?? {
           statusType: 'asc',
           createdAt: 'desc',
         },

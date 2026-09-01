@@ -1,9 +1,6 @@
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
-// Splits the text on the searched term and marks the matches. The API decides
-// what matched, so a hit on a field the row does not render simply comes back
-// without a highlight.
 export const highlightMatch = (
   text: string,
   searchValue: string,

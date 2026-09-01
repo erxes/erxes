@@ -28,6 +28,7 @@ export interface IChannel {
   updatedAt: string;
   memberCount: number;
   pipelineCount: number;
+  hasTickets: boolean;
   responseTemplateCount: number;
   formCount: number;
   integrationCount?: number;

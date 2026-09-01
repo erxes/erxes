@@ -125,7 +125,7 @@ function BoardItem({ board }: { board: IBoard }) {
                     onClick={() => handlePipelineClick(pipeline._id)}
                   >
                     <TextOverflowTooltip
-                      className="capitalize flex-1 min-w-0"
+                      className="flex-1 min-w-0"
                       value={pipeline.name}
                     />
                   </Sidebar.MenuButton>

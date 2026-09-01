@@ -140,6 +140,7 @@ export interface IClientPortal {
   // verificationMailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   enableManualVerification?: boolean;
+  useB2B?: boolean;
 
   testUser?: ITestUser;
 

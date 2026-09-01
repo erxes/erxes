@@ -30,16 +30,16 @@ export interface IScoreCampaignService {
 const generateFilter = (
   params: IScoreCampaignParams,
 ): FilterQuery<IScoreCampaignDocument> => {
-  const filter: FilterQuery<IScoreCampaignDocument> = {
-    status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
-  };
+  const filter: FilterQuery<IScoreCampaignDocument> = {};
 
   if (params.searchValue) {
     filter.title = new RegExp(`^${escapeRegExp(params.searchValue)}`);
   }
 
-  if (params.status) {
+  if (params.status && params.status !== 'all') {
     filter.status = params.status;
+  } else if (params.status !== 'all') {
+    filter.status = { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED };
   }
 
   if (params.serviceName) {
@@ -60,7 +60,10 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
 
     return cursorPaginate({
       model: models.ScoreCampaigns,
-      params: { ...params, orderBy: { order: 1, createdAt: -1 } },
+      params: {
+        ...params,
+        orderBy: params.orderBy ?? { order: 1, createdAt: -1 },
+      },
       query: filter,
     });
   },

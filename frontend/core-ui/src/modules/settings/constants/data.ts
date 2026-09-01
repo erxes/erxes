@@ -244,3 +244,17 @@ export const GET_SETTINGS_PATH_DATA = (version?: boolean, t?: TFunction) => {
     developer,
   };
 };
+
+export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
+  [SettingsWorkspacePath.Structure]: 'organization',
+  [SettingsWorkspacePath.Tags]: 'tags',
+  [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.Properties]: 'properties',
+  [SettingsWorkspacePath.Products]: 'products',
+  [SettingsWorkspacePath.Automations]: 'automations',
+  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
+  [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Permissions]: 'permissions',
+  [SettingsWorkspacePath.ApprovalRequests]: 'approval',
+};

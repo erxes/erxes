@@ -84,7 +84,26 @@ export const getGroupActionsMap = async (
 
   const cached = await redis.get(cacheKey);
 
-  if (cached) return JSON.parse(cached);
+  if (cached) {
+    try {
+      const cachedActions: unknown = JSON.parse(cached);
+
+      if (
+        cachedActions &&
+        typeof cachedActions === 'object' &&
+        !Array.isArray(cachedActions) &&
+        Object.values(cachedActions).every(
+          (isAllowed) => typeof isAllowed === 'boolean',
+        )
+      ) {
+        return cachedActions as Record<string, boolean>;
+      }
+    } catch {
+      // Rebuild malformed permission cache entries below.
+    }
+
+    await redis.del(cacheKey);
+  }
 
   const actionsMap: Record<string, boolean> = {};
   const groupIds = user.permissionGroupIds || [];

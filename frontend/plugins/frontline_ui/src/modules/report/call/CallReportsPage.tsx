@@ -4,7 +4,7 @@ import { ScrollArea, Spinner, Tabs } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import { useCallReportIntegrations } from './hooks/useCallReportIntegrations';
-import { getDateRange } from '@/report/utils/dateFilters';
+import { CUSTOM_TIME_PREFIX, getDateRange } from '@/report/utils/dateFilters';
 
 import { CallFiltersContext } from './hooks/useCallFilters';
 import { SubHeader } from './components/SubHeader';
@@ -75,13 +75,28 @@ export function CallReportsPage() {
     const { fromDate, toDate } = getDateRange(dateFilter);
     const start = fromDate ?? startOfMonth(subMonths(new Date(), 3));
     const end = toDate ?? endOfDay(new Date());
+    const sameDay =
+      format(start, 'MMM dd, yyyy') === format(end, 'MMM dd, yyyy');
+    const withTime = dateFilter.startsWith(CUSTOM_TIME_PREFIX);
+
+    const label = withTime
+      ? sameDay
+        ? `${format(start, 'MMM dd, yyyy')} · ${format(
+            start,
+            'HH:mm',
+          )} — ${format(end, 'HH:mm')}`
+        : `${format(start, 'MMM dd, yyyy HH:mm')} — ${format(
+            end,
+            'MMM dd, yyyy HH:mm',
+          )}`
+      : sameDay
+      ? format(start, 'MMM dd, yyyy')
+      : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`;
+
     return {
       startDate: start.toISOString(),
       endDate: end.toISOString(),
-      dateRangeLabel:
-        format(start, 'MMM dd, yyyy') === format(end, 'MMM dd, yyyy')
-          ? format(start, 'MMM dd, yyyy')
-          : `${format(start, 'MMM dd, yyyy')} — ${format(end, 'MMM dd, yyyy')}`,
+      dateRangeLabel: label,
     };
   }, [dateFilter]);
 

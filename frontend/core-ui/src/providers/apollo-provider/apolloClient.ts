@@ -68,7 +68,7 @@ const errorLink = onError(({ graphQLErrors, operation }) => {
 
     if (
       error.message === 'Login required' &&
-      operation.operationName !== 'GlobalSearch'
+      !['GlobalSearch', 'GlobalSearchPage'].includes(operation.operationName)
     ) {
       globalThis.window.location.reload();
     }
@@ -117,6 +117,9 @@ const link = split(
 const typePolicies = {
   customers: {
     keyFields: ['_id'],
+  },
+  GlobalSearchResultItem: {
+    keyFields: ['module', 'id'],
   },
 };
 

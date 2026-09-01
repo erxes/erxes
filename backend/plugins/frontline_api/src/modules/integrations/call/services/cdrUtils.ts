@@ -356,24 +356,34 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
   return 'MISSED';
 };
 
-export const getConversationContent = async (models: IModels, cdrParams) => {
+export const getConversationContent = async (
+  models: IModels,
+  cdrParams,
+  conversationId?: string,
+) => {
   const { userfield } = cdrParams;
-  const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
+  const isFollowmeLeg = !!cdrParams.action_type?.includes('FOLLOWME');
+  const direction =
+    userfield === 'Outbound' && !isFollowmeLeg ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
   }
 
-  const storedCdrs = await models.CallCdrs.find({
-    uniqueid: cdrParams.uniqueid,
-  });
+  const legSelector = conversationId
+    ? { $or: [{ uniqueid: cdrParams.uniqueid }, { conversationId }] }
+    : { uniqueid: cdrParams.uniqueid };
+
+  const storedCdrs = await models.CallCdrs.find(legSelector);
   const legs: any[] = [...storedCdrs, cdrParams];
 
   const status = deriveCallStatusFromLegs(legs);
 
   if (status === 'ANSWERED') return `ANSWERED · ${direction}`;
 
-  if (userfield === 'Outbound') return `OUTBOUND`;
+  if (direction === 'Outbound') return `OUTBOUND`;
+
+  if (status === 'FOLLOWME') return `NO ANSWER · ${direction}`;
 
   return `${status} · ${direction}`;
 };

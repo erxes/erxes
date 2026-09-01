@@ -27,9 +27,12 @@ export const customerMutations: Record<string, Resolver<any, any, IContext>> = {
   async cpCustomersAdd(
     _parent: undefined,
     doc: ICustomer,
-    { models }: IContext,
+    { models, clientPortal }: IContext,
   ) {
-    return await models.Customers.createCustomer(doc);
+    return await models.Customers.createCustomer({
+      ...doc,
+      clientPortalId: clientPortal?._id,
+    });
   },
   /**
    * Updates a customer

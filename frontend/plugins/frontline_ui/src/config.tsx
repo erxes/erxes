@@ -1,33 +1,37 @@
 import {
+  IconBook,
+  IconChartHistogram,
+  IconForms,
   IconMail,
+  IconPhone,
+  IconSettings,
   IconStackFront,
   IconTicket,
-  IconBook,
 } from '@tabler/icons-react';
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { SEARCH_PROVIDERS } from './searchProviders';
+import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const FrontlineNavigation = lazy(() =>
-  import('./modules/FrontlineNavigation').then((module) => ({
+  import('@/FrontlineNavigation').then((module) => ({
     default: module.FrontlineNavigation,
   })),
 );
 
 const FrontlineSubGroups = lazy(() =>
-  import('./modules/FrontlineSubGroups').then((module) => ({
+  import('@/FrontlineSubGroups').then((module) => ({
     default: module.FrontlineSubGroups,
   })),
 );
 
 const FrontlineSettingsNavigation = lazy(() =>
-  import('./modules/FrontlineSettingsNavigation').then((module) => ({
+  import('@/FrontlineSettingsNavigation').then((module) => ({
     default: module.FrontlineSettingsNavigation,
   })),
 );
 
 const TicketStatusPropertyInput = lazy(() =>
-  import('./modules/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
+  import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
     (module) => ({
       default: module.TicketStatusPropertyInput,
     }),
@@ -35,7 +39,7 @@ const TicketStatusPropertyInput = lazy(() =>
 );
 
 const FormSubmissionActivityRow = lazy(() =>
-  import('./widgets/activity/FormSubmissionActivityRow').then((module) => ({
+  import('~/widgets/activity/FormSubmissionActivityRow').then((module) => ({
     default: module.FormSubmissionActivityRow,
   })),
 );
@@ -94,27 +98,56 @@ export const CONFIG: IUIConfig = {
   },
   modules: [
     {
-      name: 'channels',
-      path: 'frontline/channels',
-    },
-    {
-      name: 'configs',
-      path: 'frontline/config',
-    },
-    {
-      name: 'frontline',
+      name: 'inbox',
       icon: IconMail,
-      path: 'frontline',
+      path: 'frontline/inbox',
       hasAutomation: true,
     },
     {
-      name: 'ticket',
-      path: 'frontline/ticket',
+      name: 'tickets',
+      icon: IconTicket,
+      path: 'frontline/tickets',
+      hasAutomation: true,
     },
     {
-      name: 'knowledgeBase',
+      name: 'reports',
+      icon: IconChartHistogram,
+      path: 'frontline/reports',
+    },
+    {
+      name: 'call-center-dashboard',
+      icon: IconPhone,
+      path: 'frontline/calls/dashboard',
+    },
+    {
+      name: 'call-center-statistics',
+      icon: IconPhone,
+      path: 'frontline/calls/statistics',
+    },
+    {
+      name: 'forms',
+      icon: IconForms,
+      path: 'frontline/forms',
+    },
+    {
+      name: 'knowledge-base',
       icon: IconBook,
       path: 'frontline/knowledgebase',
+    },
+    {
+      name: 'channels',
+      icon: IconMail,
+      path: 'settings/frontline/channels',
+    },
+    {
+      name: 'personal-channel',
+      icon: IconMail,
+      path: 'settings/frontline/personal-channel',
+    },
+    {
+      name: 'integrations-config',
+      icon: IconSettings,
+      path: 'settings/frontline/config',
     },
   ],
   searchProviders: SEARCH_PROVIDERS,

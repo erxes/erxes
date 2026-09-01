@@ -4,6 +4,7 @@ import {
   resolveFacebookApp,
 } from '@/integrations/facebook/commonUtils';
 import {
+  debugError,
   debugFacebook,
   debugRequest,
   debugResponse,
@@ -14,12 +15,7 @@ import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { generateModels } from '~/connectionResolvers';
 
-/**
- * The OAuth `state` is sent back to us by the shared authorize redirector,
- * which builds the callback url as `${state}/fblogin?code=...`. A query string
- * in `state` would therefore end up before the `/fblogin` path, so the kind is
- * carried as a `/kind/<kind>` path segment instead.
- */
+
 const KIND_PATH_SEGMENT = '/kind/';
 
 const buildStateUrl = (apiDomain: string, kind?: string) =>
@@ -115,10 +111,12 @@ export const loginMiddleware = async (req, res) => {
       'me?fields=id,first_name,last_name',
       access_token,
     );
+
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
     const account = await models.FacebookAccounts.findOne(
       facebookAccountSelector(userAccount.id, app),
     );
+
     if (account) {
       await models.FacebookAccounts.updateOne(
         { _id: account._id },
@@ -129,7 +127,13 @@ export const loginMiddleware = async (req, res) => {
       });
 
       for (const integration of integrations) {
-        await repairIntegrations(subdomain, integration.erxesApiId);
+        try {
+          await repairIntegrations(subdomain, integration.erxesApiId);
+        } catch (e) {
+          debugError(
+            `Failed to repair facebook integration ${integration.erxesApiId}: ${e.message}`,
+          );
+        }
       }
     } else {
       await models.FacebookAccounts.create({
