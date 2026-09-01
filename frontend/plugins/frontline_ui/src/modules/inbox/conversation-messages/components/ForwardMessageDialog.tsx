@@ -114,13 +114,12 @@ export const ForwardMessageDialog = ({
       Boolean(forwardAttachments.length),
     );
     const forwardedBody = forwardedText || preview;
-    const noteContent = note.trim() ? `<p>${note.trim()}</p>` : '';
-    const forwardedContent = `<blockquote><strong>Forwarded message</strong><br/>${forwardedBody}</blockquote>`;
+    const content = [note.trim(), forwardedBody].filter(Boolean).join('\n');
     try {
       await addConversationMessage({
         variables: {
           conversationId: selectedId,
-          content: `${noteContent}${forwardedContent}`,
+          content,
           attachments: forwardAttachments,
           internal: false,
           extraInfo: {
@@ -157,9 +156,9 @@ export const ForwardMessageDialog = ({
         <Dialog.Header>
           <Dialog.Title>Forward message</Dialog.Title>
           <Dialog.Description>
-            Choose another conversation. The destination platform will receive a
-            forwarded marker, while erxes keeps a tagged snapshot of the
-            original message.
+            Choose another conversation. erxes keeps a tagged snapshot, and
+            platforms without native forwarding receive only the original
+            content.
           </Dialog.Description>
         </Dialog.Header>
         <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
