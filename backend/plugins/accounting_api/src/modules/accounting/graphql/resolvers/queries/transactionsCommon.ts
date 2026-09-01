@@ -78,7 +78,13 @@ const getAccountIds = async (
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
-): Promise<string[]> => {
+): Promise<string[] | undefined> => {
+  const dominantUserIds = await models.Configs.getConfigValue('dominantReadAccountUsers', undefined, []);
+
+  if (Array.isArray(dominantUserIds) && dominantUserIds?.includes(user._id)) {
+    return;
+  }
+
   const {
     accountIds,
     accountKind,
@@ -311,12 +317,6 @@ export const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  if (!options.skipAccountPermission) {
-    filter['details.accountId'] = {
-      $in: await getAccountIds(models, params, user),
-    };
-  }
-
   if (journals?.length) {
     filter.journal = { $in: journals };
   }
@@ -421,6 +421,15 @@ export const generateFilter = async (
 
   if (currency) {
     filter['details.currency'] = currency;
+  }
+
+  if (!options.skipAccountPermission) {
+    const accountIds = await getAccountIds(models, params, user);
+    if (Array.isArray(accountIds)) {
+      filter['details.accountId'] = {
+        $in: accountIds,
+      };
+    }
   }
 
   if (orFilter.length) {

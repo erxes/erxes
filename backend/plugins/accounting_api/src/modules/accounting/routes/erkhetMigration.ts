@@ -109,12 +109,6 @@ const validateBatch = (batch: ErkhetTransactionBatch) => {
   }
 };
 
-const isSkippableErkhetDoc = (doc: ITransaction) =>
-  // Erkhet fixed asset дотоод хөдөлгөөн destination талдаа follower TR үүсгэдэг.
-  // Erxes-ийн fxaMove journal source detail-ээсээ move-in transaction-ийг өөрөө үүсгэдэг тул
-  // follower doc-ийг дахин импортлохгүй.
-  doc.journal === JOURNALS.FXA_MOVE && doc.extraData?.isJournalFollower === true;
-
 const normalizeSourceCode = (value?: string) =>
   typeof value === 'string' ? value.trim() : value || '';
 
@@ -961,19 +955,7 @@ const saveBatch = async ({
 }) => {
   validateBatch(batch);
 
-  const batchToImport = {
-    ...batch,
-    trDocs: batch.trDocs.filter((doc) => !isSkippableErkhetDoc(doc)),
-  };
-
-  if (!batchToImport.trDocs.length) {
-    return {
-      action: 'skipped',
-      count: 0,
-    };
-  }
-
-  const trDocs = await normalizeBatchDocs(subdomain, models, batchToImport, userId);
+  const trDocs = await normalizeBatchDocs(subdomain, models, batch, userId);
   const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
   const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
   // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.

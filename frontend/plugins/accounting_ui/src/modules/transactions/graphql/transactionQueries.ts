@@ -251,8 +251,7 @@ export const TRANSACTIONS_QUERY = gql`
       list {
         ${commonTransactionFields}
         ptrInfo
-      }
-      totalCount
+      } 
       ${GQL_PAGE_INFO}
     }
   }

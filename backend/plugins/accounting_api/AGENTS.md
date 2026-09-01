@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-31`
+- **Last synchronized:** `2026-09-01`
 
 ## Scope
 
@@ -44,7 +44,7 @@
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
 - Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
-- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, skips Erkhet fixed asset movement follower rows because erxes generates the destination move-in transaction from the source row, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates persistence to `createPTransaction` or `updatePTransaction`.
+- Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
 
 ## Architecture
 
@@ -98,6 +98,7 @@
 - Rate adjustment transaction execution creates linked `exchangeDiff` parent/child transactions, stores transaction ids on the adjustment/details, and marks status `complete`.
 - Closing calculation stores `status: "process"`, `beginDate`, `successDate`, `checkedAt`, grouped details, `error`, and `warning`; transaction execution creates linked `main` journal parent/child transactions and marks status `complete`.
 - Accounting transaction documents store journal, side, date, status, details, branch/department/customer context, parent transaction linkage, and plugin-specific `extraData`.
+- Accounting transaction list indexes support default `ptrNumber` cursor sorting and date-range filters both with and without detail-account permission filtering.
 - Journal reports do not persist state; they aggregate tenant-scoped transaction documents and enrich rows from accounting accounts, fixed assets, and core branch, department, customer, product, user, and synced-content public contracts.
 - Fixed asset category, fixed asset, fixed asset owner record, fixed asset adjustment, inventory remainder, reserve remainder, tax, and accounting setting collections remain owned by this plugin.
 - Fixed asset income transactions may create system opening fixed asset adjustments with `_id` shaped as `fxa-opening:<transactionId>`; those adjustments are maintained from transaction detail follow-info values.
@@ -156,10 +157,22 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-08-31` — `Erkhet Fixed Asset Move Followers`
+### `2026-09-01` — `Transaction Permission Sort Indexes`
 
-- **Summary:** Erkhet fixed asset movement follower transaction rows are ignored during migration so the source move row remains the only imported financial movement and erxes generates its own move-in side.
+- **Summary:** Tuned transaction list indexes for default `ptrNumber` cursor sorting and date-range filters with separate paths for read-all users and detail-account permission filters.
+- **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`.
+- **Contracts changed:** None.
+
+### `2026-09-01` — `Erkhet Endpoint Neutrality`
+
+- **Summary:** Removed endpoint-side Erkhet follower filtering so source scripts remain responsible for preparing the exact transaction documents to import.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`.
+- **Contracts changed:** None.
+
+### `2026-08-31` — `Transaction List Indexes`
+
+- **Summary:** Added focused compound transaction indexes for high-volume list filters and cursor sorting.
+- **Affected areas:** `src/modules/accounting/db/definitions/transaction.ts`.
 - **Contracts changed:** None.
 
 ### `2026-08-31` — `Erkhet Exchange Rate References`
@@ -197,21 +210,3 @@
 - **Summary:** Fixed asset income synchronization now reuses one fixed asset for repeated acquisition codes and stores aggregate acquisition quantity/cost supplied by the migration payload.
 - **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
 - **Contracts changed:** None.
-
-### `2026-08-30` — `Erkhet Product Code Whitespace`
-
-- **Summary:** Erkhet reference and transaction migration now normalize product lookup codes by removing whitespace before product create/update and transaction resolution.
-- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/routes/erkhetMigration.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-30` — `Fixed Asset Remainder Helper`
-
-- **Summary:** Shared fixed asset location remainder aggregation between single-location and grouped-list queries and covered movement-sign/location filtering behavior with unit tests.
-- **Affected areas:** `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/__tests__/fixedAssetRemainders.test.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-29` — `Fixed Asset Location Remainder List`
-
-- **Summary:** Added a fixed asset remainder list query that groups positive quantities by fixed asset, branch, and department for the accounting UI remainder page.
-- **Affected areas:** `src/modules/fixedAssets/graphql/schemas/fixedAsset.ts`, `src/modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts`.
-- **Contracts changed:** Adds `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit): [FixedAssetLocationRemainder]`.
