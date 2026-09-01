@@ -1,23 +1,23 @@
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart } from 'recharts';
 
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from 'erxes-ui/components/charts';
+import { ChartContainer, type ChartConfig } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import {
+  getChartVizTrendDomain,
+  getDefaultChartVizColor,
+} from '../utils/chartVizPresentation';
+import { ChatVizCartesianDecorations } from './ChatVizCartesianDecorations';
 
 interface Props {
   payload: ChartVizPayload;
   className?: string;
+  /** Frozen axis domain for interactive charts; falls back to a padded fit. */
+  domain?: [number, number];
 }
 
-export function ChatVizArea({ payload, className }: Props) {
+export function ChatVizArea({ payload, className, domain }: Readonly<Props>) {
   const isClient = useIsClient();
 
   const config = React.useMemo<ChartConfig>(
@@ -25,7 +25,7 @@ export function ChatVizArea({ payload, className }: Props) {
       Object.fromEntries(
         payload.series.map((s, i) => [
           s.key,
-          { label: s.label, color: s.color ?? `hsl(var(--chart-${i + 1}))` },
+          { label: s.label, color: s.color ?? getDefaultChartVizColor(i) },
         ]),
       ),
     [payload.series],
@@ -35,22 +35,12 @@ export function ChatVizArea({ payload, className }: Props) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <AreaChart data={payload.data}>
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-        />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend
-          content={(props) => (
-            <ChartLegendContent
-              payload={props.payload ?? []}
-              verticalAlign={props.verticalAlign}
-            />
-          )}
+      <AreaChart
+        data={payload.data}
+        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
+      >
+        <ChatVizCartesianDecorations
+          domain={domain ?? getChartVizTrendDomain}
         />
         {payload.series.map((s) => (
           <Area

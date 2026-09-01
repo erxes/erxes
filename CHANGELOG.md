@@ -1,5 +1,51 @@
 
 
+## [3.0.94](https://github.com/erxes/erxes/compare/3.0.93...3.0.94) (2026-08-31)
+
+
+### Bug Fixes
+
+* **content:** sync page detail header language  ([b94ec78](https://github.com/erxes/erxes/commit/b94ec78cb09c2e3bf261f4a93d1f2bba766395d9))
+* **core:** properties cover the field group reorder empty and error states  ([5a0d08e](https://github.com/erxes/erxes/commit/5a0d08e9d9a4f0ddaa21a55c326726652265d746))
+* fix cp customers query ([d53892b](https://github.com/erxes/erxes/commit/d53892b9f65984f50fe0b5ee85c725004883cd53))
+* fix payments add form wait api response ([2007109](https://github.com/erxes/erxes/commit/20071090deffe57e6c93da611c90acd67b89a78b))
+* **frontline:** replace retired Facebook message tags with HUMAN_AGENT  ([16313d6](https://github.com/erxes/erxes/commit/16313d6431115ccd1f650cf9e1b9ae44af3c60ff))
+* wire login Terms/Privacy links to erxes.io legal pages (were href=#)  ([9c7850b](https://github.com/erxes/erxes/commit/9c7850b5fe095abd5c201044c3a02d892df1da42))
+
+
+### Features
+
+* add use b2b options in client portal ([34fd760](https://github.com/erxes/erxes/commit/34fd76011386957124109825d295698d3703cc75))
+* **mongolian:** sum MS Dynamic product remainders ([#9171](https://github.com/erxes/erxes/issues/9171)) ([e48a723](https://github.com/erxes/erxes/commit/e48a723188cf95143b8ac5023315dd5ca19065dc))
+
+
+### Performance Improvements
+
+* return all pos list with token ([d2da9ac](https://github.com/erxes/erxes/commit/d2da9acbabfa08aab8c5a2647091f315bd351b6c))
+
+## [3.0.93](https://github.com/erxes/erxes/compare/3.0.92...3.0.93) (2026-08-26)
+
+
+### Bug Fixes
+
+* **core-ui:** property options frozen after removing one  ([6e0f098](https://github.com/erxes/erxes/commit/6e0f098f5b594a761cc22d97ee8072d5f37479a9))
+* **frontline:** rework the Me inbox group and its live counts ([853424b](https://github.com/erxes/erxes/commit/853424b9f63cfc9a77f6ef089f1b33413059c9a5))
+* **frontline:** stop inbox sidebar selections from stranding each other ([05c4579](https://github.com/erxes/erxes/commit/05c457952a7ecc4b9d841fd4675e55c2911dd220))
+* mongolian putresponses without date ([56f3af0](https://github.com/erxes/erxes/commit/56f3af09ba25e896a006ad42f6323b893bebd872))
+* **payment:** redirect failed payment to invoice URL ([#9147](https://github.com/erxes/erxes/issues/9147)) ([073deb3](https://github.com/erxes/erxes/commit/073deb38ef4b6946263784ce16f36f55f5ea5790))
+* **ui:** restore plugin config integrations ([#9146](https://github.com/erxes/erxes/issues/9146)) ([c2ffcad](https://github.com/erxes/erxes/commit/c2ffcadd8f389bdff27e2a7386fa9249c8aa8a2c))
+
+
+### Features
+
+* add clientportal filter in customers ([7b153ee](https://github.com/erxes/erxes/commit/7b153ee9ab047ccd3a721d6fa219dda4c4defd8b))
+* **nav:** pin Command and AI Agent only when those plugins load ([#9168](https://github.com/erxes/erxes/issues/9168)) ([daac217](https://github.com/erxes/erxes/commit/daac2177e2c55c40b1fbbc70ba025c6f13536e4c))
+
+
+### Performance Improvements
+
+* **properties:** order field groups by their own order and reorder them by drag  ([acaaa66](https://github.com/erxes/erxes/commit/acaaa66136fb788d2ef767ab4a6b505a9baf280c))
+
 ## [3.0.92](https://github.com/erxes/erxes/compare/3.0.91...3.0.92) (2026-08-24)
 
 

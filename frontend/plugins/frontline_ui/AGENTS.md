@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-26`
+- **Last synchronized:** `2026-08-27`
 
 ## Scope
 
@@ -680,6 +680,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
+
+- **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
+- **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
+- **Contracts changed:** None
+
 ### `2026-08-26` — Sidebar selections no longer strand each other
 
 - **Summary:** Selecting a Discord channel and then a team or personal channel
@@ -808,23 +814,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
 - **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
   `noAnswer` field from `frontline_api`.
-
-### `2026-08-19` — Call Pro integration UI
-
-- **Summary:** Added the Call Pro surfaces ported from the legacy inbox UI,
-  built on the `call` module's shape — add/edit `Sheet`s over one shared form
-  carrying the webhook URL to configure, the recording player in the
-  conversation panel, and a `Command`-based customer picker/switcher for a
-  caller number that matches several customers. Everything is hidden unless the
-  backend reports Call Pro as enabled.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/integrations.ts`,
-  `src/modules/integrations/components/{IntegrationList,IntegrationMoreColumn,ConversationIntegrationDetail}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/inbox/types/Conversation.ts`,
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getConversationDetail.ts`
-- **Contracts changed:** Consumes new `frontline_api` operations
-  `callProConfig`, `callProCustomersByPhone`, and `callProCustomerSelect`, plus
-  the `callProAudio` / `callProPotentialCustomerIds` / `callProPhone`
-  conversation fields. Adds the `callpro` integration type.

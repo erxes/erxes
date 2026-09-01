@@ -1,26 +1,26 @@
 import {
   IconMail,
-  IconDotsVertical,
-  IconSettings,
   IconTicket,
   IconChartHistogram,
   IconForms,
   IconBook,
   IconPlus,
-  IconCaretRightFilled,
 } from '@tabler/icons-react';
 import {
   NavigationMenuLinkItem,
-  DropdownMenu,
   Button,
-  Spinner,
   Skeleton,
   Badge,
 } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
-import { useConversations } from './inbox/conversations/hooks/useConversations';
+import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
+
 export const FrontlineNavigation = () => {
+  return <FrontlineDestinationLinks />;
+};
+
+export const FrontlineDestinationLinks = () => {
   const { t } = useTranslation('frontline');
   const navigate = (path: string) => {
     window.history.pushState(null, '', path);
@@ -33,8 +33,9 @@ export const FrontlineNavigation = () => {
         name={t('inbox')}
         icon={IconMail}
         path="frontline/inbox"
-        children={<NotificationCount />}
-      />
+      >
+        <NotificationCount />
+      </NavigationMenuLinkItem>
       <NavigationMenuLinkItem
         name={t('tickets')}
         icon={IconTicket}
@@ -77,11 +78,7 @@ export const FrontlineNavigation = () => {
 };
 
 export const NotificationCount = () => {
-  const { totalCount, loading } = useConversations({
-    variables: {
-      status: 'new',
-    },
-  });
+  const { totalCount, loading } = useInboxUnreadConversationCount();
 
   if (loading) {
     return <Skeleton className="size-4 rounded-sm" />;
