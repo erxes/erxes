@@ -268,8 +268,7 @@ const handleDiscordReplyMessenger = async (
       token: bot.token,
       channelId: conversation.channelId,
       content: discordText,
-      files:
-        nativeForwardReference || !files.length ? undefined : files,
+      files: nativeForwardReference || !files.length ? undefined : files,
       poll: nativeForwardReference ? undefined : pollRequest,
       messageReference: nativeForwardReference || replyToMessageId,
     });
