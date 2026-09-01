@@ -258,7 +258,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     }
   }, [payment, form, getDefaultValues]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     const input: IPayment = {
       name: data.name,
       kind: data.kind,
@@ -294,47 +294,38 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     try {
       if (paymentState) {
         // Update existing payment
-        editPayment({
+        await editPayment({
           variables: {
             _id: payment._id,
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: t('success'),
-              description: t('payment-method-updated'),
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: t('error'),
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-updated'),
+        });
       } else {
-        addPayment({
+        await addPayment({
           variables: {
             input,
           },
-        })
-          .then(() => {
-            toast({
-              title: t('success'),
-              description: t('payment-method-added'),
-            });
-          })
-          .catch((e) => {
-            toast({
-              title: t('error'),
-              description: e.message,
-            });
-          });
+        });
+
+        toast({
+          title: t('success'),
+          description: t('payment-method-added'),
+        });
       }
 
       onCancel();
-    } catch (error) {
-      console.error('Form submission error:', error);
+    } catch (e) {
+      // Keep the sheet open so the user can correct the input and retry
+      toast({
+        title: t('error'),
+        description: e instanceof Error ? e.message : String(e),
+        variant: 'destructive',
+      });
     }
   };
 
