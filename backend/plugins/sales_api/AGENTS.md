@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-09-01`
 
 ## Scope
 
@@ -125,6 +125,13 @@
   keys by name, `deal.count` takes `{ filter? }` — an agent's unbounded
   `deal.find {}` over 1.27M deals crash-looped this service (exit 139) on
   2026-08-20, and wrapper-shaped input silently matched nothing.
+- Document attribute replacement must emit block-level results (`table`,
+  `image`) as siblings of the block that held the attribute, never inside its
+  inline `content` array: Core's `blocksToHtml` renders inline content as text
+  only, so a table left inline is dropped and `productsInfo` prints nothing.
+- `replaceDealContent` must emit one processed document per `replacerId`, in
+  `replacerIds` order: `Deals.find({ _id: { $in } })` returns Mongo natural
+  order, which does not match the order the caller selected the deals in.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 - Agent tool annotations are admit-only: never annotate raw-mongo helpers
   (`deal.aggregate`, `deal.updateOne`, `orders.updateOne`), system-user
@@ -148,6 +155,11 @@
   persist and an invalid id is rejected.
 - Smoke scenario: resolve `sales:deal.excludeLoyaltyAmount` for a deal with
   empty `paymentsData`; it should return the deal total amount, not `0`.
+- Smoke scenario: print several deals at once; page N of the output is the
+  deal in row N of the print selection table.
+- Smoke scenario: print a deal document whose template embeds the
+  `productsInfo` attribute; the processed HTML contains a `<table>` with one
+  row per `productsData` item.
 - Smoke scenario: `GET /agent-tools/manifest` on the sales service lists only
   the annotated procedures above; `deal.create`, `deal.updateOne`, and
   `deal.subscriptionWrapper` never appear.
@@ -155,6 +167,29 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-01` — Deal document print order follows the selection
+
+- **Summary:** Printing multiple deals emitted pages in Mongo natural order
+  instead of the order the deals were selected in, so the deal in the first
+  row of the print table could land many pages in (verified locally: row 1
+  `min min` printed as page 13); `replaceDealContent` now reindexes the loaded
+  deals by `replacerIds` before processing.
+- **Affected areas:** `src/modules/sales/documents/dealContent.ts`.
+- **Contracts changed:** None (`deal.replaceContent` still returns one entry
+  per resolvable `replacerId`, now ordered).
+
+### `2026-09-01` — Deal document table attributes render again
+
+- **Summary:** Table and image attributes (`productsInfo`, `allProductsInfo`,
+  `productCategoryInfo`, `servicesInfo`) printed as nothing because the
+  document editor inserts attributes as *inline* content, and the replaced
+  table block stayed inside the paragraph's inline array where Core's
+  `blocksToHtml` renders text only; `replaceBlocks` now hoists block-level
+  replacements out to the containing block list and drops the paragraph left
+  empty behind them.
+- **Affected areas:** `src/modules/sales/documents/replaceBlocks.ts`.
+- **Contracts changed:** None.
 
 ### `2026-08-21` — Bounded, strict agent-facing deal reads
 
