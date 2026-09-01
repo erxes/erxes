@@ -1,3 +1,40 @@
+import { REACT_APP_API_URL } from 'erxes-ui';
+
+interface ReceiptItem {
+  name?: string;
+  qty?: number;
+  unitPrice?: number;
+  totalAmount?: number;
+}
+
+interface Receipt {
+  items?: ReceiptItem[];
+}
+
+interface EbarimtResponse {
+  _id?: string;
+  companyName?: string;
+  consumerNo?: string;
+  customerName?: string;
+  customerTin?: string;
+  date?: string;
+  description?: string;
+  footerText?: string;
+  headerText?: string;
+  id?: string;
+  lottery?: string;
+  merchantTin?: string;
+  message?: string;
+  number?: string;
+  qrData?: string;
+  receiptIcon?: string;
+  receipts?: Receipt[];
+  status?: string;
+  totalAmount?: number;
+  totalCityTax?: number;
+  totalVAT?: number;
+}
+
 const getNum = (n?: number) => {
   return (n || 0).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -7,14 +44,15 @@ const getNum = (n?: number) => {
 
 let totalDiscount = 0;
 
-const getRows = (receipts: any[]) => {
+const getRows = (receipts: Receipt[]) => {
   let res = '';
   let ind = 0;
 
   for (const receipt of receipts) {
-    for (const item of receipt.items) {
+    for (const item of receipt.items || []) {
       ind += 1;
-      const discount = item.unitPrice * item.qty - item.totalAmount;
+      const discount =
+        (item.unitPrice || 0) * (item.qty || 0) - (item.totalAmount || 0);
       totalDiscount += discount;
 
       res = res.concat(`
@@ -35,7 +73,7 @@ const getRows = (receipts: any[]) => {
   return res;
 };
 
-const customerInfo = (response: any) => {
+const customerInfo = (response: EbarimtResponse) => {
   if (!(response.customerTin || response.customerName)) {
     return '';
   }
@@ -50,11 +88,17 @@ const customerInfo = (response: any) => {
   `;
 };
 
-const customize = (response: any, field: string, defaultVal: any) => {
-  if (response[field]) {
+const customize = (
+  response: EbarimtResponse,
+  field: 'headerText' | 'footerText',
+  defaultVal: string,
+) => {
+  const value = response[field];
+
+  if (value) {
     return `
       <div>
-        ${response[field]}
+        ${value}
       </div>      
     `;
   }
@@ -62,13 +106,32 @@ const customize = (response: any, field: string, defaultVal: any) => {
   return defaultVal;
 };
 
-export const PerResponse = (response: any, counter: number) => {
+const getReceiptIconSrc = (receiptIcon?: string) => {
+  if (!receiptIcon) {
+    return 'https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png';
+  }
+
+  if (
+    receiptIcon.startsWith('/') ||
+    receiptIcon.startsWith('http://') ||
+    receiptIcon.startsWith('https://') ||
+    receiptIcon.includes('/read-file?key=')
+  ) {
+    return receiptIcon;
+  }
+
+  const apiUrl = (REACT_APP_API_URL || '').replace(/\/$/, '');
+
+  return `${apiUrl}/read-file?key=${receiptIcon}`;
+};
+
+export const PerResponse = (response: EbarimtResponse, counter: number) => {
   totalDiscount = 0;
   return `
     <div class="receipt" id="${response._id || ''}">
       ${(counter > 0 && '<div class="splitter"></div>') || ''}
       <div class="center">
-        <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png">
+        <img class="receipt-logo" src="${getReceiptIconSrc(response.receiptIcon)}" loading="eager">
       </div>
       <p class="center">
         ${response.companyName ? response.companyName : ''}
@@ -81,6 +144,8 @@ export const PerResponse = (response: any, counter: number) => {
       ${
         response.id
           ? `
+        ${customize(response, 'headerText', '<br />')}
+
         <div>
           <p>ТТД: ${response.merchantTin}</p>
           ${(response.id && `<p>ДДТД: ${response.id}</p>`) || ''}
@@ -89,7 +154,6 @@ export const PerResponse = (response: any, counter: number) => {
         </div>
 
         ${customerInfo(response)}
-        ${customize(response, 'headerText', '<br />')}
 
         <table class="tb" cellpadding="0" cellspacing="0">
           <thead>
@@ -107,8 +171,8 @@ export const PerResponse = (response: any, counter: number) => {
 
         <div class="total">
           
-          ${(response.totalVAT > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>`) || ''}
-          ${(response.totalCityTax > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>`) || ''}
+          ${((response.totalVAT || 0) > 0 && `<p><label>НӨАТ:</label> ${getNum(response.totalVAT)}</p>`) || ''}
+          ${((response.totalCityTax || 0) > 0 && `<p><label>НХАТ:</label> ${getNum(response.totalCityTax)}</p>`) || ''}
           <p><label>Бүгд үнэ:</label> ${getNum(response.totalAmount)}</p>
           ${(totalDiscount > 0 && `<p><label>ХӨН:</label> ${getNum(totalDiscount)}</p>`) || ''}
         </div>

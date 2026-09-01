@@ -31,7 +31,7 @@ export const EbarimtRespondedPage = () => {
         return;
       }
 
-      const printContents: any[] = [];
+      const printContents: string[] = [];
       let counter = 0;
 
       for (const content of contents) {
@@ -42,9 +42,9 @@ export const EbarimtRespondedPage = () => {
       const printMainContent = Response(printContents);
 
       const myWindow =
-        window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
+        window.open(`__`, '_blank', 'width=800, height=800') || undefined;
 
-      if ('document' in myWindow && 'write' in myWindow.document) {
+      if (myWindow?.document?.write) {
         myWindow.document.write(printMainContent);
       } else {
         alert('please allow Pop-ups and redirects on site settings!!!');

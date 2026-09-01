@@ -1,5 +1,20 @@
 
 
+## [3.0.95](https://github.com/erxes/erxes/compare/3.0.94...3.0.95) (2026-09-01)
+
+
+### Bug Fixes
+
+* posclient-front ebarimt update ([ca00c19](https://github.com/erxes/erxes/commit/ca00c19481d7d3567dced7ea8753fa91d8366e57))
+* prevent notification duplicates and improve async consistency ([64aa17d](https://github.com/erxes/erxes/commit/64aa17d39a0372eb40f7fe8cdc8b26085834e0b9))
+* products import with type and barcodes ([4034da0](https://github.com/erxes/erxes/commit/4034da011c8c3eb93a3ac9faca76c1dc763a055f))
+* sales ebarimt some update ([d4a2647](https://github.com/erxes/erxes/commit/d4a2647105b28a0548cc6181185614e59c24a9a8))
+
+
+### Features
+
+* **erxes-ui:** add interactive chart controls ([#9189](https://github.com/erxes/erxes/issues/9189)) ([07b84c8](https://github.com/erxes/erxes/commit/07b84c8afb53e5ab5c60279c86b605cf6634cc60))
+
 ## [3.0.94](https://github.com/erxes/erxes/compare/3.0.93...3.0.94) (2026-08-31)
 
 

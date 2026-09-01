@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -30,6 +30,8 @@
   and exchange rates.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
+- Prints deal eBarimt responses in a popup receipt template that supports
+  configured `headerText`, `footerText`, and optional receipt logo images.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
   Form, Zod, and `react-i18next` following plugin-local patterns.
 - Put response rows tolerate missing or invalid bill `date` values by falling
@@ -44,6 +46,7 @@
 | Main routes | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx` | Route tree mounted under `/mongolian`. |
 | Settings routes | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx` | Settings route tree mounted in the core settings shell. |
 | eBarimt | `frontend/plugins/mongolian_ui/src/modules/ebarimt` | eBarimt put responses, filters, tables, and settings UI. |
+| eBarimt print | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded` | Popup receipt HTML for deal eBarimt responses. |
 | Erkhet sync | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync` | Erkhet checking, sync, and settings UI. |
 | MS Dynamic | `frontend/plugins/mongolian_ui/src/modules/msdynamic` | MS Dynamic checking, sync history, and settings UI. |
 | Product places | `frontend/plugins/mongolian_ui/src/modules/productplaces` | Product place settings and UI. |
@@ -60,6 +63,8 @@
 - Frontend routes mounted by `./mongolian`, including
   `/mongolian/put-response/*`, `/mongolian/sync-erkhet/*`, and
   `/mongolian/msdynamic/*`.
+- Floating eBarimt response widget that listens for `ebarimtResponded` and
+  opens printable deal receipt HTML.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
@@ -100,15 +105,26 @@
 
 ## Validation
 
-- `pnpm nx lint mongolian_ui`
+- `pnpm exec eslint frontend/plugins/mongolian_ui/src`
 - `pnpm nx build mongolian_ui`
+- No `test` target is currently defined in `project.json`; add and document one
+  before introducing tested behavior.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.
+- Deal eBarimt print smoke scenario: receive an `ebarimtResponded`
+  subscription payload with `headerText`, `footerText`, and optional
+  `receiptIcon`; the popup waits for receipt images before opening print.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` - Harden deal eBarimt print logo
+
+- **Summary:** Deal eBarimt popup receipts now render configured header text near the logo, support an optional receipt icon, and wait for images before printing.
+- **Affected areas:** `src/pages/EbarimtRespondedPage.tsx`, `src/modules/ebarimt/responded/components/PerResponse.tsx`, `src/modules/ebarimt/responded/components/Response.tsx`
+- **Contracts changed:** None
 
 ### `2026-08-27` - Guard put response dates
 
