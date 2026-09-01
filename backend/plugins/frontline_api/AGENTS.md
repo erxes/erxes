@@ -527,7 +527,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 - Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
   `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
-  *every* ticket list, not only pipeline-scoped ones. Without a
+  _every_ ticket list, not only pipeline-scoped ones. Without a
   `filter.pipelineId` the in-scope pipelines are loaded (by `channelId` when
   present) and each restricted pipeline contributes its own
   `{ pipelineId, <rule> }` branch to an `$or`, with unrestricted pipelines
