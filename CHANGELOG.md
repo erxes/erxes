@@ -1,5 +1,28 @@
 
 
+## [3.0.94](https://github.com/erxes/erxes/compare/3.0.93...3.0.94) (2026-08-31)
+
+
+### Bug Fixes
+
+* **content:** sync page detail header language  ([b94ec78](https://github.com/erxes/erxes/commit/b94ec78cb09c2e3bf261f4a93d1f2bba766395d9))
+* **core:** properties cover the field group reorder empty and error states  ([5a0d08e](https://github.com/erxes/erxes/commit/5a0d08e9d9a4f0ddaa21a55c326726652265d746))
+* fix cp customers query ([d53892b](https://github.com/erxes/erxes/commit/d53892b9f65984f50fe0b5ee85c725004883cd53))
+* fix payments add form wait api response ([2007109](https://github.com/erxes/erxes/commit/20071090deffe57e6c93da611c90acd67b89a78b))
+* **frontline:** replace retired Facebook message tags with HUMAN_AGENT  ([16313d6](https://github.com/erxes/erxes/commit/16313d6431115ccd1f650cf9e1b9ae44af3c60ff))
+* wire login Terms/Privacy links to erxes.io legal pages (were href=#)  ([9c7850b](https://github.com/erxes/erxes/commit/9c7850b5fe095abd5c201044c3a02d892df1da42))
+
+
+### Features
+
+* add use b2b options in client portal ([34fd760](https://github.com/erxes/erxes/commit/34fd76011386957124109825d295698d3703cc75))
+* **mongolian:** sum MS Dynamic product remainders ([#9171](https://github.com/erxes/erxes/issues/9171)) ([e48a723](https://github.com/erxes/erxes/commit/e48a723188cf95143b8ac5023315dd5ca19065dc))
+
+
+### Performance Improvements
+
+* return all pos list with token ([d2da9ac](https://github.com/erxes/erxes/commit/d2da9acbabfa08aab8c5a2647091f315bd351b6c))
+
 ## [3.0.93](https://github.com/erxes/erxes/compare/3.0.92...3.0.93) (2026-08-26)
 
 
