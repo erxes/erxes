@@ -11,6 +11,7 @@ import {
 } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import { getDefaultChartVizColor } from '../utils/chartVizPresentation';
 
 interface Props {
   payload: ChartVizPayload;
@@ -31,16 +32,17 @@ export function ChatVizPie({ payload, className }: Props) {
   const config = React.useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        payload.data.map((d, i) => [
+        payload.data.map((d) => [
           d.label,
           {
+            // Labels are untrusted text, so they must never become CSS custom
+            // property names in ChartStyle. Slice colors are applied directly
+            // to the sanitized Recharts Cell below.
             label: d.label,
-            color:
-              payload.series[0]?.color ?? `hsl(var(--chart-${(i % 5) + 1}))`,
           },
         ]),
       ),
-    [payload.data, payload.series],
+    [payload.data],
   );
 
   if (!isClient) return <ChartSkeleton />;
@@ -59,7 +61,10 @@ export function ChatVizPie({ payload, className }: Props) {
           strokeWidth={2}
         >
           {payload.data.map((_, i) => (
-            <Cell key={i} fill={`hsl(var(--chart-${(i % 5) + 1}))`} />
+            <Cell
+              key={i}
+              fill={payload.series[0]?.color ?? getDefaultChartVizColor(i)}
+            />
           ))}
         </Pie>
         <ChartLegend

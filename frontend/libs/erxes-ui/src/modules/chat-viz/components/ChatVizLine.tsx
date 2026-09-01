@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CartesianGrid, Line, LineChart, XAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 import {
   ChartContainer,
@@ -11,13 +11,20 @@ import {
 } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import {
+  formatChartVizAxisValue,
+  getChartVizTrendDomain,
+  getDefaultChartVizColor,
+} from '../utils/chartVizPresentation';
 
 interface Props {
   payload: ChartVizPayload;
   className?: string;
+  /** Frozen axis domain for interactive charts; falls back to a padded fit. */
+  domain?: [number, number];
 }
 
-export function ChatVizLine({ payload, className }: Props) {
+export function ChatVizLine({ payload, className, domain }: Props) {
   const isClient = useIsClient();
 
   const config = React.useMemo<ChartConfig>(
@@ -25,7 +32,7 @@ export function ChatVizLine({ payload, className }: Props) {
       Object.fromEntries(
         payload.series.map((s, i) => [
           s.key,
-          { label: s.label, color: s.color ?? `hsl(var(--chart-${i + 1}))` },
+          { label: s.label, color: s.color ?? getDefaultChartVizColor(i) },
         ]),
       ),
     [payload.series],
@@ -35,13 +42,25 @@ export function ChatVizLine({ payload, className }: Props) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <LineChart data={payload.data}>
+      <LineChart
+        data={payload.data}
+        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
+      >
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
+        />
+        <YAxis
+          type="number"
+          domain={domain ?? getChartVizTrendDomain}
+          tickLine={false}
+          axisLine={false}
+          tickMargin={6}
+          tickFormatter={formatChartVizAxisValue}
+          width={52}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend
@@ -59,7 +78,7 @@ export function ChatVizLine({ payload, className }: Props) {
             type="monotone"
             stroke={`var(--color-${s.key})`}
             strokeWidth={2}
-            dot={false}
+            dot={payload.data.length <= 20}
           />
         ))}
       </LineChart>

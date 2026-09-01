@@ -2,13 +2,25 @@ import type {
   ChartVizDataPoint,
   ChartVizPayload,
   ChartVizSeriesConfig,
+  ChartVizSliderControl,
+  ChartVizTransform,
+  ChartVizTransformOperation,
   ChartVizType,
 } from '../types/chatVizTypes';
 
 const VALID_CHART_TYPES = new Set<ChartVizType>(['bar', 'line', 'pie', 'area']);
 const MAX_DATA_POINTS = 100;
 const MAX_SERIES = 10;
+const MAX_CONTROLS = 4;
+const MAX_TRANSFORMS = MAX_SERIES * MAX_CONTROLS;
 const MAX_TEXT_LEN = 200;
+const MAX_CONTROL_DECORATION_LEN = 20;
+const MAX_CONTROL_ABS_VALUE = 1_000_000;
+const VALID_TRANSFORM_OPERATIONS = new Set<ChartVizTransformOperation>([
+  'add',
+  'percent',
+  'compoundPercent',
+]);
 
 /**
  * Allow only the three CSS color notations that carry no executable content:
@@ -27,7 +39,7 @@ const SAFE_CSS_COLOR_RE =
  * max 50 chars. Prevents CSS injection like `key}` breaking out of the
  * generated CSS block in ChartStyle.
  */
-const SAFE_CSS_VAR_KEY_RE = /^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
+const SAFE_CSS_VAR_KEY_RE = /^(?!label$)[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
 
 /** Strict ISO 8601 UTC timestamp */
 const ISO_DATE_RE =
@@ -54,6 +66,19 @@ function sanitizeCssKey(key: unknown): string | undefined {
 function sanitizeNumber(value: unknown): number {
   const n = Number(value);
   return Number.isFinite(n) ? n : 0;
+}
+
+function sanitizeControlNumber(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  return Math.min(
+    MAX_CONTROL_ABS_VALUE,
+    Math.max(-MAX_CONTROL_ABS_VALUE, value),
+  );
+}
+
+function sanitizeDecoration(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  return value.slice(0, MAX_CONTROL_DECORATION_LEN);
 }
 
 function sanitizeSentAt(value: unknown): string {
@@ -99,6 +124,92 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
   });
 
   const validKeys = new Set(series.map((s) => s.key));
+  const controlKeys = new Set<string>();
+  const rawControls = Array.isArray(p['controls'])
+    ? (p['controls'] as unknown[]).slice(0, MAX_CONTROLS)
+    : [];
+  const controls: ChartVizSliderControl[] = rawControls.flatMap((raw) => {
+    if (!raw || typeof raw !== 'object') return [];
+    const item = raw as Record<string, unknown>;
+    const key = sanitizeCssKey(item['key']);
+    const label = sanitizeText(item['label']);
+    const description = sanitizeText(item['description']);
+    const valuePrefix = sanitizeDecoration(item['valuePrefix']);
+    const valueSuffix = sanitizeDecoration(item['valueSuffix']);
+    const rawMin = sanitizeControlNumber(item['min']);
+    const rawMax = sanitizeControlNumber(item['max']);
+    const rawStep = sanitizeControlNumber(item['step']);
+    const rawDefault = sanitizeControlNumber(item['defaultValue']);
+
+    if (
+      item['type'] !== 'slider' ||
+      !key ||
+      !label ||
+      controlKeys.has(key) ||
+      rawMin === null ||
+      rawMax === null ||
+      rawStep === null ||
+      rawStep <= 0 ||
+      rawDefault === null
+    ) {
+      return [];
+    }
+
+    const min = Math.min(rawMin, rawMax);
+    const max = Math.max(rawMin, rawMax);
+
+    if (min === max) return [];
+
+    controlKeys.add(key);
+
+    return [
+      {
+        type: 'slider' as const,
+        key,
+        label,
+        ...(description ? { description } : {}),
+        min,
+        max,
+        step: Math.min(rawStep, max - min),
+        defaultValue: Math.min(max, Math.max(min, rawDefault)),
+        ...(valuePrefix !== undefined ? { valuePrefix } : {}),
+        ...(valueSuffix !== undefined ? { valueSuffix } : {}),
+      },
+    ];
+  });
+
+  const seenTransforms = new Set<string>();
+  const rawTransforms = Array.isArray(p['transforms'])
+    ? (p['transforms'] as unknown[]).slice(0, MAX_TRANSFORMS)
+    : [];
+  const transforms: ChartVizTransform[] = rawTransforms.flatMap((raw) => {
+    if (!raw || typeof raw !== 'object') return [];
+    const item = raw as Record<string, unknown>;
+    const controlKey = sanitizeCssKey(item['controlKey']);
+    const seriesKey = sanitizeCssKey(item['seriesKey']);
+    const operation = item['operation'] as ChartVizTransformOperation;
+    const identity = `${controlKey}:${seriesKey}`;
+
+    if (
+      !controlKey ||
+      !controlKeys.has(controlKey) ||
+      !seriesKey ||
+      !validKeys.has(seriesKey) ||
+      !VALID_TRANSFORM_OPERATIONS.has(operation) ||
+      seenTransforms.has(identity)
+    ) {
+      return [];
+    }
+
+    seenTransforms.add(identity);
+    return [{ controlKey, seriesKey, operation }];
+  });
+  const activeControlKeys = new Set(
+    transforms.map(({ controlKey }) => controlKey),
+  );
+  const activeControls = controls.filter(({ key }) =>
+    activeControlKeys.has(key),
+  );
 
   const rawData = Array.isArray(p['data'])
     ? (p['data'] as unknown[]).slice(0, MAX_DATA_POINTS)
@@ -122,6 +233,8 @@ export function sanitizeChartVizPayload(raw: unknown): ChartVizPayload | null {
       p['description'] != null ? sanitizeText(p['description']) : undefined,
     data,
     series,
+    ...(activeControls.length ? { controls: activeControls } : {}),
+    ...(transforms.length ? { transforms } : {}),
     sentAt: sanitizeSentAt(p['sentAt']),
   };
 }

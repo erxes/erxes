@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 import {
   ChartContainer,
@@ -11,13 +11,19 @@ import {
 } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
+import {
+  formatChartVizAxisValue,
+  getDefaultChartVizColor,
+} from '../utils/chartVizPresentation';
 
 interface Props {
   payload: ChartVizPayload;
   className?: string;
+  /** Frozen zero-based axis domain for interactive charts. */
+  domain?: [number, number];
 }
 
-export function ChatVizBar({ payload, className }: Props) {
+export function ChatVizBar({ payload, className, domain }: Props) {
   const isClient = useIsClient();
 
   const config = React.useMemo<ChartConfig>(
@@ -25,7 +31,7 @@ export function ChatVizBar({ payload, className }: Props) {
       Object.fromEntries(
         payload.series.map((s, i) => [
           s.key,
-          { label: s.label, color: s.color ?? `hsl(var(--chart-${i + 1}))` },
+          { label: s.label, color: s.color ?? getDefaultChartVizColor(i) },
         ]),
       ),
     [payload.series],
@@ -36,13 +42,25 @@ export function ChatVizBar({ payload, className }: Props) {
 
   return (
     <ChartContainer config={config} className={className}>
-      <BarChart data={payload.data}>
+      <BarChart
+        data={payload.data}
+        margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
+      >
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
+        />
+        <YAxis
+          type="number"
+          domain={domain}
+          tickLine={false}
+          axisLine={false}
+          tickMargin={6}
+          tickFormatter={formatChartVizAxisValue}
+          width={52}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend
