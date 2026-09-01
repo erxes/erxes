@@ -148,7 +148,9 @@ const SelectedFixedAssetsList = ({
 }) => {
   const handleRemove = (fixedAssetId: string) => {
     setSelectedFixedAssets((currentFixedAssets) =>
-      currentFixedAssets.filter((fixedAsset) => fixedAsset._id !== fixedAssetId),
+      currentFixedAssets.filter(
+        (fixedAsset) => fixedAsset._id !== fixedAssetId,
+      ),
     );
     setSelectedFixedAssetIds((currentIds) =>
       currentIds.filter((currentId) => currentId !== fixedAssetId),

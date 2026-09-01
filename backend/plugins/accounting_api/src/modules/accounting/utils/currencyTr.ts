@@ -65,23 +65,18 @@ export default class CurrencyTr {
 
     const spotRate = Number(this.spotRate?.rate || 0);
     const customRate = Number(detail.customRate || 0);
-    const hasRateDiff = !!customRate && Math.abs(fixNum(customRate - spotRate, 8)) > 0;
+    const hasRateDiff =
+      !!customRate && Math.abs(fixNum(customRate - spotRate, 8)) > 0;
 
     if (!spotRate) {
       throw new Error(`exchange rate not found: ${account.currency}`);
     }
 
-    if (
-      hasRateDiff &&
-      !detail.followInfos?.currencyDiffAccountId
-    ) {
+    if (hasRateDiff && !detail.followInfos?.currencyDiffAccountId) {
       throw new Error('must fill currency diff account');
     }
 
-    if (
-      hasRateDiff &&
-      detail.followInfos.currencyDiffAccountId
-    ) {
+    if (hasRateDiff && detail.followInfos.currencyDiffAccountId) {
       const rateDiff = customRate - spotRate;
       let amount = fixNum(detail.currencyAmount * rateDiff, 4);
 

@@ -80,7 +80,8 @@ const normalizeSourceCode = (value?: string) =>
 const normalizeIdentifierCode = (value?: string) =>
   normalizeSourceCode(value).replace(/\s+/g, '');
 
-const normalizeEmail = (value?: string) => normalizeSourceCode(value).toLowerCase();
+const normalizeEmail = (value?: string) =>
+  normalizeSourceCode(value).toLowerCase();
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
@@ -212,7 +213,9 @@ const syncProductCategories = async ({
         : '';
 
       if (category.parentCode && !parentId) {
-        throw new Error(`Product category parent not found: ${category.parentCode}`);
+        throw new Error(
+          `Product category parent not found: ${category.parentCode}`,
+        );
       }
 
       const doc = cleanDoc({
@@ -286,7 +289,10 @@ const syncProducts = async ({
       codes.push(product.code, normalizeIdentifierCode(product.code));
     }
     if (product.sourceCode) {
-      codes.push(product.sourceCode, normalizeIdentifierCode(product.sourceCode));
+      codes.push(
+        product.sourceCode,
+        normalizeIdentifierCode(product.sourceCode),
+      );
     }
 
     return codes;
@@ -478,7 +484,9 @@ const syncFixedAssetCategories = async ({
   // collection-д хадгалагддаг тул core service дуудахгүй, tenant model ашиглана.
   const categoryIdsByCode = indexByCode(
     await models.FixedAssetCategories.find(
-      { code: { $in: uniq(categories.map((category) => category.code || '')) } },
+      {
+        code: { $in: uniq(categories.map((category) => category.code || '')) },
+      },
       { _id: 1, code: 1 },
     ).lean(),
   );
@@ -568,7 +576,8 @@ const syncExchangeRates = async ({
 
   for (const exchangeRate of exchangeRates) {
     const date = normalizeSourceCode(exchangeRate.date);
-    const mainCurrency = normalizeSourceCode(exchangeRate.mainCurrency) || 'MNT';
+    const mainCurrency =
+      normalizeSourceCode(exchangeRate.mainCurrency) || 'MNT';
     const rateCurrency = normalizeSourceCode(exchangeRate.rateCurrency);
     const code =
       normalizeSourceCode(exchangeRate.code) ||
@@ -576,7 +585,9 @@ const syncExchangeRates = async ({
 
     try {
       if (!date || !rateCurrency || !exchangeRate.rate) {
-        throw new Error(`Exchange rate date, currency and rate are required: ${code}`);
+        throw new Error(
+          `Exchange rate date, currency and rate are required: ${code}`,
+        );
       }
 
       const rateDate = new Date(date);
@@ -616,7 +627,7 @@ const syncExchangeRates = async ({
             ? {
                 selector: { _id: existingId },
                 modifier: { $set: { ...doc, modifiedAt: new Date() } },
-            }
+              }
             : { data: doc },
         });
 

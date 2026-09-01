@@ -206,8 +206,8 @@ const buildFxaOwnerRecordFilter = async (
             params.fixedAssetId
               ? fixedAssetId === params.fixedAssetId
               : params.fixedAssetIds?.length
-              ? params.fixedAssetIds.includes(fixedAssetId)
-              : true,
+                ? params.fixedAssetIds.includes(fixedAssetId)
+                : true,
           ),
         }
       : { $in: fixedAssetIds };

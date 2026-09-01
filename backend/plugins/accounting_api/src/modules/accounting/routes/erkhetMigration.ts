@@ -257,9 +257,7 @@ const OMIT_DETAIL_FOLLOW_INFO_KEYS = [
 
 // Хуучин migration payload-оос ирсэн audit-only key-үүдийг хадгалахгүй.
 // Erxes тал resolve хийсний дараа хэрэгтэй source code-уудыг өөрөө followInfos-д нэмнэ.
-const cleanDetailFollowInfos = (
-  followInfos: ITrDetail['followInfos'] = {},
-) =>
+const cleanDetailFollowInfos = (followInfos: ITrDetail['followInfos'] = {}) =>
   Object.fromEntries(
     Object.entries(followInfos).filter(
       ([key, value]) =>
@@ -535,7 +533,9 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
     fixedAssetCategoryCode &&
     !maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode]
   ) {
-    throw new Error(`Fixed asset category not found: ${fixedAssetCategoryCode}`);
+    throw new Error(
+      `Fixed asset category not found: ${fixedAssetCategoryCode}`,
+    );
   }
   if (productCode && !maps.productsByCode[productCode]) {
     throw new Error(`Product not found: ${productCode}`);
@@ -619,7 +619,10 @@ const resolveFxaOwnerRecords = (
     if (responsibleUserRef && !maps.usersByRef[responsibleUserRef]) {
       throw new Error(`User not found: ${responsibleUserRef}`);
     }
-    if (sourceResponsibleUserRef && !maps.usersByRef[sourceResponsibleUserRef]) {
+    if (
+      sourceResponsibleUserRef &&
+      !maps.usersByRef[sourceResponsibleUserRef]
+    ) {
       throw new Error(`User not found: ${sourceResponsibleUserRef}`);
     }
 
@@ -766,8 +769,9 @@ const resolveTransactionFollowInfos = (
   const moveInAccountCode = normalizeSourceCode(
     doc.followInfos?.moveInAccountId,
   );
-  const accumulatedDepreciationAccountCode =
-    normalizeSourceCode(doc.followInfos?.accumulatedDepreciationAccountId);
+  const accumulatedDepreciationAccountCode = normalizeSourceCode(
+    doc.followInfos?.accumulatedDepreciationAccountId,
+  );
   const fixedAssetAccountCode = normalizeSourceCode(
     doc.followInfos?.fixedAssetAccountId,
   );
@@ -800,22 +804,13 @@ const resolveTransactionFollowInfos = (
   if (lossAccountCode && !maps.accountsByCode[lossAccountCode]) {
     throw new Error(`Account not found: ${lossAccountCode}`);
   }
-  if (
-    fixedAssetAccountCode &&
-    !maps.accountsByCode[fixedAssetAccountCode]
-  ) {
+  if (fixedAssetAccountCode && !maps.accountsByCode[fixedAssetAccountCode]) {
     throw new Error(`Account not found: ${fixedAssetAccountCode}`);
   }
-  if (
-    saleOutAccountCode &&
-    !maps.accountsByCode[saleOutAccountCode]
-  ) {
+  if (saleOutAccountCode && !maps.accountsByCode[saleOutAccountCode]) {
     throw new Error(`Account not found: ${saleOutAccountCode}`);
   }
-  if (
-    saleCostAccountCode &&
-    !maps.accountsByCode[saleCostAccountCode]
-  ) {
+  if (saleCostAccountCode && !maps.accountsByCode[saleCostAccountCode]) {
     throw new Error(`Account not found: ${saleCostAccountCode}`);
   }
 
@@ -878,64 +873,73 @@ const normalizeBatchDocs = async (
     }
   }
 
-  return Promise.all(batch.trDocs.map(async (doc) => {
-    const customerCode = normalizeSourceCode(doc.customerId);
-    const branchCode = normalizeSourceCode(doc.branchId);
-    const departmentCode = normalizeSourceCode(doc.departmentId);
+  return Promise.all(
+    batch.trDocs.map(async (doc) => {
+      const customerCode = normalizeSourceCode(doc.customerId);
+      const branchCode = normalizeSourceCode(doc.branchId);
+      const departmentCode = normalizeSourceCode(doc.departmentId);
 
-    const contact = customerCode ? contactByCode[customerCode] : undefined;
-    const fxaOwnerRecords =
-      (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) || [];
-    const extraData = { ...doc.extraData };
+      const contact = customerCode ? contactByCode[customerCode] : undefined;
+      const fxaOwnerRecords =
+        (doc.extraData?.fxaOwnerRecords as TFxaOwnerRecordMigrationInput[]) ||
+        [];
+      const extraData = { ...doc.extraData };
 
-    if (customerCode && !contact?._id && !maps.customersByCode[customerCode]) {
-      throw new Error(`Customer not found: ${customerCode}`);
-    }
-    if (branchCode && !maps.branchesByCode[branchCode]) {
-      throw new Error(`Branch not found: ${branchCode}`);
-    }
-    if (departmentCode && !maps.departmentsByCode[departmentCode]) {
-      throw new Error(`Department not found: ${departmentCode}`);
-    }
+      if (
+        customerCode &&
+        !contact?._id &&
+        !maps.customersByCode[customerCode]
+      ) {
+        throw new Error(`Customer not found: ${customerCode}`);
+      }
+      if (branchCode && !maps.branchesByCode[branchCode]) {
+        throw new Error(`Branch not found: ${branchCode}`);
+      }
+      if (departmentCode && !maps.departmentsByCode[departmentCode]) {
+        throw new Error(`Department not found: ${departmentCode}`);
+      }
 
-    const resolvedDoc = {
-      ...doc,
-      date: new Date(doc.date),
-      customerType: contact?.type || doc.customerType,
-      customerId:
-        contact?._id ||
-        (customerCode
-          ? maps.customersByCode[customerCode] || doc.customerId
-          : doc.customerId),
-      branchId: branchCode
-        ? maps.branchesByCode[branchCode] || doc.branchId
-        : doc.branchId,
-      departmentId: departmentCode
-        ? maps.departmentsByCode[departmentCode] || doc.departmentId
-        : doc.departmentId,
-      details: (doc.details || []).map((detail) => resolveDetail(detail, maps)),
-      followInfos: resolveTransactionFollowInfos(doc, maps),
-      contentType: doc.contentType || ERKHET_CONTENT_TYPE,
-      contentId: doc.contentId || batch.externalPtrId,
-      extraData: {
-        ...extraData,
-        fxaOwnerRecords: resolveFxaOwnerRecords(fxaOwnerRecords, maps),
-        migrationSource: 'erkhet',
-        externalPtrId: batch.externalPtrId,
-        customerCode,
-        branchCode,
-        departmentCode,
-      },
-    };
+      const resolvedDoc = {
+        ...doc,
+        date: new Date(doc.date),
+        customerType: contact?.type || doc.customerType,
+        customerId:
+          contact?._id ||
+          (customerCode
+            ? maps.customersByCode[customerCode] || doc.customerId
+            : doc.customerId),
+        branchId: branchCode
+          ? maps.branchesByCode[branchCode] || doc.branchId
+          : doc.branchId,
+        departmentId: departmentCode
+          ? maps.departmentsByCode[departmentCode] || doc.departmentId
+          : doc.departmentId,
+        details: (doc.details || []).map((detail) =>
+          resolveDetail(detail, maps),
+        ),
+        followInfos: resolveTransactionFollowInfos(doc, maps),
+        contentType: doc.contentType || ERKHET_CONTENT_TYPE,
+        contentId: doc.contentId || batch.externalPtrId,
+        extraData: {
+          ...extraData,
+          fxaOwnerRecords: resolveFxaOwnerRecords(fxaOwnerRecords, maps),
+          migrationSource: 'erkhet',
+          externalPtrId: batch.externalPtrId,
+          customerCode,
+          branchCode,
+          departmentCode,
+        },
+      };
 
-    resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
-      models,
-      resolvedDoc,
-      resolvedDoc.extraData.fxaOwnerRecords || [],
-    );
+      resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
+        models,
+        resolvedDoc,
+        resolvedDoc.extraData.fxaOwnerRecords || [],
+      );
 
-    return resolvedDoc;
-  }));
+      return resolvedDoc;
+    }),
+  );
 };
 
 const saveBatch = async ({

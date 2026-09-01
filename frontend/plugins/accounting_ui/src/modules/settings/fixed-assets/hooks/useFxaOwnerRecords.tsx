@@ -33,7 +33,9 @@ export const useFxaOwnerRecordQueryParams = () => {
   return queryParams || {};
 };
 
-const getDateRange = (createdDate?: TFxaOwnerRecordQueryParams['createdDate']) => {
+const getDateRange = (
+  createdDate?: TFxaOwnerRecordQueryParams['createdDate'],
+) => {
   if (!createdDate) {
     return {};
   }
@@ -92,7 +94,8 @@ export const useFxaOwnerRecords = (options?: OperationVariables) => {
       variables: {
         ...variables,
         ...options?.variables,
-        page: Math.ceil(fxaOwnerRecords.length / FXA_OWNER_RECORDS_PER_PAGE) + 1,
+        page:
+          Math.ceil(fxaOwnerRecords.length / FXA_OWNER_RECORDS_PER_PAGE) + 1,
         perPage: FXA_OWNER_RECORDS_PER_PAGE,
       },
       updateQuery: (prev, { fetchMoreResult }) => {

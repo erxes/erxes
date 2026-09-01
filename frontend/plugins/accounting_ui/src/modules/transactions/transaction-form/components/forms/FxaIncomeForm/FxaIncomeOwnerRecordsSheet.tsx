@@ -118,7 +118,9 @@ export const FxaIncomeOwnerRecordsSync = ({
       );
     }
 
-    if (JSON.stringify(previousFollowInfos) !== JSON.stringify(nextFollowInfos)) {
+    if (
+      JSON.stringify(previousFollowInfos) !== JSON.stringify(nextFollowInfos)
+    ) {
       form.setValue(
         `trDocs.${journalIndex}.followInfos.fxaIncomeDetails`,
         nextFollowInfos,
@@ -148,9 +150,7 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   const detailOwners = managedOwners
     .map((owner, ownerIndex) => ({ owner, ownerIndex }))
     .filter(({ owner }) => owner.transactionDetailId === detail?._id);
-  const followInfoIndex = (
-    trDoc.followInfos?.fxaIncomeDetails || []
-  ).findIndex(
+  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
     (followInfo) =>
       followInfo.transactionDetailId === detail?._id ||
       followInfo.tempId === detail?._id,

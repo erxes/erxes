@@ -1,8 +1,4 @@
-import {
-  IconCalendar,
-  IconSearch,
-  IconToggleRight,
-} from '@tabler/icons-react';
+import { IconCalendar, IconSearch, IconToggleRight } from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -81,7 +77,9 @@ const FxaOwnerRecordAssetFilter = () => {
         mode="single"
         value={fixedAssetId || ''}
         onValueChange={(value) =>
-          setFixedAssetId(Array.isArray(value) ? value[0] || null : value || null)
+          setFixedAssetId(
+            Array.isArray(value) ? value[0] || null : value || null,
+          )
         }
         placeholder="Үндсэн хөрөнгө"
         className="h-8"

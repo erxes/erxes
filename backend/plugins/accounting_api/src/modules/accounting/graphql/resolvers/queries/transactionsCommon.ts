@@ -79,7 +79,11 @@ const getAccountIds = async (
   params: IQueryParams,
   user: IUserDocument,
 ): Promise<string[] | undefined> => {
-  const dominantUserIds = await models.Configs.getConfigValue('dominantReadAccountUsers', undefined, []);
+  const dominantUserIds = await models.Configs.getConfigValue(
+    'dominantReadAccountUsers',
+    undefined,
+    [],
+  );
 
   if (Array.isArray(dominantUserIds) && dominantUserIds?.includes(user._id)) {
     return;
@@ -386,24 +390,22 @@ export const generateFilter = async (
 
   if (branchId) {
     filter.branchId = {
-      $in: await getStructureIdsWithChildren(
-        subdomain, 'branches', [branchId]
-      )
-    }
+      $in: await getStructureIdsWithChildren(subdomain, 'branches', [branchId]),
+    };
   }
 
   if (departmentId) {
     filter.departmentId = {
-      $in: await getStructureIdsWithChildren(
-        subdomain, 'departments', [departmentId]
-      )
+      $in: await getStructureIdsWithChildren(subdomain, 'departments', [
+        departmentId,
+      ]),
     };
   }
 
   await applyDefaultStructureFilter({
     subdomain,
     filter,
-    user
+    user,
   });
 
   if (customerType) {
@@ -571,9 +573,8 @@ const transactionCommon = {
         .lean(),
       pageArgs,
     );
-    const totalCount = await models.Transactions.find(
-      countFilter,
-    ).countDocuments();
+    const totalCount =
+      await models.Transactions.find(countFilter).countDocuments();
 
     return { list, totalCount };
   },

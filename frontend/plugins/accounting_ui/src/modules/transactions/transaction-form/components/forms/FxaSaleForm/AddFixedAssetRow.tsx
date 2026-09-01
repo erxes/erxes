@@ -60,9 +60,7 @@ export const AddFixedAssetRow = ({
         fixedAssetIds={[]}
         onSelect={(_fixedAssetIds, fixedAssets) =>
           append(
-            fixedAssets.map((fixedAsset) =>
-              getDetailDefaultValues(fixedAsset),
-            ),
+            fixedAssets.map((fixedAsset) => getDetailDefaultValues(fixedAsset)),
           )
         }
       >

@@ -180,7 +180,11 @@ export const useFxaDisposalFollowTrs = ({
   }) as ITransaction;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
   const fixedAssetIds = Array.from(
-    new Set((trDoc?.details || []).map((detail) => detail.fixedAssetId).filter(Boolean)),
+    new Set(
+      (trDoc?.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter(Boolean),
+    ),
   );
   const { data } = useQuery<{ fixedAssets: TFxaDisposalInstance[] }>(
     FIXED_ASSETS_QUERY,

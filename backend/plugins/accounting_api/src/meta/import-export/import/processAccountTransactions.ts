@@ -367,10 +367,7 @@ const getRelatedDatas = async (
 
     if (JOURNALS.FXA_INCOME === currentJournal) {
       const categoryCode = getRowFixedAssetCategoryCode(row);
-      if (
-        categoryCode &&
-        !fixedAssetCategoryCodes.includes(categoryCode)
-      ) {
+      if (categoryCode && !fixedAssetCategoryCodes.includes(categoryCode)) {
         fixedAssetCategoryCodes.push(categoryCode);
       }
     } else if (isFxaJournal(currentJournal)) {
