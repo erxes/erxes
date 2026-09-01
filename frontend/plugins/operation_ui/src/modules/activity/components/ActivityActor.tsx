@@ -1,4 +1,4 @@
-import { Avatar, Skeleton, readImage } from 'erxes-ui';
+import { Avatar, Badge, Skeleton, readImage } from 'erxes-ui';
 import { IconRobot, IconUser } from '@tabler/icons-react';
 import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -101,9 +101,16 @@ const ActivityActorName = () => {
   }
 
   return (
-    <span className="text-accent-foreground">
-      {user?.details?.fullName || t('unknown')}
-    </span>
+    <div className="flex items-center gap-1">
+      <span className="text-accent-foreground">
+        {user?.details?.fullName || t('unknown')}
+      </span>
+      {user?.isActive === false && (
+        <Badge variant="destructive" className="h-5 px-1.5 text-[11px]">
+          {t('inactive', { defaultValue: 'Inactive' })}
+        </Badge>
+      )}
+    </div>
   );
 };
 
