@@ -510,7 +510,7 @@ const ComposeSection: React.FC<ComposeProps> = ({
   const [to, setTo] = useState(defaultTo.join(', '));
   const [cc, setCc] = useState(defaultCc?.join(', ') ?? '');
   const [bcc, setBcc] = useState('');
-  const [subject, setSub] = useState(() => {
+  const [subject, setSubject] = useState(() => {
     const base = stripPrefix(defaultSubject);
     return mode === 'forward' ? `Fwd: ${base}` : `Re: ${base}`;
   });
@@ -679,7 +679,7 @@ const ComposeSection: React.FC<ComposeProps> = ({
         <input
           className={inp}
           value={subject}
-          onChange={(e) => setSub(e.target.value)}
+          onChange={(e) => setSubject(e.target.value)}
           onKeyDown={onKey}
         />
       </div>

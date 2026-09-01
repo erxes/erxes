@@ -79,9 +79,11 @@ const response = await fetch(endpoint, {
 
 const text = await response.text();
 
-console.log(`→ ${payload.to}`);
-console.log(`  tenant:    ${tenant}`);
-console.log(`  messageId: ${payload.messageId}`);
-console.log(`  ${response.status} ${text}`);
+const oneLine = (value) => String(value ?? "").replace(/[\r\n]+/g, " ");
+
+console.log(`→ ${oneLine(payload.to)}`);
+console.log(`  tenant:    ${oneLine(tenant)}`);
+console.log(`  messageId: ${oneLine(payload.messageId)}`);
+console.log(`  ${response.status} ${oneLine(text)}`);
 
 process.exit(response.ok ? 0 : 1);

@@ -28,13 +28,15 @@ const from =
   PLAIN_FROM.exec(raw)?.[1] ??
   'sender@example.com';
 
+const oneLine = (value) => String(value ?? '').replace(/[\r\n]+/g, ' ');
+
 const url = new URL('/cdn-cgi/handler/email', worker);
 url.searchParams.set('from', from);
 url.searchParams.set('to', to);
 
 console.log(`worker: ${url.origin}`);
-console.log(`from:   ${from}`);
-console.log(`to:     ${to}`);
+console.log(`from:   ${oneLine(from)}`);
+console.log(`to:     ${oneLine(to)}`);
 console.log(`size:   ${(Buffer.byteLength(raw) / 1024).toFixed(1)} KB\n`);
 
 const response = await fetch(url, {
@@ -43,6 +45,8 @@ const response = await fetch(url, {
   body: raw,
 });
 
-console.log(`${response.status} ${await response.text()}`);
+const text = await response.text();
+
+console.log(`${response.status} ${oneLine(text)}`);
 
 process.exit(response.ok ? 0 : 1);
