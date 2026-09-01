@@ -96,11 +96,7 @@ const FxaOwnerRecordMoreCell = ({
   );
 };
 
-const FixedAssetCell = ({
-  fixedAsset,
-}: {
-  fixedAsset?: IFixedAsset;
-}) => (
+const FixedAssetCell = ({ fixedAsset }: { fixedAsset?: IFixedAsset }) => (
   <RecordTableInlineCell>
     {fixedAsset ? `${fixedAsset.code} - ${fixedAsset.name}` : '-'}
   </RecordTableInlineCell>
@@ -225,7 +221,9 @@ const getFxaOwnerRecordColumns = (
     accessorKey: 'createdAt',
     header: () => <RecordTable.InlineHead label="Үүссэн огноо" />,
     cell: ({ row }) => (
-      <RecordTableInlineCell>{formatDate(row.original.createdAt)}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {formatDate(row.original.createdAt)}
+      </RecordTableInlineCell>
     ),
     size: 140,
   },

@@ -11,9 +11,7 @@ import {
   TR_STATUSES,
 } from '../@types/constants';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
-import {
-  FIXED_ASSET_DEPRECIATION_METHODS,
-} from '~/modules/fixedAssets/@types/constants';
+import { FIXED_ASSET_DEPRECIATION_METHODS } from '~/modules/fixedAssets/@types/constants';
 import { IFixedAssetDocument } from '~/modules/fixedAssets/@types/fixedAsset';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
@@ -485,8 +483,7 @@ const validateInstanceForDepreciation = ({
 }) => {
   const originalCost = fixedAsset?.originalCost || 0;
   const usefulLife = fixedAsset?.usefulLife;
-  const depreciationMethod =
-    fixedAsset?.depreciationMethod || 'straightLine';
+  const depreciationMethod = fixedAsset?.depreciationMethod || 'straightLine';
 
   if (originalCost <= 0) {
     return `Fixed asset original cost is missing. Fixed asset: ${fixedAsset?._id}`;
@@ -932,7 +929,9 @@ export const runAdjustFixedAsset = async (
     );
     const depreciationEndDate = endDate;
     const scheduleStartDate = getPureDate(
-      fixedAsset.depreciationStartDate || fixedAsset.acquisitionDate || beginDate,
+      fixedAsset.depreciationStartDate ||
+        fixedAsset.acquisitionDate ||
+        beginDate,
     );
     const startDate = previousFixedAssetDetail?.closingBookValue
       ? beginDate
@@ -958,8 +957,7 @@ export const runAdjustFixedAsset = async (
 
     const openingAccumulatedDepreciation =
       previousFixedAssetDetail?.closingAccumulatedDepreciation || 0;
-    const depreciationMethod =
-      fixedAsset.depreciationMethod || 'straightLine';
+    const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
     const resultByLocationKey = calculateFixedAssetDepreciationByDay({
       beginDate: startDate,
       depreciationMethod,

@@ -30,16 +30,16 @@
 
 ## Architecture
 
-| Area              | Path                                    | Responsibility                                                |
-| ----------------- | --------------------------------------- | ------------------------------------------------------------- |
-| Runtime           | `src/main.ts`                           | Starts the Mongolian API plugin and registers GraphQL/tRPC.   |
-| Models            | `src/connectionResolvers.ts`            | Generates tenant-scoped Mongoose models.                      |
-| Exchange rates    | `src/modules/exchangeRates`             | Owns exchange-rate schema, models, GraphQL, and tRPC.         |
-| Ebarimt           | `src/modules/ebarimt`                   | Owns ebarimt API behavior and related product rules/groups.   |
-| Configs           | `src/modules/configs`                   | Owns Mongolian plugin configuration storage.                  |
-| Erkhet sync logs  | `src/modules/erkhet`                    | Owns Mongolian plugin Erkhet sync-log records.                |
-| MS Dynamic        | `src/modules/msdynamic`                 | Owns MS Dynamic integration helpers and logs.                 |
-| Product places    | `src/modules/productPlaces`             | Owns product-place tRPC behavior.                             |
+| Area             | Path                         | Responsibility                                              |
+| ---------------- | ---------------------------- | ----------------------------------------------------------- |
+| Runtime          | `src/main.ts`                | Starts the Mongolian API plugin and registers GraphQL/tRPC. |
+| Models           | `src/connectionResolvers.ts` | Generates tenant-scoped Mongoose models.                    |
+| Exchange rates   | `src/modules/exchangeRates`  | Owns exchange-rate schema, models, GraphQL, and tRPC.       |
+| Ebarimt          | `src/modules/ebarimt`        | Owns ebarimt API behavior and related product rules/groups. |
+| Configs          | `src/modules/configs`        | Owns Mongolian plugin configuration storage.                |
+| Erkhet sync logs | `src/modules/erkhet`         | Owns Mongolian plugin Erkhet sync-log records.              |
+| MS Dynamic       | `src/modules/msdynamic`      | Owns MS Dynamic integration helpers and logs.               |
+| Product places   | `src/modules/productPlaces`  | Owns product-place tRPC behavior.                           |
 
 ## Contracts
 

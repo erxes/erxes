@@ -89,8 +89,7 @@ const buildFixedAssetDoc = ({
   );
   const assetCount = totalCount || count;
   const unitPrice =
-    detail.unitPrice ||
-    (assetCount ? totalAmount / assetCount : 0);
+    detail.unitPrice || (assetCount ? totalAmount / assetCount : 0);
 
   return {
     code: detail.fixedAssetCode || '',
@@ -235,7 +234,9 @@ export const removeFxaIncomeDetails = async (
     return;
   }
 
-  await models.FxaOwnerRecords.deleteMany({ fixedAssetId: { $in: fixedAssetIds } });
+  await models.FxaOwnerRecords.deleteMany({
+    fixedAssetId: { $in: fixedAssetIds },
+  });
   await models.FixedAssets.deleteMany({ _id: { $in: fixedAssetIds } });
   await removeOpeningAccumulatedDepreciation(
     models,
@@ -578,7 +579,9 @@ export const syncFxaIncomeDetails = async (
     (transaction.details || []).map((detail) => getDetailId(detail)),
   );
   const removedFixedAssetIds = existingFixedAssets
-    .filter((fixedAsset) => !detailIds.has(fixedAsset.transactionDetailId || ''))
+    .filter(
+      (fixedAsset) => !detailIds.has(fixedAsset.transactionDetailId || ''),
+    )
     .map((fixedAsset) => fixedAsset._id);
   const fixedAssetsByDetailId = new Map<string, TFixedAssetWithId>();
 
@@ -636,8 +639,7 @@ export const syncFxaIncomeDetails = async (
                   usefulLife: doc.usefulLife ?? existing.usefulLife,
                   salvageValue: doc.salvageValue ?? existing.salvageValue,
                   taxDepreciationMethod:
-                    doc.taxDepreciationMethod ||
-                    existing.taxDepreciationMethod,
+                    doc.taxDepreciationMethod || existing.taxDepreciationMethod,
                   taxUsefulLife: doc.taxUsefulLife ?? existing.taxUsefulLife,
                   taxSalvageValue:
                     doc.taxSalvageValue ?? existing.taxSalvageValue,

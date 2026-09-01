@@ -104,9 +104,7 @@ export const FixedAssetRow = ({
 
     const currentCount = detail.count || 0;
     const nextCount =
-      currentCount === 0 && maxCount > 0
-        ? 1
-        : Math.min(currentCount, maxCount);
+      currentCount === 0 && maxCount > 0 ? 1 : Math.min(currentCount, maxCount);
 
     if (nextCount === currentCount) {
       return;
@@ -117,7 +115,14 @@ export const FixedAssetRow = ({
       nextCount,
     );
     setAmount(nextCount, detail.unitPrice);
-  }, [detail.count, detail.unitPrice, detailIndex, form, journalIndex, maxCount]);
+  }, [
+    detail.count,
+    detail.unitPrice,
+    detailIndex,
+    form,
+    journalIndex,
+    maxCount,
+  ]);
 
   return (
     <Table.Row className="overflow-hidden h-cell hover:bg-background!">

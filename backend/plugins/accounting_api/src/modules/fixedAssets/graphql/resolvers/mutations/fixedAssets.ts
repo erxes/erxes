@@ -77,7 +77,11 @@ const validateOwnerRecordInput = async (
   }
 
   if (doc.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER) {
-    const balance = await getOwnerBalance(models, doc.fixedAssetId, doc.ownerId);
+    const balance = await getOwnerBalance(
+      models,
+      doc.fixedAssetId,
+      doc.ownerId,
+    );
 
     if (balance < count) {
       throw new Error('Owner does not have enough fixed asset count');

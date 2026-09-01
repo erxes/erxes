@@ -545,7 +545,11 @@ describe('fixed asset move follow transaction', () => {
 
     models.Transactions.find.mockReturnValue(queryResult([]));
 
-    await createFxaMoveInFollowTr(models as never, 'user-a', transaction as never);
+    await createFxaMoveInFollowTr(
+      models as never,
+      'user-a',
+      transaction as never,
+    );
 
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
