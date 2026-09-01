@@ -154,73 +154,94 @@ export const normalizeDiscordEmbeds = (
   }));
 };
 
+const discordMention = (
+  user: NonNullable<TDiscordMessagePayload['mentions']>[number],
+) => ({
+  id: user?.id,
+  name: user?.member?.nick || user?.global_name || user?.username || user?.id,
+});
+
+const referencedMessageIdOf = (payload: TDiscordMessagePayload) =>
+  payload.referenced_message?.id || payload.message_reference?.message_id;
+
+const referencedMessagePreview = (payload: TDiscordMessagePayload) => {
+  const referenced = payload.referenced_message;
+  const mentions = (referenced?.mentions || []).map(discordMention);
+  const content = resolveDiscordMentions(referenced?.content || '', mentions);
+  if (content) return content;
+  const attachment = referenced?.attachments?.[0];
+  if (attachment) return `Attachment · ${attachment.filename || 'File'}`;
+  return referenced?.embeds?.[0]?.title || undefined;
+};
+
+const referencedAuthorName = (payload: TDiscordMessagePayload) => {
+  const author = payload.referenced_message?.author;
+  return author?.global_name || author?.username || undefined;
+};
+
+const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
+  const referencedMessageId = referencedMessageIdOf(payload);
+  if (!referencedMessageId) return undefined;
+  return {
+    messageId: referencedMessageId,
+    content: referencedMessagePreview(payload),
+    authorName: referencedAuthorName(payload),
+  };
+};
+
+const resolveForwardedSnapshot = (payload: TDiscordMessagePayload) => {
+  const snapshot = payload.message_snapshots?.[0]?.message;
+  if (!snapshot) return undefined;
+  return {
+    content: snapshot.content || undefined,
+    attachments: normalizeDiscordAttachments(snapshot.attachments),
+    embeds: normalizeDiscordEmbeds(snapshot.embeds),
+    stickers: normalizeDiscordStickers(snapshot.sticker_items),
+    createdAt: snapshot.timestamp || undefined,
+  };
+};
+
+const resolveActivityAuthor = (payload: TDiscordMessagePayload) => {
+  const author = payload.author;
+  return {
+    id: author?.id ?? '',
+    username: author?.username || author?.global_name || author?.id || '',
+    bot: Boolean(author?.bot) || Boolean(payload.webhook_id),
+  };
+};
+
+const resolveActivityTimestamp = (payload: TDiscordMessagePayload) =>
+  payload.timestamp ? new Date(payload.timestamp) : new Date();
+
+const resolveActivityType = (payload: TDiscordMessagePayload) =>
+  typeof payload.type === 'number' ? payload.type : undefined;
+
+const resolveActivityMentions = (payload: TDiscordMessagePayload) =>
+  (payload.mentions || []).map(discordMention);
+
 export const mapMessageCreateToActivity = (
   payload: TDiscordMessagePayload,
 ): DiscordActivity => {
-  const author = payload?.author;
-  const referencedMessage = payload?.referenced_message;
-  const referencedMessageId =
-    referencedMessage?.id || payload?.message_reference?.message_id;
-  const referencedMentions = (referencedMessage?.mentions || []).map(
-    (user) => ({
-      id: user?.id,
-      name: user?.global_name || user?.username || user?.id,
-    }),
-  );
-  const referencedContent = resolveDiscordMentions(
-    referencedMessage?.content || '',
-    referencedMentions,
-  );
-  const referencedAttachment = referencedMessage?.attachments?.[0];
-  const replyPreview =
-    referencedContent ||
-    (referencedAttachment
-      ? `Attachment · ${referencedAttachment.filename || 'File'}`
-      : referencedMessage?.embeds?.[0]?.title || undefined);
-  const snapshot = payload.message_snapshots?.[0]?.message;
+  const forwardedSnapshot = resolveForwardedSnapshot(payload);
+  const replyTo = resolveDiscordReply(payload);
 
   return {
     source: 'discord',
-    timestamp: payload?.timestamp ? new Date(payload.timestamp) : new Date(),
-    messageId: payload?.id ?? '',
-    channelId: payload?.channel_id ?? '',
-    guildId: payload?.guild_id,
-    author: {
-      id: author?.id ?? '',
-      username: author?.username || author?.global_name || author?.id || '',
-      bot: Boolean(author?.bot) || Boolean(payload?.webhook_id),
-    },
-    content: payload?.content || '',
-    type: typeof payload?.type === 'number' ? payload.type : undefined,
-    poll: normalizeDiscordPoll(payload?.poll),
-    embeds: normalizeDiscordEmbeds(payload?.embeds),
-    mentions: (payload?.mentions || []).map((user) => ({
-      id: user?.id,
-      name:
-        user?.member?.nick || user?.global_name || user?.username || user?.id,
-    })),
+    timestamp: resolveActivityTimestamp(payload),
+    messageId: payload.id ?? '',
+    channelId: payload.channel_id ?? '',
+    guildId: payload.guild_id,
+    author: resolveActivityAuthor(payload),
+    content: payload.content || '',
+    type: resolveActivityType(payload),
+    poll: normalizeDiscordPoll(payload.poll),
+    embeds: normalizeDiscordEmbeds(payload.embeds),
+    mentions: resolveActivityMentions(payload),
     attachments: normalizeDiscordAttachments(payload.attachments),
     stickers: normalizeDiscordStickers(payload.sticker_items),
     voiceMessage: Boolean((payload.flags || 0) & DISCORD_VOICE_MESSAGE_FLAG),
-    ...(snapshot && {
-      forwardedSnapshot: {
-        content: snapshot.content || undefined,
-        attachments: normalizeDiscordAttachments(snapshot.attachments),
-        embeds: normalizeDiscordEmbeds(snapshot.embeds),
-        stickers: normalizeDiscordStickers(snapshot.sticker_items),
-        createdAt: snapshot.timestamp || undefined,
-      },
-    }),
-    ...(referencedMessageId && {
-      replyTo: {
-        messageId: referencedMessageId,
-        content: replyPreview,
-        authorName:
-          referencedMessage?.author?.global_name ||
-          referencedMessage?.author?.username ||
-          undefined,
-      },
-    }),
+    ...(forwardedSnapshot && { forwardedSnapshot }),
+    ...(replyTo && { replyTo }),
     raw: payload,
   };
 };
@@ -231,10 +252,10 @@ const CHANNEL_MENTION_RE = /<#(\d+)>/g;
 const CUSTOM_EMOJI_RE = /<a?:([^:>]+):\d+>/g;
 const TIMESTAMP_RE = /<t:(\d+)(?::[tTdDfFR])?>/g;
 
-export const resolveDiscordMentions = (
+export function resolveDiscordMentions(
   content: string,
   mentions: DiscordMention[] = [],
-): string => {
+): string {
   if (!content) {
     return content;
   }
@@ -256,7 +277,7 @@ export const resolveDiscordMentions = (
     );
 
   return resolved;
-};
+}
 const CONTENT_MESSAGE_TYPES = new Set([0, 19]);
 
 export const isIgnorableActivity = (

@@ -104,6 +104,7 @@ export interface IChannelData {
       payload: {
         url: string;
         sticker_id?: string;
+        title?: string;
       };
     }>;
     quick_reply?: {

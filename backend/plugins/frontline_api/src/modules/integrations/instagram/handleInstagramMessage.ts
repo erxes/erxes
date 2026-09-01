@@ -18,16 +18,10 @@ interface IMsg {
 const INSTAGRAM_MESSAGE_REACTION = 'love';
 
 function sanitizeAndFormat(html: string): string {
-  let prev;
-  let output = html;
-  do {
-    prev = output;
-    output = output
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/(p|blockquote)>/gi, '\n')
-      .replace(/<[^<>]+>/g, '');
-  } while (output !== prev);
-  return output.trim();
+  const normalized = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|blockquote)>/gi, '\n');
+  return stripHtml(normalized).result.trim();
 }
 
 export const handleInstagramMessage = async (

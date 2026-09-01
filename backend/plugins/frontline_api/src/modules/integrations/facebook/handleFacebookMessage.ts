@@ -233,17 +233,10 @@ export const handleFacebookMessage = async (
 
     // Strip HTML tags and format the content
     function sanitizeAndFormat(html: string): string {
-      let prev;
-      let output = html;
-      do {
-        prev = output;
-        output = output
-          .replace(/<br\s*\/?>/gi, '\n')
-          .replace(/<\/(p|blockquote)>/gi, '\n')
-          .replace(/<[^<>]+>/g, '');
-      } while (output !== prev);
-
-      return output.trim();
+      const normalized = html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/(p|blockquote)>/gi, '\n');
+      return stripHtml(normalized).result.trim();
     }
 
     const strippedContent = sanitizeAndFormat(content);
@@ -266,7 +259,8 @@ export const handleFacebookMessage = async (
       else if (repliedToMessage?.customerId) replyAuthorName = 'Customer';
       replyTo = {
         messageId: replyToMessageId,
-        content: repliedToMessage?.content,
+        content:
+          repliedToMessage?.content || 'Original message unavailable',
         authorName: replyAuthorName,
       };
     }

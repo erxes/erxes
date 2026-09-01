@@ -635,6 +635,70 @@ const persistAndDispatchMessage = async ({
  * publishes the real-time `conversationMessageInserted` event so it appears
  * live in the agent inbox. The Discord analogue of Facebook's `receiveMessage`.
  */
+const buildInboxMessageExtraData = (
+  activity: DiscordActivity,
+  stored: {
+    poll?: DiscordActivity['poll'];
+    embeds?: DiscordActivity['embeds'];
+    stickers?: DiscordActivity['stickers'];
+    voiceMessage?: DiscordActivity['voiceMessage'];
+    forwardedSnapshot?: DiscordActivity['forwardedSnapshot'];
+  },
+) => ({
+  ...(stored.poll && { poll: stored.poll }),
+  ...(stored.embeds?.length && { embeds: stored.embeds }),
+  ...(stored.stickers?.length && { stickers: stored.stickers }),
+  ...(stored.voiceMessage && { voiceMessage: true }),
+  ...(stored.forwardedSnapshot && {
+    forwardedSnapshot: stored.forwardedSnapshot,
+  }),
+  discordMessageId: activity.messageId,
+  discordPinned: Boolean(activity.raw?.pinned),
+});
+
+const skipExistingDiscordMessage = async ({
+  models,
+  activity,
+  conversationId,
+}: {
+  models: IModels;
+  activity: DiscordActivity;
+  conversationId?: string;
+}) => {
+  const existingMessage = await models.DiscordConversationMessages.findOne({
+    messageId: { $eq: activity.messageId },
+  });
+  if (!existingMessage) return false;
+  if (activity.replyTo && !existingMessage.replyTo) {
+    await models.DiscordConversationMessages.updateOne(
+      { _id: existingMessage._id },
+      { $set: { replyTo: activity.replyTo } },
+    );
+    await models.ConversationMessages.updateOne(
+      {
+        'extraData.discordMessageId': activity.messageId,
+        replyTo: { $exists: false },
+      },
+      { $set: { replyTo: activity.replyTo } },
+    );
+    const updated = await models.ConversationMessages.findOne({
+      'extraData.discordMessageId': activity.messageId,
+    }).lean();
+    if (updated && conversationId) {
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversationId}`,
+        {
+          conversationMessageInserted: {
+            ...updated,
+            conversationId,
+          },
+        },
+      );
+    }
+  }
+  return true;
+};
+
 export const receiveDiscordMessage = async ({
   models,
   subdomain,
@@ -663,7 +727,6 @@ export const receiveDiscordMessage = async ({
   }
 
   const {
-    messageId,
     content,
     attachments,
     poll,
@@ -693,15 +756,13 @@ export const receiveDiscordMessage = async ({
   // handler attaches `embeds` then. Stamping unconditionally is essential for that
   // last case: a plain link has no poll/embeds at create time, so a conditional
   // stamp would leave the unfurl with no message to attach to.
-  const extraData = {
-    ...(poll && { poll }),
-    ...(embeds?.length && { embeds }),
-    ...(stickers?.length && { stickers }),
-    ...(voiceMessage && { voiceMessage: true }),
-    ...(forwardedSnapshot && { forwardedSnapshot }),
-    discordMessageId: messageId,
-    discordPinned: Boolean(activity.raw?.pinned),
-  };
+  const extraData = buildInboxMessageExtraData(activity, {
+    poll,
+    embeds,
+    stickers,
+    voiceMessage,
+    forwardedSnapshot,
+  });
   const previewContent = buildMessagePreview(
     displayContent,
     poll,
@@ -741,38 +802,13 @@ export const receiveDiscordMessage = async ({
     // instead — the Discord message id is globally unique, so an existing mirror
     // row means this exact message was already stored (the create below is still
     // the hard idempotency guard for the live-dispatch race).
-    const existingMessage = await models.DiscordConversationMessages.findOne({
-      messageId: { $eq: messageId },
-    });
-
-    if (existingMessage) {
-      if (activity.replyTo && !existingMessage.replyTo) {
-        await models.DiscordConversationMessages.updateOne(
-          { _id: existingMessage._id },
-          { $set: { replyTo: activity.replyTo } },
-        );
-        await models.ConversationMessages.updateOne(
-          {
-            'extraData.discordMessageId': messageId,
-            replyTo: { $exists: false },
-          },
-          { $set: { replyTo: activity.replyTo } },
-        );
-        const updatedInboxMessage = await models.ConversationMessages.findOne({
-          'extraData.discordMessageId': messageId,
-        }).lean();
-        if (updatedInboxMessage && conversation.erxesApiId) {
-          await graphqlPubsub.publish(
-            `conversationMessageInserted:${conversation.erxesApiId}`,
-            {
-              conversationMessageInserted: {
-                ...updatedInboxMessage,
-                conversationId: conversation.erxesApiId,
-              },
-            },
-          );
-        }
-      }
+    if (
+      await skipExistingDiscordMessage({
+        models,
+        activity,
+        conversationId: conversation.erxesApiId,
+      })
+    ) {
       return;
     }
 

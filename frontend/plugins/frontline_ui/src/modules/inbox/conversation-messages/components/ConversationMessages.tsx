@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MessageItem } from './MessageItem';
 import { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
@@ -43,8 +43,15 @@ export const ConversationMessages = ({
     .map((message) => message._id)
     .sort()
     .join(':');
+  const previousPinnedSignatureRef = useRef<string>();
 
   useEffect(() => {
+    if (previousPinnedSignatureRef.current === undefined) {
+      previousPinnedSignatureRef.current = pinnedMessageSignature;
+      return;
+    }
+    if (previousPinnedSignatureRef.current === pinnedMessageSignature) return;
+    previousPinnedSignatureRef.current = pinnedMessageSignature;
     void refetchPinnedMessages();
   }, [pinnedMessageSignature, refetchPinnedMessages]);
 

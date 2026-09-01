@@ -63,14 +63,7 @@ export const useResponseTemplateSuggestions = (editor: MessageEditor) => {
       };
       try {
         const blocksToInsert = parseTemplateToBlocks(templateContent);
-        if (editor.document.length) {
-          await editor.removeBlocks(editor.document.map((block) => block.id));
-        }
-        await editor.insertBlocks(
-          blocksToInsert,
-          editor.topLevelBlocks[0]?.id,
-          'before',
-        );
+        await editor.replaceBlocks(editor.document, blocksToInsert);
         await editor.focus();
         setShowSuggestions(false);
         setResponseTemplateId(templateId || null);

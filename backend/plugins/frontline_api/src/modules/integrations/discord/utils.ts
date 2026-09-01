@@ -400,16 +400,13 @@ export const splitDiscordContent = (
   return { chunks: balanceCodeFences(chunks), truncated };
 };
 
-const postDiscordMessage = async ({
-  token,
-  channelId,
+const buildDiscordMessagePayload = ({
   content,
   embeds,
   components,
-  files,
   poll,
   messageReference,
-}: TSendChannelMessageArgs): Promise<APIMessage> => {
+}: TSendChannelMessageArgs) => {
   const payload: Record<string, unknown> = {};
   if (content) payload.content = content;
   if (embeds?.length) payload.embeds = embeds;
@@ -433,6 +430,54 @@ const postDiscordMessage = async ({
             fail_if_not_exists: true,
           };
   }
+  return payload;
+};
+
+const buildDiscordMessageForm = async (
+  files: DiscordMessageAttachment[],
+  payload: Record<string, unknown>,
+) => {
+  const form = new FormData();
+  for (const [index, file] of files.entries()) {
+    let response: Response;
+    try {
+      response = await fetchWithNetworkRetry(file.url);
+    } catch (error) {
+      const attachmentLabel = file.filename || `#${index + 1}`;
+      throw new Error(
+        `Could not read attachment ${attachmentLabel} from storage: ${getErrorMessage(
+          error,
+        )}`,
+      );
+    }
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch attachment ${file.url}: HTTP ${response.status}`,
+      );
+    }
+    const blob = await response.blob();
+    if (blob.size > MAX_ATTACHMENT_BYTES) {
+      throw new Error(
+        `Attachment ${file.url} is ${(blob.size / 1024 / 1024).toFixed(
+          1,
+        )}MB, over the 10MB Discord limit`,
+      );
+    }
+    form.append(
+      `files[${index}]`,
+      blob,
+      file.filename || filenameFromUrl(file.url, index),
+    );
+  }
+  form.append('payload_json', JSON.stringify(payload));
+  return form;
+};
+
+const postDiscordMessage = async (
+  args: TSendChannelMessageArgs,
+): Promise<APIMessage> => {
+  const { token, channelId, files } = args;
+  const payload = buildDiscordMessagePayload(args);
 
   const path = `/channels/${channelId}/messages`;
 
@@ -445,46 +490,7 @@ const postDiscordMessage = async ({
     });
   }
 
-  const form = new FormData();
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (!file?.url) continue;
-
-    let res: Response;
-    try {
-      res = await fetchWithNetworkRetry(file.url);
-    } catch (error) {
-      const attachmentLabel = file.filename || `#${i + 1}`;
-      throw new Error(
-        `Could not read attachment ${attachmentLabel} from storage: ${getErrorMessage(
-          error,
-        )}`,
-      );
-    }
-    if (!res.ok) {
-      throw new Error(
-        `Failed to fetch attachment ${file.url}: HTTP ${res.status}`,
-      );
-    }
-
-    const blob = await res.blob();
-    if (blob.size > MAX_ATTACHMENT_BYTES) {
-      throw new Error(
-        `Attachment ${file.url} is ${(blob.size / 1024 / 1024).toFixed(
-          1,
-        )}MB, over the 10MB Discord limit`,
-      );
-    }
-
-    form.append(
-      `files[${i}]`,
-      blob,
-      file.filename || filenameFromUrl(file.url, i),
-    );
-  }
-
-  form.append('payload_json', JSON.stringify(payload));
+  const form = await buildDiscordMessageForm(files, payload);
 
   return discordRequest<APIMessage>({
     token,
@@ -730,7 +736,7 @@ export const addChannelMessageReaction = (
   messageId: string,
   emoji: string,
 ) =>
-  discordRequest<void>({
+  discordRequest<unknown>({
     token,
     method: 'PUT',
     path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
@@ -744,7 +750,7 @@ export const removeChannelMessageReaction = (
   messageId: string,
   emoji: string,
 ) =>
-  discordRequest<void>({
+  discordRequest<unknown>({
     token,
     method: 'DELETE',
     path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
@@ -757,7 +763,7 @@ export const pinChannelMessage = (
   channelId: string,
   messageId: string,
 ) =>
-  discordRequest<void>({
+  discordRequest<unknown>({
     token,
     method: 'PUT',
     path: `/channels/${channelId}/pins/${messageId}`,
@@ -768,7 +774,7 @@ export const unpinChannelMessage = (
   channelId: string,
   messageId: string,
 ) =>
-  discordRequest<void>({
+  discordRequest<unknown>({
     token,
     method: 'DELETE',
     path: `/channels/${channelId}/pins/${messageId}`,

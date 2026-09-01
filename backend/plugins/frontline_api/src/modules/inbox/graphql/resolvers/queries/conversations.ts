@@ -4,7 +4,10 @@ import {
   IConversationListParams,
   IConversationRes,
 } from '@/inbox/@types/conversations';
-import { countByConversations } from '@/inbox/conversationUtils';
+import {
+  authorizeConversationAccess,
+  countByConversations,
+} from '@/inbox/conversationUtils';
 import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
@@ -12,9 +15,12 @@ import {
 import { cursorPaginate, markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
-import { authorizeConversationAccess } from '@/inbox/conversationUtils';
+import { FilterQuery } from 'mongoose';
 
-const count = async (models: IModels, query: any): Promise<number> => {
+const count = async (
+  models: IModels,
+  query: FilterQuery<IConversationDocument>,
+): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };

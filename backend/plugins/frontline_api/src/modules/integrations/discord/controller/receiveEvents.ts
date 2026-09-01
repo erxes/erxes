@@ -248,23 +248,15 @@ export const receiveDiscordReaction = async ({
     (reaction) => reaction.reaction && reaction.emoji === event.emoji,
   );
   const reactions = current.filter((reaction) => {
-    if (reaction.senderId === event.userId && reaction.emoji === event.emoji) {
-      return false;
-    }
-
-    // Inbox reactions are attributed to the erxes user so the UI can identify
-    // ownership. Discord emits the corresponding @me removal with the bot's
-    // application id, so remove that local ownership marker by emoji as well.
-    if (
+    const isProviderReaction =
+      reaction.senderId === event.userId && reaction.emoji === event.emoji;
+    const isRemovedLocalReaction = Boolean(
       !event.added &&
-      isBotReaction &&
-      reaction.reaction &&
-      reaction.emoji === event.emoji
-    ) {
-      return false;
-    }
-
-    return true;
+        isBotReaction &&
+        reaction.reaction &&
+        reaction.emoji === event.emoji,
+    );
+    return !isProviderReaction && !isRemovedLocalReaction;
   });
   if (event.added && !(isBotReaction && hasLocalBotReaction)) {
     reactions.push({ senderId: event.userId, emoji: event.emoji });

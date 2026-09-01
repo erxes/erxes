@@ -25,7 +25,7 @@ import {
 const attachmentPreviewFor = (args: {
   primaryAttachment?: {
     type?: string;
-    payload?: { sticker_id?: string; url?: string };
+    payload?: { sticker_id?: string; url?: string; title?: string };
   };
   message?: { quick_reply?: { payload?: string } };
   postback?: { title?: string } | null;
@@ -355,13 +355,16 @@ export const receiveMessage = async (
     const formattedAttachments = attachmentsToFormat
       .map((att) => ({
         type: att.type === 'fallback' ? 'share' : att.type,
-        url: att.payload ? att.payload.url : '',
+        url: att.payload?.url || '',
+        name:
+          att.payload?.title ||
+          (att.type === 'fallback' ? 'Shared Instagram story' : undefined),
       }))
       .filter((attachment) => {
-        if (!attachment.url || seenAttachmentUrls.has(attachment.url)) {
+        if (attachment.url && seenAttachmentUrls.has(attachment.url)) {
           return false;
         }
-        seenAttachmentUrls.add(attachment.url);
+        if (attachment.url) seenAttachmentUrls.add(attachment.url);
         return true;
       });
     const primaryAttachment = attachments?.[0];

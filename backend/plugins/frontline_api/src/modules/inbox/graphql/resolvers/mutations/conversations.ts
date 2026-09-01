@@ -1,5 +1,6 @@
 import {
   IConversationMessageAdd,
+  IMessage,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
 import { IConversationDocument } from '@/inbox/@types/conversations';
@@ -23,7 +24,7 @@ import {
   sendTRPCMessage,
   markResolvers,
 } from 'erxes-api-shared/utils';
-import * as _ from 'underscore';
+import { union, without } from 'underscore';
 import { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
@@ -270,14 +271,14 @@ export const conversationNotifReceivers = (
     userIds.push(conversation.assignedUserId);
   }
   if (Array.isArray(conversation.participatedUserIds)) {
-    userIds = _.union(userIds, conversation.participatedUserIds);
+    userIds = union(userIds, conversation.participatedUserIds);
   }
   if (
     exclude &&
     currentUserId &&
     conversation.assignedUserId !== currentUserId
   ) {
-    userIds = _.without(userIds, currentUserId);
+    userIds = without(userIds, currentUserId);
   }
   return userIds;
 };
@@ -562,6 +563,16 @@ export const conversationMutations = {
       } = doc;
       const { _id: userId } = user;
 
+      const forwardedSourceConversationId =
+        extraInfo?.forwardedFrom?.conversationId;
+      if (typeof forwardedSourceConversationId === 'string') {
+        await authorizeConversationAccess(
+          models,
+          user,
+          forwardedSourceConversationId,
+        );
+      }
+
       await sendNotifications(subdomain, {
         user,
         conversations: [conversation],
@@ -704,7 +715,7 @@ export const conversationMutations = {
           ...(extraData || forwardedSnapshot
             ? {
                 extraData: {
-                  ...(extraData || {}),
+                  ...extraData,
                   ...(forwardedSnapshot && {
                     forwardedSnapshot,
                     forwardedFrom: extraInfo?.forwardedFrom,
@@ -872,12 +883,18 @@ export const conversationMutations = {
 
   async conversationMessageEdit(
     _root,
-    { _id, ...fields }: any,
+    {
+      _id,
+      ...fields
+    }: { _id: string } & Partial<Omit<IMessage, 'conversationId'>>,
     { user, models }: IContext,
   ) {
     const message = await models.ConversationMessages.getMessage(_id);
     if (message.internal && user._id === message.userId) {
-      return await models.ConversationMessages.updateMessage(_id, fields);
+      return await models.ConversationMessages.updateMessage(_id, {
+        ...fields,
+        conversationId: message.conversationId,
+      });
     }
     throw new Error(
       `You cannot edit this message. Only the author of an internal message can edit it.`,

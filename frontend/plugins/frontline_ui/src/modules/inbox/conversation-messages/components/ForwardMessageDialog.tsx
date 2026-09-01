@@ -1,6 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { Button, Command, Dialog, Input, Spinner, toast } from 'erxes-ui';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { textOf } from '@/inbox/conversation-messages/components/MessageActions';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
@@ -14,6 +17,13 @@ type ForwardMessageDialogProps = {
   message: IMessage;
   preview: string;
 };
+
+const forwardMessageSchema = z.object({
+  destinationId: z.string().min(1, 'Choose a conversation'),
+  note: z.string().trim().max(2_000, 'Note is too long'),
+});
+
+type ForwardMessageForm = z.infer<typeof forwardMessageSchema>;
 
 const attachmentFallbackName = (type?: string) => {
   if (type === 'ig_post') return 'Instagram post';
@@ -52,8 +62,11 @@ export const ForwardMessageDialog = ({
   message,
   preview,
 }: ForwardMessageDialogProps) => {
-  const [note, setNote] = useState('');
-  const [selectedId, setSelectedId] = useState('');
+  const form = useForm<ForwardMessageForm>({
+    resolver: zodResolver(forwardMessageSchema),
+    defaultValues: { destinationId: '', note: '' },
+  });
+  const selectedId = form.watch('destinationId');
   const { addConversationMessage, loading } = useConversationMessageAdd();
   const { data, loading: conversationsLoading } = useQuery<{
     conversations: { list: IConversation[] };
@@ -70,8 +83,10 @@ export const ForwardMessageDialog = ({
     [data?.conversations?.list, sourceConversationId],
   );
 
-  const handleForward = async () => {
-    if (!selectedId) return;
+  const handleForward = async ({
+    destinationId,
+    note,
+  }: ForwardMessageForm) => {
     const existingSnapshot = message.extraData?.forwardedSnapshot;
     const messageText = textOf(message.content);
     const hasSocialShare = message.attachments?.some(
@@ -113,12 +128,13 @@ export const ForwardMessageDialog = ({
       snapshot.content,
       Boolean(forwardAttachments.length),
     );
-    const forwardedBody = forwardedText || preview;
+    const forwardedBody =
+      forwardedText || (forwardAttachments.length === 0 ? preview : '');
     const content = [note.trim(), forwardedBody].filter(Boolean).join('\n');
     try {
       await addConversationMessage({
         variables: {
-          conversationId: selectedId,
+          conversationId: destinationId,
           content,
           attachments: forwardAttachments,
           internal: false,
@@ -139,8 +155,7 @@ export const ForwardMessageDialog = ({
         ],
       });
       toast({ title: 'Message forwarded', variant: 'default' });
-      setNote('');
-      setSelectedId('');
+      form.reset();
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -185,7 +200,11 @@ export const ForwardMessageDialog = ({
                 <Command.Item
                   key={conversation._id}
                   value={`${name} ${conversation.content || ''}`}
-                  onSelect={() => setSelectedId(conversation._id)}
+                  onSelect={() =>
+                    form.setValue('destinationId', conversation._id, {
+                      shouldValidate: true,
+                    })
+                  }
                   className={selectedId === conversation._id ? 'bg-accent' : ''}
                 >
                   <span className="min-w-0 flex-1 truncate">{name}</span>
@@ -198,8 +217,7 @@ export const ForwardMessageDialog = ({
           </Command.List>
         </Command>
         <Input
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
+          {...form.register('note')}
           placeholder="Add a note (optional)"
         />
         <Dialog.Footer>
@@ -213,7 +231,7 @@ export const ForwardMessageDialog = ({
           <Button
             type="button"
             disabled={!selectedId || loading}
-            onClick={handleForward}
+            onClick={form.handleSubmit(handleForward)}
           >
             {loading && <Spinner size="sm" />} Forward
           </Button>

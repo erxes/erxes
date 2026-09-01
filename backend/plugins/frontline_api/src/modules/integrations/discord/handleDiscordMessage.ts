@@ -53,6 +53,104 @@ type TInboxRelayDoc = {
   };
 };
 
+type TNativeForwardReference = {
+  type: 1;
+  messageId: string;
+  channelId: string;
+  guildId?: string;
+};
+
+const resolveNativeForwardReference = async (
+  models: IModels,
+  forwardedFrom?: NonNullable<TInboxRelayDoc['extraInfo']>['forwardedFrom'],
+): Promise<TNativeForwardReference | undefined> => {
+  if (!forwardedFrom?.messageId || !forwardedFrom.conversationId) {
+    return undefined;
+  }
+  const sourceInboxMessage = await models.ConversationMessages.findOne({
+    _id: forwardedFrom.messageId,
+    conversationId: forwardedFrom.conversationId,
+  });
+  if (sourceInboxMessage?.extraData?.poll) return undefined;
+  const sourceMessageId =
+    typeof sourceInboxMessage?.extraData?.discordMessageId === 'string'
+      ? sourceInboxMessage.extraData.discordMessageId
+      : undefined;
+  if (!sourceMessageId) return undefined;
+  const sourceConversation = await models.DiscordConversations.findOne({
+    erxesApiId: forwardedFrom.conversationId,
+  });
+  if (!sourceConversation?.channelId) return undefined;
+  return {
+    type: 1,
+    messageId: sourceMessageId,
+    channelId: sourceConversation.channelId,
+    guildId: sourceConversation.guildId,
+  };
+};
+
+const resolveDiscordFiles = (
+  subdomain: string,
+  attachments: TInboxAttachment[],
+): DiscordMessageAttachment[] =>
+  attachments
+    .filter((attachment): attachment is TInboxAttachment & { url: string } =>
+      Boolean(attachment?.url),
+    )
+    .map((attachment) => ({
+      url: resolveAttachmentUrl(subdomain, attachment.url),
+      filename: attachment.name,
+    }));
+
+const resolveReplyTarget = async (
+  models: IModels,
+  conversationId: string,
+  replyToMessageId?: string,
+) => {
+  if (!replyToMessageId) return undefined;
+  const repliedMessage = await models.DiscordConversationMessages.findOne({
+    conversationId,
+    messageId: replyToMessageId,
+  });
+  return {
+    messageId: replyToMessageId,
+    content:
+      repliedMessage?.content ||
+      repliedMessage?.attachments?.[0]?.name ||
+      'Original message unavailable',
+  };
+};
+
+const sendDiscordReply = async ({
+  token,
+  channelId,
+  content,
+  files,
+  poll,
+  messageReference,
+}: {
+  token: string;
+  channelId: string;
+  content: string;
+  files?: DiscordMessageAttachment[];
+  poll?: DiscordPollRequest;
+  messageReference?: string | TNativeForwardReference;
+}) => {
+  try {
+    return await sendChannelMessage({
+      token,
+      channelId,
+      content,
+      files,
+      poll,
+      messageReference,
+    });
+  } catch (error) {
+    debugError(`Failed to send Discord reply: ${getErrorMessage(error)}`);
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 const DISCORD_REACTION_EMOJI: Record<string, string> = {
   love: '❤️',
   like: '👍',
@@ -199,45 +297,19 @@ const handleDiscordReplyMessenger = async (
     throw new Error('Discord conversation not found');
   }
 
-  const forwardedFrom = extraInfo?.forwardedFrom;
-  const sourceInboxMessage = forwardedFrom?.messageId
-    ? await models.ConversationMessages.findOne({
-        _id: forwardedFrom.messageId,
-        conversationId: forwardedFrom.conversationId,
-      })
-    : null;
-  const sourceDiscordMessageId =
-    typeof sourceInboxMessage?.extraData?.discordMessageId === 'string'
-      ? sourceInboxMessage.extraData.discordMessageId
-      : undefined;
-  const sourceConversation =
-    sourceDiscordMessageId && forwardedFrom?.conversationId
-      ? await models.DiscordConversations.findOne({
-          erxesApiId: forwardedFrom.conversationId,
-        })
-      : null;
-  const nativeForwardReference =
-    sourceDiscordMessageId && sourceConversation?.channelId
-      ? {
-          type: 1 as const,
-          messageId: sourceDiscordMessageId,
-          channelId: sourceConversation.channelId,
-          guildId: sourceConversation.guildId,
-        }
-      : undefined;
+  const nativeForwardReference = await resolveNativeForwardReference(
+    models,
+    extraInfo?.forwardedFrom,
+  );
 
   const text = nativeForwardReference
     ? stripHtml(extraInfo?.forwardedNote || '').result.trim()
     : stripHtml(content).result.trim();
 
-  const files: DiscordMessageAttachment[] = (
-    Array.isArray(attachments) ? attachments : []
-  )
-    .filter((a): a is TInboxAttachment & { url: string } => Boolean(a?.url))
-    .map((a) => ({
-      url: resolveAttachmentUrl(subdomain, a.url),
-      filename: a.name,
-    }));
+  const files = resolveDiscordFiles(
+    subdomain,
+    Array.isArray(attachments) ? attachments : [],
+  );
 
   if (!text && files.length === 0 && !pollRequest && !nativeForwardReference) {
     return { status: 'success' };
@@ -246,36 +318,19 @@ const handleDiscordReplyMessenger = async (
   const { discordText, mirrorText, displayContent } =
     await resolveMentionsForReply(models, bot.token, text, content);
 
-  const repliedMessage = replyToMessageId
-    ? await models.DiscordConversationMessages.findOne({
-        conversationId: conversation._id,
-        messageId: replyToMessageId,
-      })
-    : null;
-  const replyTo = replyToMessageId
-    ? {
-        messageId: replyToMessageId,
-        content:
-          repliedMessage?.content ||
-          repliedMessage?.attachments?.[0]?.name ||
-          'Original message unavailable',
-      }
-    : undefined;
-
-  let sent: APIMessage;
-  try {
-    sent = await sendChannelMessage({
-      token: bot.token,
-      channelId: conversation.channelId,
-      content: discordText,
-      files: nativeForwardReference || !files.length ? undefined : files,
-      poll: nativeForwardReference ? undefined : pollRequest,
-      messageReference: nativeForwardReference || replyToMessageId,
-    });
-  } catch (e) {
-    debugError(`Failed to send Discord reply: ${getErrorMessage(e)}`);
-    throw new Error(getErrorMessage(e));
-  }
+  const replyTo = await resolveReplyTarget(
+    models,
+    conversation._id,
+    replyToMessageId,
+  );
+  const sent: APIMessage = await sendDiscordReply({
+    token: bot.token,
+    channelId: conversation.channelId,
+    content: discordText,
+    files: nativeForwardReference || !files.length ? undefined : files,
+    poll: nativeForwardReference ? undefined : pollRequest,
+    messageReference: nativeForwardReference || replyToMessageId,
+  });
 
   stopTypingIndicator(conversation.channelId);
 
