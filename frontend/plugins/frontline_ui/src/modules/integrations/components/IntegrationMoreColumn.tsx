@@ -43,6 +43,12 @@ const ImapIntegrationActions = lazy(() =>
   })),
 );
 
+const MailIntegrationActions = lazy(() =>
+  import('../mail/components/MailIntegrationDetail').then((module) => ({
+    default: module.MailIntegrationActions,
+  })),
+);
+
 const InstagramIntegrationActions = lazy(() =>
   import('../instagram/components/InstagramIntegrationDetail').then(
     (module) => ({
@@ -90,6 +96,9 @@ export const IntegrationMoreColumnCell = ({
                 )}
                 {integrationType === IntegrationType.IMAP && (
                   <ImapIntegrationActions cell={cell} />
+                )}
+                {integrationType === IntegrationType.MAIL && (
+                  <MailIntegrationActions cell={cell} />
                 )}
                 {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
                   integrationType === IntegrationType.INSTAGRAM_POST) && (

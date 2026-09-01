@@ -1113,6 +1113,9 @@ importers:
       mongodb:
         specifier: ^6.18.0
         version: 6.18.0(socks@2.8.7)
+      nanoid:
+        specifier: ^3.3.6
+        version: 3.3.11
       node-imap:
         specifier: ^0.9.6
         version: 0.9.6

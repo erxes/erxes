@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-08-31`
 
 ## Scope
 
@@ -18,8 +18,24 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
-- Integration connect/detail UIs for IMAP, Facebook, Instagram, Discord, calls,
-  Call Pro, and the erxes messenger.
+- Integration connect/detail UIs for IMAP, Mail, Facebook, Instagram, Discord,
+  calls, Call Pro, and the erxes messenger.
+- The mail conversation surface: the threaded reader, its compose box, the
+  quoted-content toggle, the sandboxed email body renderer, and delivery state
+  and resend.
+- The mail channel's **Bring your own Cloudflare Email Routing & Sending** section
+  in Integrations config: paste an API token,
+  pick one of that account's domains, watch the fourteen provisioning steps, and
+  repair, update or disconnect afterwards. The connected card also reports whether
+  replies leave through that account and, when they do, its sending quota.
+- The mail inbox's four-step add wizard — basics, receiving, sending, done — and
+  the matching edit dialog. The sending step names the domain replies will leave
+  from and takes the sender display name, or blocks with the reason when neither
+  the workspace's Cloudflare account nor the deployment's can sign. A preview
+  renders the exact `Name <address>` recipients will see.
+- The mail inbox's delivery check: a button in the integration dialog that runs
+  `mailCheckConnection` and reports whether inbound mail reaches this workspace,
+  naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
@@ -137,36 +153,43 @@
 
 ## Architecture
 
-| Area               | Path                                                                                                                                         | Responsibility                                                                                   |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Host registration  | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes |
-| Federation         | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                       |
-| Routes             | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                            |
-| Navigation groups  | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                          |
-| Settings routes    | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                        |
-| Channel picker     | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                 |
-| Inbox nav trees    | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header   |
-| Channel nav row    | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                      |
-| Nav group actions  | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                           |
-| Sidebar counts     | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel            |
-| Live unread        | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                     |
-| Channel settings   | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                           |
-| Personal channel   | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                        |
-| Inbox              | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                 |
-| Integrations       | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                      |
-| Call Pro           | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                  |
-| Ticket             | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                               |
-| Forms              | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                               |
-| Knowledge base     | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                     |
-| Automation widgets | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                 |
-| FB message action  | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                               |
-| FB post composer   | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                             |
-| Call report filters | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                            | Integration/queue/direction chips, date presets, and the date+time custom range                                                                  |
-| Call report export | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                            | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                        |
-| Call report tables | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells  |
-| Reports board      | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                         |
-| Saved charts       | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection |
-| Notifications      | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                      |
+| Area                   | Path                                                                                                                                         | Responsibility                                                                                                                        |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration      | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                      |
+| Federation             | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                                                            |
+| Routes                 | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                                                                 |
+| Navigation groups      | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                                                               |
+| Settings routes        | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                                                             |
+| Channel picker         | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                                                      |
+| Inbox nav trees        | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                        |
+| Channel nav row        | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                                                           |
+| Nav group actions      | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                |
+| Sidebar counts         | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                 |
+| Live unread            | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                          |
+| Channel settings       | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                |
+| Personal channel       | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                             |
+| Inbox                  | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                      |
+| Integrations           | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                           |
+| Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker       |
+| Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                    |
+| Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                    |
+| Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                          |
+| Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                      |
+| FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                    |
+| FB post composer       | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                                  |
+| Call report filters    | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                          | Integration/queue/direction chips, date presets, and the date+time custom range                                                       |
+| Call report export     | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                               | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                            |
+| Call report tables     | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                       |
+| Reports board          | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                              |
+| Saved charts           | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                      |
+| Mail conversation      | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                        | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                         |
+| Mail body              | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                     | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                      |
+| Mail data              | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                      | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                            |
+| Mail provider setup    | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                      |
+| Mail add wizard        | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                    |
+| Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config |
+| Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                        |
+| Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                           |
 
 ## Contracts
 
@@ -264,6 +287,39 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   appears without a refetch or a reload. Do not reintroduce a per-chart-type
   query: the mutation would then write to a different cache entry than the
   board reads.
+- `frontline_api` GraphQL `mailConversationDetail(conversationId!, limit)` —
+  returns `{ messages, hasMore }`, the newest `limit` messages oldest-first, not
+  a bare list. `mailSendMail` and `mailMessageRetry` return the delivery outcome
+  (`_id`, `deliveryStatus`, `deliveryError`, `bouncedRecipients`), so the caller
+  reads `deliveryStatus` instead of assuming the send worked.
+  New mail arrives through `conversationMessageInserted`. An
+  attachment the server could not store still carries a `url` — the mail worker's
+  own signed link, kept as a fallback — plus an `error` saying why it was not
+  re-hosted. The chip therefore stays clickable and puts the reason in its
+  tooltip; only an attachment with no link at all falls back to the dimmed state.
+  `readImage` returns absolute URLs untouched, so no special handling is needed.
+- `frontline_api` GraphQL `mailCloudflareConnection`, `mailCloudflareZones`,
+  `mailCloudflareConnect`, `mailCloudflareProvision` and `mailCloudflareDisconnect` —
+  the Cloudflare section. The token is sent to fetch the domain list and again to
+  connect; it is never read back, so the form always starts empty and a connected
+  workspace shows the zone and worker origin instead.
+- `frontline_api` GraphQL `mailCloudflareSendingQuota` — the connected account's
+  sending allowance, read live from Cloudflare. It is skipped while
+  `sendingEnabled` is false, so a workspace that only receives mail never pays for
+  the round trip, and it is refetched with `mailCloudflareProvision` and
+  `mailCloudflareConnect` so enabling sending fills the row in without a reload.
+- `frontline_api` GraphQL `mailSendingReadiness` — whether this workspace can reply
+  and from which domain. `cloudflare.domain` wins over `platform.domain` when both
+  are ready, because a connected account addresses its inboxes on its own zone. The
+  wizard gates Create on `ready` and the edit dialog reads the same query, so the
+  button and the banner can never disagree with the server.
+- `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
+  integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
+  verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
+  the diagnostic itself. It is a deployment-wide check shown on an integration,
+  so it is not refetched with integration data.
+- `dompurify` — already a repository dependency, used to sanitise mail bodies
+  before they reach the reader's iframe.
 - `frontline_api` GraphQL `reportFacebookSyncPostStats` — the Sync button on
   the posts card. It is the only place this UI causes a Meta API call, it is
   always user-initiated, and it refetches `reportFacebookPosts` and
@@ -325,6 +381,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   storage keys) and `useFacebookPostTargets` owns its channel and page
   selection; both live inside the sheet body, so closing the sheet unmounts the
   draft — the same reset-on-close behavior as `CreateBrand`.
+- The mail thread keeps its page size in local state and passes it as the
+  `limit` variable: "Show earlier messages" widens the window rather than
+  merging pages, so the subscription's `refetch` keeps every loaded message and
+  still picks up the new one. `previousData` backs the render while a wider
+  window is in flight, so the thread never blanks. Whether the quoted part of a
+  message and whether its remote images are shown are per-message component
+  state and deliberately not persisted.
 
 ## Local Invariants
 
@@ -371,6 +434,28 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   the same word the settings breadcrumb uses. `inbox` and `my-inbox` are already
   taken in the same sidebar — by the frontline `Inbox` entry and by core's
   notification inbox in Favorites — so neither may label this row.
+- A subscription payload the gateway could not resolve arrives as a null field, so
+  `useConversations` treats a null `conversationClientMessageInserted` as "a message
+  landed, ask the server" — it refetches the list and never reads the message. Any
+  new `subscribeToMore` over a gateway-merged subscription reads its field the same
+  optional way.
+- A mail body is never rendered into the page. It goes through `DOMPurify`, then
+  into an iframe `srcDoc` whose CSP is `default-src 'none'; style-src
+'unsafe-inline'` with `img-src` narrowed to `data:` plus the origins of that
+  message's own stored attachments. Remote images are stripped of their `src`
+  until the reader presses "Show images", which widens `img-src` to `https:`.
+  The sandbox stays script-free — `allow-same-origin allow-popups
+allow-popups-to-escape-sandbox` only — and every link is rewritten to
+  `target="_blank" rel="noopener noreferrer"`, so adding `allow-scripts` or
+  rendering the body with `dangerouslySetInnerHTML` would undo the whole guard.
+- The mail UI reports the delivery outcome the server returned. `mailSendMail`
+  resolving is not success: the toast and the per-message badge read
+  `deliveryStatus`, and a `failed` message shows its error plus a resend action
+  wired to `mailMessageRetry`. Never restore an unconditional "email sent"
+  message.
+- An inbound message whose `senderMismatch` is set renders an unverified-sender
+  warning above its body. The server decides that flag from the SMTP envelope;
+  the UI never re-derives it from the visible addresses.
 - Every Call Pro surface is gated on `useCallProConfig().enabled`, which reads
   the backend's `CALLPRO_ENABLED`. The frontend has no env var of its own for
   this — never add a `REACT_APP_*` flag, since injecting one means editing
@@ -483,7 +568,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   each accept the user. `canMoveTicketToStatus` in `useTicketPermissions` is the
   single implementation and is called once per end — the board checks the card's
   own column and then the column being dropped on, `useTicketPermissions({
-  status })` returns the leaving side as `canMoveTicket` (what disables the
+status })` returns the leaving side as `canMoveTicket` (what disables the
   status field in ticket detail), and `SelectStatusTicket` disables the options a
   user may not move into when the surface passes `restrictToMovable` (moves only
   — never on filter or create surfaces, where no ticket is being moved). An empty
@@ -664,6 +749,29 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   that quiet channels fold behind the "N quiet teams" row
   and expand when it is clicked; and that creating a channel from `Team inbox`
   adds it to that group without a reload.
+- Smoke (mail): open a mail conversation and confirm the thread loads the newest
+  20 messages with "Show earlier messages" above them when more exist; that a
+  message with quoted history shows the `•••` toggle and expands it; that an
+  external image is hidden until "Show images" is pressed while an inline image
+  from the message's own attachments renders straight away; that a link opens in
+  a new tab; and that a reply which the server could not deliver shows the
+  failure with a working resend instead of a success toast.
+- Smoke (mail sending): with a Cloudflare account connected, open Integrations
+  config and confirm the card names the domain replies leave through and shows the
+  quota underneath. Break it by revoking the token's Email Sending permission and
+  running _Update worker_: the card must say sending is inactive, name the step
+  that failed, and keep reporting the inbound connection as healthy.
+- Smoke (mail add wizard): add a mail inbox and confirm each step gates the next —
+  step 1 will not advance without a name and a brand, and Create is only enabled
+  once `mailSendingReadiness` reports `ready`. Step 3 must name the domain replies
+  leave from. Unset the deployment's `MAIL_SENDING_ACCOUNT_ID` on a workspace with
+  no Cloudflare connection: step 3 must block with the reason and a link to
+  Integrations config instead of offering a credentials form. The done step names
+  both the forwarding address and where replies will leave from.
+- Smoke (mail delivery check): open a mail integration's edit dialog, press
+  "Check connection", and confirm a healthy deployment reports success with the
+  tenant and endpoint, while an unset `MAIL_WORKER_URL` or a wrong
+  `MAIL_WEBHOOK_SECRET` reports the failure inline instead of a success state.
 - Smoke: in the automation builder attach a Facebook message action to a
   `frontline:facebook.comments` trigger and confirm the sequence header shows
   the single-message notice and every "Add …" button is disabled once one
@@ -679,6 +787,87 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-28` — The domain picker is searchable and says which domains are usable
+
+- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
+  a token reached, which on an account with hundreds of domains is unusable — and
+  a domain already carrying another provider's MX only failed after Connect. It is
+  now a `Combobox` + `Command` with search, matching how the rest of the plugin
+  picks from many. Ineligible zones stay listed but disabled, with the server's
+  short reason under the name: shown rather than hidden, so nobody wonders why
+  their domain is missing. The server returns usable domains first.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
+  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
+  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
+
+### `2026-08-28` — A sent message shows who sent it, not who received it
+
+- **Summary:** `MailConversationDetail` took the first recipient as the "sender"
+  of an outbound message, so a reply was titled with the customer's address while
+  the `to:` line underneath repeated it and the agent-side sender never appeared —
+  including the `senderName` an inbox now sets. The avatar colour and initial came
+  from the same recipient, so every bubble in a thread looked alike. The header now
+  always reads `mailData.from`, which makes outbound and inbound symmetric and
+  gives agent messages their own avatar.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConversationDetail.tsx`.
+- **Contracts changed:** None.
+
+### `2026-08-27` — The mail config section says what connecting actually does
+
+- **Summary:** The Integrations config panel was titled `Email`, taken from the
+  shared `INTEGRATIONS[MAIL].name` that also labels the integration list and the
+  channel chips, so it read as the channel rather than as what the panel does. It
+  now carries its own title, **Bring your own Cloudflare Email Routing & Sending**,
+  while the logo still comes from the shared constant. The trigger wraps instead
+  of clipping the longer title.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** None.
+
+### `2026-08-27` — The basics step takes a sender name and previews it
+
+- **Summary:** The add wizard's **first** step and the edit dialog now carry a
+  `senderName` field, and both render a `Name <address>` preview of what a
+  recipient sees. It sits next to the inbox name it defaults from, and on step 1
+  rather than the sending step because that step falls back to
+  `MailSendingRequired` when nothing can sign yet — which put the field out of
+  reach exactly when an inbox was being created. Left empty the inbox name is
+  used, which is the previous behaviour. The `sender-name*` labels were missing
+  from the locale files, so the field had been rendering its raw key.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/{MailIntegrationForm,MailIntegrationDetail}.tsx`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** sends `data.senderName` on integration create and
+  `details.senderName` on edit; reads `senderName` from integration details.
+
+### `2026-08-27` — The Sending domains panel is gone; replies are Cloudflare-only
+
+- **Summary:** Settings → Integrations config no longer carries a Sending domains
+  section, and the add-inbox wizard and edit dialog no longer offer a per-inbox
+  sender. Replies always leave from the inbox's own address, signed by the
+  workspace's connected Cloudflare account or, failing that, the deployment's.
+  Step 3 of the wizard became a confirmation naming that domain, and blocks with
+  `mailSendingReadiness.cloudflare.reason` plus a link to Integrations config when
+  neither account can sign. The SES/SendGrid form, its DNS-record and verification
+  UI and the account mutations are deleted.
+- **Affected areas:**
+  `src/modules/integrations/mail/components/{MailSendingChoice,MailSendingAccountForm,MailSendingAccounts}.tsx`
+  and `src/modules/integrations/mail/graphql/mutations/mailSendingMutations.ts`
+  deleted; `MailSendingRequired.tsx` reduced to the Cloudflare route;
+  `useMailSendingAccounts.tsx` replaced by `hooks/useMailSendingReadiness.tsx`;
+  `graphql/queries/mailSendingQueries.ts`, `MailIntegrationForm.tsx`,
+  `MailIntegrationDetail.tsx`, `src/pages/IntegrationConfigPage.tsx`.
+- **Contracts changed:** stops sending `data.sendingAccountId` /
+  `data.sendingAddress` on integration create and edit; stops using
+  `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
+  `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
+  `frontline_api` removed.
 
 ### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
 
@@ -702,6 +891,23 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
   `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
 - **Contracts changed:** None.
+
+### `2026-08-26` — Mail automation surface and the draft card removed
+
+- **Summary:** The mail channel's automation widgets (trigger form and both
+  action forms) are gone along with their `AutomationRemoteEntry` registration,
+  and so is the reply-draft card in the thread — the backend action that was the
+  only thing able to create a draft was removed with them.
+- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
+  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
+  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
+  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
+  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
+  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+- **Contracts changed:** Stops consuming `mailConversationDraft`,
+  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
+  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
+  Removed the five now-unused `draft` translation keys.
 
 ### `2026-08-25` — Integration rows show their unread count again
 
@@ -732,85 +938,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/inbox/conversations/components/ConversationActions.tsx`.
 - **Contracts changed:** None; `useConversations` keeps its signature, and
   passing `options` still overrides the query variables.
-
-### `2026-08-25` — The `Me` inbox group selects like a team channel
-
-- **Summary:** The `Me` group now lists the personal channel as one selectable,
-  collapsible channel row carrying its unread badge, so selecting it shows every
-  source at once and the integration types underneath still filter down to one,
-  matching how a team channel behaves. The row reuses the `personal-channel`
-  label so it collides with neither the frontline `Inbox` entry nor Favorites'
-  `My inbox`.
-- **Affected areas:**
-  `src/modules/inbox/channel/components/ChannelNavItem.tsx` (new, shared by both
-  nav groups), `src/modules/inbox/channel/components/PersonalInboxNav.tsx`,
-  `src/modules/inbox/channel/components/TeamChannelsNav.tsx`,
-  `src/modules/inbox/channel/components/UnreadSummary.tsx` (removed; the row
-  badge replaces the group-header figure).
-- **Contracts changed:** None.
-
-### `2026-08-21` — Ticket favorite breadcrumb reaches a terminal state
-
-- **Summary:** The ticket index favorite control now stops loading when a
-  selected channel or pipeline is not found, falls back to the tickets-only
-  breadcrumb, and renders query failures explicitly.
-- **Affected areas:** `src/pages/TicketIndexPage.tsx`,
-  `src/modules/channels/hooks/useGetChannels.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-20` — Date filter takes a time of day
-
-- **Summary:** "Custom range…" now opens a plugin-owned dialog — a two-month
-  range calendar plus start and end `TimeField`s — so a report can be scoped to,
-  say, Aug 20 09:00 — 13:30, and the chip and KPI range label render the times.
-  It replaces the shared date dialog, whose Day tab picked the same from–to
-  range without the time; `This quarter` and `Last quarter` presets took over
-  its period tabs.
-- **Affected areas:**
-  `src/modules/report/call/components/DateTimeRangeDialog.tsx` (new),
-  `src/modules/report/call/components/SubHeader.tsx` (dropped the shared
-  `Filter.Dialog` wiring),
-  `src/modules/report/call/CallReportsPage.tsx`,
-  `src/modules/report/utils/dateFilters.ts`.
-- **Contracts changed:** None — `startDate`/`endDate` already carried full ISO
-  timestamps. The `call-report-date` filter value gained the `custom-time:`
-  form.
-
-### `2026-08-20` — Queue cards add up to Total Calls
-
-- **Summary:** The Queues tab now shows every queue the integration's calls
-  actually hit plus an "Outside a queue" card for IVR, voicemail, direct, and
-  outbound calls, so the cards reconcile with the KPI total instead of silently
-  dropping calls routed through a queue configured on another integration.
-- **Affected areas:**
-  `src/modules/report/call/components/QueuesSection/{QueuesSection,QueueCard}.tsx`,
-  `src/modules/report/call/utils.ts`.
-- **Contracts changed:** None — consumes the existing `callGetQueueStats`,
-  which can now return the `__no_queue__` sentinel.
-
-### `2026-08-20` — Hour × Day Heatmap exports to Excel
-
-- **Summary:** The heatmap card gained an Export Excel action that downloads the
-  selected metric as a date × hour sheet — one row per day in the filtered
-  range, one column per hour that carries calls, row and column totals, and the
-  peak hour of each row highlighted.
-- **Affected areas:** `src/modules/report/call/heatmapExcel.ts` (new),
-  `src/modules/report/call/hooks/useHeatmapExport.ts` (new),
-  `src/modules/report/call/components/OverviewSection/HeatmapChart.tsx`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
-- **Contracts changed:** Consumes the new `frontline_api` query
-  `callHeatmapDaily`.
-
-### `2026-08-20` — No answer on the volume chart and heatmap
-
-- **Summary:** Call Volume Over Time now plots a No answer series next to
-  Answered, and Hour × Day Heatmap gained a Total calls / Answered / No answer
-  `ToggleGroup` that repaints the grid from the selected metric, with the
-  answered and no-answer counts added to every cell's tooltip.
-- **Affected areas:**
-  `src/modules/report/call/components/OverviewSection/{VolumeChart,HeatmapChart}.tsx`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
-- **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
-  `noAnswer` field from `frontline_api`.

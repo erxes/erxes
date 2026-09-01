@@ -43,6 +43,10 @@ const PROVIDER_META: Record<
     Icon: IconMail,
     iconClass: 'text-amber-500',
   },
+  [IntegrationType.MAIL]: {
+    Icon: IconMail,
+    iconClass: 'text-amber-500',
+  },
 };
 
 const MAX_CHIPS = 5;

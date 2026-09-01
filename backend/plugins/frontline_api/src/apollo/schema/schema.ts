@@ -53,6 +53,12 @@ import {
 } from '@/integrations/imap/graphql/schema/imap';
 
 import {
+  mutations as MailMutations,
+  queries as MailQueries,
+  types as MailTypes,
+} from '@/integrations/mail/graphql/schema/mail';
+
+import {
   queries as WidgetQueries,
   types as WidgetTypes,
   mutations as WidgetMutations,
@@ -130,6 +136,7 @@ export const types = `
     ${CallTypes}
     ${CallProTypes}
     ${ImapTypes}
+    ${MailTypes}
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
@@ -153,6 +160,7 @@ export const queries = `
     ${CallQueries}
     ${CallProQueries}
     ${ImapQueries}
+    ${MailQueries}
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
@@ -177,6 +185,7 @@ export const mutations = `
    ${CallMutations}
    ${CallProMutations}
    ${ImapMutations}
+   ${MailMutations}
    ${TicketMutations}
    ${WidgetMutations}
    ${ResponseTemplateMutations}
