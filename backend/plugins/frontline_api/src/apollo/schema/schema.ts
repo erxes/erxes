@@ -41,6 +41,12 @@ import {
 } from '@/integrations/call/graphql/schema/call';
 
 import {
+  mutations as CallProMutations,
+  queries as CallProQueries,
+  types as CallProTypes,
+} from '@/integrations/callpro/graphql/schema';
+
+import {
   mutations as ImapMutations,
   queries as ImapQueries,
   types as ImapTypes,
@@ -122,6 +128,7 @@ export const types = `
     ${DiscordTypes}
     ${InstagramTypes}
     ${CallTypes}
+    ${CallProTypes}
     ${ImapTypes}
     ${TicketTypes}
     ${WidgetTypes}
@@ -144,6 +151,7 @@ export const queries = `
     ${DiscordQueries}
     ${InstagramQueries}
     ${CallQueries}
+    ${CallProQueries}
     ${ImapQueries}
     ${TicketQuery}
     ${WidgetQueries}
@@ -167,6 +175,7 @@ export const mutations = `
    ${DiscordMutations}
    ${InstagramMutations}
    ${CallMutations}
+   ${CallProMutations}
    ${ImapMutations}
    ${TicketMutations}
    ${WidgetMutations}

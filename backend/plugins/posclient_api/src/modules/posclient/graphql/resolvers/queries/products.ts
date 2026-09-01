@@ -46,6 +46,213 @@ const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
   [`propertiesData.${fieldId}`]: { $regex: regex },
 });
 
+type PropertyFilterOperator =
+  | 'eq'
+  | 'ne'
+  | 'contains'
+  | 'doesNotContain'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'isTrue'
+  | 'isFalse'
+  | 'in'
+  | 'notIn'
+  | 'isSet'
+  | 'isNotSet'
+  | 'fileType';
+
+interface IPropertyFilterCondition {
+  fieldId: string;
+  operator?: PropertyFilterOperator;
+  value?: unknown;
+}
+
+const CONDITION_SEP = ';';
+const PART_SEP = ':';
+const VALUE_SEP = ',';
+
+const MULTI_OPERATORS: PropertyFilterOperator[] = ['in', 'notIn', 'fileType'];
+
+const PROPERTY_OPERATORS: Record<
+  PropertyFilterOperator,
+  (
+    propertyPath: string,
+    value: unknown,
+  ) => Record<string, unknown> | null
+> = {
+  eq: (propertyPath, value) => ({ [propertyPath]: { $in: eqValues(value) } }),
+  ne: (propertyPath, value) => ({ [propertyPath]: { $nin: eqValues(value) } }),
+  gt: (propertyPath, value) => ({
+    [propertyPath]: { $gt: asNumberOrString(value) },
+  }),
+  gte: (propertyPath, value) => ({
+    [propertyPath]: { $gte: asNumberOrString(value) },
+  }),
+  lt: (propertyPath, value) => ({
+    [propertyPath]: { $lt: asNumberOrString(value) },
+  }),
+  lte: (propertyPath, value) => ({
+    [propertyPath]: { $lte: asNumberOrString(value) },
+  }),
+  isTrue: (propertyPath) => ({
+    [propertyPath]: { $in: [true, 'true', 'Yes', 'yes'] },
+  }),
+  isFalse: (propertyPath) => ({
+    [propertyPath]: { $in: [false, 'false', 'No', 'no', null] },
+  }),
+  isSet: (propertyPath) => ({
+    [propertyPath]: { $exists: true, $nin: [null, '', []] },
+  }),
+  isNotSet: (propertyPath) => ({
+    $or: [
+      { [propertyPath]: { $exists: false } },
+      { [propertyPath]: { $in: [null, ''] } },
+    ],
+  }),
+  contains: (propertyPath, value) =>
+    isEmpty(value)
+      ? null
+      : {
+          [propertyPath]: {
+            $regex: escapeRegExp(String(value)),
+            $options: 'i',
+          },
+        },
+  doesNotContain: (propertyPath, value) =>
+    isEmpty(value)
+      ? null
+      : {
+          [propertyPath]: {
+            $not: { $regex: escapeRegExp(String(value)), $options: 'i' },
+          },
+        },
+  in: (propertyPath, value) =>
+    toArray(value).length ? { [propertyPath]: { $in: toArray(value) } } : null,
+  notIn: (propertyPath, value) =>
+    toArray(value).length
+      ? { [propertyPath]: { $nin: toArray(value) } }
+      : null,
+  fileType: (propertyPath, value) => {
+    const types = fileTypes(value);
+
+    return types.length
+      ? {
+          [`${propertyPath}.type`]: {
+            $regex: types.map(escapeRegExp).join('|'),
+            $options: 'i',
+          },
+        }
+      : null;
+  },
+};
+
+const isEmpty = (value: unknown) =>
+  value === undefined || value === null || value === '';
+
+const toArray = (value: unknown): unknown[] =>
+  Array.isArray(value) ? value : isEmpty(value) ? [] : [value];
+
+const fileTypes = (value: unknown): string[] =>
+  toArray(value)
+    .map((item) => String(item ?? '').trim())
+    .filter(Boolean);
+
+const asNumberOrString = (value: unknown): number | string => {
+  const stringValue = String(value ?? '');
+
+  return stringValue !== '' && !isNaN(Number(stringValue))
+    ? Number(stringValue)
+    : stringValue;
+};
+
+const eqValues = (value: unknown): unknown[] => {
+  const normalized = asNumberOrString(value);
+
+  return typeof normalized === 'number'
+    ? [normalized, String(value)]
+    : [normalized];
+};
+
+const isPropertyFilterOperator = (
+  operator: string,
+): operator is PropertyFilterOperator => operator in PROPERTY_OPERATORS;
+
+const decodeConditionValue = (
+  operator: PropertyFilterOperator,
+  raw: string,
+): unknown => {
+  if (MULTI_OPERATORS.includes(operator)) {
+    return raw
+      .split(VALUE_SEP)
+      .filter(Boolean)
+      .map((value) => decodeURIComponent(value));
+  }
+
+  return decodeURIComponent(raw);
+};
+
+const parsePropertyConditions = (
+  propertiesData: string,
+): IPropertyFilterCondition[] =>
+  String(propertiesData)
+    .split(CONDITION_SEP)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce<IPropertyFilterCondition[]>((conditions, entry) => {
+      const firstSep = entry.indexOf(PART_SEP);
+
+      if (firstSep === -1) {
+        return conditions;
+      }
+
+      const fieldId = decodeURIComponent(entry.slice(0, firstSep));
+      const rest = entry.slice(firstSep + 1);
+      const secondSep = rest.indexOf(PART_SEP);
+      const rawOperator =
+        secondSep === -1 ? rest : rest.slice(0, secondSep);
+
+      if (!fieldId || !isPropertyFilterOperator(rawOperator)) {
+        return conditions;
+      }
+
+      const condition: IPropertyFilterCondition = {
+        fieldId,
+        operator: rawOperator,
+      };
+
+      if (secondSep !== -1) {
+        condition.value = decodeConditionValue(
+          rawOperator,
+          rest.slice(secondSep + 1),
+        );
+      }
+
+      conditions.push(condition);
+
+      return conditions;
+    }, []);
+
+const withPropertyConditions = (
+  propertiesData: string,
+): Record<string, unknown>[] =>
+  parsePropertyConditions(propertiesData).reduce<Record<string, unknown>[]>(
+    (conditions, { fieldId, operator = 'contains', value }) => {
+      const property = PROPERTY_OPERATORS[operator](
+        `propertiesData.${fieldId}`,
+        value,
+      );
+
+      if (property) {
+        conditions.push(property);
+      }
+
+      return conditions;
+    },
+    [],
+  );
+
 export interface ICommonParams {
   sortField?: string;
   sortDirection?: number;
@@ -81,6 +288,7 @@ export interface IProductParams extends ICommonParams {
   minDiscountPercent?: number;
   maxDiscountPercent?: number;
   discountConditions?: Record<string, unknown>;
+  propertiesData?: string;
 }
 
 export interface ICategoryParams extends ICommonParams {
@@ -126,6 +334,7 @@ const generateFilter = async (
     minDiscountPercent,
     maxDiscountPercent,
     discountConditions,
+    propertiesData,
     ...paginationArgs
   }: IProductParams,
 ) => {
@@ -154,6 +363,14 @@ const generateFilter = async (
     $and.push({
       $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
     });
+  }
+
+  if (propertiesData) {
+    const propertyConditions = withPropertyConditions(propertiesData);
+
+    if (propertyConditions.length) {
+      $and.push(...propertyConditions);
+    }
   }
 
   if (type) {

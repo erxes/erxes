@@ -9,6 +9,11 @@ import { createPluginTRPCContext, err, ok, sendTRPCMessage } from '../trpc';
 import { decodeAgentToolsAuthHeader } from './auth';
 import { buildAgentToolManifest } from './manifest';
 import {
+  agentToolResponseTooLargeError,
+  getAgentToolMaxResponseBytes,
+  oversizedAgentToolResultBytes,
+} from './responseLimit';
+import {
   AgentToolManifest,
   AgentTrpcRouter,
   AgentTrpcToolDescriptor,
@@ -38,12 +43,7 @@ const manifestCache = new Map<
 const manifestCacheKey = (
   subdomain: string,
   options: AgentToolsOptions,
-): string =>
-  JSON.stringify([
-    options.plugin,
-    subdomain,
-    options.exclude || [],
-  ]);
+): string => JSON.stringify([options.plugin, subdomain, options.exclude || []]);
 
 const getManifest = async (
   subdomain: string,
@@ -239,6 +239,28 @@ export const mountAgentTools = (
         descriptor,
         input,
       );
+
+      // Oversized payloads stall the agent run and freeze the chat UI; reject
+      // them with guidance so the model retries with a narrower call.
+      const maxResponseBytes = getAgentToolMaxResponseBytes();
+      const resultBytes = oversizedAgentToolResultBytes(
+        result,
+        maxResponseBytes,
+      );
+
+      if (resultBytes !== null) {
+        return res
+          .status(413)
+          .json(
+            err(
+              agentToolResponseTooLargeError(
+                toolId,
+                resultBytes,
+                maxResponseBytes,
+              ),
+            ),
+          );
+      }
 
       return res.json(ok(result));
     } catch (error) {

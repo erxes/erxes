@@ -96,6 +96,7 @@ export const GET_PIPELINES = gql`
         _id
         name
         boardId
+        visibility
         state
         startDate
         endDate

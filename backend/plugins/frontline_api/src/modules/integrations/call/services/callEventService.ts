@@ -1,9 +1,11 @@
 import { IModels } from '~/connectionResolvers';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { redlock } from '@/integrations/call/redlock';
+import { acquireCustomerLock, redlock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
+import { parseCdrDate } from '@/integrations/call/services/cdrUtils';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 const SESSION_LOCK_TTL_MS = 15_000;
@@ -23,6 +25,7 @@ export interface ICallEventPayload {
   srcTrunkName?: string;
   dstTrunkName?: string;
   callerIdNum?: string;
+  callerIdName?: string;
   calleeIdNum?: string;
   callType?: 'incoming' | 'outgoing';
   queueName?: string;
@@ -100,13 +103,60 @@ const publishSession = async (
   }
 };
 
+const isChildLeg = (ev: ICallEventPayload) =>
+  !!ev.linkedid && ev.linkedid !== ev.uniqueid;
+
+const looksLikePhoneNumber = (value?: string) =>
+  !!value && /^\+?\d{5,}$/.test(value);
+
+const findParentLegSession = async (
+  models: IModels,
+  ev: ICallEventPayload,
+): Promise<ICallSessionDocument | null> => {
+  if (!isChildLeg(ev)) return null;
+
+  return models.CallSessions.findOne({
+    $or: [
+      { uniqueid: ev.linkedid },
+      { linkedid: ev.linkedid, uniqueid: { $ne: ev.uniqueid } },
+    ],
+  }).sort({ startedAt: 1 });
+};
+
+const isSiblingLeg = (
+  candidate: ICallSessionDocument | null,
+  ev: ICallEventPayload,
+  direction: 'incoming' | 'outgoing',
+) => {
+  if (!candidate?.conversationId) return false;
+
+  return (
+    isChildLeg(ev) ||
+    direction === 'incoming' ||
+    candidate.status === 'ringing' ||
+    candidate.status === 'active'
+  );
+};
+
 const ensureConversation = async (
   models: IModels,
   subdomain: string,
   session: any,
   integration: any,
+  assignedUserId?: string,
 ) => {
-  if (session.conversationId) return session.conversationId;
+  if (session.conversationId) {
+    if (assignedUserId) {
+      await createOrUpdateErxesConversation(subdomain, {
+        conversationId: session.conversationId,
+        integrationId: integration.inboxId,
+        content: session.callType || 'incoming',
+        updatedAt: new Date(),
+        userId: assignedUserId,
+      });
+    }
+    return session.conversationId;
+  }
 
   let customerId = session.customerId;
   if (!customerId) {
@@ -124,6 +174,7 @@ const ensureConversation = async (
     conversationId: '',
     updatedAt: new Date(),
     owner: '',
+    userId: assignedUserId,
   });
 
   if (apiResponse?.status !== 'success' || !apiResponse?.data?._id) {
@@ -179,6 +230,13 @@ export const handleCallEvent = async (
     return { status: 'ignored', reason: 'no_integration' };
   }
 
+  const direction: 'incoming' | 'outgoing' =
+    ev.callType ||
+    (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
+
+  const eventPhone =
+    direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
+
   const lockKey = `${subdomain}:call:session:${ev.uniqueid}`;
   let lock;
   try {
@@ -187,18 +245,45 @@ export const handleCallEvent = async (
     throw new Error(`callEvent lock failure for ${ev.uniqueid}: ${e.message}`);
   }
 
+  const customerLock = await acquireCustomerLock(
+    subdomain,
+    integration.inboxId,
+    eventPhone,
+  );
+
   try {
     let session: any = await models.CallSessions.findOne({
       uniqueid: ev.uniqueid,
     });
 
     if (!session) {
-      const direction: 'incoming' | 'outgoing' =
-        ev.callType ||
-        (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
+      const parent = await findParentLegSession(models, ev);
 
       const customerPhone =
-        direction === 'incoming' ? ev.callerIdNum || '' : ev.calleeIdNum || '';
+        parent?.customerPhone ||
+        (isChildLeg(ev) && looksLikePhoneNumber(ev.callerIdName)
+          ? (ev.callerIdName as string)
+          : eventPhone);
+
+      let sibling = parent;
+
+      if (!sibling) {
+        const candidate = await models.CallSessions.findSibling({
+          inboxIntegrationId: integration.inboxId,
+          customerPhone,
+          excludeUniqueid: ev.uniqueid,
+        });
+
+        sibling = isSiblingLeg(candidate, ev, direction) ? candidate : null;
+      }
+
+      if (sibling?.conversationId) {
+        debugCall(
+          `Call event ${ev.uniqueid} joined conversation ${sibling.conversationId} ` +
+            `from ${parent ? 'parent' : 'sibling'} leg ${sibling.uniqueid} ` +
+            `(phone=${customerPhone})`,
+        );
+      }
 
       session = await models.CallSessions.upsertSession({
         uniqueid: ev.uniqueid,
@@ -208,11 +293,17 @@ export const handleCallEvent = async (
         customerPhone,
         operatorPhone: integration.phone,
         queueName: ev.queueName,
-        startedAt: ev.startedAt ? new Date(ev.startedAt) : new Date(),
+        startedAt: parseCdrDate(ev.startedAt) || new Date(),
         status: 'ringing',
         source: 'cti',
         diversion: ev.diversion,
         raw: ev.raw,
+        ...(sibling?.conversationId
+          ? {
+              conversationId: sibling.conversationId,
+              ...(sibling.customerId ? { customerId: sibling.customerId } : {}),
+            }
+          : {}),
       });
     }
 
@@ -261,7 +352,13 @@ export const handleCallEvent = async (
           uniqueid: ev.uniqueid,
         });
         try {
-          await ensureConversation(models, subdomain, session, integration);
+          await ensureConversation(
+            models,
+            subdomain,
+            session,
+            integration,
+            userId,
+          );
         } catch (e) {
           debugCall(
             `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
@@ -285,7 +382,7 @@ export const handleCallEvent = async (
 
       case 'hangup': {
         await models.CallSessions.markEnded(ev.uniqueid, {
-          endedAt: ev.endedAt ? new Date(ev.endedAt) : new Date(),
+          endedAt: parseCdrDate(ev.endedAt) || new Date(),
           hangupCause: ev.hangupCause,
         });
         session = await models.CallSessions.findOne({
@@ -302,10 +399,12 @@ export const handleCallEvent = async (
       sessionStatus: session?.status,
     };
   } finally {
-    try {
-      await lock?.release();
-    } catch (e) {
-      console.error('handleCallEvent: lock release failed', e);
+    for (const held of [customerLock, lock]) {
+      try {
+        await held?.release();
+      } catch (e) {
+        console.error('handleCallEvent: lock release failed', e);
+      }
     }
   }
 };
@@ -333,6 +432,7 @@ const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
     linkedid: p.linkedid,
     callType: isIncoming ? 'incoming' : 'outgoing',
     callerIdNum: isIncoming ? p.caller : p.extension,
+    callerIdName: p.callerName,
     calleeIdNum: isIncoming ? p.did : p.caller,
     srcTrunkName: isIncoming ? p.trunk : undefined,
     dstTrunkName: isIncoming ? undefined : p.trunk,

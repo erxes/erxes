@@ -27,6 +27,7 @@ export const SelectStageProvider = ({
   onValueChange,
   stages,
   pipelineId,
+  autoSelectFirst = true,
 }: {
   children: React.ReactNode;
   mode?: 'single' | 'multiple';
@@ -34,6 +35,7 @@ export const SelectStageProvider = ({
   onValueChange?: (value: string[] | string, isAutoSelection?: boolean) => void;
   stages?: IStage[];
   pipelineId?: string;
+  autoSelectFirst?: boolean;
 }) => {
   const [_stages, setStages] = useState<IStage[]>(stages || []);
   const isSingleMode = mode === 'single';
@@ -51,17 +53,21 @@ export const SelectStageProvider = ({
       const currentStageId = Array.isArray(value) ? value[0] : value;
 
       const stage = availableStages.find((s) => s._id === currentStageId);
-      const selectedStage = stage || availableStages[0];
 
-      if (selectedStage) {
-        setStages([selectedStage]);
+      if (stage) {
+        setStages([stage]);
+        return;
+      }
 
-        if (!stage && selectedStage) {
+      if (autoSelectFirst) {
+        const selectedStage = availableStages[0];
+        if (selectedStage) {
+          setStages([selectedStage]);
           onValueChange?.(selectedStage._id, true);
         }
       }
     }
-  }, [pipelineId, availableStages, value, onValueChange]);
+  }, [pipelineId, availableStages, value, onValueChange, autoSelectFirst]);
 
   const onSelect = (stage: IStage) => {
     if (!stage) return;
@@ -216,6 +222,7 @@ export const SelectStageFilterView = ({
         mode={mode}
         value={stage || (mode === 'single' ? '' : [])}
         pipelineId={pipelineId}
+        autoSelectFirst={false}
         onValueChange={(value) => {
           setStage(value as string[] | string);
           resetFilterState();
@@ -258,6 +265,7 @@ export const SelectStageFilterBar = ({
         mode={mode}
         value={stage || (mode === 'single' ? '' : [])}
         pipelineId={pipelineId}
+        autoSelectFirst={false}
         onValueChange={(value) => {
           const hasValue = Array.isArray(value)
             ? value.length > 0

@@ -1,10 +1,11 @@
-import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { Combobox, Command, Filter, useMultiQueryState, useQueryState } from 'erxes-ui';
 import {
   IconCalendarBolt,
   IconCalendarClock,
   IconCalendarPlus,
   IconCalendarX,
   IconSearch,
+  IconStack2,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
@@ -13,6 +14,7 @@ import {
   SelectDepartments,
   SelectMember,
   SelectProduct,
+  SelectStage,
 } from 'ui-modules';
 
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
@@ -20,10 +22,14 @@ import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
+import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export const SalesFilter = () => {
   const { t } = useTranslation('sales');
+  const view = useAtomValue(dealsViewAtom);
+  const [pipelineId] = useQueryState<string>('pipelineId');
   const [queries] = useMultiQueryState<SalesFilterState>([
     'search',
     'companyIds',
@@ -59,7 +65,10 @@ export const SalesFilter = () => {
           <Filter.Popover scope={'sales-page'}>
             <Filter.Trigger isFiltered={hasFilters} />
             <Combobox.Content>
-              <SalesFilterView />
+              <SalesFilterView
+                view={view}
+                pipelineId={pipelineId || undefined}
+              />
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
@@ -95,7 +104,11 @@ export const SalesFilter = () => {
             </Filter.View>
           </Filter.Dialog>
         </div>
-        <SalesFilterBar queries={queries} />
+        <SalesFilterBar
+          queries={queries}
+          view={view}
+          pipelineId={pipelineId || undefined}
+        />
         <DealsTotalCount />
       </Filter.Bar>
     </Filter>
@@ -126,7 +139,15 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
   return result;
 };
 
-const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
+const SalesFilterBar = ({
+  queries,
+  view,
+  pipelineId,
+}: {
+  queries: SalesFilterState;
+  view: 'list' | 'board';
+  pipelineId?: string;
+}) => {
   const { t } = useTranslation('sales');
   const {
     search,
@@ -247,11 +268,23 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           label={t('by-product', 'By Product')}
         />
       )}
+      {view === 'list' && (
+        <SelectStage.FilterBar
+          queryKey="stageId"
+          pipelineId={pipelineId || undefined}
+        />
+      )}
     </>
   );
 };
 
-const SalesFilterView = () => {
+const SalesFilterView = ({
+  view,
+  pipelineId,
+}: {
+  view: 'list' | 'board';
+  pipelineId?: string;
+}) => {
   const { t } = useTranslation('sales');
   return (
     <>
@@ -301,6 +334,12 @@ const SalesFilterView = () => {
               value="labelIds"
               label={t('by-label', 'By Label')}
             />
+            {view === 'list' && (
+              <Filter.Item value="stageId">
+                <IconStack2 />
+                {t('by-stage', 'By Stage')}
+              </Filter.Item>
+            )}
             <Command.Separator className="my-1" />
             <Filter.Item value="createdStartDate">
               <IconCalendarPlus />
@@ -330,6 +369,12 @@ const SalesFilterView = () => {
       <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
+      {view === 'list' && (
+        <SelectStage.FilterView
+          queryKey="stageId"
+          pipelineId={pipelineId || undefined}
+        />
+      )}
       <Filter.View filterKey="createdStartDate">
         <Filter.DateView
           filterKey="createdStartDate"

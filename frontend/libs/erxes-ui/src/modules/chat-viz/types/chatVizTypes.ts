@@ -13,6 +13,29 @@ export type ChartVizSeriesConfig = {
   color?: string;
 };
 
+export type ChartVizSliderControl = {
+  type: 'slider';
+  /** Stable CSS-safe key referenced by transforms. */
+  key: string;
+  label: string;
+  description?: string;
+  min: number;
+  max: number;
+  step: number;
+  defaultValue: number;
+  /** Display-only decorations; they never participate in calculations. */
+  valuePrefix?: string;
+  valueSuffix?: string;
+};
+
+export type ChartVizTransformOperation = 'add' | 'percent' | 'compoundPercent';
+
+export type ChartVizTransform = {
+  controlKey: string;
+  seriesKey: string;
+  operation: ChartVizTransformOperation;
+};
+
 /**
  * Wire format for a chart embedded in a chat message.
  *
@@ -28,6 +51,9 @@ export type ChartVizPayload = {
   description?: string;
   data: ChartVizDataPoint[];
   series: ChartVizSeriesConfig[];
+  /** Optional declarative interactivity. No model-authored code is executed. */
+  controls?: ChartVizSliderControl[];
+  transforms?: ChartVizTransform[];
   /** ISO 8601 timestamp of when the sender composed the chart */
   sentAt: string;
 };

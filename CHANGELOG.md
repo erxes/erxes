@@ -1,5 +1,110 @@
 
 
+## [3.0.94](https://github.com/erxes/erxes/compare/3.0.93...3.0.94) (2026-08-31)
+
+
+### Bug Fixes
+
+* **content:** sync page detail header language  ([b94ec78](https://github.com/erxes/erxes/commit/b94ec78cb09c2e3bf261f4a93d1f2bba766395d9))
+* **core:** properties cover the field group reorder empty and error states  ([5a0d08e](https://github.com/erxes/erxes/commit/5a0d08e9d9a4f0ddaa21a55c326726652265d746))
+* fix cp customers query ([d53892b](https://github.com/erxes/erxes/commit/d53892b9f65984f50fe0b5ee85c725004883cd53))
+* fix payments add form wait api response ([2007109](https://github.com/erxes/erxes/commit/20071090deffe57e6c93da611c90acd67b89a78b))
+* **frontline:** replace retired Facebook message tags with HUMAN_AGENT  ([16313d6](https://github.com/erxes/erxes/commit/16313d6431115ccd1f650cf9e1b9ae44af3c60ff))
+* wire login Terms/Privacy links to erxes.io legal pages (were href=#)  ([9c7850b](https://github.com/erxes/erxes/commit/9c7850b5fe095abd5c201044c3a02d892df1da42))
+
+
+### Features
+
+* add use b2b options in client portal ([34fd760](https://github.com/erxes/erxes/commit/34fd76011386957124109825d295698d3703cc75))
+* **mongolian:** sum MS Dynamic product remainders ([#9171](https://github.com/erxes/erxes/issues/9171)) ([e48a723](https://github.com/erxes/erxes/commit/e48a723188cf95143b8ac5023315dd5ca19065dc))
+
+
+### Performance Improvements
+
+* return all pos list with token ([d2da9ac](https://github.com/erxes/erxes/commit/d2da9acbabfa08aab8c5a2647091f315bd351b6c))
+
+## [3.0.93](https://github.com/erxes/erxes/compare/3.0.92...3.0.93) (2026-08-26)
+
+
+### Bug Fixes
+
+* **core-ui:** property options frozen after removing one  ([6e0f098](https://github.com/erxes/erxes/commit/6e0f098f5b594a761cc22d97ee8072d5f37479a9))
+* **frontline:** rework the Me inbox group and its live counts ([853424b](https://github.com/erxes/erxes/commit/853424b9f63cfc9a77f6ef089f1b33413059c9a5))
+* **frontline:** stop inbox sidebar selections from stranding each other ([05c4579](https://github.com/erxes/erxes/commit/05c457952a7ecc4b9d841fd4675e55c2911dd220))
+* mongolian putresponses without date ([56f3af0](https://github.com/erxes/erxes/commit/56f3af09ba25e896a006ad42f6323b893bebd872))
+* **payment:** redirect failed payment to invoice URL ([#9147](https://github.com/erxes/erxes/issues/9147)) ([073deb3](https://github.com/erxes/erxes/commit/073deb38ef4b6946263784ce16f36f55f5ea5790))
+* **ui:** restore plugin config integrations ([#9146](https://github.com/erxes/erxes/issues/9146)) ([c2ffcad](https://github.com/erxes/erxes/commit/c2ffcadd8f389bdff27e2a7386fa9249c8aa8a2c))
+
+
+### Features
+
+* add clientportal filter in customers ([7b153ee](https://github.com/erxes/erxes/commit/7b153ee9ab047ccd3a721d6fa219dda4c4defd8b))
+* **nav:** pin Command and AI Agent only when those plugins load ([#9168](https://github.com/erxes/erxes/issues/9168)) ([daac217](https://github.com/erxes/erxes/commit/daac2177e2c55c40b1fbbc70ba025c6f13536e4c))
+
+
+### Performance Improvements
+
+* **properties:** order field groups by their own order and reorder them by drag  ([acaaa66](https://github.com/erxes/erxes/commit/acaaa66136fb788d2ef767ab4a6b505a9baf280c))
+
+## [3.0.92](https://github.com/erxes/erxes/compare/3.0.91...3.0.92) (2026-08-24)
+
+
+### Bug Fixes
+
+* **content:** return all client portal pages ([#9106](https://github.com/erxes/erxes/issues/9106)) ([103c0c5](https://github.com/erxes/erxes/commit/103c0c56ae25ee14efc036cbc90c693369fc33c3))
+* **frontline:** keep facebook login redirect alive when repair fails ([dc7825e](https://github.com/erxes/erxes/commit/dc7825e59defe4f0f16bb1ff605810e8a70dd356))
+* handle pipeline edits and invalid permission cache ([a6756d2](https://github.com/erxes/erxes/commit/a6756d27d5c988c03d2249a4e01289eb40281f54))
+* **payment:** mark invoices failed for expired transactions ([#9111](https://github.com/erxes/erxes/issues/9111)) ([c707599](https://github.com/erxes/erxes/commit/c707599ba0179576e0cb84bc4765f15285ae957d))
+* **posclient:** keep similarity search grouped  ([8d3c3a4](https://github.com/erxes/erxes/commit/8d3c3a46cb664ee78ec94be3d96aeb83f78475ae))
+* prevent POS payment amounts from doubling ([#9120](https://github.com/erxes/erxes/issues/9120)) ([e3d585d](https://github.com/erxes/erxes/commit/e3d585d8e5b72d64bef4c0d5bdb611f85c246604))
+* products filter by propterties data on posclient ([efef025](https://github.com/erxes/erxes/commit/efef0252d390f4072e21c0a188d289f01866b188))
+
+
+### Features
+
+* **pos:** ReturnDescription field added ([#9112](https://github.com/erxes/erxes/issues/9112)) ([d6ea294](https://github.com/erxes/erxes/commit/d6ea294c4fceb4f6f0c15c5b848cc1929453e793))
+* **sales:** add stage filter when list view ([#9095](https://github.com/erxes/erxes/issues/9095)) ([cb8fe75](https://github.com/erxes/erxes/commit/cb8fe7562a7a4fee242611a4446f10343a390786))
+
+## [3.0.91](https://github.com/erxes/erxes/compare/3.0.90...3.0.91) (2026-08-21)
+
+
+### Bug Fixes
+
+* **frontline:** count a forwarded call once in the call reports ([e886e72](https://github.com/erxes/erxes/commit/e886e72b7f6d379d1b9fae2e081d983ba7aff96a))
+* **frontline:** file a forwarded call leg under the caller, not the agent's mobile ([873cd3c](https://github.com/erxes/erxes/commit/873cd3cffea6bca11df62e7aca272ba614bf2928))
+* **frontline:** keep a forwarded call in one conversation ([f06fbef](https://github.com/erxes/erxes/commit/f06fbef4cdafe02877c7be984819f613c4e9af3e))
+* **posclient:** restore service charge handling ([e11b682](https://github.com/erxes/erxes/commit/e11b682d19fb1099ee589dac9bec8bba24ed0886))
+* **sales:** bound and strictly validate agent-facing deal reads ([#9102](https://github.com/erxes/erxes/issues/9102)) ([b21e893](https://github.com/erxes/erxes/commit/b21e893853b82bccdccbde1c14ef1436e3d3d62d))
+
+## [3.0.90](https://github.com/erxes/erxes/compare/3.0.89...3.0.90) (2026-08-20)
+
+
+### Bug Fixes
+
+* **frontline:** reconcile call report queue stats with total calls ([c604df0](https://github.com/erxes/erxes/commit/c604df0b1dbcd75874bdeb9223f1868cded29e1a))
+
+
+### Features
+
+* **erxes-api-shared:** cap agent tool call responses at 64KB ([#9094](https://github.com/erxes/erxes/issues/9094)) ([3516cb1](https://github.com/erxes/erxes/commit/3516cb1b37ae9750a50158dfe568e8c348fb28d6))
+* **frontline:** expose safe tRPC procedures as agent-callable tools ([#9079](https://github.com/erxes/erxes/issues/9079)) ([7c82bec](https://github.com/erxes/erxes/commit/7c82bec2cb64d09951c9a23d5188434e75160206))
+* **payment:** enable TDB production API ([#9101](https://github.com/erxes/erxes/issues/9101)) ([f4b7aec](https://github.com/erxes/erxes/commit/f4b7aec28886a1c56787d246c31f6e8edee7a927))
+* **sales:** expose safe tRPC procedures as agent-callable tools ([#9058](https://github.com/erxes/erxes/issues/9058)) ([dc00a3e](https://github.com/erxes/erxes/commit/dc00a3e4054b0584f3408856d648d86ca6483148))
+
+## [3.0.89](https://github.com/erxes/erxes/compare/3.0.88...3.0.89) (2026-08-20)
+
+
+### Bug Fixes
+
+* **frontline:** assign the agent who answered the call ([bb412ef](https://github.com/erxes/erxes/commit/bb412ef847da1639cc1fbd28d7e4c435e1f4680b))
+* **frontline:** report the ring on unanswered calls ([ca4767c](https://github.com/erxes/erxes/commit/ca4767c12b8ec1bd83c5f26cf1172b6eadae350c))
+* TDB expired invoice handling ([001087c](https://github.com/erxes/erxes/commit/001087c0dc912c758ea2bdc1fa92e05594b9663f))
+
+
+### Features
+
+* **frontline:** add Call Pro integration ([a50f4e1](https://github.com/erxes/erxes/commit/a50f4e127e82fc4a8eabb917f53274c1840f0804))
+
 ## [3.0.88](https://github.com/erxes/erxes/compare/3.0.87...3.0.88) (2026-08-19)
 
 

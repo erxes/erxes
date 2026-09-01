@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { IntegrationType } from '@/types/Integration';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
+import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
 const IMapConversationDetail = lazy(() =>
   import('@/integrations/imap/components/ImapConversationDetail').then(
@@ -19,6 +20,12 @@ const CallConversationDetail = lazy(() =>
   ),
 );
 
+const CallProConversationDetail = lazy(() =>
+  import('@/integrations/callpro/components/CallProConversationDetail').then(
+    (module) => ({ default: module.CallProConversationDetail }),
+  ),
+);
+
 const FbMessengerConversationDetail = lazy(() =>
   import(
     '@/integrations/facebook/components/FacebookConversationMessages'
@@ -32,18 +39,21 @@ const IgMessengerConversationDetail = lazy(() =>
 );
 
 const IgPostConversationDetail = lazy(() =>
-  import(
-    '@/integrations/instagram/components/IgPostConversationDetail'
-  ).then((module) => ({ default: module.IgPostConversationDetail })),
+  import('@/integrations/instagram/components/IgPostConversationDetail').then(
+    (module) => ({ default: module.IgPostConversationDetail }),
+  ),
 );
 
 export const ConversationIntegrationDetail = () => {
   const { integration } = useConversationContext();
 
   return (
-    <Suspense fallback={<div />}>
+    <Suspense fallback={<InboxMessagesSkeleton />}>
       {integration?.kind === IntegrationType.IMAP && <IMapConversationDetail />}
       {integration?.kind === IntegrationType.CALL && <CallConversationDetail />}
+      {integration?.kind === IntegrationType.CALLPRO && (
+        <CallProConversationDetail />
+      )}
       {integration?.kind === IntegrationType.FACEBOOK_POST && (
         <FbPostConversationDetail />
       )}

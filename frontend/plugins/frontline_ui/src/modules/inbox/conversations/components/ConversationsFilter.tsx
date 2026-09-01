@@ -12,15 +12,21 @@ import {
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import {
   IconCalendarPlus,
+  IconAt,
+  IconBuildingStore,
   IconCheck,
   IconCheckbox,
+  IconInbox,
   IconLoader,
   IconSquare,
+  IconUserCheck,
   IconUsersGroup,
   IconUserX,
 } from '@tabler/icons-react';
 import { SelectMember } from 'ui-modules';
+import { gql, useQuery } from '@apollo/client';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { DiscordChannelFilterBar } from '@/integrations/discord/components/DiscordChannelFilterBar';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import {
   IntegrationTypeFilterBar,
@@ -35,6 +41,7 @@ import {
   AutomationStatusFilterView,
 } from '@/inbox/conversations/components/AutomationStatusFilter';
 import { TAutomationStatusFilter } from '@/inbox/constants/automationStatusFilters';
+import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 
 type ConversationFilterQueries = {
   status: ConversationStatus;
@@ -49,6 +56,15 @@ type ConversationFilterQueries = {
   created: string;
   searchValue: string;
 };
+
+const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql`
+  query FrontlineInboxBrandFilterDetail($_id: String!) {
+    brandDetail(_id: $_id) {
+      _id
+      name
+    }
+  }
+`;
 
 type ConversationFilterQueryValues = {
   [Key in keyof ConversationFilterQueries]:
@@ -260,8 +276,13 @@ export const ConversationFilterBar = ({
     awaitingResponse: boolean;
     automationStatus: TAutomationStatusFilter;
     participated: boolean;
+    participating: boolean;
+    mentioned: boolean;
     created: Date;
     channelId: string;
+    integrationId: string;
+    integrationType: string;
+    brandId: string;
     searchValue: string;
   }>([
     'status',
@@ -269,8 +290,13 @@ export const ConversationFilterBar = ({
     'awaitingResponse',
     'automationStatus',
     'participated',
+    'participating',
+    'mentioned',
     'created',
     'channelId',
+    'integrationId',
+    'integrationType',
+    'brandId',
     'searchValue',
   ]);
 
@@ -320,10 +346,86 @@ export const ConversationFilterBar = ({
           {t('participated')}
         </Filter.BarName>
       </Filter.BarItem>
+      <Filter.BarItem queryKey="participating">
+        <Filter.BarName>
+          <IconUserCheck />
+          {t('assigned-to-me')}
+        </Filter.BarName>
+      </Filter.BarItem>
+      <Filter.BarItem queryKey="mentioned">
+        <Filter.BarName>
+          <IconAt />
+          {t('mentions', { defaultValue: 'Mentions' })}
+        </Filter.BarName>
+      </Filter.BarItem>
       <AutomationStatusFilterBar iconOnly />
       <SelectChannel.FilterBar iconOnly />
       <IntegrationTypeFilterBar iconOnly />
+      <IntegrationFilterBar />
+      <BrandFilterBar />
+      <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
+  );
+};
+
+const IntegrationFilterBar = () => {
+  const { t } = useTranslation('frontline');
+  const [integrationId] = useQueryState<string>('integrationId');
+  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
+  const { integration, loading } = useIntegrationInline({
+    variables: { _id: integrationIds[0] || '' },
+    skip: integrationIds.length !== 1,
+  });
+
+  if (!integrationId) {
+    return null;
+  }
+
+  const label =
+    integrationIds.length > 1
+      ? t('selected-integrations', {
+          count: integrationIds.length,
+          defaultValue: '{{count}} integrations',
+        })
+      : integration?.name || integration?.kind || t('integration');
+
+  return (
+    <Filter.BarItem queryKey="integrationId">
+      <Filter.BarName>
+        <IconInbox />
+        {loading ? <Skeleton className="h-4 w-20" /> : label}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
+const BrandFilterBar = () => {
+  const [brandId] = useQueryState<string>('brandId');
+  const { data, loading } = useQuery<{
+    brandDetail?: { _id: string; name?: string };
+  }>(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: { _id: brandId || '' },
+    skip: !brandId,
+  });
+
+  if (!brandId) {
+    return null;
+  }
+
+  const brandName =
+    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
+
+  return (
+    <Filter.BarItem queryKey="brandId">
+      <Filter.BarName>
+        <IconBuildingStore />
+        {loading || !brandName ? (
+          <Skeleton className="h-4 w-20" />
+        ) : (
+          brandName
+        )}
+      </Filter.BarName>
+    </Filter.BarItem>
   );
 };

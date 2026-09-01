@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { cfRecordUrl, toCamelCase } from '../utils';
+import { CallOperator } from '@/integrations/call/@types/integrations';
 
 const CDR_TIME_OFFSET = '+08:00';
 const CDR_TIME_OFFSET_MS = 8 * 60 * 60 * 1000;
@@ -350,24 +351,34 @@ export const deriveCallStatusFromLegs = (legs: any[]): string => {
   return 'MISSED';
 };
 
-export const getConversationContent = async (models: IModels, cdrParams) => {
+export const getConversationContent = async (
+  models: IModels,
+  cdrParams,
+  conversationId?: string,
+) => {
   const { userfield } = cdrParams;
-  const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
+  const isFollowmeLeg = !!cdrParams.action_type?.includes('FOLLOWME');
+  const direction =
+    userfield === 'Outbound' && !isFollowmeLeg ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
   }
 
-  const storedCdrs = await models.CallCdrs.find({
-    uniqueid: cdrParams.uniqueid,
-  });
+  const legSelector = conversationId
+    ? { $or: [{ uniqueid: cdrParams.uniqueid }, { conversationId }] }
+    : { uniqueid: cdrParams.uniqueid };
+
+  const storedCdrs = await models.CallCdrs.find(legSelector);
   const legs: any[] = [...storedCdrs, cdrParams];
 
   const status = deriveCallStatusFromLegs(legs);
 
   if (status === 'ANSWERED') return `ANSWERED · ${direction}`;
 
-  if (userfield === 'Outbound') return `OUTBOUND`;
+  if (direction === 'Outbound') return `OUTBOUND`;
+
+  if (status === 'FOLLOWME') return `NO ANSWER · ${direction}`;
 
   return `${status} · ${direction}`;
 };
@@ -403,4 +414,42 @@ export const calculateFileDir = (doc) => {
     fileDir = 'queue';
   }
   return fileDir;
+};
+
+export interface ICdrOperatorParams {
+  userfield?: string;
+  src?: string;
+  dst?: string;
+  dstanswer?: string;
+  dstchannel_ext?: string;
+  channel_ext?: string;
+  new_src?: string;
+  lastapp?: string;
+  action_type?: string;
+}
+
+export const resolveCdrOperator = (
+  operators: CallOperator[] = [],
+  params: ICdrOperatorParams,
+): { operator?: CallOperator; extension?: string } => {
+  const extension = determineExtension(params);
+
+  const candidates = [
+    extension,
+    extractOperatorId(params),
+    params.dstchannel_ext,
+    params.channel_ext,
+    params.dstanswer,
+    params.new_src,
+    params.userfield === 'Outbound' ? params.src : params.dst,
+  ].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const operator = operators.find((op) => op.gsUsername === candidate);
+    if (operator) {
+      return { operator, extension: candidate };
+    }
+  }
+
+  return { extension: extension || undefined };
 };

@@ -172,7 +172,9 @@ app.get('/get-client-portal-token', async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const clientPortal = await models.ClientPortal.findOne({}).lean();
+  const clientPortal = await models.ClientPortal.findOne({
+    useB2B: true,
+  }).lean();
 
   if (!clientPortal) {
     return res.status(404).json({ error: 'Client portal not found' });

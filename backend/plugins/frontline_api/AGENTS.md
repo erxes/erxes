@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-08-27`
 
 ## Scope
 
@@ -21,7 +21,8 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, IMAP, Discord, and Call (SIP/CDR).
+  comments), Instagram, IMAP, Discord, Call (SIP/CDR), and Call Pro (webhook
+  PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
@@ -87,6 +88,10 @@
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
+- Read-only inbox, integration, and form-submission tRPC procedures are
+  exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
+  via `.meta(agentMeta(...))` annotations; every other procedure remains
+  invisible to agents.
 - Contributes permissions, notifications, segments, references, and
   import/export handlers to the platform through `meta/`.
 
@@ -98,13 +103,15 @@
 | Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
 | GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
 | tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
-| HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook` and `/instagram` webhook routers                                                     |
+| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                            |
+| HTTP                 | `src/routes.ts`                                                             | Mounts `/facebook`, `/instagram`, and (when enabled) `/callpro` webhook routers                         |
 | Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, trpc                                                          |
-| Call reporting       | `src/modules/integrations/call/services/callReportService.ts`               | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, callpro, trpc                                                 |
+| Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL            |
+| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
 | FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
@@ -178,6 +185,16 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
 - tRPC `appRouter` consumed by other services, including
   `inbox.updateUserChannels({ channelIds, userId })` — replaces a user's team
   channel memberships; never touches their personal channel.
+- Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
+  the listed frontline permission action:
+  - `inbox.conversations.findOne`, `inbox.conversations.count`,
+    `inbox.getConversationsList`, `inbox.conversationMessages.findOne`,
+    `inbox.conversationMessages.find` — `showConversations`
+  - `inbox.conversations.changeStatus` — `conversationsChangeStatus`
+  - `inbox.integrations.findOne`, `inbox.integrations.find`,
+    `inbox.integrations.count`, `inbox.getIntegrationKinds` —
+    `showIntegrations`
+  - `form.submissionsByConversation` — `showFormSubmissions`
 - HTTP routes in `src/routes.ts` and provider webhooks under
   `src/modules/integrations/*`: Express webhook routes `/facebook/*` and
   `/instagram/*`, including the OAuth entry points `/facebook/fblogin`,
@@ -191,6 +208,30 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
   `CallCdrs` through `buildCdrFilter` and fold legs into calls before counting.
   They return nothing in a deployment whose PBX does not post CDRs.
+  `CallVolumePoint.noAnswer` and `HeatCell.noAnswer` count every call in the
+  bucket that no human answered, in both directions — unlike
+  `CallVolumePoint.abandoned`, which stays inbound-only.
+- GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
+  direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
+  day × hour** instead of day-of-week, for the spreadsheet export of the report.
+  Only hours that carry calls produce a row; absent buckets mean zero.
+- HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
+  (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
+  mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns
+  404. Public URL: `{DOMAIN}/gateway/pl:frontline/callpro/receive`
+  (`{DOMAIN}/pl:frontline/...` outside production).
+- GraphQL `callProConfig` — `{ enabled, webhookUrl }`. This is the only way the
+  UI learns whether Call Pro is licensed; `webhookUrl` is null when it is not.
+- GraphQL `callProIntegrationDetail(integrationId)` — the `phoneNumber` and
+  `recordUrl` stored for a Call Pro line.
+- GraphQL `callProCustomersByPhone(phone)` — every non-deleted core customer
+  holding that number on `primaryPhone` or in `phones`.
+- GraphQL `callProCustomerSelect(conversationId, customerId)` — attaches the
+  customer an agent picked and clears `callProPotentialCustomerIds`. It rejects
+  a customer that is not one of the recorded candidates.
+- GraphQL `Conversation.callProAudio` — the Call Pro recording URL, resolved
+  only for `kind === 'callpro'` conversations and only for the owner or the
+  assignee.
 - GraphQL: `reportCharts(chartType: String)` and `reportChartDetail(_id)` —
   saved report charts, oldest first. A saved chart is a name plus the filter
   configuration a report card was showing; `chartType` is the frontend's chart
@@ -280,8 +321,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
-  `Discord*`, `Imap*`, plus inbox (`Conversations`, `ConversationMessages`),
-  channel, ticket, form, and knowledge base collections.
+  `CallPro*`, `Discord*`, `Imap*`, plus inbox (`Conversations`,
+  `ConversationMessages`), channel, ticket, form, and knowledge base
+  collections.
+- Call Pro owns four collections: `integrations_callpro` (unique
+  `phoneNumber`, `inboxId`), `customers_callpro` (unique `phoneNumber`),
+  `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
+  webhook payload, kept for support). Removing the integration clears the
+  first three; the log is deliberately retained.
+- `conversations.callProPotentialCustomerIds` / `callProPhone` — set only when
+  one caller number matched several core customers. Both stay unset for the
+  ordinary single-customer call, and the id list is emptied once an agent
+  picks.
+- `calls_sessions` — one document per PBX leg, keyed by a unique `uniqueid`,
+  carrying the `conversationId` the leg belongs to. Sibling legs of the same
+  call each get their own document but share one `conversationId`; the sibling
+  lookup is bounded by `SIBLING_SESSION_WINDOW_MS` (60s of `updatedAt`
+  recency) and served by the `{ customerPhone: 1, startedAt: -1 }` index.
 - `channels.scope` — `'team' | 'personal'`, default `'team'`. Legacy documents
   have no `scope` field; all reads treat a missing value as `team`, so **no
   backfill migration is required**.
@@ -321,6 +377,54 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
+  gates the webhook route, the create/update handlers, `callProAudio`, and —
+  through `callProConfig` — every UI surface. It is independent of the
+  Grandstream `calls` integration; neither may be used to switch the other.
+- A Call Pro call event never attributes a conversation to a guessed customer.
+  When `callProCustomersByPhone` returns more than one match the conversation
+  is created with no `customerId` and the candidate list instead, and only an
+  agent's `callProCustomerSelect` attaches one.
+- One physical call is one inbox conversation, even when the PBX files its legs
+  under different `uniqueid`s (Follow Me / forward to an external number files
+  the answered leg as a separate `Outbound` leg tagged `FOLLOWME[<ext>]`).
+  Both ingestion paths must join an existing conversation before creating one.
+  The CTI path first looks for the parent leg by `linkedid` — a forwarded child
+  leg carries the originating call's id there, while a root leg carries its own
+  `uniqueid` — and otherwise falls back to a recent `CallSessions` sibling with
+  the same `customerPhone` (`CallSessions.findSibling`). The CDR path walks
+  session → same-`uniqueid` CDR → time-overlapping CDR → sibling session; the
+  CDR webhook payload carries no `linkedid` at all, so the overlap match is
+  what ties its forwarded legs together. A phone-matched candidate is only
+  accepted for a leg that belongs to an inbound call (`belongsToInboundCall`)
+  or for a still-live session, so an agent's own callback to the same number
+  stays its own conversation; a leg carrying a `linkedid` is exempt from that
+  guard, because the id already proves it belongs to another call.
+- The call reports count a forwarded call once, under the inbound call it came
+  from. `withForwardedCallKeys` re-keys a `FOLLOWME` leg to its parent call's
+  `uniqueid` when a non-forwarded leg with the same `src` overlaps it in time
+  (`FORWARDED_PARENT_WINDOW_MS`), and only falls back to the synthetic
+  `forwarded:<extension>:<index>` key when no parent is in the queried leg set.
+  Reports other than the call history and agent stats never load forwarded legs
+  at all — `buildCdrFilter` excludes them unless `includeForwarded` is set.
+- The customer of a forwarded leg is the original caller, never the number the
+  PBX dialled. In an `outgoing_call` CTI payload `caller` is the follow-me
+  destination (the agent's mobile) and `callerName` carries the caller's own
+  number, so the session takes its `customerPhone` from the parent leg, then
+  from `callerIdName` when that looks like a phone number, and only then from
+  the event's own party fields. That resolved number — never the raw event
+  party — is what the phone-based sibling lookup searches on. On the CDR side
+  `determinePrimaryPhone` already reads `src` for a `FOLLOWME` leg.
+- Call timestamps coming off the PBX are local time without a zone. Every path
+  parses them with `parseCdrDate` (which applies the `+08:00` PBX offset) —
+  never `new Date(value)`, which files the stamp eight hours ahead.
+- An inbound call conversation is assigned to the agent who actually answered
+  it. The answering operator is resolved from the leg's answering extension
+  (`dstanswer` / `dstchannel_ext`, via `resolveCdrOperator`) — never from
+  `extractOperatorId` alone, which yields the queue number on Queue legs — and
+  is handed to `create-or-update-conversation` as `userId`. The legacy `owner`
+  lookup through `details.operatorPhone` is a fallback only; assignment must
+  never depend on that optional profile field being set.
 - A personal channel always has exactly one `ChannelMembers` row: its owner,
   with role `admin`. Nothing may add, remove, or demote that member.
   `channelAdd(scope: "personal")` rejects `memberIds`, `channelAddMembers`
@@ -429,6 +533,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   which is the permission guard `callGetQueueStats` used to carry alone. Keep
   that check in the helper so a caller cannot reach another integration's queue
   by pairing it with its own `integrationId`.
+- Queue cards must reconcile with the KPI total. `callGetQueueStats` groups the
+  scoped calls by whatever queue their own legs carry and buckets the ones that
+  never entered a queue under `NO_QUEUE` (`__no_queue__`); it must never drop a
+  call because its queue is missing from `CallIntegrations.queues`. Queue 6500
+  serves two DIDs on the reference deployment, so that whitelist silently hid 18
+  of integration 11365555's 51 August calls from the Queues tab while every
+  other tab still counted them. `CallIntegrations.queues` stays the filter list
+  and the permission guard, not a display filter.
+- Outbound calls are dropped whenever a specific queue is selected —
+  `wantsOutboundCalls` in `callQueries.ts` decides this once for
+  `callKpiScorecard`, `callVolumeSeries`, `callGetAgentStats`, and
+  `callHistoryList`. An outbound leg never carries `QUEUE[..]`, so the outbound
+  branch cannot be narrowed by the queue regex the inbound branch uses; before
+  this rule the whole integration's outbound calls were added to a queue-scoped
+  count and the KPI read 21 next to a 10-call queue card.
 - KPI formulas live once, in `statistics.ts`. `callKpiScorecard`,
   `callTodayStatistics`, and the six `callCalculate*` queries all pass filtered
   CDR legs to those helpers, so every surface reports a metric the same way.
@@ -690,6 +809,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   drill-down) rather than the chart. Widening the stored filter set means adding
   the field to the `filters` subschema, the `ReportChartFilters` output type,
   and that key list together, or it will be silently dropped on save.
+- Agent tool annotations are admit-only: never annotate webhook ingestion or
+  notification plumbing (`inbox.integrations.receive`,
+  `inbox.integrationsNotification`, `inbox.sendNotifications`,
+  `inbox.conversationClientMessageInserted`), raw-mongo helpers
+  (`inbox.conversationMessages.updateOne`, `inbox.updateConversationMessage`),
+  bulk or destructive operations (`inbox.integrations.remove`,
+  `inbox.removeConversation`, `inbox.removeCustomersConversations`,
+  `inbox.changeCustomer`, `conversation.tag`), procedures that trust a
+  caller-supplied `userId` (`inbox.createConversationAndMessage`,
+  `inbox.createOnlyMessage`, `inbox.integrations.copyLeadIntegration`,
+  `ticket.create`), widget-facing endpoints
+  (`inbox.widgetsGetUnreadMessagesCount`), internal membership or relation
+  plumbing (`inbox.updateUserChannels`, `inbox.getModuleRelation`,
+  `relation.onRelationAdded`, `fields.getFieldList`), or the raw
+  `inbox.channels.find`, which bypasses `visibleChannelsFilter` and would
+  expose other users' personal channels. New procedures are agent-invisible
+  unless explicitly annotated.
 - Every resolver, model call, worker, and route resolves models from the request
   `subdomain`.
 - Schemas are defined with `new Schema(...)` and explicit fields; do not
@@ -717,10 +853,103 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   range covering `calls_cdrs` documents whose `actionType` contains
   `QUEUE[<queue>]`. Every tab must show numbers; an empty `calls_cdrs` renders
   every tab blank, which is expected, not a bug.
+- Smoke: `GET /agent-tools/manifest` on the frontline service lists only the
+  annotated procedures above; `ticket.create`, `inbox.removeConversation`,
+  `inbox.conversationMessages.updateOne`, and `inbox.channels.find` never
+  appear.
+- Smoke: with `CALLPRO_ENABLED` unset, `POST /callpro/receive` must 404. With it
+  set to `true`, create a Call Pro line and post
+  `{ numberTo, numberFrom, disp, callID, owner }` — a conversation appears in
+  the channel; re-posting the same `callID` with a new `disp` updates it rather
+  than creating a second one; seeding two core customers on `numberFrom` makes
+  the conversation open with the candidate picker and no `customerId`.
 
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
+
+- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
+- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
+- **Contracts changed:** None
+
+### `2026-08-21` — A forwarded call stays one conversation
+
+- **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
+  produced two inbox conversations — the queue leg as `NO ANSWER · Inbound` and
+  the `FOLLOWME` leg, filed by the PBX under a second `uniqueid`, as
+  `ANSWERED · Outbound`. The CTI path created the second one because it looked
+  a session up by `uniqueid` alone, and the CDR path's existing FOLLOWME merge
+  could never run once that session carried a `conversationId`. Both paths now
+  adopt the call a leg belongs to before creating one — the CTI path by the
+  child leg's `linkedid`, then by a recent sibling session for the same
+  customer, and it takes a forwarded leg's customer from the parent leg or from
+  `callerName` instead of filing the agent's mobile as the caller. The CDR path
+  also merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and
+  writes a resolved `conversationId` back onto a session that had none, and a
+  customer-scoped Redis lock keeps sibling legs from racing each other into two
+  conversations. Conversation content is now derived from every leg of the
+  conversation and reports a `FOLLOWME` leg as `Inbound`, so a merged call
+  reads `ANSWERED · Inbound` regardless of which leg's CDR lands last. Fixed
+  the CTI `startedAt`/`endedAt` parsing that stored PBX local time eight hours
+  ahead.
+  The call history and agent stats fold a `FOLLOWME` leg into its parent call
+  instead of listing it as a second, outgoing call placed to the agent's own
+  mobile.
+- **Affected areas:**
+  `src/modules/reports/callReportService.ts` (`withForwardedCallKeys`),
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/cdrUtils.ts`
+  (`getConversationContent`),
+  `src/modules/integrations/call/db/models/CallSessions.ts`
+  (`findSibling`), `src/modules/integrations/call/redlock.ts`
+  (`acquireCustomerLock`).
+- **Contracts changed:** None. `POST /call/event`, `/call/receiveCall`, and
+  `/call/cdrReceive` keep their payloads; only how legs are grouped into a
+  conversation changed.
+
+### `2026-08-20` — The agent who answered a call is assigned to it
+
+- **Summary:** A call conversation stayed unassigned because the CDR path
+  looked the operator up with `extractOperatorId`, which returns the queue/DID
+  number on the inbound Queue legs an agent actually answers, and then carried
+  the match to the inbox as `owner` — the user's optional
+  `details.operatorPhone`. Both the CDR and the CTI path now resolve the
+  answering operator from the leg's answering extension
+  (`resolveCdrOperator`) and pass that operator's `userId` straight to
+  `create-or-update-conversation`, so assignment no longer depends on a
+  profile field being filled in.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/inbox/receiveMessage.ts`.
+- **Contracts changed:** None — `create-or-update-conversation` already
+  accepted `userId`; the call paths now send it, and the create branch no
+  longer leaks `owner`/`userId` onto the new conversation document.
+
+### `2026-08-19` — Call Pro webhook integration
+
+- **Summary:** Ported the Call Pro PBX integration from the legacy
+  `plugin-integrations-api`: a `CALLPRO_ENABLED`-gated `/callpro/receive`
+  webhook turns each call event into an inbox conversation with the caller
+  attached and the recording URL resolved, and defers attribution to the agent
+  when one number matches several customers.
+- **Affected areas:** `src/modules/integrations/callpro/` (new),
+  `src/connectionResolvers.ts`, `src/routes.ts`,
+  `src/apollo/{schema/schema.ts,resolvers/queries.ts,resolvers/mutations.ts}`,
+  `src/modules/inbox/{@types,db/definitions}/conversations.ts`,
+  `src/modules/inbox/graphql/schemas/conversation.ts`,
+  `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
+- **Contracts changed:** Added `POST /callpro/receive`; queries `callProConfig`,
+  `callProIntegrationDetail`, `callProCustomersByPhone`; mutation
+  `callProCustomerSelect`; `Conversation.callProPotentialCustomerIds` and
+  `Conversation.callProPhone`; a resolver for the previously dangling
+  `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
+  `sendUpdateIntegration`, and `sendRemoveIntegration`.
 
 ### `2026-08-19` — Call history reports the ring on unanswered calls
 
@@ -813,57 +1042,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
   types, and five `reportFacebook*` queries; `TicketReportFilter`,
   `ReportChartFilters`, and the stored chart filters gained `pageIds`.
-
-### `2026-08-17` — IVR stops swallowing every call outcome
-
-- **Summary:** `deriveCallStatusFromLegs` checked `IVR` before the real
-  dispositions, and an IVR answers the line on every call it fronts, so every
-  call through a menu was labelled `IVR` — which `callHistoryList` then dropped
-  outright. On an IVR-fronted deployment the Call history was empty, phone
-  search found nothing, and the No answer / Busy / Failed filters returned
-  nothing while Total Calls read 259. `IVR` is now the last branch, so it only
-  labels a call that never left the menu, and the history no longer filters an
-  outcome class out of the list.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`deriveCallStatusFromLegs`),
-  `src/modules/reports/graphql/resolvers/callQueries.ts` (`callHistoryList`).
-- **Contracts changed:** None. Values move: calls that entered an IVR and were
-  not answered now report `NO ANSWER` / `BUSY` / `FAILED` instead of `IVR`,
-  which also changes the conversation label `getConversationContent` renders.
-
-### `2026-08-17` — Messenger ticket configs tolerate deleted references
-
-- **Summary:** `integrationsSaveMessengerTicketData` no longer rejects the whole
-  selection when one id is gone — it persists the configs that still exist and
-  unsets the field when none do — and `ticketRemoveConfig` now pulls the deleted
-  id out of every integration and returns the removed document.
-- **Affected areas:**
-  `src/modules/inbox/db/models/Integrations.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/ticketConfig.ts`.
-- **Contracts changed:** None — `integrationsSaveMessengerTicketData` stops
-  throwing `One or more Configs not found`, and `ticketRemoveConfig` now
-  returns the `TicketConfig` its schema already declared instead of `null`.
-
-### `2026-08-17` — "Can move" also guards the status a ticket leaves
-
-- **Summary:** `validateEditPermission` only checked the destination, so a user
-  missing from a status's `canMoveMemberIds` could still drag its tickets
-  elsewhere; a status change now checks the source status as well, the way
-  `sales_api` checks both stages. An empty list still means "everyone".
-- **Affected areas:** `src/modules/ticket/utils/permissionValidator.ts`.
-- **Contracts changed:** None — `updateTicket` can now fail with
-  `You do not have permission to move tickets out of this status`.
-
-### `2026-08-17` — Status management moved onto the frontline permission
-
-- **Summary:** `addTicketStatus`, `updateTicketStatus` and `deleteTicketStatus`
-  now require the new `ticketStatusesManage` action via
-  `context.checkPermission` instead of asserting pipeline ownership; the local
-  `assertPipelineOwner` helper is gone.
-- **Affected areas:** `src/meta/permissions.ts`,
-  `src/modules/ticket/graphql/resolvers/mutations/status.ts`.
-- **Contracts changed:** The `ticket` permission module gained the
-  `ticketStatusesManage` action, granted to the `frontline:admin` default
-  group; the three status mutations now fail with `Permission required`
-  (`FORBIDDEN`) for users without it.

@@ -17,12 +17,14 @@ const UNNAMED = 'Unnamed';
 
 type TConversationNode = {
   _id: string;
+  createdAt?: string | null;
   content?: string | null;
   customer?: {
     _id: string;
     firstName?: string | null;
     lastName?: string | null;
     primaryEmail?: string | null;
+    primaryPhone?: string | null;
   } | null;
 };
 
@@ -35,33 +37,14 @@ const conversationsSearchProvider = defineSearchProvider<TConversationNode>({
   order: 110,
   selections: [
     {
-      alias: 'gs_frontline_conversations_open',
+      alias: 'gs_frontline_conversations',
       field: 'conversations',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount }',
-    },
-    {
-      alias: 'gs_frontline_conversations_closed',
-      field: 'conversations',
-      args: 'searchValue: $searchValue, limit: $limit, status: "closed"',
-      body: '{ list { _id content customer { _id firstName lastName primaryEmail } } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id content createdAt customer { _id firstName lastName primaryEmail primaryPhone } } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
-  select: (payload) => {
-    const open = readCursorList<TConversationNode>(
-      payload,
-      'gs_frontline_conversations_open',
-    );
-    const closed = readCursorList<TConversationNode>(
-      payload,
-      'gs_frontline_conversations_closed',
-    );
-
-    return {
-      nodes: [...open.nodes, ...closed.nodes],
-      totalCount: open.totalCount + closed.totalCount,
-    };
-  },
+  select: (payload) =>
+    readCursorList<TConversationNode>(payload, 'gs_frontline_conversations'),
   toItem: (conversation) => ({
     id: conversation._id,
     title: getPersonName(
@@ -69,12 +52,22 @@ const conversationsSearchProvider = defineSearchProvider<TConversationNode>({
       conversation.customer?.primaryEmail || UNNAMED,
     ),
     description: stripHtml(conversation.content),
+    createdAt: conversation.createdAt ?? undefined,
+    matchFields: conversation.customer?.primaryPhone
+      ? [
+          {
+            label: 'Customer phone',
+            value: conversation.customer.primaryPhone,
+          },
+        ]
+      : undefined,
     path: `/frontline/inbox?conversationId=${conversation._id}`,
   }),
 });
 
 type TTicketNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
   number?: string | null;
 };
@@ -90,8 +83,8 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     {
       alias: 'gs_frontline_tickets',
       field: 'getTickets',
-      args: 'filter: { searchValue: $searchValue, limit: $limit, cursor: "", direction: forward, orderBy: { createdAt: -1 } }',
-      body: '{ list { _id name number } totalCount }',
+      args: 'filter: { searchValue: $searchValue, state: "all", limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy }',
+      body: '{ list { _id name number createdAt } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) =>
@@ -100,12 +93,14 @@ const ticketsSearchProvider = defineSearchProvider<TTicketNode>({
     id: ticket._id,
     title: ticket.name || UNNAMED,
     description: ticket.number ? `#${ticket.number}` : undefined,
+    createdAt: ticket.createdAt ?? undefined,
     path: `/frontline/tickets?ticketId=${ticket._id}`,
   }),
 });
 
 type TChannelNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
   description?: string | null;
 };
@@ -121,23 +116,30 @@ const channelsSearchProvider = defineSearchProvider<TChannelNode>({
     {
       alias: 'gs_frontline_channels',
       field: 'getChannels',
-      args: 'name: $searchValue',
-      body: '{ _id name description }',
+      args: 'name: $searchValue, sortField: $sortField, sortDirection: $sortDirection',
+      body: '{ _id name description createdAt }',
     },
   ],
-  select: (payload) => ({
-    nodes: readArray<TChannelNode>(payload, 'gs_frontline_channels'),
-  }),
+  select: (payload) => {
+    const nodes = readArray<TChannelNode>(payload, 'gs_frontline_channels');
+    return {
+      nodes,
+      totalCount: nodes.length,
+      pageInfo: { hasNextPage: false, endCursor: null },
+    };
+  },
   toItem: (channel) => ({
     id: channel._id,
     title: channel.name || UNNAMED,
     description: channel.description || undefined,
+    createdAt: channel.createdAt ?? undefined,
     path: `/frontline/inbox?channelId=${channel._id}`,
   }),
 });
 
 type TFormNode = {
   _id: string;
+  createdAt?: string | null;
   name?: string | null;
   title?: string | null;
   code?: string | null;
@@ -154,8 +156,8 @@ const formsSearchProvider = defineSearchProvider<TFormNode>({
     {
       alias: 'gs_frontline_forms',
       field: 'forms',
-      args: 'searchValue: $searchValue, limit: $limit',
-      body: '{ list { _id name title code } totalCount }',
+      args: 'searchValue: $searchValue, limit: $limit, cursor: $cursor, direction: forward, orderBy: $orderBy',
+      body: '{ list { _id name title code createdAt: createdDate } totalCount pageInfo { hasNextPage endCursor } }',
     },
   ],
   select: (payload) => readCursorList<TFormNode>(payload, 'gs_frontline_forms'),
@@ -163,6 +165,7 @@ const formsSearchProvider = defineSearchProvider<TFormNode>({
     id: form._id,
     title: form.name || form.title || UNNAMED,
     description: form.code || undefined,
+    createdAt: form.createdAt ?? undefined,
     path: `/frontline/forms/${form._id}`,
   }),
 });
