@@ -288,7 +288,14 @@ type TSendChannelMessageArgs = {
   components?: APIActionRowComponent<APIComponentInMessageActionRow>[];
   files?: DiscordMessageAttachment[];
   poll?: DiscordPollRequest;
-  messageReference?: string;
+  messageReference?:
+    | string
+    | {
+        type: 1;
+        messageId: string;
+        channelId: string;
+        guildId?: string;
+      };
 };
 
 const typingTimers = new Map<string, ReturnType<typeof setInterval>>();
@@ -409,10 +416,22 @@ const postDiscordMessage = async ({
   if (components?.length) payload.components = components;
   if (poll) payload.poll = poll;
   if (messageReference) {
-    payload.message_reference = {
-      message_id: messageReference,
-      fail_if_not_exists: false,
-    };
+    payload.message_reference =
+      typeof messageReference === 'string'
+        ? {
+            type: 0,
+            message_id: messageReference,
+            fail_if_not_exists: false,
+          }
+        : {
+            type: messageReference.type,
+            message_id: messageReference.messageId,
+            channel_id: messageReference.channelId,
+            ...(messageReference.guildId && {
+              guild_id: messageReference.guildId,
+            }),
+            fail_if_not_exists: true,
+          };
   }
 
   const path = `/channels/${channelId}/messages`;

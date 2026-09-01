@@ -44,6 +44,13 @@ type TInboxRelayDoc = {
   messageId?: string;
   reaction?: string;
   remove?: boolean;
+  extraInfo?: {
+    forwardedNote?: string;
+    forwardedFrom?: {
+      conversationId?: string;
+      messageId?: string;
+    };
+  };
 };
 
 const DISCORD_REACTION_EMOJI: Record<string, string> = {
@@ -171,6 +178,7 @@ const handleDiscordReplyMessenger = async (
     attachments = [],
     poll,
     replyToMessageId,
+    extraInfo,
   } = doc;
 
   const pollRequest = buildPollRequest(poll);
@@ -191,7 +199,36 @@ const handleDiscordReplyMessenger = async (
     throw new Error('Discord conversation not found');
   }
 
-  const text = stripHtml(content).result.trim();
+  const forwardedFrom = extraInfo?.forwardedFrom;
+  const sourceInboxMessage = forwardedFrom?.messageId
+    ? await models.ConversationMessages.findOne({
+        _id: forwardedFrom.messageId,
+        conversationId: forwardedFrom.conversationId,
+      })
+    : null;
+  const sourceDiscordMessageId =
+    typeof sourceInboxMessage?.extraData?.discordMessageId === 'string'
+      ? sourceInboxMessage.extraData.discordMessageId
+      : undefined;
+  const sourceConversation =
+    sourceDiscordMessageId && forwardedFrom?.conversationId
+      ? await models.DiscordConversations.findOne({
+          erxesApiId: forwardedFrom.conversationId,
+        })
+      : null;
+  const nativeForwardReference =
+    sourceDiscordMessageId && sourceConversation?.channelId
+      ? {
+          type: 1 as const,
+          messageId: sourceDiscordMessageId,
+          channelId: sourceConversation.channelId,
+          guildId: sourceConversation.guildId,
+        }
+      : undefined;
+
+  const text = nativeForwardReference
+    ? stripHtml(extraInfo?.forwardedNote || '').result.trim()
+    : stripHtml(content).result.trim();
 
   const files: DiscordMessageAttachment[] = (
     Array.isArray(attachments) ? attachments : []
@@ -202,7 +239,7 @@ const handleDiscordReplyMessenger = async (
       filename: a.name,
     }));
 
-  if (!text && files.length === 0 && !pollRequest) {
+  if (!text && files.length === 0 && !pollRequest && !nativeForwardReference) {
     return { status: 'success' };
   }
 
@@ -231,9 +268,10 @@ const handleDiscordReplyMessenger = async (
       token: bot.token,
       channelId: conversation.channelId,
       content: discordText,
-      files: files.length ? files : undefined,
-      poll: pollRequest,
-      messageReference: replyToMessageId,
+      files:
+        nativeForwardReference || !files.length ? undefined : files,
+      poll: nativeForwardReference ? undefined : pollRequest,
+      messageReference: nativeForwardReference || replyToMessageId,
     });
   } catch (e) {
     debugError(`Failed to send Discord reply: ${getErrorMessage(e)}`);
