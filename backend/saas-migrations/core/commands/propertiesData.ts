@@ -27,6 +27,22 @@ const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 let db: Db;
 
+const toList = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return typeof value === 'string' ? value.split(',') : value;
+};
+
+const toLowercaseList = (value) => {
+  const list = toList(value);
+
+  return Array.isArray(list)
+    ? list.map((v) => (v ? String(v).toLowerCase() : v))
+    : list;
+};
+
 const parseValue = (field, value) => {
   const fieldType = field.type;
 
@@ -38,22 +54,10 @@ const parseValue = (field, value) => {
     switch (fieldType) {
       case 'multiSelect':
       case 'check':
-        if (Array.isArray(value)) {
-          return value.map((v) => (v ? String(v).toLowerCase() : v));
-        } else if (typeof value === 'string') {
-          return value.split(',').map((v) => String(v).toLowerCase());
-        } else {
-          return value;
-        }
+        return toLowercaseList(value);
 
-      // v2 stored string lists comma-joined. Keep the entries verbatim — unlike
-      // multiSelect/check these are free text, not option values.
       case 'list':
-        if (Array.isArray(value)) {
-          return value;
-        }
-
-        return typeof value === 'string' ? value.split(',') : value;
+        return toList(value);
 
       case 'select':
         return Array.isArray(value)

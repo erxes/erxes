@@ -47,6 +47,13 @@ const SortableRow = ({
     isDragging,
   } = useSortable({ id: item.id });
   const [isEditing, setIsEditing] = useState(false);
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing) {
+      editInputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   const commit = (text: string) => {
     setIsEditing(false);
@@ -77,7 +84,7 @@ const SortableRow = ({
 
       {isEditing ? (
         <Input
-          autoFocus
+          ref={editInputRef}
           className="h-6 flex-auto"
           defaultValue={item.text}
           onBlur={(e) => commit(e.currentTarget.value)}
@@ -93,14 +100,16 @@ const SortableRow = ({
           }}
         />
       ) : (
-        <button
+        <Button
           type="button"
-          className="flex-auto truncate text-left text-sm"
+          variant="ghost"
+          size="sm"
+          className="h-6 flex-auto justify-start truncate px-1 text-sm font-normal"
           onDoubleClick={() => setIsEditing(true)}
           title={item.text}
         >
           {item.text}
-        </button>
+        </Button>
       )}
 
       <Button
@@ -129,9 +138,14 @@ export const StringListEditor = ({
   const [items, setItems] = useState<ListItem[]>(() => toItems(value));
   const [isAdding, setIsAdding] = useState(false);
   const lastEmitted = useRef<string[]>(value);
+  const addInputRef = useRef<HTMLInputElement>(null);
 
-  // Keep in sync when the record (and so the incoming value) changes, but never
-  // clobber the edit that produced the value we just emitted.
+  useEffect(() => {
+    if (isAdding) {
+      addInputRef.current?.focus();
+    }
+  }, [isAdding]);
+
   useEffect(() => {
     const isOwnEmit =
       lastEmitted.current.length === value.length &&
@@ -219,7 +233,7 @@ export const StringListEditor = ({
 
       {isAdding ? (
         <Input
-          autoFocus
+          ref={addInputRef}
           className="h-6"
           placeholder={addButtonLabel}
           onBlur={(e) => {
