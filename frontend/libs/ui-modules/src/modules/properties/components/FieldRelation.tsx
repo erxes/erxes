@@ -81,11 +81,9 @@ export const FieldRelation = ({
       scope={id}
       value={currentValue ?? undefined}
       inCell={inCell}
-      onValueChange={(val) => {
-        const nextValue = val ?? null;
-
-        setCurrentValue(nextValue);
-        nextValue !== value && handleChange(nextValue);
+      onValueChange={(val = null) => {
+        setCurrentValue(val);
+        val !== value && handleChange(val);
       }}
     />
   );
