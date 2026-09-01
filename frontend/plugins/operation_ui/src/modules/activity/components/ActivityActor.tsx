@@ -1,6 +1,6 @@
 import { Avatar, Skeleton, readImage } from 'erxes-ui';
 import { IconRobot, IconUser } from '@tabler/icons-react';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IUser, useMemberInline } from 'ui-modules';
 
@@ -39,11 +39,13 @@ const ActivityActorProvider = ({
     skip: !actorId || isSystem,
     fetchPolicy: 'cache-and-network',
   });
+  const contextValue = useMemo(
+    () => ({ isSystem, loading, user: userDetail }),
+    [isSystem, loading, userDetail],
+  );
 
   return (
-    <ActivityActorContext.Provider
-      value={{ isSystem, loading, user: userDetail }}
-    >
+    <ActivityActorContext.Provider value={contextValue}>
       {children}
     </ActivityActorContext.Provider>
   );
