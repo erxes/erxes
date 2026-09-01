@@ -1,21 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Input, Textarea } from 'erxes-ui';
+import { Button, Input, isDeeplyEqual, Textarea } from 'erxes-ui';
 import { SpecificFieldProps } from './Field';
 
 type ObjectListRow = Record<string, string>;
 
 const parseRows = (value: unknown): ObjectListRow[] =>
   Array.isArray(value) ? value : [];
-
-const rowsEqual = (a: ObjectListRow[], b: ObjectListRow[]) =>
-  a.length === b.length &&
-  a.every((row, index) => {
-    const other = b[index] || {};
-    const keys = new Set([...Object.keys(row), ...Object.keys(other)]);
-
-    return [...keys].every((key) => row[key] === other[key]);
-  });
 
 export const FieldObjectList = (props: SpecificFieldProps) => {
   const { field, value, inCell, handleChange } = props;
@@ -27,7 +18,7 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
   useEffect(() => {
     const incoming = parseRows(value);
 
-    if (!rowsEqual(incoming, lastEmitted.current)) {
+    if (!isDeeplyEqual(incoming, lastEmitted.current)) {
       setRows(incoming);
       lastEmitted.current = incoming;
     }
@@ -63,7 +54,7 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
     );
 
   const commitIfChanged = () => {
-    if (!rowsEqual(rows, lastEmitted.current)) {
+    if (!isDeeplyEqual(rows, lastEmitted.current)) {
       apply(rows);
     }
   };
