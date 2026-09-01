@@ -104,10 +104,9 @@ const handleReceiptEvent = async (
   const status = activity.read ? 'read' : 'delivered';
   const mids = receiptMessageIds(activity);
   const pageId = integration.instagramPageId;
-  const customerInstagramId = [
-    activity.sender.id,
-    activity.recipient.id,
-  ].find((id) => id !== pageId);
+  const customerInstagramId = [activity.sender.id, activity.recipient.id].find(
+    (id) => id !== pageId,
+  );
   const conversation = customerInstagramId
     ? await models.InstagramConversations.findOne({
         senderId: customerInstagramId,
@@ -198,8 +197,7 @@ const upsertInstagramConversation = async ({
     });
     return { conversation, botId, isNew: true };
   } catch (error) {
-    const messageText =
-      error instanceof Error ? error.message : String(error);
+    const messageText = error instanceof Error ? error.message : String(error);
     throw new Error(
       messageText.includes('duplicate')
         ? 'Concurrent request: conversation duplication'
@@ -246,7 +244,9 @@ const syncInstagramInboxConversation = async ({
       }),
     });
     if (response.status !== 'success') {
-      throw new Error(`Conversation creation failed: ${JSON.stringify(response)}`);
+      throw new Error(
+        `Conversation creation failed: ${JSON.stringify(response)}`,
+      );
     }
     conversation.erxesApiId = response.data._id;
     await conversation.save();
@@ -357,8 +357,7 @@ const createInstagramMessage = async ({
     if (inboxMessageId) {
       await models.ConversationMessages.deleteOne({ _id: inboxMessageId });
     }
-    const errorMessage =
-      error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
       errorMessage.includes('duplicate')
         ? 'Concurrent request: conversation message duplication'

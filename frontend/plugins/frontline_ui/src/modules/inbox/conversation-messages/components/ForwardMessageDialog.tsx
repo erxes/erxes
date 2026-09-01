@@ -83,10 +83,7 @@ export const ForwardMessageDialog = ({
     [data?.conversations?.list, sourceConversationId],
   );
 
-  const handleForward = async ({
-    destinationId,
-    note,
-  }: ForwardMessageForm) => {
+  const handleForward = async ({ destinationId, note }: ForwardMessageForm) => {
     const existingSnapshot = message.extraData?.forwardedSnapshot;
     const messageText = textOf(message.content);
     const hasSocialShare = message.attachments?.some(
@@ -216,10 +213,7 @@ export const ForwardMessageDialog = ({
             })}
           </Command.List>
         </Command>
-        <Input
-          {...form.register('note')}
-          placeholder="Add a note (optional)"
-        />
+        <Input {...form.register('note')} placeholder="Add a note (optional)" />
         <Dialog.Footer>
           <Button
             type="button"

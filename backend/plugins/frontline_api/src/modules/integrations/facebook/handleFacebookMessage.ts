@@ -259,8 +259,7 @@ export const handleFacebookMessage = async (
       else if (repliedToMessage?.customerId) replyAuthorName = 'Customer';
       replyTo = {
         messageId: replyToMessageId,
-        content:
-          repliedToMessage?.content || 'Original message unavailable',
+        content: repliedToMessage?.content || 'Original message unavailable',
         authorName: replyAuthorName,
       };
     }

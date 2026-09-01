@@ -252,9 +252,9 @@ export const receiveDiscordReaction = async ({
       reaction.senderId === event.userId && reaction.emoji === event.emoji;
     const isRemovedLocalReaction = Boolean(
       !event.added &&
-        isBotReaction &&
-        reaction.reaction &&
-        reaction.emoji === event.emoji,
+      isBotReaction &&
+      reaction.reaction &&
+      reaction.emoji === event.emoji,
     );
     return !isProviderReaction && !isRemovedLocalReaction;
   });
