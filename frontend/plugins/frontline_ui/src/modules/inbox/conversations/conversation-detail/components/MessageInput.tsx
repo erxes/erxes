@@ -253,6 +253,7 @@ const MessageInputView = ({
 
           <Button
             size="sm"
+            aria-label={t('send')}
             className="ml-auto h-9 flex-none rounded-lg px-2.5 sm:px-4"
             disabled={
               loading ||

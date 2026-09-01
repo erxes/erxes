@@ -133,7 +133,7 @@ export const useFacebookConversationMessages = () => {
             },
           ],
           facebookConversationMessagesCount:
-            prev.facebookConversationMessagesCount + 1,
+            (prev.facebookConversationMessagesCount || 0) + 1,
         };
       },
     });

@@ -127,7 +127,9 @@ const Attachment = ({
             playsInline
             preload="metadata"
             className="block max-h-[88vh] max-w-[90vw] rounded-lg object-contain"
-          />
+          >
+            <track kind="captions" />
+          </video>
         </Dialog.Content>
       </Dialog>
     );
@@ -140,7 +142,9 @@ const Attachment = ({
         preload="metadata"
         onError={onUnavailable}
         className="w-full min-w-64"
-      />
+      >
+        <track kind="captions" />
+      </audio>
     );
   }
   if (!isImage) {

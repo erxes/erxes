@@ -71,8 +71,8 @@ export interface IMessageForwardedSnapshot {
   embeds?: IMessageEmbed[];
   stickers?: IMessageSticker[];
   poll?: IMessagePoll;
-  messageKind?: IMessage['messageKind'];
-  providerData?: IMessage['providerData'];
+  messageKind: IMessage['messageKind'];
+  providerData: IMessage['providerData'];
   createdAt?: string;
 }
 

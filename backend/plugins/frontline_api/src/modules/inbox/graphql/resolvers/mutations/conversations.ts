@@ -14,6 +14,7 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { authorizeConversationAccess } from '@/inbox/conversationUtils';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { IUserDocument } from 'erxes-api-shared/core-types';
@@ -692,18 +693,23 @@ export const conversationMutations = {
         }
 
         const forwardedSnapshot = extraInfo?.forwardedSnapshot;
+        let content: string | undefined;
+        if (forwardedSnapshot) {
+          content = extraInfo.forwardedNote || '';
+        } else if (displayContent) {
+          content = displayContent;
+        }
         const messageDoc = {
           ...doc,
-          ...(forwardedSnapshot
-            ? { content: extraInfo.forwardedNote || '' }
-            : displayContent
-            ? { content: displayContent }
-            : {}),
+          ...(content !== undefined ? { content } : {}),
           ...(extraData || forwardedSnapshot
             ? {
                 extraData: {
                   ...(extraData || {}),
-                  ...(forwardedSnapshot && { forwardedSnapshot }),
+                  ...(forwardedSnapshot && {
+                    forwardedSnapshot,
+                    forwardedFrom: extraInfo?.forwardedFrom,
+                  }),
                 },
               }
             : {}),
@@ -783,6 +789,7 @@ export const conversationMutations = {
     },
     { user, models, subdomain }: IContext,
   ) {
+    await authorizeConversationAccess(models, user, conversationId);
     const conversation = await models.Conversations.getConversation(
       conversationId,
     );
@@ -833,8 +840,9 @@ export const conversationMutations = {
       messageId,
       remove,
     }: { conversationId: string; messageId: string; remove?: boolean },
-    { models, subdomain }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
+    await authorizeConversationAccess(models, user, conversationId);
     const conversation = await models.Conversations.getConversation(
       conversationId,
     );

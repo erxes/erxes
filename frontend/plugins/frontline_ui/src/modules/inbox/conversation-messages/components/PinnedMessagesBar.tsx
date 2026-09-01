@@ -8,7 +8,7 @@ import type { IMessage } from '@/inbox/types/Conversation';
 
 const messageText = (content?: string) =>
   content
-    ?.replace(/<[^>]+>/g, ' ')
+    ?.replace(/<[^<>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim() || 'Attachment or rich message';
 

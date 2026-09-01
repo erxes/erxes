@@ -117,7 +117,12 @@ export const MessageActions = ({
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
-    { refetchQueries: ['FrontlineConversationPinnedMessages'] },
+    {
+      refetchQueries: [
+        'FrontlineConversationPinnedMessages',
+        'ConversationMessages',
+      ],
+    },
   );
   const preview = previewOf(message);
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
@@ -134,30 +139,35 @@ export const MessageActions = ({
     kind === IntegrationType.INSTAGRAM_MESSENGER
       ? REACTIONS.slice(0, 1)
       : REACTIONS;
-  const ownReaction = (message.reactions || message.extraData?.reactions)?.find(
-    (reaction) => reaction.senderId === currentUser?._id,
-  )?.reaction;
+  const ownReaction = (
+    message.reactions?.length
+      ? message.reactions
+      : message.extraData?.reactions
+  )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
   const showActionsInline = inlineActionKinds.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
+    let authorName = 'Customer';
+    if (message.userId) {
+      authorName = 'You';
+    } else if (message.fromBot) {
+      authorName = 'AI Agent';
+    }
+    const attachment = message.attachments?.[0]?.url
+      ? {
+          url: message.attachments[0].url,
+          name: message.attachments[0].name,
+          type: message.attachments[0].type,
+        }
+      : undefined;
     setReply({
       messageId: message._id,
       providerMessageId,
       preview,
-      authorName: message.userId
-        ? 'You'
-        : message.fromBot
-        ? 'AI Agent'
-        : 'Customer',
-      attachment: message.attachments?.[0]?.url
-        ? {
-            url: message.attachments[0].url,
-            name: message.attachments[0].name,
-            type: message.attachments[0].type,
-          }
-        : undefined,
+      authorName,
+      attachment,
       nativeReply: nativeReplyKinds.has(kind) && Boolean(providerMessageId),
     });
   };
@@ -336,15 +346,16 @@ const ReactionMenu = ({
     const reaction = reactions[0];
     const selected = selectedReaction === reaction;
 
+    let reactionLabel = 'Add love reaction';
+    if (disabled) {
+      reactionLabel = disabledReason;
+    } else if (selected) {
+      reactionLabel = 'Remove love reaction';
+    }
+
     return (
       <ActionButton
-        label={
-          disabled
-            ? disabledReason
-            : selected
-            ? 'Remove love reaction'
-            : 'Add love reaction'
-        }
+        label={reactionLabel}
         disabled={disabled || loading}
         onClick={() => void handleReaction(reaction)}
       >

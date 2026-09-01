@@ -22,6 +22,25 @@ import {
  * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
  * injection objects like {"$gt": ""} by converting them to "[object Object]".
  */
+const attachmentPreviewFor = (args: {
+  primaryAttachment?: {
+    type?: string;
+    payload?: { sticker_id?: string; url?: string };
+  };
+  message?: { quick_reply?: { payload?: string } };
+  postback?: { title?: string } | null;
+}): string => {
+  if (args.primaryAttachment?.payload?.sticker_id) return 'Sent a sticker';
+  if (args.primaryAttachment?.type === 'image') return 'Sent an image';
+  if (args.primaryAttachment?.type === 'video') return 'Sent a video';
+  if (args.primaryAttachment?.type === 'audio') return 'Voice message';
+  if (args.primaryAttachment?.type === 'file') return 'Sent a file';
+  if (args.primaryAttachment) return 'Shared content';
+  if (args.message?.quick_reply) return 'Selected a quick reply';
+  if (args.postback) return args.postback.title || 'Selected an action';
+  return 'Unsupported Messenger message';
+};
+
 const sanitizeString = (value: unknown): string => {
   if (typeof value === 'string') {
     return value;
@@ -42,7 +61,7 @@ const getReplyPreview = (content?: string) =>
       '',
     )
     .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/<[^<>]+>/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -206,13 +225,20 @@ export const receiveMessage = async (
         return;
       }
 
+      const normalizedReaction = sanitizeString(
+        reaction.reaction || reaction.emoji,
+      );
+      if (reaction.action === 'react' && !normalizedReaction) {
+        debugFacebook('Ignoring reaction without a value');
+        return;
+      }
       const reactions = (target.reactions || []).filter(
         (item) => item.senderId !== userId,
       );
       if (reaction.action === 'react') {
         reactions.push({
           senderId: userId,
-          reaction: sanitizeString(reaction.reaction || reaction.emoji),
+          reaction: normalizedReaction,
         });
       }
       target.reactions = reactions;
@@ -339,23 +365,11 @@ export const receiveMessage = async (
         return true;
       });
     const primaryAttachment = attachments?.[0];
-    const attachmentPreview = primaryAttachment?.payload?.sticker_id
-      ? 'Sent a sticker'
-      : primaryAttachment?.type === 'image'
-      ? 'Sent an image'
-      : primaryAttachment?.type === 'video'
-      ? 'Sent a video'
-      : primaryAttachment?.type === 'audio'
-      ? 'Voice message'
-      : primaryAttachment?.type === 'file'
-      ? 'Sent a file'
-      : primaryAttachment
-      ? 'Shared content'
-      : message?.quick_reply
-      ? 'Selected a quick reply'
-      : postback
-      ? postback.title || 'Selected an action'
-      : 'Unsupported Messenger message';
+    const attachmentPreview = attachmentPreviewFor({
+      primaryAttachment,
+      message,
+      postback,
+    });
     const previewContent = text || attachmentPreview;
     const replyToMessageId = message?.reply_to?.mid;
     const repliedMessage = replyToMessageId

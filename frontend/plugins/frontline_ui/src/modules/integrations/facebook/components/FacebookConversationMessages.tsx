@@ -7,6 +7,50 @@ import {
   MessageDaySeparator,
   MessageItem,
 } from '@/inbox/conversation-messages/components/MessageItem';
+import { useMemo } from 'react';
+import type { IFacebookConversationMessage } from '../types/FacebookTypes';
+
+type FacebookMessageRowProps = {
+  message: IFacebookConversationMessage;
+  previousMessage: IFacebookConversationMessage;
+  nextMessage: IFacebookConversationMessage;
+};
+
+const FacebookMessageRow = ({
+  message,
+  previousMessage,
+  nextMessage,
+}: FacebookMessageRowProps) => {
+  const needsFacebookRenderer = Boolean(
+    message.botData?.length || message.source || message.relatedMessage,
+  );
+  const fbContextValue = useMemo(
+    () => ({ ...message, previousMessage, nextMessage }),
+    [message, nextMessage, previousMessage],
+  );
+  const conversationContextValue = useMemo(
+    () => ({ ...message, previousMessage, nextMessage }),
+    [message, nextMessage, previousMessage],
+  );
+
+  if (needsFacebookRenderer) {
+    return (
+      <FbMessengerMessageContext.Provider value={fbContextValue}>
+        <MessageDaySeparator
+          createdAt={message.createdAt}
+          previousCreatedAt={previousMessage?.createdAt}
+        />
+        <FbMessengerMessage />
+      </FbMessengerMessageContext.Provider>
+    );
+  }
+
+  return (
+    <ConversationMessageContext.Provider value={conversationContextValue}>
+      <MessageItem />
+    </ConversationMessageContext.Provider>
+  );
+};
 
 export const FacebookConversationMessages = () => {
   const { facebookConversationMessages, handleFetchMore, loading, totalCount } =
@@ -20,34 +64,13 @@ export const FacebookConversationMessages = () => {
       loading={loading}
     >
       {facebookConversationMessages?.map((message, index) => {
-        const previousMessage = facebookConversationMessages[index - 1];
-        const nextMessage = facebookConversationMessages[index + 1];
-        const needsFacebookRenderer = Boolean(
-          message.botData?.length || message.source || message.relatedMessage,
-        );
-
-        return needsFacebookRenderer ? (
-          <FbMessengerMessageContext.Provider
-            value={{ ...message, previousMessage, nextMessage }}
+        return (
+          <FacebookMessageRow
             key={message._id}
-          >
-            <MessageDaySeparator
-              createdAt={message.createdAt}
-              previousCreatedAt={previousMessage?.createdAt}
-            />
-            <FbMessengerMessage />
-          </FbMessengerMessageContext.Provider>
-        ) : (
-          <ConversationMessageContext.Provider
-            value={{
-              ...message,
-              previousMessage,
-              nextMessage,
-            }}
-            key={message._id}
-          >
-            <MessageItem />
-          </ConversationMessageContext.Provider>
+            message={message}
+            previousMessage={facebookConversationMessages[index - 1]}
+            nextMessage={facebookConversationMessages[index + 1]}
+          />
         );
       })}
     </InboxMessagesContainer>

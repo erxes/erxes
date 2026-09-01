@@ -39,6 +39,22 @@ const previewTextForKind = (kind: InstagramMessageKind): string | undefined => {
   return previews[kind];
 };
 
+const resolveMessageKind = (
+  primaryKind: InstagramMessageKind,
+  hasText: boolean,
+): InstagramMessageKind => {
+  if (primaryKind === 'story_mention' || primaryKind === 'story_reply') {
+    return primaryKind;
+  }
+  if (hasText) return 'text';
+  return primaryKind;
+};
+
+const fallbackReasonFor = (kind: InstagramMessageKind): string =>
+  kind === 'story_mention' || kind === 'story_reply'
+    ? 'Story unavailable'
+    : 'Unsupported Instagram message';
+
 export const normalizeInstagramMessage = (
   activity: IMessageData,
 ): Pick<
@@ -70,12 +86,7 @@ export const normalizeInstagramMessage = (
   const rawAttachments = message?.attachments || [];
   const primaryType = rawAttachments[0]?.type;
   const primaryKind = attachmentKind(primaryType);
-  const messageKind =
-    primaryKind === 'story_mention' || primaryKind === 'story_reply'
-      ? primaryKind
-      : text
-      ? 'text'
-      : primaryKind;
+  const messageKind = resolveMessageKind(primaryKind, Boolean(text));
   const attachments = rawAttachments
     .map((attachment) => ({
       type: attachment.type,
@@ -86,9 +97,7 @@ export const normalizeInstagramMessage = (
     messageKind === 'story_mention' || messageKind === 'story_reply';
   const fallbackReason =
     !text && attachments.length === 0
-      ? isStory
-        ? 'Story unavailable'
-        : 'Unsupported Instagram message'
+      ? fallbackReasonFor(messageKind)
       : undefined;
 
   return {
@@ -117,7 +126,7 @@ interface IStoredInstagramMessage {
   createdAt?: Date;
   attachments?: Array<{ type?: string; url?: string }>;
   messageKind?: InstagramMessageKind;
-  providerData?: IInstagramConversationMessage['providerData'];
+  providerData: IInstagramConversationMessage['providerData'];
   expiresAt?: Date;
 }
 
@@ -132,12 +141,10 @@ export const normalizeStoredInstagramMessage = <
 
   const primaryAttachment = message.attachments?.[0];
   const primaryKind = attachmentKind(primaryAttachment?.type);
-  const messageKind =
-    primaryKind === 'story_mention' || primaryKind === 'story_reply'
-      ? primaryKind
-      : message.content
-      ? 'text'
-      : primaryKind;
+  const messageKind = resolveMessageKind(
+    primaryKind,
+    Boolean(message.content),
+  );
   const isStory =
     messageKind === 'story_mention' || messageKind === 'story_reply';
 
@@ -150,9 +157,7 @@ export const normalizeStoredInstagramMessage = <
       storyUrl: isStory ? primaryAttachment?.url : undefined,
       fallbackReason:
         !message.content && !primaryAttachment?.url
-          ? isStory
-            ? 'Story unavailable'
-            : 'Unsupported Instagram message'
+          ? fallbackReasonFor(messageKind)
           : undefined,
       previewText: previewTextForKind(messageKind),
     },

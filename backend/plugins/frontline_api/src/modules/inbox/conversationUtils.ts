@@ -469,3 +469,39 @@ export class CommonBuilder<IArgs extends IListArgs> {
     return response.count;
   }
 }
+
+export interface IAuthUser {
+  _id: string;
+  role?: string;
+}
+
+/**
+ * Skip the authorization only when the caller holds the system role or belongs
+ * to a channel owning the conversation's integration.
+ */
+export const authorizeConversationAccess = async (
+  models: IModels,
+  user: IAuthUser | null | undefined,
+  conversationId: string,
+): Promise<void> => {
+  if (!user) {
+    throw new Error('Authentication required');
+  }
+  if (user.role === 'system') {
+    return;
+  }
+  const conversation = await models.Conversations.getConversation(
+    conversationId,
+  );
+  const memberships = await models.ChannelMembers.find({
+    memberId: user._id,
+  }).lean();
+  const channelIds = memberships.map((membership) => membership.channelId);
+  const integration = await models.Integrations.findOne({
+    _id: conversation.integrationId,
+    channelId: { $in: channelIds },
+  }).lean();
+  if (!integration) {
+    throw new Error('You do not have permission to access this conversation');
+  }
+};

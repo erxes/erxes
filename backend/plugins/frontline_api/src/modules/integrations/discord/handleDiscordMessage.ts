@@ -277,6 +277,112 @@ const handleDiscordReplyMessenger = async (
   };
 };
 
+const handleDiscordReactMessenger = async (
+  models: IModels,
+  doc: TInboxRelayDoc,
+) => {
+  const { integrationId, conversationId, messageId, reaction, remove, userId } =
+    doc;
+  if (!messageId || !reaction) {
+    throw new Error('Message id and reaction are required');
+  }
+  const conversation = await models.DiscordConversations.findOne({
+    erxesApiId: conversationId,
+  });
+  const bot = await models.DiscordBots.findOne({
+    erxesApiId: integrationId,
+  }).sort({ createdAt: -1 });
+  if (!conversation?.channelId || !bot?.token) {
+    throw new Error('Discord conversation is unavailable');
+  }
+  const emoji = DISCORD_REACTION_EMOJI[reaction] || reaction;
+  const updateReaction = remove
+    ? removeChannelMessageReaction
+    : addChannelMessageReaction;
+  await updateReaction(bot.token, conversation.channelId, messageId, emoji);
+
+  const inboxMessage = await models.ConversationMessages.findOne({
+    conversationId,
+    'extraData.discordMessageId': messageId,
+  });
+  if (inboxMessage) {
+    const extraData = inboxMessage.extraData || {};
+    const reactions = Array.isArray(extraData.reactions)
+      ? extraData.reactions.filter(
+          (item) =>
+            typeof item === 'object' &&
+            item !== null &&
+            item.senderId !== userId &&
+            !(item.senderId === bot.applicationId && item.emoji === emoji),
+        )
+      : [];
+    if (!remove) {
+      reactions.push({ senderId: userId || 'agent', reaction, emoji });
+    }
+    inboxMessage.extraData = { ...extraData, reactions };
+    inboxMessage.reactions = reactions;
+    await inboxMessage.save();
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${conversationId}`,
+      { conversationMessageInserted: inboxMessage },
+    );
+  }
+
+  return { status: 'success' };
+};
+
+const handleDiscordPinMessenger = async (
+  models: IModels,
+  doc: TInboxRelayDoc,
+) => {
+  const { integrationId, conversationId, messageId, remove } = doc;
+  if (!messageId) {
+    throw new Error('Message id is required');
+  }
+  const conversation = await models.DiscordConversations.findOne({
+    erxesApiId: conversationId,
+  });
+  const bot = await models.DiscordBots.findOne({
+    erxesApiId: integrationId,
+  }).sort({ createdAt: -1 });
+  if (!conversation?.channelId || !bot?.token) {
+    throw new Error('Discord conversation is unavailable');
+  }
+
+  const updatePin = remove ? unpinChannelMessage : pinChannelMessage;
+  try {
+    await updatePin(bot.token, conversation.channelId, messageId);
+  } catch (error) {
+    if (error instanceof DiscordApiError && error.status === 403) {
+      throw new Error(
+        'The Discord bot needs the "Manage Messages" permission in this channel to pin messages. Re-authorize the bot or update the channel role override, then try again.',
+      );
+    }
+    if (error instanceof DiscordApiError && error.status === 404) {
+      throw new Error('This message no longer exists in the Discord channel');
+    }
+    throw error;
+  }
+
+  const inboxMessage = await models.ConversationMessages.findOne({
+    conversationId,
+    'extraData.discordMessageId': messageId,
+  });
+  if (inboxMessage) {
+    inboxMessage.extraData = {
+      ...(inboxMessage.extraData),
+      discordPinned: !remove,
+    };
+    await inboxMessage.save();
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${conversationId}`,
+      { conversationMessageInserted: inboxMessage },
+    );
+  }
+
+  return { status: 'success', pinned: !remove };
+};
+
 export const handleDiscordMessage = async (
   models: IModels,
   msg: { action: string; payload: string },
@@ -290,111 +396,11 @@ export const handleDiscordMessage = async (
   }
 
   if (action === 'react-messenger') {
-    const {
-      integrationId,
-      conversationId,
-      messageId,
-      reaction,
-      remove,
-      userId,
-    } = doc;
-    if (!messageId || !reaction) {
-      throw new Error('Message id and reaction are required');
-    }
-    const conversation = await models.DiscordConversations.findOne({
-      erxesApiId: conversationId,
-    });
-    const bot = await models.DiscordBots.findOne({
-      erxesApiId: integrationId,
-    }).sort({ createdAt: -1 });
-    if (!conversation?.channelId || !bot?.token) {
-      throw new Error('Discord conversation is unavailable');
-    }
-    const emoji = DISCORD_REACTION_EMOJI[reaction] || reaction;
-    const updateReaction = remove
-      ? removeChannelMessageReaction
-      : addChannelMessageReaction;
-    await updateReaction(bot.token, conversation.channelId, messageId, emoji);
-
-    const inboxMessage = await models.ConversationMessages.findOne({
-      conversationId,
-      'extraData.discordMessageId': messageId,
-    });
-    if (inboxMessage) {
-      const extraData = inboxMessage.extraData || {};
-      const reactions = Array.isArray(extraData.reactions)
-        ? extraData.reactions.filter(
-            (item) =>
-              typeof item === 'object' &&
-              item !== null &&
-              item.senderId !== userId &&
-              !(
-                item.senderId === bot.applicationId && item.emoji === emoji
-              ),
-          )
-        : [];
-      if (!remove) {
-        reactions.push({ senderId: userId || 'agent', reaction, emoji });
-      }
-      inboxMessage.extraData = { ...extraData, reactions };
-      inboxMessage.reactions = reactions;
-      await inboxMessage.save();
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
-        { conversationMessageInserted: inboxMessage },
-      );
-    }
-
-    return { status: 'success' };
+    return handleDiscordReactMessenger(models, doc);
   }
 
   if (action === 'pin-messenger') {
-    const { integrationId, conversationId, messageId, remove } = doc;
-    if (!messageId) {
-      throw new Error('Message id is required');
-    }
-    const conversation = await models.DiscordConversations.findOne({
-      erxesApiId: conversationId,
-    });
-    const bot = await models.DiscordBots.findOne({
-      erxesApiId: integrationId,
-    }).sort({ createdAt: -1 });
-    if (!conversation?.channelId || !bot?.token) {
-      throw new Error('Discord conversation is unavailable');
-    }
-
-    const updatePin = remove ? unpinChannelMessage : pinChannelMessage;
-    try {
-      await updatePin(bot.token, conversation.channelId, messageId);
-    } catch (error) {
-      if (error instanceof DiscordApiError && error.status === 403) {
-        throw new Error(
-          'The Discord bot needs the "Manage Messages" permission in this channel to pin messages. Re-authorize the bot or update the channel role override, then try again.',
-        );
-      }
-      if (error instanceof DiscordApiError && error.status === 404) {
-        throw new Error('This message no longer exists in the Discord channel');
-      }
-      throw error;
-    }
-
-    const inboxMessage = await models.ConversationMessages.findOne({
-      conversationId,
-      'extraData.discordMessageId': messageId,
-    });
-    if (inboxMessage) {
-      inboxMessage.extraData = {
-        ...(inboxMessage.extraData || {}),
-        discordPinned: !remove,
-      };
-      await inboxMessage.save();
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
-        { conversationMessageInserted: inboxMessage },
-      );
-    }
-
-    return { status: 'success', pinned: !remove };
+    return handleDiscordPinMessenger(models, doc);
   }
 
   if (action === 'reply-messenger') {

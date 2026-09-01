@@ -25,7 +25,7 @@ function sanitizeAndFormat(html: string): string {
     output = output
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/(p|blockquote)>/gi, '\n')
-      .replace(/<[^>]+>/g, '');
+      .replace(/<[^<>]+>/g, '');
   } while (output !== prev);
   return output.trim();
 }

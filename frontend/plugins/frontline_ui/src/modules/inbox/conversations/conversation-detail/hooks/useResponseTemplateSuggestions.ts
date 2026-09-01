@@ -10,9 +10,8 @@ import { getPreviewText } from '@/inbox/types/inbox';
 type MessageEditor = ReturnType<typeof useBlockEditor>;
 
 const stripHtml = (html: string): string => {
-  const element = document.createElement('div');
-  element.innerHTML = html;
-  return element.textContent || element.innerText || '';
+  const parsed = new DOMParser().parseFromString(html, 'text/html');
+  return parsed.body.textContent || '';
 };
 
 export const useResponseTemplateSuggestions = (editor: MessageEditor) => {

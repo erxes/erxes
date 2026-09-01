@@ -173,15 +173,26 @@ const parseDiscordResponse = (text: string): unknown => {
 const MAX_RATE_LIMIT_RETRIES = 5;
 const MAX_NETWORK_RETRIES = 2;
 
+const IDEMPOTENT_METHODS = new Set([
+  'GET',
+  'HEAD',
+  'OPTIONS',
+  'PUT',
+  'PATCH',
+  'DELETE',
+]);
+
 const fetchWithNetworkRetry = async (
   input: string,
   init?: RequestInit,
 ): Promise<Response> => {
+  const method = (init?.method || 'GET').toUpperCase();
+  const retryable = IDEMPOTENT_METHODS.has(method);
   for (let attempt = 0; ; attempt++) {
     try {
       return await fetch(input, init);
     } catch (error) {
-      if (attempt >= MAX_NETWORK_RETRIES) {
+      if (!retryable || attempt >= MAX_NETWORK_RETRIES) {
         throw error;
       }
       await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
@@ -425,8 +436,9 @@ const postDiscordMessage = async ({
     try {
       res = await fetchWithNetworkRetry(file.url);
     } catch (error) {
+      const attachmentLabel = file.filename || `#${i + 1}`;
       throw new Error(
-        `Could not read attachment ${file.filename || `#${i + 1}`} from storage: ${getErrorMessage(
+        `Could not read attachment ${attachmentLabel} from storage: ${getErrorMessage(
           error,
         )}`,
       );

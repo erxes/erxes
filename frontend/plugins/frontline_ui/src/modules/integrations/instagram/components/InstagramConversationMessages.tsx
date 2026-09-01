@@ -32,7 +32,10 @@ export const InstagramConversationMessages = () => {
             value={{
               ...message,
               replyTo: message.replyTo
-                ? { ...message.replyTo, content: repliedMessage?.content }
+                ? {
+                    ...message.replyTo,
+                    content: repliedMessage?.content ?? message.replyTo.content,
+                  }
                 : undefined,
               previousMessage: instagramConversationMessages[index - 1],
               nextMessage: instagramConversationMessages[index + 1],

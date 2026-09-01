@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { toast, useUpload } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { IAttachment } from 'erxes-ui';
@@ -14,6 +14,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [attachmentPreview, setAttachmentPreview] =
     useState<AttachmentPreview | null>(null);
+  const pendingCountRef = useRef(0);
   const { upload, isLoading } = useUpload();
 
   const handleFileUpload = useCallback(
@@ -29,25 +30,39 @@ export const useMessageAttachments = (isDiscord: boolean) => {
         });
         return;
       }
-      if (attachments.length + selectedFiles.length > 10) {
+      const reserved = selectedFiles.length;
+      if (attachments.length + pendingCountRef.current + reserved > 10) {
         toast({
           title: 'You can attach up to 10 files to one message',
           variant: 'destructive',
         });
         return;
       }
+      pendingCountRef.current += reserved;
       upload({
         files,
         beforeUpload: () =>
           toast({ title: t('uploading-file'), variant: 'default' }),
         afterRead: ({ fileInfo }) => setAttachmentPreview(fileInfo),
-        afterUpload: ({ response, fileInfo }) => {
-          setAttachments((current) => [
-            ...current,
-            { ...fileInfo, url: response },
-          ]);
+        afterUpload: ({ status, response, fileInfo }) => {
+          if (status === 'ok') {
+            setAttachments((current) => [
+              ...current,
+              { ...fileInfo, url: response },
+            ]);
+          }
+          pendingCountRef.current = Math.max(
+            0,
+            pendingCountRef.current - 1,
+          );
           setAttachmentPreview(null);
-          toast({ title: t('file-uploaded-successfully'), variant: 'default' });
+          toast({
+            title:
+              status === 'ok'
+                ? t('file-uploaded-successfully')
+                : 'Upload failed',
+            variant: status === 'ok' ? 'default' : 'destructive',
+          });
         },
       });
     },

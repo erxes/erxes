@@ -15,6 +15,27 @@ import { normalizeInstagramMessage } from '@/integrations/instagram/normalizeMes
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
+const syncInboxMessageAndPublish = async (
+  models: IModels,
+  conversationId: string,
+  mid: string,
+  update: Record<string, unknown>,
+) => {
+  const inboxMessage = await models.ConversationMessages.findOne({
+    conversationId,
+    'providerData.messageId': mid,
+  });
+  if (!inboxMessage) return;
+  Object.assign(inboxMessage, update);
+  await inboxMessage.save();
+  await graphqlPubsub.publish(`conversationMessageInserted:${conversationId}`, {
+    conversationMessageInserted: {
+      ...inboxMessage.toObject(),
+      conversationId,
+    },
+  });
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
@@ -56,14 +77,11 @@ export const receiveMessage = async (
       _id: target.conversationId,
     });
     if (!targetConversation?.erxesApiId) return;
-    await graphqlPubsub.publish(
-      `conversationMessageInserted:${targetConversation.erxesApiId}`,
-      {
-        conversationMessageInserted: {
-          ...target.toObject(),
-          conversationId: targetConversation.erxesApiId,
-        },
-      },
+    await syncInboxMessageAndPublish(
+      models,
+      targetConversation.erxesApiId,
+      activity.reaction.mid,
+      { reactions },
     );
     return;
   }
@@ -85,15 +103,16 @@ export const receiveMessage = async (
         })
       : null;
     const watermark = activity.read?.watermark || activity.delivery?.watermark;
-    const statusQuery = mids.length
-      ? { mid: { $in: mids } }
-      : statusConversation && watermark
-      ? {
-          conversationId: statusConversation._id,
-          userId: { $exists: true },
-          createdAt: { $lte: new Date(watermark) },
-        }
-      : null;
+    let statusQuery: Record<string, unknown> | null = null;
+    if (mids.length) {
+      statusQuery = { mid: { $in: mids } };
+    } else if (statusConversation && watermark) {
+      statusQuery = {
+        conversationId: statusConversation._id,
+        userId: { $exists: true },
+        createdAt: { $lte: new Date(watermark) },
+      };
+    }
     if (!statusQuery) return;
 
     const statusMessages = await models.InstagramConversationMessages.find(
@@ -105,15 +124,11 @@ export const receiveMessage = async (
     if (statusConversation?.erxesApiId) {
       await Promise.all(
         statusMessages.map((statusMessage) =>
-          graphqlPubsub.publish(
-            `conversationMessageInserted:${statusConversation.erxesApiId}`,
-            {
-              conversationMessageInserted: {
-                ...statusMessage.toObject(),
-                conversationId: statusConversation.erxesApiId,
-                deliveryStatus: status,
-              },
-            },
+          syncInboxMessageAndPublish(
+            models,
+            statusConversation.erxesApiId as string,
+            statusMessage.mid,
+            { deliveryStatus: status },
           ),
         ),
       );
@@ -242,13 +257,16 @@ export const receiveMessage = async (
     existingMessage.deliveryStatus = 'deleted';
     existingMessage.providerData = normalizedMessage.providerData;
     await existingMessage.save();
-    await graphqlPubsub.publish(
-      `conversationMessageInserted:${conversation.erxesApiId}`,
+    await syncInboxMessageAndPublish(
+      models,
+      erxesConversationId,
+      mid,
       {
-        conversationMessageInserted: {
-          ...existingMessage.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
+        content: '',
+        attachments: [],
+        messageKind: 'deleted',
+        deliveryStatus: 'deleted',
+        providerData: normalizedMessage.providerData,
       },
     );
     return;

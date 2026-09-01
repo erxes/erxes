@@ -15,6 +15,36 @@ type ForwardMessageDialogProps = {
   preview: string;
 };
 
+const attachmentFallbackName = (type?: string) => {
+  if (type === 'ig_post') return 'Instagram post';
+  if (type === 'ig_reel') return 'Instagram reel';
+  if (type === 'share') return 'Shared post';
+  return 'Attachment';
+};
+
+const uniqueAttachments = (attachments: IMessage['attachments'] = []) => {
+  const seenUrls = new Set<string>();
+
+  return attachments.filter((attachment) => {
+    if (!attachment.url) return true;
+    const normalizedUrl = attachment.url.split(/[?#]/, 1)[0];
+    if (seenUrls.has(normalizedUrl)) return false;
+    seenUrls.add(normalizedUrl);
+    return true;
+  });
+};
+
+const forwardedContentText = (
+  content: string | undefined,
+  hasAttachments: boolean,
+) => {
+  const text = textOf(content)
+    .replace(/^(?:Forwarded message\s*)+/i, '')
+    .trim();
+
+  return hasAttachments && /^Attachment$/i.test(text) ? '' : text;
+};
+
 export const ForwardMessageDialog = ({
   open,
   onOpenChange,
@@ -34,10 +64,10 @@ export const ForwardMessageDialog = ({
   });
   const conversations = useMemo(
     () =>
-      (data?.conversations.list || []).filter(
+      (data?.conversations?.list || []).filter(
         (conversation) => conversation._id !== sourceConversationId,
       ),
-    [data?.conversations.list, sourceConversationId],
+    [data?.conversations?.list, sourceConversationId],
   );
 
   const handleForward = async () => {
@@ -50,46 +80,47 @@ export const ForwardMessageDialog = ({
         attachment.type === 'ig_post' ||
         attachment.type === 'ig_reel',
     );
-    const snapshot = existingSnapshot || {
-      content:
-        hasSocialShare &&
-        ['This message has an attachment', 'Shared content'].includes(
-          messageText,
-        )
-          ? undefined
-          : messageText || undefined,
-      attachments: message.attachments || [],
-      embeds: message.extraData?.embeds,
-      stickers: message.extraData?.stickers,
-      poll: message.extraData?.poll,
-      messageKind: message.messageKind,
-      providerData: message.providerData,
-      createdAt: message.createdAt,
+    const snapshot = {
+      ...(existingSnapshot || {
+        content:
+          hasSocialShare &&
+          ['This message has an attachment', 'Shared content'].includes(
+            messageText,
+          )
+            ? undefined
+            : messageText || undefined,
+        embeds: message.extraData?.embeds,
+        stickers: message.extraData?.stickers,
+        poll: message.extraData?.poll,
+        messageKind: message.messageKind,
+        providerData: message.providerData,
+        createdAt: message.createdAt,
+      }),
+      attachments: uniqueAttachments(
+        existingSnapshot?.attachments || message.attachments,
+      ),
     };
     const forwardAttachments = (snapshot.attachments || []).map(
       (attachment) => ({
         url: attachment.url,
-        name:
-          attachment.name ||
-          (attachment.type === 'ig_post'
-            ? 'Instagram post'
-            : attachment.type === 'ig_reel'
-            ? 'Instagram reel'
-            : attachment.type === 'share'
-            ? 'Shared post'
-            : 'Attachment'),
+        name: attachment.name || attachmentFallbackName(attachment.type),
         type: attachment.type,
         size: attachment.size,
         duration: attachment.duration,
       }),
     );
-    const prefix = note.trim() ? `<p>${note.trim()}</p>` : '';
-    const forwarded = `<blockquote><strong>Forwarded message</strong><br/>${preview}</blockquote>`;
+    const forwardedText = forwardedContentText(
+      snapshot.content,
+      Boolean(forwardAttachments.length),
+    );
+    const forwardedBody = forwardedText || preview;
+    const noteContent = note.trim() ? `<p>${note.trim()}</p>` : '';
+    const forwardedContent = `<blockquote><strong>Forwarded message</strong><br/>${forwardedBody}</blockquote>`;
     try {
       await addConversationMessage({
         variables: {
           conversationId: selectedId,
-          content: `${prefix}${forwarded}`,
+          content: `${noteContent}${forwardedContent}`,
           attachments: forwardAttachments,
           internal: false,
           extraInfo: {
@@ -126,8 +157,9 @@ export const ForwardMessageDialog = ({
         <Dialog.Header>
           <Dialog.Title>Forward message</Dialog.Title>
           <Dialog.Description>
-            Choose another conversation. A copy of the content and attachments
-            will be sent and will not change if the original is edited.
+            Choose another conversation. The destination platform will receive
+            a forwarded marker, while erxes keeps a tagged snapshot of the
+            original message.
           </Dialog.Description>
         </Dialog.Header>
         <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">

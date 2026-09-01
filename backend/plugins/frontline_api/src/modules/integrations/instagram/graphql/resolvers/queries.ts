@@ -240,7 +240,11 @@ export const instagramQueries = {
           .skip(skip || 0)
           .limit(limit);
 
-        const orderedMessages = getFirst ? messages : messages.reverse();
+        let orderedMessages = messages;
+        if (!getFirst) {
+          orderedMessages = [...messages];
+          orderedMessages.reverse();
+        }
         return orderedMessages.map((message) =>
           normalizeStoredInstagramMessage(message.toObject()),
         );
@@ -250,9 +254,11 @@ export const instagramQueries = {
         .sort({ createdAt: -1 })
         .limit(50);
 
-      return messages
-        .reverse()
-        .map((message) => normalizeStoredInstagramMessage(message.toObject()));
+      const reversedMessages = [...messages];
+      reversedMessages.reverse();
+      return reversedMessages.map((message) =>
+        normalizeStoredInstagramMessage(message.toObject()),
+      );
     } else {
       let comment: any[] = [];
       const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };

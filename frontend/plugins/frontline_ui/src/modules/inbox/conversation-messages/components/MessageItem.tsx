@@ -83,11 +83,9 @@ export const MessageItem = () => {
   const embeds = extraData?.embeds;
   const stickers = extraData?.stickers;
   const forwardedSnapshot = extraData?.forwardedSnapshot;
-  const forwardedContentMatch = forwardedSnapshot
-    ? content?.match(
-        /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
-      )
-    : undefined;
+  const forwardedContentMatch = content?.match(
+    /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
+  );
 
   const botText =
     isBotMessage && botData?.length
@@ -104,7 +102,7 @@ export const MessageItem = () => {
     /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
   );
   const legacyReplyPreview = legacyReplyMatch?.[0]
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/<[^<>]+>/g, ' ')
     .replace(/^\s*Replying to\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -178,15 +176,17 @@ export const MessageItem = () => {
     ['This message has an attachment', 'Shared content'].includes(
       displayContent || '',
     );
-  const normalizedDisplayContent =
-    isFacebookAttachmentPlaceholder || isSocialSharePlaceholder
-      ? undefined
-      : hasImageAttachments
-      ? displayContent?.replace(
+  const strippedFigureContent =
+    hasImageAttachments && displayContent
+      ? displayContent.replace(
           /<figure\b[^>]*data-url=["'][^"']+["'][^>]*>[\s\S]*?<\/figure>/gi,
           '',
         )
       : displayContent;
+  const normalizedDisplayContent =
+    isFacebookAttachmentPlaceholder || isSocialSharePlaceholder
+      ? undefined
+      : strippedFigureContent;
 
   const isDeleted =
     Boolean(extraData?.discordDeletedAt) ||
@@ -337,6 +337,7 @@ export const MessageItem = () => {
             <button
               type="button"
               onClick={() => {
+                if (!effectiveReplyTo.messageId) return;
                 const target =
                   document.querySelector<HTMLElement>(
                     `[data-provider-message-id="${CSS.escape(
@@ -411,7 +412,8 @@ export const MessageItem = () => {
               </div>
             </Button>
           ) : (
-            !isDeleted && (
+            !isDeleted &&
+            !forwardedSnapshot && (
               <div className={cn(separatePrevious ? 'mt-6' : 'mt-1')} />
             )
           )}
@@ -456,7 +458,19 @@ export const MessageItem = () => {
             </div>
           )}
           {!isDeleted && forwardedSnapshot && (
-            <ForwardedMessageCard snapshot={forwardedSnapshot} />
+            <ForwardedMessageCard
+              snapshot={forwardedSnapshot}
+              className={getMessageBubbleClassName({
+                userId,
+                internal,
+                fromBot,
+                isBotMessage,
+                separatePrevious,
+                showAuthorName,
+                showBotName,
+                hasReply: Boolean(effectiveReplyTo),
+              })}
+            />
           )}
           {!isDeleted && extraData?.voiceMessage && (
             <div className="mt-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">

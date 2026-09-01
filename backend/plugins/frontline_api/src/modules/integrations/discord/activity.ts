@@ -25,12 +25,11 @@ import {
 
 const DISCORD_VOICE_MESSAGE_FLAG = 1 << 13;
 
-const stickerUrl = (id: string, formatType: number) =>
-  formatType === 3
-    ? undefined
-    : `https://media.discordapp.net/stickers/${id}.${
-        formatType === 4 ? 'gif' : 'png'
-      }`;
+const stickerUrl = (id: string, formatType: number) => {
+  if (formatType === 3) return undefined;
+  const extension = formatType === 4 ? 'gif' : 'png';
+  return `https://media.discordapp.net/stickers/${id}.${extension}`;
+};
 
 const normalizeDiscordStickers = (
   stickers?: TDiscordMessagePayload['sticker_items'],
@@ -292,19 +291,21 @@ export const mapReactionToEvent = (
     | GatewayMessageReactionAddDispatchData
     | GatewayMessageReactionRemoveDispatchData,
   added: boolean,
-): DiscordReactionEvent => ({
-  source: 'discord',
-  messageId: payload.message_id,
-  channelId: payload.channel_id,
-  userId: payload.user_id,
-  emoji: payload.emoji.id
-    ? `<${payload.emoji.animated ? 'a' : ''}:${payload.emoji.name || 'emoji'}:${
-        payload.emoji.id
-      }>`
-    : payload.emoji.name || '♥',
-  added,
-  raw: payload,
-});
+): DiscordReactionEvent => {
+  const animatedPrefix = payload.emoji.animated ? 'a' : '';
+  const emojiName = payload.emoji.name || 'emoji';
+  return {
+    source: 'discord',
+    messageId: payload.message_id,
+    channelId: payload.channel_id,
+    userId: payload.user_id,
+    emoji: payload.emoji.id
+      ? `<${animatedPrefix}:${emojiName}:${payload.emoji.id}>`
+      : payload.emoji.name || '♥',
+    added,
+    raw: payload,
+  };
+};
 
 export const mapTypingStartToEvent = (
   payload: GatewayTypingStartDispatchData,

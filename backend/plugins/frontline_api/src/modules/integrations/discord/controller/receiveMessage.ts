@@ -26,6 +26,7 @@ import { DISCORD_MESSAGE_TRIGGER_TYPE } from '@/integrations/discord/constants';
 import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/types';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 
 /** Build a Discord CDN avatar URL, or undefined when the user has no avatar hash. */
 const avatarUrl = (userId: string, hash?: string | null) =>
@@ -246,6 +247,24 @@ const getOrCreateCustomer = async (
 // title, else a generic "Link" label — in that priority order. A
 // poll/embed-only message has no text `content`, so this is what the
 // conversation-list preview falls back to.
+const buildAttachmentPreview = (
+  attachments?: DiscordAttachment[],
+): string => {
+  if (attachments?.some((item) => item.type.startsWith('image/'))) {
+    return 'Sent an image';
+  }
+  if (attachments?.some((item) => item.type.startsWith('video/'))) {
+    return 'Sent a video';
+  }
+  if (attachments?.some((item) => item.type.startsWith('audio/'))) {
+    return 'Sent an audio file';
+  }
+  if (attachments?.length) {
+    return 'Sent a file';
+  }
+  return 'Unsupported message';
+};
+
 const buildMessagePreview = (
   displayContent: string,
   poll?: DiscordPoll,
@@ -262,15 +281,7 @@ const buildMessagePreview = (
   (voiceMessage ? 'Voice message' : '') ||
   (stickers?.length ? `Sticker · ${stickers[0].name}` : '') ||
   (forwarded ? 'Forwarded a message' : '') ||
-  (attachments?.some((item) => item.type.startsWith('image/'))
-    ? 'Sent an image'
-    : attachments?.some((item) => item.type.startsWith('video/'))
-    ? 'Sent a video'
-    : attachments?.some((item) => item.type.startsWith('audio/'))
-    ? 'Sent an audio file'
-    : attachments?.length
-    ? 'Sent a file'
-    : 'Unsupported message');
+  buildAttachmentPreview(attachments);
 
 /**
  * Resolves a Discord channel id to its display name and, if it's a thread,
@@ -562,6 +573,10 @@ const persistAndDispatchMessage = async ({
     // detail renders it) AND publish the real-time event. The
     // `create-conversation-message` action does both; the publish-only
     // `pConversationClientMessageInserted` left the detail thread empty.
+    let messageKind: string | undefined;
+    if (activity.voiceMessage) messageKind = 'voice';
+    else if (activity.stickers?.length) messageKind = 'sticker';
+    else if (activity.forwardedSnapshot) messageKind = 'forwarded';
     await receiveInboxMessage(subdomain, {
       action: 'create-conversation-message',
       metaInfo: 'replaceContent',
@@ -573,13 +588,7 @@ const persistAndDispatchMessage = async ({
         attachments: storedAttachments,
         extraData,
         providerData: { messageId },
-        messageKind: activity.voiceMessage
-          ? 'voice'
-          : activity.stickers?.length
-          ? 'sticker'
-          : activity.forwardedSnapshot
-          ? 'forwarded'
-          : undefined,
+        messageKind,
         replyTo: activity.replyTo,
         deliveryStatus: 'delivered',
       }),
@@ -751,6 +760,20 @@ export const receiveDiscordMessage = async ({
           },
           { $set: { replyTo: activity.replyTo } },
         );
+        const updatedInboxMessage = await models.ConversationMessages.findOne({
+          'extraData.discordMessageId': messageId,
+        }).lean();
+        if (updatedInboxMessage && conversation.erxesApiId) {
+          await graphqlPubsub.publish(
+            `conversationMessageInserted:${conversation.erxesApiId}`,
+            {
+              conversationMessageInserted: {
+                ...updatedInboxMessage,
+                conversationId: conversation.erxesApiId,
+              },
+            },
+          );
+        }
       }
       return;
     }

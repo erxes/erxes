@@ -240,7 +240,7 @@ export const handleFacebookMessage = async (
         output = output
           .replace(/<br\s*\/?>/gi, '\n')
           .replace(/<\/(p|blockquote)>/gi, '\n')
-          .replace(/<[^>]+>/g, '');
+          .replace(/<[^<>]+>/g, '');
       } while (output !== prev);
 
       return output.trim();
@@ -253,6 +253,23 @@ export const handleFacebookMessage = async (
     });
     const { senderId } = conversation;
     let localMessage;
+
+    let replyTo;
+    if (replyToMessageId) {
+      const repliedToMessage =
+        await models.FacebookConversationMessages.findOne({
+          conversationId: conversation._id,
+          mid: replyToMessageId,
+        }).lean();
+      let replyAuthorName;
+      if (repliedToMessage?.userId) replyAuthorName = 'Staff';
+      else if (repliedToMessage?.customerId) replyAuthorName = 'Customer';
+      replyTo = {
+        messageId: replyToMessageId,
+        content: repliedToMessage?.content,
+        authorName: replyAuthorName,
+      };
+    }
     try {
       // Send text message if strippedContent is not empty
       if (strippedContent) {
@@ -277,9 +294,7 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
-              ...(replyToMessageId && {
-                replyTo: { messageId: replyToMessageId },
-              }),
+              ...(replyTo && { replyTo }),
             },
             doc.userId,
           );
@@ -312,9 +327,7 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
-              ...(replyToMessageId && {
-                replyTo: { messageId: replyToMessageId },
-              }),
+              ...(replyTo && { replyTo }),
             },
             doc.userId,
           );

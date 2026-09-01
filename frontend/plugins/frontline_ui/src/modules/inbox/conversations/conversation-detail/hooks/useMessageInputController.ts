@@ -236,7 +236,7 @@ export const useMessageInputController = (conversationId: string) => {
     setContent(editorBlocks.length ? (editorBlocks as Block[]) : undefined);
 
     const html = await editor?.blocksToHTMLLossy(textBlocks);
-    const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+    const plain = html?.replace(/<[^<>]+>/g, '')?.trim() || '';
 
     if (plain.length >= 1) {
       setSearchValue(plain);

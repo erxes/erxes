@@ -1,10 +1,11 @@
 import { isSameDay } from 'date-fns';
 import {
+  IconCornerUpRight,
   IconExternalLink,
   IconPhotoOff,
   IconPlayerPlay,
 } from '@tabler/icons-react';
-import { Dialog, Skeleton, readImage } from 'erxes-ui';
+import { Dialog, Skeleton, cn, readImage } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
@@ -118,7 +119,9 @@ export const StoryCard = ({
             ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
             : 'max-h-96 w-full bg-black object-contain'
         }
-      />
+      >
+        <track kind="captions" />
+      </video>
     ) : (
       <img
         src={mediaUrl}
@@ -177,7 +180,6 @@ export const ShareCard = ({
   url?: string;
   attachmentType?: string;
 }) => {
-  const [thumbnailFailed, setThumbnailFailed] = useState(false);
   let safeUrl: string | undefined;
   try {
     safeUrl =
@@ -189,82 +191,10 @@ export const ShareCard = ({
   }
   if (!safeUrl) return <UnsupportedMessage text="Shared content unavailable" />;
 
-  const isInstagramPost = attachmentType === 'ig_post';
-  const isInstagramReel = attachmentType === 'ig_reel';
-  if (isInstagramPost || isInstagramReel) {
-    const permalink = isInstagramReel ? safeUrl : undefined;
-    const label = isInstagramReel ? 'Reel' : 'Post';
-    const thumbnail = isInstagramPost
-      ? safeUrl
-      : `${safeUrl.replace(/\/$/, '')}/media/?size=m`;
-    const preview = (
-      <>
-        {!thumbnailFailed && isInstagramPost ? (
-          <Dialog>
-            <Dialog.Trigger asChild>
-              <button
-                type="button"
-                aria-label="Preview Instagram post image"
-                className="size-16 shrink-0 cursor-zoom-in overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              >
-                <img
-                  src={thumbnail}
-                  alt="Post preview"
-                  loading="lazy"
-                  onError={() => setThumbnailFailed(true)}
-                  className="size-full object-cover"
-                />
-              </button>
-            </Dialog.Trigger>
-            <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-              <img
-                src={thumbnail}
-                alt="Instagram post preview"
-                className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
-              />
-            </Dialog.Content>
-          </Dialog>
-        ) : !thumbnailFailed ? (
-          <img
-            src={thumbnail}
-            alt={`${label} preview`}
-            loading="lazy"
-            onError={() => setThumbnailFailed(true)}
-            className="size-16 shrink-0 rounded-lg object-cover"
-          />
-        ) : (
-          <span className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted">
-            <IconPlayerPlay className="size-5 text-muted-foreground" />
-          </span>
-        )}
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium text-foreground">
-            Instagram {label}
-          </span>
-          <span className="block text-xs text-muted-foreground">
-            {permalink ? 'View on Instagram' : 'Post preview'}
-          </span>
-        </span>
-        {permalink && (
-          <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
-        )}
-      </>
-    );
-
-    return permalink ? (
-      <a
-        href={permalink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2 no-underline transition-colors hover:bg-muted/50"
-      >
-        {preview}
-      </a>
-    ) : (
-      <div className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2">
-        {preview}
-      </div>
-    );
+  const isInstagram =
+    attachmentType === 'ig_post' || attachmentType === 'ig_reel';
+  if (isInstagram) {
+    return <InstagramShareCard url={safeUrl} attachmentType={attachmentType} />;
   }
 
   return (
@@ -284,6 +214,123 @@ export const ShareCard = ({
         </span>
       </span>
     </a>
+  );
+};
+
+const InstagramThumbnail = ({
+  thumbnail,
+  label,
+  thumbnailFailed,
+  onFailed,
+  interactive,
+}: {
+  thumbnail: string;
+  label: string;
+  thumbnailFailed: boolean;
+  onFailed: () => void;
+  interactive: boolean;
+}) => {
+  if (thumbnailFailed) {
+    return (
+      <span className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <IconPlayerPlay className="size-5 text-muted-foreground" />
+      </span>
+    );
+  }
+
+  if (!interactive) {
+    return (
+      <img
+        src={thumbnail}
+        alt={`${label} preview`}
+        loading="lazy"
+        onError={onFailed}
+        className="size-16 shrink-0 rounded-lg object-cover"
+      />
+    );
+  }
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          aria-label="Preview Instagram post image"
+          className="size-16 shrink-0 cursor-zoom-in overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <img
+            src={thumbnail}
+            alt="Post preview"
+            loading="lazy"
+            onError={onFailed}
+            className="size-full object-cover"
+          />
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        <img
+          src={thumbnail}
+          alt="Instagram post preview"
+          className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+};
+
+export const InstagramShareCard = ({
+  url,
+  attachmentType,
+}: {
+  url: string;
+  attachmentType?: string;
+}) => {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const isPost = attachmentType === 'ig_post';
+  const isReel = attachmentType === 'ig_reel';
+  const label = isReel ? 'Reel' : 'Post';
+  const permalink = isReel ? url : undefined;
+  const thumbnail = isPost ? url : `${url.replace(/\/$/, '')}/media/?size=m`;
+  const preview = (
+    <>
+      <InstagramThumbnail
+        thumbnail={thumbnail}
+        label={label}
+        thumbnailFailed={thumbnailFailed}
+        onFailed={() => setThumbnailFailed(true)}
+        interactive={isPost && !thumbnailFailed}
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-foreground">
+          Instagram {label}
+        </span>
+        <span className="block text-xs text-muted-foreground">
+          {permalink ? 'View on Instagram' : 'Post preview'}
+        </span>
+      </span>
+      {permalink && (
+        <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
+      )}
+    </>
+  );
+
+  if (permalink) {
+    return (
+      <a
+        href={permalink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2 no-underline transition-colors hover:bg-muted/50"
+      >
+        {preview}
+      </a>
+    );
+  }
+
+  return (
+    <div className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2">
+      {preview}
+    </div>
   );
 };
 
@@ -387,8 +434,10 @@ export const StickerCard = ({ sticker }: { sticker: IMessageSticker }) => {
 
 export const ForwardedMessageCard = ({
   snapshot,
+  className,
 }: {
   snapshot: IMessageForwardedSnapshot;
+  className?: string;
 }) => {
   const socialShareAttachment = snapshot.attachments?.find(
     (attachment) =>
@@ -398,9 +447,15 @@ export const ForwardedMessageCard = ({
   );
 
   return (
-    <div className="mt-1 overflow-hidden rounded-xl bg-muted/60 px-3 py-2">
-      <div className="text-xs font-medium text-muted-foreground">
-        Forwarded message
+    <div
+      className={cn(
+        className,
+        'overflow-hidden border-l-2 border-muted-foreground/30 pl-3',
+      )}
+    >
+      <div className="mb-2 flex items-center gap-1 text-xs font-medium italic text-muted-foreground">
+        <IconCornerUpRight className="size-3.5" />
+        Forwarded
       </div>
       {snapshot.content && (
         <MessageContent content={snapshot.content} internal={false} />
