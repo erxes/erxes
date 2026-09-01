@@ -370,7 +370,7 @@ const handleDiscordPinMessenger = async (
   });
   if (inboxMessage) {
     inboxMessage.extraData = {
-      ...(inboxMessage.extraData),
+      ...inboxMessage.extraData,
       discordPinned: !remove,
     };
     await inboxMessage.save();

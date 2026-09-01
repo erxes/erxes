@@ -53,7 +53,11 @@ export const useResponseTemplateSuggestions = (editor: MessageEditor) => {
             : [{ type: 'paragraph', content, props: {} }];
         } catch {
           return [
-            { type: 'paragraph', content: stripHtml(content).trim(), props: {} },
+            {
+              type: 'paragraph',
+              content: stripHtml(content).trim(),
+              props: {},
+            },
           ];
         }
       };

@@ -23,9 +23,7 @@ import { useTranslation } from 'react-i18next';
 import type { Block } from '@blocknote/core';
 import { IntegrationType } from '@/types/Integration';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import {
-  type PollDraft,
-} from '@/inbox/conversations/conversation-detail/components/PollComposer';
+import { type PollDraft } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { messageExtraInfoState } from '@/inbox/conversations/conversation-detail/states/messageExtraInfoState';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
@@ -77,11 +75,8 @@ export const useMessageInputController = (conversationId: string) => {
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
 
-  const {
-    discordMentionItems,
-    discordMentionNote,
-    searchDiscordMentionItems,
-  } = useDiscordMentions(conversationId, isDiscord);
+  const { discordMentionItems, discordMentionNote, searchDiscordMentionItems } =
+    useDiscordMentions(conversationId, isDiscord);
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
@@ -105,7 +100,6 @@ export const useMessageInputController = (conversationId: string) => {
     setAttachmentPreview,
     setAttachments,
   } = useMessageAttachments(isDiscord);
-
 
   const editor = useBlockEditor();
   const restoringDraftRef = useRef(false);
@@ -281,7 +275,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              }[character] || character),
+              })[character] || character,
           )}</blockquote>`
         : '';
 
@@ -383,15 +377,42 @@ export const useMessageInputController = (conversationId: string) => {
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);
 
   return {
-    attachments, attachmentPreview, availableChannels, content,
-    discordMentionItems, discordMentionNote, editor,
-    goBackToPreviousHotkeyScope, handleChange, handleDeleteAttachment,
-    handleDrop, handleFileInput, handleKeyDown, handleSendPoll, handleSubmit,
-    handleTemplateSelect, hideInput, isDiscord, isInternalNote, isLoading,
-    loading, onlyInternal, replyTo, searchDiscordMentionItems, selectedIndex,
-    setHotkeyScopeAndMemorizePreviousScope, setIsInternalNote, setReplyTo,
-    setShowSuggestions, showSuggestions, stopAgentTyping, suggestions, t,
+    attachments,
+    attachmentPreview,
+    availableChannels,
+    content,
+    discordMentionItems,
+    discordMentionNote,
+    editor,
+    goBackToPreviousHotkeyScope,
+    handleChange,
+    handleDeleteAttachment,
+    handleDrop,
+    handleFileInput,
+    handleKeyDown,
+    handleSendPoll,
+    handleSubmit,
+    handleTemplateSelect,
+    hideInput,
+    isDiscord,
+    isInternalNote,
+    isLoading,
+    loading,
+    onlyInternal,
+    replyTo,
+    searchDiscordMentionItems,
+    selectedIndex,
+    setHotkeyScopeAndMemorizePreviousScope,
+    setIsInternalNote,
+    setReplyTo,
+    setShowSuggestions,
+    showSuggestions,
+    stopAgentTyping,
+    suggestions,
+    t,
   };
 };
 
-export type MessageInputController = ReturnType<typeof useMessageInputController>;
+export type MessageInputController = ReturnType<
+  typeof useMessageInputController
+>;

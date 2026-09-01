@@ -217,9 +217,9 @@ export const MessageItem = () => {
   const showAuthorName = Boolean(
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-      !userId &&
-      customerId &&
-      separatePrevious,
+    !userId &&
+    customerId &&
+    separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;

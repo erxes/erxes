@@ -247,9 +247,7 @@ const getOrCreateCustomer = async (
 // title, else a generic "Link" label — in that priority order. A
 // poll/embed-only message has no text `content`, so this is what the
 // conversation-list preview falls back to.
-const buildAttachmentPreview = (
-  attachments?: DiscordAttachment[],
-): string => {
+const buildAttachmentPreview = (attachments?: DiscordAttachment[]): string => {
   if (attachments?.some((item) => item.type.startsWith('image/'))) {
     return 'Sent an image';
   }

@@ -490,9 +490,8 @@ export const authorizeConversationAccess = async (
   if (user.role === 'system') {
     return;
   }
-  const conversation = await models.Conversations.getConversation(
-    conversationId,
-  );
+  const conversation =
+    await models.Conversations.getConversation(conversationId);
   const memberships = await models.ChannelMembers.find({
     memberId: user._id,
   }).lean();

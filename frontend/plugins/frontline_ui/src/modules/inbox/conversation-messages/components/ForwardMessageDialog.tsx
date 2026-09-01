@@ -157,8 +157,8 @@ export const ForwardMessageDialog = ({
         <Dialog.Header>
           <Dialog.Title>Forward message</Dialog.Title>
           <Dialog.Description>
-            Choose another conversation. The destination platform will receive
-            a forwarded marker, while erxes keeps a tagged snapshot of the
+            Choose another conversation. The destination platform will receive a
+            forwarded marker, while erxes keeps a tagged snapshot of the
             original message.
           </Dialog.Description>
         </Dialog.Header>

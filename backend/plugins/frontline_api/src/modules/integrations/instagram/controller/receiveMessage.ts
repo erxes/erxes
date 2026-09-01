@@ -115,9 +115,8 @@ export const receiveMessage = async (
     }
     if (!statusQuery) return;
 
-    const statusMessages = await models.InstagramConversationMessages.find(
-      statusQuery,
-    );
+    const statusMessages =
+      await models.InstagramConversationMessages.find(statusQuery);
     await models.InstagramConversationMessages.updateMany(statusQuery, {
       $set: { deliveryStatus: status },
     });
@@ -257,18 +256,13 @@ export const receiveMessage = async (
     existingMessage.deliveryStatus = 'deleted';
     existingMessage.providerData = normalizedMessage.providerData;
     await existingMessage.save();
-    await syncInboxMessageAndPublish(
-      models,
-      erxesConversationId,
-      mid,
-      {
-        content: '',
-        attachments: [],
-        messageKind: 'deleted',
-        deliveryStatus: 'deleted',
-        providerData: normalizedMessage.providerData,
-      },
-    );
+    await syncInboxMessageAndPublish(models, erxesConversationId, mid, {
+      content: '',
+      attachments: [],
+      messageKind: 'deleted',
+      deliveryStatus: 'deleted',
+      providerData: normalizedMessage.providerData,
+    });
     return;
   }
 

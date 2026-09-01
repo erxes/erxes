@@ -27,7 +27,6 @@ export interface IFacebookConversationMessage {
 }
 
 export interface IFacebookConversationMessageDocument
-  extends IFacebookConversationMessage,
-    Document {
+  extends IFacebookConversationMessage, Document {
   _id: string;
 }

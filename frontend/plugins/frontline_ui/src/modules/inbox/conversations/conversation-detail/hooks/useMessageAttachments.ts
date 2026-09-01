@@ -51,10 +51,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
               { ...fileInfo, url: response },
             ]);
           }
-          pendingCountRef.current = Math.max(
-            0,
-            pendingCountRef.current - 1,
-          );
+          pendingCountRef.current = Math.max(0, pendingCountRef.current - 1);
           setAttachmentPreview(null);
           toast({
             title:

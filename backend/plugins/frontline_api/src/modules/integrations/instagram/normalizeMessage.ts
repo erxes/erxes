@@ -141,10 +141,7 @@ export const normalizeStoredInstagramMessage = <
 
   const primaryAttachment = message.attachments?.[0];
   const primaryKind = attachmentKind(primaryAttachment?.type);
-  const messageKind = resolveMessageKind(
-    primaryKind,
-    Boolean(message.content),
-  );
+  const messageKind = resolveMessageKind(primaryKind, Boolean(message.content));
   const isStory =
     messageKind === 'story_mention' || messageKind === 'story_reply';
 

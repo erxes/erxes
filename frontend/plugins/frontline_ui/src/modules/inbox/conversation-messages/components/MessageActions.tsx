@@ -140,9 +140,7 @@ export const MessageActions = ({
       ? REACTIONS.slice(0, 1)
       : REACTIONS;
   const ownReaction = (
-    message.reactions?.length
-      ? message.reactions
-      : message.extraData?.reactions
+    message.reactions?.length ? message.reactions : message.extraData?.reactions
   )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
   const showActionsInline = inlineActionKinds.has(kind);
