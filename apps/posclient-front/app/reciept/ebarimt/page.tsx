@@ -21,6 +21,34 @@ import Footer from "@/app/reciept/components/footer"
 import EbarimtHeader from "@/app/reciept/components/header"
 import PutResponses from "@/app/reciept/components/putResponses"
 
+const waitForReceiptImages = async () => {
+  const receipt = document.querySelector(".receipt-print")
+  const images = Array.from(receipt?.querySelectorAll("img") || [])
+
+  await Promise.all(
+    images.map(async (image) => {
+      if (image.complete && image.naturalWidth > 0) {
+        return
+      }
+
+      try {
+        await image.decode()
+      } catch {
+        await new Promise<void>((resolve) => {
+          const timeout = window.setTimeout(resolve, 1000)
+          const finish = () => {
+            window.clearTimeout(timeout)
+            resolve()
+          }
+
+          image.addEventListener("load", finish, { once: true })
+          image.addEventListener("error", finish, { once: true })
+        })
+      }
+    })
+  )
+}
+
 const Reciept = () => {
   const searchParams = useSearchParams()
   const _id = searchParams.get("id")
@@ -31,6 +59,11 @@ const Reciept = () => {
   const setOrderStates = useSetAtom(setOrderStatesAtom)
 
   const { hasCopy } = useAtomValue(ebarimtConfigAtom) || {}
+
+  const printReceipt = useCallback(async () => {
+    await waitForReceiptImages()
+    window.print()
+  }, [])
 
   const { loading, data } = useQuery(queries.ebarimtDetail, {
     fetchPolicy: "network-only",
@@ -47,12 +80,18 @@ const Reciept = () => {
       if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
         data.billType === BILL_TYPES.INNER && setType("inner")
-        setTimeout(() => window.print(), 50)
+        setTimeout(() => {
+          void printReceipt()
+        }, 50)
       }
     }
-  }, [_id, data, setOrderStates, setType])
+  }, [_id, data, printReceipt, setOrderStates, setType])
 
-  const handleClick = () => typeof window !== "undefined" && window.print()
+  const handleClick = () => {
+    if (typeof window !== "undefined") {
+      void printReceipt()
+    }
+  }
 
   const handleAfterPrint = useCallback(() => {
     if (
@@ -62,7 +101,9 @@ const Reciept = () => {
       type !== "inner"
     ) {
       setType("inner")
-      return setTimeout(() => window.print(), 20)
+      return setTimeout(() => {
+        void printReceipt()
+      }, 20)
     }
 
     if (mode === "mobile") {
@@ -71,7 +112,7 @@ const Reciept = () => {
 
     const data = { message: "close" }
     window.parent.postMessage(data, "*")
-  }, [hasCopy, mode, putResponses.length, setType, type])
+  }, [hasCopy, mode, printReceipt, putResponses.length, setType, type])
 
   useEffect(() => {
     if (mode === "mobile") {
