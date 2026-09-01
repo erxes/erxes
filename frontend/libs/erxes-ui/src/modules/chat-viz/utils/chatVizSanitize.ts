@@ -68,6 +68,7 @@ function sanitizeNumber(value: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Admits finite control values and clamps them to the wire-format budget. */
 function sanitizeControlNumber(value: unknown): number | null {
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
   return Math.min(
@@ -76,6 +77,7 @@ function sanitizeControlNumber(value: unknown): number | null {
   );
 }
 
+/** Bounds display-only slider prefixes and suffixes. */
 function sanitizeDecoration(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   return value.slice(0, MAX_CONTROL_DECORATION_LEN);

@@ -34,7 +34,7 @@ interface Props {
   className?: string;
 }
 
-export function ChatVizMessage({ rawPayload, className }: Props) {
+export function ChatVizMessage({ rawPayload, className }: Readonly<Props>) {
   const payload = React.useMemo(
     () => sanitizeChartVizPayload(rawPayload),
     [rawPayload],
@@ -45,13 +45,14 @@ export function ChatVizMessage({ rawPayload, className }: Props) {
   return <SanitizedChatVizMessage payload={payload} className={className} />;
 }
 
+/** Owns local controls for one payload that has crossed the sanitizer boundary. */
 function SanitizedChatVizMessage({
   payload,
   className,
-}: {
+}: Readonly<{
   payload: ChartVizPayload;
   className?: string;
-}) {
+}>) {
   const defaultValues = React.useMemo(
     () => getDefaultChartVizControlValues(payload),
     [payload],
@@ -79,6 +80,7 @@ function SanitizedChatVizMessage({
     () => getChartVizInteractiveDomain(payload, { includeZero: true }),
     [payload],
   );
+  const controls = payload.controls ?? [];
 
   return (
     <figure
@@ -94,9 +96,9 @@ function SanitizedChatVizMessage({
           <p className="text-muted-foreground text-xs">{payload.description}</p>
         )}
       </figcaption>
-      {!!payload.controls?.length && (
+      {controls.length > 0 && (
         <ChartVizControls
-          controls={payload.controls}
+          controls={controls}
           values={controlValues}
           onChange={(key, value) =>
             setControlValues((current) => ({ ...current, [key]: value }))
@@ -116,15 +118,16 @@ const VALUE_FORMATTER = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
 });
 
+/** Renders the bounded slider controls admitted by the payload sanitizer. */
 function ChartVizControls({
   controls,
   values,
   onChange,
-}: {
+}: Readonly<{
   controls: ChartVizSliderControl[];
   values: ChartVizControlValues;
   onChange: (key: string, value: number) => void;
-}) {
+}>) {
   return (
     <div
       className="space-y-3 rounded-lg border bg-muted/30 p-3"
@@ -182,15 +185,16 @@ function ChartVizControls({
   );
 }
 
+/** Selects the trusted renderer registered for the sanitized chart type. */
 function ChartRouter({
   payload,
   domain,
   barDomain,
-}: {
+}: Readonly<{
   payload: ChartVizPayload;
   domain?: [number, number];
   barDomain?: [number, number];
-}) {
+}>) {
   switch (payload.chartType) {
     case 'bar':
       return <ChatVizBar payload={payload} domain={barDomain} />;

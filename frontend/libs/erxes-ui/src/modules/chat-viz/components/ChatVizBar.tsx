@@ -1,20 +1,11 @@
 import * as React from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart } from 'recharts';
 
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from 'erxes-ui/components/charts';
+import { ChartContainer, type ChartConfig } from 'erxes-ui/components/charts';
 import { useIsClient } from '../hooks/useIsClient';
 import type { ChartVizPayload } from '../types/chatVizTypes';
-import {
-  formatChartVizAxisValue,
-  getDefaultChartVizColor,
-} from '../utils/chartVizPresentation';
+import { getDefaultChartVizColor } from '../utils/chartVizPresentation';
+import { ChatVizCartesianDecorations } from './ChatVizCartesianDecorations';
 
 interface Props {
   payload: ChartVizPayload;
@@ -23,7 +14,7 @@ interface Props {
   domain?: [number, number];
 }
 
-export function ChatVizBar({ payload, className, domain }: Props) {
+export function ChatVizBar({ payload, className, domain }: Readonly<Props>) {
   const isClient = useIsClient();
 
   const config = React.useMemo<ChartConfig>(
@@ -46,31 +37,7 @@ export function ChatVizBar({ payload, className, domain }: Props) {
         data={payload.data}
         margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
       >
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-        />
-        <YAxis
-          type="number"
-          domain={domain}
-          tickLine={false}
-          axisLine={false}
-          tickMargin={6}
-          tickFormatter={formatChartVizAxisValue}
-          width={52}
-        />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <ChartLegend
-          content={(props) => (
-            <ChartLegendContent
-              payload={props.payload ?? []}
-              verticalAlign={props.verticalAlign}
-            />
-          )}
-        />
+        <ChatVizCartesianDecorations domain={domain} />
         {payload.series.map((s) => (
           <Bar
             key={s.key}

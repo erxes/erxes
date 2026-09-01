@@ -20,6 +20,7 @@ export function getDefaultChartVizControlValues(
   );
 }
 
+/** Applies one allow-listed operation to a numeric point. */
 const calculateValue = ({
   baseValue,
   controlValue,
@@ -43,6 +44,7 @@ const calculateValue = ({
   }
 };
 
+/** Keeps transformed values finite and within the renderer's numeric budget. */
 const boundRenderedValue = (value: number, fallback: number): number => {
   if (!Number.isFinite(value)) return fallback;
   return Math.min(
@@ -95,6 +97,7 @@ export function applyChartVizTransforms(
   return { ...payload, data };
 }
 
+/** Returns control values that can define an interactive domain extreme. */
 const getControlCandidates = ({
   min,
   max,
@@ -133,6 +136,7 @@ export function getChartVizInteractiveDomain(
   let dataMin = Number.POSITIVE_INFINITY;
   let dataMax = Number.NEGATIVE_INFINITY;
 
+  /** Visits the bounded cartesian product of meaningful control values. */
   const visit = (index: number, values: ChartVizControlValues) => {
     if (index < controls.length) {
       const control = controls[index];

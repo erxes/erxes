@@ -9,6 +9,7 @@ const AXIS_NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
 export const getDefaultChartVizColor = (index: number): string =>
   `var(--chart-${(index % CHART_VIZ_PALETTE_SIZE) + 1})`;
 
+/** Formats numeric axis ticks compactly without changing chart values. */
 export const formatChartVizAxisValue = (value: number): string =>
   AXIS_NUMBER_FORMATTER.format(value);
 
