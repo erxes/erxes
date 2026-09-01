@@ -34,7 +34,10 @@ export const FIELD_TYPES = [
   { value: 'phone', label: 'Phone', icon: IconPhone },
 ];
 
-export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce((acc, type) => {
-  acc[type.value] = type;
-  return acc;
-}, {} as Record<string, (typeof FIELD_TYPES)[number]>);
+export const FIELD_TYPES_OBJECT = FIELD_TYPES.reduce(
+  (acc, type) => {
+    acc[type.value] = type;
+    return acc;
+  },
+  {} as Record<string, (typeof FIELD_TYPES)[number]>,
+);
