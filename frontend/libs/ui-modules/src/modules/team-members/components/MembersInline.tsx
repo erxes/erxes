@@ -244,7 +244,9 @@ export const MembersInlineAvatar = ({
             size={size || 'lg'}
             {...props}
           >
-            {!isDeleted && <Avatar.Image src={readImage(avatar as string, 200)} />}
+            {!isDeleted && (
+              <Avatar.Image src={readImage(avatar as string, 200)} />
+            )}
             <Avatar.Fallback>
               {isDeleted ? (
                 <IconUserCancel className="size-3.5" />

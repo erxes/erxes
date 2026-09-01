@@ -110,7 +110,9 @@ const ExpandableSection = <T,>({
                   setExpanded(!expanded);
                 }}
               >
-                {expanded ? t('show-less') : t('show-more', { count: remainingCount })}
+                {expanded
+                  ? t('show-less')
+                  : t('show-more', { count: remainingCount })}
               </Button>
             )}
           </>
@@ -258,7 +260,9 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
 const SelectTeamMemberContent = ({

@@ -30,7 +30,9 @@ export const MemberForm = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label>{t('choose-members')}</Form.Label>
-            <Form.Description className="sr-only">{t('members')}</Form.Description>
+            <Form.Description className="sr-only">
+              {t('members')}
+            </Form.Description>
             <SelectTeamMember
               teamId={teamId}
               mode="multiple"
