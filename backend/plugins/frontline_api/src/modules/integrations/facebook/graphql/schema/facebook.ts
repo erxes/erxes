@@ -68,6 +68,8 @@ export const types = `
     fromBot: Boolean
     botData: JSON
     source: JSON
+    replyTo: JSON
+    reactions: JSON
     relatedMessage: JSON
     customerId: String
     userId: String

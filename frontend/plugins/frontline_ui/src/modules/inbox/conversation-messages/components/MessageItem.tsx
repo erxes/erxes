@@ -16,6 +16,7 @@ import {
   DeliveryStatus,
   ForwardedMessageCard,
   MessageDaySeparator,
+  PostMediaCard,
   ShareCard,
   StickerCard,
   StoryCard,
@@ -33,11 +34,26 @@ import { MessageActions } from '@/inbox/conversation-messages/components/Message
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
 export { MessageDaySeparator };
 
+const getReplyPreview = (content?: string) => {
+  if (!content) return '';
+
+  const withoutQuotedReply = content.replace(
+    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
+    '',
+  );
+  const document = new DOMParser().parseFromString(
+    withoutQuotedReply,
+    'text/html',
+  );
+
+  return (document.body.textContent || '').replace(/\s+/g, ' ').trim();
+};
+
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
   const [actionsOpen, setActionsOpen] = useState(false);
   const { previousMessage, ...message } = useConversationMessageContext();
-  const { integration } = useConversationContext();
+  const { _id: conversationId, integration } = useConversationContext();
   const {
     _id,
     mid,
@@ -67,6 +83,11 @@ export const MessageItem = () => {
   const embeds = extraData?.embeds;
   const stickers = extraData?.stickers;
   const forwardedSnapshot = extraData?.forwardedSnapshot;
+  const forwardedContentMatch = forwardedSnapshot
+    ? content?.match(
+        /<blockquote><strong>Forwarded message<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
+      )
+    : undefined;
 
   const botText =
     isBotMessage && botData?.length
@@ -79,16 +100,93 @@ export const MessageItem = () => {
           .join('')
       : undefined;
 
-  const displayContent = botText || content;
-  const hasImageAttachments = Boolean(
-    attachments?.some((attachment) => attachment.type?.startsWith('image')),
+  const legacyReplyMatch = content?.match(
+    /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
   );
-  const normalizedDisplayContent = hasImageAttachments
-    ? displayContent?.replace(
-        /<figure\b[^>]*data-url=["'][^"']+["'][^>]*>[\s\S]*?<\/figure>/gi,
-        '',
-      )
-    : displayContent;
+  const legacyReplyPreview = legacyReplyMatch?.[0]
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/^\s*Replying to\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const effectiveReplyTo =
+    (replyTo
+      ? {
+          ...replyTo,
+          content: getReplyPreview(replyTo.content) || 'Attachment',
+        }
+      : undefined) ||
+    (legacyReplyPreview
+      ? { messageId: '', content: legacyReplyPreview }
+      : undefined);
+  const displayContent =
+    botText ||
+    (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)
+      ?.replace(forwardedContentMatch?.[0] || '', '')
+      .trim();
+  const postIntegrationKind =
+    integration?.kind === IntegrationType.FACEBOOK_POST ||
+    integration?.kind === IntegrationType.INSTAGRAM_POST
+      ? integration.kind
+      : undefined;
+  const isPostConversation = Boolean(postIntegrationKind);
+  const typedAttachments = isPostConversation
+    ? attachments?.map((attachment) => ({
+        ...attachment,
+        type:
+          !attachment.type || attachment.type === 'file'
+            ? 'image'
+            : attachment.type,
+      }))
+    : attachments;
+  const displayAttachments =
+    integration?.kind === IntegrationType.FACEBOOK_MESSENGER
+      ? typedAttachments?.filter(
+          (attachment, index, allAttachments) =>
+            attachment.type !== 'sticker' ||
+            !allAttachments.some(
+              (candidate, candidateIndex) =>
+                candidateIndex !== index &&
+                candidate.url === attachment.url &&
+                candidate.type?.startsWith('image'),
+            ),
+        )
+      : typedAttachments;
+  const socialShareAttachment = displayAttachments?.find(
+    (attachment) =>
+      attachment.type === 'share' ||
+      attachment.type === 'ig_post' ||
+      attachment.type === 'ig_reel',
+  );
+  const hasImageAttachments = Boolean(
+    displayAttachments?.some((attachment) =>
+      attachment.type?.startsWith('image'),
+    ),
+  );
+  const isFacebookAttachmentPlaceholder =
+    integration?.kind === IntegrationType.FACEBOOK_MESSENGER &&
+    Boolean(displayAttachments?.length) &&
+    [
+      'Sent an image',
+      'Sent a sticker',
+      'Sent a video',
+      'Voice message',
+      'Sent a file',
+      'Shared content',
+    ].includes(displayContent || '');
+  const isSocialSharePlaceholder =
+    Boolean(socialShareAttachment) &&
+    ['This message has an attachment', 'Shared content'].includes(
+      displayContent || '',
+    );
+  const normalizedDisplayContent =
+    isFacebookAttachmentPlaceholder || isSocialSharePlaceholder
+      ? undefined
+      : hasImageAttachments
+      ? displayContent?.replace(
+          /<figure\b[^>]*data-url=["'][^"']+["'][^>]*>[\s\S]*?<\/figure>/gi,
+          '',
+        )
+      : displayContent;
 
   const isDeleted =
     Boolean(extraData?.discordDeletedAt) ||
@@ -183,7 +281,7 @@ export const MessageItem = () => {
               setActionsOpen(true);
             }
           }}
-          className="relative min-w-0 max-w-[min(78vw,520px)]"
+          className="relative w-fit min-w-0 max-w-full"
           key={_id}
         >
           {!isDeleted && extraData?.discordPinned && (
@@ -235,18 +333,18 @@ export const MessageItem = () => {
               )}
             </div>
           )}
-          {replyTo?.messageId && !isDeleted && (
+          {effectiveReplyTo && !isDeleted && (
             <button
               type="button"
               onClick={() => {
                 const target =
                   document.querySelector<HTMLElement>(
                     `[data-provider-message-id="${CSS.escape(
-                      replyTo.messageId,
+                      effectiveReplyTo.messageId,
                     )}"]`,
                   ) ||
                   document.getElementById(
-                    `conversation-message-${replyTo.messageId}`,
+                    `conversation-message-${effectiveReplyTo.messageId}`,
                   );
                 target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 target?.animate(
@@ -260,7 +358,7 @@ export const MessageItem = () => {
                 if (!target) {
                   window.dispatchEvent(
                     new CustomEvent('frontline:jump-to-message', {
-                      detail: replyTo.messageId,
+                      detail: effectiveReplyTo.messageId,
                     }),
                   );
                 }
@@ -268,12 +366,12 @@ export const MessageItem = () => {
               className="mt-2 block w-full max-w-full rounded-t-xl border border-b-0 border-border/60 bg-muted/45 px-3.5 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/70"
             >
               <div className="font-medium text-foreground">
-                {replyTo.authorName
-                  ? `Replying to ${replyTo.authorName}`
+                {effectiveReplyTo.authorName
+                  ? `Replying to ${effectiveReplyTo.authorName}`
                   : 'Replying to a message'}
               </div>
               <div className="truncate">
-                {replyTo.content || replyTo.messageId}
+                {effectiveReplyTo.content || effectiveReplyTo.messageId}
               </div>
             </button>
           )}
@@ -288,7 +386,7 @@ export const MessageItem = () => {
                 separatePrevious,
                 showAuthorName,
                 showBotName,
-                hasReply: Boolean(replyTo?.messageId),
+                hasReply: Boolean(effectiveReplyTo),
               })}
               asChild
             >
@@ -321,17 +419,35 @@ export const MessageItem = () => {
           {!isDeleted && isStory && (
             <StoryCard
               kind={messageKind}
-              url={providerData?.storyUrl || attachments?.[0]?.url}
+              url={providerData?.storyUrl || displayAttachments?.[0]?.url}
               expiresAt={expiresAt}
               fallbackText={fallbackText}
+              mediaType={displayAttachments?.[0]?.type}
             />
           )}
-          {!isDeleted && messageKind === 'share' && (
-            <ShareCard url={attachments?.[0]?.url} />
+          {!isDeleted && (messageKind === 'share' || socialShareAttachment) && (
+            <ShareCard
+              url={socialShareAttachment?.url || displayAttachments?.[0]?.url}
+              attachmentType={
+                socialShareAttachment?.type || providerData?.attachmentType
+              }
+            />
           )}
-          {!isDeleted && !isStory && messageKind !== 'share' && (
-            <Attachments attachments={attachments} />
-          )}
+          {!isDeleted &&
+            !isStory &&
+            messageKind !== 'share' &&
+            !socialShareAttachment &&
+            (postIntegrationKind && displayAttachments?.length ? (
+              <PostMediaCard
+                conversationId={conversationId}
+                integrationKind={postIntegrationKind}
+                fallbackUrl={displayAttachments[0]?.url}
+              />
+            ) : (
+              <Attachments
+                attachments={forwardedSnapshot ? undefined : displayAttachments}
+              />
+            ))}
           {!isDeleted && Boolean(stickers?.length) && (
             <div className="mt-2 flex flex-wrap gap-2">
               {stickers?.map((sticker) => (
@@ -347,9 +463,11 @@ export const MessageItem = () => {
               <IconMicrophone className="size-3.5" /> Voice message
             </div>
           )}
-          {!isDeleted && !hasTextBubble && !isStory && fallbackText && (
-            <UnsupportedMessage text={fallbackText} />
-          )}
+          {!isDeleted &&
+            !hasTextBubble &&
+            !isStory &&
+            !socialShareAttachment &&
+            fallbackText && <UnsupportedMessage text={fallbackText} />}
           {!isDeleted && poll && <MessagePoll poll={poll} />}
           {!isDeleted && <MessageEmbeds embeds={embeds} />}
           {!isDeleted && Boolean(aggregatedReactions.length) && (
@@ -372,7 +490,7 @@ export const MessageItem = () => {
           {!isDeleted &&
             !hasTextBubble &&
             separateNext &&
-            (Boolean(attachments?.length) ||
+            (Boolean(displayAttachments?.length) ||
               Boolean(poll) ||
               Boolean(embeds?.length)) && (
               <div

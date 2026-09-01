@@ -109,6 +109,9 @@ export interface IChannelData {
     quick_reply?: {
       payload: string;
     };
+    reply_to?: {
+      mid?: string;
+    };
     referral?: {
       source: string;
       type: string;
@@ -120,6 +123,12 @@ export interface IChannelData {
       };
     };
     payload?: any;
+  };
+  reaction?: {
+    mid?: string;
+    action?: 'react' | 'unreact';
+    reaction?: string;
+    emoji?: string;
   };
   postback?: IMessagePostback;
 }

@@ -27,6 +27,17 @@ export const MessageWrapper = ({
     !isGroupConversation && customer && customer._id === customerId
       ? [customer]
       : undefined;
+  const actionBar = actions ? (
+    <div
+      className={cn(
+        'z-30 shrink-0 self-end pb-1',
+        isOutgoing ? '-mr-1' : '-ml-1',
+      )}
+    >
+      {actions}
+    </div>
+  ) : null;
+
   return (
     <div
       className={cn(
@@ -52,19 +63,9 @@ export const MessageWrapper = ({
           </Avatar.Fallback>
         </Avatar>
       )}
-      <div className="relative min-w-0 max-w-full">
-        {actions && (
-          <div
-            className={cn(
-              'absolute bottom-2 z-30',
-              isOutgoing ? 'right-full mr-2' : 'left-full ml-2',
-            )}
-          >
-            {actions}
-          </div>
-        )}
-        {children}
-      </div>
+      {isOutgoing && actionBar}
+      <div className="relative w-fit min-w-0 max-w-full">{children}</div>
+      {!isOutgoing && actionBar}
 
       {!!userId && separateNext && (
         <MembersInline.Provider memberIds={[userId]}>
@@ -79,5 +80,3 @@ export const MessageWrapper = ({
     </div>
   );
 };
-
-

@@ -79,11 +79,27 @@ export const useFacebookConversationMessages = () => {
         const newMessage = subscriptionData.data.conversationMessageInserted;
 
         // Check if the message already exists to prevent duplicates
-        const messageExists = prev.facebookConversationMessages.some(
-          (msg: IFacebookConversationMessage) => msg._id === newMessage._id,
-        );
+        const existingMessageIndex =
+          prev.facebookConversationMessages.findIndex(
+            (message) => message._id === newMessage._id,
+          );
 
-        if (messageExists) return prev;
+        if (existingMessageIndex !== -1) {
+          return {
+            ...prev,
+            facebookConversationMessages: prev.facebookConversationMessages.map(
+              (message, index) =>
+                index === existingMessageIndex
+                  ? {
+                      ...message,
+                      ...newMessage,
+                      conversationId,
+                      __typename: 'FacebookConversationMessage',
+                    }
+                  : message,
+            ),
+          };
+        }
 
         try {
           // Get the cache ID for the conversation

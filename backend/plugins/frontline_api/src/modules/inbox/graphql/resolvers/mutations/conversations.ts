@@ -792,7 +792,11 @@ export const conversationMutations = {
     const [serviceName, actionType = 'unknown'] = integration.kind.split('-');
 
     if (
-      !['instagram-messenger', 'discord-messenger'].includes(integration.kind)
+      ![
+        'facebook-messenger',
+        'instagram-messenger',
+        'discord-messenger',
+      ].includes(integration.kind)
     ) {
       throw new Error('Reactions are not supported by this channel');
     }

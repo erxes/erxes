@@ -70,6 +70,9 @@ export interface IMessageForwardedSnapshot {
   attachments?: IAttachment[];
   embeds?: IMessageEmbed[];
   stickers?: IMessageSticker[];
+  poll?: IMessagePoll;
+  messageKind?: IMessage['messageKind'];
+  providerData?: IMessage['providerData'];
   createdAt?: string;
 }
 

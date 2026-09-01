@@ -634,6 +634,57 @@ export const sendReply = async (
   }
 };
 
+interface IFacebookReactionPayload {
+  recipient: { id: string };
+  sender_action: 'react' | 'unreact';
+  payload: {
+    message_id: string;
+    reaction?: string;
+  };
+}
+
+export const sendReaction = async (
+  models: IModels,
+  data: IFacebookReactionPayload,
+  pageId: string,
+  integrationId: string,
+) => {
+  const integration = await models.FacebookIntegrations.getIntegration({
+    erxesApiId: integrationId,
+  });
+  const pageAccessToken = getPageAccessTokenFromMap(
+    pageId,
+    integration.facebookPageTokensMap || {},
+  );
+
+  if (!pageAccessToken) {
+    throw new Error(`Page access token not found for page: ${pageId}`);
+  }
+
+  const response = await fetch(
+    `https://graph.facebook.com/v25.0/${pageId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${pageAccessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  const result = (await response.json()) as {
+    error?: { message?: string };
+  };
+
+  if (!response.ok) {
+    const message = result.error?.message || 'Failed to react on Facebook';
+    debugError(`Facebook reaction failed: ${message}`);
+    throw new Error(`Facebook reaction failed: ${message}`);
+  }
+
+  return result;
+};
+
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[],

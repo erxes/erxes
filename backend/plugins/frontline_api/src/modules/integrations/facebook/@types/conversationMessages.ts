@@ -18,6 +18,12 @@ export interface IFacebookConversationMessage {
   botData?: any;
   source?: Record<string, unknown>;
   relatedMessage?: Record<string, unknown>;
+  replyTo?: {
+    messageId: string;
+    content?: string;
+    authorName?: string;
+  };
+  reactions?: Array<{ senderId: string; reaction: string; emoji?: string }>;
 }
 
 export interface IFacebookConversationMessageDocument

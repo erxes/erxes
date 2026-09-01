@@ -10,7 +10,13 @@ const attachmentKind = (type?: string): InstagramMessageKind => {
   if (!type) return 'unsupported';
   if (type === 'story_mention') return 'story_mention';
   if (type === 'story_reply') return 'story_reply';
-  if (type === 'share' || type === 'fallback') return 'share';
+  if (
+    type === 'share' ||
+    type === 'fallback' ||
+    type === 'ig_post' ||
+    type === 'ig_reel'
+  )
+    return 'share';
   if (type.startsWith('image')) return 'image';
   if (type.startsWith('video')) return 'video';
   if (type.startsWith('audio')) return 'audio';
@@ -120,7 +126,9 @@ export const normalizeStoredInstagramMessage = <
 >(
   message: T,
 ): T & IStoredInstagramMessage => {
-  if (message.messageKind) return message;
+  if (message.messageKind && message.messageKind !== 'unsupported') {
+    return message;
+  }
 
   const primaryAttachment = message.attachments?.[0];
   const primaryKind = attachmentKind(primaryAttachment?.type);

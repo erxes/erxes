@@ -24,4 +24,6 @@ export const conversationMessageSchema = new Schema({
   botId: { type: String, label: 'Bot', optional: true },
   botData: { type: Object, optional: true },
   source: { type: Object, optional: true },
+  replyTo: { type: Schema.Types.Mixed, optional: true },
+  reactions: { type: [Schema.Types.Mixed], optional: true },
 });

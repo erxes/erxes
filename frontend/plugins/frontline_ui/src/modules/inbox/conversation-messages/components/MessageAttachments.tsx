@@ -12,7 +12,11 @@ const Img = ({
   // skipcq: JS-W1015
   <img alt={alt} {...props} />
 );
-export const Attachments = ({ attachments }: { attachments?: IAttachment[] }) => {
+export const Attachments = ({
+  attachments,
+}: {
+  attachments?: IAttachment[];
+}) => {
   const [failedAttachmentKeys, setFailedAttachmentKeys] = useState<Set<string>>(
     () => new Set(),
   );
@@ -98,13 +102,34 @@ const Attachment = ({
   }
   if (isVideo) {
     return (
-      <video
-        src={readImage(attachment.url)}
-        controls
-        preload="metadata"
-        onError={onUnavailable}
-        className="size-full max-h-96 rounded bg-black object-contain"
-      />
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <button
+            type="button"
+            aria-label={`Preview ${attachment.name || 'video'}`}
+            className="block size-full cursor-zoom-in overflow-hidden rounded bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          >
+            <video
+              src={readImage(attachment.url)}
+              muted
+              playsInline
+              preload="metadata"
+              onError={onUnavailable}
+              className="size-full max-h-96 object-contain"
+            />
+          </button>
+        </Dialog.Trigger>
+        <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+          <video
+            src={readImage(attachment.url)}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            className="block max-h-[88vh] max-w-[90vw] rounded-lg object-contain"
+          />
+        </Dialog.Content>
+      </Dialog>
     );
   }
   if (isAudio) {
@@ -179,4 +204,3 @@ const Attachment = ({
     </Dialog>
   );
 };
-

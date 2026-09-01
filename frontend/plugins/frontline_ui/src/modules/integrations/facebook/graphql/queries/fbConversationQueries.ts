@@ -19,14 +19,18 @@ export const GET_CONVERSATION_MESSAGES = gql`
     )
    {
       _id
+      mid
       ${commonCommentAndMessageFields}
       customerId
       userId
+      fromBot
       createdAt
       isCustomerRead
       internal
       botData
       source
+      replyTo
+      reactions
       relatedMessage
       attachments {
         url

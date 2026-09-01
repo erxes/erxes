@@ -42,6 +42,47 @@ export const ForwardMessageDialog = ({
 
   const handleForward = async () => {
     if (!selectedId) return;
+    const existingSnapshot = message.extraData?.forwardedSnapshot;
+    const messageText = textOf(message.content);
+    const hasSocialShare = message.attachments?.some(
+      (attachment) =>
+        attachment.type === 'share' ||
+        attachment.type === 'ig_post' ||
+        attachment.type === 'ig_reel',
+    );
+    const snapshot = existingSnapshot || {
+      content:
+        hasSocialShare &&
+        ['This message has an attachment', 'Shared content'].includes(
+          messageText,
+        )
+          ? undefined
+          : messageText || undefined,
+      attachments: message.attachments || [],
+      embeds: message.extraData?.embeds,
+      stickers: message.extraData?.stickers,
+      poll: message.extraData?.poll,
+      messageKind: message.messageKind,
+      providerData: message.providerData,
+      createdAt: message.createdAt,
+    };
+    const forwardAttachments = (snapshot.attachments || []).map(
+      (attachment) => ({
+        url: attachment.url,
+        name:
+          attachment.name ||
+          (attachment.type === 'ig_post'
+            ? 'Instagram post'
+            : attachment.type === 'ig_reel'
+            ? 'Instagram reel'
+            : attachment.type === 'share'
+            ? 'Shared post'
+            : 'Attachment'),
+        type: attachment.type,
+        size: attachment.size,
+        duration: attachment.duration,
+      }),
+    );
     const prefix = note.trim() ? `<p>${note.trim()}</p>` : '';
     const forwarded = `<blockquote><strong>Forwarded message</strong><br/>${preview}</blockquote>`;
     try {
@@ -49,7 +90,7 @@ export const ForwardMessageDialog = ({
         variables: {
           conversationId: selectedId,
           content: `${prefix}${forwarded}`,
-          attachments: message.attachments || [],
+          attachments: forwardAttachments,
           internal: false,
           extraInfo: {
             forwardedNote: note.trim(),
@@ -57,11 +98,7 @@ export const ForwardMessageDialog = ({
               conversationId: sourceConversationId,
               messageId: message._id,
             },
-            forwardedSnapshot: {
-              content: preview,
-              attachments: message.attachments || [],
-              createdAt: message.createdAt,
-            },
+            forwardedSnapshot: snapshot,
           },
         },
         refetchQueries: [

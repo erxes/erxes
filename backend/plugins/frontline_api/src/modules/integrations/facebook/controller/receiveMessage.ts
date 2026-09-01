@@ -35,6 +35,22 @@ const DEFAULT_HANDOFF_MESSAGE =
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
+const getReplyPreview = (content?: string) =>
+  (content || '')
+    .replace(
+      /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
+      '',
+    )
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const buildMessengerTextPayload = ({
   senderId,
   text,
@@ -167,6 +183,52 @@ export const receiveMessage = async (
     const rawMid = channelData.message?.mid || postback?.mid;
     const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
     const attachments = channelData.message?.attachments;
+    const reaction = channelData.reaction;
+
+    if (reaction?.mid && reaction.action) {
+      const conversation = await models.FacebookConversations.findOne({
+        senderId: userId,
+        recipientId: pageId,
+      });
+
+      if (!conversation?.erxesApiId) {
+        debugFacebook('Ignoring reaction for an unknown conversation');
+        return;
+      }
+
+      const target = await models.FacebookConversationMessages.findOne({
+        conversationId: conversation._id,
+        mid: sanitizeString(reaction.mid),
+      });
+
+      if (!target) {
+        debugFacebook('Ignoring reaction for an unknown message');
+        return;
+      }
+
+      const reactions = (target.reactions || []).filter(
+        (item) => item.senderId !== userId,
+      );
+      if (reaction.action === 'react') {
+        reactions.push({
+          senderId: userId,
+          reaction: sanitizeString(reaction.reaction || reaction.emoji),
+        });
+      }
+      target.reactions = reactions;
+      await target.save();
+
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: {
+            ...target.toObject(),
+            conversationId: conversation.erxesApiId,
+          },
+        },
+      );
+      return;
+    }
 
     if (message?.is_echo || userId === pageId) {
       debugFacebook(
@@ -255,12 +317,27 @@ export const receiveMessage = async (
       conversation.content = text || '';
     }
 
-    const formattedAttachments = (attachments || [])
+    const stickerAttachment = (attachments || []).find(
+      (attachment) =>
+        Boolean(attachment.payload?.sticker_id) &&
+        Boolean(attachment.payload?.url),
+    );
+    const attachmentsToFormat = stickerAttachment
+      ? [{ ...stickerAttachment, type: 'image' }]
+      : attachments || [];
+    const seenAttachmentUrls = new Set<string>();
+    const formattedAttachments = attachmentsToFormat
       .map((att) => ({
         type: att.type === 'fallback' ? 'share' : att.type,
         url: att.payload ? att.payload.url : '',
       }))
-      .filter((attachment) => Boolean(attachment.url));
+      .filter((attachment) => {
+        if (!attachment.url || seenAttachmentUrls.has(attachment.url)) {
+          return false;
+        }
+        seenAttachmentUrls.add(attachment.url);
+        return true;
+      });
     const primaryAttachment = attachments?.[0];
     const attachmentPreview = primaryAttachment?.payload?.sticker_id
       ? 'Sent a sticker'
@@ -280,6 +357,20 @@ export const receiveMessage = async (
       ? postback.title || 'Selected an action'
       : 'Unsupported Messenger message';
     const previewContent = text || attachmentPreview;
+    const replyToMessageId = message?.reply_to?.mid;
+    const repliedMessage = replyToMessageId
+      ? await models.FacebookConversationMessages.findOne({
+          conversationId: conversation._id,
+          mid: replyToMessageId,
+        }).lean()
+      : null;
+    const replyTo = replyToMessageId
+      ? {
+          messageId: replyToMessageId,
+          content: getReplyPreview(repliedMessage?.content) || 'Attachment',
+          authorName: repliedMessage?.userId ? 'You' : 'Customer',
+        }
+      : undefined;
 
     // save on api
     try {
@@ -328,9 +419,10 @@ export const receiveMessage = async (
           conversationId: conversation._id,
           mid,
           createdAt: timestamp,
-          content: previewContent,
+          content: text || '',
           customerId: customer.erxesApiId,
           attachments: formattedAttachments,
+          replyTo,
           botId,
         });
 

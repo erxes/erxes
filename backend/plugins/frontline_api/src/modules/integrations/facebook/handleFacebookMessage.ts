@@ -3,6 +3,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   sendReply,
+  sendReaction,
   generateAttachmentMessages,
 } from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
@@ -29,6 +30,66 @@ export const handleFacebookMessage = async (
       },
       doc.userId,
     );
+  }
+  if (action === 'react-messenger') {
+    const {
+      integrationId,
+      conversationId,
+      messageId,
+      reaction,
+      remove,
+      userId,
+    } = doc;
+    const conversation = await models.FacebookConversations.getConversation({
+      erxesApiId: conversationId,
+    });
+    const target = await models.FacebookConversationMessages.findOne({
+      conversationId: conversation._id,
+      mid: messageId,
+    });
+
+    if (!target) {
+      throw new Error('Message not found in this Facebook conversation');
+    }
+
+    const reactionEmoji: Record<string, string> = {
+      love: '❤️',
+      like: '👍',
+      wow: '😮',
+      haha: '😂',
+      sad: '😢',
+      angry: '😠',
+    };
+    const emoji = reactionEmoji[reaction];
+
+    if (!remove && !emoji) {
+      throw new Error('Unsupported Facebook reaction');
+    }
+
+    await sendReaction(
+      models,
+      {
+        recipient: { id: conversation.senderId },
+        sender_action: remove ? 'unreact' : 'react',
+        payload: {
+          message_id: messageId,
+          ...(!remove && { reaction: emoji }),
+        },
+      },
+      conversation.recipientId,
+      integrationId,
+    );
+
+    const reactions = (target.reactions || []).filter(
+      (item) => item.senderId !== userId,
+    );
+    if (!remove) {
+      reactions.push({ senderId: userId, reaction, emoji });
+    }
+    target.reactions = reactions;
+    await target.save();
+
+    return { status: 'success', data: target.toObject() };
   }
   if (action === 'reply-post') {
     const { conversationId, content = '', attachments = [], userId } = doc;
@@ -151,6 +212,7 @@ export const handleFacebookMessage = async (
       content = '',
       attachments = [],
       extraInfo,
+      replyToMessageId,
     } = doc;
 
     const tag = extraInfo?.tag || '';
@@ -200,6 +262,9 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message: { text: strippedContent },
+            ...(replyToMessageId && {
+              reply_to: { mid: replyToMessageId },
+            }),
             ...messagingParams,
           },
           conversation.recipientId,
@@ -212,6 +277,9 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
+              ...(replyToMessageId && {
+                replyTo: { messageId: replyToMessageId },
+              }),
             },
             doc.userId,
           );
@@ -229,6 +297,9 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message,
+            ...(replyToMessageId && {
+              reply_to: { mid: replyToMessageId },
+            }),
             ...messagingParams,
           },
           conversation.recipientId,
@@ -241,6 +312,9 @@ export const handleFacebookMessage = async (
               ...doc,
               conversationId: conversation._id,
               mid: resp.message_id,
+              ...(replyToMessageId && {
+                replyTo: { messageId: replyToMessageId },
+              }),
             },
             doc.userId,
           );

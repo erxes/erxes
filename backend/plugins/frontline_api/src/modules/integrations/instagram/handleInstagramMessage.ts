@@ -3,6 +3,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   sendReply,
+  sendReaction,
   generateAttachmentMessages,
 } from '@/integrations/instagram/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
@@ -13,6 +14,8 @@ interface IMsg {
   payload: string;
   type: string;
 }
+
+const INSTAGRAM_MESSAGE_REACTION = 'love';
 
 function sanitizeAndFormat(html: string): string {
   let prev;
@@ -64,15 +67,34 @@ export const handleInstagramMessage = async (
       throw new Error('Message not found in this Instagram conversation');
     }
 
-    await sendReply(
+    if (target.userId || target.fromBot) {
+      throw new Error(
+        'Instagram only allows reactions to messages received from the customer',
+      );
+    }
+
+    if (
+      [
+        'story_mention',
+        'story_reply',
+        'share',
+        'deleted',
+        'unsupported',
+      ].includes(target.messageKind || '')
+    ) {
+      throw new Error(
+        'Instagram does not support reactions for this message type',
+      );
+    }
+
+    await sendReaction(
       models,
-      'me/messages',
       {
         recipient: { id: conversation.senderId },
         sender_action: remove ? 'unreact' : 'react',
         payload: {
           message_id: messageId,
-          ...(!remove && reaction && { reaction }),
+          ...(!remove && { reaction: INSTAGRAM_MESSAGE_REACTION }),
         },
       },
       integrationId,
@@ -82,7 +104,10 @@ export const handleInstagramMessage = async (
       (item) => item.senderId !== userId,
     );
     if (!remove && reaction) {
-      reactions.push({ senderId: userId, reaction });
+      reactions.push({
+        senderId: userId,
+        reaction: INSTAGRAM_MESSAGE_REACTION,
+      });
     }
     target.reactions = reactions;
     await target.save();
@@ -216,10 +241,10 @@ export const handleInstagramMessage = async (
             recipient: { id: senderId },
             message: {
               text: strippedContent,
-              ...(replyToMessageId && {
-                reply_to: { mid: replyToMessageId },
-              }),
             },
+            ...(replyToMessageId && {
+              reply_to: { mid: replyToMessageId },
+            }),
             messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
             ...(tag && { tag }),
           },
