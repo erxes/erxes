@@ -26,7 +26,6 @@ export interface ICallAgentPauseStats {
 }
 
 export interface ICallAgentPauseStatsDocument
-  extends ICallAgentPauseStats,
-    Document {
+  extends ICallAgentPauseStats, Document {
   _id: string;
 }

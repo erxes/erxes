@@ -275,10 +275,7 @@ export const CallDetailAgents = ({
               <IconCalendar className="h-3.5 w-3.5" />
               {t('date')}
             </Filter.BarName>
-            <Filter.Date
-              filterKey={AGENT_DATE_FILTER_KEY}
-              label={t('date')}
-            />
+            <Filter.Date filterKey={AGENT_DATE_FILTER_KEY} label={t('date')} />
           </div>
           <AgentStatusFilter />
           <div className="ml-auto text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
