@@ -1,5 +1,10 @@
 import { deriveTenantSecret, sign, verify } from './hmac';
-import { Env, InboundPayload, ParsedAttachment, PayloadAttachment } from './types';
+import {
+  Env,
+  InboundPayload,
+  ParsedAttachment,
+  PayloadAttachment,
+} from './types';
 
 const ATTACHMENT_PREFIX = '/attachments/';
 

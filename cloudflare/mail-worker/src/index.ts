@@ -69,9 +69,9 @@ const deliver = async (env: Env, tenant: string, payload: string) => {
     );
   }
 
-  const accepted = (await response
-    .json()
-    .catch(() => undefined)) as DeliveryReceipt | undefined;
+  const accepted = (await response.json().catch(() => undefined)) as
+    | DeliveryReceipt
+    | undefined;
 
   return { keepStored: Boolean(accepted?.keepStored) };
 };
@@ -95,7 +95,9 @@ const handleQueued = async (env: Env, message: Message<QueuedMail>) => {
     message.ack();
   } catch (error) {
     if (error instanceof DeliveryError && error.permanent) {
-      console.error(`Dead-lettering ${messageId} for ${tenant}: ${error.message}`);
+      console.error(
+        `Dead-lettering ${messageId} for ${tenant}: ${error.message}`,
+      );
 
       await env.MAIL_DLQ.send({
         ...message.body,
@@ -108,7 +110,9 @@ const handleQueued = async (env: Env, message: Message<QueuedMail>) => {
       return;
     }
 
-    console.error(`Retrying ${messageId} for ${tenant}: ${describeError(error)}`);
+    console.error(
+      `Retrying ${messageId} for ${tenant}: ${describeError(error)}`,
+    );
 
     message.retry();
   }

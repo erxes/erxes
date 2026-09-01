@@ -121,33 +121,33 @@
 
 ## Architecture
 
-| Area                 | Path                                                                        | Responsibility                                                                                          |
-| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface           |
-| Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                           |
-| GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                    |
-| tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                |
-| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                            |
-| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers            |
-| Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                            |
-| Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
-| Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
-| Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, mail, discord, call, callpro, trpc                                           |
-| Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                         |
+| Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
+| Models               | `src/connectionResolvers.ts`                                                | Per-subdomain model container for all modules                                                                                                                                                          |
+| GraphQL              | `src/apollo/`                                                               | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                   |
+| tRPC                 | `src/init-trpc.ts`                                                          | `appRouter` for service-to-service calls                                                                                                                                                               |
+| Agent tool metadata  | `src/trpc/agentMeta.ts`                                                     | Local `agentMeta` helper for agent-callable tRPC annotations                                                                                                                                           |
+| HTTP                 | `src/routes.ts`                                                             | Mounts the `/facebook`, `/instagram`, `/mail`, and (when enabled) `/callpro` webhook routers                                                                                                           |
+| Platform extensions  | `src/meta/`                                                                 | automations, permissions, notifications, segments, references, import/export                                                                                                                           |
+| Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
+| Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
+| Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, mail, discord, call, callpro, trpc                                                                                                                                          |
+| Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
-| Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape |
-| Mail worker bundle   | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker` |
-| Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL            |
-| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
-| FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
-| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log |
-| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                  |
-| Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                 |
-| Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                              |
-| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                       |
-| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                |
-| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                            |
+| Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
+| Mail worker bundle   | `src/modules/integrations/mail/worker/bundle.generated.ts`                  | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                        |
+| Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                           |
+| Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                     |
+| FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                                                                                                                           |
+| FB page posting      | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`          | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                |
+| FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
+| Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
+| Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
+| Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
+| Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
+| Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
 ## Contracts
 
@@ -281,7 +281,7 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   thrown error, because the caller is a diagnostic screen.
 - GraphQL `mailSendingReadiness` — whether this workspace can reply at all, and
   from which domain: `{ ready, cloudflare { ready, domain, reason }, platform
-  { ready, domain } }`. Requires `integrationsEdit`. The wizard blocks its sending
+{ ready, domain } }`. Requires `integrationsEdit`. The wizard blocks its sending
   step on `ready` and shows `cloudflare.reason` when it is false.
 - GraphQL `mailCloudflareSendingQuota` — the connected account's sending allowance,
   read live from Cloudflare, `null` when no account is connected or the domain is
@@ -306,13 +306,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   bucket that no human answered, in both directions — unlike
   `CallVolumePoint.abandoned`, which stays inbound-only.
 - GraphQL `callHeatmapDaily(startDate, endDate, integrationId?, queueId?,
-  direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
+direction?)` — the same CDR read as `callHeatmap`, bucketed by **calendar PBX
   day × hour** instead of day-of-week, for the spreadsheet export of the report.
   Only hours that carry calls produce a row; absent buckets mean zero.
 - HTTP `POST /callpro/receive` — the Call Pro PBX pushes one call event
   (`numberTo`, `numberFrom`, `disp`, `callID`, `owner`). The route is only
-  mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns
-  404. Public URL: `{DOMAIN}/gateway/pl:frontline/callpro/receive`
+  mounted when `CALLPRO_ENABLED=true`, so a deployment without Call Pro returns 404. Public URL: `{DOMAIN}/gateway/pl:frontline/callpro/receive`
   (`{DOMAIN}/pl:frontline/...` outside production).
 - GraphQL `callProConfig` — `{ enabled, webhookUrl }`. This is the only way the
   UI learns whether Call Pro is licensed; `webhookUrl` is null when it is not.
@@ -356,7 +355,7 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   `reactions.summary(true)`, and `shares`, and writes `metaCommentCount`,
   `metaReactionCount`, `metaShareCount`, `metaSyncedAt` onto matching post
   documents. It returns `{ pages, fetched, updated, missingInErxes, syncedAt,
-  errors }` — `missingInErxes` is the number of Meta posts this deployment has
+errors }` — `missingInErxes` is the number of Meta posts this deployment has
   no document for, which is the point of the comparison, not an error.
 - `TicketReportFilter.pageIds: [String]` and `searchValue: String` — carried
   only so a saved Facebook chart round-trips its page selection and post search
@@ -1078,7 +1077,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   (`E_HEADER_NOT_ALLOWED`), it is stamped on a **Cloudflare** domain, and the REST
   response returns only `delivered` / `permanent_bounces` / `queued`. So
   `providerMessageId` is unobtainable and is no longer written. `In-Reply-To` and
-  `References` *are* allowlisted and are still sent, which is why
+  `References` _are_ allowlisted and are still sent, which is why
   `buildThreadingHeaders` takes `includeMessageId` rather than being edited in place.
 - Because our own `messageId` never reaches a real header, `toWireReferences`
   rewrites the chain before it goes out: an id belonging to one of our `SENT` rows
@@ -1383,7 +1382,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cloudflare/mail-worker/fixtures/delivered-to.json`.
 - **Contracts changed:** The inbound webhook payload's `headers` may now carry
   `delivered-to`. The worker bundle version changed, so a workspace running the
-  worker on its own Cloudflare account has to press *Update worker*.
+  worker on its own Cloudflare account has to press _Update worker_.
 
 ### `2026-08-27` — An inbox can choose the name recipients see
 

@@ -115,7 +115,9 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
   }, [html]);
 
   if (!body)
-    return <p className="py-3 text-sm text-[#5f6368] italic">{t('no-content')}</p>;
+    return (
+      <p className="py-3 text-sm text-[#5f6368] italic">{t('no-content')}</p>
+    );
 
   return (
     <>

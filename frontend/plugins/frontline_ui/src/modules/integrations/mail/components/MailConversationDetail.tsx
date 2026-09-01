@@ -455,7 +455,10 @@ const EmailRow: React.FC<{
           {!!visibleAttachments.length && (
             <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
               {visibleAttachments.map((a, i) => (
-                <AttachmentChip key={`${a.url ?? a.filename}-${i}`} attachment={a} />
+                <AttachmentChip
+                  key={`${a.url ?? a.filename}-${i}`}
+                  attachment={a}
+                />
               ))}
             </div>
           )}
@@ -523,8 +526,7 @@ const ComposeSection: React.FC<ComposeProps> = ({
     bodyRef.current?.focus();
   }, []);
   useEffect(() => {
-    if (bodyRef.current && defaultBody)
-      bodyRef.current.innerHTML = defaultBody;
+    if (bodyRef.current && defaultBody) bodyRef.current.innerHTML = defaultBody;
   }, [defaultBody]);
 
   const split = (v: string) =>
@@ -861,7 +863,6 @@ export const MailConversationDetail: React.FC = () => {
             />
           ))}
         </div>
-
 
         {composeMode && composeTarget && (
           <ComposeSection

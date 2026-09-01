@@ -354,7 +354,9 @@ export const MailIntegrationFormSheet = () => {
                         control={form.control}
                       />
                       {!!sendingDomain &&
-                        !!(values.senderName?.trim() || values.name?.trim()) && (
+                        !!(
+                          values.senderName?.trim() || values.name?.trim()
+                        ) && (
                           <MailSenderPreview
                             senderName={
                               values.senderName?.trim() ||

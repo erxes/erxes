@@ -43,7 +43,10 @@ export const mailMessageSchema = new Schema({
   references: { type: [String], index: true },
   replyTag: { type: String, index: true, sparse: true },
   isAuto: { type: Boolean, default: false },
-  envelopeFrom: { type: String, label: 'SMTP envelope sender of an inbound mail' },
+  envelopeFrom: {
+    type: String,
+    label: 'SMTP envelope sender of an inbound mail',
+  },
   senderMismatch: {
     type: Boolean,
     default: false,

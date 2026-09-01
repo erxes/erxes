@@ -19,9 +19,7 @@ export const resolveInboundKeys = async (
   const connection = await readConnectedCloudflare(subdomain);
 
   if (connection) {
-    keys.push(
-      deriveTenantSecret(connection.webhookSecret, connection.tenant),
-    );
+    keys.push(deriveTenantSecret(connection.webhookSecret, connection.tenant));
   }
 
   try {

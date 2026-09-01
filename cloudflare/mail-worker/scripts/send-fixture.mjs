@@ -53,8 +53,7 @@ if (envelopeFrom) {
 }
 
 const tenant =
-  process.env.MAIL_TENANT?.trim() ||
-  new URL(endpoint).hostname.split('.')[0];
+  process.env.MAIL_TENANT?.trim() || new URL(endpoint).hostname.split('.')[0];
 
 const compact = JSON.stringify(payload);
 const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -79,7 +78,7 @@ const response = await fetch(endpoint, {
 
 const text = await response.text();
 
-const oneLine = (value) => String(value ?? "").replace(/[\r\n]+/g, " ");
+const oneLine = (value) => String(value ?? '').replace(/[\r\n]+/g, ' ');
 
 console.log(`→ ${oneLine(payload.to)}`);
 console.log(`  tenant:    ${oneLine(tenant)}`);

@@ -22,4 +22,3 @@ export const MAIL_MESSAGE_INSERTED_SUBSCRIPTION = gql`
     }
   }
 `;
-

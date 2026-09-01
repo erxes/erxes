@@ -88,7 +88,10 @@ export const describeZones = async (
   };
 
   await Promise.all(
-    Array.from({ length: Math.min(ELIGIBILITY_CONCURRENCY, zones.length) }, walk),
+    Array.from(
+      { length: Math.min(ELIGIBILITY_CONCURRENCY, zones.length) },
+      walk,
+    ),
   );
 
   return described.sort(byUsableThenName);

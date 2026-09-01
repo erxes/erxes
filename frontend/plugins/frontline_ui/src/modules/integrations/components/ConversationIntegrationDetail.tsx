@@ -33,15 +33,15 @@ const CallProConversationDetail = lazy(() =>
 );
 
 const FbMessengerConversationDetail = lazy(() =>
-  import(
-    '@/integrations/facebook/components/FacebookConversationMessages'
-  ).then((module) => ({ default: module.FacebookConversationMessages })),
+  import('@/integrations/facebook/components/FacebookConversationMessages').then(
+    (module) => ({ default: module.FacebookConversationMessages }),
+  ),
 );
 
 const IgMessengerConversationDetail = lazy(() =>
-  import(
-    '@/integrations/instagram/components/InstagramConversationMessages'
-  ).then((module) => ({ default: module.InstagramConversationMessages })),
+  import('@/integrations/instagram/components/InstagramConversationMessages').then(
+    (module) => ({ default: module.InstagramConversationMessages }),
+  ),
 );
 
 const IgPostConversationDetail = lazy(() =>

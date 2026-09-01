@@ -4,8 +4,7 @@ import { mailIntegrationSchema } from '@/integrations/mail/db/definitions/integr
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 
-export interface IMailIntegrationModel
-  extends Model<IMailIntegrationDocument> {
+export interface IMailIntegrationModel extends Model<IMailIntegrationDocument> {
   markUnhealthy(_id: string, error: string): Promise<void>;
   markHealthy(_id: string): Promise<void>;
 }

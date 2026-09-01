@@ -79,16 +79,14 @@ const toCloudflareAttachments = async (
       const buffer = await readAttachmentBytes(
         subdomain,
         attachment.url as string,
-      ).catch(
-        (error: unknown) => {
-          const reason = describeError(error);
+      ).catch((error: unknown) => {
+        const reason = describeError(error);
 
-          throw new MailSendError(
-            `The attachment "${filename}" could not be read back for sending: ${reason}`,
-            false,
-          );
-        },
-      );
+        throw new MailSendError(
+          `The attachment "${filename}" could not be read back for sending: ${reason}`,
+          false,
+        );
+      });
 
       return {
         content: buffer.toString('base64'),

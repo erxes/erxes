@@ -34,7 +34,9 @@ const run = (label, args) => {
     return { ok: true, output };
   }
 
-  if (/already exists|already taken|already been taken|duplicate/i.test(output)) {
+  if (
+    /already exists|already taken|already been taken|duplicate/i.test(output)
+  ) {
     process.stdout.write('  (already present, leaving it alone)\n');
 
     return { ok: true, output, existed: true };

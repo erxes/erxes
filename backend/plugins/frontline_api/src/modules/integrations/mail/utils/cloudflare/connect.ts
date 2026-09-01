@@ -72,8 +72,7 @@ export const connectCloudflare = async (
     queueName: existing?.queueName || `${MAIL_QUEUE_NAME}-${tenant}`,
     dlqName: existing?.dlqName || `${MAIL_DLQ_NAME}-${tenant}`,
     apiToken: trimmed,
-    webhookSecret:
-      existing?.webhookSecret || randomBytes(32).toString('hex'),
+    webhookSecret: existing?.webhookSecret || randomBytes(32).toString('hex'),
     status: MAIL_CLOUDFLARE_STATUSES.PENDING,
     steps: [],
     error: '',
@@ -101,13 +100,11 @@ const releaseResources = async (connection: IMailCloudflareDocument) => {
     debugError(`Could not delete the worker ${workerName}:`, e);
   }
 
-  const queues = await listQueues(apiToken, accountId).catch(
-    (e: unknown) => {
-      debugError('Could not list queues while disconnecting:', e);
+  const queues = await listQueues(apiToken, accountId).catch((e: unknown) => {
+    debugError('Could not list queues while disconnecting:', e);
 
-      return undefined;
-    },
-  );
+    return undefined;
+  });
 
   for (const name of [queueName, dlqName]) {
     const queue = (queues ?? []).find((entry) => entry.queue_name === name);

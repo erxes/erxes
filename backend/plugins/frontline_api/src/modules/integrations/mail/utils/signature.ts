@@ -81,7 +81,10 @@ export const verifySignature = (
   const skew = timestampSkew(timestamp);
 
   if (skew === undefined) {
-    return { ok: false, error: `timestamp "${timestamp}" is not a unix second` };
+    return {
+      ok: false,
+      error: `timestamp "${timestamp}" is not a unix second`,
+    };
   }
 
   if (skew > MAX_SKEW_SECONDS) {
@@ -98,10 +101,7 @@ export const verifySignature = (
   signed.set(rawBody, prefix.length);
 
   const matched = keys.some((key) =>
-    equals(
-      createHmac('sha256', key).update(signed).digest('hex'),
-      received,
-    ),
+    equals(createHmac('sha256', key).update(signed).digest('hex'), received),
   );
 
   if (!matched) {

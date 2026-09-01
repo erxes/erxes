@@ -22,8 +22,7 @@ type TMailSigner =
 export const resolveReplyToAddress = (
   integration: IMailIntegrationDocument,
   tag?: string,
-) =>
-  tag ? buildTaggedAddress(integration.address, tag) : integration.address;
+) => (tag ? buildTaggedAddress(integration.address, tag) : integration.address);
 
 const resolveSigner = async (subdomain: string): Promise<TMailSigner> => {
   const lookup = await readSendingAccount(subdomain);
@@ -41,9 +40,7 @@ const resolveSigner = async (subdomain: string): Promise<TMailSigner> => {
   return { ok: false, reason: lookup.reason };
 };
 
-const resolveTransport = async (
-  subdomain: string,
-): Promise<IMailTransport> => {
+const resolveTransport = async (subdomain: string): Promise<IMailTransport> => {
   const signer = await resolveSigner(subdomain);
 
   if (!signer.ok) {

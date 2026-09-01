@@ -50,4 +50,3 @@ export const MAIL_CHECK_CONNECTION_MUTATION = gql`
     }
   }
 `;
-

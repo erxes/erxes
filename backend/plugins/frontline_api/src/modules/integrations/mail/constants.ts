@@ -66,4 +66,3 @@ export const MAIL_SEND_MAX_HEADER_BYTES = 16 * 1024;
 export const MAIL_SEND_MAX_SUBJECT_LENGTH = 998;
 
 export const MAIL_SENDER_NAME_MAX_LENGTH = 64;
-
