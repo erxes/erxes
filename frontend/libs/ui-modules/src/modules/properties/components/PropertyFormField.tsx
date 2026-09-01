@@ -1,36 +1,7 @@
-import { ComponentType, useCallback } from 'react';
+import { useCallback } from 'react';
 import { IField } from '../types/fieldsTypes';
-import type { SpecificFieldProps } from './Field';
-import { FieldBoolean } from './FieldBoolean';
-import { FieldCheck } from './FieldCheck';
-import { FieldDate } from './FieldDate';
-import { FieldFile } from './FieldFile';
+import { FIELD_COMPONENT_BY_TYPE } from './Field';
 import { FieldLabel } from './FieldLabel';
-import { FieldNumber } from './FieldNumber';
-import { FieldPhone } from './FieldPhone';
-import { FieldRadio } from './FieldRadio';
-import { FieldRelation } from './FieldRelation';
-import { FieldSelect } from './FieldSelect';
-import { FieldSelectMultiple } from './FieldSelectMultiple';
-import { FieldString } from './FieldString';
-import { FieldStringMultiple } from './FieldStringMultiple';
-import { FieldTextarea } from './FieldTextarea';
-
-const FIELD_COMPONENT_MAP: Record<string, ComponentType<SpecificFieldProps>> = {
-  text: FieldString,
-  phone: FieldPhone,
-  textarea: FieldTextarea,
-  list: FieldStringMultiple,
-  number: FieldNumber,
-  boolean: FieldBoolean,
-  date: FieldDate,
-  select: FieldSelect,
-  radio: FieldRadio,
-  check: FieldCheck,
-  multiSelect: FieldSelectMultiple,
-  relation: FieldRelation,
-  file: FieldFile,
-};
 
 export function PropertyFormField({
   field,
@@ -50,7 +21,7 @@ export function PropertyFormField({
     [field._id, onFieldChange],
   );
 
-  const FieldComponent = FIELD_COMPONENT_MAP[field.type];
+  const FieldComponent = FIELD_COMPONENT_BY_TYPE[field.type];
   if (!FieldComponent) return null;
 
   const id = `${idPrefix}_${field._id}`;

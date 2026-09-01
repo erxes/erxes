@@ -1,3 +1,4 @@
+import { ComponentType } from 'react';
 import { IField, IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { FieldBoolean } from './FieldBoolean';
 import { FieldCheck } from './FieldCheck';
@@ -33,6 +34,25 @@ export interface SpecificFieldProps extends FieldProps {
   loading: boolean;
 }
 
+export const FIELD_COMPONENT_BY_TYPE: Record<
+  string,
+  ComponentType<SpecificFieldProps>
+> = {
+  text: FieldString,
+  phone: FieldPhone,
+  textarea: FieldTextarea,
+  list: FieldStringMultiple,
+  number: FieldNumber,
+  boolean: FieldBoolean,
+  date: FieldDate,
+  select: FieldSelect,
+  multiSelect: FieldSelectMultiple,
+  check: FieldCheck,
+  radio: FieldRadio,
+  relation: FieldRelation,
+  file: FieldFile,
+};
+
 export const Field = (props: FieldProps) => {
   const { field, mutateHook, propertiesData, id } = props;
   const { mutate, loading } = mutateHook?.() ?? {
@@ -57,6 +77,8 @@ export const Field = (props: FieldProps) => {
     id: id + '_' + field._id,
   };
 
+  const FieldComponent = FIELD_COMPONENT_BY_TYPE[field.type];
+
   return (
     <FieldLabel
       field={field}
@@ -64,38 +86,7 @@ export const Field = (props: FieldProps) => {
       inCell={props.inCell}
       value={props.value}
     >
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'list':
-            return <FieldStringMultiple {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'check':
-            return <FieldCheck {...fieldProps} />;
-          case 'radio':
-            return <FieldRadio {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
+      {FieldComponent && <FieldComponent {...fieldProps} />}
     </FieldLabel>
   );
 };
@@ -145,6 +136,8 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
     id: id + '_' + field._id + '_' + propertyIndex,
   };
 
+  const FieldComponent = FIELD_COMPONENT_BY_TYPE[field.type];
+
   return (
     <FieldLabel
       field={field}
@@ -152,38 +145,7 @@ export const FieldMultiple = (props: FieldMultipleProps) => {
       inCell={props.inCell}
       value={props.value}
     >
-      {(() => {
-        switch (field.type) {
-          case 'text':
-            return <FieldString {...fieldProps} />;
-          case 'phone':
-            return <FieldPhone {...fieldProps} />;
-          case 'textarea':
-            return <FieldTextarea {...fieldProps} />;
-          case 'list':
-            return <FieldStringMultiple {...fieldProps} />;
-          case 'number':
-            return <FieldNumber {...fieldProps} />;
-          case 'boolean':
-            return <FieldBoolean {...fieldProps} />;
-          case 'date':
-            return <FieldDate {...fieldProps} />;
-          case 'select':
-            return <FieldSelect {...fieldProps} />;
-          case 'multiSelect':
-            return <FieldSelectMultiple {...fieldProps} />;
-          case 'check':
-            return <FieldCheck {...fieldProps} />;
-          case 'radio':
-            return <FieldRadio {...fieldProps} />;
-          case 'relation':
-            return <FieldRelation {...fieldProps} />;
-          case 'file':
-            return <FieldFile {...fieldProps} />;
-          default:
-            return null;
-        }
-      })()}
+      {FieldComponent && <FieldComponent {...fieldProps} />}
     </FieldLabel>
   );
 };

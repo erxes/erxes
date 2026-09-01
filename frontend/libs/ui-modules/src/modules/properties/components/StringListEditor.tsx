@@ -105,7 +105,7 @@ const SortableRow = ({
           variant="ghost"
           size="sm"
           className="h-6 flex-auto justify-start truncate px-1 text-sm font-normal"
-          onDoubleClick={() => setIsEditing(true)}
+          onClick={() => setIsEditing(true)}
           title={item.text}
         >
           {item.text}
