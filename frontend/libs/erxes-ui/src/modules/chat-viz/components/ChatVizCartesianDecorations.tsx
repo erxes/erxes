@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { Fragment } from 'react';
 import { CartesianGrid, XAxis, YAxis, type YAxisProps } from 'recharts';
 
 import {
@@ -16,7 +16,7 @@ interface Props {
 /** Shared axes, grid, tooltip, and legend for cartesian chat charts. */
 export function ChatVizCartesianDecorations({ domain }: Readonly<Props>) {
   return (
-    <>
+    <Fragment>
       <CartesianGrid vertical={false} />
       <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
       <YAxis
@@ -37,6 +37,6 @@ export function ChatVizCartesianDecorations({ domain }: Readonly<Props>) {
           />
         )}
       />
-    </>
+    </Fragment>
   );
 }
