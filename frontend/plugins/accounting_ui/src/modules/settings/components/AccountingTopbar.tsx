@@ -63,7 +63,7 @@ export const AccountingTopbar = () => {
   if (pathname === '/settings/accounting/config/vat-rows') {
     return (
       <div className="flex items-center gap-3">
-        <Can action="vatRowsImportManage">
+        <Can action="taxRowsImportManage">
           <Import
             pluginName="accounting"
             moduleName="account"

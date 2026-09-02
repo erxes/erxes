@@ -46,7 +46,7 @@
 - The in-form add-transaction dropdown can create cash, bank, receivable, payable, or main transaction tabs directly from a selected account by resolving the account journal and pre-filling the first detail account; journal-only additions start with an empty account.
 - Related account override inputs keep focus while users type and persist custom debit and credit code lists independently.
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
-- Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration.
+- Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
 - Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
 
 ## Architecture
@@ -147,6 +147,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — `Tax Row Permission Guard`
+
+- **Summary:** Updated accounting settings import visibility to use the unified tax-row import permission.
+- **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`.
+- **Contracts changed:** Consumes `taxRowsImportManage` instead of the old VAT-specific import action.
+
 ### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
 
 - **Summary:** Fixed asset category forms now synchronize useful years with annual depreciation percentage and send the annual percentage as the canonical saved value, while fixed asset settings no longer expose direct asset creation and fixed asset income rows expose opening accumulated depreciation in advanced view.
@@ -199,10 +205,4 @@
 
 - **Summary:** Fixed asset income, out, move, and sale detail tables now render safely when form details are not initialized during create-route bootstrap, and disposal follow-transaction effects no longer reference removed owner-record selection state.
 - **Affected areas:** `src/modules/transactions/transaction-form/components/forms/Fxa*Form/FixedAssetForm.tsx`, `src/modules/transactions/transaction-form/components/forms/hooks/useFxaDisposalFollowTrs.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-28` — `Fixed Asset Income Inline Cells`
-
-- **Summary:** Fixed asset income code and name columns now use scoped inline table cells so transaction-form keyboard shortcuts can focus and edit them.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm/FixedAssetRow.tsx`.
 - **Contracts changed:** None.

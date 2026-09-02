@@ -25,6 +25,7 @@
 ## Current Capabilities
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
+- Permission metadata exposes VAT and CTAX row access through one `taxRow` module, exposes inventory/fixed-asset/fund-rate/debt-rate/closing adjustments as separate modules, and gates transaction reads/mutations by source journal while allowing generated follow journals, including `exchangeDiff`, through the source journal's permission.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store acquisition quantity/cost from the supplied migration totals.
 - Fixed asset categories store default annual depreciation percentages; fixed asset income copies the category's annual rate onto the generated fixed asset, and straight-line depreciation turns the annual percentage into monthly depreciation prorated by each month's day count.
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
@@ -35,7 +36,7 @@
 - Provides `fixedAssetLocationRemainders`, which lists positive fixed asset quantities grouped by fixed asset, branch, and department with fixed asset, category, location, date, and search filters using the same transaction movement aggregation helper as `fixedAssetLocationRemainder`.
 - Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from transaction detail movements, caches period-end rows in `adjust_fxa_details`, and allocates depreciation by active branch/department quantity while ignoring responsible-user allocation.
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
-- Provides account, account category, permission, VAT, CTAX, inventory, fixed asset, and journal report GraphQL contracts.
+- Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
@@ -113,6 +114,9 @@
 ## Local Invariants
 
 - Every resolver that reads or mutates accounting data must use tenant-scoped `models` and enforce the relevant permission before data access.
+- Transaction list/count/detail queries must intersect requested journals with the user's permitted source journals, including generated follow journals only through their source journal permission; `exchangeDiff` must not have standalone transaction permissions.
+- Transaction detail and content-linked queries must load the whole parent/ptr work transaction when at least one transaction in that group is readable; rows without account-level read access are returned through the hidden transaction shape.
+- Transaction create/update/remove mutations must check the source transaction journals in the submitted or persisted parent transaction before writing or deleting; generated follow journals must not get standalone permissions.
 - Fund/debt rate adjustments are calculated first and executed second; execution must fail when calculated details are missing.
 - Closing adjustments are calculated first and executed second; tax percentages must be saved on detail entries before transaction execution when users edit them.
 - Rate adjustment edits and removals must remove linked generated transactions and reset calculated state.
@@ -163,6 +167,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — `Permission Modules And Journal Guards`
+
+- **Summary:** Unified VAT/CTAX row access under `taxRow`, added separate permissions for fixed-asset, fund-rate, debt-rate, and closing adjustments, enforced transaction permissions by source journal, and kept grouped transaction details whole with hidden rows for unreadable account lines.
+- **Affected areas:** `src/meta/permissions.ts`, `src/modules/accounting/utils/transactionPermissions.ts`, `src/modules/accounting/graphql/resolvers`.
+- **Contracts changed:** Permission actions now include `read/manage/removeTaxRows`, adjustment-specific actions, and journal-specific transaction `read/manage/remove` actions; `exchangeDiff` is treated as a follow journal, not a standalone permission.
 
 ### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
 
@@ -217,9 +227,3 @@
 - **Summary:** Erkhet transaction migration now resolves inventory sale, movement, and currency-difference account codes from follow info before delegating to journal handlers.
 - **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/utils/invMove.ts`.
 - **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `followInfos.saleOutAccountId`, `followInfos.saleCostAccountId`, inventory movement `followInfos.moveInAccountId`, `followInfos.moveInBranchId`, `followInfos.moveInDepartmentId`, and detail `followInfos.currencyDiffAccountId` as source codes.
-
-### `2026-08-31` — `Erkhet Worker Reference Sync`
-
-- **Summary:** Erkhet reference migration now accepts active worker payloads, creates missing core users by unique email, and skips workers whose email already exists.
-- **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `workers` rows with email/name/register metadata.
