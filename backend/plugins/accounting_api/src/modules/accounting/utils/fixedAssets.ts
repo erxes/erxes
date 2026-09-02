@@ -385,7 +385,7 @@ const getLatestAdjustmentDetailsByFixedAssetId = async (
   );
   const getAdjustRank = (adjustId?: string) =>
     adjustId
-      ? adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY
+      ? (adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY)
       : Number.POSITIVE_INFINITY;
 
   if (!latestAdjustIds.length) {
