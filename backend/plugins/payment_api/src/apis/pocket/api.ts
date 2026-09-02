@@ -13,6 +13,7 @@ export interface IPocketConfig {
   pocketClientSecret: string;
   pocketTerminalId: number;
 }
+
 interface IPocketCallbackData {
   paymentId: string;
   invoiceId: string | number;
@@ -23,6 +24,7 @@ interface IPocketTokenResponse {
   access_token: string;
   expires_in: number;
 }
+
 interface IPocketInvoiceResponse {
   id: number;
   qr: string;
@@ -48,6 +50,9 @@ interface IPocketInvoiceStatusResponse {
   invoiceType?: string;
 }
 
+/**
+ * Handles Pocket payment callbacks and updates the transaction status.
+ */
 export const pocketCallbackHandler = async (
   models: IModels,
   data: IPocketCallbackData,
@@ -67,7 +72,8 @@ export const pocketCallbackHandler = async (
     paymentId,
   });
 
-  const response: any = transaction.response || {};
+  const response = (transaction.response || {}) as Record<string, unknown>;
+
   const allowedCallbackKeys = [
     'invoiceId',
     'paymentId',
@@ -86,6 +92,7 @@ export const pocketCallbackHandler = async (
       response[key] = data[key];
     }
   }
+
   transaction.response = response;
 
   const payment = await models.PaymentMethods.getPayment(paymentId);
@@ -126,12 +133,14 @@ export class PocketAPI extends BaseAPI {
 
   constructor(config: IPocketConfig, domain?: string) {
     super(config);
+
     if (
       !Number.isInteger(config.pocketTerminalId) ||
       config.pocketTerminalId <= 0
     ) {
       throw new Error('Pocket terminal ID must be a valid positive integer');
     }
+
     this.pocketMerchant = config.pocketMerchant;
     this.pocketClientId = config.pocketClientId;
     this.pocketClientSecret = config.pocketClientSecret;
@@ -249,6 +258,9 @@ export class PocketAPI extends BaseAPI {
     }
   }
 
+  /**
+   * Checks the current payment status of a Pocket invoice.
+   */
   async checkInvoice(transaction: ITransactionDocument) {
     const invoiceId = transaction.response?.invoiceId;
 
@@ -287,10 +299,16 @@ export class PocketAPI extends BaseAPI {
     return PAYMENT_STATUS.PENDING;
   }
 
-  async manualCheck(transaction: ITransactionDocument) {
+  /**
+   * Manually checks the current status of a Pocket transaction.
+   */
+  manualCheck(transaction: ITransactionDocument) {
     return this.checkInvoice(transaction);
   }
 
+  /**
+   * Registers the payment callback URL with Pocket.
+   */
   async registerWebhook(paymentId: string) {
     try {
       await this.request({
