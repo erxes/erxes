@@ -1,5 +1,4 @@
 import initCallApp from '@/integrations/call/initApp';
-import onServerInitImap from '@/integrations/imap/initApp';
 import { initDiscord } from '@/integrations/discord/initApp';
 import { startPlugin } from 'erxes-api-shared/utils';
 import {
@@ -71,7 +70,6 @@ startPlugin({
   expressRouter: router,
   onServerInit: async (app) => {
     await initCallApp(app);
-    await onServerInitImap(app);
     initDiscord();
   },
 

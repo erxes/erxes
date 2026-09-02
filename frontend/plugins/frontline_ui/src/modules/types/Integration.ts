@@ -1,5 +1,4 @@
 export enum IntegrationType {
-  IMAP = 'imap',
   MAIL = 'mail',
   FACEBOOK_POST = 'facebook-post',
   FACEBOOK_MESSENGER = 'facebook-messenger',

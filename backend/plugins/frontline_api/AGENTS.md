@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-31`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -21,7 +21,7 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, IMAP, Mail (Cloudflare Email Routing), Discord,
+  comments), Instagram, Mail (Cloudflare Email Routing), Discord,
   Call (SIP/CDR), and Call Pro (webhook PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
@@ -84,8 +84,7 @@
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
-- Boots the Call app, the IMAP poller, and the Discord gateway client from
-  `onServerInit`.
+- Boots the Call app and the Discord gateway client from `onServerInit`.
 - Runs the **mail** channel: an inbox owns a generated catch-all address, a
   Cloudflare Worker posts every delivery to `POST /mail/receive` under an HMAC
   signature, and the controller turns it into a core customer, a conversation,
@@ -133,7 +132,7 @@
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                                                                                                                         |
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`                                                                                                              |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                                                                                                                       |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, mail, discord, call, callpro, trpc                                                                                                                                          |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, mail, discord, call, callpro, trpc                                                                                                                                                |
 | Mail integration     | `src/modules/integrations/mail/`                                            | Inbound webhook, threading, outbound send/retry                                                                                                                                                        |
 | Mail transports      | `src/modules/integrations/mail/utils/transports/`                           | `index.ts` picks the Cloudflare account that signs for this workspace, `deliver.ts` runs the delivery pipeline (sender guard, suppression, delivery log), `cloudflare.ts` is the only `IMailTransport` |
 | Mail provisioning    | `src/modules/integrations/mail/utils/cloudflare/`                           | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                   |
@@ -432,7 +431,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
-  `CallPro*`, `Discord*`, `Imap*`, plus inbox (`Conversations`,
+  `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
 - Call Pro owns four collections: `integrations_callpro` (unique
@@ -1258,7 +1257,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
 - No `test` target is defined in `project.json`; do not invent one.
-- Smoke: connect an IMAP account without a `channelId` → a `Personal inbox`
+- Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
   kind such as a webhook; creating an integration against another user's
@@ -1300,6 +1299,23 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — IMAP integration removed
+
+- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
+  message processing/saving, models, message broker, and GraphQL layer — along
+  with every registration that referenced it.
+- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
+  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
+  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
+  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
+  `src/shared/types.ts`, `package.json`.
+- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
+  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
+  `IMapIntegration`; `imap` is no longer an accepted integration kind for
+  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
+  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
+  registered.
 
 ### `2026-08-28` — Every zone is listed, and the picker says which are usable
 
@@ -1457,15 +1473,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
   `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
   `mailDraftChanged` subscription.
-
-### `2026-08-26` — The platform mail domain is `erx.es`
-
-- **Summary:** `MAIL_DOMAIN` defaulted to `mail.erxes.io`, a host nobody owns, so
-  a deployment that forgot the variable would mint inbox addresses that can never
-  receive. The default is now `erx.es`, the domain erxes actually runs Email
-  Routing on. `erxes.io` and any subdomain of it are ruled out: Cloudflare refuses
-  to onboard a zone whose apex carries another provider's MX, and it serves an
-  Email Routing subdomain only once that apex is onboarded.
-- **Affected areas:** `src/modules/integrations/mail/utils/platformConfig.ts`,
-  `.env.sample`, `cloudflare/mail-worker/{README.md,fixtures/*.json}`.
-- **Contracts changed:** None — only the fallback value of `MAIL_DOMAIN`.

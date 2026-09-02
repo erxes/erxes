@@ -28,7 +28,6 @@ export const getIntegrationsKinds = async () => {
     webhook: 'Webhook',
     booking: 'Booking',
     callpro: 'Callpro',
-    imap: 'IMAP',
     mail: 'Email',
     'facebook-messenger': 'Facebook messenger',
     'facebook-post': 'Facebook post',
