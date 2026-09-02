@@ -5,10 +5,10 @@ import {
 } from '@tabler/icons-react';
 import { Badge, Button, Card, Separator, Sheet, Spinner } from 'erxes-ui';
 import { format } from 'date-fns';
-import { MembersInline } from 'ui-modules';
 import { PriorityBadge } from '@/operation/components/PriorityInline';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ActivityActor } from '@/activity/components/ActivityActor';
 
 const TriageContent = lazy(() =>
   import('@/triage/components/TriageContent').then((module) => ({
@@ -30,7 +30,11 @@ export const TriageWidgetCard = ({ triage }: { triage: ITriage }) => {
               size="sm"
               className="text-muted-foreground px-1 hover:bg-background pointer-events-none"
             >
-              <MembersInline memberIds={[triage.createdBy]} /> created
+              <ActivityActor.Provider actorId={triage.createdBy}>
+                <ActivityActor.Avatar />
+                <ActivityActor.Name />
+              </ActivityActor.Provider>{' '}
+              created
             </Button>
           </div>
           <Separator />
