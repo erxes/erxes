@@ -138,8 +138,8 @@ export const useProjects = (
               type === 'create'
                 ? prev.getProjects.totalCount + 1
                 : type === 'remove'
-                ? prev.getProjects.totalCount - 1
-                : prev.getProjects.totalCount,
+                  ? prev.getProjects.totalCount - 1
+                  : prev.getProjects.totalCount,
           },
         };
       },

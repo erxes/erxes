@@ -235,11 +235,11 @@ export const loadSegmentClass = (models: IModels) => {
 
       const asksSomethingElse = Boolean(
         doc.root &&
-          contentType &&
-          !(
-            current?.root &&
-            sameSegmentDefinition(contentType, doc.root, current.root)
-          ),
+        contentType &&
+        !(
+          current?.root &&
+          sameSegmentDefinition(contentType, doc.root, current.root)
+        ),
       );
 
       const dependsOn =

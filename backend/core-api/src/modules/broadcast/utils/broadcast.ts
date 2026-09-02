@@ -263,9 +263,8 @@ const sendBroadcastNotification = async ({
     targetIds,
   });
 
-  const totalCustomersCount = await models.Customers.countDocuments(
-    customersSelector,
-  );
+  const totalCustomersCount =
+    await models.Customers.countDocuments(customersSelector);
 
   const erxesCustomerIds = await models.Customers.find(customersSelector)
     .distinct('_id')
