@@ -106,17 +106,17 @@ export const MessageItem = () => {
     .replace(/^\s*Replying to\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
-  const effectiveReplyTo = forwardedSnapshot
-    ? undefined
-    : (replyTo
-        ? {
-            ...replyTo,
-            content: getReplyPreview(replyTo.content) || 'Attachment',
-          }
-        : undefined) ||
-      (legacyReplyPreview
-        ? { messageId: '', content: legacyReplyPreview }
-        : undefined);
+  let effectiveReplyTo: typeof replyTo;
+  if (!forwardedSnapshot) {
+    if (replyTo) {
+      effectiveReplyTo = {
+        ...replyTo,
+        content: getReplyPreview(replyTo.content) || 'Attachment',
+      };
+    } else if (legacyReplyPreview) {
+      effectiveReplyTo = { messageId: '', content: legacyReplyPreview };
+    }
+  }
   const displayContent =
     botText ||
     (legacyReplyMatch ? content.replace(legacyReplyMatch[0], '') : content)

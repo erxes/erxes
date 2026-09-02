@@ -638,11 +638,14 @@ const persistAndDispatchMessage = async ({
 const buildInboxMessageExtraData = (
   activity: DiscordActivity,
   stored: {
-    poll?: DiscordActivity['poll'];
-    embeds?: DiscordActivity['embeds'];
-    stickers?: DiscordActivity['stickers'];
-    voiceMessage?: DiscordActivity['voiceMessage'];
-    forwardedSnapshot?: DiscordActivity['forwardedSnapshot'];
+    poll?: Exclude<DiscordActivity['poll'], undefined>;
+    embeds?: Exclude<DiscordActivity['embeds'], undefined>;
+    stickers?: Exclude<DiscordActivity['stickers'], undefined>;
+    voiceMessage?: Exclude<DiscordActivity['voiceMessage'], undefined>;
+    forwardedSnapshot?: Exclude<
+      DiscordActivity['forwardedSnapshot'],
+      undefined
+    >;
   },
 ) => ({
   ...(stored.poll && { poll: stored.poll }),

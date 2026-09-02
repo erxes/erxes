@@ -81,11 +81,11 @@ function Attachment({
   attachment,
   length,
   onUnavailable,
-}: {
+}: Readonly<{
   attachment: IAttachment;
   length?: number;
   onUnavailable: () => void;
-}) {
+}>) {
   const type = attachment.type || '';
   const isImage = type.startsWith('image');
   const isVideo = type.startsWith('video');

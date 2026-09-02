@@ -33,13 +33,13 @@ type TInstagramRelayDoc = {
 };
 
 const INSTAGRAM_MESSAGE_REACTION = 'love';
-const UNSUPPORTED_REACTION_KINDS = [
+const UNSUPPORTED_REACTION_KINDS = new Set([
   'story_mention',
   'story_reply',
   'share',
   'deleted',
   'unsupported',
-];
+]);
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
@@ -76,7 +76,7 @@ const handleInstagramReaction = async (
       'Instagram only allows reactions to messages received from the customer',
     );
   }
-  if (UNSUPPORTED_REACTION_KINDS.includes(target.messageKind || '')) {
+  if (UNSUPPORTED_REACTION_KINDS.has(target.messageKind || '')) {
     throw new Error(
       'Instagram does not support reactions for this message type',
     );
@@ -303,7 +303,7 @@ const handleInstagramMessengerReply = async (
   };
 };
 
-export const handleInstagramMessage = async (
+export const handleInstagramMessage = (
   models: IModels,
   msg: IMsg,
   subdomain: string,

@@ -46,7 +46,7 @@ export interface ConversationConvertToCardParams {
   itemId?: string;
   itemName?: string;
   stageId?: string;
-  customFieldsData?: IConversation['customFieldsData'];
+  customFieldsData?: Exclude<IConversation['customFieldsData'], undefined>;
   priority?: string;
   assignedUserIds?: string[];
   labelIds?: string[];
@@ -1221,7 +1221,10 @@ export const conversationMutations = {
     {
       _id,
       customFieldsData,
-    }: { _id: string; customFieldsData?: IConversation['customFieldsData'] },
+    }: {
+      _id: string;
+      customFieldsData?: Exclude<IConversation['customFieldsData'], undefined>;
+    },
     { models }: IContext,
   ) {
     await models.Conversations.updateConversation(_id, { customFieldsData });

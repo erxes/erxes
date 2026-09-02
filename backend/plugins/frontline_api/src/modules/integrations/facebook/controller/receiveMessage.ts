@@ -272,7 +272,7 @@ const upsertFacebookConversation = async ({
         recipientId,
         content,
         integrationId: integration._id,
-        isBot: !!botId,
+        isBot: Boolean(botId),
         botId,
       });
     } catch (e) {
@@ -382,7 +382,7 @@ const prepareFacebookActivity = (activity: Activity) => {
   const attachments = channelData.message?.attachments;
   let text = activity.text || message?.text;
 
-  if (!text && !message && !!postback) {
+  if (!text && !message && postback) {
     text = postback.title;
     message = { mid: postback.mid };
     if (postback.payload) {
@@ -471,7 +471,10 @@ const storeFacebookMessage = async ({
   botId?: string;
   senderId: string;
   recipientId: string;
-  adData?: ReturnType<typeof prepareFacebookActivity>['adData'];
+  adData?: Exclude<
+    ReturnType<typeof prepareFacebookActivity>['adData'],
+    undefined
+  >;
 }) => {
   const existing = await models.FacebookConversationMessages.findOne({
     mid: { $eq: mid },

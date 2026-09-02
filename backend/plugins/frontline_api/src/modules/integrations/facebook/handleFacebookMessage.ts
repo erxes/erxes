@@ -335,7 +335,7 @@ const handleFacebookMessengerReply = async (
   };
 };
 
-export const handleFacebookMessage = async (
+export const handleFacebookMessage = (
   models: IModels,
   msg: TFacebookRelayMessage,
   subdomain: string,

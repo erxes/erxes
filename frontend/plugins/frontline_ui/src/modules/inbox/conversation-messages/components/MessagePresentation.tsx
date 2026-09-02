@@ -284,10 +284,10 @@ const InstagramThumbnail = ({
 export function InstagramShareCard({
   url,
   attachmentType,
-}: {
+}: Readonly<{
   url: string;
   attachmentType?: string;
-}) {
+}>) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const isPost = attachmentType === 'ig_post';
   const isReel = attachmentType === 'ig_reel';

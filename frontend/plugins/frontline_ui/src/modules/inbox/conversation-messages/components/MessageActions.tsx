@@ -308,14 +308,14 @@ function ReactionMenu({
   disabledReason,
   selectedReaction,
   reactions,
-}: {
+}: Readonly<{
   conversationId: string;
   messageId: string;
   disabled: boolean;
   disabledReason: string;
   selectedReaction?: string;
   reactions: readonly (typeof REACTIONS)[number][];
-}) {
+}>) {
   const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT, {
     refetchQueries: [
       'ConversationMessages',
