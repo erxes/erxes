@@ -21,6 +21,15 @@ export interface IActivity {
   createdAt: string;
   updatedAt: string;
 }
+export type TNoteType = 'note' | 'comment';
+
+export interface INoteClientPortalAuthor {
+  _id: string;
+  fullName: string;
+  email: string;
+  avatar: string;
+}
+
 export interface INote {
   _id: string;
   content: string;
@@ -29,4 +38,7 @@ export interface INote {
   contentId: string;
   mentions: string[];
   updatedAt: string;
+  type?: TNoteType;
+  /** Set only when the author wrote from the client portal. */
+  clientPortalAuthor?: INoteClientPortalAuthor | null;
 }

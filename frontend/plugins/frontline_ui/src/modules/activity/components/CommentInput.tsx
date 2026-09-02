@@ -1,62 +1,70 @@
 import { EditorToolbar } from '@/activity/components/EditorToolbar';
-import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
-import { toMentionScanBlocks, trimEmptyBlocks } from '@/activity/utils';
+import { useCreateTicketComment } from '@/activity/hooks/useCreateTicketComment';
+import { trimEmptyBlocks } from '@/activity/utils';
 import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import type { Block } from '@blocknote/core';
 import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
-  getMentionedUserIds,
   Kbd,
   useBlockEditor,
   usePreviousHotkeyScope,
   useScopedHotkeys,
+  useToast,
 } from 'erxes-ui';
-import { AssignMemberInEditor } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
-export const NoteInput = ({ contentId }: { contentId: string }) => {
+/**
+ * Comments are read by the requester in the client portal, so this editor
+ * deliberately has no team mentions.
+ */
+export const CommentInput = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('frontline');
-  const editor = useBlockEditor({ placeholder: t('leave-a-note') });
-  const { createTicketNote, loading } = useCreateTicketNote();
+  const { toast } = useToast();
+  const editor = useBlockEditor({
+    placeholder: t('write-a-comment', 'Write a comment...'),
+  });
+  const { createTicketComment, loading } = useCreateTicketComment(contentId);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const onSend = async () => {
+  const onSend = () => {
     const trimmedContent = trimEmptyBlocks((editor?.document || []) as Block[]);
 
-    if (trimmedContent.length === 0) {
+    if (trimmedContent.length === 0 || loading) {
       return;
     }
 
-    createTicketNote({
-      variables: {
-        content: JSON.stringify(trimmedContent),
-        contentId: contentId,
-        mentions: getMentionedUserIds(toMentionScanBlocks(trimmedContent)),
-      },
+    createTicketComment(JSON.stringify(trimmedContent), {
       onCompleted: () => {
         editor.replaceBlocks(editor.topLevelBlocks, []);
       },
+      onError: (error) => {
+        toast({
+          title: t('error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   };
-  useScopedHotkeys('mod+enter', onSend, TicketHotKeyScope.NoteInput);
+
+  useScopedHotkeys('mod+enter', onSend, TicketHotKeyScope.CommentInput);
+
   return (
-    <div className="flex flex-col border rounded-lg min-h-14 px-4 py-3  ">
+    <div className="flex flex-col border rounded-lg min-h-14 px-4 py-3">
       <EditorToolbar editor={editor} />
       <BlockEditor
         editor={editor}
         onFocus={() =>
-          setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
+          setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.CommentInput)
         }
         onBlur={() => goBackToPreviousHotkeyScope()}
         className="read-only"
-      >
-        <AssignMemberInEditor editor={editor} />
-      </BlockEditor>
+      />
       <div className="flex justify-end">
         <Button
           size="lg"

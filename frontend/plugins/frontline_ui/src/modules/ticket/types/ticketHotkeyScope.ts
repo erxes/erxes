@@ -3,4 +3,5 @@ export enum TicketHotKeyScope {
   TicketAddSheet = 'TicketAddSheet',
   TicketTableCell = 'TicketTableCell',
   NoteInput = 'NoteInput',
+  CommentInput = 'CommentInput',
 }

@@ -6,6 +6,7 @@ export const ACTIVITY_MODULES = {
   END_DATE: 'END_DATE',
   ASSIGNEE: 'ASSIGNEE',
   NOTE: 'NOTE',
+  COMMENT: 'COMMENT',
   DESCRIPTION: 'DESCRIPTION',
   FORM_SUBMISSION: 'FORM_SUBMISSION',
 };
@@ -14,4 +15,9 @@ export const ACTIVITY_ACTIONS = {
   CREATED: 'CREATED',
   CHANGED: 'CHANGED',
   REMOVED: 'REMOVED',
+} as const;
+
+export const NOTE_TYPES = {
+  NOTE: 'note',
+  COMMENT: 'comment',
 } as const;

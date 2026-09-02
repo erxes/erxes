@@ -1,10 +1,20 @@
-import { INoteDocument } from '@/ticket/@types/note';
+import { INoteDocument, TNoteType } from '@/ticket/@types/note';
 import { IContext } from '~/connectionResolvers';
 
 export const noteMutations = {
   ticketCreateNote: async (
     _parent: undefined,
-    { content, contentId, mentions },
+    {
+      content,
+      contentId,
+      mentions,
+      type,
+    }: {
+      content: string;
+      contentId: string;
+      mentions?: string[];
+      type?: TNoteType;
+    },
     { models, user, subdomain }: IContext,
   ) => {
     const userId = user._id || '';
@@ -13,6 +23,7 @@ export const noteMutations = {
         content,
         contentId,
         mentions,
+        type: type === 'comment' ? 'comment' : 'note',
         createdBy: user._id,
       },
       subdomain,
