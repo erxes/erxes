@@ -3,12 +3,6 @@ import { IntegrationType } from '@/types/Integration';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
-const IMapConversationDetail = lazy(() =>
-  import('@/integrations/imap/components/ImapConversationDetail').then(
-    (module) => ({ default: module.ImapConversationDetail }),
-  ),
-);
-
 const MailConversationDetail = lazy(() =>
   import('@/integrations/mail/components/MailConversationDetail').then(
     (module) => ({ default: module.MailConversationDetail }),
@@ -55,7 +49,6 @@ export const ConversationIntegrationDetail = () => {
 
   return (
     <Suspense fallback={<InboxMessagesSkeleton />}>
-      {integration?.kind === IntegrationType.IMAP && <IMapConversationDetail />}
       {integration?.kind === IntegrationType.MAIL && <MailConversationDetail />}
       {integration?.kind === IntegrationType.CALL && <CallConversationDetail />}
       {integration?.kind === IntegrationType.CALLPRO && (

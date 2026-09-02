@@ -1,7 +1,6 @@
 import {
   IconBrandDiscord,
   IconForms,
-  IconMail,
   IconMessageFilled,
   IconPhone,
 } from '@tabler/icons-react';
@@ -21,6 +20,5 @@ export const INTEGRATION_ICONS: Record<string, FC<any>> = {
   messenger: IconMessageFilled,
   calls: IconPhone,
   callpro: IconPhone,
-  imap: IconMail,
   'discord-messenger': IconBrandDiscord,
 };

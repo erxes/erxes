@@ -37,12 +37,6 @@ const CallProIntegrationActions = lazy(() =>
   })),
 );
 
-const ImapIntegrationActions = lazy(() =>
-  import('../imap/components/ImapIntegrationDetail').then((module) => ({
-    default: module.ImapIntegrationActions,
-  })),
-);
-
 const MailIntegrationActions = lazy(() =>
   import('../mail/components/MailIntegrationDetail').then((module) => ({
     default: module.MailIntegrationActions,
@@ -93,9 +87,6 @@ export const IntegrationMoreColumnCell = ({
                 )}
                 {integrationType === IntegrationType.CALLPRO && (
                   <CallProIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.IMAP && (
-                  <ImapIntegrationActions cell={cell} />
                 )}
                 {integrationType === IntegrationType.MAIL && (
                   <MailIntegrationActions cell={cell} />

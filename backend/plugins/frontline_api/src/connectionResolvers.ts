@@ -159,20 +159,6 @@ import {
   loadCallProLogClass,
 } from '@/integrations/callpro/db/models/Logs';
 
-import {
-  ICustomerImapDocument,
-  IIntegrationImapDocument,
-  IMessageImapDocument,
-  ICustomerImapModel,
-  IIntegrationImapModel,
-  IMessageImapModel,
-  loadImapCustomerClass,
-  loadImapIntegrationClass,
-  loadImapMessageClass,
-  ILogImapModel,
-  ILogImapDocument,
-  loadImapLogClass,
-} from '@/integrations/imap/models';
 import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
 import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
 import { IMailMessageDocument } from '@/integrations/mail/@types/message';
@@ -383,12 +369,6 @@ export interface IModels {
   CallProCustomers: ICallProCustomerModel;
   CallProConversations: ICallProConversationModel;
   CallProLogs: ICallProLogModel;
-
-  //imap
-  ImapCustomers: ICustomerImapModel;
-  ImapIntegrations: IIntegrationImapModel;
-  ImapMessages: IMessageImapModel;
-  ImapLogs: ILogImapModel;
 
   MailIntegrations: IMailIntegrationModel;
   MailCustomers: IMailCustomerModel;
@@ -674,24 +654,6 @@ export const loadClasses = (
   models.CallProLogs = db.model<ICallProLogDocument, ICallProLogModel>(
     'logs_callpro',
     loadCallProLogClass(),
-  );
-
-  //imap models
-  models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
-    'imap_customers',
-    loadImapCustomerClass(models),
-  );
-  models.ImapIntegrations = db.model<
-    IIntegrationImapDocument,
-    IIntegrationImapModel
-  >('imap_integrations', loadImapIntegrationClass(models));
-  models.ImapMessages = db.model<IMessageImapDocument, IMessageImapModel>(
-    'imap_messages',
-    loadImapMessageClass(models),
-  );
-  models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
-    'imap_logs',
-    loadImapLogClass(models),
   );
 
   models.MailIntegrations = db.model<
