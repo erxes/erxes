@@ -1,3 +1,6 @@
+import { ReactNode } from 'react';
+import { PropertyFilterOperator } from '../../../properties/types/fieldsTypes';
+
 type TExportProgressStatus =
   | 'pending'
   | 'validating'
@@ -28,14 +31,31 @@ export type TExportProgress = {
   createdAt?: string;
 };
 
+export type TSystemFieldCondition = {
+  key: string;
+  operator: PropertyFilterOperator;
+  value?: unknown;
+};
+
+export type TRenderRelationValueInput = (params: {
+  header: TExportHeader;
+  condition: TSystemFieldCondition;
+  allConditions: TSystemFieldCondition[];
+  onChange: (value: unknown) => void;
+}) => ReactNode;
+
 export type TExportFieldSelectionProps = {
   entityType: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (selectedFields: string[]) => void;
+  onConfirm: (
+    selectedFields: string[],
+    systemFieldConditions?: TSystemFieldCondition[],
+  ) => void;
   recordCount?: number;
   entityDisplayName?: string;
   filters?: Record<string, any>;
+  renderRelationValueInput?: TRenderRelationValueInput;
 };
 
 export type TSearchAndActionsProps = {
@@ -51,6 +71,9 @@ export type TExportHeader = {
   key: string;
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+  fieldType?: 'text' | 'number' | 'date' | 'relation' | 'select';
+  relationKind?: string;
+  options?: { label: string; value: string }[];
 };
 
 export type TExportProgressInfo = {

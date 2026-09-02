@@ -29,11 +29,19 @@ export const types = `
     selectedFields:[String]
   }
 
+  type ExportHeaderOption {
+    label: String
+    value: String
+  }
+
   type ExportHeader {
     label: String
     key: String
     isDefault: Boolean
     type: String
+    fieldType: String
+    relationKind: String
+    options: [ExportHeaderOption]
   }
 
   type ExportHistoryList {
