@@ -49,17 +49,17 @@
 
 ## Architecture
 
-| Area                | Path                                                                      | Responsibility                                                        |
-| ------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Bootstrap           | `src/main.ts`                                                             | Starts and registers the sales plugin                                 |
-| Runtime             | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`                   | Start the plugin, load tenant-scoped models, and expose tRPC          |
-| Agent tool metadata | `src/trpc/agentMeta.ts`                                                   | Local `agentMeta` helper for agent-callable tRPC annotations          |
-| Models              | `src/modules/sales/db`                                                    | Sales Mongoose schemas and models                                     |
-| GraphQL             | `src/modules/sales/graphql`, `src/apollo`                                 | Sales schemas, resolvers, mutations, queries, and subscriptions       |
-| Pipeline validation | `src/modules/sales/utils/pipelineProperties.ts`                           | Validates pipeline property ids through Core tRPC                     |
-| References          | `src/modules/sales/meta`                                                  | Sales reference values, automation constants, and after-process logic |
-| Documents           | `src/modules/sales/documents`                                             | Generate sales document content and amount mappings                   |
-| POS and ecommerce   | `src/modules/pos`, `src/modules/ecommerce`                                | Provide sales-owned POS and ecommerce behavior                        |
+| Area                | Path                                                    | Responsibility                                                        |
+| ------------------- | ------------------------------------------------------- | --------------------------------------------------------------------- |
+| Bootstrap           | `src/main.ts`                                           | Starts and registers the sales plugin                                 |
+| Runtime             | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc` | Start the plugin, load tenant-scoped models, and expose tRPC          |
+| Agent tool metadata | `src/trpc/agentMeta.ts`                                 | Local `agentMeta` helper for agent-callable tRPC annotations          |
+| Models              | `src/modules/sales/db`                                  | Sales Mongoose schemas and models                                     |
+| GraphQL             | `src/modules/sales/graphql`, `src/apollo`               | Sales schemas, resolvers, mutations, queries, and subscriptions       |
+| Pipeline validation | `src/modules/sales/utils/pipelineProperties.ts`         | Validates pipeline property ids through Core tRPC                     |
+| References          | `src/modules/sales/meta`                                | Sales reference values, automation constants, and after-process logic |
+| Documents           | `src/modules/sales/documents`                           | Generate sales document content and amount mappings                   |
+| POS and ecommerce   | `src/modules/pos`, `src/modules/ecommerce`              | Provide sales-owned POS and ecommerce behavior                        |
 
 ## Contracts
 
