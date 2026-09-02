@@ -134,10 +134,9 @@ export const loadNoteClass = (models: IModels) => {
       if (type === 'comment') {
         // The team reads comments off `ticketActivityChanged`; the client
         // portal has no activity feed, so it gets its own topic.
-        await graphqlPubsub.publish(
-          `ticketCommentInserted:${note.contentId}`,
-          { ticketCommentInserted: note },
-        );
+        await graphqlPubsub.publish(`ticketCommentInserted:${note.contentId}`, {
+          ticketCommentInserted: note,
+        });
 
         if (isClientPortalAuthor(doc.createdBy)) {
           await Note.notifyTeamOfPortalComment({ note, subdomain, userId });
