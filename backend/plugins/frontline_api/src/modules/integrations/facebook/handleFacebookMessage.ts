@@ -355,4 +355,6 @@ export const handleFacebookMessage = (
   if (action === 'reply-messenger') {
     return handleFacebookMessengerReply(models, doc, subdomain);
   }
+
+  throw new Error(`Unknown Facebook message action: ${action}`);
 };

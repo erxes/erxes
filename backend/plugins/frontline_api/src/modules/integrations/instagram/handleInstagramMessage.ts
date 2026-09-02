@@ -323,4 +323,6 @@ export const handleInstagramMessage = (
   if (action === 'reply-messenger') {
     return handleInstagramMessengerReply(models, doc, subdomain);
   }
+
+  throw new Error(`Unknown Instagram message action: ${action}`);
 };
