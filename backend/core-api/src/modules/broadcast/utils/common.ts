@@ -407,8 +407,7 @@ export const send = async (
     return;
   }
 
-  const customersSelector = await generateCustomerSelector(subdomain, models, {
-    engageId: _id,
+  const customersSelector = generateCustomerSelector({
     targetType,
     targetIds,
   });

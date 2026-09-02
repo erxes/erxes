@@ -13,10 +13,16 @@ import { SegmentMetadataForm } from './SegmentMetadataForm';
 type RootProps = {
   contentType: string;
   segmentId?: string;
+  ownedBy?: string;
   children: React.ReactNode;
 };
 
-const SegmentFormRoot = ({ contentType, segmentId, children }: RootProps) => {
+const SegmentFormRoot = ({
+  contentType,
+  segmentId,
+  ownedBy,
+  children,
+}: RootProps) => {
   const { segment, segmentLoading, unavailable } = useSegmentDetail(segmentId);
 
   if (segmentLoading) {
@@ -32,6 +38,7 @@ const SegmentFormRoot = ({ contentType, segmentId, children }: RootProps) => {
       key={`${contentType}:${segment?._id ?? 'new'}:${segment?.revision ?? 0}`}
       contentType={contentType}
       segment={segment}
+      ownedBy={ownedBy}
     >
       {children}
     </SegmentProvider>

@@ -19,8 +19,9 @@ export type TSegmentStatus =
 export interface ISegment {
   _id: string;
   contentType: string;
-  name: string;
+  name?: string;
   description?: string;
+  ownedBy?: string;
   color?: string;
   root: TSegmentNode;
   visibility: TSegmentVisibility;
@@ -52,4 +53,10 @@ export interface ISegmentDay {
   count: number | null;
   joined: number;
   left: number;
+}
+
+export interface ISegmentUsage {
+  segmentId: string;
+  automations: { _id: string; name?: string; status?: string }[];
+  segments: { _id: string; name?: string }[];
 }

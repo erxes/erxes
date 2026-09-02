@@ -50,9 +50,16 @@ export const segmentNodeSchema: z.ZodType<{
 );
 
 export const segmentFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().optional(),
   description: z.string().optional(),
   color: z.string().optional(),
   visibility: z.enum(['private', 'organization']),
   root: segmentNodeSchema,
 });
+
+export const segmentFormSchemaFor = (ownedBy?: string) =>
+  ownedBy
+    ? segmentFormSchema
+    : segmentFormSchema.extend({
+        name: z.string().min(1, 'Name is required'),
+      });

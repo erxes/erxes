@@ -4,12 +4,13 @@ import { createContext, useContext, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { useSegmentStats } from '../hooks/useSegmentStats';
 import { segmentFormDirtyAtom } from '../states/segmentFormDirty';
-import { segmentFormSchema } from '../states/segmentFormSchema';
+import { segmentFormSchemaFor } from '../states/segmentFormSchema';
 import { ISegment, TSegmentForm } from '../types';
 import { emptyCondition, emptyGroup } from '../types/segmentNode';
 
 type SegmentFormContextType = {
   contentType: string;
+  ownedBy?: string;
   form: UseFormReturn<TSegmentForm>;
   segment?: ISegment;
   stats: ReturnType<typeof useSegmentStats>;
@@ -35,13 +36,19 @@ export const SegmentProvider = ({
   children,
   contentType,
   segment,
+  ownedBy,
 }: {
   children: React.ReactNode;
   contentType: string;
   segment?: ISegment;
+  ownedBy?: string;
 }) => {
+  const owner = segment
+    ? segment.ownedBy || (segment.name?.trim() ? undefined : ownedBy)
+    : ownedBy;
+
   const form = useForm<TSegmentForm>({
-    resolver: zodResolver(segmentFormSchema),
+    resolver: zodResolver(segmentFormSchemaFor(owner)),
     defaultValues: defaultValues(contentType, segment),
   });
 
@@ -57,7 +64,9 @@ export const SegmentProvider = ({
   const stats = useSegmentStats({ contentType, form });
 
   return (
-    <SegmentFormContext.Provider value={{ contentType, form, segment, stats }}>
+    <SegmentFormContext.Provider
+      value={{ contentType, ownedBy: owner, form, segment, stats }}
+    >
       {children}
     </SegmentFormContext.Provider>
   );

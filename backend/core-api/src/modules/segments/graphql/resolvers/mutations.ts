@@ -18,7 +18,9 @@ export const segmentMutations = {
 
     const segment = await models.Segments.createSegment(doc, user._id);
 
-    sendSegmentRebuild({ subdomain, segmentId: segment._id });
+    if (!segment.ownedBy) {
+      sendSegmentRebuild({ subdomain, segmentId: segment._id });
+    }
 
     return segment;
   },
@@ -49,7 +51,10 @@ export const segmentMutations = {
 
     const updated = await models.Segments.updateSegment(_id, doc, user._id);
 
-    if (asksSomethingElse) {
+    const wasOwned = Boolean(segment.ownedBy) || !segment.name?.trim();
+    const promoted = wasOwned && Boolean(updated?.name?.trim());
+
+    if (!updated?.ownedBy && (asksSomethingElse || promoted)) {
       sendSegmentRebuild({ subdomain, segmentId: _id });
     }
 

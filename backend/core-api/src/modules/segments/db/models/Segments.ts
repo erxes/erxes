@@ -181,12 +181,18 @@ export const loadSegmentClass = (models: IModels) => {
     public static async createSegment(doc: ISegmentCreate, userId: string) {
       await assertReferencesResolvable(doc.contentType, doc.root);
 
-      const existing = await sameDefinition(doc.contentType, doc.root);
+      if (!doc.ownedBy && !doc.name?.trim()) {
+        throw new Error('Name is required');
+      }
 
-      if (existing) {
-        throw new Error(
-          `A segment with these conditions already exists: ${existing.name}`,
-        );
+      if (!doc.ownedBy) {
+        const existing = await sameDefinition(doc.contentType, doc.root);
+
+        if (existing) {
+          throw new Error(
+            `A segment with these conditions already exists: ${existing.name}`,
+          );
+        }
       }
 
       return models.Segments.create({
@@ -209,25 +215,31 @@ export const loadSegmentClass = (models: IModels) => {
 
       const contentType = doc.contentType || current?.contentType;
 
+      const wasOwned = Boolean(current?.ownedBy) || !current?.name?.trim();
+      const promoting = wasOwned && Boolean(doc.name?.trim());
+      const stillOwned = wasOwned && !promoting;
+
       if (doc.root && contentType) {
         await assertReferencesResolvable(contentType, doc.root, _id);
 
-        const existing = await sameDefinition(contentType, doc.root, _id);
+        if (!stillOwned) {
+          const existing = await sameDefinition(contentType, doc.root, _id);
 
-        if (existing) {
-          throw new Error(
-            `A segment with these conditions already exists: ${existing.name}`,
-          );
+          if (existing) {
+            throw new Error(
+              `A segment with these conditions already exists: ${existing.name}`,
+            );
+          }
         }
       }
 
       const asksSomethingElse = Boolean(
         doc.root &&
-        contentType &&
-        !(
-          current?.root &&
-          sameSegmentDefinition(contentType, doc.root, current.root)
-        ),
+          contentType &&
+          !(
+            current?.root &&
+            sameSegmentDefinition(contentType, doc.root, current.root)
+          ),
       );
 
       const dependsOn =
@@ -250,6 +262,7 @@ export const loadSegmentClass = (models: IModels) => {
             updatedBy: userId,
           },
           ...(asksSomethingElse ? { $inc: { revision: 1 } } : {}),
+          ...(promoting ? { $unset: { ownedBy: 1 } } : {}),
         },
       );
 

@@ -170,10 +170,12 @@ export const useTasks = (
       document: TASK_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, task } = subscriptionData.data.operationTaskListChanged;
-        const currentList = prev.getTasks.list;
+        const currentList = prev?.getTasks?.list;
+
+        if (!currentList) return prev;
 
         let updatedList = currentList;
 

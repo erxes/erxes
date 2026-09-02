@@ -99,7 +99,7 @@ export const segmentsRouter = t.router({
           : { dependsOn: { $in: input.contentTypes || [] } };
 
         return models.Segments.find(
-          { ...selector, status: 'active' },
+          { ...selector, status: 'active', ownedBy: { $exists: false } },
           { _id: 1, contentType: 1, root: 1, revision: 1 },
         ).lean();
       }),
@@ -329,6 +329,7 @@ export const segmentsRouter = t.router({
           {
             status: 'active',
             root: { $exists: true },
+            ownedBy: { $exists: false },
             ...(input.before
               ? {
                   $or: [

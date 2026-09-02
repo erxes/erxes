@@ -2,7 +2,6 @@ import { IconUser } from '@tabler/icons-react';
 import { Form, Input } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { BroadcastSelectTargetType } from '../select/BroadcastSelectTargetType';
-import { BroadcastBrandStep } from './BroadcastBrandStep';
 import { BroadcastSegmentStep } from './BroadcastSegmentStep';
 import { BroadcastTagStep } from './BroadcastTagStep';
 
@@ -16,11 +15,6 @@ const BROADCAST_TARGET_STEPS = {
     title: 'Tag',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastTagStep,
-  },
-  brand: {
-    title: 'Brand',
-    description: 'Select brands for this broadcast',
-    content: BroadcastBrandStep,
   },
 };
 
@@ -72,15 +66,11 @@ export const BroadcastTargetStep = () => {
         render={({ field }) => (
           <Form.Item className="h-full overflow-hidden">
             <Form.Label className="flex items-center justify-between px-2">
-              <div
-                className={`flex items-center gap-1`}
-              >
+              <div className={`flex items-center gap-1`}>
                 <IconUser size={16} />
                 <span>Customer</span>
               </div>
-              <span className="text-xs">
-                {targetCount || 0}
-              </span>
+              <span className="text-xs">{targetCount || 0}</span>
             </Form.Label>
             <Form.Control>
               <TargetStepContent {...field} />

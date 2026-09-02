@@ -12,7 +12,6 @@ import {
 import { FieldPath } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSegment } from '../../context/SegmentProvider';
-import { useSegmentScope } from '../../context/SegmentScopeProvider';
 import {
   SEGMENT_TYPE_KEY,
   useSegmentConditionRow,

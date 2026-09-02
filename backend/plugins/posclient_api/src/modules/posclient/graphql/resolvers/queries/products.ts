@@ -267,7 +267,6 @@ export interface IProductParams extends ICommonParams {
   excludeTags?: string[];
   tagWithRelated?: boolean;
   segment?: string;
-  segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
   isSimilarity?: boolean;
@@ -315,7 +314,6 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData,
     categoryMeta,
     isKiosk,
     image,
@@ -445,11 +443,8 @@ const generateFilter = async (
     ];
   }
 
-  if (segment || segmentData) {
-    // An unsaved definition has no materialised membership to read.
-    filter._id = {
-      $in: segment ? await segmentProductIds(subdomain, segment) : [],
-    };
+  if (segment) {
+    filter._id = { $in: await segmentProductIds(subdomain, segment) };
   }
 
   if (vendorId) {

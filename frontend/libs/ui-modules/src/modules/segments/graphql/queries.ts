@@ -144,3 +144,20 @@ export const SEGMENT_SAME_DEFINITION = gql`
     }
   }
 `;
+
+export const SEGMENT_USAGE = gql`
+  query SegmentUsage($ids: [String!]!) {
+    segmentUsage(ids: $ids) {
+      segmentId
+      automations {
+        _id
+        name
+        status
+      }
+      segments {
+        _id
+        name
+      }
+    }
+  }
+`;

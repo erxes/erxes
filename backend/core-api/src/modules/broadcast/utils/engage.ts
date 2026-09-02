@@ -2,10 +2,12 @@ import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
 import { isSenderAllowed } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { FilterQuery } from 'mongoose';
+import { ICustomer } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
+import { customerTargetFilter } from './targeting';
 
 interface ICustomerSelector {
-  engageId?: string;
   targetType?: string;
   targetIds?: string[];
 }
@@ -16,23 +18,13 @@ interface ICheckCustomerParams {
   targetIds?: string[];
 }
 
-export const generateCustomerSelector = async (
-  subdomain: string,
-  models: IModels,
-  { engageId, targetType, targetIds }: ICustomerSelector,
-): Promise<any> => {
-  // find matched customers
-  let customerQuery: any = {};
-
-  if (targetType === 'tag') {
-    customerQuery = { tagIds: { $in: targetIds } };
-  }
-
-  return {
-    ...customerQuery,
-    $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
-  };
-};
+export const generateCustomerSelector = ({
+  targetType,
+  targetIds,
+}: ICustomerSelector): FilterQuery<ICustomer> => ({
+  ...customerTargetFilter(targetType || '', targetIds || []),
+  $or: [{ isSubscribed: 'Yes' }, { isSubscribed: { $exists: false } }],
+});
 
 export const checkCustomerExists = async (
   subdomain: string,
@@ -44,11 +36,7 @@ export const checkCustomerExists = async (
   const customersSelector = {
     _id: id,
     state: { $ne: CONTENT_TYPES.VISITOR },
-    ...(await generateCustomerSelector(subdomain, models, {
-      engageId: id,
-      targetType,
-      targetIds,
-    })),
+    ...generateCustomerSelector({ targetType, targetIds }),
   };
 
   return models.Customers.findOne(customersSelector).lean();
@@ -120,7 +108,10 @@ export const checkCampaignDoc = async (
   }
 };
 
-const count = async (models: IModels, selector: {}): Promise<number> => {
+const count = async (
+  models: IModels,
+  selector: FilterQuery<IEngageMessage>,
+): Promise<number> => {
   const res = await models.EngageMessages.find(selector).countDocuments();
   return Number(res);
 };

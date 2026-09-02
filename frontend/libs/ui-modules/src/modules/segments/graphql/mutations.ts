@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 const PARAMS_DEFS = `
-  $name: String!,
+  $name: String,
   $description: String,
   $color: String,
   $root: JSON!,
@@ -24,6 +24,7 @@ const RESULT = `
   color
   root
   visibility
+  ownedBy
   status
   revision
 `;
@@ -41,8 +42,8 @@ export const SEGMENT_STOP_REBUILD = gql`
 `;
 
 export const SEGMENT_ADD = gql`
-  mutation SegmentsAdd($contentType: String!, ${PARAMS_DEFS}) {
-    segmentsAdd(contentType: $contentType, ${PARAMS}) {
+  mutation SegmentsAdd($contentType: String!, $ownedBy: String, ${PARAMS_DEFS}) {
+    segmentsAdd(contentType: $contentType, ownedBy: $ownedBy, ${PARAMS}) {
       ${RESULT}
     }
   }

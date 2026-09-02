@@ -12,7 +12,7 @@ export const useSegmentActions = ({
   callback?: (id: string) => void;
   onCreateSuccess?: (id: string) => void;
 } = {}) => {
-  const { form, contentType, segment } = useSegment();
+  const { form, contentType, ownedBy, segment } = useSegment();
   const [segmentId, setSegmentId] = useQueryState<string>('segmentId');
 
   const [segmentsAdd, { loading: adding }] = useMutation(SEGMENT_ADD);
@@ -25,6 +25,7 @@ export const useSegmentActions = ({
       variables: {
         _id: segment?._id,
         contentType,
+        ...(!segment && ownedBy && !data.name?.trim() ? { ownedBy } : {}),
         name: data.name,
         description: data.description,
         color: data.color,

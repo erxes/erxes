@@ -24,6 +24,8 @@ export const segmentNodeSchema = new Schema(
     operator: { type: String },
     value: { type: Schema.Types.Mixed },
 
+    meta: { type: Schema.Types.Mixed },
+
     relationKey: { type: String },
     measure: { type: Schema.Types.Mixed },
 

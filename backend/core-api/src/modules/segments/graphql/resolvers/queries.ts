@@ -1,5 +1,6 @@
 import {
   ISegmentContentType,
+  segmentDependencyKey,
   resolveSegmentFieldOperators,
   SEGMENT_NUMBER_OPERATORS,
   SegmentFieldMeta,
@@ -22,6 +23,47 @@ import {
 } from '../../utils/runSegment';
 
 export const segmentQueries = {
+  async segmentUsage(
+    _root: unknown,
+    { ids }: { ids: string[] },
+    { models }: IContext,
+  ) {
+    if (!ids?.length) {
+      return [];
+    }
+
+    const automations = await models.Automations.find(
+      {
+        $or: [
+          { 'triggers.config.contentId': { $in: ids } },
+          { 'actions.config.contentId': { $in: ids } },
+        ],
+      },
+      { _id: 1, name: 1, status: 1, triggers: 1, actions: 1 },
+    ).lean();
+
+    const segments = await models.Segments.find(
+      { _id: { $nin: ids }, dependsOn: { $in: ids.map(segmentDependencyKey) } },
+      { _id: 1, name: 1, dependsOn: 1 },
+    ).lean();
+
+    return ids.map((segmentId) => ({
+      segmentId,
+      automations: automations
+        .filter((automation) =>
+          [...automation.triggers, ...automation.actions].some(
+            (node) => node.config?.contentId === segmentId,
+          ),
+        )
+        .map(({ _id, name, status }) => ({ _id, name, status })),
+      segments: segments
+        .filter((segment) =>
+          (segment.dependsOn || []).includes(segmentDependencyKey(segmentId)),
+        )
+        .map(({ _id, name }) => ({ _id, name })),
+    }));
+  },
+
   async segmentsGetTypes() {
     const pluginNames = await getPlugins();
     let types: Array<{ name: string; description: string }> = [];
@@ -67,6 +109,8 @@ export const segmentQueries = {
       ...visibleTo(user),
       contentType: { $in: contentTypes },
       root: { $exists: true },
+      ownedBy: { $exists: false },
+      name: { $exists: true, $ne: '' },
     };
 
     if (searchValue) {

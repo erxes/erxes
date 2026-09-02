@@ -5,9 +5,17 @@ export const types = `
   type Segment @key(fields: "_id") {
     _id: ID!
     contentType: String!
-    name: String!
+
+    """Absent only while a feature owns the segment."""
+    name: String
+
     description: String
     color: String
+
+    """The feature this segment belongs to, when it is not the organization's
+    own. Owned segments are never listed or materialised, and are removed with
+    whatever created them. Naming one promotes it to an ordinary segment."""
+    ownedBy: String
 
     """The condition tree. See SegmentNode in erxes-api-shared."""
     root: JSON!
@@ -33,6 +41,23 @@ export const types = `
     updatedBy: String
     createdAt: Date!
     updatedAt: Date!
+  }
+
+  type SegmentUsageAutomation {
+    _id: String!
+    name: String
+    status: String
+  }
+
+  type SegmentUsageSegment {
+    _id: String!
+    name: String
+  }
+
+  type SegmentUsage {
+    segmentId: String!
+    automations: [SegmentUsageAutomation!]!
+    segments: [SegmentUsageSegment!]!
   }
 
   type SegmentMemberCount {
@@ -93,6 +118,10 @@ export const types = `
 
 export const queries = `
   segmentsGetTypes: [JSON]
+
+  """What still points at these segments, read before deleting one."""
+  segmentUsage(ids: [String!]!): [SegmentUsage!]!
+
   segments(contentTypes: [String]!, ids: [String], excludeIds: [String], searchValue: String): [Segment]
   segmentDetail(_id: String!): Segment
 
@@ -120,7 +149,7 @@ export const queries = `
 `;
 
 const commonFields = `
-  name: String!
+  name: String
   description: String
   color: String
   root: JSON!
@@ -128,8 +157,13 @@ const commonFields = `
   status: SegmentStatus
 `;
 
+const ownableFields = `
+  ${commonFields}
+  ownedBy: String
+`;
+
 export const mutations = `
-  segmentsAdd(contentType: String!, ${commonFields}): Segment
+  segmentsAdd(contentType: String!, ${ownableFields}): Segment
   segmentsEdit(_id: String!, ${commonFields}): Segment
   segmentsRemove(ids: [String!]!): JSON
   segmentsRebuild(_id: String!): JSON

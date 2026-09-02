@@ -5,6 +5,8 @@ import { segmentNodeSchema } from './segmentNodes';
 
 export type SegmentVisibility = 'private' | 'organization';
 
+export type SegmentOwner = 'automation';
+
 export type SegmentStatus =
   | 'draft'
   | 'building'
@@ -15,9 +17,10 @@ export type SegmentStatus =
 export interface ISegment {
   contentType: string;
 
-  name: string;
+  name?: string;
   description?: string;
   color?: string;
+  ownedBy?: SegmentOwner;
 
   root: SegmentNode;
 
@@ -56,7 +59,8 @@ export const segmentSchema = schemaWrapper(
     {
       contentType: { type: String, required: true, label: 'Content type' },
 
-      name: { type: String, required: true, label: 'Name' },
+      name: { type: String, optional: true, label: 'Name' },
+      ownedBy: { type: String, optional: true, label: 'Owned by' },
       description: { type: String, optional: true },
       color: { type: String, optional: true },
 
@@ -100,7 +104,7 @@ export const segmentSchema = schemaWrapper(
 
 segmentSchema.index({ contentType: 1, visibility: 1, status: 1 });
 segmentSchema.index({ ownerId: 1, updatedAt: -1 });
-segmentSchema.index({ dependsOn: 1, status: 1 });
+segmentSchema.index({ dependsOn: 1, status: 1, ownedBy: 1 });
 segmentSchema.index({ contentType: 1, fingerprint: 1 });
 
-segmentSchema.index({ status: 1, reconciledAt: 1 });
+segmentSchema.index({ status: 1, ownedBy: 1, reconciledAt: 1 });

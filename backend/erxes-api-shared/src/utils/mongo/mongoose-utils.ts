@@ -125,8 +125,8 @@ export const cursorPaginate = async <T extends Document>({
       direction === 'forward'
         ? normalizedOrder
         : normalizedOrder === 1
-          ? -1
-          : 1;
+        ? -1
+        : 1;
   }
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
@@ -137,8 +137,7 @@ export const cursorPaginate = async <T extends Document>({
       .sort(sortOrder)
       .limit(limit + 1)
       .lean(),
-    // model.countDocuments(query as FilterQuery<T>),
-    0,
+    model.countDocuments(query as FilterQuery<T>),
   ]);
 
   const hasMore = items.length > limit;

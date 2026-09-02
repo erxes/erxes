@@ -21,7 +21,6 @@ import {
 import { FilterQuery } from 'mongoose';
 import dealResolvers from '@/sales/graphql/resolvers/customResolvers/deal';
 import moment from 'moment';
-import { fetchSegment } from '~/modules/sales/trpc/deal';
 import { Resolver } from 'erxes-api-shared/core-types';
 
 const contains = (values: string[]) => {
@@ -217,7 +216,6 @@ export const generateFilter = async (
     userIds,
     tagIds,
     segment,
-    segmentData,
     assignedToMe,
     startDate,
     endDate,
@@ -556,16 +554,8 @@ export const generateFilter = async (
     filter.assignedUserIds = { $in: [userId] };
   }
 
-  if (segmentData) {
-    const segment = JSON.parse(segmentData);
-    const itemIds = await fetchSegment(subdomain, '', {}, segment);
-    filter._id = { $in: itemIds };
-  }
-
   if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
-
-    filter._id = { $in: itemIds };
+    filter.segmentIds = segment;
   }
 
   if (hasStartAndCloseDate) {
