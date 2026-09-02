@@ -1,41 +1,57 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Input, isDeeplyEqual, Textarea } from 'erxes-ui';
+import { nanoid } from 'nanoid';
 import { SpecificFieldProps } from './Field';
 
 type ObjectListRow = Record<string, string>;
 
+type ObjectListItem = {
+  id: string;
+  values: ObjectListRow;
+};
+
+const isRow = (row: unknown): row is ObjectListRow =>
+  typeof row === 'object' && row !== null && !Array.isArray(row);
+
 const parseRows = (value: unknown): ObjectListRow[] =>
-  Array.isArray(value) ? value : [];
+  Array.isArray(value) ? value.filter(isRow) : [];
+
+const toItems = (rows: ObjectListRow[]): ObjectListItem[] =>
+  rows.map((values) => ({ id: nanoid(), values }));
 
 export const FieldObjectList = (props: SpecificFieldProps) => {
   const { field, value, inCell, handleChange } = props;
   const configs = field.configs?.objectListConfigs ?? [];
 
-  const [rows, setRows] = useState<ObjectListRow[]>(() => parseRows(value));
-  const lastEmitted = useRef<ObjectListRow[]>(rows);
+  const [items, setItems] = useState<ObjectListItem[]>(() =>
+    toItems(parseRows(value)),
+  );
+  const lastEmitted = useRef<ObjectListRow[]>(parseRows(value));
 
   useEffect(() => {
     const incoming = parseRows(value);
 
     if (!isDeeplyEqual(incoming, lastEmitted.current)) {
-      setRows(incoming);
+      setItems(toItems(incoming));
       lastEmitted.current = incoming;
     }
   }, [value]);
 
-  const apply = (next: ObjectListRow[]) => {
-    setRows(next);
-    lastEmitted.current = next;
-    handleChange(next);
+  const apply = (next: ObjectListItem[]) => {
+    const rows = next.map((item) => item.values);
+
+    setItems(next);
+    lastEmitted.current = rows;
+    handleChange(rows);
   };
 
   if (inCell) {
-    return rows.length === 0 ? (
+    return items.length === 0 ? (
       <span className="px-2 text-muted-foreground select-none">—</span>
     ) : (
       <span className="px-2 text-muted-foreground text-xs">
-        {rows.length} {rows.length === 1 ? 'entry' : 'entries'}
+        {items.length} {items.length === 1 ? 'entry' : 'entries'}
       </span>
     );
   }
@@ -48,27 +64,32 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
     );
   }
 
-  const updateRowLocal = (index: number, key: string, rowValue: string) =>
-    setRows((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, [key]: rowValue } : row)),
+  const updateRowLocal = (id: string, key: string, rowValue: string) =>
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, values: { ...item.values, [key]: rowValue } }
+          : item,
+      ),
     );
 
   const commitIfChanged = () => {
+    const rows = items.map((item) => item.values);
+
     if (!isDeeplyEqual(rows, lastEmitted.current)) {
-      apply(rows);
+      apply(items);
     }
   };
 
-  const removeRow = (index: number) =>
-    apply(rows.filter((_, i) => i !== index));
+  const removeRow = (id: string) => apply(items.filter((i) => i.id !== id));
 
-  const addRow = () => apply([...rows, {}]);
+  const addRow = () => apply([...items, { id: nanoid(), values: {} }]);
 
   return (
     <div className="flex flex-col gap-3">
-      {rows.map((row, index) => (
+      {items.map((item) => (
         <div
-          key={index}
+          key={item.id}
           className="flex flex-col gap-2 p-2 border rounded-md bg-background"
         >
           <div className="flex justify-end">
@@ -77,7 +98,8 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
               variant="ghost"
               size="icon"
               className="size-6"
-              onClick={() => removeRow(index)}
+              aria-label="Remove entry"
+              onClick={() => removeRow(item.id)}
             >
               <IconTrash size={14} />
             </Button>
@@ -89,17 +111,17 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
               </span>
               {config.type === 'textarea' ? (
                 <Textarea
-                  value={row[config.key] ?? ''}
+                  value={item.values[config.key] ?? ''}
                   onChange={(e) =>
-                    updateRowLocal(index, config.key, e.target.value)
+                    updateRowLocal(item.id, config.key, e.target.value)
                   }
                   onBlur={commitIfChanged}
                 />
               ) : (
                 <Input
-                  value={row[config.key] ?? ''}
+                  value={item.values[config.key] ?? ''}
                   onChange={(e) =>
-                    updateRowLocal(index, config.key, e.target.value)
+                    updateRowLocal(item.id, config.key, e.target.value)
                   }
                   onBlur={commitIfChanged}
                 />

@@ -172,16 +172,23 @@ export const loadFieldClass = (models: IModels) => {
         }
 
         if (!Array.isArray(value)) {
-          throw new Error(`${field.name}: Object List value must be a list`);
+          throw new TypeError(
+            `${field.name}: Object List value must be a list`,
+          );
         }
 
-        const keys = objectListConfigs.map((config) => config.key);
+        const keys = new Set(objectListConfigs.map((config) => config.key));
 
-        return value.map((row: Record<string, unknown>) =>
-          Object.fromEntries(
-            Object.entries(row || {}).filter(([key]) => keys.includes(key)),
-          ),
-        );
+        return value
+          .filter(
+            (row: unknown) =>
+              typeof row === 'object' && row !== null && !Array.isArray(row),
+          )
+          .map((row: Record<string, unknown>) =>
+            Object.fromEntries(
+              Object.entries(row).filter(([key]) => keys.has(key)),
+            ),
+          );
       }
 
       for (const key in validations) {

@@ -61,7 +61,29 @@ export const propertySchema = z
     configs: z
       .object({ objectListConfigs: z.array(objectListConfigSchema).optional() })
       .optional(),
-    objectListConfigs: z.array(objectListConfigSchema).optional(),
+    objectListConfigs: z
+      .array(objectListConfigSchema)
+      .optional()
+      .superRefine((configs, ctx) => {
+        if (!configs || configs.length === 0) return;
+
+        const keys = configs.map((config) => config.key.trim().toLowerCase());
+        const keySet = new Set(keys);
+
+        if (keys.length !== keySet.size) {
+          keys.forEach((key, index) => {
+            const firstIndex = keys.indexOf(key);
+
+            if (firstIndex !== index && key) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Key must be unique',
+                path: [index, 'key'],
+              });
+            }
+          });
+        }
+      }),
     options: z
       .array(optionSchema)
       .optional()

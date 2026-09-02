@@ -1,15 +1,17 @@
 import { Button, Form, InfoCard, Input, Select } from 'erxes-ui';
-import { UseFormReturn } from 'react-hook-form';
+import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm } from '../types/Properties';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 
-const slugify = (label: string) =>
-  label
+const slugify = (label: string) => {
+  const slug = label
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
+    .replace(/[^a-z0-9]+/g, '_');
+
+  return slug.replace(/^_/, '').replace(/_$/, '');
+};
 
 export const PropertyFormObjectListFields = ({
   form,
@@ -20,19 +22,15 @@ export const PropertyFormObjectListFields = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'properties' });
   const type = form.watch('type');
-  const configs = form.watch('objectListConfigs') || [];
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'objectListConfigs',
+  });
 
   const savedConfigCount = isEdit
     ? form.formState.defaultValues?.objectListConfigs?.length ?? 0
     : 0;
-
-  const setConfigs = (
-    next: NonNullable<IPropertyForm['objectListConfigs']>,
-  ) =>
-    form.setValue('objectListConfigs', next, {
-      shouldDirty: true,
-      shouldValidate: form.formState.isSubmitted,
-    });
 
   if (type !== 'objectList') {
     return <></>;
@@ -42,10 +40,10 @@ export const PropertyFormObjectListFields = ({
     <InfoCard title={t('object-list-fields', 'Object list fields')}>
       <InfoCard.Content>
         <div className="flex flex-col gap-3">
-          {configs.map((_, index) => {
+          {fields.map(({ id }, index) => {
             const isExisting = index < savedConfigCount;
             return (
-              <div className="flex gap-2" key={index}>
+              <div className="flex gap-2" key={id}>
                 <Form.Field
                   control={form.control}
                   name={`objectListConfigs.${index}.label`}
@@ -130,9 +128,7 @@ export const PropertyFormObjectListFields = ({
                   )}
                 />
                 <Button
-                  onClick={() =>
-                    setConfigs(configs.filter((_, i) => i !== index))
-                  }
+                  onClick={() => remove(index)}
                   variant="secondary"
                   size="icon"
                   className="mt-auto size-8"
@@ -144,9 +140,7 @@ export const PropertyFormObjectListFields = ({
             );
           })}
           <Button
-            onClick={() =>
-              setConfigs([...configs, { key: '', label: '', type: 'text' }])
-            }
+            onClick={() => append({ key: '', label: '', type: 'text' })}
             variant="secondary"
           >
             <IconPlus /> {t('add-field', 'Add field')}
