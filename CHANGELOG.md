@@ -1,5 +1,31 @@
 
 
+## [3.0.96](https://github.com/erxes/erxes/compare/3.0.95...3.0.96) (2026-09-02)
+
+
+### Bug Fixes
+
+* **frontline:** apply ticket pipeline visibility rules on unscoped lists ([a50a28a](https://github.com/erxes/erxes/commit/a50a28a980dac775279bdbfa8476aa09d88b9f03))
+* **frontline:** apply ticket pipeline visibility rules on unscoped lists  ([4412668](https://github.com/erxes/erxes/commit/44126684a71df9a7fdcfbb5f1da7e57c1cb697fd))
+* **frontline:** fix messenger schedule edge cases ([76743d3](https://github.com/erxes/erxes/commit/76743d3a8a7517a9f2a7c4f572623a15f243971e))
+* **frontline:** link ticket relation widget to related conversations  ([5549662](https://github.com/erxes/erxes/commit/554966271264aa0121cc81f3cc04d4516ed84475))
+* **frontline:** ticket property validation, card limit and board layout ([b1859dc](https://github.com/erxes/erxes/commit/b1859dc6c3c83ab5ff7261f0012847c82999bb81))
+* integrate ActivityActor component for displaying activity creat… ([#9201](https://github.com/erxes/erxes/issues/9201)) ([4863f88](https://github.com/erxes/erxes/commit/4863f88e58eb10ae66d9b5513a32f51a5eb1f5c0))
+* **operation:** show related projects in conversation widget ([cba2acc](https://github.com/erxes/erxes/commit/cba2acc12f171a512ce661d11ce7c9a5481eb89c))
+* **properties:** sort fields query by order instead of code ([2436d1b](https://github.com/erxes/erxes/commit/2436d1b3f3c5b150850c7f4e6ddad9a38eca2b6c))
+* **sales:** grant dealsArchive to the sales user role preset ([61d78c2](https://github.com/erxes/erxes/commit/61d78c294c471fe6aa9f5ba67cd0cf668e5114ae))
+* show icons in settings sidebar navigation ([#9206](https://github.com/erxes/erxes/issues/9206)) ([e547b8d](https://github.com/erxes/erxes/commit/e547b8d161f0d5d74e3e8e784296f039a00b9d00))
+
+
+### Features
+
+* **frontline:** cloudflare mail integration  ([aeb0880](https://github.com/erxes/erxes/commit/aeb0880415f94ccc760b80247709ea5d53744124))
+
+
+### Reverts
+
+* Revert "fix(sales): bound and strictly validate agent-facing deal reads" (#9210) ([247b231](https://github.com/erxes/erxes/commit/247b231bbd3d6c12c399587bf3ca15265fada74b)), closes [#9210](https://github.com/erxes/erxes/issues/9210) [#9102](https://github.com/erxes/erxes/issues/9102)
+
 ## [3.0.95](https://github.com/erxes/erxes/compare/3.0.94...3.0.95) (2026-09-01)
 
 
