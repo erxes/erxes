@@ -23,11 +23,16 @@ export interface ITrDetail {
 
   productId?: string;
   fixedAssetId?: string;
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
   count?: number;
   unitPrice?: number;
   tempAmount?: number;
 
   account?: IAccount;
+  branch?: IBranch;
+  department?: IDepartment;
   checked?: boolean;
   product?: IProduct;
 }
