@@ -71,8 +71,8 @@ export const useActivities = (contentId: string) => {
               type === 'created'
                 ? prev.getOperationActivities.totalCount + 1
                 : type === 'removed'
-                ? prev.getOperationActivities.totalCount - 1
-                : prev.getOperationActivities.totalCount,
+                  ? prev.getOperationActivities.totalCount - 1
+                  : prev.getOperationActivities.totalCount,
           },
         };
       },
