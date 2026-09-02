@@ -1355,7 +1355,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
 - **Summary:** All four pipeline visibility rules were dead on the channel
