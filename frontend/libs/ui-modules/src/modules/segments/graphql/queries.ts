@@ -20,7 +20,7 @@ const SEGMENT_FIELDS = `
 `;
 
 export const SEGMENTS = gql`
-  query Segments(
+  query SegmentList(
     $contentTypes: [String]!
     $ids: [String]
     $excludeIds: [String]

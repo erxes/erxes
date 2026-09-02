@@ -27,6 +27,19 @@ export interface ITagModel extends Model<ITagDocument> {
   getChildTags(tagIds: string[]): Promise<string[]>;
 }
 
+/** What fixing a tag reference needs of a collection, whichever one it is. */
+type ITaggableModel = {
+  find: (
+    query: Record<string, unknown>,
+    projection?: Record<string, number>,
+  ) => { distinct: (field: string) => Promise<string[]> };
+  updateMany: (
+    filter: Record<string, unknown>,
+    update: Record<string, unknown>,
+    options?: Record<string, unknown>,
+  ) => Promise<unknown>;
+};
+
 export const loadTagClass = (
   subdomain: string,
   models: IModels,
@@ -331,14 +344,17 @@ export const loadTagClass = (
     }) {
       const record = type.includes(':') ? type.split(':')[1] : type;
       const target = taggableTarget(record);
-      const model = {
+      // Every taggable collection has a different document type, so the map is
+      // read through the two operations this needs rather than as one model.
+      const taggables: Record<string, ITaggableModel | undefined> = {
         customer: models.Customers,
         company: models.Companies,
         product: models.Products,
         user: models.Users,
         form: models.Forms,
         automation: models.Automations,
-      }[record] as any;
+      };
+      const model = taggables[record];
 
       if (!model || !target) {
         throw new Error(`Unknown content type: ${type}`);
