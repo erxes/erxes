@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
 import { BroadcastPreview } from '../BroadcastPreview';
+import { BroadcastSaveAsTemplate } from '../BroadcastSaveAsTemplate';
 import { BroadcastSendTestEmail } from '../BroadcastSendTestEmail';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
@@ -230,7 +231,12 @@ export const BroadcastStepActions = ({
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      {isLastStep && method === 'email' && <BroadcastSendTestEmail />}
+      {isLastStep && method === 'email' && (
+        <>
+          <BroadcastSaveAsTemplate />
+          <BroadcastSendTestEmail />
+        </>
+      )}
       {isLastStep && (
         <Button onClick={() => handleAction(step + 1, 'draft')}>
           Save & Draft

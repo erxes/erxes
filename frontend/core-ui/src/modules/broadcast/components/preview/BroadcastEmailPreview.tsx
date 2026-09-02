@@ -1,6 +1,9 @@
+import type { Editor as TiptapEditor } from '@tiptap/core';
 import { Form } from 'erxes-ui';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { BroadcastEmailEditor } from '../BroadcastEmailEditor';
+import { BroadcastInsertTemplate } from '../BroadcastInsertTemplate';
 
 export const BroadcastEmailPreview = () => {
   const {
@@ -8,10 +11,17 @@ export const BroadcastEmailPreview = () => {
     formState: { errors },
   } = useFormContext();
 
+  const [editor, setEditor] = useState<TiptapEditor>();
+
   const hasError = !!errors?.email;
 
   return (
-    <div className="h-full p-10">
+    <div className="h-full p-10 flex flex-col gap-3">
+      {editor && (
+        <div className="flex justify-end">
+          <BroadcastInsertTemplate editor={editor} />
+        </div>
+      )}
       <div
         className={`
           bg-white overflow-y-auto rounded-xl h-full py-8 border border-gray-200 transition-all duration-300
@@ -32,6 +42,7 @@ export const BroadcastEmailPreview = () => {
                 <BroadcastEmailEditor
                   contentJson={field.value}
                   onChange={field.onChange}
+                  onCreate={setEditor}
                 />
               </Form.Control>
             </Form.Item>

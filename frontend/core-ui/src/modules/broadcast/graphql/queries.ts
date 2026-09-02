@@ -11,6 +11,21 @@ export const BROADCAST_RENDER_PREVIEW = gql`
   }
 `;
 
+export const BROADCAST_EMAIL_TEMPLATES = gql`
+  query BroadcastEmailTemplates($searchValue: String, ${GQL_CURSOR_PARAM_DEFS}) {
+    broadcastEmailTemplates(searchValue: $searchValue, ${GQL_CURSOR_PARAMS}) {
+      list {
+        _id
+        name
+        description
+        contentJson
+        createdAt
+      }
+      ${GQL_PAGE_INFO}
+    }
+  }
+`;
+
 export const BROADCAST_MESSAGES = gql`
   query BroadcastMessages(
     $kind: String,

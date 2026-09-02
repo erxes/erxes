@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import type { Editor as TiptapEditor } from '@tiptap/core';
 import { EmailEditor, EmailEditorVariable, JSONContent } from 'erxes-ui';
 import { ATTRIBUTE_QUERY } from 'ui-modules/modules/documents/graphql/queries';
 
@@ -11,9 +12,11 @@ interface IAttribute {
 export const BroadcastEmailEditor = ({
   contentJson,
   onChange,
+  onCreate,
 }: {
   contentJson?: JSONContent;
   onChange: (contentJson: JSONContent) => void;
+  onCreate?: (editor: TiptapEditor) => void;
 }) => {
   const { data } = useQuery(ATTRIBUTE_QUERY, {
     variables: { contentType: 'core:contacts.customers' },
@@ -31,6 +34,7 @@ export const BroadcastEmailEditor = ({
     <EmailEditor
       contentJson={contentJson}
       onChange={onChange}
+      onCreate={onCreate}
       variables={variables}
       className="flex-1"
     />
