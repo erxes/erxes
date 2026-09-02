@@ -1,7 +1,4 @@
-import {
-  IconAdjustmentsAlt,
-  IconBuildingWarehouse,
-} from '@tabler/icons-react';
+import { IconAdjustmentsAlt, IconBuildingWarehouse } from '@tabler/icons-react';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
