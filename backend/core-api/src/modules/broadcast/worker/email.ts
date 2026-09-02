@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 import { replaceContent } from '~/modules/documents/utils';
+import { renderEmailHtml, resolveEmailVariableValues } from '@/email-editor';
 import { deliverEmail, normalizeEmail } from 'erxes-api-shared/utils';
 import {
   formatPostalAddress,
@@ -16,6 +17,7 @@ import {
 } from '~/utils/email/ports';
 import { addBroadcastWorkerQueue } from '../utils/worker';
 import { prepareEmailParams, readFileUrl } from '../utils';
+import { appendUnsubscribeFooter } from '../utils/emailFooter';
 import {
   getBroadcastAlignedFrom,
   getBroadcastCacheKey,
@@ -142,30 +144,49 @@ export const handleEmailProcessor = async (payload) => {
         }
 
         try {
-          const replacedContent = await replaceContent({
-            replacer: customer,
-            content: engageMessage.email.content,
-            replacement: (replacer, path) => {
-              const value = _.get(replacer, path);
-
-              if (typeof value === 'number') {
-                return value.toString();
-              }
-
-              if (value instanceof Date) {
-                return dayjs(value).format('YYYY-MM-DD');
-              }
-
-              return value?.toString() || '-';
-            },
-          });
-
           const link = unsubscribeUrl(subdomain, { cid: customer._id });
 
-          const htmlContent = blocksToHtml(replacedContent, {
-            wrapper: { email: true, unsubscribeUrl: link, postalAddress },
-            resolveImageUrl: (url) => readFileUrl(url, subdomain),
-          });
+          let htmlContent: string;
+
+          if (engageMessage.email.contentJson) {
+            const rendered = await renderEmailHtml(
+              engageMessage.email.contentJson,
+              {
+                variables: resolveEmailVariableValues(
+                  engageMessage.email.contentJson,
+                  customer,
+                ),
+              },
+            );
+
+            htmlContent = appendUnsubscribeFooter(rendered, {
+              unsubscribeUrl: link,
+              postalAddress,
+            });
+          } else {
+            const replacedContent = await replaceContent({
+              replacer: customer,
+              content: engageMessage.email.content,
+              replacement: (replacer, path) => {
+                const value = _.get(replacer, path);
+
+                if (typeof value === 'number') {
+                  return value.toString();
+                }
+
+                if (value instanceof Date) {
+                  return dayjs(value).format('YYYY-MM-DD');
+                }
+
+                return value?.toString() || '-';
+              },
+            });
+
+            htmlContent = blocksToHtml(replacedContent, {
+              wrapper: { email: true, unsubscribeUrl: link, postalAddress },
+              resolveImageUrl: (url) => readFileUrl(url, subdomain),
+            });
+          }
 
           const outcome = await deliverEmail({
             cacheKey,

@@ -10,6 +10,11 @@ import {
   getBroadcastCacheKey,
   getBroadcastEmailConfig,
 } from '@/broadcast/utils/outboundEmail';
+import {
+  JSONContent,
+  renderEmailHtml,
+  resolveEmailVariableValues,
+} from '@/email-editor';
 import { deliverEmail, ISingleSenderInput } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
@@ -181,20 +186,19 @@ export const engageMutations = {
     args: {
       from: string;
       to: string;
-      content: string;
+      content?: string;
+      contentJson?: JSONContent;
       title: string;
     },
     { subdomain, models }: IContext,
   ) {
-    const { content, from, to, title } = args;
+    const { content, contentJson, from, to, title } = args;
 
-    if (!(content && from && to && title)) {
+    if (!((content || contentJson) && from && to && title)) {
       throw new Error(
         'Email content, title, from address or to address is missing',
       );
     }
-
-    let replacedContent = content;
 
     const emails = to.split(',');
     if (emails.length > 1) {
@@ -209,12 +213,24 @@ export const engageMutations = {
       throw new Error('User not found');
     }
 
-    const attributeUtil = await getEditorAttributeUtil(subdomain);
+    let html: string;
 
-    replacedContent = await attributeUtil.replaceAttributes({
-      content,
-      user: targetUser,
-    });
+    if (contentJson) {
+      html = await renderEmailHtml(contentJson, {
+        variables: resolveEmailVariableValues(
+          contentJson,
+          targetUser || fromUser || {},
+        ),
+      });
+    } else {
+      const attributeUtil = await getEditorAttributeUtil(subdomain);
+
+      html =
+        (await attributeUtil.replaceAttributes({
+          content,
+          user: targetUser,
+        })) || content;
+    }
 
     try {
       const response = await deliverEmail({
@@ -224,7 +240,7 @@ export const engageMutations = {
           from,
           to: [to],
           subject: title,
-          html: replacedContent || content,
+          html,
         },
         log: createDeliveryLogPort(models),
         meta: { source: 'broadcast', userId: fromUser?._id, subdomain },

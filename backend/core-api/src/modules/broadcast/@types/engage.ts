@@ -1,10 +1,14 @@
 import { ICursorPaginateParams, IRule } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import type { JSONContent } from '@tiptap/core';
 
 interface IEmail {
   attachments?: any;
   subject?: string;
+  /** BlockNote block JSON (legacy). New campaigns use `contentJson` instead. */
   content?: string;
+  /** Maily (Tiptap) document. Presence of this field means this campaign renders via @maily-to/render. */
+  contentJson?: JSONContent;
   replyTo?: string;
   sender?: string;
 }

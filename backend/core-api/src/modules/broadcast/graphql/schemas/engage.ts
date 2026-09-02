@@ -126,6 +126,7 @@ export const types = `
 
   input EngageMessageEmail {
     content: String,
+    contentJson: JSON,
     subject: String!,
     replyTo: String,
     sender: String,
@@ -277,7 +278,7 @@ export const mutations = `
     scope: String
   ): String
   engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String, contentJson: JSON, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON
 
