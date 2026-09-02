@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
 import { BroadcastPreview } from '../BroadcastPreview';
+import { BroadcastSendTestEmail } from '../BroadcastSendTestEmail';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
 
@@ -34,7 +35,7 @@ const BROADCAST_STEPS = [
       'fromEmail',
       'email.subject',
       'email.replyTo',
-      'email.content',
+      'email.contentJson',
     ],
   },
 ];
@@ -54,7 +55,7 @@ const getConfigValidateFields = (method?: string | null) => {
     ];
   }
 
-  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
+  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.contentJson'];
 };
 
 export const BroadcastSteps = ({
@@ -158,7 +159,11 @@ export const BroadcastSteps = ({
                 index === step && <BroadcastStep key={index} step={step} />,
             )}
           </Sheet.Content>
-          <BroadcastStepActions step={step} handleAction={handleAction} />
+          <BroadcastStepActions
+            step={step}
+            method={method}
+            handleAction={handleAction}
+          />
         </Resizable.Panel>
 
         <Resizable.Handle />
@@ -211,23 +216,28 @@ export const BroadcastStep = ({ step }: { step: number }) => {
 
 export const BroadcastStepActions = ({
   step,
+  method,
   handleAction,
 }: {
   step: number;
+  method?: IBroadcastMethodEnum | null;
   handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
+  const isLastStep = step + 1 === BROADCAST_STEPS.length;
+
   return (
     <Sheet.Footer>
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      {step + 1 === BROADCAST_STEPS.length && (
+      {isLastStep && method === 'email' && <BroadcastSendTestEmail />}
+      {isLastStep && (
         <Button onClick={() => handleAction(step + 1, 'draft')}>
           Save & Draft
         </Button>
       )}
       <Button onClick={() => handleAction(step + 1, 'live')}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
+        {isLastStep ? 'Save & Live' : 'Next step'}
       </Button>
     </Sheet.Footer>
   );

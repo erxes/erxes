@@ -41,6 +41,22 @@ export const BROADCAST_MESSAGE_ADD = gql`
   }
 `;
 
+export const BROADCAST_SEND_TEST_EMAIL = gql`
+  mutation BROADCAST_SEND_TEST_EMAIL(
+    $from: String!
+    $to: String!
+    $contentJson: JSON
+    $title: String!
+  ) {
+    engageMessageSendTestEmail(
+      from: $from
+      to: $to
+      contentJson: $contentJson
+      title: $title
+    )
+  }
+`;
+
 export const BROADCAST_UPDATE_CONFIGS = gql`
   mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
     broadcastUpdateConfigs(configsMap: $configsMap)
