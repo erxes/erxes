@@ -36,7 +36,6 @@ const flushBatch = async (batch: CustomerSearchSource[]) => {
                 source,
                 customerSearchTokenConfig,
               ),
-              searchTokenVersion: customerSearchTokenConfig.version ?? 1,
             },
           },
         },
@@ -49,15 +48,19 @@ const backfillCustomerSearchTokens = async () => {
   await client.connect();
 
   const customers = client.db().collection<CustomerSearchSource>('customers');
-  const searchTokenVersion = customerSearchTokenConfig.version ?? 1;
   const projection = Object.fromEntries([
     ['_id', 1],
     ...customerSearchTokenConfig.fields.map(({ path }) => [path, 1]),
   ]);
+  // Whoever has not been tokenised yet. Re-running is safe: a customer whose
+  // fields produce no tokens is simply written again.
   const cursor = customers
     .find(
       {
-        searchTokenVersion: { $ne: searchTokenVersion },
+        $or: [
+          { searchTokens: { $exists: false } },
+          { searchTokens: { $size: 0 } },
+        ],
       },
       { projection },
     )

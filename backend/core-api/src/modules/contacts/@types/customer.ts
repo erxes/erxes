@@ -2,7 +2,6 @@ export interface IPSS {
   profileScore: string;
   searchText: string;
   searchTokens: string[];
-  searchTokenVersion: number;
   state: string;
 }
 

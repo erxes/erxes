@@ -68,7 +68,6 @@ export interface ICustomerDocument extends ICustomer, Document {
   location?: ILocation;
   searchText?: string;
   searchTokens?: string[];
-  searchTokenVersion?: number;
 }
 
 export interface ICustomerQueryFilterParams

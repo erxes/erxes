@@ -91,17 +91,6 @@ export function createEventHandlers(
       .catch((err) => {
         console.error('sendDbEventLog queue.add failed', err);
       });
-
-    // Whoever changed decides who has to be re-checked. A delete is queued
-    // too: writing membership onto ids that are gone is a no-op, but the
-    // segment's member count is read back from the collection and so corrects
-    // itself.
-    //
-    // The diff travels with it where a relation joins by one of the paths that
-    // moved: after this returns, what the old value pointed at is unknowable,
-    // and the record on that side would keep counting this one. Resolved
-    // asynchronously so the write path waits for nothing - the event is queued
-    // either way, and a failure here only costs the old side a sweep.
     const docIds = toIdList(eventPayload.docIds ?? eventPayload.docId);
 
     segmentJoinChanges(contentType, payload?.updateDescription)

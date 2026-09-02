@@ -14,7 +14,6 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import {} from '~/modules/posclient/utils';
 import {
   checkRemainders,
   getDiscountSortedProducts,
@@ -838,8 +837,9 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

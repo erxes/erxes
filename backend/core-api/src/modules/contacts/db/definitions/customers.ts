@@ -16,8 +16,6 @@ const getEnum = (fieldName: string): string[] => {
 
 export const customerSearchTokenConfig: ISearchTokenConfig = {
   enabled: true,
-  version: 1,
-  legacy: { enabled: true, minLength: 3 },
   fields: [
     { path: 'firstName', mode: 'prefix', minLength: 2 },
     { path: 'middleName', mode: 'prefix', minLength: 2 },

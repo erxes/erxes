@@ -11,12 +11,7 @@ export interface ISearchTokenFieldConfig {
 export interface ISearchTokenConfig {
   enabled: boolean;
   fields: ISearchTokenFieldConfig[];
-  legacy?: {
-    enabled: boolean;
-    minLength?: number;
-  };
   tokenField?: string;
-  version?: number;
 }
 
 export interface ISchemaWrapperOptions {
@@ -165,17 +160,6 @@ export const buildSearchTokenFilter = <T>(
     } as FilterQuery<T>);
   }
 
-  const legacyMinLength = config.legacy?.minLength ?? DEFAULT_MIN_LENGTH;
-
-  if (
-    config.legacy?.enabled &&
-    words.every((word) => word.length >= legacyMinLength)
-  ) {
-    alternatives.push({
-      [config.tokenField ?? DEFAULT_TOKEN_FIELD]: { $all: words },
-    } as FilterQuery<T>);
-  }
-
   return alternatives.length > 0
     ? ({ $or: alternatives } as FilterQuery<T>)
     : ({ _id: { $in: [] } } as FilterQuery<T>);
@@ -193,7 +177,6 @@ export const configureSchemaSearchTokens = (
 
   schema.add({
     [tokenField]: { type: [String], default: [] },
-    searchTokenVersion: { type: Number, default: config.version ?? 1 },
   });
   searchConfigurations.set(schema, config);
 
@@ -202,7 +185,6 @@ export const configureSchemaSearchTokens = (
       tokenField,
       generateConfiguredSearchTokens(this.toObject(), config),
     );
-    this.set('searchTokenVersion', config.version ?? 1);
   });
 };
 

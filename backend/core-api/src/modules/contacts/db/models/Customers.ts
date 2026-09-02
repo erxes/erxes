@@ -963,8 +963,6 @@ export const loadCustomerClass = (
         customer,
         customerSearchTokenConfig,
       );
-      const searchTokenVersion = customerSearchTokenConfig.version ?? 1;
-
       let state = customer.state || 'visitor';
 
       if (possibleLead && state !== 'customer') {
@@ -975,7 +973,6 @@ export const loadCustomerClass = (
         profileScore: score,
         searchText,
         searchTokens,
-        searchTokenVersion,
         state,
       };
     }
