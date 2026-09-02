@@ -47,19 +47,19 @@
 
 ## Architecture
 
-| Area                  | Path                                       | Responsibility                                            |
-| --------------------- | ------------------------------------------ | --------------------------------------------------------- |
-| Bootstrap             | `src/main.ts`                              | Starts and registers the mongolian plugin                 |
-| Runtime               | `src/connectionResolvers.ts`, `src/trpc`   | Tenant-scoped models and tRPC app router                   |
-| Models                | `src/modules/*/db`                         | Mongolian Mongoose schemas and models                     |
-| GraphQL               | `src/modules/*/graphql`, `src/apollo`      | Mongolian schemas, resolvers, subscriptions               |
-| eBarimt               | `src/modules/ebarimt`                      | Receipt issuing, put responses, product groups/rules      |
-| Erkhet                | `src/modules/erkhet`                       | Deal/order sync to the Erkhet accounting system           |
-| MS Dynamic            | `src/modules/msdynamic`                    | Deal/order sync to MS Dynamics                             |
-| Product places        | `src/modules/productPlaces`                | Deal product pricing, split, place, and print handling     |
-| Exchange rates        | `src/modules/exchangeRates`                | Exchange rate storage and queries                         |
-| Configs               | `src/modules/configs`                      | Mongolian integration configuration                       |
-| After-process         | `src/meta/afterProcess.ts`                 | Post-mutation integration handlers                        |
+| Area           | Path                                     | Responsibility                                         |
+| -------------- | ---------------------------------------- | ------------------------------------------------------ |
+| Bootstrap      | `src/main.ts`                            | Starts and registers the mongolian plugin              |
+| Runtime        | `src/connectionResolvers.ts`, `src/trpc` | Tenant-scoped models and tRPC app router               |
+| Models         | `src/modules/*/db`                       | Mongolian Mongoose schemas and models                  |
+| GraphQL        | `src/modules/*/graphql`, `src/apollo`    | Mongolian schemas, resolvers, subscriptions            |
+| eBarimt        | `src/modules/ebarimt`                    | Receipt issuing, put responses, product groups/rules   |
+| Erkhet         | `src/modules/erkhet`                     | Deal/order sync to the Erkhet accounting system        |
+| MS Dynamic     | `src/modules/msdynamic`                  | Deal/order sync to MS Dynamics                         |
+| Product places | `src/modules/productPlaces`              | Deal product pricing, split, place, and print handling |
+| Exchange rates | `src/modules/exchangeRates`              | Exchange rate storage and queries                      |
+| Configs        | `src/modules/configs`                    | Mongolian integration configuration                    |
+| After-process  | `src/meta/afterProcess.ts`               | Post-mutation integration handlers                     |
 
 ## Contracts
 

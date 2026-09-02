@@ -438,7 +438,7 @@ export const dealTrpcRouter = t.router({
     find: t.procedure
       .meta(
         agentMeta(
-          'List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline\'s stages in order.',
+          "List stages ordered by position: { pipelineId? } or any MongoDB-style query. Pass pipelineId from pipeline.findOne to see a pipeline's stages in order.",
           { module: 'deal', action: 'showDeals' },
         ),
       )

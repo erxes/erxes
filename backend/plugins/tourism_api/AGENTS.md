@@ -37,13 +37,13 @@
 
 ## Architecture
 
-| Area       | Path                          | Responsibility                                  |
-| ---------- | ----------------------------- | ----------------------------------------------- |
-| Bootstrap  | `src/main.ts`                 | Starts and registers the tourism plugin          |
-| Runtime    | `src/connectionResolvers.ts`, `src/trpc` | Tenant-scoped models and tRPC app router |
-| PMS        | `src/modules/pms`             | Room availability and deal-scan GraphQL queries  |
-| OTA        | `src/modules/ota`              | OTA data storage and types                       |
-| BMS        | `src/modules/bms`              | BMS GraphQL and tRPC APIs                        |
+| Area      | Path                                     | Responsibility                                  |
+| --------- | ---------------------------------------- | ----------------------------------------------- |
+| Bootstrap | `src/main.ts`                            | Starts and registers the tourism plugin         |
+| Runtime   | `src/connectionResolvers.ts`, `src/trpc` | Tenant-scoped models and tRPC app router        |
+| PMS       | `src/modules/pms`                        | Room availability and deal-scan GraphQL queries |
+| OTA       | `src/modules/ota`                        | OTA data storage and types                      |
+| BMS       | `src/modules/bms`                        | BMS GraphQL and tRPC APIs                       |
 
 ## Contracts
 
