@@ -1,5 +1,12 @@
 
 
+## [3.0.97](https://github.com/erxes/erxes/compare/3.0.96...3.0.97) (2026-09-02)
+
+
+### Bug Fixes
+
+* **accounting:** sync from erkhet and some improve ([#9113](https://github.com/erxes/erxes/issues/9113)) ([a6e5f84](https://github.com/erxes/erxes/commit/a6e5f84f978129d9480a6e9ec2da8ca3971b32bd))
+
 ## [3.0.96](https://github.com/erxes/erxes/compare/3.0.95...3.0.96) (2026-09-02)
 
 
