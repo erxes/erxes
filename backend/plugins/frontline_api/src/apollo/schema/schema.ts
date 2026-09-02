@@ -47,6 +47,12 @@ import {
 } from '@/integrations/callpro/graphql/schema';
 
 import {
+  mutations as MailMutations,
+  queries as MailQueries,
+  types as MailTypes,
+} from '@/integrations/mail/graphql/schema/mail';
+
+import {
   queries as WidgetQueries,
   types as WidgetTypes,
   mutations as WidgetMutations,
@@ -123,6 +129,7 @@ export const types = `
     ${InstagramTypes}
     ${CallTypes}
     ${CallProTypes}
+    ${MailTypes}
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
@@ -145,6 +152,7 @@ export const queries = `
     ${InstagramQueries}
     ${CallQueries}
     ${CallProQueries}
+    ${MailQueries}
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
@@ -168,6 +176,7 @@ export const mutations = `
    ${InstagramMutations}
    ${CallMutations}
    ${CallProMutations}
+   ${MailMutations}
    ${TicketMutations}
    ${WidgetMutations}
    ${ResponseTemplateMutations}

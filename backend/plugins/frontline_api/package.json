@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.5.48",
     "mongodb": "^6.18.0",
+    "nanoid": "^3.3.6",
     "redlock": "5.0.0-beta.2",
     "string-strip-html": "^13.4.12",
     "strip": "^3.0.0",

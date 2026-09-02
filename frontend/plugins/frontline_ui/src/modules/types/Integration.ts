@@ -1,4 +1,5 @@
 export enum IntegrationType {
+  MAIL = 'mail',
   FACEBOOK_POST = 'facebook-post',
   FACEBOOK_MESSENGER = 'facebook-messenger',
   ERXES_MESSENGER = 'messenger',

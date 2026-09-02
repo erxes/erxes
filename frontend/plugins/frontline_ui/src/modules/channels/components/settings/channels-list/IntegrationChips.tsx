@@ -4,7 +4,7 @@ import {
   InstagramIcon,
   MessengerIcon,
 } from '@/integrations/components/Icons';
-import { IconMessageFilled, IconPhone } from '@tabler/icons-react';
+import { IconMail, IconMessageFilled, IconPhone } from '@tabler/icons-react';
 import type { ComponentType, CSSProperties } from 'react';
 
 type ProviderIcon = ComponentType<{
@@ -38,6 +38,10 @@ const PROVIDER_META: Record<
   [IntegrationType.CALL]: {
     Icon: IconPhone,
     iconClass: 'text-emerald-500',
+  },
+  [IntegrationType.MAIL]: {
+    Icon: IconMail,
+    iconClass: 'text-amber-500',
   },
 };
 

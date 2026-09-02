@@ -3,6 +3,7 @@ import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 import { graphRequest } from '@/integrations/facebook/utils';
 import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
+import { mailIntegrationDetails } from '@/integrations/mail/messageBroker';
 import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
 import { instagramStatus } from '@/integrations/instagram/messageBroker';
 import { discordStatus } from '@/integrations/discord/messageBroker';
@@ -26,6 +27,19 @@ export const integrationStatus = async (
       return instagramStatus({ subdomain, data });
     case 'discord':
       return discordStatus({ subdomain, data });
+    default:
+      return null;
+  }
+};
+
+export const integrationDetail = async (
+  serviceName: string,
+  subdomain: string,
+  data: { integrationId: string },
+) => {
+  switch (serviceName) {
+    case 'mail':
+      return mailIntegrationDetails({ subdomain, data });
     default:
       return null;
   }
@@ -95,6 +109,25 @@ export default {
       return response?.data ?? { status: 'healthy' };
     } catch (e) {
       return { status: 'healthy' };
+    }
+  },
+
+  async details(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    if (integration.kind === 'messenger') return null;
+
+    const serviceName = getServiceName(integration.kind);
+
+    try {
+      return await integrationDetail(serviceName, subdomain, {
+        integrationId: integration._id,
+      });
+    } catch (e) {
+      debugError(`integrationDetail error: ${e.message}`);
+      return null;
     }
   },
 
