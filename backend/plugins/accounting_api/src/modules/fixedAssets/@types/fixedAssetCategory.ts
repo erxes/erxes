@@ -21,8 +21,7 @@ export interface IFixedAssetCategory {
 }
 
 export interface IFixedAssetCategoryDocument
-  extends IFixedAssetCategory,
-    Document {
+  extends IFixedAssetCategory, Document {
   _id: string;
   createdAt: Date;
 }
