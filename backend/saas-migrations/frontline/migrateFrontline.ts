@@ -34,11 +34,9 @@ function extractDbName(url: string): string {
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
 
-
 const COLLECTIONS = [
   // response templates
   'response_templates',
-
 
   'tickets_pipelines',
   'tickets_stages',
@@ -99,7 +97,6 @@ const COLLECTIONS = [
   'calls_queue_statistics',
   'calls_sessions',
 
-
   // form
   'frontline_form_fields',
   'frontline_forms',
@@ -113,7 +110,6 @@ const COLLECTIONS = [
   'knowledgebase_categories',
   'knowledgebase_topics',
 ];
-
 
 const UNIQUE_FIELDS: Record<string, string[]> = {
   customers_facebooks: ['userId'],
@@ -154,7 +150,6 @@ const normalizeValue = (field: string, value: unknown): string => {
   return field === 'email' ? str.toLowerCase().trim() : str;
 };
 
-
 async function migrateByReplace(
   srcCol: Collection,
   dstCol: Collection,
@@ -188,7 +183,6 @@ async function migrateByReplace(
 
   return stats;
 }
-
 
 async function migrateWithDedup(
   srcCol: Collection,
@@ -345,8 +339,12 @@ async function main() {
         }
 
         const uniqueFields = UNIQUE_FIELDS[colName];
-        const mode = uniqueFields ? `dedup(${uniqueFields.join(',')})` : 'upsert';
-        console.log(`[${colName}] migrating ${sourceCount} documents [${mode}]...`);
+        const mode = uniqueFields
+          ? `dedup(${uniqueFields.join(',')})`
+          : 'upsert';
+        console.log(
+          `[${colName}] migrating ${sourceCount} documents [${mode}]...`,
+        );
 
         let stats: CollectionStats;
         if (uniqueFields) {
