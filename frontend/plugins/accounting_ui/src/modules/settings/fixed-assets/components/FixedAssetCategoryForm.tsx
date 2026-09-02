@@ -12,19 +12,31 @@ import { FIXED_ASSET_DEPRECIATION_METHODS } from '../constants/depreciationMetho
 import { TFixedAssetCategoryForm } from '../types/FixedAsset';
 import { SelectFixedAssetCategory } from './SelectFixedAssetCategory';
 
+const roundRate = (value: number) => Math.round(value * 100) / 100;
+
+const getRateFromUsefulLife = (usefulLife?: number) =>
+  usefulLife && usefulLife > 0 ? roundRate(100 / usefulLife) : undefined;
+
+const getUsefulLifeFromRate = (annualRate?: number) =>
+  annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
+
 const NumberInput = ({
   field,
+  onValueChange,
 }: {
   field: { value?: number; onChange: (value?: number) => void };
+  onValueChange?: (value?: number) => void;
 }) => (
   <Input
     type="number"
     value={field.value ?? ''}
-    onChange={(event) =>
-      field.onChange(
-        event.target.value === '' ? undefined : event.target.valueAsNumber,
-      )
-    }
+    onChange={(event) => {
+      const value =
+        event.target.value === '' ? undefined : event.target.valueAsNumber;
+
+      field.onChange(value);
+      onValueChange?.(value);
+    }}
   />
 );
 
@@ -116,9 +128,40 @@ export const FixedAssetCategoryForm = ({
               name="defaultUsefulLife"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Ашиглах хугацаа</Form.Label>
+                  <Form.Label>Ашиглах жил</Form.Label>
                   <Form.Control>
-                    <NumberInput field={field} />
+                    <NumberInput
+                      field={field}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          'defaultAnnualDepreciationRate',
+                          getRateFromUsefulLife(value),
+                          { shouldDirty: true, shouldValidate: true },
+                        )
+                      }
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="defaultAnnualDepreciationRate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Жилд элэгдэх хувь</Form.Label>
+                  <Form.Control>
+                    <NumberInput
+                      field={field}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          'defaultUsefulLife',
+                          getUsefulLifeFromRate(value),
+                          { shouldDirty: true, shouldValidate: true },
+                        )
+                      }
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -166,9 +209,40 @@ export const FixedAssetCategoryForm = ({
               name="defaultTaxUsefulLife"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Татварын ашиглах хугацаа</Form.Label>
+                  <Form.Label>Татварын ашиглах жил</Form.Label>
                   <Form.Control>
-                    <NumberInput field={field} />
+                    <NumberInput
+                      field={field}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          'defaultTaxAnnualDepreciationRate',
+                          getRateFromUsefulLife(value),
+                          { shouldDirty: true, shouldValidate: true },
+                        )
+                      }
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="defaultTaxAnnualDepreciationRate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Татварын жилд элэгдэх хувь</Form.Label>
+                  <Form.Control>
+                    <NumberInput
+                      field={field}
+                      onValueChange={(value) =>
+                        form.setValue(
+                          'defaultTaxUsefulLife',
+                          getUsefulLifeFromRate(value),
+                          { shouldDirty: true, shouldValidate: true },
+                        )
+                      }
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

@@ -1,5 +1,6 @@
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
   FXA_OWNER_RECORD_ACTIONS,
   FXA_OWNER_RECORD_STATUSES,
@@ -365,12 +366,36 @@ export const syncFxaOwnerRecordMovements = async ({
 const getLatestAdjustmentDetailsByFixedAssetId = async (
   models: IModels,
   fixedAssetIds: string[],
+  date?: Date,
 ) => {
-  const details = await models.AdjustFxaDetails.find({
-    fixedAssetId: { $in: fixedAssetIds },
-  })
-    .sort({ createdAt: -1 })
+  const adjustFilter: Record<string, unknown> = {
+    status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
+  };
+
+  if (date) {
+    adjustFilter.date = { $lte: date };
+  }
+
+  const adjustments = await models.AdjustFixedAssets.find(adjustFilter)
+    .sort({ date: -1 })
     .lean();
+  const latestAdjustIds = adjustments.map((adjustment) => adjustment._id);
+  const adjustRankById = new Map(
+    latestAdjustIds.map((adjustId, index) => [adjustId, index]),
+  );
+  const getAdjustRank = (adjustId?: string) =>
+    adjustId
+      ? adjustRankById.get(adjustId) ?? Number.POSITIVE_INFINITY
+      : Number.POSITIVE_INFINITY;
+
+  if (!latestAdjustIds.length) {
+    return new Map();
+  }
+
+  const details = await models.AdjustFxaDetails.find({
+    adjustId: { $in: latestAdjustIds },
+    fixedAssetId: { $in: fixedAssetIds },
+  }).lean();
   const latestAdjustIdByAssetId = new Map<string, string>();
   const totalsByAssetId = new Map<
     string,
@@ -382,12 +407,21 @@ const getLatestAdjustmentDetailsByFixedAssetId = async (
       continue;
     }
 
-    if (!latestAdjustIdByAssetId.has(detail.fixedAssetId)) {
-      latestAdjustIdByAssetId.set(detail.fixedAssetId, detail.adjustId);
+    if (!adjustRankById.has(detail.adjustId)) {
+      continue;
     }
 
-    if (latestAdjustIdByAssetId.get(detail.fixedAssetId) !== detail.adjustId) {
+    const currentAdjustId = latestAdjustIdByAssetId.get(detail.fixedAssetId);
+    const currentRank = getAdjustRank(currentAdjustId);
+    const detailRank = getAdjustRank(detail.adjustId);
+
+    if (currentAdjustId && currentRank < detailRank) {
       continue;
+    }
+
+    if (currentAdjustId !== detail.adjustId) {
+      latestAdjustIdByAssetId.set(detail.fixedAssetId, detail.adjustId);
+      totalsByAssetId.delete(detail.fixedAssetId);
     }
 
     const current = totalsByAssetId.get(detail.fixedAssetId) || {
@@ -425,6 +459,7 @@ export const getFxaDisposalSummaries = async (
   const adjustmentDetails = await getLatestAdjustmentDetailsByFixedAssetId(
     models,
     fixedAssetIds,
+    transaction.date,
   );
 
   return (transaction.details || [])

@@ -6,13 +6,22 @@ import { IFxaOwnerRecord } from '../types/FixedAsset';
 const FXA_OWNER_RECORDS_PER_PAGE = 20;
 
 type TFxaOwnerRecordQueryParams = {
+  searchValue?: string | null;
+  fixedAssetId?: string | null;
+  categoryId?: string | null;
+  action?: string | null;
+  ownerId?: string | null;
+  status?: string | null;
+  createdDate?: string | { from?: string; to?: string } | null;
+};
+
+type TActiveFxaOwnerRecordQueryParams = {
   searchValue?: string;
   fixedAssetId?: string;
   categoryId?: string;
   action?: string;
   ownerId?: string;
   status?: string;
-  createdDate?: string | { from?: string; to?: string };
 };
 
 const FXA_OWNER_RECORD_FILTER_KEYS: (keyof TFxaOwnerRecordQueryParams)[] = [
@@ -55,7 +64,7 @@ const getActiveFilters = (
 ) =>
   Object.fromEntries(
     Object.entries(filters).filter(([, value]) => Boolean(value)),
-  ) as Omit<TFxaOwnerRecordQueryParams, 'createdDate'>;
+  ) as TActiveFxaOwnerRecordQueryParams;
 
 export const useFxaOwnerRecordVariables = () => {
   const queryParams = useFxaOwnerRecordQueryParams();

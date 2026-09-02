@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-01`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -26,6 +26,7 @@
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store acquisition quantity/cost from the supplied migration totals.
+- Fixed asset categories store default annual depreciation percentages; fixed asset income copies the category's annual rate onto the generated fixed asset, and straight-line depreciation turns the annual percentage into monthly depreciation prorated by each month's day count.
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
 - Fixed asset owner records in `fxa_owner_records` are optional responsible-user/serial allocation ledger rows for income, disposal, sale, move details, and direct owner-record operations; `action: "received"` increases an owner balance and `action: "handedOver"` decreases it, transaction-level `followInfos.ownerId` is used as a fallback when no explicit owner rows are sent, while financial quantity, cost, branch/department movement, and depreciation remain driven by transaction details.
 - Provides `fxaOwnerRecords` and `fxaOwnerRecordsCount`, which list owner records with fixed asset, category-derived filtering, owner, action, status, created-date, and optional `balanceOnly` aggregate rows for selection sheets.
@@ -42,7 +43,7 @@
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Currency transactions compare custom rates with the active exchange rate, create exchange-difference follow transactions only when rates differ, and fail clearly when the active rate is missing.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms.
-- Recalculates inventory adjustment outgoing costs and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
+- Recalculates inventory adjustment outgoing costs by product, account, and effective branch/department location using detail-level branch/department before falling back to transaction root location, caches daily cost state, and keeps related main, receivable, and payable debit journal amounts aligned while preserving explicit cash/bank debit amounts.
 - Accepts migration-only Erkhet reference batches at `/pl:accounting/migration/erkhet/references`; the route upserts core product categories/products, creates missing active worker users by unique email, skips existing user emails, upserts Mongolian exchange rates by date/currency and fails if create does not return a saved id, and upserts accounting fixed asset categories by source code before transactions are imported, while actual fixed asset rows are generated from `fxaIncome` transaction details.
 - Accepts migration-only Erkhet transaction batches at `/pl:accounting/migration/erkhet/transactions`; the route trims and resolves source codes, syncs missing contacts, resolves inventory sale, movement, and currency-difference follow-account/location codes, resolves fixed asset category/acquisition inputs and owner-record payloads, resolves owner movements by fixed asset plus owner balance when Erkhet omits explicit owner rows, rejects missing references, and delegates the supplied transaction documents to `createPTransaction` or `updatePTransaction`.
 
@@ -75,6 +76,7 @@
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - GraphQL query `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)`, returning the transaction-history quantity for one fixed asset at one branch/department location.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
+- Fixed asset category GraphQL contracts expose `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset contracts expose `annualDepreciationRate` and `taxAnnualDepreciationRate`. Useful-life years are derived UI/helper values only and are not persisted by the accounting API.
 - GraphQL query `fxaOwnerRecords(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId, page, perPage, limit)`, returning owner-record ledger rows or fixed asset/owner balance rows when `balanceOnly` is true.
 - GraphQL mutations `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`, allowing direct responsible-user owner record receive, transfer, cancel, and cleanup operations without creating accounting transactions.
 - GraphQL query `fxaOwnerRecordsCount(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId)`, returning the matching owner-record or balance-row count.
@@ -125,8 +127,10 @@
 - Erkhet currency transaction migration must resolve detail-level `followInfos.currencyDiffAccountId` from an account code before invoking currency adjustment handlers.
 - Currency transaction handlers must fail with an explicit missing-rate error instead of calculating NaN; required rates are bootstrapped through reference migration before transaction import.
 - Erkhet reference migration is the only product, worker-user, exchange-rate, and fixed-asset category bootstrap path; transaction migration must not create products, users, exchange rates, or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
+- Erkhet fixed asset category `dep_year` means annual depreciation percentage and must be sent to `/pl:accounting/migration/erkhet/references` as `defaultAnnualDepreciationRate`, never as useful life.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
+- Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
@@ -137,6 +141,8 @@
 - Fixed asset disposal, sale, and move quantities must come from transaction details; branch and department belong to each detail and mixed locations require multiple details.
 - Fixed asset move source details must be paired with generated `fxaMoveIn` destination details so period/location reporting is derived from transaction history, not owner records; move destinations may be branch-only, department-only, or branch plus department.
 - Fixed asset depreciation must be calculated once per fixed asset acquisition cost base and allocated across branch/department locations by active quantity for each day.
+- Straight-line fixed asset depreciation must use annual depreciation percentage as the source of truth: annual rate / 12 gives monthly depreciation, and each day receives that month's daily prorated amount.
+- Fixed asset disposal and sale summaries must use the latest completed or published fixed asset adjustment on or before the disposal transaction date; future, draft, running, or process adjustment details must not affect book value.
 - Fixed asset current quantity cache must be rebuilt from business-active fixed asset income, out, sale, move, and move-in transaction details.
 - Fixed asset location remainder must be calculated from business-active fixed asset transaction details and must support excluding the current edited transaction so edit forms do not double-count their own movement.
 - Single fixed asset location remainder and grouped remainder list queries must share the same movement sign, branch, department, and positive-balance aggregation behavior.
@@ -156,6 +162,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
+
+- **Summary:** Made annual depreciation rate the only persisted fixed asset depreciation input, copied category rates onto income-created assets, mapped Erkhet category percentages directly, and prorated straight-line monthly depreciation by actual days in each month.
+- **Affected areas:** `src/modules/fixedAssets`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** Fixed asset category GraphQL accepts/returns `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset GraphQL accepts/returns `annualDepreciationRate` and `taxAnnualDepreciationRate`; Erkhet fixed asset category references accept `defaultAnnualDepreciationRate` for source `dep_year` percentages.
+
+### `2026-09-02` — `Adjustment Costing Guardrails`
+
+- **Summary:** Fixed inventory adjustment grouping to respect detail-level locations and fixed disposal book-value summaries to ignore future or unpublished fixed asset adjustments.
+- **Affected areas:** `src/modules/accounting/utils/inventories.ts`, `src/modules/accounting/utils/fixedAssets.ts`, `src/modules/accounting/utils/__tests__/inventories.test.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-01` — `Transaction Permission Sort Indexes`
 
@@ -204,9 +222,3 @@
 - **Summary:** Erkhet reference migration now accepts active worker payloads, creates missing core users by unique email, and skips workers whose email already exists.
 - **Affected areas:** `src/modules/accounting/routes/erkhetReferenceMigration.ts`.
 - **Contracts changed:** `/pl:accounting/migration/erkhet/references` accepts `workers` rows with email/name/register metadata.
-
-### `2026-08-30` — `Fixed Asset Income Code Reuse`
-
-- **Summary:** Fixed asset income synchronization now reuses one fixed asset for repeated acquisition codes and stores aggregate acquisition quantity/cost supplied by the migration payload.
-- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
-- **Contracts changed:** None.

@@ -1,6 +1,8 @@
-import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
+import {
+  SelectFixedAsset,
+  TSelectedFixedAsset,
+} from '@/settings/fixed-assets/components/SelectFixedAsset';
 import { useFixedAssetLocationRemainder } from '@/settings/fixed-assets/hooks/useFixedAssetLocationRemainder';
-import { IFixedAsset } from '@/settings/fixed-assets/types/FixedAsset';
 import {
   Checkbox,
   Form,
@@ -78,7 +80,7 @@ export const FixedAssetRow = ({
     );
   };
 
-  const handleFixedAssetCallback = (fixedAsset: IFixedAsset) => {
+  const handleFixedAssetCallback = (fixedAsset: TSelectedFixedAsset) => {
     const unitPrice = fixedAsset.originalCost || 0;
     const count = detail.count || 1;
 

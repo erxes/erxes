@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-19`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -46,6 +46,9 @@
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
   invisible to agents.
+- Agent-facing `deal.find` uses a strict input wrapper, optional projection
+  fields, a default limit of 20, and a maximum limit of 100; `deal.count` uses a
+  strict `{ filter }` wrapper.
 
 ## Architecture
 
@@ -129,6 +132,9 @@
   `deal.createCommentActivityLog`, `documents.editorAttributes`,
   `fields.getFieldList`). New procedures are agent-invisible unless explicitly
   annotated.
+- Agent-callable collection reads must stay bounded and reject unknown
+  top-level input keys; use count or pagination instead of allowing unbounded
+  full-collection payloads.
 
 ## Validation
 
@@ -146,6 +152,14 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — Bounded Deal Agent Reads
+
+- **Summary:** Restored strict, bounded agent-facing deal find/count inputs so
+  AI tools cannot trigger unbounded deal collection reads.
+- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
+- **Contracts changed:** `deal.find` accepts `{ query, skip, limit, sort, fields }`
+  with default/max limits; `deal.count` accepts `{ filter }`.
 
 ### `2026-08-19` — Agent-callable tRPC tools
 

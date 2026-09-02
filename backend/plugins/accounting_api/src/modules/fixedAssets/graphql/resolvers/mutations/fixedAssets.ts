@@ -176,11 +176,14 @@ const fixedAssetMutations = {
       status: doc.status || 'active',
       depreciationMethod:
         doc.depreciationMethod || category?.depreciationMethod,
-      usefulLife: doc.usefulLife ?? category?.defaultUsefulLife,
+      annualDepreciationRate:
+        doc.annualDepreciationRate ?? category?.defaultAnnualDepreciationRate,
       salvageValue: doc.salvageValue ?? category?.defaultSalvageValue,
       taxDepreciationMethod:
         doc.taxDepreciationMethod || category?.taxDepreciationMethod,
-      taxUsefulLife: doc.taxUsefulLife ?? category?.defaultTaxUsefulLife,
+      taxAnnualDepreciationRate:
+        doc.taxAnnualDepreciationRate ??
+        category?.defaultTaxAnnualDepreciationRate,
       taxSalvageValue: doc.taxSalvageValue ?? category?.defaultTaxSalvageValue,
       ...buildAuditFields(user?._id),
     });

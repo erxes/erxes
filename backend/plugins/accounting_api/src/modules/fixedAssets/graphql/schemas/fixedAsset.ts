@@ -23,10 +23,10 @@ export const types = `
     transactionId: String
     transactionDetailId: String
     depreciationMethod: String
-    usefulLife: Float
+    annualDepreciationRate: Float
     salvageValue: Float
     taxDepreciationMethod: String
-    taxUsefulLife: Float
+    taxAnnualDepreciationRate: Float
     taxSalvageValue: Float
     propertiesData: JSON
 
@@ -60,10 +60,10 @@ export const mutations = `
     transactionId: String
     transactionDetailId: String
     depreciationMethod: String
-    usefulLife: Float
+    annualDepreciationRate: Float
     salvageValue: Float
     taxDepreciationMethod: String
-    taxUsefulLife: Float
+    taxAnnualDepreciationRate: Float
     taxSalvageValue: Float
     propertiesData: JSON
   ): FixedAsset
@@ -84,10 +84,10 @@ export const mutations = `
     transactionId: String
     transactionDetailId: String
     depreciationMethod: String
-    usefulLife: Float
+    annualDepreciationRate: Float
     salvageValue: Float
     taxDepreciationMethod: String
-    taxUsefulLife: Float
+    taxAnnualDepreciationRate: Float
     taxSalvageValue: Float
     propertiesData: JSON
   ): FixedAsset

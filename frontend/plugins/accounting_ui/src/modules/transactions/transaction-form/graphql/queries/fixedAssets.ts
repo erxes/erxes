@@ -18,10 +18,10 @@ export const FIXED_ASSETS_QUERY = gql`
       acquisitionDate
       depreciationStartDate
       depreciationMethod
-      usefulLife
+      annualDepreciationRate
       salvageValue
       taxDepreciationMethod
-      taxUsefulLife
+      taxAnnualDepreciationRate
       taxSalvageValue
     }
   }

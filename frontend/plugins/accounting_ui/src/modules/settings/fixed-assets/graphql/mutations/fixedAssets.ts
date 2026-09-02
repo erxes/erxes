@@ -7,10 +7,10 @@ const categoryParamsDef = `
   $parentId: String
   $status: String
   $depreciationMethod: String
-  $defaultUsefulLife: Float
+  $defaultAnnualDepreciationRate: Float
   $defaultSalvageValue: Float
   $taxDepreciationMethod: String
-  $defaultTaxUsefulLife: Float
+  $defaultTaxAnnualDepreciationRate: Float
   $defaultTaxSalvageValue: Float
 `;
 
@@ -21,10 +21,10 @@ const categoryParams = `
   parentId: $parentId
   status: $status
   depreciationMethod: $depreciationMethod
-  defaultUsefulLife: $defaultUsefulLife
+  defaultAnnualDepreciationRate: $defaultAnnualDepreciationRate
   defaultSalvageValue: $defaultSalvageValue
   taxDepreciationMethod: $taxDepreciationMethod
-  defaultTaxUsefulLife: $defaultTaxUsefulLife
+  defaultTaxAnnualDepreciationRate: $defaultTaxAnnualDepreciationRate
   defaultTaxSalvageValue: $defaultTaxSalvageValue
 `;
 
@@ -35,10 +35,10 @@ const assetParamsDef = `
   $description: String
   $status: String
   $depreciationMethod: String
-  $usefulLife: Float
+  $annualDepreciationRate: Float
   $salvageValue: Float
   $taxDepreciationMethod: String
-  $taxUsefulLife: Float
+  $taxAnnualDepreciationRate: Float
   $taxSalvageValue: Float
   $propertiesData: JSON
 `;
@@ -50,10 +50,10 @@ const assetParams = `
   description: $description
   status: $status
   depreciationMethod: $depreciationMethod
-  usefulLife: $usefulLife
+  annualDepreciationRate: $annualDepreciationRate
   salvageValue: $salvageValue
   taxDepreciationMethod: $taxDepreciationMethod
-  taxUsefulLife: $taxUsefulLife
+  taxAnnualDepreciationRate: $taxAnnualDepreciationRate
   taxSalvageValue: $taxSalvageValue
   propertiesData: $propertiesData
 `;

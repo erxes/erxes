@@ -8,10 +8,10 @@ export const fixedAssetCategoryFields = `
   parentId
   status
   depreciationMethod
-  defaultUsefulLife
+  defaultAnnualDepreciationRate
   defaultSalvageValue
   taxDepreciationMethod
-  defaultTaxUsefulLife
+  defaultTaxAnnualDepreciationRate
   defaultTaxSalvageValue
 `;
 
@@ -27,10 +27,10 @@ export const fixedAssetFields = `
   currentCount
   originalCost
   depreciationMethod
-  usefulLife
+  annualDepreciationRate
   salvageValue
   taxDepreciationMethod
-  taxUsefulLife
+  taxAnnualDepreciationRate
   taxSalvageValue
   propertiesData
 `;

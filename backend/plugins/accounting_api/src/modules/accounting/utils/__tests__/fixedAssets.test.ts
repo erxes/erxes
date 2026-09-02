@@ -76,10 +76,10 @@ const makeModels = () => {
           {
             _id: 'cat-a',
             depreciationMethod: 'straightLine',
-            defaultUsefulLife: 10,
+            defaultAnnualDepreciationRate: 10,
             defaultSalvageValue: 50,
             taxDepreciationMethod: 'straightLine',
-            defaultTaxUsefulLife: 10,
+            defaultTaxAnnualDepreciationRate: 10,
             defaultTaxSalvageValue: 0,
           },
         ]),
@@ -104,6 +104,15 @@ const makeModels = () => {
       listByFilter: jest.fn(async () => []),
     },
     AdjustFixedAssets: {
+      find: jest.fn(() =>
+        queryResult([
+          {
+            _id: 'adjust-a',
+            date: new Date('2026-01-31T00:00:00.000Z'),
+            status: ADJ_FXA_STATUSES.PUBLISH,
+          },
+        ]),
+      ),
       findOne: jest.fn((selector: Record<string, unknown>) => {
         if (selector.status && selector.date) {
           return queryResult(null);
@@ -168,6 +177,7 @@ describe('fixed asset income', () => {
         count: 3,
         currentCount: 3,
         originalCost: 500,
+        annualDepreciationRate: 10,
         salvageValue: 50,
         transactionId: 'tr-income',
         transactionDetailId: 'detail-income',
@@ -590,7 +600,7 @@ describe('fixed asset adjustment', () => {
       currentCount: 4,
       originalCost: 1200,
       salvageValue: 0,
-      usefulLife: 12,
+      annualDepreciationRate: 12,
       depreciationMethod: 'straightLine',
       acquisitionDate: new Date('2026-01-01T00:00:00.000Z'),
       depreciationStartDate: new Date('2026-01-01T00:00:00.000Z'),
@@ -688,6 +698,12 @@ describe('fixed asset adjustment', () => {
         ]),
       }),
     );
+    const totalDepreciation = replaceCall.details.reduce(
+      (sum, detail) => sum + detail.depreciationAmount,
+      0,
+    );
+
+    expect(totalDepreciation).toBeCloseTo((1200 * 0.12 * 16) / 12 / 31, 6);
     expect(
       models.AdjustFixedAssets.updateAdjustFixedAsset,
     ).toHaveBeenCalledWith(
@@ -707,7 +723,7 @@ describe('fixed asset adjustment', () => {
       accountId: 'asset-account',
       count: 1,
       originalCost: 1200,
-      usefulLife: 12,
+      annualDepreciationRate: 12,
       depreciationMethod: 'straightLine',
       acquisitionDate: new Date('2026-01-01T00:00:00.000Z'),
     };
@@ -809,6 +825,64 @@ describe('fixed asset sale and disposal summaries', () => {
         bookValue: 900,
       },
     ]);
+  });
+
+  it('uses the latest published adjustment on or before disposal date', async () => {
+    const models = makeModels();
+
+    models.FixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'asset-a',
+          originalCost: 500,
+          count: 4,
+          currentCount: 2,
+        },
+      ]),
+    );
+    models.AdjustFixedAssets.find.mockReturnValue(
+      queryResult([
+        {
+          _id: 'adjust-before',
+          date: new Date('2026-01-31T00:00:00.000Z'),
+          status: ADJ_FXA_STATUSES.PUBLISH,
+        },
+      ]),
+    );
+    models.AdjustFxaDetails.find.mockReturnValue(
+      queryResult([
+        {
+          adjustId: 'adjust-future',
+          fixedAssetId: 'asset-a',
+          closingAccumulatedDepreciation: 800,
+          closingBookValue: 1200,
+        },
+        {
+          adjustId: 'adjust-before',
+          fixedAssetId: 'asset-a',
+          closingAccumulatedDepreciation: 200,
+          closingBookValue: 1800,
+        },
+      ]),
+    );
+
+    const summaries = await getFxaDisposalSummaries(
+      models as never,
+      {
+        _id: 'sale-a',
+        journal: JOURNALS.FXA_SALE,
+        date: new Date('2026-02-01T00:00:00.000Z'),
+        details: [{ _id: 'detail-sale', fixedAssetId: 'asset-a', count: 2 }],
+      } as never,
+    );
+
+    expect(models.AdjustFixedAssets.find).toHaveBeenCalledWith({
+      status: {
+        $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH],
+      },
+      date: { $lte: new Date('2026-02-01T00:00:00.000Z') },
+    });
+    expect(summaries[0].accumulatedDepreciation).toBe(100);
   });
 
   it('creates sale follow transactions for cost, accumulated depreciation, and book value', async () => {

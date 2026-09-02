@@ -12,10 +12,10 @@ export interface IFixedAssetCategory {
   parentId?: string;
   status?: string;
   depreciationMethod?: string;
-  defaultUsefulLife?: number;
+  defaultAnnualDepreciationRate?: number;
   defaultSalvageValue?: number;
   taxDepreciationMethod?: string;
-  defaultTaxUsefulLife?: number;
+  defaultTaxAnnualDepreciationRate?: number;
   defaultTaxSalvageValue?: number;
 }
 
@@ -33,10 +33,10 @@ export interface IFixedAsset {
   acquisitionDate?: Date;
   depreciationStartDate?: Date;
   depreciationMethod?: string;
-  usefulLife?: number;
+  annualDepreciationRate?: number;
   salvageValue?: number;
   taxDepreciationMethod?: string;
-  taxUsefulLife?: number;
+  taxAnnualDepreciationRate?: number;
   taxSalvageValue?: number;
   propertiesData?: Record<string, unknown>;
 }

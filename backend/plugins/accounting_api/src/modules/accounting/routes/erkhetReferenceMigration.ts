@@ -30,7 +30,7 @@ type TErkhetFixedAssetCategory = {
   name?: string;
   parentCode?: string;
   description?: string;
-  defaultUsefulLife?: number;
+  defaultAnnualDepreciationRate?: number;
   defaultSalvageValue?: number;
 };
 
@@ -511,7 +511,7 @@ const syncFixedAssetCategories = async ({
         name: category.name,
         parentId,
         description: category.description,
-        defaultUsefulLife: category.defaultUsefulLife,
+        defaultAnnualDepreciationRate: category.defaultAnnualDepreciationRate,
         defaultSalvageValue: category.defaultSalvageValue,
         status: 'active',
       });

@@ -59,8 +59,12 @@ export const fixedAssetSchema = new Schema({
     enum: FIXED_ASSET_DEPRECIATION_METHODS.ALL,
     label: 'Depreciation method',
   },
-  // Ашиглах хугацаа
-  usefulLife: { type: Number, optional: true, label: 'Useful life' },
+  // Жилд элэгдэх хувь
+  annualDepreciationRate: {
+    type: Number,
+    optional: true,
+    label: 'Annual depreciation rate',
+  },
   // Элэгдүүлж дуусахад үлдээх өртөг
   salvageValue: { type: Number, optional: true, label: 'Salvage value' },
   // Татварын элэгдэл бодох арга
@@ -70,8 +74,12 @@ export const fixedAssetSchema = new Schema({
     enum: FIXED_ASSET_DEPRECIATION_METHODS.ALL,
     label: 'Tax depreciation method',
   },
-  // Татварын элэгдэлд ашиглах хугацаа
-  taxUsefulLife: { type: Number, optional: true, label: 'Tax useful life' },
+  // Татварын жилд элэгдэх хувь
+  taxAnnualDepreciationRate: {
+    type: Number,
+    optional: true,
+    label: 'Tax annual depreciation rate',
+  },
   // Татварын элэгдэлд ашиглах үлдэх өртөг
   taxSalvageValue: {
     type: Number,

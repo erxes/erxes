@@ -68,10 +68,10 @@ const buildFixedAssetDoc = ({
 }: {
   category?: {
     depreciationMethod?: string;
-    defaultUsefulLife?: number;
+    defaultAnnualDepreciationRate?: number;
     defaultSalvageValue?: number;
     taxDepreciationMethod?: string;
-    defaultTaxUsefulLife?: number;
+    defaultTaxAnnualDepreciationRate?: number;
     defaultTaxSalvageValue?: number;
   };
   date: Date;
@@ -103,11 +103,11 @@ const buildFixedAssetDoc = ({
     acquisitionDate: date,
     depreciationStartDate: detail.followInfos?.depreciationStartDate || date,
     depreciationMethod: category?.depreciationMethod,
-    usefulLife: category?.defaultUsefulLife,
+    annualDepreciationRate: category?.defaultAnnualDepreciationRate,
     salvageValue:
       detail.followInfos?.salvageValue ?? category?.defaultSalvageValue,
     taxDepreciationMethod: category?.taxDepreciationMethod,
-    taxUsefulLife: category?.defaultTaxUsefulLife,
+    taxAnnualDepreciationRate: category?.defaultTaxAnnualDepreciationRate,
     taxSalvageValue: category?.defaultTaxSalvageValue,
     transactionId: transaction._id,
     transactionDetailId: getDetailId(detail),
@@ -636,11 +636,15 @@ export const syncFxaIncomeDetails = async (
                   originalCost: doc.originalCost,
                   depreciationMethod:
                     doc.depreciationMethod || existing.depreciationMethod,
-                  usefulLife: doc.usefulLife ?? existing.usefulLife,
+                  annualDepreciationRate:
+                    doc.annualDepreciationRate ??
+                    existing.annualDepreciationRate,
                   salvageValue: doc.salvageValue ?? existing.salvageValue,
                   taxDepreciationMethod:
                     doc.taxDepreciationMethod || existing.taxDepreciationMethod,
-                  taxUsefulLife: doc.taxUsefulLife ?? existing.taxUsefulLife,
+                  taxAnnualDepreciationRate:
+                    doc.taxAnnualDepreciationRate ??
+                    existing.taxAnnualDepreciationRate,
                   taxSalvageValue:
                     doc.taxSalvageValue ?? existing.taxSalvageValue,
                 }),

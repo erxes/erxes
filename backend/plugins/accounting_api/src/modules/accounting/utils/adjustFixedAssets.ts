@@ -25,7 +25,7 @@ type TFixedAssetAccountConfig = {
 type TDepreciationInput = {
   originalCost: number;
   salvageValue?: number;
-  usefulLife?: number;
+  annualDepreciationRate?: number;
   startDate: Date;
   endDate: Date;
   scheduleStartDate?: Date;
@@ -89,12 +89,20 @@ const getDaysBetween = (startDate: Date, endDate: Date) =>
     ),
   );
 
+const getDaysInMonth = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+const getUsefulLifeFromAnnualRate = (annualDepreciationRate?: number) =>
+  annualDepreciationRate && annualDepreciationRate > 0
+    ? (100 / annualDepreciationRate) * 12
+    : undefined;
+
 const getDepreciationBaseError = (
-  usefulLife?: number,
+  annualDepreciationRate?: number,
   originalCost?: number,
 ) => {
-  if (!usefulLife || usefulLife <= 0) {
-    return 'Useful life is required to calculate depreciation';
+  if (!annualDepreciationRate || annualDepreciationRate <= 0) {
+    return 'Annual depreciation rate is required to calculate depreciation';
   }
 
   if (!originalCost || originalCost <= 0) {
@@ -119,13 +127,17 @@ const calculateDailyDepreciation = ({
   const {
     originalCost,
     salvageValue = 0,
-    usefulLife,
+    annualDepreciationRate,
     startDate,
     endDate,
     scheduleStartDate = startDate,
     openingAccumulatedDepreciation = 0,
   } = input;
-  const baseError = getDepreciationBaseError(usefulLife, originalCost);
+  const usefulLife = getUsefulLifeFromAnnualRate(annualDepreciationRate);
+  const baseError = getDepreciationBaseError(
+    annualDepreciationRate,
+    originalCost,
+  );
 
   if (baseError) {
     return {
@@ -194,11 +206,18 @@ const calculateDailyDepreciation = ({
 const calculateStraightLineDepreciation = (input: TDepreciationInput) => {
   return calculateDailyDepreciation({
     input,
-    calculateDailyAmount: ({ lifetimeDays }) => {
+    calculateDailyAmount: ({ currentDate, lifetimeDays }) => {
       const depreciableAmount = Math.max(
         input.originalCost - (input.salvageValue || 0),
         0,
       );
+
+      if (input.annualDepreciationRate && input.annualDepreciationRate > 0) {
+        const monthlyAmount =
+          (depreciableAmount * input.annualDepreciationRate) / 100 / 12;
+
+        return monthlyAmount / getDaysInMonth(currentDate);
+      }
 
       return depreciableAmount / lifetimeDays;
     },
@@ -233,7 +252,10 @@ const calculateDecliningBalanceDepreciation = (
   input: TDepreciationInput,
   multiplier: number,
 ) => {
-  const usefulLifeYears = Math.max((input.usefulLife || 0) / 12, 1 / 365);
+  const usefulLifeMonths = getUsefulLifeFromAnnualRate(
+    input.annualDepreciationRate,
+  );
+  const usefulLifeYears = Math.max((usefulLifeMonths || 0) / 12, 1 / 365);
   const dailyRate = multiplier / usefulLifeYears / 365;
 
   return calculateDailyDepreciation({
@@ -478,19 +500,19 @@ const validateInstanceForDepreciation = ({
     _id?: string;
     originalCost?: number;
     depreciationMethod?: string;
-    usefulLife?: number;
+    annualDepreciationRate?: number;
   };
 }) => {
   const originalCost = fixedAsset?.originalCost || 0;
-  const usefulLife = fixedAsset?.usefulLife;
+  const annualDepreciationRate = fixedAsset?.annualDepreciationRate;
   const depreciationMethod = fixedAsset?.depreciationMethod || 'straightLine';
 
   if (originalCost <= 0) {
     return `Fixed asset original cost is missing. Fixed asset: ${fixedAsset?._id}`;
   }
 
-  if (!usefulLife || usefulLife <= 0) {
-    return `Fixed asset useful life is missing. Fixed asset: ${fixedAsset?._id}`;
+  if (!annualDepreciationRate || annualDepreciationRate <= 0) {
+    return `Fixed asset annual depreciation rate is missing. Fixed asset: ${fixedAsset?._id}`;
   }
 
   if (!accountId) {
@@ -561,7 +583,7 @@ const calculateFixedAssetDepreciationByDay = ({
     const dailyResult = calculateDepreciationByMethod(depreciationMethod, {
       originalCost,
       salvageValue,
-      usefulLife: fixedAsset.usefulLife,
+      annualDepreciationRate: fixedAsset.annualDepreciationRate,
       startDate: currentDate,
       endDate: currentDate,
       scheduleStartDate,

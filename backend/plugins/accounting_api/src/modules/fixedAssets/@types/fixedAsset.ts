@@ -19,10 +19,10 @@ export interface IFixedAsset {
   transactionDetailId?: string;
 
   depreciationMethod?: string;
-  usefulLife?: number;
+  annualDepreciationRate?: number;
   salvageValue?: number;
   taxDepreciationMethod?: string;
-  taxUsefulLife?: number;
+  taxAnnualDepreciationRate?: number;
   taxSalvageValue?: number;
 
   createdAt?: Date;

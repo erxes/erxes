@@ -300,13 +300,36 @@ const calcInvTrs = async (
   };
   const commonAggregates: any[] = [
     { $unwind: '$details' },
+    {
+      $addFields: {
+        locationBranchId: {
+          $cond: [
+            { $gt: [{ $strLenCP: { $ifNull: ['$details.branchId', ''] } }, 0] },
+            '$details.branchId',
+            '$branchId',
+          ],
+        },
+        locationDepartmentId: {
+          $cond: [
+            {
+              $gt: [
+                { $strLenCP: { $ifNull: ['$details.departmentId', ''] } },
+                0,
+              ],
+            },
+            '$details.departmentId',
+            '$departmentId',
+          ],
+        },
+      },
+    },
     { $sort: { updatedAt: 1 } },
     {
       $group: {
         _id: {
           accountId: '$details.accountId',
-          branchId: '$branchId',
-          departmentId: '$departmentId',
+          branchId: '$locationBranchId',
+          departmentId: '$locationDepartmentId',
           productId: '$details.productId',
         },
         records: { $push: '$$ROOT' },
@@ -987,13 +1010,36 @@ const fixInvTrs = async (
   };
   const commonAggregates: any[] = [
     { $unwind: '$details' },
+    {
+      $addFields: {
+        locationBranchId: {
+          $cond: [
+            { $gt: [{ $strLenCP: { $ifNull: ['$details.branchId', ''] } }, 0] },
+            '$details.branchId',
+            '$branchId',
+          ],
+        },
+        locationDepartmentId: {
+          $cond: [
+            {
+              $gt: [
+                { $strLenCP: { $ifNull: ['$details.departmentId', ''] } },
+                0,
+              ],
+            },
+            '$details.departmentId',
+            '$departmentId',
+          ],
+        },
+      },
+    },
     { $sort: { updatedAt: 1 } },
     {
       $group: {
         _id: {
           accountId: '$details.accountId',
-          branchId: '$branchId',
-          departmentId: '$departmentId',
+          branchId: '$locationBranchId',
+          departmentId: '$locationDepartmentId',
           productId: '$details.productId',
         },
         records: { $push: '$$ROOT' },
@@ -1069,8 +1115,10 @@ export const adjustRunning = async (
     const trFilter = {
       'details.productId': { $exists: true, $ne: '' },
       'details.accountId': { $exists: true, $ne: '' },
-      branchId: { $exists: true, $ne: '' },
-      departmentId: { $exists: true, $ne: '' },
+      $or: [
+        { branchId: { $exists: true, $ne: '' } },
+        { 'details.branchId': { $exists: true, $ne: '' } },
+      ],
       status: TR_STATUSES.COMPLETE,
     };
 
@@ -1125,7 +1173,7 @@ export const adjustRunning = async (
           const details = await models.AdjustInvDetails.find({ adjustId })
             .sort({ accountId: 1, branchId: 1, departmentId: 1, productId: 1 })
             .skip(step * per)
-            .limit(step)
+            .limit(per)
             .lean();
           for (const detail of details) {
             bulkOps.push({
