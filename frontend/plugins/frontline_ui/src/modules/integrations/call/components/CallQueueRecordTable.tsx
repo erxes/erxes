@@ -11,19 +11,32 @@ import {
   RecordTableInlineCell,
   Badge,
   ChartContainer,
+  Combobox,
+  Command,
+  Filter,
   HoverCard,
+  PageSubHeader,
+  Skeleton,
   cn,
+  isUndefinedOrNull,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 import { Link } from 'react-router-dom';
-import { forwardRef, type ComponentProps, type ForwardedRef } from 'react';
+import {
+  forwardRef,
+  useMemo,
+  type ComponentProps,
+  type ForwardedRef,
+} from 'react';
 
 export const CallQueueRecordTable = ({
   basePath = '/frontline/calls/dashboard',
 }: {
   basePath?: string;
 }) => {
+  const { t } = useTranslation('frontline');
   const columns = useGetColumns(basePath);
   const callConfig = useAtomValue(callConfigAtom);
   const { inboxId } = callConfig || {};
@@ -33,31 +46,86 @@ export const CallQueueRecordTable = ({
     skip: !inboxId,
   });
 
+  const [queries] = useMultiQueryState<{ searchValue?: string }>([
+    'searchValue',
+  ]);
+  const { searchValue } = queries;
+  const hasFilters = Object.values(queries || {}).some((v) => v !== null);
+
+  const filteredList = useMemo(() => {
+    const list = callQueueList || [];
+    if (!searchValue) return list;
+    const needle = searchValue.toLowerCase();
+    return list.filter(
+      (item) =>
+        String(item.queue ?? '')
+          .toLowerCase()
+          .includes(needle) ||
+        String(item.queuechairman ?? '')
+          .toLowerCase()
+          .includes(needle),
+    );
+  }, [callQueueList, searchValue]);
+
   if (!callConfig) {
     return null;
   }
 
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={callQueueList || (loading ? [{}] : [])}
-      className="m-3"
-      stickyColumns={['queue']}
-      tableId="frontline_call_queue_record_table"
-    >
-      <RecordTable.Scroll>
-        <RecordTable>
-          <RecordTable.Header showColumnSelector />
-          <RecordTable.Body>
-            {loading ? (
-              <RecordTable.RowSkeleton rows={6} />
+    <>
+      <PageSubHeader>
+        <Filter id="call-queue-list-filter" sessionKey="call_queue_list">
+          <Filter.Popover scope="call-queue-list-page">
+            <Filter.Trigger isFiltered={hasFilters} />
+            <Combobox.Content>
+              <Filter.View>
+                <Command>
+                  <Filter.CommandInput
+                    placeholder={t('filter')}
+                    variant="secondary"
+                    className="bg-background"
+                  />
+                  <Command.List className="p-1">
+                    <Filter.SearchValueTrigger />
+                  </Command.List>
+                </Command>
+              </Filter.View>
+            </Combobox.Content>
+          </Filter.Popover>
+          <Filter.Dialog>
+            <Filter.DialogStringView filterKey="searchValue" />
+          </Filter.Dialog>
+          <Filter.SearchValueBarItem />
+          <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
+            {isUndefinedOrNull(callQueueList) || loading ? (
+              <Skeleton className="w-20 h-4 inline-block mt-1.5" />
             ) : (
-              <RecordTable.RowList />
+              t('records-found', { count: filteredList.length })
             )}
-          </RecordTable.Body>
-        </RecordTable>
-      </RecordTable.Scroll>
-    </RecordTable.Provider>
+          </div>
+        </Filter>
+      </PageSubHeader>
+      <RecordTable.Provider
+        columns={columns}
+        data={filteredList.length ? filteredList : loading ? [{}] : []}
+        className="m-3"
+        stickyColumns={['queue']}
+        tableId="frontline_call_queue_record_table"
+      >
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header showColumnSelector />
+            <RecordTable.Body>
+              {loading ? (
+                <RecordTable.RowSkeleton rows={6} />
+              ) : (
+                <RecordTable.RowList />
+              )}
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </RecordTable.Provider>
+    </>
   );
 };
 

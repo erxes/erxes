@@ -1,4 +1,6 @@
 import {
+  IconCalendar,
+  IconChevronDown,
   IconChevronLeft,
   IconInfoCircle,
   IconPhone,
@@ -11,24 +13,31 @@ import {
   Button,
   Collapsible,
   Badge,
+  DropdownMenu,
+  Filter,
   PageContainer,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   Separator,
   Input,
+  Skeleton,
   Spinner,
   formatPhoneNumber,
+  isUndefinedOrNull,
+  useFilterQueryState,
 } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
+import { differenceInSeconds } from 'date-fns';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import {
-  ICallQueueAgent,
+  ICallAgentDailyStat,
   ICallQueueRealtimeSnapshot,
 } from '@/integrations/call/types/callTypes';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  formatDurationShort,
   formatSeconds,
   safeFormatDate,
 } from '@/integrations/call/utils/callUtils';
@@ -36,6 +45,13 @@ import { QUEUE_REALTIME_UPDATE } from '@/integrations/call/graphql/subscriptions
 import { useSubscription } from '@apollo/client';
 import { useCallDurationFromDate } from '@/integrations/call/hooks/useCallDuration';
 import { useCallQueueInitialList } from '@/integrations/call/hooks/useCallQueueInitialList';
+import { useCallAgentDailyStats } from '@/integrations/call/hooks/useCallAgentDailyStats';
+import { getDateRange } from '@/report/utils/dateFilters';
+
+const AGENT_DATE_FILTER_KEY = 'agentStatsDate';
+const AGENT_STATUS_FILTER_KEY = 'agentStatus';
+
+const AGENT_STATUS_OPTIONS = ['Idle', 'InUse', 'Ringing', 'Paused'];
 
 export const CallDetailPage = ({
   backPath = '/frontline/calls/dashboard',
@@ -58,6 +74,26 @@ export const CallDetailPage = ({
       integrationId: inboxId || '',
       queue: id || '',
       setUpdatedAt,
+    });
+
+  const [agentStatsDateQuery, setAgentStatsDateQuery] =
+    useFilterQueryState<string>(AGENT_DATE_FILTER_KEY);
+
+  useEffect(() => {
+    if (!agentStatsDateQuery) setAgentStatsDateQuery('today');
+  }, [agentStatsDateQuery, setAgentStatsDateQuery]);
+
+  const { fromDate: agentStatsFromDate, toDate: agentStatsToDate } = useMemo(
+    () => getDateRange(agentStatsDateQuery || 'today'),
+    [agentStatsDateQuery],
+  );
+
+  const { agentDailyStats, loading: loadingAgentDailyStats } =
+    useCallAgentDailyStats({
+      integrationId: inboxId || '',
+      queue: id || '',
+      startDate: agentStatsFromDate?.toISOString(),
+      endDate: agentStatsToDate?.toISOString(),
     });
 
   const { data } = useSubscription(QUEUE_REALTIME_UPDATE, {
@@ -183,10 +219,15 @@ export const CallDetailPage = ({
             date={updatedAt?.toISOString()}
           />
         </div>
-        <div className="grid grid-cols-2 grid-rows-2 flex-1 gap-5">
-          <CallDetailAgents membersList={membersList || []} />
-          <CallDetailWaiting waitingList={waitingCallList || []} />
-          <CallDetailTalking talkingList={talkingCallList || []} />
+        <div className="flex flex-1 min-h-0 flex-col gap-5">
+          <CallDetailAgents
+            agentDailyStats={agentDailyStats}
+            loading={loadingAgentDailyStats}
+          />
+          <div className="grid grid-cols-2 gap-5 h-72 shrink-0">
+            <CallDetailWaiting waitingList={waitingCallList || []} />
+            <CallDetailTalking talkingList={talkingCallList || []} />
+          </div>
         </div>
       </div>
     </PageContainer>
@@ -194,37 +235,69 @@ export const CallDetailPage = ({
 };
 
 export const CallDetailAgents = ({
-  membersList,
+  agentDailyStats,
+  loading,
 }: {
-  membersList: ICallQueueAgent[];
+  agentDailyStats: ICallAgentDailyStat[];
+  loading?: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const [search, setSearch] = useState('');
+  const [statusFilter] = useFilterQueryState<string>(AGENT_STATUS_FILTER_KEY);
 
-  const filteredMembersList = membersList.filter((member) =>
-    [member.first_name, member.last_name, member.member_extension]
-      .join(' ')
-      .toLowerCase()
-      .includes(search.toLowerCase()),
-  );
+  const filteredStats = agentDailyStats
+    .filter((row) =>
+      [row.firstName, row.lastName, row.extension]
+        .join(' ')
+        .toLowerCase()
+        .includes(search.toLowerCase()),
+    )
+    .filter((row) => !statusFilter || row.status === statusFilter);
 
   return (
-    <div className="row-span-2 flex flex-col gap-3">
+    <div className="flex flex-1 min-h-0 flex-col gap-3">
       <h5 className="font-mono text-xs uppercase font-semibold">
         {t('agents')}
       </h5>
-      <div className="relative">
-        <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
-        <Input
-          placeholder={t('search')}
-          value={search}
-          className="pl-8 relative bg-transparent"
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      <Filter id="call-detail-agents-date-filter">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-48 flex-1">
+            <IconSearch className="size-4 absolute left-2 top-1/2 -translate-y-1/2 text-accent-foreground" />
+            <Input
+              placeholder={t('search')}
+              value={search}
+              className="pl-8 relative bg-transparent"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium shrink-0">
+            <Filter.BarName>
+              <IconCalendar className="h-3.5 w-3.5" />
+              {t('date')}
+            </Filter.BarName>
+            <Filter.Date filterKey={AGENT_DATE_FILTER_KEY} label={t('date')} />
+          </div>
+          <AgentStatusFilter />
+          <div className="ml-auto text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
+            {isUndefinedOrNull(agentDailyStats) || loading ? (
+              <Skeleton className="w-20 h-4 inline-block mt-1.5" />
+            ) : (
+              t('records-found', { count: filteredStats.length })
+            )}
+          </div>
+        </div>
+        <Filter.Dialog>
+          <Filter.View filterKey={AGENT_DATE_FILTER_KEY} inDialog>
+            <Filter.DialogDateView
+              filterKey={AGENT_DATE_FILTER_KEY}
+              label={t('date')}
+            />
+          </Filter.View>
+        </Filter.Dialog>
+      </Filter>
       <RecordTable.Provider
         columns={useAgentColumns()}
-        data={filteredMembersList}
+        data={filteredStats}
         tableId="frontline_call_agents_record_table"
       >
         <RecordTable.Scroll>
@@ -236,14 +309,141 @@ export const CallDetailAgents = ({
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTable.Provider>
+      {loading && !agentDailyStats.length && (
+        <div className="flex items-center justify-center py-6">
+          <Spinner size="sm" />
+        </div>
+      )}
     </div>
   );
 };
 
-export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
+function AgentStatusFilter() {
+  const { t } = useTranslation('frontline');
+  const [status, setStatus] = useFilterQueryState<string>(
+    AGENT_STATUS_FILTER_KEY,
+  );
+  const selected = status || null;
+
+  return (
+    <div className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium shrink-0">
+      <Filter.BarName>{t('status')}</Filter.BarName>
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <button className="flex items-center gap-1.5 px-2 bg-background hover:bg-muted-foreground/10 transition-colors rounded-r">
+            {selected ?? t('all-statuses', { defaultValue: 'All statuses' })}
+            <IconChevronDown className="h-3 w-3 text-muted-foreground" />
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="start" className="w-40">
+          <DropdownMenu.Item
+            onSelect={() => setStatus(null)}
+            className={!selected ? 'text-primary' : ''}
+          >
+            {t('all-statuses', { defaultValue: 'All statuses' })}
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          {AGENT_STATUS_OPTIONS.map((option) => (
+            <DropdownMenu.Item
+              key={option}
+              onSelect={() => setStatus(option)}
+              className={selected === option ? 'text-primary' : ''}
+            >
+              {option}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+function useLivePausedMinutes(startDate: Date | null): string {
+  const [label, setLabel] = useState(() =>
+    startDate
+      ? formatDurationShort(differenceInSeconds(new Date(), startDate))
+      : '0m',
+  );
+
+  useEffect(() => {
+    if (!startDate) {
+      setLabel('0m');
+      return;
+    }
+
+    const update = () =>
+      setLabel(
+        formatDurationShort(
+          Math.max(0, differenceInSeconds(new Date(), startDate)),
+        ),
+      );
+
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [startDate]);
+
+  return label;
+}
+
+function PauseCell({ row }: { row: ICallAgentDailyStat }) {
+  const { t } = useTranslation('frontline');
+  const ongoingStart = useMemo(
+    () =>
+      row.currentPauseStartedAt ? new Date(row.currentPauseStartedAt) : null,
+    [row.currentPauseStartedAt],
+  );
+  const ongoingDuration = useLivePausedMinutes(ongoingStart);
+
+  if (ongoingStart) {
+    return (
+      <RecordTableInlineCell>
+        <Badge variant="warning">{ongoingDuration}</Badge>
+        <span className="text-xs text-muted-foreground">
+          {safeFormatDate(row.currentPauseStartedAt)}
+        </span>
+      </RecordTableInlineCell>
+    );
+  }
+
+  if (!row.totalPausedSec) {
+    return (
+      <RecordTableInlineCell className="text-muted-foreground">
+        —
+      </RecordTableInlineCell>
+    );
+  }
+
+  const lastInterval = row.pauseIntervals[row.pauseIntervals.length - 1];
+
+  return (
+    <RecordTableInlineCell
+      title={
+        row.pauseIntervals.length > 1
+          ? t('n-pauses', {
+              count: row.pauseIntervals.length,
+              defaultValue: `${row.pauseIntervals.length} pauses`,
+            })
+          : undefined
+      }
+    >
+      <span className="font-medium">
+        {formatDurationShort(row.totalPausedSec)}
+      </span>
+      {lastInterval && (
+        <span className="text-xs text-muted-foreground">
+          {safeFormatDate(lastInterval.start)}
+        </span>
+      )}
+    </RecordTableInlineCell>
+  );
+}
+
+export const useAgentColumns = (): ColumnDef<ICallAgentDailyStat>[] => {
   const { t } = useTranslation('frontline');
   return [
     {
+      id: 'status',
       accessorKey: 'status',
       header: () => <RecordTable.InlineHead label={t('status')} />,
       cell: ({ cell }) => (
@@ -259,37 +459,39 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
                     : 'secondary'
             }
           >
-            {cell.getValue() as string}
+            {(cell.getValue() as string) || '-'}
           </Badge>
         </RecordTableInlineCell>
       ),
-      size: 100,
+      size: 90,
     },
     {
-      accessorKey: 'member_extension',
+      id: 'extension',
+      accessorKey: 'extension',
       header: () => <RecordTable.InlineHead label={t('extension')} />,
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-mono">
           <Badge variant="secondary">{cell.getValue() as string}</Badge>
         </RecordTableInlineCell>
       ),
-      size: 100,
+      size: 90,
     },
-
     {
+      id: 'name',
       accessorKey: 'name',
       header: () => <RecordTable.InlineHead label={t('name')} />,
       cell: ({ cell }) => {
-        const { first_name, last_name } = cell.row.original;
+        const { firstName, lastName } = cell.row.original;
         return (
           <RecordTableInlineCell className="font-medium">
-            {first_name} {last_name}
+            {firstName} {lastName}
           </RecordTableInlineCell>
         );
       },
-      size: 200,
+      size: 170,
     },
     {
+      id: 'answer',
       accessorKey: 'answer',
       header: () => <RecordTable.InlineHead label={t('answered')} />,
       cell: ({ cell }) => (
@@ -297,9 +499,10 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
           {cell.getValue() as number}
         </RecordTableInlineCell>
       ),
-      size: 100,
+      size: 80,
     },
     {
+      id: 'abandon',
       accessorKey: 'abandon',
       header: () => <RecordTable.InlineHead label={t('abandoned')} />,
       cell: ({ cell }) => (
@@ -307,9 +510,10 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
           {cell.getValue() as number}
         </RecordTableInlineCell>
       ),
-      size: 100,
+      size: 80,
     },
     {
+      id: 'talktime',
       accessorKey: 'talktime',
       header: () => <RecordTable.InlineHead label={t('talk-time')} />,
       cell: ({ cell }) => (
@@ -320,17 +524,31 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
       size: 100,
     },
     {
-      accessorKey: 'pausetime',
-      header: () => <RecordTable.InlineHead label={t('pause-time')} />,
+      id: 'date',
+      accessorKey: 'date',
+      header: () => <RecordTable.InlineHead label={t('date')} />,
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
-          {safeFormatDate(cell?.getValue())}
+          {formatDateKey(cell.getValue() as string)}
         </RecordTableInlineCell>
       ),
-      size: 200,
+      size: 90,
+    },
+    {
+      id: 'pause',
+      accessorKey: 'totalPausedSec',
+      header: () => <RecordTable.InlineHead label={t('pause')} />,
+      cell: ({ row }) => <PauseCell row={row.original} />,
+      size: 160,
     },
   ];
 };
+
+function formatDateKey(dateKey: string): string {
+  if (!dateKey) return '-';
+  const [, month, day] = dateKey.split('-');
+  return month && day ? `${month}-${day}` : dateKey;
+}
 
 export const CallDetailCard = ({
   description,
