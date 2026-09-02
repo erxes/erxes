@@ -45,13 +45,21 @@ export const propertySchema = z
     relationType: z.string().optional(),
     validation: z.string().optional(),
     isSearchable: z.boolean().default(false),
-    isVisible: z.boolean().nullable().optional().transform((v) => v ?? true),
+    isVisible: z
+      .boolean()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? true),
     isVisibleToCreate: z
       .boolean()
       .nullable()
       .optional()
       .transform((v) => v ?? false),
-    isRequired: z.boolean().nullable().optional().transform((v) => v ?? false),
+    isRequired: z
+      .boolean()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? false),
     isVisibleInCard: z
       .boolean()
       .nullable()

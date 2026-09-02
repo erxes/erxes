@@ -29,7 +29,7 @@ export const PropertyFormObjectListFields = ({
   });
 
   const savedConfigCount = isEdit
-    ? form.formState.defaultValues?.objectListConfigs?.length ?? 0
+    ? (form.formState.defaultValues?.objectListConfigs?.length ?? 0)
     : 0;
 
   if (type !== 'objectList') {
