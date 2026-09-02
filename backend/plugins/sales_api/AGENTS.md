@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-21`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -80,6 +80,12 @@
   - `pos.ordersDeliveryInfo`, `orders.findOne`, `orders.find` — `posOrderRead`
 - tRPC service contracts under `src/trpc` and module-specific `trpc`
   directories for platform and cross-plugin callers (not agent-visible).
+- Internal cross-plugin deal read contract `deal.findMany` (no agent
+  annotation): accepts the legacy dual-shape input of the pre-#9102
+  `deal.find` — a bare Mongo filter (input itself is the query) or the
+  wrapped `{ query, search?, skip?, limit?, sort? }` form with unbounded
+  results. Consumed by accounting (`checkSynced`), mongolian
+  (`ebarimt`, `erkhet checkSynced`), and tourism (`pms configs`, 4 sites).
 - Record reference resolvers under `src/modules/sales/meta/references`.
 - Sales metadata and automation contracts under `src/modules/sales/meta`.
 
@@ -127,17 +133,24 @@
   2026-08-20, and wrapper-shaped input silently matched nothing.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 - Agent tool annotations are admit-only: never annotate raw-mongo helpers
-  (`deal.aggregate`, `deal.updateOne`, `orders.updateOne`), system-user
-  procedures (`deal.create`, `deal.updateOne`), procedures that trust a caller
-  supplied `user` object (`deal.createItem`, `deal.editItem`), POS device-sync
-  endpoints (`pos.createOrUpdateOrders*`, `pos.confirmCover`), token-scoped
-  lookups (`pos.ecommerceGetBranches`), destructive bulk operations
-  (`deal.removeItem`), or internal plumbing (`deal.subscriptionWrapper`,
+  (`deal.aggregate`, `deal.updateOne`, `deal.findMany`, `orders.updateOne`),
+  system-user procedures (`deal.create`, `deal.updateOne`), procedures that
+  trust a caller supplied `user` object (`deal.createItem`, `deal.editItem`),
+  POS device-sync endpoints (`pos.createOrUpdateOrders*`, `pos.confirmCover`),
+  token-scoped lookups (`pos.ecommerceGetBranches`), destructive bulk
+  operations (`deal.removeItem`), or internal plumbing (`deal.subscriptionWrapper`,
   `deal.tag`, `deal.getFilterParams`, `deal.replaceContent`,
   `deal.contentIds`, `deal.generateInternalNoteNotif`, `deal.notifiedUserIds`,
   `deal.createCommentActivityLog`, `documents.editorAttributes`,
   `fields.getFieldList`). New procedures are agent-invisible unless explicitly
   annotated.
+- Cross-plugin service callers and agents must not share one input schema:
+  `deal.find` is the strict, bounded, agent-facing contract; `deal.findMany`
+  is the lax, unbounded, service-only contract. Before tightening any
+  tRPC procedure input, sweep every plugin and `erxes-api-shared` for
+  `sendTRPCMessage` callers of that procedure — `sendTRPCMessage` swallows
+  zod rejections into `defaultValue`, so a broken caller fails silently
+  with empty results instead of erroring.
 
 ## Validation
 
@@ -156,6 +169,26 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — Internal `deal.findMany` service contract
+
+- **Summary:** Restored the cross-plugin deal read path that #9102
+  unintentionally severed: `deal.find` was a shared service contract
+  (legacy dual-shape — bare Mongo filter or `{ query, search?, skip?,
+  limit?, sort? }`) before #9058 also exposed it to agents and #9102
+  tightened it for agents only. The #9102 claim that no cross-plugin
+  callers existed was wrong: accounting, mongolian (ebarimt, erkhet),
+  and tourism (4 PMS sites) called `deal.find`, and their zod-rejected
+  inputs were silently swallowed into `defaultValue: []` by
+  `sendTRPCMessage`, producing silent sync failures and empty results.
+  Added unannotated `deal.findMany` (invisible to agents) restoring the
+  exact legacy semantics and migrated all 7 call sites to it.
+- **Affected areas:** `src/modules/sales/trpc/deal.ts` (`deal.findMany`
+  added); cross-plugin callers in accounting, mongolian, and tourism
+  updated to call `deal.findMany`.
+- **Contracts changed:** `deal.find` (agent-facing, strict, bounded) is
+  unchanged; new internal `deal.findMany` (service-only, legacy dual-shape,
+  unbounded) carries the cross-plugin contract.
+
 ### `2026-08-21` — Bounded, strict agent-facing deal reads
 
 - **Summary:** `deal.find` can no longer execute unbounded or mis-shaped
@@ -167,8 +200,10 @@
   exit 139 on 2026-08-20), and `fields` now drives a real projection so
   agents stay under the 64KB agent-tools response budget. `deal.count` takes
   an explicit `{ filter? }` object for the same reason (a `{ query: ... }`
-  wrapper previously counted 0 silently). No cross-plugin tRPC callers of
-  either procedure exist, so the tightened contracts break no consumers.
+  wrapper previously counted 0 silently). The 2026-08-21 claim that no
+  cross-plugin callers existed was disproven on 2026-09-02 — see the
+  `deal.findMany` entry above; agent-facing `deal.find` behavior itself
+  is unchanged.
 - **Affected areas:** `src/modules/sales/trpc/deal.ts`.
 - **Contracts changed:** `deal.find` input is now strict
   `{ query?, skip?, limit?, sort?, fields? }` (the bare top-level filter form

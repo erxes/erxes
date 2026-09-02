@@ -137,6 +137,32 @@ export const dealTrpcRouter = t.router({
           .lean();
       }),
 
+    // Internal cross-plugin read contract (accounting, mongolian, tourism).
+    // NOT agent-callable: no `.meta({ agent })`, so it never appears in the
+    // agent-tools manifest. Restores the legacy dual-shape input of the old
+    // `deal.find` that #9102 tightened for agents: callers may pass either a
+    // bare Mongo filter (input itself is the query) or the wrapped
+    // `{ query, search?, skip?, limit?, sort? }` form. Results stay
+    // unbounded on purpose — internal callers paginate themselves or rely
+    // on `_id: { $in: ... }` lists; bounding here broke tourism
+    // availability scans and turned zod rejections into silent
+    // `defaultValue` empty arrays through sendTRPCMessage's catch.
+    findMany: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+
+      const { query, skip, limit, sort = {} } = input || {};
+
+      if (!query) {
+        return await models.Deals.find(input).lean();
+      }
+
+      return await models.Deals.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
+
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
 

@@ -87,7 +87,7 @@ const generateFilter = async (subdomain, params) => {
           pluginName: 'sales',
           method: 'query',
           module: 'deal',
-          action: 'find',
+          action: 'findMany',
           input: { ...dealsFilter },
           defaultValue: [],
         });

@@ -110,7 +110,7 @@ const checkSyncedMutations = {
       subdomain,
       pluginName: 'sales',
       module: 'deal',
-      action: 'find',
+      action: 'findMany',
       input: { _id: { $in: ids } },
       defaultValue: [],
     })) as SalesDeal[];

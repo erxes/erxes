@@ -165,7 +165,7 @@ const configQueries: Record<string, Resolver> = {
       method: 'query',
       pluginName: 'sales',
       module: 'deal',
-      action: 'find',
+      action: 'findMany',
       input: {
         query: {
           status: { $ne: ARCHIVED_DEAL_STATUS },
@@ -224,7 +224,7 @@ const configQueries: Record<string, Resolver> = {
       method: 'query',
       pluginName: 'sales',
       module: 'deal',
-      action: 'find',
+      action: 'findMany',
       input: {
         query: {
           status: { $ne: ARCHIVED_DEAL_STATUS },
@@ -281,7 +281,7 @@ const configQueries: Record<string, Resolver> = {
       pluginName: 'sales',
       method: 'query',
       module: 'deal',
-      action: 'find',
+      action: 'findMany',
       input: {
         query: {
           status: { $ne: ARCHIVED_DEAL_STATUS },
@@ -356,7 +356,7 @@ const configQueries: Record<string, Resolver> = {
       pluginName: 'sales',
       method: 'query',
       module: 'deal',
-      action: 'find',
+      action: 'findMany',
       input: {
         query: {
           status: { $ne: ARCHIVED_DEAL_STATUS },

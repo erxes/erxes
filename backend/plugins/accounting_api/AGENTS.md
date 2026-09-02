@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -68,6 +68,9 @@
 ### Consumes
 
 - Core branch, department, customer, company, product, and organization data through `sendTRPCMessage`, GraphQL, HTTP, or shared platform contracts.
+- Sales deals through the sales plugin's internal `deal.findMany` tRPC
+  contract (legacy dual-shape, not agent-facing) in
+  `src/modules/accounting/graphql/resolvers/mutations/checkSynced.ts`.
 - Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
 
 ## Data and State
@@ -111,6 +114,16 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — Deal read moved to `deal.findMany`
+
+- **Summary:** The deal lookup in `checkSynced` now calls the sales
+  plugin's internal `deal.findMany` tRPC procedure instead of
+  `deal.find`, which was tightened into a strict agent-facing contract
+  by erxes #9102 and no longer accepts this plugin's bare
+  `{ _id: { $in } }` filter shape.
+- **Affected areas:** `src/modules/accounting/graphql/resolvers/mutations/checkSynced.ts`.
+- **Contracts changed:** Internal tRPC call site only; no accounting GraphQL contract changed.
 
 ### `2026-08-17` — `Related Account Storage Shape`
 
