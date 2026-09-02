@@ -48,7 +48,10 @@ interface IPocketInvoiceStatusResponse {
   invoiceType?: string;
 }
 
-export const pocketCallbackHandler = async (models: IModels, data: IPocketCallbackData) => {
+export const pocketCallbackHandler = async (
+  models: IModels,
+  data: IPocketCallbackData,
+) => {
   const { paymentId, invoiceId } = data;
 
   if (!paymentId) {
