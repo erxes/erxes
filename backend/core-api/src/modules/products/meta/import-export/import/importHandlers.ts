@@ -10,9 +10,9 @@ const productImportMap = {
   product: {
     fileName: 'products-template.csv',
     headers: [
+      { label: 'Code', key: 'code' },
       { label: 'Name', key: 'name' },
       { label: 'Short Name', key: 'shortName' },
-      { label: 'Code', key: 'code' },
       { label: 'Description', key: 'description' },
       { label: 'Unit Price', key: 'unitPrice' },
       { label: 'UOM', key: 'uom' },
@@ -20,6 +20,8 @@ const productImportMap = {
       { label: 'Vendor ID', key: 'vendorId' },
       { label: 'Status', key: 'status' },
       { label: 'Tags', key: 'tags' },
+      { label: 'Type', key: 'type' },
+      { label: 'Barcodes', key: 'barcodes' },
     ],
     processRows: (models: IModels, rows: any[]) =>
       processProductRows(models, rows),

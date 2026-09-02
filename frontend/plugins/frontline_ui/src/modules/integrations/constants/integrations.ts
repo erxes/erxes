@@ -41,9 +41,9 @@ export const INTEGRATIONS = {
     descriptionKey: 'integration-desc-callpro',
     img: 'callpro.png',
   },
-  [IntegrationType.IMAP]: {
-    name: 'IMAP',
-    descriptionKey: 'integration-desc-imap',
+  [IntegrationType.MAIL]: {
+    name: 'Email',
+    descriptionKey: 'integration-desc-mail',
     img: 'email.webp',
   },
 };

@@ -197,11 +197,7 @@
   `salesPipelinesAdd`, and `salesPipelinesEdit`.
 - Agent-callable tRPC tools (admit-only via `.meta({ agent })`), each gated by
   the listed sales permission action:
-  - `deal.findOne`, `deal.getLink` — `showDeals`
-  - `deal.find` — `showDeals`; strict input `{ query?, skip?, limit?, sort?, fields? }`
-    (unknown keys rejected by name), always bounded (`limit` defaults to 20,
-    hard max 100), `fields` drives a real projection
-  - `deal.count` — `showDeals`; strict input `{ filter? }` (`{}` counts all)
+  - `deal.findOne`, `deal.find`, `deal.count`, `deal.getLink` — `showDeals`
   - `stage.findOne`, `stage.find` — `showDeals`
   - `pipeline.findOne` — `pipelinesWatch`
   - `pos.findOne`, `pos.find` — `posRead`
@@ -329,6 +325,8 @@
   `erxes-api-shared`.
 
 ### `2026-09-01` — Elasticsearch-era segment producers removed
+
+### `2026-08-19` — Agent-callable tRPC tools
 
 - **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
   `propertyConditionExtender` were deleted from the sales and POS modules and

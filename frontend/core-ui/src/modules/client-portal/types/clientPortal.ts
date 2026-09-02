@@ -9,6 +9,7 @@ export interface IClientPortal {
   url?: string;
   erxesIntegrationToken?: string;
   enableManualVerification?: boolean;
+  useB2B?: boolean;
   auth?: {
     authConfig?: {
       deliveryMethod?: 'cookie' | 'header';

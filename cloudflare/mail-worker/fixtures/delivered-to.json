@@ -1,0 +1,23 @@
+{
+  "to": "support-a7f3@erx.es",
+  "messageId": "<delivered-to-check-001@example.com>",
+  "references": [],
+  "from": {
+    "name": "Ganbold Ganbaatar",
+    "address": "gnbkk14@gmail.com"
+  },
+  "recipients": [
+    {
+      "address": "support-a7f3@erx.es"
+    }
+  ],
+  "cc": [],
+  "bcc": [],
+  "subject": "delivered-to check",
+  "html": "<div dir=\"ltr\">Сайн байна уу. Захиалга #1042 хэзээ ирэх вэ?</div>\n",
+  "attachments": [],
+  "envelopeFrom": "postmaster@mail-ot1-x332.google.com",
+  "headers": {
+    "delivered-to": "ganboldganbaatar647@gmail.com"
+  }
+}

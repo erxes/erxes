@@ -3,7 +3,7 @@ import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 import { graphRequest } from '@/integrations/facebook/utils';
 import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
-import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
+import { mailIntegrationDetails } from '@/integrations/mail/messageBroker';
 import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
 import { instagramStatus } from '@/integrations/instagram/messageBroker';
 import { discordStatus } from '@/integrations/discord/messageBroker';
@@ -38,8 +38,8 @@ export const integrationDetail = async (
   data: { integrationId: string },
 ) => {
   switch (serviceName) {
-    case 'imap':
-      return imapIntegrationDetails({ subdomain, data });
+    case 'mail':
+      return mailIntegrationDetails({ subdomain, data });
     default:
       return null;
   }
