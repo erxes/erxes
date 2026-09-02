@@ -74,6 +74,7 @@ export const permissions: IPermissionConfig = {
   plugin: 'accounting',
 
   modules: [
+    // --- account---
     {
       name: 'account',
       description: 'Accounting management',
@@ -143,6 +144,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- transaction---
     {
       name: 'transaction',
       description: 'Transaction management',
@@ -179,6 +181,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- vatRow---
     {
       name: 'vatRow',
       description: 'VAT row management',
@@ -210,6 +213,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- ctaxRow---
     {
       name: 'ctaxRow',
       description: 'CTax row management',
@@ -236,6 +240,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- adjustInventory---
     {
       name: 'adjustInventory',
       description: 'Inventory adjustment management',
@@ -277,6 +282,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- config---
     {
       name: 'config',
       description: 'Accounting configuration management',
@@ -303,6 +309,7 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- checkSync---
     {
       name: 'checkSync',
       description: 'Accounting check sync management',

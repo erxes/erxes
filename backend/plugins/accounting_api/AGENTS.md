@@ -135,6 +135,7 @@
 - Erkhet inventory and fixed-asset location filters map to erxes branch/department filters; report matching must accept either transaction root branch/department or detail-level branch/department while keeping selected dimensions combined with AND semantics.
 - Erkhet transaction kind filters are adapter inputs only; report aggregation must translate them to current erxes transaction `journal` values instead of adding a separate persisted transaction-kind field.
 - System opening fixed asset adjustments must stay published, dated one day before their acquisition transaction, and regenerated or removed from fixed asset income synchronization.
+- Fixed asset follow transactions (`fxaMoveIn`, `fxaOutCost`, `fxaOutDepreciation`, `fxaOutLoss`) must be created, updated, and removed from the fixed asset journal handlers; `commonRemove` owns cleanup so generated rows do not depend only on outer transaction deletion.
 - Fixed asset income explicit owner-record counts must not exceed the parent detail count for that detail; partially owner-assigned income quantities are valid and details without owner rows create no owner record unless transaction-level `followInfos.ownerId` is present.
 - Fixed asset income code is the acquisition identity; Erkhet opening balances may split one acquisition across several branch/department details, but those details must resolve to one fixed asset master row and separate owner-record rows.
 - Fixed asset disposal, sale, and move owner-record selections are optional, and selected counts are capped by the detail count instead of being required to exhaust it; saving removes prior owner-record rows for that transaction and writes fresh `handedOver` rows, while move writes a matching `received` row for the owner so owner balance remains net neutral.
@@ -166,7 +167,7 @@
 ### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
 
 - **Summary:** Made annual depreciation rate the only persisted fixed asset depreciation input, copied category rates onto income-created assets, mapped Erkhet category percentages directly, and prorated straight-line monthly depreciation by actual days in each month.
-- **Affected areas:** `src/modules/fixedAssets`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
+- **Affected areas:** `src/modules/fixedAssets`, `src/modules/accounting/utils/adjustFixedAssets.ts`, `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/commonRemove.ts`, `src/modules/accounting/routes/erkhetReferenceMigration.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
 - **Contracts changed:** Fixed asset category GraphQL accepts/returns `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset GraphQL accepts/returns `annualDepreciationRate` and `taxAnnualDepreciationRate`; Erkhet fixed asset category references accept `defaultAnnualDepreciationRate` for source `dep_year` percentages.
 
 ### `2026-09-02` — `Adjustment Costing Guardrails`

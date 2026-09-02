@@ -182,6 +182,7 @@ const FixedAssetTableHeader = ({
         )}
         {showAdvancedView && (
           <>
+            <Table.Head>Хур. элэгдэл</Table.Head>
             <Table.Head>Салбар</Table.Head>
             <Table.Head>Хэлтэс</Table.Head>
           </>

@@ -149,8 +149,8 @@
 
 ### `2026-09-02` — `Fixed Asset Annual Depreciation Rate`
 
-- **Summary:** Fixed asset category forms now synchronize useful years with annual depreciation percentage and send the annual percentage as the canonical saved value, while fixed asset settings no longer expose direct asset creation.
-- **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`, `src/modules/settings/fixed-assets`, `src/modules/inventories/safeRemainders`, `src/modules/transactions/types`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/components/documents`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
+- **Summary:** Fixed asset category forms now synchronize useful years with annual depreciation percentage and send the annual percentage as the canonical saved value, while fixed asset settings no longer expose direct asset creation and fixed asset income rows expose opening accumulated depreciation in advanced view.
+- **Affected areas:** `src/modules/settings/components/AccountingTopbar.tsx`, `src/modules/settings/fixed-assets`, `src/modules/inventories/safeRemainders`, `src/modules/transactions/types`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/components/documents`, `src/modules/transactions/transaction-form/components/forms/FxaIncomeForm`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
 - **Contracts changed:** Consumes `defaultAnnualDepreciationRate`, `defaultTaxAnnualDepreciationRate`, `annualDepreciationRate`, and `taxAnnualDepreciationRate`.
 
 ### `2026-08-29` — `Fixed Asset Remainder Navigation`

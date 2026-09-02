@@ -14,6 +14,17 @@ import {
 
 export type TCommonRemoveOptions = TFxaIncomeDetailRemoveOptions;
 
+const removeFollowTransactions = async (
+  models: IModels,
+  transactionId: string,
+  originTypes: string[],
+) => {
+  await models.Transactions.deleteMany({
+    originId: transactionId,
+    originType: { $in: originTypes },
+  });
+};
+
 export const commonRemove = async (
   subdomain: string,
   models: IModels,
@@ -157,6 +168,11 @@ async function handleFxaOut(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaDisposalInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_OUT_COST,
+    TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+    TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+  ]);
   await rebuildFixedAssetCurrentCounts(
     models,
     getUniqueFxaOwnerRecordIds(
@@ -177,6 +193,9 @@ async function handleFxaMove(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaMoveInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_MOVE_IN,
+  ]);
   await rebuildFixedAssetCurrentCounts(
     models,
     getUniqueFxaOwnerRecordIds(
@@ -197,6 +216,11 @@ async function handleFxaSale(
   _options?: TCommonRemoveOptions,
 ) {
   await removeFxaDisposalInstances(models, transaction);
+  await removeFollowTransactions(models, transaction._id, [
+    TR_FOLLOW_TYPES.FXA_OUT_COST,
+    TR_FOLLOW_TYPES.FXA_OUT_DEPRECIATION,
+    TR_FOLLOW_TYPES.FXA_OUT_LOSS,
+  ]);
   await rebuildFixedAssetCurrentCounts(
     models,
     getUniqueFxaOwnerRecordIds(

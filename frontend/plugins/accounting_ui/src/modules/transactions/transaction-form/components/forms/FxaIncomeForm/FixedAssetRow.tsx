@@ -78,6 +78,11 @@ export const FixedAssetRow = ({
   const [taxAmounts, setTaxAmounts] = useState(() =>
     calcTaxAmounts(detail.count, detail.unitPrice),
   );
+  const followInfoIndex = (trDoc.followInfos?.fxaIncomeDetails || []).findIndex(
+    (followInfo) =>
+      followInfo.transactionDetailId === detail?._id ||
+      followInfo.tempId === detail?._id,
+  );
 
   useEffect(() => {
     if (!(trDoc.hasVat || trDoc.hasCtax)) {
@@ -470,12 +475,48 @@ export const FixedAssetRow = ({
         </>
       )}
       {showAdvancedView && (
-        <FxaDetailLocationCells
-          detailId={detail._id}
-          detailIndex={detailIndex}
-          form={form}
-          journalIndex={journalIndex}
-        />
+        <>
+          <RecordTableHotKeyControl
+            rowId={detail._id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              {followInfoIndex >= 0 ? (
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.followInfos.fxaIncomeDetails.${followInfoIndex}.openingAccumulatedDepreciation`}
+                  render={({ field }) => (
+                    <PopoverScoped
+                      scope={`trDocs.${journalIndex}.details.${detailIndex}.openingAccumulatedDepreciation`}
+                      closeOnEnter
+                    >
+                      <Form.Control>
+                        <RecordTableInlineCell.Trigger>
+                          {(field.value || 0).toLocaleString()}
+                        </RecordTableInlineCell.Trigger>
+                      </Form.Control>
+                      <RecordTableInlineCell.Content>
+                        <CurrencyField.ValueInput
+                          value={field.value ?? 0}
+                          onChange={(value) => field.onChange(value || 0)}
+                        />
+                      </RecordTableInlineCell.Content>
+                    </PopoverScoped>
+                  )}
+                />
+              ) : (
+                <RecordTableInlineCell>0</RecordTableInlineCell>
+              )}
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <FxaDetailLocationCells
+            detailId={detail._id}
+            detailIndex={detailIndex}
+            form={form}
+            journalIndex={journalIndex}
+          />
+        </>
       )}
     </Table.Row>
   );
