@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';

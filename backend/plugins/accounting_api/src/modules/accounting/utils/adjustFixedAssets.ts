@@ -10,7 +10,7 @@ import {
   TR_SIDES,
   TR_STATUSES,
 } from '../@types/constants';
-import { ITransaction, ITransactionDocument } from '../@types/transaction';
+import { ITransaction } from '../@types/transaction';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '~/modules/fixedAssets/@types/constants';
 import { IFixedAssetDocument } from '~/modules/fixedAssets/@types/fixedAsset';
 

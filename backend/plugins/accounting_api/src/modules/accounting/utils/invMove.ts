@@ -30,8 +30,8 @@ class InvMoveInTrs {
       this.trDoc.followInfos;
 
     // Зарим Erkhet location erxes дээр зөвхөн branch-р илэрхийлэгддэг.
-    // Тиймээс branch заавал, department optional байна.
-    if (!moveInBranchId) {
+    // Тиймээс branch department ядаж нэг нь заавал бөглөгдсөн байх ёстой
+    if (!moveInBranchId && !moveInDepartmentId) {
       throw new Error('Must fill move in branch');
     }
 
