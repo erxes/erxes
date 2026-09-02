@@ -8,7 +8,6 @@ import callProQueries from '@/integrations/callpro/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
-import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
@@ -30,7 +29,6 @@ export const queries = {
   ...instagramQueries,
   ...callQueries,
   ...callProQueries,
-  ...imapQueries,
   ...ticketQueries,
   ...widgetQueries,
   ...responseTemplateQueries,

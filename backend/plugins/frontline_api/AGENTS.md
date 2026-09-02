@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -21,7 +21,7 @@
   and external kinds.
 - Channel integration runtimes hosted in this service and their webhook
   ingestion, message delivery, and bot automation: Facebook (Messenger + Page
-  comments), Instagram, IMAP, Discord, Call (SIP/CDR), and Call Pro (webhook
+  comments), Instagram, Discord, Call (SIP/CDR), and Call Pro (webhook
   PBX).
 - Response templates.
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
@@ -84,7 +84,7 @@
 - Logs Facebook Graph delivery failures with provider error metadata and request
   context while excluding outbound message content; comment-triggered bot flows
   do not send Messenger typing indicators.
-- Boots the Call app, the IMAP poller, and the Discord gateway client from
+- Boots the Call app and the Discord gateway client from
   `onServerInit`.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
@@ -109,7 +109,7 @@
 | Channels             | `src/modules/channel/`                                                      | Channel + ChannelMember models, schema, resolvers, role checks                                          |
 | Inbox                | `src/modules/inbox/`                                                        | Conversations, messages, integrations, widget/clientportal schemas, `receiveInboxMessage`               |
 | Conversation queries | `src/conversationQueryBuilder.ts`, `src/modules/inbox/conversationUtils.ts` | Mongo and Elasticsearch conversation filters (membership-scoped)                                        |
-| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, imap, discord, call, callpro, trpc                                                 |
+| Integrations         | `src/modules/integrations/<kind>/`                                          | facebook, instagram, discord, call, callpro, trpc                                                       |
 | Call Pro             | `src/modules/integrations/callpro/`                                         | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL            |
 | Call reporting       | `src/modules/reports/callReportService.ts`                                  | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                      |
 | FB automation        | `src/modules/integrations/facebook/meta/automation/`                        | Comment/message triggers and actions, bot message generation                                            |
@@ -321,7 +321,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
-  `CallPro*`, `Discord*`, `Imap*`, plus inbox (`Conversations`,
+  `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
 - Call Pro owns four collections: `integrations_callpro` (unique
@@ -839,10 +839,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
 - No `test` target is defined in `project.json`; do not invent one.
-- Smoke: connect an IMAP account without a `channelId` → a `Personal inbox`
-  channel is created with one admin member and the integration attaches to it;
-  a second connect reuses the same channel; the same holds for a non-mailbox
-  kind such as a webhook; creating an integration against another user's
+- Smoke: connect a Call Pro integration without a `channelId` → a
+  `Personal inbox` channel is created with one admin member and the integration
+  attaches to it; a second connect reuses the same channel; the same holds for a
+  webhook kind; creating an integration against another user's
   personal `channelId` is rejected; `channelAddMembers` on it fails; no user's
   `getChannels` lists it — not even the owner's.
 - Smoke: comment on a subscribed Facebook page post that matches an active
@@ -867,6 +867,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — IMAP integration removed
+
+- **Summary:** Deleted the IMAP mailbox integration end to end — the poller/listener, mail client, message processor/saver, models, GraphQL schema and resolvers, and every `imap` branch in the shared integration create/update/remove, detail, and kind-label paths.
+- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`, `src/connectionResolvers.ts`, `src/apollo/schema/schema.ts`, `src/apollo/resolvers/{queries,mutations}.ts`, `src/modules/inbox/graphql/resolvers/customResolvers/integration.ts`, `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`, `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`, `src/shared/types.ts`, `package.json`
+- **Contracts changed:** Removed the `imap*` GraphQL queries and mutations and the `imap` integration kind; the `Integration.details` custom resolver is gone (the field still resolves from the document, which was already `null`).
 
 ### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
 
@@ -1028,17 +1034,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
   `metaShareCount`, `metaSyncedAt`; the post document gained the same four
   optional fields.
-
-### `2026-08-18` — Facebook report aggregations
-
-- **Summary:** Added a Facebook reporting surface over the plugin's own
-  Messenger, comment, and post collections — page list, KPI summary, daily
-  activity series, per-post engagement, and per-bot coverage — with page and
-  date scoping, plus `pageIds` on the saved-chart filter set so a saved
-  Facebook card restores its page selection.
-- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
-  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
-- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
-  types, and five `reportFacebook*` queries; `TicketReportFilter`,
-  `ReportChartFilters`, and the stored chart filters gained `pageIds`.

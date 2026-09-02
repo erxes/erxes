@@ -37,12 +37,6 @@ const CallProIntegrationActions = lazy(() =>
   })),
 );
 
-const ImapIntegrationActions = lazy(() =>
-  import('../imap/components/ImapIntegrationDetail').then((module) => ({
-    default: module.ImapIntegrationActions,
-  })),
-);
-
 const InstagramIntegrationActions = lazy(() =>
   import('../instagram/components/InstagramIntegrationDetail').then(
     (module) => ({
@@ -87,9 +81,6 @@ export const IntegrationMoreColumnCell = ({
                 )}
                 {integrationType === IntegrationType.CALLPRO && (
                   <CallProIntegrationActions cell={cell} />
-                )}
-                {integrationType === IntegrationType.IMAP && (
-                  <ImapIntegrationActions cell={cell} />
                 )}
                 {(integrationType === IntegrationType.INSTAGRAM_MESSENGER ||
                   integrationType === IntegrationType.INSTAGRAM_POST) && (

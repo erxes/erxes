@@ -13,11 +13,6 @@ import {
   callUpdateIntegration,
 } from '@/integrations/call/messageBroker';
 import {
-  imapCreateIntegration,
-  imapUpdateIntegration,
-  imapRemoveIntegrations,
-} from '~/modules/integrations/imap/messageBroker';
-import {
   facebookCreateIntegrations,
   facebookRemoveAccount,
   facebookRemoveIntegrations,
@@ -83,9 +78,6 @@ export const sendCreateIntegration = async (
         return await facebookCreateIntegrations({ subdomain, data });
       case 'calls':
         return await callCreateIntegration({ subdomain, data });
-      case 'imap':
-        return await imapCreateIntegration({ subdomain, data });
-
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });
 
@@ -128,9 +120,6 @@ export const sendUpdateIntegration = async (
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
         return await instagramUpdateIntegrations({ subdomain, data });
-      case 'imap':
-        return await imapUpdateIntegration({ subdomain, data });
-
       case 'callpro':
         return await callProUpdateIntegration({ subdomain, data });
 
@@ -160,9 +149,6 @@ export const sendRemoveIntegration = async (
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
         return await instagramRemoveIntegrations({ subdomain, data });
-      case 'imap':
-        return await imapRemoveIntegrations({ subdomain, data });
-
       case 'discord':
         return await discordRemoveIntegrations({ subdomain, data });
 

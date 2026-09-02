@@ -99,11 +99,6 @@ const COLLECTIONS = [
   'calls_queue_statistics',
   'calls_sessions',
 
-  // imap
-  'imap_customers',
-  'imap_integrations',
-  'imap_messages',
-  'imap_logs',
 
   // form
   'frontline_form_fields',
@@ -133,8 +128,6 @@ const UNIQUE_FIELDS: Record<string, string[]> = {
   calls_cdr: ['acctId'],
   calls_integrations: ['srcTrunk', 'dstTrunk'],
   calls_history: ['uniqueid'],
-  imap_integrations: ['email'],
-  imap_messages: ['messageId'],
   knowledgebase_articles: ['code'],
   knowledgebase_categories: ['code'],
   knowledgebase_topics: ['code'],

@@ -926,7 +926,7 @@ export const inboxTrpcRouter = t.router({
     getIntegrationKinds: t.procedure
       .meta(
         agentMeta(
-          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, imap, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
+          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, callpro, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
           { module: 'integration', action: 'showIntegrations' },
         ),
       )

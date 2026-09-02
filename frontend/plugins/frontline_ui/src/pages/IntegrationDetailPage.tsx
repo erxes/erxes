@@ -24,14 +24,6 @@ const FacebookIntegrationDetail = lazy(() =>
   ),
 );
 
-const ImapIntegrationDetail = lazy(() =>
-  import('@/integrations/imap/components/ImapIntegrationDetail').then(
-    (module) => ({
-      default: module.ImapIntegrationDetail,
-    }),
-  ),
-);
-
 const CallIntegrationDetail = lazy(() =>
   import('@/integrations/call/components/CallIntegrationDetail').then(
     (module) => ({
@@ -119,7 +111,6 @@ export const IntegrationDetailPage = () => {
         {integrationType === IntegrationType.CALLPRO && (
           <CallProIntegrationDetail />
         )}
-        {integrationType === IntegrationType.IMAP && <ImapIntegrationDetail />}
         {integrationType === IntegrationType.INSTAGRAM_MESSENGER && (
           <InstagramIntegrationDetail />
         )}

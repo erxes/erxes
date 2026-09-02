@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -18,7 +18,7 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
-- Integration connect/detail UIs for IMAP, Facebook, Instagram, Discord, calls,
+- Integration connect/detail UIs for Facebook, Instagram, Discord, calls,
   Call Pro, and the erxes messenger.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
@@ -298,7 +298,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `useRestoreTicketChartFilters` writes a saved chart back into them once per
   mount.
 - Jotai atoms for plugin-wide UI state (`channelCreateSheetOpenState`,
-  `imapFormSheetAtom`, hotkey scopes); `useQueryState` for URL-backed filters
+  hotkey scopes); `useQueryState` for URL-backed filters
   such as `channelId`; component-local state stays in `useState`. `Team inbox`
   has no sort control and holds no sort state — the order is whatever
   `getMyChannels` returns.
@@ -314,7 +314,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
-- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
+- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
 - `ReplyMessageProvider` is the single source of message-sequence state for the
@@ -680,6 +680,12 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — IMAP integration removed
+
+- **Summary:** Deleted the IMAP integration UI — connect form, integration detail/actions, mail conversation detail and its send-mail hook, GraphQL documents, and atoms — plus every `IntegrationType.IMAP` branch, the `imap` kind entries in the integration catalogue/icons/chips, and the now-unused `hideMessageInputState` atom the mail composer drove.
+- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/modules/types/Integration.ts`, `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`, `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`, `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`, `src/modules/inbox/conversations/conversation-detail/{components/ConversationDetail.tsx,components/MessageInput.tsx,states/isInternalState.ts}`, `src/pages/IntegrationDetailPage.tsx`, `src/assets/email.webp`
+- **Contracts changed:** Removed the `IntegrationType.IMAP` enum member, the `imap*` GraphQL operations, and the `hideMessageInputState` atom.
+
 ### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
 
 - **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
@@ -801,16 +807,3 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
 - **Contracts changed:** Consumes the new `frontline_api` query
   `callHeatmapDaily`.
-
-### `2026-08-20` — No answer on the volume chart and heatmap
-
-- **Summary:** Call Volume Over Time now plots a No answer series next to
-  Answered, and Hour × Day Heatmap gained a Total calls / Answered / No answer
-  `ToggleGroup` that repaints the grid from the selected metric, with the
-  answered and no-answer counts added to every cell's tooltip.
-- **Affected areas:**
-  `src/modules/report/call/components/OverviewSection/{VolumeChart,HeatmapChart}.tsx`,
-  `src/modules/report/call/types.ts`,
-  `src/modules/integrations/call/graphql/queries/callStatistics.ts`.
-- **Contracts changed:** `CallVolumeSeries` and `CallHeatmap` now select the new
-  `noAnswer` field from `frontline_api`.
