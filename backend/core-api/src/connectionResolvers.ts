@@ -170,6 +170,7 @@ import {
   loadClass as loadExecutionClass,
 } from './modules/automations/db/models/Executions';
 import {
+  IBroadcastEmailTemplateDocument,
   IDeliveryReportsDocument,
   IEngageMessageDocument,
   ISmsRequestDocument,
@@ -190,6 +191,10 @@ import {
   IEngageMessageModel,
   loadEngageMessageClass,
 } from './modules/broadcast/db/models/Engages';
+import {
+  IBroadcastEmailTemplateModel,
+  loadBroadcastEmailTemplateClass,
+} from './modules/broadcast/db/models/EmailTemplates';
 import {
   ISmsRequestModel,
   loadSmsRequestClass,
@@ -351,6 +356,7 @@ export interface IModels {
   AiAgents: Model<AiAgentDocument>;
   ActivityLogs: IActivityLogsModel;
   EngageMessages: IEngageMessageModel;
+  BroadcastEmailTemplates: IBroadcastEmailTemplateModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
   SmsRequests: ISmsRequestModel;
@@ -655,6 +661,11 @@ export const loadClasses = (
     'broadcast_engage_messages',
     loadEngageMessageClass(models, subdomain),
   );
+
+  models.BroadcastEmailTemplates = db.model<
+    IBroadcastEmailTemplateDocument,
+    IBroadcastEmailTemplateModel
+  >('broadcast_email_templates', loadBroadcastEmailTemplateClass(models));
 
   models.DeliveryReports = db.model<
     IDeliveryReportsDocument,
