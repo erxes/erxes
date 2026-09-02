@@ -273,7 +273,11 @@ export const TicketsBoardCards = ({
           />
         )}
       </Board.Header>
-      <Board.Cards id={column.id} items={boardCards.map((ticket) => ticket.id)}>
+      <Board.Cards
+        className="max-w-80"
+        id={column.id}
+        items={boardCards.map((ticket) => ticket.id)}
+      >
         {loading ? (
           <SkeletonArray
             className="p-24 w-full rounded shadow-xs opacity-80"
