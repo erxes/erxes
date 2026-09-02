@@ -200,8 +200,18 @@ export const dealTrpcRouter = t.router({
                 filter,
                 {
                   $or: [
-                    { name: { $regex: escapeRegExp(wrapped.search), $options: 'i' } },
-                    { number: { $regex: escapeRegExp(wrapped.search), $options: 'i' } },
+                    {
+                      name: {
+                        $regex: escapeRegExp(wrapped.search),
+                        $options: 'i',
+                      },
+                    },
+                    {
+                      number: {
+                        $regex: escapeRegExp(wrapped.search),
+                        $options: 'i',
+                      },
+                    },
                     {
                       description: {
                         $regex: escapeRegExp(wrapped.search),
