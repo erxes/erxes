@@ -561,8 +561,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   comment can never make them a subscriber.
 - Every client-portal-facing note resolver filters on `type: 'comment'`.
   Internal notes must never reach the portal.
-- Comments raise a `COMMENT` activity, not a `NOTE` one, so the ticket timeline
-  and the comment thread stay separate surfaces over one subscription.
+- Comments raise a `COMMENT` activity, not a `NOTE` one. The distinction is what
+  lets a client tell the two apart on the shared activity subscription.
+- Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
+  `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
+  _every_ ticket list, not only pipeline-scoped ones. Without a
+  `filter.pipelineId` the in-scope pipelines are loaded (by `channelId` when
+  present) and each restricted pipeline contributes its own
+  `{ pipelineId, <rule> }` branch to an `$or`, with unrestricted pipelines
+  passing through a `$nin`. Adding a rule means extending
+  `buildVisibilityCondition`, never the pipeline-scoped branch alone.
+- Tickets in a private pipeline the user is not a member of are excluded from
+  unscoped lists too, not just rejected on the pipeline-scoped query.
+- `isCheckDate` means `createdAt >= start of the server's current day`.
+- `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
+  where that member picker is nested under the "my tickets only" toggle.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1295,6 +1308,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   lint the files you touched)
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
+- Smoke: turn on "Show only tickets assigned to the user" for one pipeline,
+  then open the channel ticket list (no `pipelineId` in the URL); only that
+  pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
@@ -1338,6 +1354,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+
+### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
+
+- **Summary:** All four pipeline visibility rules were dead on the channel
+  ticket list: `generateFilter` only consulted the pipeline when the query
+  carried a `filter.pipelineId`, and the channel page never sends one, so every
+  ticket in the channel was returned. `isCheckDate` was additionally never
+  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
+  pipeline access gates rather than the per-ticket filters their labels promise.
+  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
+  unscoped lists, which also stops private-pipeline tickets leaking there.
+- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
+- **Contracts changed:** None (`getTickets` arguments are unchanged).
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1507,9 +1537,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
   `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
   `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
