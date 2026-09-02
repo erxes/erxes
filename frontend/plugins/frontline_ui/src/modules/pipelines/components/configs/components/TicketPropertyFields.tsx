@@ -235,19 +235,26 @@ export const TicketPropertyFields = ({ form }: Props) => {
     insert(Math.min(insertAt, selectedFields.length), toPropertyValue(field));
   };
 
+  const groupRank = (groupId?: string | null) => {
+    const position = groupIds.indexOf(groupId ?? '');
+
+    return position === -1 ? groupIds.length : position;
+  };
+
   const toggleGroup = (group: PropertyGroup, checked: boolean) => {
     const values = form.getValues('propertyFields') ?? [];
     const groupFieldIds = new Set(group.groupFields.map((field) => field._id));
 
     replace(
-      checked
+      (checked
         ? [
             ...values,
             ...group.groupFields
               .filter((field) => indexOfSelected(field._id) === -1)
               .map(toPropertyValue),
           ]
-        : values.filter((value) => !groupFieldIds.has(value.fieldId)),
+        : values.filter((value) => !groupFieldIds.has(value.fieldId))
+      ).sort((a, b) => groupRank(a.groupId) - groupRank(b.groupId)),
     );
   };
 
