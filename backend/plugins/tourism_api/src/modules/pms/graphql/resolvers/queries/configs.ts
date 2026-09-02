@@ -6,6 +6,73 @@ import { IContext } from '~/connectionResolvers';
 const escapeRegExp = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+type PmsDeal = {
+  _id: string;
+  productsData?: Array<{
+    productId: string;
+    startDate?: Date;
+    endDate?: Date;
+  }>;
+  startDate: Date;
+  closeDate: Date;
+};
+
+// Shared PMS deal scan: resolve the pipeline's non-skipped stages, then read
+// deals through the sales plugin's internal `deal.findMany` tRPC contract.
+// `query` carries the caller-specific date/product conditions; `search`,
+// `skip`, and `limit` flow through to the paginated room-list queries.
+const fetchPmsDeals = async ({
+  subdomain,
+  pipelineId,
+  skipStageIds,
+  query,
+  search,
+  skip,
+  limit,
+}: {
+  subdomain: string;
+  pipelineId: string;
+  skipStageIds?: string[];
+  query: Record<string, unknown>;
+  search?: string;
+  skip?: number;
+  limit?: number;
+}): Promise<PmsDeal[]> => {
+  const stages = await sendTRPCMessage({
+    subdomain,
+    method: 'query',
+    pluginName: 'sales',
+    module: 'stage',
+    action: 'find',
+    input: { pipelineId },
+  });
+
+  const stageIds = stages?.map((x) => x._id) || [];
+  const stageIdFilter = stageIds.filter(
+    (item) => !skipStageIds?.includes(item),
+  );
+
+  const deals = await sendTRPCMessage({
+    subdomain,
+    method: 'query',
+    pluginName: 'sales',
+    module: 'deal',
+    action: 'findMany',
+    input: {
+      query: {
+        status: { $ne: ARCHIVED_DEAL_STATUS },
+        stageId: { $in: stageIdFilter },
+        ...query,
+      },
+      ...(search ? { search } : {}),
+      ...(skip !== undefined ? { skip } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+    },
+  });
+
+  return (deals as PmsDeal[]) || [];
+};
+
 const getFilteredProducts = async ({
   subdomain,
   categoryIds,
@@ -148,42 +215,22 @@ const configQueries: Record<string, Resolver> = {
     },
     { subdomain }: IContext,
   ) {
-    const stages = await sendTRPCMessage({
+    return fetchPmsDeals({
       subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'stage',
-      action: 'find',
-      input: { pipelineId: pipelineId },
-    });
-
-    const stageIds = stages?.map((x) => x._id) || [];
-    const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
-
-    const deals = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'deal',
-      action: 'findMany',
-      input: {
-        query: {
-          status: { $ne: ARCHIVED_DEAL_STATUS },
-          stageId: { $in: newArray },
-          productsData: {
-            $elemMatch: {
-              startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
-              endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
-            },
+      pipelineId,
+      skipStageIds,
+      query: {
+        productsData: {
+          $elemMatch: {
+            startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
+            endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
           },
         },
-        search,
-        skip: (page - 1) * perPage,
-        limit: perPage,
       },
+      search,
+      skip: (page - 1) * perPage,
+      limit: perPage,
     });
-
-    return deals || [];
   },
 
   async cpPmsRooms(
@@ -207,41 +254,23 @@ const configQueries: Record<string, Resolver> = {
     },
     { models, subdomain }: IContext,
   ) {
-    const stages = await sendTRPCMessage({
+    const deals = await fetchPmsDeals({
       subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'stage',
-      action: 'find',
-      input: { pipelineId: pipelineId },
-    });
-
-    const stageIds = stages?.map((x) => x._id) || [];
-    const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
-
-    const deals = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'deal',
-      action: 'findMany',
-      input: {
-        query: {
-          status: { $ne: ARCHIVED_DEAL_STATUS },
-          stageId: { $in: newArray },
-          productsData: {
-            $elemMatch: {
-              startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
-              endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
-            },
+      pipelineId,
+      skipStageIds,
+      query: {
+        productsData: {
+          $elemMatch: {
+            startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
+            endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
           },
         },
-        search,
-        skip: (page - 1) * perPage,
-        limit: perPage,
       },
+      search,
+      skip: (page - 1) * perPage,
+      limit: perPage,
     });
-    return deals || [];
+    return deals;
   },
 
   async pmsCheckRooms(
@@ -261,38 +290,20 @@ const configQueries: Record<string, Resolver> = {
     },
     { models, subdomain }: IContext,
   ) {
-    const stages = await sendTRPCMessage({
-      subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'stage',
-      action: 'find',
-      input: { pipelineId: pipelineId },
-    });
-
-    const stageIds = stages?.map((x) => x._id) || [];
-    const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
-
     const searchStart = new Date(startDate);
     const searchEnd = new Date(endDate);
 
-    const deals = await sendTRPCMessage({
+    const deals = await fetchPmsDeals({
       subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'deal',
-      action: 'findMany',
-      input: {
-        query: {
-          status: { $ne: ARCHIVED_DEAL_STATUS },
-          stageId: { $in: newArray },
-          // 1. Broad filter: Find any deal that touches our range and has our rooms
-          productsData: {
-            $elemMatch: { productId: { $in: ids } },
-          },
-          startDate: { $lt: searchEnd },
-          closeDate: { $gt: searchStart },
+      pipelineId,
+      skipStageIds,
+      query: {
+        // 1. Broad filter: Find any deal that touches our range and has our rooms
+        productsData: {
+          $elemMatch: { productId: { $in: ids } },
         },
+        startDate: { $lt: searchEnd },
+        closeDate: { $gt: searchStart },
       },
     });
 
@@ -339,37 +350,19 @@ const configQueries: Record<string, Resolver> = {
     },
     { models, subdomain }: IContext,
   ) {
-    const stages = await sendTRPCMessage({
+    const deals = await fetchPmsDeals({
       subdomain,
-      method: 'query',
-      pluginName: 'sales',
-      module: 'stage',
-      action: 'find',
-      input: { pipelineId: pipelineId },
-    });
-
-    const stageIds = stages?.map((x) => x._id) || [];
-    const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
-
-    const deals = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'deal',
-      action: 'findMany',
-      input: {
-        query: {
-          status: { $ne: ARCHIVED_DEAL_STATUS },
-          stageId: { $in: newArray },
-          productsData: {
-            $elemMatch: {
-              productId: { $in: ids },
-              startDate: {
-                $lte: new Date(endDate), // 🔥 important
-              },
-              endDate: {
-                $gte: new Date(startDate), // 🔥 important
-              },
+      pipelineId,
+      skipStageIds,
+      query: {
+        productsData: {
+          $elemMatch: {
+            productId: { $in: ids },
+            startDate: {
+              $lte: new Date(endDate), // 🔥 important
+            },
+            endDate: {
+              $gte: new Date(startDate), // 🔥 important
             },
           },
         },

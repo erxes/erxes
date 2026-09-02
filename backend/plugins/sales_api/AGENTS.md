@@ -84,8 +84,12 @@
   annotation): accepts the legacy dual-shape input of the pre-#9102
   `deal.find` — a bare Mongo filter (input itself is the query) or the
   wrapped `{ query, search?, skip?, limit?, sort? }` form with unbounded
-  results. Consumed by accounting (`checkSynced`), mongolian
-  (`ebarimt`, `erkhet checkSynced`), and tourism (`pms configs`, 4 sites).
+  results (`limit` 0 = unbounded, kept for tourism availability scans).
+  `search` expands to the sales name/number/description/date predicate
+  composed with `query` under `$and`. Input is a zod union validating
+  `skip`/`limit` as non-negative integers while preserving Mongo
+  operators. Consumed by accounting (`checkSynced`), mongolian
+  (`ebarimt`, `erkhet checkSynced`), and tourism (`pms configs`).
 - Record reference resolvers under `src/modules/sales/meta/references`.
 - Sales metadata and automation contracts under `src/modules/sales/meta`.
 
@@ -168,6 +172,20 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — Review hardening of `deal.findMany`
+
+- **Summary:** Addressed PR #9207 review findings: `deal.findMany` input
+  is now a zod union (bare record or wrapped
+  `{ query, search?, skip?, limit?, sort? }` with non-negative integer
+  `skip`/`limit`) instead of `z.any()`, and the previously dropped
+  `search` key now expands to the sales name/number/description/date
+  predicate composed with `query` under `$and`, so tourism PMS room
+  searches filter correctly.
+- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
+- **Contracts changed:** `deal.findMany` wrapped input now honors
+  `search`; malformed inputs (non-object, negative skip/limit) are
+  rejected instead of reaching Mongo.
 
 ### `2026-09-02` — Internal `deal.findMany` service contract
 

@@ -106,14 +106,23 @@ const checkSyncedMutations = {
       return result;
     }
 
+    // Distinguish an unavailable sales service from a valid empty match:
+    // defaultValue is null here so a disabled/failed sales plugin surfaces
+    // as an error for every requested deal instead of being silently
+    // skipped as "nothing to sync".
     const deals = (await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
       module: 'deal',
       action: 'findMany',
       input: { _id: { $in: ids } },
-      defaultValue: [],
-    })) as SalesDeal[];
+      defaultValue: null,
+    })) as SalesDeal[] | null;
+
+    if (deals === null) {
+      result.error.push(...ids);
+      return result;
+    }
 
     for (const deal of deals || []) {
       const config = rule.value;

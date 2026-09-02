@@ -71,6 +71,9 @@
 - Sales deals through the sales plugin's internal `deal.findMany` tRPC
   contract (legacy dual-shape, not agent-facing) in
   `src/modules/accounting/graphql/resolvers/mutations/checkSynced.ts`.
+  The call fails closed: `defaultValue: null` distinguishes an
+  unavailable/failed sales service from a valid empty match, and every
+  requested deal id is reported in `error` when sales is unreachable.
 - Shared backend utilities, cursor pagination helpers, pubsub, and service startup APIs from `erxes-api-shared`.
 
 ## Data and State
@@ -114,6 +117,16 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — Deal sync fails closed on unreachable sales service
+
+- **Summary:** `accountingSyncDeals`'s `deal.findMany` call now uses
+  `defaultValue: null` so a disabled or failed sales plugin surfaces
+  every requested deal id in the `error` result list instead of being
+  silently skipped as an empty match (PR #9207 review finding).
+- **Affected areas:** `src/modules/accounting/graphql/resolvers/mutations/checkSynced.ts`.
+- **Contracts changed:** `accountingSyncDeals` result semantics on
+  sales-service failure: ids move to `error` instead of vanishing.
 
 ### `2026-09-02` — Deal read moved to `deal.findMany`
 

@@ -78,6 +78,10 @@
   must not be replaced by the strict agent-facing `deal.find` contract.
 - Availability scans intentionally request unbounded results; keep them
   on `deal.findMany`, never on the capped agent-facing `deal.find`.
+- All four PMS deal-scan resolvers share the `fetchPmsDeals` helper
+  (stage resolution + `deal.findMany`); add new scans there instead of
+  duplicating the stage-filter block (SonarCloud new-code duplication
+  gate is ≤ 3%).
 - `sendTRPCMessage` returns `defaultValue` on any error, including input
   schema rejections; validate integration results defensively instead of
   assuming an empty array means "no data".
@@ -91,6 +95,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-02` — Shared `fetchPmsDeals` helper and working `search`
+
+- **Summary:** Extracted the four duplicated stage-resolution +
+  `deal.findMany` blocks into one `fetchPmsDeals` helper (resolves the
+  SonarCloud new-code duplication gate), and the `search` argument now
+  flows through to sales `deal.findMany` — it was silently dropped by
+  the old handler, so room-list searches returned non-matching deals
+  (PR #9207 review findings).
+- **Affected areas:** `src/modules/pms/graphql/resolvers/queries/configs.ts`.
+- **Contracts changed:** None in tourism GraphQL; behavior change is
+  that `pmsRooms`/`cpPmsRooms` now actually filter by `search`.
 
 ### `2026-09-02` — Deal reads moved to `deal.findMany`
 

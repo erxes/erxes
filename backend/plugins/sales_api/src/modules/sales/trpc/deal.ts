@@ -1,5 +1,9 @@
 import { initTRPC } from '@trpc/server';
-import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  escapeRegExp,
+  ITRPCContext,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import type { SortOrder } from 'mongoose';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
@@ -10,6 +14,7 @@ import {
 } from '~/modules/sales/graphql/resolvers/mutations/utils';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
 import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
+import { getCreatedAtSearchFilter } from '~/modules/sales/utils';
 import {
   convertNestedDate,
   generateAmounts,
@@ -93,6 +98,25 @@ const dealCountInput = z
   })
   .strict();
 
+// Internal deal.findMany contract: the exact legacy dual-shape input of the
+// pre-#9102 `deal.find` — either a bare Mongo filter (the input itself is the
+// query) or the wrapped `{ query, search?, skip?, limit?, sort? }` form.
+// `search` must keep flowing through: tourism PMS callers pass it, and the
+// old handler silently dropped it. `skip`/`limit` stay non-negative so
+// `limit(0)` keeps meaning "unbounded" for availability scans.
+const dealFindManyWrappedInput = z.object({
+  query: z.record(z.unknown()),
+  search: z.string().optional(),
+  skip: z.number().int().min(0).optional(),
+  limit: z.number().int().min(0).optional(),
+  sort: z.record(z.unknown()).optional(),
+});
+
+const dealFindManyInput = z.union([
+  dealFindManyWrappedInput,
+  z.record(z.unknown()),
+]);
+
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure
@@ -147,21 +171,60 @@ export const dealTrpcRouter = t.router({
     // on `_id: { $in: ... }` lists; bounding here broke tourism
     // availability scans and turned zod rejections into silent
     // `defaultValue` empty arrays through sendTRPCMessage's catch.
-    findMany: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
+    findMany: t.procedure
+      .input(dealFindManyInput)
+      .query(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
 
-      const { query, skip, limit, sort = {} } = input || {};
+        // Bare-record form: input is the Mongo filter itself. Wrapped form:
+        // `search` expands into the same name/number/description/createdAt
+        // predicate the sales board uses, composed with the caller's query.
+        let filter: Record<string, unknown>;
+        let skip: number | undefined;
+        let limit: number | undefined;
+        let sort: Record<string, unknown>;
 
-      if (!query) {
-        return await models.Deals.find(input).lean();
-      }
+        if ('query' in input) {
+          const wrapped = input as z.infer<typeof dealFindManyWrappedInput>;
 
-      return await models.Deals.find(query)
-        .skip(skip || 0)
-        .limit(limit || 0)
-        .sort(sort)
-        .lean();
-    }),
+          filter = wrapped.query;
+          skip = wrapped.skip;
+          limit = wrapped.limit;
+          sort = wrapped.sort ?? {};
+
+          if (wrapped.search?.trim()) {
+            const createdAtFilter = getCreatedAtSearchFilter(wrapped.search);
+
+            filter = {
+              $and: [
+                filter,
+                {
+                  $or: [
+                    { name: { $regex: escapeRegExp(wrapped.search), $options: 'i' } },
+                    { number: { $regex: escapeRegExp(wrapped.search), $options: 'i' } },
+                    {
+                      description: {
+                        $regex: escapeRegExp(wrapped.search),
+                        $options: 'i',
+                      },
+                    },
+                    ...(createdAtFilter ? [createdAtFilter] : []),
+                  ],
+                },
+              ],
+            };
+          }
+        } else {
+          filter = input;
+          sort = {};
+        }
+
+        return await models.Deals.find(filter)
+          .skip(skip || 0)
+          .limit(limit || 0)
+          .sort(sort as Record<string, SortOrder>)
+          .lean();
+      }),
 
     aggregate: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
