@@ -122,9 +122,7 @@ export const useTagsView = () => {
       const parentRow = draft.parentId
         ? result.find((row) => row._id === draft.parentId)
         : undefined;
-      const draftOrder = parentRow
-        ? `${parentRow.order}/0000`
-        : '0000';
+      const draftOrder = parentRow ? `${parentRow.order}/0000` : '0000';
 
       result.push({
         _id: draft._id,

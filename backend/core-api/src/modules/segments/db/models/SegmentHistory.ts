@@ -13,8 +13,7 @@ import {
   segmentTransitionSchema,
 } from '../definitions/segmentHistory';
 
-export interface ISegmentTransitionModel
-  extends Model<ISegmentTransitionDocument> {
+export interface ISegmentTransitionModel extends Model<ISegmentTransitionDocument> {
   recordTransitions(args: {
     subdomain: string;
     contentType: string;
@@ -119,8 +118,7 @@ export const loadSegmentTransitionClass = (models: IModels) => {
   return segmentTransitionSchema;
 };
 
-export interface ISegmentDailyCountModel
-  extends Model<ISegmentDailyCountDocument> {
+export interface ISegmentDailyCountModel extends Model<ISegmentDailyCountDocument> {
   recordDailyCounts(
     counts: Record<string, number>,
     countedAt?: Date,
@@ -167,8 +165,7 @@ export const loadSegmentDailyCountClass = (models: IModels) => {
   return segmentDailyCountSchema;
 };
 
-export interface ISegmentLevelSampleModel
-  extends Model<ISegmentLevelSampleDocument> {
+export interface ISegmentLevelSampleModel extends Model<ISegmentLevelSampleDocument> {
   recordLevel(args: {
     segmentId: string;
     count: number;

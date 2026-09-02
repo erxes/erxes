@@ -60,13 +60,13 @@ export const useSegmentConditionRow = (
   const selectedType: TPropertyType | undefined = isReference
     ? propertyTypes.find((type) => type.contentType === SEGMENT_TYPE_KEY)
     : isRelation
-    ? propertyTypes.find((type) => type.relationKey === node.relationKey)
-    : propertyTypes.find(
-        (type) =>
-          !type.relationKey &&
-          type.contentType ===
-            (node?.kind === 'field' ? node.contentType : contentType),
-      );
+      ? propertyTypes.find((type) => type.relationKey === node.relationKey)
+      : propertyTypes.find(
+          (type) =>
+            !type.relationKey &&
+            type.contentType ===
+              (node?.kind === 'field' ? node.contentType : contentType),
+        );
 
   const { fields, loading: fieldsLoading } = useSegmentFields(
     isReference ? undefined : selectedType?.contentType,
@@ -101,13 +101,13 @@ export const useSegmentConditionRow = (
     ? node.measure.op === 'count'
       ? COUNT_KEY
       : node.measure.op === 'sum'
-      ? `${SUM_PREFIX}${node.measure.fieldKey}`
-      : node.child?.kind === 'field'
-      ? node.child.fieldKey
-      : ''
+        ? `${SUM_PREFIX}${node.measure.fieldKey}`
+        : node.child?.kind === 'field'
+          ? node.child.fieldKey
+          : ''
     : node?.kind === 'field'
-    ? node.fieldKey
-    : '';
+      ? node.fieldKey
+      : '';
 
   const selectedField = options.find((option) => option.key === selectedKey);
 
@@ -121,11 +121,11 @@ export const useSegmentConditionRow = (
     ? isMeasure
       ? node.operator
       : node.child?.kind === 'field'
-      ? node.child.operator
-      : undefined
+        ? node.child.operator
+        : undefined
     : node?.kind === 'field'
-    ? node.operator
-    : undefined;
+      ? node.operator
+      : undefined;
 
   const operator: TSegmentOperator | undefined = selectedField?.operators.find(
     (candidate) => candidate.value === operatorValue,

@@ -7,10 +7,7 @@ import { IModels } from '~/connectionResolvers';
 import { inboxSegmentConfigs } from './configs';
 import { evaluateInboxFields } from './evaluate';
 import { INBOX_SEGMENT_FIELDS } from './fields';
-import {
-  countInboxSegmentMembers,
-  listInboxSegmentMembers,
-} from './members';
+import { countInboxSegmentMembers, listInboxSegmentMembers } from './members';
 import { applyInboxSegmentMembership } from './membership';
 import { INBOX_SEGMENT_RELATIONS } from './relations';
 

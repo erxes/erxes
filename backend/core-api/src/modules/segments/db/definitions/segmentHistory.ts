@@ -12,8 +12,7 @@ export interface ISegmentTransition {
 }
 
 export interface ISegmentTransitionDocument
-  extends ISegmentTransition,
-    Document {
+  extends ISegmentTransition, Document {
   _id: string;
 }
 
@@ -38,8 +37,7 @@ export interface ISegmentDailyCount {
 }
 
 export interface ISegmentDailyCountDocument
-  extends ISegmentDailyCount,
-    Document {
+  extends ISegmentDailyCount, Document {
   _id: string;
 }
 
@@ -64,8 +62,7 @@ export interface ISegmentLevelSample {
 }
 
 export interface ISegmentLevelSampleDocument
-  extends ISegmentLevelSample,
-    Document {
+  extends ISegmentLevelSample, Document {
   _id: string;
 }
 

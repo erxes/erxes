@@ -42,15 +42,15 @@
 
 ## Architecture
 
-| Area                  | Path                                              | Responsibility                                                        |
-| --------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
-| Plugin entry          | `src/main.ts`                                      | `startPlugin` on port 3307, GraphQL, subscriptions, meta registration  |
-| Models                | `src/connectionResolvers.ts`                       | Tenant-scoped models, each with its event dispatcher                   |
-| Task module           | `src/modules/task/`                                | Task and triage schemas, models, resolvers                             |
-| Task segment contract | `src/modules/task/meta/segments/`                  | Fields, collections, members, membership, evaluation, relations        |
-| Plugin segment meta   | `src/meta/segments.ts`                             | Routes segment producers to the module that owns the content type      |
-| Import/export         | `src/meta/import-export/`                          | Task import and export handlers                                        |
-| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/`     | Issue sync, repository configuration                                   |
+| Area                  | Path                                           | Responsibility                                                        |
+| --------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
+| Plugin entry          | `src/main.ts`                                  | `startPlugin` on port 3307, GraphQL, subscriptions, meta registration |
+| Models                | `src/connectionResolvers.ts`                   | Tenant-scoped models, each with its event dispatcher                  |
+| Task module           | `src/modules/task/`                            | Task and triage schemas, models, resolvers                            |
+| Task segment contract | `src/modules/task/meta/segments/`              | Fields, collections, members, membership, evaluation, relations       |
+| Plugin segment meta   | `src/meta/segments.ts`                         | Routes segment producers to the module that owns the content type     |
+| Import/export         | `src/meta/import-export/`                      | Task import and export handlers                                       |
+| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/` | Issue sync, repository configuration                                  |
 
 ## Contracts
 

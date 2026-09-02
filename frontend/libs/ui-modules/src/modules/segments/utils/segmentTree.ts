@@ -55,7 +55,7 @@ const groupAt = (
   return current.kind === 'group' ? current : null;
 };
 
-const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 /**
  * Drops groups a move left empty.

@@ -471,8 +471,7 @@ export const handleMongoChangeEvent = async (
   if (logAction === LOG_ACTIONS.UPDATE_BATCH) {
     return await handleUpdateBatch(Logs, {
       collectionName: payload?.collectionName || '',
-      updates:
-        (payload as { updates?: UpdateBatchEntry[] })?.updates || [],
+      updates: (payload as { updates?: UpdateBatchEntry[] })?.updates || [],
       processId,
       userId,
       contentType,

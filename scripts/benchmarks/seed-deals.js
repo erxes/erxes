@@ -104,7 +104,8 @@ const pad = (value, width) => String(value).padStart(width, '0');
 const makeDeal = (index) => {
   const stageId = stageIds[index % stageIds.length];
   const firstName = firstNames[index % firstNames.length];
-  const lastName = lastNames[Math.floor(index / firstNames.length) % lastNames.length];
+  const lastName =
+    lastNames[Math.floor(index / firstNames.length) % lastNames.length];
   const phone = 80_000_000 + (index % 20_000_000);
   const amount = 10_000 + (index % 990_000);
   const currency = currencies[index % currencies.length];

@@ -51,7 +51,7 @@ const SegmentDetailBody = ({
         <Separator />
         <div className="flex-1 min-h-0">
           <Tabs
-            value={segmentId ? selectedTab ?? 'overview' : 'definition'}
+            value={segmentId ? (selectedTab ?? 'overview') : 'definition'}
             onValueChange={setSelectedTab}
             className="h-full"
           >
