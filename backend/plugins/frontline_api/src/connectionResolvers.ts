@@ -370,7 +370,6 @@ export interface IModels {
   CallProConversations: ICallProConversationModel;
   CallProLogs: ICallProLogModel;
 
-
   MailIntegrations: IMailIntegrationModel;
   MailCustomers: IMailCustomerModel;
   MailMessages: IMailMessageModel;
@@ -656,7 +655,6 @@ export const loadClasses = (
     'logs_callpro',
     loadCallProLogClass(),
   );
-
 
   models.MailIntegrations = db.model<
     IMailIntegrationDocument,
