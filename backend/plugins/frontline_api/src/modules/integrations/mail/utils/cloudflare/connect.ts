@@ -12,6 +12,7 @@ import {
   MAIL_WORKER_NAME,
 } from '@/integrations/mail/constants';
 import { resolveMailTenant } from '@/integrations/mail/utils/address';
+import { platformMailDomain } from '@/integrations/mail/utils/platformConfig';
 import { debugError } from '@/integrations/mail/debuggers';
 import {
   deleteQueue,
@@ -39,6 +40,12 @@ export const connectCloudflare = async (
 
   if (!zone) {
     throw new Error('This token cannot reach the domain you picked');
+  }
+
+  if (zone.name.toLowerCase() === platformMailDomain(subdomain).toLowerCase()) {
+    throw new Error(
+      `${zone.name} is the mail domain this deployment already runs for every workspace. Connecting it would point its catch-all rule at this workspace alone and stop inbound mail everywhere else. Connect a domain this workspace owns instead.`,
+    );
   }
 
   const models = await generateModels(subdomain);

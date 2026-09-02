@@ -1300,6 +1300,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — The deployment's own mail domain cannot be connected
+
+- **Summary:** Provisioning rewrites a zone's Email Routing catch-all rule to point
+  at the connecting workspace's worker. On the domain the deployment already runs
+  for everyone — `MAIL_DOMAIN`, `erx.es` by default — that would have taken inbound
+  mail away from every other workspace, and nothing stopped it: `checkZone` only
+  refuses zones whose MX points somewhere other than Cloudflare, which the shared
+  domain never does. `connectCloudflare` now refuses that domain by name before it
+  writes anything.
+- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/connect.ts`.
+- **Contracts changed:** None — `mailCloudflareConnect` gains a rejection, not a
+  new field.
+
 ### `2026-09-02` — IMAP integration removed
 
 - **Summary:** The IMAP channel runtime was deleted in full — poller, client,
@@ -1453,23 +1466,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
 - **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
 - **Contracts changed:** None
-
-### `2026-08-26` — Mail automation and reply drafts removed
-
-- **Summary:** The mail channel no longer registers automation. The
-  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
-  actions, their workers and the AI-context builder are gone, and so is the reply
-  draft they were the only producer of — nothing else could create one, so the
-  draft model, its GraphQL surface and its inbox card would have been unreachable
-  code.
-- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
-  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
-  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
-  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/subscription.ts`,
-  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
-  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
-- **Contracts changed:** Removed the `frontline:mail.messages` automation
-  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
-  `mailDraftChanged` subscription.
