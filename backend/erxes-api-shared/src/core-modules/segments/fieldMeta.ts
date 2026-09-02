@@ -51,12 +51,15 @@ export type SegmentFieldMeta = SegmentFieldIdentity &
   SegmentFieldSource &
   SegmentFieldPresentation;
 
+/**
+ * A group of fields nobody can enumerate at build time - a tenant's own
+ * custom properties. The values live in one object on the record, keyed by
+ * field id, so `prefix.<id>` reads and filters as the dotted path it is.
+ */
 export type SegmentFieldNamespace = {
   prefix: string;
   label: string;
   path: string;
-  keyPath: string;
-  valuePath: string;
 };
 
 export const resolveSegmentFieldOperators = (

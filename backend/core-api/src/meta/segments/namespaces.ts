@@ -2,11 +2,9 @@ import { SegmentFieldNamespace } from 'erxes-api-shared/core-modules';
 
 const CONTACT_NAMESPACES: SegmentFieldNamespace[] = [
   {
-    prefix: 'customFieldsData',
+    prefix: 'propertiesData',
     label: 'Custom properties',
-    path: 'customFieldsData',
-    keyPath: 'field',
-    valuePath: 'value',
+    path: 'propertiesData',
   },
 ];
 
@@ -19,11 +17,9 @@ export const CORE_SEGMENT_FIELD_NAMESPACES: Record<
   'core:contacts.companies': CONTACT_NAMESPACES,
   'core:products.products': [
     {
-      prefix: 'customFieldsData',
+      prefix: 'propertiesData',
       label: 'Custom properties',
-      path: 'customFieldsData',
-      keyPath: 'field',
-      valuePath: 'value',
+      path: 'propertiesData',
     },
   ],
 };

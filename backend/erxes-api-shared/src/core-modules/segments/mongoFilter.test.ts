@@ -58,11 +58,9 @@ const fields: SegmentFieldMeta[] = [
 
 const namespaces: SegmentFieldNamespace[] = [
   {
-    prefix: 'customFieldsData',
+    prefix: 'propertiesData',
     label: 'Custom properties',
-    path: 'customFieldsData',
-    keyPath: 'field',
-    valuePath: 'value',
+    path: 'propertiesData',
   },
 ];
 
@@ -140,15 +138,13 @@ describe('compileSegmentMongoFilter · operators', () => {
 });
 
 describe('compileSegmentMongoFilter · namespaces', () => {
-  it('matches the key and the value inside one entry', () => {
+  it('compiles a namespaced field to the path it reads as', () => {
     const { filter } = compile(
-      field('customFieldsData.plan', SegmentOperator.Equals, 'enterprise'),
+      field('propertiesData.plan', SegmentOperator.Equals, 'enterprise'),
     );
 
     expect(filter).toEqual({
-      customFieldsData: {
-        $elemMatch: { field: 'plan', value: { $eq: 'enterprise' } },
-      },
+      'propertiesData.plan': { $eq: 'enterprise' },
     });
   });
 });

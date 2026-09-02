@@ -229,41 +229,25 @@ const compileField = (
     return undefined;
   }
 
+  // The values are one object keyed by field id, so a namespaced field is the
+  // dotted path it reads as - the same shape any stored field compiles to.
+  const path = `${namespace.path}.${rest.join('.')}`;
+
   if (anniversary !== undefined) {
     const branches = anniversaryOn(
-      namespace.valuePath,
+      path,
       node.value,
       now,
       timeZone,
       anniversary,
     );
 
-    return branches
-      ? {
-          [namespace.path]: {
-            $elemMatch: {
-              [namespace.keyPath]: rest.join('.'),
-              ...branches,
-            },
-          },
-        }
-      : undefined;
+    return branches ? branches : undefined;
   }
 
   const comparison = compareOn(operator, node.value, now, timeZone);
 
-  if (!comparison) {
-    return undefined;
-  }
-
-  return {
-    [namespace.path]: {
-      $elemMatch: {
-        [namespace.keyPath]: rest.join('.'),
-        [namespace.valuePath]: comparison,
-      },
-    },
-  };
+  return comparison ? { [path]: comparison } : undefined;
 };
 
 const compileNode = (

@@ -161,27 +161,25 @@ describe('splitSegmentFieldRequests · namespaces', () => {
   const namespaces: Record<string, SegmentFieldNamespace[]> = {
     'sales:deal': [
       {
-        prefix: 'customFieldsData',
+        prefix: 'propertiesData',
         label: 'Custom properties',
-        path: 'customFieldsData',
-        keyPath: 'field',
-        valuePath: 'value',
+        path: 'propertiesData',
       },
     ],
   };
 
   it('routes a tenant-keyed entry to its namespace', () => {
     const split = splitSegmentFieldRequests(
-      [fieldRequest('customFieldsData.Gm3K8ni3r2i4eNeXC')],
+      [fieldRequest('propertiesData.Gm3K8ni3r2i4eNeXC')],
       fields,
       namespaces,
     );
 
     expect(split.namespaced).toEqual([
       {
-        ref: 'sales:deal.customFieldsData.Gm3K8ni3r2i4eNeXC',
+        ref: 'sales:deal.propertiesData.Gm3K8ni3r2i4eNeXC',
         contentType: 'sales:deal',
-        fieldKey: 'customFieldsData.Gm3K8ni3r2i4eNeXC',
+        fieldKey: 'propertiesData.Gm3K8ni3r2i4eNeXC',
         namespace: namespaces['sales:deal'][0],
         entryKey: 'Gm3K8ni3r2i4eNeXC',
       },
@@ -191,13 +189,13 @@ describe('splitSegmentFieldRequests · namespaces', () => {
 
   it('leaves a bare prefix with no key undeclared', () => {
     const split = splitSegmentFieldRequests(
-      [fieldRequest('customFieldsData')],
+      [fieldRequest('propertiesData')],
       fields,
       namespaces,
     );
 
     expect(split.namespaced).toEqual([]);
-    expect(split.undeclared).toEqual(['sales:deal.customFieldsData']);
+    expect(split.undeclared).toEqual(['sales:deal.propertiesData']);
   });
 
   it('lets a declared field win over a namespace prefix', () => {
@@ -205,7 +203,7 @@ describe('splitSegmentFieldRequests · namespaces', () => {
       'sales:deal': [
         ...fields['sales:deal'],
         {
-          key: 'customFieldsData.pinned',
+          key: 'propertiesData.pinned',
           label: 'Pinned',
           operators: [SegmentOperator.Equals],
           kind: 'projected' as const,
@@ -216,7 +214,7 @@ describe('splitSegmentFieldRequests · namespaces', () => {
     };
 
     const split = splitSegmentFieldRequests(
-      [fieldRequest('customFieldsData.pinned')],
+      [fieldRequest('propertiesData.pinned')],
       withPrefixField,
       namespaces,
     );
@@ -225,18 +223,15 @@ describe('splitSegmentFieldRequests · namespaces', () => {
     expect(split.namespaced).toEqual([]);
   });
 
-  it('reads the entry value out of the array', () => {
+  it('reads the value the key holds', () => {
     const split = splitSegmentFieldRequests(
-      [fieldRequest('customFieldsData.plan')],
+      [fieldRequest('propertiesData.plan')],
       fields,
       namespaces,
     );
 
     const document = {
-      customFieldsData: [
-        { field: 'other', value: 'no' },
-        { field: 'plan', value: 'enterprise' },
-      ],
+      propertiesData: { other: 'no', plan: 'enterprise' },
     };
 
     expect(readNamespacedValue(document, split.namespaced[0])).toBe(
@@ -245,13 +240,27 @@ describe('splitSegmentFieldRequests · namespaces', () => {
     expect(readNamespacedValue({}, split.namespaced[0])).toBeUndefined();
   });
 
-  it('lists each namespace array once for the projection', () => {
+  it('reads nothing out of the retired array shape', () => {
     const split = splitSegmentFieldRequests(
-      [fieldRequest('customFieldsData.a'), fieldRequest('customFieldsData.b')],
+      [fieldRequest('propertiesData.plan')],
       fields,
       namespaces,
     );
 
-    expect(namespacePaths(split.namespaced)).toEqual(['customFieldsData']);
+    const document = {
+      propertiesData: [{ field: 'plan', value: 'enterprise' }],
+    };
+
+    expect(readNamespacedValue(document, split.namespaced[0])).toBeUndefined();
+  });
+
+  it('lists each namespace path once for the projection', () => {
+    const split = splitSegmentFieldRequests(
+      [fieldRequest('propertiesData.a'), fieldRequest('propertiesData.b')],
+      fields,
+      namespaces,
+    );
+
+    expect(namespacePaths(split.namespaced)).toEqual(['propertiesData']);
   });
 });

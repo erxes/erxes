@@ -137,21 +137,13 @@ export const readNamespacedValue = (
   document: Record<string, unknown>,
   request: SegmentNamespacedRequest,
 ): unknown => {
-  const entries = document[request.namespace.path];
+  const values = document[request.namespace.path];
 
-  if (!Array.isArray(entries)) {
+  if (!values || typeof values !== 'object' || Array.isArray(values)) {
     return undefined;
   }
 
-  const entry = entries.find(
-    (candidate) =>
-      (candidate as Record<string, unknown>)?.[request.namespace.keyPath] ===
-      request.entryKey,
-  );
-
-  return (entry as Record<string, unknown> | undefined)?.[
-    request.namespace.valuePath
-  ];
+  return (values as Record<string, unknown>)[request.entryKey];
 };
 
 export const namespacePaths = (
