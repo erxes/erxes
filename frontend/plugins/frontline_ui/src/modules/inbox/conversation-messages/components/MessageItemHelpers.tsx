@@ -1,12 +1,5 @@
 import { cn } from 'erxes-ui';
-
-const Img = ({
-  alt,
-  ...props
-}: Omit<JSX.IntrinsicElements['img'], 'alt'> & { alt: string }) => (
-  // skipcq: JS-W1015
-  <img alt={alt} {...props} />
-);
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
 const REACTION_EMOJI: Record<string, string> = {
   love: '❤️',
@@ -37,10 +30,10 @@ export const aggregateReactions = (
 
 export const ReactionLabel = ({ label }: { label: string }) => {
   const customEmoji = /^<(a?):[^:]+:(\d+)>$/.exec(label);
-  if (!customEmoji) return <>{label}</>;
+  if (!customEmoji) return label;
   const [, animated, id] = customEmoji;
   return (
-    <Img
+    <InboxImage
       src={`https://cdn.discordapp.com/emojis/${id}.${
         animated ? 'gif' : 'png'
       }`}

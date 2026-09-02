@@ -124,7 +124,7 @@ export const useMessageInputController = (conversationId: string) => {
     } catch {
       window.localStorage.removeItem(draftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
-      setContent(undefined);
+      setContent(() => undefined);
     } finally {
       window.setTimeout(() => {
         restoringDraftRef.current = false;
@@ -294,7 +294,7 @@ export const useMessageInputController = (conversationId: string) => {
         internal: isInternalNote,
         extraInfo: messageExtraInfo,
         attachments: allAttachments,
-        responseTemplateId: responseTemplateId,
+        responseTemplateId,
         ...(!isInternalNote && replyTo?.nativeReply && replyTo.providerMessageId
           ? { replyToMessageId: replyTo.providerMessageId }
           : {}),
@@ -303,7 +303,7 @@ export const useMessageInputController = (conversationId: string) => {
         toast({ title: t('message-sent'), variant: 'default' });
         if (content?.length) editor?.removeBlocks(content);
 
-        setContent(undefined);
+        setContent(() => undefined);
         setMentionedUserIds([]);
         setIsInternalNote(false);
         setAttachments([]);

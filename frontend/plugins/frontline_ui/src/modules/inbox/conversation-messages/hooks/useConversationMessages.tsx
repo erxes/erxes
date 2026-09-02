@@ -27,7 +27,7 @@ export const useConversationMessages = (
     ) {
       return;
     }
-    return fetchMore({
+    fetchMore({
       variables: {
         skip: conversationMessages.length,
         limit: 10,

@@ -97,7 +97,13 @@ export interface IMessageData {
     text?: string;
     is_deleted?: boolean;
     is_echo?: boolean;
-    reply_to?: { mid?: string };
+    reply_to?: {
+      mid?: string;
+      story?: {
+        id?: string;
+        url?: string;
+      };
+    };
   };
   reaction?: {
     mid: string;

@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Button, Command, Dialog, Input, Spinner, toast } from 'erxes-ui';
 import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -24,6 +24,123 @@ const forwardMessageSchema = z.object({
 });
 
 type ForwardMessageForm = z.infer<typeof forwardMessageSchema>;
+
+const ConversationOption = ({
+  conversation,
+  selected,
+  onSelect,
+}: {
+  conversation: IConversation;
+  selected: boolean;
+  onSelect: () => void;
+}) => {
+  const customer = conversation.customer;
+  const name =
+    [customer?.firstName, customer?.lastName].filter(Boolean).join(' ') ||
+    conversation.integration?.name ||
+    'Conversation';
+
+  return (
+    <Command.Item
+      value={`${name} ${conversation.content || ''}`}
+      onSelect={onSelect}
+      className={selected ? 'bg-accent' : ''}
+    >
+      <span className="min-w-0 flex-1 truncate">{name}</span>
+      <span className="max-w-48 truncate text-xs text-muted-foreground">
+        {textOf(conversation.content)}
+      </span>
+    </Command.Item>
+  );
+};
+
+const ForwardConversationList = ({
+  conversations,
+  loading,
+  selectedId,
+  onSelect,
+}: {
+  conversations: IConversation[];
+  loading: boolean;
+  selectedId: string;
+  onSelect: (conversationId: string) => void;
+}) => (
+  <Command className="rounded-md border">
+    <Command.Input placeholder="Search conversations" />
+    <Command.List className="max-h-64 overflow-y-auto">
+      {loading && (
+        <div className="flex justify-center p-4">
+          <Spinner size="sm" />
+        </div>
+      )}
+      <Command.Empty>No conversations found</Command.Empty>
+      {conversations.map((conversation) => (
+        <ConversationOption
+          key={conversation._id}
+          conversation={conversation}
+          selected={selectedId === conversation._id}
+          onSelect={() => onSelect(conversation._id)}
+        />
+      ))}
+    </Command.List>
+  </Command>
+);
+
+const ForwardMessageDialogContent = ({
+  preview,
+  conversations,
+  conversationsLoading,
+  selectedId,
+  loading,
+  form,
+  onForward,
+  onCancel,
+}: {
+  preview: string;
+  conversations: IConversation[];
+  conversationsLoading: boolean;
+  selectedId: string;
+  loading: boolean;
+  form: UseFormReturn<ForwardMessageForm>;
+  onForward: (values: ForwardMessageForm) => Promise<void>;
+  onCancel: () => void;
+}) => (
+  <Dialog.Content className="max-w-lg">
+    <Dialog.Header>
+      <Dialog.Title>Forward message</Dialog.Title>
+      <Dialog.Description>
+        Choose another conversation. erxes keeps a tagged snapshot, and
+        platforms without native forwarding receive only the original content.
+      </Dialog.Description>
+    </Dialog.Header>
+    <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
+      <div className="line-clamp-3">{preview}</div>
+    </div>
+    <ForwardConversationList
+      conversations={conversations}
+      loading={conversationsLoading}
+      selectedId={selectedId}
+      onSelect={(conversationId) =>
+        form.setValue('destinationId', conversationId, {
+          shouldValidate: true,
+        })
+      }
+    />
+    <Input {...form.register('note')} placeholder="Add a note (optional)" />
+    <Dialog.Footer>
+      <Button type="button" variant="ghost" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        disabled={!selectedId || loading}
+        onClick={form.handleSubmit(onForward)}
+      >
+        {loading && <Spinner size="sm" />} Forward
+      </Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+);
 
 const attachmentFallbackName = (type?: string) => {
   if (type === 'ig_post') return 'Instagram post';
@@ -127,7 +244,9 @@ export const ForwardMessageDialog = ({
     );
     const forwardedBody =
       forwardedText || (forwardAttachments.length === 0 ? preview : '');
-    const content = [note.trim(), forwardedBody].filter(Boolean).join('\n');
+    const content = [note.trim(), '↪ Forwarded', forwardedBody]
+      .filter(Boolean)
+      .join('\n');
     try {
       await addConversationMessage({
         variables: {
@@ -164,73 +283,16 @@ export const ForwardMessageDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content className="max-w-lg">
-        <Dialog.Header>
-          <Dialog.Title>Forward message</Dialog.Title>
-          <Dialog.Description>
-            Choose another conversation. erxes keeps a tagged snapshot, and
-            platforms without native forwarding receive only the original
-            content.
-          </Dialog.Description>
-        </Dialog.Header>
-        <div className="rounded-md border-l-2 border-primary bg-muted px-3 py-2 text-sm text-muted-foreground">
-          <div className="line-clamp-3">{preview}</div>
-        </div>
-        <Command className="rounded-md border">
-          <Command.Input placeholder="Search conversations" />
-          <Command.List className="max-h-64 overflow-y-auto">
-            {conversationsLoading && (
-              <div className="flex justify-center p-4">
-                <Spinner size="sm" />
-              </div>
-            )}
-            <Command.Empty>No conversations found</Command.Empty>
-            {conversations.map((conversation) => {
-              const customer = conversation.customer;
-              const name =
-                [customer?.firstName, customer?.lastName]
-                  .filter(Boolean)
-                  .join(' ') ||
-                conversation.integration?.name ||
-                'Conversation';
-              return (
-                <Command.Item
-                  key={conversation._id}
-                  value={`${name} ${conversation.content || ''}`}
-                  onSelect={() =>
-                    form.setValue('destinationId', conversation._id, {
-                      shouldValidate: true,
-                    })
-                  }
-                  className={selectedId === conversation._id ? 'bg-accent' : ''}
-                >
-                  <span className="min-w-0 flex-1 truncate">{name}</span>
-                  <span className="max-w-48 truncate text-xs text-muted-foreground">
-                    {textOf(conversation.content)}
-                  </span>
-                </Command.Item>
-              );
-            })}
-          </Command.List>
-        </Command>
-        <Input {...form.register('note')} placeholder="Add a note (optional)" />
-        <Dialog.Footer>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            disabled={!selectedId || loading}
-            onClick={form.handleSubmit(handleForward)}
-          >
-            {loading && <Spinner size="sm" />} Forward
-          </Button>
-        </Dialog.Footer>
-      </Dialog.Content>
+      <ForwardMessageDialogContent
+        preview={preview}
+        conversations={conversations}
+        conversationsLoading={conversationsLoading}
+        selectedId={selectedId}
+        loading={loading}
+        form={form}
+        onForward={handleForward}
+        onCancel={() => onOpenChange(false)}
+      />
     </Dialog>
   );
 };

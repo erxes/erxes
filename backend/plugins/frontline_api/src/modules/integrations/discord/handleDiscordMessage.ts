@@ -302,9 +302,10 @@ const handleDiscordReplyMessenger = async (
     extraInfo?.forwardedFrom,
   );
 
+  const fallbackText = stripHtml(content).result.trim();
   const text = nativeForwardReference
     ? stripHtml(extraInfo?.forwardedNote || '').result.trim()
-    : stripHtml(content).result.trim();
+    : fallbackText;
 
   const files = resolveDiscordFiles(
     subdomain,
@@ -475,7 +476,7 @@ const handleDiscordPinMessenger = async (
   return { status: 'success', pinned: !remove };
 };
 
-export const handleDiscordMessage = async (
+export const handleDiscordMessage = (
   models: IModels,
   msg: { action: string; payload: string },
   subdomain: string,

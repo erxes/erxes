@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog, BlockEditorReadOnly, cn } from 'erxes-ui';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
 export const MessageContent = ({
   content,
@@ -41,7 +42,7 @@ export const MessageContent = ({
       >
         <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
           {selectedImage && !viewerFailed && (
-            <img
+            <InboxImage
               src={selectedImage}
               alt="Full size"
               onError={() => setViewerFailed(true)}

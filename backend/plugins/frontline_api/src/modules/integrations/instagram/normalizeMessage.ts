@@ -83,7 +83,15 @@ export const normalizeInstagramMessage = (
     };
   }
 
-  const rawAttachments = message?.attachments || [];
+  const storyReply = message?.reply_to?.story;
+  const rawAttachments = storyReply
+    ? [
+        {
+          type: 'story_reply',
+          payload: { url: storyReply.url },
+        },
+      ]
+    : message?.attachments || [];
   const primaryType = rawAttachments[0]?.type;
   const primaryKind = attachmentKind(primaryType);
   const messageKind = resolveMessageKind(primaryKind, Boolean(text));

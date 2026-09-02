@@ -15,7 +15,9 @@ export const ConversationMessages = ({
 }: {
   conversationId: string;
 }) => {
-  const [pendingReplyTarget, setPendingReplyTarget] = useState<string>();
+  const [pendingReplyTarget, setPendingReplyTarget] = useState<string | null>(
+    null,
+  );
   const { data: pinnedData, refetch: refetchPinnedMessages } = useQuery<{
     conversationPinnedMessages: IMessage[];
   }>(GET_CONVERSATION_PINNED_MESSAGES, {
@@ -52,7 +54,7 @@ export const ConversationMessages = ({
     }
     if (previousPinnedSignatureRef.current === pinnedMessageSignature) return;
     previousPinnedSignatureRef.current = pinnedMessageSignature;
-    void refetchPinnedMessages();
+    refetchPinnedMessages().catch(() => undefined);
   }, [pinnedMessageSignature, refetchPinnedMessages]);
 
   useEffect(() => {
@@ -88,14 +90,14 @@ export const ConversationMessages = ({
         ],
         { duration: 900 },
       );
-      setPendingReplyTarget(undefined);
+      setPendingReplyTarget(null);
       return;
     }
 
     if (!loading && messages.length < totalCount) {
       handleFetchMore();
     } else if (!loading) {
-      setPendingReplyTarget(undefined);
+      setPendingReplyTarget(null);
     }
   }, [
     handleFetchMore,

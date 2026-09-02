@@ -31,9 +31,11 @@ const percentageLabel = (count: number, totalVotes: number) =>
 export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (!poll.expiry) return;
+    if (!poll.expiry) return undefined;
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearInterval(timer);
+    };
   }, [poll.expiry]);
 
   if (!poll.answers?.length) {
@@ -63,8 +65,11 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
             {poll.question || 'Poll'}
           </h3>
           <Badge
-            variant={closed ? 'secondary' : 'outline'}
-            className="h-5 shrink-0 rounded-full px-2 text-[10px] font-medium"
+            variant={closed ? 'secondary' : 'ghost'}
+            className={cn(
+              'h-5 shrink-0 rounded-full px-2 text-[10px] font-medium',
+              !closed && 'border',
+            )}
           >
             {closed ? 'Closed' : 'Live'}
           </Badge>

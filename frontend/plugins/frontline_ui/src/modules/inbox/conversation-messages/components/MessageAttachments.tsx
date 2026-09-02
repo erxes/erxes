@@ -3,15 +3,9 @@ import { Dialog, cn, formatBytes, readImage } from 'erxes-ui';
 import { useState } from 'react';
 
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/MessagePresentation';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import type { IAttachment } from 'erxes-ui';
 
-const Img = ({
-  alt,
-  ...props
-}: Omit<JSX.IntrinsicElements['img'], 'alt'> & { alt: string }) => (
-  // skipcq: JS-W1015
-  <img alt={alt} {...props} />
-);
 export const Attachments = ({
   attachments,
 }: {
@@ -83,7 +77,7 @@ export const Attachments = ({
   );
 };
 
-const Attachment = ({
+function Attachment({
   attachment,
   length,
   onUnavailable,
@@ -91,7 +85,7 @@ const Attachment = ({
   attachment: IAttachment;
   length?: number;
   onUnavailable: () => void;
-}) => {
+}) {
   const type = attachment.type || '';
   const isImage = type.startsWith('image');
   const isVideo = type.startsWith('video');
@@ -185,7 +179,7 @@ const Attachment = ({
             single ? 'w-fit max-w-full' : 'aspect-square size-full',
           )}
         >
-          <Img
+          <InboxImage
             src={readImage(attachment.url)}
             alt={attachment.name}
             loading="lazy"
@@ -199,7 +193,7 @@ const Attachment = ({
         </button>
       </Dialog.Trigger>
       <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-        <Img
+        <InboxImage
           src={readImage(attachment.url)}
           alt={attachment.name}
           className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
@@ -207,4 +201,4 @@ const Attachment = ({
       </Dialog.Content>
     </Dialog>
   );
-};
+}

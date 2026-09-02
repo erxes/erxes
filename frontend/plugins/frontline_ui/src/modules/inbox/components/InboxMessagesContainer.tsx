@@ -20,6 +20,7 @@ export const InboxMessagesContainer = ({
   const { t } = useTranslation('frontline');
   const viewportRef = useRef<HTMLDivElement>(null);
   const shouldFollowNewestRef = useRef(true);
+  const distanceFromBottomRef = useRef(0);
 
   const [fetchMoreRef] = useInView({
     threshold: 0,
@@ -31,7 +32,6 @@ export const InboxMessagesContainer = ({
       }
     },
   });
-  const distanceFromBottomRef = useRef(0);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -67,7 +67,7 @@ export const InboxMessagesContainer = ({
         className="h-full"
         onScroll={handleScroll}
       >
-        {!!messagesLength && totalCount > messagesLength && (
+        {Boolean(messagesLength) && totalCount > messagesLength && (
           <p ref={fetchMoreRef} />
         )}
         {!loading && totalCount === 0 ? (

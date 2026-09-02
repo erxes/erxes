@@ -88,7 +88,7 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  async conversationMessage(
+  conversationMessage(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -129,7 +129,9 @@ export const conversationQueries = {
     let messages: IMessageDocument[] = [];
 
     if (limit) {
-      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: { createdAt: 1 | -1 } = getFirst
+        ? { createdAt: 1 }
+        : { createdAt: -1 };
 
       messages = await models.ConversationMessages.find(query)
         .sort(sort)
@@ -149,7 +151,7 @@ export const conversationQueries = {
   /**
    *  Get all conversation messages count. We will use it in pager
    */
-  async conversationMessagesTotalCount(
+  conversationMessagesTotalCount(
     _root,
     { conversationId }: { conversationId: string },
     { models }: IContext,
@@ -246,7 +248,7 @@ export const conversationQueries = {
   /**
    * Get one conversation
    */
-  async conversationDetail(
+  conversationDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -317,12 +319,8 @@ export const conversationQueries = {
     return response;
   },
 
-  async inboxFields() {
-    const response: {
-      customer?: any[];
-      conversation?: any[];
-      device?: any[];
-    } = {
+  inboxFields() {
+    const response: Record<'customer' | 'conversation' | 'device', unknown[]> = {
       customer: [],
       conversation: [],
       device: [],
@@ -348,7 +346,7 @@ export const conversationQueries = {
           ...args,
           limit: perPage,
         },
-        query: query,
+        query,
       });
 
     return { list, totalCount, pageInfo };

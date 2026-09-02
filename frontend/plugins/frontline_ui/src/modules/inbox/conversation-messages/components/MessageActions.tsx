@@ -143,6 +143,7 @@ export const MessageActions = ({
     message.reactions?.length ? message.reactions : message.extraData?.reactions
   )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
+  const canReplyOrForward = kind !== 'lead';
   const showActionsInline = inlineActionKinds.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
@@ -217,9 +218,11 @@ export const MessageActions = ({
             reactions={availableReactions}
           />
         )}
-        <ActionButton label="Reply" onClick={handleReply}>
-          <IconArrowBackUp className="size-4" />
-        </ActionButton>
+        {canReplyOrForward && (
+          <ActionButton label="Reply" onClick={handleReply}>
+            <IconArrowBackUp className="size-4" />
+          </ActionButton>
+        )}
         {additionalActions}
         {showActionsInline ? (
           <>
@@ -249,13 +252,15 @@ export const MessageActions = ({
                 sideOffset={6}
                 className="min-w-44 rounded-xl p-1 shadow-lg"
               >
-                <DropdownMenu.Item
-                  className="rounded-lg"
-                  onClick={() => setForwardOpen(true)}
-                >
-                  <IconShare3 className="size-4" />
-                  Forward
-                </DropdownMenu.Item>
+                {canReplyOrForward && (
+                  <DropdownMenu.Item
+                    className="rounded-lg"
+                    onClick={() => setForwardOpen(true)}
+                  >
+                    <IconShare3 className="size-4" />
+                    Forward
+                  </DropdownMenu.Item>
+                )}
                 <DropdownMenu.Item
                   className="rounded-lg"
                   disabled={!preview}
@@ -283,18 +288,20 @@ export const MessageActions = ({
           </div>
         )}
       </div>
-      <ForwardMessageDialog
-        open={forwardOpen}
-        onOpenChange={setForwardOpen}
-        sourceConversationId={conversationId}
-        message={message}
-        preview={preview}
-      />
+      {canReplyOrForward && (
+        <ForwardMessageDialog
+          open={forwardOpen}
+          onOpenChange={setForwardOpen}
+          sourceConversationId={conversationId}
+          message={message}
+          preview={preview}
+        />
+      )}
     </Tooltip.Provider>
   );
 };
 
-const ReactionMenu = ({
+function ReactionMenu({
   conversationId,
   messageId,
   disabled,
@@ -308,7 +315,7 @@ const ReactionMenu = ({
   disabledReason: string;
   selectedReaction?: string;
   reactions: readonly (typeof REACTIONS)[number][];
-}) => {
+}) {
   const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT, {
     refetchQueries: [
       'ConversationMessages',
@@ -355,7 +362,9 @@ const ReactionMenu = ({
       <ActionButton
         label={reactionLabel}
         disabled={disabled || loading}
-        onClick={() => void handleReaction(reaction)}
+        onClick={() => {
+          handleReaction(reaction);
+        }}
       >
         {loading ? (
           <Spinner size="sm" />
@@ -405,7 +414,9 @@ const ReactionMenu = ({
             key={reaction}
             aria-label={`React with ${reaction}`}
             className="p-1.5 text-lg"
-            onClick={() => void handleReaction(reaction)}
+            onClick={() => {
+              handleReaction(reaction);
+            }}
           >
             <span
               className={
@@ -421,4 +432,4 @@ const ReactionMenu = ({
       </DropdownMenu.Content>
     </DropdownMenu>
   );
-};
+}

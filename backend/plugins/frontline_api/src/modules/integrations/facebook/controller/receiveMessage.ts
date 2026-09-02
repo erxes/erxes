@@ -183,6 +183,367 @@ const handleHumanHandoff = async ({
   });
 };
 
+const handleReaction = async (
+  models: IModels,
+  userId: string,
+  pageId: string,
+  reaction: Activity['channelData']['reaction'],
+) => {
+  if (!reaction?.mid || !reaction.action) {
+    return false;
+  }
+
+  const conversation = await models.FacebookConversations.findOne({
+    senderId: userId,
+    recipientId: pageId,
+  });
+
+  if (!conversation?.erxesApiId) {
+    debugFacebook('Ignoring reaction for an unknown conversation');
+    return true;
+  }
+
+  const target = await models.FacebookConversationMessages.findOne({
+    conversationId: conversation._id,
+    mid: sanitizeString(reaction.mid),
+  });
+
+  if (!target) {
+    debugFacebook('Ignoring reaction for an unknown message');
+    return true;
+  }
+
+  const normalizedReaction = sanitizeString(
+    reaction.reaction || reaction.emoji,
+  );
+  if (reaction.action === 'react' && !normalizedReaction) {
+    debugFacebook('Ignoring reaction without a value');
+    return true;
+  }
+
+  const reactions = (target.reactions || []).filter(
+    (item) => item.senderId !== userId,
+  );
+  if (reaction.action === 'react') {
+    reactions.push({ senderId: userId, reaction: normalizedReaction });
+  }
+  target.reactions = reactions;
+  await target.save();
+
+  await graphqlPubsub.publish(
+    `conversationMessageInserted:${conversation.erxesApiId}`,
+    {
+      conversationMessageInserted: {
+        ...target.toObject(),
+        conversationId: conversation.erxesApiId,
+      },
+    },
+  );
+  return true;
+};
+
+const upsertFacebookConversation = async ({
+  models,
+  integration,
+  senderId,
+  recipientId,
+  timestamp,
+  content,
+  botId,
+}: {
+  models: IModels;
+  integration: IFacebookIntegrationDocument;
+  senderId: string;
+  recipientId: string;
+  timestamp: Date;
+  content?: string;
+  botId?: string;
+}) => {
+  let conversation = await models.FacebookConversations.findOne({
+    senderId: { $eq: senderId },
+    recipientId: { $eq: recipientId },
+  });
+
+  if (!conversation) {
+    try {
+      conversation = await models.FacebookConversations.create({
+        timestamp,
+        senderId,
+        recipientId,
+        content,
+        integrationId: integration._id,
+        isBot: !!botId,
+        botId,
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: conversation duplication'
+          : e,
+      );
+    }
+  } else {
+    const bot = await models.FacebookBots.findOne({ _id: botId });
+    if (bot) {
+      conversation.botId = botId;
+    }
+    conversation.content = content || '';
+  }
+
+  return conversation;
+};
+
+const formatAttachments = (
+  attachments: NonNullable<Activity['channelData']['message']>['attachments'],
+) => {
+  const stickerAttachment = (attachments || []).find(
+    (attachment) =>
+      Boolean(attachment.payload?.sticker_id) &&
+      Boolean(attachment.payload?.url),
+  );
+  const attachmentsToFormat = stickerAttachment
+    ? [{ ...stickerAttachment, type: 'image' }]
+    : attachments || [];
+  const seenAttachmentUrls = new Set<string>();
+
+  return attachmentsToFormat
+    .map((att) => ({
+      type: att.type === 'fallback' ? 'share' : att.type,
+      url: att.payload?.url || '',
+      name:
+        att.payload?.title ||
+        (att.type === 'fallback' ? 'Shared Instagram story' : undefined),
+    }))
+    .filter((attachment) => {
+      if (attachment.url && seenAttachmentUrls.has(attachment.url)) {
+        return false;
+      }
+      if (attachment.url) seenAttachmentUrls.add(attachment.url);
+      return true;
+    });
+};
+
+const syncInboxConversation = async ({
+  models,
+  subdomain,
+  customerId,
+  integrationId,
+  content,
+  attachments,
+  conversation,
+  timestamp,
+}: {
+  models: IModels;
+  subdomain: string;
+  customerId?: string;
+  integrationId: string;
+  content: string;
+  attachments: ReturnType<typeof formatAttachments>;
+  conversation: IFacebookConversationDocument;
+  timestamp: Date;
+}) => {
+  try {
+    const response = await receiveInboxMessage(subdomain, {
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId,
+        integrationId,
+        content,
+        attachments,
+        conversationId: conversation.erxesApiId,
+        updatedAt: timestamp,
+      }),
+    });
+
+    if (response.status !== 'success') {
+      throw new Error(
+        `Conversation creation failed: ${JSON.stringify(response)}`,
+      );
+    }
+
+    conversation.erxesApiId = response.data._id;
+    await conversation.save();
+  } catch (e) {
+    await models.FacebookConversations.deleteOne({ _id: conversation._id });
+    throw new Error(e);
+  }
+};
+
+type TFacebookMessage = NonNullable<Activity['channelData']['message']>;
+
+const prepareFacebookActivity = (activity: Activity) => {
+  const { recipient, from, timestamp, channelData } = activity;
+  let { message } = channelData;
+  const { postback } = channelData;
+  const pageId = sanitizeString(recipient.id);
+  const userId = sanitizeString(from.id);
+  const rawMid = channelData.message?.mid || postback?.mid;
+  const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
+  const attachments = channelData.message?.attachments;
+  let text = activity.text || message?.text;
+
+  if (!text && !message && !!postback) {
+    text = postback.title;
+    message = { mid: postback.mid };
+    if (postback.payload) {
+      message.payload = postback.payload;
+    }
+  }
+  if (message?.quick_reply) {
+    message.payload = message.quick_reply.payload;
+  }
+
+  const referral = message?.referral || postback?.referral;
+  const adData =
+    referral?.type === 'OPEN_THREAD'
+      ? {
+          source: referral.source,
+          type: referral.type,
+          adId: referral.ad_id,
+          postId: referral.ads_context_data?.post_id,
+          pageId,
+        }
+      : undefined;
+
+  return {
+    recipient,
+    timestamp,
+    message,
+    postback,
+    pageId,
+    userId,
+    mid,
+    attachments,
+    text,
+    adData,
+  };
+};
+
+const resolveFacebookReplyTo = async (
+  models: IModels,
+  conversationId: string,
+  message?: TFacebookMessage,
+) => {
+  const replyToMessageId = message?.reply_to?.mid;
+  if (!replyToMessageId) {
+    return undefined;
+  }
+
+  const repliedMessage = await models.FacebookConversationMessages.findOne({
+    conversationId,
+    mid: replyToMessageId,
+  }).lean();
+  return {
+    messageId: replyToMessageId,
+    content: getReplyPreview(repliedMessage?.content) || 'Attachment',
+    authorName: repliedMessage?.userId ? 'You' : 'Customer',
+  };
+};
+
+const storeFacebookMessage = async ({
+  models,
+  subdomain,
+  integration,
+  conversation,
+  message,
+  mid,
+  timestamp,
+  content,
+  customerId,
+  attachments,
+  replyTo,
+  botId,
+  senderId,
+  recipientId,
+  adData,
+}: {
+  models: IModels;
+  subdomain: string;
+  integration: IFacebookIntegrationDocument;
+  conversation: IFacebookConversationDocument;
+  message?: TFacebookMessage;
+  mid?: string;
+  timestamp: Date;
+  content: string;
+  customerId?: string;
+  attachments: ReturnType<typeof formatAttachments>;
+  replyTo?: Awaited<ReturnType<typeof resolveFacebookReplyTo>>;
+  botId?: string;
+  senderId: string;
+  recipientId: string;
+  adData?: ReturnType<typeof prepareFacebookActivity>['adData'];
+}) => {
+  const existing = await models.FacebookConversationMessages.findOne({
+    mid: { $eq: mid },
+  });
+  if (existing) {
+    return;
+  }
+
+  try {
+    const created = await models.FacebookConversationMessages.create({
+      conversationId: conversation._id,
+      mid,
+      createdAt: timestamp,
+      content,
+      customerId,
+      attachments,
+      replyTo,
+      botId,
+    });
+    const doc = {
+      ...created.toObject(),
+      conversationId: conversation.erxesApiId,
+    };
+
+    await pConversationClientMessageInserted(subdomain, doc);
+    try {
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        {
+          conversationMessageInserted: doc,
+        },
+      );
+    } catch {
+      throw new Error(
+        'conversationMessageInserted Error publishing subscription:',
+      );
+    }
+
+    const payload = parseAutomationPayload(message?.payload);
+    if (payload.persistentMenuType === 'human_handoff') {
+      const handoffBot = await models.FacebookBots.findOne({
+        _id: payload.botId || botId,
+      });
+      if (handoffBot) {
+        await handleHumanHandoff({
+          models,
+          subdomain,
+          conversation,
+          conversationMessage: created,
+          integration,
+          bot: handoffBot,
+          senderId,
+          recipientId,
+        });
+      }
+      return;
+    }
+
+    triggerFacebookMessageAutomation(subdomain, {
+      conversationMessage: created.toObject(),
+      payload: message?.payload,
+      adData,
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: conversation message duplication'
+        : e,
+    );
+  }
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
@@ -193,66 +554,28 @@ export const receiveMessage = async (
     debugFacebook(
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
-    const { recipient, from, timestamp, channelData } = activity;
-    let { message } = channelData;
-    const { postback } = channelData;
-    const pageId = sanitizeString(recipient.id);
-    const userId = sanitizeString(from.id);
+    const {
+      recipient,
+      timestamp,
+      message,
+      postback,
+      pageId,
+      userId,
+      mid,
+      attachments,
+      text,
+      adData,
+    } = prepareFacebookActivity(activity);
     const kind = INTEGRATION_KINDS.MESSENGER;
-    const rawMid = channelData.message?.mid || postback?.mid;
-    const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
-    const attachments = channelData.message?.attachments;
-    const reaction = channelData.reaction;
 
-    if (reaction?.mid && reaction.action) {
-      const conversation = await models.FacebookConversations.findOne({
-        senderId: userId,
-        recipientId: pageId,
-      });
-
-      if (!conversation?.erxesApiId) {
-        debugFacebook('Ignoring reaction for an unknown conversation');
-        return;
-      }
-
-      const target = await models.FacebookConversationMessages.findOne({
-        conversationId: conversation._id,
-        mid: sanitizeString(reaction.mid),
-      });
-
-      if (!target) {
-        debugFacebook('Ignoring reaction for an unknown message');
-        return;
-      }
-
-      const normalizedReaction = sanitizeString(
-        reaction.reaction || reaction.emoji,
-      );
-      if (reaction.action === 'react' && !normalizedReaction) {
-        debugFacebook('Ignoring reaction without a value');
-        return;
-      }
-      const reactions = (target.reactions || []).filter(
-        (item) => item.senderId !== userId,
-      );
-      if (reaction.action === 'react') {
-        reactions.push({
-          senderId: userId,
-          reaction: normalizedReaction,
-        });
-      }
-      target.reactions = reactions;
-      await target.save();
-
-      await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversation.erxesApiId}`,
-        {
-          conversationMessageInserted: {
-            ...target.toObject(),
-            conversationId: conversation.erxesApiId,
-          },
-        },
-      );
+    if (
+      await handleReaction(
+        models,
+        userId,
+        pageId,
+        activity.channelData.reaction,
+      )
+    ) {
       return;
     }
 
@@ -261,38 +584,6 @@ export const receiveMessage = async (
         `Skipping Facebook echo message ${mid || ''} from page ${pageId}`,
       );
       return;
-    }
-
-    let text = activity.text || message?.text;
-    let adData;
-
-    if (!text && !message && !!postback) {
-      text = postback.title;
-
-      message = {
-        mid: postback.mid,
-      };
-
-      if (postback.payload) {
-        message.payload = postback.payload;
-      }
-    }
-
-    if (message?.quick_reply) {
-      message.payload = message.quick_reply.payload;
-    }
-
-    const referral = message?.referral || postback?.referral;
-    const isOpenThreadEvent = referral?.type === 'OPEN_THREAD';
-
-    if (isOpenThreadEvent) {
-      adData = {
-        source: referral.source,
-        type: referral.type,
-        adId: referral.ad_id,
-        postId: referral.ads_context_data?.post_id,
-        pageId,
-      };
     }
 
     const customer = await getOrCreateCustomer(
@@ -306,67 +597,18 @@ export const receiveMessage = async (
       throw new Error('Customer not found');
     }
 
-    let conversation = await models.FacebookConversations.findOne({
-      senderId: { $eq: userId },
-      recipientId: { $eq: pageId },
-    });
-
     const bot = await checkIsBot(models, message, recipient.id);
     const botId = bot?._id;
-
-    // create conversation
-    if (!conversation) {
-      // save on integrations db
-      try {
-        conversation = await models.FacebookConversations.create({
-          timestamp,
-          senderId: userId,
-          recipientId: pageId,
-          content: text,
-          integrationId: integration._id,
-          isBot: !!botId,
-          botId,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation duplication'
-            : e,
-        );
-      }
-    } else {
-      const bot = await models.FacebookBots.findOne({ _id: botId });
-
-      if (bot) {
-        conversation.botId = botId;
-      }
-      conversation.content = text || '';
-    }
-
-    const stickerAttachment = (attachments || []).find(
-      (attachment) =>
-        Boolean(attachment.payload?.sticker_id) &&
-        Boolean(attachment.payload?.url),
-    );
-    const attachmentsToFormat = stickerAttachment
-      ? [{ ...stickerAttachment, type: 'image' }]
-      : attachments || [];
-    const seenAttachmentUrls = new Set<string>();
-    const formattedAttachments = attachmentsToFormat
-      .map((att) => ({
-        type: att.type === 'fallback' ? 'share' : att.type,
-        url: att.payload?.url || '',
-        name:
-          att.payload?.title ||
-          (att.type === 'fallback' ? 'Shared Instagram story' : undefined),
-      }))
-      .filter((attachment) => {
-        if (attachment.url && seenAttachmentUrls.has(attachment.url)) {
-          return false;
-        }
-        if (attachment.url) seenAttachmentUrls.add(attachment.url);
-        return true;
-      });
+    const conversation = await upsertFacebookConversation({
+      models,
+      integration,
+      senderId: userId,
+      recipientId: pageId,
+      timestamp,
+      content: text,
+      botId,
+    });
+    const formattedAttachments = formatAttachments(attachments);
     const primaryAttachment = attachments?.[0];
     const attachmentPreview = attachmentPreviewFor({
       primaryAttachment,
@@ -374,134 +616,39 @@ export const receiveMessage = async (
       postback,
     });
     const previewContent = text || attachmentPreview;
-    const replyToMessageId = message?.reply_to?.mid;
-    const repliedMessage = replyToMessageId
-      ? await models.FacebookConversationMessages.findOne({
-          conversationId: conversation._id,
-          mid: replyToMessageId,
-        }).lean()
-      : null;
-    const replyTo = replyToMessageId
-      ? {
-          messageId: replyToMessageId,
-          content: getReplyPreview(repliedMessage?.content) || 'Attachment',
-          authorName: repliedMessage?.userId ? 'You' : 'Customer',
-        }
-      : undefined;
-
-    // save on api
-    try {
-      const data = {
-        action: 'create-or-update-conversation',
-        payload: JSON.stringify({
-          customerId: customer.erxesApiId,
-          integrationId: integration.erxesApiId,
-          content: previewContent,
-          attachments: formattedAttachments,
-          conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
-      };
-
-      const apiConversationResponse = await receiveInboxMessage(
-        subdomain,
-        data,
-      );
-
-      if (apiConversationResponse.status === 'success') {
-        conversation.erxesApiId = apiConversationResponse.data._id;
-
-        await conversation.save();
-      } else {
-        throw new Error(
-          `Conversation creation failed: ${JSON.stringify(
-            apiConversationResponse,
-          )}`,
-        );
-      }
-    } catch (e) {
-      await models.FacebookConversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
-    }
-    // get conversation message
-    let conversationMessage = await models.FacebookConversationMessages.findOne(
-      {
-        mid: { $eq: mid },
-      },
+    const replyTo = await resolveFacebookReplyTo(
+      models,
+      conversation._id,
+      message,
     );
 
-    if (!conversationMessage) {
-      try {
-        const created = await models.FacebookConversationMessages.create({
-          conversationId: conversation._id,
-          mid,
-          createdAt: timestamp,
-          content: text || '',
-          customerId: customer.erxesApiId,
-          attachments: formattedAttachments,
-          replyTo,
-          botId,
-        });
-
-        const doc = {
-          ...created.toObject(),
-          conversationId: conversation.erxesApiId,
-        };
-
-        await pConversationClientMessageInserted(subdomain, doc);
-        try {
-          await graphqlPubsub.publish(
-            `conversationMessageInserted:${conversation.erxesApiId}`,
-            {
-              conversationMessageInserted: {
-                ...created.toObject(),
-                conversationId: conversation.erxesApiId,
-              },
-            },
-          );
-        } catch {
-          throw new Error(
-            'conversationMessageInserted Error publishing subscription:',
-          );
-        }
-
-        conversationMessage = created;
-
-        const payload = parseAutomationPayload(message?.payload);
-        if (payload.persistentMenuType === 'human_handoff') {
-          const handoffBot = await models.FacebookBots.findOne({
-            _id: payload.botId || botId,
-          });
-
-          if (handoffBot) {
-            await handleHumanHandoff({
-              models,
-              subdomain,
-              conversation,
-              conversationMessage,
-              integration,
-              bot: handoffBot,
-              senderId: userId,
-              recipientId: pageId,
-            });
-          }
-
-          return;
-        }
-
-        triggerFacebookMessageAutomation(subdomain, {
-          conversationMessage: conversationMessage.toObject(),
-          payload: message?.payload,
-          adData,
-        });
-      } catch (e) {
-        throw new Error(
-          e.message.includes('duplicate')
-            ? 'Concurrent request: conversation message duplication'
-            : e,
-        );
-      }
-    }
+    await syncInboxConversation({
+      models,
+      subdomain,
+      customerId: customer.erxesApiId,
+      integrationId: integration.erxesApiId,
+      content: previewContent,
+      attachments: formattedAttachments,
+      conversation,
+      timestamp,
+    });
+    await storeFacebookMessage({
+      models,
+      subdomain,
+      integration,
+      conversation,
+      message,
+      mid,
+      timestamp,
+      content: text || '',
+      customerId: customer.erxesApiId,
+      attachments: formattedAttachments,
+      replyTo,
+      botId,
+      senderId: userId,
+      recipientId: pageId,
+      adData,
+    });
   } catch (error) {
     throw new Error(`Error processing Facebook message: ${error.message}.`);
   }

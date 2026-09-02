@@ -180,6 +180,13 @@ const referencedAuthorName = (payload: TDiscordMessagePayload) => {
 };
 
 const resolveDiscordReply = (payload: TDiscordMessagePayload) => {
+  if (
+    payload.message_reference?.type === 1 ||
+    payload.message_snapshots?.length
+  ) {
+    return undefined;
+  }
+
   const referencedMessageId = referencedMessageIdOf(payload);
   if (!referencedMessageId) return undefined;
   return {

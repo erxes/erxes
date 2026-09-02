@@ -12,6 +12,7 @@ import { MessageContent } from '@/inbox/conversation-messages/components/Message
 import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import type {
   IMessageForwardedSnapshot,
   IMessageSticker,
@@ -79,17 +80,19 @@ export const StoryCard = ({
     Boolean(expiresAt && new Date(expiresAt) <= new Date()),
   );
   useEffect(() => {
-    if (!expiresAt) return;
+    if (!expiresAt) return undefined;
     const remaining = new Date(expiresAt).getTime() - Date.now();
     if (remaining <= 0) {
       setExpired(true);
-      return;
+      return undefined;
     }
     const timeout = window.setTimeout(
       () => setExpired(true),
       Math.min(remaining, 2_147_483_647),
     );
-    return () => window.clearTimeout(timeout);
+    return () => {
+      window.clearTimeout(timeout);
+    };
   }, [expiresAt]);
   const unavailable = expired || failed || !url;
   const label = kind === 'story_reply' ? 'Story reply' : 'Story mention';
@@ -123,7 +126,7 @@ export const StoryCard = ({
         <track kind="captions" />
       </video>
     ) : (
-      <img
+      <InboxImage
         src={mediaUrl}
         alt={label}
         loading="lazy"
@@ -240,7 +243,7 @@ const InstagramThumbnail = ({
 
   if (!interactive) {
     return (
-      <img
+      <InboxImage
         src={thumbnail}
         alt={`${label} preview`}
         loading="lazy"
@@ -258,7 +261,7 @@ const InstagramThumbnail = ({
           aria-label="Preview Instagram post image"
           className="size-16 shrink-0 cursor-zoom-in overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
         >
-          <img
+          <InboxImage
             src={thumbnail}
             alt="Post preview"
             loading="lazy"
@@ -268,7 +271,7 @@ const InstagramThumbnail = ({
         </button>
       </Dialog.Trigger>
       <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-        <img
+        <InboxImage
           src={thumbnail}
           alt="Instagram post preview"
           className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
@@ -278,13 +281,13 @@ const InstagramThumbnail = ({
   );
 };
 
-export const InstagramShareCard = ({
+export function InstagramShareCard({
   url,
   attachmentType,
 }: {
   url: string;
   attachmentType?: string;
-}) => {
+}) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const isPost = attachmentType === 'ig_post';
   const isReel = attachmentType === 'ig_reel';
@@ -332,7 +335,7 @@ export const InstagramShareCard = ({
       {preview}
     </div>
   );
-};
+}
 
 export const PostMediaCard = ({
   conversationId,
@@ -364,7 +367,7 @@ export const PostMediaCard = ({
   const card = (
     <>
       {thumbnail ? (
-        <img
+        <InboxImage
           src={readImage(thumbnail)}
           alt={`${label} preview`}
           loading="lazy"
@@ -418,7 +421,7 @@ export const StickerCard = ({ sticker }: { sticker: IMessageSticker }) => {
 
   return (
     <div className="mt-1 max-w-48">
-      <img
+      <InboxImage
         src={sticker.url}
         alt={sticker.name}
         loading="lazy"
