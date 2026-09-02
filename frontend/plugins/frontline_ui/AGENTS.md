@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-08-31`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -18,7 +18,7 @@
   inbox navigation sub-groups, response templates, and integration
   configuration screens.
 - Channel settings (list, detail, members, integrations) and channel forms.
-- Integration connect/detail UIs for IMAP, Mail, Facebook, Instagram, Discord,
+- Integration connect/detail UIs for Mail, Facebook, Instagram, Discord,
   calls, Call Pro, and the erxes messenger.
 - The mail conversation surface: the threaded reader, its compose box, the
   quoted-content toggle, the sandboxed email body renderer, and delivery state
@@ -354,7 +354,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `useRestoreTicketChartFilters` writes a saved chart back into them once per
   mount.
 - Jotai atoms for plugin-wide UI state (`channelCreateSheetOpenState`,
-  `imapFormSheetAtom`, hotkey scopes); `useQueryState` for URL-backed filters
+  hotkey scopes); `useQueryState` for URL-backed filters
   such as `channelId`; component-local state stays in `useState`. `Team inbox`
   has no sort control and holds no sort state — the order is whatever
   `getMyChannels` returns.
@@ -370,7 +370,7 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
-- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`, `imapFormSchema`); the
+- React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
 - `ReplyMessageProvider` is the single source of message-sequence state for the
@@ -788,6 +788,25 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — IMAP integration UI removed
+
+- **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
+  integration detail and row actions, the threaded conversation reader, its
+  hooks, GraphQL documents and Jotai state — and `imap` is gone from the
+  integration type enum, catalog, chips and icon map, so the kind can no longer
+  be listed, connected or opened.
+- **Affected areas:** `src/modules/integrations/imap/` (deleted),
+  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getImapConversationDetail.ts`
+  (deleted), `src/modules/types/Integration.ts`,
+  `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`,
+  `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`,
+  `src/pages/IntegrationDetailPage.tsx`,
+  `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`,
+  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
+- **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
+  `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
+  conversation detail no longer suppresses `MessageInput` for the `imap` kind.
+
 ### `2026-08-28` — The domain picker is searchable and says which domains are usable
 
 - **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
@@ -925,16 +944,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
 - **Contracts changed:** None on the API; the by-channel used-types document now
   selects `unreadConversationCount`.
-
-### `2026-08-25` — New conversations reach the open inbox list live
-
-- **Summary:** A conversation created by an incoming message now appears in the
-  filtered list without a manual refresh: the client-message subscription is no
-  longer rebuilt on every render, its refetch fallback is deduped, and the
-  previously unrendered `ConversationRefetch` control now sits in the list
-  header so the unread-arrival count is visible and recoverable in one click.
-- **Affected areas:**
-  `src/modules/inbox/conversations/hooks/useConversations.tsx`,
-  `src/modules/inbox/conversations/components/ConversationActions.tsx`.
-- **Contracts changed:** None; `useConversations` keeps its signature, and
-  passing `options` still overrides the query variables.
