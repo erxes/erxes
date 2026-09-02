@@ -612,13 +612,8 @@ const buildDispatchedMessageDoc = (
   doc: IConversationMessageAdd,
   responseData: DispatchResponseData,
 ) => {
-  const {
-    displayContent,
-    extraData,
-    providerData,
-    replyTo,
-    deliveryStatus,
-  } = responseData;
+  const { displayContent, extraData, providerData, replyTo, deliveryStatus } =
+    responseData;
   const forwardedSnapshot = doc.extraInfo?.forwardedSnapshot;
   let content: string | undefined;
   if (forwardedSnapshot) {
@@ -672,10 +667,8 @@ const saveDispatchedMessage = async ({
 
   const responseData = response?.data?.data;
   if (responseData) {
-    const {
-      conversationId: responseConversationId,
-      content: responseContent,
-    } = responseData;
+    const { conversationId: responseConversationId, content: responseContent } =
+      responseData;
     if (responseConversationId && responseContent) {
       await models.Conversations.updateConversation(responseConversationId, {
         content: responseContent || '',

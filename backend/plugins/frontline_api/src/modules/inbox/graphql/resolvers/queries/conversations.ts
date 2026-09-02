@@ -88,11 +88,7 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 
-  conversationMessage(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  conversationMessage(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.ConversationMessages.findOne({ _id });
   },
   async conversationPinnedMessages(
@@ -248,11 +244,7 @@ export const conversationQueries = {
   /**
    * Get one conversation
    */
-  conversationDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Conversations.findOne({ _id });
   },
 
@@ -320,11 +312,12 @@ export const conversationQueries = {
   },
 
   inboxFields() {
-    const response: Record<'customer' | 'conversation' | 'device', unknown[]> = {
-      customer: [],
-      conversation: [],
-      device: [],
-    };
+    const response: Record<'customer' | 'conversation' | 'device', unknown[]> =
+      {
+        customer: [],
+        conversation: [],
+        device: [],
+      };
 
     return response;
   },

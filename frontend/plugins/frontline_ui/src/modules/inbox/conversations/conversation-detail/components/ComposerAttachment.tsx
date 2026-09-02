@@ -15,7 +15,10 @@ type AttachmentContentProps = {
   isImage: boolean;
 };
 
-const AttachmentThumbnail = ({ attachment, isImage }: AttachmentContentProps) =>
+const AttachmentThumbnail = ({
+  attachment,
+  isImage,
+}: AttachmentContentProps) =>
   isImage ? (
     <InboxImage
       src={readImage(attachment.url)}
