@@ -1318,6 +1318,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 <!-- Newest first. Keep at most 10 entries. -->
 
 <<<<<<< HEAD
+
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
 - **Summary:** All four pipeline visibility rules were dead on the channel
@@ -1329,8 +1330,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Rules now live in `buildVisibilityCondition` and are applied per pipeline on
   unscoped lists, which also stops private-pipeline tickets leaking there.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- **Contracts changed:** None (`getTickets` arguments are unchanged).
-=======
+- # **Contracts changed:** None (`getTickets` arguments are unchanged).
+
 ### `2026-09-02` — IMAP integration removed
 
 - **Summary:** The IMAP channel runtime was deleted in full — poller, client,
@@ -1347,7 +1348,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
   `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
   registered.
->>>>>>> 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
+  > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
 
 ### `2026-08-28` — Every zone is listed, and the picker says which are usable
 
