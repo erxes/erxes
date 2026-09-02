@@ -229,6 +229,7 @@ const queryParams = `
 `;
 
 export const queries = `
+  engageMessageRenderPreview(contentJson: JSON!): String
   engageMessages(${queryParams}): EngageMessageListResponse
   engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage

@@ -24,7 +24,7 @@ export const collectEmailVariableIds = (contentJson: JSONContent): string[] => {
 };
 
 export type VariableValueResolver = (
-  replacer: Record<string, unknown>,
+  replacer: Record<string, any>,
   path: string,
 ) => string;
 
@@ -53,7 +53,7 @@ export const defaultVariableValueResolver: VariableValueResolver = (
  */
 export const resolveEmailVariableValues = (
   contentJson: JSONContent,
-  replacer: Record<string, unknown>,
+  replacer: Record<string, any>,
   resolve: VariableValueResolver = defaultVariableValueResolver,
 ): Record<string, string> => {
   const values: Record<string, string> = {};

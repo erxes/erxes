@@ -1,6 +1,6 @@
 import { Form } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
-import { BroadcastEditor } from '../BroadcastEditor';
+import { BroadcastEmailEditor } from '../BroadcastEmailEditor';
 
 export const BroadcastEmailPreview = () => {
   const {
@@ -23,13 +23,16 @@ export const BroadcastEmailPreview = () => {
         `}
       >
         <Form.Field
-          name="email.content"
+          name="email.contentJson"
           control={control}
           rules={{ required: 'Content is required' }}
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <BroadcastEditor attribute document {...field} />
+                <BroadcastEmailEditor
+                  contentJson={field.value}
+                  onChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}

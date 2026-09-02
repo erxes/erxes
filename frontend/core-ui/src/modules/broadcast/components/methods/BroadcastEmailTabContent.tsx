@@ -1,8 +1,10 @@
+import { useQuery } from '@apollo/client';
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { BlockEditor, useBlockEditor } from 'erxes-ui';
+import { BlockEditor, EmailPreviewFrame, JSONContent, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import { MembersInline } from 'ui-modules';
+import { BROADCAST_RENDER_PREVIEW } from '../../graphql/queries';
 
 type TEmailPreviewMessage = {
   fromEmail?: string;
@@ -11,22 +13,16 @@ type TEmailPreviewMessage = {
     sender?: string;
     subject?: string;
     content?: string;
+    contentJson?: JSONContent;
     replyTo?: string;
   };
 };
 
-const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
-  const { fromEmail, fromUserId, email } = message || {};
-  const { sender, subject, content, replyTo } = email || {};
-  const { alignedFrom } = useSenderOptions();
+const LegacyBlockContentPreview = ({ content }: { content: string }) => {
   const editor = useBlockEditor();
 
   useEffect(() => {
     const loadInitialContent = async () => {
-      if (!content) {
-        return;
-      }
-
       let blocks;
 
       try {
@@ -40,6 +36,37 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
 
     loadInitialContent();
   }, [content, editor]);
+
+  return (
+    <BlockEditor
+      editor={editor}
+      readonly
+      className="select-none flex-1 w-full overflow-y-auto"
+    />
+  );
+};
+
+const MailyContentPreview = ({ contentJson }: { contentJson: JSONContent }) => {
+  const { data, loading } = useQuery(BROADCAST_RENDER_PREVIEW, {
+    variables: { contentJson },
+  });
+
+  if (loading) {
+    return null;
+  }
+
+  return (
+    <EmailPreviewFrame
+      html={data?.engageMessageRenderPreview || ''}
+      className="flex-1"
+    />
+  );
+};
+
+const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
+  const { fromEmail, fromUserId, email } = message || {};
+  const { sender, subject, content, contentJson, replyTo } = email || {};
+  const { alignedFrom } = useSenderOptions();
 
   return (
     <div className="flex flex-col gap-8 h-full w-full">
@@ -77,11 +104,11 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
         )}
       </div>
 
-      <BlockEditor
-        editor={editor}
-        readonly
-        className="select-none flex-1 w-full overflow-y-auto"
-      />
+      {contentJson ? (
+        <MailyContentPreview contentJson={contentJson} />
+      ) : (
+        <LegacyBlockContentPreview content={content || ''} />
+      )}
     </div>
   );
 };

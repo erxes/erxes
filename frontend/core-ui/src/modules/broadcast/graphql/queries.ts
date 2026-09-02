@@ -5,6 +5,12 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
+export const BROADCAST_RENDER_PREVIEW = gql`
+  query BroadcastRenderPreview($contentJson: JSON!) {
+    engageMessageRenderPreview(contentJson: $contentJson)
+  }
+`;
+
 export const BROADCAST_MESSAGES = gql`
   query BroadcastMessages(
     $kind: String,

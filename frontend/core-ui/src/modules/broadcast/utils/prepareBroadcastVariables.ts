@@ -8,10 +8,12 @@ const pickEmailVariables = (email?: Record<string, unknown>) => {
     return undefined;
   }
 
-  const { content, subject, replyTo, sender, attachments } = email;
+  const { content, contentJson, subject, replyTo, sender, attachments } =
+    email;
 
   return {
     content,
+    contentJson,
     subject,
     replyTo,
     sender,
