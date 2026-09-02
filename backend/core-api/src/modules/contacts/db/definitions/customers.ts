@@ -287,3 +287,5 @@ customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });
 customerSchema.index({ state: 1, status: 1, createdAt: -1 });
 customerSchema.index({ state: 1, createdAt: -1, _id: 1 });
 customerSchema.index({ searchTokens: 1, state: 1, status: 1 });
+customerSchema.index({ ownerId: 1 }, { sparse: true });
+customerSchema.index({ birthDate: 1 }, { sparse: true });

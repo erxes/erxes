@@ -9,6 +9,13 @@ import {
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ISegmentDocument } from '../../db/definitions/segments';
+import { visibleTo } from '../../utils/access';
+
+const HOUR_MS = 3_600_000;
+const DAY_MS = 86_400_000;
+
+const PREVIEW_BUDGET_MS =
+  Number(process.env.SEGMENT_PREVIEW_BUDGET_MS) || 10_000;
 import {
   countSegmentMembers,
   listSegmentMembers,
@@ -40,9 +47,6 @@ export const segmentQueries = {
     return types;
   },
 
-  /**
-   * Get one segment
-   */
   async segments(
     _root,
     {
@@ -56,15 +60,12 @@ export const segmentQueries = {
       searchValue?: string;
       excludeIds?: string[];
     },
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector, user }: IContext,
   ) {
     let selector: Record<string, unknown> = {
       ...commonQuerySelector,
+      ...visibleTo(user),
       contentType: { $in: contentTypes },
-      // A segment saved in the old shape has no tree, and no name either -
-      // nothing here can read one, and returning it breaks the non-null
-      // contract on the way out. They stay in the collection until the
-      // migration converts them; they just are not segments yet.
       root: { $exists: true },
     };
 
@@ -76,8 +77,6 @@ export const segmentQueries = {
       selector._id = { $nin: excludeIds };
     }
 
-    // An explicitly requested id comes back even when it falls outside the
-    // filter, so a selected segment never disappears from its own picker.
     if (ids?.length) {
       selector = { $or: [{ _id: { $in: ids } }, { ...selector }] };
     }
@@ -85,32 +84,29 @@ export const segmentQueries = {
     return models.Segments.find(selector).sort({ name: 1 });
   },
 
-  async segmentDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Segments.findOne({ _id, root: { $exists: true } });
+  async segmentDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) {
+    return models.Segments.findOne({
+      _id,
+      root: { $exists: true },
+      ...visibleTo(user),
+    });
   },
 
-  /**
-   * Filterable fields for a content type, as the owning plugin declares them.
-   */
   async segmentFields(_root, { contentType }: { contentType: string }) {
     const [pluginName] = contentType.split(':');
     const plugin = await getPlugin(pluginName);
     const declared = plugin.config?.meta?.segments?.segmentFields || {};
 
-    // The declaration stores operator keys; the form needs their labels and
-    // what each one asks the user for, and presence is added here for
-    // projected fields rather than being repeated in every plugin's list.
     return (declared[contentType] || []).map((field: SegmentFieldMeta) => ({
       ...field,
       operators: resolveSegmentFieldOperators(field),
     }));
   },
 
-  /**
-   * Relations into this content type, gathered from every plugin - the plugin
-   * that owns the related records is the one that declares the traversal, so
-   * the list cannot come from the subject's own service alone.
-   */
   async segmentRelations(_root, { subjectType }: { subjectType: string }) {
     const pluginNames = await getPlugins();
     const relations: SegmentRelationMeta[] = [];
@@ -125,8 +121,6 @@ export const segmentQueries = {
           .filter((relation) => relation.subjectType === subjectType)
           .map((relation) => ({
             ...relation,
-            // A measured relation is a number, so it takes the number
-            // operators - the same list the platform gives any number field.
             measureOperators: resolveSegmentFieldOperators({
               key: relation.key,
               label: relation.label,
@@ -172,79 +166,101 @@ export const segmentQueries = {
       : { count: 0 };
   },
 
-  /**
-   * A segment's membership and movement, day by day.
-   *
-   * Two sources, because they answer different halves of the question: the
-   * daily rows say where membership stood, the transitions say what moved it.
-   * A day with no row is left without a count rather than shown as zero - the
-   * worker not having settled that day is not the same as the segment having
-   * emptied.
-   */
   async segmentGrowth(
     _root,
     { segmentId, days }: { segmentId: string; days?: number },
     { models }: IContext,
   ) {
     const span = Math.min(days || 30, 365);
-    const since = new Date(Date.now() - span * 86_400_000);
-    const from = since.toISOString().slice(0, 10);
+    const now = new Date();
+    const since = new Date(now.getTime() - span * DAY_MS);
 
-    const [levels, movements] = await Promise.all([
-      models.SegmentDailyCounts.find({
-        segmentId,
-        date: { $gte: from },
-      }).lean(),
-      models.SegmentTransitions.aggregate([
-        { $match: { segmentId, createdAt: { $gte: since } } },
-        {
-          $group: {
-            _id: {
-              date: {
-                $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
-              },
-              action: '$action',
-            },
-            total: { $sum: 1 },
-          },
-        },
-      ]),
-    ]);
+    const segment = await models.Segments.findOne(
+      { _id: segmentId },
+      { membersCount: 1 },
+    ).lean<ISegmentDocument>();
 
-    const byDate = new Map<
-      string,
-      { date: string; count: number | null; joined: number; left: number }
-    >();
-
-    const at = (date: string) => {
-      const day = byDate.get(date) || { date, count: null, joined: 0, left: 0 };
-      byDate.set(date, day);
-      return day;
-    };
-
-    for (const level of levels) {
-      at(level.date).count = level.count;
+    if (!segment) {
+      return [];
     }
 
-    for (const movement of movements) {
-      const day = at(movement._id.date);
+    const [anchor, dailyRows, movements] = await Promise.all([
+      models.SegmentLevelSamples.anchorFor(segmentId, now),
+      models.SegmentDailyCounts.find({
+        segmentId,
+        date: { $gte: since.toISOString().slice(0, 10) },
+      }).lean(),
+      models.SegmentTransitions.find(
+        { segmentId, createdAt: { $gte: since } },
+        { action: 1, createdAt: 1, _id: 0 },
+      ).lean(),
+    ]);
 
-      if (movement._id.action === 'joined') {
-        day.joined = movement.total;
-      } else {
-        day.left = movement.total;
+    if (!anchor && !dailyRows.length) {
+      return [];
+    }
+
+    const earliest = [
+      ...(anchor ? [anchor.at.getTime()] : []),
+      ...dailyRows.map((row) => Date.parse(row.date)),
+      ...movements.map((movement) => movement.createdAt.getTime()),
+    ].reduce((oldest, at) => Math.min(oldest, at), Number.POSITIVE_INFINITY);
+
+    const start = Math.max(
+      since.getTime(),
+      Number.isFinite(earliest) ? earliest : since.getTime(),
+    );
+
+    const step = now.getTime() - start <= 2 * DAY_MS ? HOUR_MS : DAY_MS;
+
+    const bucketOf = (at: number) => Math.floor(at / step) * step;
+    const first = bucketOf(start);
+    const last = bucketOf(now.getTime());
+
+    const joined = new Map<number, number>();
+    const left = new Map<number, number>();
+
+    for (const movement of movements) {
+      const bucket = bucketOf(movement.createdAt.getTime());
+      const into = movement.action === 'joined' ? joined : left;
+
+      into.set(bucket, (into.get(bucket) || 0) + 1);
+    }
+
+    const byDate = new Map(dailyRows.map((row) => [row.date, row.count]));
+
+    const series: {
+      at: Date;
+      date: string;
+      count: number | null;
+      joined: number;
+      left: number;
+    }[] = [];
+
+    let level = segment.membersCount ?? null;
+
+    for (let bucket = last; bucket >= first; bucket -= step) {
+      const at = new Date(bucket);
+      const date = at.toISOString().slice(0, 10);
+      const inJoined = joined.get(bucket) || 0;
+      const inLeft = left.get(bucket) || 0;
+
+      series.unshift({
+        at,
+        date,
+        count: level ?? byDate.get(date) ?? null,
+        joined: inJoined,
+        left: inLeft,
+      });
+
+      if (level !== null) {
+        level = level - inJoined + inLeft;
       }
     }
 
-    return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+    return series;
   },
 
-  /**
-   * The segment already asking this question.
-   *
-   * Offered to the form before it saves, so a duplicate is answered with the
-   * segment that already exists rather than with a second one.
-   */
   async segmentSameDefinition(
     _root,
     {
@@ -257,17 +273,16 @@ export const segmentQueries = {
     return models.Segments.findSameDefinition(contentType, root, excludeId);
   },
 
-  /**
-   * How many records an unsaved tree would match, for the segment form.
-   */
   async segmentsPreviewCount(
     _root,
     { contentType, root }: { contentType: string; root: SegmentNode },
     { models, subdomain }: IContext,
   ) {
-    return countSegmentMembers(models, subdomain, {
-      contentType,
-      root,
-    } as ISegmentDocument);
+    return countSegmentMembers(
+      models,
+      subdomain,
+      { contentType, root } as ISegmentDocument,
+      PREVIEW_BUDGET_MS,
+    );
   },
 };

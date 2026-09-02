@@ -1,19 +1,14 @@
+import { useIsMobile } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
 import { SegmentProvider, useSegment } from '../../context/SegmentProvider';
 import { useSegmentDetail } from '../../hooks/useSegmentDetail';
 import { SegmentFormFooter } from './SegmentFormFooter';
 import { SegmentFormLoading } from './SegmentFormLoading';
+import { SegmentFormUnavailable } from './SegmentFormUnavailable';
 import { SegmentConditionHeader } from './SegmentConditionHeader';
 import { SegmentGroup } from './SegmentGroup';
+import { SegmentTreeSteps } from './SegmentTreeSteps';
 import { SegmentMetadataForm } from './SegmentMetadataForm';
-
-/**
- * The segment builder.
- *
- * The form edits the stored tree directly: one root group, nested groups
- * inside it. There is no second shape and nothing migrates between them when a
- * group is added.
- */
 
 type RootProps = {
   contentType: string;
@@ -22,14 +17,22 @@ type RootProps = {
 };
 
 const SegmentFormRoot = ({ contentType, segmentId, children }: RootProps) => {
-  const { segment, segmentLoading } = useSegmentDetail(segmentId);
+  const { segment, segmentLoading, unavailable } = useSegmentDetail(segmentId);
 
   if (segmentLoading) {
     return <SegmentFormLoading />;
   }
 
+  if (unavailable) {
+    return <SegmentFormUnavailable />;
+  }
+
   return (
-    <SegmentProvider contentType={contentType} segment={segment}>
+    <SegmentProvider
+      key={`${contentType}:${segment?._id ?? 'new'}:${segment?.revision ?? 0}`}
+      contentType={contentType}
+      segment={segment}
+    >
       {children}
     </SegmentProvider>
   );
@@ -55,16 +58,25 @@ const SegmentFormHeader = () => (
 
 SegmentFormHeader.displayName = 'SegmentFormHeader';
 
-const SegmentFormContent = ({ children }: { children?: React.ReactNode }) => (
-  <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
-    {children ?? (
-      <div className="pt-4">
-        <SegmentConditionHeader />
-        <SegmentGroup path="root" />
-      </div>
-    )}
-  </div>
-);
+const SegmentFormContent = ({ children }: { children?: React.ReactNode }) => {
+  const stepped = useIsMobile();
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
+      {children ??
+        (stepped ? (
+          <SegmentTreeSteps />
+        ) : (
+          <div className="pt-4 overflow-x-auto">
+            <div className="min-w-[640px]">
+              <SegmentConditionHeader />
+              <SegmentGroup path="root" />
+            </div>
+          </div>
+        ))}
+    </div>
+  );
+};
 
 type SegmentFormProps = {
   contentType: string;

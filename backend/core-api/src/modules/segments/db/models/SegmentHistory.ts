@@ -6,18 +6,12 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   ISegmentDailyCountDocument,
+  ISegmentLevelSampleDocument,
   ISegmentTransitionDocument,
   segmentDailyCountSchema,
+  segmentLevelSampleSchema,
   segmentTransitionSchema,
 } from '../definitions/segmentHistory';
-
-/**
- * The record of how a segment's membership moved.
- *
- * Written only by the segmentation worker, from the delta an apply reports, so
- * a row here means a record really changed side - not that the segment was
- * evaluated again and found the same answer.
- */
 
 export interface ISegmentTransitionModel
   extends Model<ISegmentTransitionDocument> {
@@ -28,13 +22,6 @@ export interface ISegmentTransitionModel
   }): Promise<{ written: number }>;
 }
 
-/**
- * The activity log's name for a segment content type.
- *
- * Timelines are keyed by `plugin:module.collection`, which is what each
- * content type already declares as its `eventTypes`; a segment type is not a
- * timeline key on its own.
- */
 const targetTypeFor = async (contentType: string) => {
   for (const [eventType, segmentTypes] of await gatherSegmentEventTypes()) {
     if (segmentTypes.includes(contentType)) {
@@ -45,18 +32,6 @@ const targetTypeFor = async (contentType: string) => {
   return contentType;
 };
 
-/**
- * The same movements on each record's own timeline.
- *
- * Kept alongside the transition rows rather than replacing them: a timeline
- * answers "what happened to this record", while the rows answer "how did this
- * segment move", and the second is a per-segment, per-day aggregate the
- * timeline cannot serve.
- *
- * Names are not resolved per record - the target is the record itself, so the
- * only name worth reading is the segment's, and that is one lookup for the
- * whole batch.
- */
 const writeActivityLogs = async (
   models: IModels,
   subdomain: string,
@@ -81,7 +56,6 @@ const writeActivityLogs = async (
     await models.ActivityLogs.createActivityLog(subdomain, {
       activityType: `segment.${row.action}`,
       targetType,
-      // `targetId` is taken from `target._id` by the model.
       target: { _id: row.recordId, contentType },
       action: {
         type: `segment.${row.action}`,
@@ -91,7 +65,6 @@ const writeActivityLogs = async (
             : `left segment ${name}`,
       },
       changes: { [row.action]: { segmentId: row.segmentId, name } },
-      // Nobody did this; the definition and the data did.
       actorType: 'system',
       actor: { name: 'Segmentation' },
       metadata: { contentType, segmentId: row.segmentId },
@@ -148,30 +121,40 @@ export const loadSegmentTransitionClass = (models: IModels) => {
 
 export interface ISegmentDailyCountModel
   extends Model<ISegmentDailyCountDocument> {
-  recordDailyCounts(counts: Record<string, number>): Promise<void>;
+  recordDailyCounts(
+    counts: Record<string, number>,
+    countedAt?: Date,
+  ): Promise<void>;
 }
 
-/** UTC day, so a series does not shift with whoever is looking at it. */
 const utcDay = (at: Date) => at.toISOString().slice(0, 10);
 
 export const loadSegmentDailyCountClass = (models: IModels) => {
   class SegmentDailyCount {
-    public static async recordDailyCounts(counts: Record<string, number>) {
+    public static async recordDailyCounts(
+      counts: Record<string, number>,
+      countedAt: Date = new Date(),
+    ) {
       const entries = Object.entries(counts);
 
       if (!entries.length) {
         return;
       }
 
-      const date = utcDay(new Date());
+      const date = utcDay(countedAt);
 
-      // Upserted rather than appended: the row is the day's closing membership,
-      // so a segment settled fifty times today still costs one row.
       await models.SegmentDailyCounts.bulkWrite(
         entries.map(([segmentId, count]) => ({
           updateOne: {
-            filter: { segmentId, date },
-            update: { $set: { count, updatedAt: new Date() } },
+            filter: {
+              segmentId,
+              date,
+              $or: [
+                { updatedAt: { $exists: false } },
+                { updatedAt: { $lte: countedAt } },
+              ],
+            },
+            update: { $set: { count, updatedAt: countedAt } },
             upsert: true,
           },
         })),
@@ -182,4 +165,51 @@ export const loadSegmentDailyCountClass = (models: IModels) => {
   segmentDailyCountSchema.loadClass(SegmentDailyCount);
 
   return segmentDailyCountSchema;
+};
+
+export interface ISegmentLevelSampleModel
+  extends Model<ISegmentLevelSampleDocument> {
+  recordLevel(args: {
+    segmentId: string;
+    count: number;
+    at?: Date;
+  }): Promise<void>;
+  anchorFor(
+    segmentId: string,
+    at: Date,
+  ): Promise<ISegmentLevelSampleDocument | null>;
+}
+
+export const loadSegmentLevelSampleClass = (models: IModels) => {
+  class SegmentLevelSample {
+    public static async recordLevel({
+      segmentId,
+      count,
+      at = new Date(),
+    }: {
+      segmentId: string;
+      count: number;
+      at?: Date;
+    }) {
+      await models.SegmentLevelSamples.create({
+        segmentId,
+        count,
+        at,
+        reason: 'rebuild',
+      });
+    }
+
+    public static async anchorFor(segmentId: string, at: Date) {
+      return models.SegmentLevelSamples.findOne({
+        segmentId,
+        at: { $lte: at },
+      })
+        .sort({ at: -1 })
+        .lean<ISegmentLevelSampleDocument>();
+    }
+  }
+
+  segmentLevelSampleSchema.loadClass(SegmentLevelSample);
+
+  return segmentLevelSampleSchema;
 };

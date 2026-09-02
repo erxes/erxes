@@ -1,12 +1,17 @@
 import {
   evaluateSegmentBatch,
   gatherSegmentEventTypes,
+  gatherSegmentFieldSources,
   gatherSegmentRelations,
   SegmentApplyMembershipResult,
   SegmentChangedEvent,
+  segmentDependencyKey,
   SegmentJob,
+  SegmentMemberPage,
   SegmentMembershipUpdate,
   SegmentNode,
+  SegmentOperator,
+  sendSegmentChanged,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -15,23 +20,8 @@ import {
 } from 'erxes-api-shared/utils';
 import { workerSegmentGateway } from './gateway';
 import { segmentLog, segmentSkip } from './log';
+import { reconcileSegments } from './reconcile';
 import { forgetSegments, rebuildSegment } from './rebuild';
-
-/**
- * Keeps segment membership up to date after records change.
- *
- * The whole batch runs here rather than in the services that own the data: if
- * this falls over, the queue holds the work and nothing that a user is waiting
- * on is affected. Everything it needs comes through published contracts.
- *
- * Three questions, in order:
- *   1. which segments read records of this type - including the ones that only
- *      reach them through a relation,
- *   2. whose membership can those changes move - the changed records for a
- *      segment about them, the records on the other end of the relation
- *      otherwise,
- *   3. and for each of those, does the segment still hold.
- */
 
 export type SegmentJobData = SegmentJob;
 
@@ -43,42 +33,32 @@ type DependentSegment = {
 
 const pluginOf = (contentType: string) => contentType.split(':')[0];
 
-/**
- * Content types already reported as unmapped.
- *
- * Every write in the system arrives here, so most jobs are for a collection no
- * segment is built against - logging each one would drown the trace. Saying it
- * once per type per process keeps the case visible without the noise, which
- * matters because a missing `eventTypes` declaration looks exactly like a
- * working pipeline that found nothing.
- */
 const reportedUnmapped = new Set<string>();
 
 const dependentSegments = async (
   subdomain: string,
-  contentTypes: string[],
+  input: { contentTypes?: string[]; ids?: string[] },
 ): Promise<DependentSegment[]> =>
   sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'segment',
     action: 'dependentSegments',
-    input: { contentTypes },
+    input,
     defaultValue: [],
   });
 
-/**
- * Whose membership a change to these records can move.
- *
- * For a segment about the changed records that is the records themselves. For
- * one that reaches them through a relation it is the other end - a deal moving
- * to a won stage changes the customer's membership, not the deal's.
- */
+const idsAt = (value: unknown): string[] =>
+  (Array.isArray(value) ? value : [value]).filter(
+    (id): id is string => typeof id === 'string' && id.length > 0,
+  );
+
 const subjectsToRecheck = async (
   subdomain: string,
   segment: DependentSegment,
   changedTypes: string[],
   docIds: string[],
+  changed?: SegmentChangedEvent['changed'],
 ): Promise<string[]> => {
   if (changedTypes.includes(segment.contentType)) {
     return docIds;
@@ -86,16 +66,27 @@ const subjectsToRecheck = async (
 
   const { relations } = await gatherSegmentRelations(segment.contentType);
 
-  const reaching = [...relations.values()].filter(
-    (relation) =>
-      changedTypes.includes(relation.relatedType) &&
-      relation.join.via === 'relation',
+  const reaching = [...relations.values()].filter((relation) =>
+    changedTypes.includes(relation.relatedType),
   );
 
   const subjects = new Set<string>();
 
   for (const relation of reaching) {
-    if (relation.join.via !== 'relation') {
+    if (relation.join.via === 'field') {
+      const moved = changed?.[relation.join.path];
+
+      if (relation.join.on === 'subject') {
+        docIds.forEach((id) => subjects.add(id));
+      } else if (moved) {
+        idsAt(moved.prev).forEach((id) => subjects.add(id));
+        idsAt(moved.next).forEach((id) => subjects.add(id));
+      } else {
+        segmentSkip(`${segment._id}: ${relation.key} moved without a diff`, {
+          relatedType: relation.relatedType,
+        });
+      }
+
       continue;
     }
 
@@ -104,8 +95,6 @@ const subjectsToRecheck = async (
       pluginName: 'core',
       module: 'segment',
       action: 'relationSubjects',
-      // Core's relation records name their ends their own way, which is what
-      // the relation declared - not the segment types.
       input: {
         subjectType: relation.join.subjectRecordType,
         relatedType: relation.join.relatedRecordType,
@@ -120,37 +109,117 @@ const subjectsToRecheck = async (
   return [...subjects];
 };
 
-/** Hands each owner the membership settled for its own records. */
+const READER_PAGE = 2000;
+
+const dispatchSourceReaders = async (
+  subdomain: string,
+  contentType: string,
+  docIds: string[],
+) => {
+  const { bySource } = await gatherSegmentFieldSources();
+  const links = bySource.get(contentType) || [];
+
+  if (!links.length) {
+    return;
+  }
+
+  const segments = await dependentSegments(subdomain, {
+    contentTypes: [contentType],
+  });
+
+  if (!segments.length) {
+    segmentSkip(`no segment reads through ${contentType}`);
+    return;
+  }
+
+  const segmentIds = segments.map((segment) => segment._id);
+
+  for (const link of links) {
+    let cursor: string | undefined;
+    let dispatched = 0;
+
+    do {
+      const page: SegmentMemberPage = await sendCoreModuleProducer({
+        subdomain,
+        moduleName: 'segments',
+        pluginName: pluginOf(link.subjectType),
+        producerName: TSegmentProducers.LIST_MEMBERS,
+        method: 'query',
+        input: {
+          contentType: link.subjectType,
+          node: {
+            kind: 'field',
+            contentType: link.subjectType,
+            fieldKey: link.via,
+            operator: SegmentOperator.In,
+            value: docIds,
+          },
+          cursor,
+          limit: READER_PAGE,
+        },
+        defaultValue: { ids: [] } as SegmentMemberPage,
+      });
+
+      if (page.ids.length) {
+        dispatched += page.ids.length;
+
+        sendSegmentChanged({
+          subdomain,
+          contentType: link.subjectType,
+          docIds: page.ids,
+          segmentIds,
+        });
+      }
+
+      cursor = page.nextCursor;
+    } while (cursor);
+
+    if (dispatched) {
+      segmentLog(`${contentType} moved ${link.subjectType}`, {
+        readers: dispatched,
+        via: link.via,
+        segments: segmentIds.length,
+      });
+    }
+  }
+};
+
+type AppliedMembership = {
+  counts: Record<string, number>;
+  countedAt?: string;
+  transitions: NonNullable<SegmentApplyMembershipResult['transitions']>;
+};
+
 const applyMembership = async (
   subdomain: string,
   contentType: string,
   updates: SegmentMembershipUpdate[],
-): Promise<Record<string, number>> => {
+): Promise<AppliedMembership> => {
   if (!updates.length) {
-    return {};
+    return { counts: {}, transitions: [] };
   }
 
-  const result: SegmentApplyMembershipResult = await sendCoreModuleProducer({
-    subdomain,
-    moduleName: 'segments',
-    pluginName: pluginOf(contentType),
-    producerName: TSegmentProducers.APPLY_MEMBERSHIP,
-    method: 'mutation',
-    input: { contentType, updates },
-    defaultValue: { counts: {} } as SegmentApplyMembershipResult,
-  });
+  const result: SegmentApplyMembershipResult | null =
+    await sendCoreModuleProducer({
+      subdomain,
+      moduleName: 'segments',
+      pluginName: pluginOf(contentType),
+      producerName: TSegmentProducers.APPLY_MEMBERSHIP,
+      method: 'mutation',
+      input: { contentType, updates, countFor: [] },
+      defaultValue: null,
+    });
 
-  // The owner declined the write - it does not implement the producer, or does
-  // not claim this content type. Silence here would look like a segment with
-  // no members.
+  if (!result) {
+    throw new Error(`${contentType} did not answer the membership write`);
+  }
+
   if (result.unsupported?.length) {
     segmentSkip(`${pluginOf(contentType)} did not apply membership`, {
       unsupported: result.unsupported,
     });
   }
 
-  // Only records that changed side are here, so the history stays a record of
-  // movement rather than of every time a segment was evaluated.
   if (result.transitions?.length) {
     await sendTRPCMessage({
       subdomain,
@@ -168,23 +237,75 @@ const applyMembership = async (
     });
   }
 
-  return result.counts || {};
+  return {
+    counts: result.counts || {},
+    countedAt: result.countedAt,
+    transitions: result.transitions || [],
+  };
 };
 
-/** A change to records, re-deciding whoever it can move. */
+const cascadeToReferencing = async (
+  subdomain: string,
+  contentType: string,
+  transitions: AppliedMembership['transitions'],
+) => {
+  if (!transitions.length) {
+    return;
+  }
+
+  const referencing = await dependentSegments(subdomain, {
+    contentTypes: transitions.map((transition) =>
+      segmentDependencyKey(transition.segmentId),
+    ),
+  });
+
+  if (!referencing.length) {
+    return;
+  }
+
+  const docIds = [
+    ...new Set(
+      transitions.flatMap((transition) => [
+        ...transition.joined,
+        ...transition.left,
+      ]),
+    ),
+  ];
+
+  segmentLog('membership move cascades', {
+    records: docIds.length,
+    segments: referencing.map((segment) => segment._id),
+  });
+
+  sendSegmentChanged({
+    subdomain,
+    contentType,
+    docIds,
+    segmentIds: referencing.map((segment) => segment._id),
+  });
+};
+
 const handleChanged = async ({
   subdomain,
   contentType,
   docIds,
+  segmentIds,
+  changed,
 }: SegmentChangedEvent) => {
   if (!docIds.length) {
     return;
   }
 
-  const changedTypes = (await gatherSegmentEventTypes()).get(contentType) || [];
+  const targeted = Boolean(segmentIds?.length);
 
-  // A collection nothing builds segments against produces no work at all - the
-  // common case, since every write in the system arrives here.
+  const changedTypes = targeted
+    ? [contentType]
+    : (await gatherSegmentEventTypes()).get(contentType) || [];
+
+  if (!targeted) {
+    await dispatchSourceReaders(subdomain, contentType, docIds);
+  }
+
   if (!changedTypes.length) {
     if (!reportedUnmapped.has(contentType)) {
       reportedUnmapped.add(contentType);
@@ -199,12 +320,12 @@ const handleChanged = async ({
     segmentTypes: changedTypes,
   });
 
-  const segments = await dependentSegments(subdomain, changedTypes);
+  const segments = await dependentSegments(
+    subdomain,
+    targeted ? { ids: segmentIds } : { contentTypes: changedTypes },
+  );
 
   if (!segments.length) {
-    // Reached only for a type some segment is built against, so an empty
-    // result usually means `dependsOn` was never written - segments saved
-    // before it existed need `segment.rebuildDerivedFields` once.
     segmentSkip('no segment depends on these types', {
       segmentTypes: changedTypes,
     });
@@ -217,8 +338,6 @@ const handleChanged = async ({
 
   const gateway = workerSegmentGateway(subdomain);
 
-  // Grouped by the content type that owns the records, so each owner is
-  // written to once however many of its segments moved.
   const updatesByType = new Map<string, SegmentMembershipUpdate[]>();
 
   for (const segment of segments) {
@@ -227,11 +346,10 @@ const handleChanged = async ({
       segment,
       changedTypes,
       docIds,
+      changed,
     );
 
     if (!subjectIds.length) {
-      // A relation the change cannot be traced back through: nothing links
-      // these records to any subject of this segment.
       segmentSkip(`${segment._id}: nothing to re-check`, {
         segmentType: segment.contentType,
       });
@@ -250,8 +368,6 @@ const handleChanged = async ({
       undecided: undecided.length,
     });
 
-    // `undecided` is deliberately in neither list: a subject whose value could
-    // not be read keeps whatever membership it already had.
     if (!matched.length && !notMatched.length) {
       continue;
     }
@@ -262,29 +378,35 @@ const handleChanged = async ({
     ]);
   }
 
-  const counts: Record<string, number> = {};
+  const deltas: Record<string, number> = {};
 
   for (const [subjectType, updates] of updatesByType) {
-    Object.assign(
-      counts,
-      await applyMembership(subdomain, subjectType, updates),
-    );
+    const applied = await applyMembership(subdomain, subjectType, updates);
+
+    for (const { segmentId, joined, left } of applied.transitions) {
+      deltas[segmentId] =
+        (deltas[segmentId] || 0) + joined.length - left.length;
+    }
+
+    await cascadeToReferencing(subdomain, subjectType, applied.transitions);
   }
 
-  if (!Object.keys(counts).length) {
-    segmentSkip('nothing was written');
+  const moved = Object.entries(deltas).filter(([, delta]) => delta !== 0);
+
+  if (!moved.length) {
+    segmentSkip('nothing changed side');
     return;
   }
 
-  segmentLog('membership written', counts);
+  segmentLog('member counts adjusted', Object.fromEntries(moved));
 
   await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'segment',
-    action: 'setMembersCount',
+    action: 'adjustMembersCount',
     method: 'mutation',
-    input: { counts },
+    input: { deltas: Object.fromEntries(moved), at: new Date().toISOString() },
     defaultValue: { updated: 0 },
   });
 };
@@ -298,6 +420,9 @@ export const segmentHandler = async (job: SegmentJob) => {
     return forgetSegments(job);
   }
 
-  // Jobs queued before the kind existed carry none, and they are all changes.
+  if (job.kind === 'reconcile') {
+    return reconcileSegments(job);
+  }
+
   return handleChanged(job);
 };

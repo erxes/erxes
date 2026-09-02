@@ -11,21 +11,13 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { PROBABILITY, SALES_STATUSES } from '../../../constants';
 
-/**
- * Filterable deal fields.
- *
- * Declared per field rather than derived from the automation output, because
- * the two answer different questions: an automation variable exists to be
- * copied into an action, a segment field to be filtered on. Custom properties
- * are not listed here - they are tenant data and resolve at runtime.
- */
+const STAGES = 'sales:sales.stages';
 
 export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   textField({ key: 'name', label: 'Name' }),
   textField({ key: 'number', label: 'Number' }),
   textField({ key: 'description', label: 'Description' }),
   textField({ key: 'priority', label: 'Priority' }),
-  // No picker exists for a parent deal yet, so this stays a plain id field.
   textField({ key: 'parentId', label: 'Parent deal' }),
 
   staticField({ key: 'status', label: 'Status', options: SALES_STATUSES.ALL }),
@@ -39,8 +31,6 @@ export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   }),
 
   numberField({ key: 'score', label: 'Score' }),
-  // Written by the deal mutations alongside `productsData`, and indexed, so it
-  // is read off the document rather than recomputed here.
   numberField({ key: 'totalAmount', label: 'Total amount' }),
   numberField({ key: 'unUsedTotalAmount', label: 'Unused total amount' }),
   numberField({ key: 'bothTotalAmount', label: 'Both total amount' }),
@@ -73,23 +63,27 @@ export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
     query: { name: 'products', labelField: 'name' },
   }),
 
-  // `branches`, `departments` and `salesPipelineLabels` do not take the cursor
-  // arguments the generic select needs, so these stay plain id fields until
-  // each gets a `propertyInputs` component.
-  textField({ key: 'branchIds', label: 'Branches' }),
-  textField({ key: 'departmentIds', label: 'Departments' }),
+  lookupField({
+    key: 'branchIds',
+    label: 'Branches',
+    query: { name: 'branchesMain', labelField: 'title' },
+  }),
+  lookupField({
+    key: 'departmentIds',
+    label: 'Departments',
+    query: { name: 'departmentsMain', labelField: 'title' },
+  }),
   textField({ key: 'labelIds', label: 'Labels' }),
 
-  // Derived: a deal stores only `stageId`; board, pipeline and probability all
-  // hang off the stage. The migration turned the old hidden `config.boardId`
-  // and `config.pipelineId` filters into conditions on these two, so they carry
-  // 860 conditions between them.
   {
     key: 'pipelineId',
     label: 'Pipeline',
     operators: SEGMENT_ID_OPERATORS,
     kind: 'derived',
-    dependsOn: [{ fields: ['stageId'] }],
+    dependsOn: [
+      { fields: ['stageId'] },
+      { contentType: STAGES, fields: ['pipelineId'], via: 'stageId' },
+    ],
     input: 'text',
   },
   {
@@ -97,7 +91,10 @@ export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
     label: 'Board',
     operators: SEGMENT_ID_OPERATORS,
     kind: 'derived',
-    dependsOn: [{ fields: ['stageId'] }],
+    dependsOn: [
+      { fields: ['stageId'] },
+      { contentType: STAGES, fields: ['pipelineId'], via: 'stageId' },
+    ],
     input: 'text',
   },
   {
@@ -105,7 +102,10 @@ export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
     label: 'Stage probability',
     operators: SEGMENT_ID_OPERATORS,
     kind: 'derived',
-    dependsOn: [{ fields: ['stageId'] }],
+    dependsOn: [
+      { fields: ['stageId'] },
+      { contentType: STAGES, fields: ['probability'], via: 'stageId' },
+    ],
     input: 'select',
     source: 'static',
     options: PROBABILITY.ALL.map((probability) => ({

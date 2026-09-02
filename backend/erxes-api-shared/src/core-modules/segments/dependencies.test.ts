@@ -1,5 +1,7 @@
-import { segmentDependencies } from './dependencies';
-import { SegmentOperator, SegmentRelationMeta } from './fieldMeta';
+import { SegmentOperator } from './operators';
+import { SegmentRelationMeta } from './relationRegistry';
+import { segmentDependencies, segmentDependsOnClock } from './dependencies';
+
 import { SegmentNode } from './nodes';
 
 const relations = new Map<string, SegmentRelationMeta>([
@@ -10,8 +12,6 @@ const relations = new Map<string, SegmentRelationMeta>([
       label: 'Deals',
       subjectType: 'core:contacts.customers',
       relatedType: 'sales:sales.deals',
-      // Core's relation records name their ends differently from the segment
-      // types, which is the whole reason these are declared separately.
       join: {
         via: 'relation',
         subjectRecordType: 'core:customer',
@@ -40,9 +40,35 @@ describe('segmentDependencies', () => {
     ).toEqual(['core:contacts.customers']);
   });
 
+  it('files the collection a field reads its value out of', () => {
+    const root: SegmentNode = {
+      kind: 'group',
+      conjunction: 'and',
+      children: [
+        {
+          kind: 'field',
+          contentType: 'sales:sales.deals',
+          fieldKey: 'stageProbability',
+          operator: SegmentOperator.Equals,
+          value: 'Won',
+        },
+      ],
+    };
+
+    const fieldSources = new Map([
+      ['sales:sales.deals:stageProbability', ['sales:sales.stages']],
+    ]);
+
+    expect(
+      segmentDependencies('sales:sales.deals', root, undefined, fieldSources),
+    ).toEqual(['sales:sales.deals', 'sales:sales.stages']);
+
+    expect(segmentDependencies('sales:sales.deals', root)).toEqual([
+      'sales:sales.deals',
+    ]);
+  });
+
   it('reaches the related type through a relation with no predicate', () => {
-    // "customers with at least one deal" still has to be re-checked when a
-    // deal changes, even though no deal field is named anywhere.
     const root: SegmentNode = {
       kind: 'group',
       conjunction: 'and',
@@ -85,8 +111,6 @@ describe('segmentDependencies', () => {
       ],
     };
 
-    // Resolvable from the predicate alone, so a relation whose plugin is not
-    // registered still contributes what its conditions name.
     expect(segmentDependencies('core:contacts.customers', root)).toEqual([
       'core:contacts.customers',
       'sales:sales.deals',
@@ -103,5 +127,38 @@ describe('segmentDependencies', () => {
     expect(segmentDependencies('core:contacts.customers', root)).toEqual([
       'core:contacts.customers',
     ]);
+  });
+});
+
+describe('segmentDependsOnClock', () => {
+  const dated = (operator: SegmentOperator): SegmentNode => ({
+    kind: 'field',
+    contentType: 'core:contacts.customers',
+    fieldKey: 'createdAt',
+    operator,
+    value: '30',
+  });
+
+  it('spots a relative operator', () => {
+    expect(segmentDependsOnClock(dated(SegmentOperator.DaysAgo))).toBe(true);
+    expect(segmentDependsOnClock(dated(SegmentOperator.DaysFromNow))).toBe(
+      true,
+    );
+  });
+
+  it('leaves a fixed date alone - it means the same thing tomorrow', () => {
+    expect(segmentDependsOnClock(dated(SegmentOperator.DateGte))).toBe(false);
+    expect(segmentDependsOnClock(dated(SegmentOperator.Equals))).toBe(false);
+  });
+
+  it('looks inside a relation predicate, where the same trap lives', () => {
+    expect(
+      segmentDependsOnClock({
+        kind: 'relation',
+        relationKey: 'customer.deals',
+        measure: { op: 'exists' },
+        child: dated(SegmentOperator.DaysAgo),
+      }),
+    ).toBe(true);
   });
 });

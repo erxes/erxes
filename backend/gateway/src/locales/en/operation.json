@@ -291,5 +291,33 @@
   "title-and-description": "Title & Description",
   "markdown": "Markdown",
   "no-project-label": "No Project",
-  "unknown-project": "Unknown Project"
+  "unknown-project": "Unknown Project",
+  "field": {
+    "assigneeId": "Assignee",
+    "createdAt": "Created at",
+    "createdBy": "Created by",
+    "cycleId": "Cycle",
+    "description": "Description",
+    "estimatePoint": "Estimate point",
+    "labelIds": "Labels",
+    "milestoneId": "Milestone",
+    "name": "Name",
+    "number": "Number",
+    "priority": "Priority",
+    "projectId": "Project",
+    "startDate": "Start date",
+    "status": "Status",
+    "statusChangedDate": "Status changed date",
+    "tagIds": "Tags",
+    "targetDate": "Target date",
+    "teamId": "Team",
+    "updatedAt": "Modified at"
+  },
+  "content-type": {
+    "operation-task-tasks": "Task"
+  },
+  "relation": {
+    "user-assignedTasks": "Assigned tasks",
+    "user-createdTasks": "Created tasks"
+  }
 }

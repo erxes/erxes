@@ -1,10 +1,5 @@
 import { useTranslation } from 'react-i18next';
 
-/**
- * The column labels, rendered once above the whole tree rather than repeated in
- * every group - the columns are the same at every depth, so repeating them was
- * only noise.
- */
 export const SegmentConditionHeader = () => {
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 

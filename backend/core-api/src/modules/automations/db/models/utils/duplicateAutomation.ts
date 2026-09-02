@@ -110,8 +110,6 @@ const cloneSegment = async (
     root: source.root,
     visibility: source.visibility,
     ownerId: source.ownerId,
-    teamId: source.teamId,
-    executionMode: source.executionMode,
     status: source.status,
     revision: 1,
     createdBy: userId,

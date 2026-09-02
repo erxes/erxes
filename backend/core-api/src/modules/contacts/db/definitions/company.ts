@@ -169,3 +169,4 @@ export const companySchema = schemaWrapper(
 );
 
 companySchema.index({ _id: 1, createdAt: 1, searchText: 1 });
+companySchema.index({ ownerId: 1 }, { sparse: true });

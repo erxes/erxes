@@ -1,8 +1,10 @@
 import {
   SegmentApplyMembershipResult,
+  segmentDependencyKey,
   SegmentForgetEvent,
   SegmentMembershipUpdate,
   SegmentRebuildEvent,
+  sendSegmentRebuild,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -11,53 +13,104 @@ import {
 } from 'erxes-api-shared/utils';
 import { segmentLog, segmentSkip } from './log';
 
-/**
- * Rebuilds a segment's membership from its definition.
- *
- * Record-driven work re-decides only the records that moved, which cannot
- * notice that the question changed. An edited definition therefore needs its
- * whole answer recomputed, and that is what this does.
- *
- * The old membership is cleared first and the new one written page by page, so
- * the worker never holds more than one page of ids however large the segment
- * is. The cost is a window where the segment really is empty, which is why it
- * is marked `building` for the duration rather than left looking wrong.
- */
-
-const PAGE = 1000;
+const PAGE = Number(process.env.SEGMENT_REBUILD_PAGE) || 10_000;
 
 const pluginOf = (contentType: string) => contentType.split(':')[0];
 
-const apply = (
+const apply = async (
   subdomain: string,
   contentType: string,
-  data: { updates?: SegmentMembershipUpdate[]; forget?: string[] },
-): Promise<SegmentApplyMembershipResult> =>
-  sendCoreModuleProducer({
-    subdomain,
-    moduleName: 'segments',
-    pluginName: pluginOf(contentType),
-    producerName: TSegmentProducers.APPLY_MEMBERSHIP,
-    method: 'mutation',
-    input: { contentType, updates: [], ...data },
-    defaultValue: { counts: {} } as SegmentApplyMembershipResult,
-  });
+  data: {
+    updates?: SegmentMembershipUpdate[];
+    forget?: string[];
+    countFor?: string[];
+    transitions?: boolean;
+  },
+): Promise<SegmentApplyMembershipResult> => {
+  const result: SegmentApplyMembershipResult | null =
+    await sendCoreModuleProducer({
+      subdomain,
+      moduleName: 'segments',
+      pluginName: pluginOf(contentType),
+      producerName: TSegmentProducers.APPLY_MEMBERSHIP,
+      method: 'mutation',
+      input: { contentType, updates: [], ...data },
+      defaultValue: null,
+    });
+
+  if (!result) {
+    throw new Error(`${contentType} did not answer the membership write`);
+  }
+
+  if (result.unsupported?.length) {
+    throw new Error(
+      `${pluginOf(
+        contentType,
+      )} declined to write membership for ${result.unsupported.join(', ')}`,
+    );
+  }
+
+  return result;
+};
+
+type StatusResult = { status: string; cancelled?: boolean } | null;
 
 const setStatus = (
   subdomain: string,
   segmentId: string,
-  status: 'building' | 'active' | 'failed',
+  status: 'building' | 'active' | 'failed' | 'cancelled',
   processed?: number,
-) =>
+  total?: number,
+  starting?: boolean,
+): Promise<StatusResult> =>
   sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'segment',
     action: 'setSegmentStatus',
     method: 'mutation',
-    input: { segmentId, status, processed },
+    input: { segmentId, status, processed, total, starting },
     defaultValue: null,
   });
+
+const estimateTotal = async (
+  subdomain: string,
+  segmentId: string,
+): Promise<number | undefined> => {
+  const result: { total: number | null } | null = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'segment',
+    action: 'segmentEstimate',
+    input: { segmentId },
+    defaultValue: null,
+  });
+
+  return result?.total ?? undefined;
+};
+
+const rebuildReferencing = async (subdomain: string, segmentId: string) => {
+  const referencing: { _id: string }[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'segment',
+    action: 'dependentSegments',
+    input: { contentTypes: [segmentDependencyKey(segmentId)] },
+    defaultValue: [],
+  });
+
+  if (!referencing.length) {
+    return;
+  }
+
+  segmentLog(`${segmentId}: rebuild cascades`, {
+    segments: referencing.map((segment) => segment._id),
+  });
+
+  referencing.forEach((segment) =>
+    sendSegmentRebuild({ subdomain, segmentId: segment._id }),
+  );
+};
 
 export const rebuildSegment = async ({
   subdomain,
@@ -80,39 +133,79 @@ export const rebuildSegment = async ({
 
   const { contentType } = segment;
 
-  segmentLog(`${segmentId}: rebuilding`, { contentType });
+  await setStatus(subdomain, segmentId, 'building', 0, undefined, true);
 
-  await setStatus(subdomain, segmentId, 'building');
+  const total = await estimateTotal(subdomain, segmentId);
+
+  segmentLog(`${segmentId}: rebuilding`, { contentType, total: total ?? '?' });
+
+  if (total !== undefined) {
+    await setStatus(subdomain, segmentId, 'building', 0, total, false);
+  }
 
   try {
-    await apply(subdomain, contentType, { forget: [segmentId] });
-
     let cursor: string | undefined;
     let members = 0;
 
-    for (;;) {
-      // Core runs the definition and settles the parts a filter cannot express,
-      // so the worker gets members rather than candidates.
-      const page: { ids: string[]; nextCursor?: string } =
+    let cancelled = Boolean(
+      (await setStatus(subdomain, segmentId, 'building', 0, total, false))
+        ?.cancelled,
+    );
+
+    if (!cancelled) {
+      await apply(subdomain, contentType, { forget: [segmentId] });
+
+      cancelled = Boolean(
+        (await setStatus(subdomain, segmentId, 'building', 0, total, false))
+          ?.cancelled,
+      );
+    }
+
+    while (!cancelled) {
+      const page: { ids: string[]; nextCursor?: string } | null =
         await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           module: 'segment',
           action: 'fetchSegment',
           input: { segmentId, cursor, limit: PAGE },
-          defaultValue: { ids: [] },
+          defaultValue: null,
         });
+
+      if (!page) {
+        throw new Error(
+          `${segmentId}: could not read the page after ${members} member(s)`,
+        );
+      }
+
+      if (!cursor || !page.ids.length) {
+        segmentLog(`${segmentId}: page returned ${page.ids.length} id(s)`, {
+          cursor: cursor || '(first)',
+          more: Boolean(page.nextCursor),
+        });
+      }
 
       if (page.ids.length) {
         await apply(subdomain, contentType, {
           updates: [{ segmentId, matched: page.ids, notMatched: [] }],
+          countFor: [],
+          transitions: false,
         });
 
         members += page.ids.length;
 
-        // Reported per page so a long build is visibly moving rather than
-        // just "building" for minutes.
-        await setStatus(subdomain, segmentId, 'building', members);
+        const progress = await setStatus(
+          subdomain,
+          segmentId,
+          'building',
+          members,
+          total,
+        );
+
+        if (progress?.cancelled) {
+          cancelled = true;
+          break;
+        }
       }
 
       if (!page.nextCursor) {
@@ -122,7 +215,13 @@ export const rebuildSegment = async ({
       cursor = page.nextCursor;
     }
 
-    await setStatus(subdomain, segmentId, 'active');
+    const settled = await apply(subdomain, contentType, {
+      countFor: [segmentId],
+    });
+
+    const membersCount = settled.counts?.[segmentId] ?? members;
+
+    await setStatus(subdomain, segmentId, cancelled ? 'cancelled' : 'active');
 
     await sendTRPCMessage({
       subdomain,
@@ -130,15 +229,23 @@ export const rebuildSegment = async ({
       module: 'segment',
       action: 'setMembersCount',
       method: 'mutation',
-      input: { counts: { [segmentId]: members } },
+      input: {
+        counts: { [segmentId]: membersCount },
+        countedAt: settled.countedAt,
+        anchor: true,
+      },
       defaultValue: { updated: 0 },
     });
 
-    segmentLog(`${segmentId}: rebuilt`, { members });
+    if (cancelled) {
+      segmentLog(`${segmentId}: stopped`, { members: membersCount });
+      return;
+    }
+
+    segmentLog(`${segmentId}: rebuilt`, { members: membersCount });
+
+    await rebuildReferencing(subdomain, segmentId);
   } catch (error) {
-    // Left as failed rather than active: an interrupted rebuild has written
-    // part of the new answer over none of the old one, and saying it succeeded
-    // would hide that.
     await setStatus(subdomain, segmentId, 'failed');
     throw error;
   }

@@ -1,11 +1,5 @@
 import { z } from 'zod';
 
-/**
- * The form edits the tree the API stores, so there is no shape to translate on
- * save. `value` is required only for operators that take one, which the field
- * declaration tells us.
- */
-
 const fieldNodeSchema = z.object({
   kind: z.literal('field'),
   contentType: z.string().min(1),
@@ -14,6 +8,7 @@ const fieldNodeSchema = z.object({
   value: z
     .union([z.string(), z.number(), z.boolean(), z.array(z.string())])
     .optional(),
+  meta: z.record(z.string(), z.string()).optional(),
 });
 
 const relationNodeSchema = z.object({
@@ -33,8 +28,14 @@ const relationNodeSchema = z.object({
     .optional(),
 });
 
+const referenceNodeSchema = z.object({
+  kind: z.literal('segment'),
+  segmentId: z.string().min(1, 'Pick a segment'),
+  exclude: z.boolean().optional(),
+});
+
 export const segmentNodeSchema: z.ZodType<{
-  kind: 'group' | 'field' | 'relation';
+  kind: 'group' | 'field' | 'relation' | 'segment';
 }> = z.lazy(() =>
   z.discriminatedUnion('kind', [
     z.object({
@@ -44,6 +45,7 @@ export const segmentNodeSchema: z.ZodType<{
     }),
     fieldNodeSchema,
     relationNodeSchema,
+    referenceNodeSchema,
   ]),
 );
 
@@ -51,5 +53,6 @@ export const segmentFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   color: z.string().optional(),
+  visibility: z.enum(['private', 'organization']),
   root: segmentNodeSchema,
 });

@@ -1,8 +1,5 @@
-import {
-  SegmentFieldMeta,
-  SegmentFieldNamespace,
-  SegmentOperator,
-} from './fieldMeta';
+import { SegmentOperator } from './operators';
+import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import { compileSegmentMongoFilter } from './mongoFilter';
 import { SegmentNode } from './nodes';
 
@@ -81,8 +78,8 @@ const field = (
   value,
 });
 
-const compile = (node: SegmentNode) =>
-  compileSegmentMongoFilter(node, { fields, namespaces, now: NOW });
+const compile = (node: SegmentNode, extra: { timeZone?: string } = {}) =>
+  compileSegmentMongoFilter(node, { fields, namespaces, now: NOW, ...extra });
 
 describe('compileSegmentMongoFilter · operators', () => {
   it('compiles onto the declared path, not the field key', () => {
@@ -111,19 +108,27 @@ describe('compileSegmentMongoFilter · operators', () => {
       compile(field('status', SegmentOperator.In, ['won', 'lost'])).filter,
     ).toEqual({ status: { $in: ['won', 'lost'] } });
 
-    // A resolved condition with no hits has to exclude every record; dropping
-    // it would leave the query wider than the segment asked for.
     expect(compile(field('status', SegmentOperator.In, [])).filter).toEqual({
       status: { $in: [] },
     });
   });
 
-  it('turns a relative-day operator into one closed day', () => {
+  it('turns a relative-day operator into one whole day', () => {
     const { filter } = compile(field('closeDate', SegmentOperator.DaysAgo, 3));
     const range = filter.closeDate as Record<string, Date>;
 
     expect(range.$gte).toEqual(new Date('2026-08-20T00:00:00.000Z'));
-    expect(range.$lte).toEqual(new Date('2026-08-20T23:59:59.999Z'));
+    expect(range.$lt).toEqual(new Date('2026-08-21T00:00:00.000Z'));
+  });
+
+  it("reads a day in the organization's zone, not in UTC", () => {
+    const { filter } = compile(field('closeDate', SegmentOperator.DaysAgo, 0), {
+      timeZone: 'Asia/Ulaanbaatar',
+    });
+    const range = filter.closeDate as Record<string, Date>;
+
+    expect(range.$gte).toEqual(new Date('2026-08-22T16:00:00.000Z'));
+    expect(range.$lt).toEqual(new Date('2026-08-23T16:00:00.000Z'));
   });
 
   it('normalizes a deprecated operator before compiling', () => {

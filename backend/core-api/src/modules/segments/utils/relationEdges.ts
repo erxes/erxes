@@ -1,16 +1,5 @@
 import { IModels } from '~/connectionResolvers';
 
-/**
- * Resolves relations whose edge is a core relation record.
- *
- * A plugin can only join on a path it stores itself, and a deal stores no
- * customer ids - the link lives in core's own `relations` collection. Core
- * reads it here, one query per related type for the whole batch, and hands
- * each plugin the ids it should measure. That keeps the join honest without
- * letting a plugin query another service's data.
- */
-
-/** Subject id -> the related ids it is linked to. */
 export type SegmentRelationEdges = Record<string, string[]>;
 
 export const relationEdgesFor = async (
@@ -47,8 +36,6 @@ export const relationEdgesFor = async (
         entity.contentType === subjectType && wanted.has(entity.contentId),
     );
 
-    // A relation between two records of the same type has both ends in one
-    // list, so the far end is found by identity rather than by type alone.
     const related = record.entities.find(
       (entity) => entity !== subject && entity.contentType === relatedType,
     );
@@ -63,13 +50,6 @@ export const relationEdgesFor = async (
   return edges;
 };
 
-/**
- * The subjects reachable from a set of related records - the same edges read
- * backwards.
- *
- * This is how a changed deal finds the customers whose membership it can move:
- * the event names the deal, but the segment is about the customer.
- */
 export const subjectsForRelatedRecords = async (
   models: IModels,
   {

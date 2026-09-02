@@ -5,13 +5,11 @@ import {
   textField,
 } from 'erxes-api-shared/core-modules';
 
-/** Filterable fields for `core:user`, the team member. */
 export const USER_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   textField({ key: 'email', label: 'Email' }),
   textField({ key: 'username', label: 'Username' }),
   textField({ key: 'code', label: 'Code' }),
 
-  // `details` is a single nested object, so a dotted path reaches it.
   textField({ key: 'details.fullName', label: 'Full name' }),
   textField({ key: 'details.firstName', label: 'First name' }),
   textField({ key: 'details.lastName', label: 'Last name' }),

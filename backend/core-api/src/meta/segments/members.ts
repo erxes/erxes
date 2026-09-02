@@ -12,17 +12,11 @@ import { SegmentCollection, segmentSource } from './collections';
 import { CORE_SEGMENT_FIELDS } from './fields';
 import { CORE_SEGMENT_FIELD_NAMESPACES } from './namespaces';
 
-/**
- * Runs a segment against a core collection.
- *
- * The tree arrives uncompiled and is turned into a filter here, with core's own
- * declarations, so no caller can hand this service a query to run.
- */
-
 const compile = (
   models: IModels,
   contentType: string,
   node: SegmentNode,
+  timeZone?: string,
 ): {
   collection: SegmentCollection;
   query: Record<string, unknown>;
@@ -37,6 +31,7 @@ const compile = (
   const { filter, unsupported } = compileSegmentMongoFilter(node, {
     fields: CORE_SEGMENT_FIELDS[contentType] || [],
     namespaces: CORE_SEGMENT_FIELD_NAMESPACES[contentType],
+    timeZone,
   });
 
   const query = Object.keys(filter).length
@@ -54,15 +49,17 @@ export const listCoreSegmentMembers = async (
     cursor,
     limit,
     ids,
+    timeZone,
   }: {
     contentType: string;
     node: SegmentNode;
     cursor?: string;
     limit?: number;
     ids?: string[];
+    timeZone?: string;
   },
 ): Promise<SegmentMemberPage> => {
-  const compiled = compile(models, contentType, node);
+  const compiled = compile(models, contentType, node, timeZone);
 
   if (!compiled) {
     return { ids: [], unsupported: [contentType] };
@@ -73,7 +70,6 @@ export const listCoreSegmentMembers = async (
   const records = await compiled.collection
     .find(segmentPageFilter(compiled.query, { cursor, ids }), { _id: 1 })
     .sort({ _id: 1 })
-    // One extra row answers "is there another page" without a second query.
     .limit(size + 1)
     .lean();
 
@@ -93,17 +89,36 @@ export const countCoreSegmentMembers = async (
     contentType,
     node,
     ids,
-  }: { contentType: string; node: SegmentNode; ids?: string[] },
+    budgetMs,
+    timeZone,
+  }: {
+    contentType: string;
+    node: SegmentNode;
+    ids?: string[];
+    budgetMs?: number;
+    timeZone?: string;
+  },
 ): Promise<SegmentMemberCount> => {
-  const compiled = compile(models, contentType, node);
+  const compiled = compile(models, contentType, node, timeZone);
 
   if (!compiled) {
     return { count: 0, unsupported: [contentType] };
   }
 
-  const count = await compiled.collection.countDocuments(
-    segmentPageFilter(compiled.query, { ids }),
-  );
+  let count: number;
+
+  try {
+    count = await compiled.collection.countDocuments(
+      segmentPageFilter(compiled.query, { ids }),
+      budgetMs ? { maxTimeMS: budgetMs } : undefined,
+    );
+  } catch (error) {
+    if (budgetMs && /time limit|maxTimeMS|exceeded/i.test(String(error))) {
+      return { count: 0, exceeded: true };
+    }
+
+    throw error;
+  }
 
   return compiled.unsupported.length
     ? { count, unsupported: compiled.unsupported }

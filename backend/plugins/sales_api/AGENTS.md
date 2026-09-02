@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-08-26`
+- **Last synchronized:** `2026-09-01`
 
 ## Scope
 
@@ -253,6 +253,32 @@
   keys by name, `deal.count` takes `{ filter? }` — an agent's unbounded
   `deal.find {}` over 1.27M deals crash-looped this service (exit 139) on
   2026-08-20, and wrapper-shaped input silently matched nothing.
+- A segment content type is named the way the event dispatcher names it
+  (`sales:sales.deals`, `sales:pos.orders`). A declaration under any other name
+  is never matched to a write, which is a segment that silently never updates.
+- A collection a module exposes to segments is declared in its own
+  `meta/segments/collections.ts` and nowhere else. A content type added to the
+  source but not to the membership map - or the other way round - is a segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`pos_orders.customerId`). Without one the measure scans the collection.
+- Relation measurement and field reading belong to
+  `evaluateOwnedSegmentFields`; never re-implement a fold, a projection or a
+  join here. Sales states its collections, its declarations and its stage
+  rewrites, and nothing else.
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- Never compile a deal segment filter without passing through the `timeZone`
+  the caller supplied. Dropping it silently moves every day boundary by the
+  organization's offset, and the same record then answers one way to a query
+  and another way to an event.
+- Every stage-derived deal field (`pipelineId`, `boardId`, `stageProbability`)
+  must declare `sales:sales.stages` in `dependsOn` with `via: 'stageId'`.
+  Editing a stage changes those values on every deal in it with no write to a
+  deal, so without the declaration nothing re-checks their segments. A pipeline
+  moved to another board is one hop further than `via` reaches and stays
+  uncovered.
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 - Agent tool annotations are admit-only: never annotate raw-mongo helpers
   (`deal.aggregate`, `deal.updateOne`, `orders.updateOne`), system-user
@@ -270,7 +296,7 @@
 ## Validation
 
 - `pnpm nx lint sales_api` (pre-existing errors in `modules/ecommerce/routes.ts`
-  and `modules/sales/meta/segments/utils.ts` are not from recent changes)
+  are not from recent changes)
 - `pnpm nx build sales_api`
 - `pnpm nx test sales_api` (when `project.json` defines a test target)
 - Smoke scenario: query deals by `stageId` and verify `totalCount` does not
@@ -288,6 +314,90 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from both the sales and POS module handlers; automation
+  target matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/sales/meta/automations/automationHandlers.ts`,
+  `src/modules/pos/meta/automations/automationHandlers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Elasticsearch-era segment producers removed
+
+- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
+  `propertyConditionExtender` were deleted from the sales and POS modules and
+  from the plugin-level segment object; the plugin no longer makes any
+  plugin-to-plugin segment call, and no plugin-to-plugin RPC loop can form.
+- **Affected areas:** `src/meta/segments.ts`,
+  `src/modules/sales/meta/segments/segments.ts`,
+  `src/modules/sales/meta/segments/utils.ts` (deleted),
+  `src/modules/pos/meta/segments.ts`.
+- **Contracts changed:** `/segments` no longer answers `associationFilter`,
+  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
+  existed for any of them.
+
+### `2026-09-01` — POS orders renamed to their event content type
+
+- **Summary:** the module's `sales:pos_order` declaration - an
+  Elasticsearch-era name no write is ever emitted under - became
+  `sales:pos.orders`, and the module now owns its own fields, collections,
+  members, membership and evaluation instead of only an ES `associationFilter`.
+- **Affected areas:** `src/modules/pos/meta/posSegmentConfigs.ts`,
+  `src/modules/pos/meta/segments.ts`,
+  `src/modules/pos/meta/segments/` (new), `src/meta/segments.ts`.
+- **Contracts changed:** `sales:pos_order` -> `sales:pos.orders`; new relation
+  `customer.posOrders`.
+
+### `2026-09-01` — POS orders became a segment content type
+
+- **Summary:** `sales:pos.orders` is now declared, filterable on 20
+  user-facing fields, materialisable, and reachable from a customer segment
+  through `customer.posOrders`; the member, membership and source lookups route
+  by content type instead of assuming deals.
+- **Affected areas:** `src/modules/pos/meta/segments/` (new);
+  `src/modules/pos/db/definitions/orders.ts` (`customerId` index).
+- **Contracts changed:** New segment content type `sales:pos.orders`; new
+  relation `customer.posOrders`.
+
+### `2026-09-01` — Segment evaluation moved to the shared engine
+
+- **Summary:** `evaluate/deal.ts`, `evaluate/relations.ts` and
+  `evaluate/readPath.ts` were replaced by `evaluateOwnedSegmentFields` from
+  `erxes-api-shared`; sales now states only what is its own - the deal
+  collection (`meta/segments/collections.ts`), its declarations, and the two
+  stage rewrites - and the plugin's segment code dropped from 1,142 to 773
+  lines with no behaviour change.
+- **Affected areas:** `src/modules/sales/meta/segments/collections.ts` (new),
+  `evaluate/index.ts`, `evaluate/stageDerived.ts` (new); `evaluate/deal.ts`,
+  `evaluate/relations.ts`, `evaluate/readPath.ts` removed.
+- **Contracts changed:** None.
+
+### `2026-09-01` — Deal queries honour the organization's day
+
+- **Summary:** `listDealSegmentMembers`, `countDealSegmentMembers` and the
+  relation predicate now pass the caller-resolved `timeZone` into
+  `compileSegmentMongoFilter`, so a relative-day or anniversary condition on a
+  deal date means the organization's day rather than the UTC one.
+- **Affected areas:** `src/modules/sales/meta/segments/members.ts`,
+  `src/modules/sales/meta/segments/evaluate/{deal,relations}.ts`.
+- **Contracts changed:** None locally - `timeZone` is an optional field the
+  platform added to the member-query and evaluate-fields inputs.
+
+### `2026-08-31` — Stage-derived deal fields declare their source
+
+- **Summary:** `pipelineId`, `boardId` and `stageProbability` now name
+  `sales:sales.stages` as a dependency with the path back (`via: 'stageId'`),
+  so editing a stage re-checks the deals sitting in it instead of leaving their
+  membership stale until the nightly reconcile.
+- **Affected areas:** `src/modules/sales/meta/segments/fields/deal.ts`.
+- **Contracts changed:** None - the platform reads `dependsOn` it already
+  defined; only the declaration was filled in.
 
 ### `2026-08-26` — Segment content types match the event form
 
@@ -332,100 +442,3 @@
   for both relations; relation requests may now carry a core-resolved `edges`
   table; `evaluateFields` is routed by request through
   `createSegmentEvaluateFieldsHandler` instead of by `subjectType`.
-
-### `2026-08-23` — Deal relations and measures
-
-- **Summary:** Declared `customer.deals` and `company.deals`, and added the
-  aggregation that measures them for a batch - existence, count, and numeric
-  sum, average, min and max over a narrowed set of deals.
-- **Affected areas:** `src/modules/sales/meta/segments/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/relations.ts`,
-  `src/modules/sales/meta/segments/evaluate/deal.ts`,
-  `src/modules/sales/meta/segments/segments.ts`
-- **Contracts changed:** Adds `segmentRelations`. `evaluateFields` now answers
-  relation requests whose subject type this plugin does not own.
-
-### `2026-08-23` — Deal segment fields and batch evaluation
-
-- **Summary:** Declared the filterable `sales:deal` fields and added the
-  `evaluateFields` producer that resolves a batch of deals against them,
-  including the stage-derived `pipelineId`, `boardId` and `stageProbability`.
-- **Affected areas:** `src/modules/sales/meta/segments/fields/`,
-  `src/modules/sales/meta/segments/evaluate/`,
-  `src/modules/sales/meta/segments/segments.ts`, `src/meta/segments.ts`
-- **Contracts changed:** Adds `segmentFields` for `sales:deal` and the
-  `evaluateFields` segment producer. Existing segment producers are unchanged.
-
-### `2026-08-20` — Resumable deal benchmark seed
-
-- **Summary:** Added a guarded mongosh command for reproducible deal datasets
-  distributed across a pipeline's active stages.
-- **Affected areas:** `scripts/benchmarks/seed-deals.js`.
-- **Contracts changed:** None.
-
-### `2026-08-20` — Default deal order index
-
-- **Summary:** Added a compound index for unscoped top-level deal lists ordered
-  by card order and cursor id.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-20` — Covered stage deal count
-
-- **Summary:** Added a compound index that covers the stage/status/parent deal
-  count used by the deals board query.
-- **Affected areas:** `src/modules/sales/db/definitions/deals.ts`.
-
-### `2026-08-21` — Bounded, strict agent-facing deal reads
-
-- **Summary:** `deal.find` can no longer execute unbounded or mis-shaped
-  queries: input is now a strict zod object (`{ query?, skip?, limit?, sort?, fields? }`
-  — unknown keys such as an invented `arg` wrapper are rejected by name
-  instead of silently matching nothing), results are always bounded (`limit`
-  defaults to 20 and is hard-capped at 100, including the no-query path — an
-  agent's `deal.find {}` over 1.27M deals crash-looped this service with
-  exit 139 on 2026-08-20), and `fields` now drives a real projection so
-  agents stay under the 64KB agent-tools response budget. `deal.count` takes
-  an explicit `{ filter? }` object for the same reason (a `{ query: ... }`
-  wrapper previously counted 0 silently). No cross-plugin tRPC callers of
-  either procedure exist, so the tightened contracts break no consumers.
-- **Affected areas:** `src/modules/sales/trpc/deal.ts`.
-- **Contracts changed:** `deal.find` input is now strict
-  `{ query?, skip?, limit?, sort?, fields? }` (the bare top-level filter form
-  is rejected) with `limit` clamped to 1–100 (default 20); `deal.count` input
-  is now strict `{ filter? }` instead of a bare filter object.
-
-### `2026-08-19` — Agent-callable tRPC tools
-
-- **Summary:** Read-only deal, stage, pipeline, POS, and POS-order tRPC
-  procedures are now exposed to AI agents through the platform agent-tools
-  manifest.
-- **Affected areas:** `src/trpc/agentMeta.ts` (new local helper mirroring
-  core-api), `src/modules/sales/trpc/deal.ts`, `src/modules/pos/trpc/pos.ts`.
-- **Contracts changed:** New agent-tool manifest entries `deal.findOne`,
-  `deal.find`, `deal.count`, `deal.getLink`, `stage.findOne`, `stage.find`,
-  `pipeline.findOne`, `pos.findOne`, `pos.find`, `pos.ordersDeliveryInfo`,
-  `orders.findOne`, `orders.find`, gated by `showDeals`, `pipelinesWatch`,
-  `posRead`, and `posOrderRead`. No existing GraphQL or tRPC behavior changed.
-
-### `2026-08-19` — Checked pipeline deal query filter
-
-- **Summary:** Checked pipeline visibility now uses the master branch department-user rules, skips department lookups without pipeline departments, and preserves existing query filters.
-- **Affected areas:** `src/modules/sales/graphql/resolvers/queries/deals.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-12` — Pipeline-scoped deal properties
-
-- **Summary:** Sales pipelines persist only validated Core deal property ids.
-- **Affected areas:** `src/modules/sales/{@types,db,graphql,utils}`.
-- **Contracts changed:** `SalesPipeline`, `salesPipelinesAdd`, and
-  `salesPipelinesEdit` gained optional `propertyIds`; `SalesPipeline` exposes
-  `isPropertySelectionConfigured`.
-
-### `2026-08-12` — Exclude loyalty amount reference
-
-- **Summary:** `excludeLoyaltyAmount` returns deal total minus score-campaign
-  payment amounts.
-- **Affected areas:** `src/modules/sales/meta/references`, deal types.
-- **Contracts changed:** Corrected `sales:deal.excludeLoyaltyAmount` calculation
-  semantics.

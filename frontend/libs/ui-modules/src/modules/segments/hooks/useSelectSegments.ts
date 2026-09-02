@@ -14,7 +14,6 @@ export const useSelectSegments = ({
   selected?: string;
   exclude?: string[];
   focusOnMount?: boolean;
-  /** Explicit type for a picker outside the segments page, which has no route. */
   contentType?: string;
 }) => {
   const [search, setSearch] = useState('');

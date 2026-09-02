@@ -1,17 +1,9 @@
+import { SegmentOperator } from './operators';
 import {
   SegmentFieldMeta,
   SegmentFieldOption,
   SegmentFieldQuery,
-  SegmentOperator,
 } from './fieldMeta';
-
-/**
- * Shorthands for declaring segment fields.
- *
- * Every plugin declares the same handful of shapes, so the operator sets and
- * the boilerplate live here rather than being copied into each plugin's field
- * list. A field that does not fit one of these is written out in full.
- */
 
 export const SEGMENT_TEXT_OPERATORS = [
   SegmentOperator.Equals,
@@ -36,6 +28,9 @@ export const SEGMENT_DATE_OPERATORS = [
   SegmentOperator.DateLte,
   SegmentOperator.DaysAgo,
   SegmentOperator.DaysFromNow,
+  SegmentOperator.AnniversaryToday,
+  SegmentOperator.AnniversaryFromNow,
+  SegmentOperator.AnniversaryAgo,
 ];
 
 export const SEGMENT_BOOLEAN_OPERATORS = [
@@ -46,7 +41,6 @@ export const SEGMENT_BOOLEAN_OPERATORS = [
 type Base = {
   key: string;
   label: string;
-  /** Defaults to `key`; give it when the mongo path differs. */
   path?: string;
 };
 
@@ -86,7 +80,6 @@ export const booleanField = ({ key, label, path }: Base): SegmentFieldMeta => ({
   input: 'boolean',
 });
 
-/** A closed set of values known at build time. */
 export const staticField = ({
   key,
   label,
@@ -107,7 +100,6 @@ export const staticField = ({
   ),
 });
 
-/** An id picked from a searchable list query. */
 export const lookupField = ({
   key,
   label,
@@ -124,7 +116,6 @@ export const lookupField = ({
   query,
 });
 
-/** An id picked through a plugin-owned input, for anything with its own UX. */
 export const componentField = ({
   key,
   label,

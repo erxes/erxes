@@ -44,6 +44,7 @@ export const SelectSegment = ({
   nullable,
   exclude,
   disabled,
+  contentType,
 }: {
   selected?: string;
   onSelect: (categoryId: string | null) => void;
@@ -51,6 +52,7 @@ export const SelectSegment = ({
   nullable?: boolean;
   exclude?: string[];
   disabled?: boolean;
+  contentType?: string;
 }) => {
   const {
     segments,
@@ -60,7 +62,7 @@ export const SelectSegment = ({
     selectedSegment,
     setSearch,
     search,
-  } = useSelectSegments({ selected, exclude, focusOnMount });
+  } = useSelectSegments({ selected, exclude, focusOnMount, contentType });
 
   return (
     <Popover>

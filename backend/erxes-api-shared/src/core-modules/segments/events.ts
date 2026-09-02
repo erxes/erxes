@@ -1,43 +1,43 @@
 import { sendWorkerQueue } from '../../utils/mq-worker';
 
-/**
- * Work for the segmentation worker.
- *
- * Queued rather than acted on: recomputing membership can reach several
- * services, and none of that belongs on the write path a user is waiting for.
- * Redis holds the job, so the work survives the worker being down and is done
- * when it comes back.
- *
- * Best-effort in the same way the log journal is - a change is never rolled
- * back because its follow-up could not be queued. What that costs is a
- * membership that drifts until something touches those records again, which is
- * what a periodic reconciliation is for.
- */
-export const SEGMENT_QUEUE = { service: 'logs', name: 'segment' } as const;
+export const SEGMENT_QUEUES = {
+  service: 'logs',
+  changed: 'segment-changed',
+  forget: 'segment-forget',
+  rebuild: 'segment-rebuild',
+  reconcile: 'segment-reconcile',
+} as const;
 
-/** Records changed, so whoever they can move has to be re-decided. */
+export type SegmentQueueName = (typeof SEGMENT_QUEUES)[Exclude<
+  keyof typeof SEGMENT_QUEUES,
+  'service'
+>];
+
+export const segmentQueueFor = (job: SegmentJob): SegmentQueueName =>
+  SEGMENT_QUEUES[job.kind || 'changed'];
+
 export type SegmentChangedEvent = {
   kind?: 'changed';
   subdomain: string;
-  /** As the event dispatcher names it, e.g. `sales:sales.deals`. */
   contentType: string;
   docIds: string[];
+  segmentIds?: string[];
+  changed?: Record<string, { prev?: unknown; next?: unknown }>;
 };
 
-/**
- * A definition changed, so its whole membership is stale.
- *
- * Record-driven work only ever re-decides the records that moved, which cannot
- * notice that the question itself is different now. Without this, an edited
- * segment keeps answering with the old definition indefinitely.
- */
 export type SegmentRebuildEvent = {
   kind: 'rebuild';
   subdomain: string;
   segmentId: string;
 };
 
-/** A segment is gone; its id has to come off the records still carrying it. */
+export type SegmentReconcileEvent = {
+  kind: 'reconcile';
+  subdomain: string;
+  before?: string;
+  step?: number;
+};
+
 export type SegmentForgetEvent = {
   kind: 'forget';
   subdomain: string;
@@ -48,21 +48,65 @@ export type SegmentForgetEvent = {
 export type SegmentJob =
   | SegmentChangedEvent
   | SegmentRebuildEvent
-  | SegmentForgetEvent;
+  | SegmentForgetEvent
+  | SegmentReconcileEvent;
 
-const enqueue = (job: SegmentJob): void => {
+const RECONCILE_CRON = process.env.SEGMENT_RECONCILE_CRON || '0 3 * * *';
+const RECONCILE_TZ = process.env.SEGMENT_RECONCILE_TZ;
+
+const reconcileScheduled = new Set<string>();
+
+export const scheduleSegmentReconcile = (subdomain: string): void => {
+  if (reconcileScheduled.has(subdomain)) {
+    return;
+  }
+
+  reconcileScheduled.add(subdomain);
+
   try {
-    sendWorkerQueue(SEGMENT_QUEUE.service, SEGMENT_QUEUE.name)
-      .add(SEGMENT_QUEUE.name, job, {
-        removeOnComplete: true,
-        removeOnFail: true,
-        attempts: 3,
-      })
+    sendWorkerQueue(SEGMENT_QUEUES.service, SEGMENT_QUEUES.reconcile)
+      .add(
+        SEGMENT_QUEUES.reconcile,
+        { kind: 'reconcile', subdomain } as SegmentReconcileEvent,
+        {
+          repeat: {
+            pattern: RECONCILE_CRON,
+            ...(RECONCILE_TZ ? { tz: RECONCILE_TZ } : {}),
+          },
+          jobId: `segment-reconcile-${subdomain}`,
+          removeOnComplete: true,
+          removeOnFail: true,
+        },
+      )
       .catch(() => {
-        /* never surface a follow-up failure to the write path */
+        reconcileScheduled.delete(subdomain);
       });
   } catch {
-    /* never break a write because a queue was unreachable */
+    reconcileScheduled.delete(subdomain);
+  }
+};
+
+const attemptsFor = (job: SegmentJob): number =>
+  job.kind === 'rebuild' || job.kind === 'reconcile' ? 1 : 3;
+
+const enqueue = (job: SegmentJob): void => {
+  scheduleSegmentReconcile(job.subdomain);
+
+  try {
+    const name = segmentQueueFor(job);
+
+    sendWorkerQueue(SEGMENT_QUEUES.service, name)
+      .add(name, job, {
+        removeOnComplete: true,
+        removeOnFail: true,
+        attempts: attemptsFor(job),
+      })
+      .catch(() => {
+        // Best effort: a write is never rolled back because its follow-up
+        // could not be queued. Reconciliation catches what drifts.
+      });
+  } catch {
+    // As above - the queue being unreachable must not fail the write.
   }
 };
 
@@ -75,6 +119,10 @@ export const sendSegmentChanged = (
 
   enqueue({ ...event, kind: 'changed' });
 };
+
+export const sendSegmentReconcile = (
+  event: Omit<SegmentReconcileEvent, 'kind'>,
+): void => enqueue({ ...event, kind: 'reconcile' });
 
 export const sendSegmentRebuild = (
   event: Omit<SegmentRebuildEvent, 'kind'>,

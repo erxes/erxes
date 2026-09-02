@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { DatePicker, Form, Input, Select } from 'erxes-ui';
+import { DatePicker, Form, Input, Select, TPropertyInputMeta } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { FieldPath } from 'react-hook-form';
 import { pluginsConfigState } from 'ui-modules/states';
@@ -10,17 +10,9 @@ import {
   TSegmentForm,
   TSegmentOperator,
 } from '../../types';
+import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
 import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
-
-/**
- * The value side of a condition.
- *
- * Which input to show is decided twice over: the operator says whether it wants
- * nothing, a plain number or the field's own input, and only then does the
- * field's declared input kind matter. That is why "3 days ago" shows a number
- * box on a date field.
- */
 
 const listQuery = (name: string, labelField: string, valueField: string) => gql`
   query ${name}($searchValue: String, $direction: CURSOR_DIRECTION, $cursor: String, $limit: Int) {
@@ -32,28 +24,39 @@ const listQuery = (name: string, labelField: string, valueField: string) => gql`
   }
 `;
 
+const onlyStrings = (meta: TPropertyInputMeta): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(meta).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    ),
+  );
+
 export const SegmentConditionValue = ({
   path,
   field: declared,
+  fieldType,
   operator,
 }: {
   path: TNodePath;
   field?: TSegmentField;
+  fieldType?: string;
   operator?: TSegmentOperator;
 }) => {
-  const { form, contentType } = useSegment();
+  const { form, contentType, stats } = useSegment();
+  const { countSettled } = stats;
   const pluginsConfig = useAtomValue(pluginsConfigState);
+
+  const name = `${path}.value` as FieldPath<TSegmentForm>;
+  const metaName = `${path}.meta`;
+  const meta = useSegmentNodeValue<Record<string, string>>(metaName);
 
   if (!declared || !operator || operator.input === 'none') {
     return null;
   }
 
-  const name = `${path}.value` as FieldPath<TSegmentForm>;
-
-  // The operator wants a count, whatever the field itself looks like.
   const asNumber = operator.input === 'number';
 
-  const [pluginName] = contentType.split(':');
+  const [pluginName] = (fieldType || contentType).split(':');
   const CustomInput =
     declared.source === 'component' && declared.component
       ? Object.values(pluginsConfig || {}).find(
@@ -76,24 +79,44 @@ export const SegmentConditionValue = ({
                   type="number"
                   value={value}
                   onChange={(event) => field.onChange(event.target.value)}
+                  onBlur={countSettled}
                   className="w-full min-w-0"
                 />
               ) : CustomInput ? (
                 <CustomInput
                   value={value}
-                  onValueChange={field.onChange}
-                  onMetaChange={() => undefined}
+                  meta={meta}
+                  onValueChange={(next: unknown) => {
+                    field.onChange(next);
+                    countSettled();
+                  }}
+                  onMetaChange={(next: TPropertyInputMeta) =>
+                    form.setValue(
+                      metaName as FieldPath<TSegmentForm>,
+                      onlyStrings(next),
+                      { shouldDirty: true },
+                    )
+                  }
                 />
               ) : declared.input === 'date' ? (
                 <DatePicker
                   className="w-full"
                   value={field.value as Date | undefined}
-                  onChange={(date) => field.onChange(date)}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    countSettled();
+                  }}
                   placeholder="Select date"
                 />
               ) : declared.input === 'select' &&
                 declared.source === 'static' ? (
-                <Select value={value} onValueChange={field.onChange}>
+                <Select
+                  value={value}
+                  onValueChange={(next) => {
+                    field.onChange(next);
+                    countSettled();
+                  }}
+                >
                   <Select.Trigger className="w-full min-w-0">
                     <Select.Value />
                   </Select.Trigger>
@@ -119,7 +142,10 @@ export const SegmentConditionValue = ({
                   valueField={declared.query.valueField || '_id'}
                   nullable
                   value={value}
-                  onSelect={field.onChange}
+                  onSelect={(next) => {
+                    field.onChange(next);
+                    countSettled();
+                  }}
                   focusOnMount
                 />
               ) : (
@@ -127,6 +153,7 @@ export const SegmentConditionValue = ({
                   type={declared.input === 'number' ? 'number' : 'text'}
                   value={value}
                   onChange={(event) => field.onChange(event.target.value)}
+                  onBlur={countSettled}
                   className="w-full min-w-0"
                 />
               )}

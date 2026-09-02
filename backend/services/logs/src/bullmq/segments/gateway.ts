@@ -2,6 +2,7 @@ import {
   gatherSegmentRelations,
   SegmentEvaluateFieldsResult,
   SegmentEvaluationGateway,
+  segmentTimeZone,
   TSegmentProducers,
 } from 'erxes-api-shared/core-modules';
 import {
@@ -9,18 +10,12 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 
-/**
- * How the segmentation worker reaches the participants.
- *
- * Nothing here touches a database. Every plugin - core included - answers for
- * its own records through its published producer, and the relation table is
- * read through core's contract rather than its collection. That is what lets
- * this run outside the services that own the data.
- */
 export const workerSegmentGateway = (
   subdomain: string,
 ): SegmentEvaluationGateway => ({
   relationsFor: gatherSegmentRelations,
+
+  timeZone: () => segmentTimeZone(subdomain),
 
   resolveFields: async (pluginName, input) =>
     sendCoreModuleProducer({

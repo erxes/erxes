@@ -11,6 +11,7 @@ export const ticketsSegmentConfigs = {
 
   contentTypes: [
     {
+      contentType: 'frontline:tickets.tickets',
       moduleName: 'tickets',
       type: 'tickets',
       description: 'Ticket',

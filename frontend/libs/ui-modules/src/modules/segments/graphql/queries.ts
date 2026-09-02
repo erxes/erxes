@@ -9,13 +9,14 @@ const SEGMENT_FIELDS = `
   root
   visibility
   ownerId
-  executionMode
   status
   revision
   membersCount
   membersCountedAt
   buildStartedAt
   buildProcessed
+  buildTotal
+  buildCancelRequested
 `;
 
 export const SEGMENTS = gql`
@@ -39,6 +40,7 @@ export const SEGMENTS = gql`
       status
       membersCount
       buildProcessed
+      buildTotal
     }
   }
 `;
@@ -57,7 +59,6 @@ export const SEGMENTS_GET_TYPES = gql`
   }
 `;
 
-/** Filterable fields for a content type, as the owning plugin declares them. */
 export const SEGMENT_FIELDS_QUERY = gql`
   query SegmentFields($contentType: String!) {
     segmentFields(contentType: $contentType) {
@@ -73,12 +74,12 @@ export const SEGMENT_FIELDS_QUERY = gql`
         value
         label
         input
+        hint
       }
     }
   }
 `;
 
-/** Related entities a segment on this content type can reach. */
 export const SEGMENT_RELATIONS = gql`
   query SegmentRelations($subjectType: String!) {
     segmentRelations(subjectType: $subjectType) {
@@ -90,6 +91,7 @@ export const SEGMENT_RELATIONS = gql`
         value
         label
         input
+        hint
       }
     }
   }
@@ -100,6 +102,7 @@ export const SEGMENTS_PREVIEW_COUNT = gql`
     segmentsPreviewCount(contentType: $contentType, root: $root) {
       count
       unsupported
+      exceeded
     }
   }
 `;
@@ -113,10 +116,10 @@ export const SEGMENT_MEMBER_COUNT = gql`
   }
 `;
 
-/** A segment's membership and movement per day, oldest first. */
 export const SEGMENT_GROWTH = gql`
   query SegmentGrowth($segmentId: String!, $days: Int) {
     segmentGrowth(segmentId: $segmentId, days: $days) {
+      at
       date
       count
       joined
@@ -125,7 +128,6 @@ export const SEGMENT_GROWTH = gql`
   }
 `;
 
-/** The segment already asking this, if one exists. */
 export const SEGMENT_SAME_DEFINITION = gql`
   query SegmentSameDefinition(
     $contentType: String!

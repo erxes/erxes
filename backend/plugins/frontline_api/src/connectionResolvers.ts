@@ -459,7 +459,7 @@ export const loadClasses = (
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations',
-    loadConversationClass(models),
+    loadConversationClass(models, subdomain),
   );
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>(
     'conversation_messages',

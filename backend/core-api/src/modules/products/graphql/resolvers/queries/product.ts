@@ -582,7 +582,9 @@ const generateFilter = async (
       ? JSON.parse(segmentData)
       : await models.Segments.findOne({ _id: segment }).lean();
 
-    if (segmentObj) {
+    if (segmentObj?._id) {
+      andFilters.push({ segmentIds: segmentObj._id });
+    } else if (segmentObj) {
       const segmentProductIds = await collectSegmentMembers(
         models,
         subdomain,

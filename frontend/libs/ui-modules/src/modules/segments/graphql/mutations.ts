@@ -5,8 +5,7 @@ const PARAMS_DEFS = `
   $description: String,
   $color: String,
   $root: JSON!,
-  $visibility: SegmentVisibility,
-  $executionMode: SegmentExecutionMode
+  $visibility: SegmentVisibility
 `;
 
 const PARAMS = `
@@ -14,8 +13,7 @@ const PARAMS = `
   description: $description,
   color: $color,
   root: $root,
-  visibility: $visibility,
-  executionMode: $executionMode
+  visibility: $visibility
 `;
 
 const RESULT = `
@@ -26,9 +24,20 @@ const RESULT = `
   color
   root
   visibility
-  executionMode
   status
   revision
+`;
+
+export const SEGMENT_REBUILD = gql`
+  mutation SegmentsRebuild($_id: String!) {
+    segmentsRebuild(_id: $_id)
+  }
+`;
+
+export const SEGMENT_STOP_REBUILD = gql`
+  mutation SegmentsStopRebuild($_id: String!) {
+    segmentsStopRebuild(_id: $_id)
+  }
 `;
 
 export const SEGMENT_ADD = gql`

@@ -1,5 +1,6 @@
+import { SegmentOperator } from './operators';
 import { z } from 'zod';
-import { SegmentOperator } from './fieldMeta';
+
 import { SegmentNode } from './nodes';
 import { TSegmentProducers } from './types';
 
@@ -16,6 +17,7 @@ export const SegmentNodeSchema: z.ZodType<SegmentNode> = z.lazy(() =>
       fieldKey: z.string(),
       operator: z.nativeEnum(SegmentOperator),
       value: z.any().optional(),
+      meta: z.record(z.string(), z.string()).optional(),
     }),
     z.object({
       kind: z.literal('relation'),
@@ -30,6 +32,11 @@ export const SegmentNodeSchema: z.ZodType<SegmentNode> = z.lazy(() =>
       child: SegmentNodeSchema.optional(),
       operator: z.nativeEnum(SegmentOperator).optional(),
       value: z.any().optional(),
+    }),
+    z.object({
+      kind: z.literal('segment'),
+      segmentId: z.string(),
+      exclude: z.boolean().optional(),
     }),
   ]),
 );
@@ -85,9 +92,9 @@ export const EsTypesMapInput = SegmentBaseInput.extend({
 });
 
 const EvaluateFieldsInputData = z.object({
-  /** Content type of the ids in `subjectIds`. */
   subjectType: z.string(),
   subjectIds: z.array(z.string()),
+  timeZone: z.string().optional(),
   requests: z.array(
     z.union([
       z.object({
@@ -118,19 +125,14 @@ export const EvaluateFieldsInput = SegmentBaseInput.extend({
   data: EvaluateFieldsInputData,
 });
 
-/**
- * The tree travels, not a compiled filter: the owning plugin compiles it with
- * its own declarations, so no caller can hand a plugin an arbitrary query.
- */
 const SegmentMemberQueryInputData = z.object({
   contentType: z.string(),
   node: SegmentNodeSchema,
-  /** Narrows the query to these records, for checking a known set. */
   ids: z.array(z.string()).optional(),
+  timeZone: z.string().optional(),
 });
 
 const ListSegmentMembersInputData = SegmentMemberQueryInputData.extend({
-  /** Last `_id` of the previous page. */
   cursor: z.string().optional(),
   limit: z.number().int().positive().max(10000).optional(),
 });
@@ -143,14 +145,6 @@ export const CountSegmentMembersInput = SegmentBaseInput.extend({
   data: SegmentMemberQueryInputData,
 });
 
-/**
- * Settled membership for one content type, batched across segments.
- *
- * One event can settle a record against dozens of segments at once, so the
- * whole fan-out travels in a single call and lands in a single bulk write.
- * `undecided` subjects appear in neither list - their membership must not
- * change.
- */
 const ApplyMembershipInputData = z.object({
   contentType: z.string(),
   updates: z.array(
@@ -160,11 +154,9 @@ const ApplyMembershipInputData = z.object({
       notMatched: z.array(z.string()),
     }),
   ),
-  /**
-   * Segments to strip from every record that still carries them - a rebuild
-   * clearing the old answer, or a segment that no longer exists.
-   */
   forget: z.array(z.string()).optional(),
+  countFor: z.array(z.string()).optional(),
+  transitions: z.boolean().optional(),
 });
 
 export const ApplyMembershipInput = SegmentBaseInput.extend({

@@ -1,45 +1,33 @@
-import { normalizeSegmentOperator, SegmentOperator } from './fieldMeta';
 import {
-  SegmentFieldNode,
-  SegmentNode,
-  SegmentValue,
   segmentFieldRef,
+  segmentReferenceRef,
   segmentRelationRef,
-} from './nodes';
+} from './nodeRefs';
+import { SegmentOperator, normalizeSegmentOperator } from './operators';
 
-/**
- * Decides one subject's membership from an already-resolved value table.
- *
- * Pure on purpose: every read happens before this runs, so a segment with 53
- * conditions costs one batch of queries rather than 53 round trips, and the
- * whole condition language is testable without a database.
- */
+import { SegmentFieldNode, SegmentNode, SegmentValue } from './nodes';
+import {
+  DEFAULT_SEGMENT_TIME_ZONE,
+  isAnniversary,
+  shiftZonedDays,
+  zonedDate,
+} from './zonedTime';
 
 export type SegmentEvaluationState = 'matched' | 'notMatched' | 'unknown';
 
 export type SegmentDecideContext = {
-  /** One subject's values, keyed by `segmentFieldRef` or `relationKey`. */
+  subjectType?: string;
   values: ReadonlyMap<string, unknown>;
-  /**
-   * Keys whose owning plugin could not answer. A key missing from `values` is
-   * a definite "unset"; a key listed here is undecidable, and the difference
-   * decides whether membership may change at all.
-   */
   unavailable?: ReadonlySet<string>;
-  /** Evaluation instant for the relative-time operators. */
   now?: Date;
+  timeZone?: string;
 };
 
 const MINUTE_MS = 60_000;
-const DAY_MS = 86_400_000;
 
 const toList = (value: unknown): unknown[] =>
   Array.isArray(value) ? value : [value];
 
-/**
- * Mirrors an Elasticsearch `exists` check: null, undefined and an empty array
- * count as unset, an empty string does not.
- */
 const isPresent = (value: unknown): boolean => {
   if (value === undefined || value === null) {
     return false;
@@ -48,7 +36,6 @@ const isPresent = (value: unknown): boolean => {
   return !(Array.isArray(value) && value.length === 0);
 };
 
-/** Position on a number line, so dates, numbers and numeric strings compare. */
 const toOrdinal = (value: unknown): number | undefined => {
   if (value instanceof Date) {
     return value.getTime();
@@ -84,7 +71,6 @@ const sameValue = (value: unknown, expected: SegmentValue): boolean => {
   return String(value) === String(expected);
 };
 
-/** Mongo's `$in`: true when the value, or any of its entries, is in the list. */
 const anyInCommon = (value: unknown, expected: SegmentValue): boolean =>
   toList(expected).some((candidate) =>
     toList(value).some((item) => sameValue(item, candidate as SegmentValue)),
@@ -115,16 +101,10 @@ const compareOrdinal = (
   });
 };
 
-/**
- * The `wob*`/`woa*` operators match a whole bucket rather than a range: the
- * generated query used the same rounded instant for both bounds, so "3 days
- * ago" means that calendar day in UTC, not everything since.
- */
-const matchesBucket = (
+const matchesMinuteBucket = (
   value: unknown,
   expected: SegmentValue,
   now: Date,
-  bucketMs: number,
   offset: 1 | -1,
 ): boolean => {
   const amount = toOrdinal(expected);
@@ -134,13 +114,67 @@ const matchesBucket = (
   }
 
   const target = Math.floor(
-    (now.getTime() + offset * amount * bucketMs) / bucketMs,
+    (now.getTime() + offset * amount * MINUTE_MS) / MINUTE_MS,
   );
 
   return toList(value).some((item) => {
     const left = toOrdinal(item);
 
-    return left !== undefined && Math.floor(left / bucketMs) === target;
+    return left !== undefined && Math.floor(left / MINUTE_MS) === target;
+  });
+};
+
+const matchesDayBucket = (
+  value: unknown,
+  expected: SegmentValue,
+  now: Date,
+  timeZone: string,
+  offset: 1 | -1,
+): boolean => {
+  const amount = toOrdinal(expected);
+
+  if (amount === undefined) {
+    return false;
+  }
+
+  const target = shiftZonedDays(zonedDate(now, timeZone), offset * amount);
+
+  return toList(value).some((item) => {
+    const at = toOrdinal(item);
+
+    if (at === undefined) {
+      return false;
+    }
+
+    const on = zonedDate(new Date(at), timeZone);
+
+    return (
+      on.year === target.year &&
+      on.month === target.month &&
+      on.day === target.day
+    );
+  });
+};
+
+const matchesAnniversary = (
+  value: unknown,
+  expected: SegmentValue | undefined,
+  now: Date,
+  timeZone: string,
+  offset: 0 | 1 | -1,
+): boolean => {
+  const amount = offset === 0 ? 0 : toOrdinal(expected);
+
+  if (amount === undefined) {
+    return false;
+  }
+
+  const target = shiftZonedDays(zonedDate(now, timeZone), offset * amount);
+
+  return toList(value).some((item) => {
+    const at = toOrdinal(item);
+
+    return at !== undefined && isAnniversary(new Date(at), target, timeZone);
   });
 };
 
@@ -149,6 +183,7 @@ const matchesOperator = (
   value: unknown,
   expected: SegmentValue | undefined,
   now: Date,
+  timeZone: string,
 ): boolean => {
   switch (operator) {
     case SegmentOperator.IsSet:
@@ -159,6 +194,8 @@ const matchesOperator = (
       return toList(value).some((item) => item === true || item === 'true');
     case SegmentOperator.IsFalse:
       return toList(value).some((item) => item === false || item === 'false');
+    case SegmentOperator.AnniversaryToday:
+      return matchesAnniversary(value, expected, now, timeZone, 0);
     default:
       break;
   }
@@ -170,8 +207,6 @@ const matchesOperator = (
   switch (operator) {
     case SegmentOperator.Equals:
       return toList(value).some((item) => sameValue(item, expected));
-    // An absent field satisfies a negative operator, matching the `must_not`
-    // semantics the generated queries relied on.
     case SegmentOperator.NotEquals:
       return !toList(value).some((item) => sameValue(item, expected));
     case SegmentOperator.Contains:
@@ -194,13 +229,18 @@ const matchesOperator = (
       return compareOrdinal(value, expected, 'lte');
 
     case SegmentOperator.MinutesFromNow:
-      return matchesBucket(value, expected, now, MINUTE_MS, 1);
+      return matchesMinuteBucket(value, expected, now, 1);
     case SegmentOperator.MinutesAgo:
-      return matchesBucket(value, expected, now, MINUTE_MS, -1);
+      return matchesMinuteBucket(value, expected, now, -1);
     case SegmentOperator.DaysFromNow:
-      return matchesBucket(value, expected, now, DAY_MS, 1);
+      return matchesDayBucket(value, expected, now, timeZone, 1);
     case SegmentOperator.DaysAgo:
-      return matchesBucket(value, expected, now, DAY_MS, -1);
+      return matchesDayBucket(value, expected, now, timeZone, -1);
+
+    case SegmentOperator.AnniversaryFromNow:
+      return matchesAnniversary(value, expected, now, timeZone, 1);
+    case SegmentOperator.AnniversaryAgo:
+      return matchesAnniversary(value, expected, now, timeZone, -1);
 
     default:
       return false;
@@ -211,6 +251,7 @@ const decideField = (
   node: SegmentFieldNode,
   context: SegmentDecideContext,
   now: Date,
+  timeZone: string,
 ): SegmentEvaluationState => {
   const ref = segmentFieldRef(node);
 
@@ -220,7 +261,13 @@ const decideField = (
 
   const operator = normalizeSegmentOperator(node.operator);
 
-  return matchesOperator(operator, context.values.get(ref), node.value, now)
+  return matchesOperator(
+    operator,
+    context.values.get(ref),
+    node.value,
+    now,
+    timeZone,
+  )
     ? 'matched'
     : 'notMatched';
 };
@@ -251,9 +298,28 @@ export const decideSegmentNode = (
   context: SegmentDecideContext,
 ): SegmentEvaluationState => {
   const now = context.now || new Date();
+  const timeZone = context.timeZone || DEFAULT_SEGMENT_TIME_ZONE;
 
   if (node.kind === 'field') {
-    return decideField(node, context, now);
+    return decideField(node, context, now, timeZone);
+  }
+
+  if (node.kind === 'segment') {
+    if (!context.subjectType) {
+      return 'unknown';
+    }
+
+    const ref = segmentReferenceRef(context.subjectType);
+
+    if (context.unavailable?.has(ref)) {
+      return 'unknown';
+    }
+
+    const member = toList(context.values.get(ref)).some(
+      (id) => id === node.segmentId,
+    );
+
+    return (node.exclude ? !member : member) ? 'matched' : 'notMatched';
   }
 
   if (node.kind === 'relation') {
@@ -265,8 +331,6 @@ export const decideSegmentNode = (
 
     const resolved = context.values.get(ref);
 
-    // The traversal is measured while values are resolved, so an unresolved
-    // relation is undecidable rather than false.
     if (resolved === undefined) {
       return 'unknown';
     }
@@ -281,8 +345,6 @@ export const decideSegmentNode = (
       return present ? 'matched' : 'notMatched';
     }
 
-    // The numeric measures compare through the same operator table as any
-    // other number, so "at least three" means the same thing everywhere.
     if (!node.operator) {
       return 'unknown';
     }
@@ -292,13 +354,12 @@ export const decideSegmentNode = (
       resolved,
       node.value,
       now,
+      timeZone,
     )
       ? 'matched'
       : 'notMatched';
   }
 
-  // An empty group would otherwise be vacuously true and sweep in every
-  // record. Segments the migration emptied are exactly this shape.
   if (!node.children.length) {
     return 'unknown';
   }

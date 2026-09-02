@@ -1,16 +1,8 @@
-import { SegmentFieldMeta, SegmentRelationMeta } from './fieldMeta';
+import { SegmentRelationMeta } from './relationRegistry';
+import { SegmentFieldMeta } from './fieldMeta';
 import { SegmentValueRequest } from './plan';
 import { ISegmentContentType, SegmentEvaluateFieldsResult } from './types';
 
-/**
- * The module that declared a content type.
- *
- * The other segment producers carry a `contentType` naming the records they are
- * about, and it is the module's own `contentTypes` list that says who owns it.
- * Deriving the module name from the string instead - splitting `sales:deal`
- * into `sales` and `deal` - looks for a module named after the entity, which no
- * plugin has.
- */
 export const segmentModuleForContentType = <
   TModule extends { contentTypes?: ISegmentContentType[] },
 >(
@@ -23,22 +15,6 @@ export const segmentModuleForContentType = <
     ),
   );
 
-/**
- * Routes one `evaluateFields` batch to the modules that declared its refs.
- *
- * The other segment producers can be routed by the content type in their
- * input, but this one cannot: a relation is measured from the subject that
- * owns it, so the batch deliberately arrives with a subject type the answering
- * plugin does not own - a customer's deals are counted by sales. Routing on
- * the subject type would send that batch to a module named `customer` that no
- * plugin has.
- *
- * So the routing follows the requests instead. Each ref goes to the module
- * that declared the field or the relation behind it, which every module
- * already publishes, and one batch may legitimately fan out to several.
- */
-
-/** A module that declares segment values and can resolve its own. */
 type SegmentEvaluableModule<TModels> = {
   segmentFields?: Record<string, SegmentFieldMeta[]>;
   segmentRelations?: SegmentRelationMeta[];
@@ -85,8 +61,6 @@ export const createSegmentEvaluateFieldsHandler =
     for (const request of data.requests) {
       const name = owner(request);
 
-      // A ref no module claims is reported rather than answered as unset,
-      // which would decide membership against a value nobody read.
       if (!name) {
         unavailable.push(request.ref);
         continue;

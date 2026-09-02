@@ -6,21 +6,12 @@ import { TSegmentOperator, TSegmentRelation } from '../types/segmentNode';
 type TSegmentType = { contentType: string; description: string };
 
 export type TPropertyType = {
-  /** The related content type, or the subject's own. */
   contentType: string;
   label: string;
-  /** Set when this entry is reached through a relation. */
   relationKey?: string;
   measureOperators?: TSegmentOperator[];
 };
 
-/**
- * What the first column of a condition offers: the segment's own type, plus
- * the types reachable through a declared relation.
- *
- * Keeping related entities in their own column is what stops the field list
- * from becoming every field of every neighbouring entity at once.
- */
 export const useSegmentPropertyTypes = (contentType?: string) => {
   const { data, loading } = useQuery<{ segmentsGetTypes: TSegmentType[] }>(
     SEGMENTS_GET_TYPES,

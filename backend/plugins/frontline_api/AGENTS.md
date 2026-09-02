@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-08-27`
+- **Last synchronized:** `2026-09-01`
 
 ## Scope
 
@@ -377,6 +377,30 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- The conversation collection must never get an event dispatcher. Every
+  message written writes back to its conversation, so a dispatcher would make
+  the highest-volume write in the product also the highest-volume segment
+  event. `conversationsChanged` announces from the specific writes instead, and
+  is given the update document so a message - which names only `updatedAt` and
+  `messageCount` - announces nothing.
+- A new write that moves `customerId`, `integrationId`, `assignedUserId`,
+  `tagIds`, `status`, `closedAt`, `isBot` or `firstRespondedDate` on a
+  conversation must call `conversationsChanged`. Nothing else will.
+- Messages are declared in `segmentFields` but never in `contentTypes`: a
+  single message is nobody's audience, and the declaration exists only to give
+  the `customer.messages` relation a vocabulary.
+- `ticketSchema` must stay wrapped in `schemaWrapper`: membership is written
+  onto the record as `segmentIds`, and an unwrapped schema is a ticket segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`tickets.assigneeId`, `tickets.assignedMembers`). Without one the measure
+  scans the collection.
+- A ticket content type declaration must carry `contentType`. Without it the
+  dispatcher's `frontline:tickets.tickets` maps to nothing and no write ever
+  reaches a segment built on it.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -868,6 +892,61 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from the ticket module's producers; automation target
+  matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Elasticsearch-era segment producers removed
+
+- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
+  `propertyConditionExtender` were deleted from the ticket module and from the
+  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
+  segment call, and no plugin-to-plugin RPC loop can form.
+- **Affected areas:** `src/meta/segments.ts`,
+  `src/modules/ticket/meta/segments/index.ts`.
+- **Contracts changed:** `/segments` no longer answers `associationFilter`,
+  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
+  existed for any of them.
+
+### `2026-09-01` — Conversations and messages reachable from a segment
+
+- **Summary:** `frontline:inbox.conversations` is a segment content type with
+  12 fields including a derived `integrationKind` channel; conversations and
+  messages are both reachable from a customer segment
+  (`customer.conversations`, `customer.messages`), which is what answers "came
+  in from Facebook" and "wrote a comment saying 111". Conversation writes
+  announce themselves from the four places that move a declared field rather
+  than through a dispatcher.
+- **Affected areas:** `src/modules/inbox/meta/segments/` (new);
+  `src/modules/inbox/db/models/Conversations.ts`;
+  `src/modules/inbox/trpc/conversation.ts`; `src/meta/segments.ts`;
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** New segment content type
+  `frontline:inbox.conversations`; new relations `customer.conversations`,
+  `customer.messages`. `loadClass` for conversations now takes `subdomain`.
+
+### `2026-09-01` — Tickets became a real segment content type
+
+- **Summary:** `frontline:tickets.tickets` is now declared with its event
+  content type, filterable on 24 user-facing fields, materialisable, and
+  reachable from customer, company and team-member segments; the module moved
+  off the Elasticsearch-era producers onto the shared evaluator.
+- **Affected areas:** `src/modules/ticket/meta/segments/` (`fields/`,
+  `collections.ts`, `members.ts`, `membership.ts`, `evaluate.ts`,
+  `relations.ts`, `configs.ts`, `index.ts`); `src/meta/segments.ts`;
+  `src/modules/ticket/db/definitions/ticket.ts` (schemaWrapper, join indexes).
+- **Contracts changed:** Ticket content type now declares
+  `contentType: 'frontline:tickets.tickets'`; new relations
+  `customer.tickets`, `company.tickets`, `user.assignedTickets`.
+
 ### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
 
 - **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
@@ -981,64 +1060,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
 - **Contracts changed:** None — same subscription and payload shape, published
   once more per agent run.
-
-### `2026-08-19` — Messenger connect returns computed online state
-
-- **Summary:** `getMessengerData` now computes availability with
-  `Integrations.isOnline(integration)` and returns it as `messengerData.isOnline`
-  instead of passing through the stored manual flag, so a widget connecting to an
-  `availabilityMethod: "auto"` integration follows `onlineHours` and `timezone`.
-  The same computed value drives the existing `hideWhenOffline` `showChat`
-  suppression, which no longer recomputes it.
-- **Affected areas:**
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts` (`getMessengerData`,
-  shared by `widgetsMessengerConnect` and `cpConnect`).
-- **Contracts changed:** None — `MessengerConnectResponse.messengerData` is
-  `JSON` and still carries `isOnline`, now with the derived value.
-
-### `2026-08-19` — Ticket property fields carry their group's order
-
-- **Summary:** `TicketPropertyField` gained `groupOrder`, the position of the
-  property's group among the groups a configuration uses, so a consumer can
-  rebuild the grouped layout the builder shows without inferring it from array
-  positions. Like `order`, it is derived in `validateTicketPropertyFields` from
-  the submitted array — the rank at which each `groupId` first appears — and
-  never taken from the submitted values.
-- **Affected areas:** `src/modules/ticket/@types/ticketConfig.ts`,
-  `src/modules/ticket/db/definitions/ticketConfig.ts`,
-  `src/modules/ticket/graphql/schemas/ticketConfig.ts`,
-  `src/modules/ticket/utils/ticketConfig.ts`.
-- **Contracts changed:** `TicketPropertyField` and `TicketPropertyFieldInput`
-  gained an optional `groupOrder: Int`; stored configurations without it keep
-  working and are backfilled on their next save.
-
-### `2026-08-18` — Manual Meta sync for post engagement
-
-- **Summary:** Added `reportFacebookSyncPostStats`, an on-demand pull of
-  Facebook's own comment, reaction, and share counts onto stored post
-  documents, so the post report can show Meta's number next to the number
-  erxes received and name the gap.
-- **Affected areas:** `src/modules/reports/facebookSyncService.ts`,
-  `src/modules/reports/graphql/{schema/facebook.ts,resolvers/facebookMutations.ts,resolvers/facebookQueries.ts}`,
-  `src/modules/integrations/facebook/db/definitions/postConversations.ts`,
-  `src/modules/integrations/facebook/@types/postConversations.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/mutations.ts}`.
-- **Contracts changed:** New `reportFacebookSyncPostStats` mutation and
-  `ReportFacebookSyncResult`/`ReportFacebookSyncError` types;
-  `ReportFacebookPost` gained `metaCommentCount`, `metaReactionCount`,
-  `metaShareCount`, `metaSyncedAt`; the post document gained the same four
-  optional fields.
-
-### `2026-08-18` — Facebook report aggregations
-
-- **Summary:** Added a Facebook reporting surface over the plugin's own
-  Messenger, comment, and post collections — page list, KPI summary, daily
-  activity series, per-post engagement, and per-bot coverage — with page and
-  date scoping, plus `pageIds` on the saved-chart filter set so a saved
-  Facebook card restores its page selection.
-- **Affected areas:** `src/modules/reports/graphql/{schema,resolvers}/facebook.ts`,
-  `src/modules/reports/{utils.ts,@types/reportFilters.ts,db/definitions/chart.ts}`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts}`.
-- **Contracts changed:** New `FacebookReportFilter` input, `ReportFacebook*`
-  types, and five `reportFacebook*` queries; `TicketReportFilter`,
-  `ReportChartFilters`, and the stored chart filters gained `pageIds`.

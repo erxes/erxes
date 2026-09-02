@@ -14,21 +14,6 @@ import { useTranslation } from 'react-i18next';
 import { useSelectSegments } from '../hooks/useSelectSegments';
 import { ISegment } from '../types';
 
-/**
- * Filters a record list down to the members of one or more segments.
- *
- * Membership is read from the `segmentIds` the segmentation worker maintains
- * on each record, so picking a segment costs an indexed lookup rather than a
- * run of its whole definition.
- */
-
-/**
- * What the segment currently holds.
- *
- * Absent means the worker has not counted it yet, which is a different thing
- * from a segment with no members - showing `0` for both would be a lie about
- * the empty one.
- */
 const SegmentMembers = ({ segment }: { segment: ISegment }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'filter' });
 
@@ -134,7 +119,6 @@ export const SegmentsFilterView = ({
   );
 };
 
-/** Names the picked segments, so the bar reads without opening the popover. */
 const SelectedSegments = ({
   contentType,
   selected,

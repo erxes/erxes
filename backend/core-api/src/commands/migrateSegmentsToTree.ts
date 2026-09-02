@@ -50,7 +50,6 @@ if (!OWNER_ID) {
 const SOURCE = 'segments';
 const BACKUP = 'segments_backup';
 
-/** Condition-level keys that were really hidden filters. See report below. */
 const CONFIG_FIELD_KEYS = ['boardId', 'pipelineId', 'formId'] as const;
 
 const NUMBER_OPERATORS = new Set<string>([
@@ -159,11 +158,6 @@ const coerceValue = (
   return String(raw);
 };
 
-/**
- * `config.boardId` and friends silently added a `stageId IN (...)` clause to
- * the generated query, so they were conditions in everything but name. They
- * become ordinary sibling nodes, deduplicated within their group.
- */
 const configNodes = (
   config: Record<string, unknown> | undefined,
   contentType: string,
@@ -233,11 +227,6 @@ const buildOwnTree = (
   segment: LegacySegment,
   byId: Map<string, LegacySegment>,
   visiting: Set<string>,
-  /**
-   * Config keys an `and`-joined ancestor already enforces. The old shape copied
-   * `config` onto a segment and every one of its sub-segments, so without this
-   * the same "Board = X" row would show up at every level of the tree.
-   */
   inheritedConfig: Set<string>,
 ): SegmentNode | null => {
   const ownerContentType = segment.contentType || '';
@@ -301,7 +290,6 @@ const buildOwnTree = (
   return { kind: 'group', conjunction, children };
 };
 
-/** A segment's own conditions, intersected with its `subOf` ancestor's tree. */
 const buildTree = (
   segment: LegacySegment,
   byId: Map<string, LegacySegment>,
@@ -397,9 +385,6 @@ const migrateSegmentsToTree = async () => {
         children: [],
       };
 
-      // A segment whose every condition pointed at a deleted sub-segment keeps
-      // its identity and comes back as a draft. Deleting it would take away a
-      // saved segment the user can still see today.
       const emptied = root.kind === 'group' && !root.children.length;
 
       if (emptied) {
@@ -417,7 +402,6 @@ const migrateSegmentsToTree = async () => {
         root,
         visibility: 'organization' as const,
         ownerId: OWNER_ID,
-        executionMode: 'dynamic' as const,
         status: emptied ? ('draft' as const) : ('active' as const),
         revision: 1,
         createdBy: OWNER_ID,
@@ -472,7 +456,5 @@ migrateSegmentsToTree()
     process.exitCode = 1;
   })
   .finally(() => {
-    // erxes-api-shared opens shared clients when it is imported, so the event
-    // loop never drains on its own and the script would hang after finishing.
     process.exit(process.exitCode ?? 0);
   });

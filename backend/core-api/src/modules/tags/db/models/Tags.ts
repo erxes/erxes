@@ -7,6 +7,7 @@ import { ITag, ITagDocument } from 'erxes-api-shared/core-types';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { taggableTarget } from '../../taggable';
 export interface ITagModel extends Model<ITagDocument> {
   getTag(_id: string): Promise<ITagDocument>;
   createTag(doc: ITag): Promise<ITagDocument>;
@@ -17,6 +18,12 @@ export interface ITagModel extends Model<ITagDocument> {
     targetIds: string[],
     tagIds: string[],
   ): Promise<ITagDocument>;
+  fixRelatedRecords(args: {
+    type: string;
+    sourceId: string;
+    destId?: string;
+    action: 'remove' | 'merge';
+  }): Promise<void>;
   getChildTags(tagIds: string[]): Promise<string[]>;
 }
 
@@ -24,6 +31,10 @@ export const loadTagClass = (
   subdomain: string,
   models: IModels,
   { sendDbEventLog, createActivityLog, getContext }: EventDispatcherReturn,
+  eventHandlersFor: (
+    moduleName: string,
+    collectionName: string,
+  ) => EventDispatcherReturn,
 ) => {
   class Tag {
     public static async validate(_id: string | null, doc: ITag) {
@@ -230,18 +241,30 @@ export const loadTagClass = (
         };
 
         const model = modelMap[moduleName];
+        const target = taggableTarget(moduleName);
 
-        if (!model) {
+        if (!model || !target) {
           throw new Error(`Unknown content type: ${moduleName}`);
         }
         const targets = await model
           .find({ _id: { $in: targetIds } }, { tagIds: 1 })
           .lean();
 
+        const nextTagIds = tags.map((tag) => tag._id);
+
         const result = await model.updateMany(
           { _id: { $in: targetIds } },
-          { $set: { tagIds: tags.map((tag) => tag._id) } },
+          { $set: { tagIds: nextTagIds } },
         );
+
+        eventHandlersFor(
+          target.moduleName,
+          target.collectionName,
+        ).sendDbEventLog({
+          action: 'updateMany',
+          docIds: targetIds,
+          updateDescription: { updated: { tagIds: { current: nextTagIds } } },
+        });
 
         if (['customer', 'user', 'company', 'product'].includes(moduleName)) {
           buildBulkActivities(
@@ -264,13 +287,8 @@ export const loadTagClass = (
             createActivityLog,
             {
               pluginName: 'core',
-              moduleName: {
-                customer: 'contact',
-                user: 'organization',
-                company: 'contact',
-                product: 'product',
-              }[moduleName],
-              collectionName: `${moduleName}s`,
+              moduleName: target.moduleName,
+              collectionName: target.collectionName,
             },
           );
         }
@@ -298,6 +316,71 @@ export const loadTagClass = (
           action: 'tagObject',
         },
       });
+    }
+
+    public static async fixRelatedRecords({
+      type,
+      sourceId,
+      destId,
+      action,
+    }: {
+      type: string;
+      sourceId: string;
+      destId?: string;
+      action: 'remove' | 'merge';
+    }) {
+      const record = type.includes(':') ? type.split(':')[1] : type;
+      const target = taggableTarget(record);
+      const model = {
+        customer: models.Customers,
+        company: models.Companies,
+        product: models.Products,
+        user: models.Users,
+        form: models.Forms,
+        automation: models.Automations,
+      }[record] as any;
+
+      if (!model || !target) {
+        throw new Error(`Unknown content type: ${type}`);
+      }
+
+      const docIds: string[] = await model
+        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
+        .distinct('_id');
+
+      if (!docIds.length) {
+        return;
+      }
+
+      if (action === 'remove') {
+        await model.updateMany(
+          { _id: { $in: docIds } },
+          { $pull: { tagIds: { $in: [sourceId] } } },
+        );
+      }
+
+      if (action === 'merge') {
+        await model.updateMany(
+          { _id: { $in: docIds } },
+          { $set: { 'tagIds.$[elem]': destId } },
+          { arrayFilters: [{ elem: { $eq: sourceId } }] },
+        );
+      }
+
+      eventHandlersFor(target.moduleName, target.collectionName).sendDbEventLog(
+        {
+          action: 'updateMany',
+          docIds,
+          updateDescription: {
+            updated: {
+              tagIds:
+                action === 'merge'
+                  ? { prev: sourceId, current: destId }
+                  : { prev: sourceId },
+            },
+          },
+        },
+      );
     }
 
     public static async generateOrder({ name, parentId }: ITag) {

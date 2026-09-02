@@ -6,20 +6,11 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { segmentSource } from './collections';
+import { CORE_SEGMENT_CONTENT_TYPES } from './contentTypes';
 
-/**
- * Writes settled membership onto core's own records.
- *
- * Core answers only for the content types it owns; the decision itself was
- * made elsewhere, by whoever ran the segment.
- */
-
-const CORE_MEMBERSHIP_TYPES = [
-  'core:contacts.customers',
-  'core:contacts.leads',
-  'core:contacts.companies',
-  'core:organization.users',
-];
+const CORE_MEMBERSHIP_TYPES = CORE_SEGMENT_CONTENT_TYPES.map(
+  (declared) => declared.contentType,
+).filter((contentType): contentType is string => Boolean(contentType));
 
 export const applyCoreSegmentMembership = async (
   models: IModels,

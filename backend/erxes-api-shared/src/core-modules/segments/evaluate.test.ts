@@ -1,6 +1,8 @@
+import { segmentRelationRef } from './nodeRefs';
+import { SegmentOperator } from './operators';
 import { decideSegmentNode, SegmentDecideContext } from './evaluate';
-import { SegmentOperator } from './fieldMeta';
-import { SegmentNode, SegmentRelationNode, segmentRelationRef } from './nodes';
+
+import { SegmentNode, SegmentRelationNode } from './nodes';
 
 const NOW = new Date('2026-08-23T10:30:00.000Z');
 
@@ -50,7 +52,6 @@ describe('decideSegmentNode · operators', () => {
 
     expect(decide(node, { stageId: 's-2' })).toBe('matched');
     expect(decide(node, { stageId: 's-3' })).toBe('notMatched');
-    // An empty list matches nothing, agreeing with `{ $in: [] }`.
     expect(
       decide(field('stageId', SegmentOperator.In, []), { stageId: 's-1' }),
     ).toBe('notMatched');
@@ -122,7 +123,6 @@ describe('decideSegmentNode · operators', () => {
     expect(
       decide(threeDaysAgo, { createdAt: '2026-08-20T00:00:00.000Z' }),
     ).toBe('matched');
-    // inside the range but a different day, so the bucket does not match
     expect(
       decide(threeDaysAgo, { createdAt: '2026-08-21T10:00:00.000Z' }),
     ).toBe('notMatched');
@@ -137,7 +137,6 @@ describe('decideSegmentNode · operators', () => {
   });
 
   it('honours deprecated operators still stored on production segments', () => {
-    // `dateis` was a second spelling of `is`, `drgt` of `dateigt`
     expect(
       decide(field('closeDate', SegmentOperator.DateIsSet), { closeDate: 'x' }),
     ).toBe('matched');

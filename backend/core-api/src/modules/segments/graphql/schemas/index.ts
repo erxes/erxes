@@ -1,7 +1,6 @@
 export const types = `
-  enum SegmentVisibility { private team organization }
-  enum SegmentExecutionMode { dynamic materialized }
-  enum SegmentStatus { draft building active failed }
+  enum SegmentVisibility { private organization }
+  enum SegmentStatus { draft building active failed cancelled }
 
   type Segment @key(fields: "_id") {
     _id: ID!
@@ -15,9 +14,7 @@ export const types = `
 
     visibility: SegmentVisibility!
     ownerId: String!
-    teamId: String
 
-    executionMode: SegmentExecutionMode!
     status: SegmentStatus!
     revision: Int!
 
@@ -29,6 +26,8 @@ export const types = `
     """Set only while a rebuild is running. There is no total to compare to."""
     buildStartedAt: Date
     buildProcessed: Int
+    buildTotal: Int
+    buildCancelRequested: Boolean
 
     createdBy: String!
     updatedBy: String
@@ -40,10 +39,14 @@ export const types = `
     count: Int!
     """Parts of the tree the query could not express, so the count is narrower."""
     unsupported: [String!]
+    """The count gave up before finishing, so the number is not the answer."""
+    exceeded: Boolean
   }
 
   """One day of a segment's life: where it ended, and what moved it there."""
   type SegmentDay {
+    """Start of the bucket this point covers - hourly on a short window."""
+    at: Date
     date: String!
     """Closing membership. Absent on days the worker never settled it."""
     count: Int
@@ -62,6 +65,8 @@ export const types = `
     label: String!
     """What the operator needs from the user: none, field or number."""
     input: String!
+    """Shown under the row where the label alone would be read wrong."""
+    hint: String
   }
 
   type SegmentRelation {
@@ -120,8 +125,6 @@ const commonFields = `
   color: String
   root: JSON!
   visibility: SegmentVisibility
-  teamId: String
-  executionMode: SegmentExecutionMode
   status: SegmentStatus
 `;
 
@@ -129,4 +132,6 @@ export const mutations = `
   segmentsAdd(contentType: String!, ${commonFields}): Segment
   segmentsEdit(_id: String!, ${commonFields}): Segment
   segmentsRemove(ids: [String!]!): JSON
+  segmentsRebuild(_id: String!): JSON
+  segmentsStopRebuild(_id: String!): JSON
 `;

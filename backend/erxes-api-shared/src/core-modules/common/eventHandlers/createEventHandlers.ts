@@ -15,6 +15,7 @@ import {
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
 import { sendSegmentChanged } from '../../segments/events';
+import { segmentJoinChanges } from '../../segments/joinChanges';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
 
@@ -95,11 +96,19 @@ export function createEventHandlers(
     // too: writing membership onto ids that are gone is a no-op, but the
     // segment's member count is read back from the collection and so corrects
     // itself.
-    sendSegmentChanged({
-      subdomain,
-      contentType,
-      docIds: toIdList(eventPayload.docIds ?? eventPayload.docId),
-    });
+    //
+    // The diff travels with it where a relation joins by one of the paths that
+    // moved: after this returns, what the old value pointed at is unknowable,
+    // and the record on that side would keep counting this one. Resolved
+    // asynchronously so the write path waits for nothing - the event is queued
+    // either way, and a failure here only costs the old side a sweep.
+    const docIds = toIdList(eventPayload.docIds ?? eventPayload.docId);
+
+    segmentJoinChanges(contentType, payload?.updateDescription)
+      .then((changed) =>
+        sendSegmentChanged({ subdomain, contentType, docIds, changed }),
+      )
+      .catch(() => sendSegmentChanged({ subdomain, contentType, docIds }));
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
       const eventUpdateDescription = payload?.updateDescription;

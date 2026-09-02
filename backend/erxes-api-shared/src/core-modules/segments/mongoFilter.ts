@@ -1,42 +1,34 @@
+import { SegmentOperator, normalizeSegmentOperator } from './operators';
+import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import {
-  normalizeSegmentOperator,
-  SegmentFieldMeta,
-  SegmentFieldNamespace,
-  SegmentOperator,
-} from './fieldMeta';
-import { SegmentFieldNode, SegmentNode, SegmentValue } from './nodes';
-
-/**
- * Compiles a segment tree into a MongoDB filter.
- *
- * This is how a segment turns into a list: the owning plugin runs the filter
- * against its own collection. It has to agree with `decideSegmentNode` on every
- * operator - the same segment must give the same answer whether it is queried
- * or evaluated - so the two are checked against each other in the tests.
- */
+  SEGMENT_MEMBERSHIP_FIELD,
+  SegmentFieldNode,
+  SegmentNode,
+  SegmentValue,
+} from './nodes';
+import {
+  anniversaryRanges,
+  DEFAULT_SEGMENT_TIME_ZONE,
+  shiftZonedDays,
+  zonedDate,
+  zonedDayStart,
+} from './zonedTime';
 
 export type SegmentMongoFilter = Record<string, unknown>;
 
 export type SegmentCompileContext = {
   fields: SegmentFieldMeta[];
   namespaces?: SegmentFieldNamespace[];
-  /** Evaluation instant for the relative-time operators. */
   now?: Date;
+  timeZone?: string;
 };
 
 export type SegmentCompileResult = {
   filter: SegmentMongoFilter;
-  /**
-   * Nodes this filter could not express: derived values, fields owned by
-   * another content type, relations. A caller that cannot resolve them another
-   * way must treat the segment as undecidable rather than run a filter that
-   * silently ignores part of the definition.
-   */
   unsupported: string[];
 };
 
 const MINUTE_MS = 60_000;
-const DAY_MS = 86_400_000;
 
 const escapeRegex = (value: string) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -44,7 +36,11 @@ const escapeRegex = (value: string) =>
 const toArray = (value: SegmentValue): SegmentValue[] =>
   Array.isArray(value) ? value : [value];
 
-const toNumber = (value: SegmentValue): number | undefined => {
+const toNumber = (value: SegmentValue | undefined): number | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
   const parsed = Number(String(value).replace(/,/g, ''));
 
   return Number.isNaN(parsed) ? undefined : parsed;
@@ -56,11 +52,9 @@ const toDate = (value: SegmentValue): Date | undefined => {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 };
 
-/** `wob*`/`woa*` match one whole bucket, so they compile to a closed range. */
-const bucketRange = (
+const minuteBucket = (
   value: SegmentValue,
   now: Date,
-  bucketMs: number,
   offset: 1 | -1,
 ): Record<string, Date> | undefined => {
   const amount = toNumber(value);
@@ -70,23 +64,67 @@ const bucketRange = (
   }
 
   const target =
-    Math.floor((now.getTime() + offset * amount * bucketMs) / bucketMs) *
-    bucketMs;
+    Math.floor((now.getTime() + offset * amount * MINUTE_MS) / MINUTE_MS) *
+    MINUTE_MS;
 
-  return { $gte: new Date(target), $lte: new Date(target + bucketMs - 1) };
+  return { $gte: new Date(target), $lte: new Date(target + MINUTE_MS - 1) };
 };
 
-/**
- * The condition on one path. Returns `undefined` when the operator cannot be
- * expressed, so the caller can record it as unsupported.
- */
+const dayBucket = (
+  value: SegmentValue,
+  now: Date,
+  timeZone: string,
+  offset: 1 | -1,
+): Record<string, Date> | undefined => {
+  const amount = toNumber(value);
+
+  if (amount === undefined) {
+    return undefined;
+  }
+
+  const day = shiftZonedDays(zonedDate(now, timeZone), offset * amount);
+
+  return {
+    $gte: zonedDayStart(day, timeZone),
+    $lt: zonedDayStart(shiftZonedDays(day, 1), timeZone),
+  };
+};
+
+const anniversaryOn = (
+  path: string,
+  value: SegmentValue | undefined,
+  now: Date,
+  timeZone: string,
+  offset: 0 | 1 | -1,
+): SegmentMongoFilter | undefined => {
+  const amount = offset === 0 ? 0 : toNumber(value);
+
+  if (amount === undefined) {
+    return undefined;
+  }
+
+  const target = shiftZonedDays(zonedDate(now, timeZone), offset * amount);
+
+  return {
+    $or: anniversaryRanges(target, timeZone).map((range) => ({
+      [path]: { $gte: range.gte, $lt: range.lt },
+    })),
+  };
+};
+
+const ANNIVERSARY_OFFSETS: Partial<Record<SegmentOperator, 0 | 1 | -1>> = {
+  [SegmentOperator.AnniversaryToday]: 0,
+  [SegmentOperator.AnniversaryFromNow]: 1,
+  [SegmentOperator.AnniversaryAgo]: -1,
+};
+
 const compareOn = (
   operator: SegmentOperator,
   value: SegmentValue | undefined,
   now: Date,
+  timeZone: string,
 ): Record<string, unknown> | undefined => {
   switch (operator) {
-    // Matching `isPresent`: null and an empty array are unset, "" is not.
     case SegmentOperator.IsSet:
       return { $nin: [null, []], $exists: true };
     case SegmentOperator.IsNotSet:
@@ -104,8 +142,6 @@ const compareOn = (
   }
 
   switch (operator) {
-    // Mongo matches an array element with a plain equality, which is the same
-    // "contains" the evaluator applies to a list value.
     case SegmentOperator.Equals:
       return { $eq: value };
     case SegmentOperator.NotEquals:
@@ -117,8 +153,6 @@ const compareOn = (
         $not: new RegExp(escapeRegex(String(value)), 'i'),
       };
 
-    // An empty list matches nothing, which is what a resolved condition with no
-    // hits means - dropping it instead would widen the query.
     case SegmentOperator.In:
       return { $in: toArray(value) };
     case SegmentOperator.NotIn:
@@ -142,13 +176,13 @@ const compareOn = (
     }
 
     case SegmentOperator.MinutesFromNow:
-      return bucketRange(value, now, MINUTE_MS, 1);
+      return minuteBucket(value, now, 1);
     case SegmentOperator.MinutesAgo:
-      return bucketRange(value, now, MINUTE_MS, -1);
+      return minuteBucket(value, now, -1);
     case SegmentOperator.DaysFromNow:
-      return bucketRange(value, now, DAY_MS, 1);
+      return dayBucket(value, now, timeZone, 1);
     case SegmentOperator.DaysAgo:
-      return bucketRange(value, now, DAY_MS, -1);
+      return dayBucket(value, now, timeZone, -1);
 
     default:
       return undefined;
@@ -161,6 +195,8 @@ const compileField = (
   now: Date,
 ): SegmentMongoFilter | undefined => {
   const operator = normalizeSegmentOperator(node.operator);
+  const timeZone = context.timeZone || DEFAULT_SEGMENT_TIME_ZONE;
+  const anniversary = ANNIVERSARY_OFFSETS[operator];
 
   const declared = context.fields.find((field) => field.key === node.fieldKey);
 
@@ -169,7 +205,17 @@ const compileField = (
       return undefined;
     }
 
-    const comparison = compareOn(operator, node.value, now);
+    if (anniversary !== undefined) {
+      return anniversaryOn(
+        declared.path,
+        node.value,
+        now,
+        timeZone,
+        anniversary,
+      );
+    }
+
+    const comparison = compareOn(operator, node.value, now, timeZone);
 
     return comparison ? { [declared.path]: comparison } : undefined;
   }
@@ -183,14 +229,33 @@ const compileField = (
     return undefined;
   }
 
-  const comparison = compareOn(operator, node.value, now);
+  if (anniversary !== undefined) {
+    const branches = anniversaryOn(
+      namespace.valuePath,
+      node.value,
+      now,
+      timeZone,
+      anniversary,
+    );
+
+    return branches
+      ? {
+          [namespace.path]: {
+            $elemMatch: {
+              [namespace.keyPath]: rest.join('.'),
+              ...branches,
+            },
+          },
+        }
+      : undefined;
+  }
+
+  const comparison = compareOn(operator, node.value, now, timeZone);
 
   if (!comparison) {
     return undefined;
   }
 
-  // One entry has to satisfy both the key and the comparison, so the two live
-  // in a single `$elemMatch` rather than as two independent array conditions.
   return {
     [namespace.path]: {
       $elemMatch: {
@@ -220,6 +285,14 @@ const compileNode = (
   if (node.kind === 'relation') {
     unsupported.push(node.relationKey);
     return undefined;
+  }
+
+  if (node.kind === 'segment') {
+    return {
+      [SEGMENT_MEMBERSHIP_FIELD]: node.exclude
+        ? { $ne: node.segmentId }
+        : node.segmentId,
+    };
   }
 
   const children = node.children

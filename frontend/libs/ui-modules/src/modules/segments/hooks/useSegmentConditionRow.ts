@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { FieldPath, useWatch } from 'react-hook-form';
+import { FieldPath } from 'react-hook-form';
 import { useSegment } from '../context/SegmentProvider';
+import { useSegmentScope } from '../context/SegmentScopeProvider';
 import {
   TNodePath,
   TSegmentField,
@@ -8,55 +9,57 @@ import {
   TSegmentNode,
   TSegmentOperator,
 } from '../types';
-import { emptyCondition } from '../types/segmentNode';
+import { emptyCondition, emptySegmentReference } from '../types/segmentNode';
 import { useSegmentFields } from './useSegmentFields';
+import { useSegmentNodeValue } from './useSegmentNodeValue';
 import {
   TPropertyType,
   useSegmentPropertyTypes,
 } from './useSegmentPropertyTypes';
 
-/**
- * Everything one condition row needs to know about itself.
- *
- * A row is either a plain field on the subject or a measured relation, and the
- * difference decides which node the form writes and where the operator and
- * value live - on the relation for a count, on its child for a plain field of
- * the related type.
- */
-
 const COUNT_KEY = '__count';
 const SUM_PREFIX = '__sum:';
 
+export const SEGMENT_TYPE_KEY = '__segment';
+
+const pluginBehind = (node?: TSegmentNode): string | undefined => {
+  if (!node) {
+    return undefined;
+  }
+
+  if (node.kind === 'field') {
+    return node.contentType.split(':')[0];
+  }
+
+  return node.kind === 'relation' ? pluginBehind(node.child) : undefined;
+};
+
 export const useSegmentConditionRow = (
   path: TNodePath,
-  /**
-   * The entity this row sits inside. Inside a relation's filters that is the
-   * related type, not the segment's own - otherwise the row would offer the
-   * subject's fields for records that are not the subject.
-   */
-  contextType?: string,
-  /**
-   * Replaces the row through its field array. `setValue` on an item path leaves
-   * the array's own registration holding the previous operator and value, so a
-   * changed field would keep comparing with the old one.
-   */
   onReplace?: (next: TSegmentNode) => void,
 ) => {
-  const { form, contentType: segmentType } = useSegment();
-  const contentType = contextType || segmentType;
-  const { propertyTypes, loading: typesLoading } =
+  const { form } = useSegment();
+  const { contentType, nested } = useSegmentScope();
+  const { propertyTypes: entityTypes, loading: typesLoading } =
     useSegmentPropertyTypes(contentType);
 
-  const node = useWatch({
-    control: form.control,
-    name: path as FieldPath<TSegmentForm>,
-  }) as TSegmentNode | undefined;
+  const node = useSegmentNodeValue<TSegmentNode>(path);
 
-  // A relation node written by an older build may have no measure; treating it
-  // as a plain row is better than throwing while the form renders.
+  const isReference = node?.kind === 'segment';
+
+  const propertyTypes: TPropertyType[] = useMemo(
+    () =>
+      nested
+        ? entityTypes
+        : [...entityTypes, { contentType: SEGMENT_TYPE_KEY, label: 'Segment' }],
+    [entityTypes, nested],
+  );
+
   const isRelation = node?.kind === 'relation' && Boolean(node.measure);
 
-  const selectedType: TPropertyType | undefined = isRelation
+  const selectedType: TPropertyType | undefined = isReference
+    ? propertyTypes.find((type) => type.contentType === SEGMENT_TYPE_KEY)
+    : isRelation
     ? propertyTypes.find((type) => type.relationKey === node.relationKey)
     : propertyTypes.find(
         (type) =>
@@ -66,10 +69,9 @@ export const useSegmentConditionRow = (
       );
 
   const { fields, loading: fieldsLoading } = useSegmentFields(
-    selectedType?.contentType,
+    isReference ? undefined : selectedType?.contentType,
   );
 
-  /** A relation offers what can be measured before what can be matched. */
   const options: TSegmentField[] = useMemo(
     () =>
       !isRelation
@@ -91,12 +93,10 @@ export const useSegmentConditionRow = (
                 input: 'number' as const,
                 operators: selectedType?.measureOperators || [],
               })),
-            ...fields,
           ],
     [isRelation, fields, selectedType],
   );
 
-  /** Which option the row currently shows in its field column. */
   const selectedKey = isRelation
     ? node.measure.op === 'count'
       ? COUNT_KEY
@@ -114,10 +114,6 @@ export const useSegmentConditionRow = (
   const isMeasure =
     isRelation && (node.measure.op === 'count' || node.measure.op === 'sum');
 
-  /**
-   * A measured relation compares its own number; a relation matched on one of
-   * the related type's fields compares that child instead.
-   */
   const comparisonPath: TNodePath =
     isRelation && !isMeasure ? `${path}.child` : path;
 
@@ -146,8 +142,12 @@ export const useSegmentConditionRow = (
     });
   };
 
-  /** Switching entity discards a field and value that belonged to the old one. */
   const selectType = (type: TPropertyType) => {
+    if (type.contentType === SEGMENT_TYPE_KEY) {
+      setNode(emptySegmentReference());
+      return;
+    }
+
     if (!type.relationKey) {
       setNode(emptyCondition(type.contentType));
       return;
@@ -172,8 +172,6 @@ export const useSegmentConditionRow = (
       return;
     }
 
-    const relatedType = selectedType?.contentType || contentType;
-
     if (option.key === COUNT_KEY) {
       setNode({
         ...node,
@@ -193,25 +191,17 @@ export const useSegmentConditionRow = (
       });
       return;
     }
-
-    // A plain field of the related type asks whether any such record exists,
-    // so the comparison moves onto the child.
-    setNode({
-      ...node,
-      measure: { op: 'exists' },
-      child: {
-        kind: 'field',
-        contentType: relatedType,
-        fieldKey: option.key,
-        operator: '',
-      },
-      operator: undefined,
-      value: undefined,
-    });
   };
+
+  const unavailable =
+    !typesLoading && node && !isReference && !selectedType
+      ? { pluginName: pluginBehind(node) }
+      : null;
 
   return {
     node,
+    unavailable,
+    isReference,
     isRelation,
     isMeasure,
     propertyTypes,

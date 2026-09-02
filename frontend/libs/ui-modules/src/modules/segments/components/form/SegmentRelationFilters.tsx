@@ -1,19 +1,13 @@
 import { IconFilter } from '@tabler/icons-react';
 import { Button, Popover } from 'erxes-ui';
-import { FieldPath, useWatch } from 'react-hook-form';
+import { FieldPath } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSegment } from '../../context/SegmentProvider';
+import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
 import { TNodePath, TSegmentForm } from '../../types';
 import { emptyCondition, TSegmentNode } from '../../types/segmentNode';
 import { SegmentGroup } from './SegmentGroup';
 
-/**
- * The filters that narrow which related records a measure sees.
- *
- * They sit behind the row rather than in it: a count of won deals closed this
- * quarter is still one condition, and spreading it across three rows would
- * lose that.
- */
 export const SegmentRelationFilters = ({
   path,
   relatedType,
@@ -26,10 +20,8 @@ export const SegmentRelationFilters = ({
   const { form } = useSegment();
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
-  const childPath = `${path}.child` as FieldPath<TSegmentForm>;
-  const child = useWatch({ control: form.control, name: childPath }) as
-    | TSegmentNode
-    | undefined;
+  const childPath = `${path}.child`;
+  const child = useSegmentNodeValue<TSegmentNode>(childPath);
 
   const count = child?.kind === 'group' ? child.children.length : child ? 1 : 0;
 
@@ -38,10 +30,8 @@ export const SegmentRelationFilters = ({
       return;
     }
 
-    // The popover always edits a group, so a bare condition is wrapped and an
-    // empty relation starts with one row to fill in.
     form.setValue(
-      childPath,
+      childPath as FieldPath<TSegmentForm>,
       {
         kind: 'group',
         conjunction: 'and',
@@ -70,12 +60,23 @@ export const SegmentRelationFilters = ({
           )}
         </Button>
       </Popover.Trigger>
-      <Popover.Content align="start" className="w-[560px] p-3">
-        <p className="text-sm text-muted-foreground pb-2">
+      {/* Capped and scrolling: the predicate nests as deep as the user wants,
+          and the heading saying what is counted must not scroll away. */}
+      <Popover.Content
+        align="start"
+        className="w-[560px] p-3 flex flex-col max-h-[min(32rem,var(--radix-popover-content-available-height))]"
+      >
+        <p className="text-sm text-muted-foreground pb-2 shrink-0">
           {t('only-count-where', { label: label.toLowerCase() })}
         </p>
         {child?.kind === 'group' && (
-          <SegmentGroup path={`${path}.child`} contextType={relatedType} />
+          <div className="min-h-0 overflow-y-auto -mx-1 px-1">
+            <SegmentGroup
+              path={`${path}.child`}
+              contentType={relatedType}
+              nested
+            />
+          </div>
         )}
       </Popover.Content>
     </Popover>

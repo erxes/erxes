@@ -22,18 +22,15 @@ export const useSegmentActions = ({
     const mutation = segment ? segmentsEdit : segmentsAdd;
 
     mutation({
-      // The form already holds the shape the API stores, so the tree goes over
-      // as it is - there is nothing to translate on the way out.
       variables: {
         _id: segment?._id,
         contentType,
         name: data.name,
         description: data.description,
         color: data.color,
+        visibility: data.visibility,
         root: data.root,
       },
-      // The list and the detail both show the definition, so both are refetched
-      // rather than leaving a stale card behind.
       refetchQueries: [SEGMENTS, ...(segment ? [SEGMENT_DETAIL] : [])],
       onError: (error: ApolloError) =>
         toast({

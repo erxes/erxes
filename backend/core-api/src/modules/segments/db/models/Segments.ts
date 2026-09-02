@@ -1,7 +1,13 @@
 import {
   canonicalSegmentText,
+  collectSegmentReferences,
+  gatherSegmentFieldSources,
   gatherSegmentRelations,
+  hasSegmentReferenceInRelation,
+  sameSegmentDefinition,
   segmentDependencies,
+  segmentDependencyKey,
+  segmentDependsOnClock,
   segmentFingerprint,
 } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
@@ -12,12 +18,6 @@ import {
   segmentSchema,
 } from '../definitions/segments';
 
-/**
- * Segments are whole documents now: the condition tree lives inside `root`, so
- * there are no child segment rows to create, cascade or leave dangling.
- */
-
-/** What a caller supplies; the model fills in ownership and revision. */
 export type ISegmentCreate = Omit<
   ISegment,
   | 'revision'
@@ -37,7 +37,6 @@ export interface ISegmentModel extends Model<ISegmentDocument> {
     userId: string,
   ): Promise<ISegmentDocument | null>;
   removeSegments(ids: string[]): Promise<{ deletedCount?: number }>;
-  /** A segment that already asks this, if one exists. */
   findSameDefinition(
     contentType: string,
     root: ISegment['root'],
@@ -45,20 +44,100 @@ export interface ISegmentModel extends Model<ISegmentDocument> {
   ): Promise<ISegmentDocument | null>;
 }
 
-/** The content types a tree reads, resolved through the live relation registry. */
+const REFERENCE_PREFIX = segmentDependencyKey('');
+
 const dependenciesOf = async (contentType: string, root: ISegment['root']) => {
   const { relations } = await gatherSegmentRelations(contentType);
+  const { byField } = await gatherSegmentFieldSources();
 
-  return segmentDependencies(contentType, root, relations);
+  return segmentDependencies(contentType, root, relations, byField);
 };
 
 export const loadSegmentClass = (models: IModels) => {
-  /**
-   * The segment already answering this question, if there is one.
-   *
-   * The fingerprint narrows to candidates and the canonical text settles them,
-   * so a hash collision costs a comparison rather than a wrong answer.
-   */
+  const assertReferencesResolvable = async (
+    contentType: string,
+    root: ISegment['root'],
+    selfId?: string,
+  ) => {
+    const referenced = collectSegmentReferences(root);
+
+    if (!referenced.length) {
+      return;
+    }
+
+    if (selfId && referenced.includes(selfId)) {
+      throw new Error('A segment cannot reference itself');
+    }
+
+    if (hasSegmentReferenceInRelation(root)) {
+      throw new Error(
+        'A segment can only be used as a condition on the records it is about, not inside a related-record filter',
+      );
+    }
+
+    const targets = await models.Segments.find(
+      { _id: { $in: referenced } },
+      { _id: 1, name: 1, contentType: 1 },
+    ).lean<ISegmentDocument[]>();
+
+    const missing = referenced.filter(
+      (id) => !targets.some((target) => target._id === id),
+    );
+
+    if (missing.length) {
+      throw new Error(`Referenced segment no longer exists: ${missing[0]}`);
+    }
+
+    const foreign = targets.find(
+      (target) => target.contentType !== contentType,
+    );
+
+    if (foreign) {
+      throw new Error(
+        `"${foreign.name}" is about different records, so it cannot be used as a condition here`,
+      );
+    }
+
+    if (!selfId) {
+      return;
+    }
+
+    const seen = new Set(referenced);
+    let frontier = referenced;
+
+    while (frontier.length) {
+      const next = await models.Segments.find(
+        { _id: { $in: frontier } },
+        { _id: 1, name: 1, dependsOn: 1 },
+      ).lean<ISegmentDocument[]>();
+
+      const onward: string[] = [];
+
+      for (const segment of next) {
+        for (const dependency of segment.dependsOn || []) {
+          if (!dependency.startsWith(REFERENCE_PREFIX)) {
+            continue;
+          }
+
+          const id = dependency.slice(REFERENCE_PREFIX.length);
+
+          if (id === selfId) {
+            throw new Error(
+              `"${segment.name}" already depends on this segment, so referencing it would loop`,
+            );
+          }
+
+          if (!seen.has(id)) {
+            seen.add(id);
+            onward.push(id);
+          }
+        }
+      }
+
+      frontier = onward;
+    }
+  };
+
   const sameDefinition = async (
     contentType: string,
     root: ISegment['root'],
@@ -100,9 +179,8 @@ export const loadSegmentClass = (models: IModels) => {
     }
 
     public static async createSegment(doc: ISegmentCreate, userId: string) {
-      // Guarded here rather than only in the form: a second segment asking the
-      // same question doubles every evaluation and every membership write for
-      // one answer, whichever path created it.
+      await assertReferencesResolvable(doc.contentType, doc.root);
+
       const existing = await sameDefinition(doc.contentType, doc.root);
 
       if (existing) {
@@ -115,6 +193,7 @@ export const loadSegmentClass = (models: IModels) => {
         ...doc,
         fingerprint: segmentFingerprint(doc.contentType, doc.root),
         dependsOn: await dependenciesOf(doc.contentType, doc.root),
+        timeSensitive: segmentDependsOnClock(doc.root),
         revision: 1,
         ownerId: doc.ownerId || userId,
         createdBy: userId,
@@ -126,16 +205,13 @@ export const loadSegmentClass = (models: IModels) => {
       doc: Partial<ISegmentCreate>,
       userId: string,
     ) {
-      // A changed tree is a new revision, so anything caching membership by
-      // revision knows to rebuild rather than serve a stale list.
-      const bumpsRevision = Boolean(doc.root);
+      const current = await models.Segments.getSegment(_id);
 
-      // Recomputed with the tree, never separately: a stale `dependsOn` means
-      // the worker stops being told about changes the segment now reads.
-      const contentType =
-        doc.contentType || (await models.Segments.getSegment(_id))?.contentType;
+      const contentType = doc.contentType || current?.contentType;
 
       if (doc.root && contentType) {
+        await assertReferencesResolvable(contentType, doc.root, _id);
+
         const existing = await sameDefinition(contentType, doc.root, _id);
 
         if (existing) {
@@ -145,16 +221,19 @@ export const loadSegmentClass = (models: IModels) => {
         }
       }
 
-      const dependsOn = doc.root
-        ? await dependenciesOf(
-            doc.contentType ||
-              (
-                await models.Segments.getSegment(_id)
-              )?.contentType ||
-              '',
-            doc.root,
-          )
-        : undefined;
+      const asksSomethingElse = Boolean(
+        doc.root &&
+          contentType &&
+          !(
+            current?.root &&
+            sameSegmentDefinition(contentType, doc.root, current.root)
+          ),
+      );
+
+      const dependsOn =
+        doc.root && contentType
+          ? await dependenciesOf(contentType, doc.root)
+          : undefined;
 
       await models.Segments.updateOne(
         { _id },
@@ -162,9 +241,15 @@ export const loadSegmentClass = (models: IModels) => {
           $set: {
             ...doc,
             ...(dependsOn ? { dependsOn } : {}),
+            ...(doc.root && contentType
+              ? {
+                  fingerprint: segmentFingerprint(contentType, doc.root),
+                  timeSensitive: segmentDependsOnClock(doc.root),
+                }
+              : {}),
             updatedBy: userId,
           },
-          ...(bumpsRevision ? { $inc: { revision: 1 } } : {}),
+          ...(asksSomethingElse ? { $inc: { revision: 1 } } : {}),
         },
       );
 
@@ -172,6 +257,20 @@ export const loadSegmentClass = (models: IModels) => {
     }
 
     public static async removeSegments(ids: string[]) {
+      const dependent = await models.Segments.findOne(
+        {
+          _id: { $nin: ids },
+          dependsOn: { $in: ids.map(segmentDependencyKey) },
+        },
+        { name: 1 },
+      ).lean<ISegmentDocument>();
+
+      if (dependent) {
+        throw new Error(
+          `"${dependent.name}" uses this segment as a condition. Remove that condition first.`,
+        );
+      }
+
       return models.Segments.deleteMany({ _id: { $in: ids } });
     }
   }

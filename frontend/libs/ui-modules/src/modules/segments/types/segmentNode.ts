@@ -1,9 +1,3 @@
-/**
- * The wire shape of a segment's condition tree, mirroring the contract in
- * `erxes-api-shared`. Declared here rather than imported because the frontend
- * does not depend on backend packages.
- */
-
 export type TSegmentValue = string | number | boolean | string[];
 
 export type TSegmentGroupNode = {
@@ -18,20 +12,28 @@ export type TSegmentFieldNode = {
   fieldKey: string;
   operator: string;
   value?: TSegmentValue;
+  meta?: Record<string, string>;
+};
+
+export type TSegmentReferenceNode = {
+  kind: 'segment';
+  segmentId: string;
+  exclude?: boolean;
 };
 
 export type TSegmentNode =
   | TSegmentGroupNode
   | TSegmentFieldNode
-  | TSegmentRelationNode;
+  | TSegmentRelationNode
+  | TSegmentReferenceNode;
 
-/** What the user needs to supply for an operator, as the backend declares it. */
 export type TSegmentOperatorInput = 'none' | 'field' | 'number';
 
 export type TSegmentOperator = {
   value: string;
   label: string;
   input: TSegmentOperatorInput;
+  hint?: string;
 };
 
 export type TSegmentFieldInput =
@@ -58,7 +60,6 @@ export type TSegmentRelation = {
   label: string;
   subjectType: string;
   relatedType: string;
-  /** Operators a count or sum of this relation is compared with. */
   measureOperators: TSegmentOperator[];
 };
 
@@ -79,6 +80,11 @@ export const emptyGroup = (): TSegmentGroupNode => ({
   kind: 'group',
   conjunction: 'and',
   children: [],
+});
+
+export const emptySegmentReference = (): TSegmentReferenceNode => ({
+  kind: 'segment',
+  segmentId: '',
 });
 
 export const emptyCondition = (contentType: string): TSegmentFieldNode => ({

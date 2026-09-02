@@ -1,40 +1,103 @@
 import { useLazyQuery } from '@apollo/client';
 import { toast } from 'erxes-ui/hooks';
-import { useState } from 'react';
-import { useSegment } from '../context/SegmentProvider';
+import { useCallback, useRef, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 import { SEGMENTS_PREVIEW_COUNT } from '../graphql/queries';
+import { TSegmentForm } from '../types';
 
 type TStats = {
   count: number;
-  /** Parts of the tree the count could not cover, so it is narrower. */
   unsupported?: string[];
+  exceeded?: boolean;
 };
 
-/** How many records the tree currently in the form would match. */
-export const useSegmentStats = () => {
-  const { contentType, form } = useSegment();
+export const useSegmentStats = ({
+  contentType,
+  form,
+}: {
+  contentType: string;
+  form: UseFormReturn<TSegmentForm>;
+}) => {
   const [stats, setStats] = useState<TStats>();
+  const lastCounted = useRef<string>();
 
   const [previewCount, { called, loading }] = useLazyQuery(
     SEGMENTS_PREVIEW_COUNT,
   );
 
-  const handleCalculateStats = async () => {
-    const { data } = await previewCount({
-      // The form holds the stored shape, so the tree is sent as it is.
-      variables: { contentType, root: form.getValues('root') },
-      onError: (error) =>
-        toast({
-          title: 'Could not count the segment',
-          description: error.message,
-          variant: 'destructive',
-        }),
-    });
+  const run = useCallback(
+    async (root: unknown) => {
+      const { data } = await previewCount({
+        variables: { contentType, root },
+        fetchPolicy: 'network-only',
+        onError: (error) =>
+          toast({
+            title: 'Could not count the segment',
+            description: error.message,
+            variant: 'destructive',
+          }),
+      });
 
-    if (data?.segmentsPreviewCount) {
-      setStats(data.segmentsPreviewCount);
+      if (data?.segmentsPreviewCount) {
+        setStats(data.segmentsPreviewCount);
+      }
+    },
+    [contentType, previewCount],
+  );
+
+  const handleCalculateStats = useCallback(() => {
+    const root = form.getValues('root');
+
+    lastCounted.current = JSON.stringify(root);
+
+    return run(root);
+  }, [form, run]);
+
+  const countSettled = useCallback(() => {
+    const root = form.getValues('root');
+    const shape = JSON.stringify(root);
+
+    if (shape === lastCounted.current || !isCountable(root)) {
+      return;
     }
+
+    lastCounted.current = shape;
+    run(root);
+  }, [form, run]);
+
+  return {
+    handleCalculateStats,
+    countSettled,
+    stats,
+    loading: called && loading,
+  };
+};
+
+const isCountable = (node: unknown): boolean => {
+  const current = node as {
+    kind?: string;
+    children?: unknown[];
+    child?: unknown;
+    fieldKey?: string;
+    operator?: string;
+    segmentId?: string;
   };
 
-  return { handleCalculateStats, stats, loading: called && loading };
+  if (!current?.kind) {
+    return false;
+  }
+
+  if (current.kind === 'group') {
+    return !!current.children?.length && current.children.every(isCountable);
+  }
+
+  if (current.kind === 'segment') {
+    return !!current.segmentId;
+  }
+
+  if (current.kind === 'relation') {
+    return current.child === undefined || isCountable(current.child);
+  }
+
+  return !!current.fieldKey && !!current.operator;
 };

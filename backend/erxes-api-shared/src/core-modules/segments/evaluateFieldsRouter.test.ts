@@ -1,5 +1,6 @@
+import { SegmentOperator } from './operators';
 import { createSegmentEvaluateFieldsHandler } from './evaluateFieldsRouter';
-import { SegmentOperator } from './fieldMeta';
+
 import { SegmentValueRequest } from './plan';
 import { SegmentEvaluateFieldsResult } from './types';
 
@@ -66,7 +67,6 @@ describe('createSegmentEvaluateFieldsHandler', () => {
       generateModels,
     });
 
-    // The batch is about customers; only sales can measure their deals.
     const result = await handler({
       subdomain: 'os',
       data: {

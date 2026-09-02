@@ -259,13 +259,16 @@ import {
 } from './modules/properties/db/models/Group';
 import {
   ISegmentDailyCountDocument,
+  ISegmentLevelSampleDocument,
   ISegmentTransitionDocument,
 } from './modules/segments/db/definitions/segmentHistory';
 import { ISegmentDocument } from './modules/segments/db/definitions/segments';
 import {
   ISegmentDailyCountModel,
+  ISegmentLevelSampleModel,
   ISegmentTransitionModel,
   loadSegmentDailyCountClass,
+  loadSegmentLevelSampleClass,
   loadSegmentTransitionClass,
 } from './modules/segments/db/models/SegmentHistory';
 import {
@@ -339,6 +342,7 @@ export interface IModels {
   Segments: ISegmentModel;
   SegmentTransitions: ISegmentTransitionModel;
   SegmentDailyCounts: ISegmentDailyCountModel;
+  SegmentLevelSamples: ISegmentLevelSampleModel;
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
@@ -454,7 +458,12 @@ export const loadClasses = (
 
   models.Tags = db.model<ITagDocument, ITagModel>(
     'tags',
-    loadTagClass(subdomain, models, coreEventHandlers('tags', 'tags')),
+    loadTagClass(
+      subdomain,
+      models,
+      coreEventHandlers('tags', 'tags'),
+      coreEventHandlers,
+    ),
   );
 
   models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
@@ -594,6 +603,11 @@ export const loadClasses = (
     ISegmentDailyCountDocument,
     ISegmentDailyCountModel
   >('segment_daily_counts', loadSegmentDailyCountClass(models));
+
+  models.SegmentLevelSamples = db.model<
+    ISegmentLevelSampleDocument,
+    ISegmentLevelSampleModel
+  >('segment_level_samples', loadSegmentLevelSampleClass(models));
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',

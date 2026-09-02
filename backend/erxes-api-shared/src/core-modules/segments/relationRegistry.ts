@@ -1,23 +1,26 @@
 import { getPlugin, getPlugins } from '../../utils';
-import { SegmentRelationMeta } from './fieldMeta';
+import { resolveSegmentFieldDependencies, SegmentFieldMeta } from './fieldMeta';
 import { ISegmentContentType } from './types';
 
-/**
- * The relations declared across every running plugin.
- *
- * Read from service discovery rather than a registry of its own: a plugin
- * already publishes its relations as plain data, so a relation appears the
- * moment its plugin is enabled and disappears when it is not.
- */
+export type SegmentRelationMeta = {
+  key: string;
+  label: string;
+  subjectType: string;
+  relatedType: string;
+  join:
+    | {
+        via: 'relation';
+        subjectRecordType: string;
+        relatedRecordType: string;
+      }
+    | { via: 'field'; on: 'subject' | 'related'; path: string };
+};
 
 export type SegmentRelationDirectory = {
-  /** Relation key -> the plugin that can measure it. */
   owners: Map<string, string>;
-  /** Relation key -> its declaration, which says how the two ends are joined. */
   relations: Map<string, SegmentRelationMeta>;
 };
 
-/** Every relation reachable from `subjectType`, and who owns each one. */
 export const gatherSegmentRelations = async (
   subjectType: string,
 ): Promise<SegmentRelationDirectory> => {
@@ -40,13 +43,6 @@ export const gatherSegmentRelations = async (
   return { owners, relations };
 };
 
-/**
- * Event content type -> the segment content types its records back.
- *
- * One collection can back more than one - a change to `core:contacts.customers`
- * moves both customer and lead segments - so this is a one-to-many map, built
- * from what each plugin declares rather than from the shape of the strings.
- */
 export const gatherSegmentEventTypes = async (): Promise<
   Map<string, string[]>
 > => {
@@ -62,9 +58,6 @@ export const gatherSegmentEventTypes = async (): Promise<
         continue;
       }
 
-      // Almost always its own name: the segment type and the event the
-      // dispatcher emits are the same string. Only a type sharing a collection
-      // with another - a lead among customers - has to say otherwise.
       for (const eventType of entry.eventTypes || [entry.contentType]) {
         byEventType.set(eventType, [
           ...(byEventType.get(eventType) || []),
@@ -75,4 +68,131 @@ export const gatherSegmentEventTypes = async (): Promise<
   }
 
   return byEventType;
+};
+
+export const gatherSegmentRecordTypes = async (): Promise<
+  Map<string, string[]>
+> => {
+  const bySegmentType = new Map<string, Set<string>>();
+
+  const add = (recordType?: string, segmentType?: string) => {
+    if (!recordType || !segmentType) {
+      return;
+    }
+
+    bySegmentType.set(
+      recordType,
+      (bySegmentType.get(recordType) || new Set<string>()).add(segmentType),
+    );
+  };
+
+  for (const pluginName of await getPlugins()) {
+    const plugin = await getPlugin(pluginName);
+    const declared: SegmentRelationMeta[] =
+      plugin.config?.meta?.segments?.segmentRelations || [];
+
+    for (const relation of declared) {
+      if (relation.join.via !== 'relation') {
+        continue;
+      }
+
+      add(relation.join.subjectRecordType, relation.subjectType);
+      add(relation.join.relatedRecordType, relation.relatedType);
+    }
+  }
+
+  return new Map(
+    [...bySegmentType].map(([recordType, types]) => [recordType, [...types]]),
+  );
+};
+
+export type SegmentFieldSourceLink = {
+  subjectType: string;
+  via: string;
+};
+
+export type SegmentFieldSourceDirectory = {
+  byField: Map<string, string[]>;
+  bySource: Map<string, SegmentFieldSourceLink[]>;
+};
+
+export const gatherSegmentFieldSources =
+  async (): Promise<SegmentFieldSourceDirectory> => {
+    const byField = new Map<string, string[]>();
+    const bySource = new Map<string, SegmentFieldSourceLink[]>();
+
+    for (const pluginName of await getPlugins()) {
+      const plugin = await getPlugin(pluginName);
+      const declared: Record<string, SegmentFieldMeta[]> =
+        plugin.config?.meta?.segments?.segmentFields || {};
+
+      for (const [contentType, fields] of Object.entries(declared)) {
+        for (const field of fields) {
+          for (const dependency of resolveSegmentFieldDependencies(field)) {
+            if (!dependency.contentType) {
+              continue;
+            }
+
+            const key = `${contentType}:${field.key}`;
+
+            byField.set(key, [
+              ...(byField.get(key) || []),
+              dependency.contentType,
+            ]);
+
+            if (!dependency.via) {
+              continue;
+            }
+
+            const reached = bySource.get(dependency.contentType) || [];
+
+            const already = reached.some(
+              (link) =>
+                link.subjectType === contentType && link.via === dependency.via,
+            );
+
+            if (!already) {
+              bySource.set(dependency.contentType, [
+                ...reached,
+                { subjectType: contentType, via: dependency.via },
+              ]);
+            }
+          }
+        }
+      }
+    }
+
+    return { byField, bySource };
+  };
+
+export const gatherSegmentJoinPaths = async (): Promise<
+  Map<string, string[]>
+> => {
+  const byContentType = new Map<string, Set<string>>();
+
+  for (const pluginName of await getPlugins()) {
+    const plugin = await getPlugin(pluginName);
+    const declared: SegmentRelationMeta[] =
+      plugin.config?.meta?.segments?.segmentRelations || [];
+
+    for (const relation of declared) {
+      if (relation.join.via !== 'field') {
+        continue;
+      }
+
+      const owner =
+        relation.join.on === 'related'
+          ? relation.relatedType
+          : relation.subjectType;
+
+      byContentType.set(
+        owner,
+        (byContentType.get(owner) || new Set<string>()).add(relation.join.path),
+      );
+    }
+  }
+
+  return new Map(
+    [...byContentType].map(([contentType, paths]) => [contentType, [...paths]]),
+  );
 };

@@ -1,5 +1,10 @@
-import { SegmentOperator } from './fieldMeta';
-import { canonicalSegmentText, segmentFingerprint } from './fingerprint';
+import { SegmentOperator } from './operators';
+
+import {
+  canonicalSegmentText,
+  sameSegmentDefinition,
+  segmentFingerprint,
+} from './fingerprint';
 import { SegmentNode } from './nodes';
 
 const field = (fieldKey: string, value: string): SegmentNode => ({
@@ -55,11 +60,52 @@ describe('segmentFingerprint', () => {
   });
 
   it('keeps the exact text, so a hash collision cannot decide anything', () => {
-    // The fingerprint narrows to candidates; this is what settles them.
     expect(
       canonicalSegmentText('core:contacts.customers', group([field('a', 'x')])),
     ).not.toBe(
       canonicalSegmentText('core:contacts.customers', group([field('a', 'y')])),
     );
+  });
+});
+
+describe('sameSegmentDefinition', () => {
+  const TYPE = 'core:contacts.customers';
+  const state = field('state', 'customer');
+  const tag = field('tagIds', 't-1');
+
+  it('sees a reordered tree as the same question', () => {
+    expect(
+      sameSegmentDefinition(TYPE, group([state, tag]), group([tag, state])),
+    ).toBe(true);
+  });
+
+  it('sees through a group wrapped around one condition', () => {
+    expect(
+      sameSegmentDefinition(
+        TYPE,
+        group([state, tag]),
+        group([group([state]), tag]),
+      ),
+    ).toBe(true);
+  });
+
+  it('does not confuse a changed value for a reorder', () => {
+    expect(
+      sameSegmentDefinition(
+        TYPE,
+        group([state, tag]),
+        group([tag, field('state', 'lead')]),
+      ),
+    ).toBe(false);
+  });
+
+  it('separates trees about different records', () => {
+    expect(sameSegmentDefinition(TYPE, group([state]), group([state]))).toBe(
+      true,
+    );
+    expect(
+      canonicalSegmentText(TYPE, group([state])) ===
+        canonicalSegmentText('sales:sales.deals', group([state])),
+    ).toBe(false);
   });
 });

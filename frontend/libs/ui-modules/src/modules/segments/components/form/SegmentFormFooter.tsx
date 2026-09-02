@@ -1,17 +1,13 @@
+import { IconPlayerStop } from '@tabler/icons-react';
 import { AlertDialog, Badge, Button, Label, Sheet } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules/modules/permissions/components/PermissionGate';
 import { useSegment } from '../../context/SegmentProvider';
 import { useSegmentActions } from '../../hooks/useSegmentActions';
+import { useSegmentRebuild } from '../../hooks/useSegmentRebuild';
+import { SegmentRebuildButton } from '../SegmentRebuildButton';
 import { useSegmentSaveGuard } from '../../hooks/useSegmentSaveGuard';
-import { useSegmentStats } from '../../hooks/useSegmentStats';
 
-/**
- * Two numbers live here and they answer different questions: what the segment
- * holds right now, and what its current definition would match. They differ
- * while a rebuild is queued or running, which is exactly when it matters to
- * see both.
- */
 const CurrentMembers = () => {
   const { segment } = useSegment();
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
@@ -29,7 +25,6 @@ const CurrentMembers = () => {
     );
   }
 
-  // Never counted is not zero members, so it says nothing rather than "0".
   if (segment.membersCount === undefined || segment.membersCount === null) {
     return null;
   }
@@ -49,11 +44,11 @@ export const SegmentFormFooter = ({
 }: {
   callback?: (id: string) => void;
   onCreateSuccess?: (id: string) => void;
-  /** Opens the segment that already asks what this form is asking. */
   onOpenExisting?: (segmentId: string) => void;
 }) => {
   const { form, segment } = useSegment();
-  const { stats, handleCalculateStats, loading } = useSegmentStats();
+  const { stats, handleCalculateStats, loading } = useSegment().stats;
+  const { stop, stopping } = useSegmentRebuild(segment?._id);
   const { handleSave, saving } = useSegmentActions({
     callback,
     onCreateSuccess,
@@ -79,22 +74,31 @@ export const SegmentFormFooter = ({
     <>
       <Sheet.Footer className="gap-6 sm:justify-start border-y-2 px-6 py-4">
         <CurrentMembers />
-        {stats && (
-          <div className="flex flex-col items-center">
-            <Label>{t('matching-records')}</Label>
-            <h4 className="text-xl text-primary">
-              {stats.count.toLocaleString()}
-            </h4>
-          </div>
+        {/* A number that was never reached is not a small number, so the
+            count is replaced rather than shown alongside the reason. */}
+        {stats?.exceeded ? (
+          <p className="max-w-md self-center text-sm text-muted-foreground">
+            {t('count-too-big')}
+          </p>
+        ) : (
+          stats && (
+            <div className="flex flex-col items-center">
+              <Label>{t('matching-records')}</Label>
+              <h4 className="text-xl text-primary">
+                {stats.count.toLocaleString()}
+              </h4>
+            </div>
+          )
         )}
-        {/* A partial count is worse than none if it looks complete. */}
-        {!!stats?.unsupported?.length && (
+        {!stats?.exceeded && !!stats?.unsupported?.length && (
           <p className="text-sm text-destructive self-center">
             {t('count-excludes')}: {stats.unsupported.join(', ')}
           </p>
         )}
       </Sheet.Footer>
       <Sheet.Footer className="px-2">
+        {/* Counting happens as values settle; this stays for asking again -
+            after a count that gave up, or when nothing has changed. */}
         <Button
           variant="secondary"
           type="button"
@@ -103,6 +107,32 @@ export const SegmentFormFooter = ({
         >
           {loading ? t('calculating') : t('calculate-segment-reach')}
         </Button>
+        {/* Offered whatever the segment's state, not only after a failure:
+            a membership can be wrong without anything having reported an
+            error, and this is the only way to ask for it to be settled again
+            without editing the definition into something else and back. */}
+        {segment && (
+          <Can action="segmentsManage">
+            {/* While it runs, the useful action is stopping it - not queueing
+                a second one behind the first. */}
+            {segment.status === 'building' ? (
+              <Button
+                variant="outline"
+                type="button"
+                className="text-destructive"
+                onClick={stop}
+                disabled={stopping || segment.buildCancelRequested}
+              >
+                <IconPlayerStop />
+                {segment.buildCancelRequested
+                  ? t('stopping-rebuild')
+                  : t('stop-rebuild')}
+              </Button>
+            ) : (
+              <SegmentRebuildButton segment={segment} />
+            )}
+          </Can>
+        )}
         <Can action="segmentsManage">
           {/* Validated before the guard, so an invalid form never gets as far
               as asking about a rebuild. */}

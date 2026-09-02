@@ -8,25 +8,42 @@ import {
   segmentPageSize,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { DEAL_TYPE } from './collections';
 import { SALES_SEGMENT_FIELDS } from './fields';
 
-/**
- * Runs a segment against the deal collection.
- *
- * The tree arrives uncompiled and is turned into a filter with this plugin's
- * own declarations, so no caller can hand sales a query to run.
- */
+type PagedCollection = {
+  countDocuments: (filter: Record<string, unknown>) => Promise<number>;
+  find: (
+    query: Record<string, unknown>,
+    projection?: Record<string, 1>,
+  ) => {
+    sort: (order: Record<string, 1>) => {
+      limit: (count: number) => { lean: () => Promise<{ _id: string }[]> };
+    };
+  };
+};
 
-const DEAL_TYPE = 'sales:sales.deals';
+const pagedCollection = (
+  models: IModels,
+  contentType: string,
+): PagedCollection | null => {
+  const as = (model: unknown) => model as PagedCollection;
 
-const compile = (contentType: string, node: SegmentNode) => {
-  if (contentType !== DEAL_TYPE) {
+  if (contentType === DEAL_TYPE) {
+    return as(models.Deals);
+  }
+
+  return null;
+};
+
+const compile = (contentType: string, node: SegmentNode, timeZone?: string) => {
+  const fields = SALES_SEGMENT_FIELDS[contentType];
+
+  if (!fields) {
     return null;
   }
 
-  return compileSegmentMongoFilter(node, {
-    fields: SALES_SEGMENT_FIELDS[contentType] || [],
-  });
+  return compileSegmentMongoFilter(node, { fields, timeZone });
 };
 
 export const listDealSegmentMembers = async (
@@ -37,33 +54,33 @@ export const listDealSegmentMembers = async (
     cursor,
     limit,
     ids,
+    timeZone,
   }: {
     contentType: string;
     node: SegmentNode;
     cursor?: string;
     limit?: number;
     ids?: string[];
+    timeZone?: string;
   },
 ): Promise<SegmentMemberPage> => {
-  const compiled = compile(contentType, node);
+  const collection = pagedCollection(models, contentType);
+  const compiled = compile(contentType, node, timeZone);
 
-  if (!compiled) {
+  if (!collection || !compiled) {
     return { ids: [], unsupported: [contentType] };
   }
 
   const size = segmentPageSize(limit);
 
-  const deals = await models.Deals.find(
-    segmentPageFilter(compiled.filter, { cursor, ids }),
-    { _id: 1 },
-  )
+  const records = await collection
+    .find(segmentPageFilter(compiled.filter, { cursor, ids }), { _id: 1 })
     .sort({ _id: 1 })
-    // One extra row answers "is there another page" without a second query.
     .limit(size + 1)
     .lean();
 
   const page = segmentPage(
-    deals.map((deal) => String(deal._id)),
+    records.map((record) => String(record._id)),
     size,
   );
 
@@ -78,15 +95,22 @@ export const countDealSegmentMembers = async (
     contentType,
     node,
     ids,
-  }: { contentType: string; node: SegmentNode; ids?: string[] },
+    timeZone,
+  }: {
+    contentType: string;
+    node: SegmentNode;
+    ids?: string[];
+    timeZone?: string;
+  },
 ): Promise<SegmentMemberCount> => {
-  const compiled = compile(contentType, node);
+  const collection = pagedCollection(models, contentType);
+  const compiled = compile(contentType, node, timeZone);
 
-  if (!compiled) {
+  if (!collection || !compiled) {
     return { count: 0, unsupported: [contentType] };
   }
 
-  const count = await models.Deals.countDocuments(
+  const count = await collection.countDocuments(
     segmentPageFilter(compiled.filter, { ids }),
   );
 

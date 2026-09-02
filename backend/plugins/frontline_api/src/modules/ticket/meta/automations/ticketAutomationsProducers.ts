@@ -59,21 +59,4 @@ export const ticketAutomationProducers = {
       targetType,
     });
   },
-
-  checkTargetMatch: async (
-    input: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],
-    context: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const { moduleName, collectionType, targetId, selector } = input;
-
-    if (collectionType === 'tickets' && moduleName === 'tickets') {
-      return Boolean(
-        await context.models.Ticket.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
-
-    return false;
-  },
 };

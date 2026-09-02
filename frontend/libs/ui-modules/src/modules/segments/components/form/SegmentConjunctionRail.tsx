@@ -1,14 +1,6 @@
 import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-/**
- * The gutter down the left of a group's children, carrying its and / or badge.
- *
- * Laid out as a flex column rather than absolutely positioned: the column
- * stretches to whatever height the rows happen to be and centres the badge on
- * its own, so nothing has to be measured and nothing escapes its container to
- * collide with an open dropdown.
- */
 export const SegmentConjunctionRail = ({
   conjunction,
   onToggle,
@@ -20,13 +12,22 @@ export const SegmentConjunctionRail = ({
   const isAnd = conjunction === 'and';
 
   return (
-    <div className="w-12 shrink-0 flex items-center justify-center border-r py-2">
+    <div className="w-9 shrink-0 relative flex items-center justify-center">
+      {/* Drawn behind the badge and only across the right half of the gutter,
+          so the badge sits on the bracket rather than beside it. */}
+      <div
+        aria-hidden
+        className={cn(
+          'pointer-events-none absolute inset-y-1 left-1/2 right-1 rounded-l-md border-y border-l',
+          isAnd ? 'border-green-300' : 'border-amber-300',
+        )}
+      />
       <button
         type="button"
         onClick={onToggle}
         title={isAnd ? t('all-conditions-match') : t('any-condition-matches')}
         className={cn(
-          'translate-x-6 w-11 h-6 rounded-full text-xs font-medium uppercase',
+          'relative w-10 h-6 rounded-full text-xs font-medium uppercase',
           'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           isAnd
             ? 'bg-green-100 text-green-700 hover:bg-green-200'

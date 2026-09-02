@@ -1,37 +1,37 @@
-import { SegmentRelationMeta } from './fieldMeta';
-import { SegmentNode, walkSegmentNodes } from './nodes';
+import { SegmentOperator, normalizeSegmentOperator } from './operators';
+import { SegmentRelationMeta } from './relationRegistry';
+import { walkSegmentNodes } from './walkNodes';
 
-/**
- * Every content type a segment reads.
- *
- * This is what turns a change into work: when a deal changes, the segments to
- * re-check are the ones that read deals - including a customer segment that
- * only reaches them through a relation. Stored on the segment so the lookup is
- * one indexed query rather than a walk over every definition.
- *
- * Derived from the tree rather than declared, so it cannot fall out of step
- * with the conditions it describes.
- */
+import { SegmentNode } from './nodes';
+
+export const segmentDependencyKey = (segmentId: string): string =>
+  `segment:${segmentId}`;
+
 export const segmentDependencies = (
   contentType: string,
   root: SegmentNode,
   relations?: ReadonlyMap<string, SegmentRelationMeta>,
+  fieldSources?: ReadonlyMap<string, string[]>,
 ): string[] => {
-  // Its own records always matter, even for a segment with no conditions yet.
   const types = new Set<string>([contentType]);
 
-  // Into relation children too: the fields inside a predicate are read from the
-  // related records, and a change to one of those changes the answer.
   for (const node of walkSegmentNodes(root, { intoRelationChild: true })) {
     if (node.kind === 'field') {
       types.add(node.contentType);
+
+      const sources =
+        fieldSources?.get(`${node.contentType}:${node.fieldKey}`) || [];
+
+      sources.forEach((source) => types.add(source));
+    }
+
+    if (node.kind === 'segment') {
+      types.add(segmentDependencyKey(node.segmentId));
     }
 
     if (node.kind === 'relation') {
       const related = relations?.get(node.relationKey)?.relatedType;
 
-      // A relation whose plugin is currently disabled contributes nothing here.
-      // Its own predicate still does, through the field nodes above.
       if (related) {
         types.add(related);
       }
@@ -39,4 +39,29 @@ export const segmentDependencies = (
   }
 
   return [...types].sort();
+};
+
+const CLOCK_OPERATORS = new Set<SegmentOperator>([
+  SegmentOperator.DaysAgo,
+  SegmentOperator.DaysFromNow,
+  SegmentOperator.MinutesAgo,
+  SegmentOperator.MinutesFromNow,
+  SegmentOperator.AnniversaryToday,
+  SegmentOperator.AnniversaryFromNow,
+  SegmentOperator.AnniversaryAgo,
+]);
+
+export const segmentDependsOnClock = (root: SegmentNode): boolean => {
+  for (const node of walkSegmentNodes(root, { intoRelationChild: true })) {
+    const operator =
+      node.kind === 'field' || node.kind === 'relation'
+        ? node.operator
+        : undefined;
+
+    if (operator && CLOCK_OPERATORS.has(normalizeSegmentOperator(operator))) {
+      return true;
+    }
+  }
+
+  return false;
 };

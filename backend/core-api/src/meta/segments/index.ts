@@ -7,14 +7,15 @@ import { CORE_SEGMENT_FIELDS } from './fields';
 import { countCoreSegmentMembers, listCoreSegmentMembers } from './members';
 import { applyCoreSegmentMembership } from './membership';
 import { CORE_SEGMENT_FIELD_NAMESPACES } from './namespaces';
+import { CORE_SEGMENT_RELATIONS } from './relations';
 
-/** Core's segment contract: what can be filtered, and how a batch is resolved. */
 export const initSegmentCoreProducers = (app: Express) =>
   initSegmentProducers(app, 'core', {
     contentTypes: CORE_SEGMENT_CONTENT_TYPES,
 
     segmentFields: CORE_SEGMENT_FIELDS,
     segmentFieldNamespaces: CORE_SEGMENT_FIELD_NAMESPACES,
+    segmentRelations: CORE_SEGMENT_RELATIONS,
 
     evaluateFields: async ({ subdomain, data }) =>
       evaluateCoreFields(await generateModels(subdomain), data),
@@ -29,4 +30,8 @@ export const initSegmentCoreProducers = (app: Express) =>
       applyCoreSegmentMembership(await generateModels(subdomain), data),
   });
 
-export { CORE_SEGMENT_CONTENT_TYPES, CORE_SEGMENT_FIELDS };
+export {
+  CORE_SEGMENT_CONTENT_TYPES,
+  CORE_SEGMENT_FIELDS,
+  CORE_SEGMENT_RELATIONS,
+};

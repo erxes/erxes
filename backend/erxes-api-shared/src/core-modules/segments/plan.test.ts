@@ -1,5 +1,7 @@
-import { SegmentOperator } from './fieldMeta';
-import { SegmentNode, SegmentRelationNode, segmentRelationRef } from './nodes';
+import { segmentRelationRef } from './nodeRefs';
+import { SegmentOperator } from './operators';
+
+import { SegmentNode, SegmentRelationNode } from './nodes';
 import { buildSegmentEvaluationPlan, planValueRefs } from './plan';
 
 const field = (
@@ -63,7 +65,6 @@ describe('buildSegmentEvaluationPlan', () => {
       ),
     );
 
-    // 53 segments, still two reads: the shared stage plus the shared status
     expect(result.requestsByPlugin.get('sales')).toHaveLength(2);
   });
 

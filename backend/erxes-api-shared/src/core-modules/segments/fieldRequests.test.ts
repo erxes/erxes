@@ -1,8 +1,5 @@
-import {
-  SegmentFieldMeta,
-  SegmentFieldNamespace,
-  SegmentOperator,
-} from './fieldMeta';
+import { SegmentOperator } from './operators';
+import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import {
   namespacePaths,
   projectionForRequests,

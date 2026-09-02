@@ -13,18 +13,10 @@ import {
   Can,
   SegmentForm,
   SegmentOverview,
+  SegmentUnsavedBadge,
   useSegmentDetail,
 } from 'ui-modules';
 import { SegmentDetailSidebar } from './SegmentDetailSidebar';
-
-/**
- * A segment on its own page: what it currently holds and how it got there,
- * with the definition one click away.
- *
- * The overview is the landing tab because a saved segment is read far more
- * often than it is edited - and because the numbers only make sense next to
- * each other, not buried under the condition builder.
- */
 
 type Props = {
   onRefresh: () => void;
@@ -44,7 +36,7 @@ const SegmentDetailBody = ({
   onOpenExisting: (id: string) => void;
 }) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const { segment } = useSegmentDetail(segmentId);
+  const { segment, refetch } = useSegmentDetail(segmentId);
 
   return (
     <FocusSheet.Content>
@@ -65,7 +57,7 @@ const SegmentDetailBody = ({
           >
             <Tabs.Content value="overview" className="h-full">
               <ScrollArea className="h-full">
-                <SegmentOverview segment={segment} />
+                <SegmentOverview segment={segment} onRefresh={refetch} />
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="definition" className="h-full">
@@ -116,14 +108,14 @@ export function SegmentDetail({ onRefresh }: Props) {
         <FocusSheet.View>
           <FocusSheet.Header
             title={`${segmentId ? t('edit') : t('create')} ${t('a-segment')}`}
-          />
+          >
+            <SegmentUnsavedBadge />
+          </FocusSheet.Header>
           <SegmentDetailBody
             contentType={contentType}
             segmentId={segmentId || ''}
             onRefresh={onRefresh}
             onCreated={() => setIsCreatingNew(false)}
-            // The sheet stays open and simply switches to the segment that
-            // already answers this, rather than closing on a dead end.
             onOpenExisting={(id) => {
               setIsCreatingNew(false);
               setOpen(id);

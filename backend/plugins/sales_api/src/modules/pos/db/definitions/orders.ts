@@ -91,7 +91,7 @@ export const posOrderSchema = schemaWrapper(
     paidDate: { type: Date, label: 'Paid date', index: true },
     dueDate: { type: Date, label: 'Due date' },
     number: { type: String, label: 'Order number', index: true },
-    customerId: { type: String, label: 'Customer' },
+    customerId: { type: String, label: 'Customer', index: true, sparse: true },
     customerType: { type: String, label: 'Customer type' },
     brokerId: { type: String, label: 'Broker', optional: true },
     brokerType: { type: String, label: 'Broker type', optional: true },

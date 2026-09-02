@@ -1,10 +1,12 @@
+import { POS_ORDER_TYPE } from './segments/fields';
+
 export const posSegmentConfigs = {
   contentTypes: [
     {
-      contentType: 'sales:pos_order',
+      contentType: POS_ORDER_TYPE,
       moduleName: 'pos',
-      type: 'order',
-      description: 'Pos order',
+      type: 'orders',
+      description: 'POS order',
       esIndex: 'pos_orders',
     },
   ],

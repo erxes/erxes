@@ -1,35 +1,33 @@
-import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import {
+  IconReload,
+  IconTrendingDown,
+  IconTrendingUp,
+} from '@tabler/icons-react';
+import {
+  Button,
   ChartContainer,
   ChartTooltipContent,
   cn,
   Label,
   Spinner,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Area,
-  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ReferenceLine,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { useSegmentGrowth } from '../hooks/useSegmentGrowth';
+import { SegmentRebuildButton } from './SegmentRebuildButton';
 import { ISegment } from '../types';
 import { SegmentBuildProgress } from './SegmentBuildProgress';
-
-/**
- * What a segment is, and how it got there.
- *
- * Two charts because they answer different questions and neither implies the
- * other: the level says how big the segment is, the movement says what made it
- * that size. A jump in the level with no movement under it is a rebuild rather
- * than churn - worth being able to tell apart at a glance.
- */
 
 const LEVEL_CONFIG = { count: { label: 'Members', color: 'var(--primary)' } };
 const MOVEMENT_CONFIG = {
@@ -63,20 +61,55 @@ const Stat = ({
   </div>
 );
 
-const shortDate = (date: string) => date.slice(5);
+const tooltipLabel = (at: string) =>
+  new Date(at).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+const tickLabel = (at: string, hourly: boolean) =>
+  hourly
+    ? new Date(at).toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : at.slice(5, 10);
 
 export const SegmentOverview = ({
   segment,
   days = 30,
+  onRefresh,
 }: {
   segment?: ISegment;
   days?: number;
+  onRefresh?: () => Promise<unknown> | void;
 }) => {
   const { t } = useTranslation('segment', { keyPrefix: 'analytics' });
-  const { series, joined, left, growth, loading } = useSegmentGrowth(
-    segment?._id,
-    days,
-  );
+  const {
+    joined,
+    left,
+    growth,
+    hasTrend,
+    hourly,
+    span,
+    measuredSince,
+    series,
+    loading,
+    refetch,
+  } = useSegmentGrowth(segment?._id, days);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+
+    try {
+      await Promise.all([refetch(), onRefresh?.()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (loading) {
     return <Spinner />;
@@ -88,29 +121,33 @@ export const SegmentOverview = ({
     <div className="p-6 space-y-6">
       <SegmentBuildProgress segment={segment} />
 
-      <div className="flex flex-wrap gap-10">
+      <div className="flex flex-wrap items-start gap-10">
         <Stat
           label={t('members')}
           value={
-            // Never counted is not zero members; an em dash says so without
-            // claiming the segment is empty.
             segment?.membersCount === undefined ||
             segment?.membersCount === null
               ? '—'
               : segment.membersCount.toLocaleString()
           }
         />
-        <Stat
-          label={t('joined')}
-          value={`+${joined.toLocaleString()}`}
-          tone="up"
-        />
-        <Stat
-          label={t('left')}
-          value={`−${left.toLocaleString()}`}
-          tone="down"
-        />
-        {growth !== null && (
+        {/* Nothing has moved yet on a segment this young, and a coloured zero
+            reads as a measurement rather than as the absence of one. */}
+        {!!(joined || left) && (
+          <>
+            <Stat
+              label={t('joined')}
+              value={`+${joined.toLocaleString()}`}
+              tone="up"
+            />
+            <Stat
+              label={t('left')}
+              value={`−${left.toLocaleString()}`}
+              tone="down"
+            />
+          </>
+        )}
+        {hasTrend && growth !== null && (
           <Stat
             label={t('change')}
             value={`${rising ? '+' : ''}${growth}%`}
@@ -124,61 +161,107 @@ export const SegmentOverview = ({
             }
           />
         )}
+
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            className="text-muted-foreground"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            <IconReload
+              className={cn('size-4', refreshing && 'animate-spin')}
+            />
+            {t('refresh')}
+          </Button>
+          {/* Re-reading the number and re-deriving it are different actions,
+              so they are two buttons rather than one that guesses. */}
+          {/* While a build runs, its own row carries the stop - repeating it
+              here left two of them on screen with nothing to tell them
+              apart. */}
+          {segment?.status !== 'building' && (
+            <SegmentRebuildButton segment={segment} size="sm" />
+          )}
+        </div>
       </div>
 
-      {series.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('no-history')}</p>
+      {/* Two full charts drawn from a single day look broken rather than new,
+          so a segment with nothing to plot yet says so in one line. */}
+      {!hasTrend ? (
+        <p className="text-sm text-muted-foreground">
+          {measuredSince
+            ? t('measured-since', { date: measuredSince })
+            : t('no-history')}
+        </p>
       ) : (
         <div className="space-y-6">
           <section className="space-y-2">
-            <Label>{t('level', { days })}</Label>
+            <Label>
+              {hourly ? t('level-recent') : t('level', { days: span })}
+            </Label>
             <ChartContainer config={LEVEL_CONFIG} className="h-48 w-full">
-              <AreaChart data={series} margin={{ top: 8 }}>
+              {/* A line, not an area, because the axis does not start at
+                  zero. A filled area reads as the quantity underneath it, so
+                  cutting its baseline overstates every wobble; a line claims
+                  nothing but the path it traces. */}
+              <LineChart data={series} margin={{ top: 8 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="date"
+                  dataKey="at"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={24}
-                  tickFormatter={shortDate}
+                  tickFormatter={(at: string) => tickLabel(at, hourly)}
                   className="text-xs"
                 />
+                {/* Scaled to the data, not to zero: a segment of a million
+                    moving by ten is a flat line on any axis that starts at
+                    zero, which is the one thing this chart exists to show. The
+                    labels carry the real numbers, so the scale is readable
+                    rather than implied. */}
                 <YAxis
-                  width={40}
+                  width={64}
                   tickLine={false}
                   axisLine={false}
+                  domain={['auto', 'auto']}
+                  allowDecimals={false}
+                  tickFormatter={(value: number) => value.toLocaleString()}
                   className="text-xs"
                 />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Area
+                <Tooltip
+                  content={
+                    <ChartTooltipContent labelFormatter={tooltipLabel} />
+                  }
+                />
+                <Line
                   dataKey="count"
                   type="monotone"
                   stroke="var(--color-count)"
-                  fill="var(--color-count)"
-                  fillOpacity={0.12}
                   strokeWidth={2}
                   dot={false}
-                  // A day the worker never settled has no point. Bridging the
-                  // gap would draw a movement that was never measured.
                   connectNulls={false}
                 />
-              </AreaChart>
+              </LineChart>
             </ChartContainer>
           </section>
 
           <section className="space-y-2">
-            <Label>{t('movement', { days })}</Label>
+            <Label>
+              {hourly ? t('movement-recent') : t('movement', { days: span })}
+            </Label>
             <ChartContainer config={MOVEMENT_CONFIG} className="h-40 w-full">
               <BarChart data={series} margin={{ top: 8 }}>
                 <CartesianGrid vertical={false} />
                 <XAxis
-                  dataKey="date"
+                  dataKey="at"
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
                   minTickGap={24}
-                  tickFormatter={shortDate}
+                  tickFormatter={(at: string) => tickLabel(at, hourly)}
                   className="text-xs"
                 />
                 <YAxis
@@ -188,7 +271,11 @@ export const SegmentOverview = ({
                   className="text-xs"
                 />
                 <ReferenceLine y={0} stroke="var(--border)" />
-                <Tooltip content={<ChartTooltipContent />} />
+                <Tooltip
+                  content={
+                    <ChartTooltipContent labelFormatter={tooltipLabel} />
+                  }
+                />
                 <Bar dataKey="joined" fill="var(--color-joined)" radius={2} />
                 <Bar dataKey="left" fill="var(--color-left)" radius={2} />
               </BarChart>

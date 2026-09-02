@@ -1,21 +1,10 @@
 import {
-  SegmentMeasure,
-  SegmentNode,
   segmentFieldRef,
+  segmentReferenceRef,
   segmentRelationRef,
-  walkSegmentNodes,
-} from './nodes';
-
-/**
- * Turns a batch of segments into the smallest set of requests that answers all
- * of them.
- *
- * Segments fan out - one ticket's `stageId` change touches 53 of them - but the
- * work does not: those 53 read the same handful of fields off the same
- * documents. Planning collects the union of what they need, groups it by owning
- * plugin, and leaves the tree walking to `decideSegmentNode` once the values
- * are in hand. Pure, so a plan can be asserted without a database.
- */
+} from './nodeRefs';
+import { walkSegmentNodes } from './walkNodes';
+import { SEGMENT_MEMBERSHIP_FIELD, SegmentMeasure, SegmentNode } from './nodes';
 
 export type SegmentPlannedSegment = {
   _id: string;
@@ -33,16 +22,8 @@ export type SegmentRelationRequest = {
   kind: 'relation';
   ref: string;
   relationKey: string;
-  /** What to measure over the related records. */
   measure: SegmentMeasure;
-  /** Narrows which related records the measure sees. */
   child?: SegmentNode;
-  /**
-   * Subject id -> related ids, for a relation whose edge is stored outside the
-   * measuring plugin. The dispatcher resolves it before the call, so the
-   * plugin measures over ids it owns instead of reaching into another
-   * service's collection. Absent for a join the plugin can make itself.
-   */
   edges?: Record<string, string[]>;
 };
 
@@ -51,12 +32,7 @@ export type SegmentValueRequest = SegmentFieldRequest | SegmentRelationRequest;
 export type SegmentEvaluationPlan = {
   subjectType: string;
   subjectIds: string[];
-  /** Plugin name -> the values it has to resolve, deduplicated and sorted. */
   requestsByPlugin: Map<string, SegmentValueRequest[]>;
-  /**
-   * Refs no plugin owns. Every segment that needs one of these stays `unknown`
-   * rather than silently evaluating as if the value were unset.
-   */
   unresolvable: string[];
 };
 
@@ -64,11 +40,9 @@ export type SegmentPlanInput = {
   subjectType: string;
   subjectIds: string[];
   segments: SegmentPlannedSegment[];
-  /** Relation key -> the plugin that can fold it. Relation meta supplies this. */
   relationOwners?: ReadonlyMap<string, string>;
 };
 
-/** `sales:deal` -> `sales`. */
 const pluginOf = (contentType: string): string | undefined =>
   contentType.split(':')[0] || undefined;
 
@@ -108,6 +82,25 @@ export const buildSegmentEvaluationPlan = ({
           ref,
           contentType: node.contentType,
           fieldKey: node.fieldKey,
+        });
+
+        continue;
+      }
+
+      if (node.kind === 'segment') {
+        const plugin = pluginOf(subjectType);
+        const ref = segmentReferenceRef(subjectType);
+
+        if (!plugin) {
+          unresolvable.add(ref);
+          continue;
+        }
+
+        add(plugin, {
+          kind: 'field',
+          ref,
+          contentType: subjectType,
+          fieldKey: SEGMENT_MEMBERSHIP_FIELD,
         });
 
         continue;
@@ -154,7 +147,6 @@ export const buildSegmentEvaluationPlan = ({
   };
 };
 
-/** Every ref the plan expects back, in the order the requests are grouped. */
 export const planValueRefs = (plan: SegmentEvaluationPlan): string[] => [
   ...[...plan.requestsByPlugin.values()].flatMap((requests) =>
     requests.map((request) => request.ref),

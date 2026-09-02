@@ -5,20 +5,6 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 
-/**
- * Rewrites stage-derived conditions into the stages they name.
- *
- * A deal stores only `stageId`; pipeline, board and probability hang off the
- * stage, so a filter on one of them cannot be compiled against the deal
- * collection. Resolving the matching stages first turns it into a condition
- * the collection can answer, which is what lets "count deals whose stage
- * probability is Won" narrow an aggregation instead of being dropped.
- *
- * The stages are decided with the shared evaluator rather than a second
- * operator table here, so the rewrite cannot drift from what the same
- * condition means anywhere else.
- */
-
 const DEAL_TYPE = 'sales:sales.deals';
 
 export const STAGE_DERIVED_FIELDS = [
@@ -42,7 +28,6 @@ const hasStageDerived = (node: SegmentNode): boolean => {
 
 type StageFacts = { _id: string; values: Map<string, unknown> };
 
-/** Each stage's derived values, keyed the way the evaluator looks them up. */
 const gatherStageFacts = async (models: IModels): Promise<StageFacts[]> => {
   const stages = await models.Stages.find(
     {},
@@ -94,9 +79,6 @@ const rewriteNode = (node: SegmentNode, stages: StageFacts[]): SegmentNode => {
     )
     .map((stage) => stage._id);
 
-  // No stage matching is a real answer: no deal can satisfy the condition.
-  // `In` with an empty list says exactly that, where dropping the node would
-  // have counted every deal instead.
   return {
     kind: 'field',
     contentType: DEAL_TYPE,
@@ -106,10 +88,6 @@ const rewriteNode = (node: SegmentNode, stages: StageFacts[]): SegmentNode => {
   };
 };
 
-/**
- * Returns the tree with every stage-derived condition replaced, or the tree
- * unchanged when it has none - so the stage lookup only runs when it is needed.
- */
 export const resolveStageDerivedNode = async (
   models: IModels,
   node: SegmentNode,

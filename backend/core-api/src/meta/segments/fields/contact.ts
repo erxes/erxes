@@ -8,14 +8,6 @@ import {
   textField,
 } from 'erxes-api-shared/core-modules';
 
-/**
- * Filterable fields for `core:customer` and `core:lead`.
- *
- * Both read the same collection - a lead is a contact whose `state` is `lead` -
- * so they share one declaration rather than drifting apart. Custom properties
- * and tracked data are not listed here; their keys are tenant data and resolve
- * through the namespaces instead.
- */
 export const CONTACT_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   staticField({
     key: 'state',
@@ -46,7 +38,6 @@ export const CONTACT_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   textField({ key: 'integrationId', label: 'Integration' }),
   textField({ key: 'relatedIntegrationIds', label: 'Related integrations' }),
 
-  // Nested single-value objects, so a plain dotted path reaches them.
   textField({ key: 'location.country', label: 'Country' }),
   textField({ key: 'location.city', label: 'City' }),
   textField({ key: 'location.region', label: 'Region' }),

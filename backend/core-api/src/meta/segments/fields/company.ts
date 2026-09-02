@@ -8,7 +8,6 @@ import {
   textField,
 } from 'erxes-api-shared/core-modules';
 
-/** Filterable fields for `core:company`. */
 export const COMPANY_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   textField({ key: 'primaryName', label: 'Primary name' }),
   textField({ key: 'code', label: 'Code' }),

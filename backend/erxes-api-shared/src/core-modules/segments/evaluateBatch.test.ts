@@ -1,15 +1,13 @@
+import { segmentRelationRef } from './nodeRefs';
+import { SegmentOperator } from './operators';
+import { SegmentRelationMeta } from './relationRegistry';
 import {
   evaluateSegmentBatch,
   SegmentEvaluationGateway,
 } from './evaluateBatch';
-import { SegmentOperator, SegmentRelationMeta } from './fieldMeta';
-import { SegmentNode, SegmentRelationNode, segmentRelationRef } from './nodes';
-import { SegmentValueRequest } from './plan';
 
-/**
- * The engine with every read stubbed, which is the point of the gateway: the
- * whole decision path is exercised without a database or a running plugin.
- */
+import { SegmentNode, SegmentRelationNode } from './nodes';
+import { SegmentValueRequest } from './plan';
 
 const dealsRelation: SegmentRelationMeta = {
   key: 'customer.deals',
@@ -94,8 +92,6 @@ describe('evaluateSegmentBatch', () => {
     ]);
 
     expect(result.matched).toEqual(['c-1']);
-    // c-2 has the tag but two deals; c-3 fails on the tag before the count
-    // matters, so it settles rather than staying unknown.
     expect(result.notMatched).toEqual(['c-2', 'c-3']);
     expect(result.undecided).toEqual([]);
   });
@@ -116,7 +112,6 @@ describe('evaluateSegmentBatch', () => {
 
     const result = await evaluateSegmentBatch(gateway, segment, ['c-1']);
 
-    // Membership must not move on a value nobody managed to read.
     expect(result).toEqual({
       matched: [],
       notMatched: [],
