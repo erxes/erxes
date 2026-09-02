@@ -1,3 +1,4 @@
+import { IconAdjustmentsAlt, IconCoin } from '@tabler/icons-react';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { LoyaltySettingsPaths } from './types/settingsPaths';
@@ -13,11 +14,13 @@ export const LoyaltySettingsNavigation = () => {
             pathPrefix={LoyaltySettingsPaths.Loyalty}
             path={LoyaltySettingsPaths.Config}
             name={t('configs')}
+            icon={IconAdjustmentsAlt}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix={LoyaltySettingsPaths.Loyalty}
             path={LoyaltySettingsPaths.Pricing}
             name={t('pricing')}
+            icon={IconCoin}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
