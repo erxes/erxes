@@ -33,7 +33,7 @@ export const PropertyFormObjectListFields = ({
     : 0;
 
   if (type !== 'objectList') {
-    return <></>;
+    return null;
   }
 
   return (
