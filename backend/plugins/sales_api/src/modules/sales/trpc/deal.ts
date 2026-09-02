@@ -1,6 +1,5 @@
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
-import type { SortOrder } from 'mongoose';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { agentMeta } from '~/trpc/agentMeta';
@@ -66,25 +65,6 @@ const updateDealProcedure = t.procedure
     });
   });
 
-const AGENT_FIND_DEFAULT_LIMIT = 20;
-const AGENT_FIND_MAX_LIMIT = 100;
-
-const dealFindInput = z
-  .object({
-    query: z.record(z.unknown()).optional(),
-    skip: z.number().int().min(0).optional(),
-    limit: z.number().int().min(1).optional(),
-    sort: z.record(z.unknown()).optional(),
-    fields: z.array(z.string()).optional(),
-  })
-  .strict();
-
-const dealCountInput = z
-  .object({
-    filter: z.record(z.unknown()).optional(),
-  })
-  .strict();
-
 export const dealTrpcRouter = t.router({
   deal: {
     findOne: t.procedure
@@ -103,27 +83,24 @@ export const dealTrpcRouter = t.router({
     find: t.procedure
       .meta(
         agentMeta(
-          'Search deals: { query: {...}, skip?, limit?, sort?, fields? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Results are bounded: limit defaults to 20 and is capped at 100. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
+          'Search deals with a MongoDB-style filter: { query: {...}, skip?, limit?, sort? }, e.g. { query: { stageId: "..." } } or { query: { assignedUserIds: { $in: ["userId"] } } }. Pass a plain filter object without query to match directly. Resolve stage names to stageId with stage.find and pipeline names with pipeline.findOne first.',
           { module: 'deal', action: 'showDeals' },
         ),
       )
-      .input(dealFindInput)
+      .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { query = {}, skip = 0, limit, sort = {}, fields } = input;
 
-        const boundedLimit = Math.min(
-          limit ?? AGENT_FIND_DEFAULT_LIMIT,
-          AGENT_FIND_MAX_LIMIT,
-        );
-        const projection = fields?.length
-          ? Object.fromEntries(fields.map((field) => [field, 1]))
-          : undefined;
+        const { query, skip, limit, sort = {} } = input;
 
-        return await models.Deals.find(query, projection)
-          .skip(skip)
-          .limit(boundedLimit)
-          .sort(sort as Record<string, SortOrder>)
+        if (!query) {
+          return await models.Deals.find(input).lean();
+        }
+
+        return await models.Deals.find(query)
+          .skip(skip || 0)
+          .limit(limit || 0)
+          .sort(sort)
           .lean();
       }),
 
@@ -136,15 +113,15 @@ export const dealTrpcRouter = t.router({
     count: t.procedure
       .meta(
         agentMeta(
-          'Count deals matching a MongoDB-style filter: { filter: {...} }, e.g. { filter: { stageId: "..." } }. Use for "how many deals ..." questions instead of deal.find.',
+          'Count deals matching a filter, e.g. { stageId: "..." }. Use for "how many deals ..." questions instead of deal.find.',
           { module: 'deal', action: 'showDeals' },
         ),
       )
-      .input(dealCountInput)
+      .input(z.any())
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return await models.Deals.find(input.filter ?? {}).countDocuments();
+        return await models.Deals.find(input).countDocuments();
       }),
 
     getLink: t.procedure

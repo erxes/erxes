@@ -46,9 +46,6 @@
   exposed to AI agents through `/agent-tools/manifest` and `/agent-tools/call`
   via `.meta(agentMeta(...))` annotations; every other procedure remains
   invisible to agents.
-- Agent-facing `deal.find` uses a strict input wrapper, optional projection
-  fields, a default limit of 20, and a maximum limit of 100; `deal.count` uses a
-  strict `{ filter }` wrapper.
 
 ## Architecture
 
@@ -144,9 +141,6 @@
   `deal.createCommentActivityLog`, `documents.editorAttributes`,
   `fields.getFieldList`). New procedures are agent-invisible unless explicitly
   annotated.
-- Agent-callable collection reads must stay bounded and reject unknown
-  top-level input keys; use count or pagination instead of allowing unbounded
-  full-collection payloads.
 
 ## Validation
 
