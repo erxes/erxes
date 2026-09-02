@@ -456,11 +456,18 @@ export const replaceDealContent = async ({
     return [];
   }
 
-  const deals = await models.Deals.find({ _id: { $in: replacerIds } }).lean();
+  const foundDeals = await models.Deals.find({
+    _id: { $in: replacerIds },
+  }).lean();
 
-  if (!deals.length) {
+  if (!foundDeals.length) {
     return [];
   }
+
+  const dealsById = new Map(foundDeals.map((deal) => [String(deal._id), deal]));
+  const deals = replacerIds
+    .map((replacerId) => dealsById.get(String(replacerId)))
+    .filter(Boolean);
 
   return mapWithConcurrency(
     deals,
