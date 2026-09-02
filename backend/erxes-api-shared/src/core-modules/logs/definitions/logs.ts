@@ -42,7 +42,7 @@ logsSchema.index(
   { partialFilterExpression: { contentType: { $exists: true } } },
 );
 
-// Point-in-time revert reads every change in one request's cascade by processId.
+// One request's cascade of changes shares a processId.
 logsSchema.index(
   { processId: 1, createdAt: -1 },
   { partialFilterExpression: { processId: { $exists: true } } },

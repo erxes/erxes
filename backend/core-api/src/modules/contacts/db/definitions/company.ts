@@ -16,7 +16,6 @@ export const companySchema = schemaWrapper(
         type: String,
         label: 'Name',
         optional: true,
-        esType: 'keyword',
       },
 
       names: {
@@ -35,14 +34,12 @@ export const companySchema = schemaWrapper(
         type: Number,
         label: 'Size',
         optional: true,
-        esType: 'number',
       },
 
       industry: {
         type: [String],
         label: 'Industry',
         optional: true,
-        esType: 'keyword',
       },
 
       website: {
@@ -61,7 +58,6 @@ export const companySchema = schemaWrapper(
         type: String,
         optional: true,
         label: 'Primary email',
-        esType: 'email',
       },
       emails: { type: [String], optional: true, label: 'Emails' },
 
@@ -87,7 +83,6 @@ export const companySchema = schemaWrapper(
         default: 'Active',
         optional: true,
         label: 'Status',
-        esType: 'keyword',
         selectOptions: COMPANY_SELECT_OPTIONS.STATUSES,
         index: true,
       },
@@ -97,7 +92,6 @@ export const companySchema = schemaWrapper(
         enum: getEnum('BUSINESS_TYPES'),
         optional: true,
         label: 'Business Type',
-        esType: 'keyword',
         selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES,
       },
 
@@ -159,7 +153,6 @@ export const companySchema = schemaWrapper(
         type: Number,
         optional: true,
         label: 'Score',
-        esType: 'number',
       },
     },
     {

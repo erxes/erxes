@@ -5,7 +5,6 @@ export const inboxSegmentConfigs = {
       moduleName: 'inbox',
       type: 'conversations',
       description: 'Conversation',
-      esIndex: 'conversations',
     },
   ],
 };

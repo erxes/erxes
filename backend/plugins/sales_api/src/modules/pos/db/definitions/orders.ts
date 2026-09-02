@@ -6,7 +6,7 @@ const posOrderItemSchema = schemaWrapper(
   new Schema({
     _id: mongoStringRequired,
     createdAt: { type: Date, label: 'Created at' },
-    productId: { type: String, label: 'Product', esType: 'keyword' },
+    productId: { type: String, label: 'Product' },
     count: { type: Number, label: 'Count' },
     unitPrice: { type: Number, label: 'Unit price' },
     discountAmount: {

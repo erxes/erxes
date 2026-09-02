@@ -1,7 +1,6 @@
 export * from './apollo';
 export * from './agent-tools';
 export * from './constants';
-export * from './elasticsearch';
 export * from './graphqlPubSub';
 export * from './headers';
 export * from './logs';

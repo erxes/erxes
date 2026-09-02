@@ -9,10 +9,10 @@ import { SALES_STATUSES, TIME_TRACK_TYPES } from '../../constants';
 export const productDataSchema = new Schema(
   {
     _id: { type: String },
-    productId: { type: String, esType: 'keyword' }, // Product
-    name: { type: String, esType: 'name' }, // Product name
-    uom: { type: String, esType: 'keyword' }, // Units of measurement
-    currency: { type: String, esType: 'keyword' }, // Currency
+    productId: { type: String }, // Product
+    name: { type: String }, // Product name
+    uom: { type: String }, // Units of measurement
+    currency: { type: String }, // Currency
     quantity: { type: Number, label: 'Quantity' }, // Quantity
     maxQuantity: { type: Number, label: 'Max' }, // Max quantity when selected bonus voucher
     unitPrice: { type: Number, label: 'Unit price' }, // Unit price
@@ -27,9 +27,9 @@ export const productDataSchema = new Schema(
     amount: { type: Number, label: 'Amount' }, // Amount
     tickUsed: { type: Boolean, label: 'Tick used' }, // TickUsed
     isVatApplied: { type: Boolean, label: 'Is vat applied' }, // isVatApplied
-    assignUserId: { type: String, optional: true, esType: 'keyword' }, // AssignUserId
-    branchId: { type: String, optional: true, esType: 'keyword' },
-    departmentId: { type: String, optional: true, esType: 'keyword' },
+    assignUserId: { type: String, optional: true }, // AssignUserId
+    branchId: { type: String, optional: true },
+    departmentId: { type: String, optional: true },
     startDate: { type: Date, optional: true, label: 'Start date' }, //pms
     endDate: { type: Date, optional: true, label: 'End date' }, //pms
     information: { type: Object, optional: true, label: 'information' }, //pms
@@ -69,45 +69,41 @@ export const dealSchema = schemaWrapper(
     {
       _id: mongooseStringRandomId,
       parentId: { type: String, optional: true, label: 'Parent Id' },
-      userId: { type: String, optional: true, esType: 'keyword' },
+      userId: { type: String, optional: true },
       order: { type: Number, index: true },
       name: { type: String, optional: true, label: 'Name' },
       startDate: {
         type: Date,
         index: true,
         label: 'Start date',
-        esType: 'date',
       },
       closeDate: {
         type: Date,
         index: true,
         label: 'Close date',
-        esType: 'date',
       },
       stageChangedDate: {
         type: Date,
         index: true,
         label: 'Stage changed date',
-        esType: 'date',
       },
       reminderMinute: { type: Number, label: 'Reminder minute' },
       isComplete: {
         type: Boolean,
         default: false,
         label: 'Is complete',
-        esType: 'boolean',
       },
       description: { type: String, optional: true, label: 'Description' },
-      assignedUserIds: { type: [String], esType: 'keyword' },
-      watchedUserIds: { type: [String], esType: 'keyword' },
-      labelIds: { type: [String], esType: 'keyword' },
+      assignedUserIds: { type: [String] },
+      watchedUserIds: { type: [String] },
+      labelIds: { type: [String] },
       attachments: { type: [attachmentSchema], label: 'Attachments' },
       stageId: { type: String, index: true },
       initialStageId: {
         type: String,
         optional: true,
       },
-      modifiedBy: { type: String, esType: 'keyword' },
+      modifiedBy: { type: String },
       searchText: { type: String, optional: true, index: true },
       priority: { type: String, optional: true, label: 'Priority' },
       // TODO remove after migration
@@ -143,7 +139,6 @@ export const dealSchema = schemaWrapper(
         type: Number,
         optional: true,
         label: 'Score',
-        esType: 'number',
       },
       number: {
         type: String,

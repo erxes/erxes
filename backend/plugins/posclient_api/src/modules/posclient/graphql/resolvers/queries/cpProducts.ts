@@ -8,6 +8,7 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { segmentProductIds } from '~/modules/posclient/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -16,7 +17,7 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import { Builder } from '~/modules/posclient/utils';
+import {} from '~/modules/posclient/utils';
 import {
   checkRemainders,
   getDiscountSortedProducts,
@@ -242,13 +243,10 @@ const generateFilter = async (
   }
 
   if (segment || segmentData) {
-    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
-
-    await qb.buildAllQueries();
-
-    const { list } = await qb.runQueries();
-
-    filter._id = { $in: list.map((l) => l._id) };
+    // An unsaved definition has no materialised membership to read.
+    filter._id = {
+      $in: segment ? await segmentProductIds(subdomain, segment) : [],
+    };
   }
 
   if (vendorId) {
@@ -521,8 +519,9 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);

@@ -1,49 +1,41 @@
-import {
-  booleanField,
-  dateField,
-  lookupField,
-  numberField,
-  SegmentFieldMeta,
-  staticField,
-  textField,
-} from 'erxes-api-shared/core-modules';
+import { SegmentField, SegmentFieldMeta } from 'erxes-api-shared/core-modules';
 
 export const COMPANY_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  textField({ key: 'primaryName', label: 'Primary name' }),
-  textField({ key: 'code', label: 'Code' }),
-  textField({ key: 'website', label: 'Website' }),
-  textField({ key: 'industry', label: 'Industry' }),
-  textField({ key: 'description', label: 'Description' }),
-  textField({ key: 'size', label: 'Size' }),
-  textField({ key: 'plan', label: 'Plan' }),
-  textField({ key: 'businessType', label: 'Business type' }),
-  textField({ key: 'primaryEmail', label: 'Primary email' }),
-  textField({ key: 'primaryPhone', label: 'Primary phone' }),
-  textField({ key: 'primaryAddress', label: 'Primary address' }),
-  textField({ key: 'avatar', label: 'Avatar' }),
-  textField({ key: 'parentCompanyId', label: 'Parent company' }),
+  SegmentField.text({ key: 'primaryName', label: 'Primary name' }),
+  SegmentField.text({ key: 'code', label: 'Code' }),
+  SegmentField.text({ key: 'website', label: 'Website' }),
+  SegmentField.text({ key: 'industry', label: 'Industry' }),
+  SegmentField.text({ key: 'description', label: 'Description' }),
+  SegmentField.text({ key: 'size', label: 'Size' }),
+  SegmentField.text({ key: 'plan', label: 'Plan' }),
+  SegmentField.text({ key: 'businessType', label: 'Business type' }),
+  SegmentField.text({ key: 'primaryEmail', label: 'Primary email' }),
+  SegmentField.text({ key: 'primaryPhone', label: 'Primary phone' }),
+  SegmentField.text({ key: 'primaryAddress', label: 'Primary address' }),
+  SegmentField.text({ key: 'avatar', label: 'Avatar' }),
+  SegmentField.text({ key: 'parentCompanyId', label: 'Parent company' }),
 
-  staticField({
+  SegmentField.static({
     key: 'status',
     label: 'Status',
     options: ['Active', 'deleted'],
   }),
 
-  numberField({ key: 'employees', label: 'Employees' }),
-  numberField({ key: 'score', label: 'Score' }),
+  SegmentField.number({ key: 'employees', label: 'Employees' }),
+  SegmentField.number({ key: 'score', label: 'Score' }),
 
-  booleanField({ key: 'isSubscribed', label: 'Is subscribed' }),
-  booleanField({ key: 'doNotDisturb', label: 'Do not disturb' }),
+  SegmentField.boolean({ key: 'isSubscribed', label: 'Is subscribed' }),
+  SegmentField.boolean({ key: 'doNotDisturb', label: 'Do not disturb' }),
 
-  dateField({ key: 'createdAt', label: 'Created at' }),
-  dateField({ key: 'updatedAt', label: 'Modified at' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.date({ key: 'updatedAt', label: 'Modified at' }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
     query: { name: 'tags', labelField: 'name' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'ownerId',
     label: 'Owner',
     query: { name: 'users', labelField: 'email' },

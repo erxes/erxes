@@ -44,7 +44,7 @@ type Base = {
   path?: string;
 };
 
-export const textField = ({ key, label, path }: Base): SegmentFieldMeta => ({
+const text = ({ key, label, path }: Base): SegmentFieldMeta => ({
   key,
   label,
   operators: SEGMENT_TEXT_OPERATORS,
@@ -53,7 +53,7 @@ export const textField = ({ key, label, path }: Base): SegmentFieldMeta => ({
   input: 'text',
 });
 
-export const numberField = ({ key, label, path }: Base): SegmentFieldMeta => ({
+const number = ({ key, label, path }: Base): SegmentFieldMeta => ({
   key,
   label,
   operators: SEGMENT_NUMBER_OPERATORS,
@@ -62,7 +62,7 @@ export const numberField = ({ key, label, path }: Base): SegmentFieldMeta => ({
   input: 'number',
 });
 
-export const dateField = ({ key, label, path }: Base): SegmentFieldMeta => ({
+const date = ({ key, label, path }: Base): SegmentFieldMeta => ({
   key,
   label,
   operators: SEGMENT_DATE_OPERATORS,
@@ -71,7 +71,7 @@ export const dateField = ({ key, label, path }: Base): SegmentFieldMeta => ({
   input: 'date',
 });
 
-export const booleanField = ({ key, label, path }: Base): SegmentFieldMeta => ({
+const boolean = ({ key, label, path }: Base): SegmentFieldMeta => ({
   key,
   label,
   operators: SEGMENT_BOOLEAN_OPERATORS,
@@ -80,7 +80,7 @@ export const booleanField = ({ key, label, path }: Base): SegmentFieldMeta => ({
   input: 'boolean',
 });
 
-export const staticField = ({
+const staticOptions = ({
   key,
   label,
   path,
@@ -100,7 +100,7 @@ export const staticField = ({
   ),
 });
 
-export const lookupField = ({
+const lookup = ({
   key,
   label,
   path,
@@ -116,7 +116,7 @@ export const lookupField = ({
   query,
 });
 
-export const componentField = ({
+const component = ({
   key,
   label,
   path,
@@ -131,3 +131,19 @@ export const componentField = ({
   source: 'component',
   component,
 });
+
+/**
+ * Builders for a content type's filterable fields.
+ *
+ * Namespaced because every call site is a list of one-liners, where a bare
+ * `textField(...)` says nothing about what it is building.
+ */
+export const SegmentField = {
+  text,
+  number,
+  date,
+  boolean,
+  static: staticOptions,
+  lookup,
+  component,
+} as const;

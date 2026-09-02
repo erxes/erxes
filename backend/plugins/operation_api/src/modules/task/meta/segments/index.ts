@@ -26,7 +26,6 @@ export const tasksSegments = {
       moduleName: 'task',
       type: 'tasks',
       description: 'Task',
-      esIndex: 'tasks',
     },
   ],
 

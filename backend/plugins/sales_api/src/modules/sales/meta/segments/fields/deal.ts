@@ -1,79 +1,84 @@
 import {
-  booleanField,
-  componentField,
-  dateField,
-  lookupField,
-  numberField,
   SEGMENT_ID_OPERATORS,
+  SegmentField,
   SegmentFieldMeta,
-  staticField,
-  textField,
 } from 'erxes-api-shared/core-modules';
 import { PROBABILITY, SALES_STATUSES } from '../../../constants';
 
 const STAGES = 'sales:sales.stages';
 
 export const SALES_DEAL_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  textField({ key: 'name', label: 'Name' }),
-  textField({ key: 'number', label: 'Number' }),
-  textField({ key: 'description', label: 'Description' }),
-  textField({ key: 'priority', label: 'Priority' }),
-  textField({ key: 'parentId', label: 'Parent deal' }),
+  SegmentField.text({ key: 'name', label: 'Name' }),
+  SegmentField.text({ key: 'number', label: 'Number' }),
+  SegmentField.text({ key: 'description', label: 'Description' }),
+  SegmentField.text({ key: 'priority', label: 'Priority' }),
+  SegmentField.text({ key: 'parentId', label: 'Parent deal' }),
 
-  staticField({ key: 'status', label: 'Status', options: SALES_STATUSES.ALL }),
-  booleanField({ key: 'isComplete', label: 'Is complete' }),
+  SegmentField.static({
+    key: 'status',
+    label: 'Status',
+    options: SALES_STATUSES.ALL,
+  }),
+  SegmentField.boolean({ key: 'isComplete', label: 'Is complete' }),
 
-  componentField({ key: 'stageId', label: 'Stage', component: 'dealStage' }),
-  componentField({
+  SegmentField.component({
+    key: 'stageId',
+    label: 'Stage',
+    component: 'dealStage',
+  }),
+  SegmentField.component({
     key: 'initialStageId',
     label: 'Initial stage',
     component: 'dealStage',
   }),
 
-  numberField({ key: 'score', label: 'Score' }),
-  numberField({ key: 'totalAmount', label: 'Total amount' }),
-  numberField({ key: 'unUsedTotalAmount', label: 'Unused total amount' }),
-  numberField({ key: 'bothTotalAmount', label: 'Both total amount' }),
+  SegmentField.number({ key: 'score', label: 'Score' }),
+  SegmentField.number({ key: 'totalAmount', label: 'Total amount' }),
+  SegmentField.number({
+    key: 'unUsedTotalAmount',
+    label: 'Unused total amount',
+  }),
+  SegmentField.number({ key: 'bothTotalAmount', label: 'Both total amount' }),
 
-  dateField({ key: 'startDate', label: 'Start date' }),
-  dateField({ key: 'closeDate', label: 'Close date' }),
-  dateField({ key: 'stageChangedDate', label: 'Stage changed date' }),
-  dateField({ key: 'createdAt', label: 'Created at' }),
-  dateField({ key: 'updatedAt', label: 'Updated at' }),
+  SegmentField.date({ key: 'startDate', label: 'Start date' }),
+  SegmentField.date({ key: 'closeDate', label: 'Close date' }),
+  SegmentField.date({ key: 'stageChangedDate', label: 'Stage changed date' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.date({ key: 'updatedAt', label: 'Updated at' }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'assignedUserIds',
     label: 'Assigned users',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'watchedUserIds',
     label: 'Watched users',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
     query: { name: 'tags', labelField: 'name' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'productId',
     label: 'Product',
     path: 'productsData.productId',
     query: { name: 'products', labelField: 'name' },
   }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'branchIds',
     label: 'Branches',
     query: { name: 'branchesMain', labelField: 'title' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'departmentIds',
     label: 'Departments',
     query: { name: 'departmentsMain', labelField: 'title' },
   }),
-  textField({ key: 'labelIds', label: 'Labels' }),
+  SegmentField.text({ key: 'labelIds', label: 'Labels' }),
 
   {
     key: 'pipelineId',

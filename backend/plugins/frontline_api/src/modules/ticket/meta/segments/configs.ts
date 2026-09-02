@@ -15,7 +15,6 @@ export const ticketsSegmentConfigs = {
       moduleName: 'tickets',
       type: 'tickets',
       description: 'Ticket',
-      esIndex: 'tickets',
     },
   ],
 };

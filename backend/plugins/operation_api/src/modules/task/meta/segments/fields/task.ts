@@ -1,11 +1,4 @@
-import {
-  componentField,
-  dateField,
-  lookupField,
-  numberField,
-  SegmentFieldMeta,
-  textField,
-} from 'erxes-api-shared/core-modules';
+import { SegmentField, SegmentFieldMeta } from 'erxes-api-shared/core-modules';
 
 /**
  * Filterable task fields.
@@ -19,42 +12,46 @@ import {
  */
 
 export const TASK_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  textField({ key: 'name', label: 'Name' }),
-  textField({ key: 'description', label: 'Description' }),
-  numberField({ key: 'number', label: 'Number' }),
-  numberField({ key: 'priority', label: 'Priority' }),
-  numberField({ key: 'estimatePoint', label: 'Estimate point' }),
+  SegmentField.text({ key: 'name', label: 'Name' }),
+  SegmentField.text({ key: 'description', label: 'Description' }),
+  SegmentField.number({ key: 'number', label: 'Number' }),
+  SegmentField.number({ key: 'priority', label: 'Priority' }),
+  SegmentField.number({ key: 'estimatePoint', label: 'Estimate point' }),
 
   // `taskStatus` is registered as a property input by `operation_ui`, and it
   // resolves the team itself - so this is a real picker rather than a box the
   // user has to paste an id into.
-  componentField({ key: 'status', label: 'Status', component: 'taskStatus' }),
+  SegmentField.component({
+    key: 'status',
+    label: 'Status',
+    component: 'taskStatus',
+  }),
 
-  textField({ key: 'teamId', label: 'Team' }),
-  textField({ key: 'cycleId', label: 'Cycle' }),
-  textField({ key: 'projectId', label: 'Project' }),
-  textField({ key: 'milestoneId', label: 'Milestone' }),
-  textField({ key: 'labelIds', label: 'Labels' }),
+  SegmentField.text({ key: 'teamId', label: 'Team' }),
+  SegmentField.text({ key: 'cycleId', label: 'Cycle' }),
+  SegmentField.text({ key: 'projectId', label: 'Project' }),
+  SegmentField.text({ key: 'milestoneId', label: 'Milestone' }),
+  SegmentField.text({ key: 'labelIds', label: 'Labels' }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'assigneeId',
     label: 'Assignee',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'createdBy',
     label: 'Created by',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
     query: { name: 'tags', labelField: 'name' },
   }),
 
-  dateField({ key: 'startDate', label: 'Start date' }),
-  dateField({ key: 'targetDate', label: 'Target date' }),
-  dateField({ key: 'statusChangedDate', label: 'Status changed date' }),
-  dateField({ key: 'createdAt', label: 'Created at' }),
-  dateField({ key: 'updatedAt', label: 'Modified at' }),
+  SegmentField.date({ key: 'startDate', label: 'Start date' }),
+  SegmentField.date({ key: 'targetDate', label: 'Target date' }),
+  SegmentField.date({ key: 'statusChangedDate', label: 'Status changed date' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.date({ key: 'updatedAt', label: 'Modified at' }),
 ];

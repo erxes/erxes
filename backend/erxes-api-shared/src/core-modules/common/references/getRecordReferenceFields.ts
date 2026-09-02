@@ -1,4 +1,4 @@
-import { getPlugin, getPlugins, getRealIdFromElk } from '../../../utils';
+import { getPlugin, getPlugins } from '../../../utils';
 import {
   normalizeRecordReferenceExtensions,
   normalizeRecordReferenceTypes,
@@ -155,7 +155,7 @@ const getCustomRecordReferenceFields = async (
     .lean();
 
   return fields.map((field) => {
-    const fieldId = getRealIdFromElk(String(field._id));
+    const fieldId = String(field._id);
 
     return {
       key: `propertiesData.${fieldId}`,

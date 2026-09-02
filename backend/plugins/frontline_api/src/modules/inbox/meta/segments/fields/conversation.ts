@@ -1,12 +1,7 @@
 import {
-  booleanField,
-  dateField,
-  lookupField,
-  numberField,
   SEGMENT_ID_OPERATORS,
+  SegmentField,
   SegmentFieldMeta,
-  staticField,
-  textField,
 } from 'erxes-api-shared/core-modules';
 import { CONVERSATION_STATUSES } from '~/modules/inbox/db/definitions/constants';
 
@@ -23,24 +18,24 @@ import { CONVERSATION_STATUSES } from '~/modules/inbox/db/definitions/constants'
  */
 
 export const CONVERSATION_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  staticField({
+  SegmentField.static({
     key: 'status',
     label: 'Status',
     options: CONVERSATION_STATUSES.ALL,
   }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'assignedUserId',
     label: 'Assigned user',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'tagIds',
     label: 'Tags',
     query: { name: 'tags', labelField: 'name' },
   }),
 
-  textField({ key: 'integrationId', label: 'Integration' }),
+  SegmentField.text({ key: 'integrationId', label: 'Integration' }),
 
   // Derived: a conversation stores which integration it arrived through, and
   // the channel is a property of that integration. This is what answers "came
@@ -61,16 +56,19 @@ export const CONVERSATION_SEGMENT_FIELDS: SegmentFieldMeta[] = [
     input: 'text',
   },
 
-  numberField({ key: 'messageCount', label: 'Message count' }),
-  booleanField({
+  SegmentField.number({ key: 'messageCount', label: 'Message count' }),
+  SegmentField.boolean({
     key: 'isCustomerRespondedLast',
     label: 'Customer replied last',
   }),
-  booleanField({ key: 'isBot', label: 'Handled by bot' }),
+  SegmentField.boolean({ key: 'isBot', label: 'Handled by bot' }),
 
-  dateField({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
   // Touched by every message, so "no conversation in 30 days" reads off this.
-  dateField({ key: 'updatedAt', label: 'Last activity' }),
-  dateField({ key: 'closedAt', label: 'Closed at' }),
-  dateField({ key: 'firstRespondedDate', label: 'First responded date' }),
+  SegmentField.date({ key: 'updatedAt', label: 'Last activity' }),
+  SegmentField.date({ key: 'closedAt', label: 'Closed at' }),
+  SegmentField.date({
+    key: 'firstRespondedDate',
+    label: 'First responded date',
+  }),
 ];

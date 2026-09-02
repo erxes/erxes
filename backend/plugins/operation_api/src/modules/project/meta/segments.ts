@@ -13,7 +13,6 @@ export const projectsSegments = {
       moduleName: 'project',
       type: 'projects',
       description: 'Project',
-      esIndex: 'projects',
     },
   ],
 };

@@ -1,11 +1,4 @@
-import {
-  booleanField,
-  dateField,
-  lookupField,
-  numberField,
-  SegmentFieldMeta,
-  textField,
-} from 'erxes-api-shared/core-modules';
+import { SegmentField, SegmentFieldMeta } from 'erxes-api-shared/core-modules';
 
 /**
  * Filterable POS order fields.
@@ -17,37 +10,37 @@ import {
  */
 
 export const POS_ORDER_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  textField({ key: 'number', label: 'Order number' }),
-  textField({ key: 'description', label: 'Description' }),
+  SegmentField.text({ key: 'number', label: 'Order number' }),
+  SegmentField.text({ key: 'description', label: 'Description' }),
 
   // Free text rather than a fixed list: which statuses and order types a
   // tenant uses are set by its own POS configuration, not by this schema.
-  textField({ key: 'status', label: 'Status' }),
-  textField({ key: 'type', label: 'Order type' }),
+  SegmentField.text({ key: 'status', label: 'Status' }),
+  SegmentField.text({ key: 'type', label: 'Order type' }),
 
-  numberField({ key: 'totalAmount', label: 'Total amount' }),
-  numberField({ key: 'finalAmount', label: 'Final amount' }),
-  numberField({ key: 'cashAmount', label: 'Cash amount' }),
-  numberField({ key: 'mobileAmount', label: 'Mobile amount' }),
+  SegmentField.number({ key: 'totalAmount', label: 'Total amount' }),
+  SegmentField.number({ key: 'finalAmount', label: 'Final amount' }),
+  SegmentField.number({ key: 'cashAmount', label: 'Cash amount' }),
+  SegmentField.number({ key: 'mobileAmount', label: 'Mobile amount' }),
 
-  dateField({ key: 'paidDate', label: 'Paid date' }),
-  dateField({ key: 'dueDate', label: 'Due date' }),
-  dateField({ key: 'closeDate', label: 'Close date' }),
-  dateField({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.date({ key: 'paidDate', label: 'Paid date' }),
+  SegmentField.date({ key: 'dueDate', label: 'Due date' }),
+  SegmentField.date({ key: 'closeDate', label: 'Close date' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'customerId',
     label: 'Customer',
     query: { name: 'customers', labelField: 'primaryEmail' },
   }),
-  textField({ key: 'customerType', label: 'Customer type' }),
+  SegmentField.text({ key: 'customerType', label: 'Customer type' }),
 
-  lookupField({
+  SegmentField.lookup({
     key: 'userId',
     label: 'Cashier',
     query: { name: 'users', labelField: 'email' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'productId',
     label: 'Product',
     path: 'items.productId',
@@ -56,17 +49,17 @@ export const POS_ORDER_SEGMENT_FIELDS: SegmentFieldMeta[] = [
 
   // `branches` and `departments` do not take the cursor arguments the generic
   // select needs, so these stay plain id fields - the same as on a deal.
-  lookupField({
+  SegmentField.lookup({
     key: 'branchId',
     label: 'Branch',
     query: { name: 'branchesMain', labelField: 'title' },
   }),
-  lookupField({
+  SegmentField.lookup({
     key: 'departmentId',
     label: 'Department',
     query: { name: 'departmentsMain', labelField: 'title' },
   }),
-  textField({ key: 'posId', label: 'POS' }),
+  SegmentField.text({ key: 'posId', label: 'POS' }),
 
-  booleanField({ key: 'isPre', label: 'Is pre-order' }),
+  SegmentField.boolean({ key: 'isPre', label: 'Is pre-order' }),
 ];

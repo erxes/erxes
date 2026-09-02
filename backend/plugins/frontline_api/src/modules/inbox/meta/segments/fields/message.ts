@@ -1,9 +1,4 @@
-import {
-  booleanField,
-  dateField,
-  SegmentFieldMeta,
-  textField,
-} from 'erxes-api-shared/core-modules';
+import { SegmentField, SegmentFieldMeta } from 'erxes-api-shared/core-modules';
 
 /**
  * Filterable message fields.
@@ -19,9 +14,9 @@ import {
  */
 
 export const MESSAGE_SEGMENT_FIELDS: SegmentFieldMeta[] = [
-  textField({ key: 'content', label: 'Content' }),
-  booleanField({ key: 'internal', label: 'Is internal note' }),
-  booleanField({ key: 'fromBot', label: 'Sent by bot' }),
-  textField({ key: 'conversationId', label: 'Conversation' }),
-  dateField({ key: 'createdAt', label: 'Created at' }),
+  SegmentField.text({ key: 'content', label: 'Content' }),
+  SegmentField.boolean({ key: 'internal', label: 'Is internal note' }),
+  SegmentField.boolean({ key: 'fromBot', label: 'Sent by bot' }),
+  SegmentField.text({ key: 'conversationId', label: 'Conversation' }),
+  SegmentField.date({ key: 'createdAt', label: 'Created at' }),
 ];

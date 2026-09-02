@@ -6,21 +6,18 @@ export const CORE_SEGMENT_CONTENT_TYPES: ISegmentContentType[] = [
     moduleName: 'organization',
     type: 'users',
     description: 'Team member',
-    esIndex: 'users',
   },
   {
     contentType: 'core:contacts.companies',
     moduleName: 'contacts',
     type: 'companies',
     description: 'Company',
-    esIndex: 'companies',
   },
   {
     contentType: 'core:contacts.customers',
     moduleName: 'contacts',
     type: 'customers',
     description: 'Customer',
-    esIndex: 'customers',
   },
   {
     contentType: 'core:contacts.leads',
@@ -28,7 +25,6 @@ export const CORE_SEGMENT_CONTENT_TYPES: ISegmentContentType[] = [
     moduleName: 'contacts',
     type: 'leads',
     description: 'Lead',
-    esIndex: 'customers',
     notAssociated: true,
   },
   {
@@ -36,6 +32,5 @@ export const CORE_SEGMENT_CONTENT_TYPES: ISegmentContentType[] = [
     moduleName: 'products',
     type: 'product',
     description: 'Product',
-    esIndex: 'products',
   },
 ];

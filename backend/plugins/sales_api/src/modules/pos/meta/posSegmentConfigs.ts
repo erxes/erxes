@@ -7,7 +7,6 @@ export const posSegmentConfigs = {
       moduleName: 'pos',
       type: 'orders',
       description: 'POS order',
-      esIndex: 'pos_orders',
     },
   ],
 };

@@ -22,14 +22,6 @@ export function SelectTimezone() {
               onValueChange={field.onChange}
             />
           </Form.Control>
-          {/*
-            This zone decides where a day begins for the whole organization:
-            every date condition in a segment ("in the last 7 days", the
-            anniversary rules) and every scheduled cycle resolves its day
-            boundary from it. Left unset, the server falls back to its
-            deployment default, which is UTC — off by a full working day for a
-            tenant that is hours ahead of it.
-          */}
           <Form.Description>
             {t(
               'timezone-description',

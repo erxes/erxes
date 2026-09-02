@@ -38,7 +38,7 @@ export const transactionDetailSchema = new Schema({
   currencyAmount: { type: Number, optional: true, label: 'CurrencyAmount' },
   customRate: { type: Number, optional: true, label: 'CustomRate' },
 
-  assignUserId: { type: String, optional: true, esType: 'keyword' }, // AssignUserId
+  assignUserId: { type: String, optional: true }, // AssignUserId
 
   excludeVat: { type: Boolean, optional: true, label: 'Exclude Vat' },
   excludeCtax: { type: Boolean, optional: true, label: 'Exclude Ctax' },

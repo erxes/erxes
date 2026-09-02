@@ -13,7 +13,6 @@ import { getValueAsString } from '@/organization/settings/db/models/Configs';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import {
   EditorAttributeUtil,
-  fetchEs,
   getEnv,
   getPlugins,
 } from 'erxes-api-shared/utils';
@@ -21,12 +20,6 @@ import { IModels } from '~/connectionResolvers';
 import { EMAIL_VALIDATION_STATUSES } from '~/modules/contacts/constants';
 import { coreUrl, engageTrackerUrl } from '~/utils/email/links';
 import { generateCustomerSelector } from './engage';
-
-export const isUsingElk = () => {
-  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
-
-  return ELK_SYNCER !== 'false';
-};
 
 export interface IUser {
   name: string;
@@ -327,68 +320,17 @@ export const getCustomerName = (customer) => {
   return 'Unknown';
 };
 
-export const getNumberOfVisits = async (params: {
+/**
+ * Page-visit counts came from an Elasticsearch `events` index that this
+ * deployment never had, so there is no store to count from. Kept as the seam
+ * a real visitor-event store would fill; every rule reading it sees zero.
+ */
+export const getNumberOfVisits = async (_params: {
   subdomain: string;
   url: string;
   visitorId?: string;
   customerId?: string;
-}): Promise<number> => {
-  const searchId = params.customerId
-    ? { customerId: params.customerId }
-    : { visitorId: params.visitorId };
-
-  try {
-    const response = await fetchEs({
-      subdomain: params.subdomain,
-      action: 'search',
-      index: 'events',
-      body: {
-        query: {
-          bool: {
-            must: [
-              { term: { name: 'viewPage' } },
-              { term: searchId },
-              {
-                nested: {
-                  path: 'attributes',
-                  query: {
-                    bool: {
-                      must: [
-                        {
-                          term: {
-                            'attributes.field': 'url',
-                          },
-                        },
-                        {
-                          match: {
-                            'attributes.value': params.url,
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-    });
-
-    const hits = response.hits.hits;
-
-    if (hits.length === 0) {
-      return 0;
-    }
-
-    const [firstHit] = hits;
-
-    return firstHit._source.count;
-  } catch (e) {
-    console.log(`Error occurred during getNumberOfVisits ${e.message}`);
-    return 0;
-  }
-};
+}): Promise<number> => 0;
 
 export const timeCheckScheduledBroadcast = async (
   _id: string,
@@ -575,8 +517,9 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
-  const customerFields =
-    await editorAttributeUtil.getCustomerFields(emailContent);
+  const customerFields = await editorAttributeUtil.getCustomerFields(
+    emailContent,
+  );
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
 
@@ -743,8 +686,9 @@ const sendNotifications = async (
   const { notification, cpId } = engageMessage;
   const engageMessageId = engageMessage._id;
 
-  const erxesCustomerIds =
-    await models.Customers.find(customersSelector).distinct('_id');
+  const erxesCustomerIds = await models.Customers.find(
+    customersSelector,
+  ).distinct('_id');
 
   const cpUserIds = await models.CPUser.find({
     clientPortalId: cpId,

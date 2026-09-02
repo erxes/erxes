@@ -1,9 +1,7 @@
 import { IEngageMessage } from '@/broadcast/@types';
 import { CAMPAIGN_METHODS, CONTENT_TYPES } from '@/broadcast/constants';
-import { isUsingElk } from '@/broadcast/utils';
 import { isSenderAllowed } from '~/utils/email/senders';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { fetchEs } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 interface ICustomerSelector {
@@ -17,25 +15,6 @@ interface ICheckCustomerParams {
   targetType?: string;
   targetIds?: string[];
 }
-
-export const findElk = async (subdomain: string, index: string, query) => {
-  const response = await fetchEs({
-    subdomain,
-    action: 'search',
-    index,
-    body: {
-      query,
-    },
-    defaultValue: { hits: { hits: [] } },
-  });
-
-  return response.hits.hits.map((hit) => {
-    return {
-      _id: hit._id,
-      ...hit._source,
-    };
-  });
-};
 
 export const generateCustomerSelector = async (
   subdomain: string,
@@ -55,119 +34,24 @@ export const generateCustomerSelector = async (
   };
 };
 
-// check customer exists from elastic or mongo
 export const checkCustomerExists = async (
   subdomain: string,
   models: IModels,
   params: ICheckCustomerParams,
 ) => {
   const { id, targetType, targetIds } = params;
-  if (!isUsingElk()) {
-    const customersSelector = {
-      _id: id,
-      state: { $ne: CONTENT_TYPES.VISITOR },
-      ...(await generateCustomerSelector(subdomain, models, {
-        engageId: id,
-        targetType,
-        targetIds,
-      })),
-    };
 
-    const customer = await models.Customers.findOne(customersSelector).lean();
+  const customersSelector = {
+    _id: id,
+    state: { $ne: CONTENT_TYPES.VISITOR },
+    ...(await generateCustomerSelector(subdomain, models, {
+      engageId: id,
+      targetType,
+      targetIds,
+    })),
+  };
 
-    return customer;
-  }
-
-  if (!id) {
-    return false;
-  }
-
-  const must: any[] = [
-    { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } },
-  ];
-
-  must.push({
-    term: {
-      _id: id,
-    },
-  });
-
-  // if (customerIds && customerIds.length > 0) {
-  //   must.push({ terms: { _id: customerIds } });
-  // }
-
-  // if (tagIds && tagIds.length > 0) {
-  //   must.push({ terms: { tagIds } });
-  // }
-
-  // if (brandIds && brandIds.length > 0) {
-  //   const integraiontIds = await findElk(subdomain, 'integrations', {
-  //     bool: {
-  //       must: [{ terms: { 'brandId.keyword': brandIds } }],
-  //     },
-  //   });
-
-  //   must.push({
-  //     terms: {
-  //       integrationId: integraiontIds.map((e) => e._id),
-  //     },
-  //   });
-  // }
-
-  // if (segmentIds && segmentIds.length > 0) {
-  //   const segments = await findElk(subdomain, 'segments', {
-  //     bool: {
-  //       must: [{ terms: { _id: segmentIds } }],
-  //     },
-  //   });
-
-  //   let customerIdsBySegments: string[] = [];
-
-  //   for (const segment of segments) {
-  //     const segmentData = await models.Segments.findOne({
-  //       _id: segment._id,
-  //     }).lean();
-
-  //     const cIds = await fetchSegment(models, subdomain, segmentData);
-
-  //     customerIdsBySegments = [...customerIdsBySegments, ...cIds];
-  //   }
-
-  //   must.push({
-  //     terms: {
-  //       _id: customerIdsBySegments,
-  //     },
-  //   });
-  // }
-
-  must.push({
-    bool: {
-      should: [
-        { term: { isSubscribed: 'yes' } },
-        {
-          bool: {
-            must_not: {
-              exists: {
-                field: 'isSubscribed',
-              },
-            },
-          },
-        },
-      ],
-    },
-  });
-
-  const customers = await findElk(subdomain, 'customers', {
-    bool: {
-      filter: {
-        bool: {
-          must,
-        },
-      },
-    },
-  });
-
-  return customers.length > 0;
+  return models.Customers.findOne(customersSelector).lean();
 };
 
 export const resolveCampaignFromEmail = async (

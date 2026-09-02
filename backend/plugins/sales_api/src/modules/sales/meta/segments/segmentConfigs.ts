@@ -26,7 +26,6 @@ export const salesSegmentConfigs = {
       moduleName: 'sales',
       type: 'deals',
       description: 'Deal',
-      esIndex: 'deals',
     },
   ],
 };

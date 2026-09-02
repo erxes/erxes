@@ -1,5 +1,5 @@
 import { SegmentRelationMeta } from './relationRegistry';
-import { numberField, textField } from './fieldBuilders';
+import { SegmentField } from './fieldBuilders';
 
 import { measureSegmentRelations } from './measureRelations';
 import { SegmentOwnedSource } from './ownedSource';
@@ -85,8 +85,8 @@ const context = (relations: SegmentRelationMeta[]) => ({
   relations,
   fields: {
     [DEAL]: [
-      textField({ key: 'status', label: 'Status' }),
-      numberField({ key: 'amount', label: 'Amount' }),
+      SegmentField.text({ key: 'status', label: 'Status' }),
+      SegmentField.number({ key: 'amount', label: 'Amount' }),
     ],
   },
 });
