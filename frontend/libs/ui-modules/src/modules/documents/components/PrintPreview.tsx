@@ -241,7 +241,8 @@ export const PrintPreview = ({
     const onLoad = () => {
       iframe.dataset.printReady = 'true';
 
-      const container = iframe.contentDocument?.querySelector('.scaled-content');
+      const container =
+        iframe.contentDocument?.querySelector('.scaled-content');
 
       if (!container) {
         return;
@@ -492,7 +493,9 @@ export const PrintPreview = ({
           className={`relative ${isRoll ? 'mx-auto' : 'm-auto'}`}
           style={{
             width: paperSize.width ? paperSize.width * activeZoom : undefined,
-            height: paperSize.height ? paperSize.height * activeZoom : undefined,
+            height: paperSize.height
+              ? paperSize.height * activeZoom
+              : undefined,
           }}
         >
           <div

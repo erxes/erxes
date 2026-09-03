@@ -1,11 +1,4 @@
-import {
-  Accordion,
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Select,
-} from 'erxes-ui';
+import { Accordion, Button, Checkbox, Form, Input, Select } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { ReactNode, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -104,9 +97,10 @@ export const PrintSettings = ({
   const isSheet = paperType === PAPER_TYPES.SHEET;
   const isCustom = size === 'CUSTOM';
 
-  const sizeSummary = isRoll || isCustom
-    ? `${width} × ${height || 'auto'} mm`
-    : PAPER_SIZES[size]?.label || size;
+  const sizeSummary =
+    isRoll || isCustom
+      ? `${width} × ${height || 'auto'} mm`
+      : PAPER_SIZES[size]?.label || size;
 
   const layoutSummary = [
     sizeSummary,
@@ -257,8 +251,14 @@ export const PrintSettings = ({
               <Form.Field
                 name="scale"
                 rules={{
-                  min: { value: 50, message: 'Scale must be between 50 and 150' },
-                  max: { value: 150, message: 'Scale must be between 50 and 150' },
+                  min: {
+                    value: 50,
+                    message: 'Scale must be between 50 and 150',
+                  },
+                  max: {
+                    value: 150,
+                    message: 'Scale must be between 50 and 150',
+                  },
                 }}
                 render={({ field, fieldState }) => (
                   <Form.Item>
