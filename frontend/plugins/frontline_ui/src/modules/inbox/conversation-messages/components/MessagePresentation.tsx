@@ -224,8 +224,7 @@ export const ShareCard = ({
     return <InstagramShareCard url={safeUrl} attachmentType={attachmentType} />;
   }
 
-  const isFacebookPost =
-    attachmentType === 'post' || attachmentType === 'reel';
+  const isFacebookPost = attachmentType === 'post' || attachmentType === 'reel';
 
   return (
     <a

@@ -175,10 +175,7 @@ function MessageAvatar({
 
 /* ---------------------------------------------------------------- author -- */
 
-function MessageAuthor({
-  className,
-  ...props
-}: React.ComponentProps<'span'>) {
+function MessageAuthor({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       data-slot="message-author"
@@ -287,7 +284,10 @@ export function parseQuotedMessage(html?: string): ParsedMessageContent {
   if (replyMatch) {
     const rawAuthor = replyMatch[1]?.trim() || 'Replying to a message';
     const preview = replyMatch[2]
-      ? replyMatch[2].replace(/<[^<>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      ? replyMatch[2]
+          .replace(/<[^<>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
       : '';
     reply = {
       author: rawAuthor.startsWith('Replying to')
@@ -349,7 +349,10 @@ function MessageContent({
     return (
       <div
         data-slot="message-content"
-        className={cn(classNames, (reply || isForwarded) && 'p-0 overflow-hidden')}
+        className={cn(
+          classNames,
+          (reply || isForwarded) && 'p-0 overflow-hidden',
+        )}
         {...props}
       >
         {reply && (
@@ -416,9 +419,7 @@ export const hasMessageContent = (
 ): content is string => {
   if (!content) return false;
   if (/<blockquote[\s\S]*?<\/blockquote>/i.test(content)) return true;
-  return Boolean(
-    content.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, ''),
-  );
+  return Boolean(content.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, ''));
 };
 
 /* ----------------------------------------------------------- attachments -- */
@@ -543,7 +544,8 @@ function MessageAttachments({
                     {attachment.name || 'File'}
                   </span>
                   <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-                    {formatFileSize(attachment?.size || 0) || 'Attachment'} · Click to preview
+                    {formatFileSize(attachment?.size || 0) || 'Attachment'} ·
+                    Click to preview
                   </span>
                 </div>
               </button>
@@ -760,7 +762,6 @@ export function MessageItemActions({
           </Button>
         </MessageTooltip>
       )}
-
     </div>
   );
 }

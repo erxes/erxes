@@ -570,8 +570,8 @@ export const BotMessage = ({
   const htmlContent = textItems?.length
     ? textItems.map((item: any) => item?.text || item?.content || '').join('')
     : content
-    ? `<p>${content}</p>`
-    : '';
+      ? `<p>${content}</p>`
+      : '';
 
   if (createdAt) {
     const position: MessagePosition = {

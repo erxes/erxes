@@ -754,27 +754,28 @@ export const receiveMessage = async (
     // instead of storing an empty message that the inbox cannot render.
     const isMidOnlyMessage = Boolean(
       mid &&
-        message &&
-        !text &&
-        !attachments?.length &&
-        !postback &&
-        !message.quick_reply &&
-        !message.referral &&
-        !message.payload,
+      message &&
+      !text &&
+      !attachments?.length &&
+      !postback &&
+      !message.quick_reply &&
+      !message.referral &&
+      !message.payload,
     );
     const storyMediaUrl =
       story?.url ||
       (isMidOnlyMessage && mid
         ? await fetchStoryMediaUrl(integration, pageId, mid)
         : undefined);
-    const messageAttachments = story || isMidOnlyMessage
-      ? [
-          {
-            type: 'story_reply',
-            payload: { url: storyMediaUrl || '' },
-          },
-        ]
-      : attachments;
+    const messageAttachments =
+      story || isMidOnlyMessage
+        ? [
+            {
+              type: 'story_reply',
+              payload: { url: storyMediaUrl || '' },
+            },
+          ]
+        : attachments;
     const formattedAttachments = formatAttachments(messageAttachments);
     const primaryAttachment = messageAttachments?.[0];
     const isStoryShare =
@@ -803,10 +804,11 @@ export const receiveMessage = async (
           storyUrl: isStoryShare
             ? sharePreview?.previewUrl
             : primaryAttachment?.payload?.url,
-          fallbackReason:
-            (isStoryShare
+          fallbackReason: (
+            isStoryShare
               ? sharePreview?.previewUrl
-              : primaryAttachment?.payload?.url)
+              : primaryAttachment?.payload?.url
+          )
             ? undefined
             : 'Story unavailable',
           previewText:
@@ -826,7 +828,7 @@ export const receiveMessage = async (
                 ? ('reel' as const)
                 : ('post' as const),
           }
-      : undefined;
+        : undefined;
     const attachmentPreview = attachmentPreviewFor({
       primaryAttachment,
       message,

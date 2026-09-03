@@ -77,9 +77,7 @@ export const useFacebookConversationMessages = () => {
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
-        const currentMessages = Array.isArray(
-          prev.facebookConversationMessages,
-        )
+        const currentMessages = Array.isArray(prev.facebookConversationMessages)
           ? prev.facebookConversationMessages
           : [];
 

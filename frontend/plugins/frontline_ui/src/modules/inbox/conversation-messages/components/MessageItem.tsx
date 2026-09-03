@@ -200,7 +200,9 @@ export const MessageItem = () => {
     Boolean(normalizedDisplayContent) &&
     normalizedDisplayContent !== HAS_ATTACHMENT &&
     Boolean(
-      normalizedDisplayContent?.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, ''),
+      normalizedDisplayContent
+        ?.replace(/<[^>]*>/g, '')
+        .replace(/\s|&nbsp;/g, ''),
     );
   const additionalActions = extraData?.discordMessageId ? (
     <DiscordMessageActions
@@ -223,9 +225,9 @@ export const MessageItem = () => {
   const showAuthorName = Boolean(
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-      !userId &&
-      customerId &&
-      separatePrevious,
+    !userId &&
+    customerId &&
+    separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
