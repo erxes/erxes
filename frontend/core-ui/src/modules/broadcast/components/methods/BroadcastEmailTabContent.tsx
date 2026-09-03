@@ -14,6 +14,7 @@ type TEmailPreviewMessage = {
     subject?: string;
     content?: string;
     contentJson?: JSONContent;
+    previewText?: string;
     replyTo?: string;
   };
 };
@@ -46,9 +47,15 @@ const LegacyBlockContentPreview = ({ content }: { content: string }) => {
   );
 };
 
-const MailyContentPreview = ({ contentJson }: { contentJson: JSONContent }) => {
+const MailyContentPreview = ({
+  contentJson,
+  previewText,
+}: {
+  contentJson: JSONContent;
+  previewText?: string;
+}) => {
   const { data, loading } = useQuery(BROADCAST_RENDER_PREVIEW, {
-    variables: { contentJson },
+    variables: { contentJson, previewText },
   });
 
   if (loading) {
@@ -65,7 +72,8 @@ const MailyContentPreview = ({ contentJson }: { contentJson: JSONContent }) => {
 
 const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
   const { fromEmail, fromUserId, email } = message || {};
-  const { sender, subject, content, contentJson, replyTo } = email || {};
+  const { sender, subject, content, contentJson, previewText, replyTo } =
+    email || {};
   const { alignedFrom } = useSenderOptions();
 
   return (
@@ -105,7 +113,7 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
       </div>
 
       {contentJson ? (
-        <MailyContentPreview contentJson={contentJson} />
+        <MailyContentPreview contentJson={contentJson} previewText={previewText} />
       ) : (
         <LegacyBlockContentPreview content={content || ''} />
       )}

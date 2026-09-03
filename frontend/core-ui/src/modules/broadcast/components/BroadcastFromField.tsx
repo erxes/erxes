@@ -9,48 +9,12 @@ import { z } from 'zod';
 const isEmail = (value?: string) =>
   !value || z.string().email().safeParse(value).success;
 
-const ReplyToField = ({
-  name,
-  required,
-}: {
-  name: 'fromEmail' | 'email.replyTo';
-  required?: boolean;
-}) => {
-  const { control } = useFormContext();
-
-  return (
-    <Form.Field
-      name={name}
-      control={control}
-      rules={{
-        required: required ? 'Reply-to address is required' : undefined,
-        validate: (value?: string) =>
-          isEmail(value) || 'Enter a valid email address',
-      }}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Control>
-            <SelectVerifiedSender
-              value={field.value}
-              onChange={field.onChange}
-              placeholder="Select a confirmed address"
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
-    />
-  );
-};
-
 export const BroadcastFromField = () => {
   const { control } = useFormContext();
   const { alignedFrom } = useSenderOptions();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   const [showReplyTo, setShowReplyTo] = useState(false);
-
-  const pickedIsReplyTo = !!alignedFrom;
 
   return (
     <div className="flex flex-col gap-2">
@@ -79,9 +43,26 @@ export const BroadcastFromField = () => {
           />
 
           {alignedFrom ? (
-            <span className="text-muted-foreground text-sm shrink-0">
-              &lt;{alignedFrom}&gt;
-            </span>
+            // The org has a verified/aligned sender domain - fromEmail picks
+            // *which* aligned address to send from, so it must stay visible
+            // (it's required), not hidden behind the Reply-To toggle below.
+            <Form.Field
+              name="fromEmail"
+              control={control}
+              rules={{ required: 'From address is required' }}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Control>
+                    <SelectVerifiedSender
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder={alignedFrom}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
           ) : (
             <Form.Field
               name="fromEmail"
@@ -107,22 +88,39 @@ export const BroadcastFromField = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowReplyTo((v) => !v)}
-          className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
-        >
-          {t('replyTo')}
-        </button>
+        {!alignedFrom && (
+          <button
+            type="button"
+            onClick={() => setShowReplyTo((v) => !v)}
+            className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t('replyTo')}
+          </button>
+        )}
       </div>
 
-      {showReplyTo && (
+      {!alignedFrom && showReplyTo && (
         <div className="pl-28">
-          {pickedIsReplyTo ? (
-            <ReplyToField name="fromEmail" required />
-          ) : (
-            <ReplyToField name="email.replyTo" />
-          )}
+          <Form.Field
+            name="email.replyTo"
+            control={control}
+            rules={{
+              validate: (value?: string) =>
+                isEmail(value) || 'Enter a valid email address',
+            }}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Control>
+                  <SelectVerifiedSender
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Select a confirmed address"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
         </div>
       )}
     </div>
