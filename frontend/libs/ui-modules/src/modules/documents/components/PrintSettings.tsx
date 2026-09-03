@@ -80,10 +80,16 @@ const MillimetreField = ({
   />
 );
 
-export const PrintSettings = ({ contentType }: { contentType: string }) => {
+export const PrintSettings = ({
+  contentType,
+  initialDocumentName,
+}: {
+  contentType: string;
+  initialDocumentName?: string;
+}) => {
   const form = useFormContext<PrintFormValues>();
 
-  const [documentName, setDocumentName] = useState('');
+  const [documentName, setDocumentName] = useState(initialDocumentName || '');
 
   const [directPrint, setDirectPrint] = useAtom(directPrintEnabledState);
   const [printer, setPrinter] = useAtom(directPrinterState);

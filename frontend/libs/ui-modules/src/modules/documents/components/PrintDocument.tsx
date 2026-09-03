@@ -30,15 +30,23 @@ const DEFAULT_VALUES: PrintFormValues = {
 
 export const PrintSheet = ({
   children,
+  trigger,
   ...props
-}: React.ComponentProps<typeof Sheet> & { children?: ReactNode }) => (
+}: React.ComponentProps<typeof Sheet> & {
+  children?: ReactNode;
+  trigger?: ReactNode | null;
+}) => (
   <Sheet {...props}>
-    <Sheet.Trigger asChild>
-      <Button variant="secondary" className="text-primary">
-        <IconPrinter />
-        Print
-      </Button>
-    </Sheet.Trigger>
+    {trigger !== null && (
+      <Sheet.Trigger asChild>
+        {trigger ?? (
+          <Button variant="secondary" className="text-primary">
+            <IconPrinter />
+            Print
+          </Button>
+        )}
+      </Sheet.Trigger>
+    )}
     <Sheet.View className="sm:max-w-none md:w-[calc(100vw-(--spacing(4)))] flex gap-0 flex-col m-0 p-0">
       <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
         <Sheet.Title>Print</Sheet.Title>
@@ -52,17 +60,38 @@ export const PrintSheet = ({
 export const PrintDocument = ({
   items,
   contentType,
+  document,
+  open,
+  onOpenChange,
+  trigger,
 }: {
   items: PrintItem[];
   contentType: string;
+  document?: {
+    _id: string;
+    name?: string;
+  };
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: ReactNode | null;
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const sheetOpen = open ?? internalOpen;
+
+  const setSheetOpen = (nextOpen: boolean) => {
+    setInternalOpen(nextOpen);
+    onOpenChange?.(nextOpen);
+  };
 
   const form = useForm<PrintFormValues>({
     mode: 'onChange',
-    defaultValues: DEFAULT_VALUES,
+    defaultValues: {
+      ...DEFAULT_VALUES,
+      _id: document?._id || '',
+      replacerIds: items.map((item) => item._id),
+    },
   });
 
   const { isRunning, print } = usePrintJob({
@@ -77,14 +106,28 @@ export const PrintDocument = ({
     );
   }, [form, items]);
 
+  useEffect(() => {
+    if (document?._id) {
+      form.setValue('_id', document._id);
+    }
+  }, [document?._id, form]);
+
   const handleDiscard = () => {
-    form.reset();
-    setOpen(false);
+    form.reset({
+      ...DEFAULT_VALUES,
+      _id: document?._id || '',
+      replacerIds: items.map((item) => item._id),
+    });
+    setSheetOpen(false);
   };
 
   return (
     <FormProvider {...form}>
-      <PrintSheet open={open} onOpenChange={setOpen}>
+      <PrintSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        trigger={trigger}
+      >
         <Resizable.PanelGroup direction="horizontal">
           <Resizable.Panel
             className="h-full flex flex-col bg-gray-100 overflow-hidden"
@@ -102,7 +145,10 @@ export const PrintDocument = ({
           >
             <div className="flex flex-col h-full relative">
               <div className="overflow-y-auto styled-scroll mb-16">
-                <PrintSettings contentType={contentType} />
+                <PrintSettings
+                  contentType={contentType}
+                  initialDocumentName={document?.name}
+                />
               </div>
               <Sheet.Footer className="absolute bottom-0 right-0 p-5">
                 <Button variant="secondary" onClick={handleDiscard}>

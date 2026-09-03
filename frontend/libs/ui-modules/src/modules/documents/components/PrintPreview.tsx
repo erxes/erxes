@@ -90,6 +90,7 @@ export const PrintPreview = ({
       replacerIds,
       config: { copies: Number(copies), width, height, type },
     },
+    fetchPolicy: 'network-only',
     skip: !_id,
   });
 

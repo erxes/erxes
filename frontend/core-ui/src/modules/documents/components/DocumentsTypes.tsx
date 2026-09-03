@@ -1,8 +1,8 @@
+import { IconCube, IconLayoutGrid } from '@tabler/icons-react';
 import { Sidebar, useQueryState } from 'erxes-ui';
 import { DOCUMENTS_TYPES_SET } from '../constants';
 import { useDocumentsTypes } from '../hooks/useDocumentsTypes';
 import { IDocumentType } from '../types';
-import { IconCube } from '@tabler/icons-react';
 
 export const DocumentsTypes = () => {
   const [contentType, setQuery] = useQueryState('contentType');
@@ -12,6 +12,19 @@ export const DocumentsTypes = () => {
   return (
     <Sidebar collapsible="none" className="w-full border-r bg-muted/20">
       <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem>
+              <Sidebar.MenuButton
+                onClick={() => setQuery(null)}
+                isActive={!contentType}
+              >
+                <IconLayoutGrid />
+                All Documents
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
         <Sidebar.GroupLabel className="h-12 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           Document types
         </Sidebar.GroupLabel>
@@ -19,10 +32,11 @@ export const DocumentsTypes = () => {
           <Sidebar.Menu>
             {documentsTypes.map(
               ({ contentType: module, label }: IDocumentType) => {
-                const Icon = DOCUMENTS_TYPES_SET?.[module]?.['icon'] || IconCube;
+                const Icon =
+                  DOCUMENTS_TYPES_SET?.[module]?.['icon'] || IconCube;
 
                 return (
-                  <Sidebar.MenuItem key={module}>
+                  <Sidebar.MenuItem key={module} className="relative">
                     <Sidebar.MenuButton
                       isActive={module === contentType}
                       onClick={() => {
