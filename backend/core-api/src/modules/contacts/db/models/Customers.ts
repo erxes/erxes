@@ -46,7 +46,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     skip?,
     limit?,
   ): Promise<ICustomerDocument[]>;
-  calcPSS(doc: any): IPSS;
+  calcPSS(doc: ICustomer): IPSS;
 
   createCustomer(
     doc: ICustomer,
@@ -57,7 +57,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(
     customerIds: string[],
     customerFields: ICustomer,
-    user?: any,
+    user?: IUserDocument,
   ): Promise<ICustomerDocument>;
   markCustomerAsActive(_id: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
@@ -97,7 +97,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
     _id?: string;
     customerIds?: string[];
     status?: string;
-  }): Promise<ICustomerDocument[]>;
+  }): Promise<unknown>;
 }
 
 export const loadCustomerClass = (
@@ -160,7 +160,7 @@ export const loadCustomerClass = (
   class Customer {
     public static getCustomerName(customer: ICustomer) {
       if (customer.firstName || customer.lastName) {
-        return (customer.firstName || '') + ' ' + (customer.lastName || '');
+        return `${customer.firstName || ''} ${customer.lastName || ''}`;
       }
 
       if (customer.primaryEmail || customer.primaryPhone) {
@@ -193,13 +193,14 @@ export const loadCustomerClass = (
      * Retrieves active customers
      */
     public static async findActiveCustomers(query, fields, skip?, limit?) {
-      return models.Customers.find(
+      return await models.Customers.find(
         { ...query, status: { $ne: 'deleted' } },
         fields,
       )
         .skip(skip || 0)
         .limit(limit || 0)
-        .lean();
+        .lean()
+        .exec();
     }
 
     /**
@@ -277,7 +278,13 @@ export const loadCustomerClass = (
         throw new Error(e.message);
       }
 
-      const oldCustomer = await models.Customers.getCustomer(_id);
+      const oldCustomerDoc = await models.Customers.findOne({ _id });
+
+      if (!oldCustomerDoc) {
+        throw new Error('Customer not found');
+      }
+
+      const oldCustomer = oldCustomerDoc.toObject();
 
       if (doc.propertiesData) {
         const propertiesData = await models.Fields.validateFieldValues(
@@ -344,8 +351,7 @@ export const loadCustomerClass = (
     public static async mergeCustomers(
       customerIds: string[],
       customerFields: ICustomer,
-      // user?: IUserDocument
-      user?: any,
+      user?: IUserDocument,
     ) {
       // Checking duplicated fields of customer
       await this.checkDuplication(customerFields, customerIds);
@@ -353,7 +359,7 @@ export const loadCustomerClass = (
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let propertiesData: IPropertyField = {};
-      let state: any = '';
+      let state: ICustomer['state'];
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -431,12 +437,9 @@ export const loadCustomerClass = (
      * Mark customer as active
      */
     public static async markCustomerAsActive(_id: string) {
-      await models.Customers.updateOne(
-        { _id: _id },
-        { $set: { isOnline: true } },
-      );
+      await models.Customers.updateOne({ _id }, { $set: { isOnline: true } });
 
-      return models.Customers.findOne({ _id: _id }).lean();
+      return models.Customers.findOne({ _id }).lean();
     }
 
     /**
@@ -560,7 +563,7 @@ export const loadCustomerClass = (
         'core:customer',
       );
 
-      const modifier: any = {
+      const modifier: Record<string, unknown> = {
         ...doc,
         state: doc.isUser ? 'customer' : customer.state,
         updatedAt: new Date(),
@@ -627,7 +630,7 @@ export const loadCustomerClass = (
     ) {
       const { customerId, type, value } = args;
 
-      const webhookData: any = {};
+      const webhookData: Record<string, unknown> = {};
 
       let customer = await models.Customers.getCustomer(customerId);
 
@@ -689,7 +692,10 @@ export const loadCustomerClass = (
       type: string,
       status: string,
     ) {
-      const set: any =
+      const set: {
+        emailValidationStatus?: string;
+        phoneValidationStatus?: string;
+      } =
         type !== 'email'
           ? { phoneValidationStatus: status }
           : { emailValidationStatus: status };
@@ -716,7 +722,15 @@ export const loadCustomerClass = (
       const now = new Date();
       const customer = await models.Customers.getCustomer(_id);
 
-      const query: any = {
+      const query: {
+        $set: {
+          lastSeenAt: Date;
+          isOnline: boolean;
+        };
+        $inc?: {
+          sessionCount: number;
+        };
+      } = {
         $set: {
           lastSeenAt: now,
           isOnline: true,
@@ -815,22 +829,27 @@ export const loadCustomerClass = (
       customerIds?: string[];
       status?: string;
     }) {
-      const update: any = { isSubscribed: 'No' };
+      const update: {
+        isSubscribed: string;
+        emailValidationStatus?: string;
+      } = { isSubscribed: 'No' };
 
       if (status === AWS_EMAIL_STATUSES.BOUNCE) {
         update.emailValidationStatus = EMAIL_VALIDATION_STATUSES.INVALID;
       }
 
       if (_id && status) {
-        return models.Customers.updateOne({ _id }, { $set: update });
+        return await models.Customers.updateOne({ _id }, { $set: update });
       }
 
       if (customerIds?.length && !status) {
-        return models.Customers.updateMany(
+        return await models.Customers.updateMany(
           { _id: { $in: customerIds } },
           { $set: update },
         );
       }
+
+      return undefined;
     }
 
     public static fixListFields(
@@ -847,7 +866,7 @@ export const loadCustomerClass = (
         if (customData[name]) {
           doc[name] = customData[name];
 
-          delete customData[name];
+          Reflect.deleteProperty(customData, name);
         }
       }
 
@@ -895,7 +914,7 @@ export const loadCustomerClass = (
     /**
      * Calc customer profileScore, searchText and state
      */
-    public static calcPSS(customer: ICustomerDocument) {
+    public static calcPSS(customer: ICustomer) {
       const nullValues = ['', null];
 
       let possibleLead = false;
@@ -988,7 +1007,10 @@ export const loadCustomerClass = (
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { [key: string]: any } = {
+      const query: {
+        status: { $ne: string };
+        _id?: { $nin: string[] } | { $ne: string };
+      } = {
         status: { $ne: 'deleted' },
       };
       let previousEntry;
