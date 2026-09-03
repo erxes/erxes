@@ -51,6 +51,12 @@
 
 ## Current Capabilities
 
+- A ticket note carries a `type`: `note` is internal to the team, `comment` is
+  the thread the requester reads and answers in the client portal. Notes stored
+  before comments existed have no `type`, so every internal-note read matches
+  `type: { $ne: 'comment' }` rather than `type: 'note'`.
+- `cpTicketGetNotes` returns comments only. Internal notes were previously
+  handed to the portal alongside them.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -392,6 +398,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
   on `Ticket.propertiesData`.
+- GraphQL: `ticketGetNotes(contentId: String!, type: String): [Note]` — a
+  ticket's notes oldest-first; `type: "comment"` returns the requester thread
+  and anything else returns internal notes.
+- GraphQL: `ticketCreateNote(content, contentId, mentions, type)` — `type`
+  accepts `note` (default) or `comment`.
+- GraphQL: `Note.type: String` and `Note.clientPortalAuthor` — the latter is a
+  `TicketNoteClientPortalAuthor { _id, fullName, email, avatar }` resolved from
+  Core `cpUsers`, and is null for notes written by an erxes user.
+- GraphQL: `Note.createdAt` / `Note.updatedAt` use the `Date` scalar, like
+  `Ticket` and `Activity`. They were `String`, which serialized a Mongoose
+  `Date` to epoch milliseconds as text — a value `new Date()` cannot parse.
+- GraphQL (client portal): `cpTicketCreateNote` always writes `type: "comment"`
+  and `cpTicketGetNotes(ticketId)` only reads comments back.
+- GraphQL subscription: `cpTicketCommentInserted(ticketId: String!): Note` —
+  every comment on that ticket, from either side, pushed to the client portal.
+  It aliases the internal `ticketCommentInserted:<ticketId>` pubsub topic that
+  `Note.createNote` publishes. The team does not need it; the ticket detail
+  already learns about comments through `ticketActivityChanged`.
 
 ### Consumes
 
@@ -521,9 +545,24 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Facebook upload configuration is cached in a module-level variable in
   `src/modules/integrations/facebook/utils.ts` and is **not** keyed by
   subdomain — treat it as a known cross-tenant hazard when touching that file.
+- `Note.type` (`'note' | 'comment'`, default `'note'`, indexed) partitions the
+  single `notes` collection into internal notes and the portal comment thread.
+- A comment written in the portal is stored with `createdBy: "cp:<id>"`, where
+  the id is the author's `erxesCustomerId` when it exists and their cp user
+  `_id` otherwise.
 
 ## Local Invariants
 
+- Any timestamp a client renders must be exposed through the `Date` scalar.
+  `String` turns a Mongoose `Date` into epoch milliseconds as text, which
+  `new Date()` rejects.
+- `Ticket.subscribedUserIds` only ever holds erxes user ids. `createNote` skips
+  the `$addToSet` when the author is a `cp:` portal user, so a requester's
+  comment can never make them a subscriber.
+- Every client-portal-facing note resolver filters on `type: 'comment'`.
+  Internal notes must never reach the portal.
+- Comments raise a `COMMENT` activity, not a `NOTE` one. The distinction is what
+  lets a client tell the two apart on the shared activity subscription.
 - Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
   `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
   _every_ ticket list, not only pipeline-scoped ones. Without a
@@ -537,7 +576,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `isCheckDate` means `createdAt >= start of the server's current day`.
 - `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
   where that member picker is nested under the "my tickets only" toggle.
-
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1317,8 +1355,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-<<<<<<< HEAD
-
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
 - **Summary:** All four pipeline visibility rules were dead on the channel
@@ -1330,7 +1366,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Rules now live in `buildVisibilityCondition` and are applied per pipeline on
   unscoped lists, which also stops private-pipeline tickets leaking there.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- # **Contracts changed:** None (`getTickets` arguments are unchanged).
+- **Contracts changed:** None (`getTickets` arguments are unchanged).
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1348,7 +1384,27 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
   `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
   registered.
-  > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
+
+### `2026-09-01` — Ticket comments split from internal notes
+
+- **Summary:** Ticket notes gained a `type`, so the team's internal notes and
+  the two-way comment thread with the client-portal requester are separate
+  surfaces; the portal now reads and writes comments only, where it previously
+  received every internal note on the ticket.
+- **Affected areas:** `src/apollo/subscription.ts`,
+  `src/modules/ticket/@types/note.ts`,
+  `src/modules/ticket/db/definitions/note.ts`,
+  `src/modules/ticket/db/models/Note.ts`,
+  `src/modules/ticket/graphql/schemas/note.ts`,
+  `src/modules/ticket/graphql/resolvers/{queries,mutations}/{note,clientPortal}.ts`,
+  `src/modules/ticket/graphql/resolvers/customResolvers/note.ts`,
+  `src/apollo/resolvers/resolvers.ts`, `src/utils/notifications.ts`.
+- **Contracts changed:** `Note` gained `type` and `clientPortalAuthor`; new
+  `TicketNoteClientPortalAuthor` type and `ticketGetNotes` query;
+  `ticketCreateNote` gained `type`; `cpTicketGetNotes` narrowed to comments;
+  new `cpTicketCommentInserted(ticketId)` subscription; `Note.createdAt` /
+  `Note.updatedAt` moved from `String` to the `Date` scalar, so they now
+  serialize as ISO strings instead of epoch milliseconds.
 
 ### `2026-08-28` — Every zone is listed, and the picker says which are usable
 
@@ -1480,29 +1536,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
   `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
   `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
-
-### `2026-08-26` — Mail automation and reply drafts removed
-
-- **Summary:** The mail channel no longer registers automation. The
-  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
-  actions, their workers and the AI-context builder are gone, and so is the reply
-  draft they were the only producer of — nothing else could create one, so the
-  draft model, its GraphQL surface and its inbox card would have been unreachable
-  code.
-- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
-  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
-  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
-  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/subscription.ts`,
-  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
-  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
-- **Contracts changed:** Removed the `frontline:mail.messages` automation
-  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
-  `mailDraftChanged` subscription.

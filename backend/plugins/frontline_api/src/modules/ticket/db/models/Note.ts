@@ -1,8 +1,16 @@
 import { noteSchema } from '@/ticket/db/definitions/note';
-import { INote, INoteDocument } from '@/ticket/@types/note';
+import { INote, INoteDocument, TNoteType } from '@/ticket/@types/note';
 import { FilterQuery, Model } from 'mongoose';
+import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
+
+/**
+ * Client portal authors are stored as `cp:<id>`, so they can never be mixed
+ * into fields that hold erxes user ids.
+ */
+export const isClientPortalAuthor = (createdBy?: string) =>
+  !!createdBy?.startsWith('cp:');
 
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
@@ -53,6 +61,8 @@ export const loadNoteClass = (models: IModels) => {
       subdomain: string;
       userId: string;
     }): Promise<INoteDocument> {
+      const type: TNoteType = doc.type === 'comment' ? 'comment' : 'note';
+
       if (doc.contentId && !doc.statusId) {
         const ticket = await models.Ticket.findOne(
           { _id: doc.contentId },
@@ -63,12 +73,12 @@ export const loadNoteClass = (models: IModels) => {
         }
       }
 
-      const note = await models.Note.create(doc);
+      const note = await models.Note.create({ ...doc, type });
 
       await models.Activity.createActivity({
         action: 'CREATED',
         contentId: doc.contentId,
-        module: 'NOTE',
+        module: type === 'comment' ? 'COMMENT' : 'NOTE',
         metadata: {
           previousValue: undefined,
           newValue: note._id,
@@ -85,7 +95,9 @@ export const loadNoteClass = (models: IModels) => {
           .forEach((id) => mentionUserIds.add(id));
       }
 
-      if (note.contentId) {
+      // `subscribedUserIds` only ever holds erxes user ids, so a comment left
+      // by the requester in the client portal must not land in it.
+      if (note.contentId && !isClientPortalAuthor(userId)) {
         await models.Ticket.updateOne(
           { _id: note.contentId },
           { $addToSet: { subscribedUserIds: userId } },
@@ -119,7 +131,64 @@ export const loadNoteClass = (models: IModels) => {
         });
       }
 
+      if (type === 'comment') {
+        // The team reads comments off `ticketActivityChanged`; the client
+        // portal has no activity feed, so it gets its own topic.
+        await graphqlPubsub.publish(`ticketCommentInserted:${note.contentId}`, {
+          ticketCommentInserted: note,
+        });
+
+        if (isClientPortalAuthor(doc.createdBy)) {
+          await Note.notifyTeamOfPortalComment({ note, subdomain, userId });
+        }
+      }
+
       return note;
+    }
+
+    /**
+     * A comment written in the client portal has no erxes author to notify
+     * from, so the whole team following the ticket is told instead.
+     */
+    private static async notifyTeamOfPortalComment({
+      note,
+      subdomain,
+      userId,
+    }: {
+      note: INoteDocument;
+      subdomain: string;
+      userId: string;
+    }) {
+      const ticket = await models.Ticket.findOne(
+        { _id: note.contentId },
+        { assigneeId: 1, assignedMembers: 1, subscribedUserIds: 1 },
+      ).lean();
+
+      if (!ticket) {
+        return;
+      }
+
+      const recipientIds = new Set<string>(
+        [
+          ticket.assigneeId,
+          ...(ticket.assignedMembers || []),
+          ...(ticket.subscribedUserIds || []),
+        ].filter((id): id is string => !!id && !isClientPortalAuthor(id)),
+      );
+
+      if (recipientIds.size === 0) {
+        return;
+      }
+
+      await createNotifications({
+        contentType: 'ticket',
+        contentTypeId: note.contentId,
+        fromUserId: userId,
+        subdomain,
+        notificationType: 'ticketComment',
+        userIds: Array.from(recipientIds),
+        action: 'create',
+      });
     }
 
     public static async updateNote(doc: INoteDocument) {

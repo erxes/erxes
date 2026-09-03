@@ -32,6 +32,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return `Ticket updated`;
     case 'note':
       return `You have been mentioned in ${contentType}'s note`;
+    case 'ticketComment':
+      return 'The requester left a comment on ticket';
     case 'channel':
       return 'You have been invited to channel';
     case 'status':

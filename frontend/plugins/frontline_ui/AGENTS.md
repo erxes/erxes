@@ -62,6 +62,24 @@
 
 ## Current Capabilities
 
+- The ticket detail's writing area is a two-tab surface under the activity
+  timeline: **Note** keeps the existing internal editor with `@` mentions, and
+  **Comments** is the thread shared with the person who submitted the request
+  from the client portal. The Comments trigger carries the thread's count.
+- Comments render inside the activity timeline next to notes, so the ticket's
+  history reads in one chronological stream. `CommentActivityItem` draws the row:
+  a message icon on the timeline rail, the author — `MembersInline` for a
+  teammate, the portal name plus a "Requester" label for the requester — a
+  relative timestamp, and the read-only block content with no bounding box.
+- The two tabs under the timeline are composers only; neither lists anything.
+- Both composers sit under `EditorToolbar`, an always-visible row for bold,
+  italic, underline, strikethrough, bulleted and numbered lists, and image
+  insert. Its buttons `preventDefault` on mousedown so the caret and selection
+  survive the click, and the image button reuses the slash menu's flow: insert
+  an `image` block, then open `editor.filePanel` on it.
+- Comment editors carry no mention menu, because the requester reads them.
+- A comment row is skipped until `TicketGetComments` has its body, so a portal
+  comment appears complete rather than as an empty bubble.
 - Ticket pipeline settings include a Properties route that lists only Core
   `frontline:ticket` properties, grouped by their Core field group. Checked
   fields are stored on the pipeline, and ticket detail renders only that
@@ -243,6 +261,9 @@
   card shares: `id`, `filterConfig` (what gets saved), `queryFilters` (what gets
   queried, with the relative `date` resolved to a range), and `filtersRestored`.
   A new ticket card uses this rather than reading the filter atoms itself.
+- `ActivityList` renders the ticket timeline — notes and comments interleaved —
+  plus the Note/Comments composer tabs, and is the only consumer of
+  `useTicketComments`; `TicketFields` mounts it.
 
 ### Consumes
 
@@ -388,9 +409,25 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   window is in flight, so the thread never blanks. Whether the quoted part of a
   message and whether its remote images are shown are per-message component
   state and deliberately not persisted.
+- `TicketGetComments` (`ticketGetNotes(contentId, type: "comment")`) supplies the
+  body and client-portal author that a COMMENT activity record does not carry;
+  `ActivityList` indexes the result by `_id` and joins it to the activity through
+  `metadata.newValue`. `useTicketComments` takes a `syncToken` — the newest
+  COMMENT activity id from the existing `ticketActivityChanged` subscription —
+  and refetches whenever it changes, so no second subscription is opened.
+- `useCreateTicketComment` posts through `TicketCreateNote` with
+  `type: 'comment'` and refetches `TicketGetComments` before resolving.
 
 ## Local Invariants
 
+- The comment editor must never mount `AssignMemberInEditor`. Comments are
+  visible to the requester, so mentioning teammates there would leak the team's
+  membership.
+- A COMMENT activity must render through `CommentActivityItem`, never through
+  `ActivityItemWrapper`: the wrapper resolves its author with `MembersInline`
+  from `createdBy`, which cannot resolve a client-portal requester.
+- Editor content is trimmed through `trimEmptyBlocks` from `@/activity/utils`
+  before it is sent; do not re-implement the empty-paragraph trimming inline.
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
   Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
@@ -788,6 +825,26 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-02` — Note and comment editors gained a visible toolbar
+
+- **Summary:** Formatting and image insert were only reachable through the `/`
+  menu or by selecting text, so neither looked available. Both composers now
+  carry a persistent toolbar with bold, italic, underline, strikethrough, the two
+  list types, and an image button that opens the upload panel.
+- **Affected areas:**
+  `src/modules/activity/components/{EditorToolbar,CommentInput,NoteInput}.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-02` — Comments moved into the ticket timeline
+
+- **Summary:** Comments no longer sit in their own thread under the tabs. They
+  render as timeline rows beside notes, so the ticket reads as one chronological
+  stream, and the Note/Comments tabs are now composers only. The comment body
+  lost its bounding box and its author avatar matches the timeline's.
+- **Affected areas:**
+  `src/modules/activity/components/{ActivityList,CommentThread}.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-09-02` — IMAP integration UI removed
 
 - **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
@@ -806,6 +863,23 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
   `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
   conversation detail no longer suppresses `MessageInput` for the `imap` kind.
+
+### `2026-09-01` — Ticket detail gained a Comments tab
+
+- **Summary:** The ticket detail's "Leave a note" box became a Note/Comments
+  tab strip. Comments are the two-way thread with the client-portal requester —
+  the thread lists both sides with author and time, posts without mentions, and
+  refreshes live off the ticket activity subscription.
+- **Affected areas:**
+  `src/modules/activity/components/{ActivityList,CommentInput,CommentThread,NoteInput}.tsx`,
+  `src/modules/activity/hooks/{useTicketComments,useCreateTicketComment}.tsx`,
+  `src/modules/activity/graphql/queries/getTicketComments.ts`,
+  `src/modules/activity/graphql/mutations/createTicketNote.ts`,
+  `src/modules/activity/{constants.ts,types.ts,utils/editorContent.ts}`,
+  `src/modules/ticket/types/ticketHotkeyScope.ts`.
+- **Contracts changed:** New `TicketGetComments` query; `TicketCreateNote`
+  sends `type` and selects `type`; both rely on the matching `frontline_api`
+  additions.
 
 ### `2026-08-28` — The domain picker is searchable and says which domains are usable
 
@@ -893,54 +967,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
 - **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
 - **Contracts changed:** None
-
-### `2026-08-26` — Sidebar selections no longer strand each other
-
-- **Summary:** Selecting a Discord channel and then a team or personal channel
-  left `integrationId` set alongside `channelId`, and the two intersect to
-  nothing, so the list emptied with no chip explaining why. Every inbox
-  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
-  and clears the params it does not own, and a Discord selection finally shows as
-  its own removable chip in the filter bar.
-- **Affected areas:**
-  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
-  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
-  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-26` — Mail automation surface and the draft card removed
-
-- **Summary:** The mail channel's automation widgets (trigger form and both
-  action forms) are gone along with their `AutomationRemoteEntry` registration,
-  and so is the reply-draft card in the thread — the backend action that was the
-  only thing able to create a draft was removed with them.
-- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
-  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
-  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
-  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
-  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** Stops consuming `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
-  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
-  Removed the five now-unused `draft` translation keys.
-
-### `2026-08-25` — Integration rows show their unread count again
-
-- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
-  `integrationsGetUsedTypesByChannel` query it already makes, instead of
-  recomputing the figure through a second `conversationCounts` request per
-  expanded channel that was rendering blank; a row and its channel row now count
-  the same thing.
-- **Affected areas:**
-  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
-  `src/modules/integrations/types/Integration.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
-  (`useConversationCountsByIntegrationType` narrowed to
-  `useAwaitingCountsByIntegrationType`),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
-- **Contracts changed:** None on the API; the by-channel used-types document now
-  selects `unreadConversationCount`.

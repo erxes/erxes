@@ -24,6 +24,7 @@ export default {
       cpConversationChanged(_id: String!): ConversationChangedResponse
       cpConversationMessageInserted(_id: String!): ConversationMessage
       cpConversationClientMessageInserted(userId: String!): ConversationMessage
+      cpTicketCommentInserted(ticketId: String!): Note
 
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -415,6 +416,12 @@ export default {
           graphqlPubsub.asyncIterator(
             `conversationClientMessageInserted:${subdomain}:${userId}`,
           ),
+      },
+
+      cpTicketCommentInserted: {
+        resolve: (payload) => payload.ticketCommentInserted,
+        subscribe: (_, { ticketId }) =>
+          graphqlPubsub.asyncIterator(`ticketCommentInserted:${ticketId}`),
       },
     };
   },

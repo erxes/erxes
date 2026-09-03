@@ -5,6 +5,7 @@ import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
 import { Ticket } from '@/ticket/graphql/resolvers/customResolvers/status';
+import { Note } from '@/ticket/graphql/resolvers/customResolvers/note';
 import {
   Form,
   Submission,
@@ -23,6 +24,7 @@ export const customResolvers = {
   ChannelMember,
   Pipeline,
   Ticket,
+  Note,
   Form,
   Submission,
   KnowledgeBaseArticle,

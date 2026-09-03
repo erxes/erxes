@@ -51,13 +51,16 @@ export const cpTicketQueries = {
     return models.Status.getStatus(_id);
   },
 
+  // The portal only ever sees the comment thread; internal notes stay inside
+  // the team's ticket detail.
   cpTicketGetNotes: async (
     _parent: undefined,
     { ticketId }: { ticketId: string },
     { models }: IContext,
   ) => {
-     return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
-
+    return models.Note.find({ contentId: ticketId, type: 'comment' })
+      .sort({ createdAt: -1 })
+      .lean();
   },
 };
 
