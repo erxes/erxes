@@ -55,7 +55,7 @@ export const BroadcastFromField = () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-4">
-        <span className="w-20 shrink-0 text-sm text-muted-foreground">
+        <span className="w-24 shrink-0 text-sm text-muted-foreground">
           {t('from')}
         </span>
 
@@ -116,12 +116,15 @@ export const BroadcastFromField = () => {
         </button>
       </div>
 
-      {showReplyTo &&
-        (pickedIsReplyTo ? (
-          <ReplyToField name="fromEmail" required />
-        ) : (
-          <ReplyToField name="email.replyTo" />
-        ))}
+      {showReplyTo && (
+        <div className="pl-28">
+          {pickedIsReplyTo ? (
+            <ReplyToField name="fromEmail" required />
+          ) : (
+            <ReplyToField name="email.replyTo" />
+          )}
+        </div>
+      )}
     </div>
   );
 };

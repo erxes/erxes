@@ -16,7 +16,7 @@ export const BroadcastEmailPreview = () => {
   const hasError = !!errors?.email;
 
   return (
-    <div className="h-full p-10 flex flex-col gap-3">
+    <div className="h-full flex flex-col gap-3">
       {editor && (
         <div className="flex justify-end">
           <BroadcastInsertTemplate editor={editor} />
@@ -24,7 +24,7 @@ export const BroadcastEmailPreview = () => {
       )}
       <div
         className={`
-          bg-white overflow-y-auto rounded-xl h-full py-8 border border-gray-200 transition-all duration-300
+          bg-white overflow-y-auto rounded-xl h-full py-6 border border-gray-200 transition-all duration-300
           ${
             hasError
               ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]'

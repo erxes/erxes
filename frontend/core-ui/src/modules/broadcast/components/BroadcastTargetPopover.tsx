@@ -23,7 +23,7 @@ export const BroadcastTargetPopover = () => {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="w-20 shrink-0 text-sm text-muted-foreground">
+      <span className="w-24 shrink-0 text-sm text-muted-foreground">
         {t('to')}
       </span>
 
@@ -31,7 +31,7 @@ export const BroadcastTargetPopover = () => {
         <Popover.Trigger asChild>
           <button
             type="button"
-            className="flex-1 text-left text-sm text-muted-foreground hover:text-foreground"
+            className="flex-1 text-left text-sm text-muted-foreground hover:text-foreground py-1"
           >
             {targetCount
               ? t('recipientsCount', { count: targetCount })

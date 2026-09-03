@@ -8,7 +8,7 @@ export const BroadcastSubjectField = () => {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="w-20 shrink-0 text-sm text-muted-foreground">
+      <span className="w-24 shrink-0 text-sm text-muted-foreground">
         {t('subject')}
         <span className="text-destructive">*</span>
       </span>

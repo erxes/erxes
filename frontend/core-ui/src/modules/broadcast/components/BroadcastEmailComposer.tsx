@@ -88,18 +88,16 @@ export const BroadcastEmailComposer = ({
       </Sheet.Header>
 
       <Sheet.Content className="flex flex-col overflow-hidden">
-        <div className="flex items-center gap-2 px-1 pb-4">
+        <div className="flex items-center gap-2 px-5 py-3">
           <BroadcastComposerSettings />
           <BroadcastPreviewEmailDialog />
           <BroadcastCopyHtmlButton />
-          <div className="ml-auto">
-            <BroadcastSendTestEmail variant="ghost" />
-          </div>
+          <BroadcastSendTestEmail variant="ghost" />
         </div>
 
         <Separator />
 
-        <div className="flex flex-col gap-4 py-5">
+        <div className="flex flex-col gap-5 px-5 py-6">
           <BroadcastSubjectField />
           <BroadcastFromField />
           <BroadcastTargetPopover />
@@ -107,13 +105,13 @@ export const BroadcastEmailComposer = ({
 
         <Separator />
 
-        <div className="py-3">
+        <div className="px-5 py-4">
           <BroadcastPreviewTextField />
         </div>
 
         <Separator />
 
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden px-5 py-4">
           <BroadcastEmailPreview />
         </div>
       </Sheet.Content>
