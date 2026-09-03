@@ -65,6 +65,16 @@ export const EmailEditor = ({
 
   return (
     <div className={cn('w-full h-full', className)}>
+      {/*
+        Maily's slash/@/bubble menus are Tippy popups portaled straight to
+        document.body, outside Radix's own Dialog/Sheet content tree. Radix
+        sets body { pointer-events: none } while a Sheet is open as part of
+        its scroll lock, and pointer-events inherits by default, so those
+        popups silently lost all mouse interaction - not just scrolling,
+        clicking any item too. This breaks the inherited "none" right at
+        the Tippy root.
+      */}
+      <style>{'[data-tippy-root] { pointer-events: auto; }'}</style>
       <MailyEditor
         contentJson={contentJson}
         blocks={blocks}
