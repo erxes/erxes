@@ -15,9 +15,8 @@ import {
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
+import { BroadcastEmailComposer } from '../BroadcastEmailComposer';
 import { BroadcastPreview } from '../BroadcastPreview';
-import { BroadcastSaveAsTemplate } from '../BroadcastSaveAsTemplate';
-import { BroadcastSendTestEmail } from '../BroadcastSendTestEmail';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
 
@@ -32,12 +31,7 @@ const BROADCAST_STEPS = [
     title: 'Broadcast Config',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastConfigStep,
-    validateFields: [
-      'fromEmail',
-      'email.subject',
-      'email.replyTo',
-      'email.contentJson',
-    ],
+    validateFields: [],
   },
 ];
 
@@ -46,17 +40,13 @@ const getConfigValidateFields = (method?: string | null) => {
     return ['cpId', 'notification.title', 'notification.content'];
   }
 
-  if (method === 'messenger') {
-    return [
-      'fromUserId',
-      'messenger.brandId',
-      'messenger.content',
-      'messenger.sentAs',
-      'messenger.kind',
-    ];
-  }
-
-  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.contentJson'];
+  return [
+    'fromUserId',
+    'messenger.brandId',
+    'messenger.content',
+    'messenger.sentAs',
+    'messenger.kind',
+  ];
 };
 
 export const BroadcastSteps = ({
@@ -65,6 +55,23 @@ export const BroadcastSteps = ({
   setOpen: (open: boolean) => void;
 }) => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
+
+  // Email has its own single-screen composer (matches the Maily playground
+  // layout) rather than this step wizard - see BroadcastEmailComposer.
+  if (method === 'email') {
+    return <BroadcastEmailComposer setOpen={setOpen} />;
+  }
+
+  return <BroadcastStepsWizard setOpen={setOpen} method={method} />;
+};
+
+const BroadcastStepsWizard = ({
+  setOpen,
+  method,
+}: {
+  setOpen: (open: boolean) => void;
+  method: IBroadcastMethodEnum | null;
+}) => {
   const removeQueryStateByKey = useRemoveQueryStateByKey();
   const { toast } = useToast();
 
@@ -106,9 +113,7 @@ export const BroadcastSteps = ({
 
     const currentStep = BROADCAST_STEPS[step - 1];
     const validateFields =
-      step - 1 === 1
-        ? getConfigValidateFields(method)
-        : currentStep?.validateFields;
+      step - 1 === 1 ? getConfigValidateFields(method) : currentStep?.validateFields;
 
     if (validateFields) {
       const isValid = await form.trigger(validateFields as any);
@@ -160,11 +165,7 @@ export const BroadcastSteps = ({
                 index === step && <BroadcastStep key={index} step={step} />,
             )}
           </Sheet.Content>
-          <BroadcastStepActions
-            step={step}
-            method={method}
-            handleAction={handleAction}
-          />
+          <BroadcastStepActions step={step} handleAction={handleAction} />
         </Resizable.Panel>
 
         <Resizable.Handle />
@@ -217,11 +218,9 @@ export const BroadcastStep = ({ step }: { step: number }) => {
 
 export const BroadcastStepActions = ({
   step,
-  method,
   handleAction,
 }: {
   step: number;
-  method?: IBroadcastMethodEnum | null;
   handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
   const isLastStep = step + 1 === BROADCAST_STEPS.length;
@@ -231,12 +230,6 @@ export const BroadcastStepActions = ({
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      {isLastStep && method === 'email' && (
-        <>
-          <BroadcastSaveAsTemplate />
-          <BroadcastSendTestEmail />
-        </>
-      )}
       {isLastStep && (
         <Button onClick={() => handleAction(step + 1, 'draft')}>
           Save & Draft

@@ -1,5 +1,6 @@
 import type { Editor as TiptapEditor } from '@tiptap/core';
 import { Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useBroadcastEmailTemplates } from '../hooks/useBroadcastEmailTemplates';
 
 export const BroadcastInsertTemplate = ({
@@ -7,6 +8,7 @@ export const BroadcastInsertTemplate = ({
 }: {
   editor: TiptapEditor;
 }) => {
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { templates } = useBroadcastEmailTemplates();
 
   if (!templates.length) {
@@ -15,7 +17,7 @@ export const BroadcastInsertTemplate = ({
 
   const handleSelect = (templateId: string) => {
     const template = templates.find(
-      (t: { _id: string }) => t._id === templateId,
+      (tpl: { _id: string }) => tpl._id === templateId,
     );
 
     if (template?.contentJson) {
@@ -26,7 +28,7 @@ export const BroadcastInsertTemplate = ({
   return (
     <Select onValueChange={handleSelect}>
       <Select.Trigger className="w-auto">
-        <Select.Value placeholder="Insert template" />
+        <Select.Value placeholder={t('insertTemplate')} />
       </Select.Trigger>
       <Select.Content>
         <Select.Group>

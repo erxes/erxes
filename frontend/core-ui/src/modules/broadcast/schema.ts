@@ -31,6 +31,7 @@ export const broadcastSchema = z.discriminatedUnion('method', [
       documentId: z.string(),
       content: z.string().optional(),
       contentJson: z.any().optional(),
+      previewText: z.string().optional(),
     }),
     ...baseSchema,
   }),

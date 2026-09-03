@@ -6,8 +6,11 @@ import {
 } from 'erxes-ui';
 
 export const BROADCAST_RENDER_PREVIEW = gql`
-  query BroadcastRenderPreview($contentJson: JSON!) {
-    engageMessageRenderPreview(contentJson: $contentJson)
+  query BroadcastRenderPreview($contentJson: JSON!, $previewText: String) {
+    engageMessageRenderPreview(
+      contentJson: $contentJson
+      previewText: $previewText
+    )
   }
 `;
 

@@ -46,12 +46,14 @@ export const BROADCAST_SEND_TEST_EMAIL = gql`
     $from: String!
     $to: String!
     $contentJson: JSON
+    $previewText: String
     $title: String!
   ) {
     engageMessageSendTestEmail(
       from: $from
       to: $to
       contentJson: $contentJson
+      previewText: $previewText
       title: $title
     )
   }

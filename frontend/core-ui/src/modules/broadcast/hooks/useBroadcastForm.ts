@@ -56,6 +56,7 @@ const getDefaultValues = (
       subject: '',
       sender: '',
       documentId: '',
+      previewText: '',
     },
   };
 };

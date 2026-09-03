@@ -1,4 +1,34 @@
 {
   "broadcasts": "Броадкастууд",
-  "broadcast": "Броадкаст"
+  "broadcast": "Броадкаст",
+  "composer": {
+    "titlePlaceholder": "Гарчиггүй броадкаст",
+    "settings": "Тохиргоо",
+    "attachments": "Хавсралт",
+    "previewEmail": "Имэйл харах",
+    "copyHtml": "HTML хуулах",
+    "copyHtmlSuccess": "HTML хуулбарлагдлаа",
+    "sendEmail": "Имэйл илгээх",
+    "subject": "Гарчиг",
+    "from": "Илгээгч",
+    "replyTo": "Хариулах хаяг",
+    "to": "Хүлээн авагч",
+    "selectRecipients": "Хүлээн авагч сонгох",
+    "recipientsCount": "{{count}} хүлээн авагч",
+    "previewText": "Урьдчилан харах текст",
+    "previewTextHint": "Гарчгийн дараа имэйл хайрцгийн жагсаалтад харагдах текст.",
+    "sendTestEmailPlaceholder": "you@example.com",
+    "sendTestEmailAction": "Туршилтын имэйл илгээх",
+    "sendTestEmailSending": "Илгээж байна...",
+    "sendTestEmailSuccess": "Туршилтын имэйл {{email}} хаяг руу илгээгдлээ",
+    "saveAsTemplate": "Загвар болгож хадгалах",
+    "saveAsTemplatePlaceholder": "Загварын нэр",
+    "saveAsTemplateAction": "Загвар хадгалах",
+    "saveAsTemplateSaving": "Хадгалж байна...",
+    "saveAsTemplateSuccess": "\"{{name}}\" загвар хадгалагдлаа",
+    "insertTemplate": "Загвар оруулах",
+    "saveDraft": "Ноорог болгож хадгалах",
+    "saveLive": "Хадгалаад идэвхжүүлэх",
+    "cancel": "Цуцлах"
+  }
 }

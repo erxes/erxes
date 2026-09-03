@@ -2,11 +2,13 @@ import { IconTemplate } from '@tabler/icons-react';
 import { Button, Input, Popover, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useBroadcastEmailTemplateAdd } from '../hooks/useBroadcastEmailTemplateAdd';
 
 export const BroadcastSaveAsTemplate = () => {
   const { getValues } = useFormContext();
   const { toast } = useToast();
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { addEmailTemplate, loading } = useBroadcastEmailTemplateAdd();
 
   const [name, setName] = useState('');
@@ -18,7 +20,10 @@ export const BroadcastSaveAsTemplate = () => {
     addEmailTemplate({
       variables: { name, contentJson },
       onCompleted: () => {
-        toast({ variant: 'default', title: `Saved template "${name}"` });
+        toast({
+          variant: 'default',
+          title: t('saveAsTemplateSuccess', { name }),
+        });
         setName('');
         setOpen(false);
       },
@@ -33,12 +38,12 @@ export const BroadcastSaveAsTemplate = () => {
       <Popover.Trigger asChild>
         <Button variant="secondary" type="button">
           <IconTemplate />
-          Save as template
+          {t('saveAsTemplate')}
         </Button>
       </Popover.Trigger>
       <Popover.Content className="flex flex-col gap-2 w-80">
         <Input
-          placeholder="Template name"
+          placeholder={t('saveAsTemplatePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -48,7 +53,7 @@ export const BroadcastSaveAsTemplate = () => {
           onClick={handleSave}
           className="w-full"
         >
-          {loading ? 'Saving...' : 'Save template'}
+          {loading ? t('saveAsTemplateSaving') : t('saveAsTemplateAction')}
         </Button>
       </Popover.Content>
     </Popover>

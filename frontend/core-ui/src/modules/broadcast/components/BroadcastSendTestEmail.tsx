@@ -2,11 +2,17 @@ import { IconSend } from '@tabler/icons-react';
 import { Button, Input, Popover, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useBroadcastSendTestEmail } from '../hooks/useBroadcastSendTestEmail';
 
-export const BroadcastSendTestEmail = () => {
+export const BroadcastSendTestEmail = ({
+  variant = 'secondary',
+}: {
+  variant?: 'secondary' | 'ghost';
+}) => {
   const { getValues } = useFormContext();
   const { toast } = useToast();
+  const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
   const { sendTestEmail, loading } = useBroadcastSendTestEmail();
 
   const [to, setTo] = useState('');
@@ -20,10 +26,14 @@ export const BroadcastSendTestEmail = () => {
         from: fromEmail,
         to,
         contentJson: email?.contentJson,
+        previewText: email?.previewText,
         title: email?.subject || '',
       },
       onCompleted: () => {
-        toast({ variant: 'default', title: `Test email sent to ${to}` });
+        toast({
+          variant: 'default',
+          title: t('sendTestEmailSuccess', { email: to }),
+        });
         setOpen(false);
       },
       onError: (error) => {
@@ -35,15 +45,15 @@ export const BroadcastSendTestEmail = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
-        <Button variant="secondary" type="button">
+        <Button variant={variant} type="button">
           <IconSend />
-          Send test
+          {t('sendEmail')}
         </Button>
       </Popover.Trigger>
       <Popover.Content className="flex flex-col gap-2 w-80">
         <Input
           type="email"
-          placeholder="you@example.com"
+          placeholder={t('sendTestEmailPlaceholder')}
           value={to}
           onChange={(e) => setTo(e.target.value)}
         />
@@ -53,7 +63,7 @@ export const BroadcastSendTestEmail = () => {
           onClick={handleSend}
           className="w-full"
         >
-          {loading ? 'Sending...' : 'Send test email'}
+          {loading ? t('sendTestEmailSending') : t('sendTestEmailAction')}
         </Button>
       </Popover.Content>
     </Popover>

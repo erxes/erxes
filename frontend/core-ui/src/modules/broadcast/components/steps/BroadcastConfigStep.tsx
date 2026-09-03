@@ -1,10 +1,8 @@
 import { useQueryState } from 'erxes-ui';
-import { BroadcastEmailMethod } from '../methods/BroadcastEmailMethod';
 import { BroadcastMessengerMethod } from '../methods/BroadcastMessengerMethod';
 import { BroadcastNotificationMethod } from '../methods/BroadcastNotificationMethod';
 
 const BROADCAST_CONFIG_METHOD = {
-  email: BroadcastEmailMethod,
   messenger: BroadcastMessengerMethod,
   notification: BroadcastNotificationMethod,
 };
