@@ -1,5 +1,17 @@
 # Changelog
 
+# [3.1.0](https://github.com/erxes/erxes/compare/3.0.98...3.1.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* add jest preset configuration to Dockerfile ([bd118fb](https://github.com/erxes/erxes/commit/bd118fb4a60d3a93500a5822350051fb6b094e9d))
+
+
+### Features
+
+* **segments:** segment references, relation measures, visibility, manual rebuild and save guards ([#9217](https://github.com/erxes/erxes/issues/9217)) ([c97bf89](https://github.com/erxes/erxes/commit/c97bf89b37a82a0aab0b4a9080729b01bd1633ea))
+
 ## [3.0.98](https://github.com/erxes/erxes/compare/3.0.97...3.0.98) (2026-09-03)
 
 
