@@ -69,7 +69,11 @@ export const EmailEditor = ({
         contentJson={contentJson}
         blocks={blocks}
         extensions={extensions}
-        config={{ hasMenuBar: false, contentClassName: 'px-6' }}
+        config={{
+          hasMenuBar: false,
+          contentClassName: 'px-6',
+          bodyClassName: 'border-none! mt-0!',
+        }}
         onCreate={(editor) => {
           // Tiptap's onUpdate only fires on edits, not on mount - without
           // this, a freshly-opened compose form has contentJson stuck at
