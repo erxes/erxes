@@ -51,9 +51,12 @@ jobs:
         run: pnpm install
 
       - name: Set environment variables
+        env:
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
-          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo $COMMIT_SHA | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build sales UI
         run: |
           export NX_DAEMON=false
@@ -61,11 +64,15 @@ jobs:
 
       - name: Sync to Cloudflare R2
         if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))) || github.event_name == 'workflow_call'
+        env:
+          REF_VALUE: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            FOLDER="${{ github.ref_name }}"
-          elif [[ -n "${{ inputs.version }}" ]]; then
-            FOLDER="${{ inputs.version }}"
+          if [[ "$REF_VALUE" == refs/tags/* ]]; then
+            FOLDER="$REF_NAME"
+          elif [[ -n "$INPUT_VERSION" ]]; then
+            FOLDER="$INPUT_VERSION"
           else
             FOLDER="latest"
           fi
