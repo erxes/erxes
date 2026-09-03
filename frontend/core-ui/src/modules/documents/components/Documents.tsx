@@ -20,7 +20,7 @@ const DOCUMENTS_VIEW_TYPES: Record<
   list: DocumentsList,
 };
 
-const DocumentsContent = ({ viewType }: Props) => {
+function DocumentsContent({ viewType }: Props) {
   const { documents, loading } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
   const { t } = useTranslation('documents');
@@ -44,9 +44,9 @@ const DocumentsContent = ({ viewType }: Props) => {
       <Component documents={documents} />
     </div>
   );
-};
+}
 
-export const Documents = ({ viewType }: Props) => {
+export function Documents({ viewType }: Props) {
   const documentsView = useAtomValue(documentsViewAtom);
 
   if (viewType === 'grid' && documentsView === 'list') {
@@ -54,4 +54,4 @@ export const Documents = ({ viewType }: Props) => {
   }
 
   return <DocumentsContent viewType={viewType} />;
-};
+}

@@ -80,10 +80,10 @@ export const PrintDocument = ({
   const [internalOpen, setInternalOpen] = useState(false);
   const sheetOpen = open ?? internalOpen;
 
-  const setSheetOpen = (nextOpen: boolean) => {
+  function setSheetOpen(nextOpen: boolean) {
     setInternalOpen(nextOpen);
     onOpenChange?.(nextOpen);
-  };
+  }
 
   const form = useForm<PrintFormValues>({
     mode: 'onChange',

@@ -63,11 +63,7 @@ export const useDocuments = () => {
 
   const { list: documents = [], pageInfo } = data?.documents || {};
 
-  const handleFetchMore = ({
-    direction,
-  }: {
-    direction: EnumCursorDirection;
-  }) => {
+  function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
     if (!pageInfo || !validateFetchMore({ direction, pageInfo })) {
       return;
     }
@@ -96,7 +92,7 @@ export const useDocuments = () => {
         };
       },
     });
-  };
+  }
 
   return {
     documents,

@@ -18,13 +18,13 @@ import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
 
-const DocumentNameCell = ({ document }: { document: IDocument }) => {
+function DocumentNameCell({ document }: { document: IDocument }) {
   const setQuery = useSetQueryStateByKey();
 
-  const handleClick = () => {
+  function handleClick() {
     setQuery('documentId', document._id);
     setQuery('contentType', document.contentType);
-  };
+  }
 
   return (
     <RecordTableInlineCell onClick={handleClick}>
@@ -33,9 +33,9 @@ const DocumentNameCell = ({ document }: { document: IDocument }) => {
       </div>
     </RecordTableInlineCell>
   );
-};
+}
 
-const DocumentTypeCell = ({ row }: CellContext<IDocument, unknown>) => {
+function DocumentTypeCell({ row }: CellContext<IDocument, unknown>) {
   const { contentType } = row.original;
   const documentType = DOCUMENTS_TYPES_SET[contentType];
   const DocumentTypeIcon = documentType?.icon ?? IconFileText;
@@ -48,18 +48,20 @@ const DocumentTypeCell = ({ row }: CellContext<IDocument, unknown>) => {
       </Badge>
     </RecordTableInlineCell>
   );
-};
+}
 
-const DocumentCreatorCell = ({ row }: CellContext<IDocument, unknown>) => (
-  <RecordTableInlineCell>
-    <MembersInline
-      members={row.original.createdUser ? [row.original.createdUser] : []}
-      placeholder="Unknown member"
-    />
-  </RecordTableInlineCell>
-);
+function DocumentCreatorCell({ row }: CellContext<IDocument, unknown>) {
+  return (
+    <RecordTableInlineCell>
+      <MembersInline
+        members={row.original.createdUser ? [row.original.createdUser] : []}
+        placeholder="Unknown member"
+      />
+    </RecordTableInlineCell>
+  );
+}
 
-const DocumentCreatedAtCell = ({ row }: CellContext<IDocument, unknown>) => {
+function DocumentCreatedAtCell({ row }: CellContext<IDocument, unknown>) {
   const { createdAt } = row.original;
 
   if (!createdAt) {
@@ -73,9 +75,9 @@ const DocumentCreatedAtCell = ({ row }: CellContext<IDocument, unknown>) => {
       </RecordTableInlineCell>
     </RelativeDateDisplay>
   );
-};
+}
 
-export const DocumentsColumn = (): ColumnDef<IDocument>[] => {
+export function DocumentsColumn(): ColumnDef<IDocument>[] {
   const checkboxColumn = RecordTable.checkboxColumn as ColumnDef<IDocument>;
 
   return [
@@ -114,4 +116,4 @@ export const DocumentsColumn = (): ColumnDef<IDocument>[] => {
       size: 200,
     },
   ];
-};
+}

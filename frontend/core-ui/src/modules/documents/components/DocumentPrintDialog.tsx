@@ -21,10 +21,11 @@ const DOCUMENT_REPLACER_LABELS: Record<string, string> = {
 
 type ReplacerValue = string | string[] | null;
 
-const getReplacerId = (value: ReplacerValue) =>
-  Array.isArray(value) ? value[0] || '' : value || '';
+function getReplacerId(value: ReplacerValue) {
+  return Array.isArray(value) ? value[0] || '' : value || '';
+}
 
-const DocumentReplacerSelect = ({
+function DocumentReplacerSelect({
   contentType,
   value,
   onValueChange,
@@ -32,9 +33,10 @@ const DocumentReplacerSelect = ({
   contentType: string;
   value: string;
   onValueChange: (value: string) => void;
-}) => {
-  const handleValueChange = (nextValue: ReplacerValue) =>
+}) {
+  function handleValueChange(nextValue: ReplacerValue) {
     onValueChange(getReplacerId(nextValue));
+  }
 
   switch (contentType) {
     case 'core:contact.customer':
@@ -73,12 +75,65 @@ const DocumentReplacerSelect = ({
     default:
       return null;
   }
+}
+
+export function hasDocumentReplacerSelect(contentType: string) {
+  return contentType in DOCUMENT_REPLACER_LABELS;
+}
+
+type DocumentPrintDialogContentProps = {
+  documentItem: IDocument;
+  onCancel: () => void;
+  onContinue: () => void;
+  replacerId: string;
+  replacerLabel: string;
+  setReplacerId: (replacerId: string) => void;
 };
 
-export const hasDocumentReplacerSelect = (contentType: string) =>
-  contentType in DOCUMENT_REPLACER_LABELS;
+function DocumentPrintDialogContent({
+  documentItem,
+  onCancel,
+  onContinue,
+  replacerId,
+  replacerLabel,
+  setReplacerId,
+}: DocumentPrintDialogContentProps) {
+  return (
+    <Dialog.Content
+      className="max-w-md"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <Dialog.Header>
+        <Dialog.Title>Print document</Dialog.Title>
+        <Dialog.Description>
+          Select a {replacerLabel.toLowerCase()} to fill this document with its
+          attributes.
+        </Dialog.Description>
+      </Dialog.Header>
 
-export const DocumentPrintDialog = ({
+      <div className="grid gap-2">
+        <span className="text-sm font-medium">{replacerLabel}</span>
+        <DocumentReplacerSelect
+          contentType={documentItem.contentType}
+          value={replacerId}
+          onValueChange={setReplacerId}
+        />
+      </div>
+
+      <Dialog.Footer>
+        <Button type="button" variant="secondary" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="button" disabled={!replacerId} onClick={onContinue}>
+          <IconPrinter />
+          Print
+        </Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  );
+}
+
+export function DocumentPrintDialog({
   documentItem,
   open,
   onOpenChange,
@@ -86,7 +141,7 @@ export const DocumentPrintDialog = ({
   documentItem: IDocument;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}) => {
+}) {
   const [replacerId, setReplacerId] = useState('');
   const [printReplacerId, setPrintReplacerId] = useState('');
   const [printOpen, setPrintOpen] = useState(false);
@@ -94,15 +149,15 @@ export const DocumentPrintDialog = ({
   const replacerLabel =
     DOCUMENT_REPLACER_LABELS[documentItem.contentType] || 'Record';
 
-  const handleOpenChange = (nextOpen: boolean) => {
+  function handleOpenChange(nextOpen: boolean) {
     onOpenChange(nextOpen);
 
     if (!nextOpen) {
       setReplacerId('');
     }
-  };
+  }
 
-  const handleContinue = () => {
+  function handleContinue() {
     if (!replacerId) {
       return;
     }
@@ -111,50 +166,19 @@ export const DocumentPrintDialog = ({
     setReplacerId('');
     onOpenChange(false);
     setPrintOpen(true);
-  };
+  }
 
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <Dialog.Content
-          className="max-w-md"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <Dialog.Header>
-            <Dialog.Title>Print document</Dialog.Title>
-            <Dialog.Description>
-              Select a {replacerLabel.toLowerCase()} to fill this document with
-              its attributes.
-            </Dialog.Description>
-          </Dialog.Header>
-
-          <div className="grid gap-2">
-            <span className="text-sm font-medium">{replacerLabel}</span>
-            <DocumentReplacerSelect
-              contentType={documentItem.contentType}
-              value={replacerId}
-              onValueChange={setReplacerId}
-            />
-          </div>
-
-          <Dialog.Footer>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => handleOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              disabled={!replacerId}
-              onClick={handleContinue}
-            >
-              <IconPrinter />
-              Print
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Content>
+        <DocumentPrintDialogContent
+          documentItem={documentItem}
+          onCancel={() => handleOpenChange(false)}
+          onContinue={handleContinue}
+          replacerId={replacerId}
+          replacerLabel={replacerLabel}
+          setReplacerId={setReplacerId}
+        />
       </Dialog>
       {printReplacerId && (
         <PrintDocument
@@ -171,4 +195,4 @@ export const DocumentPrintDialog = ({
       )}
     </>
   );
-};
+}

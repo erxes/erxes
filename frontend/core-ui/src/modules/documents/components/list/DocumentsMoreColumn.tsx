@@ -4,11 +4,11 @@ import { RecordTable } from 'erxes-ui';
 
 import { IDocument } from '../../types';
 
-export const DocumentsMoreColumnCell = ({
+export function DocumentsMoreColumnCell({
   row,
-}: CellContext<IDocument, unknown>) => (
-  <DocumentsActions documentItem={row.original} variant="table" />
-);
+}: CellContext<IDocument, unknown>) {
+  return <DocumentsActions documentItem={row.original} variant="table" />;
+}
 
 export const documentsMoreColumn: ColumnDef<IDocument> = {
   id: 'more',

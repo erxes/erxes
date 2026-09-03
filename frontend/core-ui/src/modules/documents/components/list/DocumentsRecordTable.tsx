@@ -4,7 +4,7 @@ import { Empty, RecordTable } from 'erxes-ui';
 
 import { DocumentsColumn } from './DocumentsColumn';
 
-const DocumentsEmptyState = () => {
+function DocumentsEmptyState() {
   return (
     <Empty className="h-full border-0 bg-transparent">
       <Empty.Header>
@@ -18,9 +18,28 @@ const DocumentsEmptyState = () => {
       </Empty.Header>
     </Empty>
   );
+}
+
+type DocumentsTableProps = {
+  handleFetchMore: ReturnType<typeof useDocuments>['handleFetchMore'];
+  loading: boolean;
 };
 
-export const DocumentsRecordTable = () => {
+function DocumentsTable({ handleFetchMore, loading }: DocumentsTableProps) {
+  return (
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+        <RecordTable.RowList />
+        <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+}
+
+export function DocumentsRecordTable() {
   const columns = DocumentsColumn();
   const { documents, loading, handleFetchMore, pageInfo } = useDocuments();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -43,21 +62,9 @@ export const DocumentsRecordTable = () => {
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
         >
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.CursorBackwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-              {loading && <RecordTable.RowSkeleton rows={40} />}
-              <RecordTable.RowList />
-              <RecordTable.CursorForwardSkeleton
-                handleFetchMore={handleFetchMore}
-              />
-            </RecordTable.Body>
-          </RecordTable>
+          <DocumentsTable handleFetchMore={handleFetchMore} loading={loading} />
         </RecordTable.CursorProvider>
       </RecordTable.Provider>
     </div>
   );
-};
+}
