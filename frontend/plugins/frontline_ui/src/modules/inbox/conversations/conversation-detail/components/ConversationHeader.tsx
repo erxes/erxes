@@ -27,6 +27,7 @@ import {
   Button,
   Combobox,
   DropdownMenu,
+  Popover,
   PopoverScoped,
   Separator,
   Skeleton,
@@ -36,7 +37,13 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
+import {
+  CustomersInline,
+  SelectMember,
+  TagsSelect,
+  useGiveTags,
+} from 'ui-modules';
+import { ConversationTagChips } from '@/inbox/conversations/components/ConversationTagChips';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useState } from 'react';
@@ -250,45 +257,73 @@ export const ConversationTags = ({
 }) => {
   const { t } = useTranslation('frontline');
   const { _id, tagIds, setTagIds } = useConversationContext();
-  const TagSelector = showAllTags
-    ? SelectTags.Detail
-    : SelectTags.ConversationDetail;
+  const { giveTags } = useGiveTags();
 
   if (!_id) return null;
 
-  const handleTagChange = (newTagIds: string[] | string) => {
-    const ids = Array.isArray(newTagIds) ? newTagIds : [newTagIds];
+  const mutationOptions = () => ({
+    onCompleted: () => {
+      toast({
+        title: t('tag-updated'),
+        variant: 'default',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: t('failed-to-update-tags'),
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleRemoveTag = (tagId: string) => {
+    const ids = tagIds.filter((id) => id !== tagId);
 
     setTagIds?.(ids);
+    giveTags({
+      variables: {
+        tagIds: ids,
+        targetIds: [_id],
+        type: 'frontline:conversation',
+      },
+      ...mutationOptions(),
+    });
   };
 
   return (
     <div className="flex-none">
-      <TagSelector
-        tagType="frontline:conversation"
+      <TagsSelect.Provider
+        type="frontline:conversation"
         mode="multiple"
         value={tagIds}
         targetIds={[_id]}
-        onValueChange={handleTagChange}
-        options={() => ({
-          onCompleted: () => {
-            toast({
-              title: t('tag-updated'),
-              variant: 'default',
-            });
-          },
-          onError: (error: Error) => {
-            toast({
-              title: t('failed-to-update-tags'),
-              description: error.message,
-              variant: 'destructive',
-            });
-          },
-        })}
-        onPointerDown={withinDropdown ? stopEventPropagation : undefined}
-        onClick={withinDropdown ? stopEventPropagation : undefined}
-        onKeyDown={withinDropdown ? stopEventPropagation : undefined}
-      />
+        onValueChange={(newTagIds) => setTagIds?.(newTagIds)}
+        options={mutationOptions}
+      >
+        <div className="flex gap-2 items-center">
+          <Popover.Trigger asChild>
+            <Button
+              className="shrink-0 w-min text-sm font-medium shadow-xs"
+              variant="outline"
+              onPointerDown={withinDropdown ? stopEventPropagation : undefined}
+              onClick={withinDropdown ? stopEventPropagation : undefined}
+              onKeyDown={withinDropdown ? stopEventPropagation : undefined}
+            >
+              <IconTags className="text-lg" />
+              {t('add-tags', 'Add tags')}
+            </Button>
+          </Popover.Trigger>
+          <ConversationTagChips
+            tagIds={tagIds}
+            showAll={showAllTags}
+            onRemove={handleRemoveTag}
+          />
+        </div>
+        <Combobox.Content>
+          <TagsSelect.Content />
+        </Combobox.Content>
+      </TagsSelect.Provider>
     </div>
   );
 };
@@ -352,7 +387,7 @@ const ConversationActionsDropdown = ({
           <IconTags className="size-4" />
           {t('tags')}
         </DropdownMenu.Label>
-        <div className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1">
+        <div className="px-1 pb-2 [&>div>div]:flex-col [&>div>div]:items-stretch [&>div>div>button]:order-last [&>div>div>button]:mt-2 [&>div>div>button]:w-full [&>div>div>button]:justify-between [&>div>div>button]:border-dashed [&>div>div>button]:bg-muted/30 [&>div>div>div]:max-h-28 [&>div>div>div]:w-full [&>div>div>div]:overflow-y-auto [&>div>div>div]:pr-1">
           <ConversationTags showAllTags withinDropdown />
         </div>
         <DropdownMenu.Separator />

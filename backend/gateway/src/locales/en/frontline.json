@@ -221,6 +221,7 @@
   "conversations-resolved": "Conversations resolved",
   "resolve-all": "Resolve All",
   "select-assignee": "Select assignee",
+  "add-tags": "Add tags",
   "tag-updated": "Tag updated",
   "failed-to-update-tags": "Failed to update tags",
   "open-label": "Open",
