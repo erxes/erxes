@@ -7,6 +7,26 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
+import { customerSearchTokenConfig } from '@/contacts/db/definitions/customers';
+
+const logCustomersMemory = (
+  stage: string,
+  startedAt: number,
+  details: Record<string, boolean | number | string | undefined> = {},
+) => {
+  const memory = process.memoryUsage();
+
+  console.info('[customers-memory]', {
+    stage,
+    elapsedMs: Math.round(performance.now() - startedAt),
+    rssMb: Math.round(memory.rss / 1024 / 1024),
+    heapUsedMb: Math.round(memory.heapUsed / 1024 / 1024),
+    heapTotalMb: Math.round(memory.heapTotal / 1024 / 1024),
+    externalMb: Math.round(memory.external / 1024 / 1024),
+    arrayBuffersMb: Math.round(memory.arrayBuffers / 1024 / 1024),
+    ...details,
+  });
+};
 
 export const customerQueries: Record<
   string,
@@ -20,20 +40,46 @@ export const customerQueries: Record<
     params: ICustomerQueryFilterParams,
     { models, subdomain }: IContext,
   ) {
-    const filter: FilterQuery<ICustomerDocument> = await generateFilter(
-      subdomain,
-      params,
-      models,
-    );
+    const startedAt = performance.now();
+    const searchValue = params.searchValue?.trim();
 
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ICustomerDocument>({
-        model: models.Customers,
+    logCustomersMemory('start', startedAt, {
+      hasSearchValue: Boolean(searchValue),
+      searchValueLength: searchValue?.length ?? 0,
+      limit: params.limit,
+      hasCursor: Boolean(params.cursor),
+    });
+
+    try {
+      const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+        subdomain,
         params,
-        query: filter,
+        models,
+        customerSearchTokenConfig,
+      );
+
+      logCustomersMemory('filter-generated', startedAt);
+
+      const { list, totalCount, pageInfo } =
+        await cursorPaginate<ICustomerDocument>({
+          model: models.Customers,
+          params,
+          query: filter,
+        });
+
+      logCustomersMemory('pagination-complete', startedAt, {
+        listLength: list.length,
+        totalCount,
       });
 
-    return { list, totalCount, pageInfo };
+      return { list, totalCount, pageInfo };
+    } catch (error) {
+      logCustomersMemory('error', startedAt, {
+        errorName: error instanceof Error ? error.name : 'UnknownError',
+      });
+
+      throw error;
+    }
   },
 
   async cpCustomers(
@@ -45,6 +91,7 @@ export const customerQueries: Record<
       subdomain,
       params,
       models,
+      customerSearchTokenConfig,
     );
 
     const { list, totalCount, pageInfo } =

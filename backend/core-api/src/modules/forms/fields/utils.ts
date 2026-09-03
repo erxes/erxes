@@ -3,7 +3,6 @@ import {
   USER_EXPORT_EXTENDED_FIELDS,
   USER_EXTENDED_FIELDS,
 } from 'erxes-api-shared/core-modules';
-import { fetchEs, isElasticsearchUp } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { fieldsCombinedByContentType } from '../utils';
 import { EXTEND_FIELDS } from '../constants';
@@ -275,47 +274,6 @@ export const generateContactsFields = async ({ subdomain, data }) => {
           ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
         ];
       }
-    }
-  }
-
-  if ((!usageType || usageType === 'export') && (await isElasticsearchUp())) {
-    const aggre = await fetchEs({
-      subdomain,
-      action: 'search',
-      index: collectionType === 'company' ? 'companies' : 'customers',
-      body: {
-        size: 0,
-        _source: false,
-        aggs: {
-          trackedDataKeys: {
-            nested: {
-              path: 'trackedData',
-            },
-            aggs: {
-              fieldKeys: {
-                terms: {
-                  field: 'trackedData.field',
-                  size: 10000,
-                },
-              },
-            },
-          },
-        },
-      },
-      defaultValue: { aggregations: { trackedDataKeys: {} } },
-    });
-
-    const aggregations = aggre.aggregations || { trackedDataKeys: {} };
-    const { buckets = [] } = aggregations.trackedDataKeys.fieldKeys || {
-      buckets: [],
-    };
-
-    for (const bucket of buckets) {
-      fields.push({
-        _id: Math.random(),
-        name: `trackedData.${bucket.key}`,
-        label: bucket.key,
-      });
     }
   }
 

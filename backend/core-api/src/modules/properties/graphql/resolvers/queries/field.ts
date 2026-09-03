@@ -38,7 +38,7 @@ export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
     const filter = await generateFilter(models, params);
 
     if (!params.orderBy) {
-      params.orderBy = { code: 1 };
+      params.orderBy = { order: 1 };
     }
 
     return await cursorPaginate<IFieldDocument>({

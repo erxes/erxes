@@ -5,6 +5,7 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { segmentProductIds } from '~/modules/posclient/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -13,7 +14,6 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
   getDiscountSortedProducts,
@@ -77,10 +77,7 @@ const MULTI_OPERATORS: PropertyFilterOperator[] = ['in', 'notIn', 'fileType'];
 
 const PROPERTY_OPERATORS: Record<
   PropertyFilterOperator,
-  (
-    propertyPath: string,
-    value: unknown,
-  ) => Record<string, unknown> | null
+  (propertyPath: string, value: unknown) => Record<string, unknown> | null
 > = {
   eq: (propertyPath, value) => ({ [propertyPath]: { $in: eqValues(value) } }),
   ne: (propertyPath, value) => ({ [propertyPath]: { $nin: eqValues(value) } }),
@@ -131,9 +128,7 @@ const PROPERTY_OPERATORS: Record<
   in: (propertyPath, value) =>
     toArray(value).length ? { [propertyPath]: { $in: toArray(value) } } : null,
   notIn: (propertyPath, value) =>
-    toArray(value).length
-      ? { [propertyPath]: { $nin: toArray(value) } }
-      : null,
+    toArray(value).length ? { [propertyPath]: { $nin: toArray(value) } } : null,
   fileType: (propertyPath, value) => {
     const types = fileTypes(value);
 
@@ -210,8 +205,7 @@ const parsePropertyConditions = (
       const fieldId = decodeURIComponent(entry.slice(0, firstSep));
       const rest = entry.slice(firstSep + 1);
       const secondSep = rest.indexOf(PART_SEP);
-      const rawOperator =
-        secondSep === -1 ? rest : rest.slice(0, secondSep);
+      const rawOperator = secondSep === -1 ? rest : rest.slice(0, secondSep);
 
       if (!fieldId || !isPropertyFilterOperator(rawOperator)) {
         return conditions;
@@ -272,7 +266,6 @@ export interface IProductParams extends ICommonParams {
   excludeTags?: string[];
   tagWithRelated?: boolean;
   segment?: string;
-  segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
   isSimilarity?: boolean;
@@ -320,7 +313,6 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData,
     categoryMeta,
     isKiosk,
     image,
@@ -450,14 +442,8 @@ const generateFilter = async (
     ];
   }
 
-  if (segment || segmentData) {
-    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
-
-    await qb.buildAllQueries();
-
-    const { list } = await qb.runQueries();
-
-    filter._id = { $in: list.map((l) => l._id) };
+  if (segment) {
+    filter._id = { $in: await segmentProductIds(subdomain, segment) };
   }
 
   if (vendorId) {

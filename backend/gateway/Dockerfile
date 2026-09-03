@@ -4,7 +4,7 @@ FROM --platform=linux/amd64 node:22-bookworm AS build
 WORKDIR /app
 
 # Copy root files
-COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json ./nx.json /app/
+COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./tsconfig.base.json ./nx.json ./jest.preset.js /app/
 
 # Copy service-specific package.json files
 COPY ./backend/gateway/package.json /app/backend/gateway/

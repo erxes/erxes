@@ -2,6 +2,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import {
   fxaDetailSchema,
+  fxaIncomeDetailSchema,
   invDetailSchema,
   transactionBankSchema,
   transactionCashSchema,
@@ -46,6 +47,7 @@ export type TFxaOutJournal = z.infer<typeof transactionFxaOutSchema>;
 export type TFxaMoveJournal = z.infer<typeof transactionFxaMoveSchema>;
 export type TFxaSaleJournal = z.infer<typeof transactionFxaSaleSchema>;
 export type TFxaDetail = z.infer<typeof fxaDetailSchema>;
+export type TFxaIncomeDetail = z.infer<typeof fxaIncomeDetailSchema>;
 
 export type ITransactionGroupForm = UseFormReturn<TAddTransactionGroup>;
 

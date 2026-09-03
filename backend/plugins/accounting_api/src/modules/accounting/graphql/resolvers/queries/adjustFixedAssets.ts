@@ -91,7 +91,7 @@ export const AdjustFixedAssets = {
     params: IAdjustFixedAssetQueryParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFixedAssets');
 
     const { sortField, sortDirection, page, perPage } = params;
     const sort: Record<string, SortOrder> = sortField
@@ -109,7 +109,7 @@ export const AdjustFixedAssets = {
     params: IAdjustFixedAssetQueryParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFixedAssets');
 
     return models.AdjustFixedAssets.find(
       generateFilter(params),
@@ -121,7 +121,7 @@ export const AdjustFixedAssets = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFixedAssets');
 
     return models.AdjustFixedAssets.findOne({ _id }).lean();
   },
@@ -131,7 +131,7 @@ export const AdjustFixedAssets = {
     params: IAdjustFxaDetailQueryParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFixedAssets');
 
     const { _id, sortField, sortDirection, page, perPage } = params;
     const sort: Record<string, SortOrder> = sortField
@@ -149,7 +149,7 @@ export const AdjustFixedAssets = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFixedAssets');
 
     return models.AdjustFxaDetails.find({ adjustId: _id }).countDocuments();
   },

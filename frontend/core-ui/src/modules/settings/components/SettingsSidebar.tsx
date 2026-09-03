@@ -65,6 +65,7 @@ export function SettingsSidebar({
             pathPrefix={AppPath.Settings}
             path={item.path}
             name={item.name}
+            icon={item.icon}
           />
         ))}
       </SettingsNavigationGroup>
@@ -74,6 +75,7 @@ export function SettingsSidebar({
             pathPrefix={AppPath.Settings}
             path={item.path}
             name={item.name}
+            icon={item.icon}
             key={item.name}
           />
         ))}
@@ -85,6 +87,7 @@ export function SettingsSidebar({
             pathPrefix={AppPath.Settings}
             path={item.path}
             name={item.name}
+            icon={item.icon}
             key={item.name}
           />
         ))}
@@ -97,6 +100,7 @@ export function SettingsSidebar({
             pathPrefix={AppPath.Settings}
             path={item.path}
             name={item.name}
+            icon={item.icon}
           />
         ))}
       </SettingsNavigationGroup>

@@ -1,79 +1,229 @@
+import { useDroppable } from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Card, Label } from 'erxes-ui';
-import { useFieldArray } from 'react-hook-form';
-import { SegmentProperty } from './SegmentProperty';
-import { useSegment } from '../../context/SegmentProvider';
+import { Button, cn } from 'erxes-ui';
+import { Fragment } from 'react';
+import { FieldPath, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SegmentGroupProvider } from '../../context/SegmentGroupProvider';
-import { SegmentGroupAddButton } from './SegmentGroupAddButton';
-import { TConditionFieldPath } from '../../types';
+import { useSegment } from '../../context/SegmentProvider';
+import {
+  SegmentScopeProvider,
+  useSegmentScope,
+} from '../../context/SegmentScopeProvider';
+import { INSIDE_SUFFIX } from '../../hooks/useSegmentTreeDnd';
+import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
+import { childPath, TNodePath, TSegmentForm } from '../../types';
+import {
+  emptyCondition,
+  emptyGroup,
+  TSegmentNode,
+} from '../../types/segmentNode';
+import { SegmentCondition } from './SegmentCondition';
+import { SegmentConjunctionRail } from './SegmentConjunctionRail';
+import { SegmentGroupSummary } from './SegmentGroupSummary';
+import { SegmentSortableNode } from './SegmentSortableNode';
+import { SegmentTreeDnd } from './SegmentTreeDnd';
 
-type Props = {
-  parentFieldName?: `conditionSegments.${number}`;
+const MAX_DEPTH = 2;
+
+type SegmentGroupBodyProps = {
+  path: TNodePath;
   onRemove?: () => void;
-  withoutAssociationTypes?: boolean;
+  depth?: number;
+};
+
+const SegmentGroupBody = ({
+  path,
+  onRemove,
+  depth = 0,
+}: SegmentGroupBodyProps) => {
+  const { form } = useSegment();
+  const { contentType, sortable, onEnterGroup } = useSegmentScope();
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
+
+  const { fields, append, remove, update } = useFieldArray({
+    control: form.control,
+    name: `${path}.children` as never,
+  });
+
+  const conjunctionName = `${path}.conjunction`;
+  const conjunction =
+    useSegmentNodeValue<string>(conjunctionName) === 'or' ? 'or' : 'and';
+
+  const showRail = fields.length > 1;
+  const isRoot = depth === 0;
+
+  const { setNodeRef: setEmptyRef, isOver: isOverEmpty } = useDroppable({
+    id: `${path}${INSIDE_SUFFIX}`,
+    disabled: !sortable || fields.length > 0,
+  });
+
+  const rows = fields.map((entry, index) => {
+    const nodePath = childPath(path, index);
+
+    const child = form.getValues(nodePath as FieldPath<TSegmentForm>) as
+      | TSegmentNode
+      | undefined;
+
+    const row =
+      child?.kind === 'group' ? (
+        onEnterGroup ? (
+          <SegmentGroupSummary
+            path={nodePath}
+            onEnter={() => onEnterGroup(nodePath)}
+            onRemove={() => remove(index)}
+          />
+        ) : (
+          <div className="py-1">
+            <SegmentGroupBody
+              path={nodePath}
+              depth={depth + 1}
+              onRemove={() => remove(index)}
+            />
+          </div>
+        )
+      ) : (
+        <SegmentCondition
+          path={nodePath}
+          onRemove={() => remove(index)}
+          onReplace={(next) => update(index, next as never)}
+        />
+      );
+
+    return sortable ? (
+      <SegmentSortableNode key={entry.id} path={nodePath}>
+        {row}
+      </SegmentSortableNode>
+    ) : (
+      <Fragment key={entry.id}>{row}</Fragment>
+    );
+  });
+
+  return (
+    <div
+      className={cn(
+        'group/group rounded-md',
+        isRoot ? 'border  p-2' : 'bg-accent/80 p-1.5',
+      )}
+    >
+      <div className="flex items-stretch">
+        {showRail && (
+          <SegmentConjunctionRail
+            conjunction={conjunction}
+            onToggle={() =>
+              form.setValue(
+                conjunctionName as FieldPath<TSegmentForm>,
+                conjunction === 'and' ? 'or' : 'and',
+                { shouldDirty: true },
+              )
+            }
+          />
+        )}
+
+        <div className={cn('flex-1 min-w-0 flex flex-col', showRail && 'pl-2')}>
+          {sortable ? (
+            <SortableContext
+              items={fields.map((_, index) => childPath(path, index))}
+              strategy={verticalListSortingStrategy}
+            >
+              {rows}
+            </SortableContext>
+          ) : (
+            rows
+          )}
+
+          {sortable && !fields.length && (
+            <div
+              ref={setEmptyRef}
+              className={cn(
+                'rounded-md border border-dashed py-4 text-center text-sm text-muted-foreground',
+                isOverEmpty && 'border-primary text-primary',
+              )}
+            >
+              {t('drop-condition-here')}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1 pt-1.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          type="button"
+          className="text-muted-foreground"
+          onClick={() => append(emptyCondition(contentType))}
+        >
+          <IconPlus />
+          {t('add-condition')}
+        </Button>
+
+        {depth < MAX_DEPTH && (
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            className="text-muted-foreground"
+            onClick={() =>
+              append({
+                ...emptyGroup(),
+                children: [emptyCondition(contentType)],
+              })
+            }
+          >
+            <IconPlus />
+            {t('add-group')}
+          </Button>
+        )}
+
+        <div className="flex-1" />
+
+        {onRemove && (
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            title={t('remove-group')}
+            onClick={onRemove}
+            className="opacity-0 group-hover/group:opacity-100 transition-opacity text-destructive"
+          >
+            <IconTrash />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+type SegmentGroupProps = SegmentGroupBodyProps & {
+  contentType?: string;
+  nested?: boolean;
+  sortable?: boolean;
+  onEnterGroup?: (path: TNodePath) => void;
 };
 
 export const SegmentGroup = ({
-  parentFieldName,
-  onRemove,
-  withoutAssociationTypes,
-}: Props) => {
-  const { form } = useSegment();
-  const { control } = form;
-  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
-  const fieldPath: TConditionFieldPath = parentFieldName
-    ? `${parentFieldName}.conditions`
-    : 'conditions';
-  const {
-    fields: conditionFields,
-    append,
-    remove,
-  } = useFieldArray({
-    control: control,
-    name: fieldPath,
-  });
-  return (
-    <SegmentGroupProvider
-      append={append}
-      fieldPath={fieldPath}
-      remove={remove}
-      conditionFields={conditionFields}
-      withoutAssociationTypes={withoutAssociationTypes}
+  contentType,
+  nested = false,
+  onEnterGroup,
+  ...body
+}: SegmentGroupProps) => {
+  const scoped = (
+    <SegmentScopeProvider
+      contentType={contentType}
+      nested={nested}
+      onEnterGroup={onEnterGroup}
     >
-      <Card className="bg-accent rounded-md">
-        <Card.Header className="flex flex-row gap-2 items-center px-6 py-1 group [&>div]:items-center [&>div]:flex [&>div]:m-0">
-          <div className="w-2/5 ">
-            <Label>{t('property')}</Label>
-          </div>
-          <div className="w-1/5 ">
-            <Label>{t('condition')}</Label>
-          </div>
-          <div className="w-2/5 pl-4">
-            <Label>{t('value')}</Label>
-          </div>
-          {onRemove && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onRemove()}
-              className={`opacity-0 group-hover:opacity-100 transition-opacity text-destructive`}
-            >
-              <IconTrash />
-            </Button>
-          )}
-        </Card.Header>
-        <Card className="mx-1 p-2 bg-background rounded-md">
-          <div className="flex flex-col ">
-            {(conditionFields || []).map((field, index) => (
-              <div key={field.id}>
-                <SegmentProperty index={index} />
-              </div>
-            ))}
-          </div>
-          <SegmentGroupAddButton />
-        </Card>
-      </Card>
-    </SegmentGroupProvider>
+      <SegmentGroupBody {...body} />
+    </SegmentScopeProvider>
+  );
+
+  return body.depth || nested ? (
+    scoped
+  ) : (
+    <SegmentTreeDnd>{scoped}</SegmentTreeDnd>
   );
 };

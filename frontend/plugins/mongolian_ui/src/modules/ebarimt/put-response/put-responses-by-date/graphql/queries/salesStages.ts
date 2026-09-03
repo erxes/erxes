@@ -15,7 +15,6 @@ export const GET_SALES_STAGE = gql`
     $branchIds: [String]
     $departmentIds: [String]
     $segment: String
-    $segmentData: String
     $createdStartDate: Date
     $createdEndDate: Date
     $stateChangedStartDate: Date
@@ -39,7 +38,6 @@ export const GET_SALES_STAGE = gql`
       branchIds: $branchIds
       departmentIds: $departmentIds
       segment: $segment
-      segmentData: $segmentData
       createdStartDate: $createdStartDate
       createdEndDate: $createdEndDate
       stateChangedStartDate: $stateChangedStartDate

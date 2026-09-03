@@ -17,7 +17,6 @@ export const GET_COMPANIES = gql`
     $sortField: String
     $sortDirection: Int
     $dateFilters: String
-    $segmentData: String
     $mainType: String
     $mainTypeId: String
     $relType: String
@@ -36,7 +35,6 @@ export const GET_COMPANIES = gql`
       sortField: $sortField
       sortDirection: $sortDirection
       dateFilters: $dateFilters
-      segmentData: $segmentData
       conformityMainType: $mainType
       conformityMainTypeId: $mainTypeId
       conformityRelType: $relType

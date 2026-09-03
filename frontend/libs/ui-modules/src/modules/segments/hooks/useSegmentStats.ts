@@ -1,62 +1,103 @@
 import { useLazyQuery } from '@apollo/client';
 import { toast } from 'erxes-ui/hooks';
-import { useState } from 'react';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { SEGMENTS_PREVIEW_COUNT } from 'ui-modules/modules/segments/graphql/queries';
-import { generateParamsSegmentPreviewCount } from 'ui-modules/modules/segments/utils/segmentFormUtils';
+import { useCallback, useRef, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { SEGMENTS_PREVIEW_COUNT } from '../graphql/queries';
+import { TSegmentForm } from '../types';
 
-type StatsType = {
-  total?: number;
-  targeted?: number;
-  percentage?: number;
-  loading?: boolean;
+type TStats = {
+  count: number;
+  unsupported?: string[];
+  exceeded?: boolean;
 };
-export const useSegmentStats = () => {
-  const { contentType, form } = useSegment();
-  const [stats, setStats] = useState<StatsType>();
-  const [countSegment, { called, loading }] = useLazyQuery(
+
+export const useSegmentStats = ({
+  contentType,
+  form,
+}: {
+  contentType: string;
+  form: UseFormReturn<TSegmentForm>;
+}) => {
+  const [stats, setStats] = useState<TStats>();
+  const lastCounted = useRef<string>();
+
+  const [previewCount, { called, loading }] = useLazyQuery(
     SEGMENTS_PREVIEW_COUNT,
   );
 
-  const handleCalculateStats = async () => {
-    const {
-      conditionsConjunction,
-      conditions,
-      conditionSegments,
-      config,
-      subOf,
-    } = form.getValues();
-    const { data } = await countSegment({
-      query: SEGMENTS_PREVIEW_COUNT,
-      variables: {
-        contentType,
-        conditions: generateParamsSegmentPreviewCount(
-          conditionSegments || ([] as any[]),
-        ),
-        subOf: form.getValues('subOf'),
-        config: form.getValues('config'),
-        conditionsConjunction: form.getValues('conditionsConjunction'),
-      },
-      onError: (error) => {
-        toast({
-          title: 'Error',
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
-    });
+  const run = useCallback(
+    async (root: unknown) => {
+      const { data } = await previewCount({
+        variables: { contentType, root },
+        fetchPolicy: 'network-only',
+        onError: (error) =>
+          toast({
+            title: 'Could not count the segment',
+            description: error.message,
+            variant: 'destructive',
+          }),
+      });
 
-    const { count = 0, total = 0 } = data?.segmentsPreviewCount || {};
-    setStats({
-      total,
-      targeted: count,
-      percentage: total > 0 ? Number(((count / total) * 100).toFixed(2)) : 0,
-    });
-  };
+      if (data?.segmentsPreviewCount) {
+        setStats(data.segmentsPreviewCount);
+      }
+    },
+    [contentType, previewCount],
+  );
+
+  const handleCalculateStats = useCallback(() => {
+    const root = form.getValues('root');
+
+    lastCounted.current = JSON.stringify(root);
+
+    return run(root);
+  }, [form, run]);
+
+  const countSettled = useCallback(() => {
+    const root = form.getValues('root');
+    const shape = JSON.stringify(root);
+
+    if (shape === lastCounted.current || !isCountable(root)) {
+      return;
+    }
+
+    lastCounted.current = shape;
+    run(root);
+  }, [form, run]);
 
   return {
     handleCalculateStats,
+    countSettled,
     stats,
     loading: called && loading,
   };
+};
+
+const isCountable = (node: unknown): boolean => {
+  const current = node as {
+    kind?: string;
+    children?: unknown[];
+    child?: unknown;
+    fieldKey?: string;
+    operator?: string;
+    segmentId?: string;
+  };
+
+  if (!current?.kind) {
+    return false;
+  }
+
+  if (current.kind === 'group') {
+    return !!current.children?.length && current.children.every(isCountable);
+  }
+
+  if (current.kind === 'segment') {
+    return !!current.segmentId;
+  }
+
+  if (current.kind === 'relation') {
+    return current.child === undefined || isCountable(current.child);
+  }
+
+  return !!current.fieldKey && !!current.operator;
 };

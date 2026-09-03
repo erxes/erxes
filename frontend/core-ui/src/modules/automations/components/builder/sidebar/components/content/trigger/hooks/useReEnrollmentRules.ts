@@ -1,89 +1,58 @@
-import {
-  FIELDS_COMBINED_BY_CONTENT_TYPE,
-  ISegment,
-  useSegmentDetail,
-  IField,
-} from 'ui-modules';
-import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
-type QueryResponse = {
-  fieldsCombinedByContentType: IField[];
-};
+import {
+  TSegmentField,
+  TSegmentNode,
+  useSegmentDetail,
+  useSegmentFields,
+} from 'ui-modules';
 
 type ReEnrollmentOption = {
   propertyName: string;
   label: string;
 };
 
-type SegmentWithSubSegmentConditions = ISegment & {
-  subSegmentConditions?: ISegment[];
+/** Every field the tree filters on, wherever it sits in the nesting. */
+const collectFieldKeys = (node?: TSegmentNode): string[] => {
+  if (!node) {
+    return [];
+  }
+
+  if (node.kind === 'field') {
+    return node.fieldKey ? [node.fieldKey] : [];
+  }
+
+  return node.children.flatMap(collectFieldKeys);
 };
 
+/**
+ * Which properties a re-enrollment rule may watch: whatever the segment
+ * actually filters on, labelled the way the segment form labels them.
+ */
 export const useReEnrollmentRules = ({ contentId }: { contentId: string }) => {
   const { segment, segmentLoading } = useSegmentDetail(contentId);
-  const segmentWithSubSegments = segment as
-    | SegmentWithSubSegmentConditions
-    | undefined;
-  const { data, loading: fieldsLoading } = useQuery<QueryResponse>(
-    FIELDS_COMBINED_BY_CONTENT_TYPE,
-    {
-      variables: {
-        contentType: segment?.contentType,
-      },
-      skip: !segment?.contentType,
-    },
+  const { fields, loading: fieldsLoading } = useSegmentFields(
+    segment?.contentType,
   );
 
-  const fields: IField[] = data?.fieldsCombinedByContentType || [];
-
   const reEnrollmentOptions = useMemo<ReEnrollmentOption[]>(() => {
-    if (
-      !segmentWithSubSegments?.subSegmentConditions ||
-      !Array.isArray(segmentWithSubSegments.subSegmentConditions)
-    ) {
-      return [];
-    }
+    const keys = [...new Set(collectFieldKeys(segment?.root))];
 
-    const propertyNameMap = new Map<string, string>();
+    return keys.map((propertyName) => ({
+      propertyName,
+      label:
+        fields.find((field: TSegmentField) => field.key === propertyName)
+          ?.label || propertyName,
+    }));
+  }, [segment?.root, fields]);
 
-    for (const subSegment of segmentWithSubSegments.subSegmentConditions) {
-      if (!subSegment?.conditions || !Array.isArray(subSegment.conditions)) {
-        continue;
-      }
-
-      for (const condition of subSegment.conditions) {
-        if (condition?.propertyName) {
-          if (!propertyNameMap.has(condition.propertyName)) {
-            const field = fields.find((f) => f.name === condition.propertyName);
-            const label = field?.label || condition.propertyName;
-            propertyNameMap.set(condition.propertyName, label);
-          }
-        }
-      }
-    }
-
-    return Array.from(propertyNameMap.entries()).map(
-      ([propertyName, label]) => ({
-        propertyName,
-        label,
-      }),
-    );
-  }, [segmentWithSubSegments?.subSegmentConditions, fields]);
-
-  const getLabelByPropertyName = (propertyName: string): string => {
-    const option = reEnrollmentOptions.find(
-      (opt) => opt.propertyName === propertyName,
-    );
-    return option?.label || propertyName;
-  };
+  const getLabelByPropertyName = (propertyName: string) =>
+    reEnrollmentOptions.find((option) => option.propertyName === propertyName)
+      ?.label || propertyName;
 
   return {
     reEnrollmentOptions,
     loading: segmentLoading || fieldsLoading,
     getLabelByPropertyName,
-    hasSubSegmentConditions: Boolean(
-      segmentWithSubSegments?.subSegmentConditions &&
-        segmentWithSubSegments.subSegmentConditions.length > 0,
-    ),
+    hasSubSegmentConditions: reEnrollmentOptions.length > 0,
   };
 };

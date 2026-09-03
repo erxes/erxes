@@ -1,10 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { ICombinedParams } from './types';
-import {
-  getPlugin,
-  getRealIdFromElk,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { getPlugin, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { httpBatchLink, createTRPCUntypedClient } from '@trpc/client';
 import { splitType } from 'erxes-api-shared/core-modules';
 import { nanoid } from 'nanoid';
@@ -129,7 +125,7 @@ export const fieldsCombinedByContentType = async (
   const extendedFields = customFieldsWithGroups.map(
     ({ customField, group }) => ({
       _id: nanoid().toString(),
-      name: `propertiesData.${getRealIdFromElk(customField._id.toString())}`,
+      name: `propertiesData.${customField._id.toString()}`,
       label: customField.name,
       options: customField.options,
       selectOptions: generateSelectOptions(customField.options),

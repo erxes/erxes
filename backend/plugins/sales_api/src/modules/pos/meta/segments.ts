@@ -1,55 +1,43 @@
-import { SegmentConfigs } from 'erxes-api-shared/core-modules';
 import {
-  fetchByQueryWithScroll,
-  getEsIndexByContentType,
-} from 'erxes-api-shared/utils';
-import * as _ from 'underscore';
+  TCoreModuleProducerContext,
+  TSegmentProducers,
+  TSegmentProducersInput,
+} from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
 import { posSegmentConfigs } from './posSegmentConfigs';
+import { evaluatePosFields } from './segments/evaluate';
+import { POS_SEGMENT_FIELDS } from './segments/fields';
+import {
+  countPosSegmentMembers,
+  listPosSegmentMembers,
+} from './segments/members';
+import { applyPosSegmentMembership } from './segments/membership';
+import { POS_SEGMENT_RELATIONS } from './segments/relations';
 
 export const posSegments = {
   contentTypes: posSegmentConfigs.contentTypes,
 
-  associationFilter: async ({ data, subdomain }) => {
-    const { mainType, propertyType, positiveQuery, negativeQuery } = data;
-    let ids: string[] = [];
+  segmentFields: POS_SEGMENT_FIELDS,
 
-    if (mainType.includes('core:contact')) {
-      ids = await fetchByQueryWithScroll({
-        subdomain,
-        index: 'pos_orders',
-        _source: 'customerId',
-        positiveQuery,
-        negativeQuery,
-      });
-    }
+  segmentRelations: POS_SEGMENT_RELATIONS,
 
-    if (propertyType.includes('core:contact')) {
-      const customerIds = await fetchByQueryWithScroll({
-        subdomain,
-        index: await getEsIndexByContentType(propertyType),
-        positiveQuery,
-        negativeQuery,
-      });
+  evaluateFields: async (
+    data: TSegmentProducersInput[TSegmentProducers.EVALUATE_FIELDS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => evaluatePosFields(models, data),
 
-      ids = await fetchByQueryWithScroll({
-        subdomain,
-        index: 'pos_orders',
-        _source: '_id',
-        positiveQuery: {
-          terms: {
-            customerId: customerIds,
-          },
-        },
-        negativeQuery: undefined,
-      });
-    }
+  listSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.LIST_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => listPosSegmentMembers(models, data),
 
-    ids = _.uniq(ids);
+  countSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.COUNT_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => countPosSegmentMembers(models, data),
 
-    return { data: ids, status: 'success' };
-  },
-
-  esTypesMap: async (_data, _context) => {
-    return { data: { typesMap: {} }, status: 'success' };
-  },
-} as SegmentConfigs;
+  applyMembership: async (
+    data: TSegmentProducersInput[TSegmentProducers.APPLY_MEMBERSHIP],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => applyPosSegmentMembership(models, data),
+};

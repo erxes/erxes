@@ -1,4 +1,10 @@
-import { Combobox, Command, Popover, SelectTree, TextOverflowTooltip } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  SelectTree,
+  TextOverflowTooltip,
+} from 'erxes-ui';
 import { useSelectSegments } from '../hooks/useSelectSegments';
 import { ISegment } from '../types';
 
@@ -6,14 +12,16 @@ const SelectBranchBadge = ({
   segment,
   selected,
   totalCount,
+  unnamedLabel,
 }: {
   totalCount: number;
   segment?: ISegment;
   selected?: boolean;
+  unnamedLabel: string;
 }) => {
   if (!segment) return null;
 
-  const { name } = segment || {};
+  const name = segment.name || unnamedLabel;
 
   return (
     <>
@@ -38,6 +46,8 @@ export const SelectSegment = ({
   nullable,
   exclude,
   disabled,
+  contentType,
+  unnamedLabel = 'Untitled segment',
 }: {
   selected?: string;
   onSelect: (categoryId: string | null) => void;
@@ -45,6 +55,8 @@ export const SelectSegment = ({
   nullable?: boolean;
   exclude?: string[];
   disabled?: boolean;
+  contentType?: string;
+  unnamedLabel?: string;
 }) => {
   const {
     segments,
@@ -54,7 +66,7 @@ export const SelectSegment = ({
     selectedSegment,
     setSearch,
     search,
-  } = useSelectSegments({ selected, exclude, focusOnMount });
+  } = useSelectSegments({ selected, exclude, focusOnMount, contentType });
 
   return (
     <Popover>
@@ -63,6 +75,7 @@ export const SelectSegment = ({
           <SelectBranchBadge
             segment={selectedSegment}
             totalCount={segments?.length || 0}
+            unnamedLabel={unnamedLabel}
           />
         ) : (
           <Combobox.Value placeholder="Select a segment" />
@@ -90,12 +103,13 @@ export const SelectSegment = ({
                   No segment selected
                 </Command.Item>
               )}
-              {segments.map((segment: any, index: number) => (
+              {segments.map((segment: ISegment) => (
                 <SelectTree.Item
+                  key={segment._id}
                   _id={segment._id}
-                  order={segment.order}
-                  hasChildren={segment.hasChildren}
-                  name={segment.name}
+                  order={segment._id}
+                  hasChildren={false}
+                  name={segment.name || unnamedLabel}
                   value={segment._id}
                   onSelect={onSelect}
                   selected={false}
@@ -104,7 +118,7 @@ export const SelectSegment = ({
                   <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
                     {selected === segment._id && <Combobox.Check checked />}
                     <TextOverflowTooltip
-                      value={segment.name}
+                      value={segment.name || unnamedLabel}
                       className="flex-auto"
                     />
                   </div>

@@ -524,6 +524,44 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- The conversation collection must never get an event dispatcher. Every
+  message written writes back to its conversation, so a dispatcher would make
+  the highest-volume write in the product also the highest-volume segment
+  event. `conversationsChanged` announces from the specific writes instead, and
+  is given the update document so a message - which names only `updatedAt` and
+  `messageCount` - announces nothing.
+- A new write that moves `customerId`, `integrationId`, `assignedUserId`,
+  `tagIds`, `status`, `closedAt`, `isBot` or `firstRespondedDate` on a
+  conversation must call `conversationsChanged`. Nothing else will.
+- Messages are declared in `segmentFields` but never in `contentTypes`: a
+  single message is nobody's audience, and the declaration exists only to give
+  the `customer.messages` relation a vocabulary.
+- `ticketSchema` must stay wrapped in `schemaWrapper`: membership is written
+  onto the record as `segmentIds`, and an unwrapped schema is a ticket segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`tickets.assigneeId`, `tickets.assignedMembers`). Without one the measure
+  scans the collection.
+- A ticket content type declaration must carry `contentType`. Without it the
+  dispatcher's `frontline:tickets.tickets` maps to nothing and no write ever
+  reaches a segment built on it.
+- Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
+  `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
+  _every_ ticket list, not only pipeline-scoped ones. Without a
+  `filter.pipelineId` the in-scope pipelines are loaded (by `channelId` when
+  present) and each restricted pipeline contributes its own
+  `{ pipelineId, <rule> }` branch to an `$or`, with unrestricted pipelines
+  passing through a `$nin`. Adding a rule means extending
+  `buildVisibilityCondition`, never the pipeline-scoped branch alone.
+- Tickets in a private pipeline the user is not a member of are excluded from
+  unscoped lists too, not just rejected on the pipeline-scoped query.
+- `isCheckDate` means `createdAt >= start of the server's current day`.
+- `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
+  where that member picker is nested under the "my tickets only" toggle.
+
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1256,6 +1294,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   lint the files you touched)
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
+- Smoke: turn on "Show only tickets assigned to the user" for one pipeline,
+  then open the channel ticket list (no `pipelineId` in the URL); only that
+  pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
@@ -1330,6 +1371,77 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
   registered.
 
+### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
+
+- **Summary:** All four pipeline visibility rules were dead on the channel
+  ticket list: `generateFilter` only consulted the pipeline when the query
+  carried a `filter.pipelineId`, and the channel page never sends one, so every
+  ticket in the channel was returned. `isCheckDate` was additionally never
+  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
+  pipeline access gates rather than the per-ticket filters their labels promise.
+  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
+  unscoped lists, which also stops private-pipeline tickets leaking there.
+- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
+- # **Contracts changed:** None (`getTickets` arguments are unchanged).
+  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
+
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from the ticket module's producers; automation target
+  matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Elasticsearch-era segment producers removed
+
+- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
+  `propertyConditionExtender` were deleted from the ticket module and from the
+  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
+  segment call, and no plugin-to-plugin RPC loop can form.
+- **Affected areas:** `src/meta/segments.ts`,
+  `src/modules/ticket/meta/segments/index.ts`.
+- **Contracts changed:** `/segments` no longer answers `associationFilter`,
+  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
+  existed for any of them.
+
+### `2026-09-01` — Conversations and messages reachable from a segment
+
+- **Summary:** `frontline:inbox.conversations` is a segment content type with
+  12 fields including a derived `integrationKind` channel; conversations and
+  messages are both reachable from a customer segment
+  (`customer.conversations`, `customer.messages`), which is what answers "came
+  in from Facebook" and "wrote a comment saying 111". Conversation writes
+  announce themselves from the four places that move a declared field rather
+  than through a dispatcher.
+- **Affected areas:** `src/modules/inbox/meta/segments/` (new);
+  `src/modules/inbox/db/models/Conversations.ts`;
+  `src/modules/inbox/trpc/conversation.ts`; `src/meta/segments.ts`;
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** New segment content type
+  `frontline:inbox.conversations`; new relations `customer.conversations`,
+  `customer.messages`. `loadClass` for conversations now takes `subdomain`.
+
+### `2026-09-01` — Tickets became a real segment content type
+
+- **Summary:** `frontline:tickets.tickets` is now declared with its event
+  content type, filterable on 24 user-facing fields, materialisable, and
+  reachable from customer, company and team-member segments; the module moved
+  off the Elasticsearch-era producers onto the shared evaluator.
+- **Affected areas:** `src/modules/ticket/meta/segments/` (`fields/`,
+  `collections.ts`, `members.ts`, `membership.ts`, `evaluate.ts`,
+  `relations.ts`, `configs.ts`, `index.ts`); `src/meta/segments.ts`;
+  `src/modules/ticket/db/definitions/ticket.ts` (schemaWrapper, join indexes).
+- **Contracts changed:** Ticket content type now declares
+  `contentType: 'frontline:tickets.tickets'`; new relations
+  `customer.tickets`, `company.tickets`, `user.assignedTickets`.
+  =======
+  <<<<<<< HEAD
+
 ### `2026-08-28` — Every zone is listed, and the picker says which are usable
 
 - **Summary:** `listZones` asked for a single page of 50, so an account with more
@@ -1375,94 +1487,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   (two guard messages no longer claim one account serves one workspace).
 - **Contracts changed:** None. `provision.ts` already read every name from the
   connection document, and `buildScriptMetadata` already took them as arguments.
-
-### `2026-08-28` — Header threading works again on sent replies
-
-- **Summary:** `createCloudflareTransport` discarded the `message_id` Cloudflare
-  returns, so every sent reply was stored with no `providerMessageId`. The
-  machinery around it was already complete — `toWireReferences` swaps the internal
-  id for the wire one, and inbound matching checks `providerMessageId` — but with
-  the field empty the sent message was filtered out of outgoing `References`
-  entirely and a customer reply quoting it could not be matched. Replies still
-  threaded through the tagged `Reply-To` and the original inbound id, which is why
-  this stayed hidden. The stored `from` on a sent message now also carries the
-  display name that actually went out instead of repeating the address.
-- **Affected areas:**
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/utils/transports/cloudflare.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`.
-- **Contracts changed:** None — `providerMessageId` was already stored and
-  returned; it was simply never populated for Cloudflare sends.
-
-### `2026-08-28` — A forwarded message is no longer flagged as an unverified sender
-
-- **Summary:** Mail arriving through a forwarding rule was always banded
-  "Unverified sender". `isForwardedBy` compared the SMTP envelope sender against
-  the inbox's `forwardFrom`, but a forwarder hands the message over under its own
-  relay — Gmail's is a rotating `postmaster@mail-….google.com` — so no value of
-  `forwardFrom` could ever match and the guard could not be satisfied at all. The
-  worker now carries `Delivered-To` (every hop, joined, since the forwarding
-  mailbox is only one of them) and `isForwardedBy` accepts a match on either that
-  or the envelope sender. A genuine sender mismatch is still flagged.
-- **Affected areas:**
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/worker/bundle.generated.ts`,
-  `cloudflare/mail-worker/src/parse.ts`,
-  `cloudflare/mail-worker/fixtures/delivered-to.json`.
-- **Contracts changed:** The inbound webhook payload's `headers` may now carry
-  `delivered-to`. The worker bundle version changed, so a workspace running the
-  worker on its own Cloudflare account has to press _Update worker_.
-
-### `2026-08-27` — An inbox can choose the name recipients see
-
-- **Summary:** Replies carried the inbox integration's `name` as their display
-  name with no way to change it, so a mailbox called "support" appeared to
-  recipients as `support`. A mail integration now owns an optional `senderName`,
-  used for the `From` display name and falling back to the inbox name when empty.
-  It is validated on create and edit: line breaks are rejected so the value cannot
-  smuggle a second header, and length is capped at `MAIL_SENDER_NAME_MAX_LENGTH`.
-  The `From` address itself is unchanged.
-- **Affected areas:** `src/modules/integrations/mail/db/definitions/integrations.ts`,
-  `src/modules/integrations/mail/@types/integration.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`.
-- **Contracts changed:** `mailCreateIntegration` and `mailUpdateIntegration` accept
-  `data.senderName`; `mailIntegrationDetails` returns it.
-
-### `2026-08-27` — Mail sends through Cloudflare only; SES and SendGrid are gone
-
-- **Summary:** Outbound mail now leaves through Cloudflare Email Sending on every
-  path, matching the inbound side. A workspace that has connected its own
-  Cloudflare account replies from its own zone; every other workspace replies from
-  its generated address on `MAIL_DOMAIN` through the deployment's Cloudflare
-  account, configured with `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`.
-  The workspace-owned SES/SendGrid sending domains — the model, its DNS-proof
-  verification, the provider transport and the whole Settings → Integrations config
-  → Sending domains panel — are removed, along with the per-inbox sender choice:
-  an inbox always answers from its own address. `checkPlatformSendRate` still caps
-  the shared lane, because a Cloudflare account shares its daily quota and its
-  suppression list across every workspace on it.
-- **Affected areas:** `src/modules/integrations/mail/utils/`
-  (`platformConfig.ts` rewritten, `transports/{index,readiness,types}.ts`;
-  `dnsProof.ts`, `sendingSerialize.ts`, `transports/provider.ts` deleted),
-  `src/modules/integrations/mail/db/{definitions,models}/` (`sending.ts`,
-  `SendingAccounts.ts` deleted; `integrations.ts` loses `sendingAccountId` /
-  `sendingAddress`), `src/modules/integrations/mail/@types/{sending,integration}.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** removes the `mailSendingAccounts` query, the
-  `mailSendingAccountAdd` / `mailSendingAccountVerify` / `mailSendingAccountRemove`
-  mutations, the `MailSendingAccount` and `MailSendingDnsRecord` types and
-  `MailSendingReadiness.accounts`; `mailCreateIntegration` and
-  `mailUpdateIntegration` ignore `data.sendingAccountId` / `data.sendingAddress`.
-  Env `MAIL_SENDING_DEFAULT_EMAIL_SERVICE`, `MAIL_SENDING_AWS_SES_*`,
-  `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
-  `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
-  `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
