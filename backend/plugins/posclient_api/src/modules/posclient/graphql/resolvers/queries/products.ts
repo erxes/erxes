@@ -1127,9 +1127,11 @@ const productQueries = {
     return JSON.stringify(response ?? {});
   },
 };
+
 markResolvers(productQueries, {
   wrapperConfig: {
     skipPermission: true,
   },
 });
+
 export default productQueries;

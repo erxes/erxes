@@ -792,6 +792,7 @@ const cpProductQueries: Record<string, Resolver> = {
     return JSON.stringify(d);
   },
 };
+
 markResolvers(cpProductQueries, {
   wrapperConfig: {
     forClientPortal: true,
