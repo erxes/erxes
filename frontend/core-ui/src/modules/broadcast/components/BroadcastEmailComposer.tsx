@@ -84,13 +84,13 @@ export const BroadcastEmailComposer = ({
   return (
     <FormProvider {...form}>
       <EmailSenderScopeProvider scope="broadcast">
-        <Sheet.Header>
+        <Sheet.Header className="px-8">
           <BroadcastTitleInput />
           <Sheet.Close />
         </Sheet.Header>
 
         <Sheet.Content className="flex flex-col overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-3">
+          <div className="flex items-center gap-2 px-8 py-3">
             <BroadcastComposerSettings />
             <BroadcastPreviewEmailDialog />
             <BroadcastCopyHtmlButton />
@@ -99,7 +99,7 @@ export const BroadcastEmailComposer = ({
 
           <Separator />
 
-          <div className="flex flex-col gap-5 px-5 py-6">
+          <div className="flex flex-col gap-5 px-8 py-6">
             <BroadcastSubjectField />
             <BroadcastFromField />
             <BroadcastTargetPopover />
@@ -107,18 +107,18 @@ export const BroadcastEmailComposer = ({
 
           <Separator />
 
-          <div className="px-5 py-4">
+          <div className="px-8 py-4">
             <BroadcastPreviewTextField />
           </div>
 
           <Separator />
 
-          <div className="flex-1 min-h-0 overflow-hidden px-5 py-4">
+          <div className="flex-1 min-h-0 overflow-hidden px-8 py-4">
             <BroadcastEmailPreview />
           </div>
         </Sheet.Content>
 
-        <Sheet.Footer>
+        <Sheet.Footer className="px-8">
           <Button onClick={handleClose} variant="secondary" type="button">
             {t('cancel')}
           </Button>
