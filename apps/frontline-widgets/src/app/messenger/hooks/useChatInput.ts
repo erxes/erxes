@@ -11,6 +11,7 @@ import { IAttachment } from 'erxes-ui';
 
 type SubmitOptions = {
   attachments?: IAttachment[];
+  contentOverride?: string;
   onClear?: () => void;
 };
 
@@ -28,13 +29,15 @@ export function useChatInput() {
 
   const handleSubmit = (e: FormEvent, options?: SubmitOptions) => {
     e.preventDefault();
-    const { attachments = [], onClear } = options || {};
-    if (!message.trim() && attachments.length === 0) return;
+    const { attachments = [], contentOverride, onClear } = options || {};
+    const finalMessage =
+      contentOverride !== undefined ? contentOverride : message;
+    if (!finalMessage.trim() && attachments.length === 0) return;
 
     insertMessage({
       variables: {
         contentType: 'text',
-        message: message,
+        message: finalMessage,
         customerId: customerId || __customerId || undefined,
         attachments: attachments.length > 0 ? attachments : undefined,
       },

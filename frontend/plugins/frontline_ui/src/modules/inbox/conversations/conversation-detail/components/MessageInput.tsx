@@ -185,7 +185,7 @@ const ComposerEditor = ({ controller }: MessageInputControllerProps) => {
       onChange={handleChange}
       disabled={loading}
       className={cn(
-        'min-h-12 max-h-28 w-full flex-none overflow-y-auto px-1 pt-1',
+        'min-h-12 w-full flex-none',
         isInternalNote && 'internal-note',
       )}
       onFocus={() =>
@@ -299,7 +299,7 @@ const Composer = ({ controller }: MessageInputControllerProps) => (
       onKeyDown={controller.handleKeyDown}
       onDragOverCapture={(event) => event.preventDefault()}
       className={cn(
-        'mx-auto flex max-h-[min(48vh,24rem)] min-h-24 w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-border/70 bg-background shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition-colors duration-150',
+        'mx-auto flex max-h-[min(70vh,40rem)] min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
         controller.isInternalNote && 'bg-warning/20',
       )}
     >

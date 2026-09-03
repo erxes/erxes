@@ -62,12 +62,14 @@ export const UnsupportedMessage = ({ text }: { text: string }) => (
 export const StoryCard = ({
   kind,
   url,
+  sourceUrl,
   expiresAt,
   fallbackText,
   mediaType,
 }: {
   kind?: string;
   url?: string;
+  sourceUrl?: string;
   expiresAt?: string;
   fallbackText?: string;
   mediaType?: string;
@@ -75,6 +77,9 @@ export const StoryCard = ({
   const [failed, setFailed] = useState(false);
   const [resolvedMediaType, setResolvedMediaType] = useState<'image' | 'video'>(
     mediaType?.startsWith('video') ? 'video' : 'image',
+  );
+  const hasKnownMediaType = Boolean(
+    mediaType?.startsWith('image') || mediaType?.startsWith('video'),
   );
   const [expired, setExpired] = useState(
     Boolean(expiresAt && new Date(expiresAt) <= new Date()),
@@ -98,12 +103,25 @@ export const StoryCard = ({
   const label = kind === 'story_reply' ? 'Story reply' : 'Story mention';
 
   if (unavailable) {
-    return (
+    const unavailableCard = (
       <UnsupportedMessage
         text={
           expired ? `${label} expired` : fallbackText || 'Story unavailable'
         }
       />
+    );
+
+    if (!sourceUrl) return unavailableCard;
+
+    return (
+      <a
+        href={sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block no-underline"
+      >
+        {unavailableCard}
+      </a>
     );
   }
 
@@ -131,7 +149,7 @@ export const StoryCard = ({
         alt={label}
         loading="lazy"
         onError={() => {
-          if (!mediaType) {
+          if (!hasKnownMediaType && resolvedMediaType === 'image') {
             setResolvedMediaType('video');
             return;
           }
@@ -178,9 +196,15 @@ export const StoryCard = ({
 
 export const ShareCard = ({
   url,
+  title,
+  previewUrl,
+  shareType,
   attachmentType,
 }: {
   url?: string;
+  title?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
   attachmentType?: string;
 }) => {
   let safeUrl: string | undefined;
@@ -200,6 +224,9 @@ export const ShareCard = ({
     return <InstagramShareCard url={safeUrl} attachmentType={attachmentType} />;
   }
 
+  const isFacebookPost =
+    attachmentType === 'post' || attachmentType === 'reel';
+
   return (
     <a
       href={safeUrl}
@@ -207,13 +234,26 @@ export const ShareCard = ({
       rel="noopener noreferrer"
       className="mt-2 flex items-center gap-3 rounded-lg border bg-background px-3 py-3 no-underline hover:bg-muted/50"
     >
-      <IconExternalLink className="size-5 shrink-0 text-muted-foreground" />
+      {previewUrl ? (
+        <InboxImage
+          src={readImage(previewUrl)}
+          alt={`${shareType === 'reel' ? 'Reel' : 'Post'} preview`}
+          loading="lazy"
+          className="size-16 shrink-0 rounded-lg object-cover"
+        />
+      ) : (
+        <IconExternalLink className="size-5 shrink-0 text-muted-foreground" />
+      )}
       <span className="min-w-0">
         <span className="block text-sm font-medium text-foreground">
-          Shared content
+          {isFacebookPost
+            ? shareType === 'reel'
+              ? 'Facebook reel'
+              : 'Facebook post'
+            : 'Shared content'}
         </span>
-        <span className="block truncate text-xs text-muted-foreground">
-          {safeUrl}
+        <span className="line-clamp-2 block text-xs text-muted-foreground">
+          {title || safeUrl}
         </span>
       </span>
     </a>

@@ -30,7 +30,7 @@ export const ConversationMessages = ({
     useConversationMessages({
       variables: {
         conversationId,
-        limit: 10,
+        limit: 50,
         skip: 0,
       },
       fetchPolicy: 'cache-and-network',
@@ -126,6 +126,7 @@ export const ConversationMessages = ({
       />
       <div className="min-h-0 flex-1">
         <InboxMessagesContainer
+          conversationId={conversationId}
           fetchMore={handleFetchMore}
           messagesLength={messages?.length || 0}
           totalCount={totalCount}

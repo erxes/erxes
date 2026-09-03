@@ -1,7 +1,8 @@
-import { useMutation } from '@apollo/client';
-import { Button, Popover, ScrollArea, readImage, toast } from 'erxes-ui';
-import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
+import * as React from 'react';
 import { useState } from 'react';
+import { useMutation } from '@apollo/client';
+import { Button, Popover, ScrollArea, cn, readImage, toast } from 'erxes-ui';
+import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
 
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
@@ -23,15 +24,23 @@ const pinnedImage = (message: IMessage) =>
     attachment.type?.startsWith('image'),
   );
 
-const PinnedMessagesTrigger = ({ messages }: { messages: IMessage[] }) => {
+const PinnedMessagesTrigger = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentPropsWithoutRef<typeof Button> & { messages: IMessage[] }
+>(({ messages, className, ...props }, ref) => {
   const latestMessage = messages[0];
   const latestImage = pinnedImage(latestMessage);
 
   return (
     <Button
+      ref={ref}
       type="button"
       variant="ghost"
-      className="h-10 w-full shrink-0 justify-start gap-2 rounded-none border-b bg-primary/[0.04] px-4 text-left hover:bg-primary/[0.07]"
+      className={cn(
+        'h-10 w-full shrink-0 justify-start gap-2 rounded-none border-b bg-primary/[0.04] px-4 text-left hover:bg-primary/[0.07]',
+        className,
+      )}
+      {...props}
     >
       <IconPin className="size-4 shrink-0 text-primary" />
       <span className="shrink-0 text-xs font-medium">
@@ -50,7 +59,9 @@ const PinnedMessagesTrigger = ({ messages }: { messages: IMessage[] }) => {
       <IconChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
     </Button>
   );
-};
+});
+
+PinnedMessagesTrigger.displayName = 'PinnedMessagesTrigger';
 
 const PinnedMessageRow = ({
   message,
@@ -122,20 +133,20 @@ const PinnedMessageList = ({
   </div>
 );
 
-const PinnedMessagesContent = ({
-  messages,
-  loading,
-  onSelect,
-  onUnpin,
-}: {
-  messages: IMessage[];
-  loading: boolean;
-  onSelect: (message: IMessage) => void;
-  onUnpin: (message: IMessage) => void;
-}) => (
+const PinnedMessagesContent = React.forwardRef<
+  React.ElementRef<typeof Popover.Content>,
+  React.ComponentPropsWithoutRef<typeof Popover.Content> & {
+    messages: IMessage[];
+    loading: boolean;
+    onSelect: (message: IMessage) => void;
+    onUnpin: (message: IMessage) => void;
+  }
+>(({ messages, loading, onSelect, onUnpin, className, ...props }, ref) => (
   <Popover.Content
+    ref={ref}
     align="start"
-    className="w-[min(26rem,calc(100vw-1rem))] p-0"
+    className={cn('w-[min(26rem,calc(100vw-1rem))] p-0', className)}
+    {...props}
   >
     <div className="border-b px-3 py-2 text-xs font-medium">
       Pinned messages
@@ -152,7 +163,9 @@ const PinnedMessagesContent = ({
       <ScrollArea.Bar orientation="vertical" />
     </ScrollArea.Root>
   </Popover.Content>
-);
+));
+
+PinnedMessagesContent.displayName = 'PinnedMessagesContent';
 
 export const PinnedMessagesBar = ({
   conversationId,

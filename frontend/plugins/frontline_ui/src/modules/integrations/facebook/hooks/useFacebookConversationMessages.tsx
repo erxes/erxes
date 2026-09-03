@@ -77,17 +77,21 @@ export const useFacebookConversationMessages = () => {
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
+        const currentMessages = Array.isArray(
+          prev.facebookConversationMessages,
+        )
+          ? prev.facebookConversationMessages
+          : [];
 
         // Check if the message already exists to prevent duplicates
-        const existingMessageIndex =
-          prev.facebookConversationMessages.findIndex(
-            (message) => message._id === newMessage._id,
-          );
+        const existingMessageIndex = currentMessages.findIndex(
+          (message) => message._id === newMessage._id,
+        );
 
         if (existingMessageIndex !== -1) {
           return {
             ...prev,
-            facebookConversationMessages: prev.facebookConversationMessages.map(
+            facebookConversationMessages: currentMessages.map(
               (message, index) =>
                 index === existingMessageIndex
                   ? {
@@ -125,7 +129,7 @@ export const useFacebookConversationMessages = () => {
         return {
           ...prev,
           facebookConversationMessages: [
-            ...prev.facebookConversationMessages,
+            ...currentMessages,
             {
               ...newMessage,
               conversationId,

@@ -8,7 +8,11 @@ import { Activity } from '@/integrations/facebook/@types/utils';
 import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
-import { sendReply } from '@/integrations/facebook/utils';
+import {
+  getPageAccessTokenFromMap,
+  graphRequest,
+  sendReply,
+} from '@/integrations/facebook/utils';
 import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import {
@@ -16,6 +20,113 @@ import {
   parseAutomationPayload,
   triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
+
+const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
+type TGraphMessageAttachment = {
+  file_url?: string;
+  image_data?: { url?: string; preview_url?: string };
+  video_data?: { url?: string; preview_url?: string };
+};
+
+type TGraphMessageDetails = {
+  attachments?: { data?: TGraphMessageAttachment[] };
+};
+
+const fetchStoryMediaUrl = async (
+  integration: IFacebookIntegrationDocument,
+  pageId: string,
+  mid: string,
+) => {
+  const pageToken = getPageAccessTokenFromMap(
+    pageId,
+    integration.facebookPageTokensMap || {},
+  );
+  if (!pageToken) {
+    debugFacebook(`Cannot fetch story media without a page token: ${pageId}`);
+    return undefined;
+  }
+
+  try {
+    const details = (await graphRequest.get(
+      `/${encodeURIComponent(mid)}?fields=attachments.limit(10){file_url,image_data,video_data}`,
+      pageToken,
+    )) as TGraphMessageDetails;
+    const attachment = details.attachments?.data?.[0];
+
+    return (
+      attachment?.image_data?.url ||
+      attachment?.image_data?.preview_url ||
+      attachment?.video_data?.url ||
+      attachment?.video_data?.preview_url ||
+      attachment?.file_url
+    );
+  } catch (error) {
+    debugFacebook(
+      `Failed to fetch Messenger story media for ${mid}: ${getErrorMessage(error)}`,
+    );
+    return undefined;
+  }
+};
+
+const readOpenGraphValue = (html: string, property: string) => {
+  const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = html.match(
+    new RegExp(
+      `<meta[^>]+property=["']${escapedProperty}["'][^>]+content=["']([^"']*)`,
+      'i',
+    ),
+  );
+  return match?.[1]?.replace(/&amp;/g, '&');
+};
+
+const fetchFacebookSharePreview = async (url?: string) => {
+  if (!url) return undefined;
+
+  try {
+    const parsed = new URL(url);
+    if (
+      parsed.protocol !== 'https:' ||
+      (parsed.hostname !== 'facebook.com' &&
+        !parsed.hostname.endsWith('.facebook.com'))
+    ) {
+      return undefined;
+    }
+
+    const response = await fetch(parsed.toString(), {
+      headers: { 'user-agent': 'facebookexternalhit/1.1' },
+      signal: AbortSignal.timeout(5000),
+    });
+    const finalUrl = new URL(response.url);
+    if (
+      finalUrl.hostname !== 'facebook.com' &&
+      !finalUrl.hostname.endsWith('.facebook.com')
+    ) {
+      return undefined;
+    }
+
+    const html = await response.text();
+    const previewUrl = readOpenGraphValue(html, 'og:image');
+
+    return { previewUrl };
+  } catch {
+    return undefined;
+  }
+};
+
+const isFacebookStoryUrl = (url?: string) => {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      (parsed.hostname === 'facebook.com' ||
+        parsed.hostname.endsWith('.facebook.com')) &&
+      parsed.pathname.startsWith('/stories/')
+    );
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Sanitize a value expected to be a string to prevent NoSQL injection.
@@ -456,6 +567,9 @@ const storeFacebookMessage = async ({
   senderId,
   recipientId,
   adData,
+  messageKind,
+  providerData,
+  expiresAt,
 }: {
   models: IModels;
   subdomain: string;
@@ -475,11 +589,31 @@ const storeFacebookMessage = async ({
     ReturnType<typeof prepareFacebookActivity>['adData'],
     undefined
   >;
+  messageKind?: string;
+  providerData?: IFacebookConversationMessageDocument['providerData'];
+  expiresAt?: Date;
 }) => {
   const existing = await models.FacebookConversationMessages.findOne({
     mid: { $eq: mid },
   });
   if (existing) {
+    if (messageKind && !existing.messageKind) {
+      existing.attachments = attachments;
+      existing.messageKind = messageKind;
+      existing.providerData = providerData;
+      existing.expiresAt = expiresAt;
+      await existing.save();
+
+      const updated = {
+        ...existing.toObject(),
+        conversationId: conversation.erxesApiId,
+      };
+      await pConversationClientMessageInserted(subdomain, updated);
+      await graphqlPubsub.publish(
+        `conversationMessageInserted:${conversation.erxesApiId}`,
+        { conversationMessageInserted: updated },
+      );
+    }
     return;
   }
 
@@ -493,6 +627,9 @@ const storeFacebookMessage = async ({
       attachments,
       replyTo,
       botId,
+      messageKind,
+      providerData,
+      expiresAt,
     });
     const doc = {
       ...created.toObject(),
@@ -611,14 +748,92 @@ export const receiveMessage = async (
       content: text,
       botId,
     });
-    const formattedAttachments = formatAttachments(attachments);
-    const primaryAttachment = attachments?.[0];
+    const story = message?.reply_to?.story;
+    // Meta sends story shares as a message containing only `mid` for some
+    // Messenger Page webhooks. Preserve that event as an unavailable story
+    // instead of storing an empty message that the inbox cannot render.
+    const isMidOnlyMessage = Boolean(
+      mid &&
+        message &&
+        !text &&
+        !attachments?.length &&
+        !postback &&
+        !message.quick_reply &&
+        !message.referral &&
+        !message.payload,
+    );
+    const storyMediaUrl =
+      story?.url ||
+      (isMidOnlyMessage && mid
+        ? await fetchStoryMediaUrl(integration, pageId, mid)
+        : undefined);
+    const messageAttachments = story || isMidOnlyMessage
+      ? [
+          {
+            type: 'story_reply',
+            payload: { url: storyMediaUrl || '' },
+          },
+        ]
+      : attachments;
+    const formattedAttachments = formatAttachments(messageAttachments);
+    const primaryAttachment = messageAttachments?.[0];
+    const isStoryShare =
+      primaryAttachment?.type === 'share' &&
+      isFacebookStoryUrl(primaryAttachment.payload?.url);
+    const sharePreview =
+      primaryAttachment?.type === 'post' ||
+      primaryAttachment?.type === 'reel' ||
+      isStoryShare
+        ? await fetchFacebookSharePreview(primaryAttachment.payload?.url)
+        : undefined;
+    const messageKind = isStoryShare
+      ? 'story_reply'
+      : primaryAttachment?.type === 'story_reply' ||
+          primaryAttachment?.type === 'story_mention'
+        ? primaryAttachment.type
+        : primaryAttachment?.type === 'post' ||
+            primaryAttachment?.type === 'reel'
+          ? 'share'
+          : undefined;
+    const isStory = Boolean(messageKind);
+    const providerData = isStory
+      ? {
+          messageId: mid,
+          attachmentType: primaryAttachment?.type,
+          storyUrl: isStoryShare
+            ? sharePreview?.previewUrl
+            : primaryAttachment?.payload?.url,
+          fallbackReason:
+            (isStoryShare
+              ? sharePreview?.previewUrl
+              : primaryAttachment?.payload?.url)
+            ? undefined
+            : 'Story unavailable',
+          previewText:
+            messageKind === 'story_reply' ? 'Story reply' : 'Story mention',
+        }
+      : messageKind === 'share'
+        ? {
+            messageId: mid,
+            attachmentType: primaryAttachment?.type,
+            previewText:
+              primaryAttachment?.type === 'reel'
+                ? 'Facebook reel'
+                : 'Facebook post',
+            previewUrl: sharePreview?.previewUrl,
+            shareType:
+              primaryAttachment?.type === 'reel'
+                ? ('reel' as const)
+                : ('post' as const),
+          }
+      : undefined;
     const attachmentPreview = attachmentPreviewFor({
       primaryAttachment,
       message,
       postback,
     });
-    const previewContent = text || attachmentPreview;
+    const previewContent =
+      text || providerData?.previewText || attachmentPreview;
     const replyTo = await resolveFacebookReplyTo(
       models,
       conversation._id,
@@ -651,6 +866,11 @@ export const receiveMessage = async (
       senderId: userId,
       recipientId: pageId,
       adData,
+      messageKind,
+      providerData,
+      expiresAt: isStory
+        ? new Date(timestamp.getTime() + STORY_LIFETIME_MS)
+        : undefined,
     });
   } catch (error) {
     throw new Error(`Error processing Facebook message: ${error.message}.`);

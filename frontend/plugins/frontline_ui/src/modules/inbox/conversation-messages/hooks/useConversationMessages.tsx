@@ -1,5 +1,5 @@
 import { useQuery, type QueryHookOptions } from '@apollo/client';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 import type { IMessage } from '@/inbox/types/Conversation';
@@ -20,28 +20,61 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const handleFetchMore = useCallback(() => {
+  // Track the skip offset separately from array length.
+  // Array length includes subscription-pushed new messages which must NOT
+  // advance the "how far back into history" offset we send the backend.
+  // Initialized to the initial page size because useQuery already loaded
+  // skip=0..limit-1; the first fetchMore must start at the next page.
+  const initialLimit = options.variables?.limit ?? 10;
+  const oldMessagesSkipRef = useRef(initialLimit);
+  const prevConversationIdRef = useRef(options.variables?.conversationId);
+
+  // Reset skip offset whenever the conversation changes.
+  if (prevConversationIdRef.current !== options.variables?.conversationId) {
+    prevConversationIdRef.current = options.variables?.conversationId;
+    oldMessagesSkipRef.current = initialLimit;
+  }
+
+  const handleFetchMore = useCallback((): Promise<unknown> => {
     if (
       loading ||
       conversationMessagesTotalCount <= conversationMessages.length
     ) {
-      return;
+      return Promise.resolve();
     }
-    fetchMore({
+    const skip = oldMessagesSkipRef.current;
+    // Always advance by the full page size so pagination stays page-aligned
+    // with the backend.
+    oldMessagesSkipRef.current = skip + 50;
+    return fetchMore({
       variables: {
-        skip: conversationMessages.length,
-        limit: 10,
+        skip,
+        limit: 50,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult || !fetchMoreResult.conversationMessages?.length) {
+          return prev;
+        }
+
+        const existingIds = new Set(
+          (prev.conversationMessages || []).map((m: IMessage) => m._id),
+        );
+        const uniqueNewMessages = fetchMoreResult.conversationMessages.filter(
+          (m: IMessage) => !existingIds.has(m._id),
+        );
+
+        if (!uniqueNewMessages.length) {
+          return prev;
+        }
 
         return {
           conversationMessages: [
-            ...fetchMoreResult.conversationMessages,
+            ...uniqueNewMessages,
             ...prev.conversationMessages,
           ],
           conversationMessagesTotalCount:
-            fetchMoreResult.conversationMessagesTotalCount,
+            fetchMoreResult.conversationMessagesTotalCount ??
+            prev.conversationMessagesTotalCount,
         };
       },
     });

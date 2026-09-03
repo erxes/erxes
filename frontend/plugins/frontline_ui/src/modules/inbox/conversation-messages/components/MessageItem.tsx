@@ -153,6 +153,8 @@ export const MessageItem = () => {
   const socialShareAttachment = displayAttachments?.find(
     (attachment) =>
       attachment.type === 'share' ||
+      attachment.type === 'post' ||
+      attachment.type === 'reel' ||
       attachment.type === 'ig_post' ||
       attachment.type === 'ig_reel',
   );
@@ -196,7 +198,10 @@ export const MessageItem = () => {
   const hasTextBubble =
     !isDeleted &&
     Boolean(normalizedDisplayContent) &&
-    normalizedDisplayContent !== HAS_ATTACHMENT;
+    normalizedDisplayContent !== HAS_ATTACHMENT &&
+    Boolean(
+      normalizedDisplayContent?.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, ''),
+    );
   const additionalActions = extraData?.discordMessageId ? (
     <DiscordMessageActions
       conversationId={message.conversationId || ''}
@@ -218,9 +223,9 @@ export const MessageItem = () => {
   const showAuthorName = Boolean(
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-    !userId &&
-    customerId &&
-    separatePrevious,
+      !userId &&
+      customerId &&
+      separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -414,7 +419,8 @@ export const MessageItem = () => {
             </Button>
           ) : (
             !isDeleted &&
-            !forwardedSnapshot && (
+            !forwardedSnapshot &&
+            !attachments?.length && (
               <div className={cn(separatePrevious ? 'mt-6' : 'mt-1')} />
             )
           )}
@@ -422,20 +428,37 @@ export const MessageItem = () => {
           {!isDeleted && isStory && (
             <StoryCard
               kind={messageKind}
-              url={providerData?.storyUrl || displayAttachments?.[0]?.url}
+              url={
+                providerData?.storyUrl ||
+                (providerData?.attachmentType !== 'share'
+                  ? displayAttachments?.[0]?.url
+                  : undefined)
+              }
+              sourceUrl={
+                providerData?.attachmentType === 'share'
+                  ? displayAttachments?.[0]?.url
+                  : undefined
+              }
               expiresAt={expiresAt}
               fallbackText={fallbackText}
               mediaType={displayAttachments?.[0]?.type}
             />
           )}
-          {!isDeleted && (messageKind === 'share' || socialShareAttachment) && (
-            <ShareCard
-              url={socialShareAttachment?.url || displayAttachments?.[0]?.url}
-              attachmentType={
-                socialShareAttachment?.type || providerData?.attachmentType
-              }
-            />
-          )}
+          {!isDeleted &&
+            !isStory &&
+            (messageKind === 'share' || socialShareAttachment) && (
+              <ShareCard
+                url={socialShareAttachment?.url || displayAttachments?.[0]?.url}
+                title={
+                  socialShareAttachment?.name || displayAttachments?.[0]?.name
+                }
+                previewUrl={providerData?.previewUrl}
+                shareType={providerData?.shareType}
+                attachmentType={
+                  socialShareAttachment?.type || providerData?.attachmentType
+                }
+              />
+            )}
           {!isDeleted &&
             !isStory &&
             messageKind !== 'share' &&

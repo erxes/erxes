@@ -14,6 +14,7 @@ import { useState } from 'react';
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { messageReplyState } from '@/inbox/conversations/conversation-detail/states/messageReplyState';
+import { isSlashMenuOpenState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import {
   CONVERSATION_MESSAGE_PIN,
   CONVERSATION_MESSAGE_REACT,
@@ -114,6 +115,7 @@ export const MessageActions = ({
     message.mid;
   const setReply = useSetAtom(messageReplyState);
   const currentUser = useAtomValue(currentUserState);
+  const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
   const [forwardOpen, setForwardOpen] = useState(false);
   const [pinMessage, { loading: pinning }] = useMutation(
     CONVERSATION_MESSAGE_PIN,
@@ -200,6 +202,10 @@ export const MessageActions = ({
       toast({ title: 'Failed to copy message', variant: 'destructive' });
     }
   };
+
+  if (isSlashMenuOpen) {
+    return null;
+  }
 
   return (
     <Tooltip.Provider delayDuration={0}>

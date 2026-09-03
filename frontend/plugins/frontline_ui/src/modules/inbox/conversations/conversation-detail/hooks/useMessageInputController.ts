@@ -9,6 +9,7 @@ import {
 import {
   hideMessageInputState,
   isInternalState,
+  isSlashMenuOpenState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -69,6 +70,7 @@ export const useMessageInputController = (conversationId: string) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
   const setOnlyInternal = useSetAtom(onlyInternalState);
+  const setSlashMenuOpen = useSetAtom(isSlashMenuOpenState);
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
@@ -112,6 +114,17 @@ export const useMessageInputController = (conversationId: string) => {
     },
     [],
   );
+
+  useEffect(() => {
+    const unsubscribe = editor.suggestionMenus.onUpdate('/', (state) => {
+      setSlashMenuOpen(state.show);
+    });
+
+    return () => {
+      unsubscribe();
+      setSlashMenuOpen(false);
+    };
+  }, [editor, setSlashMenuOpen]);
 
   useEffect(() => {
     if (!editor || !conversationId) return;
@@ -174,37 +187,43 @@ export const useMessageInputController = (conversationId: string) => {
   const handleChange = useCallback(async () => {
     if (restoringDraftRef.current) return;
     const editorBlocks = editor?.document || [];
-    const attachmentBlocks = editorBlocks.filter((block) =>
-      ATTACHMENT_BLOCK_TYPES.has(block.type),
+    const settledAttachmentBlocks = editorBlocks.filter(
+      (block) =>
+        ATTACHMENT_BLOCK_TYPES.has(block.type) &&
+        Boolean((block.props as Record<string, any>)?.url),
     );
     const textBlocks = editorBlocks.filter(
       (block) => !ATTACHMENT_BLOCK_TYPES.has(block.type),
     );
 
-    if (attachmentBlocks.length) {
-      const extractedAttachments = getBlockAttachments(attachmentBlocks);
-      setAttachments((current) => {
-        const urls = new Set(current.map((attachment) => attachment.url));
-        return [
-          ...current,
-          ...extractedAttachments.filter(
+    if (settledAttachmentBlocks.length) {
+      const extractedAttachments = getBlockAttachments(settledAttachmentBlocks);
+      if (extractedAttachments.length) {
+        setAttachments((current) => {
+          const urls = new Set(current.map((attachment) => attachment.url));
+          const additions = extractedAttachments.filter(
             (attachment) => !urls.has(attachment.url),
-          ),
-        ];
-      });
+          );
+          return additions.length ? [...current, ...additions] : current;
+        });
+      }
 
       window.clearTimeout(attachmentExtractionTimerRef.current);
       attachmentExtractionTimerRef.current = window.setTimeout(async () => {
         if (!editor) return;
 
         const currentBlocks = editor.document;
-        const blocksToRemove = currentBlocks.filter((block) =>
-          ATTACHMENT_BLOCK_TYPES.has(block.type),
+        const blocksToRemove = currentBlocks.filter(
+          (block) =>
+            ATTACHMENT_BLOCK_TYPES.has(block.type) &&
+            Boolean((block.props as Record<string, any>)?.url),
         );
         if (!blocksToRemove.length) return;
 
         const remainingBlocks = currentBlocks.filter(
-          (block) => !ATTACHMENT_BLOCK_TYPES.has(block.type),
+          (block) =>
+            !ATTACHMENT_BLOCK_TYPES.has(block.type) ||
+            !Boolean((block.props as Record<string, any>)?.url),
         );
 
         try {
@@ -221,10 +240,9 @@ export const useMessageInputController = (conversationId: string) => {
           );
           await editor.removeBlocks(blocksToRemove);
         } catch {
-          // Keep the block in the editor if its drag transaction is still
-          // active. A later change retries extraction without losing the file.
+          // Keep the block in the editor if a drag/upload transaction is still active
         }
-      }, 120);
+      }, 50);
     }
 
     setContent(editorBlocks.length ? (editorBlocks as Block[]) : undefined);
@@ -250,7 +268,7 @@ export const useMessageInputController = (conversationId: string) => {
     } else if (conversationId) {
       window.localStorage.removeItem(draftKey(conversationId));
     }
-  }, [conversationId, editor, pingAgentTyping]);
+  }, [conversationId, editor, pingAgentTyping, setAttachments]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;

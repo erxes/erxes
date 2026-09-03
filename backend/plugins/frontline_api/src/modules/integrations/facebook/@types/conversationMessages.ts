@@ -23,6 +23,17 @@ export interface IFacebookConversationMessage {
     content?: string;
     authorName?: string;
   };
+  messageKind?: string;
+  providerData?: {
+    messageId?: string;
+    attachmentType?: string;
+    storyUrl?: string;
+    fallbackReason?: string;
+    previewText?: string;
+    previewUrl?: string;
+    shareType?: 'post' | 'reel';
+  };
+  expiresAt?: Date;
   reactions?: Array<{ senderId: string; reaction: string; emoji?: string }>;
 }
 

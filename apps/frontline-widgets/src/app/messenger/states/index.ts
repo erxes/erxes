@@ -111,3 +111,10 @@ export const unreadNotificationCountAtom = atom<number>(0);
 export const isBotTypingAtom = atom<boolean>(false);
 
 export const notificationsAtom = atom<INotificationItem[]>([]);
+
+export type WidgetReplyTo = {
+  authorName: string;
+  content: string;
+} | null;
+
+export const widgetReplyToAtom = atom<WidgetReplyTo>(null);

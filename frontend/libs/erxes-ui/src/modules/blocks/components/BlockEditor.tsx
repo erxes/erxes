@@ -12,10 +12,79 @@ import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
 import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { KeyboardEvent, useState } from 'react';
+import { KeyboardEvent, useEffect, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
+
+const EDITOR_OVERRIDE_STYLE_ID = 'erxes-blocknote-media-overrides';
+
+const EDITOR_OVERRIDE_CSS = `
+.erxes-blocknote [data-file-block] .bn-add-file-button{
+  display: flex;
+  width: 100%;
+  min-height: 84px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  background-color: hsl(var(--muted) / 0.4);
+  border: 1px dashed hsl(var(--border));
+  border-radius: 12px;
+  color: hsl(var(--muted-foreground));
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.erxes-blocknote [data-file-block] .bn-add-file-button:hover{
+  background-color: hsl(var(--muted));
+  border-color: hsl(var(--primary) / 0.5);
+  color: hsl(var(--foreground));
+}
+.erxes-blocknote [data-file-block] .bn-add-file-button-icon{
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+.erxes-blocknote [data-file-block] .bn-add-file-button-icon svg{
+  width: 20px;
+  height: 20px;
+}
+.erxes-blocknote [data-file-block] .bn-add-file-button-text{
+  font-size: 13px;
+  font-weight: 500;
+}
+.erxes-blocknote [data-file-block] .bn-file-loading-preview{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 84px;
+  gap: 10px;
+  border-radius: 12px;
+  background-color: hsl(var(--muted) / 0.4);
+  border: 1px dashed hsl(var(--border));
+}
+.erxes-blocknote [data-file-block] .bn-visual-media-wrapper{
+  overflow: hidden;
+  border-radius: 12px;
+}
+.erxes-blocknote [data-file-block] .bn-visual-media{
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+.erxes-blocknote [data-file-block] .bn-file-name-with-icon{
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: hsl(var(--muted) / 0.4);
+  border: 1px solid hsl(var(--border));
+}
+`;
 
 const isEmptyBlock = (block?: any) =>
   !!block &&
@@ -41,6 +110,16 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
+
+  useEffect(() => {
+    const existing = document.getElementById(EDITOR_OVERRIDE_STYLE_ID);
+    if (!existing) {
+      const styleEl = document.createElement('style');
+      styleEl.id = EDITOR_OVERRIDE_STYLE_ID;
+      styleEl.textContent = EDITOR_OVERRIDE_CSS;
+      document.head.appendChild(styleEl);
+    }
+  }, []);
 
   const getSlashMenuItems = (query: string) => {
     const items = getDefaultReactSlashMenuItems(editor);
@@ -129,6 +208,7 @@ export const BlockEditor = ({
     <div
       onKeyDownCapture={handleKeyDownCapture}
       className={cn(
+        'erxes-blocknote',
         'transition-shadow',
         variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
@@ -166,6 +246,7 @@ export const BlockEditor = ({
           triggerCharacter="/"
           getItems={getSlashMenuItems}
           suggestionMenuComponent={SlashMenu}
+          floatingOptions={{ placement: 'top-start' }}
         />
         <Toolbar />
         {children}

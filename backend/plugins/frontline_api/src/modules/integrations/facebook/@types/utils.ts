@@ -112,6 +112,10 @@ export interface IChannelData {
     };
     reply_to?: {
       mid?: string;
+      story?: {
+        id?: string;
+        url?: string;
+      };
     };
     referral?: {
       source: string;

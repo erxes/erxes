@@ -1,4 +1,4 @@
-import { IconFile } from '@tabler/icons-react';
+import { IconDownload, IconFile } from '@tabler/icons-react';
 import { Dialog, cn, formatBytes, readImage } from 'erxes-ui';
 import { useState } from 'react';
 
@@ -143,30 +143,60 @@ function Attachment({
   }
   if (!isImage) {
     return (
-      <a
-        href={readImage(attachment.url)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          {
-            'col-span-2': length === 1,
-            'col-span-1': length !== 1,
-          },
-          'flex h-full w-full cursor-pointer items-center gap-3 rounded bg-accent px-3 py-2 no-underline hover:bg-accent/70',
-        )}
-      >
-        <IconFile className="size-8 shrink-0 text-muted-foreground" />
-        <div className="flex min-w-0 flex-col">
-          <span className="truncate text-sm font-medium text-primary">
-            {attachment.name || 'File'}
-          </span>
-          {Boolean(attachment.size) && (
-            <span className="text-xs text-muted-foreground">
-              {formatBytes(attachment.size)}
-            </span>
-          )}
-        </div>
-      </a>
+      <Dialog>
+        <Dialog.Trigger asChild>
+          <button
+            type="button"
+            className="group flex w-full min-w-44 max-w-xs cursor-pointer items-center gap-3 rounded-xl border border-border/70 bg-card px-3 py-2.5 text-left shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          >
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+              <IconFile className="size-5" />
+            </div>
+            <div className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-xs font-semibold text-foreground">
+                {attachment.name || 'File'}
+              </span>
+              {Boolean(attachment.size) && (
+                <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                  {formatBytes(attachment.size)} · Click to open
+                </span>
+              )}
+            </div>
+          </button>
+        </Dialog.Trigger>
+        <Dialog.Content className="max-w-sm rounded-2xl p-5">
+          <Dialog.Header>
+            <Dialog.Title className="truncate text-base">
+              {attachment.name || 'File'}
+            </Dialog.Title>
+          </Dialog.Header>
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+              <IconFile className="size-7" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                {attachment.name || 'Attachment'}
+              </p>
+              {Boolean(attachment.size) && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {formatBytes(attachment.size)}
+                </p>
+              )}
+            </div>
+            <a
+              href={readImage(attachment.url)}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+            >
+              <IconDownload className="size-3.5" />
+              Download file
+            </a>
+          </div>
+        </Dialog.Content>
+      </Dialog>
     );
   }
   return (

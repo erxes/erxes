@@ -331,6 +331,8 @@ export function OperatorMessage({
   isSingleMessage,
   attachments,
   userName,
+  onReply,
+  onCopy,
 }: {
   content: string;
   src?: string;
@@ -342,6 +344,8 @@ export function OperatorMessage({
   isSingleMessage?: boolean;
   attachments?: IAttachment[];
   userName?: string;
+  onReply?: () => void;
+  onCopy?: () => void;
 }) {
   // Group position travels as one object instead of four loose booleans.
   const position: MessagePosition = {
@@ -357,7 +361,7 @@ export function OperatorMessage({
     <Message align="start">
       {/* Tooltip scoped to the bubble row. Nothing interactive lives inside. */}
       <Message.TimestampTooltip date={createdAt}>
-        <Message.Row>
+        <Message.Row className="group/message relative">
           <Message.Avatar
             show={showAvatar}
             src={src || 'assets/user.webp'}
@@ -369,15 +373,22 @@ export function OperatorMessage({
             {(isFirstMessage || isSingleMessage) && userName && (
               <Message.Author>{userName}</Message.Author>
             )}
-            {hasContent && (
-              <Message.Content
-                variant="incoming"
-                position={position}
-                hasAttachments={hasAttachments}
-                html={content}
+            <div className="flex items-center gap-1">
+              {hasContent && (
+                <Message.Content
+                  variant="incoming"
+                  position={position}
+                  hasAttachments={hasAttachments}
+                  html={content}
+                />
+              )}
+              <Message.ItemActions
+                align="start"
+                onReply={onReply}
+                onCopy={onCopy}
               />
-            )}
-            <Message.Attachments attachments={attachments} />
+            </div>
+            <Message.Attachments attachments={attachments} align="start" />
             {(isLastMessage || isSingleMessage) && (
               <Message.Time align="start" date={createdAt} />
             )}
@@ -396,6 +407,8 @@ export const CustomerMessage = ({
   isLastMessage,
   isMiddleMessage,
   isSingleMessage,
+  onReply,
+  onCopy,
 }: {
   content?: string;
   createdAt: Date;
@@ -404,6 +417,8 @@ export const CustomerMessage = ({
   isLastMessage?: boolean;
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
+  onReply?: () => void;
+  onCopy?: () => void;
 }) => {
   const position: MessagePosition = {
     isFirstMessage,
@@ -418,16 +433,23 @@ export const CustomerMessage = ({
     // `align="end"` is where the old `isOwnMessage` branch now lives.
     <Message.TimestampTooltip date={createdAt} delayDuration={100}>
       <Message align="end">
-        <Message.Body align="end">
-          {hasContent && (
-            <Message.Content
-              variant="outgoing"
-              position={position}
-              hasAttachments={hasAttachments}
-              html={content}
+        <Message.Body align="end" className="group/message relative">
+          <div className="flex items-center gap-1 flex-row-reverse">
+            {hasContent && (
+              <Message.Content
+                variant="outgoing"
+                position={position}
+                hasAttachments={hasAttachments}
+                html={content}
+              />
+            )}
+            <Message.ItemActions
+              align="end"
+              onReply={onReply}
+              onCopy={onCopy}
             />
-          )}
-          <Message.Attachments attachments={attachments} />
+          </div>
+          <Message.Attachments attachments={attachments} align="end" />
         </Message.Body>
         {(isLastMessage || isSingleMessage) && (
           <Message.Time align="end" date={createdAt} />
@@ -508,6 +530,8 @@ export const BotMessage = ({
   onQuickReply,
   onGetStarted,
   onTicketFormSubmit,
+  onReply,
+  onCopy,
 }: {
   content?: string;
   botData?: any[];
@@ -523,6 +547,8 @@ export const BotMessage = ({
   onQuickReply?: (title: string) => void;
   onGetStarted?: () => void;
   onTicketFormSubmit?: (payload: Record<string, string>) => void;
+  onReply?: () => void;
+  onCopy?: () => void;
 }) => {
   const uiOptions = useAtomValue(uiOptionsAtom);
 
@@ -564,7 +590,7 @@ export const BotMessage = ({
           ticket form's inputs inside a tooltip trigger.
         */}
         <Message.TimestampTooltip date={createdAt}>
-          <Message.Row>
+          <Message.Row className="group/message relative">
             <Message.Avatar show={showAvatar} className="mb-4">
               <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                 <IconBrain size={20} aria-hidden="true" />
@@ -582,13 +608,20 @@ export const BotMessage = ({
                   </Badge>
                 </Message.Author>
               )}
-              {hasMessageContent(htmlContent) && (
-                <Message.Content
-                  variant="bot"
-                  position={position}
-                  html={htmlContent}
+              <div className="flex items-center gap-1">
+                {hasMessageContent(htmlContent) && (
+                  <Message.Content
+                    variant="bot"
+                    position={position}
+                    html={htmlContent}
+                  />
+                )}
+                <Message.ItemActions
+                  align="start"
+                  onReply={onReply}
+                  onCopy={onCopy}
                 />
-              )}
+              </div>
               {showTrailingSlots && (
                 <Message.Time align="start" date={createdAt} />
               )}

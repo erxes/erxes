@@ -128,6 +128,8 @@ export interface IMessage {
     attachmentType?: string;
     fallbackReason?: string;
     previewText?: string;
+    previewUrl?: string;
+    shareType?: 'post' | 'reel';
     storyUrl?: string;
     messageId?: string;
   };

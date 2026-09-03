@@ -1,8 +1,17 @@
-import { IconExternalLink, IconFile } from '@tabler/icons-react';
+import {
+  IconArrowBackUp,
+  IconCheck,
+  IconCopy,
+  IconDownload,
+  IconExternalLink,
+  IconFile,
+  IconShare3,
+  IconZoomIn,
+} from '@tabler/icons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
-import { Avatar, Button, cn, readImage, Tooltip } from 'erxes-ui';
+import { Avatar, Button, cn, Dialog, readImage, Tooltip } from 'erxes-ui';
 import { Slot } from 'radix-ui';
 import * as React from 'react';
 import { IAttachment } from '../types';
@@ -23,20 +32,16 @@ import { getAttachmentIcon } from './attachment-type';
  *   MessageContent  -> Message.Content   (`html` replaces `markdown`)
  *   MessageActions  -> Message.Actions
  *   MessageAction   -> Message.Action
- * Added because this widget needs them and prompt-kit has no equivalent:
+ *
+ * Additions:
  *   Message.Row, Message.Body, Message.Author, Message.Attachments,
  *   Message.Time, Message.Tooltip
- *
- * Every class string below is lifted verbatim from the previous inline markup
- * in `conversation.tsx`, so the rendered design tokens are unchanged.
  */
 
-/**
- * Position of a message inside its time/author group. Note these overlap: a
- * lone message in a group is simultaneously first, last and single. The radius
- * helpers below therefore preserve the *original* `cn()` ordering, because
- * tailwind-merge resolves the overlap by last-one-wins.
- */
+/* ------------------------------------------------------------------ types -- */
+
+export type MessageVariant = 'incoming' | 'outgoing' | 'bot';
+
 export type MessagePosition = {
   isFirstMessage?: boolean;
   isLastMessage?: boolean;
@@ -44,59 +49,40 @@ export type MessagePosition = {
   isSingleMessage?: boolean;
 };
 
-export type MessageVariant = 'incoming' | 'outgoing' | 'bot';
-
-const isImageAttachment = (url: string) =>
-  /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
-
-const formatRelativeTime = (date: Date): string => {
-  const now = new Date();
-  const minutes = differenceInMinutes(now, date);
-  if (minutes < 1) return 'just now';
-  if (minutes < 5) return 'few minutes ago';
-  if (minutes < 60) return `${minutes} minutes ago`;
-  const hours = differenceInHours(now, date);
-  if (hours < 24) return `${hours} hours ago`;
-  return format(date, 'MMM dd, yyyy, HH:mm');
-};
-
-/* ------------------------------------------------------------------ root -- */
+/* ------------------------------------------------------------------- root -- */
 
 const messageVariants = cva('flex flex-col', {
   variants: {
-    /** `align="end"` is the old `isOwnMessage` — the customer's own bubbles. */
     align: {
-      start: 'mr-auto max-w-[80%]',
-      end: 'items-end ml-auto max-w-[70%]',
+      start: 'items-start',
+      end: 'items-end ml-auto',
     },
   },
   defaultVariants: { align: 'start' },
 });
 
-export type MessageRootProps = React.ComponentProps<'div'> &
+export type MessageProps = React.ComponentProps<'div'> &
   VariantProps<typeof messageVariants> & { asChild?: boolean };
 
-/** forwardRef is required: Radix `Tooltip.Trigger asChild` hands a ref down,
- *  and this project is on React 18 where ref-as-prop does not apply. */
-const MessageRoot = React.forwardRef<HTMLDivElement, MessageRootProps>(
-  ({ className, align = 'start', asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot.Root : 'div';
+function MessageRoot({
+  className,
+  align = 'start',
+  asChild = false,
+  ...props
+}: MessageProps) {
+  const Comp = asChild ? Slot.Root : 'div';
+  return (
+    <Comp
+      data-slot="message"
+      data-align={align}
+      className={cn(messageVariants({ align, className }))}
+      {...props}
+    />
+  );
+}
 
-    return (
-      <Comp
-        ref={ref}
-        data-slot="message"
-        data-align={align}
-        className={cn(messageVariants({ align, className }))}
-        {...props}
-      />
-    );
-  },
-);
-MessageRoot.displayName = 'Message';
+/* ----------------------------------------------------------- row and body -- */
 
-/** Avatar + body row. Kept separate from the root so that action rows can sit
- *  outside it — which is what keeps them out of the tooltip trigger. */
 const MessageRow = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'>
@@ -181,19 +167,18 @@ function MessageAvatar({
       data-slot="message-avatar"
       className={cn('size-8 shrink-0', className)}
     >
-      <Avatar.Image
-        src={readImage(src)}
-        className="shrink-0 object-cover"
-        alt={alt}
-      />
-      <Avatar.Fallback className="bg-background">{fallback}</Avatar.Fallback>
+      <Avatar.Image src={readImage(src)} alt={alt} />
+      <Avatar.Fallback>{fallback}</Avatar.Fallback>
     </Avatar>
   );
 }
 
 /* ---------------------------------------------------------------- author -- */
 
-function MessageAuthor({ className, ...props }: React.ComponentProps<'span'>) {
+function MessageAuthor({
+  className,
+  ...props
+}: React.ComponentProps<'span'>) {
   return (
     <span
       data-slot="message-author"
@@ -224,10 +209,6 @@ const messageContentVariants = cva(
   },
 );
 
-/**
- * Corner-radius + shadow rules, transcribed 1:1 from the previous inline
- * `cn()` chains. Order is significant — do not "tidy" these into a switch.
- */
 function bubbleRadius(
   variant: MessageVariant,
   position: MessagePosition,
@@ -237,7 +218,6 @@ function bubbleRadius(
     position;
 
   if (variant === 'bot') {
-    // The bot bubble never renders attachments, so there is no attached case.
     return cn(
       isSingleMessage && 'rounded-2xl rounded-bl-sm shadow-sm',
       isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
@@ -284,6 +264,58 @@ function bubbleRadius(
   );
 }
 
+type ParsedMessageContent = {
+  reply?: {
+    author: string;
+    preview: string;
+  };
+  isForwarded?: boolean;
+  cleanHtml: string;
+};
+
+export function parseQuotedMessage(html?: string): ParsedMessageContent {
+  if (!html) return { cleanHtml: '' };
+
+  let cleanHtml = html;
+  let reply: { author: string; preview: string } | undefined;
+  let isForwarded = false;
+
+  const replyMatch = cleanHtml.match(
+    /^<blockquote><strong>Replying to(?:\s+([^<]+))?<\/strong><br\s*\/?>([\s\S]*?)<\/blockquote>/i,
+  );
+
+  if (replyMatch) {
+    const rawAuthor = replyMatch[1]?.trim() || 'Replying to a message';
+    const preview = replyMatch[2]
+      ? replyMatch[2].replace(/<[^<>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      : '';
+    reply = {
+      author: rawAuthor.startsWith('Replying to')
+        ? rawAuthor
+        : `Replying to ${rawAuthor}`,
+      preview,
+    };
+    cleanHtml = cleanHtml.slice(replyMatch[0].length).trim();
+  }
+
+  const forwardMatch = cleanHtml.match(
+    /^<blockquote><strong>Forwarded message<\/strong><br\s*\/?>([\s\S]*?)<\/blockquote>/i,
+  );
+
+  if (forwardMatch) {
+    isForwarded = true;
+    cleanHtml = cleanHtml.slice(forwardMatch[0].length).trim();
+  } else if (/^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)/i.test(cleanHtml)) {
+    isForwarded = true;
+    cleanHtml = cleanHtml.replace(
+      /^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)*/i,
+      '<p>',
+    );
+  }
+
+  return { reply, isForwarded, cleanHtml };
+}
+
 export type MessageContentProps = Omit<
   React.ComponentProps<'div'>,
   'dangerouslySetInnerHTML' | 'children'
@@ -291,11 +323,6 @@ export type MessageContentProps = Omit<
   variant?: MessageVariant;
   position?: MessagePosition;
   hasAttachments?: boolean;
-  /**
-   * Replaces prompt-kit's `markdown` prop. The API returns HTML, so this
-   * sanitises with DOMPurify rather than pulling in a markdown renderer.
-   * Mutually exclusive with `children`.
-   */
   html?: string;
   children?: React.ReactNode;
 };
@@ -316,13 +343,64 @@ function MessageContent({
   );
 
   if (html !== undefined) {
+    const { reply, isForwarded, cleanHtml } = parseQuotedMessage(html);
+    const sanitizedHtml = DOMPurify.sanitize(cleanHtml);
+
     return (
       <div
         data-slot="message-content"
-        className={classNames}
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+        className={cn(classNames, (reply || isForwarded) && 'p-0 overflow-hidden')}
         {...props}
-      />
+      >
+        {reply && (
+          <div
+            className={cn(
+              'flex items-center gap-2 border-b px-3 py-2 text-left text-xs transition-colors w-full',
+              variant === 'outgoing'
+                ? 'border-primary-foreground/20 bg-primary-foreground/15 text-primary-foreground'
+                : 'border-border/60 bg-muted/60 text-muted-foreground',
+            )}
+          >
+            <IconArrowBackUp className="size-3.5 shrink-0 opacity-80" />
+            <div className="min-w-0 flex-1">
+              <div
+                className={cn(
+                  'font-medium truncate',
+                  variant === 'outgoing'
+                    ? 'text-primary-foreground'
+                    : 'text-foreground',
+                )}
+              >
+                {reply.author}
+              </div>
+              {reply.preview && (
+                <div className="truncate text-[11px] opacity-80">
+                  {reply.preview}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {isForwarded && (
+          <div
+            className={cn(
+              'flex items-center gap-1.5 border-b px-3 py-1.5 text-left text-xs font-medium w-full',
+              variant === 'outgoing'
+                ? 'border-primary-foreground/20 bg-primary-foreground/15 text-primary-foreground/90'
+                : 'border-border/60 bg-muted/60 text-muted-foreground',
+            )}
+          >
+            <IconShare3 className="size-3.5 shrink-0" />
+            <span>Forwarded</span>
+          </div>
+        )}
+        {Boolean(sanitizedHtml) && (
+          <div
+            className={cn('w-full', (reply || isForwarded) && 'px-3 py-2')}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          />
+        )}
+      </div>
     );
   }
 
@@ -333,128 +411,174 @@ function MessageContent({
   );
 }
 
-/** `true` when the API sent an empty rich-text document. */
-export const hasMessageContent = (content?: string | null): content is string =>
-  !!content && content !== '<p></p>';
+export const hasMessageContent = (
+  content?: string | null,
+): content is string => {
+  if (!content) return false;
+  if (/<blockquote[\s\S]*?<\/blockquote>/i.test(content)) return true;
+  return Boolean(
+    content.replace(/<[^>]*>/g, '').replace(/\s|&nbsp;/g, ''),
+  );
+};
 
 /* ----------------------------------------------------------- attachments -- */
 
-const attachmentVariants = cva('overflow-hidden aspect-square', {
-  variants: {
-    variant: {
-      incoming: 'bg-background',
-      bot: 'bg-background',
-      outgoing: 'bg-accent',
-    },
-  },
-  defaultVariants: { variant: 'incoming' },
-});
-
-const attachmentLinkVariants = cva(
-  'flex flex-col items-center gap-0.5 px-3 py-2 transition-colors truncate',
-  {
-    variants: {
-      variant: {
-        incoming: 'hover:bg-accent/50',
-        bot: 'hover:bg-accent/50',
-        outgoing: 'hover:bg-accent/70',
-      },
-    },
-    defaultVariants: { variant: 'incoming' },
-  },
-);
-
 export type MessageAttachmentsProps = {
   attachments?: IAttachment[];
+  align?: 'start' | 'end';
 };
 
-function MessageAttachments({ attachments }: MessageAttachmentsProps) {
+function MessageAttachments({
+  attachments,
+  align = 'start',
+}: MessageAttachmentsProps) {
   if (!attachments?.length) return null;
 
-  if (attachments?.length > 2) {
-    return (
-      <div data-slot="message-attachments" className="max-w-72">
-        <Attachment.Group className="border pt-2 px-3 pb-0 rounded-2xl hide-scroll styled-scroll">
-          {attachments.map((attachment, index) => {
-            const fileType = getAttachmentType(
-              attachment.type,
-              attachment.name,
-            );
-            const IconComponent = getAttachmentIcon(fileType);
-            return (
-              <Attachment
-                key={`${attachment.url}-${index}`}
-                orientation={'vertical'}
-              >
-                {attachment.type?.startsWith('image') ? (
-                  <Attachment.Media variant={'image'}>
-                    <img
-                      src={readImage(attachment.url)}
-                      alt={attachment.name}
-                    />
-                  </Attachment.Media>
-                ) : (
-                  <Attachment.Media>
-                    <IconComponent />
-                  </Attachment.Media>
-                )}
-                <Attachment.Content>
-                  <Attachment.Title>{attachment.name}</Attachment.Title>
-                  <Attachment.Description>
-                    {getAttachmentType(attachment.type, attachment.name)} ·{' '}
-                    {formatFileSize(attachment?.size || 0)}
-                  </Attachment.Description>
-                </Attachment.Content>
-                <Attachment.Trigger asChild>
-                  <a
-                    href={readImage(attachment.url)}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`Open ${attachment.name}`}
-                  />
-                </Attachment.Trigger>
-              </Attachment>
-            );
-          })}
-        </Attachment.Group>
-      </div>
-    );
-  }
   return (
-    <div data-slot="message-attachments" className="space-y-1">
+    <div
+      data-slot="message-attachments"
+      className={cn(
+        'flex flex-col gap-1.5 mt-1 w-full',
+        align === 'end' ? 'items-end' : 'items-start',
+      )}
+    >
       {attachments.map((attachment, index) => {
         const fileType = getAttachmentType(attachment.type, attachment.name);
         const IconComponent = getAttachmentIcon(fileType);
+        const isImage = attachment.type?.startsWith('image');
+        const isVideo = attachment.type?.startsWith('video');
+        const isAudio = attachment.type?.startsWith('audio');
+        const key = `${attachment.url}-${index}`;
+
+        if (isImage) {
+          return (
+            <Dialog key={key}>
+              <Dialog.Trigger asChild>
+                <button
+                  type="button"
+                  className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                >
+                  <img
+                    src={readImage(attachment.url)}
+                    alt={attachment.name || 'Photo'}
+                    loading="lazy"
+                    className="max-h-64 w-full rounded-2xl object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+                      <IconZoomIn className="size-3.5" />
+                      <span>Click to preview</span>
+                    </span>
+                  </div>
+                </button>
+              </Dialog.Trigger>
+              <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+                <img
+                  src={readImage(attachment.url)}
+                  alt={attachment.name || 'Photo preview'}
+                  className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+                />
+              </Dialog.Content>
+            </Dialog>
+          );
+        }
+
+        if (isVideo) {
+          return (
+            <Dialog key={key}>
+              <Dialog.Trigger asChild>
+                <button
+                  type="button"
+                  className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                >
+                  <video
+                    src={readImage(attachment.url)}
+                    muted
+                    className="max-h-40 w-full rounded-xl object-contain"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+                      <IconZoomIn className="size-3.5" />
+                      <span>Play video</span>
+                    </span>
+                  </div>
+                </button>
+              </Dialog.Trigger>
+              <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+                <video
+                  src={readImage(attachment.url)}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+                />
+              </Dialog.Content>
+            </Dialog>
+          );
+        }
+
+        if (isAudio) {
+          return (
+            <audio
+              key={key}
+              src={readImage(attachment.url)}
+              controls
+              className="w-full min-w-56"
+            />
+          );
+        }
+
         return (
-          <Attachment
-            key={`${attachment.url}-${index}`}
-            className="place-self-end"
-          >
-            {attachment.type?.startsWith('image') ? (
-              <Attachment.Media variant={'image'}>
-                <img src={readImage(attachment.url)} alt={attachment.name} />
-              </Attachment.Media>
-            ) : (
-              <Attachment.Media>
-                <IconComponent />
-              </Attachment.Media>
-            )}
-            <Attachment.Content>
-              <Attachment.Title>{attachment.name}</Attachment.Title>
-              <Attachment.Description>
-                {getAttachmentType(attachment.type)} ·{' '}
-                {formatFileSize(attachment?.size || 0)}
-              </Attachment.Description>
-            </Attachment.Content>
-            <Attachment.Trigger asChild>
-              <a
-                href={readImage(attachment.url)}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Open ${attachment.name}`}
-              />
-            </Attachment.Trigger>
-          </Attachment>
+          <Dialog key={key}>
+            <Dialog.Trigger asChild>
+              <button
+                type="button"
+                className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              >
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+                  <IconComponent className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1 leading-tight">
+                  <span className="block truncate text-xs font-semibold">
+                    {attachment.name || 'File'}
+                  </span>
+                  <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                    {formatFileSize(attachment?.size || 0) || 'Attachment'} · Click to preview
+                  </span>
+                </div>
+              </button>
+            </Dialog.Trigger>
+            <Dialog.Content className="max-w-sm rounded-2xl p-5">
+              <Dialog.Header>
+                <Dialog.Title className="truncate text-base">
+                  {attachment.name || 'File'}
+                </Dialog.Title>
+              </Dialog.Header>
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+                  <IconComponent className="size-7" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-foreground">
+                    {attachment.name || 'Attachment'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {formatFileSize(attachment?.size || 0)}
+                  </p>
+                </div>
+                <a
+                  href={readImage(attachment.url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+                >
+                  <IconDownload className="size-3.5" />
+                  Download file
+                </a>
+              </div>
+            </Dialog.Content>
+          </Dialog>
         );
       })}
     </div>
@@ -462,6 +586,17 @@ function MessageAttachments({ attachments }: MessageAttachmentsProps) {
 }
 
 /* ------------------------------------------------------------------ time -- */
+
+const formatRelativeTime = (date: Date): string => {
+  const now = new Date();
+  const minutes = differenceInMinutes(now, date);
+  if (minutes < 1) return 'just now';
+  if (minutes < 5) return 'few minutes ago';
+  if (minutes < 60) return `${minutes} minutes ago`;
+  const hours = differenceInHours(now, date);
+  if (hours < 24) return `${hours} hours ago`;
+  return format(date, 'MMM dd, yyyy, HH:mm');
+};
 
 const messageTimeVariants = cva('text-[10px] text-muted-foreground mt-0.5', {
   variants: {
@@ -565,6 +700,71 @@ function MessageActions({ className, ...props }: React.ComponentProps<'div'>) {
 /** prompt-kit's `MessageAction`: an interactive control plus its tooltip. */
 const MessageAction = MessageTooltip;
 
+export type MessageItemActionsProps = {
+  onReply?: () => void;
+  onCopy?: () => void;
+  align?: 'start' | 'end';
+};
+
+export function MessageItemActions({
+  onReply,
+  onCopy,
+  align = 'start',
+}: MessageItemActionsProps) {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = () => {
+    onCopy?.();
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
+
+  if (!onReply && !onCopy) return null;
+
+  return (
+    <div
+      className={cn(
+        'opacity-0 group-hover/message:opacity-100 focus-within:opacity-100 transition-opacity duration-150 flex items-center gap-0.5 rounded-lg border border-border/60 bg-background/95 p-0.5 shadow-2xs backdrop-blur-xs shrink-0 self-center',
+        align === 'end' ? 'mr-1' : 'ml-1',
+      )}
+    >
+      {onReply && (
+        <MessageTooltip label="Reply">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onReply}
+            className="size-6 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Reply"
+          >
+            <IconArrowBackUp className="size-3.5" />
+          </Button>
+        </MessageTooltip>
+      )}
+      {onCopy && (
+        <MessageTooltip label={copied ? 'Copied!' : 'Copy'}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={handleCopy}
+            className="size-6 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Copy"
+          >
+            {copied ? (
+              <IconCheck className="size-3.5 text-primary" />
+            ) : (
+              <IconCopy className="size-3.5" />
+            )}
+          </Button>
+        </MessageTooltip>
+      )}
+
+    </div>
+  );
+}
+
 /* ---------------------------------------------------------------- export -- */
 
 export const Message = Object.assign(MessageRoot, {
@@ -579,4 +779,5 @@ export const Message = Object.assign(MessageRoot, {
   TimestampTooltip: MessageTimestampTooltip,
   Actions: MessageActions,
   Action: MessageAction,
+  ItemActions: MessageItemActions,
 });

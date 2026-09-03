@@ -29,7 +29,10 @@ export const GET_CONVERSATION_MESSAGES = gql`
       internal
       botData
       source
+      messageKind
+      providerData
       replyTo
+      expiresAt
       reactions
       relatedMessage
       attachments {
