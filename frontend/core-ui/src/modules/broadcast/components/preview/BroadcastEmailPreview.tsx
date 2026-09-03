@@ -6,14 +6,9 @@ import { BroadcastEmailEditor } from '../BroadcastEmailEditor';
 import { BroadcastInsertTemplate } from '../BroadcastInsertTemplate';
 
 export const BroadcastEmailPreview = () => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
+  const { control } = useFormContext();
 
   const [editor, setEditor] = useState<TiptapEditor>();
-
-  const hasError = !!errors?.email;
 
   return (
     <div className="h-full flex flex-col gap-3">
@@ -22,16 +17,7 @@ export const BroadcastEmailPreview = () => {
           <BroadcastInsertTemplate editor={editor} />
         </div>
       )}
-      <div
-        className={`
-          bg-white overflow-y-auto rounded-xl h-full px-6 py-6 border border-gray-200 transition-all duration-300
-          ${
-            hasError
-              ? 'shadow-[0_0_15px_rgba(239,68,68,0.5)]'
-              : 'shadow-sm hover:shadow-md'
-          }
-        `}
-      >
+      <div className="h-full overflow-y-auto">
         <Form.Field
           name="email.contentJson"
           control={control}
