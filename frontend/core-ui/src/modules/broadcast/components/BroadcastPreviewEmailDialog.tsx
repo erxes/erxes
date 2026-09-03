@@ -8,7 +8,7 @@ import { BROADCAST_RENDER_PREVIEW } from '../graphql/queries';
 export const BroadcastPreviewEmailDialog = () => {
   const { getValues } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const [fetchPreview, { data, loading }] = useLazyQuery(
+  const [fetchPreview, { data, loading, error }] = useLazyQuery(
     BROADCAST_RENDER_PREVIEW,
   );
 
@@ -39,7 +39,11 @@ export const BroadcastPreviewEmailDialog = () => {
         <Dialog.Header>
           <Dialog.Title>{t('previewEmail')}</Dialog.Title>
         </Dialog.Header>
-        {loading ? null : (
+        {loading ? null : error ? (
+          <div className="flex-1 flex items-center justify-center text-sm text-destructive p-6 text-center">
+            {error.message}
+          </div>
+        ) : (
           <EmailPreviewFrame
             html={data?.engageMessageRenderPreview || ''}
             className="flex-1"

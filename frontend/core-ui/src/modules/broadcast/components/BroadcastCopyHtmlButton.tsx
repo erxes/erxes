@@ -14,12 +14,17 @@ export const BroadcastCopyHtmlButton = () => {
   const handleClick = async () => {
     const { email } = getValues();
 
-    const { data } = await fetchHtml({
+    const { data, error } = await fetchHtml({
       variables: {
         contentJson: email?.contentJson,
         previewText: email?.previewText,
       },
     });
+
+    if (error) {
+      toast({ variant: 'destructive', title: error.message });
+      return;
+    }
 
     const html = data?.engageMessageRenderPreview;
 
