@@ -22,7 +22,7 @@ export const BroadcastSubjectField = () => {
               <Input
                 {...field}
                 placeholder={t('subject')}
-                className="border-none shadow-none px-0 focus-visible:ring-0"
+                className="border-none shadow-none px-2 focus-visible:ring-0"
               />
             </Form.Control>
             <Form.Message />

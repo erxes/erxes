@@ -70,7 +70,7 @@ export const BroadcastFromField = () => {
                   <Input
                     {...field}
                     placeholder="Sales team"
-                    className="border-none shadow-none px-0 focus-visible:ring-0"
+                    className="border-none shadow-none px-2 focus-visible:ring-0"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -97,7 +97,7 @@ export const BroadcastFromField = () => {
                     <Input
                       {...field}
                       placeholder="sales@yourdomain.com"
-                      className="border-none shadow-none px-0 focus-visible:ring-0"
+                      className="border-none shadow-none px-2 focus-visible:ring-0"
                     />
                   </Form.Control>
                   <Form.Message />

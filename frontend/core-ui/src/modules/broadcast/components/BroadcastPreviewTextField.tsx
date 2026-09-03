@@ -22,7 +22,7 @@ export const BroadcastPreviewTextField = () => {
               <Input
                 {...field}
                 placeholder={t('previewText')}
-                className="border-none shadow-none px-0 focus-visible:ring-0"
+                className="border-none shadow-none px-2 focus-visible:ring-0"
               />
             </Form.Control>
           </Form.Item>
