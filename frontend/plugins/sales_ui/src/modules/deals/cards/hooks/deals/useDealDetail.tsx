@@ -47,20 +47,14 @@ export const useDealDetail = (
   });
 
   useEffect(() => {
-    if (!salesItemId) return;
+    if (!finalId) return;
 
     const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
       document: PRODUCTS_DATA_CHANGED,
-      variables: { _id: salesItemId },
+      variables: { _id: finalId },
       updateQuery: (prev, { subscriptionData }) => {
         const payload = subscriptionData?.data?.salesProductsDataChanged;
         if (!payload) return prev;
-
-        const { processId } = payload;
-
-        if (processId === localStorage.getItem('processId')) {
-          return prev;
-        }
 
         refetch();
 
@@ -69,7 +63,7 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-  }, [refetch, salesItemId, subscribeToMore]);
+  }, [finalId, refetch, subscribeToMore]);
 
   useEffect(() => {
     if (!finalId) return;
@@ -159,7 +153,7 @@ export const useDealDetail = (
       return;
     }
 
-    if (currentDeal?._id === finalId && currentDeal.pipeline) {
+    if (currentDeal?._id === finalId && currentDeal?.pipeline) {
       lastCompleteDealRef.current = currentDeal;
       return;
     }
