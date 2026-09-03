@@ -6,6 +6,8 @@ import {
 
 export const PAGE_STYLE_ID = 'erxes-page-size';
 
+const CONTINUOUS_PAGE_HEIGHT_SAFETY_MM = 1;
+
 export const paper = (size: string, orientation: 'portrait' | 'landscape') => {
   const BASE_SIZE = PAPER_SIZES[size] || PAPER_SIZES.A4;
 
@@ -227,7 +229,8 @@ export const syncPageHeight = (iframe: HTMLIFrameElement, config: any) => {
 
   const paperHeight = Math.max(
     1,
-    Math.ceil(content.getBoundingClientRect().height / PX_PER_MM),
+    Math.ceil(content.getBoundingClientRect().height / PX_PER_MM) +
+      CONTINUOUS_PAGE_HEIGHT_SAFETY_MM,
   );
 
   style.textContent = `@page { size: ${width}mm ${paperHeight}mm; margin: 0; }`;
