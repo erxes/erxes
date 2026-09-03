@@ -1,4 +1,18 @@
+# Changelog
 
+## [3.0.98](https://github.com/erxes/erxes/compare/3.0.97...3.0.98) (2026-09-03)
+
+
+### Bug Fixes
+
+* add branch and department relation property types ([#9188](https://github.com/erxes/erxes/issues/9188)) ([e4e16ee](https://github.com/erxes/erxes/commit/e4e16eedc6934582a934b1f94f25289a39514984))
+* gallery images not loading ([#9080](https://github.com/erxes/erxes/issues/9080)) ([641efbc](https://github.com/erxes/erxes/commit/641efbcbc903f273c66439bff7c421c2dc3d8e92))
+* restore the string list property type ([#9197](https://github.com/erxes/erxes/issues/9197)) ([f703aac](https://github.com/erxes/erxes/commit/f703aacc345e1d5adf35682fb92efac90c961d3c))
+
+
+### Features
+
+* **payment:** update Pocket payment api integration ([#9154](https://github.com/erxes/erxes/issues/9154)) ([7161482](https://github.com/erxes/erxes/commit/7161482df4b9a767e3a3b9c28a22a6a65dd9b407))
 
 ## [3.0.97](https://github.com/erxes/erxes/compare/3.0.96...3.0.97) (2026-09-02)
 
@@ -221,7 +235,7 @@
 
 * (accounting) related accounts ([#9043](https://github.com/erxes/erxes/issues/9043)) ([577c4b8](https://github.com/erxes/erxes/commit/577c4b828cb6c0892adfb5f1a8f241f654ab2b12))
 
-# Changelog
+
 
 ## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
 
