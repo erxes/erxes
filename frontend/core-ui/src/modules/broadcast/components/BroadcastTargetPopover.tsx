@@ -17,6 +17,7 @@ export const BroadcastTargetPopover = () => {
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   const targetType: 'tag' | 'segment' | 'brand' = watch('targetType');
+  const targetIds: string[] = watch('targetIds');
   const targetCount = watch('targetCount');
 
   const TargetContent = BROADCAST_TARGET_CONTENT[targetType];
@@ -33,8 +34,8 @@ export const BroadcastTargetPopover = () => {
             type="button"
             className="flex-1 text-left text-sm text-muted-foreground hover:text-foreground py-1"
           >
-            {targetCount
-              ? t('recipientsCount', { count: targetCount })
+            {targetIds?.length
+              ? t('recipientsCount', { count: targetCount || 0 })
               : t('selectRecipients')}
           </button>
         </Popover.Trigger>

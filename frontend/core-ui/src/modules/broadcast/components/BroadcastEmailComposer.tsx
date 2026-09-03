@@ -1,6 +1,7 @@
 import { useBroadcastAdd } from '@/broadcast/hooks/useBroadcastAdd';
 import { useBroadcastForm } from '@/broadcast/hooks/useBroadcastForm';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
+import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import {
   Button,
   Separator,
@@ -82,52 +83,54 @@ export const BroadcastEmailComposer = ({
 
   return (
     <FormProvider {...form}>
-      <Sheet.Header>
-        <BroadcastTitleInput />
-        <Sheet.Close />
-      </Sheet.Header>
+      <EmailSenderScopeProvider scope="broadcast">
+        <Sheet.Header>
+          <BroadcastTitleInput />
+          <Sheet.Close />
+        </Sheet.Header>
 
-      <Sheet.Content className="flex flex-col overflow-hidden">
-        <div className="flex items-center gap-2 px-5 py-3">
-          <BroadcastComposerSettings />
-          <BroadcastPreviewEmailDialog />
-          <BroadcastCopyHtmlButton />
-          <BroadcastSendTestEmail variant="ghost" />
-        </div>
+        <Sheet.Content className="flex flex-col overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-3">
+            <BroadcastComposerSettings />
+            <BroadcastPreviewEmailDialog />
+            <BroadcastCopyHtmlButton />
+            <BroadcastSendTestEmail variant="ghost" />
+          </div>
 
-        <Separator />
+          <Separator />
 
-        <div className="flex flex-col gap-5 px-5 py-6">
-          <BroadcastSubjectField />
-          <BroadcastFromField />
-          <BroadcastTargetPopover />
-        </div>
+          <div className="flex flex-col gap-5 px-5 py-6">
+            <BroadcastSubjectField />
+            <BroadcastFromField />
+            <BroadcastTargetPopover />
+          </div>
 
-        <Separator />
+          <Separator />
 
-        <div className="px-5 py-4">
-          <BroadcastPreviewTextField />
-        </div>
+          <div className="px-5 py-4">
+            <BroadcastPreviewTextField />
+          </div>
 
-        <Separator />
+          <Separator />
 
-        <div className="flex-1 min-h-0 overflow-hidden px-5 py-4">
-          <BroadcastEmailPreview />
-        </div>
-      </Sheet.Content>
+          <div className="flex-1 min-h-0 overflow-hidden px-5 py-4">
+            <BroadcastEmailPreview />
+          </div>
+        </Sheet.Content>
 
-      <Sheet.Footer>
-        <Button onClick={handleClose} variant="secondary" type="button">
-          {t('cancel')}
-        </Button>
-        <BroadcastSaveAsTemplate />
-        <Button onClick={() => handleSave('draft')} type="button">
-          {t('saveDraft')}
-        </Button>
-        <Button onClick={() => handleSave('live')} type="button">
-          {t('saveLive')}
-        </Button>
-      </Sheet.Footer>
+        <Sheet.Footer>
+          <Button onClick={handleClose} variant="secondary" type="button">
+            {t('cancel')}
+          </Button>
+          <BroadcastSaveAsTemplate />
+          <Button onClick={() => handleSave('draft')} type="button">
+            {t('saveDraft')}
+          </Button>
+          <Button onClick={() => handleSave('live')} type="button">
+            {t('saveLive')}
+          </Button>
+        </Sheet.Footer>
+      </EmailSenderScopeProvider>
     </FormProvider>
   );
 };
