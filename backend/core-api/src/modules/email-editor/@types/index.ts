@@ -8,4 +8,6 @@ export interface RenderEmailHtmlOptions {
   variables?: Record<string, string>;
   /** Payload values for Repeat/Show If blocks, keyed by payload key. */
   payloads?: Record<string, PayloadValue>;
+  /** Inbox preview snippet, shown right after the subject line. */
+  previewText?: string;
 }

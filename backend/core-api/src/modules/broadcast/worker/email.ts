@@ -156,6 +156,7 @@ export const handleEmailProcessor = async (payload) => {
                   engageMessage.email.contentJson,
                   customer,
                 ),
+                previewText: engageMessage.email.previewText,
               },
             );
 

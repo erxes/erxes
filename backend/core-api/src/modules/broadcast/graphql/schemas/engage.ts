@@ -130,6 +130,7 @@ export const types = `
     subject: String!,
     replyTo: String,
     sender: String,
+    previewText: String,
     attachments: [JSON]
   }
 
@@ -229,7 +230,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  engageMessageRenderPreview(contentJson: JSON!): String
+  engageMessageRenderPreview(contentJson: JSON!, previewText: String): String
   engageMessages(${queryParams}): EngageMessageListResponse
   engageMessagesTotalCount(${queryParams}): Int
   engageMessageDetail(_id: String): EngageMessage
@@ -279,7 +280,7 @@ export const mutations = `
     scope: String
   ): String
   engageMessageRemoveVerifiedEmail(email: String!, scope: String): String
-  engageMessageSendTestEmail(from: String!, to: String!, content: String, contentJson: JSON, title: String!): String
+  engageMessageSendTestEmail(from: String!, to: String!, content: String, contentJson: JSON, previewText: String, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
   broadcastUpdateConfigs(configsMap: JSON!): JSON
 

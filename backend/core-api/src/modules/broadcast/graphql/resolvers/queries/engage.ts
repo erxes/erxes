@@ -105,9 +105,9 @@ export const engageQueries = {
    */
   async engageMessageRenderPreview(
     _root: undefined,
-    { contentJson }: { contentJson: JSONContent },
+    { contentJson, previewText }: { contentJson: JSONContent; previewText?: string },
   ) {
-    return renderEmailHtml(contentJson);
+    return renderEmailHtml(contentJson, { previewText });
   },
 
   /**

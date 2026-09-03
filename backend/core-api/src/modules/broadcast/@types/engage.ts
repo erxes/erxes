@@ -11,6 +11,7 @@ interface IEmail {
   contentJson?: JSONContent;
   replyTo?: string;
   sender?: string;
+  previewText?: string;
 }
 
 interface IEmailDocument extends IEmail, Document {}

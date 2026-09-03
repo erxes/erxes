@@ -188,11 +188,12 @@ export const engageMutations = {
       to: string;
       content?: string;
       contentJson?: JSONContent;
+      previewText?: string;
       title: string;
     },
     { subdomain, models }: IContext,
   ) {
-    const { content, contentJson, from, to, title } = args;
+    const { content, contentJson, previewText, from, to, title } = args;
 
     if (!((content || contentJson) && from && to && title)) {
       throw new Error(
@@ -221,6 +222,7 @@ export const engageMutations = {
           contentJson,
           targetUser || fromUser || {},
         ),
+        previewText,
       });
     } else {
       const attributeUtil = await getEditorAttributeUtil(subdomain);

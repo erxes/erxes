@@ -11,9 +11,13 @@ export const renderEmailHtml = async (
   contentJson: JSONContent,
   options: RenderEmailHtmlOptions = {},
 ): Promise<string> => {
-  const { variables = {}, payloads = {} } = options;
+  const { variables = {}, payloads = {}, previewText } = options;
 
   const maily = new Maily(contentJson);
+
+  if (previewText) {
+    maily.setPreviewText(previewText);
+  }
 
   for (const [name, value] of Object.entries(variables)) {
     maily.setVariableValue(name, value ?? '');
