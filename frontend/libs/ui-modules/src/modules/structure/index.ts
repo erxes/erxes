@@ -1,3 +1,7 @@
+export * from './components/BranchBadge';
+export * from './components/BranchesInline';
+export * from './components/DepartmentBadge';
+export * from './components/DepartmentsInline';
 export * from './components/SelectBranches';
 export * from './components/SelectDepartments';
 export * from './components/SelectUnit';

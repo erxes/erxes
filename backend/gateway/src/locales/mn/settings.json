@@ -161,6 +161,8 @@
       "core-company": "Компаниуд",
       "core-product": "Бүтээгдэхүүн / Үйлчилгээ",
       "core-user": "Багийн гишүүн",
+      "core-branch": "Салбарууд",
+      "core-department": "Хэлтсүүд",
       "sales-deal": "Борлуулалтын урсгал"
     },
     "add-group": "Бүлэг нэмэх",
