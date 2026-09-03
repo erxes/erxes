@@ -4,7 +4,11 @@ import {
   updateConfigs,
 } from '@/integrations/facebook/helpers';
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
-import { sendReply } from '@/integrations/facebook/utils';
+import { graphRequest, sendReply } from '@/integrations/facebook/utils';
+import {
+  facebookAccountSelector,
+  resolveFacebookApp,
+} from '@/integrations/facebook/commonUtils';
 import {
   ICreatePostArgs,
   publishPagePost,
@@ -12,6 +16,76 @@ import {
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
+  async facebookConnectPageToken(
+    _root,
+    {
+      pageAccessToken,
+      integrationKind,
+    }: { pageAccessToken: string; integrationKind: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    const token = pageAccessToken.trim();
+
+    if (!token) {
+      throw new Error('Page access token is required');
+    }
+
+    const app = await resolveFacebookApp(models, integrationKind);
+    const debugResponse = (await graphRequest.get(
+      `/debug_token?input_token=${encodeURIComponent(token)}`,
+      `${app.appId}|${app.appSecret}`,
+    )) as {
+      data?: {
+        app_id?: string;
+        data_id?: string;
+        is_valid?: boolean;
+        profile_id?: string;
+        granular_scopes?: Array<{ target_ids?: string[] }>;
+      };
+    };
+    const tokenData = debugResponse.data;
+    const granularTargetId = tokenData?.granular_scopes
+      ?.flatMap(({ target_ids = [] }) => target_ids)
+      .find(Boolean);
+    const pageId =
+      tokenData?.profile_id || tokenData?.data_id || granularTargetId;
+
+    if (!tokenData?.is_valid || tokenData.app_id !== app.appId || !pageId) {
+      throw new Error(
+        'The token must be a valid Facebook Page token for the configured app',
+      );
+    }
+
+    const pageName = `Facebook Page ${pageId}`;
+    const selector = facebookAccountSelector(pageId, app);
+    const accountData = {
+      kind: 'facebook',
+      token,
+      scope: 'page_access_token',
+      name: pageName,
+      uid: pageId,
+      appId: app.appId,
+    };
+    const existingAccount = await models.FacebookAccounts.findOne(selector);
+    const account = existingAccount
+      ? await models.FacebookAccounts.findByIdAndUpdate(
+          existingAccount._id,
+          { $set: accountData },
+          { new: true },
+        )
+      : await models.FacebookAccounts.create(accountData);
+
+    if (!account) {
+      throw new Error('Failed to save the Facebook Page account');
+    }
+
+    return {
+      account: { _id: account._id, name: account.name },
+      page: { id: pageId, name: pageName },
+    };
+  },
   async facebookUpdateConfigs(
     _root,
     { configsMap },
