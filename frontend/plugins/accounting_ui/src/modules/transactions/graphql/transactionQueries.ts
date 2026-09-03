@@ -23,6 +23,9 @@ export const commonTrDetailFields = `
 
   productId
   fixedAssetId
+  fixedAssetCategoryId
+  fixedAssetCode
+  fixedAssetName
   count
   unitPrice
 
@@ -248,8 +251,7 @@ export const TRANSACTIONS_QUERY = gql`
       list {
         ${commonTransactionFields}
         ptrInfo
-      }
-      totalCount
+      } 
       ${GQL_PAGE_INFO}
     }
   }

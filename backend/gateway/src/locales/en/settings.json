@@ -161,6 +161,8 @@
       "core-company": "Company",
       "core-product": "Product & Service",
       "core-user": "Team member",
+      "core-branch": "Branches",
+      "core-department": "Departments",
       "sales-deal": "Sales pipelines"
     },
     "add-group": "Add Group",
@@ -175,6 +177,7 @@
     "field-type": {
       "text": "Text",
       "textarea": "Textarea",
+      "list": "String List",
       "number": "Number",
       "boolean": "True/False",
       "date": "Date",

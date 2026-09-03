@@ -5,14 +5,17 @@ import { fixNum } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useWatch } from 'react-hook-form';
-import { FXA_INSTANCES_QUERY } from '../../../graphql/queries/fixedAssets';
+import { FIXED_ASSETS_QUERY } from '../../../graphql/queries/fixedAssets';
 import { followTrDocsState } from '../../../states/trStates';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
 import { fixSumDtCt, getTempId } from '../../utils';
 
 type TFxaDisposalInstance = {
   _id: string;
-  fixedAssetId: string;
+  code?: string;
+  name?: string;
+  count?: number;
+  currentCount?: number;
   originalCost?: number;
   accumulatedDepreciation?: number;
   bookValue?: number;
@@ -27,58 +30,35 @@ type TFxaDisposalSummary = {
   bookValue: number;
 };
 
-const getDetailInstances = (
-  detail: TFxaDetail,
-  instances: TFxaDisposalInstance[],
-  instanceIdsByDetailId?: Record<string, string[]>,
-) =>
-  instanceIdsByDetailId?.[detail._id || '']?.length
-    ? instances.filter((instance) =>
-        instanceIdsByDetailId[detail._id || ''].includes(instance._id),
-      )
-    : instances.filter(
-        (instance) => instance.fixedAssetId === detail.fixedAssetId,
-      );
-
 const buildSummary = (
   details: TFxaDetail[],
-  instances: TFxaDisposalInstance[] = [],
-  instanceIdsByDetailId?: Record<string, string[]>,
+  fixedAssets: TFxaDisposalInstance[] = [],
 ) =>
   details
     .map((detail) => {
-      const detailInstances = getDetailInstances(
-        detail,
-        instances,
-        instanceIdsByDetailId,
+      const fixedAsset = fixedAssets.find(
+        (item) => item._id === detail.fixedAssetId,
+      );
+      const count = Math.max(0, Math.trunc(detail.count || 0));
+      const originalCost = fixNum((fixedAsset?.originalCost || 0) * count);
+      const currentCount = fixedAsset?.currentCount ?? fixedAsset?.count ?? 0;
+      const perUnitAccumulated = currentCount
+        ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
+        : 0;
+      const accumulatedDepreciation = fixNum(perUnitAccumulated * count);
+      const bookValue = fixNum(
+        fixedAsset?.bookValue
+          ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
+          : originalCost - accumulatedDepreciation,
       );
 
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        count: detailInstances.length,
-        originalCost: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.originalCost || 0),
-            0,
-          ),
-        ),
-        accumulatedDepreciation: fixNum(
-          detailInstances.reduce(
-            (sum, instance) => sum + (instance.accumulatedDepreciation || 0),
-            0,
-          ),
-        ),
-        bookValue: fixNum(
-          detailInstances.reduce(
-            (sum, instance) =>
-              sum +
-              (instance.bookValue ??
-                (instance.originalCost || 0) -
-                  (instance.accumulatedDepreciation || 0)),
-            0,
-          ),
-        ),
+        count,
+        originalCost,
+        accumulatedDepreciation,
+        bookValue,
       };
     })
     .filter((summary) => summary.fixedAssetId && summary.count > 0);
@@ -199,14 +179,18 @@ export const useFxaDisposalFollowTrs = ({
     name: `trDocs.${journalIndex}`,
   }) as ITransaction;
   const setFollowTrDocs = useSetAtom(followTrDocsState);
-  const selectedIds = trDoc?.extraData?.fxaInstanceIds || [];
-  const selectedIdsByDetailId =
-    trDoc?.extraData?.fxaInstanceIdsByDetailId || {};
-  const { data } = useQuery<{ fxaInstances: TFxaDisposalInstance[] }>(
-    FXA_INSTANCES_QUERY,
+  const fixedAssetIds = Array.from(
+    new Set(
+      (trDoc?.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter(Boolean),
+    ),
+  );
+  const { data } = useQuery<{ fixedAssets: TFxaDisposalInstance[] }>(
+    FIXED_ASSETS_QUERY,
     {
-      variables: { ids: selectedIds },
-      skip: !selectedIds.length,
+      variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+      skip: !fixedAssetIds.length,
     },
   );
 
@@ -217,8 +201,7 @@ export const useFxaDisposalFollowTrs = ({
 
     const summaries = buildSummary(
       (trDoc?.details || []) as TFxaDetail[],
-      data?.fxaInstances || [],
-      selectedIdsByDetailId,
+      data?.fixedAssets || [],
     );
 
     const currentDetails = (trDoc?.details || []) as TFxaDetail[];
@@ -314,8 +297,6 @@ export const useFxaDisposalFollowTrs = ({
     form,
     journalIndex,
     JSON.stringify(trDoc?.details || []),
-    JSON.stringify(selectedIds),
-    JSON.stringify(selectedIdsByDetailId),
     setFollowTrDocs,
     trDoc,
     updateMainDetails,

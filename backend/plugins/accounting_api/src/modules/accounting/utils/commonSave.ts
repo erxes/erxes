@@ -9,15 +9,16 @@ import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
 import { commonRemove } from './commonRemove';
-import { syncFxaIncomeInstances } from './fxaIncome';
+import { syncFxaIncomeDetails } from './fxaIncome';
 import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
 import { createFxaMoveInFollowTr, syncFxaMoveInstances } from './fxaMove';
 import {
   prepareFxaDisposalTransaction,
-  prepareFxaInstanceTransaction,
+  prepareFxaOwnerRecordTransaction,
+  rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
 import {
-  FXA_INSTANCE_STATUSES,
+  FXA_OWNER_RECORD_STATUSES,
   FXA_LOG_EVENT_TYPES,
 } from '@/fixedAssets/@types/constants';
 
@@ -312,7 +313,7 @@ async function handleFxaIncome(
     oldTr,
   );
 
-  await syncFxaIncomeInstances(models, userId, transaction);
+  await syncFxaIncomeDetails(models, userId, transaction);
 
   const otherTrs = [
     ...(await collect(await taxTrsClass.doTaxTrs(transaction))),
@@ -341,7 +342,7 @@ async function handleFxaOut(
     userId,
     transaction,
     FXA_LOG_EVENT_TYPES.DISPOSAL,
-    FXA_INSTANCE_STATUSES.DISPOSED,
+    FXA_OWNER_RECORD_STATUSES.INACTIVE,
   );
 
   const otherTrs = await createFxaDisposalFollowTrs(
@@ -360,7 +361,7 @@ async function handleFxaMove(
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ) {
-  const preparedDoc = await prepareFxaInstanceTransaction(models, doc);
+  const preparedDoc = await prepareFxaOwnerRecordTransaction(models, doc);
   const transaction = await createOrUpdateTr(
     models,
     userId,
@@ -370,6 +371,12 @@ async function handleFxaMove(
 
   await syncFxaMoveInstances(models, userId, transaction);
   const moveInTr = await createFxaMoveInFollowTr(models, userId, transaction);
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    (transaction.details || [])
+      .map((detail) => detail.fixedAssetId)
+      .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
+  );
 
   return { mainTr: transaction, otherTrs: [moveInTr] };
 }
@@ -399,7 +406,7 @@ async function handleFxaSale(
     userId,
     transaction,
     FXA_LOG_EVENT_TYPES.SALE,
-    FXA_INSTANCE_STATUSES.SOLD,
+    FXA_OWNER_RECORD_STATUSES.INACTIVE,
   );
 
   const otherTrs = [

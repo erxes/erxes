@@ -8,9 +8,11 @@ export const FIXED_ASSET_CATEGORY_DEFAULT_VALUES: TFixedAssetCategoryForm = {
   status: 'active',
   depreciationMethod: 'straightLine',
   defaultUsefulLife: undefined,
+  defaultAnnualDepreciationRate: undefined,
   defaultSalvageValue: undefined,
   taxDepreciationMethod: 'straightLine',
   defaultTaxUsefulLife: undefined,
+  defaultTaxAnnualDepreciationRate: undefined,
   defaultTaxSalvageValue: undefined,
 };
 
@@ -22,9 +24,11 @@ export const FIXED_ASSET_DEFAULT_VALUES: TFixedAssetForm = {
   status: 'active',
   depreciationMethod: undefined,
   usefulLife: undefined,
+  annualDepreciationRate: undefined,
   salvageValue: undefined,
   taxDepreciationMethod: undefined,
   taxUsefulLife: undefined,
+  taxAnnualDepreciationRate: undefined,
   taxSalvageValue: undefined,
   propertiesData: undefined,
 };

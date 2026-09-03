@@ -7,7 +7,7 @@ const vatRowsMutations = {
    * @param {Object} doc Account category document
    */
   async vatRowsAdd(_root, doc: IVatRow, { models, checkPermission }: IContext) {
-    await checkPermission('manageVatRows');
+    await checkPermission('manageTaxRows');
     const vatRow = await models.VatRows.createVatRow(doc);
 
     return vatRow;
@@ -23,7 +23,7 @@ const vatRowsMutations = {
     { _id, ...doc }: { _id: string } & IVatRow,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('manageVatRows');
+    await checkPermission('manageTaxRows');
     await models.VatRows.getVatRow({
       _id,
     });
@@ -41,7 +41,7 @@ const vatRowsMutations = {
     { vatRowIds }: { vatRowIds: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('removeVatRows');
+    await checkPermission('removeTaxRows');
     await models.VatRows.find({
       _id: { $in: vatRowIds },
     }).lean();

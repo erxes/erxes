@@ -1,13 +1,7 @@
-import { useState } from 'react';
-import { SpecificFieldProps } from './Field';
-import {
-  Badge,
-  isDeeplyEqual,
-  PopoverScoped,
-  RecordTableInlineCell,
-  StringArrayInput,
-} from 'erxes-ui';
+import { Badge, PopoverScoped, RecordTableInlineCell } from 'erxes-ui';
 import { getStringArray } from '../propertyUtils';
+import { SpecificFieldProps } from './Field';
+import { StringListEditor } from './StringListEditor';
 
 export const FieldStringMultiple = (props: SpecificFieldProps) => {
   const { inCell } = props;
@@ -19,60 +13,28 @@ export const FieldStringMultiple = (props: SpecificFieldProps) => {
 
 export const FieldStringMultipleInCell = (props: SpecificFieldProps) => {
   const { value, handleChange } = props;
-
-  const [currentValue, setCurrentValue] = useState<string[]>(
-    getStringArray(value),
-  );
+  const currentValue = getStringArray(value);
 
   return (
-    <PopoverScoped
-      closeOnEnter
-      scope={props.id}
-      onOpenChange={(open, reason) => {
-        if (!open) {
-          reason === 'close' && setCurrentValue(value);
-          if (reason === 'enter') {
-            !isDeeplyEqual(currentValue, value) && handleChange(currentValue);
-          }
-        }
-      }}
-    >
+    <PopoverScoped scope={props.id}>
       <RecordTableInlineCell.Trigger>
-        {currentValue.map((item) => (
-          <Badge key={item} variant="secondary">
+        {currentValue.map((item, index) => (
+          <Badge key={`${item}-${index}`} variant="secondary">
             {item}
           </Badge>
         ))}
       </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <StringArrayInput
-          value={currentValue}
-          onValueChange={(value) => setCurrentValue(value)}
-          placeholder="Add a text"
-        />
+      <RecordTableInlineCell.Content className="min-w-64 p-1">
+        <StringListEditor value={currentValue} onChange={handleChange} />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
 };
 
 export const FieldStringMultipleDetail = (props: SpecificFieldProps) => {
-  const { value, handleChange, id } = props;
-  const [currentValue, setCurrentValue] = useState<string[]>(
-    getStringArray(value),
-  );
+  const { value, handleChange } = props;
 
   return (
-    <StringArrayInput
-      id={id}
-      value={currentValue}
-      onValueChange={(value) => setCurrentValue(value)}
-      onBlur={() =>
-        !isDeeplyEqual(currentValue, value) && handleChange(currentValue)
-      }
-      styleClasses={{
-        inlineTagsContainer: 'shadow-xs',
-      }}
-      placeholder="Add a text"
-    />
+    <StringListEditor value={getStringArray(value)} onChange={handleChange} />
   );
 };

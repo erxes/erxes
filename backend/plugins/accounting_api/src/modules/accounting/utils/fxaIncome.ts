@@ -1,386 +1,713 @@
 import { nanoid } from 'nanoid';
+import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
-  FXA_INSTANCE_STATUSES,
-  FXA_LOG_EVENT_TYPES,
+  FXA_OWNER_RECORD_ACTIONS,
+  FXA_OWNER_RECORD_STATUSES,
 } from '@/fixedAssets/@types/constants';
-import { ITransactionDocument } from '../@types/transaction';
+import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
+import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 import {
   getDetailId,
-  getFxaInstanceInputs,
-  TFxaIncomeInstanceRemoveOptions,
-  TFxaInstanceInput,
-  TFixedAssetSnapshot,
+  getFxaIncomeFollowInfos,
+  getFxaOwnerRecordInputs,
+  getUniqueFxaOwnerRecordIds,
+  rebuildFixedAssetCurrentCounts,
+  TFxaIncomeDetailRemoveOptions,
+  TFxaIncomeDetailFollowInfo,
+  TFxaOwnerRecordInput,
 } from './fixedAssets';
 
-const getFixedAssetIdsFromInputs = (inputs: TFxaInstanceInput[]) =>
+type TFixedAssetWithId = IFixedAsset & { _id: string };
+
+const getOpeningAdjustId = (transactionId: string) =>
+  `fxa-opening:${transactionId}`;
+
+const addDays = (date: Date, days: number) => {
+  const next = new Date(date);
+  next.setDate(next.getDate() + days);
+  return next;
+};
+
+const getCategoryIds = (transaction: ITransactionDocument) =>
   Array.from(
     new Set(
-      inputs
-        .map((input) => input.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string => !!fixedAssetId),
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetCategoryId)
+        .filter((categoryId): categoryId is string => Boolean(categoryId)),
     ),
   );
 
-const getFixedAssetsById = async (
+const getFixedAssetCodes = (transaction: ITransactionDocument) =>
+  Array.from(
+    new Set(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetCode)
+        .filter((code): code is string => Boolean(code)),
+    ),
+  );
+
+const getCategoriesById = async (
   models: IModels,
-  inputs: TFxaInstanceInput[],
+  transaction: ITransactionDocument,
 ) => {
-  const fixedAssets = await models.FixedAssets.find({
-    _id: { $in: getFixedAssetIdsFromInputs(inputs) },
+  const categories = await models.FixedAssetCategories.find({
+    _id: { $in: getCategoryIds(transaction) },
   }).lean();
 
-  return new Map<string, TFixedAssetSnapshot>(
-    fixedAssets.map((fixedAsset) => [fixedAsset._id, fixedAsset]),
-  );
+  return new Map(categories.map((category) => [category._id, category]));
 };
 
-const assignMissingInstanceSequences = async (
-  models: IModels,
-  inputs: TFxaInstanceInput[],
-  fixedAssetsById: Map<string, TFixedAssetSnapshot>,
-) => {
-  const { maxSequences, usedSequences } =
-    await models.FxaInstances.getSequenceState(
-      Array.from(fixedAssetsById.values()),
-    );
+const buildFixedAssetDoc = ({
+  category,
+  date,
+  detail,
+  transaction,
+  userId,
+}: {
+  category?: {
+    depreciationMethod?: string;
+    defaultAnnualDepreciationRate?: number;
+    defaultSalvageValue?: number;
+    taxDepreciationMethod?: string;
+    defaultTaxAnnualDepreciationRate?: number;
+    defaultTaxSalvageValue?: number;
+  };
+  date: Date;
+  detail: ITrDetail;
+  transaction: ITransactionDocument;
+  userId: string;
+}): IFixedAsset => {
+  const count = Math.max(0, Math.trunc(detail.count || 0));
+  const totalCount = Math.max(
+    0,
+    Math.trunc(Number(detail.followInfos?.fixedAssetTotalCount || count)),
+  );
+  const totalAmount = Number(
+    detail.followInfos?.fixedAssetTotalAmount || detail.amount || 0,
+  );
+  const assetCount = totalCount || count;
+  const unitPrice =
+    detail.unitPrice || (assetCount ? totalAmount / assetCount : 0);
 
-  for (const input of inputs) {
-    if (!input.fixedAssetId) {
+  return {
+    code: detail.fixedAssetCode || '',
+    name: detail.fixedAssetName || '',
+    categoryId: detail.fixedAssetCategoryId || '',
+    status: 'active',
+    accountId: detail.accountId,
+    count: assetCount,
+    currentCount: assetCount,
+    originalCost: unitPrice,
+    acquisitionDate: date,
+    depreciationStartDate: detail.followInfos?.depreciationStartDate || date,
+    depreciationMethod: category?.depreciationMethod,
+    annualDepreciationRate: category?.defaultAnnualDepreciationRate,
+    salvageValue:
+      detail.followInfos?.salvageValue ?? category?.defaultSalvageValue,
+    taxDepreciationMethod: category?.taxDepreciationMethod,
+    taxAnnualDepreciationRate: category?.defaultTaxAnnualDepreciationRate,
+    taxSalvageValue: category?.defaultTaxSalvageValue,
+    transactionId: transaction._id,
+    transactionDetailId: getDetailId(detail),
+    createdBy: userId,
+  };
+};
+
+const validateIncomeDetails = (transaction: ITransactionDocument) => {
+  for (const detail of transaction.details || []) {
+    const count = Math.max(0, Math.trunc(detail.count || 0));
+
+    if (!count) {
       continue;
     }
 
-    const fixedAssetCode = fixedAssetsById.get(input.fixedAssetId)?.code;
-    const used = usedSequences.get(input.fixedAssetId) || new Set<number>();
-    const assetCodeSequence = fixedAssetCode
-      ? models.FxaInstances.getCodeSequence(input.code || '', fixedAssetCode)
-      : 0;
-    const idCodeSequence = models.FxaInstances.getCodeSequence(
-      input.code || '',
-      input.fixedAssetId,
-    );
-    const parsedSequence = Math.max(assetCodeSequence, idCodeSequence);
-    let sequence = input._id ? input.sequence || parsedSequence || 0 : 0;
-
-    if (input._id && sequence) {
-      used.delete(sequence);
+    if (!detail.fixedAssetCategoryId && !detail.fixedAssetId) {
+      throw new Error('Fixed asset category is required.');
     }
 
-    if (!sequence || (!input._id && used.has(sequence))) {
-      sequence = (maxSequences.get(input.fixedAssetId) || 0) + 1;
+    if (!detail.fixedAssetId && !detail.fixedAssetCode) {
+      throw new Error('Fixed asset code is required.');
     }
 
-    used.add(sequence);
-    maxSequences.set(
-      input.fixedAssetId,
-      Math.max(maxSequences.get(input.fixedAssetId) || 0, sequence),
-    );
-
-    input.sequence = sequence;
-
-    if (
-      fixedAssetCode &&
-      (!input.code || assetCodeSequence > 0 || idCodeSequence > 0)
-    ) {
-      input.code = `${fixedAssetCode}_${String(sequence).padStart(3, '0')}`;
+    if (!detail.fixedAssetId && !detail.fixedAssetName) {
+      throw new Error('Fixed asset name is required.');
     }
   }
 };
 
-const buildDefaultIncomeInputs = async (
+const syncTransactionFixedAssetIds = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const inputs = getFxaInstanceInputs(transaction);
+  await models.Transactions.updateOne(
+    { _id: transaction._id },
+    { $set: { details: transaction.details } },
+  );
+};
+
+const findIncomeFixedAssets = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+  detailIds?: string[],
+) => {
+  const filter: Record<string, unknown> = {
+    transactionId: transaction._id,
+  };
+
+  if (detailIds?.length) {
+    filter.transactionDetailId = { $in: detailIds };
+  }
+
+  return models.FixedAssets.find(filter).lean();
+};
+
+const findFixedAssetsByCodes = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+) => {
+  const codes = getFixedAssetCodes(transaction);
+
+  if (!codes.length) {
+    return [];
+  }
+
+  return models.FixedAssets.find({ code: { $in: codes } }).lean();
+};
+
+const removeOpeningAccumulatedDepreciation = async (
+  models: IModels,
+  transactionId: string,
+  detailIds?: string[],
+) => {
+  const adjustId = getOpeningAdjustId(transactionId);
+
+  if (detailIds?.length) {
+    await models.AdjustFxaDetails.deleteMany({
+      adjustId,
+      transactionDetailId: { $in: detailIds },
+    });
+    const remainingDetails = await models.AdjustFxaDetails.find({
+      adjustId,
+    }).lean();
+
+    if (!remainingDetails.length) {
+      await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
+    }
+
+    return;
+  }
+
+  await models.AdjustFxaDetails.deleteMany({ adjustId });
+  await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
+};
+
+export const removeFxaIncomeDetails = async (
+  models: IModels,
+  transaction: ITransactionDocument,
+  options: TFxaIncomeDetailRemoveOptions = {},
+) => {
+  const fixedAssets = await findIncomeFixedAssets(
+    models,
+    transaction,
+    options.detailIds,
+  );
+  const fixedAssetIds = fixedAssets.map((fixedAsset) => fixedAsset._id);
+
+  if (!fixedAssetIds.length) {
+    return;
+  }
+
+  const blockingTransaction = await models.Transactions.findOne({
+    _id: { $ne: transaction._id },
+    'details.fixedAssetId': { $in: fixedAssetIds },
+  }).lean();
+
+  if (blockingTransaction) {
+    throw new Error(
+      'Cannot remove transaction detail because fixed assets are already used in other transactions',
+    );
+  }
+
+  if (options.validateOnly) {
+    return;
+  }
+
+  await models.FxaOwnerRecords.deleteMany({
+    fixedAssetId: { $in: fixedAssetIds },
+  });
+  await models.FixedAssets.deleteMany({ _id: { $in: fixedAssetIds } });
+  await removeOpeningAccumulatedDepreciation(
+    models,
+    transaction._id,
+    options.detailIds,
+  );
+};
+
+const getFollowInfoKey = ({
+  fixedAssetId,
+  tempId,
+  transactionDetailId,
+  _id,
+}: TFxaIncomeDetailFollowInfo) => {
+  if (_id) {
+    return `id:${_id}`;
+  }
+
+  if (tempId) {
+    return `temp:${tempId}`;
+  }
+
+  if (fixedAssetId && transactionDetailId) {
+    return `asset:${fixedAssetId}:${transactionDetailId}`;
+  }
+
+  return '';
+};
+
+const getIncomeFollowInfosByKey = (
+  transaction: ITransactionDocument,
+  inputs: TFxaOwnerRecordInput[],
+) => {
+  const followInfos = getFxaIncomeFollowInfos(transaction).fxaIncomeDetails;
+  const entries = followInfos?.length ? followInfos : inputs;
+  const map = new Map<string, TFxaIncomeDetailFollowInfo>();
+
+  for (const entry of entries) {
+    const key = getFollowInfoKey(entry);
+
+    if (key) {
+      map.set(key, entry);
+    }
+  }
+
+  return map;
+};
+
+const getIncomeFollowInfo = (
+  input: TFxaOwnerRecordInput,
+  followInfosByKey: Map<string, TFxaIncomeDetailFollowInfo>,
+) => {
+  const keys = [
+    input._id ? `id:${input._id}` : '',
+    input.tempId ? `temp:${input.tempId}` : '',
+    input.fixedAssetId && input.transactionDetailId
+      ? `asset:${input.fixedAssetId}:${input.transactionDetailId}`
+      : '',
+  ].filter(Boolean);
+
+  for (const key of keys) {
+    const followInfo = followInfosByKey.get(key);
+
+    if (followInfo) {
+      return followInfo;
+    }
+  }
+
+  return undefined;
+};
+
+const syncOpeningAccumulatedDepreciation = async ({
+  date,
+  fixedAssetsByDetailId,
+  followInfosByKey,
+  inputs,
+  models,
+  transaction,
+  userId,
+}: {
+  date: Date;
+  fixedAssetsByDetailId: Map<string, TFixedAssetWithId>;
+  followInfosByKey: Map<string, TFxaIncomeDetailFollowInfo>;
+  inputs: TFxaOwnerRecordInput[];
+  models: IModels;
+  transaction: ITransactionDocument;
+  userId: string;
+}) => {
+  const adjustId = getOpeningAdjustId(transaction._id);
+  const details = inputs
+    .map((input) => {
+      const followInfo = getIncomeFollowInfo(input, followInfosByKey);
+      const openingAccumulatedDepreciation =
+        followInfo?.openingAccumulatedDepreciation || 0;
+
+      if (openingAccumulatedDepreciation <= 0) {
+        return;
+      }
+
+      const detail = (transaction.details || []).find(
+        (item) => getDetailId(item) === input.transactionDetailId,
+      );
+      const fixedAsset = fixedAssetsByDetailId.get(
+        input.transactionDetailId || '',
+      );
+
+      if (!detail || !fixedAsset?._id) {
+        return;
+      }
+
+      const count = Math.max(1, Math.trunc(input.count || detail.count || 1));
+      const originalCost = detail.unitPrice || fixedAsset.originalCost || 0;
+      const salvageValue =
+        followInfo?.salvageValue ?? fixedAsset.salvageValue ?? 0;
+      const totalOriginalCost = fixNum(originalCost * count);
+      const totalSalvageValue = fixNum(salvageValue * count);
+      const totalOpeningAccumulatedDepreciation = fixNum(
+        openingAccumulatedDepreciation * count,
+      );
+      const openingBookValue = fixNum(
+        totalOriginalCost - totalOpeningAccumulatedDepreciation,
+      );
+
+      return {
+        adjustId,
+        fixedAssetId: fixedAsset._id,
+        categoryId: fixedAsset.categoryId,
+        accountId: detail.accountId,
+        branchId: detail.branchId || transaction.branchId,
+        departmentId: detail.departmentId || transaction.departmentId,
+        originalCost: totalOriginalCost,
+        salvageValue: totalSalvageValue,
+        openingBookValue,
+        openingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
+        depreciationAmount: 0,
+        bookDepreciationAmount: 0,
+        closingAccumulatedDepreciation: totalOpeningAccumulatedDepreciation,
+        closingBookValue: openingBookValue,
+        transactionId: transaction._id,
+        transactionDetailId: input.transactionDetailId,
+      };
+    })
+    .filter((detail): detail is NonNullable<typeof detail> => Boolean(detail));
+
+  await models.AdjustFxaDetails.replaceAdjustFxaDetails({
+    adjustId,
+    details,
+  });
+
+  if (!details.length) {
+    await models.AdjustFixedAssets.deleteOne({ _id: adjustId });
+    return;
+  }
+
+  const openingDate = addDays(date, -1);
+
+  await models.AdjustFixedAssets.updateOne(
+    { _id: adjustId },
+    {
+      $set: {
+        date: openingDate,
+        description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
+        status: ADJ_FXA_STATUSES.PUBLISH,
+        beginDate: openingDate,
+        successDate: openingDate,
+        checkedAt: new Date(),
+        createdBy: userId,
+        modifiedBy: userId,
+        updatedAt: new Date(),
+      },
+      $setOnInsert: {
+        createdAt: new Date(),
+      },
+    },
+    { upsert: true },
+  );
+};
+
+const getOwnerInputs = (
+  transaction: ITransactionDocument,
+  fixedAssetsByDetailId: Map<string, TFixedAssetWithId>,
+): TFxaOwnerRecordInput[] => {
+  const inputs = getFxaOwnerRecordInputs(transaction);
 
   if (inputs.length) {
     return inputs;
   }
 
-  const result: TFxaInstanceInput[] = [];
+  return (transaction.details || []).reduce<TFxaOwnerRecordInput[]>(
+    (result, detail) => {
+      const detailId = getDetailId(detail);
+      const fixedAsset = fixedAssetsByDetailId.get(detailId);
+      const ownerId =
+        transaction.followInfos?.ownerId ||
+        transaction.followInfos?.responsibleUserId;
 
-  for (const detail of transaction.details || []) {
-    const count = detail.count || 0;
-    const fixedAssetId = detail.fixedAssetId || '';
+      if (!fixedAsset?._id || !ownerId) {
+        return result;
+      }
 
-    if (!fixedAssetId || count <= 0) {
-      continue;
-    }
-
-    for (let index = 0; index < count; index++) {
       result.push({
         tempId: nanoid(),
-        transactionDetailId: getDetailId(detail),
-        fixedAssetId,
-        branchId: detail.branchId || transaction.branchId,
-        departmentId: detail.departmentId || transaction.departmentId,
-        originalCost: detail.unitPrice || detail.amount || 0,
+        transactionDetailId: detailId,
+        fixedAssetId: fixedAsset._id,
+        count: detail.count,
+        ownerId,
       });
-    }
-  }
 
-  return result;
+      return result;
+    },
+    [],
+  );
 };
 
-const getInputDetailId = (input: TFxaInstanceInput) =>
-  input.transactionDetailId || '';
-
-const getIncomeInstanceMatchKey = (fixedAssetId?: string, detailId?: string) =>
-  `${fixedAssetId || ''}:${detailId || ''}`;
-
-const buildIncomeInstanceDoc = ({
-  date,
-  detail,
-  fixedAsset,
-  fixedAssetId,
-  input,
-  transaction,
-}: {
-  date: Date;
-  detail?: {
-    _id?: string;
-    unitPrice?: number;
-    amount?: number;
-    branchId?: string;
-    departmentId?: string;
-  };
-  fixedAsset?: TFixedAssetSnapshot;
-  fixedAssetId: string;
-  input: TFxaInstanceInput;
-  transaction: ITransactionDocument;
-}) => {
-  const transactionDetailId =
-    input.transactionDetailId || getDetailId(detail || {});
-
-  return {
-    fixedAssetId,
-    categoryId: fixedAsset?.categoryId,
-    code:
-      input.code ||
-      (fixedAsset?.code && input.sequence
-        ? `${fixedAsset.code}_${String(input.sequence).padStart(3, '0')}`
-        : nanoid(6)),
-    sequence: input.sequence,
-    status: FXA_INSTANCE_STATUSES.ACTIVE,
-    originalCost:
-      detail?.unitPrice || input.originalCost || detail?.amount || 0,
-    depreciationMethod: fixedAsset?.depreciationMethod,
-    usefulLife: fixedAsset?.usefulLife,
-    salvageValue: fixedAsset?.salvageValue,
-    taxDepreciationMethod: fixedAsset?.taxDepreciationMethod,
-    taxUsefulLife: fixedAsset?.taxUsefulLife,
-    taxSalvageValue: fixedAsset?.taxSalvageValue,
-    acquisitionDate: date,
-    depreciationStartDate: input.depreciationStartDate,
-    branchId: input.branchId || detail?.branchId || transaction.branchId,
-    departmentId:
-      input.departmentId || detail?.departmentId || transaction.departmentId,
-    responsibleUserId: input.responsibleUserId,
-    transactionDetailId,
-  };
-};
-
-const findAcquisitionInstances = async (
-  models: IModels,
+const validateOwnerInputCounts = (
   transaction: ITransactionDocument,
-  detailIds?: string[],
+  inputs: TFxaOwnerRecordInput[],
 ) => {
-  const logs = await models.FxaInstanceLogs.findByTransaction(
-    transaction._id,
-    FXA_LOG_EVENT_TYPES.ACQUISITION,
-  );
-  const filteredDetailIds = new Set((detailIds || []).filter(Boolean));
-  const instanceIds = logs
-    .filter(
-      (log) =>
-        !filteredDetailIds.size ||
-        (log.transactionDetailId &&
-          filteredDetailIds.has(log.transactionDetailId)),
-    )
-    .map((log) => log.fxaInstanceId);
+  const countByDetailId = inputs.reduce<Record<string, number>>(
+    (result, input) => {
+      const detailId = input.transactionDetailId || '';
 
-  return models.FxaInstances.findIncomeInstances(
-    Array.from(new Set(instanceIds)),
-  );
-};
+      if (!detailId) {
+        return result;
+      }
 
-const removeFxaIncomeInstanceIds = async (
-  models: IModels,
-  instanceIds: string[],
-  validateOnly?: boolean,
-) => {
-  if (!instanceIds.length) {
-    return;
-  }
+      result[detailId] =
+        (result[detailId] || 0) + Math.max(0, Math.trunc(input.count || 0));
 
-  if (
-    await models.FxaInstanceLogs.hasBlockingUsage(
-      instanceIds,
-      FXA_LOG_EVENT_TYPES.ACQUISITION,
-    )
-  ) {
-    throw new Error(
-      'Cannot remove transaction detail because fixed asset instances are already used in other transactions',
-    );
-  }
-
-  if (validateOnly) {
-    return;
-  }
-
-  await models.FxaInstanceLogs.deleteForInstances(instanceIds);
-  await models.FxaInstances.removeByIds(instanceIds);
-};
-
-export const removeFxaIncomeInstances = async (
-  models: IModels,
-  transaction: ITransactionDocument,
-  options: TFxaIncomeInstanceRemoveOptions = {},
-) => {
-  const instances = await findAcquisitionInstances(
-    models,
-    transaction,
-    options.detailIds,
+      return result;
+    },
+    {},
   );
 
-  if (!instances.length) {
-    return;
-  }
+  for (const detail of transaction.details || []) {
+    const expectedCount = Math.max(0, Math.trunc(detail.count || 0));
+    const actualCount = countByDetailId[getDetailId(detail)] || 0;
 
-  await removeFxaIncomeInstanceIds(
-    models,
-    instances.map((instance) => instance._id),
-    options.validateOnly,
-  );
-};
-
-const matchFxaIncomeInputsToExisting = async (
-  models: IModels,
-  transaction: ITransactionDocument,
-  inputs: TFxaInstanceInput[],
-) => {
-  const existingInstances = await findAcquisitionInstances(models, transaction);
-  const existingById = new Map(
-    existingInstances.map((instance) => [instance._id, instance]),
-  );
-  const existingByKey = new Map<string, (typeof existingInstances)[number][]>();
-  const usedExistingIds = new Set<string>();
-
-  for (const instance of existingInstances) {
-    const key = getIncomeInstanceMatchKey(
-      instance.fixedAssetId,
-      instance.transactionDetailId,
-    );
-    existingByKey.set(key, [...(existingByKey.get(key) || []), instance]);
-  }
-
-  for (const input of inputs) {
-    const existingByInputId = input._id
-      ? existingById.get(input._id)
-      : undefined;
-    const key = getIncomeInstanceMatchKey(
-      input.fixedAssetId,
-      getInputDetailId(input),
-    );
-    const existing =
-      existingByInputId ??
-      (existingByKey.get(key) || []).find(
-        (instance) => !usedExistingIds.has(instance._id),
+    if (actualCount > expectedCount) {
+      throw new Error(
+        'Fixed asset owner record count must not exceed detail count',
       );
-
-    if (!existing) {
-      continue;
     }
-
-    usedExistingIds.add(existing._id);
-    input._id = existing._id;
-    input.code = existing.code;
-    input.sequence = existing.sequence;
   }
-
-  const removedInstanceIds = existingInstances
-    .filter((instance) => !usedExistingIds.has(instance._id))
-    .map((instance) => instance._id);
-
-  return removedInstanceIds;
 };
 
-export const syncFxaIncomeInstances = async (
+const getDepreciationInputs = (transaction: ITransactionDocument) => {
+  return (transaction.details || []).reduce<TFxaOwnerRecordInput[]>(
+    (result, detail) => {
+      if (!detail.fixedAssetId) {
+        return result;
+      }
+
+      result.push({
+        tempId: getDetailId(detail),
+        transactionDetailId: getDetailId(detail),
+        fixedAssetId: detail.fixedAssetId,
+        count: detail.count,
+      });
+
+      return result;
+    },
+    [],
+  );
+};
+
+const syncOwnerRecords = async ({
+  fixedAssetsByDetailId,
+  inputs,
+  models,
+  transaction,
+  userId,
+}: {
+  fixedAssetsByDetailId: Map<string, TFixedAssetWithId>;
+  inputs: TFxaOwnerRecordInput[];
+  models: IModels;
+  transaction: ITransactionDocument;
+  userId: string;
+}) => {
+  await models.FxaOwnerRecords.deleteMany({ transactionId: transaction._id });
+
+  const ownerInputs = inputs.filter((input) => input.ownerId);
+
+  if (!ownerInputs.length) {
+    return;
+  }
+
+  validateOwnerInputCounts(transaction, ownerInputs);
+
+  await models.FxaOwnerRecords.insertMany(
+    ownerInputs.map((input) => {
+      const detailId = input.transactionDetailId || '';
+      const fixedAsset = fixedAssetsByDetailId.get(detailId);
+      const count = Math.max(1, Math.trunc(input.count || 1));
+
+      return {
+        fixedAssetId: fixedAsset?._id || input.fixedAssetId,
+        code: input.code || nanoid(8),
+        sequence: input.sequence,
+        count,
+        action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+        status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+        ownerId: input.ownerId,
+        transactionId: transaction._id,
+        transactionDetailId: detailId,
+        createdBy: userId,
+        createdAt: new Date(),
+      };
+    }),
+  );
+};
+
+export const syncFxaIncomeDetails = async (
   models: IModels,
   userId: string,
   transaction: ITransactionDocument,
 ) => {
-  const inputs = await buildDefaultIncomeInputs(models, transaction);
-  const removedInstanceIds = await matchFxaIncomeInputsToExisting(
+  validateIncomeDetails(transaction);
+
+  const date = transaction.date || new Date();
+  const categoriesById = await getCategoriesById(models, transaction);
+  const existingFixedAssets = await findIncomeFixedAssets(models, transaction);
+  const existingFixedAssetsByCode = await findFixedAssetsByCodes(
     models,
     transaction,
-    inputs,
   );
-  const date = transaction.date || new Date();
-  const fixedAssetsById = await getFixedAssetsById(models, inputs);
-  await assignMissingInstanceSequences(models, inputs, fixedAssetsById);
-
-  await removeFxaIncomeInstanceIds(models, removedInstanceIds);
-  await models.FxaInstanceLogs.deleteByTransaction(
-    transaction._id,
-    FXA_LOG_EVENT_TYPES.ACQUISITION,
+  const existingByDetailId = new Map<string, TFixedAssetWithId>(
+    existingFixedAssets.map((fixedAsset) => [
+      fixedAsset.transactionDetailId || '',
+      fixedAsset as unknown as TFixedAssetWithId,
+    ]),
   );
+  const existingByCode = new Map<string, TFixedAssetWithId>(
+    existingFixedAssetsByCode.map((fixedAsset) => [
+      fixedAsset.code || '',
+      fixedAsset as unknown as TFixedAssetWithId,
+    ]),
+  );
+  const detailIds = new Set(
+    (transaction.details || []).map((detail) => getDetailId(detail)),
+  );
+  const removedFixedAssetIds = existingFixedAssets
+    .filter(
+      (fixedAsset) => !detailIds.has(fixedAsset.transactionDetailId || ''),
+    )
+    .map((fixedAsset) => fixedAsset._id);
+  const fixedAssetsByDetailId = new Map<string, TFixedAssetWithId>();
 
-  for (const input of inputs) {
-    const detail = (transaction.details || []).find(
-      (item) => getDetailId(item) === input.transactionDetailId,
-    );
-    const fixedAssetId = input.fixedAssetId || detail?.fixedAssetId || '';
+  if (removedFixedAssetIds.length) {
+    await models.FxaOwnerRecords.deleteMany({
+      fixedAssetId: { $in: removedFixedAssetIds },
+    });
+    await models.FixedAssets.deleteMany({ _id: { $in: removedFixedAssetIds } });
+  }
 
-    if (!fixedAssetId) {
+  for (const detail of transaction.details || []) {
+    const detailId = getDetailId(detail);
+    const count = Math.max(0, Math.trunc(detail.count || 0));
+
+    if (!count) {
       continue;
     }
 
-    const instanceDoc = buildIncomeInstanceDoc({
+    const fixedAssetCode = detail.fixedAssetCode || '';
+    const existing =
+      existingByDetailId.get(detailId) || existingByCode.get(fixedAssetCode);
+    const category = detail.fixedAssetCategoryId
+      ? categoriesById.get(detail.fixedAssetCategoryId)
+      : undefined;
+    const doc = buildFixedAssetDoc({
+      category,
       date,
       detail,
-      fixedAsset: fixedAssetsById.get(fixedAssetId),
-      fixedAssetId,
-      input,
       transaction,
-    });
-    const instance = await models.FxaInstances.upsertIncomeInstance({
-      _id: input._id,
-      doc: instanceDoc,
       userId,
     });
 
-    if (!instance) {
+    if (existing?._id) {
+      // Нэг income_info code нь хэд хэдэн location/detail дээр салж ирсэн ч
+      // master fixedAsset нэг л байх ёстой. Detail-ээрээ олдсон үед acquisition
+      // эх сурвалжийг шинэчилж, code-оороо олдсон үед master identity-г хадгална.
+      const detailOwnsAsset = existing.transactionDetailId === detailId;
+
+      await models.FixedAssets.updateOne(
+        { _id: existing._id },
+        {
+          $set: {
+            ...(detailOwnsAsset
+              ? doc
+              : {
+                  code: doc.code || existing.code,
+                  name: doc.name || existing.name,
+                  categoryId: doc.categoryId || existing.categoryId,
+                  accountId: doc.accountId || existing.accountId,
+                  count: doc.count,
+                  currentCount: doc.currentCount,
+                  originalCost: doc.originalCost,
+                  depreciationMethod:
+                    doc.depreciationMethod || existing.depreciationMethod,
+                  annualDepreciationRate:
+                    doc.annualDepreciationRate ??
+                    existing.annualDepreciationRate,
+                  salvageValue: doc.salvageValue ?? existing.salvageValue,
+                  taxDepreciationMethod:
+                    doc.taxDepreciationMethod || existing.taxDepreciationMethod,
+                  taxAnnualDepreciationRate:
+                    doc.taxAnnualDepreciationRate ??
+                    existing.taxAnnualDepreciationRate,
+                  taxSalvageValue:
+                    doc.taxSalvageValue ?? existing.taxSalvageValue,
+                }),
+            modifiedBy: userId,
+            updatedAt: new Date(),
+          },
+        },
+      );
+      detail.fixedAssetId = existing._id;
+      fixedAssetsByDetailId.set(detailId, {
+        ...existing,
+        ...doc,
+        _id: existing._id,
+      });
       continue;
     }
 
-    input._id = instance._id;
-    input.code = instance.code;
-    input.sequence = instance.sequence;
+    const fixedAsset = await models.FixedAssets.create(doc);
+    detail.fixedAssetId = fixedAsset._id;
+    fixedAssetsByDetailId.set(detailId, fixedAsset);
 
-    await models.FxaInstanceLogs.createLog({
-      fxaInstanceId: instance._id,
-      fixedAssetId,
-      eventType: FXA_LOG_EVENT_TYPES.ACQUISITION,
-      eventDate: date,
-      transactionId: transaction._id,
-      transactionDetailId: instance.transactionDetailId,
-      toBranchId: instance.branchId,
-      toDepartmentId: instance.departmentId,
-      toResponsibleUserId: instance.responsibleUserId,
-      toStatus: instance.status,
-      createdBy: userId,
-      createdAt: new Date(),
-    });
+    if (fixedAssetCode) {
+      existingByCode.set(fixedAssetCode, { ...doc, _id: fixedAsset._id });
+    }
   }
 
-  transaction.extraData = {
-    ...transaction.extraData,
-    fxaInstances: inputs,
-  };
+  await syncTransactionFixedAssetIds(models, transaction);
+
+  const ownerInputs = getOwnerInputs(transaction, fixedAssetsByDetailId);
+  const depreciationInputs = getDepreciationInputs(transaction);
+  const followInfosByKey = getIncomeFollowInfosByKey(
+    transaction,
+    depreciationInputs,
+  );
+
+  await syncOwnerRecords({
+    fixedAssetsByDetailId,
+    inputs: ownerInputs,
+    models,
+    transaction,
+    userId,
+  });
+
+  await syncOpeningAccumulatedDepreciation({
+    date,
+    fixedAssetsByDetailId,
+    followInfosByKey,
+    inputs: depreciationInputs,
+    models,
+    transaction,
+    userId,
+  });
 
   await models.Transactions.updateOne(
     { _id: transaction._id },
-    { $set: { 'extraData.fxaInstances': inputs } },
+    { $set: { 'extraData.fxaOwnerRecords': ownerInputs } },
   );
+
+  const syncedFixedAssetIds = getUniqueFxaOwnerRecordIds(
+    Array.from(fixedAssetsByDetailId.values()).map(
+      (fixedAsset) => fixedAsset._id,
+    ),
+  );
+
+  await rebuildFixedAssetCurrentCounts(models, syncedFixedAssetIds);
 };
