@@ -1,11 +1,7 @@
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useEffect, useRef } from 'react';
-import {
-  SegmentForm,
-  SegmentFormMode,
-  useFormValidationErrorHandler,
-} from 'ui-modules';
+import { SegmentForm, useFormValidationErrorHandler } from 'ui-modules';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 
@@ -21,15 +17,11 @@ export const SplitConditionForm = ({
   onDirtyChange?: (isDirty: boolean) => void;
 }) => {
   return (
-    <SegmentForm.Root
-      contentType={contentType}
-      segmentId={segmentId}
-      mode={SegmentFormMode.SINGLE}
-    >
+    <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
       <SegmentForm.Wrapper>
-        <SegmentForm.Content callback={callback}>
+        <SegmentForm.Content>
           <div className="mt-2">
-            <SegmentForm.SegmentGroup withoutAssociationTypes />
+            <SegmentForm.Group path="root" />
           </div>
         </SegmentForm.Content>
         <div>

@@ -57,6 +57,7 @@
     "main-currency": "Үндсэн валют",
     "currency": "Валют",
     "timezone": "Цагийн бүс",
+    "timezone-description": "Огноон дээр суурилсан segment нөхцөл болон товлосон ажлын өдөр хэзээ эхэлж дуусахыг тодорхойлно. Тохируулаагүй бол UTC.",
     "update": "Хадгалах"
   },
   "team-member": {
@@ -143,7 +144,6 @@
     "not-found": "Таг олдсонгүй",
     "workspace-description": "Workspace tag-ууд нь бүх төрлийн tag-уудаас ашиглах боломжтой, түгээмэл tag-ууд юм."
   },
-
   "broadcast": {
     "_": "Броадкаст",
     "broadcast": "Броадкаст"

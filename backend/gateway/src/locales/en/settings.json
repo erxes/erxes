@@ -7,7 +7,6 @@
   "products": "Products",
   "automations": "Automations",
   "exit-settings": "Exit Settings",
-
   "profile": {
     "_": "Profile",
     "profile-picture": "Profile picture",
@@ -37,7 +36,6 @@
     "firstname-placeholder": "Enter First Name",
     "username-placeholder": "Enter Username"
   },
-
   "change-password": {
     "_": "Change Password",
     "current-password": "Current password",
@@ -52,7 +50,6 @@
     "password-same": "Passwords must match",
     "password-error": "Please provide your current password"
   },
-
   "general": {
     "_": "General",
     "general-settings": "General Settings",
@@ -60,9 +57,9 @@
     "main-currency": "Main currency",
     "currency": "Currency",
     "timezone": "Timezone",
+    "timezone-description": "Decides when a day starts and ends for date-based segment conditions and scheduled work. Defaults to UTC while unset.",
     "update": "Update"
   },
-
   "team-member": {
     "_": "Team Member",
     "invite-team-members": "Invite team members",
@@ -87,7 +84,6 @@
     "unit": "Unit",
     "team-member": "Team Member"
   },
-
   "brands": {
     "_": "Brands",
     "create-brand": "Create brand",
@@ -101,7 +97,6 @@
     "brands": "Brands",
     "brand-created-successfully": "Brand created successfully"
   },
-
   "file-upload": {
     "_": "File Upload",
     "upload-file-types": "Upload file types",
@@ -116,7 +111,6 @@
     "update": "Update",
     "file-upload": "File Upload"
   },
-
   "mail-config": {
     "_": "Mail Configuration",
     "update": "Update",
@@ -140,7 +134,6 @@
     "verified-senders": "Verified senders",
     "verified-senders-desc": "Addresses your provider allows mail to be sent from. A sender can only send after opening its confirmation link."
   },
-
   "tags": {
     "_": "Tags",
     "add-group": "Add Group",
@@ -151,7 +144,6 @@
     "not-found": "No tags found",
     "workspace-description": "Workspace tags are shared tags that can be used across all tag types."
   },
-
   "broadcast": {
     "_": "Broadcast",
     "broadcast": "Broadcast"

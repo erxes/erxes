@@ -1,3 +1,3 @@
-import Segment from './segment';
+import { Segment } from './segment';
 
 export default { Segment };

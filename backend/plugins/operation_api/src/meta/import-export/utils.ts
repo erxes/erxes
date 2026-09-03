@@ -1,5 +1,5 @@
 import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
-import { getRealIdFromElk, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 import { STATUS_TYPES } from '@/status/constants/types';
 
@@ -14,7 +14,10 @@ function stringifyObject(obj: Record<string, unknown>): string | undefined {
     return obj.toHexString();
   }
   const toStringFn = obj.toString;
-  if (typeof toStringFn === 'function' && toStringFn !== Object.prototype.toString) {
+  if (
+    typeof toStringFn === 'function' &&
+    toStringFn !== Object.prototype.toString
+  ) {
     return toStringFn.call(obj);
   }
   return undefined;
@@ -77,7 +80,10 @@ export const STATUS_TYPE_LABELS: Record<number, string> = {
 /**
  * Joins a list of names/IDs using a semicolon separator.
  */
-export const joinNames = (ids: unknown[] | undefined, map: Map<string, string>): string => {
+export const joinNames = (
+  ids: unknown[] | undefined,
+  map: Map<string, string>,
+): string => {
   if (!ids?.length) return '';
   return ids
     .map((id) => map.get(stringifyId(id)) || '')
@@ -174,9 +180,12 @@ export const getCustomPropertyHeaders = async (
   const groupById = new Map(groups.map((g) => [stringifyId(g._id), g]));
 
   return fields.map((field) => {
-    const group = field.groupId ? groupById.get(stringifyId(field.groupId)) : null;
-    const fieldId = getRealIdFromElk(stringifyId(field._id));
-    const groupName = group && typeof group.name === 'string' ? group.name : null;
+    const group = field.groupId
+      ? groupById.get(stringifyId(field.groupId))
+      : null;
+    const fieldId = stringifyId(field._id);
+    const groupName =
+      group && typeof group.name === 'string' ? group.name : null;
     const fieldName = typeof field.name === 'string' ? field.name : '';
     const fieldCode = typeof field.code === 'string' ? field.code : '';
     const label = groupName ? `${groupName} / ${fieldName}` : fieldName;
@@ -206,8 +215,8 @@ export const getCustomPropertyHeaders = async (
  */
 export const getTaskCustomPropertyHeaders = (
   subdomain: string,
-): Promise<ImportHeaderDefinition[]> => getCustomPropertyHeaders(subdomain, TASK_CONTENT_TYPE);
-
+): Promise<ImportHeaderDefinition[]> =>
+  getCustomPropertyHeaders(subdomain, TASK_CONTENT_TYPE);
 
 /**
  * Resolves the final list of export header definitions by combining system fields and custom property fields.
@@ -297,7 +306,9 @@ export function buildUserMap(members: unknown[]): Map<string, string> {
     };
     const name =
       item.details?.fullName ||
-      `${item.details?.firstName || ''} ${item.details?.lastName || ''}`.trim() ||
+      `${item.details?.firstName || ''} ${
+        item.details?.lastName || ''
+      }`.trim() ||
       item.email ||
       '';
     map.set(stringifyId(item._id), name);
@@ -375,4 +386,3 @@ export function finalizeExportRow(
 
   return allFields;
 }
-

@@ -84,7 +84,7 @@ const toObject = (contentType, document, fields, groups) => {
   const propertiesData = {};
 
   for (const customField of customFieldsData || []) {
-    let field = fields.find((field) => field._id === customField.field);
+    const field = fields.find((field) => field._id === customField.field);
 
     if (!field) {
       console.log(

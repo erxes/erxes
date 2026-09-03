@@ -524,6 +524,30 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- The conversation collection must never get an event dispatcher. Every
+  message written writes back to its conversation, so a dispatcher would make
+  the highest-volume write in the product also the highest-volume segment
+  event. `conversationsChanged` announces from the specific writes instead, and
+  is given the update document so a message - which names only `updatedAt` and
+  `messageCount` - announces nothing.
+- A new write that moves `customerId`, `integrationId`, `assignedUserId`,
+  `tagIds`, `status`, `closedAt`, `isBot` or `firstRespondedDate` on a
+  conversation must call `conversationsChanged`. Nothing else will.
+- Messages are declared in `segmentFields` but never in `contentTypes`: a
+  single message is nobody's audience, and the declaration exists only to give
+  the `customer.messages` relation a vocabulary.
+- `ticketSchema` must stay wrapped in `schemaWrapper`: membership is written
+  onto the record as `segmentIds`, and an unwrapped schema is a ticket segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`tickets.assigneeId`, `tickets.assignedMembers`). Without one the measure
+  scans the collection.
+- A ticket content type declaration must carry `contentType`. Without it the
+  dispatcher's `frontline:tickets.tickets` maps to nothing and no write ever
+  reaches a segment built on it.
 - Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
   `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
   _every_ ticket list, not only pipeline-scoped ones. Without a
@@ -1319,6 +1343,63 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <<<<<<< HEAD
 
+### `2026-09-01` — `checkTargetMatch` producer removed
+
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from the ticket module's producers; automation target
+  matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
+
+### `2026-09-01` — Elasticsearch-era segment producers removed
+
+- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
+  `propertyConditionExtender` were deleted from the ticket module and from the
+  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
+  segment call, and no plugin-to-plugin RPC loop can form.
+- **Affected areas:** `src/meta/segments.ts`,
+  `src/modules/ticket/meta/segments/index.ts`.
+- **Contracts changed:** `/segments` no longer answers `associationFilter`,
+  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
+  existed for any of them.
+
+### `2026-09-01` — Conversations and messages reachable from a segment
+
+- **Summary:** `frontline:inbox.conversations` is a segment content type with
+  12 fields including a derived `integrationKind` channel; conversations and
+  messages are both reachable from a customer segment
+  (`customer.conversations`, `customer.messages`), which is what answers "came
+  in from Facebook" and "wrote a comment saying 111". Conversation writes
+  announce themselves from the four places that move a declared field rather
+  than through a dispatcher.
+- **Affected areas:** `src/modules/inbox/meta/segments/` (new);
+  `src/modules/inbox/db/models/Conversations.ts`;
+  `src/modules/inbox/trpc/conversation.ts`; `src/meta/segments.ts`;
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** New segment content type
+  `frontline:inbox.conversations`; new relations `customer.conversations`,
+  `customer.messages`. `loadClass` for conversations now takes `subdomain`.
+
+### `2026-09-01` — Tickets became a real segment content type
+
+- **Summary:** `frontline:tickets.tickets` is now declared with its event
+  content type, filterable on 24 user-facing fields, materialisable, and
+  reachable from customer, company and team-member segments; the module moved
+  off the Elasticsearch-era producers onto the shared evaluator.
+- **Affected areas:** `src/modules/ticket/meta/segments/` (`fields/`,
+  `collections.ts`, `members.ts`, `membership.ts`, `evaluate.ts`,
+  `relations.ts`, `configs.ts`, `index.ts`); `src/meta/segments.ts`;
+  `src/modules/ticket/db/definitions/ticket.ts` (schemaWrapper, join indexes).
+- **Contracts changed:** Ticket content type now declares
+  `contentType: 'frontline:tickets.tickets'`; new relations
+  `customer.tickets`, `company.tickets`, `user.assignedTickets`.
+  =======
+  <<<<<<< HEAD
+
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
 - **Summary:** All four pipeline visibility rules were dead on the channel
@@ -1331,6 +1412,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   unscoped lists, which also stops private-pipeline tickets leaking there.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
 - # **Contracts changed:** None (`getTickets` arguments are unchanged).
+  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1489,6 +1571,111 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### `2026-08-26` — Mail automation and reply drafts removed
 
+- **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
+  produced two inbox conversations — the queue leg as `NO ANSWER · Inbound` and
+  the `FOLLOWME` leg, filed by the PBX under a second `uniqueid`, as
+  `ANSWERED · Outbound`. The CTI path created the second one because it looked
+  a session up by `uniqueid` alone, and the CDR path's existing FOLLOWME merge
+  could never run once that session carried a `conversationId`. Both paths now
+  adopt the call a leg belongs to before creating one — the CTI path by the
+  child leg's `linkedid`, then by a recent sibling session for the same
+  customer, and it takes a forwarded leg's customer from the parent leg or from
+  `callerName` instead of filing the agent's mobile as the caller. The CDR path
+  also merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and
+  writes a resolved `conversationId` back onto a session that had none, and a
+  customer-scoped Redis lock keeps sibling legs from racing each other into two
+  conversations. Conversation content is now derived from every leg of the
+  conversation and reports a `FOLLOWME` leg as `Inbound`, so a merged call
+  reads `ANSWERED · Inbound` regardless of which leg's CDR lands last. Fixed
+  the CTI `startedAt`/`endedAt` parsing that stored PBX local time eight hours
+  ahead.
+  The call history and agent stats fold a `FOLLOWME` leg into its parent call
+  instead of listing it as a second, outgoing call placed to the agent's own
+  mobile.
+- **Affected areas:**
+  `src/modules/reports/callReportService.ts` (`withForwardedCallKeys`),
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/cdrUtils.ts`
+  (`getConversationContent`),
+  `src/modules/integrations/call/db/models/CallSessions.ts`
+  (`findSibling`), `src/modules/integrations/call/redlock.ts`
+  (`acquireCustomerLock`).
+- **Contracts changed:** None. `POST /call/event`, `/call/receiveCall`, and
+  `/call/cdrReceive` keep their payloads; only how legs are grouped into a
+  conversation changed.
+
+### `2026-08-20` — The agent who answered a call is assigned to it
+
+- **Summary:** A call conversation stayed unassigned because the CDR path
+  looked the operator up with `extractOperatorId`, which returns the queue/DID
+  number on the inbound Queue legs an agent actually answers, and then carried
+  the match to the inbox as `owner` — the user's optional
+  `details.operatorPhone`. Both the CDR and the CTI path now resolve the
+  answering operator from the leg's answering extension
+  (`resolveCdrOperator`) and pass that operator's `userId` straight to
+  `create-or-update-conversation`, so assignment no longer depends on a
+  profile field being filled in.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts`,
+  `src/modules/integrations/call/services/cdrServices.ts`,
+  `src/modules/integrations/call/services/callEventService.ts`,
+  `src/modules/inbox/receiveMessage.ts`.
+- **Contracts changed:** None — `create-or-update-conversation` already
+  accepted `userId`; the call paths now send it, and the create branch no
+  longer leaks `owner`/`userId` onto the new conversation document.
+
+### `2026-08-19` — Call Pro webhook integration
+
+- **Summary:** Ported the Call Pro PBX integration from the legacy
+  `plugin-integrations-api`: a `CALLPRO_ENABLED`-gated `/callpro/receive`
+  webhook turns each call event into an inbox conversation with the caller
+  attached and the recording URL resolved, and defers attribution to the agent
+  when one number matches several customers.
+- **Affected areas:** `src/modules/integrations/callpro/` (new),
+  `src/connectionResolvers.ts`, `src/routes.ts`,
+  `src/apollo/{schema/schema.ts,resolvers/queries.ts,resolvers/mutations.ts}`,
+  `src/modules/inbox/{@types,db/definitions}/conversations.ts`,
+  `src/modules/inbox/graphql/schemas/conversation.ts`,
+  `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
+- **Contracts changed:** Added `POST /callpro/receive`; queries `callProConfig`,
+  `callProIntegrationDetail`, `callProCustomersByPhone`; mutation
+  `callProCustomerSelect`; `Conversation.callProPotentialCustomerIds` and
+  `Conversation.callProPhone`; a resolver for the previously dangling
+  `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
+  `sendUpdateIntegration`, and `sendRemoveIntegration`.
+
+### `2026-08-19` — Call history reports the ring on unanswered calls
+
+- **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
+  answered, so the Waited column showed a dash on exactly the rows a supervisor
+  wants to read — a No answer row said nothing about whether it rang for three
+  seconds or three minutes. Unanswered calls now report `callRingSeconds`,
+  taken from `duration - billsec` on the legs that held the caller, since an
+  unanswered leg has no `answer` stamp for the existing helper to subtract. It
+  falls back to the call's own span when the PBX filed no `Queue`/`Dial` ring,
+  which is how an IVR-only call arrives — its menu time lands in `billsec`, so
+  subtracting it would report zero.
+- **Affected areas:**
+  `src/modules/integrations/call/services/cdrUtils.ts` (`callRingSeconds`,
+  `ICdrLegTiming.duration`), `src/modules/reports/callHistoryService.ts`,
+  `src/modules/reports/graphql/schema/call.ts`.
+- **Contracts changed:** None. `CallHistoryEntry.waitTime` keeps its type and
+  unit; it is now populated for unanswered calls instead of always `null`.
+
+### `2026-08-19` — Bot typing status survives conversation creation
+
+- **Summary:** `generateAiContext` re-publishes
+  `conversationBotTypingStatus:<conversationId>` with `typing: true` when the AI
+  agent starts, so a widget that only learns its `conversationId` from the
+  `widgetsInsertMessage` response still sees the indicator for the first message
+  of a conversation and for the whole agent run. Also removed the debug
+  `console.log` calls left in `widgetsInsertMessage`.
+- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
+- **Contracts changed:** None — same subscription and payload shape, published
+  once more per agent run.
 - **Summary:** The mail channel no longer registers automation. The
   `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
   actions, their workers and the AI-context builder are gone, and so is the reply

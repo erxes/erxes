@@ -112,7 +112,6 @@ export const BROADCAST_RULES: Record<
 export const BROADCAST_TARGET_TYPE: Record<string, string> = {
   segment: 'Segment',
   tag: 'Tag',
-  brand: 'Brand',
 };
 
 export const BROADCAST_MESSAGE_STATUS = [

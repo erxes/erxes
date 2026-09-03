@@ -1,8 +1,28 @@
-import { OperationVariables, useMutation } from '@apollo/client';
-import { SEGMENT_REMOVE, SEGMENTS } from 'ui-modules';
+import {
+  OperationVariables,
+  useApolloClient,
+  useMutation,
+} from '@apollo/client';
+import {
+  ISegmentUsage,
+  SEGMENT_REMOVE,
+  SEGMENT_USAGE,
+  SEGMENTS,
+} from 'ui-modules';
 
 export const useRemoveSegments = () => {
+  const client = useApolloClient();
   const [segmentsRemove, { loading }] = useMutation(SEGMENT_REMOVE);
+
+  const readUsage = async (segmentIds: string[]): Promise<ISegmentUsage[]> => {
+    const { data } = await client.query({
+      query: SEGMENT_USAGE,
+      variables: { ids: segmentIds },
+      fetchPolicy: 'network-only',
+    });
+
+    return data?.segmentUsage || [];
+  };
 
   const removeSegments = async (
     segmentIds: string[],
@@ -15,5 +35,5 @@ export const useRemoveSegments = () => {
     });
   };
 
-  return { removeSegments, loading };
+  return { removeSegments, readUsage, loading };
 };
