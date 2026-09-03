@@ -162,22 +162,6 @@ export const BROADCAST_MESSAGE = gql`
   }
 `;
 
-export const BROADCAST_MEMBERS = gql`
-  query BroadcastMembers($isVerified: Boolean, ${GQL_CURSOR_PARAM_DEFS}) {
-    engageMembers(isVerified: $isVerified, ${GQL_CURSOR_PARAMS}) {
-      list {
-        _id
-        email
-        details {
-          avatar
-          fullName
-        }
-      }
-      ${GQL_PAGE_INFO}
-    }
-  }
-`;
-
 export const BROADCAST_CUSTOMERS_COUNT = gql`
   query BroadcastCustomersCount($types: [CUSTOMER_RELATION_TYPE]) {
     customersCount(types: $types)
