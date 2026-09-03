@@ -338,7 +338,7 @@ const generateFilter = async (
     tokens: { $in: [token] },
   };
 
-  if (isSimilarity) {
+  if (isSimilarity && !searchValue) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -529,17 +529,68 @@ const generateFilter = async (
 
   const lastFilter = { ...filter, $and };
 
-  if (isKiosk) {
+  const collapseSimilaritySearch = async (
+    searchFilter: Record<string, unknown>,
+  ) => {
+    const matchedProducts = await models.Products.find(searchFilter)
+      .select({ _id: 1, similarityId: 1 })
+      .lean();
+
+    const standaloneProductIds: string[] = [];
+    const similarityIds = new Set<string>();
+
+    for (const product of matchedProducts) {
+      if (product.similarityId) {
+        similarityIds.add(product.similarityId);
+      } else {
+        standaloneProductIds.push(product._id);
+      }
+    }
+
+    const similarityGroups = similarityIds.size
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'products',
+          action: 'similarities.find',
+          input: {
+            query: {
+              _id: { $in: [...similarityIds] },
+              status: { $ne: 'deleted' },
+            },
+          },
+          defaultValue: [],
+        })
+      : [];
+
+    const starProductIds = (similarityGroups || [])
+      .map((group) => group.starProductId)
+      .filter(Boolean);
+
     return {
+      status: { $ne: PRODUCT_STATUSES.DELETED },
+      tokens: { $in: [token] },
+      _id: { $in: [...standaloneProductIds, ...starProductIds] },
+    };
+  };
+
+  if (isKiosk) {
+    const kioskFilter = {
       $and: [
         lastFilter,
         { categoryId: { $nin: config.kioskExcludeCategoryIds } },
         { _id: { $nin: config.kioskExcludeProductIds } },
       ],
     };
+
+    return isSimilarity && searchValue
+      ? collapseSimilaritySearch(kioskFilter)
+      : kioskFilter;
   }
 
-  return lastFilter;
+  return isSimilarity && searchValue
+    ? collapseSimilaritySearch(lastFilter)
+    : lastFilter;
 };
 
 const generateFilterCat = async ({
