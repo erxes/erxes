@@ -75,12 +75,7 @@ export const useInstagramConversationMessages = () => {
         };
       },
     });
-  }, [
-    fetchMore,
-    instagramConversationMessages,
-    loading,
-    totalCount,
-  ]);
+  }, [fetchMore, instagramConversationMessages, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;

@@ -692,10 +692,7 @@ const resolveStoryMessageKind = (
   if (isStoryShare) {
     return 'story_reply';
   }
-  if (
-    attachmentType === 'story_reply' ||
-    attachmentType === 'story_mention'
-  ) {
+  if (attachmentType === 'story_reply' || attachmentType === 'story_mention') {
     return attachmentType;
   }
   if (attachmentType === 'post' || attachmentType === 'reel') {
@@ -719,13 +716,13 @@ const isMidOnlyFacebookMessage = (args: {
 }): boolean =>
   Boolean(
     args.mid &&
-      args.message &&
-      !args.text &&
-      !args.attachments?.length &&
-      !args.postback &&
-      !args.message.quick_reply &&
-      !args.message.referral &&
-      !args.message.payload,
+    args.message &&
+    !args.text &&
+    !args.attachments?.length &&
+    !args.postback &&
+    !args.message.quick_reply &&
+    !args.message.referral &&
+    !args.message.payload,
   );
 
 const resolveStoryEnrichment = async (args: {
@@ -873,19 +870,15 @@ export const receiveMessage = async (
       attachments,
       postback,
     });
-    const {
-      messageAttachments,
-      primaryAttachment,
-      messageKind,
-      providerData,
-    } = await resolveStoryEnrichment({
-      integration,
-      pageId,
-      mid,
-      story,
-      isMidOnlyMessage,
-      attachments,
-    });
+    const { messageAttachments, primaryAttachment, messageKind, providerData } =
+      await resolveStoryEnrichment({
+        integration,
+        pageId,
+        mid,
+        story,
+        isMidOnlyMessage,
+        attachments,
+      });
     const formattedAttachments = formatAttachments(messageAttachments);
     const isStory = Boolean(messageKind);
     const attachmentPreview = attachmentPreviewFor({
