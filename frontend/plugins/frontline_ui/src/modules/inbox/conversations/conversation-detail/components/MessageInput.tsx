@@ -53,6 +53,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { PollComposer, PollDraft } from './PollComposer';
+import { SendPollDialog } from './SendPollDialog';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
@@ -90,6 +91,7 @@ export const MessageInput = ({
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
 
@@ -622,6 +624,13 @@ export const MessageInput = ({
 
           {isDiscord && !isInternalNote && (
             <PollComposer onSubmit={handleSendPoll} loading={loading} />
+          )}
+
+          {isMessenger && !isInternalNote && (
+            <SendPollDialog
+              conversationId={conversationId}
+              channelId={integration?.channelId}
+            />
           )}
 
           <Button

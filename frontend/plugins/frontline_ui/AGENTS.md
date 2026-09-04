@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -39,6 +39,10 @@
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
+- Polls UI: per-channel poll management inside channel settings (list,
+  create/edit sheet, archive, remove), the read-only results board on the main
+  `frontline/polls` route, and the composer dialog that posts a saved poll into
+  a messenger conversation.
 - Knowledge base UI: topics, categories, and articles.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
@@ -61,6 +65,26 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Polls are split across two routes, mirroring how forms are laid out.
+  `settings/frontline/channels/:id/polls` manages the channel's polls: the
+  settings breadcrumb resolves to `Channels / <channel> / Polls` and carries the
+  `Create poll` button on the right, the sub-header holds only the status/search
+  filters and the record count, and the page renders a `RecordTable` list, the
+  sheet that creates or edits one (title, question, 2–10 unique options,
+  duration, multi-answer switch), the per-row results dialog, and a command bar
+  that archives or removes a selection. The channel detail page reaches it
+  through the `Manage channel polls` row.
+  `frontline/polls` is read-only — a card board of aggregated `Poll.results`
+  per poll, with status/search filters and no create control.
+- In a messenger conversation the composer's poll button opens
+  `SendPollDialog`, scoped to the conversation integration's `channelId`, which
+  posts a saved poll through `pollSendToConversation`.
+  `MessagePoll` then renders the tallies read-only, refreshed by the message
+  subscription.
+- An expanded team channel lists a `Polls` row under its integration types when
+  the channel has open poll conversations; selecting it filters the inbox with
+  `withPoll=true` scoped to that channel.
 
 - Ticket pipeline settings include a Properties route that lists only Core
   `frontline:ticket` properties, grouped by their Core field group. Checked
@@ -173,6 +197,12 @@
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker       |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                    |
 | Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                    |
+| Polls management       | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                   | Channel-scoped list, create/edit sheet, results dialog, command bar                                                                   |
+| Polls channel row      | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                  | `Manage channel polls` row on the channel detail page                                                                                 |
+| Polls results          | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/polls`                                                                               |
+| Polls data             | `src/modules/poll/{graphql,hooks,types,constants}/`                                                                                          | Poll GraphQL documents, list/detail/mutation hooks, Zod schema                                                                        |
+| Send poll              | `src/modules/inbox/conversations/conversation-detail/components/SendPollDialog.tsx`                                                          | Picks an active poll and posts it into the open messenger conversation                                                                |
+| Poll inbox row         | `src/modules/poll/components/ChannelPollNavItem.tsx`                                                                                         | `Polls` row inside an expanded team channel, filtering the inbox by `withPoll`                                                        |
 | Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                          |
 | Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                      |
 | FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                    |
@@ -194,6 +224,12 @@
 ## Contracts
 
 ### Provides
+
+- Route `frontline/polls` (registered in `config.tsx`, `FrontlineNavigation`,
+  and `FrontlineMain`) — the read-only poll results board.
+- Settings route `settings/frontline/channels/:id/polls` (registered in the
+  channels `Settings.tsx` as `FrontlinePaths.ChannelPolls`) — the channel's
+  poll management page.
 
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`, `./frontlineSettings`,
@@ -390,6 +426,28 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Creating, editing, archiving, and removing a poll lives only under a
+  channel's settings page. `frontline/polls` must stay read-only —
+  `PollSubHeader` only renders the create button when passed `canCreate`, and
+  a poll created there always carries the route's `channelId`.
+- The inbox `withPoll` filter lives in `INBOX_CONVERSATION_QUERY_KEYS` and
+  `INBOX_TARGET_KEYS`, so selecting the channel `Polls` row clears
+  `integrationType`/`integrationId` the same way an integration row does.
+  `ChannelPollNavItem` counts through its own light
+  `frontlineChannelPollConversationCount` query — never `useConversations`,
+  which owns inbox state and subscriptions.
+- `usePollList({ withResults: true })` switches to the `pollResultsList`
+  document because `Poll.results` runs two aggregations per poll; the
+  management list must not select it.
+- The composer shows two different poll controls by integration kind:
+  `PollComposer` (ad-hoc, Discord-native) for `discord-messenger`, and
+  `SendPollDialog` (saved poll) for `messenger`. Neither is a fallback for the
+  other — sending an erxes poll to Discord or a Discord poll to messenger is
+  not supported.
+- `IMessagePoll` answer ids are `string | number`: erxes polls carry the poll
+  option `_id`, Discord polls carry Discord's numeric answer id. `MessagePoll`
+  must keep handling both.
 
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
@@ -788,6 +846,30 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-05` — Poll surfaces removed from the customer widget
+
+- **Summary:** The website poll popup and the in-messenger voting card are gone
+  from `frontline-widgets`, so the agent-side install-script action went with
+  them; a customer now sees a sent poll as the plain question message.
+- **Affected areas:**
+  `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
+- **Contracts changed:** None in this project. The public `widgetsPoll*`
+  mutations still exist in `frontline_api` but have no in-repo caller.
+
+### `2026-09-04` — Channel polls page matches the channel forms page
+
+- **Summary:** The channel polls route now renders the `Channels / <channel> /
+Polls` breadcrumb with the `Create poll` button in the settings header instead
+  of falling through to the channels root breadcrumb and its `Create channel`
+  button, and the create control moved out of the poll sub-header.
+- **Affected areas:**
+  `src/modules/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb.tsx`,
+  `src/modules/poll/components/poll-page/polls-create.tsx` (new),
+  `src/modules/poll/components/poll-page/PollSubHeader.tsx`,
+  `src/modules/poll/components/poll-page/PollPageList.tsx`,
+  `src/pages/ChannelPollsPage.tsx`
+- **Contracts changed:** `PollSubHeader` no longer accepts `canCreate`.
+
 ### `2026-09-02` — IMAP integration UI removed
 
 - **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
@@ -806,6 +888,24 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
   `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
   conversation detail no longer suppresses `MessageInput` for the `imap` kind.
+
+### `2026-08-31` — Messenger polls
+
+- **Summary:** Added the poll module — per-channel management under
+  `settings/frontline/channels/:id/polls` (list, create/edit sheet, results
+  dialog, command bar), a read-only results board on `frontline/polls`, and the
+  composer dialog that posts a saved poll into a messenger conversation.
+- **Affected areas:** `src/modules/poll/**`,
+  `src/pages/{PollsIndexPage,ChannelPollsPage}.tsx`, `src/config.tsx`,
+  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
+  `src/modules/types/FrontlinePaths.ts`,
+  `src/modules/channels/components/settings/{Settings.tsx,channel-details/{ChannelDetails,PollsSection}.tsx}`,
+  `src/modules/inbox/conversations/conversation-detail/components/{SendPollDialog,MessageInput}.tsx`,
+  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessagePoll.tsx}`.
+- **Contracts changed:** New routes `frontline/polls` and
+  `settings/frontline/channels/:id/polls`, with a `polls` entry in
+  `CONFIG.modules`; `IMessagePoll` answer ids widened to `string | number`;
+  the conversation queries and inbox query state gained `withPoll`.
 
 ### `2026-08-28` — The domain picker is searchable and says which domains are usable
 
@@ -893,54 +993,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
 - **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
 - **Contracts changed:** None
-
-### `2026-08-26` — Sidebar selections no longer strand each other
-
-- **Summary:** Selecting a Discord channel and then a team or personal channel
-  left `integrationId` set alongside `channelId`, and the two intersect to
-  nothing, so the list emptied with no chip explaining why. Every inbox
-  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
-  and clears the params it does not own, and a Discord selection finally shows as
-  its own removable chip in the filter bar.
-- **Affected areas:**
-  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
-  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
-  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-26` — Mail automation surface and the draft card removed
-
-- **Summary:** The mail channel's automation widgets (trigger form and both
-  action forms) are gone along with their `AutomationRemoteEntry` registration,
-  and so is the reply-draft card in the thread — the backend action that was the
-  only thing able to create a draft was removed with them.
-- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
-  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
-  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
-  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
-  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** Stops consuming `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
-  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
-  Removed the five now-unused `draft` translation keys.
-
-### `2026-08-25` — Integration rows show their unread count again
-
-- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
-  `integrationsGetUsedTypesByChannel` query it already makes, instead of
-  recomputing the figure through a second `conversationCounts` request per
-  expanded channel that was rendering blank; a row and its channel row now count
-  the same thing.
-- **Affected areas:**
-  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
-  `src/modules/integrations/types/Integration.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
-  (`useConversationCountsByIntegrationType` narrowed to
-  `useAwaitingCountsByIntegrationType`),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
-- **Contracts changed:** None on the API; the by-channel used-types document now
-  selects `unreadConversationCount`.

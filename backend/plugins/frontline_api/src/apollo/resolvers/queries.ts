@@ -18,6 +18,8 @@ import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
+import { pollQueries } from '~/modules/poll/graphql/resolvers/queries/polls';
+import { widgetPollQueries } from '~/modules/poll/graphql/resolvers/queries/widget';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
@@ -36,6 +38,8 @@ export const queries = {
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
+  ...pollQueries,
+  ...widgetPollQueries,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportFacebookQueries,

@@ -1,17 +1,13 @@
 import {
   IconMail,
+  IconChartBar,
   IconTicket,
   IconChartHistogram,
   IconForms,
   IconBook,
   IconPlus,
 } from '@tabler/icons-react';
-import {
-  NavigationMenuLinkItem,
-  Button,
-  Skeleton,
-  Badge,
-} from 'erxes-ui';
+import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +47,11 @@ export const FrontlineDestinationLinks = () => {
         name={t('forms')}
         icon={IconForms}
         path="frontline/forms"
+      />
+      <NavigationMenuLinkItem
+        name={t('polls')}
+        icon={IconChartBar}
+        path="frontline/polls"
       />
       <NavigationMenuLinkItem
         name={t('knowledge-base')}

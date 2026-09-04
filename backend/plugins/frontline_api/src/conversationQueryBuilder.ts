@@ -22,6 +22,7 @@ export interface IListArgs {
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
+  withPoll?: string;
   automationStatus?: string;
   brandId?: string;
   tag?: string;
@@ -301,6 +302,12 @@ export default class Builder {
     };
   }
 
+  public withPollFilter(): { hasPoll: boolean } {
+    return {
+      hasPoll: true,
+    };
+  }
+
   public automationStatusFilter(value: string): {
     'automatedReplyControl.status'?: IIn | IExists;
   } {
@@ -490,6 +497,7 @@ export default class Builder {
       createdAt: {},
       segments: {},
       automationStatus: {},
+      withPoll: {},
     };
 
     if (this.params.channelId) {
@@ -520,6 +528,10 @@ export default class Builder {
 
     if (this.params.awaitingResponse) {
       this.queries.awaitingResponse = this.awaitingResponse();
+    }
+
+    if (this.params.withPoll) {
+      this.queries.withPoll = this.withPollFilter();
     }
 
     if (this.params.automationStatus) {
@@ -565,6 +577,7 @@ export default class Builder {
       ...this.queries.createdAt,
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
+      ...this.queries.withPoll,
       ...this.queries.segments,
     };
   }

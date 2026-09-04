@@ -25,6 +25,7 @@ import {
 } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
 import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
+import { ChannelPollNavItem } from '@/poll/components/ChannelPollNavItem';
 import {
   INBOX_TARGET_KEYS,
   InboxTarget,
@@ -218,6 +219,7 @@ const TeamChannelItem = ({
           nested
         />
       ))}
+      {open && <ChannelPollNavItem channelId={channel._id} />}
     </ChannelNavItem>
   );
 };
