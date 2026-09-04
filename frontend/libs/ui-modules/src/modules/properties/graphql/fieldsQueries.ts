@@ -39,6 +39,7 @@ export const FIELDS_QUERY = gql`
         isVisibleToCreate
         isRequired
         isVisibleInCard
+        configs
         options {
           label
           value
@@ -65,6 +66,7 @@ export const FIELD_DETAILS_QUERY = gql`
       }
       validations
       logics
+      configs
       icon
       isVisible
       isVisibleToCreate

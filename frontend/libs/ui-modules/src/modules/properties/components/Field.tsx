@@ -5,6 +5,7 @@ import { FieldCheck } from './FieldCheck';
 import { FieldDate } from './FieldDate';
 import { FieldFile } from './FieldFile';
 import { FieldLabel } from './FieldLabel';
+import { FieldObjectList } from './FieldObjectList';
 import { FieldNumber } from './FieldNumber';
 import { FieldRadio } from './FieldRadio';
 import { FieldRelation } from './FieldRelation';
@@ -51,6 +52,7 @@ export const FIELD_COMPONENT_BY_TYPE: Record<
   radio: FieldRadio,
   relation: FieldRelation,
   file: FieldFile,
+  objectList: FieldObjectList,
 };
 
 export const Field = (props: FieldProps) => {

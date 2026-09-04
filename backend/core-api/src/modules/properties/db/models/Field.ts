@@ -160,6 +160,37 @@ export const loadFieldClass = (models: IModels) => {
 
       const { type, validations } = field;
 
+      if (type === 'objectList') {
+        const objectListConfigs = field.configs?.objectListConfigs || [];
+
+        if (!objectListConfigs.length) {
+          throw new Error(`${field.name}: Object List don't have any keys`);
+        }
+
+        if (!value) {
+          return value;
+        }
+
+        if (!Array.isArray(value)) {
+          throw new TypeError(
+            `${field.name}: Object List value must be a list`,
+          );
+        }
+
+        const keys = new Set(objectListConfigs.map((config) => config.key));
+
+        return value
+          .filter(
+            (row: unknown) =>
+              typeof row === 'object' && row !== null && !Array.isArray(row),
+          )
+          .map((row: Record<string, unknown>) =>
+            Object.fromEntries(
+              Object.entries(row).filter(([key]) => keys.has(key)),
+            ),
+          );
+      }
+
       for (const key in validations) {
         const validation = validations[key];
 

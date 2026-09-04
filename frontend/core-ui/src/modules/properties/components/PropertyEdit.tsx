@@ -55,6 +55,7 @@ export const PropertyEdit = () => {
               icon: fieldDetail?.icon ?? '123',
               type: fieldType,
               relationType: relationType.join(':'),
+              objectListConfigs: fieldDetail?.configs?.objectListConfigs ?? [],
             }}
             isEdit
             onCancel={handleClose}
