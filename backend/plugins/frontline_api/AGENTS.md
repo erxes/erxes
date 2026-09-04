@@ -1341,7 +1341,49 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-<<<<<<< HEAD
+### `2026-09-02` — The deployment's own mail domain cannot be connected
+
+- **Summary:** Provisioning rewrites a zone's Email Routing catch-all rule to point
+  at the connecting workspace's worker. On the domain the deployment already runs
+  for everyone — `MAIL_DOMAIN`, `erx.es` by default — that would have taken inbound
+  mail away from every other workspace, and nothing stopped it: `checkZone` only
+  refuses zones whose MX points somewhere other than Cloudflare, which the shared
+  domain never does. `connectCloudflare` now refuses that domain by name before it
+  writes anything.
+- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/connect.ts`.
+- **Contracts changed:** None — `mailCloudflareConnect` gains a rejection, not a
+  new field.
+
+### `2026-09-02` — IMAP integration removed
+
+- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
+  message processing/saving, models, message broker, and GraphQL layer — along
+  with every registration that referenced it.
+- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
+  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
+  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
+  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
+  `src/shared/types.ts`, `package.json`.
+- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
+  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
+  `IMapIntegration`; `imap` is no longer an accepted integration kind for
+  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
+  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
+  registered.
+
+### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
+
+- **Summary:** All four pipeline visibility rules were dead on the channel
+  ticket list: `generateFilter` only consulted the pipeline when the query
+  carried a `filter.pipelineId`, and the channel page never sends one, so every
+  ticket in the channel was returned. `isCheckDate` was additionally never
+  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
+  pipeline access gates rather than the per-ticket filters their labels promise.
+  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
+  unscoped lists, which also stops private-pipeline tickets leaking there.
+- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
+- # **Contracts changed:** None (`getTickets` arguments are unchanged).
+  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 
@@ -1400,38 +1442,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   =======
   <<<<<<< HEAD
 
-### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
-
-- **Summary:** All four pipeline visibility rules were dead on the channel
-  ticket list: `generateFilter` only consulted the pipeline when the query
-  carried a `filter.pipelineId`, and the channel page never sends one, so every
-  ticket in the channel was returned. `isCheckDate` was additionally never
-  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
-  pipeline access gates rather than the per-ticket filters their labels promise.
-  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
-  unscoped lists, which also stops private-pipeline tickets leaking there.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- # **Contracts changed:** None (`getTickets` arguments are unchanged).
-  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
-
-### `2026-09-02` — IMAP integration removed
-
-- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
-  message processing/saving, models, message broker, and GraphQL layer — along
-  with every registration that referenced it.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
-  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
-  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
-  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
-  `src/shared/types.ts`, `package.json`.
-- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
-  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
-  `IMapIntegration`; `imap` is no longer an accepted integration kind for
-  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
-  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
-  registered.
-  > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
-
 ### `2026-08-28` — Every zone is listed, and the picker says which are usable
 
 - **Summary:** `listZones` asked for a single page of 50, so an account with more
@@ -1477,219 +1487,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   (two guard messages no longer claim one account serves one workspace).
 - **Contracts changed:** None. `provision.ts` already read every name from the
   connection document, and `buildScriptMetadata` already took them as arguments.
-
-### `2026-08-28` — Header threading works again on sent replies
-
-- **Summary:** `createCloudflareTransport` discarded the `message_id` Cloudflare
-  returns, so every sent reply was stored with no `providerMessageId`. The
-  machinery around it was already complete — `toWireReferences` swaps the internal
-  id for the wire one, and inbound matching checks `providerMessageId` — but with
-  the field empty the sent message was filtered out of outgoing `References`
-  entirely and a customer reply quoting it could not be matched. Replies still
-  threaded through the tagged `Reply-To` and the original inbound id, which is why
-  this stayed hidden. The stored `from` on a sent message now also carries the
-  display name that actually went out instead of repeating the address.
-- **Affected areas:**
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/utils/transports/cloudflare.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`.
-- **Contracts changed:** None — `providerMessageId` was already stored and
-  returned; it was simply never populated for Cloudflare sends.
-
-### `2026-08-28` — A forwarded message is no longer flagged as an unverified sender
-
-- **Summary:** Mail arriving through a forwarding rule was always banded
-  "Unverified sender". `isForwardedBy` compared the SMTP envelope sender against
-  the inbox's `forwardFrom`, but a forwarder hands the message over under its own
-  relay — Gmail's is a rotating `postmaster@mail-….google.com` — so no value of
-  `forwardFrom` could ever match and the guard could not be satisfied at all. The
-  worker now carries `Delivered-To` (every hop, joined, since the forwarding
-  mailbox is only one of them) and `isForwardedBy` accepts a match on either that
-  or the envelope sender. A genuine sender mismatch is still flagged.
-- **Affected areas:**
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/worker/bundle.generated.ts`,
-  `cloudflare/mail-worker/src/parse.ts`,
-  `cloudflare/mail-worker/fixtures/delivered-to.json`.
-- **Contracts changed:** The inbound webhook payload's `headers` may now carry
-  `delivered-to`. The worker bundle version changed, so a workspace running the
-  worker on its own Cloudflare account has to press _Update worker_.
-
-### `2026-08-27` — An inbox can choose the name recipients see
-
-- **Summary:** Replies carried the inbox integration's `name` as their display
-  name with no way to change it, so a mailbox called "support" appeared to
-  recipients as `support`. A mail integration now owns an optional `senderName`,
-  used for the `From` display name and falling back to the inbox name when empty.
-  It is validated on create and edit: line breaks are rejected so the value cannot
-  smuggle a second header, and length is capped at `MAIL_SENDER_NAME_MAX_LENGTH`.
-  The `From` address itself is unchanged.
-- **Affected areas:** `src/modules/integrations/mail/db/definitions/integrations.ts`,
-  `src/modules/integrations/mail/@types/integration.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`.
-- **Contracts changed:** `mailCreateIntegration` and `mailUpdateIntegration` accept
-  `data.senderName`; `mailIntegrationDetails` returns it.
-
-### `2026-08-27` — Mail sends through Cloudflare only; SES and SendGrid are gone
-
-- **Summary:** Outbound mail now leaves through Cloudflare Email Sending on every
-  path, matching the inbound side. A workspace that has connected its own
-  Cloudflare account replies from its own zone; every other workspace replies from
-  its generated address on `MAIL_DOMAIN` through the deployment's Cloudflare
-  account, configured with `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`.
-  The workspace-owned SES/SendGrid sending domains — the model, its DNS-proof
-  verification, the provider transport and the whole Settings → Integrations config
-  → Sending domains panel — are removed, along with the per-inbox sender choice:
-  an inbox always answers from its own address. `checkPlatformSendRate` still caps
-  the shared lane, because a Cloudflare account shares its daily quota and its
-  suppression list across every workspace on it.
-- **Affected areas:** `src/modules/integrations/mail/utils/`
-  (`platformConfig.ts` rewritten, `transports/{index,readiness,types}.ts`;
-  `dnsProof.ts`, `sendingSerialize.ts`, `transports/provider.ts` deleted),
-  `src/modules/integrations/mail/db/{definitions,models}/` (`sending.ts`,
-  `SendingAccounts.ts` deleted; `integrations.ts` loses `sendingAccountId` /
-  `sendingAddress`), `src/modules/integrations/mail/@types/{sending,integration}.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** removes the `mailSendingAccounts` query, the
-  `mailSendingAccountAdd` / `mailSendingAccountVerify` / `mailSendingAccountRemove`
-  mutations, the `MailSendingAccount` and `MailSendingDnsRecord` types and
-  `MailSendingReadiness.accounts`; `mailCreateIntegration` and
-  `mailUpdateIntegration` ignore `data.sendingAccountId` / `data.sendingAddress`.
-  Env `MAIL_SENDING_DEFAULT_EMAIL_SERVICE`, `MAIL_SENDING_AWS_SES_*`,
-  `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
-  `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
-  `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
-
-### `2026-08-26` — Mail automation and reply drafts removed
-
-- **Summary:** An inbound call that Follow Me forwarded to an agent's mobile
-  produced two inbox conversations — the queue leg as `NO ANSWER · Inbound` and
-  the `FOLLOWME` leg, filed by the PBX under a second `uniqueid`, as
-  `ANSWERED · Outbound`. The CTI path created the second one because it looked
-  a session up by `uniqueid` alone, and the CDR path's existing FOLLOWME merge
-  could never run once that session carried a `conversationId`. Both paths now
-  adopt the call a leg belongs to before creating one — the CTI path by the
-  child leg's `linkedid`, then by a recent sibling session for the same
-  customer, and it takes a forwarded leg's customer from the parent leg or from
-  `callerName` instead of filing the agent's mobile as the caller. The CDR path
-  also merges any time-overlapping leg (not only `FOLLOWME`-tagged ones) and
-  writes a resolved `conversationId` back onto a session that had none, and a
-  customer-scoped Redis lock keeps sibling legs from racing each other into two
-  conversations. Conversation content is now derived from every leg of the
-  conversation and reports a `FOLLOWME` leg as `Inbound`, so a merged call
-  reads `ANSWERED · Inbound` regardless of which leg's CDR lands last. Fixed
-  the CTI `startedAt`/`endedAt` parsing that stored PBX local time eight hours
-  ahead.
-  The call history and agent stats fold a `FOLLOWME` leg into its parent call
-  instead of listing it as a second, outgoing call placed to the agent's own
-  mobile.
-- **Affected areas:**
-  `src/modules/reports/callReportService.ts` (`withForwardedCallKeys`),
-  `src/modules/integrations/call/services/callEventService.ts`,
-  `src/modules/integrations/call/services/cdrServices.ts`,
-  `src/modules/integrations/call/services/cdrUtils.ts`
-  (`getConversationContent`),
-  `src/modules/integrations/call/db/models/CallSessions.ts`
-  (`findSibling`), `src/modules/integrations/call/redlock.ts`
-  (`acquireCustomerLock`).
-- **Contracts changed:** None. `POST /call/event`, `/call/receiveCall`, and
-  `/call/cdrReceive` keep their payloads; only how legs are grouped into a
-  conversation changed.
-
-### `2026-08-20` — The agent who answered a call is assigned to it
-
-- **Summary:** A call conversation stayed unassigned because the CDR path
-  looked the operator up with `extractOperatorId`, which returns the queue/DID
-  number on the inbound Queue legs an agent actually answers, and then carried
-  the match to the inbox as `owner` — the user's optional
-  `details.operatorPhone`. Both the CDR and the CTI path now resolve the
-  answering operator from the leg's answering extension
-  (`resolveCdrOperator`) and pass that operator's `userId` straight to
-  `create-or-update-conversation`, so assignment no longer depends on a
-  profile field being filled in.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts`,
-  `src/modules/integrations/call/services/cdrServices.ts`,
-  `src/modules/integrations/call/services/callEventService.ts`,
-  `src/modules/inbox/receiveMessage.ts`.
-- **Contracts changed:** None — `create-or-update-conversation` already
-  accepted `userId`; the call paths now send it, and the create branch no
-  longer leaks `owner`/`userId` onto the new conversation document.
-
-### `2026-08-19` — Call Pro webhook integration
-
-- **Summary:** Ported the Call Pro PBX integration from the legacy
-  `plugin-integrations-api`: a `CALLPRO_ENABLED`-gated `/callpro/receive`
-  webhook turns each call event into an inbox conversation with the caller
-  attached and the recording URL resolved, and defers attribution to the agent
-  when one number matches several customers.
-- **Affected areas:** `src/modules/integrations/callpro/` (new),
-  `src/connectionResolvers.ts`, `src/routes.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/queries.ts,resolvers/mutations.ts}`,
-  `src/modules/inbox/{@types,db/definitions}/conversations.ts`,
-  `src/modules/inbox/graphql/schemas/conversation.ts`,
-  `src/modules/inbox/graphql/resolvers/customResolvers/conversation.ts`,
-  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
-- **Contracts changed:** Added `POST /callpro/receive`; queries `callProConfig`,
-  `callProIntegrationDetail`, `callProCustomersByPhone`; mutation
-  `callProCustomerSelect`; `Conversation.callProPotentialCustomerIds` and
-  `Conversation.callProPhone`; a resolver for the previously dangling
-  `Conversation.callProAudio`; `callpro` cases in `sendCreateIntegration`,
-  `sendUpdateIntegration`, and `sendRemoveIntegration`.
-
-### `2026-08-19` — Call history reports the ring on unanswered calls
-
-- **Summary:** `CallHistoryEntry.waitTime` was `null` for every call nobody
-  answered, so the Waited column showed a dash on exactly the rows a supervisor
-  wants to read — a No answer row said nothing about whether it rang for three
-  seconds or three minutes. Unanswered calls now report `callRingSeconds`,
-  taken from `duration - billsec` on the legs that held the caller, since an
-  unanswered leg has no `answer` stamp for the existing helper to subtract. It
-  falls back to the call's own span when the PBX filed no `Queue`/`Dial` ring,
-  which is how an IVR-only call arrives — its menu time lands in `billsec`, so
-  subtracting it would report zero.
-- **Affected areas:**
-  `src/modules/integrations/call/services/cdrUtils.ts` (`callRingSeconds`,
-  `ICdrLegTiming.duration`), `src/modules/reports/callHistoryService.ts`,
-  `src/modules/reports/graphql/schema/call.ts`.
-- **Contracts changed:** None. `CallHistoryEntry.waitTime` keeps its type and
-  unit; it is now populated for unanswered calls instead of always `null`.
-
-### `2026-08-19` — Bot typing status survives conversation creation
-
-- **Summary:** `generateAiContext` re-publishes
-  `conversationBotTypingStatus:<conversationId>` with `typing: true` when the AI
-  agent starts, so a widget that only learns its `conversationId` from the
-  `widgetsInsertMessage` response still sees the indicator for the first message
-  of a conversation and for the whole agent run. Also removed the debug
-  `console.log` calls left in `widgetsInsertMessage`.
-- **Affected areas:** `src/modules/inbox/meta/automation/workers.ts`,
-  `src/modules/inbox/graphql/resolvers/mutations/widget.ts`.
-- **Contracts changed:** None — same subscription and payload shape, published
-  once more per agent run.
-- **Summary:** The mail channel no longer registers automation. The
-  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
-  actions, their workers and the AI-context builder are gone, and so is the reply
-  draft they were the only producer of — nothing else could create one, so the
-  draft model, its GraphQL surface and its inbox card would have been unreachable
-  code.
-- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
-  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
-  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
-  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/subscription.ts`,
-  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
-  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
-- **Contracts changed:** Removed the `frontline:mail.messages` automation
-  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
-  `mailDraftChanged` subscription.
