@@ -3,29 +3,27 @@ import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import {
-  APIActionRowComponent,
-  APIApplication,
-  APIChannel,
-  APIComponentInMessageActionRow,
-  APIEmbed,
-  APIGuild,
-  APIGuildMember,
-  APIMessage,
-  APIRole,
-  APIThreadChannel,
-  APIUser,
   ChannelType,
-  RESTAPIPoll,
-  RESTGetAPICurrentUserGuildsResult,
-  ThreadChannelType,
+  type APIActionRowComponent,
+  type APIApplication,
+  type APIChannel,
+  type APIComponentInMessageActionRow,
+  type APIEmbed,
+  type APIGuild,
+  type APIGuildMember,
+  type APIMessage,
+  type APIRole,
+  type APIThreadChannel,
+  type APIUser,
+  type RESTAPIPoll,
+  type RESTGetAPICurrentUserGuildsResult,
+  type ThreadChannelType,
 } from 'discord-api-types/v10';
 import { getEnv, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { DISCORD_API_URL } from '@/integrations/discord/constants';
-import { DiscordAttachment } from '@/integrations/discord/@types/activity';
+import type { DiscordAttachment } from '@/integrations/discord/@types/activity';
 import { debugError } from '@/integrations/discord/debuggers';
-
-export const getErrorMessage = (e: unknown): string =>
-  e instanceof Error ? e.message : String(e);
+import { getErrorMessage } from '@/integrations/utils';
 
 export const resolveAttachmentUrl = (
   subdomain: string,
@@ -38,9 +36,20 @@ export const resolveAttachmentUrl = (
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
-  return NODE_ENV === 'development'
-    ? `${DOMAIN}/pl:core/read-file?key=${urlOrKey}`
-    : `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrKey}`;
+  if (NODE_ENV === 'development') {
+    const gatewayUrl = getEnv({
+      name: 'GATEWAY_URL',
+      subdomain,
+      defaultValue: 'http://localhost:4000',
+    });
+    return `${gatewayUrl.replace(/\/$/, '')}/pl:core/read-file?key=${encodeURIComponent(
+      urlOrKey,
+    )}`;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${encodeURIComponent(
+    urlOrKey,
+  )}`;
 };
 
 type InboundAttachment = DiscordAttachment;
@@ -72,8 +81,8 @@ const rehostImage = async (
       throw new Error(`HTTP ${res.status}`);
     }
 
-    const buffer = Buffer.from(await res.arrayBuffer());
-    if (buffer.byteLength > MAX_REHOST_IMAGE_BYTES) {
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    if (bytes.byteLength > MAX_REHOST_IMAGE_BYTES) {
       return attachment;
     }
 
@@ -81,7 +90,7 @@ const rehostImage = async (
       attachment.name || filenameFromUrl(attachment.url, 0),
     );
     tmpPath = join(tmpdir(), `discord-${randomUUID()}-${fileName}`);
-    await fsPromises.writeFile(tmpPath, buffer);
+    await fsPromises.writeFile(tmpPath, bytes);
 
     const key = await uploadFileToStorage({
       subdomain,
@@ -90,7 +99,7 @@ const rehostImage = async (
       mimetype: attachment.type,
     });
 
-    return { ...attachment, url: key, size: buffer.byteLength };
+    return { ...attachment, url: key, size: bytes.byteLength };
   } catch (e) {
     debugError(
       `Failed to re-host Discord image ${
@@ -160,6 +169,34 @@ const parseDiscordResponse = (text: string): unknown => {
 };
 
 const MAX_RATE_LIMIT_RETRIES = 5;
+const MAX_NETWORK_RETRIES = 2;
+
+const IDEMPOTENT_METHODS = new Set([
+  'GET',
+  'HEAD',
+  'OPTIONS',
+  'PUT',
+  'PATCH',
+  'DELETE',
+]);
+
+const fetchWithNetworkRetry = async (
+  input: string,
+  init?: RequestInit,
+): Promise<Response> => {
+  const method = (init?.method || 'GET').toUpperCase();
+  const retryable = IDEMPOTENT_METHODS.has(method);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(input, init);
+    } catch (error) {
+      if (!retryable || attempt >= MAX_NETWORK_RETRIES) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+    }
+  }
+};
 
 const buildRequestHeaders = (
   token: string,
@@ -206,7 +243,7 @@ const discordRequest = async <T>({
   form,
 }: TDiscordRequestArgs): Promise<T> => {
   for (let attempt = 0; ; attempt++) {
-    const response = await fetch(`${DISCORD_API_URL}${path}`, {
+    const response = await fetchWithNetworkRetry(`${DISCORD_API_URL}${path}`, {
       method,
       headers: buildRequestHeaders(token, form),
       body: buildRequestBody(form, body),
@@ -249,7 +286,14 @@ type TSendChannelMessageArgs = {
   components?: APIActionRowComponent<APIComponentInMessageActionRow>[];
   files?: DiscordMessageAttachment[];
   poll?: DiscordPollRequest;
-  messageReference?: string;
+  messageReference?:
+    | string
+    | {
+        type: 1;
+        messageId: string;
+        channelId: string;
+        guildId?: string;
+      };
 };
 
 const typingTimers = new Map<string, ReturnType<typeof setInterval>>();
@@ -354,27 +398,84 @@ export const splitDiscordContent = (
   return { chunks: balanceCodeFences(chunks), truncated };
 };
 
-const postDiscordMessage = async ({
-  token,
-  channelId,
+const buildDiscordMessagePayload = ({
   content,
   embeds,
   components,
-  files,
   poll,
   messageReference,
-}: TSendChannelMessageArgs): Promise<APIMessage> => {
+}: TSendChannelMessageArgs) => {
   const payload: Record<string, unknown> = {};
   if (content) payload.content = content;
   if (embeds?.length) payload.embeds = embeds;
   if (components?.length) payload.components = components;
   if (poll) payload.poll = poll;
   if (messageReference) {
-    payload.message_reference = {
-      message_id: messageReference,
-      fail_if_not_exists: false,
-    };
+    payload.message_reference =
+      typeof messageReference === 'string'
+        ? {
+            type: 0,
+            message_id: messageReference,
+            fail_if_not_exists: false,
+          }
+        : {
+            type: messageReference.type,
+            message_id: messageReference.messageId,
+            channel_id: messageReference.channelId,
+            ...(messageReference.guildId && {
+              guild_id: messageReference.guildId,
+            }),
+            fail_if_not_exists: true,
+          };
   }
+  return payload;
+};
+
+const buildDiscordMessageForm = async (
+  files: DiscordMessageAttachment[],
+  payload: Record<string, unknown>,
+) => {
+  const form = new FormData();
+  for (const [index, file] of files.entries()) {
+    let response: Response;
+    try {
+      response = await fetchWithNetworkRetry(file.url);
+    } catch (error) {
+      const attachmentLabel = file.filename || `#${index + 1}`;
+      throw new Error(
+        `Could not read attachment ${attachmentLabel} from storage: ${getErrorMessage(
+          error,
+        )}`,
+      );
+    }
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch attachment ${file.url}: HTTP ${response.status}`,
+      );
+    }
+    const blob = await response.blob();
+    if (blob.size > MAX_ATTACHMENT_BYTES) {
+      throw new Error(
+        `Attachment ${file.url} is ${(blob.size / 1024 / 1024).toFixed(
+          1,
+        )}MB, over the 10MB Discord limit`,
+      );
+    }
+    form.append(
+      `files[${index}]`,
+      blob,
+      file.filename || filenameFromUrl(file.url, index),
+    );
+  }
+  form.append('payload_json', JSON.stringify(payload));
+  return form;
+};
+
+const postDiscordMessage = async (
+  args: TSendChannelMessageArgs,
+): Promise<APIMessage> => {
+  const { token, channelId, files } = args;
+  const payload = buildDiscordMessagePayload(args);
 
   const path = `/channels/${channelId}/messages`;
 
@@ -387,36 +488,7 @@ const postDiscordMessage = async ({
     });
   }
 
-  const form = new FormData();
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (!file?.url) continue;
-
-    const res = await fetch(file.url);
-    if (!res.ok) {
-      throw new Error(
-        `Failed to fetch attachment ${file.url}: HTTP ${res.status}`,
-      );
-    }
-
-    const blob = await res.blob();
-    if (blob.size > MAX_ATTACHMENT_BYTES) {
-      throw new Error(
-        `Attachment ${file.url} is ${(blob.size / 1024 / 1024).toFixed(
-          1,
-        )}MB, over the 10MB Discord limit`,
-      );
-    }
-
-    form.append(
-      `files[${i}]`,
-      blob,
-      file.filename || filenameFromUrl(file.url, i),
-    );
-  }
-
-  form.append('payload_json', JSON.stringify(payload));
+  const form = await buildDiscordMessageForm(files, payload);
 
   return discordRequest<APIMessage>({
     token,
@@ -429,8 +501,16 @@ const postDiscordMessage = async ({
 export const sendChannelMessage = async (
   args: TSendChannelMessageArgs,
 ): Promise<APIMessage> => {
-  const { token, channelId, content, embeds, components, files, poll, messageReference } =
-    args;
+  const {
+    token,
+    channelId,
+    content,
+    embeds,
+    components,
+    files,
+    poll,
+    messageReference,
+  } = args;
   const { chunks, truncated } = splitDiscordContent(content || '');
 
   if (truncated) {
@@ -647,6 +727,56 @@ export const listGuildChannels = async (token: string, guildId: string) => {
       (a, b) => a.parentPosition - b.parentPosition || a.position - b.position,
     );
 };
+
+export const addChannelMessageReaction = (
+  token: string,
+  channelId: string,
+  messageId: string,
+  emoji: string,
+) =>
+  discordRequest<unknown>({
+    token,
+    method: 'PUT',
+    path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
+      emoji,
+    )}/@me`,
+  });
+
+export const removeChannelMessageReaction = (
+  token: string,
+  channelId: string,
+  messageId: string,
+  emoji: string,
+) =>
+  discordRequest<unknown>({
+    token,
+    method: 'DELETE',
+    path: `/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(
+      emoji,
+    )}/@me`,
+  });
+
+export const pinChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+) =>
+  discordRequest<unknown>({
+    token,
+    method: 'PUT',
+    path: `/channels/${channelId}/pins/${messageId}`,
+  });
+
+export const unpinChannelMessage = (
+  token: string,
+  channelId: string,
+  messageId: string,
+) =>
+  discordRequest<unknown>({
+    token,
+    method: 'DELETE',
+    path: `/channels/${channelId}/pins/${messageId}`,
+  });
 
 export const listChannelMessages = async (
   token: string,

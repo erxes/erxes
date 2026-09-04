@@ -84,6 +84,12 @@ export const types = `
     mailData: MailData
     contentType: String
     mid: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
   }
 
   type Email {
@@ -240,6 +246,7 @@ export const queries = `
   ): [ConversationMessage]
 
   conversationMessagesTotalCount(conversationId: String!): Int
+  conversationPinnedMessages(conversationId: String!): [ConversationMessage]
   conversationCounts(${filterParams}, only: String): JSON
   conversationsTotalCount(${filterParams}): Int
   conversationDetail(_id: String!): Conversation
@@ -261,6 +268,17 @@ export const mutations = `
     poll: ConversationPollInput
     replyToMessageId: String
   ): ConversationMessage
+  conversationMessageReact(
+    conversationId: String!
+    messageId: String!
+    reaction: String
+    remove: Boolean
+  ): JSON
+  conversationMessagePin(
+    conversationId: String!
+    messageId: String!
+    remove: Boolean
+  ): JSON
   conversationMessageEdit(
     _id: String!,
     content: String,

@@ -1,5 +1,6 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type FC } from 'react';
 import {
+  IconArrowBackUp,
   IconArrowRight,
   IconFileAlert,
   IconMoodSmile,
@@ -9,62 +10,166 @@ import {
 import {
   Button,
   cn,
-  IAttachment,
+  Dialog,
   Popover,
   readImage,
   Spinner,
   useUpload,
+  type IAttachment,
 } from 'erxes-ui';
 import { EmojiPicker } from 'ui-modules/modules/automations/components/EmojiPicker';
 import { useAtom } from 'jotai';
 import { formatFileSize, getAttachmentType } from '@libs/format-file';
 import { InitialMessage } from '../constants';
-import { connectionAtom } from '../states';
+import { connectionAtom, widgetReplyToAtom } from '../states';
 import { useCustomerData } from '../hooks/useCustomerData';
 import { useChatInput } from '../hooks/useChatInput';
 import { PersistentMenu } from './persistent-menu';
 import { useMessenger } from '../hooks/useMessenger';
 import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
+import { PreviewImage } from './message';
+import {
+  getMaxUploadSize,
+  toPendingFile,
+  type PendingFile,
+} from '../utils/fileUpload';
 
-type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement>;
-
-/** A file still in flight. It leaves this list only once the upload settles. */
-type PendingFile = {
-  name: string;
-  type: string;
-  size: number;
-  /** Object URL for image previews — revoked when the entry is dropped. */
-  preview?: string;
-  state: 'uploading' | 'error';
-  /** Why it failed, when known. */
-  error?: string;
+type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  replyTo?: {
+    authorName: string;
+    content: string;
+  } | null;
+  onCancelReply?: () => void;
 };
 
-const DEFAULT_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+function DoneAttachmentButtonContent({ att }: { att: IAttachment }) {
+  const fileType = getAttachmentType(att.type, att.name);
+  const FileTypeIcon = getAttachmentIcon(fileType);
+  const isImage = fileType === 'image';
 
-/** Same limit `useUpload` enforces, read per call so a late env write counts. */
-const getMaxUploadSize = (): number =>
-  Number.parseInt(
-    localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
-    10,
-  ) || DEFAULT_MAX_UPLOAD_SIZE;
+  return (
+    <>
+      {isImage ? (
+        <Attachment.Media variant="image">
+          <PreviewImage src={readImage(att.url)} alt={att.name} />
+        </Attachment.Media>
+      ) : (
+        <Attachment.Media>
+          <FileTypeIcon />
+        </Attachment.Media>
+      )}
+      <Attachment.Content>
+        <Attachment.Title>{att.name}</Attachment.Title>
+        <Attachment.Description>
+          {`${formatFileSize(att.size || 0)} · Click to preview`}
+        </Attachment.Description>
+      </Attachment.Content>
+    </>
+  );
+}
 
-const toPendingFile = (
-  file: File,
-  state: PendingFile['state'],
-): PendingFile => ({
-  name: file.name,
-  type: file.type,
-  size: file.size,
-  preview: file.type.startsWith('image/')
-    ? URL.createObjectURL(file)
-    : undefined,
-  state,
-});
+function DoneAttachmentTrigger({
+  att,
+  index,
+  onRemove,
+}: {
+  att: IAttachment;
+  index: number;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <Attachment
+      size="sm"
+      state="done"
+      className="relative cursor-pointer transition-all hover:bg-muted/60"
+    >
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="flex items-center gap-2 text-left focus-visible:outline-none"
+        >
+          <DoneAttachmentButtonContent att={att} />
+        </button>
+      </Dialog.Trigger>
+      <Attachment.Actions>
+        <Attachment.Action
+          type="button"
+          aria-label={`Remove ${att.name}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(index);
+          }}
+        >
+          <IconX />
+        </Attachment.Action>
+      </Attachment.Actions>
+    </Attachment>
+  );
+}
 
-export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
+function DoneAttachmentPreview({ att }: { att: IAttachment }) {
+  const fileType = getAttachmentType(att.type, att.name);
+  const FileTypeIcon = getAttachmentIcon(fileType);
+  const isImage = fileType === 'image';
+
+  return (
+    <Dialog.Content className="max-w-2xl rounded-2xl">
+      <Dialog.Header>
+        <Dialog.Title className="truncate">{att.name}</Dialog.Title>
+      </Dialog.Header>
+      {isImage ? (
+        <div className="flex items-center justify-center p-2">
+          <PreviewImage
+            src={readImage(att.url)}
+            alt={att.name}
+            className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+            <FileTypeIcon className="size-7" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {formatFileSize(att.size || 0)}
+          </p>
+        </div>
+      )}
+    </Dialog.Content>
+  );
+}
+
+function DoneAttachmentItem({
+  att,
+  index,
+  onRemove,
+}: {
+  att: IAttachment;
+  index: number;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <Dialog>
+      <DoneAttachmentTrigger att={att} index={index} onRemove={onRemove} />
+      <DoneAttachmentPreview att={att} />
+    </Dialog>
+  );
+}
+
+export const ChatInput: FC<ChatInputProps> = ({
+  className,
+  replyTo,
+  onCancelReply,
+  ...inputProps
+}) => {
   const [connection] = useAtom(connectionAtom);
+  const [atomReplyTo, setAtomReplyTo] = useAtom(widgetReplyToAtom);
+  const activeReplyTo = replyTo !== undefined ? replyTo : atomReplyTo;
+  const handleCancelReply = () => {
+    onCancelReply?.();
+    setAtomReplyTo(null);
+  };
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -216,43 +321,14 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
             </span>
           )}
           <Attachment.Group className="hide-scroll">
-            {attachments.map((att, i) => {
-              const fileType = getAttachmentType(att.type, att.name);
-              const FileTypeIcon = getAttachmentIcon(fileType);
-
-              return (
-                <Attachment
-                  key={`done-${att.name}-${i}`}
-                  size="sm"
-                  state="done"
-                >
-                  {fileType === 'image' ? (
-                    <Attachment.Media variant="image">
-                      <img src={readImage(att.url)} alt={att.name} />
-                    </Attachment.Media>
-                  ) : (
-                    <Attachment.Media>
-                      <FileTypeIcon />
-                    </Attachment.Media>
-                  )}
-                  <Attachment.Content>
-                    <Attachment.Title>{att.name}</Attachment.Title>
-                    <Attachment.Description>
-                      {`Uploaded · ${formatFileSize(att.size || 0)}`}
-                    </Attachment.Description>
-                  </Attachment.Content>
-                  <Attachment.Actions>
-                    <Attachment.Action
-                      type="button"
-                      aria-label={`Remove ${att.name}`}
-                      onClick={() => removeAttachment(i)}
-                    >
-                      <IconX />
-                    </Attachment.Action>
-                  </Attachment.Actions>
-                </Attachment>
-              );
-            })}
+            {attachments.map((att, i) => (
+              <DoneAttachmentItem
+                key={`done-${att.url}`}
+                att={att}
+                index={i}
+                onRemove={removeAttachment}
+              />
+            ))}
             {pendingFiles.map((pf, i) => {
               const fileType = getAttachmentType(pf.type, pf.name);
               const FileTypeIcon = getAttachmentIcon(fileType);
@@ -302,14 +378,46 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
         </div>
       )}
 
+      {activeReplyTo && (
+        <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground animate-in fade-in-50">
+          <div className="flex items-center gap-2 min-w-0">
+            <IconArrowBackUp className="size-3.5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <span className="font-semibold text-foreground">
+                Replying to {activeReplyTo.authorName}:{' '}
+              </span>
+              <span className="truncate">{activeReplyTo.content}</span>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground"
+            onClick={handleCancelReply}
+            aria-label="Cancel reply"
+          >
+            <IconX className="size-3" />
+          </Button>
+        </div>
+      )}
+
       <form
         className="p-2 flex"
-        onSubmit={(e) =>
+        onSubmit={(e) => {
+          let outgoingContent: string | undefined;
+          if (activeReplyTo) {
+            outgoingContent = `<blockquote><strong>Replying to ${activeReplyTo.authorName}</strong><br/>${activeReplyTo.content}</blockquote>${message}`;
+          }
           handleSubmit(e, {
             attachments,
-            onClear: () => setAttachments([]),
-          })
-        }
+            contentOverride: outgoingContent,
+            onClear: () => {
+              setAttachments([]);
+              handleCancelReply();
+            },
+          });
+        }}
         autoComplete="off"
       >
         <div className="relative flex items-center gap-1 w-full rounded-2xl shadow-xs p-1.5 ps-2.5 bg-background">
@@ -347,7 +455,9 @@ export const ChatInput: FC<ChatInputProps> = ({ className, ...inputProps }) => {
               'border-none py-1.5 h-auto px-1 text-xs bg-transparent text-foreground shadow-none focus-visible:outline-none! focus-visible:ring-0! focus-visible:border-0! placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm flex-1',
               className,
             )}
-            placeholder={shouldDisable ? 'Sign in to send a message' :placeholder}
+            placeholder={
+              shouldDisable ? 'Sign in to send a message' : placeholder
+            }
             value={message}
             disabled={shouldDisable}
             onChange={handleInputChange}

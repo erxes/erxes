@@ -555,10 +555,17 @@ export const normalizeMessengerTag = (
     : trimmed;
 };
 
+interface IFacebookReplyPayload {
+  recipient?: { id?: string; comment_id?: string };
+  sender_action?: string;
+  tag?: string;
+  [key: string]: unknown;
+}
+
 export const sendReply = async (
   models: IModels,
   url: string,
-  data: any,
+  data: IFacebookReplyPayload,
   recipientId: string,
   integrationId: string | undefined,
 ) => {
@@ -634,6 +641,57 @@ export const sendReply = async (
   }
 };
 
+interface IFacebookReactionPayload {
+  recipient: { id: string };
+  sender_action: 'react' | 'unreact';
+  payload: {
+    message_id: string;
+    reaction?: string;
+  };
+}
+
+export const sendReaction = async (
+  models: IModels,
+  data: IFacebookReactionPayload,
+  pageId: string,
+  integrationId: string,
+) => {
+  const integration = await models.FacebookIntegrations.getIntegration({
+    erxesApiId: integrationId,
+  });
+  const pageAccessToken = getPageAccessTokenFromMap(
+    pageId,
+    integration.facebookPageTokensMap || {},
+  );
+
+  if (!pageAccessToken) {
+    throw new Error(`Page access token not found for page: ${pageId}`);
+  }
+
+  const response = await fetch(
+    `https://graph.facebook.com/v25.0/${pageId}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${pageAccessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    },
+  );
+  const result = (await response.json()) as {
+    error?: { message?: string };
+  };
+
+  if (!response.ok) {
+    const message = result.error?.message || 'Failed to react on Facebook';
+    debugError(`Facebook reaction failed: ${message}`);
+    throw new Error(`Facebook reaction failed: ${message}`);
+  }
+
+  return result;
+};
+
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[],
@@ -704,7 +762,16 @@ export const fetchPagesPostsList = async (
   return response.data || [];
 };
 
-export const checkFacebookPages = async (models: IModels, pages: any) => {
+interface IFacebookPage {
+  id: string;
+  isUsed?: boolean;
+  [key: string]: unknown;
+}
+
+export const checkFacebookPages = async (
+  models: IModels,
+  pages: IFacebookPage[],
+) => {
   for (const page of pages) {
     const integration = await models.FacebookIntegrations.findOne({
       pageId: page.id,
@@ -732,7 +799,7 @@ export const getFacebookUserProfilePic = async (
   }
 
   try {
-    const response: any = await graphRequest.get(
+    const response: { location: string } = await graphRequest.get(
       `/${fbId}/picture?height=600`,
       pageAccessToken,
     );
@@ -756,11 +823,10 @@ export const getFacebookUserProfilePic = async (
         false,
       );
 
-      return awsResponse as string; // Ensure the return type is string
+      return String(awsResponse);
     }
 
-    // Return the profile picture URL directly if not uploading to AWS
-    return response.location as string; // Type assertion to ensure it's a string
+    return response.location;
   } catch (e) {
     debugError(
       `Error occurred while getting facebook user profile pic: ${e.message}`,
@@ -769,7 +835,19 @@ export const getFacebookUserProfilePic = async (
   }
 };
 
-export const checkIsAdsOpenThread = (entry: any[] = []) => {
+interface IFacebookWebhookEntry {
+  messaging?: Array<{
+    message?: {
+      referral?: {
+        source?: string;
+        type?: string;
+        ads_context_data?: unknown;
+      };
+    };
+  }>;
+}
+
+export const checkIsAdsOpenThread = (entry: IFacebookWebhookEntry[] = []) => {
   const messaging = entry[0]?.messaging || [];
 
   const referral = (messaging || [])[0]?.message?.referral;
@@ -785,10 +863,17 @@ export const checkIsAdsOpenThread = (entry: any[] = []) => {
   return isSourceAds && isTypeOpenThread && hasAdsContextData;
 };
 
-export const generateFieldBotOptions = async (models: IModels, fields) => {
+interface IFacebookField {
+  name: string;
+}
+
+export const generateFieldBotOptions = async <T extends IFacebookField>(
+  models: IModels,
+  fields: T[],
+) => {
   const bots = await models.FacebookBots.find({});
 
-  const selectOptions: Array<{ label: string; value: any }> = bots.map(
+  const selectOptions: Array<{ label: string; value: string }> = bots.map(
     (bot) => ({
       value: bot._id,
       label: bot.name,

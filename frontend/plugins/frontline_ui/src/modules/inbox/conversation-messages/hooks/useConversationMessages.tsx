@@ -1,8 +1,8 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
-import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
-import { IMessage } from '../../types/Conversation';
+import { useQuery, type QueryHookOptions } from '@apollo/client';
+import { useCallback, useEffect, useRef } from 'react';
+import { GET_CONVERSATION_MESSAGES } from '@/inbox/conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 export const useConversationMessages = (
   options: QueryHookOptions<{
@@ -20,31 +20,84 @@ export const useConversationMessages = (
     conversationMessagesTotalCount: 0,
   };
 
-  const handleFetchMore = () => {
-    if (
-      !loading ||
-      conversationMessagesTotalCount > conversationMessages.length
-    ) {
-      fetchMore({
-        variables: {
-          skip: conversationMessages.length,
-          limit: 10,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) return prev;
+  // Track the skip offset separately from array length.
+  // Array length includes subscription-pushed new messages which must NOT
+  // advance the "how far back into history" offset we send the backend.
+  // Initialized to the initial page size because useQuery already loaded
+  // skip=0..limit-1; the first fetchMore must start at the next page.
+  const initialLimit = options.variables?.limit ?? 10;
+  const oldMessagesSkipRef = useRef(initialLimit);
+  const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
+  const prevConversationIdRef = useRef(options.variables?.conversationId);
 
-          return {
-            conversationMessages: [
-              ...fetchMoreResult.conversationMessages,
-              ...prev.conversationMessages,
-            ],
-            conversationMessagesTotalCount:
-              fetchMoreResult.conversationMessagesTotalCount,
-          };
-        },
-      });
+  // Reset skip offset whenever the conversation changes.
+  if (prevConversationIdRef.current !== options.variables?.conversationId) {
+    prevConversationIdRef.current = options.variables?.conversationId;
+    oldMessagesSkipRef.current = initialLimit;
+    fetchMoreInFlightRef.current = null;
+  }
+
+  const handleFetchMore = useCallback((): Promise<unknown> => {
+    if (
+      loading ||
+      fetchMoreInFlightRef.current ||
+      conversationMessagesTotalCount <= conversationMessages.length
+    ) {
+      return fetchMoreInFlightRef.current || Promise.resolve();
     }
-  };
+    const skip = oldMessagesSkipRef.current;
+    const conversationId = options.variables?.conversationId;
+    const request = fetchMore({
+      variables: {
+        skip,
+        limit: 50,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult?.conversationMessages?.length) {
+          return prev;
+        }
+
+        const existingIds = new Set(
+          (prev.conversationMessages || []).map((m: IMessage) => m._id),
+        );
+        const uniqueNewMessages = fetchMoreResult.conversationMessages.filter(
+          (m: IMessage) => !existingIds.has(m._id),
+        );
+
+        if (!uniqueNewMessages.length) {
+          return prev;
+        }
+
+        return {
+          conversationMessages: [
+            ...uniqueNewMessages,
+            ...prev.conversationMessages,
+          ],
+          conversationMessagesTotalCount:
+            fetchMoreResult.conversationMessagesTotalCount ??
+            prev.conversationMessagesTotalCount,
+        };
+      },
+    })
+      .then((result) => {
+        if (prevConversationIdRef.current === conversationId) {
+          oldMessagesSkipRef.current = skip + 50;
+        }
+        return result;
+      })
+      .finally(() => {
+        if (fetchMoreInFlightRef.current === request) {
+          fetchMoreInFlightRef.current = null;
+        }
+      });
+    fetchMoreInFlightRef.current = request;
+    return request;
+  }, [
+    conversationMessages.length,
+    conversationMessagesTotalCount,
+    fetchMore,
+    loading,
+  ]);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<{

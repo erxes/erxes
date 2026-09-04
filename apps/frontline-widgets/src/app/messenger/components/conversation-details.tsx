@@ -14,6 +14,7 @@ import {
   messengerDataAtom,
   operatorStatusAtom,
   setConversationIdAtom,
+  widgetReplyToAtom,
 } from '../states';
 import { useChangeOperatorStatus } from '../hooks/useChangeOperatorStatus';
 import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
@@ -30,8 +31,13 @@ import {
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
-
-const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
+import type { IAttachment } from '../types';
+import {
+  isBotMessage,
+  isCustomerJoined,
+  isOperatorMessage,
+  shouldGroupMessages,
+} from '../utils/messageGrouping';
 
 type Message = NonNullable<
   ReturnType<typeof useConversationDetail>['conversationDetail']
@@ -43,39 +49,6 @@ type MessageGroup = {
   messages: MessageWithAvatar[];
   firstMessage: Message;
 };
-
-function isOperatorMessage(message: Message): boolean {
-  return !message.customerId && !message.fromBot;
-}
-
-function isBotMessage(message: Message): boolean {
-  return Boolean(message.fromBot);
-}
-
-function isCustomerJoined(message: Message): boolean {
-  return (message.fromBot && message.botData === null) || false;
-}
-
-function shouldGroupMessages(
-  message: Message,
-  groupFirstMessage: Message,
-  timeDifference: number,
-): boolean {
-  if (timeDifference > MESSAGE_GROUP_TIME_WINDOW) return false;
-
-  const messageIsOperator = isOperatorMessage(message);
-  const groupIsOperator = isOperatorMessage(groupFirstMessage);
-
-  if (messageIsOperator && groupIsOperator) {
-    return message.userId === groupFirstMessage.userId;
-  }
-
-  if (!messageIsOperator && !groupIsOperator) {
-    return message.customerId === groupFirstMessage.customerId;
-  }
-
-  return false;
-}
 
 export const ConversationDetails = () => {
   const conversationId = useAtomValue(conversationIdAtom);
@@ -97,6 +70,41 @@ export const ConversationDetails = () => {
 
   const { insertMessage } = useInsertMessage();
   const setConversationId = useSetAtom(setConversationIdAtom);
+  const setReplyTo = useSetAtom(widgetReplyToAtom);
+
+  const extractMessageText = (
+    content?: string,
+    attachments?: IAttachment[],
+  ): string => {
+    if (content && content !== '<p></p>') {
+      const doc = new DOMParser().parseFromString(content, 'text/html');
+      const text = (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+      if (text) return text;
+    }
+    if (attachments?.length) {
+      return attachments.map((a) => a.name || 'Attachment').join(', ');
+    }
+    return '';
+  };
+
+  const handleReplyMessage = (
+    authorName: string,
+    content?: string,
+    attachments?: IAttachment[],
+  ) => {
+    const text = extractMessageText(content, attachments);
+    setReplyTo({
+      authorName,
+      content: text || 'Attachment',
+    });
+  };
+
+  const handleCopyMessage = (content?: string, attachments?: IAttachment[]) => {
+    const text = extractMessageText(content, attachments);
+    if (text && typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+  };
 
   const handleGetStarted = useCallback(() => {
     insertMessage({
@@ -410,12 +418,29 @@ export const ConversationDetails = () => {
                               ? handleTicketFormSubmit
                               : undefined
                           }
+                          onReply={() =>
+                            handleReplyMessage(
+                              aiAgentLabel || 'AI Agent',
+                              message.content,
+                              message.attachments,
+                            )
+                          }
+                          onCopy={() =>
+                            handleCopyMessage(
+                              message.content,
+                              message.attachments,
+                            )
+                          }
                           {...messagePositionProps}
                         />
                       );
                     }
 
                     if (isOperatorMessage(message)) {
+                      const operatorName =
+                        message.user?.details?.fullName ||
+                        message.user?.details?.firstName ||
+                        'Operator';
                       return (
                         <OperatorMessage
                           key={message._id}
@@ -426,9 +451,19 @@ export const ConversationDetails = () => {
                           createdAt={new Date(message.createdAt)}
                           showAvatar={message.showAvatar}
                           attachments={message.attachments}
-                          userName={
-                            message.user?.details?.fullName ||
-                            message.user?.details?.firstName
+                          userName={operatorName}
+                          onReply={() =>
+                            handleReplyMessage(
+                              operatorName,
+                              message.content,
+                              message.attachments,
+                            )
+                          }
+                          onCopy={() =>
+                            handleCopyMessage(
+                              message.content,
+                              message.attachments,
+                            )
                           }
                           {...messagePositionProps}
                         />
@@ -441,6 +476,19 @@ export const ConversationDetails = () => {
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
                         attachments={message.attachments}
+                        onReply={() =>
+                          handleReplyMessage(
+                            'You',
+                            message.content,
+                            message.attachments,
+                          )
+                        }
+                        onCopy={() =>
+                          handleCopyMessage(
+                            message.content,
+                            message.attachments,
+                          )
+                        }
                         {...messagePositionProps}
                       />
                     );

@@ -45,6 +45,12 @@ export const CONVERSATION_MESSAGE_INSERTED = gql`
       relatedMessage
       mid
       fromBot
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
     }
   }
 `;

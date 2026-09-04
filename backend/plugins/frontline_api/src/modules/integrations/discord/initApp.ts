@@ -14,14 +14,12 @@ import {
   receiveDiscordMessageDelete,
   receiveDiscordMessageEdit,
   receiveDiscordPollVote,
+  receiveDiscordReaction,
   receiveDiscordTyping,
 } from '@/integrations/discord/controller/receiveEvents';
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
-import {
-  getChannel,
-  getErrorMessage,
-  isThreadChannel,
-} from '@/integrations/discord/utils';
+import { getChannel, isThreadChannel } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
@@ -205,6 +203,17 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
           );
         }
       },
+      onReaction: async (event) => {
+        try {
+          const bot = await resolveBot(event.channelId);
+          if (!bot) return;
+          await receiveDiscordReaction({ models, bot, event });
+        } catch (e) {
+          debugError(
+            `Discord reaction routing failed: ${(e as Error).message}`,
+          );
+        }
+      },
       onTyping: async (event) => {
         try {
           const bot = await resolveBot(event.channelId);
@@ -214,7 +223,7 @@ export const connectDiscordToken = async (subdomain: string, token: string) => {
           debugError(`Discord typing routing failed: ${(e as Error).message}`);
         }
       },
-    
+
       onFatalClose: async ({ reason, tokenValid }) => {
         try {
           await models.DiscordBots.markTokenBroken(token, reason, tokenValid);
@@ -460,6 +469,7 @@ const runOwnerLoop = async (subdomain: string) => {
       try {
         await lock.release();
       } catch {
+        // The lock may already have expired or been transferred during teardown.
       }
     }
   }

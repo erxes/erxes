@@ -7,33 +7,49 @@ import { ConversationDetail } from '@/inbox/conversations/conversation-detail/co
 import { Conversations } from '@/inbox/conversations/components/Conversations';
 import { useTranslation } from 'react-i18next';
 
-const InboxIndexPage = () => {
-  const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', t('inbox'));
+const InboxLink = ({ title }: { title: string }) => (
+  <Button variant="ghost" asChild>
+    <Link to="/frontline/inbox">
+      <IconMail />
+      {title}
+    </Link>
+  </Button>
+);
+
+const InboxBreadcrumb = ({ title }: { title: string }) => (
+  <Breadcrumb>
+    <Breadcrumb.List className="gap-1">
+      <Breadcrumb.Item>
+        <InboxLink title={title} />
+      </Breadcrumb.Item>
+    </Breadcrumb.List>
+  </Breadcrumb>
+);
+
+const InboxPageHeader = ({ title }: { title: string }) => {
+  const favoriteBreadcrumb = createFavoriteBreadcrumb('Frontline', title);
 
   return (
-    <div className="flex flex-col h-dvh">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/frontline/inbox">
-                    <IconMail />
-                    {t('inbox')}
-                  </Link>
-                </Button>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={favoriteBreadcrumb}
-            icon="IconMail"
-          />
-        </PageHeader.Start>
-      </PageHeader>
+    <PageHeader>
+      <PageHeader.Start>
+        <InboxBreadcrumb title={title} />
+        <Separator.Inline />
+        <PageHeader.FavoriteToggleButton
+          breadcrumb={favoriteBreadcrumb}
+          icon="IconMail"
+        />
+      </PageHeader.Start>
+    </PageHeader>
+  );
+};
+
+const InboxIndexPage = () => {
+  const { t } = useTranslation('frontline');
+  const title = t('inbox');
+
+  return (
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <InboxPageHeader title={title} />
       <InboxLayout
         conversations={<Conversations />}
         conversationDetail={<ConversationDetail />}

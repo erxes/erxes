@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../graphql/queries/fbConversationQueries';
+import { GET_CONVERSATION_MESSAGES } from '@/integrations/facebook/graphql/queries/fbConversationQueries';
 import { useQueryState } from 'erxes-ui';
-import { IFacebookConversationMessage } from '../types/FacebookTypes';
-import { useEffect } from 'react';
+import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
+import { useCallback, useEffect } from 'react';
 import { CONVERSATION_MESSAGE_INSERTED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
 
 export interface IFacebookConversationMessagesQuery {
   facebookConversationMessages: IFacebookConversationMessage[];
+  facebookConversationMessagesCount: number;
 }
 export interface IFacebookConversationMessagesQueryVariables {
   _id?: string;
@@ -35,31 +36,48 @@ export const useFacebookConversationMessages = () => {
 
   const { facebookConversationMessages } = data || {};
 
-  const handleFetchMore = () => {
-    if (
-      facebookConversationMessages?.length &&
-      facebookConversationMessages?.length %
-        FACEBOOK_CONVERSATION_MESSAGES_LIMIT ===
-        0
-    ) {
-      fetchMore({
-        variables: {
-          skip: data?.facebookConversationMessages?.length || 0,
-        },
-        updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult) {
-            return prev;
-          }
-          return {
-            facebookConversationMessages: [
-              ...fetchMoreResult.facebookConversationMessages,
-              ...prev.facebookConversationMessages,
-            ],
-          };
-        },
-      });
+  const totalCount = Math.max(
+    data?.facebookConversationMessagesCount || 0,
+    facebookConversationMessages?.length || 0,
+  );
+
+  const handleFetchMore = useCallback((): Promise<unknown> => {
+    const loadedCount = facebookConversationMessages?.length || 0;
+    if (loading || totalCount <= loadedCount) {
+      return Promise.resolve();
     }
-  };
+    if (loadedCount % FACEBOOK_CONVERSATION_MESSAGES_LIMIT !== 0) {
+      return Promise.resolve();
+    }
+    return fetchMore({
+      variables: {
+        skip: loadedCount,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+        const existingIds = new Set(
+          (prev.facebookConversationMessages || []).map((m) => m._id),
+        );
+        const uniqueNewMessages =
+          fetchMoreResult.facebookConversationMessages.filter(
+            (m) => !existingIds.has(m._id),
+          );
+        if (!uniqueNewMessages.length) {
+          return prev;
+        }
+        return {
+          facebookConversationMessages: [
+            ...uniqueNewMessages,
+            ...prev.facebookConversationMessages,
+          ],
+          facebookConversationMessagesCount:
+            fetchMoreResult.facebookConversationMessagesCount,
+        };
+      },
+    });
+  }, [facebookConversationMessages, fetchMore, loading, totalCount]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -74,13 +92,31 @@ export const useFacebookConversationMessages = () => {
         if (!prev || !subscriptionData.data) return prev;
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
+        const currentMessages = Array.isArray(prev.facebookConversationMessages)
+          ? prev.facebookConversationMessages
+          : [];
 
         // Check if the message already exists to prevent duplicates
-        const messageExists = prev.facebookConversationMessages.some(
-          (msg: IFacebookConversationMessage) => msg._id === newMessage._id,
+        const existingMessageIndex = currentMessages.findIndex(
+          (message) => message._id === newMessage._id,
         );
 
-        if (messageExists) return prev;
+        if (existingMessageIndex !== -1) {
+          return {
+            ...prev,
+            facebookConversationMessages: currentMessages.map(
+              (message, index) =>
+                index === existingMessageIndex
+                  ? {
+                      ...message,
+                      ...newMessage,
+                      conversationId,
+                      __typename: 'FacebookConversationMessage',
+                    }
+                  : message,
+            ),
+          };
+        }
 
         try {
           // Get the cache ID for the conversation
@@ -106,13 +142,15 @@ export const useFacebookConversationMessages = () => {
         return {
           ...prev,
           facebookConversationMessages: [
-            ...prev.facebookConversationMessages,
+            ...currentMessages,
             {
               ...newMessage,
               conversationId,
               __typename: 'FacebookConversationMessage',
             },
           ],
+          facebookConversationMessagesCount:
+            (prev.facebookConversationMessagesCount || 0) + 1,
         };
       },
     });
@@ -121,6 +159,7 @@ export const useFacebookConversationMessages = () => {
 
   return {
     facebookConversationMessages,
+    totalCount,
     handleFetchMore,
     loading,
     error,

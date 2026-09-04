@@ -68,6 +68,11 @@ export const types = `
     fromBot: Boolean
     botData: JSON
     source: JSON
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    expiresAt: Date
+    reactions: JSON
     relatedMessage: JSON
     customerId: String
     userId: String
