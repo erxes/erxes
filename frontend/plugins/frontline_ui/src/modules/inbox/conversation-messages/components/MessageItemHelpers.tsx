@@ -47,7 +47,6 @@ export const DiscordEditedStatus = ({ edited }: { edited?: boolean }) => {
   if (!edited) {
     return null;
   }
-
   return <span className="text-muted-foreground/70">(edited)</span>;
 };
 
@@ -84,3 +83,57 @@ export const getMessageBubbleClassName = ({
       (showAuthorName || showBotName ? 'mt-0' : 'mt-6'),
     hasReply && 'mt-0 rounded-t-md',
   );
+
+// Linear replacement for `.replace(/<[^<>]+>/g, replacement)`. The regex form
+// has super-linear backtracking on adversarial input; this scanner replaces
+// exactly the same spans in one pass.
+export const replaceHtmlTags = (html: string, replacement: string): string => {
+  let result = '';
+  let segmentStart = 0;
+  let tagStart = -1;
+
+  for (let index = 0; index < html.length; index += 1) {
+    const character = html[index];
+
+    if (character === '<') {
+      if (tagStart !== -1) {
+        result += html.slice(segmentStart, index);
+        segmentStart = index;
+      }
+      tagStart = index;
+    } else if (character === '>' && tagStart !== -1) {
+      if (index > tagStart + 1) {
+        result += html.slice(segmentStart, tagStart) + replacement;
+      } else {
+        result += html.slice(segmentStart, index + 1);
+      }
+      segmentStart = index + 1;
+      tagStart = -1;
+    }
+  }
+
+  return result + html.slice(segmentStart);
+};
+
+// Linear equivalent of `.replace(/<[^>]*>/g, '')`.
+export const stripHtmlTags = (html: string): string => {
+  let result = '';
+  let segmentStart = 0;
+  let tagStart = -1;
+
+  for (let index = 0; index < html.length; index += 1) {
+    const character = html[index];
+
+    if (character === '<') {
+      if (tagStart === -1) {
+        tagStart = index;
+      }
+    } else if (character === '>' && tagStart !== -1) {
+      result += html.slice(segmentStart, tagStart);
+      segmentStart = index + 1;
+      tagStart = -1;
+    }
+  }
+
+  return result + html.slice(segmentStart);
+};

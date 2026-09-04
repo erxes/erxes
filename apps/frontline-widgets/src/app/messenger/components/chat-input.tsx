@@ -71,6 +71,90 @@ const toPendingFile = (
   state,
 });
 
+function DoneAttachmentItem({
+  att,
+  index,
+  onRemove,
+}: {
+  att: IAttachment;
+  index: number;
+  onRemove: (index: number) => void;
+}) {
+  const fileType = getAttachmentType(att.type, att.name);
+  const FileTypeIcon = getAttachmentIcon(fileType);
+  const isImage = fileType === 'image';
+
+  return (
+    <Dialog>
+      <Attachment
+        size="sm"
+        state="done"
+        className="relative cursor-pointer transition-all hover:bg-muted/60"
+      >
+        <Dialog.Trigger asChild>
+          <button
+            type="button"
+            className="flex items-center gap-2 text-left focus-visible:outline-none"
+          >
+            {isImage ? (
+              <Attachment.Media variant="image">
+                {/* skipcq: JS-W1015 */}
+                <img src={readImage(att.url)} alt={att.name} />
+              </Attachment.Media>
+            ) : (
+              <Attachment.Media>
+                <FileTypeIcon />
+              </Attachment.Media>
+            )}
+            <Attachment.Content>
+              <Attachment.Title>{att.name}</Attachment.Title>
+              <Attachment.Description>
+                {`${formatFileSize(att.size || 0)} · Click to preview`}
+              </Attachment.Description>
+            </Attachment.Content>
+          </button>
+        </Dialog.Trigger>
+        <Attachment.Actions>
+          <Attachment.Action
+            type="button"
+            aria-label={`Remove ${att.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(index);
+            }}
+          >
+            <IconX />
+          </Attachment.Action>
+        </Attachment.Actions>
+      </Attachment>
+      <Dialog.Content className="max-w-2xl rounded-2xl">
+        <Dialog.Header>
+          <Dialog.Title className="truncate">{att.name}</Dialog.Title>
+        </Dialog.Header>
+        {isImage ? (
+          <div className="flex items-center justify-center p-2">
+            {/* skipcq: JS-W1015 */}
+            <img
+              src={readImage(att.url)}
+              alt={att.name}
+              className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+              <FileTypeIcon className="size-7" />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formatFileSize(att.size || 0)}
+            </p>
+          </div>
+        )}
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
 export const ChatInput: FC<ChatInputProps> = ({
   className,
   replyTo,
@@ -235,83 +319,14 @@ export const ChatInput: FC<ChatInputProps> = ({
             </span>
           )}
           <Attachment.Group className="hide-scroll">
-            {attachments.map((att, i) => {
-              const fileType = getAttachmentType(att.type, att.name);
-              const FileTypeIcon = getAttachmentIcon(fileType);
-              const isImage = fileType === 'image';
-
-              return (
-                <Dialog key={`done-${att.name}-${i}`}>
-                  <Attachment
-                    size="sm"
-                    state="done"
-                    className="relative cursor-pointer transition-all hover:bg-muted/60"
-                  >
-                    <Dialog.Trigger asChild>
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 text-left focus-visible:outline-none"
-                      >
-                        {isImage ? (
-                          <Attachment.Media variant="image">
-                            <img src={readImage(att.url)} alt={att.name} />
-                          </Attachment.Media>
-                        ) : (
-                          <Attachment.Media>
-                            <FileTypeIcon />
-                          </Attachment.Media>
-                        )}
-                        <Attachment.Content>
-                          <Attachment.Title>{att.name}</Attachment.Title>
-                          <Attachment.Description>
-                            {`${formatFileSize(
-                              att.size || 0,
-                            )} · Click to preview`}
-                          </Attachment.Description>
-                        </Attachment.Content>
-                      </button>
-                    </Dialog.Trigger>
-                    <Attachment.Actions>
-                      <Attachment.Action
-                        type="button"
-                        aria-label={`Remove ${att.name}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeAttachment(i);
-                        }}
-                      >
-                        <IconX />
-                      </Attachment.Action>
-                    </Attachment.Actions>
-                  </Attachment>
-                  <Dialog.Content className="max-w-2xl rounded-2xl">
-                    <Dialog.Header>
-                      <Dialog.Title className="truncate">
-                        {att.name}
-                      </Dialog.Title>
-                    </Dialog.Header>
-                    {isImage ? (
-                      <div className="flex items-center justify-center p-2">
-                        <img
-                          src={readImage(att.url)}
-                          alt={att.name}
-                          className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-3 py-4 text-center">
-                        <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-                          <FileTypeIcon className="size-7" />
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(att.size || 0)}
-                        </p>
-                      </div>
-                    )}
-                  </Dialog.Content>
-                </Dialog>
-              );
-            })}
+            {attachments.map((att, i) => (
+              <DoneAttachmentItem
+                key={`done-${att.url}`}
+                att={att}
+                index={i}
+                onRemove={removeAttachment}
+              />
+            ))}
             {pendingFiles.map((pf, i) => {
               const fileType = getAttachmentType(pf.type, pf.name);
               const FileTypeIcon = getAttachmentIcon(fileType);

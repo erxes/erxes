@@ -33,6 +33,9 @@ type TGraphMessageDetails = {
   attachments?: { data?: TGraphMessageAttachment[] };
 };
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
 const fetchStoryMediaUrl = async (
   integration: IFacebookIntegrationDocument,
   pageId: string,
@@ -70,14 +73,15 @@ const fetchStoryMediaUrl = async (
 };
 
 const readOpenGraphValue = (html: string, property: string) => {
-  const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = html.match(
-    new RegExp(
-      `<meta[^>]+property=["']${escapedProperty}["'][^>]+content=["']([^"']*)`,
-      'i',
-    ),
+  const escapedProperty = property.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    String.raw`\$&`,
   );
-  return match?.[1]?.replace(/&amp;/g, '&');
+  const pattern = new RegExp(
+    `<meta[^>]+property=["']${escapedProperty}["'][^>]+content=["']([^"']*)`,
+    'i',
+  );
+  return pattern.exec(html)?.[1]?.replace(/&amp;/g, '&');
 };
 
 const fetchFacebookSharePreview = async (url?: string) => {
@@ -162,13 +166,10 @@ const sanitizeString = (value: unknown): string => {
 const DEFAULT_HANDOFF_MESSAGE =
   'A teammate will take over shortly. Automated replies are paused.';
 
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
-
 const getReplyPreview = (content?: string) =>
   (content || '')
     .replace(
-      /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
+      /^<blockquote><strong>Replying to<\/strong><br\s*\/?>(?:[^<]|<(?!\/blockquote>))*<\/blockquote>/i,
       '',
     )
     .replace(/<br\s*\/?>/gi, ' ')
@@ -684,6 +685,122 @@ const storeFacebookMessage = async ({
   }
 };
 
+const resolveStoryMessageKind = (
+  isStoryShare: boolean,
+  attachmentType?: string,
+): string | undefined => {
+  if (isStoryShare) {
+    return 'story_reply';
+  }
+  if (
+    attachmentType === 'story_reply' ||
+    attachmentType === 'story_mention'
+  ) {
+    return attachmentType;
+  }
+  if (attachmentType === 'post' || attachmentType === 'reel') {
+    return 'share';
+  }
+  return undefined;
+};
+
+type TChannelMessage = NonNullable<Activity['channelData']['message']>;
+type TChannelAttachment = NonNullable<TChannelMessage['attachments']>[number];
+
+// Meta sends story shares as a message containing only `mid` for some
+// Messenger Page webhooks. Preserve that event as an unavailable story
+// instead of storing an empty message that the inbox cannot render.
+const isMidOnlyFacebookMessage = (args: {
+  mid?: string;
+  message?: TChannelMessage;
+  text?: string;
+  attachments?: TChannelMessage['attachments'];
+  postback?: Activity['channelData']['postback'];
+}): boolean =>
+  Boolean(
+    args.mid &&
+      args.message &&
+      !args.text &&
+      !args.attachments?.length &&
+      !args.postback &&
+      !args.message.quick_reply &&
+      !args.message.referral &&
+      !args.message.payload,
+  );
+
+const resolveStoryEnrichment = async (args: {
+  integration: IFacebookIntegrationDocument;
+  pageId: string;
+  mid?: string;
+  story?: { id?: string; url?: string };
+  isMidOnlyMessage: boolean;
+  attachments?: TChannelMessage['attachments'];
+}) => {
+  const { integration, pageId, mid, story, isMidOnlyMessage, attachments } =
+    args;
+  const storyMediaUrl =
+    story?.url ||
+    (isMidOnlyMessage && mid
+      ? await fetchStoryMediaUrl(integration, pageId, mid)
+      : undefined);
+  const messageAttachments: TChannelAttachment[] =
+    story || isMidOnlyMessage
+      ? [
+          {
+            type: 'story_reply',
+            payload: { url: storyMediaUrl || '' },
+          },
+        ]
+      : attachments || [];
+  const primaryAttachment = messageAttachments[0];
+  const isStoryShare =
+    primaryAttachment?.type === 'share' &&
+    isFacebookStoryUrl(primaryAttachment.payload?.url);
+  const sharePreview =
+    primaryAttachment?.type === 'post' ||
+    primaryAttachment?.type === 'reel' ||
+    isStoryShare
+      ? await fetchFacebookSharePreview(primaryAttachment.payload?.url)
+      : undefined;
+  const messageKind = resolveStoryMessageKind(
+    isStoryShare,
+    primaryAttachment?.type,
+  );
+  const isStory = Boolean(messageKind);
+  const storyUrl = isStoryShare
+    ? sharePreview?.previewUrl
+    : primaryAttachment?.payload?.url;
+  const storyProviderData = {
+    messageId: mid,
+    attachmentType: primaryAttachment?.type,
+    storyUrl,
+    fallbackReason: storyUrl ? undefined : 'Story unavailable',
+    previewText:
+      messageKind === 'story_reply' ? 'Story reply' : 'Story mention',
+  };
+  const shareProviderData = {
+    messageId: mid,
+    attachmentType: primaryAttachment?.type,
+    previewText:
+      primaryAttachment?.type === 'reel' ? 'Facebook reel' : 'Facebook post',
+    previewUrl: sharePreview?.previewUrl,
+    shareType:
+      primaryAttachment?.type === 'reel'
+        ? ('reel' as const)
+        : ('post' as const),
+  };
+  let providerData:
+    | typeof storyProviderData
+    | typeof shareProviderData
+    | undefined;
+  if (isStory) {
+    providerData = storyProviderData;
+  } else if (messageKind === 'share') {
+    providerData = shareProviderData;
+  }
+  return { messageAttachments, primaryAttachment, messageKind, providerData };
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
@@ -749,86 +866,28 @@ export const receiveMessage = async (
       botId,
     });
     const story = message?.reply_to?.story;
-    // Meta sends story shares as a message containing only `mid` for some
-    // Messenger Page webhooks. Preserve that event as an unavailable story
-    // instead of storing an empty message that the inbox cannot render.
-    const isMidOnlyMessage = Boolean(
-      mid &&
-      message &&
-      !text &&
-      !attachments?.length &&
-      !postback &&
-      !message.quick_reply &&
-      !message.referral &&
-      !message.payload,
-    );
-    const storyMediaUrl =
-      story?.url ||
-      (isMidOnlyMessage && mid
-        ? await fetchStoryMediaUrl(integration, pageId, mid)
-        : undefined);
-    const messageAttachments =
-      story || isMidOnlyMessage
-        ? [
-            {
-              type: 'story_reply',
-              payload: { url: storyMediaUrl || '' },
-            },
-          ]
-        : attachments;
+    const isMidOnlyMessage = isMidOnlyFacebookMessage({
+      mid,
+      message,
+      text,
+      attachments,
+      postback,
+    });
+    const {
+      messageAttachments,
+      primaryAttachment,
+      messageKind,
+      providerData,
+    } = await resolveStoryEnrichment({
+      integration,
+      pageId,
+      mid,
+      story,
+      isMidOnlyMessage,
+      attachments,
+    });
     const formattedAttachments = formatAttachments(messageAttachments);
-    const primaryAttachment = messageAttachments?.[0];
-    const isStoryShare =
-      primaryAttachment?.type === 'share' &&
-      isFacebookStoryUrl(primaryAttachment.payload?.url);
-    const sharePreview =
-      primaryAttachment?.type === 'post' ||
-      primaryAttachment?.type === 'reel' ||
-      isStoryShare
-        ? await fetchFacebookSharePreview(primaryAttachment.payload?.url)
-        : undefined;
-    const messageKind = isStoryShare
-      ? 'story_reply'
-      : primaryAttachment?.type === 'story_reply' ||
-          primaryAttachment?.type === 'story_mention'
-        ? primaryAttachment.type
-        : primaryAttachment?.type === 'post' ||
-            primaryAttachment?.type === 'reel'
-          ? 'share'
-          : undefined;
     const isStory = Boolean(messageKind);
-    const providerData = isStory
-      ? {
-          messageId: mid,
-          attachmentType: primaryAttachment?.type,
-          storyUrl: isStoryShare
-            ? sharePreview?.previewUrl
-            : primaryAttachment?.payload?.url,
-          fallbackReason: (
-            isStoryShare
-              ? sharePreview?.previewUrl
-              : primaryAttachment?.payload?.url
-          )
-            ? undefined
-            : 'Story unavailable',
-          previewText:
-            messageKind === 'story_reply' ? 'Story reply' : 'Story mention',
-        }
-      : messageKind === 'share'
-        ? {
-            messageId: mid,
-            attachmentType: primaryAttachment?.type,
-            previewText:
-              primaryAttachment?.type === 'reel'
-                ? 'Facebook reel'
-                : 'Facebook post',
-            previewUrl: sharePreview?.previewUrl,
-            shareType:
-              primaryAttachment?.type === 'reel'
-                ? ('reel' as const)
-                : ('post' as const),
-          }
-        : undefined;
     const attachmentPreview = attachmentPreviewFor({
       primaryAttachment,
       message,

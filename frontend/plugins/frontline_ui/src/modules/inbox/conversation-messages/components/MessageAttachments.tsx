@@ -77,128 +77,121 @@ export const Attachments = ({
   );
 };
 
-function Attachment({
+function VideoAttachment({
   attachment,
-  length,
   onUnavailable,
 }: Readonly<{
   attachment: IAttachment;
-  length?: number;
   onUnavailable: () => void;
 }>) {
-  const type = attachment.type || '';
-  const isImage = type.startsWith('image');
-  const isVideo = type.startsWith('video');
-  const isAudio = type.startsWith('audio');
-  const single = length === 1;
-  if (!attachment.url) {
-    return null;
-  }
-  if (isVideo) {
-    return (
-      <Dialog>
-        <Dialog.Trigger asChild>
-          <button
-            type="button"
-            aria-label={`Preview ${attachment.name || 'video'}`}
-            className="block size-full cursor-zoom-in overflow-hidden rounded bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-          >
-            <video
-              src={readImage(attachment.url)}
-              muted
-              playsInline
-              preload="metadata"
-              onError={onUnavailable}
-              className="size-full max-h-96 object-contain"
-            />
-          </button>
-        </Dialog.Trigger>
-        <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          aria-label={`Preview ${attachment.name || 'video'}`}
+          className="block size-full cursor-zoom-in overflow-hidden rounded bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
           <video
             src={readImage(attachment.url)}
-            controls
-            autoPlay
+            muted
             playsInline
             preload="metadata"
-            className="block max-h-[88vh] max-w-[90vw] rounded-lg object-contain"
+            onError={onUnavailable}
+            className="size-full max-h-96 object-contain"
           >
             <track kind="captions" />
           </video>
-        </Dialog.Content>
-      </Dialog>
-    );
-  }
-  if (isAudio) {
-    return (
-      <audio
-        src={readImage(attachment.url)}
-        controls
-        preload="metadata"
-        onError={onUnavailable}
-        className="w-full min-w-64"
-      >
-        <track kind="captions" />
-      </audio>
-    );
-  }
-  if (!isImage) {
-    return (
-      <Dialog>
-        <Dialog.Trigger asChild>
-          <button
-            type="button"
-            className="group flex w-full min-w-44 max-w-xs cursor-pointer items-center gap-3 rounded-xl border border-border/70 bg-card px-3 py-2.5 text-left shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-          >
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-              <IconFile className="size-5" />
-            </div>
-            <div className="min-w-0 flex-1 leading-tight">
-              <span className="block truncate text-xs font-semibold text-foreground">
-                {attachment.name || 'File'}
-              </span>
-              {Boolean(attachment.size) && (
-                <span className="mt-0.5 block text-[11px] text-muted-foreground">
-                  {formatBytes(attachment.size)} · Click to open
-                </span>
-              )}
-            </div>
-          </button>
-        </Dialog.Trigger>
-        <Dialog.Content className="max-w-sm rounded-2xl p-5">
-          <Dialog.Header>
-            <Dialog.Title className="truncate text-base">
-              {attachment.name || 'File'}
-            </Dialog.Title>
-          </Dialog.Header>
-          <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-              <IconFile className="size-7" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                {attachment.name || 'Attachment'}
-              </p>
-              {Boolean(attachment.size) && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {formatBytes(attachment.size)}
-                </p>
-              )}
-            </div>
-            <a
-              href={readImage(attachment.url)}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-              className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
-            >
-              <IconDownload className="size-3.5" />
-              Download file
-            </a>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        <video
+          src={readImage(attachment.url)}
+          controls
+          autoPlay
+          playsInline
+          preload="metadata"
+          className="block max-h-[88vh] max-w-[90vw] rounded-lg object-contain"
+        >
+          <track kind="captions" />
+        </video>
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function FileAttachment({
+  attachment,
+}: Readonly<{
+  attachment: IAttachment;
+}>) {
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group flex w-full min-w-44 max-w-xs cursor-pointer items-center gap-3 rounded-xl border border-border/70 bg-card px-3 py-2.5 text-left shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+            <IconFile className="size-5" />
           </div>
-        </Dialog.Content>
-      </Dialog>
-    );
-  }
+          <div className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-xs font-semibold text-foreground">
+              {attachment.name || 'File'}
+            </span>
+            {Boolean(attachment.size) && (
+              <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                {formatBytes(attachment.size)} · Click to open
+              </span>
+            )}
+          </div>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="max-w-sm rounded-2xl p-5">
+        <Dialog.Header>
+          <Dialog.Title className="truncate text-base">
+            {attachment.name || 'File'}
+          </Dialog.Title>
+        </Dialog.Header>
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+            <IconFile className="size-7" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              {attachment.name || 'Attachment'}
+            </p>
+            {Boolean(attachment.size) && (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {formatBytes(attachment.size)}
+              </p>
+            )}
+          </div>
+          <a
+            href={readImage(attachment.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+          >
+            <IconDownload className="size-3.5" />
+            Download file
+          </a>
+        </div>
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function ImageAttachment({
+  attachment,
+  single,
+  onUnavailable,
+}: Readonly<{
+  attachment: IAttachment;
+  single: boolean;
+  onUnavailable: () => void;
+}>) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
@@ -230,5 +223,52 @@ function Attachment({
         />
       </Dialog.Content>
     </Dialog>
+  );
+}
+
+function Attachment({
+  attachment,
+  length,
+  onUnavailable,
+}: Readonly<{
+  attachment: IAttachment;
+  length?: number;
+  onUnavailable: () => void;
+}>) {
+  const type = attachment.type || '';
+  const isImage = type.startsWith('image');
+  const isVideo = type.startsWith('video');
+  const isAudio = type.startsWith('audio');
+  const single = length === 1;
+  if (!attachment.url) {
+    return null;
+  }
+  if (isVideo) {
+    return (
+      <VideoAttachment attachment={attachment} onUnavailable={onUnavailable} />
+    );
+  }
+  if (isAudio) {
+    return (
+      <audio
+        src={readImage(attachment.url)}
+        controls
+        preload="metadata"
+        onError={onUnavailable}
+        className="w-full min-w-64"
+      >
+        <track kind="captions" />
+      </audio>
+    );
+  }
+  if (!isImage) {
+    return <FileAttachment attachment={attachment} />;
+  }
+  return (
+    <ImageAttachment
+      attachment={attachment}
+      single={single}
+      onUnavailable={onUnavailable}
+    />
   );
 }

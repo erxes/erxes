@@ -1,18 +1,21 @@
-import * as React from 'react';
-import { useState } from 'react';
+import {
+  forwardRef,
+  useState,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+} from 'react';
 import { useMutation } from '@apollo/client';
 import { Button, Popover, ScrollArea, cn, readImage, toast } from 'erxes-ui';
 import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
 
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+import { replaceHtmlTags } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 import type { IMessage } from '@/inbox/types/Conversation';
 
 const messageText = (content?: string) =>
-  content
-    ?.replace(/<[^<>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim() || 'Attachment or rich message';
+  (content ? replaceHtmlTags(content, ' ') : '').replace(/\s+/g, ' ').trim() ||
+  'Attachment or rich message';
 
 const providerMessageId = (message: IMessage) =>
   message.providerData?.messageId ||
@@ -24,9 +27,9 @@ const pinnedImage = (message: IMessage) =>
     attachment.type?.startsWith('image'),
   );
 
-const PinnedMessagesTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentPropsWithoutRef<typeof Button> & { messages: IMessage[] }
+const PinnedMessagesTrigger = forwardRef<
+  ElementRef<typeof Button>,
+  ComponentPropsWithoutRef<typeof Button> & { messages: IMessage[] }
 >(({ messages, className, ...props }, ref) => {
   const latestMessage = messages[0];
   const latestImage = pinnedImage(latestMessage);
@@ -133,9 +136,9 @@ const PinnedMessageList = ({
   </div>
 );
 
-const PinnedMessagesContent = React.forwardRef<
-  React.ElementRef<typeof Popover.Content>,
-  React.ComponentPropsWithoutRef<typeof Popover.Content> & {
+const PinnedMessagesContent = forwardRef<
+  ElementRef<typeof Popover.Content>,
+  ComponentPropsWithoutRef<typeof Popover.Content> & {
     messages: IMessage[];
     loading: boolean;
     onSelect: (message: IMessage) => void;

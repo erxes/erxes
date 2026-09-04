@@ -31,6 +31,7 @@ import { messageReplyState } from '@/inbox/conversations/conversation-detail/sta
 import { useDiscordMentions } from '@/inbox/conversations/conversation-detail/hooks/useDiscordMentions';
 import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
 import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
+import { replaceHtmlTags } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
   blocks?.map((block) =>
@@ -190,7 +191,7 @@ export const useMessageInputController = (conversationId: string) => {
     const settledAttachmentBlocks = editorBlocks.filter(
       (block) =>
         ATTACHMENT_BLOCK_TYPES.has(block.type) &&
-        Boolean((block.props as Record<string, any>)?.url),
+        Boolean((block.props as Record<string, unknown>)?.url),
     );
     const textBlocks = editorBlocks.filter(
       (block) => !ATTACHMENT_BLOCK_TYPES.has(block.type),
@@ -216,14 +217,14 @@ export const useMessageInputController = (conversationId: string) => {
         const blocksToRemove = currentBlocks.filter(
           (block) =>
             ATTACHMENT_BLOCK_TYPES.has(block.type) &&
-            Boolean((block.props as Record<string, any>)?.url),
+            Boolean((block.props as Record<string, unknown>)?.url),
         );
         if (!blocksToRemove.length) return;
 
         const remainingBlocks = currentBlocks.filter(
           (block) =>
             !ATTACHMENT_BLOCK_TYPES.has(block.type) ||
-            !Boolean((block.props as Record<string, any>)?.url),
+            !(block.props as Record<string, unknown>)?.url,
         );
 
         try {
@@ -248,7 +249,7 @@ export const useMessageInputController = (conversationId: string) => {
     setContent(editorBlocks.length ? (editorBlocks as Block[]) : undefined);
 
     const html = await editor?.blocksToHTMLLossy(textBlocks);
-    const plain = html?.replace(/<[^<>]+>/g, '')?.trim() || '';
+    const plain = (html ? replaceHtmlTags(html, '') : '').trim() || '';
 
     if (plain.length >= 1) {
       setSearchValue(plain);
@@ -293,7 +294,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              })[character] || character,
+              }[character] || character),
           )}</blockquote>`
         : '';
 

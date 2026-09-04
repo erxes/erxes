@@ -3,8 +3,10 @@ import { useInstagramConversationMessages } from '../hooks/useInstagramConversat
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
 import type { IInstagramConversationMessage } from '@/integrations/instagram/types/InstagramTypes';
+import { useQueryState } from 'erxes-ui';
 
 export const InstagramConversationMessages = () => {
+  const [conversationId] = useQueryState<string>('conversationId');
   const {
     instagramConversationMessages,
     handleFetchMore,
@@ -18,6 +20,7 @@ export const InstagramConversationMessages = () => {
 
   return (
     <InboxMessagesContainer
+      conversationId={conversationId ?? undefined}
       fetchMore={handleFetchMore}
       messagesLength={instagramConversationMessages?.length || 0}
       totalCount={totalCount}

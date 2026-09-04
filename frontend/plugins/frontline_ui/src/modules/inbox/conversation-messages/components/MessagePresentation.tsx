@@ -59,6 +59,97 @@ export const UnsupportedMessage = ({ text }: { text: string }) => (
   </div>
 );
 
+const StoryUnavailableCard = ({
+  label,
+  expired,
+  sourceUrl,
+  fallbackText,
+}: {
+  readonly label: string;
+  readonly expired: boolean;
+  readonly sourceUrl?: string;
+  readonly fallbackText?: string;
+}) => {
+  const card = (
+    <UnsupportedMessage
+      text={expired ? `${label} expired` : fallbackText || 'Story unavailable'}
+    />
+  );
+
+  if (!sourceUrl) {
+    return card;
+  }
+
+  return (
+    <a
+      href={sourceUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block no-underline"
+    >
+      {card}
+    </a>
+  );
+};
+
+const StoryMedia = ({
+  mediaUrl,
+  mediaKind,
+  expanded,
+  label,
+  hasKnownMediaType,
+  onImageFallback,
+  onFailed,
+}: {
+  readonly mediaUrl: string;
+  readonly mediaKind: 'image' | 'video';
+  readonly expanded: boolean;
+  readonly label: string;
+  readonly hasKnownMediaType: boolean;
+  readonly onImageFallback: () => void;
+  readonly onFailed: () => void;
+}) => {
+  if (mediaKind === 'video') {
+    return (
+      <video
+        src={mediaUrl}
+        controls={expanded}
+        muted={!expanded}
+        playsInline
+        preload="metadata"
+        onError={onFailed}
+        className={
+          expanded
+            ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
+            : 'max-h-96 w-full bg-black object-contain'
+        }
+      >
+        <track kind="captions" />
+      </video>
+    );
+  }
+
+  return (
+    <InboxImage
+      src={mediaUrl}
+      alt={label}
+      loading="lazy"
+      onError={() => {
+        if (!hasKnownMediaType && mediaKind === 'image') {
+          onImageFallback();
+          return;
+        }
+        onFailed();
+      }}
+      className={
+        expanded
+          ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
+          : 'max-h-96 w-full object-contain'
+      }
+    />
+  );
+};
+
 export const StoryCard = ({
   kind,
   url,
@@ -103,65 +194,17 @@ export const StoryCard = ({
   const label = kind === 'story_reply' ? 'Story reply' : 'Story mention';
 
   if (unavailable) {
-    const unavailableCard = (
-      <UnsupportedMessage
-        text={
-          expired ? `${label} expired` : fallbackText || 'Story unavailable'
-        }
-      />
-    );
-
-    if (!sourceUrl) return unavailableCard;
-
     return (
-      <a
-        href={sourceUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block no-underline"
-      >
-        {unavailableCard}
-      </a>
+      <StoryUnavailableCard
+        label={label}
+        expired={expired}
+        sourceUrl={sourceUrl}
+        fallbackText={fallbackText}
+      />
     );
   }
 
   const mediaUrl = readImage(url);
-  const media = (expanded: boolean) =>
-    resolvedMediaType === 'video' ? (
-      <video
-        src={mediaUrl}
-        controls={expanded}
-        muted={!expanded}
-        playsInline
-        preload="metadata"
-        onError={() => setFailed(true)}
-        className={
-          expanded
-            ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
-            : 'max-h-96 w-full bg-black object-contain'
-        }
-      >
-        <track kind="captions" />
-      </video>
-    ) : (
-      <InboxImage
-        src={mediaUrl}
-        alt={label}
-        loading="lazy"
-        onError={() => {
-          if (!hasKnownMediaType && resolvedMediaType === 'image') {
-            setResolvedMediaType('video');
-            return;
-          }
-          setFailed(true);
-        }}
-        className={
-          expanded
-            ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
-            : 'max-h-96 w-full object-contain'
-        }
-      />
-    );
 
   return (
     <Dialog>
@@ -176,7 +219,15 @@ export const StoryCard = ({
             aria-label={`Preview ${label.toLowerCase()}`}
             className="relative block w-full cursor-zoom-in overflow-hidden bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           >
-            {media(false)}
+            <StoryMedia
+              mediaUrl={mediaUrl}
+              mediaKind={resolvedMediaType}
+              expanded={false}
+              label={label}
+              hasKnownMediaType={hasKnownMediaType}
+              onImageFallback={() => setResolvedMediaType('video')}
+              onFailed={() => setFailed(true)}
+            />
             {resolvedMediaType === 'video' && (
               <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <span className="flex size-11 items-center justify-center rounded-full bg-black/65 text-white shadow-lg">
@@ -188,7 +239,15 @@ export const StoryCard = ({
         </Dialog.Trigger>
       </div>
       <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-        {media(true)}
+        <StoryMedia
+          mediaUrl={mediaUrl}
+          mediaKind={resolvedMediaType}
+          expanded
+          label={label}
+          hasKnownMediaType={hasKnownMediaType}
+          onImageFallback={() => setResolvedMediaType('video')}
+          onFailed={() => setFailed(true)}
+        />
       </Dialog.Content>
     </Dialog>
   );
@@ -225,6 +284,11 @@ export const ShareCard = ({
   }
 
   const isFacebookPost = attachmentType === 'post' || attachmentType === 'reel';
+  const previewLabel = shareType === 'reel' ? 'Reel' : 'Post';
+  let shareTitle = 'Shared content';
+  if (isFacebookPost) {
+    shareTitle = shareType === 'reel' ? 'Facebook reel' : 'Facebook post';
+  }
 
   return (
     <a
@@ -236,7 +300,7 @@ export const ShareCard = ({
       {previewUrl ? (
         <InboxImage
           src={readImage(previewUrl)}
-          alt={`${shareType === 'reel' ? 'Reel' : 'Post'} preview`}
+          alt={`${previewLabel} preview`}
           loading="lazy"
           className="size-16 shrink-0 rounded-lg object-cover"
         />
@@ -245,11 +309,7 @@ export const ShareCard = ({
       )}
       <span className="min-w-0">
         <span className="block text-sm font-medium text-foreground">
-          {isFacebookPost
-            ? shareType === 'reel'
-              ? 'Facebook reel'
-              : 'Facebook post'
-            : 'Shared content'}
+          {shareTitle}
         </span>
         <span className="line-clamp-2 block text-xs text-muted-foreground">
           {title || safeUrl}
@@ -266,11 +326,11 @@ const InstagramThumbnail = ({
   onFailed,
   interactive,
 }: {
-  thumbnail: string;
-  label: string;
-  thumbnailFailed: boolean;
-  onFailed: () => void;
-  interactive: boolean;
+  readonly thumbnail: string;
+  readonly label: string;
+  readonly thumbnailFailed: boolean;
+  readonly onFailed: () => void;
+  readonly interactive: boolean;
 }) => {
   if (thumbnailFailed) {
     return (

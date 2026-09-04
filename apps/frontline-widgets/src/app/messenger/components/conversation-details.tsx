@@ -31,6 +31,7 @@ import {
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
+import type { IAttachment } from '../types';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -102,7 +103,7 @@ export const ConversationDetails = () => {
 
   const extractMessageText = (
     content?: string,
-    attachments?: any[],
+    attachments?: IAttachment[],
   ): string => {
     if (content && content !== '<p></p>') {
       const doc = new DOMParser().parseFromString(content, 'text/html');
@@ -118,7 +119,7 @@ export const ConversationDetails = () => {
   const handleReplyMessage = (
     authorName: string,
     content?: string,
-    attachments?: any[],
+    attachments?: IAttachment[],
   ) => {
     const text = extractMessageText(content, attachments);
     setReplyTo({
@@ -127,7 +128,7 @@ export const ConversationDetails = () => {
     });
   };
 
-  const handleCopyMessage = (content?: string, attachments?: any[]) => {
+  const handleCopyMessage = (content?: string, attachments?: IAttachment[]) => {
     const text = extractMessageText(content, attachments);
     if (text && typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text);

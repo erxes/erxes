@@ -242,8 +242,7 @@ export const instagramQueries = {
 
         let orderedMessages = messages;
         if (!getFirst) {
-          orderedMessages = [...messages];
-          orderedMessages.reverse();
+          orderedMessages = [...messages].reverse();
         }
         return orderedMessages.map((message) =>
           normalizeStoredInstagramMessage(message.toObject()),
@@ -254,8 +253,7 @@ export const instagramQueries = {
         .sort({ createdAt: -1 })
         .limit(50);
 
-      const reversedMessages = [...messages];
-      reversedMessages.reverse();
+      const reversedMessages = [...messages].reverse();
       return reversedMessages.map((message) =>
         normalizeStoredInstagramMessage(message.toObject()),
       );

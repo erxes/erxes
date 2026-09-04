@@ -201,12 +201,15 @@ const handleFacebookPostReply = async (
   }
 };
 
+const IMG_TAG_PATTERN = /<img [^>]*>/g;
+const IMG_SRC_PATTERN = /src="([^"]*)"/;
+
 const appendContentImages = (
   content: string,
   attachments: TFacebookAttachment[],
 ) => {
-  const images = (content.match(/<img[^>]* src="([^"]*)"/g) || [])
-    .map((image) => image.match(/src="([^"]*)"/)?.[1])
+  const images = (content.match(IMG_TAG_PATTERN) || [])
+    .map((tag) => IMG_SRC_PATTERN.exec(tag)?.[1])
     .filter((image): image is string => Boolean(image));
   images.forEach((image) => attachments.push({ type: 'image', url: image }));
 };

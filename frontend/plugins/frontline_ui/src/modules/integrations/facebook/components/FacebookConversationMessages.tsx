@@ -8,6 +8,7 @@ import {
   MessageItem,
 } from '@/inbox/conversation-messages/components/MessageItem';
 import { useMemo } from 'react';
+import { useQueryState } from 'erxes-ui';
 import type { IFacebookConversationMessage } from '../types/FacebookTypes';
 
 type FacebookMessageRowProps = {
@@ -53,11 +54,13 @@ const FacebookMessageRow = ({
 };
 
 export const FacebookConversationMessages = () => {
+  const [conversationId] = useQueryState<string>('conversationId');
   const { facebookConversationMessages, handleFetchMore, loading, totalCount } =
     useFacebookConversationMessages();
 
   return (
     <InboxMessagesContainer
+      conversationId={conversationId ?? undefined}
       fetchMore={handleFetchMore}
       messagesLength={facebookConversationMessages?.length || 0}
       totalCount={totalCount}

@@ -3,8 +3,6 @@ import {
   IconCheck,
   IconCopy,
   IconDownload,
-  IconExternalLink,
-  IconFile,
   IconShare3,
   IconZoomIn,
 } from '@tabler/icons-react';
@@ -16,7 +14,6 @@ import { Slot } from 'radix-ui';
 import * as React from 'react';
 import { IAttachment } from '../types';
 import { formatFileSize, getAttachmentType } from '@libs/format-file';
-import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
 
 /**
@@ -305,10 +302,10 @@ export function parseQuotedMessage(html?: string): ParsedMessageContent {
   if (forwardMatch) {
     isForwarded = true;
     cleanHtml = cleanHtml.slice(forwardMatch[0].length).trim();
-  } else if (/^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)/i.test(cleanHtml)) {
+  } else if (/^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)/iu.test(cleanHtml)) {
     isForwarded = true;
     cleanHtml = cleanHtml.replace(
-      /^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)*/i,
+      /^(?:<p>)?(?:↪\s*)?Forwarded(?::|\s)*/iu,
       '<p>',
     );
   }
@@ -400,7 +397,7 @@ function MessageContent({
         {Boolean(sanitizedHtml) && (
           <div
             className={cn('w-full', (reply || isForwarded) && 'px-3 py-2')}
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanHtml) }}
           />
         )}
       </div>
@@ -429,6 +426,135 @@ export type MessageAttachmentsProps = {
   align?: 'start' | 'end';
 };
 
+function AttachmentImage({ attachment }: { attachment: IAttachment }) {
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          {/* skipcq: JS-W1015 */}
+          <img
+            src={readImage(attachment.url)}
+            alt={attachment.name || 'Photo'}
+            loading="lazy"
+            className="max-h-64 w-full rounded-2xl object-cover"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+            <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+              <IconZoomIn className="size-3.5" />
+              <span>Click to preview</span>
+            </span>
+          </div>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        {/* skipcq: JS-W1015 */}
+        <img
+          src={readImage(attachment.url)}
+          alt={attachment.name || 'Photo preview'}
+          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <video
+            src={readImage(attachment.url)}
+            muted
+            className="max-h-40 w-full rounded-xl object-contain"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+              <IconZoomIn className="size-3.5" />
+              <span>Play video</span>
+            </span>
+          </div>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        <video
+          src={readImage(attachment.url)}
+          controls
+          autoPlay
+          playsInline
+          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
+function AttachmentFile({ attachment }: { attachment: IAttachment }) {
+  const IconComponent = getAttachmentIcon(
+    getAttachmentType(attachment.type, attachment.name),
+  );
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+            <IconComponent className="size-5" />
+          </div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-xs font-semibold">
+              {attachment.name || 'File'}
+            </span>
+            <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+              {formatFileSize(attachment?.size || 0) || 'Attachment'} · Click to
+              preview
+            </span>
+          </div>
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="max-w-sm rounded-2xl p-5">
+        <Dialog.Header>
+          <Dialog.Title className="truncate text-base">
+            {attachment.name || 'File'}
+          </Dialog.Title>
+        </Dialog.Header>
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+            <IconComponent className="size-7" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">
+              {attachment.name || 'Attachment'}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {formatFileSize(attachment?.size || 0)}
+            </p>
+          </div>
+          <a
+            href={readImage(attachment.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+          >
+            <IconDownload className="size-3.5" />
+            Download file
+          </a>
+        </div>
+      </Dialog.Content>
+    </Dialog>
+  );
+}
+
 function MessageAttachments({
   attachments,
   align = 'start',
@@ -444,78 +570,17 @@ function MessageAttachments({
       )}
     >
       {attachments.map((attachment, index) => {
-        const fileType = getAttachmentType(attachment.type, attachment.name);
-        const IconComponent = getAttachmentIcon(fileType);
         const isImage = attachment.type?.startsWith('image');
         const isVideo = attachment.type?.startsWith('video');
         const isAudio = attachment.type?.startsWith('audio');
         const key = `${attachment.url}-${index}`;
 
         if (isImage) {
-          return (
-            <Dialog key={key}>
-              <Dialog.Trigger asChild>
-                <button
-                  type="button"
-                  className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                >
-                  <img
-                    src={readImage(attachment.url)}
-                    alt={attachment.name || 'Photo'}
-                    loading="lazy"
-                    className="max-h-64 w-full rounded-2xl object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
-                    <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
-                      <IconZoomIn className="size-3.5" />
-                      <span>Click to preview</span>
-                    </span>
-                  </div>
-                </button>
-              </Dialog.Trigger>
-              <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-                <img
-                  src={readImage(attachment.url)}
-                  alt={attachment.name || 'Photo preview'}
-                  className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-                />
-              </Dialog.Content>
-            </Dialog>
-          );
+          return <AttachmentImage key={key} attachment={attachment} />;
         }
 
         if (isVideo) {
-          return (
-            <Dialog key={key}>
-              <Dialog.Trigger asChild>
-                <button
-                  type="button"
-                  className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                >
-                  <video
-                    src={readImage(attachment.url)}
-                    muted
-                    className="max-h-40 w-full rounded-xl object-contain"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
-                      <IconZoomIn className="size-3.5" />
-                      <span>Play video</span>
-                    </span>
-                  </div>
-                </button>
-              </Dialog.Trigger>
-              <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-                <video
-                  src={readImage(attachment.url)}
-                  controls
-                  autoPlay
-                  playsInline
-                  className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-                />
-              </Dialog.Content>
-            </Dialog>
-          );
+          return <AttachmentVideo key={key} attachment={attachment} />;
         }
 
         if (isAudio) {
@@ -529,59 +594,7 @@ function MessageAttachments({
           );
         }
 
-        return (
-          <Dialog key={key}>
-            <Dialog.Trigger asChild>
-              <button
-                type="button"
-                className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              >
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-                  <IconComponent className="size-5" />
-                </div>
-                <div className="min-w-0 flex-1 leading-tight">
-                  <span className="block truncate text-xs font-semibold">
-                    {attachment.name || 'File'}
-                  </span>
-                  <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-                    {formatFileSize(attachment?.size || 0) || 'Attachment'} ·
-                    Click to preview
-                  </span>
-                </div>
-              </button>
-            </Dialog.Trigger>
-            <Dialog.Content className="max-w-sm rounded-2xl p-5">
-              <Dialog.Header>
-                <Dialog.Title className="truncate text-base">
-                  {attachment.name || 'File'}
-                </Dialog.Title>
-              </Dialog.Header>
-              <div className="flex flex-col items-center gap-3 py-4 text-center">
-                <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-                  <IconComponent className="size-7" />
-                </div>
-                <div>
-                  <p className="font-semibold text-sm text-foreground">
-                    {attachment.name || 'Attachment'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {formatFileSize(attachment?.size || 0)}
-                  </p>
-                </div>
-                <a
-                  href={readImage(attachment.url)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
-                >
-                  <IconDownload className="size-3.5" />
-                  Download file
-                </a>
-              </div>
-            </Dialog.Content>
-          </Dialog>
-        );
+        return <AttachmentFile key={key} attachment={attachment} />;
       })}
     </div>
   );

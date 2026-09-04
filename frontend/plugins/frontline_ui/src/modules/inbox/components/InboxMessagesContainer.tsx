@@ -1,6 +1,6 @@
 import { Empty, ScrollArea } from 'erxes-ui';
 import { IconMessages } from '@tabler/icons-react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
@@ -12,7 +12,7 @@ export const InboxMessagesContainer = ({
   conversationId,
   children,
 }: React.PropsWithChildren<{
-  fetchMore: () => Promise<unknown>;
+  fetchMore: () => unknown | Promise<unknown>;
   messagesLength: number;
   totalCount: number;
   loading: boolean;
@@ -44,6 +44,19 @@ export const InboxMessagesContainer = ({
     });
   };
 
+  const runFetchMore = useCallback(() => {
+    const viewport = viewportRef.current;
+    isFetchingRef.current = true;
+    distanceFromBottomRef.current =
+      (viewport?.scrollHeight ?? 0) - (viewport?.scrollTop ?? 0);
+    Promise.resolve()
+      .then(() => fetchMore())
+      .catch(() => undefined)
+      .finally(() => {
+        isFetchingRef.current = false;
+      });
+  }, [fetchMore]);
+
   const handleScroll = () => {
     const viewport = viewportRef.current;
     if (!viewport) return;
@@ -60,12 +73,7 @@ export const InboxMessagesContainer = ({
       totalCount > messagesLength &&
       viewport.scrollHeight > viewport.clientHeight
     ) {
-      isFetchingRef.current = true;
-      distanceFromBottomRef.current =
-        viewport.scrollHeight - viewport.scrollTop;
-      fetchMore().finally(() => {
-        isFetchingRef.current = false;
-      });
+      runFetchMore();
     }
   };
 
@@ -90,7 +98,7 @@ export const InboxMessagesContainer = ({
     } else if (messagesLength > 0 && shouldFollowNewestRef.current) {
       scrollToBottom();
     }
-  }, [messagesLength, loading, fetchMore]);
+  }, [messagesLength, loading, fetchMore, runFetchMore]);
 
   // Auto-fill the viewport: if the loaded messages don't overflow the container
   // there are no scroll events, so handleScroll never fires. Keep fetching older
@@ -108,14 +116,9 @@ export const InboxMessagesContainer = ({
     if (!viewport) return;
 
     if (viewport.scrollHeight <= viewport.clientHeight) {
-      isFetchingRef.current = true;
-      distanceFromBottomRef.current =
-        viewport.scrollHeight - viewport.scrollTop;
-      fetchMore().finally(() => {
-        isFetchingRef.current = false;
-      });
+      runFetchMore();
     }
-  }, [messagesLength, totalCount, fetchMore]);
+  }, [messagesLength, totalCount, fetchMore, runFetchMore]);
 
   return (
     <ScrollArea.Root className="h-full bg-muted/20">

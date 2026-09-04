@@ -10,6 +10,8 @@ import {
   ReactionLabel,
   aggregateReactions,
   getMessageBubbleClassName,
+  replaceHtmlTags,
+  stripHtmlTags,
 } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
@@ -33,6 +35,9 @@ import { useState } from 'react';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
 export { MessageDaySeparator };
+
+const getPostAttachmentType = (type?: string): string =>
+  !type || type === 'file' ? 'image' : type;
 
 const getReplyPreview = (content?: string) => {
   if (!content) return '';
@@ -102,10 +107,11 @@ export const MessageItem = () => {
     /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
   );
   const legacyReplyPreview = legacyReplyMatch?.[0]
-    .replace(/<[^<>]+>/g, ' ')
-    .replace(/^\s*Replying to\s*/i, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+    ? replaceHtmlTags(legacyReplyMatch[0], ' ')
+        .replace(/^\s*Replying to\s*/i, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : undefined;
   let effectiveReplyTo: typeof replyTo;
   if (!forwardedSnapshot) {
     if (replyTo) {
@@ -131,10 +137,7 @@ export const MessageItem = () => {
   const typedAttachments = isPostConversation
     ? attachments?.map((attachment) => ({
         ...attachment,
-        type:
-          !attachment.type || attachment.type === 'file'
-            ? 'image'
-            : attachment.type,
+        type: getPostAttachmentType(attachment.type),
       }))
     : attachments;
   const displayAttachments =
@@ -201,14 +204,17 @@ export const MessageItem = () => {
     normalizedDisplayContent !== HAS_ATTACHMENT &&
     Boolean(
       normalizedDisplayContent
-        ?.replace(/<[^>]*>/g, '')
-        .replace(/\s|&nbsp;/g, ''),
+        ? stripHtmlTags(normalizedDisplayContent).replace(/\s|&nbsp;/g, '')
+        : '',
     );
+  const discordActionContent = hasTextBubble
+    ? normalizedDisplayContent
+    : undefined;
   const additionalActions = extraData?.discordMessageId ? (
     <DiscordMessageActions
       conversationId={message.conversationId || ''}
       messageId={extraData.discordMessageId}
-      content={hasTextBubble ? normalizedDisplayContent : undefined}
+      content={discordActionContent}
       isOwnMessage={Boolean(userId) || Boolean(fromBot)}
     />
   ) : undefined;
@@ -231,6 +237,7 @@ export const MessageItem = () => {
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
+  const emptyMessageSpacing = separatePrevious ? 'mt-6' : 'mt-1';
 
   const isStory =
     messageKind === 'story_mention' || messageKind === 'story_reply';
@@ -422,9 +429,7 @@ export const MessageItem = () => {
           ) : (
             !isDeleted &&
             !forwardedSnapshot &&
-            !attachments?.length && (
-              <div className={cn(separatePrevious ? 'mt-6' : 'mt-1')} />
-            )
+            !attachments?.length && <div className={cn(emptyMessageSpacing)} />
           )}
           {/* skipcq: JS-0357 */}
           {!isDeleted && isStory && (

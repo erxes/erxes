@@ -320,6 +320,57 @@ export function ConversationMessage({
   return null;
 }
 
+function OperatorMessageBody({
+  position,
+  userName,
+  isFirstMessage,
+  isSingleMessage,
+  hasContent,
+  content,
+  hasAttachments,
+  onReply,
+  onCopy,
+  attachments,
+  isLastMessage,
+  createdAt,
+}: {
+  position: MessagePosition;
+  userName?: string;
+  isFirstMessage?: boolean;
+  isSingleMessage?: boolean;
+  hasContent: boolean;
+  content: string;
+  hasAttachments: boolean;
+  onReply?: () => void;
+  onCopy?: () => void;
+  attachments?: IAttachment[];
+  isLastMessage?: boolean;
+  createdAt: Date;
+}) {
+  return (
+    <Message.Body align="start">
+      {(isFirstMessage || isSingleMessage) && userName && (
+        <Message.Author>{userName}</Message.Author>
+      )}
+      <div className="flex items-center gap-1">
+        {hasContent && (
+          <Message.Content
+            variant="incoming"
+            position={position}
+            hasAttachments={hasAttachments}
+            html={content}
+          />
+        )}
+        <Message.ItemActions align="start" onReply={onReply} onCopy={onCopy} />
+      </div>
+      <Message.Attachments attachments={attachments} align="start" />
+      {(isLastMessage || isSingleMessage) && (
+        <Message.Time align="start" date={createdAt} />
+      )}
+    </Message.Body>
+  );
+}
+
 export function OperatorMessage({
   content,
   src,
@@ -369,30 +420,20 @@ export function OperatorMessage({
             // Only the rendered avatar carried the bottom offset before.
             className={showAvatar ? 'mb-5' : undefined}
           />
-          <Message.Body align="start">
-            {(isFirstMessage || isSingleMessage) && userName && (
-              <Message.Author>{userName}</Message.Author>
-            )}
-            <div className="flex items-center gap-1">
-              {hasContent && (
-                <Message.Content
-                  variant="incoming"
-                  position={position}
-                  hasAttachments={hasAttachments}
-                  html={content}
-                />
-              )}
-              <Message.ItemActions
-                align="start"
-                onReply={onReply}
-                onCopy={onCopy}
-              />
-            </div>
-            <Message.Attachments attachments={attachments} align="start" />
-            {(isLastMessage || isSingleMessage) && (
-              <Message.Time align="start" date={createdAt} />
-            )}
-          </Message.Body>
+          <OperatorMessageBody
+            position={position}
+            userName={userName}
+            isFirstMessage={isFirstMessage}
+            isSingleMessage={isSingleMessage}
+            hasContent={hasContent}
+            content={content}
+            hasAttachments={hasAttachments}
+            onReply={onReply}
+            onCopy={onCopy}
+            attachments={attachments}
+            isLastMessage={isLastMessage}
+            createdAt={createdAt}
+          />
         </Message.Row>
       </Message.TimestampTooltip>
     </Message>

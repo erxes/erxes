@@ -448,8 +448,10 @@ export class CommonBuilder<IArgs extends IListArgs> {
   /*
    * Run queries
    */
-  public async runQueries(): Promise<any> {
-    const queryOptions: any = {
+  public async runQueries(): Promise<number> {
+    const queryOptions: {
+      query: { bool: { must: unknown[]; filter: unknown[] } };
+    } = {
       query: {
         bool: {
           must: this.positiveList,
