@@ -21,7 +21,6 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormStatus } from '@/forms/components/form-page/filters/FormStatus';
-import { PollInstallScript } from '@/poll/components/poll-page/PollInstallScript';
 import { PollResultsDialog } from '@/poll/components/poll-page/PollResultsDialog';
 import { PollSheet } from '@/poll/components/poll-page/PollSheet';
 import {
@@ -90,10 +89,6 @@ const PollMoreColumnCell = ({ cell }: { cell: Cell<IPoll, unknown> }) => {
               {t('poll-results')}
             </DropdownMenu.Item>
           }
-        />
-        <PollInstallScript
-          pollCode={poll.code}
-          channelId={poll.channelId}
         />
         <DropdownMenu.Item onSelect={handleToggle}>
           <IconSquareToggle />

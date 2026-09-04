@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-04`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -65,12 +65,12 @@
   the agent's list and both the inbox and the widget update without a refresh.
 - Every conversation filter query accepts `withPoll: String` — `"true"` keeps
   only conversations carrying a poll (the denormalized `hasPoll` flag).
-- A poll also embeds on a customer's own website. `widgetsPollConnect` serves
-  the poll by `code` for a channel, and `widgetsPollSubmit` resolves or creates
-  the visitor's customer, opens a conversation on the channel's messenger
-  integration carrying the poll snapshot, records the vote, and returns
-  `ok` / `alreadyVoted` — so a site answer lands in the inbox the way a form
-  submission does.
+- The public `widgetsPoll*` mutations remain available for an external client:
+  `widgetsPollConnect` serves a poll by `code` for a channel, `widgetsPollSubmit`
+  resolves or creates the visitor's customer and opens a conversation carrying
+  the poll snapshot, and `widgetsPollVote` records a vote on an existing poll
+  message. No client in this repository calls them — `frontline-widgets` carries
+  no poll surface — so poll tallies only move through those endpoints.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
@@ -1412,6 +1412,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-05` — Poll voting has no in-repo client
+
+- **Summary:** The customer-facing poll surfaces were removed from
+  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
+  have no caller in this repository.
+- **Affected areas:** `AGENTS.md` only — no API change.
+- **Contracts changed:** None.
+
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
 - **Summary:** All four pipeline visibility rules were dead on the channel
@@ -1543,21 +1551,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/mail/@types/cloudflare.ts`,
   `src/modules/integrations/mail/graphql/schema/mail.ts`.
 - **Contracts changed:** `MailCloudflareZone` gains `eligible` and `reason`.
-
-### `2026-08-28` — One Cloudflare account can serve more than one workspace
-
-- **Summary:** `connectCloudflare` named the worker, queue and dead-letter queue
-  from module constants, so a second workspace connecting the same Cloudflare
-  account collided on the queue name and provisioning died at `attachConsumer` —
-  the account was effectively single-tenant, whatever domain was chosen. Those
-  three names now carry the tenant, which is already resolved two lines above
-  them; the R2 bucket stays shared because its objects are keyed by tenant
-  anyway. Existing connections keep the names stored on their document, so
-  nothing already provisioned is stranded. Disconnecting now deletes the worker
-  and both queues, since tenant-scoped names would otherwise accumulate.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/connect.ts`,
-  `src/modules/integrations/mail/utils/cloudflare/api.ts` (adds `deleteQueue`,
-  `deleteScript`), `src/modules/integrations/mail/utils/cloudflare/provision.ts`
-  (two guard messages no longer claim one account serves one workspace).
-- **Contracts changed:** None. `provision.ts` already read every name from the
-  connection document, and `buildScriptMetadata` already took them as arguments.

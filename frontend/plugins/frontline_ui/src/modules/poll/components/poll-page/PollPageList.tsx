@@ -1,10 +1,10 @@
-import { IconChartBar, IconPlus } from '@tabler/icons-react';
+import { IconChartBar } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
-import { Button, Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
+import { Empty, RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PollCommandBar } from '@/poll/components/poll-page/command-bar/poll-command-bar';
 import { pollColumns } from '@/poll/components/poll-page/poll-columns';
-import { PollSheet } from '@/poll/components/poll-page/PollSheet';
+import { PollsCreateButton } from '@/poll/components/poll-page/polls-create';
 import { usePollList } from '@/poll/hooks/usePollList';
 import { IPoll } from '@/poll/types/pollTypes';
 
@@ -36,15 +36,7 @@ export const PollPageList = ({ channelId }: { channelId?: string }) => {
           <Empty.Description>{t('polls-empty-description')}</Empty.Description>
         </Empty.Header>
         <Empty.Content>
-          <PollSheet
-            channelId={channelId}
-            trigger={
-              <Button variant="outline">
-                <IconPlus />
-                {t('create-poll')}
-              </Button>
-            }
-          />
+          <PollsCreateButton variant="outline" />
         </Empty.Content>
       </Empty>
     );

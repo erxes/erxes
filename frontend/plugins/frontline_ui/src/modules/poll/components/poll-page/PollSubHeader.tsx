@@ -1,6 +1,4 @@
-import { IconPlus } from '@tabler/icons-react';
 import {
-  Button,
   Combobox,
   Command,
   Filter,
@@ -11,19 +9,11 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { FormStatus } from '@/forms/components/form-page/filters/FormStatus';
-import { PollSheet } from '@/poll/components/poll-page/PollSheet';
 import { usePollTotalCount } from '@/poll/hooks/usePollTotalCount';
 import { PollsPageHotKeyScope } from '@/poll/types/pollTypes';
 
-export const PollSubHeader = ({
-  canCreate,
-  channelId,
-}: {
-  canCreate?: boolean;
-  channelId?: string;
-}) => {
+export const PollSubHeader = ({ channelId }: { channelId?: string }) => {
   const { t } = useTranslation('common');
-  const { t: tf } = useTranslation('frontline');
   const [queries] = useMultiQueryState<{
     status: string;
     searchValue: string;
@@ -78,18 +68,6 @@ export const PollSubHeader = ({
             `${totalCount} ${t('records-found')}`
           )}
         </div>
-
-        {canCreate && (
-          <PollSheet
-            channelId={channelId}
-            trigger={
-              <Button size="sm" className="ml-auto">
-                <IconPlus />
-                {tf('create-poll')}
-              </Button>
-            }
-          />
-        )}
       </Filter>
     </PageSubHeader>
   );

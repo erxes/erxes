@@ -1396,11 +1396,6 @@
   "manage-channel-polls": "Manage channel polls",
   "poll_one": "{{count}} poll",
   "poll_other": "{{count}} polls",
-  "poll-install-title": "Add this poll to your website",
-  "poll-install-description": "Paste the loader on every page the poll should appear on. It opens once per visitor and files each answer as an inbox conversation.",
-  "poll-install-step-1": "1. Add the loader script before </body>",
-  "poll-install-step-2": "2. Optional: open the poll from your own element",
-  "poll-install-step-2-note": "Add this attribute to any button or link to open the poll on click instead of on page load.",
   "field": {
     "assignedMembers": "Assigned members",
     "assignedUserId": "Assigned user",

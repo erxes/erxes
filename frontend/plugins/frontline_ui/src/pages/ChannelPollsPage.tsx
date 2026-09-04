@@ -13,7 +13,7 @@ export const ChannelPollsPage = () => {
 
   return (
     <>
-      <PollSubHeader canCreate channelId={channelId} />
+      <PollSubHeader channelId={channelId} />
       <Suspense fallback={<div />}>
         <PollPageList channelId={channelId} />
       </Suspense>
