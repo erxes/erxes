@@ -38,6 +38,7 @@ export const storepayCallbackHandler = async (
 
     transaction.status = invoiceStatus;
     transaction.updatedAt = new Date();
+
     await transaction.save();
 
     return transaction;
@@ -89,28 +90,34 @@ export class StorePayAPI extends BaseAPI {
   }
 
   async authorize() {
-    const { username, password, app_username, app_password } = this;
+    const { username, password, app_password, app_username } = this;
+
+    const data = {
+      username,
+      password,
+    };
 
     try {
-      const response = await fetch(
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${app_username}:${app_password}`,
+          ).toString('base64')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const res = await fetch(
         'https://service.storepay.mn/merchant-uaa/oauth/token?' +
           new URLSearchParams({
             grant_type: 'password',
             username,
             password,
           }),
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${Buffer.from(
-              `${app_username}:${app_password}`,
-            ).toString('base64')}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      const res = await response.json();
+        requestOptions,
+      ).then((res) => res.json());
 
       if (res.error) {
         if (res.error === 'invalid_client') {
@@ -119,11 +126,11 @@ export class StorePayAPI extends BaseAPI {
           );
         }
 
-        throw new Error(res.error_description || res.error);
-      }
+        if (res.error_description) {
+          throw new Error(res.error_description);
+        }
 
-      if (!res.access_token) {
-        throw new Error('StorePay access token was not returned');
+        throw new Error(res.error);
       }
 
       return res;
@@ -133,7 +140,14 @@ export class StorePayAPI extends BaseAPI {
   }
 
   async getHeaders() {
-    const token = await redis.get(`storepay_token_${this.store_id}`);
+    const { username, password, app_password, app_username, store_id } = this;
+
+    const data = {
+      username,
+      password,
+    };
+
+    const token = await redis.get(`storepay_token_${store_id}`);
 
     if (token) {
       return {
@@ -143,15 +157,32 @@ export class StorePayAPI extends BaseAPI {
     }
 
     try {
-      const res = await this.authorize();
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${app_username}:${app_password}`,
+          ).toString('base64')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
 
-      const expiresIn = Number(res.expires_in) || 7200;
+      const res = await fetch(
+        'https://service.storepay.mn/merchant-uaa/oauth/token?' +
+          new URLSearchParams({
+            grant_type: 'password',
+            username,
+            password,
+          }),
+        requestOptions,
+      ).then((res) => res.json());
 
       await redis.set(
-        `storepay_token_${this.store_id}`,
+        `storepay_token_${store_id}`,
         res.access_token,
         'EX',
-        Math.max(expiresIn - 60, 1),
+        res.expires_in - 60,
       );
 
       return {
@@ -159,25 +190,26 @@ export class StorePayAPI extends BaseAPI {
         'Content-Type': 'application/json',
       };
     } catch (e) {
-      console.error('StorePay authorization error:', e);
+      console.error('error ', e);
       throw new Error(e.message);
     }
   }
 
   /**
-   * Create StorePay invoice.
-   *
-   * requestId is supported from StorePay API v3.0.
+   * create invoice on StorePay
+   * @param {number} amount - amount
+   * @param {string} description - description
+   * @return {[object]} - Returns invoice object
    */
   async createInvoice(invoice: ITransactionDocument) {
     const details = invoice.details || {};
 
     try {
       const data = {
-        storeId: this.store_id,
+        amount: invoice.amount,
         mobileNumber: details.phone,
         description: invoice.description || 'transaction',
-        amount: invoice.amount,
+        storeId: this.store_id,
         callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
         requestId: invoice._id,
       };
@@ -185,9 +217,7 @@ export class StorePayAPI extends BaseAPI {
       const possibleAmount = await this.checkLoanAmount(details.phone);
 
       if (possibleAmount < invoice.amount) {
-        return {
-          error: 'Insufficient amount',
-        };
+        return { error: 'Insufficient amount' };
       }
 
       const res = await this.request({
@@ -199,10 +229,11 @@ export class StorePayAPI extends BaseAPI {
 
       if (res.status !== 'Success') {
         const error =
-          res.msgList?.length > 0 ? res.msgList[0].code : 'Unknown error';
+          res.msgList.length > 0 ? res.msgList[0].code : 'Unknown error';
 
         return { error };
       }
+
       return {
         ...res,
         text: `Invoice has sent to ${details.phone}`,
@@ -213,7 +244,9 @@ export class StorePayAPI extends BaseAPI {
   }
 
   /**
-   * Check invoice status by StorePay invoice number.
+   * check invoice status
+   * @param {string} invoiceNumber - unique identifier of StorePay invoice
+   * @return {string} - Returns invoice status
    */
   async checkInvoice(invoiceNumber: string) {
     try {
@@ -234,10 +267,7 @@ export class StorePayAPI extends BaseAPI {
   }
 
   /**
-   * Check invoice status by requestId.
-   *
-   * StorePay API v3.0:
-   * GET /merchant/loan/checkRequest/{requestId}
+   * Check invoice creation/confirmation by request ID.
    */
   async checkRequest(requestId: string) {
     try {
@@ -253,24 +283,12 @@ export class StorePayAPI extends BaseAPI {
     }
   }
 
-  /**
-   * Manually check invoice status.
-   *
-   * Uses the StorePay invoice number, which is stored in
-   * transaction.response.value after invoice creation.
-   */
   async manualCheck(invoice: ITransactionDocument) {
     try {
-      const invoiceNumber = invoice.response?.value;
-
-      if (!invoiceNumber) {
-        return PAYMENT_STATUS.PENDING;
-      }
-
       const res = await this.request({
         headers: await this.getHeaders(),
         method: 'GET',
-        path: `merchant/loan/check/${invoiceNumber}`,
+        path: `merchant/loan/check/${invoice.response.value}`,
       }).then((res) => res.json());
 
       if (!res.value) {
@@ -294,9 +312,8 @@ export class StorePayAPI extends BaseAPI {
         },
       }).then((res) => res.json());
 
-      const { msgList = [], status } = res;
-      if (status === 'Failed' && msgList.length > 0) {
-        throw new Error(msgList[0].code);
+      if (res.status === 'Failed' && res.msgList?.length > 0) {
+        throw new Error(res.msgList[0].code);
       }
 
       if (!res.value || res.value === 0) {
@@ -311,11 +328,11 @@ export class StorePayAPI extends BaseAPI {
   }
 
   /**
-   * Change loan amount or request cancellation of a confirmed invoice.
+   * Change StorePay loan amount or cancel a loan.
    *
    * changeTypeId:
-   * 1 = Change amount
-   * 2 = Cancel
+   * 1 - change amount
+   * 2 - cancel loan
    */
   async loanChange({
     changeTypeId,
@@ -329,14 +346,6 @@ export class StorePayAPI extends BaseAPI {
     amount?: number;
   }) {
     try {
-      if (![1, 2].includes(changeTypeId)) {
-        throw new Error('Invalid changeTypeId');
-      }
-
-      if (changeTypeId === 1 && amount === undefined) {
-        throw new Error('Amount is required when changing the loan amount');
-      }
-
       const data: {
         changeTypeId: number;
         loanId: number;
@@ -359,12 +368,6 @@ export class StorePayAPI extends BaseAPI {
         headers: await this.getHeaders(),
       }).then((res) => res.json());
 
-      if (res.status !== 'success') {
-        return {
-          error: res.msgList?.[0]?.code || 'Unknown error',
-        };
-      }
-
       return res;
     } catch (e) {
       throw new Error(e.message);
@@ -372,36 +375,20 @@ export class StorePayAPI extends BaseAPI {
   }
 
   /**
-   * Get loan amount change/cancellation request list.
+   * Get StorePay loan change list.
    */
   async loanChangeList() {
     try {
-      const response = await this.request({
+      const res = await this.request({
         method: 'POST',
         path: 'merchant/ds/dtable',
         data: {
           code: 'MerchantLoanChangeList',
         },
         headers: await this.getHeaders(),
-      });
+      }).then((res) => res.json());
 
-      const text = await response.text();
-
-      if (!text) {
-        return {
-          status: response.status,
-          body: null,
-        };
-      }
-
-      try {
-        return JSON.parse(text);
-      } catch {
-        return {
-          status: response.status,
-          body: text,
-        };
-      }
+      return res;
     } catch (e) {
       throw new Error(e.message);
     }
