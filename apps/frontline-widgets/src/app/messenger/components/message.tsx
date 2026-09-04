@@ -5,6 +5,7 @@ import {
   IconDownload,
   IconShare3,
   IconZoomIn,
+  type IconProps,
 } from '@tabler/icons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
@@ -397,6 +398,7 @@ function MessageContent({
         {Boolean(sanitizedHtml) && (
           <div
             className={cn('w-full', (reply || isForwarded) && 'px-3 py-2')}
+            // skipcq: JS-0440 — HTML is sanitized with DOMPurify above
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cleanHtml) }}
           />
         )}
@@ -426,38 +428,99 @@ export type MessageAttachmentsProps = {
   align?: 'start' | 'end';
 };
 
+export function PreviewImage({
+  src,
+  alt,
+  className,
+  loading,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  loading?: 'lazy' | 'eager';
+}) {
+  // skipcq: JS-W1015 — Rspack widget app; next/image is unavailable and
+  // attachment sources are dynamic storage URLs, so plain img is correct.
+  return <img src={src} alt={alt} className={className} loading={loading} />;
+}
+
+function ImageTriggerButton({ attachment }: { attachment: IAttachment }) {
+  return (
+    <button
+      type="button"
+      className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+    >
+      <PreviewImage
+        src={readImage(attachment.url)}
+        alt={attachment.name || 'Photo'}
+        loading="lazy"
+        className="max-h-64 w-full rounded-2xl object-cover"
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
+        <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+          <IconZoomIn className="size-3.5" />
+          <span>Click to preview</span>
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function ImagePreviewDialog({ attachment }: { attachment: IAttachment }) {
+  return (
+    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+      <PreviewImage
+        src={readImage(attachment.url)}
+        alt={attachment.name || 'Photo preview'}
+        className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+      />
+    </Dialog.Content>
+  );
+}
+
 function AttachmentImage({ attachment }: { attachment: IAttachment }) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        >
-          {/* skipcq: JS-W1015 */}
-          <img
-            src={readImage(attachment.url)}
-            alt={attachment.name || 'Photo'}
-            loading="lazy"
-            className="max-h-64 w-full rounded-2xl object-cover"
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity group-hover:opacity-100">
-            <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
-              <IconZoomIn className="size-3.5" />
-              <span>Click to preview</span>
-            </span>
-          </div>
-        </button>
+        <ImageTriggerButton attachment={attachment} />
       </Dialog.Trigger>
-      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-        {/* skipcq: JS-W1015 */}
-        <img
-          src={readImage(attachment.url)}
-          alt={attachment.name || 'Photo preview'}
-          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-        />
-      </Dialog.Content>
+      <ImagePreviewDialog attachment={attachment} />
     </Dialog>
+  );
+}
+
+function VideoTriggerButton({ attachment }: { attachment: IAttachment }) {
+  return (
+    <button
+      type="button"
+      className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+    >
+      <video
+        src={readImage(attachment.url)}
+        muted
+        className="max-h-40 w-full rounded-xl object-contain"
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+        <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
+          <IconZoomIn className="size-3.5" />
+          <span>Play video</span>
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function VideoPreviewDialog({ attachment }: { attachment: IAttachment }) {
+  return (
+    <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+      <video
+        src={readImage(attachment.url)}
+        controls
+        autoPlay
+        playsInline
+        className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
+      />
+    </Dialog.Content>
   );
 }
 
@@ -465,33 +528,79 @@ function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        >
-          <video
-            src={readImage(attachment.url)}
-            muted
-            className="max-h-40 w-full rounded-xl object-contain"
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <span className="flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur-xs">
-              <IconZoomIn className="size-3.5" />
-              <span>Play video</span>
-            </span>
-          </div>
-        </button>
+        <VideoTriggerButton attachment={attachment} />
       </Dialog.Trigger>
-      <Dialog.Content className="!flex !h-auto !max-h-[90vh] !w-auto !max-w-[90vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
-        <video
-          src={readImage(attachment.url)}
-          controls
-          autoPlay
-          playsInline
-          className="block max-h-[85vh] max-w-[88vw] rounded-lg object-contain"
-        />
-      </Dialog.Content>
+      <VideoPreviewDialog attachment={attachment} />
     </Dialog>
+  );
+}
+
+function FileTriggerButton({
+  attachment,
+  IconComponent,
+}: {
+  attachment: IAttachment;
+  IconComponent: React.FC<IconProps>;
+}) {
+  return (
+    <button
+      type="button"
+      className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+    >
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+        <IconComponent className="size-5" />
+      </div>
+      <div className="min-w-0 flex-1 leading-tight">
+        <span className="block truncate text-xs font-semibold">
+          {attachment.name || 'File'}
+        </span>
+        <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+          {formatFileSize(attachment?.size || 0) || 'Attachment'} · Click to
+          preview
+        </span>
+      </div>
+    </button>
+  );
+}
+
+function FilePreviewDialog({
+  attachment,
+  IconComponent,
+}: {
+  attachment: IAttachment;
+  IconComponent: React.FC<IconProps>;
+}) {
+  return (
+    <Dialog.Content className="max-w-sm rounded-2xl p-5">
+      <Dialog.Header>
+        <Dialog.Title className="truncate text-base">
+          {attachment.name || 'File'}
+        </Dialog.Title>
+      </Dialog.Header>
+      <div className="flex flex-col items-center gap-3 py-4 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
+          <IconComponent className="size-7" />
+        </div>
+        <div>
+          <p className="font-semibold text-sm text-foreground">
+            {attachment.name || 'Attachment'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {formatFileSize(attachment?.size || 0)}
+          </p>
+        </div>
+        <a
+          href={readImage(attachment.url)}
+          target="_blank"
+          rel="noopener noreferrer"
+          download
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
+        >
+          <IconDownload className="size-3.5" />
+          Download file
+        </a>
+      </div>
+    </Dialog.Content>
   );
 }
 
@@ -503,54 +612,15 @@ function AttachmentFile({ attachment }: { attachment: IAttachment }) {
   return (
     <Dialog>
       <Dialog.Trigger asChild>
-        <button
-          type="button"
-          className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        >
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
-            <IconComponent className="size-5" />
-          </div>
-          <div className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-xs font-semibold">
-              {attachment.name || 'File'}
-            </span>
-            <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
-              {formatFileSize(attachment?.size || 0) || 'Attachment'} · Click to
-              preview
-            </span>
-          </div>
-        </button>
+        <FileTriggerButton
+          attachment={attachment}
+          IconComponent={IconComponent}
+        />
       </Dialog.Trigger>
-      <Dialog.Content className="max-w-sm rounded-2xl p-5">
-        <Dialog.Header>
-          <Dialog.Title className="truncate text-base">
-            {attachment.name || 'File'}
-          </Dialog.Title>
-        </Dialog.Header>
-        <div className="flex flex-col items-center gap-3 py-4 text-center">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-primary">
-            <IconComponent className="size-7" />
-          </div>
-          <div>
-            <p className="font-semibold text-sm text-foreground">
-              {attachment.name || 'Attachment'}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {formatFileSize(attachment?.size || 0)}
-            </p>
-          </div>
-          <a
-            href={readImage(attachment.url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-xs transition-colors hover:bg-primary/90"
-          >
-            <IconDownload className="size-3.5" />
-            Download file
-          </a>
-        </div>
-      </Dialog.Content>
+      <FilePreviewDialog
+        attachment={attachment}
+        IconComponent={IconComponent}
+      />
     </Dialog>
   );
 }

@@ -711,8 +711,8 @@ const isMidOnlyFacebookMessage = (args: {
   mid?: string;
   message?: TChannelMessage;
   text?: string;
-  attachments?: TChannelMessage['attachments'];
-  postback?: Activity['channelData']['postback'];
+  attachments: TChannelMessage['attachments'];
+  postback: Activity['channelData']['postback'];
 }): boolean =>
   Boolean(
     args.mid &&
@@ -731,7 +731,7 @@ const resolveStoryEnrichment = async (args: {
   mid?: string;
   story?: { id?: string; url?: string };
   isMidOnlyMessage: boolean;
-  attachments?: TChannelMessage['attachments'];
+  attachments: TChannelMessage['attachments'];
 }) => {
   const { integration, pageId, mid, story, isMidOnlyMessage, attachments } =
     args;

@@ -12,7 +12,7 @@ export const InboxMessagesContainer = ({
   conversationId,
   children,
 }: React.PropsWithChildren<{
-  fetchMore: () => unknown | Promise<unknown>;
+  fetchMore: () => Promise<unknown> | void;
   messagesLength: number;
   totalCount: number;
   loading: boolean;
