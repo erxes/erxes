@@ -1,6 +1,7 @@
 import {
   getBlockAttachments,
   getMentionedUserIds,
+  stripHtml,
   toast,
   useBlockEditor,
   usePreviousHotkeyScope,
@@ -31,7 +32,6 @@ import { messageReplyState } from '@/inbox/conversations/conversation-detail/sta
 import { useDiscordMentions } from '@/inbox/conversations/conversation-detail/hooks/useDiscordMentions';
 import { useResponseTemplateSuggestions } from '@/inbox/conversations/conversation-detail/hooks/useResponseTemplateSuggestions';
 import { useMessageAttachments } from '@/inbox/conversations/conversation-detail/hooks/useMessageAttachments';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 
 const encodeDiscordMentions = (blocks?: Block[]): Block[] | undefined =>
   blocks?.map((block) =>
@@ -249,7 +249,7 @@ export const useMessageInputController = (conversationId: string) => {
     setContent(editorBlocks.length ? (editorBlocks as Block[]) : undefined);
 
     const html = await editor?.blocksToHTMLLossy(textBlocks);
-    const plain = (html ? replaceHtmlTags(html, '') : '').trim() || '';
+    const plain = stripHtml(html);
 
     if (plain.length >= 1) {
       setSearchValue(plain);

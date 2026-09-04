@@ -1,7 +1,7 @@
 import { InboxMessagesContainer } from '@/inbox/components/InboxMessagesContainer';
-import { useFacebookConversationMessages } from '../hooks/useFacebookConversationMessages';
-import { FbMessengerMessageContext } from '../contexts/FbMessengerMessageContext';
-import { FbMessengerMessage } from './FbMessengerMessages';
+import { useFacebookConversationMessages } from '@/integrations/facebook/hooks/useFacebookConversationMessages';
+import { FbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
+import { FbMessengerMessage } from '@/integrations/facebook/components/FbMessengerMessages';
 import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
 import {
   MessageDaySeparator,
@@ -9,7 +9,7 @@ import {
 } from '@/inbox/conversation-messages/components/MessageItem';
 import { useMemo } from 'react';
 import { useQueryState } from 'erxes-ui';
-import type { IFacebookConversationMessage } from '../types/FacebookTypes';
+import type { IFacebookConversationMessage } from '@/integrations/facebook/types/FacebookTypes';
 
 type FacebookMessageRowProps = {
   message: IFacebookConversationMessage;

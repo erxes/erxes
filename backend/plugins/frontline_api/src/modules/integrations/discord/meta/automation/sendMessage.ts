@@ -15,12 +15,12 @@ import {
 import { IModels } from '~/connectionResolvers';
 import {
   DiscordMessageAttachment,
-  getErrorMessage,
   openDmChannel,
   rehostImageAttachments,
   sendChannelMessage,
   stopTypingIndicator,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import {
   normalizeDiscordEmbeds,
   normalizeDiscordPoll,

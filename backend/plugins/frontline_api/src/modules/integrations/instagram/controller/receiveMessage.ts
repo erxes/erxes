@@ -1,10 +1,10 @@
-import { IModels } from '~/connectionResolvers';
-import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
+import type { IModels } from '~/connectionResolvers';
+import type { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { getOrCreateCustomer } from '@/integrations/instagram/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { debugInstagram } from '@/integrations/instagram/debuggers';
-import { IMessageData } from '@/integrations/instagram/@types/utils';
+import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
@@ -12,7 +12,8 @@ import {
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
 import { normalizeInstagramMessage } from '@/integrations/instagram/normalizeMessage';
-import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import type { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import { getErrorMessage } from '@/integrations/utils';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -197,7 +198,7 @@ const upsertInstagramConversation = async ({
     });
     return { conversation, botId, isNew: true };
   } catch (error) {
-    const messageText = error instanceof Error ? error.message : String(error);
+    const messageText = getErrorMessage(error);
     throw new Error(
       messageText.includes('duplicate')
         ? 'Concurrent request: conversation duplication'
@@ -357,7 +358,7 @@ const createInstagramMessage = async ({
     if (inboxMessageId) {
       await models.ConversationMessages.deleteOne({ _id: inboxMessageId });
     }
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = getErrorMessage(error);
     throw new Error(
       errorMessage.includes('duplicate')
         ? 'Concurrent request: conversation message duplication'

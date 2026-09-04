@@ -18,10 +18,10 @@ import {
 import {
   getChannel,
   getDiscordUser,
-  getErrorMessage,
   isThreadChannel,
   rehostImageAttachments,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { DISCORD_MESSAGE_TRIGGER_TYPE } from '@/integrations/discord/constants';
 import { TDiscordTriggerTarget } from '@/integrations/discord/meta/automation/types';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';

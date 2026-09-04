@@ -1,11 +1,11 @@
-import { IModels } from '~/connectionResolvers';
-import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
+import type { IModels } from '~/connectionResolvers';
+import type { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { getOrCreateCustomer } from '@/integrations/facebook/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { debugFacebook } from '@/integrations/facebook/debuggers';
-import { Activity } from '@/integrations/facebook/@types/utils';
-import { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
+import type { Activity } from '@/integrations/facebook/@types/utils';
+import type { IFacebookBotDocument } from '@/integrations/facebook/db/definitions/bots';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
@@ -13,13 +13,14 @@ import {
   graphRequest,
   sendReply,
 } from '@/integrations/facebook/utils';
-import { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
-import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
+import type { IFacebookConversationDocument } from '@/integrations/facebook/@types/conversations';
+import type { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import {
   checkIsBot,
   parseAutomationPayload,
   triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
+import { getErrorMessage } from '@/integrations/utils';
 
 const STORY_LIFETIME_MS = 24 * 60 * 60 * 1000;
 
@@ -32,9 +33,6 @@ type TGraphMessageAttachment = {
 type TGraphMessageDetails = {
   attachments?: { data?: TGraphMessageAttachment[] };
 };
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
 
 const fetchStoryMediaUrl = async (
   integration: IFacebookIntegrationDocument,

@@ -1,4 +1,4 @@
-import { Button, RelativeDateDisplay, Sheet, cn } from 'erxes-ui';
+import { Button, RelativeDateDisplay, Sheet, cn, stripHtml } from 'erxes-ui';
 
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
 import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
@@ -6,13 +6,15 @@ import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageE
 import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
 import {
   DiscordEditedStatus,
-  MESSAGE_ACTION_BAR_CLASS,
   ReactionLabel,
-  aggregateReactions,
   getMessageBubbleClassName,
-  replaceHtmlTags,
-  stripHtmlTags,
 } from '@/inbox/conversation-messages/components/MessageItemHelpers';
+import { MESSAGE_ACTION_BAR_CLASS } from '@/inbox/conversation-messages/constants/messageActions';
+import {
+  aggregateReactions,
+  getProviderMessageId,
+} from '@/inbox/conversation-messages/utils/message';
+import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
 import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
 import {
   DeliveryStatus,
@@ -46,12 +48,7 @@ const getReplyPreview = (content?: string) => {
     /^<blockquote><strong>Replying to<\/strong><br\s*\/?>[\s\S]*?<\/blockquote>/i,
     '',
   );
-  const document = new DOMParser().parseFromString(
-    withoutQuotedReply,
-    'text/html',
-  );
-
-  return (document.body.textContent || '').replace(/\s+/g, ' ').trim();
+  return stripHtml(withoutQuotedReply);
 };
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
@@ -61,7 +58,6 @@ export const MessageItem = () => {
   const { _id: conversationId, integration } = useConversationContext();
   const {
     _id,
-    mid,
     userId,
     customerId,
     content,
@@ -204,7 +200,7 @@ export const MessageItem = () => {
     normalizedDisplayContent !== HAS_ATTACHMENT &&
     Boolean(
       normalizedDisplayContent
-        ? stripHtmlTags(normalizedDisplayContent).replace(/\s|&nbsp;/g, '')
+        ? stripHtml(normalizedDisplayContent).replace(/\s/g, '')
         : '',
     );
   const discordActionContent = hasTextBubble
@@ -288,7 +284,7 @@ export const MessageItem = () => {
         <div
           id={`conversation-message-${_id}`}
           data-provider-message-id={
-            providerData?.messageId || extraData?.discordMessageId || mid
+            getProviderMessageId(message)
           }
           onContextMenu={(event) => {
             if (window.matchMedia('(hover: none)').matches) {

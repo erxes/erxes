@@ -1,9 +1,9 @@
-import {
+import type {
   IConversationMessageAdd,
   IMessage,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
-import {
+import type {
   IConversation,
   IConversationDocument,
 } from '@/inbox/@types/conversations';
@@ -21,17 +21,18 @@ import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
 import { authorizeConversationAccess } from '@/inbox/conversationUtils';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import type { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
   sendTRPCMessage,
   markResolvers,
 } from 'erxes-api-shared/utils';
 import { union, without } from 'underscore';
-import { IContext, IModels } from '~/connectionResolvers';
+import type { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
 import strip from 'strip';
+import { getErrorMessage } from '@/integrations/utils';
 
 interface DispatchConversationData {
   action: string;
@@ -59,9 +60,6 @@ export interface ConversationConvertToCardParams {
 const DEFAULT_HANDOFF_MESSAGE =
   'A teammate will take over shortly. Automated replies are paused.';
 const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
 
 const publishUnreadCountsSafely = async (
   params: Parameters<typeof publishConversationUnreadCounts>[0],

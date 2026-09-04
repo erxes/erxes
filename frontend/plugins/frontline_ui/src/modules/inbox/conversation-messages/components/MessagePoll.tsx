@@ -1,5 +1,5 @@
 import { Badge, cn } from 'erxes-ui';
-import { IMessagePoll } from '@/inbox/types/Conversation';
+import type { IMessagePoll } from '@/inbox/types/Conversation';
 import { useEffect, useState } from 'react';
 import {
   IconChartBar,

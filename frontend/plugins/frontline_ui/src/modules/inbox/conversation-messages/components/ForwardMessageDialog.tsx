@@ -1,11 +1,18 @@
 import { useQuery } from '@apollo/client';
-import { Button, Command, Dialog, Input, Spinner, toast } from 'erxes-ui';
+import {
+  Button,
+  Command,
+  Dialog,
+  Input,
+  Spinner,
+  stripHtml,
+  toast,
+} from 'erxes-ui';
 import { useMemo } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { textOf } from '@/inbox/conversation-messages/components/MessageActions';
 import { useConversationMessageAdd } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageAdd';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import type { IConversation, IMessage } from '@/inbox/types/Conversation';
@@ -48,7 +55,7 @@ const ConversationOption = ({
     >
       <span className="min-w-0 flex-1 truncate">{name}</span>
       <span className="max-w-48 truncate text-xs text-muted-foreground">
-        {textOf(conversation.content)}
+        {stripHtml(conversation.content)}
       </span>
     </Command.Item>
   );
@@ -165,7 +172,7 @@ const forwardedContentText = (
   content: string | undefined,
   hasAttachments: boolean,
 ) => {
-  const text = textOf(content)
+  const text = stripHtml(content)
     .replace(/^(?:Forwarded message\s*)+/i, '')
     .trim();
 
@@ -202,7 +209,7 @@ export const ForwardMessageDialog = ({
 
   const handleForward = async ({ destinationId, note }: ForwardMessageForm) => {
     const existingSnapshot = message.extraData?.forwardedSnapshot;
-    const messageText = textOf(message.content);
+    const messageText = stripHtml(message.content);
     const hasSocialShare = message.attachments?.some(
       (attachment) =>
         attachment.type === 'share' ||

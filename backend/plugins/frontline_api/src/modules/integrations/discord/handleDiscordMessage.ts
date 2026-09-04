@@ -6,7 +6,6 @@ import {
   DiscordApiError,
   DiscordPollRequest,
   getDiscordUser,
-  getErrorMessage,
   resolveAttachmentUrl,
   sendChannelMessage,
   startTypingIndicator,
@@ -16,6 +15,7 @@ import {
   pinChannelMessage,
   unpinChannelMessage,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   normalizeDiscordEmbeds,

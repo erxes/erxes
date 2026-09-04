@@ -20,9 +20,9 @@ import {
 import { IDiscordBotDocument } from '@/integrations/discord/@types/bot';
 import {
   getChannel,
-  getErrorMessage,
   isThreadChannel,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { backfillChannelHistory } from '@/integrations/discord/backfill';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 

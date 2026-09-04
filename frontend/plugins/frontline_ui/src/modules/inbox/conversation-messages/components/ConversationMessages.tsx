@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageItem } from './MessageItem';
-import { IMessage } from '@/inbox/types/Conversation';
+import type { IMessage } from '@/inbox/types/Conversation';
 import { useConversationMessages } from '@/inbox/conversation-messages/hooks/useConversationMessages';
 import { useConversationTypingStatus } from '@/inbox/conversation-messages/hooks/useConversationTypingStatus';
 import { TypingIndicator } from '@/inbox/conversation-messages/components/TypingIndicator';

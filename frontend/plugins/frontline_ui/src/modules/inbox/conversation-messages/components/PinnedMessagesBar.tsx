@@ -5,22 +5,25 @@ import {
   type ElementRef,
 } from 'react';
 import { useMutation } from '@apollo/client';
-import { Button, Popover, ScrollArea, cn, readImage, toast } from 'erxes-ui';
+import {
+  Button,
+  Popover,
+  ScrollArea,
+  cn,
+  readImage,
+  toast,
+} from 'erxes-ui';
 import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
 
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
-import { replaceHtmlTags } from '@/inbox/conversation-messages/components/MessageItemHelpers';
 import type { IMessage } from '@/inbox/types/Conversation';
+import { replaceHtmlTags } from '@/inbox/conversation-messages/utils/messageContent';
+import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 
 const messageText = (content?: string) =>
   (content ? replaceHtmlTags(content, ' ') : '').replace(/\s+/g, ' ').trim() ||
   'Attachment or rich message';
-
-const providerMessageId = (message: IMessage) =>
-  message.providerData?.messageId ||
-  message.extraData?.discordMessageId ||
-  message.mid;
 
 const pinnedImage = (message: IMessage) =>
   message.attachments?.find((attachment) =>
@@ -101,7 +104,7 @@ const PinnedMessageRow = ({
         type="button"
         variant="ghost"
         size="sm"
-        disabled={loading || !providerMessageId(message)}
+        disabled={loading || !getProviderMessageId(message)}
         aria-label="Unpin message"
         onClick={onUnpin}
         className="shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
@@ -115,12 +118,12 @@ const PinnedMessageRow = ({
 const PinnedMessageList = ({
   messages,
   loading,
-  onSelect,
+  onMessageSelect,
   onUnpin,
 }: {
   messages: IMessage[];
   loading: boolean;
-  onSelect: (message: IMessage) => void;
+  onMessageSelect: (message: IMessage) => void;
   onUnpin: (message: IMessage) => void;
 }) => (
   <div className="divide-y">
@@ -129,7 +132,7 @@ const PinnedMessageList = ({
         key={message._id}
         message={message}
         loading={loading}
-        onSelect={() => onSelect(message)}
+        onSelect={() => onMessageSelect(message)}
         onUnpin={() => onUnpin(message)}
       />
     ))}
@@ -141,32 +144,34 @@ const PinnedMessagesContent = forwardRef<
   ComponentPropsWithoutRef<typeof Popover.Content> & {
     messages: IMessage[];
     loading: boolean;
-    onSelect: (message: IMessage) => void;
+    onMessageSelect: (message: IMessage) => void;
     onUnpin: (message: IMessage) => void;
   }
->(({ messages, loading, onSelect, onUnpin, className, ...props }, ref) => (
-  <Popover.Content
-    ref={ref}
-    align="start"
-    className={cn('w-[min(26rem,calc(100vw-1rem))] p-0', className)}
-    {...props}
-  >
-    <div className="border-b px-3 py-2 text-xs font-medium">
-      Pinned messages
-    </div>
-    <ScrollArea.Root className="max-h-72">
-      <ScrollArea.Viewport className="max-h-72">
-        <PinnedMessageList
-          messages={messages}
-          loading={loading}
-          onSelect={onSelect}
-          onUnpin={onUnpin}
-        />
-      </ScrollArea.Viewport>
-      <ScrollArea.Bar orientation="vertical" />
-    </ScrollArea.Root>
-  </Popover.Content>
-));
+>(
+  ({ messages, loading, onMessageSelect, onUnpin, className, ...props }, ref) => (
+    <Popover.Content
+      ref={ref}
+      align="start"
+      className={cn('w-[min(26rem,calc(100vw-1rem))] p-0', className)}
+      {...props}
+    >
+      <div className="border-b px-3 py-2 text-xs font-medium">
+        Pinned messages
+      </div>
+      <ScrollArea.Root className="max-h-72">
+        <ScrollArea.Viewport className="max-h-72">
+          <PinnedMessageList
+            messages={messages}
+            loading={loading}
+            onMessageSelect={onMessageSelect}
+            onUnpin={onUnpin}
+          />
+        </ScrollArea.Viewport>
+        <ScrollArea.Bar orientation="vertical" />
+      </ScrollArea.Root>
+    </Popover.Content>
+  ),
+);
 
 PinnedMessagesContent.displayName = 'PinnedMessagesContent';
 
@@ -187,7 +192,7 @@ export const PinnedMessagesBar = ({
   if (!messages.length) return null;
 
   const handleUnpin = async (message: IMessage) => {
-    const messageId = providerMessageId(message);
+    const messageId = getProviderMessageId(message);
     if (!messageId) return;
 
     try {
@@ -212,9 +217,9 @@ export const PinnedMessagesBar = ({
       <PinnedMessagesContent
         messages={messages}
         loading={loading}
-        onSelect={(message) => {
+        onMessageSelect={(message) => {
           setOpen(false);
-          onSelectMessage(providerMessageId(message) || message._id);
+          onSelectMessage(getProviderMessageId(message) || message._id);
         }}
         onUnpin={handleUnpin}
       />

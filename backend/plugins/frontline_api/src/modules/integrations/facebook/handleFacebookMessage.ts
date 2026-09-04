@@ -1,6 +1,6 @@
 import { stripHtml } from 'string-strip-html';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
+import type { IModels } from '~/connectionResolvers';
 import {
   sendReply,
   sendReaction,
@@ -8,6 +8,11 @@ import {
 } from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { debugError } from '@/integrations/facebook/debuggers';
+import {
+  appendContentImages,
+  getErrorMessage,
+  sanitizeMessageHtml,
+} from '@/integrations/utils';
 
 type TFacebookAttachment = { type: string; url: string };
 
@@ -35,16 +40,6 @@ const FACEBOOK_REACTION_EMOJI: Record<string, string> = {
   haha: '😂',
   sad: '😢',
   angry: '😠',
-};
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
-
-const sanitizeAndFormat = (html: string): string => {
-  const normalized = html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|blockquote)>/gi, '\n');
-  return stripHtml(normalized).result.trim();
 };
 
 const handleInternalMessage = async (
@@ -201,19 +196,6 @@ const handleFacebookPostReply = async (
   }
 };
 
-const IMG_TAG_PATTERN = /<img [^>]*>/g;
-const IMG_SRC_PATTERN = /src="([^"]*)"/;
-
-const appendContentImages = (
-  content: string,
-  attachments: TFacebookAttachment[],
-) => {
-  const images = (content.match(IMG_TAG_PATTERN) || [])
-    .map((tag) => IMG_SRC_PATTERN.exec(tag)?.[1])
-    .filter((image): image is string => Boolean(image));
-  images.forEach((image) => attachments.push({ type: 'image', url: image }));
-};
-
 const getReplyTo = async (
   models: IModels,
   conversationId: string,
@@ -260,7 +242,7 @@ const handleFacebookMessengerReply = async (
   }
 
   appendContentImages(content, attachments);
-  const strippedContent = sanitizeAndFormat(content);
+  const strippedContent = sanitizeMessageHtml(content);
   const conversation = await models.FacebookConversations.getConversation({
     erxesApiId: conversationId,
   });

@@ -1,5 +1,13 @@
 import { useMutation } from '@apollo/client';
-import { Button, DropdownMenu, Spinner, Tooltip, cn, toast } from 'erxes-ui';
+import {
+  Button,
+  DropdownMenu,
+  Spinner,
+  Tooltip,
+  cn,
+  stripHtml,
+  toast,
+} from 'erxes-ui';
 import {
   IconArrowBackUp,
   IconCopy,
@@ -23,51 +31,22 @@ import type { IMessage } from '@/inbox/types/Conversation';
 import { IntegrationType } from '@/types/Integration';
 import { currentUserState } from 'ui-modules';
 import { ForwardMessageDialog } from '@/inbox/conversation-messages/components/ForwardMessageDialog';
-
-const REACTIONS = ['love', 'like', 'wow', 'haha', 'sad', 'angry'] as const;
-const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
-  love: '❤️',
-  like: '👍',
-  wow: '😮',
-  haha: '😂',
-  sad: '😢',
-  angry: '😠',
-};
-
-export const textOf = (html?: string) => {
-  if (!html) return '';
-  const document = new DOMParser().parseFromString(html, 'text/html');
-  return (document.body.textContent || '').trim();
-};
+import {
+  INLINE_ACTION_KINDS,
+  INSTAGRAM_REACTION_MESSAGE_KINDS,
+  NATIVE_REPLY_KINDS,
+  REACTIONS,
+  REACTION_EMOJI,
+  REACTION_KINDS,
+  type Reaction,
+} from '@/inbox/conversation-messages/constants/messageActions';
+import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 
 const previewOf = (message: IMessage) =>
-  textOf(message.content).slice(0, 120) ||
+  stripHtml(message.content).slice(0, 120) ||
   message.providerData?.previewText ||
   message.attachments?.[0]?.name ||
   'Attachment';
-
-const nativeReplyKinds = new Set<string>([
-  IntegrationType.FACEBOOK_MESSENGER,
-  IntegrationType.DISCORD_MESSENGER,
-  IntegrationType.INSTAGRAM_MESSENGER,
-]);
-const reactionKinds = new Set<string>([
-  IntegrationType.FACEBOOK_MESSENGER,
-  IntegrationType.DISCORD_MESSENGER,
-  IntegrationType.INSTAGRAM_MESSENGER,
-]);
-const instagramReactionMessageKinds = new Set([
-  'text',
-  'image',
-  'video',
-  'audio',
-  'file',
-]);
-const inlineActionKinds = new Set<string>([
-  IntegrationType.FACEBOOK_MESSENGER,
-  IntegrationType.INSTAGRAM_MESSENGER,
-  IntegrationType.ERXES_MESSENGER,
-]);
 
 const ActionButton = ({
   label,
@@ -109,10 +88,7 @@ export const MessageActions = ({
 }) => {
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
-  const providerMessageId =
-    message.providerData?.messageId ||
-    message.extraData?.discordMessageId ||
-    message.mid;
+  const providerMessageId = getProviderMessageId(message);
   const setReply = useSetAtom(messageReplyState);
   const currentUser = useAtomValue(currentUserState);
   const isSlashMenuOpen = useAtomValue(isSlashMenuOpenState);
@@ -132,9 +108,9 @@ export const MessageActions = ({
     !isInstagram ||
     (!message.userId &&
       !message.fromBot &&
-      instagramReactionMessageKinds.has(message.messageKind || 'text'));
+      INSTAGRAM_REACTION_MESSAGE_KINDS.has(message.messageKind || 'text'));
   const canReact =
-    reactionKinds.has(kind) &&
+    REACTION_KINDS.has(kind) &&
     Boolean(providerMessageId) &&
     isInstagramReactionTarget;
   const availableReactions =
@@ -146,7 +122,7 @@ export const MessageActions = ({
   )?.find((reaction) => reaction.senderId === currentUser?._id)?.reaction;
   const isDiscord = kind === IntegrationType.DISCORD_MESSENGER;
   const canReplyOrForward = kind !== 'lead';
-  const showActionsInline = inlineActionKinds.has(kind);
+  const showActionsInline = INLINE_ACTION_KINDS.has(kind);
   const isPinned = Boolean(message.extraData?.discordPinned);
 
   const handleReply = () => {
@@ -169,7 +145,7 @@ export const MessageActions = ({
       preview,
       authorName,
       attachment,
-      nativeReply: nativeReplyKinds.has(kind) && Boolean(providerMessageId),
+      nativeReply: NATIVE_REPLY_KINDS.has(kind) && Boolean(providerMessageId),
     });
   };
 
@@ -210,7 +186,7 @@ export const MessageActions = ({
   return (
     <Tooltip.Provider delayDuration={0}>
       <div className="flex items-center gap-0.5">
-        {reactionKinds.has(kind) && isInstagramReactionTarget && (
+        {REACTION_KINDS.has(kind) && isInstagramReactionTarget && (
           <ReactionMenu
             conversationId={conversationId}
             messageId={providerMessageId || ''}
@@ -320,7 +296,7 @@ function ReactionMenu({
   disabled: boolean;
   disabledReason: string;
   selectedReaction?: string;
-  reactions: readonly (typeof REACTIONS)[number][];
+  reactions: readonly Reaction[];
 }>) {
   const [react, { loading }] = useMutation(CONVERSATION_MESSAGE_REACT, {
     refetchQueries: [
@@ -330,7 +306,7 @@ function ReactionMenu({
     ],
   });
 
-  const handleReaction = async (reaction: (typeof REACTIONS)[number]) => {
+  const handleReaction = async (reaction: Reaction) => {
     const remove = selectedReaction === reaction;
     try {
       await react({

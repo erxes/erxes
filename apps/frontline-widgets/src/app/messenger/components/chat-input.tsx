@@ -1,4 +1,4 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type FC } from 'react';
 import {
   IconArrowBackUp,
   IconArrowRight,
@@ -11,11 +11,11 @@ import {
   Button,
   cn,
   Dialog,
-  IAttachment,
   Popover,
   readImage,
   Spinner,
   useUpload,
+  type IAttachment,
 } from 'erxes-ui';
 import { EmojiPicker } from 'ui-modules/modules/automations/components/EmojiPicker';
 import { useAtom } from 'jotai';
@@ -29,6 +29,11 @@ import { useMessenger } from '../hooks/useMessenger';
 import { Attachment } from './attachment';
 import { getAttachmentIcon } from './attachment-type';
 import { PreviewImage } from './message';
+import {
+  getMaxUploadSize,
+  toPendingFile,
+  type PendingFile,
+} from '../utils/fileUpload';
 
 type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   replyTo?: {
@@ -37,40 +42,6 @@ type ChatInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   } | null;
   onCancelReply?: () => void;
 };
-
-/** A file still in flight. It leaves this list only once the upload settles. */
-type PendingFile = {
-  name: string;
-  type: string;
-  size: number;
-  /** Object URL for image previews — revoked when the entry is dropped. */
-  preview?: string;
-  state: 'uploading' | 'error';
-  /** Why it failed, when known. */
-  error?: string;
-};
-
-const DEFAULT_MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
-
-/** Same limit `useUpload` enforces, read per call so a late env write counts. */
-const getMaxUploadSize = (): number =>
-  Number.parseInt(
-    localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
-    10,
-  ) || DEFAULT_MAX_UPLOAD_SIZE;
-
-const toPendingFile = (
-  file: File,
-  state: PendingFile['state'],
-): PendingFile => ({
-  name: file.name,
-  type: file.type,
-  size: file.size,
-  preview: file.type.startsWith('image/')
-    ? URL.createObjectURL(file)
-    : undefined,
-  state,
-});
 
 function DoneAttachmentButtonContent({ att }: { att: IAttachment }) {
   const fileType = getAttachmentType(att.type, att.name);

@@ -3,29 +3,27 @@ import { promises as fsPromises } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import {
-  APIActionRowComponent,
-  APIApplication,
-  APIChannel,
-  APIComponentInMessageActionRow,
-  APIEmbed,
-  APIGuild,
-  APIGuildMember,
-  APIMessage,
-  APIRole,
-  APIThreadChannel,
-  APIUser,
   ChannelType,
-  RESTAPIPoll,
-  RESTGetAPICurrentUserGuildsResult,
-  ThreadChannelType,
+  type APIActionRowComponent,
+  type APIApplication,
+  type APIChannel,
+  type APIComponentInMessageActionRow,
+  type APIEmbed,
+  type APIGuild,
+  type APIGuildMember,
+  type APIMessage,
+  type APIRole,
+  type APIThreadChannel,
+  type APIUser,
+  type RESTAPIPoll,
+  type RESTGetAPICurrentUserGuildsResult,
+  type ThreadChannelType,
 } from 'discord-api-types/v10';
 import { getEnv, uploadFileToStorage } from 'erxes-api-shared/utils';
 import { DISCORD_API_URL } from '@/integrations/discord/constants';
-import { DiscordAttachment } from '@/integrations/discord/@types/activity';
+import type { DiscordAttachment } from '@/integrations/discord/@types/activity';
 import { debugError } from '@/integrations/discord/debuggers';
-
-export const getErrorMessage = (e: unknown): string =>
-  e instanceof Error ? e.message : String(e);
+import { getErrorMessage } from '@/integrations/utils';
 
 export const resolveAttachmentUrl = (
   subdomain: string,
@@ -83,8 +81,8 @@ const rehostImage = async (
       throw new Error(`HTTP ${res.status}`);
     }
 
-    const buffer = Buffer.from(await res.arrayBuffer());
-    if (buffer.byteLength > MAX_REHOST_IMAGE_BYTES) {
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    if (bytes.byteLength > MAX_REHOST_IMAGE_BYTES) {
       return attachment;
     }
 
@@ -92,7 +90,7 @@ const rehostImage = async (
       attachment.name || filenameFromUrl(attachment.url, 0),
     );
     tmpPath = join(tmpdir(), `discord-${randomUUID()}-${fileName}`);
-    await fsPromises.writeFile(tmpPath, buffer);
+    await fsPromises.writeFile(tmpPath, bytes);
 
     const key = await uploadFileToStorage({
       subdomain,
@@ -101,7 +99,7 @@ const rehostImage = async (
       mimetype: attachment.type,
     });
 
-    return { ...attachment, url: key, size: buffer.byteLength };
+    return { ...attachment, url: key, size: bytes.byteLength };
   } catch (e) {
     debugError(
       `Failed to re-host Discord image ${

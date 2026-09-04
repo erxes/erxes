@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import {
+import type {
   IBrowserInfo,
   IConnectionInfo,
   ICustomerData,
@@ -7,12 +7,11 @@ import {
   ITicketConfig,
   IWidgetUiOptions,
 } from '../types/connection';
-import { IHeaderItem, IMessage } from '../types';
+import type { IHeaderItem, IMessage } from '../types';
 import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
-import { ITicketCheckProgress } from '../ticket/types';
+import type { ITicketCheckProgress } from '../ticket/types';
 import { atomWithStorage } from 'jotai/utils';
-import { set } from 'date-fns';
 
 // FAQ navigation state
 export type FaqView = 'topic' | 'category' | 'article';

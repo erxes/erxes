@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast, useBlockEditor } from 'erxes-ui';
+import { stripHtml, toast, type useBlockEditor } from 'erxes-ui';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 
@@ -8,11 +8,6 @@ import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import { getPreviewText } from '@/inbox/types/inbox';
 
 type MessageEditor = ReturnType<typeof useBlockEditor>;
-
-const stripHtml = (html: string): string => {
-  const parsed = new DOMParser().parseFromString(html, 'text/html');
-  return parsed.body.textContent || '';
-};
 
 export const useResponseTemplateSuggestions = (editor: MessageEditor) => {
   const { t } = useTranslation('frontline');

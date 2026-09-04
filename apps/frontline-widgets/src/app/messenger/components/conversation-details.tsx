@@ -32,8 +32,12 @@ import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
 import type { IAttachment } from '../types';
-
-const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
+import {
+  isBotMessage,
+  isCustomerJoined,
+  isOperatorMessage,
+  shouldGroupMessages,
+} from '../utils/messageGrouping';
 
 type Message = NonNullable<
   ReturnType<typeof useConversationDetail>['conversationDetail']
@@ -45,39 +49,6 @@ type MessageGroup = {
   messages: MessageWithAvatar[];
   firstMessage: Message;
 };
-
-function isOperatorMessage(message: Message): boolean {
-  return !message.customerId && !message.fromBot;
-}
-
-function isBotMessage(message: Message): boolean {
-  return Boolean(message.fromBot);
-}
-
-function isCustomerJoined(message: Message): boolean {
-  return (message.fromBot && message.botData === null) || false;
-}
-
-function shouldGroupMessages(
-  message: Message,
-  groupFirstMessage: Message,
-  timeDifference: number,
-): boolean {
-  if (timeDifference > MESSAGE_GROUP_TIME_WINDOW) return false;
-
-  const messageIsOperator = isOperatorMessage(message);
-  const groupIsOperator = isOperatorMessage(groupFirstMessage);
-
-  if (messageIsOperator && groupIsOperator) {
-    return message.userId === groupFirstMessage.userId;
-  }
-
-  if (!messageIsOperator && !groupIsOperator) {
-    return message.customerId === groupFirstMessage.customerId;
-  }
-
-  return false;
-}
 
 export const ConversationDetails = () => {
   const conversationId = useAtomValue(conversationIdAtom);

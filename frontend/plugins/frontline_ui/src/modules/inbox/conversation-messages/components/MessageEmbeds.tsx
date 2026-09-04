@@ -1,6 +1,6 @@
 import { cn } from 'erxes-ui';
 import { IconPlayerPlayFilled } from '@tabler/icons-react';
-import { IMessageEmbed } from '@/inbox/types/Conversation';
+import type { IMessageEmbed } from '@/inbox/types/Conversation';
 import { useState } from 'react';
 
 // erxes runs on Vite, not Next.js, so next/image (JS-W1015) doesn't apply here.
