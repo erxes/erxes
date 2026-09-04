@@ -181,11 +181,11 @@
   `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
   vote ledger across every conversation the poll was sent to.
 - GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
-  pollCode, cachedCustomerId)` returns the active poll plus the caller's
+pollCode, cachedCustomerId)` returns the active poll plus the caller's
   previous selection; `widgetsPollSubmit(pollCode, optionIds,
-  cachedCustomerId)` files a site answer as a new conversation.
+cachedCustomerId)` files a site answer as a new conversation.
 - GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
-  customerId, visitorId)` returns the voter's own selections for the
+customerId, visitorId)` returns the voter's own selections for the
   conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
   records a vote and returns the refreshed `ConversationMessage`.
 
@@ -470,7 +470,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
   the previous selection instead of stacking. `voterId` is the `customerId`
   when there is one, otherwise the `visitorId`.
-- A poll message stores a *snapshot* under `extraData.poll`
+- A poll message stores a _snapshot_ under `extraData.poll`
   (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
   `results`). Editing the poll definition afterwards never rewrites messages
   already sent.

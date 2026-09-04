@@ -1,7 +1,11 @@
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IPollDocument } from '@/poll/@types/poll';
 import { POLL_STATUSES } from '@/poll/db/definitions/polls';
-import { buildPollSnapshot, isPollClosed, refreshPollTallies } from '@/poll/utils';
+import {
+  buildPollSnapshot,
+  isPollClosed,
+  refreshPollTallies,
+} from '@/poll/utils';
 import { createConversationAndMessage } from '@/inbox/trpc/inbox';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -151,10 +155,7 @@ export const widgetPollPopupMutations = {
       throw new Error('Unknown poll option');
     }
 
-    const integration = await resolveChannelIntegration(
-      models,
-      poll.channelId,
-    );
+    const integration = await resolveChannelIntegration(models, poll.channelId);
 
     const customer = await resolveCustomer(
       subdomain,

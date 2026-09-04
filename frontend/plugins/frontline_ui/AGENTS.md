@@ -859,7 +859,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ### `2026-09-04` — Channel polls page matches the channel forms page
 
 - **Summary:** The channel polls route now renders the `Channels / <channel> /
-  Polls` breadcrumb with the `Create poll` button in the settings header instead
+Polls` breadcrumb with the `Create poll` button in the settings header instead
   of falling through to the channels root breadcrumb and its `Create channel`
   button, and the create control moved out of the poll sub-header.
 - **Affected areas:**

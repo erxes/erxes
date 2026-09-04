@@ -14,10 +14,7 @@ import {
 import { ReactNode, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  pollFormSchema,
-  TPollForm,
-} from '@/poll/constants/pollFormSchema';
+import { pollFormSchema, TPollForm } from '@/poll/constants/pollFormSchema';
 import { usePollAdd, usePollEdit } from '@/poll/hooks/usePollMutations';
 import {
   IPoll,
@@ -94,7 +91,11 @@ export const PollSheet = ({
       });
 
     if (poll) {
-      editPoll({ variables: { _id: poll._id, ...variables }, onCompleted, onError });
+      editPoll({
+        variables: { _id: poll._id, ...variables },
+        onCompleted,
+        onError,
+      });
       return;
     }
 
@@ -129,7 +130,10 @@ export const PollSheet = ({
                   <Form.Item>
                     <Form.Label>{t('poll-title')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('poll-title-placeholder')} />
+                      <Input
+                        {...field}
+                        placeholder={t('poll-title-placeholder')}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

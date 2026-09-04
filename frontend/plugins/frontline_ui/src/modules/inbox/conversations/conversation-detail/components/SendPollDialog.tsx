@@ -1,12 +1,5 @@
 import { IconChartBar, IconSearch } from '@tabler/icons-react';
-import {
-  Button,
-  Dialog,
-  Input,
-  Skeleton,
-  Spinner,
-  toast,
-} from 'erxes-ui';
+import { Button, Dialog, Input, Skeleton, Spinner, toast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';

@@ -48,11 +48,7 @@ export const PollCommandBar = () => {
           {t('n-selected', { count: selectedRows.length })}
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          onClick={handleArchive}
-          disabled={toggling}
-        >
+        <Button variant="secondary" onClick={handleArchive} disabled={toggling}>
           <IconSquareToggle />
           {t('archive')}
         </Button>
