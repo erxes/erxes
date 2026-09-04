@@ -72,6 +72,32 @@ const toPendingFile = (
   state,
 });
 
+function DoneAttachmentButtonContent({ att }: { att: IAttachment }) {
+  const fileType = getAttachmentType(att.type, att.name);
+  const FileTypeIcon = getAttachmentIcon(fileType);
+  const isImage = fileType === 'image';
+
+  return (
+    <>
+      {isImage ? (
+        <Attachment.Media variant="image">
+          <PreviewImage src={readImage(att.url)} alt={att.name} />
+        </Attachment.Media>
+      ) : (
+        <Attachment.Media>
+          <FileTypeIcon />
+        </Attachment.Media>
+      )}
+      <Attachment.Content>
+        <Attachment.Title>{att.name}</Attachment.Title>
+        <Attachment.Description>
+          {`${formatFileSize(att.size || 0)} · Click to preview`}
+        </Attachment.Description>
+      </Attachment.Content>
+    </>
+  );
+}
+
 function DoneAttachmentTrigger({
   att,
   index,
@@ -81,10 +107,6 @@ function DoneAttachmentTrigger({
   index: number;
   onRemove: (index: number) => void;
 }) {
-  const fileType = getAttachmentType(att.type, att.name);
-  const FileTypeIcon = getAttachmentIcon(fileType);
-  const isImage = fileType === 'image';
-
   return (
     <Attachment
       size="sm"
@@ -96,21 +118,7 @@ function DoneAttachmentTrigger({
           type="button"
           className="flex items-center gap-2 text-left focus-visible:outline-none"
         >
-          {isImage ? (
-            <Attachment.Media variant="image">
-              <PreviewImage src={readImage(att.url)} alt={att.name} />
-            </Attachment.Media>
-          ) : (
-            <Attachment.Media>
-              <FileTypeIcon />
-            </Attachment.Media>
-          )}
-          <Attachment.Content>
-            <Attachment.Title>{att.name}</Attachment.Title>
-            <Attachment.Description>
-              {`${formatFileSize(att.size || 0)} · Click to preview`}
-            </Attachment.Description>
-          </Attachment.Content>
+          <DoneAttachmentButtonContent att={att} />
         </button>
       </Dialog.Trigger>
       <Attachment.Actions>

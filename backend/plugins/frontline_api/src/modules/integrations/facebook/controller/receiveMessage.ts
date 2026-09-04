@@ -591,7 +591,7 @@ const storeFacebookMessage = async ({
     undefined
   >;
   messageKind?: string;
-  providerData?: IFacebookConversationMessageDocument['providerData'];
+  providerData: IFacebookConversationMessageDocument['providerData'];
   expiresAt?: Date;
 }) => {
   const existing = await models.FacebookConversationMessages.findOne({

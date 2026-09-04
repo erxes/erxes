@@ -52,7 +52,7 @@ export const useConversationMessages = (
         limit: 50,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult || !fetchMoreResult.conversationMessages?.length) {
+        if (!fetchMoreResult?.conversationMessages?.length) {
           return prev;
         }
 
