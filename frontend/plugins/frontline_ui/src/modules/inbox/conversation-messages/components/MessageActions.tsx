@@ -42,11 +42,13 @@ import {
 } from '@/inbox/conversation-messages/constants/messageActions';
 import { getProviderMessageId } from '@/inbox/conversation-messages/utils/message';
 
-const previewOf = (message: IMessage) =>
-  stripHtml(message.content).slice(0, 120) ||
+const textOf = (message: IMessage) =>
+  stripHtml(message.content) ||
   message.providerData?.previewText ||
   message.attachments?.[0]?.name ||
   'Attachment';
+
+const previewOf = (message: IMessage) => textOf(message).slice(0, 120);
 
 const ActionButton = ({
   label,
@@ -103,6 +105,7 @@ export const MessageActions = ({
     },
   );
   const preview = previewOf(message);
+  const messageText = textOf(message);
   const isInstagram = kind === IntegrationType.INSTAGRAM_MESSENGER;
   const isInstagramReactionTarget =
     !isInstagram ||
@@ -172,7 +175,7 @@ export const MessageActions = ({
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(preview);
+      await navigator.clipboard.writeText(messageText);
       toast({ title: 'Message copied', variant: 'default' });
     } catch {
       toast({ title: 'Failed to copy message', variant: 'destructive' });

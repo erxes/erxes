@@ -66,6 +66,31 @@ const withoutAttachmentBlocks = (blocks?: Block[]) =>
 const draftKey = (conversationId: string) =>
   `frontline:conversation-draft:${conversationId}`;
 
+type ConversationDraft = {
+  blocks: Block[];
+  internal: boolean;
+};
+
+const parseConversationDraft = (
+  stored: string | null,
+): Partial<ConversationDraft> => {
+  if (!stored) return {};
+
+  const parsed: unknown = JSON.parse(stored);
+  if (Array.isArray(parsed)) {
+    return { blocks: parsed as Block[] };
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    return {};
+  }
+
+  const draft = parsed as Record<string, unknown>;
+  return {
+    blocks: Array.isArray(draft.blocks) ? (draft.blocks as Block[]) : [],
+    internal: typeof draft.internal === 'boolean' ? draft.internal : undefined,
+  };
+};
+
 export const useMessageInputController = (conversationId: string) => {
   const { t } = useTranslation('frontline');
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
@@ -108,6 +133,19 @@ export const useMessageInputController = (conversationId: string) => {
   const restoringDraftRef = useRef(false);
   const attachmentExtractionTimerRef = useRef<number>();
   const { addConversationMessage, loading } = useConversationMessageAdd();
+  const handleInternalNoteChange = useCallback(
+    (internal: boolean) => {
+      setIsInternalNote(internal);
+      const blocks = editor?.document || [];
+      if (conversationId && blocks.length) {
+        window.localStorage.setItem(
+          draftKey(conversationId),
+          JSON.stringify({ blocks, internal }),
+        );
+      }
+    },
+    [conversationId, editor, setIsInternalNote],
+  );
 
   useEffect(
     () => () => {
@@ -132,9 +170,12 @@ export const useMessageInputController = (conversationId: string) => {
     restoringDraftRef.current = true;
     try {
       const stored = window.localStorage.getItem(draftKey(conversationId));
-      const blocks = stored ? (JSON.parse(stored) as Block[]) : [];
+      const { blocks = [], internal } = parseConversationDraft(stored);
       editor.replaceBlocks(editor.document, blocks);
       setContent(blocks.length ? blocks : undefined);
+      if (internal !== undefined && !onlyInternal) {
+        setIsInternalNote(internal);
+      }
     } catch {
       window.localStorage.removeItem(draftKey(conversationId));
       editor.replaceBlocks(editor.document, []);
@@ -144,7 +185,13 @@ export const useMessageInputController = (conversationId: string) => {
         restoringDraftRef.current = false;
       }, 0);
     }
-  }, [conversationId, editor]);
+  }, [
+    conversationId,
+    editor,
+    integration?.kind,
+    onlyInternal,
+    setIsInternalNote,
+  ]);
 
   const [notifyAgentTyping] = useMutation(CONVERSATION_AGENT_TYPING);
   const pingAgentTyping = useThrottledCallback(
@@ -264,12 +311,12 @@ export const useMessageInputController = (conversationId: string) => {
     if (conversationId && editorBlocks.length) {
       window.localStorage.setItem(
         draftKey(conversationId),
-        JSON.stringify(editorBlocks),
+        JSON.stringify({ blocks: editorBlocks, internal: isInternalNote }),
       );
     } else if (conversationId) {
       window.localStorage.removeItem(draftKey(conversationId));
     }
-  }, [conversationId, editor, pingAgentTyping, setAttachments]);
+  }, [conversationId, editor, isInternalNote, pingAgentTyping, setAttachments]);
 
   const handleSubmit = useCallback(async () => {
     if (!conversationId) return;
@@ -294,7 +341,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              })[character] || character,
+              }[character] || character),
           )}</blockquote>`
         : '';
 
@@ -422,7 +469,7 @@ export const useMessageInputController = (conversationId: string) => {
     searchDiscordMentionItems,
     selectedIndex,
     setHotkeyScopeAndMemorizePreviousScope,
-    setIsInternalNote,
+    setIsInternalNote: handleInternalNoteChange,
     setReplyTo,
     setShowSuggestions,
     showSuggestions,

@@ -27,26 +27,27 @@ export const useConversationMessages = (
   // skip=0..limit-1; the first fetchMore must start at the next page.
   const initialLimit = options.variables?.limit ?? 10;
   const oldMessagesSkipRef = useRef(initialLimit);
+  const fetchMoreInFlightRef = useRef<Promise<unknown> | null>(null);
   const prevConversationIdRef = useRef(options.variables?.conversationId);
 
   // Reset skip offset whenever the conversation changes.
   if (prevConversationIdRef.current !== options.variables?.conversationId) {
     prevConversationIdRef.current = options.variables?.conversationId;
     oldMessagesSkipRef.current = initialLimit;
+    fetchMoreInFlightRef.current = null;
   }
 
   const handleFetchMore = useCallback((): Promise<unknown> => {
     if (
       loading ||
+      fetchMoreInFlightRef.current ||
       conversationMessagesTotalCount <= conversationMessages.length
     ) {
-      return Promise.resolve();
+      return fetchMoreInFlightRef.current || Promise.resolve();
     }
     const skip = oldMessagesSkipRef.current;
-    // Always advance by the full page size so pagination stays page-aligned
-    // with the backend.
-    oldMessagesSkipRef.current = skip + 50;
-    return fetchMore({
+    const conversationId = options.variables?.conversationId;
+    const request = fetchMore({
       variables: {
         skip,
         limit: 50,
@@ -77,7 +78,20 @@ export const useConversationMessages = (
             prev.conversationMessagesTotalCount,
         };
       },
-    });
+    })
+      .then((result) => {
+        if (prevConversationIdRef.current === conversationId) {
+          oldMessagesSkipRef.current = skip + 50;
+        }
+        return result;
+      })
+      .finally(() => {
+        if (fetchMoreInFlightRef.current === request) {
+          fetchMoreInFlightRef.current = null;
+        }
+      });
+    fetchMoreInFlightRef.current = request;
+    return request;
   }, [
     conversationMessages.length,
     conversationMessagesTotalCount,
