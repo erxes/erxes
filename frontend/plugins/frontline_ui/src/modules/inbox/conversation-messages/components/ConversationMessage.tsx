@@ -1,9 +1,4 @@
-import {
-  Button,
-  RelativeDateDisplay,
-  cn,
-  type IAttachment,
-} from 'erxes-ui';
+import { Button, RelativeDateDisplay, cn, type IAttachment } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { HAS_ATTACHMENT } from '../../constants/messengerConstants';

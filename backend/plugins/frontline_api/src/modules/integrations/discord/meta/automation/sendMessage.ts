@@ -87,7 +87,9 @@ const buildEmbeds = (embed?: TDiscordEmbed): APIEmbed[] => {
 const buildComponents = (
   buttons?: TDiscordButton[],
 ): APIActionRowComponent<APIButtonComponentWithURL>[] => {
-  const valid = (buttons || []).filter((b) => b?.label?.trim() && b?.url?.trim());
+  const valid = (buttons || []).filter(
+    (b) => b?.label?.trim() && b?.url?.trim(),
+  );
   if (!valid.length) return [];
 
   const rows: APIActionRowComponent<APIButtonComponentWithURL>[] = [];
@@ -252,7 +254,11 @@ const resolveChannelOrDmTarget = async (
       throw new Error('Could not open a DM channel with that user');
     }
 
-    return { token, channelId, conversation: null as IDiscordConversationDocument | null };
+    return {
+      token,
+      channelId,
+      conversation: null as IDiscordConversationDocument | null,
+    };
   }
 
   const channelId = (

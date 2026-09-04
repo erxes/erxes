@@ -283,9 +283,7 @@ export const MessageItem = () => {
       >
         <div
           id={`conversation-message-${_id}`}
-          data-provider-message-id={
-            getProviderMessageId(message)
-          }
+          data-provider-message-id={getProviderMessageId(message)}
           onContextMenu={(event) => {
             if (window.matchMedia('(hover: none)').matches) {
               event.preventDefault();

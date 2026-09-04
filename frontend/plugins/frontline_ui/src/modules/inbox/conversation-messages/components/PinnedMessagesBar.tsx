@@ -5,14 +5,7 @@ import {
   type ElementRef,
 } from 'react';
 import { useMutation } from '@apollo/client';
-import {
-  Button,
-  Popover,
-  ScrollArea,
-  cn,
-  readImage,
-  toast,
-} from 'erxes-ui';
+import { Button, Popover, ScrollArea, cn, readImage, toast } from 'erxes-ui';
 import { IconChevronDown, IconPin, IconPinnedOff } from '@tabler/icons-react';
 
 import { CONVERSATION_MESSAGE_PIN } from '@/inbox/conversations/conversation-detail/graphql/mutations/conversationMessageReact';
@@ -148,7 +141,10 @@ const PinnedMessagesContent = forwardRef<
     onUnpin: (message: IMessage) => void;
   }
 >(
-  ({ messages, loading, onMessageSelect, onUnpin, className, ...props }, ref) => (
+  (
+    { messages, loading, onMessageSelect, onUnpin, className, ...props },
+    ref,
+  ) => (
     <Popover.Content
       ref={ref}
       align="start"
