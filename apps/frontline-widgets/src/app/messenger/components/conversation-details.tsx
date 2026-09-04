@@ -30,7 +30,6 @@ import {
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
 import { useInsertMessage } from '../hooks/useInsertMessage';
-import { PollMessage } from './message-poll';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -410,26 +409,6 @@ export const ConversationDetails = () => {
                             isLastBot && !isTicketFormAlreadySubmitted
                               ? handleTicketFormSubmit
                               : undefined
-                          }
-                          {...messagePositionProps}
-                        />
-                      );
-                    }
-
-                    if (message.extraData?.poll) {
-                      return (
-                        <PollMessage
-                          key={message._id}
-                          messageId={message._id}
-                          poll={message.extraData.poll}
-                          createdAt={new Date(message.createdAt)}
-                          showAvatar={message.showAvatar}
-                          src={
-                            message.user?.details?.avatar || 'assets/user.webp'
-                          }
-                          userName={
-                            message.user?.details?.fullName ||
-                            message.user?.details?.firstName
                           }
                           {...messagePositionProps}
                         />

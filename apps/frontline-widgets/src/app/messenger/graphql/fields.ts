@@ -18,7 +18,6 @@ const MESSAGE_FIELDS = `
   internal
   fromBot
   contentType
-  extraData
 
   engageData {
     content
@@ -57,7 +56,6 @@ const messageFields = `
   internal
   fromBot
   contentType
-  extraData
 
   engageData {
     content

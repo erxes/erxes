@@ -45,18 +45,6 @@ export interface IAttachment {
   duration?: number;
 }
 
-export interface IMessagePoll {
-  pollId?: string;
-  question: string;
-  answers: { id: string; text: string }[];
-  allowMultiselect?: boolean;
-  expiry?: string;
-  results?: {
-    isFinalized?: boolean;
-    answerCounts: { id: string; count: number }[];
-  };
-}
-
 export interface IMessage {
   _id: string;
   conversationId: string;
@@ -74,9 +62,6 @@ export interface IMessage {
   messengerAppData: IMessengerAppData;
   attachments: IAttachment[];
   isCustomerRead?: boolean;
-  extraData?: {
-    poll?: IMessagePoll;
-  };
 }
 
 export interface IConversation {

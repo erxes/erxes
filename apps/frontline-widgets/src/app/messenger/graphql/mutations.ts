@@ -140,27 +140,8 @@ const WIDGET_CHANGE_OPERATOR_STATUS_MUTATION = gql`
   }
 `;
 
-const WIDGETS_POLL_VOTE_MUTATION = gql`
-mutation widgetsPollVote(
-  $messageId: String!
-  $optionIds: [String!]!
-  $customerId: String
-  $visitorId: String
-) {
-  widgetsPollVote(
-    messageId: $messageId
-    optionIds: $optionIds
-    customerId: $customerId
-    visitorId: $visitorId
-  ) {
-    ${MESSAGE_FIELDS}
-  }
-}
-`;
-
 export {
   WIDGETS_INSERT_MESSAGE_MUTATION,
-  WIDGETS_POLL_VOTE_MUTATION,
   READ_CONVERSATION_MESSAGES_MUTATION,
   SAVE_BROWSER_INFO,
   connect,

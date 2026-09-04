@@ -63,25 +63,16 @@ export const useConversationDetail = (
           stopBotTyping();
         }
 
-        const existingIndex = prev.widgetsConversationDetail.messages.findIndex(
+        const messageExists = prev.widgetsConversationDetail.messages.some(
           (msg) => msg._id === newMessage._id,
         );
 
-        const messages = [...prev.widgetsConversationDetail.messages];
-
-        if (existingIndex !== -1) {
-          messages[existingIndex] = {
-            ...messages[existingIndex],
-            ...newMessage,
-          };
-        } else {
-          messages.push(newMessage);
-        }
+        if (messageExists) return prev;
 
         return {
           widgetsConversationDetail: {
             ...prev.widgetsConversationDetail,
-            messages,
+            messages: [...prev.widgetsConversationDetail.messages, newMessage],
           },
         };
       },
