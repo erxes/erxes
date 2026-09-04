@@ -2,6 +2,7 @@ import {
   IconBook,
   IconChartHistogram,
   IconForms,
+  IconLifebuoy,
   IconMail,
   IconPhone,
   IconSettings,
@@ -133,6 +134,11 @@ export const CONFIG: IUIConfig = {
       name: 'knowledge-base',
       icon: IconBook,
       path: 'frontline/knowledgebase',
+    },
+    {
+      name: 'help-center',
+      icon: IconLifebuoy,
+      path: 'frontline/helpcenter',
     },
     {
       name: 'channels',

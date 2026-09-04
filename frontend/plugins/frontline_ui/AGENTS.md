@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-03`
 
 ## Scope
 
@@ -40,6 +40,12 @@
   ticket surface.
 - Forms UI: form builder, preview, and submissions.
 - Knowledge base UI: topics, categories, and articles.
+- Help Center UI: the `/frontline/helpcenter` record table over knowledge
+  base topics, its filter bar and command bar, its inline-editable name,
+  description, website, feature-toggle, menu-label and ticket
+  channel/pipeline/status cells, the
+  two-tab topic drawer (General, Appearance), which is the only place a help
+  center is edited.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
@@ -173,6 +179,7 @@
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker       |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                    |
 | Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                    |
+| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
 | Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                          |
 | Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                      |
 | FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                    |
@@ -280,6 +287,10 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `ui-modules` properties hooks `useFieldGroups` / `useFields` with
   `contentType: 'frontline:ticket'` — the ticket property groups and their
   fields, read straight from core; this UI never defines property metadata.
+- `frontline_api` GraphQL `knowledgeBaseTopics(page, perPage, searchValue,
+brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
+  center's own `frontlineHelpCenterList` document, plus
+  `knowledgeBaseTopicsRemove` reused from the knowledge base module.
 - `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
   `reportChartRemove` — saved report charts. The board reads **all** saved
   charts in one query and filters them to the chart types it can render, and
@@ -370,6 +381,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
+- The help center list is read twice on purpose: `useHelpCenters` applies the
+  `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
+  filter bar, while `useAllHelpCenters` reads the same document unfiltered so
+  the sidebar sub-group keeps listing every help center — and can resolve the
+  one `editId` names — while the table is narrowed. With no filter set both resolve to the
+  same variables and Apollo serves one request.
+
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
   `src/widgets/automations/modules/facebook/components/action/states/replyMessageActionForm.tsx`.
@@ -391,6 +409,116 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
+  not wrapped in a scroll area clips every column past the viewport instead of
+  scrolling. The help center and its categories tables paginate by page, not by
+  cursor, so they need an explicit `RecordTable.Scroll` wrapper — only the
+  cursor-paginated tables get a scroll area for free from
+  `RecordTable.CursorProvider`.
+- `TOPICS`, `TOPICS_SHORT` and `frontlineHelpCenterList` all read the same root
+  `knowledgeBaseTopics` field, so Apollo normalizes them into one cache entry
+  and the narrowest selection wins whichever ran last. Any topic query that a
+  help center surface can trigger must select the website and feature fields
+  (`url`, `kbToggle`, `kbLabel`, `ticketToggle`, `ticketLabel`,
+  `ticketChannelId`, `ticketPipelineId`, `ticketStatusId`), or a refetch blanks
+  those surfaces. `TopicDrawer` likewise needs the full record in its `topic`
+  prop: it resets its form from that prop and saves the whole doc, so a missing
+  field is silently written back as its default.
+- `knowledgeBaseTopicsEdit` replaces the whole `KnowledgeBaseTopicDoc`, so an
+  inline cell can never send only the field it changed. `useEditHelpCenter`
+  rebuilds the full doc from the cached record, refuses the write when `title`
+  would end up empty, and writes the result back with `cache.modify` because the
+  mutation returns only `_id` and `title`. `title` is the only required field —
+  `brandId` is optional, and a brand-less help center stays inline-editable.
+- The table's ticket channel/pipeline/status cells reuse the ticket module's
+  `Select*` components in their `table` variant, but pass their own
+  `onValueChange` — those components' roots save onto a ticket, and
+  `SelectStatusTicket`'s needs an `id`, so the status cell composes the provider
+  itself the way `TopicDrawer` does.
+- A help center's ticket target is a channel → pipeline → status chain, so
+  changing a level clears the levels under it — `useEditHelpCenter` does this
+  for inline edits and `TopicDrawer` does it through `form.setValue`. The
+  drawer also saves a switched-off feature with its fields cleared, so a
+  disabled feature never keeps stale configuration.
+- `TopicDrawer` splits across two `SheetNavSidebar` tabs, **general** and
+  **appearance**: general owns title, website, description, the embed script and
+  the knowledge base and ticket feature cards; appearance owns the published
+  site's whole look — logo and favicon, the six main colours, fonts with their
+  text and link colours, the three form-element colours, this topic's own accent
+  colour and cover image, and the raw header/footer HTML. The sidebar keeps the active tab in the `tab` URL query
+  param, so the drawer clears it on close or the next one opens wherever the
+  last was left. Both tabs stay mounted (hidden, not unmounted) so values and
+  validation survive switching, and an invalid submit switches to the tab
+  holding the first failing field via `FIELD_TAB` — add every new form field to
+  that map.
+- A help center has **no page of its own**: `/frontline/helpcenter/:id` was
+  removed, and editing is addressed by the `editId` URL query on the list page,
+  which opens `TopicDrawer` over the table. The page mounts **one** drawer for
+  both creating and editing, keyed on the record — two would each mount a
+  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the name cell's
+  anchor, the nav sub-group and a shared link all go through that one param — never reintroduce
+  a detail route. Every surface widens a list record for the drawer through
+  `toTopicDrawerRecord`; passing a partial record would reset the fields it
+  omitted on the next save.
+- Category editing lives on the Knowledge Base page (`TopicList`), which owns
+  create, edit and delete. The help center surface does not duplicate it.
+- The upload slots use the repo's usual `Upload.Root` handler
+  (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
+  reports a removal in that same shape, so no special case is needed here. The
+  gateway stamps the `userid` header `/delete-file` needs from the session.
+- Never hide a pane or a field group with the `hidden` **attribute** here: this
+  app runs Tailwind v4, whose `display` utilities are declared after preflight's
+  `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
+  visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
+  both the drawer's tab panes and its feature sections do.
+- The drawer's own types and constants live in `topicDrawerTypes.ts` and
+  `topicDrawerConstants.ts`, **not** in the module's `types.ts` / `constants.ts`
+  — those two re-export from `content_ui`, so importing them pulls another
+  plugin's code into this remote and breaks it at runtime.
+- The topic drawer is split by responsibility: `TopicDrawer.tsx` owns only the
+  sheet, the form and the mutations; `TopicGeneralTab.tsx` and
+  `TopicAppearanceTab.tsx` own a tab each; `TopicStyleFields.tsx` the reusable
+  `Style*Field` helpers; `TopicEmbedScriptDialog.tsx` the embed snippet; and the
+  module's `types.ts` / `constants.ts` the shapes and defaults. Add new fields to
+  the owning tab, never back into the drawer. The tabs take the form **as a
+  prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
+  the copy backing `useFormContext` here is not the one `erxes-ui`'s `Form`
+  provider filled and reading the context returns null. Never reach for
+  `useFormContext` across an `erxes-ui` provider in this plugin.
+- Appearance fields are one nested `styles` block on the topic, addressed as
+  `styles.<name>` through React Hook Form and rendered by the four
+  `Style*Field` helpers (colour, image, font, HTML). Fonts pick from
+  `HELP_CENTER_FONTS`, storing the CSS stack the site serves rather than a bare
+  family name; add a face there rather than to a field. Colours use `erxes-ui`'s
+  `ColorPicker` — the palette the rest of the product picks from, whose popover
+  already carries a hex field; never a native `<input type="color">` — add a style through those
+  rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
+  cached block carries a `__typename` that `KnowledgeBaseTopicStylesInput`
+  rejects: `TopicDrawer` strips it in `omitTypename` on reset and
+  `useEditHelpCenter` in `stripTypename` before every inline write. Any new
+  path that sends `styles` back must strip it too.
+- Both `TOPICS` and `frontlineHelpCenterList` select the `styles` block. They
+  share the same cache entry, so a query that omits it would blank the
+  appearance on the other surface after a refetch.
+- The drawer does not collect `code`, `brandId` or `languageCode` — they are
+  absent from `TopicFormData`, so a topic created or saved here leaves them
+  untouched. The record still carries them and the table still reads them, so do
+  not delete them from the `Topic` shape or from the queries.
+- `SelectTriggerTicket`'s `form` variant is `w-fit max-w-64` and takes no
+  `className`, and ~15 other ticket forms depend on that width. `TopicDrawer`
+  needs its channel/pipeline/status pickers full width, so it overrides them
+  from its own `Form.Item` wrappers via `FULL_WIDTH_SELECT`; widen the pickers
+  there, never in the shared trigger.
+- `TopicDrawer` composes `SelectPipeline` (root) and
+  `SelectStatusTicket.Provider` directly rather than their `FormItem` variants:
+  `SelectPipeline.FormItem` is typed to `addTicketSchema` and both watch
+  `channelId` / `pipelineId` field names this form does not use, and
+  `SelectStatusTicket`'s root saves onto an existing ticket.
+- `knowledgeBaseTopicsTotalCount` takes no arguments and counts every topic, so
+  the help center's record count falls back to the number of matched rows
+  whenever a filter is set. `HELP_CENTERS_PER_PAGE` therefore has to stay large
+  enough to hold the whole list in one page — the query pages with
+  `page`/`perPage`, not a cursor, and the table has no load-more affordance.
 - The inbox navigation is a single-selection tree over three query params that
   intersect on the server: `channelId`, `integrationId`, and `integrationType`.
   Every selector writes all three through `INBOX_TARGET_KEYS`, clearing the ones
@@ -788,159 +916,112 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-02` — IMAP integration UI removed
+### `2026-09-04` — Fonts are picked from a list
 
-- **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
-  integration detail and row actions, the threaded conversation reader, its
-  hooks, GraphQL documents and Jotai state — and `imap` is gone from the
-  integration type enum, catalog, chips and icon map, so the kind can no longer
-  be listed, connected or opened.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted),
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getImapConversationDetail.ts`
-  (deleted), `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`,
-  `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`,
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
-- **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
-  `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
-  conversation detail no longer suppresses `MessageInput` for the `imap` kind.
-
-### `2026-08-28` — The domain picker is searchable and says which domains are usable
-
-- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
-  a token reached, which on an account with hundreds of domains is unusable — and
-  a domain already carrying another provider's MX only failed after Connect. It is
-  now a `Combobox` + `Command` with search, matching how the rest of the plugin
-  picks from many. Ineligible zones stay listed but disabled, with the server's
-  short reason under the name: shown rather than hidden, so nobody wonders why
-  their domain is missing. The server returns usable domains first.
+- **Summary:** The appearance tab's base and heading fonts were free text, so a
+  typo silently produced an unstyled site; they now pick from
+  `HELP_CENTER_FONTS`, each option previewing itself in the face it names and
+  storing the full CSS stack.
 - **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
-  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
-
-### `2026-08-28` — A sent message shows who sent it, not who received it
-
-- **Summary:** `MailConversationDetail` took the first recipient as the "sender"
-  of an outbound message, so a reply was titled with the customer's address while
-  the `to:` line underneath repeated it and the agent-side sender never appeared —
-  including the `senderName` an inbox now sets. The avatar colour and initial came
-  from the same recipient, so every bubble in a thread looked alike. The header now
-  always reads `mailData.from`, which makes outbound and inbound symmetric and
-  gives agent messages their own avatar.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConversationDetail.tsx`.
+  `src/modules/knowledgebase/components/Topic{StyleFields,AppearanceTab}.tsx`,
+  `src/modules/knowledgebase/topicDrawerConstants.ts`
 - **Contracts changed:** None.
 
-### `2026-08-27` — The mail config section says what connecting actually does
+### `2026-09-04` — The drawer's tabs take the form as a prop
 
-- **Summary:** The Integrations config panel was titled `Email`, taken from the
-  shared `INTEGRATIONS[MAIL].name` that also labels the integration list and the
-  channel chips, so it read as the channel rather than as what the panel does. It
-  now carries its own title, **Bring your own Cloudflare Email Routing & Sending**,
-  while the logo still comes from the shared constant. The trigger wraps instead
-  of clipping the longer title.
+- **Summary:** Splitting the drawer left `TopicGeneralTab` reading the form
+  through `useFormContext`, which threw `Cannot read properties of null` on
+  every render: `react-hook-form` is not shared between the host and this
+  remote, so the context the tab read was not the one `erxes-ui`'s `Form`
+  provider filled. The tab now takes the form as a prop.
 - **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
+  `src/modules/knowledgebase/components/Topic{Drawer,GeneralTab}.tsx`
 - **Contracts changed:** None.
 
-### `2026-08-27` — The basics step takes a sender name and previews it
+### `2026-09-04` — The help center page mounts one drawer
 
-- **Summary:** The add wizard's **first** step and the edit dialog now carry a
-  `senderName` field, and both render a `Name <address>` preview of what a
-  recipient sees. It sits next to the inbox name it defaults from, and on step 1
-  rather than the sending step because that step falls back to
-  `MailSendingRequired` when nothing can sign yet — which put the field out of
-  reach exactly when an inbox was being created. Left empty the inbox name is
-  used, which is the previous behaviour. The `sender-name*` labels were missing
-  from the locale files, so the field had been rendering its raw key.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/{MailIntegrationForm,MailIntegrationDetail}.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** sends `data.senderName` on integration create and
-  `details.senderName` on edit; reads `senderName` from integration details.
-
-### `2026-08-27` — The Sending domains panel is gone; replies are Cloudflare-only
-
-- **Summary:** Settings → Integrations config no longer carries a Sending domains
-  section, and the add-inbox wizard and edit dialog no longer offer a per-inbox
-  sender. Replies always leave from the inbox's own address, signed by the
-  workspace's connected Cloudflare account or, failing that, the deployment's.
-  Step 3 of the wizard became a confirmation naming that domain, and blocks with
-  `mailSendingReadiness.cloudflare.reason` plus a link to Integrations config when
-  neither account can sign. The SES/SendGrid form, its DNS-record and verification
-  UI and the account mutations are deleted.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/{MailSendingChoice,MailSendingAccountForm,MailSendingAccounts}.tsx`
-  and `src/modules/integrations/mail/graphql/mutations/mailSendingMutations.ts`
-  deleted; `MailSendingRequired.tsx` reduced to the Cloudflare route;
-  `useMailSendingAccounts.tsx` replaced by `hooks/useMailSendingReadiness.tsx`;
-  `graphql/queries/mailSendingQueries.ts`, `MailIntegrationForm.tsx`,
-  `MailIntegrationDetail.tsx`, `src/pages/IntegrationConfigPage.tsx`.
-- **Contracts changed:** stops sending `data.sendingAccountId` /
-  `data.sendingAddress` on integration create and edit; stops using
-  `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
-  `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
-  `frontline_api` removed.
-
-### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
-
-- **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
-- **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
-- **Contracts changed:** None
-
-### `2026-08-26` — Sidebar selections no longer strand each other
-
-- **Summary:** Selecting a Discord channel and then a team or personal channel
-  left `integrationId` set alongside `channelId`, and the two intersect to
-  nothing, so the list emptied with no chip explaining why. Every inbox
-  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
-  and clears the params it does not own, and a Discord selection finally shows as
-  its own removable chip in the filter bar.
-- **Affected areas:**
-  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
-  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
-  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
+- **Summary:** The list page rendered a `TopicDrawer` for create and another for
+  edit, so both mounted a `FocusSheet` and both read the `tab` query param;
+  opening either threw at runtime. It now mounts one, keyed on the record. The
+  drawer's types and constants also moved out of the module's `types.ts` /
+  `constants.ts`, which re-export from `content_ui`.
+- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
+  `src/modules/knowledgebase/topicDrawer{Types,Constants}.ts`
 - **Contracts changed:** None.
 
-### `2026-08-26` — Mail automation surface and the draft card removed
+### `2026-09-04` — The topic drawer is split by responsibility
 
-- **Summary:** The mail channel's automation widgets (trigger form and both
-  action forms) are gone along with their `AutomationRemoteEntry` registration,
-  and so is the reply-draft card in the thread — the backend action that was the
-  only thing able to create a draft was removed with them.
-- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
-  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
-  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
-  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
-  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** Stops consuming `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
-  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
-  Removed the five now-unused `draft` translation keys.
-
-### `2026-08-25` — Integration rows show their unread count again
-
-- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
-  `integrationsGetUsedTypesByChannel` query it already makes, instead of
-  recomputing the figure through a second `conversationCounts` request per
-  expanded channel that was rendering blank; a row and its channel row now count
-  the same thing.
+- **Summary:** `TopicDrawer.tsx` had grown to 1174 lines holding its types,
+  constants, field helpers, both tab panes and the embed dialog. Each moved to
+  its own file, leaving the drawer at 258 lines owning only the sheet, the form
+  and the mutations. No behaviour changed.
 - **Affected areas:**
-  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
-  `src/modules/integrations/types/Integration.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
-  (`useConversationCountsByIntegrationType` narrowed to
-  `useAwaitingCountsByIntegrationType`),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
-- **Contracts changed:** None on the API; the by-channel used-types document now
-  selects `unreadConversationCount`.
+  `src/modules/knowledgebase/components/Topic{Drawer,GeneralTab,AppearanceTab,StyleFields,EmbedScriptDialog}.tsx`,
+  `src/modules/knowledgebase/{types,constants}.ts`
+- **Contracts changed:** None.
+
+### `2026-09-03` — The ticket target is editable from the table
+
+- **Summary:** Added inline channel, pipeline and status columns to the help
+  center table, so a ticket target can be set without opening the drawer;
+  `useEditHelpCenter` already clears the levels below whichever one changes.
+  Narrowed the two toggle columns to fit their switch and badge.
+- **Affected areas:**
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-03` — Switched-off features actually collapse
+
+- **Summary:** A feature's fields and the inactive tab pane were hidden with the
+  `hidden` attribute, which Tailwind v4's `display` utilities override, so
+  nothing was ever hidden; they now toggle the class. The table's toggle cells
+  gained an On/Off badge beside the switch, and a menu-label cell whose feature
+  is off is shown struck through and muted rather than as live settings.
+- **Affected areas:**
+  `src/modules/knowledgebase/components/TopicDrawer.tsx`,
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-03` — Appearance colours use the shared palette
+
+- **Summary:** The topic drawer's colour fields were native `<input
+  type="color">` swatches with a hex box beside them; they now use `erxes-ui`'s
+  `ColorPicker`, the same palette POS and tags pick from, whose popover carries
+  its own hex field.
+- **Affected areas:** `src/modules/knowledgebase/components/TopicDrawer.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-03` — The name cell opens the edit drawer
+
+- **Summary:** Clicking a help center's name still navigated to the removed
+  detail route and landed on a blank page; it now sets `editId` like the row
+  menu's Edit does. Removed the brand and language cells left unused when those
+  columns went, along with the imports and the languages constant they needed.
+- **Affected areas:**
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/helpcenter/constants/index.ts`
+- **Contracts changed:** None.
+
+### `2026-09-03` — Removing a help center image actually clears it
+
+- **Summary:** Remove left the uploaded logo, favicon or cover in place, because
+  `Upload.RemoveButton` reported a removal as a bare `''` that every handler in
+  the repo drops. It now reports `{ url: '' }` like an upload does, so the
+  drawer's slots use the repo's usual handler and clearing works.
+- **Affected areas:** `src/modules/knowledgebase/components/TopicDrawer.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-03` — Editing a help center is a drawer, not a page
+
+- **Summary:** Removed the per-help-center detail page and its General
+  settings/Categories/Appearance sub-navigation; Edit from the row menu and the
+  nav sub-group now set an `editId` URL query that opens the topic drawer over
+  the list, with the shared `toTopicDrawerRecord` mapper widening a list record
+  for it.
+- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
+  `src/modules/FrontlineMain.tsx`,
+  `src/modules/helpcenter/components/{HelpCenterMoreColumn,HelpCenterSubGroup}.tsx`,
+  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`; deleted
+  `src/pages/HelpCenterDetailPage.tsx` and the
+  `HelpCenter{Edit,Panels,Sidebar,CategoriesTable}` components.
+- **Contracts changed:** The `/frontline/helpcenter/:id` route is gone.

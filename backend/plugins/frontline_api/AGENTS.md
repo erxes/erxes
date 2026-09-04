@@ -434,6 +434,29 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
+- A knowledge base topic also carries its published site's settings: `url`,
+  plus one group per feature the site can expose — `kbToggle` / `kbLabel` and
+  `ticketToggle` / `ticketLabel` / `ticketChannelId` / `ticketPipelineId` /
+  `ticketStatusId`. `Topic.updateDoc` writes with `$set`, so a caller that omits
+  them leaves them untouched — never switch it to a whole-document replace.
+- A topic's published-site appearance lives in one nested `styles` block
+  (`stylesSchema`, `_id: false`), not as twenty more top-level fields: the logo
+  pair, six surface colours, two font families with their text colours, three
+  form-element colours and the raw header/footer markup. It is read and written
+  whole, and `KnowledgeBaseTopicDoc.styles` takes
+  `KnowledgeBaseTopicStylesInput` while the topic exposes
+  `KnowledgeBaseTopicStyles` — keep the two mirrored when adding a style.
+  `color` and `backgroundImage` stay top-level: they are the topic's own accent
+  and cover, not the site chrome.
+- `KnowledgeBaseTopicDoc.brandId` is optional (`String`): a topic need not
+  belong to a brand, and the help center drawer does not collect one. The
+  `KnowledgeBaseTopic.brand` resolver therefore returns `null` for a missing or
+  empty `brandId` rather than a Brand reference with an empty key — keep that
+  guard if the resolver is touched.
+- `topicSchema` carries mongoose `timestamps` but no `createdDate` field, so a
+  topic's creation time is only ever stored as `createdAt`. The
+  `KnowledgeBaseTopic.createdDate` resolver reads through to it — never assume
+  the persisted document has a `createdDate`.
 - Call Pro owns four collections: `integrations_callpro` (unique
   `phoneNumber`, `inboxId`), `customers_callpro` (unique `phoneNumber`),
   `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
@@ -1317,7 +1340,62 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-<<<<<<< HEAD
+### `2026-09-03` — A help center carries its published site's appearance
+
+- **Summary:** Added a nested `styles` block to the knowledge base topic holding
+  the published site's logo and favicon, six surface colours, base and heading
+  fonts with their text and link colours, three form-element colours, and raw
+  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
+  `KnowledgeBaseTopicStylesInput`.
+- **Affected areas:**
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic.styles` and
+  `KnowledgeBaseTopicDoc.styles` added, with the two new
+  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
+
+### `2026-09-03` — A knowledge base topic need not have a brand
+
+- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
+  not be created without a brand; the help center drawer no longer collects one,
+  so the input field is now nullable and the `brand` resolver returns `null` for
+  a missing or empty `brandId` instead of a Brand reference with an empty key.
+- **Affected areas:**
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
+  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
+- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
+  (was `String!`).
+
+### `2026-09-02` — A help center carries its published site's settings
+
+- **Summary:** `KnowledgeBaseTopic` gained the settings of the site it is
+  published on: `url`, and the two features that site can expose — the articles
+  (`kbToggle`, `kbLabel`) and a ticket form (`ticketToggle`, `ticketLabel`, and
+  the `ticketChannelId` / `ticketPipelineId` / `ticketStatusId` the raised
+  ticket lands in). All are optional and set through the existing
+  `KnowledgeBaseTopicDoc`.
+- **Affected areas:**
+  `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`.
+- **Contracts changed:** `KnowledgeBaseTopic` and `KnowledgeBaseTopicDoc` both
+  gain `url`, `kbToggle`, `kbLabel`, `ticketToggle`, `ticketLabel`,
+  `ticketChannelId`, `ticketPipelineId` and `ticketStatusId`; all additive,
+  nothing removed.
+
+### `2026-09-02` — A knowledge base topic reports when it was created
+
+- **Summary:** `KnowledgeBaseTopic.createdDate` was always null: `topicSchema`
+  never declared the field, so the value `Topic.createDoc` sets is dropped on
+  save and only the mongoose `timestamps` `createdAt` survives. A custom
+  resolver now falls back to it, which fixes existing topics as well as new
+  ones without a migration.
+- **Affected areas:**
+  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`,
+  `src/modules/knowledgebase/@types/topic.ts`.
+- **Contracts changed:** None; `createdDate` is an existing field that now
+  resolves to a value.
 
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
@@ -1413,96 +1491,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/mail/db/models/Messages.ts`.
 - **Contracts changed:** None — `providerMessageId` was already stored and
   returned; it was simply never populated for Cloudflare sends.
-
-### `2026-08-28` — A forwarded message is no longer flagged as an unverified sender
-
-- **Summary:** Mail arriving through a forwarding rule was always banded
-  "Unverified sender". `isForwardedBy` compared the SMTP envelope sender against
-  the inbox's `forwardFrom`, but a forwarder hands the message over under its own
-  relay — Gmail's is a rotating `postmaster@mail-….google.com` — so no value of
-  `forwardFrom` could ever match and the guard could not be satisfied at all. The
-  worker now carries `Delivered-To` (every hop, joined, since the forwarding
-  mailbox is only one of them) and `isForwardedBy` accepts a match on either that
-  or the envelope sender. A genuine sender mismatch is still flagged.
-- **Affected areas:**
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/worker/bundle.generated.ts`,
-  `cloudflare/mail-worker/src/parse.ts`,
-  `cloudflare/mail-worker/fixtures/delivered-to.json`.
-- **Contracts changed:** The inbound webhook payload's `headers` may now carry
-  `delivered-to`. The worker bundle version changed, so a workspace running the
-  worker on its own Cloudflare account has to press _Update worker_.
-
-### `2026-08-27` — An inbox can choose the name recipients see
-
-- **Summary:** Replies carried the inbox integration's `name` as their display
-  name with no way to change it, so a mailbox called "support" appeared to
-  recipients as `support`. A mail integration now owns an optional `senderName`,
-  used for the `From` display name and falling back to the inbox name when empty.
-  It is validated on create and edit: line breaks are rejected so the value cannot
-  smuggle a second header, and length is capped at `MAIL_SENDER_NAME_MAX_LENGTH`.
-  The `From` address itself is unchanged.
-- **Affected areas:** `src/modules/integrations/mail/db/definitions/integrations.ts`,
-  `src/modules/integrations/mail/@types/integration.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`.
-- **Contracts changed:** `mailCreateIntegration` and `mailUpdateIntegration` accept
-  `data.senderName`; `mailIntegrationDetails` returns it.
-
-### `2026-08-27` — Mail sends through Cloudflare only; SES and SendGrid are gone
-
-- **Summary:** Outbound mail now leaves through Cloudflare Email Sending on every
-  path, matching the inbound side. A workspace that has connected its own
-  Cloudflare account replies from its own zone; every other workspace replies from
-  its generated address on `MAIL_DOMAIN` through the deployment's Cloudflare
-  account, configured with `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`.
-  The workspace-owned SES/SendGrid sending domains — the model, its DNS-proof
-  verification, the provider transport and the whole Settings → Integrations config
-  → Sending domains panel — are removed, along with the per-inbox sender choice:
-  an inbox always answers from its own address. `checkPlatformSendRate` still caps
-  the shared lane, because a Cloudflare account shares its daily quota and its
-  suppression list across every workspace on it.
-- **Affected areas:** `src/modules/integrations/mail/utils/`
-  (`platformConfig.ts` rewritten, `transports/{index,readiness,types}.ts`;
-  `dnsProof.ts`, `sendingSerialize.ts`, `transports/provider.ts` deleted),
-  `src/modules/integrations/mail/db/{definitions,models}/` (`sending.ts`,
-  `SendingAccounts.ts` deleted; `integrations.ts` loses `sendingAccountId` /
-  `sendingAddress`), `src/modules/integrations/mail/@types/{sending,integration}.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** removes the `mailSendingAccounts` query, the
-  `mailSendingAccountAdd` / `mailSendingAccountVerify` / `mailSendingAccountRemove`
-  mutations, the `MailSendingAccount` and `MailSendingDnsRecord` types and
-  `MailSendingReadiness.accounts`; `mailCreateIntegration` and
-  `mailUpdateIntegration` ignore `data.sendingAccountId` / `data.sendingAddress`.
-  Env `MAIL_SENDING_DEFAULT_EMAIL_SERVICE`, `MAIL_SENDING_AWS_SES_*`,
-  `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
-  `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
-  `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
-
-### `2026-08-26` — Mail automation and reply drafts removed
-
-- **Summary:** The mail channel no longer registers automation. The
-  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
-  actions, their workers and the AI-context builder are gone, and so is the reply
-  draft they were the only producer of — nothing else could create one, so the
-  draft model, its GraphQL surface and its inbox card would have been unreachable
-  code.
-- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
-  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
-  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
-  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/subscription.ts`,
-  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
-  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
-- **Contracts changed:** Removed the `frontline:mail.messages` automation
-  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
-  `mailDraftChanged` subscription.
