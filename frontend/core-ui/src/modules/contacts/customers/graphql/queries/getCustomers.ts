@@ -8,6 +8,7 @@ import {
 export const GET_CUSTOMERS = gql`
   query customersRecordTable(
     $segment: String
+    $segmentIds: [String]
     $tagIds: [String]
     $type: String
     $searchValue: String
@@ -20,13 +21,13 @@ export const GET_CUSTOMERS = gql`
     $sortField: String
     $dateFilters: String
     $propertiesData: String
-    $segmentData: String
     $emailValidationStatus: String
     $orderBy: JSON
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     customers(
       segment: $segment
+      segmentIds: $segmentIds
       tagIds: $tagIds
       type: $type
       searchValue: $searchValue
@@ -39,7 +40,6 @@ export const GET_CUSTOMERS = gql`
       sortField: $sortField
       dateFilters: $dateFilters
       propertiesData: $propertiesData
-      segmentData: $segmentData
       emailValidationStatus: $emailValidationStatus
       orderBy: $orderBy
       ${GQL_CURSOR_PARAMS}

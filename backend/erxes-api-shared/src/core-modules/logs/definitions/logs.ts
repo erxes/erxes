@@ -29,6 +29,9 @@ logsSchema.index(
   { expireAfterSeconds: LOG_RETENTION_SECONDS },
 );
 
+// Match the default logsMainList cursor order for index-only pagination.
+logsSchema.index({ createdAt: -1, _id: 1 });
+
 logsSchema.index(
   { docId: 1, createdAt: -1 },
   { partialFilterExpression: { docId: { $exists: true } } },
@@ -39,7 +42,7 @@ logsSchema.index(
   { partialFilterExpression: { contentType: { $exists: true } } },
 );
 
-// Point-in-time revert reads every change in one request's cascade by processId.
+// One request's cascade of changes shares a processId.
 logsSchema.index(
   { processId: 1, createdAt: -1 },
   { partialFilterExpression: { processId: { $exists: true } } },

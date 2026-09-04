@@ -15,6 +15,22 @@ const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
+const toList = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return typeof value === 'string' ? value.split(',') : value;
+};
+
+const toLowercaseList = (value) => {
+  const list = toList(value);
+
+  return Array.isArray(list)
+    ? list.map((v) => (v ? String(v).toLowerCase() : v))
+    : list;
+};
+
 const parseValue = (field, value) => {
   const fieldType = field.type;
 
@@ -26,16 +42,15 @@ const parseValue = (field, value) => {
     switch (fieldType) {
       case 'multiSelect':
       case 'check':
-        if (Array.isArray(value)) {
-          return value.map((v) => (v ? String(v).toLowerCase() : v));
-        } else if (typeof value === 'string') {
-          return value.split(',').map((v) => String(v).toLowerCase());
-        } else {
-          return value;
-        }
+        return toLowercaseList(value);
+
+      case 'list':
+        return toList(value);
 
       case 'select':
-        return Array.isArray(value) ? value.join(',').toLowerCase() : String(value).toLowerCase();
+        return Array.isArray(value)
+          ? value.join(',').toLowerCase()
+          : String(value).toLowerCase();
 
       case 'date':
         return typeof value === 'string' ? new Date(value) : value;
@@ -69,7 +84,7 @@ const toObject = (contentType, document, fields, groups) => {
   const propertiesData = {};
 
   for (const customField of customFieldsData || []) {
-    let field = fields.find((field) => field._id === customField.field);
+    const field = fields.find((field) => field._id === customField.field);
 
     if (!field) {
       console.log(
@@ -129,7 +144,7 @@ const toObject = (contentType, document, fields, groups) => {
 
             if (parsedValue !== null && parsedValue !== undefined) {
               parsedValues[field._id] = parsedValue;
-            } 
+            }
           }
 
           if (Object.keys(parsedValues).length) {
@@ -177,7 +192,7 @@ const command = async () => {
     // 'frontline:ticket': db.collection('frontline_tickets'),
     // 'frontline:conversation': db.collection('conversations'),
 
-    "sales:deal": db.collection('deals')
+    'sales:deal': db.collection('deals'),
   };
 
   try {

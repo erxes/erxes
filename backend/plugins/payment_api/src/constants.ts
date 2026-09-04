@@ -70,8 +70,8 @@ export const PAYMENTS = {
     kind: 'pocket',
     apiUrl: 'https://service.invescore.mn/merchant',
     actions: {
-      invoice: 'invoice',
-      checkInvoice: 'invoice/check',
+      invoice: 'v2/invoicing/generate-invoice',
+      checkInvoice: 'v2/invoicing/invoices/invoice-id',
       webhook: 'pg/config',
       cancel: 'payment-gateway/transaction/cancel',
     },

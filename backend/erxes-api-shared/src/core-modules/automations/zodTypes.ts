@@ -85,14 +85,6 @@ export const CheckCustomTriggerInputData = z.object({
   eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
-export const CheckTargetMatchInputData = z.object({
-  moduleName: z.string(),
-  contentType: z.string(),
-  collectionType: z.string(),
-  targetId: z.string(),
-  selector: z.record(z.any()),
-});
-
 export const FindObjectInputData = z.object({
   objectType: z.string(),
   field: z.string(),
@@ -148,10 +140,6 @@ export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
 
-export const CheckTargetMatchInput = AutomationBaseInput.extend({
-  data: CheckTargetMatchInputData,
-});
-
 export const FindObjectInput = AutomationBaseInput.extend({
   data: FindObjectInputData,
 });
@@ -182,9 +170,6 @@ export type TAutomationProducersInput = {
   >;
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
-  >;
-  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
-    typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<

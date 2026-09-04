@@ -6,7 +6,10 @@ export type InboxConversationQueryState = {
   awaitingResponse: boolean;
   withPoll: boolean;
   automationStatus: string;
+  participating: boolean;
   participated: boolean;
+  mentioned: boolean;
+  unread: boolean;
   status: string;
   conversationId: string;
   created: string;

@@ -13,10 +13,19 @@ export {
   serializeChartVizPayload,
   parseChartVizMessage,
 } from './utils/chatVizSanitize';
+export {
+  applyChartVizTransforms,
+  getChartVizInteractiveDomain,
+  getDefaultChartVizControlValues,
+} from './utils/chartVizTransforms';
 
 export type {
   ChartVizType,
   ChartVizDataPoint,
   ChartVizSeriesConfig,
+  ChartVizSliderControl,
+  ChartVizTransformOperation,
+  ChartVizTransform,
   ChartVizPayload,
 } from './types/chatVizTypes';
+export type { ChartVizControlValues } from './utils/chartVizTransforms';

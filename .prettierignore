@@ -3,3 +3,6 @@
 /coverage
 /.nx/cache
 /.nx/workspace-data
+backend/plugins/frontline_api/src/modules/integrations/mail/worker/bundle.generated.ts
+pnpm-lock.yaml
+**/package-lock.json

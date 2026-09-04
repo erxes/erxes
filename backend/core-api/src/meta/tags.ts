@@ -1,16 +1,18 @@
 import { generateModels, IModels } from '../connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { taggableTarget } from '@/tags/taggable';
 
 const modelChanger = (type: string, models: IModels) => {
-  if (type === 'customer') {
-    return models.Customers;
-  }
+  const record = type.includes(':') ? type.split(':')[1] : type;
 
-  if (type === 'product') {
-    return models.Products;
-  }
-
-  return models.Companies;
+  return {
+    customer: models.Customers,
+    company: models.Companies,
+    product: models.Products,
+    user: models.Users,
+    form: models.Forms,
+    automation: models.Automations,
+  }[record];
 };
 
 export const tags = {
@@ -35,17 +37,18 @@ export const tags = {
     if (!moduleName || pluginName === 'core') {
       const models = await generateModels(subdomain);
       const model: any = modelChanger(type, models);
+      const record = type.includes(':') ? type.split(':')[1] : type;
+
+      if (!model || !taggableTarget(record)) {
+        throw new Error(`Unknown content type: ${type}`);
+      }
 
       if (action === 'count') {
         return model.countDocuments({ tagIds: { $in: _ids } });
       }
 
       if (action === 'tagObject') {
-        await model.updateMany(
-          { _id: { $in: targetIds } },
-          { $set: { tagIds } },
-          { multi: true },
-        );
+        await models.Tags.tagsTag(`core:${record}`, targetIds, tagIds);
 
         return model.find({ _id: { $in: targetIds } }).lean();
       }
@@ -76,26 +79,7 @@ export const tags = {
     data: { sourceId, destId, type, action },
   }) => {
     const models = await generateModels(subdomain);
-    const model: any = modelChanger(type, models);
 
-    if (action === 'remove') {
-      await model.updateMany(
-        { tagIds: { $in: [sourceId] } },
-        { $pull: { tagIds: { $in: [sourceId] } } },
-      );
-    }
-
-    if (action === 'merge') {
-      const itemIds = await model
-        .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
-        .distinct('_id');
-
-      // add to new destination
-      await model.updateMany(
-        { _id: { $in: itemIds } },
-        { $set: { 'tagIds.$[elem]': destId } },
-        { arrayFilters: [{ elem: { $eq: sourceId } }] },
-      );
-    }
+    await models.Tags.fixRelatedRecords({ type, sourceId, destId, action });
   },
 };

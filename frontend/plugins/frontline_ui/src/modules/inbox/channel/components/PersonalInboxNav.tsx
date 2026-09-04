@@ -1,5 +1,10 @@
-import { NavigationMenuGroup, Skeleton, useMultiQueryState } from 'erxes-ui';
-import { IconUser } from '@tabler/icons-react';
+import {
+  IconComponent,
+  NavigationMenuGroup,
+  Skeleton,
+  useMultiQueryState,
+} from 'erxes-ui';
+import { useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ChannelScope } from '@/channels/types';
@@ -16,13 +21,13 @@ import {
 
 export const PersonalInboxNav = () => {
   const { t } = useTranslation('frontline');
+  const [open, setOpen] = useState(true);
   const { channels } = useGetMyChannels();
   const { integrationTypes, loading } = useUsedIntegrationTypesByChannel({
     scope: ChannelScope.PERSONAL,
   });
   const [{ channelId }, setFilters] =
     useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
-
   const personalChannel = channels?.find(
     (channel) => channelScopeOf(channel) === ChannelScope.PERSONAL,
   );
@@ -41,6 +46,29 @@ export const PersonalInboxNav = () => {
       integrationId: null,
       integrationType: null,
     });
+    if (!isActive) setOpen(true);
+  };
+
+  const handleGroupClickCapture = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target as Element;
+
+    if (!target.closest('[data-sidebar="group-label"]')) return;
+    if (target.closest('svg')) return;
+
+    const groupLabel = target.closest('[data-sidebar="group-label"]');
+
+    if (groupLabel?.getAttribute('aria-expanded') !== 'false') {
+      event.stopPropagation();
+    }
+
+    if (!personalChannel) return;
+
+    setFilters({
+      channelId: personalChannel._id,
+      integrationId: null,
+      integrationType: null,
+    });
+    setOpen(true);
   };
 
   const renderContent = () => {
@@ -69,14 +97,23 @@ export const PersonalInboxNav = () => {
   };
 
   return (
-    <NavigationMenuGroup name={t('me')}>
+    <NavigationMenuGroup
+      name={t('my-inbox', { defaultValue: 'My Inbox' })}
+      onClickCapture={handleGroupClickCapture}
+    >
       <ChannelNavItem
-        name={t('personal-channel')}
-        icon={<IconUser className="size-3.5 text-accent-foreground shrink-0" />}
+        name={personalChannel?.name || t('personal-channel')}
+        icon={
+          <IconComponent
+            name={personalChannel?.icon}
+            className="size-3.5 text-accent-foreground shrink-0"
+          />
+        }
         isActive={isActive}
         onSelect={handleSelectChannel}
+        open={open}
+        onOpenChange={setOpen}
         unreadCount={personalChannel?.unreadConversationCount || 0}
-        collapsible={false}
       >
         {renderContent()}
       </ChannelNavItem>

@@ -1,7 +1,7 @@
 import { TFxaDetail } from '../../types/JournalForms';
 import { getTempId } from '../utils';
 
-export type TFxaCodeInstance = {
+export type TFxaCodeOwnerRecord = {
   code?: string;
   sequence?: number;
 };
@@ -13,6 +13,9 @@ export const getFxaDetailDefaultValues = (
   _id: getTempId(),
   accountId: detail?.accountId || '',
   fixedAssetId: detail?.fixedAssetId || '',
+  fixedAssetCategoryId: detail?.fixedAssetCategoryId || '',
+  fixedAssetCode: detail?.fixedAssetCode || '',
+  fixedAssetName: detail?.fixedAssetName || '',
   count: detail?.count ?? 0,
   unitPrice: detail?.unitPrice ?? 0,
   amount: detail?.amount ?? 0,
@@ -29,17 +32,17 @@ export const getFxaCodeSequence = (code: string, assetCode: string) => {
   return match ? Number(match[1]) : 0;
 };
 
-export const getFxaInstanceDisplayCode = (
-  instance: TFxaCodeInstance,
+export const getFxaOwnerRecordDisplayCode = (
+  ownerRecord: TFxaCodeOwnerRecord,
   fixedAssetCode?: string,
 ) => {
-  if (instance.code) {
-    return instance.code;
+  if (ownerRecord.code) {
+    return ownerRecord.code;
   }
 
-  if (!fixedAssetCode || !instance.sequence) {
+  if (!fixedAssetCode || !ownerRecord.sequence) {
     return '-';
   }
 
-  return `${fixedAssetCode}_${String(instance.sequence).padStart(3, '0')}`;
+  return `${fixedAssetCode}_${String(ownerRecord.sequence).padStart(3, '0')}`;
 };

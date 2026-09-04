@@ -1,7 +1,10 @@
 import { AddSenderDialog } from '@/settings/mail-config/components/AddSenderDialog';
 import { useSenderCreation } from '@/settings/mail-config/hooks/useSenderCreation';
-import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { IconMailCheck, IconMailPlus } from '@tabler/icons-react';
+import {
+  IEmailSender,
+  useSenderOptions,
+} from '@/settings/mail-config/hooks/useVerifiedSenders';
+import { IconMailCheck, IconMailPlus, IconRefresh } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
 
@@ -11,13 +14,13 @@ export const SelectVerifiedSender = ({
   placeholder = 'Select a sender',
 }: {
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, sender?: IEmailSender) => void;
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
-  const { singleSenders, loading } = useSenderOptions();
+  const { singleSenders, loading, refetch } = useSenderOptions();
   const { formOpen, setFormOpen, openForm } = useSenderCreation();
 
   const confirmed = singleSenders.filter(
@@ -60,7 +63,7 @@ export const SelectVerifiedSender = ({
                   key={sender.id}
                   value={sender.value}
                   onSelect={() => {
-                    onChange(sender.value);
+                    onChange(sender.value, sender);
                     setOpen(false);
                   }}
                 >
@@ -79,7 +82,7 @@ export const SelectVerifiedSender = ({
             {!loading && (
               <>
                 <Command.Separator />
-                <div className="p-1">
+                <div className="p-1 flex items-center justify-between gap-2">
                   <Button
                     variant="ghost"
                     className="w-full justify-start font-normal"
@@ -87,6 +90,9 @@ export const SelectVerifiedSender = ({
                   >
                     <IconMailPlus />
                     Add a sender address
+                  </Button>
+                  <Button variant="ghost" onClick={refetch}>
+                    <IconRefresh />
                   </Button>
                 </div>
               </>

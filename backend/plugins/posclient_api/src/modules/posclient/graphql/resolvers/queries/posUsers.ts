@@ -19,6 +19,7 @@ const userQueries = {
     return models.PosUsers.find(query).lean();
   },
 };
+
 markResolvers<IContext>(userQueries, {
   wrapperConfig: {
     skipPermission: true,

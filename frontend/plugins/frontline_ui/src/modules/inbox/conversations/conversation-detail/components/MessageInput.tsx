@@ -418,7 +418,12 @@ export const MessageInput = ({
         setResponseTemplateId(null);
         setDiscordReplyTo(null);
       },
-      refetchQueries: ['Conversations'],
+      refetchQueries: [
+        'Conversations',
+        'ConversationMessages',
+        'ConversationCounts',
+        'FrontlineInboxSidebarWorkCounts',
+      ],
       onError: (err) =>
         toast({
           title: t('failed-to-send', { message: err.message }),
@@ -447,7 +452,12 @@ export const MessageInput = ({
       try {
         await addConversationMessage({
           variables: { conversationId, content: '', internal: false, poll },
-          refetchQueries: ['Conversations'],
+          refetchQueries: [
+            'Conversations',
+            'ConversationMessages',
+            'ConversationCounts',
+            'FrontlineInboxSidebarWorkCounts',
+          ],
         });
         toast({ title: 'Poll sent!', variant: 'default' });
         return true;

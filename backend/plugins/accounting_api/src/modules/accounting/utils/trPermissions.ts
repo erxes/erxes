@@ -239,7 +239,7 @@ export const assertCanWriteTransactionAccounts = async ({
   }
 };
 
-const convertToHidden = (transaction: ITransactionDocument) => {
+export const convertToHidden = (transaction: ITransactionDocument) => {
   return {
     _id: transaction._id,
     parentId: transaction.parentId,

@@ -14,8 +14,16 @@ import {
   normalizeLogEventInput,
 } from './utils';
 import { sendAutomationTrigger } from '../../automations';
+import { sendSegmentChanged } from '../../segments/events';
+import { segmentJoinChanges } from '../../segments/joinChanges';
 import { INotificationData, sendNotification } from '../../notifications';
 import { logActivityLogError } from '../../logs/activityLog/utils';
+
+/** One id or many, as the action recorded it, with the empties dropped. */
+const toIdList = (ids?: string | string[]): string[] =>
+  (Array.isArray(ids) ? ids : [ids]).filter(
+    (id): id is string => typeof id === 'string' && id.length > 0,
+  );
 
 /**
  * Create an event dispatcher instance with methods for logging and automation triggers
@@ -83,6 +91,13 @@ export function createEventHandlers(
       .catch((err) => {
         console.error('sendDbEventLog queue.add failed', err);
       });
+    const docIds = toIdList(eventPayload.docIds ?? eventPayload.docId);
+
+    segmentJoinChanges(contentType, payload?.updateDescription)
+      .then((changed) =>
+        sendSegmentChanged({ subdomain, contentType, docIds, changed }),
+      )
+      .catch(() => sendSegmentChanged({ subdomain, contentType, docIds }));
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
       const eventUpdateDescription = payload?.updateDescription;

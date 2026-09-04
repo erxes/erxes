@@ -14,7 +14,6 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
   mountAgentTools,
-  registerRevertContentTypeResolver,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express from 'express';
@@ -47,9 +46,6 @@ const collectionToContentType = new Map<string, string>(
     c.collectionName,
     `${PLUGIN_NAME}:${c.moduleName}.${c.collectionName}`,
   ]),
-);
-registerRevertContentTypeResolver((collectionName) =>
-  collectionToContentType.get(collectionName),
 );
 
 const { DOMAIN, ALLOWED_ORIGINS, WIDGETS_DOMAIN, ALLOWED_DOMAINS } =
@@ -172,7 +168,9 @@ app.get('/get-client-portal-token', async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const clientPortal = await models.ClientPortal.findOne({}).lean();
+  const clientPortal = await models.ClientPortal.findOne({
+    useB2B: true,
+  }).lean();
 
   if (!clientPortal) {
     return res.status(404).json({ error: 'Client portal not found' });

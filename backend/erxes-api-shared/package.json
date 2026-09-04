@@ -28,7 +28,6 @@
     "@apollo/server": "^4.11.3",
     "@apollo/subgraph": "^2.9.3",
     "@azure/storage-blob": "^12.29.1",
-    "@elastic/elasticsearch": "7",
     "@google-cloud/storage": "^7.17.3",
     "@sendgrid/mail": "^8.1.5",
     "@sentry/node": "^10.55.0",

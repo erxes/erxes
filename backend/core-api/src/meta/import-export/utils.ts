@@ -1,5 +1,4 @@
 import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
-import { getRealIdFromElk } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getCustomFields } from '~/modules/forms/utils';
 
@@ -24,7 +23,7 @@ export const getCustomPropertyHeaders = async (
 
   return customFields.map((field) => {
     const group = field.groupId ? groupById.get(String(field.groupId)) : null;
-    const fieldId = getRealIdFromElk(String(field._id));
+    const fieldId = String(field._id);
     const label = group?.name ? `${group.name} / ${field.name}` : field.name;
     const uniqueLabel = field.code ? `${label} [${field.code}]` : label;
     const key = `propertiesData.${fieldId}`;

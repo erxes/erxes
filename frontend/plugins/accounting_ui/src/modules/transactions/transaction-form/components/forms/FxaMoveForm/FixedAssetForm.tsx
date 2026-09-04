@@ -1,17 +1,21 @@
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 import {
   Button,
   Checkbox,
+  Label,
   RecordTableHotkeyProvider,
   ScrollArea,
+  Switch,
   Table,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import { useRef } from 'react';
 import { useFieldArray, useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TFxaDetail } from '../../../types/JournalForms';
-import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
+import { showAdvancedViewState } from '../../../states/trStates';
+import { AddFixedAssetRow } from './AddFixedAssetRow';
 import { FixedAssetRow } from './FixedAssetRow';
 
 export const FixedAssetForm = ({
@@ -25,16 +29,20 @@ export const FixedAssetForm = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details`,
   });
-  const details = useWatch({
-    control: form.control,
-    name: `trDocs.${journalIndex}.details`,
-  }) as TFxaDetail[];
+  const details =
+    (useWatch({
+      control: form.control,
+      name: `trDocs.${journalIndex}.details`,
+    }) as TFxaDetail[] | undefined) || [];
   const setHotkeyScope = useSetHotkeyScope();
   const tableRef = useRef<HTMLTableElement>(null);
   const columnsLength =
     tableRef.current?.querySelector('tr')?.querySelectorAll('td, th').length ||
-    6;
+    7;
   const hasCheckedDetails = details.some((detail) => detail.checked);
+  const [showAdvancedView, setShowAdvancedView] = useAtom(
+    showAdvancedViewState,
+  );
 
   const removeChecked = () => {
     form.setValue(
@@ -82,19 +90,11 @@ export const FixedAssetForm = ({
       </RecordTableHotkeyProvider>
 
       <div className="flex justify-center gap-3">
-        <Button
-          type="button"
-          variant="secondary"
-          className="bg-border"
-          onClick={() =>
-            append(
-              getFxaDetailDefaultValues({ accountId: details[0]?.accountId }),
-            )
-          }
-        >
-          <IconPlus />
-          Шинэ мөр
-        </Button>
+        <AddFixedAssetRow
+          append={append}
+          form={form}
+          journalIndex={journalIndex}
+        />
         {hasCheckedDetails && (
           <Button
             type="button"
@@ -106,6 +106,13 @@ export const FixedAssetForm = ({
             Сонгосныг хасах
           </Button>
         )}
+        <div className="flex items-center">
+          <Label className="mr-3">Дэлгэрэнгүй харагдац</Label>
+          <Switch
+            checked={showAdvancedView}
+            onCheckedChange={(checked) => setShowAdvancedView(checked)}
+          />
+        </div>
       </div>
     </>
   );
@@ -122,6 +129,7 @@ const FixedAssetTableHeader = ({
 }) => {
   const isAllChecked =
     details.length > 0 && details.every((detail) => detail.checked);
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
 
   return (
     <Table.Header>
@@ -146,6 +154,12 @@ const FixedAssetTableHeader = ({
         <Table.Head>Тоо хэмжээ</Table.Head>
         <Table.Head>Нэгж үнэ</Table.Head>
         <Table.Head>Дүн</Table.Head>
+        {showAdvancedView && (
+          <>
+            <Table.Head>Салбар</Table.Head>
+            <Table.Head>Хэлтэс</Table.Head>
+          </>
+        )}
       </Table.Row>
     </Table.Header>
   );

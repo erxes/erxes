@@ -1,32 +1,34 @@
+import {
+  sameSegmentDefinition,
+  sendSegmentForget,
+  sendSegmentRebuild,
+} from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
-import { ISegment } from '../../db/definitions/segments';
-import { ISegmentsEdit } from '../../types';
+import { ISegmentCreate } from '../../db/models/Segments';
+import { assertCanEditSegment } from '../../utils/access';
+import { publishSegmentBuild } from '../../utils/publishBuild';
 
 export const segmentMutations = {
-  /**
-   * Create new segment
-   */
   async segmentsAdd(
     _root,
-    doc: ISegment,
-    { models, __, checkPermission }: IContext,
+    doc: ISegmentCreate,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
-    const extendedDoc: any = __(doc);
+    const segment = await models.Segments.createSegment(doc, user._id);
 
-    const { conditionSegments = [] } = extendedDoc || {};
+    if (!segment.ownedBy) {
+      sendSegmentRebuild({ subdomain, segmentId: segment._id });
+    }
 
-    return await models.Segments.createSegment(extendedDoc, conditionSegments);
+    return segment;
   },
 
-  /**
-   * Update segment
-   */
   async segmentsEdit(
     _root,
-    { _id, ...doc }: ISegmentsEdit,
-    { models, checkPermission }: IContext,
+    { _id, ...doc }: ISegmentCreate & { _id: string },
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
@@ -36,28 +38,111 @@ export const segmentMutations = {
       throw new Error('Segment not found');
     }
 
-    const { conditionSegments = [] } = doc || {};
+    assertCanEditSegment(segment, user);
 
-    return await models.Segments.updateSegment(_id, doc, conditionSegments);
+    const asksSomethingElse =
+      doc.root &&
+      (!segment.root ||
+        !sameSegmentDefinition(
+          doc.contentType || segment.contentType,
+          doc.root,
+          segment.root,
+        ));
+
+    const updated = await models.Segments.updateSegment(_id, doc, user._id);
+
+    const wasOwned = Boolean(segment.ownedBy) || !segment.name?.trim();
+    const promoted = wasOwned && Boolean(updated?.name?.trim());
+
+    if (!updated?.ownedBy && (asksSomethingElse || promoted)) {
+      sendSegmentRebuild({ subdomain, segmentId: _id });
+    }
+
+    return updated;
   },
 
-  /**
-   * Delete segment
-   */
-  async segmentsRemove(
+  async segmentsRebuild(
     _root,
-    { _id, ids }: { _id: string; ids: string[] },
-    { models, checkPermission }: IContext,
+    { _id }: { _id: string },
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('segmentsManage');
 
-    if (!_id && !ids?.length) {
+    const segment = await models.Segments.getSegment(_id);
+
+    if (!segment) {
+      throw new Error('Segment not found');
+    }
+
+    assertCanEditSegment(segment, user);
+
+    sendSegmentRebuild({ subdomain, segmentId: _id });
+
+    return { queued: true };
+  },
+
+  async segmentsStopRebuild(
+    _root,
+    { _id }: { _id: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('segmentsManage');
+
+    const segment = await models.Segments.getSegment(_id);
+
+    if (!segment) {
+      throw new Error('Segment not found');
+    }
+
+    assertCanEditSegment(segment, user);
+
+    if (segment.status !== 'building') {
+      throw new Error('This segment is not being rebuilt right now');
+    }
+
+    await models.Segments.updateOne(
+      { _id },
+      { $set: { buildCancelRequested: true } },
+    );
+
+    publishSegmentBuild({ segmentId: _id, buildCancelRequested: true });
+
+    return { requested: true };
+  },
+
+  async segmentsRemove(
+    _root,
+    { ids }: { ids: string[] },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('segmentsManage');
+
+    if (!ids?.length) {
       throw new Error('You should provide segment');
     }
 
-    if (ids.length) {
-      return await models.Segments.removeSegments(ids);
+    const removing = await models.Segments.find(
+      { _id: { $in: ids } },
+      { _id: 1, name: 1, ownerId: 1, contentType: 1 },
+    ).lean();
+
+    removing.forEach((segment) => assertCanEditSegment(segment, user));
+
+    const result = await models.Segments.removeSegments(ids);
+
+    const byContentType = new Map<string, string[]>();
+
+    for (const segment of removing) {
+      byContentType.set(segment.contentType, [
+        ...(byContentType.get(segment.contentType) || []),
+        segment._id,
+      ]);
     }
-    return await models.Segments.removeSegment(_id);
+
+    for (const [contentType, segmentIds] of byContentType) {
+      sendSegmentForget({ subdomain, contentType, segmentIds });
+    }
+
+    return result;
   },
 };

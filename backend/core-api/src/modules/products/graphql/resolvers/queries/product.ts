@@ -13,7 +13,6 @@ import {
   PRODUCT_SIMILARITY_STATUSES,
   PRODUCT_STATUSES,
 } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
@@ -292,7 +291,7 @@ const generateFilter = async (
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
-  const { models, subdomain } = context;
+  const { models } = context;
   const {
     type,
     categoryIds,
@@ -307,7 +306,6 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
-    segmentData,
     propertiesData,
     branchId,
     departmentId,
@@ -576,20 +574,8 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment || segmentData) {
-    const segmentObj = segmentData
-      ? JSON.parse(segmentData)
-      : await models.Segments.findOne({ _id: segment }).lean();
-
-    if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
-        models,
-        subdomain,
-        segmentObj,
-      );
-
-      andFilters.push({ _id: { $in: segmentProductIds } });
-    }
+  if (segment) {
+    andFilters.push({ segmentIds: segment });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };

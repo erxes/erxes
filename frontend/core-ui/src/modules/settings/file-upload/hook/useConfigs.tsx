@@ -22,7 +22,13 @@ const useConfig = () => {
     fileSettingsMutations.UPDATE_CONFIGS,
     {
       onError(error) {
-        console.error(error.message);
+        // A silently failed save reads as a saved one, and the admin walks
+        // away believing a setting is in effect that never reached the server.
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
       onCompleted() {
         toast({
@@ -36,7 +42,10 @@ const useConfig = () => {
     },
   );
 
-  const updateConfig = (args: any, options?: { skipConfirm?: boolean }) => {
+  const updateConfig = (
+    args: Record<string, unknown>,
+    options?: { skipConfirm?: boolean },
+  ) => {
     if (options?.skipConfirm) {
       return update({ variables: { configsMap: { ...args } } });
     }

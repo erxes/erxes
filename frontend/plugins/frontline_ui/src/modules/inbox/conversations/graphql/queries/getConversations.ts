@@ -21,6 +21,8 @@ export const GET_CONVERSATIONS = gql`
     $withPoll: String
     $automationStatus: String
     $participating: String
+    $mentioned: String
+    $unread: String
     $customerId: String
     $brandId: String
     $searchValue: String
@@ -41,6 +43,8 @@ export const GET_CONVERSATIONS = gql`
       withPoll: $withPoll
       automationStatus: $automationStatus
       participating: $participating
+      mentioned: $mentioned
+      unread: $unread
       customerId: $customerId
       brandId: $brandId
       searchValue: $searchValue
