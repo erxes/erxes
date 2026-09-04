@@ -1,29 +1,25 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form, InfoCard, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPricingPlanDetail } from '@/pricing/types';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
+import { CustomerBrokerConditions } from '@/pricing/edit-pricing/components/options/CustomerBrokerConditions';
 import {
-  CustomerBrokerConditions,
   CUSTOMER_BROKER_DEFAULTS,
   customerBrokerFromDetail,
   customerBrokerToDoc,
   type CustomerBrokerFormValues,
-} from '@/pricing/edit-pricing/components/options/CustomerBrokerConditions';
+} from '@/pricing/edit-pricing/components/participants/utils';
 
 interface ParticipantsInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
-  onSaveActionChange?: (action: ReactNode | null) => void;
 }
-
-const PARTICIPANTS_FORM_ID = 'pricing-participants-form';
 
 export const ParticipantsInfo = ({
   pricingId,
   pricingDetail,
-  onSaveActionChange,
 }: ParticipantsInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
@@ -51,27 +47,6 @@ export const ParticipantsInfo = ({
     form.reset(values);
     setInitialSnapshot(customerBrokerToDoc(values));
   }, [pricingDetail, form]);
-
-  useEffect(() => {
-    if (!onSaveActionChange) {
-      return;
-    }
-
-    onSaveActionChange(
-      hasChanges ? (
-        <Button
-          type="submit"
-          form={PARTICIPANTS_FORM_ID}
-          size="sm"
-          disabled={loading}
-        >
-          {loading ? t('saving') : t('save-changes')}
-        </Button>
-      ) : null,
-    );
-
-    return () => onSaveActionChange(null);
-  }, [hasChanges, loading, onSaveActionChange, t]);
 
   const handleSave = async (values: CustomerBrokerFormValues) => {
     if (!pricingId) {
@@ -108,11 +83,20 @@ export const ParticipantsInfo = ({
         <InfoCard.Content>
           <Form {...form}>
             <form
-              id={PARTICIPANTS_FORM_ID}
               onSubmit={form.handleSubmit(handleSave)}
+              className="space-y-6"
               noValidate
             >
               <CustomerBrokerConditions control={form.control} />
+              <div className="flex justify-end border-t pt-4">
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={loading || !pricingId || !hasChanges}
+                >
+                  {loading ? t('saving') : t('save-changes')}
+                </Button>
+              </div>
             </form>
           </Form>
         </InfoCard.Content>

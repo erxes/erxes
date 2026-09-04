@@ -35,6 +35,7 @@ export const pricingColumns = (
 ): ColumnDef<IPricing>[] => [
   {
     id: 'more',
+    header: () => <RecordTable.ColumnSelector />,
     cell: (cell) => <PricingMoreCell {...cell} />,
     size: 33,
   },
@@ -63,7 +64,9 @@ export const pricingColumns = (
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label={t('status')} icon={IconHash} />,
+    header: () => (
+      <RecordTable.InlineHead label={t('status')} icon={IconHash} />
+    ),
     cell: ({ cell }) => {
       const status = cell.getValue() as string;
       return (

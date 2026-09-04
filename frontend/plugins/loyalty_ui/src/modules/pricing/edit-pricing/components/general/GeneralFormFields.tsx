@@ -30,6 +30,7 @@ export const GeneralFormFields = ({
             <Form.Control>
               <Input placeholder={t('enter-pricing-name')} {...field} />
             </Form.Control>
+            <Form.Message />
           </Form.Item>
         )}
       />
