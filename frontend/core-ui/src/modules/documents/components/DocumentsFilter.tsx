@@ -10,6 +10,7 @@ import { useSearchParams } from 'react-router';
 import { SelectMember } from 'ui-modules';
 import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
+import { DocumentsViewControl } from './DocumentsViewControl';
 
 export const DocumentsFilter = () => {
   const [searchParams] = useSearchParams();
@@ -53,6 +54,7 @@ export const DocumentsFilter = () => {
           </div>
         </Filter.Bar>
       </Filter>
+      <DocumentsViewControl />
     </PageSubHeader>
   );
 };
@@ -82,7 +84,9 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
         </Filter.BarName>
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
-      {createdBy && <SelectMember.FilterBar queryKey="createdBy" label="Created By" />}
+      {createdBy && (
+        <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
+      )}
     </>
   );
 };
