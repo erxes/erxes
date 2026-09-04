@@ -50,53 +50,6 @@ export const types = `
         metadata: JSON
     }
 
-    type LogRevertField {
-        field: String!
-        revertValue: JSON
-        currentValue: JSON
-    }
-
-    type LogRevertConflict {
-        contentType: String!
-        docId: String!
-        mongooseName: String!
-        fields: [LogRevertField!]!
-    }
-
-    type LogRevertApplied {
-        contentType: String!
-        docId: String!
-        kind: String!
-    }
-
-    type LogRevertUnrevertable {
-        contentType: String
-        docId: String
-        action: String!
-        reason: String!
-    }
-
-    type LogRevertResult {
-        processId: String!
-        requestProcessId: String!
-        dryRun: Boolean!
-        alreadyReverted: Boolean!
-        reverted: [LogRevertApplied!]!
-        conflicts: [LogRevertConflict!]!
-        unrevertable: [LogRevertUnrevertable!]!
-    }
-
-    input LogRevertFieldResolutionInput {
-        field: String!
-        mode: String!
-        value: JSON
-    }
-
-    input LogRevertDocResolutionInput {
-        contentType: String!
-        docId: String!
-        fields: [LogRevertFieldResolutionInput!]!
-    }
 `;
 
 const cursorParams = `
@@ -144,15 +97,6 @@ export const queries = `
     logsMainList(${commonQueryParams}):MainLogsList
     logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
-    logsRevertPreview(processId: String!): LogRevertResult
 `;
 
-export const mutations = `
-    logsRevertProcess(
-      processId: String!
-      dryRun: Boolean
-      force: Boolean
-      skipConflicts: Boolean
-      resolutions: [LogRevertDocResolutionInput!]
-    ): LogRevertResult
-`;
+export const mutations = ``;

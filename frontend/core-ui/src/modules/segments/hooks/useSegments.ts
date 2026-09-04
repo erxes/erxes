@@ -1,8 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
-import { useCallback, useMemo } from 'react';
-import { ISegment, ListQueryResponse, SEGMENTS } from 'ui-modules';
-import { generateOrderPath } from '@/segments/utils/segmentsUtils';
+import { useCallback } from 'react';
+import { ListQueryResponse, SEGMENTS } from 'ui-modules';
 
 export const useSegments = () => {
   const [selectedContentType] = useQueryState('contentType');
@@ -12,11 +11,6 @@ export const useSegments = () => {
   });
 
   const { segments = [] } = data || {};
-
-  const orderedSegments = useMemo(
-    () => generateOrderPath(segments),
-    [segments],
-  );
 
   const handleRefresh = useCallback(() => {
     fetchMore({
@@ -28,7 +22,7 @@ export const useSegments = () => {
   }, [fetchMore, selectedContentType]);
 
   return {
-    orderedSegments,
+    segments,
     handleRefresh,
     loading,
   };

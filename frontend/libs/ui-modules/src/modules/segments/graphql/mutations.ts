@@ -3,51 +3,62 @@ import gql from 'graphql-tag';
 const PARAMS_DEFS = `
   $name: String,
   $description: String,
-  $subOf: String,
   $color: String,
-  $conditions: [SegmentCondition],
-  $conditionSegments: [SubSegment]
-  $config: JSON,
-  $conditionsConjunction: String
-  $shouldWriteActivityLog: Boolean!
+  $root: JSON!,
+  $visibility: SegmentVisibility
 `;
 
 const PARAMS = `
   name: $name,
   description: $description,
-  subOf: $subOf,
   color: $color,
-  conditions: $conditions,
-  config: $config,
-  conditionsConjunction: $conditionsConjunction
-  conditionSegments: $conditionSegments
-  shouldWriteActivityLog: $shouldWriteActivityLog
+  root: $root,
+  visibility: $visibility
+`;
+
+const RESULT = `
+  _id
+  contentType
+  name
+  description
+  color
+  root
+  visibility
+  ownedBy
+  status
+  revision
+`;
+
+export const SEGMENT_REBUILD = gql`
+  mutation SegmentsRebuild($_id: String!) {
+    segmentsRebuild(_id: $_id)
+  }
+`;
+
+export const SEGMENT_STOP_REBUILD = gql`
+  mutation SegmentsStopRebuild($_id: String!) {
+    segmentsStopRebuild(_id: $_id)
+  }
 `;
 
 export const SEGMENT_ADD = gql`
-  mutation segmentsAdd($contentType: String!, ${PARAMS_DEFS}) {
-    segmentsAdd(contentType: $contentType, ${PARAMS}) {
-      _id
-      count
-      conditions
-      conditionsConjunction
+  mutation SegmentsAdd($contentType: String!, $ownedBy: String, ${PARAMS_DEFS}) {
+    segmentsAdd(contentType: $contentType, ownedBy: $ownedBy, ${PARAMS}) {
+      ${RESULT}
     }
   }
 `;
 
 export const SEGMENT_EDIT = gql`
-  mutation segmentsEdit($_id: String!, ${PARAMS_DEFS}) {
+  mutation SegmentsEdit($_id: String!, ${PARAMS_DEFS}) {
     segmentsEdit(_id: $_id, ${PARAMS}) {
-      _id
-      count
-      conditions
-      conditionsConjunction
+      ${RESULT}
     }
   }
 `;
 
 export const SEGMENT_REMOVE = gql`
-  mutation SegmentsRemove($id: String, $ids: [String]) {
-    segmentsRemove(_id: $id, ids: $ids)
+  mutation SegmentsRemove($ids: [String!]!) {
+    segmentsRemove(ids: $ids)
   }
 `;

@@ -1,5 +1,5 @@
 import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
-import { getRealIdFromElk, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const TICKET_CONTENT_TYPE = 'frontline:ticket';
 
@@ -43,7 +43,7 @@ export const getTicketCustomPropertyHeaders = async (
 
   return fields.map((field) => {
     const group = field.groupId ? groupById.get(String(field.groupId)) : null;
-    const fieldId = getRealIdFromElk(String(field._id));
+    const fieldId = String(field._id);
     const label = group?.name ? `${group.name} / ${field.name}` : field.name;
     const uniqueLabel = field.code ? `${label} [${field.code}]` : label;
     const key = `propertiesData.${fieldId}`;

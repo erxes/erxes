@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const baseSchema = {
   title: z.string().min(1),
-  targetType: z.enum(['segment', 'tag', 'brand']),
+  targetType: z.enum(['segment', 'tag']),
   targetIds: z.array(z.string()).min(1),
 
   targetCount: z.number().default(0),

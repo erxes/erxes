@@ -1,4 +1,78 @@
+# Changelog
 
+# [3.1.0](https://github.com/erxes/erxes/compare/3.0.98...3.1.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* add jest preset configuration to Dockerfile ([bd118fb](https://github.com/erxes/erxes/commit/bd118fb4a60d3a93500a5822350051fb6b094e9d))
+
+
+### Features
+
+* **segments:** segment references, relation measures, visibility, manual rebuild and save guards ([#9217](https://github.com/erxes/erxes/issues/9217)) ([c97bf89](https://github.com/erxes/erxes/commit/c97bf89b37a82a0aab0b4a9080729b01bd1633ea))
+
+## [3.0.98](https://github.com/erxes/erxes/compare/3.0.97...3.0.98) (2026-09-03)
+
+
+### Bug Fixes
+
+* add branch and department relation property types ([#9188](https://github.com/erxes/erxes/issues/9188)) ([e4e16ee](https://github.com/erxes/erxes/commit/e4e16eedc6934582a934b1f94f25289a39514984))
+* gallery images not loading ([#9080](https://github.com/erxes/erxes/issues/9080)) ([641efbc](https://github.com/erxes/erxes/commit/641efbcbc903f273c66439bff7c421c2dc3d8e92))
+* restore the string list property type ([#9197](https://github.com/erxes/erxes/issues/9197)) ([f703aac](https://github.com/erxes/erxes/commit/f703aacc345e1d5adf35682fb92efac90c961d3c))
+
+
+### Features
+
+* **payment:** update Pocket payment api integration ([#9154](https://github.com/erxes/erxes/issues/9154)) ([7161482](https://github.com/erxes/erxes/commit/7161482df4b9a767e3a3b9c28a22a6a65dd9b407))
+
+## [3.0.97](https://github.com/erxes/erxes/compare/3.0.96...3.0.97) (2026-09-02)
+
+
+### Bug Fixes
+
+* **accounting:** sync from erkhet and some improve ([#9113](https://github.com/erxes/erxes/issues/9113)) ([a6e5f84](https://github.com/erxes/erxes/commit/a6e5f84f978129d9480a6e9ec2da8ca3971b32bd))
+
+## [3.0.96](https://github.com/erxes/erxes/compare/3.0.95...3.0.96) (2026-09-02)
+
+
+### Bug Fixes
+
+* **frontline:** apply ticket pipeline visibility rules on unscoped lists ([a50a28a](https://github.com/erxes/erxes/commit/a50a28a980dac775279bdbfa8476aa09d88b9f03))
+* **frontline:** apply ticket pipeline visibility rules on unscoped lists  ([4412668](https://github.com/erxes/erxes/commit/44126684a71df9a7fdcfbb5f1da7e57c1cb697fd))
+* **frontline:** fix messenger schedule edge cases ([76743d3](https://github.com/erxes/erxes/commit/76743d3a8a7517a9f2a7c4f572623a15f243971e))
+* **frontline:** link ticket relation widget to related conversations  ([5549662](https://github.com/erxes/erxes/commit/554966271264aa0121cc81f3cc04d4516ed84475))
+* **frontline:** ticket property validation, card limit and board layout ([b1859dc](https://github.com/erxes/erxes/commit/b1859dc6c3c83ab5ff7261f0012847c82999bb81))
+* integrate ActivityActor component for displaying activity creat… ([#9201](https://github.com/erxes/erxes/issues/9201)) ([4863f88](https://github.com/erxes/erxes/commit/4863f88e58eb10ae66d9b5513a32f51a5eb1f5c0))
+* **operation:** show related projects in conversation widget ([cba2acc](https://github.com/erxes/erxes/commit/cba2acc12f171a512ce661d11ce7c9a5481eb89c))
+* **properties:** sort fields query by order instead of code ([2436d1b](https://github.com/erxes/erxes/commit/2436d1b3f3c5b150850c7f4e6ddad9a38eca2b6c))
+* **sales:** grant dealsArchive to the sales user role preset ([61d78c2](https://github.com/erxes/erxes/commit/61d78c294c471fe6aa9f5ba67cd0cf668e5114ae))
+* show icons in settings sidebar navigation ([#9206](https://github.com/erxes/erxes/issues/9206)) ([e547b8d](https://github.com/erxes/erxes/commit/e547b8d161f0d5d74e3e8e784296f039a00b9d00))
+
+
+### Features
+
+* **frontline:** cloudflare mail integration  ([aeb0880](https://github.com/erxes/erxes/commit/aeb0880415f94ccc760b80247709ea5d53744124))
+
+
+### Reverts
+
+* Revert "fix(sales): bound and strictly validate agent-facing deal reads" (#9210) ([247b231](https://github.com/erxes/erxes/commit/247b231bbd3d6c12c399587bf3ca15265fada74b)), closes [#9210](https://github.com/erxes/erxes/issues/9210) [#9102](https://github.com/erxes/erxes/issues/9102)
+
+## [3.0.95](https://github.com/erxes/erxes/compare/3.0.94...3.0.95) (2026-09-01)
+
+
+### Bug Fixes
+
+* posclient-front ebarimt update ([ca00c19](https://github.com/erxes/erxes/commit/ca00c19481d7d3567dced7ea8753fa91d8366e57))
+* prevent notification duplicates and improve async consistency ([64aa17d](https://github.com/erxes/erxes/commit/64aa17d39a0372eb40f7fe8cdc8b26085834e0b9))
+* products import with type and barcodes ([4034da0](https://github.com/erxes/erxes/commit/4034da011c8c3eb93a3ac9faca76c1dc763a055f))
+* sales ebarimt some update ([d4a2647](https://github.com/erxes/erxes/commit/d4a2647105b28a0548cc6181185614e59c24a9a8))
+
+
+### Features
+
+* **erxes-ui:** add interactive chart controls ([#9189](https://github.com/erxes/erxes/issues/9189)) ([07b84c8](https://github.com/erxes/erxes/commit/07b84c8afb53e5ab5c60279c86b605cf6634cc60))
 
 ## [3.0.94](https://github.com/erxes/erxes/compare/3.0.93...3.0.94) (2026-08-31)
 
@@ -173,7 +247,7 @@
 
 * (accounting) related accounts ([#9043](https://github.com/erxes/erxes/issues/9043)) ([577c4b8](https://github.com/erxes/erxes/commit/577c4b828cb6c0892adfb5f1a8f241f654ab2b12))
 
-# Changelog
+
 
 ## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
 

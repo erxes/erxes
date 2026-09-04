@@ -1,5 +1,4 @@
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
-import { getRealIdFromElk } from 'erxes-api-shared/utils';
 import { defaultContactFieldFormatter } from '../utils';
 
 const getFieldValue = (
@@ -17,9 +16,7 @@ const getFieldValue = (
     const fieldId = key.replace('customFieldsData.', '');
     const customFieldsData = customer.customFieldsData || [];
     if (customFieldsData?.length) {
-      const cf = customFieldsData.find(
-        (c) => getRealIdFromElk(c.field || '') === fieldId,
-      );
+      const cf = customFieldsData.find((c) => c.field || '' === fieldId);
       return formatValue(cf?.value);
     }
     return '';
@@ -110,7 +107,7 @@ export const buildCustomerExportRow = (
   if (customFieldsData?.length) {
     for (const { field, value } of customFieldsData) {
       if (field && value !== undefined) {
-        const fieldId = getRealIdFromElk(field || '');
+        const fieldId = field || '';
         allFields[`customFieldsData.${fieldId}`] = formatValue(value);
       }
     }

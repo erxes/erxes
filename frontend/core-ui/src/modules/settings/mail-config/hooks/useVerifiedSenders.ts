@@ -45,7 +45,7 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
 export const useSenderOptions = () => {
   const scope = useEmailSenderScope();
 
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     emailSenderOptions: IEmailSenderOptions;
   }>(SENDER_OPTIONS, { variables: { scope } });
 
@@ -58,6 +58,7 @@ export const useSenderOptions = () => {
     ),
     loading,
     error,
+    refetch,
   };
 };
 

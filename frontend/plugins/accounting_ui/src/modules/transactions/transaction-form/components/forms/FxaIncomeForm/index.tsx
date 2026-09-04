@@ -12,7 +12,7 @@ import { CustomerFields } from '../../helpers/CustomerFields';
 import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { FixedAssetForm } from './FixedAssetForm';
-import { FxaIncomeInstancesSync } from './FxaIncomeInstancesSheet';
+import { FxaIncomeOwnerRecordsSync } from './FxaIncomeOwnerRecordsSheet';
 import { useFxaAccountConfig } from '../hooks/useFxaAccountConfig';
 
 export const FxaIncomeForm = ({
@@ -59,7 +59,7 @@ export const FxaIncomeForm = ({
       </div>
 
       <FixedAssetForm form={form} journalIndex={index} />
-      <FxaIncomeInstancesSync form={form} journalIndex={index} />
+      <FxaIncomeOwnerRecordsSync form={form} journalIndex={index} />
     </>
   );
 };

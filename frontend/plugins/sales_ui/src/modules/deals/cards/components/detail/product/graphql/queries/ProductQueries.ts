@@ -15,7 +15,6 @@ export const GET_PRODUCTS = gql`
     $brandIds: [String]
     $tagIds: [String]
     $segment: String
-    $segmentData: String
     $sortField: String
     $sortDirection: Int
      ${GQL_CURSOR_PARAM_DEFS}
@@ -28,7 +27,6 @@ export const GET_PRODUCTS = gql`
       brandIds: $brandIds
       tagIds: $tagIds
       segment: $segment
-      segmentData: $segmentData
       sortField: $sortField
       sortDirection: $sortDirection
       ${GQL_CURSOR_PARAMS}

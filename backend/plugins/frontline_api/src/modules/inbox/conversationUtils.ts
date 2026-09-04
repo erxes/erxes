@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IListArgs } from '~/conversationQueryBuilder';
-import { fixDate, fetchEs, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getIntegrationsKinds } from '@/inbox/utils';
 
@@ -445,30 +445,14 @@ export class CommonBuilder<IArgs extends IListArgs> {
     }
   }
 
-  /*
-   * Run queries
+  /**
+   * The counts were read from an Elasticsearch `conversations` index this
+   * deployment never had - the call already resolved to nothing, so every
+   * count has been empty. The clause builders above are kept as the seam a
+   * Mongo implementation fills; until then the answer is honestly zero.
    */
   public async runQueries(): Promise<number> {
-    const queryOptions: {
-      query: { bool: { must: unknown[]; filter: unknown[] } };
-    } = {
-      query: {
-        bool: {
-          must: this.positiveList,
-          filter: this.filterList,
-        },
-      },
-    };
-
-    const response = await fetchEs({
-      subdomain: this.subdomain,
-      action: 'count',
-      index: 'conversations',
-      body: queryOptions,
-      defaultValue: 0,
-    });
-
-    return response.count;
+    return 0;
   }
 }
 

@@ -14,11 +14,7 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs, IStatsParams } from '../queries';
-import {
-  getPlugin,
-  getPlugins,
-  getRealIdFromElk,
-} from 'erxes-api-shared/utils';
+import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';
 import { IModels } from '~/connectionResolvers';
@@ -673,7 +669,7 @@ const toAutomationReferenceField = (
 };
 
 const toCustomReferenceField = (field: any): TAutomationOutputVariable => ({
-  key: `propertiesData.${getRealIdFromElk(field._id.toString())}`,
+  key: `propertiesData.${field._id.toString()}`,
   label: field.label || field.text || field.name || field.code,
   type: field.type,
 });

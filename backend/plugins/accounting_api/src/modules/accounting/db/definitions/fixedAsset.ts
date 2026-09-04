@@ -30,7 +30,6 @@ export const adjustFixedAssetSchema = new Schema({
 export const adjustFxaDetailSchema = new Schema({
   _id: mongooseStringRandomId,
   adjustId: { type: String, label: 'Adjust fixed asset', index: true },
-  fxaInstanceId: { type: String, label: 'Fixed asset instance', index: true },
   fixedAssetId: { type: String, optional: true, label: 'Fixed asset' },
   categoryId: { type: String, optional: true, label: 'Category' },
   accountId: { type: String, optional: true, label: 'Account' },
@@ -159,5 +158,5 @@ export const adjustFxaDetailSchema = new Schema({
   updatedAt: { type: Date, optional: true, label: 'Modified at' },
 });
 
-adjustFxaDetailSchema.index({ adjustId: 1, fxaInstanceId: 1 });
+adjustFxaDetailSchema.index({ adjustId: 1, fixedAssetId: 1 });
 adjustFxaDetailSchema.index({ adjustId: 1, branchId: 1, departmentId: 1 });

@@ -43,7 +43,6 @@ const queryParams = `
   priority: [String]
   userIds: [String]
   segment: String
-  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String

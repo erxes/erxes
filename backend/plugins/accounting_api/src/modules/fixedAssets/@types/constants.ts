@@ -10,22 +10,28 @@ export const FIXED_ASSET_STATUSES = {
   ALL: ['active', 'archived'],
 };
 
-export const FXA_INSTANCE_STATUSES = {
+export const FXA_OWNER_RECORD_STATUSES = {
   ACTIVE: 'active',
-  DISPOSED: 'disposed',
-  SOLD: 'sold',
   INACTIVE: 'inactive',
-  ALL: ['active', 'disposed', 'sold', 'inactive'],
+  ALL: ['active', 'inactive'],
+};
+
+export const FXA_OWNER_RECORD_ACTIONS = {
+  // Эд хариуцагч хөрөнгө хүлээж авсан буюу тоог нэмэгдүүлэх мөр
+  RECEIVED: 'received',
+  // Эд хариуцагч хөрөнгө хүлээлгэж өгсөн буюу тоог хасах мөр
+  HANDED_OVER: 'handedOver',
+  ALL: ['received', 'handedOver'],
 };
 
 export const FXA_LOG_EVENT_TYPES = {
-  // Үндсэн хөрөнгийг анх орлогодож, instance үүсгэсэн үйл явдал
+  // Үндсэн хөрөнгийг анх орлогодож, эд хариуцагчийн бүртгэл үүсгэсэн үйл явдал
   ACQUISITION: 'acquisition',
   // Салбар, хэлтэс, байршил зэрэг ашиглалтын нэгж хооронд шилжүүлсэн үйл явдал
   MOVE: 'move',
   // Зөвхөн эд хариуцагч өөрчилсөн үйл явдал
   RESPONSIBLE: 'responsible',
-  // Тухайн instance-д элэгдэл бодсон үйл явдал
+  // Эд хариуцагчийн бүртгэлд холбогдох элэгдлийн үйл явдал
   DEPRECIATION: 'depreciation',
   // Үндсэн хөрөнгийг ашиглалтаас гаргаж, данснаас хассан үйл явдал
   DISPOSAL: 'disposal',

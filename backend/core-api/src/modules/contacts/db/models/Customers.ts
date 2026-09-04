@@ -1,4 +1,7 @@
-import { customerSchema } from '@/contacts/db/definitions/customers';
+import {
+  customerSchema,
+  customerSearchTokenConfig,
+} from '@/contacts/db/definitions/customers';
 import {
   IBrowserInfo,
   ICustomer,
@@ -6,7 +9,10 @@ import {
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { validSearchText } from 'erxes-api-shared/utils';
+import {
+  generateConfiguredSearchTokens,
+  validSearchText,
+} from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { generateCustomerUpdateActivityLogs } from '../../meta/activity-log/customers';
@@ -315,7 +321,7 @@ export const loadCustomerClass = (
      * Remove customers
      */
     public static async removeCustomers(customerIds: string[]) {
-      // Snapshot before deletion so the removal is revertable (point-in-time).
+      // Snapshot before deletion so the log carries what was removed.
       const prevDocuments = await models.Customers.find({
         _id: { $in: customerIds },
       }).lean();
@@ -953,14 +959,22 @@ export const loadCustomerClass = (
       }
 
       searchText = validSearchText([searchText]);
-
+      const searchTokens = generateConfiguredSearchTokens(
+        customer,
+        customerSearchTokenConfig,
+      );
       let state = customer.state || 'visitor';
 
       if (possibleLead && state !== 'customer') {
         state = 'lead';
       }
 
-      return { profileScore: score, searchText, state };
+      return {
+        profileScore: score,
+        searchText,
+        searchTokens,
+        state,
+      };
     }
 
     /**

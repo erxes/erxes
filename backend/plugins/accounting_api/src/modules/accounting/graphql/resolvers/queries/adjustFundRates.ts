@@ -69,7 +69,7 @@ const adjustFundRateQueries = {
     params: IQueryParams & ICursorPaginateParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFundRates');
 
     const filter = await generateFilter(params);
 
@@ -92,7 +92,7 @@ const adjustFundRateQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustFundRates');
 
     const adjustFundRate = await models.AdjustFundRates.getAdjustFundRate(_id);
     const accountIds = [

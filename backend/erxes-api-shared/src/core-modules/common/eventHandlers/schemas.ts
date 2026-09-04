@@ -18,16 +18,14 @@ const DeleteLogSchema = z.object({
   action: z.literal('delete'),
   docId: z.string(),
   // The document as it was just before deletion. Optional for backward
-  // compatibility; when supplied it makes the delete reversible (point-in-time
-  // revert re-inserts it, preserving the original _id).
+  // compatibility; when supplied the log records what was removed.
   prevDocument: z.any().optional(),
 });
 
 const DeleteManyLogSchema = z.object({
   action: z.literal('deleteMany'),
   docIds: z.array(z.string()),
-  // Prior documents (any order; matched to docIds by _id). Optional; enables
-  // revert by re-inserting each deleted doc with its original _id.
+  // Prior documents (any order; matched to docIds by _id). Optional.
   prevDocuments: z.array(z.any()).optional(),
 });
 

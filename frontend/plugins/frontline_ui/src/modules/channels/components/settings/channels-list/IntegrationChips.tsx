@@ -39,7 +39,7 @@ const PROVIDER_META: Record<
     Icon: IconPhone,
     iconClass: 'text-emerald-500',
   },
-  [IntegrationType.IMAP]: {
+  [IntegrationType.MAIL]: {
     Icon: IconMail,
     iconClass: 'text-amber-500',
   },

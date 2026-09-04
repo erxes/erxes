@@ -39,7 +39,6 @@ export const orderSchema = new Schema({
     default: '',
     optional: true,
     label: 'status',
-    esType: 'keyword',
     selectOptions: PAYMENT_STATUS_TYPES,
   },
   branchId: { type: String, optional: true, label: 'branchId' },

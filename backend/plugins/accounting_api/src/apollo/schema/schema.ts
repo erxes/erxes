@@ -95,15 +95,10 @@ import {
   types as fixedAssetCategoryTypes,
 } from '~/modules/fixedAssets/graphql/schemas/fixedAssetCategory';
 import {
-  mutations as fxaInstanceMutations,
-  queries as fxaInstanceQueries,
-  types as fxaInstanceTypes,
-} from '~/modules/fixedAssets/graphql/schemas/fxaInstance';
-import {
-  mutations as fxaInstanceLogMutations,
-  queries as fxaInstanceLogQueries,
-  types as fxaInstanceLogTypes,
-} from '~/modules/fixedAssets/graphql/schemas/fxaInstanceLog';
+  mutations as fxaOwnerRecordMutations,
+  queries as fxaOwnerRecordQueries,
+  types as fxaOwnerRecordTypes,
+} from '~/modules/fixedAssets/graphql/schemas/fxaOwnerRecord';
 
 export const types = `
   enum CacheControlScope {
@@ -135,8 +130,7 @@ export const types = `
   ${adjustClosingTypes}
   ${fixedAssetCategoryTypes}
   ${fixedAssetTypes}
-  ${fxaInstanceTypes}
-  ${fxaInstanceLogTypes}
+  ${fxaOwnerRecordTypes}
   ${adjustFixedAssetTypes}
   ${remainderTypes}
   ${reserveRemsTypes}
@@ -160,8 +154,7 @@ export const queries = `
   ${adjustClosingQueries}
   ${fixedAssetCategoryQueries}
   ${fixedAssetQueries}
-  ${fxaInstanceQueries}
-  ${fxaInstanceLogQueries}
+  ${fxaOwnerRecordQueries}
   ${adjustFixedAssetQueries}
   ${remainderQueries}
   ${reserveRemsQueries}
@@ -183,8 +176,7 @@ export const mutations = `
   ${adjustDebtRateMutations}
   ${fixedAssetCategoryMutations}
   ${fixedAssetMutations}
-  ${fxaInstanceMutations}
-  ${fxaInstanceLogMutations}
+  ${fxaOwnerRecordMutations}
   ${adjustFixedAssetMutations}
   ${remainderMutations}
   ${reserveRemsMutations}
