@@ -38,15 +38,13 @@ export interface PostFormData {
 interface AddPostHeaderActionsProps {
   form: UseFormReturn<FieldValues>;
   onSubmit: (data?: FieldValues) => void | Promise<void>;
-  creating: boolean;
-  saving: boolean;
+  loading: boolean;
 }
 
 export const AddPostHeaderActions = ({
   form,
   onSubmit,
-  creating,
-  saving,
+  loading,
 }: AddPostHeaderActionsProps) => {
   const { t } = useTranslation('content');
   const status = useWatch({
@@ -190,30 +188,27 @@ export const AddPostHeaderActions = ({
           />
         </div>
       </Form>
-      <Button
-        onClick={() => form.handleSubmit(onSubmit)()}
-        disabled={creating || saving}
-      >
-        {creating || saving ? (
+      <Button onClick={() => form.handleSubmit(onSubmit)()} disabled={loading}>
+        {loading ? (
           <>
             <Spinner size="sm" className="mr-2" />
             {status === 'published'
               ? t('publishing')
               : status === 'draft'
-                ? t('saving')
-                : status === 'scheduled'
-                  ? t('scheduling')
-                  : t('saving')}
+              ? t('saving')
+              : status === 'scheduled'
+              ? t('scheduling')
+              : t('saving')}
           </>
         ) : (
           <div>
             {status === 'published'
               ? t('publish')
               : status === 'draft'
-                ? t('save-draft')
-                : status === 'scheduled'
-                  ? t('schedule')
-                  : t('save')}
+              ? t('save-draft')
+              : status === 'scheduled'
+              ? t('schedule')
+              : t('save')}
           </div>
         )}
       </Button>

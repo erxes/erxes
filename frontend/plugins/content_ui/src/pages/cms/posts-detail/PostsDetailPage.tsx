@@ -14,8 +14,7 @@ import {
 interface PostHeaderFormState {
   form: UseFormReturn<FieldValues>;
   onSubmit: (data?: FieldValues) => void | Promise<void>;
-  creating: boolean;
-  saving: boolean;
+  loading: boolean;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -73,8 +72,7 @@ export const PostsDetailPage = ({
           <AddPostHeaderActions
             form={formState.form}
             onSubmit={formState.onSubmit}
-            creating={formState.creating}
-            saving={formState.saving}
+            loading={formState.loading}
           />
         )}
       </PostsHeader>
