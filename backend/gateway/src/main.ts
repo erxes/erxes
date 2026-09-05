@@ -41,6 +41,7 @@ import {
   stopSubscriptionServer,
 } from './subscription';
 import { isValidLocaleParams, resolveLocale } from '~/util/locales';
+import agentToolsRouter from '~/agent-tools/routes';
 
 dotenv.config();
 
@@ -150,6 +151,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use(userMiddleware);
+app.use(agentToolsRouter);
 
 app.use('/bullmq-board', serverAdapter.getRouter());
 

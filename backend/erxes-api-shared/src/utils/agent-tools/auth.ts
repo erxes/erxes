@@ -10,6 +10,8 @@ const AUTH_TTL_MS = 5 * 60 * 1000;
 export interface AgentToolsAuthPayload {
   subdomain: string;
   userId: string | null;
+  oauthClientId?: string;
+  oauthScopes?: string[];
 }
 
 /**
@@ -48,9 +50,19 @@ const signPayload = (payloadBase64: string): string =>
 export const encodeAgentToolsAuthHeader = (
   subdomain: string,
   userId?: string,
+  oauth?: { clientId?: string; scopes?: string[] },
 ): string => {
+  const scopes = [...new Set(oauth?.scopes || [])].filter(
+    (scope) => typeof scope === 'string' && scope.length <= 256,
+  );
   const payloadBase64 = Buffer.from(
-    JSON.stringify({ subdomain, userId: userId || null, at: Date.now() }),
+    JSON.stringify({
+      subdomain,
+      userId: userId || null,
+      at: Date.now(),
+      ...(oauth?.clientId ? { oauthClientId: oauth.clientId } : {}),
+      ...(scopes.length ? { oauthScopes: scopes } : {}),
+    }),
     'utf8',
   ).toString('base64url');
 
@@ -122,6 +134,16 @@ export const decodeAgentToolsAuthHeader = (
     return {
       subdomain: payload.subdomain,
       userId: typeof payload.userId === 'string' ? payload.userId : null,
+      ...(typeof payload.oauthClientId === 'string'
+        ? { oauthClientId: payload.oauthClientId }
+        : {}),
+      ...(Array.isArray(payload.oauthScopes) &&
+      payload.oauthScopes.length <= 512 &&
+      payload.oauthScopes.every(
+        (scope: unknown) => typeof scope === 'string' && scope.length <= 256,
+      )
+        ? { oauthScopes: payload.oauthScopes }
+        : {}),
     };
   } catch {
     return null;

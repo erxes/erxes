@@ -183,15 +183,15 @@ const getOAuthActionScopeMap = async () => {
 
     for (const module of modules) {
       for (const action of module.actions || []) {
-        const actionScopes = action.oauthScopes?.length
-          ? action.oauthScopes
-          : action.oauthScope
-            ? [action.oauthScope]
-            : [];
+        const actionScopes = [
+          action.name,
+          ...(action.oauthScopes || []),
+          ...(action.oauthScope ? [action.oauthScope] : []),
+        ];
 
-        if (actionScopes.length) {
-          scopeMap[action.name] = actionScopes;
-        }
+        scopeMap[action.name] = [
+          ...new Set([...(scopeMap[action.name] || []), ...actionScopes]),
+        ];
       }
     }
   }
@@ -206,7 +206,9 @@ const checkOAuthScope = async (action: string, user?: IUserDocument) => {
     }
   ).oauthScopes;
 
-  if (!oauthScopes?.length) {
+  // A normal erxes session has no oauthScopes property. OAuth identities do,
+  // including an explicit empty array, which must fail closed.
+  if (!Array.isArray(oauthScopes)) {
     return;
   }
 
