@@ -12,12 +12,14 @@ import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
+import { frontlineAgentRouter } from './trpc/agentRouter';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
 
 export const appRouter = t.mergeRouters(
+  frontlineAgentRouter,
   integrationTrpcRouter,
   inboxTrpcRouter,
   conversationTrpcRouter,
