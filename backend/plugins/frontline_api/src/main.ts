@@ -52,6 +52,7 @@ const formSubmissionExportTypes = [
 
 startPlugin({
   name: 'frontline',
+  agentToolsExclude: ['inbox.', 'form.submissionsByConversation'],
   port: 3304,
   graphql: async () => ({
     typeDefs: await typeDefs(),
