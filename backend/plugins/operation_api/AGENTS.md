@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-01`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -33,6 +33,8 @@
 
 ## Current Capabilities
 
+- Agent queries list/count/read tasks and list projects, teams, statuses, cycles,
+  and milestones through typed, permission-gated, team-membership-scoped inputs.
 - Tasks are a segment content type: 19 filterable fields, member listing and
   counting, materialised membership on the record, and two relations from a
   team member (`user.assignedTasks`, `user.createdTasks`).
@@ -56,6 +58,9 @@
 
 ### Provides
 
+- tRPC `agent.tasks`, `agent.taskCount`, `agent.task`, `agent.projects`,
+  `agent.teams`, `agent.statuses`, `agent.cycles`, `agent.milestones`.
+  Lists default to 20 rows, cap at 50, and accept offset up to 10000.
 - GraphQL queries, mutations and subscriptions for tasks, teams, statuses,
   cycles, milestones, projects, notes and templates.
 - Segment content type `operation:task.tasks`, with `segmentFields`,
@@ -83,6 +88,10 @@
 
 ## Local Invariants
 
+- Agent filters accept typed identifiers, never raw Mongo queries or a caller
+  userId. All agent reads require acting-user permissions and team membership.
+- Bulk tagging, field discovery, GitHub configuration and mutations remain
+  agent-invisible. The shared agent endpoint does not enforce approval tokens.
 - A task's `_id` stays an `ObjectId`. `schemaWrapper` must never be applied to
   `taskSchema`: it would make `_id` a generated string and orphan every
   existing task and reference. `segmentIds` is therefore declared by hand.
@@ -105,12 +114,10 @@
 
 ## Validation
 
-- `npx tsc --noEmit -p backend/plugins/operation_api/tsconfig.json` - expect
-  exactly two errors, both `TS2307: Cannot find module '@octokit/app'` from
-  `src/utils/githubClient.ts`. The dependency is declared in `package.json` but
-  is not installed, and it blocks `pnpm nx build operation_api` as well. Any
-  third error is new.
-- `pnpm nx build operation_api` (currently blocked by the above)
+- `pnpm exec jest --config backend/plugins/operation_api/jest.agent.cjs --runInBand`
+- `pnpm exec tsc --noEmit -p backend/plugins/operation_api/tsconfig.json`
+- `pnpm nx build operation_api`
+- `pnpm nx lint operation_api`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
@@ -118,6 +125,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-05` — Scoped agent queries
+
+- **Summary:** Added eight typed, paginated queries for task and project discovery within the acting user’s teams.
+- **Affected areas:** `src/trpc/agentRouter.ts`, `src/trpc/init-trpc.ts`, `src/trpc/__tests__/agentRouter.spec.ts`, `jest.agent.cjs`.
+- **Contracts changed:** Added `agent.*` tRPC queries; internal procedures retain their contracts and remain private.
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 
