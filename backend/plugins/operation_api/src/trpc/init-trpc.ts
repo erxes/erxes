@@ -8,12 +8,14 @@ import {
   generateTaskFields,
 } from '~/modules/fields/fieldUtils';
 import { taskTrpcRouter } from '~/modules/task/trpc/task';
+import { operationAgentRouter } from './agentRouter';
 
 export type OperationTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<OperationTRPCContext>().create();
 
 export const appRouter = t.mergeRouters(
+  operationAgentRouter,
   t.router({
     operation: {
       hello: t.procedure.query(() => {
