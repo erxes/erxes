@@ -1,4 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
+import { Types } from 'mongoose';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { agentMeta } from '~/utils/agentMeta';
@@ -26,8 +27,28 @@ export const logsRouter = t.router({
       return logs;
     }),
 
-    get: t.procedure.query(async () => {
-      return null;
-    }),
+    get: t.procedure
+      .meta(
+        agentMeta(
+          'Get one system/audit log entry by _id. Input: { _id }. Returns the full log document (action, target, payload diff, who made the change and when). Resolve ids with log.list first.',
+          { module: 'logs', action: 'logsRead' },
+        ),
+      )
+              .input(
+          z.object({
+            _id: z
+              .string()
+              .refine(Types.ObjectId.isValid, 'Invalid log id'),
+          }),
+        )
+      .query(async ({ input, ctx }) => {
+        const { models, userId } = ctx;
+
+        if (!userId) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' });
+        }
+
+        return models.Logs.findOne({ _id: input._id }).lean();
+      }),
   }),
 });
