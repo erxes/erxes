@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -51,6 +51,9 @@
 
 ## Current Capabilities
 
+- Provides an internal Viber HMAC-SHA256 signature verifier for exact webhook
+  body bytes, with tests for valid and modified payloads. No Viber HTTP route
+  is registered.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -119,6 +122,9 @@
   import/export handlers to the platform through `meta/`.
 
 ## Architecture
+
+Viber's signature utility and its colocated tests live under
+`src/modules/integrations/viber/utils/`.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -524,6 +530,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Viber signature verification uses the bot token and the exact received
+  `rawBody`. Reject missing tokens and missing or malformed signatures before
+  the timing-safe comparison. Never parse and reserialize the body for signing
+  or log the token, signature, or payload.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1257,6 +1267,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
 - No `test` target is defined in `project.json`; do not invent one.
+- Viber signature tests, from the repository root:
+  `pnpm exec tsx --test backend/plugins/frontline_api/src/modules/integrations/viber/utils/__tests__/signature.spec.ts`.
+  Uses the existing `tsx` dependency and Node's built-in test runner; no
+  project-wide test configuration is required. The `.spec.ts` suffix keeps
+  the test file out of the production TypeScript build.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1299,6 +1314,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-07` — Viber webhook signature verification
+
+- **Summary:** Added an internal HMAC-SHA256 verifier with valid-payload and
+  modified-payload regression tests.
+- **Affected areas:** `src/modules/integrations/viber/utils/signature.ts`,
+  `src/modules/integrations/viber/utils/__tests__/signature.spec.ts`.
+- **Contracts changed:** None; no public API or route is registered.
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1453,23 +1476,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
 - **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
 - **Contracts changed:** None
-
-### `2026-08-26` — Mail automation and reply drafts removed
-
-- **Summary:** The mail channel no longer registers automation. The
-  `frontline:mail.messages` trigger, the `Send Email` and `Draft Email Reply`
-  actions, their workers and the AI-context builder are gone, and so is the reply
-  draft they were the only producer of — nothing else could create one, so the
-  draft model, its GraphQL surface and its inbox card would have been unreachable
-  code.
-- **Affected areas:** `src/modules/integrations/mail/meta/` (deleted),
-  `src/modules/integrations/mail/db/{models/Drafts.ts,definitions/drafts.ts}`,
-  `@types/draft.ts`, `utils/draftEvents.ts` (deleted),
-  `src/meta/automations.ts`, `src/connectionResolvers.ts`,
-  `src/apollo/subscription.ts`,
-  `src/modules/integrations/mail/{constants,messageBroker}.ts`,
-  `.../mail/controller/receiveMessage.ts`, `.../mail/graphql/`.
-- **Contracts changed:** Removed the `frontline:mail.messages` automation
-  trigger, both mail automation actions, `MailDraft`, `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove`, and the
-  `mailDraftChanged` subscription.
