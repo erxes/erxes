@@ -444,11 +444,23 @@ export function PreviewImage({
   return <img src={src} alt={alt} className={className} loading={loading} />;
 }
 
-function ImageTriggerButton({ attachment }: { attachment: IAttachment }) {
+type AttachmentTriggerButtonProps = React.ComponentPropsWithoutRef<'button'> & {
+  attachment: IAttachment;
+};
+
+const ImageTriggerButton = React.forwardRef<
+  HTMLButtonElement,
+  AttachmentTriggerButtonProps
+>(({ attachment, className, type, ...props }, ref) => {
   return (
     <button
-      type="button"
-      className="group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      ref={ref}
+      type={type ?? 'button'}
+      className={cn(
+        'group relative block max-w-72 overflow-hidden rounded-2xl border border-border/60 bg-muted/30 shadow-xs transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+        className,
+      )}
+      {...props}
     >
       <PreviewImage
         src={readImage(attachment.url)}
@@ -464,7 +476,8 @@ function ImageTriggerButton({ attachment }: { attachment: IAttachment }) {
       </div>
     </button>
   );
-}
+});
+ImageTriggerButton.displayName = 'ImageTriggerButton';
 
 function ImagePreviewDialog({ attachment }: { attachment: IAttachment }) {
   return (
@@ -489,11 +502,19 @@ function AttachmentImage({ attachment }: { attachment: IAttachment }) {
   );
 }
 
-function VideoTriggerButton({ attachment }: { attachment: IAttachment }) {
+const VideoTriggerButton = React.forwardRef<
+  HTMLButtonElement,
+  AttachmentTriggerButtonProps
+>(({ attachment, className, type, ...props }, ref) => {
   return (
     <button
-      type="button"
-      className="group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      ref={ref}
+      type={type ?? 'button'}
+      className={cn(
+        'group relative flex max-w-72 items-center gap-2 overflow-hidden rounded-2xl border border-border/60 bg-black/80 p-2 text-white shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+        className,
+      )}
+      {...props}
     >
       <video
         src={readImage(attachment.url)}
@@ -508,7 +529,8 @@ function VideoTriggerButton({ attachment }: { attachment: IAttachment }) {
       </div>
     </button>
   );
-}
+});
+VideoTriggerButton.displayName = 'VideoTriggerButton';
 
 function VideoPreviewDialog({ attachment }: { attachment: IAttachment }) {
   return (
@@ -535,17 +557,23 @@ function AttachmentVideo({ attachment }: { attachment: IAttachment }) {
   );
 }
 
-function FileTriggerButton({
-  attachment,
-  IconComponent,
-}: {
-  attachment: IAttachment;
+type FileTriggerButtonProps = AttachmentTriggerButtonProps & {
   IconComponent: React.FC<IconProps>;
-}) {
+};
+
+const FileTriggerButton = React.forwardRef<
+  HTMLButtonElement,
+  FileTriggerButtonProps
+>(({ attachment, IconComponent, className, type, ...props }, ref) => {
   return (
     <button
-      type="button"
-      className="group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      ref={ref}
+      type={type ?? 'button'}
+      className={cn(
+        'group relative flex w-fit max-w-full min-w-44 items-center gap-2.5 rounded-xl border border-border/70 bg-card p-2 text-left text-card-foreground shadow-2xs transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+        className,
+      )}
+      {...props}
     >
       <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
         <IconComponent className="size-5" />
@@ -561,7 +589,8 @@ function FileTriggerButton({
       </div>
     </button>
   );
-}
+});
+FileTriggerButton.displayName = 'FileTriggerButton';
 
 function FilePreviewDialog({
   attachment,
