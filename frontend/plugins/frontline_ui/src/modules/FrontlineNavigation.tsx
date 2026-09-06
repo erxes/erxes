@@ -6,12 +6,7 @@ import {
   IconBook,
   IconPlus,
 } from '@tabler/icons-react';
-import {
-  NavigationMenuLinkItem,
-  Button,
-  Skeleton,
-  Badge,
-} from 'erxes-ui';
+import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +25,7 @@ export const FrontlineDestinationLinks = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('inbox')}
+        name={t('team-inbox')}
         icon={IconMail}
         path="frontline/inbox"
       >
