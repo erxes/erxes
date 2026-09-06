@@ -52,8 +52,9 @@
 ## Current Capabilities
 
 - Provides an internal Viber HMAC-SHA256 signature verifier for exact webhook
-  body bytes, with tests for valid and modified payloads. No Viber HTTP route
-  is registered.
+  body bytes, with tests for valid and modified payloads. Defines Viber
+  integration types and a Mongoose schema; no Viber model or HTTP route is
+  registered.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -125,6 +126,9 @@
 
 Viber's signature utility and its colocated tests live under
 `src/modules/integrations/viber/utils/`.
+Its integration interfaces live in
+`src/modules/integrations/viber/@types/integration.ts`, and its unregistered
+schema lives in `src/modules/integrations/viber/db/definitions/integrations.ts`.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -434,6 +438,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- Viber's unregistered integration schema defines a generated string `_id` and
+  required `inboxId`, `botId`, and `token` fields, with separate unique index
+  declarations on `inboxId` and `botId`. No Viber collection is registered.
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
@@ -530,6 +537,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Viber's `inboxId` references the generic inbox integration, not a channel or
+  conversation. Its `token` uses `select: false` and must stay out of public API
+  responses; this default query projection is not encryption.
 - Viber signature verification uses the bot token and the exact received
   `rawBody`. Reject missing tokens and missing or malformed signatures before
   the timing-safe comparison. Never parse and reserialize the body for signing
@@ -1315,6 +1325,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Viber integration types and schema
+
+- **Summary:** Defined Viber integration document types and a schema with
+  required connection fields, unique index declarations, and a token excluded
+  from default query results.
+- **Affected areas:** `src/modules/integrations/viber/@types/integration.ts`,
+  `src/modules/integrations/viber/db/definitions/integrations.ts`.
+- **Contracts changed:** None; no model or public API is registered.
+
 ### `2026-09-07` — Viber webhook signature verification
 
 - **Summary:** Added an internal HMAC-SHA256 verifier with valid-payload and
@@ -1470,9 +1489,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
   `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
   `mail_sending_accounts` collection is orphaned and can be dropped.
-
-### `2026-08-27` — Deprecated Messenger tags normalized to HUMAN_AGENT
-
-- **Summary:** `sendReply` coerces the Meta-retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE tags to `HUMAN_AGENT` before every Send API call, restoring replies to conversations older than 24 hours (retired tags fail with error 100 "Invalid parameter" since 2026-04-27).
-- **Affected areas:** `src/modules/integrations/facebook/utils.ts` (`normalizeMessengerTag`, `HUMAN_AGENT_MESSENGER_TAG`, `sendReply`)
-- **Contracts changed:** None
