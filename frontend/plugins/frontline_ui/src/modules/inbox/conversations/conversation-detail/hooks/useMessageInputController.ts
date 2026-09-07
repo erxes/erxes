@@ -108,8 +108,11 @@ export const useMessageInputController = (conversationId: string) => {
 
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
-    setOnlyInternal(isLead);
-    setIsInternalNote(isLead);
+    const isMail = integration?.kind === IntegrationType.MAIL;
+    setOnlyInternal(isLead || isMail);
+    if (isLead || isMail) {
+      setIsInternalNote(true);
+    }
   }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   useEffect(() => {
@@ -341,7 +344,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              })[character] || character,
+              }[character] || character),
           )}</blockquote>`
         : '';
 
@@ -371,7 +374,7 @@ export const useMessageInputController = (conversationId: string) => {
 
         setContent(() => undefined);
         setMentionedUserIds([]);
-        setIsInternalNote(false);
+        setIsInternalNote(onlyInternal);
         setAttachments([]);
         setAttachmentPreview(null);
         setShowSuggestions(false);
@@ -384,6 +387,9 @@ export const useMessageInputController = (conversationId: string) => {
         'ConversationMessages',
         'ConversationCounts',
         'FrontlineInboxSidebarWorkCounts',
+        ...(integration?.kind === IntegrationType.MAIL
+          ? ['mailConversationDetail']
+          : []),
       ],
       onError: (err) =>
         toast({
@@ -410,6 +416,8 @@ export const useMessageInputController = (conversationId: string) => {
     editor,
     addConversationMessage,
     setIsInternalNote,
+    onlyInternal,
+    integration?.kind,
     responseTemplateId,
     t,
   ]);

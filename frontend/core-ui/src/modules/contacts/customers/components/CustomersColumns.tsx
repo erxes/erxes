@@ -52,15 +52,25 @@ const LANE_AS_STATUS: Record<string, ValidationStatus | undefined> = {
 
 const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   const laneOf = useEmailLane();
+  const deliveryStatus = LANE_AS_STATUS[laneOf(customer.primaryEmail)];
+
+  const handleEmailDoubleClick = (email: string) => {
+    window.dispatchEvent(
+      new CustomEvent('frontline:compose-email', {
+        detail: { customerId: customer._id, email },
+      }),
+    );
+  };
 
   return (
     <CustomerEmails
       primaryEmail={customer.primaryEmail || ''}
       _id={customer._id}
-      emailValidationStatus={LANE_AS_STATUS[laneOf(customer.primaryEmail)]}
+      emailValidationStatus={deliveryStatus || customer.emailValidationStatus}
       emails={customer.emails || []}
       scope={ContactsHotKeyScope.CustomersTableInlinePopover}
       Trigger={RecordTableInlineCell.Trigger}
+      onEmailDoubleClick={handleEmailDoubleClick}
     />
   );
 };

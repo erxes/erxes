@@ -68,6 +68,12 @@ export const types = `
     error: String
     connectedAt: Date
   }
+
+  type MailSender {
+    integrationId: String!
+    name: String!
+    address: String!
+  }
 `;
 
 export const queries = `
@@ -77,6 +83,8 @@ export const queries = `
   ): MailConversationMessages
 
   mailSendingReadiness: MailSendingReadiness
+
+  mailSenders: [MailSender!]!
 
   mailCloudflareConnection: MailCloudflareConnection
   mailCloudflareSendingQuota: MailCloudflareSendingQuota

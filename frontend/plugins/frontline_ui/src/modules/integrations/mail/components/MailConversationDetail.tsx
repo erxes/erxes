@@ -1,13 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useQuery, useSubscription } from '@apollo/client';
-import {
-  ScrollArea,
-  Spinner,
-  cn,
-  formatDateISOStringToRelativeDate,
-  readImage,
-  toast,
-} from 'erxes-ui';
+import { ScrollArea, Spinner, cn, readImage, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   IconAlertTriangle,
@@ -15,6 +8,8 @@ import {
   IconChevronDown,
   IconChevronUp,
   IconMailForward,
+  IconMessageCircle,
+  IconNote,
   IconPaperclip,
   IconRefresh,
   IconSend,
@@ -28,13 +23,19 @@ import {
 } from '../graphql/queries/mailQueries';
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 import { useSetAtom } from 'jotai';
-import { hideMessageInputState } from '@/inbox/conversations/conversation-detail/states/isInternalState';
+import {
+  hideMessageInputState,
+  isInternalState,
+} from '@/inbox/conversations/conversation-detail/states/isInternalState';
 import {
   MailDeliveryStatus,
   useMailMessageRetry,
   useMailSendMail,
 } from '../hooks/useMailConversationDetail';
 import { EmailBody } from './EmailBody';
+import { MessageItem } from '@/inbox/conversation-messages/components/MessageItem';
+import { ConversationMessageContext } from '@/inbox/conversations/context/ConversationMessageContext';
+import type { IMessage } from '@/inbox/types/Conversation';
 
 interface EmailAddress {
   name?: string;
@@ -82,9 +83,31 @@ interface MailConversationDetailResponse {
     messages: MailMessage[];
     hasMore: boolean;
   } | null;
+  conversationMessages: IMessage[];
 }
 
 const PAGE_SIZE = 20;
+
+const InternalNotes = ({ notes }: { notes: IMessage[] }) => {
+  if (!notes.length) return null;
+
+  return (
+    <div className="flex min-w-0 flex-col overflow-x-hidden px-3 py-2 sm:px-4">
+      {notes.map((note, index) => (
+        <ConversationMessageContext.Provider
+          key={note._id}
+          value={{
+            ...note,
+            previousMessage: notes[index - 1],
+            nextMessage: notes[index + 1],
+          }}
+        >
+          <MessageItem />
+        </ConversationMessageContext.Provider>
+      ))}
+    </div>
+  );
+};
 
 type ComposeMode = 'reply' | 'replyAll' | 'forward';
 
@@ -580,7 +603,7 @@ const ComposeSection: React.FC<ComposeProps> = ({
     'flex-1 bg-transparent outline-none text-[13px] text-foreground placeholder:text-[#9aa0a6]';
 
   return (
-    <div className="mx-4 mb-3 border border-[rgba(0,0,0,0.12)] dark:border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)]">
+    <div className="w-full overflow-hidden rounded-2xl border border-[rgba(0,0,0,0.12)] bg-background shadow-[0_1px_3px_rgba(0,0,0,0.18),0_4px_8px_rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.1)]">
       <div className="flex items-center justify-between px-4 h-10 border-b border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] bg-[rgba(0,0,0,0.02)] dark:bg-[rgba(255,255,255,0.02)]">
         <span className="text-[13px] font-medium text-foreground/70">
           {t(COMPOSE_TITLE_KEYS[mode])}
@@ -739,6 +762,7 @@ export const MailConversationDetail: React.FC = () => {
   const { t } = useTranslation('frontline');
   const { _id: conversationId, integration } = useConversationContext();
   const setHideInput = useSetAtom(hideMessageInputState);
+  const setIsInternalNote = useSetAtom(isInternalState);
 
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
   const [composeTarget, setComposeTarget] = useState<MailMessage | null>(null);
@@ -768,7 +792,13 @@ export const MailConversationDetail: React.FC = () => {
   const detail =
     data?.mailConversationDetail ?? previousData?.mailConversationDetail;
   const messages = detail?.messages ?? [];
+  const internalNotes = (
+    data?.conversationMessages ??
+    previousData?.conversationMessages ??
+    []
+  ).filter((message) => message.internal);
   const newestId = messages[messages.length - 1]?._id;
+  const newestMessage = messages[messages.length - 1];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -811,6 +841,18 @@ export const MailConversationDetail: React.FC = () => {
   const close = () => {
     setComposeMode(null);
     setComposeTarget(null);
+  };
+
+  const showVisibleComposer = () => {
+    if (!newestMessage) return;
+    setHideInput(true);
+    open(newestMessage, 'reply');
+  };
+
+  const showInternalNoteComposer = () => {
+    close();
+    setIsInternalNote(true);
+    setHideInput(false);
   };
 
   const getTo = (msg: MailMessage, mode: ComposeMode): string[] => {
@@ -862,6 +904,32 @@ export const MailConversationDetail: React.FC = () => {
               onForward={() => open(msg, 'forward')}
             />
           ))}
+        </div>
+
+        <InternalNotes notes={internalNotes} />
+
+        <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background p-2 shadow-sm">
+          <button
+            type="button"
+            className={cn(
+              'flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors',
+              composeMode
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+            )}
+            onClick={showVisibleComposer}
+          >
+            <IconMessageCircle size={16} />
+            Visible
+          </button>
+          <button
+            type="button"
+            className="flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-warning/20 hover:text-foreground"
+            onClick={showInternalNoteComposer}
+          >
+            <IconNote size={16} />
+            {t('internal-note')}
+          </button>
         </div>
 
         {composeMode && composeTarget && (

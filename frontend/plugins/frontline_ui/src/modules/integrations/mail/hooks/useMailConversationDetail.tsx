@@ -89,7 +89,9 @@ export const useMailSendMail = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['mailConversationDetail', 'Conversations'],
+      refetchQueries: variables.conversationId
+        ? ['mailConversationDetail', 'Conversations']
+        : ['Conversations'],
     });
   };
 
