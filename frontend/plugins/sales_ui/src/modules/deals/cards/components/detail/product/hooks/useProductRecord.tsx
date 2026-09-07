@@ -28,7 +28,6 @@ export const useUpdateProductRecord = () => {
   const [productsEdit] = useMutation<ProductsEditData, ProductsEditVariables>(
     PRODUCTS_EDIT,
   );
-  const processId = localStorage.getItem('processId') || '';
   const onLocalChange = useAtomValue(onLocalChangeAtom);
   const { toast } = useToast();
   const { t } = useTranslation('sales');
@@ -39,6 +38,8 @@ export const useUpdateProductRecord = () => {
     patch: Partial<IProductData>,
   ) => {
     const doc = { ...product, ...patch };
+    const processId = crypto.randomUUID();
+    localStorage.setItem('processId', processId);
 
     if (onLocalChange && product._id) {
       onLocalChange(product._id, patch);

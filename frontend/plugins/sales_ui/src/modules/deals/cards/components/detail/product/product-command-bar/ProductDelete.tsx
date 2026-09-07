@@ -13,7 +13,6 @@ export const ProductsDelete = ({
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts } = useRemoveProducts();
-  const processId = localStorage.getItem('processId') || '';
   const { t } = useTranslation('sales');
 
   return (
@@ -24,6 +23,9 @@ export const ProductsDelete = ({
         confirm({
           message: t('delete-products-confirm', { count: productIds.length }),
         }).then(() => {
+          const processId = crypto.randomUUID();
+          localStorage.setItem('processId', processId);
+
           removeProducts({
             variables: {
               dataIds: productIds,
