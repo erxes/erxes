@@ -1,5 +1,6 @@
 import {
   IconMail,
+  IconChartBar,
   IconTicket,
   IconChartHistogram,
   IconForms,
@@ -47,6 +48,11 @@ export const FrontlineDestinationLinks = () => {
         name={t('forms')}
         icon={IconForms}
         path="frontline/forms"
+      />
+      <NavigationMenuLinkItem
+        name={t('polls')}
+        icon={IconChartBar}
+        path="frontline/polls"
       />
       <NavigationMenuLinkItem
         name={t('knowledge-base')}

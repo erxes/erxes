@@ -66,6 +66,12 @@ const HelpCenter = lazy(() =>
   })),
 );
 
+const Polls = lazy(() =>
+  import('~/pages/PollsIndexPage').then((module) => ({
+    default: module.PollsIndexPage,
+  })),
+);
+
 const KnowledgeBase = lazy(() =>
   import('~/pages/knowledgebase/IndexPage').then((module) => ({
     default: module.default,
@@ -111,6 +117,7 @@ const IntegrationsMain = () => {
           />
         </Route>
         <Route path="/forms/preview" element={<FormPreviewPage />} />
+        <Route path="/polls" element={<Polls />} />
         <Route path="/knowledgebase" element={<KnowledgeBase />} />
         <Route path="/helpcenter" element={<HelpCenter />} />
       </Routes>

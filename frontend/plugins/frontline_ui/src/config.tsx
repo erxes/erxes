@@ -1,5 +1,6 @@
 import {
   IconBook,
+  IconChartBar,
   IconChartHistogram,
   IconForms,
   IconLifebuoy,
@@ -129,6 +130,11 @@ export const CONFIG: IUIConfig = {
       name: 'forms',
       icon: IconForms,
       path: 'frontline/forms',
+    },
+    {
+      name: 'polls',
+      icon: IconChartBar,
+      path: 'frontline/polls',
     },
     {
       name: 'knowledge-base',

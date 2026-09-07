@@ -27,6 +27,8 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
+- Polls: channel-scoped poll definitions, the snapshot an agent posts into a
+  messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
 - Frontline reports, including the saved report charts that persist a named
@@ -50,6 +52,26 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- Polls are a reusable definition (`title`, `question`, ordered `options`,
+  `allowMultiselect`, optional `durationHours`, optional `brandId`,
+  `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
+  conversation with `pollSendToConversation`,
+  which writes a snapshot to the message's `extraData.poll` and bumps the
+  poll's `sentCount` and sets `hasPoll` on the conversation. Client portal
+  users vote through `cpPollVote`; each vote recomputes the tallies, marks the
+  conversation as customer-responded and unread, then republishes the message
+  through `pConversationClientMessageInserted`, so the conversation rises in
+  the agent's list and both the inbox and the portal update without a refresh.
+- Every conversation filter query accepts `withPoll: String` — `"true"` keeps
+  only conversations carrying a poll (the denormalized `hasPoll` flag).
+- Answering a poll is a client portal surface, not a messenger widget one.
+  `cpPollDetail` serves a poll by `code` for a channel, `cpPollSubmit` resolves
+  the respondent's erxes customer and opens a conversation carrying the poll
+  snapshot, and `cpPollVote` records a vote on an existing poll message. All
+  four accept a signed-in portal user **or** a guest identified by a
+  client-supplied `visitorId`, so an unauthenticated portal visitor can answer
+  while a signed-in one is still pinned to their own account.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
@@ -144,6 +166,7 @@
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
+| Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
@@ -151,6 +174,22 @@
 ## Contracts
 
 ### Provides
+
+- GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
+  `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
+  `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
+  `pollToggleStatus(_ids, status)`, and
+  `pollSendToConversation(_id, conversationId)` which returns the created
+  `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
+  vote ledger across every conversation the poll was sent to.
+- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
+pollCode, cachedCustomerId)` returns the active poll plus the caller's
+  previous selection; `widgetsPollSubmit(pollCode, optionIds,
+cachedCustomerId)` files a site answer as a new conversation.
+- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
+customerId, visitorId)` returns the voter's own selections for the
+  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
+  records a vote and returns the refreshed `ConversationMessage`.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
@@ -428,6 +467,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- `frontline_polls` — poll definitions with an indexed `channelId` and embedded
+  `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
+  message, with a unique `(messageId, voterId)` index so a repeat vote replaces
+  the previous selection instead of stacking. `voterId` is the `customerId`
+  when there is one, otherwise the `visitorId`.
+- A poll message stores a _snapshot_ under `extraData.poll`
+  (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
+  `results`). Editing the poll definition afterwards never rewrites messages
+  already sent.
+
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
@@ -584,6 +633,60 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `isCheckDate` means `createdAt >= start of the server's current day`.
 - `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
   where that member picker is nested under the "my tickets only" toggle.
+- Poll answer ids in a message snapshot are the poll option `_id`s, not array
+  indexes, so option reordering cannot reassign existing votes. Discord's
+  native polls keep their own numeric ids in the same `extraData.poll` shape;
+  any renderer must accept both.
+- `cpPollVote` and `cpPollSubmit` are the only write paths for votes. Both
+  reject a closed poll, a multi-select payload on a single-answer poll, and any
+  option id absent from the snapshot, then recompute `extraData.poll.results`
+  from the ledger — counts are never incremented in place.
+- A vote's `voterId` is `cpUser.erxesCustomerId || cpUser._id || visitorId`,
+  resolved only through `getCpVoterId`. A signed-in caller can never be
+  impersonated through the argument, because `visitorId` is consulted last;
+  a guest's identity is only as strong as the id their client keeps, so the
+  unique `{ messageId, voterId }` index pins one vote per portal account and one
+  vote per retained visitor id. Both write paths reject a request that resolves
+  to no voter at all.
+- `hasPoll` is a denormalized conversation flag set by `pollSendToConversation`
+  and read by the `withPoll` filter — the same shape as `isCustomerRespondedLast`
+  behind `awaitingResponse`. The filter param is deliberately named `withPoll`
+  because `IConversationListParams` extends `IConversation`, so reusing
+  `hasPoll` would collide with the boolean document field.
+- `brandId` is optional on a poll, but `createPoll`/`updatePoll` reject one whose
+  brand has no active `messenger` integration in the poll's channel, so an
+  unresolvable pairing can never be saved. A poll with no `brandId` keeps the
+  legacy behaviour of taking whichever active messenger integration the channel
+  returns first.
+- A poll's `code` is a unique nanoid minted on create; the portal link and
+  `cpPollDetail` address the poll by it, never by `_id` alone.
+- Client portal poll reads are queries and writes are mutations. `cpPollDetail`
+  performs no writes, so it must never move back under `Mutation`. Both
+  client-portal resolver maps keep `forClientPortal` and deliberately omit
+  `cpUserRequired`, so a guest reaches the resolver; they must never fall back to
+  `skipPermission`, which would also drop the `x-app-token` portal check and
+  leave the customer- and conversation-creating `cpPollSubmit` open to anyone.
+  Nothing under these resolvers may dereference `cpUser` without optional
+  chaining.
+- `cpPollSubmit` files the conversation under the channel's `messenger`
+  integration; a channel without one rejects the submit rather than inventing
+  an integration, and narrows the lookup by the poll's `brandId` when it has one
+  so a channel carrying several messenger integrations resolves deterministically.
+  For a signed-in caller it resolves the conversation's customer
+  from `cpUser.erxesCustomerId` first, then `customers.getWidgetCustomer` by the
+  portal user's email/phone, and only then creates one with
+  `customers.createMessengerCustomer`. For a guest it reuses the `customerId` of
+  any earlier vote carrying the same `visitorId`, and otherwise creates a
+  `state: 'visitor'` customer through `customers.createCustomer`. Do not pass
+  `scopeBrandIds` there — it is a product field, absent from the customer schema,
+  so mongoose strict mode drops it silently.
+- `pollSendToConversation` only accepts a `messenger` integration, and refuses
+  a poll whose `channelId` or `brandId` differs from the integration's.
+  Both guards are skipped when the poll leaves the field unset. Discord
+  polls keep their own native path through `conversationMessageAdd(poll:)`.
+- `pollList` / `pollTotalCount` without a `channelId` are scoped to the caller's
+  `ChannelMembers` channels (plus channel-less polls) unless the user is an
+  owner — the same visibility rule the forms queries apply.
 
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
@@ -1375,6 +1478,60 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
   `KnowledgeBaseTopicDoc` accepts it.
 
+### `2026-09-07` — Polls pin their messenger integration by brand
+
+- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
+  `pollSendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the poll's channel — removing the arbitrary
+  `findOne` pick on a channel with several messenger integrations.
+- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
+  `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
+  `Poll` type.
+
+### `2026-09-07` — Guest voting on the client portal poll surface
+
+- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
+  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+  return, while a signed-in `cpUser` still wins over the argument.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
+  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
+  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
+
+### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
+
+- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
+  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
+  module's shared `utils.ts` so both resolver maps use one lookup.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
+  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/utils.ts`.
+- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
+  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
+  `PollConnectResponse` to `CpPollResponse`.
+
+### `2026-09-07` — Poll answering moved from the widget to the client portal
+
+- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
+  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
+  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
+  anonymous widget visitor. The voter is now taken from `cpUser`
+  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
+  `visitorId` / `cachedCustomerId` arguments.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
+  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
+  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/{utils.ts,@types/poll.ts}`,
+  `src/apollo/resolvers/{queries,mutations}.ts`.
+- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
+  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
+  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
+  `cpPollSubmit(pollCode, optionIds)`.
+
 ### `2026-09-05` — `Export repeating ticket properties by row`
 
 - **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
@@ -1386,6 +1543,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
 - **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
 - **Contracts changed:** `None`
+
+### `2026-09-05` — Poll voting has no in-repo client
+
+- **Summary:** The customer-facing poll surfaces were removed from
+  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
+  have no caller in this repository.
+- **Affected areas:** `AGENTS.md` only — no API change.
+- **Contracts changed:** None.
 
 ### `2026-09-03` — A help center carries its published site's appearance
 
@@ -1413,77 +1578,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
 - **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
   (was `String!`).
-
-### `2026-09-02` — A help center carries its published site's settings
-
-- **Summary:** `KnowledgeBaseTopic` gained the settings of the site it is
-  published on: `url`, and the two features that site can expose — the articles
-  (`kbToggle`, `kbLabel`) and a ticket form (`ticketToggle`, `ticketLabel`, and
-  the `ticketChannelId` / `ticketPipelineId` / `ticketStatusId` the raised
-  ticket lands in). All are optional and set through the existing
-  `KnowledgeBaseTopicDoc`.
-- **Affected areas:**
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`.
-- **Contracts changed:** `KnowledgeBaseTopic` and `KnowledgeBaseTopicDoc` both
-  gain `url`, `kbToggle`, `kbLabel`, `ticketToggle`, `ticketLabel`,
-  `ticketChannelId`, `ticketPipelineId` and `ticketStatusId`; all additive,
-  nothing removed.
-
-### `2026-09-02` — A knowledge base topic reports when it was created
-
-- **Summary:** `KnowledgeBaseTopic.createdDate` was always null: `topicSchema`
-  never declared the field, so the value `Topic.createDoc` sets is dropped on
-  save and only the mongoose `timestamps` `createdAt` survives. A custom
-  resolver now falls back to it, which fixes existing topics as well as new
-  ones without a migration.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`,
-  `src/modules/knowledgebase/@types/topic.ts`.
-- **Contracts changed:** None; `createdDate` is an existing field that now
-  resolves to a value.
-
-### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
-
-- **Summary:** All four pipeline visibility rules were dead on the channel
-  ticket list: `generateFilter` only consulted the pipeline when the query
-  carried a `filter.pipelineId`, and the channel page never sends one, so every
-  ticket in the channel was returned. `isCheckDate` was additionally never
-  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
-  pipeline access gates rather than the per-ticket filters their labels promise.
-  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
-  unscoped lists, which also stops private-pipeline tickets leaking there.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- # **Contracts changed:** None (`getTickets` arguments are unchanged).
-  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
-
-### `2026-09-02` — IMAP integration removed
-
-- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
-  message processing/saving, models, message broker, and GraphQL layer — along
-  with every registration that referenced it.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
-  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
-  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
-  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
-  `src/shared/types.ts`, `package.json`.
-- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
-  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
-  `IMapIntegration`; `imap` is no longer an accepted integration kind for
-  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
-  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
-  registered.
-  > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the ticket module's producers; automation target
-  matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
