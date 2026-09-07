@@ -1,4 +1,3 @@
-import { Resizable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 
 export const DocumentsLayout = ({
@@ -6,9 +5,9 @@ export const DocumentsLayout = ({
   DocumentsTypes,
   Editor,
 }: {
-  Documents: React.ComponentType<any>;
-  DocumentsTypes: React.ComponentType<any>;
-  Editor: React.ComponentType<any>;
+  Documents: React.ComponentType<{ viewType: 'list' | 'grid' }>;
+  DocumentsTypes: React.ComponentType;
+  Editor: React.ComponentType;
 }) => {
   const [searchParams] = useSearchParams();
 
@@ -16,21 +15,21 @@ export const DocumentsLayout = ({
   const contentType = searchParams.get('contentType');
 
   return (
-    <Resizable.PanelGroup
-      direction="horizontal"
-      className="flex-1 overflow-hidden"
-    >
-      <Resizable.Panel minSize={20} maxSize={25} defaultSize={20}>
+    <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div className="w-(--sidebar-width) flex-none overflow-hidden">
         {contentType && documentId !== null ? (
-          <Documents viewType={'list'} />
+          <Documents viewType="list" />
         ) : (
           <DocumentsTypes />
         )}
-      </Resizable.Panel>
-      <Resizable.Handle />
-      <Resizable.Panel defaultSize={75}>
-        {documentId !== null ? <Editor key={documentId} /> : <Documents viewType={'grid'} />}
-      </Resizable.Panel>
-    </Resizable.PanelGroup>
+      </div>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        {documentId !== null ? (
+          <Editor key={documentId} />
+        ) : (
+          <Documents viewType="grid" />
+        )}
+      </div>
+    </div>
   );
 };

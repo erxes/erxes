@@ -1,11 +1,4 @@
-import {
-  Accordion,
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Select,
-} from 'erxes-ui';
+import { Accordion, Button, Checkbox, Form, Input, Select } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { ReactNode, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -80,10 +73,16 @@ const MillimetreField = ({
   />
 );
 
-export const PrintSettings = ({ contentType }: { contentType: string }) => {
+export const PrintSettings = ({
+  contentType,
+  initialDocumentName,
+}: {
+  contentType: string;
+  initialDocumentName?: string;
+}) => {
   const form = useFormContext<PrintFormValues>();
 
-  const [documentName, setDocumentName] = useState('');
+  const [documentName, setDocumentName] = useState(initialDocumentName || '');
 
   const [directPrint, setDirectPrint] = useAtom(directPrintEnabledState);
   const [printer, setPrinter] = useAtom(directPrinterState);
@@ -98,9 +97,10 @@ export const PrintSettings = ({ contentType }: { contentType: string }) => {
   const isSheet = paperType === PAPER_TYPES.SHEET;
   const isCustom = size === 'CUSTOM';
 
-  const sizeSummary = isRoll || isCustom
-    ? `${width} × ${height || 'auto'} mm`
-    : PAPER_SIZES[size]?.label || size;
+  const sizeSummary =
+    isRoll || isCustom
+      ? `${width} × ${height || 'auto'} mm`
+      : PAPER_SIZES[size]?.label || size;
 
   const layoutSummary = [
     sizeSummary,
@@ -251,8 +251,14 @@ export const PrintSettings = ({ contentType }: { contentType: string }) => {
               <Form.Field
                 name="scale"
                 rules={{
-                  min: { value: 50, message: 'Scale must be between 50 and 150' },
-                  max: { value: 150, message: 'Scale must be between 50 and 150' },
+                  min: {
+                    value: 50,
+                    message: 'Scale must be between 50 and 150',
+                  },
+                  max: {
+                    value: 150,
+                    message: 'Scale must be between 50 and 150',
+                  },
                 }}
                 render={({ field, fieldState }) => (
                   <Form.Item>

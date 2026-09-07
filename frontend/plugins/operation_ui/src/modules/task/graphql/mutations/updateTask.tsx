@@ -35,6 +35,7 @@ export const UPDATE_TASK_MUTATION = gql`
     ) {
       _id
       tagIds
+      status
     }
   }
 `;
