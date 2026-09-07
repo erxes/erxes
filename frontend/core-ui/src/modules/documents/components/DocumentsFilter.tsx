@@ -64,8 +64,7 @@ export const DocumentsFilter = () => {
 };
 
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
-  const { searchValue, createdBy, tagIds } = queries || {};
-  const [, setQueries] = useMultiQueryState<DocumentFilterState>(['tagIds']);
+  const { searchValue, createdBy } = queries || {};
   const { t } = useTranslation('documents', {
     keyPrefix: 'filter',
   });
@@ -94,21 +93,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
           <IconTags />
           Tags
         </Filter.BarName>
-        <TagsSelect.Provider
-          type="core:documents"
-          value={tagIds || EMPTY_TAG_IDS}
-          mode="multiple"
-          onValueChange={(tagIds) => setQueries({ tagIds })}
-        >
-          <Popover.Trigger>
-            <Filter.BarButton filterKey="tagIds">
-              <TagsSelect.SelectedList />
-            </Filter.BarButton>
-          </Popover.Trigger>
-          <Popover.Content className="p-0">
-            <TagsSelect.Content />
-          </Popover.Content>
-        </TagsSelect.Provider>
+        <DocumentTagFilter />
       </Filter.BarItem>
       {createdBy && (
         <SelectMember.FilterBar queryKey="createdBy" label="Created By" />
@@ -167,5 +152,28 @@ const DocumentFilterView = () => {
         <Filter.DateView filterKey="createdAt" />
       </Filter.View>
     </>
+  );
+};
+
+const DocumentTagFilter = () => {
+  const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
+    'tagIds',
+  ]);
+  return (
+    <TagsSelect.Provider
+      type="core:documents"
+      value={tagIds || EMPTY_TAG_IDS}
+      mode="multiple"
+      onValueChange={(tagIds) => setQueries({ tagIds })}
+    >
+      <Popover.Trigger>
+        <Filter.BarButton filterKey="tagIds">
+          <TagsSelect.SelectedList />
+        </Filter.BarButton>
+      </Popover.Trigger>
+      <Popover.Content className="p-0">
+        <TagsSelect.Content />
+      </Popover.Content>
+    </TagsSelect.Provider>
   );
 };
