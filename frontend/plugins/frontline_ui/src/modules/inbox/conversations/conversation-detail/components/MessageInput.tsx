@@ -26,6 +26,7 @@ import { ComposerAttachment } from '@/inbox/conversations/conversation-detail/co
 import { PollComposer } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
+import { SendPollDialog } from '@/inbox/conversations/conversation-detail/components/SendPollDialog';
 import {
   useMessageInputController,
   type MessageInputController,
@@ -213,12 +214,15 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
   const {
     attachments,
     content,
+    conversationId,
     handleFileInput,
     handleSendPoll,
     handleSubmit,
     handleTemplateSelect,
+    integrationChannelId,
     isDiscord,
     isInternalNote,
+    isMessenger,
     isLoading,
     loading,
     onlyInternal,
@@ -272,6 +276,14 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
 
       {isDiscord && !isInternalNote && (
         <PollComposer onSubmit={handleSendPoll} loading={loading} />
+      )}
+
+      {isMessenger && !isInternalNote && (
+        <SendPollDialog
+          conversationId={conversationId}
+          channelId={integrationChannelId}
+          disabled={loading}
+        />
       )}
 
       <Button

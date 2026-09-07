@@ -23,6 +23,7 @@ export enum FrontlinePaths {
   FormPreview = '/form-preview',
   Reports = '/reports',
   Forms = '/forms',
+  ChannelPolls = '/:id/polls',
   FormsCreate = '/:id/forms/create',
   FormSubmissions = '/:id/forms/submissions/:formId',
 }

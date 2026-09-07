@@ -100,6 +100,7 @@ export const useMessageInputController = (conversationId: string) => {
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [replyTo, setReplyTo] = useAtom(messageReplyState);
 
@@ -341,7 +342,7 @@ export const useMessageInputController = (conversationId: string) => {
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#39;',
-              })[character] || character,
+              }[character] || character),
           )}</blockquote>`
         : '';
 
@@ -447,6 +448,7 @@ export const useMessageInputController = (conversationId: string) => {
     attachmentPreview,
     availableChannels,
     content,
+    conversationId,
     discordMentionItems,
     discordMentionNote,
     editor,
@@ -460,8 +462,10 @@ export const useMessageInputController = (conversationId: string) => {
     handleSubmit,
     handleTemplateSelect,
     hideInput,
+    integrationChannelId: integration?.channelId,
     isDiscord,
     isInternalNote,
+    isMessenger,
     isLoading,
     loading,
     onlyInternal,

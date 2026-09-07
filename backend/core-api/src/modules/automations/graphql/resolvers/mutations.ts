@@ -294,6 +294,27 @@ export const automationMutations = {
       action: 'delete',
     });
 
+    const dependents = await models.Automations.find(
+      {
+        $or: [
+          { 'actions.config.aiAgentId': _id },
+          { 'workflows.actions.config.aiAgentId': _id },
+        ],
+      },
+      { name: 1, status: 1 },
+    ).lean();
+
+    if (dependents.length) {
+      const names = dependents
+        .map(({ name, status }) => `${name || 'Untitled'} (${status})`)
+        .join(', ');
+
+      throw new Error(
+        `This AI agent is used by ${dependents.length} automation(s): ${names}. ` +
+          'Remove it from them before deleting the agent.',
+      );
+    }
+
     await models.AiAgents.deleteOne({ _id });
     await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: _id });
 

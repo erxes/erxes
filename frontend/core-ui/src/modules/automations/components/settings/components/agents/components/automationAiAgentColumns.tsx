@@ -94,6 +94,37 @@ export const automationAiAgentColumns: ColumnDef<TAiAgentRecord>[] = [
     size: 320,
   },
   {
+    id: 'usage',
+    accessorFn: (row) => row.usage?.total ?? 0,
+    header: () => <RecordTable.InlineHead label="Used by" />,
+    cell: ({ cell }) => {
+      const usage = cell.row.original.usage;
+      const total = usage?.total ?? 0;
+
+      if (!total) {
+        return (
+          <RecordTableInlineCell className="text-sm text-muted-foreground">
+            Not used
+          </RecordTableInlineCell>
+        );
+      }
+
+      const names = (usage?.automations || [])
+        .map(({ name, status }) => `${name || 'Untitled'} (${status})`)
+        .join('\n');
+
+      return (
+        <RecordTableInlineCell className="min-w-0" title={names}>
+          <Badge variant="secondary">
+            {total} automation{total > 1 ? 's' : ''}
+            {usage?.active ? ` · ${usage.active} active` : ''}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 200,
+  },
+  {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => <RecordTable.InlineHead label="Created" />,

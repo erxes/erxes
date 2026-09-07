@@ -1,4 +1,10 @@
 import {
+  isPropertyDataPath,
+  propertyDataExistsFilter,
+  fieldIdFromPropertyDataPath,
+  propertyDataRegexFilter,
+} from 'erxes-api-shared/core-modules';
+import {
   IProductCategoryDocument,
   Resolver,
 } from 'erxes-api-shared/core-types';
@@ -26,28 +32,11 @@ import {
   type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
-const getPropertyFieldId = (field: string) =>
-  field.replace('propertiesData.', '');
-
 const getProductPropertyValue = (product: any, fieldId: string) =>
   product?.propertiesData?.[fieldId];
 
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
-
-const isPropertyField = (field: string) => field.includes('propertiesData.');
-
-const propertyExistsFilter = (fieldIds: string[]) => ({
-  $or: [
-    ...fieldIds.map((fieldId) => ({
-      [`propertiesData.${fieldId}`]: { $exists: true },
-    })),
-  ],
-});
-
-const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
-  [`propertiesData.${fieldId}`]: { $regex: regex },
-});
 
 export interface ICommonParams {
   sortField?: string;
@@ -513,8 +502,9 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);
@@ -524,8 +514,8 @@ const cpProductQueries: Record<string, Resolver> = {
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (isPropertyField(filterFieldDef)) {
-          const fieldId = getPropertyFieldId(filterFieldDef);
+        if (isPropertyDataPath(filterFieldDef)) {
+          const fieldId = fieldIdFromPropertyDataPath(filterFieldDef);
           if (
             !String(getProductPropertyValue(product, fieldId) || '').match(
               regexer,
@@ -566,10 +556,10 @@ const cpProductQueries: Record<string, Resolver> = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (isPropertyField(filterFieldDef)) {
+        if (isPropertyDataPath(filterFieldDef)) {
           codeRegexs.push(
-            propertyRegexFilter(
-              getPropertyFieldId(filterFieldDef),
+            propertyDataRegexFilter(
+              fieldIdFromPropertyDataPath(filterFieldDef),
               getRegex(matchedMask),
             ),
           );
@@ -593,7 +583,7 @@ const cpProductQueries: Record<string, Resolver> = {
           {
             $or: codeRegexs,
           },
-          propertyExistsFilter(fieldIds),
+          propertyDataExistsFilter(fieldIds),
         ],
       };
 
@@ -635,7 +625,7 @@ const cpProductQueries: Record<string, Resolver> = {
       $and: [
         {
           categoryId: category._id,
-          ...propertyExistsFilter(fieldIds),
+          ...propertyDataExistsFilter(fieldIds),
         },
       ],
     };

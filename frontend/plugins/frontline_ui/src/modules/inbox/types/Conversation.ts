@@ -32,13 +32,14 @@ export interface IAutomatedReplyControl {
 }
 
 export interface IMessagePoll {
+  pollId?: string;
   question: string;
-  answers: { id: number; text: string; emoji?: string }[];
+  answers: { id: string | number; text: string; emoji?: string }[];
   allowMultiselect?: boolean;
   expiry?: string;
   results?: {
     isFinalized?: boolean;
-    answerCounts: { id: number; count: number }[];
+    answerCounts: { id: string | number; count: number }[];
   };
 }
 

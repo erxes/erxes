@@ -16,7 +16,7 @@ import {
   markResolvers,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '../../constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 import {
@@ -70,6 +70,102 @@ export interface IHistoriesParams {
   errorCodes?: string[];
   waitingActionIds?: string[];
 }
+
+type TAiAgentUsage = {
+  total: number;
+  active: number;
+  automations: Array<{ _id: string; name: string; status: string }>;
+};
+
+/**
+ * An agent is referenced from a root action and from a workflow member action
+ * alike, so both are counted: a usage read that missed one would make an agent
+ * look free to delete while an automation still depends on it.
+ */
+const getAiAgentUsage = async (
+  models: IModels,
+  agentIds: string[],
+): Promise<Record<string, TAiAgentUsage>> => {
+  if (!agentIds.length) {
+    return {};
+  }
+
+  const rows = await models.Automations.aggregate([
+    {
+      $project: {
+        name: 1,
+        status: 1,
+        agentIds: {
+          $setUnion: [
+            {
+              $map: {
+                input: {
+                  $filter: {
+                    input: { $ifNull: ['$actions', []] },
+                    as: 'action',
+                    cond: { $eq: ['$$action.type', 'aiAgent'] },
+                  },
+                },
+                as: 'action',
+                in: '$$action.config.aiAgentId',
+              },
+            },
+            {
+              $map: {
+                input: {
+                  $filter: {
+                    input: {
+                      $reduce: {
+                        input: { $ifNull: ['$workflows', []] },
+                        initialValue: [],
+                        in: {
+                          $concatArrays: [
+                            '$$value',
+                            { $ifNull: ['$$this.actions', []] },
+                          ],
+                        },
+                      },
+                    },
+                    as: 'action',
+                    cond: { $eq: ['$$action.type', 'aiAgent'] },
+                  },
+                },
+                as: 'action',
+                in: '$$action.config.aiAgentId',
+              },
+            },
+          ],
+        },
+      },
+    },
+    { $unwind: '$agentIds' },
+    { $match: { agentIds: { $in: agentIds } } },
+    {
+      $group: {
+        _id: '$agentIds',
+        automations: {
+          $addToSet: { _id: '$_id', name: '$name', status: '$status' },
+        },
+      },
+    },
+  ]);
+
+  return rows.reduce((acc, row) => {
+    const automations = (row.automations || []).map((automation) => ({
+      _id: String(automation._id),
+      name: automation.name || '',
+      status: automation.status || '',
+    }));
+
+    acc[row._id] = {
+      total: automations.length,
+      active: automations.filter(({ status }) => status === 'active').length,
+      automations,
+    };
+
+    return acc;
+  }, {} as Record<string, TAiAgentUsage>);
+};
 
 export const automationQueries = {
   /**
@@ -323,9 +419,16 @@ export const automationQueries = {
       lockStates.map((state) => [state.contentId, state]),
     );
 
+    const usageByAgentId = await getAiAgentUsage(models, agentIds);
+
     return sanitizeAiAgents(agents as any[]).map((agent) => ({
       ...agent,
       approvalLockState: lockStateByAgentId.get(agent._id.toString()),
+      usage: usageByAgentId[agent._id.toString()] || {
+        total: 0,
+        active: 0,
+        automations: [],
+      },
     }));
   },
 
@@ -364,7 +467,22 @@ export const automationQueries = {
       });
     }
 
-    return sanitizeAiAgent(agent);
+    if (!agent) {
+      return sanitizeAiAgent(agent);
+    }
+
+    const usageByAgentId = await getAiAgentUsage(models, [
+      agent._id.toString(),
+    ]);
+
+    return {
+      ...sanitizeAiAgent(agent),
+      usage: usageByAgentId[agent._id.toString()] || {
+        total: 0,
+        active: 0,
+        automations: [],
+      },
+    };
   },
 
   async automationsAiAgentHealth(
