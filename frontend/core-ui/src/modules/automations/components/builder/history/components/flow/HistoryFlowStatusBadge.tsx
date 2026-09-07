@@ -1,5 +1,12 @@
 import { TExecutionStatus } from '@/automations/utils/automationHistoryUtils/executionFormat';
-import { IconCheck, IconClock, IconX } from '@tabler/icons-react';
+import {
+  IconBan,
+  IconCheck,
+  IconClock,
+  IconHourglass,
+  IconPlayerPause,
+  IconX,
+} from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
 
 const STATUS_MAP: Record<
@@ -20,6 +27,21 @@ const STATUS_MAP: Record<
     icon: IconClock,
     className: 'border-warning/40 bg-warning/10 text-warning',
     label: 'Waiting',
+  },
+  queued: {
+    icon: IconHourglass,
+    className: 'border-warning/40 bg-warning/10 text-warning',
+    label: 'Queued',
+  },
+  standby: {
+    icon: IconPlayerPause,
+    className: 'border-warning/40 bg-warning/10 text-warning',
+    label: 'On standby',
+  },
+  dropped: {
+    icon: IconBan,
+    className: 'border-muted-foreground/40 bg-muted text-muted-foreground',
+    label: 'Dropped',
   },
 };
 

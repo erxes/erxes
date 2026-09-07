@@ -26,6 +26,41 @@ import {
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import { AutomationActionError } from '../errorCodes';
 
+// Leaves room for the failure to be reported before the expiry job claims the
+// action as dropped.
+const DEFERRED_TIMEOUT_MARGIN_MS = 5000;
+
+/**
+ * A deferred action holds no request open, so the interactive timeout stops
+ * applying: the provider gets whatever is left of the action's own deadline.
+ */
+const applyDeferredTimeout = <T extends { runtime: { timeoutMs?: number } }>(
+  agent: T,
+  execution: IAutomationExecutionDocument,
+  actionId: string,
+): T => {
+  const deferred = (execution.actions || []).find(
+    (item) =>
+      item.actionId === actionId &&
+      (item.status === 'standby' || item.status === 'queued'),
+  );
+
+  if (!deferred?.expiresAt) {
+    return agent;
+  }
+
+  const budgetMs =
+    new Date(deferred.expiresAt).getTime() -
+    Date.now() -
+    DEFERRED_TIMEOUT_MARGIN_MS;
+
+  if (budgetMs <= (agent.runtime.timeoutMs || 0)) {
+    return agent;
+  }
+
+  return { ...agent, runtime: { ...agent.runtime, timeoutMs: budgetMs } };
+};
+
 type TAiAgentActionWorkerResponse = {
   result: TAiActionExecutionResult;
   nextActionId?: string;
@@ -76,7 +111,11 @@ export const executeAiAgentAction = async (
         AUTOMATION_ERROR_CODES.NOT_FOUND,
       );
     }
-    const parsedAgent = parseAiAgentInput(agent);
+    const parsedAgent = applyDeferredTimeout(
+      parseAiAgentInput(agent),
+      execution,
+      action.id,
+    );
     // Two registries meet here: action tools come from the canvas node, the
     // knowledge tool follows the agent wherever it is used.
     const knowledgeTool =
@@ -153,6 +192,7 @@ export const executeAiAgentAction = async (
     throw new AutomationActionError(
       `AI Agent Action failed: ${error.message}`,
       AUTOMATION_ERROR_CODES.AI_AGENT_FAILED,
+      error.result,
     );
   }
 };
