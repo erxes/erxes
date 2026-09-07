@@ -97,7 +97,11 @@ export const PollSheet = ({
       });
 
     if (poll) {
-      editPoll({ variables: { _id: poll._id, ...variables }, onCompleted, onError });
+      editPoll({
+        variables: { _id: poll._id, ...variables },
+        onCompleted,
+        onError,
+      });
       return;
     }
 
@@ -132,7 +136,10 @@ export const PollSheet = ({
                   <Form.Item>
                     <Form.Label>{t('poll-title')}</Form.Label>
                     <Form.Control>
-                      <Input {...field} placeholder={t('poll-title-placeholder')} />
+                      <Input
+                        {...field}
+                        placeholder={t('poll-title-placeholder')}
+                      />
                     </Form.Control>
                     <Form.Message />
                   </Form.Item>

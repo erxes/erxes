@@ -6,7 +6,10 @@ import {
   POLL_SEND_TO_CONVERSATION,
   POLL_TOGGLE_STATUS,
 } from '@/poll/graphql/pollMutations';
-import { GET_POLL_LIST, GET_POLL_TOTAL_COUNT } from '@/poll/graphql/pollQueries';
+import {
+  GET_POLL_LIST,
+  GET_POLL_TOTAL_COUNT,
+} from '@/poll/graphql/pollQueries';
 
 const refetchPollQueries = [GET_POLL_LIST, GET_POLL_TOTAL_COUNT];
 

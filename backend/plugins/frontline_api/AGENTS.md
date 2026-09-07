@@ -182,15 +182,14 @@
   `pollSendToConversation(_id, conversationId)` which returns the created
   `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
   vote ledger across every conversation the poll was sent to.
-- GraphQL (client portal, `forClientPortal` only — no `cpUserRequired`):
-  `cpPollDetail(channelId, pollCode, visitorId)` is a query returning the active
-  poll plus the caller's previous selection as `CpPollResponse`;
-  `cpPollVotes(conversationId, visitorId)` returns the caller's own selections
-  for the conversation. The mutations are
-  `cpPollSubmit(pollCode, optionIds, visitorId)`, which files an answer as a new
-  conversation, and `cpPollVote(messageId, optionIds, visitorId)`, which records
-  a vote and returns the refreshed `ConversationMessage`. `visitorId` is ignored
-  whenever a `cpUser` is present, and required when one is not.
+- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
+  pollCode, cachedCustomerId)` returns the active poll plus the caller's
+  previous selection; `widgetsPollSubmit(pollCode, optionIds,
+  cachedCustomerId)` files a site answer as a new conversation.
+- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
+  customerId, visitorId)` returns the voter's own selections for the
+  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
+  records a vote and returns the refreshed `ConversationMessage`.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
@@ -472,9 +471,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
   the previous selection instead of stacking. `voterId` is the `customerId`
-  when there is one, otherwise the `visitorId`. A guest vote also persists the
-  raw `visitorId` on its own indexed field, which is how a returning guest is
-  reconnected to the visitor customer they were given the first time.
+  when there is one, otherwise the `visitorId`.
 - A poll message stores a *snapshot* under `extraData.poll`
   (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
   `results`). Editing the poll definition afterwards never rewrites messages
