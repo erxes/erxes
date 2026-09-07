@@ -53,7 +53,11 @@ beforeEach(() => {
 describe('oauth scopes for plugin actions', () => {
   it('keeps declared scopes and derives a module scope when none is declared', () => {
     expect(
-      resolveActionOAuthScopes('core', { name: 'contact' }, { oauthScope: 'contacts:read' }),
+      resolveActionOAuthScopes(
+        'core',
+        { name: 'contact' },
+        { oauthScope: 'contacts:read' },
+      ),
     ).toEqual(['contacts:read']);
     expect(
       resolveActionOAuthScopes(
@@ -62,16 +66,24 @@ describe('oauth scopes for plugin actions', () => {
         { oauthScopes: ['contacts:read', 'contacts:create'] },
       ),
     ).toEqual(['contacts:read', 'contacts:create']);
-    expect(resolveActionOAuthScopes('sales', { name: 'deal' }, {})).toEqual(['sales:deal']);
+    expect(resolveActionOAuthScopes('sales', { name: 'deal' }, {})).toEqual([
+      'sales:deal',
+    ]);
   });
 
   it('lets an oauth token with the derived module scope call plugin actions', async () => {
-    const check = checkPermissionGroup('sub', user({ isOwner: true, oauthScopes: ['sales:deal'] }));
+    const check = checkPermissionGroup(
+      'sub',
+      user({ isOwner: true, oauthScopes: ['sales:deal'] }),
+    );
     await expect(check('dealsAdd')).resolves.toBeUndefined();
   });
 
   it('still rejects an oauth token that lacks the module scope', async () => {
-    const check = checkPermissionGroup('sub', user({ isOwner: true, oauthScopes: ['contacts:read'] }));
+    const check = checkPermissionGroup(
+      'sub',
+      user({ isOwner: true, oauthScopes: ['contacts:read'] }),
+    );
     await expect(check('dealsAdd')).rejects.toThrow('OAuth scope required');
   });
 
