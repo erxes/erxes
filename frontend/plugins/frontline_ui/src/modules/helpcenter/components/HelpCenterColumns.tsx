@@ -132,14 +132,10 @@ const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
   const [open, setOpen] = useState(false);
-  const enabled = Boolean(helpCenter.kbToggle);
 
   const { data, loading } = useQuery<{
     knowledgeBaseTopics: { _id: string; title?: string }[];
-  }>(TOPICS_SHORT, {
-    variables: { page: 1, perPage: 20 },
-    skip: !open,
-  });
+  }>(TOPICS_SHORT, { variables: { page: 1, perPage: 100 } });
 
   const topics = (data?.knowledgeBaseTopics ?? []).filter(
     (topic) => topic._id !== helpCenter._id,
@@ -152,10 +148,9 @@ const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
       open={open}
       onOpenChange={setOpen}
     >
-      <SelectTriggerTicket variant="table" disabled={!enabled}>
+      <SelectTriggerTicket variant="table">
         <TextOverflowTooltip
-          value={selected?.title || helpCenter.kbTopicId || ''}
-          className={clsx(!enabled && 'text-muted-foreground/60 line-through')}
+          value={selected?.title || t('select-topic', 'Select a topic')}
         />
       </SelectTriggerTicket>
       <Combobox.Content>
@@ -341,18 +336,6 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     ),
   },
   {
-    id: 'kbToggle',
-    accessorKey: 'kbToggle',
-    size: 120,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('show-articles', 'Show articles')}
-        icon={IconBook}
-      />
-    ),
-    cell: ({ cell }) => <ToggleCell cell={cell} field="kbToggle" t={t} />,
-  },
-  {
     id: 'kbLabel',
     accessorKey: 'kbLabel',
     size: 200,
@@ -362,9 +345,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
         icon={IconMenu2}
       />
     ),
-    cell: ({ cell }) => (
-      <FeatureLabelCell cell={cell} field="kbLabel" feature="kbToggle" />
-    ),
+    cell: ({ cell }) => <InlineTextCell cell={cell} field="kbLabel" />,
   },
   {
     id: 'kbTopicId',
@@ -396,7 +377,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 200,
     header: () => (
       <RecordTable.InlineHead
-        label={t('ticket-name', 'Ticket name')}
+        label={t('ticket-name', 'Tickets name')}
         icon={IconMenu2}
       />
     ),

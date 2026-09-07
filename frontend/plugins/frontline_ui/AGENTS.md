@@ -918,11 +918,13 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ### `2026-09-07` — The help center table picks its knowledge base topic
 
-- **Summary:** Added a `Knowledge base topic` column to the help center record
-  table; it lists the other knowledge base topics through `TOPICS_SHORT`,
-  writes the choice with `useEditHelpCenter`, excludes the row's own topic, and
-  stays disabled and struck through while `kbToggle` is off, matching the
-  existing feature-label cells.
+- **Summary:** Replaced the `Show articles` switch column with a
+  `Knowledge base topic` select that lists the other topics through
+  `TOPICS_SHORT`, excludes the row's own topic, and writes the choice with
+  `useEditHelpCenter`. The `kbToggle` field itself stays — the topic drawer
+  still owns that switch — and `Knowledge base name` is now a plain inline
+  text cell instead of striking itself through against a switch the table no
+  longer shows.
 - **Affected areas:**
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
   `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
