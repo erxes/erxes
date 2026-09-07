@@ -26,10 +26,10 @@ function TicketActionsList({
   return (
     <Command.List>
       <Command.Item value="edit" onSelect={onEdit}>
-        <IconEdit /> {t('edit')}
+        <IconEdit /> {t('edit', 'Edit')}
       </Command.Item>
       <Command.Item value="delete" onSelect={onDelete}>
-        <IconTrash /> {t('delete')}
+        <IconTrash /> {t('delete', 'Delete')}
       </Command.Item>
     </Command.List>
   );
@@ -54,28 +54,28 @@ export function TicketsMoreColumnCell({
   function handleDelete() {
     if (!_id) {
       toast({
-        title: t('error'),
-        description: t('ticket-id-missing'),
+        title: t('error', 'Error'),
+        description: t('ticket-id-missing', 'Ticket ID is missing'),
         variant: 'destructive',
       });
       return;
     }
 
     confirm({
-      message: t('confirm-delete-ticket'),
+      message: t('confirm-delete-ticket', 'Are you sure you want to delete this ticket?'),
     }).then(async () => {
       try {
         await removeTicket([_id]);
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully'),
+          description: t('ticket-deleted-successfully', 'Ticket deleted successfully'),
         });
       } catch (error: unknown) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description:
-            error instanceof Error ? error.message : t('something-went-wrong'),
+            error instanceof Error ? error.message : t('something-went-wrong', 'Uh oh! Something went wrong.'),
           variant: 'destructive',
         });
       }

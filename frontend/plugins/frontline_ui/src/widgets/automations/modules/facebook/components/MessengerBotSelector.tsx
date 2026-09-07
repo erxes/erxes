@@ -57,7 +57,7 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
               </Avatar.Fallback>
             </Avatar>
             <Label className="text-lg text-muted-foreground">
-              {selectedBot?.name || t('select-a-bot')}
+              {selectedBot?.name || t('select-a-bot', 'Select a bot')}
             </Label>
           </div>
           <IconChevronDown className="w-4 h-4" />
@@ -118,10 +118,10 @@ const MessengerBotList = ({
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">
         <IconRobotFace />
-        <p>{t('no-bots-configured')}</p>
+        <p>{t('no-bots-configured', 'There\'s no bots configured')}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
-            <Label>{t('create-first-bot')}</Label>
+            <Label>{t('create-first-bot', 'Create first facebook messenger bot')}</Label>
           </Link>
         </Button>
       </div>

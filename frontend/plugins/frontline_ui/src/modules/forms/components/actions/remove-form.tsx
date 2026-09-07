@@ -18,8 +18,8 @@ export const RemoveForm = ({
   const handleDelete = () => {
     if (!formId) {
       toast({
-        title: t('error'),
-        description: t('form-id-missing'),
+        title: t('error', 'Error'),
+        description: t('form-id-missing', 'Form ID is missing'),
         variant: 'destructive',
       });
       return;
@@ -27,19 +27,19 @@ export const RemoveForm = ({
 
     confirm({
       message: title
-        ? t('confirm-delete-form-title', { title })
-        : t('confirm-delete-this-form'),
+        ? t('confirm-delete-form-title', 'Are you sure you want to delete "{{title}}"?', { title })
+        : t('confirm-delete-this-form', 'Are you sure you want to delete this form?'),
     }).then(async () => {
       try {
         await removeForm([formId]);
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: t('form-deleted-successfully'),
+          description: t('form-deleted-successfully', 'Form deleted successfully'),
         });
       } catch (e: any) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -52,7 +52,7 @@ export const RemoveForm = ({
       onSelect={handleDelete}
       className="text-destructive"
     >
-      {loading ? <Spinner /> : <IconTrash />} {t('delete')}
+      {loading ? <Spinner /> : <IconTrash />} {t('delete', 'Delete')}
     </DropdownMenu.Item>
   );
 };

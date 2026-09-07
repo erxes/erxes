@@ -33,13 +33,13 @@ export const FormStatusToggle = ({
           row.toggleSelected(false);
         });
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
           description: t('forms-status-changed', { count: formIds.length }),
         });
       } catch (e: any) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e.message,
           variant: 'destructive',
         });
@@ -55,15 +55,15 @@ export const FormStatusToggle = ({
           disabled={loading}
         >
           {loading ? <Spinner /> : <IconSquareToggle />}
-          {t('status')}
+          {t('status', 'Status')}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content sideOffset={15} align='end'>
         <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'archived')}>
-          {t('archive')}
+          {t('archive', 'Archive')}
         </DropdownMenu.Item>
         <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'active')}>
-          {t('activate')}
+          {t('activate', 'Activate')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

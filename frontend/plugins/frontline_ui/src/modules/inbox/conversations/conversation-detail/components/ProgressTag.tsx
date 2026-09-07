@@ -51,7 +51,7 @@ export const ProgressTags = ({ customerId }: { customerId?: string }) => {
   if (Object.keys(tagsStats).length === 0) {
     return (
       <div className="p-4 text-sm text-muted-foreground">
-        {t('no-tag-data')}
+        {t('no-tag-data', 'No tag data available')}
       </div>
     );
   }
@@ -138,7 +138,7 @@ const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => {
       </div>
     ))}
     <div className="flex justify-between text-sm font-medium border-t pt-2">
-      <span>{t('total')}</span>
+      <span>{t('total', 'Total')}</span>
       <span>{total}</span>
     </div>
     <div className="pt-2">

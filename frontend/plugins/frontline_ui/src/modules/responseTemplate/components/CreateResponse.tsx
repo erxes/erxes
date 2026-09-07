@@ -54,7 +54,7 @@ export const CreateResponse = () => {
     addResponse({
       variables: { ...data, channelId },
       onCompleted: (res) => {
-        toast({ title: t('success') });
+        toast({ title: t('success', 'Success!') });
         setOpen(false);
         navigate(
           `/settings/frontline/channels/${channelId}/response/${res.createResponses._id}`,
@@ -62,7 +62,7 @@ export const CreateResponse = () => {
       },
       onError: (err) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: err.message,
           variant: 'destructive',
         });
@@ -77,14 +77,14 @@ export const CreateResponse = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          {t('create-response-template')}
+          {t('create-response-template', 'Create response template')}
           <Kbd>C</Kbd>
         </Button>
       </Sheet.Trigger>
 
       <Sheet.View className="p-0">
         <Sheet.Header>
-          <Sheet.Title>{t('add-response-template')}</Sheet.Title>
+          <Sheet.Title>{t('add-response-template', 'Add response template')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 

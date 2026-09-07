@@ -60,7 +60,7 @@ export const AutomationFbBotFormContent = () => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
 
                   <Input {...field} />
                   <Form.Message />
@@ -72,9 +72,9 @@ export const AutomationFbBotFormContent = () => {
               name="persistentMenus"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('persistent-menu')}</Form.Label>
+                  <Form.Label>{t('persistent-menu', 'Persistent menu')}</Form.Label>
                   <Form.Description>
-                    {t('persistent-menu-description')}
+                    {t('persistent-menu-description', 'Configure menu items that appear in your bot')}
                   </Form.Description>
                   <FacebookPersistentMenuGenerator
                     menus={field.value}
@@ -89,8 +89,8 @@ export const AutomationFbBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? t('hide') : t('show')}{' '}
-                    {t('optional-configuration')}{' '}
+                    {isOptionalOpen ? t('hide', 'Hide') : t('show')}{' '}
+                    {t('optional-configuration', 'Optional configuration')}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>
                 </Button>
@@ -101,23 +101,23 @@ export const AutomationFbBotFormContent = () => {
                   name="tag"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('tag')}</Form.Label>
+                      <Form.Label>{t('tag', 'Tag')}</Form.Label>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder={t('select-tag')} />
+                          <Select.Value placeholder={t('select-tag', 'Select tag')} />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            {t('confirmed-event-update')}
+                            {t('confirmed-event-update', 'Confirmed event update')}
                           </Select.Item>
                           <Select.Item value="POST_PURCHASE_UPDATE">
-                            {t('post-purchase-update')}
+                            {t('post-purchase-update', 'Post purchase update')}
                           </Select.Item>
                           <Select.Item value="ACCOUNT_UPDATE">
-                            {t('account-update')}
+                            {t('account-update', 'Account update')}
                           </Select.Item>
                         </Select.Content>
                       </Select>
@@ -145,7 +145,7 @@ export const AutomationFbBotFormContent = () => {
                   name="greetText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('greet-message')}</Form.Label>
+                      <Form.Label>{t('greet-message', 'Greet Message')}</Form.Label>
                       <Input {...field} />
                       <Form.Message />
                     </Form.Item>
@@ -159,7 +159,7 @@ export const AutomationFbBotFormContent = () => {
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {t('inactivity-pause-minutes')}
+                            {t('inactivity-pause-minutes', 'Inactivity pause minutes')}
                           </Form.Label>
                           <Input
                             type="number"
@@ -178,7 +178,7 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('human-handoff-message')}</Form.Label>
+                          <Form.Label>{t('human-handoff-message', 'Human handoff message')}</Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
@@ -190,7 +190,7 @@ export const AutomationFbBotFormContent = () => {
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {t('automation-active-message')}
+                            {t('automation-active-message', 'Automation active message')}
                           </Form.Label>
                           <Input {...field} />
                           <Form.Message />
@@ -209,12 +209,12 @@ export const AutomationFbBotFormContent = () => {
           disabled={onSaveloading}
           onClick={form.handleSubmit(onSave, (error) =>
             toast({
-              title: t('something-went-wrong'),
+              title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
               description: JSON.stringify(error),
             }),
           )}
         >
-          {onSaveloading ? <Spinner /> : t('save')}
+          {onSaveloading ? <Spinner /> : t('save', 'Save')}
         </Button>
       </Sheet.Footer>
     </>
@@ -238,7 +238,7 @@ const FbBotFormSecondarySheet = ({
       <div className="flex justify-between items-center pb-2">
         <FacebookPageInfo accountId={accountId} pageId={pageId} />
         <Sheet.Trigger asChild>
-          <Button>{t('select-page')}</Button>
+          <Button>{t('select-page', 'Select Page')}</Button>
         </Sheet.Trigger>
       </div>
       <Separator />

@@ -26,8 +26,8 @@ const BarItem = () => {
           <Command>
             <Command.List>
               <Command.Group>
-                <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
-                <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
+                <Command.Item onSelect={handleSelect} value="active">{t('active', 'Active')}</Command.Item>
+                <Command.Item onSelect={handleSelect} value="archived">{t('archived', 'Archived')}</Command.Item>
               </Command.Group>
             </Command.List>
           </Command>
@@ -51,8 +51,8 @@ const View = () => {
         <Command>
           <Command.List>
             <Command.Group>
-              <Command.Item onSelect={handleSelect} value="active">{t('active')}</Command.Item>
-              <Command.Item onSelect={handleSelect} value="archived">{t('archived')}</Command.Item>
+              <Command.Item onSelect={handleSelect} value="active">{t('active', 'Active')}</Command.Item>
+              <Command.Item onSelect={handleSelect} value="archived">{t('archived', 'Archived')}</Command.Item>
             </Command.Group>
           </Command.List>
         </Command>
@@ -66,7 +66,7 @@ const Item = () => {
   return (
     <Filter.Item value="status">
       <IconSquareToggle />
-      {t('status')}
+      {t('status', 'Status')}
     </Filter.Item>
   )
 }

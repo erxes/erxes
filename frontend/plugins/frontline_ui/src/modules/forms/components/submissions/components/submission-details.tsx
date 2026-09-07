@@ -101,12 +101,12 @@ const SubmissionFieldDisplay = ({
     return String(value) === 'true' ? (
       <Badge variant="success">
         <IconCircleDashedCheck size={16} />
-        {t('yes')}
+        {t('yes', 'Yes')}
       </Badge>
     ) : (
       <Badge variant="destructive">
         <IconCircleDashedX size={16} />
-        {t('no')}
+        {t('no', 'No')}
       </Badge>
     );
   }
@@ -182,7 +182,7 @@ export const SubmissionDetails = () => {
                 ))}
                 {!fields.length && (
                   <p className="text-center text-muted-foreground py-8 text-sm">
-                    {t('no-submission-data')}
+                    {t('no-submission-data', 'No submission data')}
                   </p>
                 )}
               </form>
@@ -191,7 +191,7 @@ export const SubmissionDetails = () => {
         </Sheet.Content>
         <Sheet.Footer>
           <Button variant="secondary" onClick={() => setSubmissionId(null)}>
-            {t('close')}
+            {t('close', 'Close')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

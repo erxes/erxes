@@ -137,7 +137,7 @@ const ConversationFilterCommand = ({
   return (
     <Command>
       <Filter.CommandInput
-        placeholder={t('filter')}
+        placeholder={t('filter', 'Filter...')}
         variant="secondary"
         className="bg-background"
       />
@@ -151,7 +151,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ status: null })}
         >
           <IconSquare />
-          {t('unresolved')}
+          {t('unresolved', 'Unresolved')}
         </ConversationFilterCommandItem>
         <ConversationFilterCommandItem
           count={counts?.resolved}
@@ -160,7 +160,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ status: ConversationStatus.CLOSED })}
         >
           <IconCheckbox />
-          {t('resolved')}
+          {t('resolved', 'Resolved')}
         </ConversationFilterCommandItem>
         <Command.Separator className="my-1" />
         <ConversationFilterCommandItem
@@ -170,7 +170,7 @@ const ConversationFilterCommand = ({
           onSelect={() => setQueries({ unassigned: unassigned ? null : true })}
         >
           <IconUserX />
-          {t('unassigned')}
+          {t('unassigned', 'Unassigned')}
         </ConversationFilterCommandItem>
         <ConversationFilterCommandItem
           count={counts?.participating}
@@ -181,7 +181,7 @@ const ConversationFilterCommand = ({
           }
         >
           <IconUsersGroup />
-          {t('participated')}
+          {t('participated', 'Participated')}
         </ConversationFilterCommandItem>
         <Command.Separator className="my-1" />
         <ConversationFilterCommandItem
@@ -195,7 +195,7 @@ const ConversationFilterCommand = ({
           }
         >
           <IconLoader />
-          {t('awaiting-response')}
+          {t('awaiting-response', 'Awaiting response')}
         </ConversationFilterCommandItem>
         <AutomationStatusFilterItem />
         <SelectChannel.FilterItem />
@@ -203,7 +203,7 @@ const ConversationFilterCommand = ({
         <Command.Separator className="my-1" />
         <Filter.Item value="created">
           <IconCalendarPlus />
-          {t('created-at')}
+          {t('created-at', 'Created at')}
         </Filter.Item>
       </Command.List>
     </Command>
@@ -317,7 +317,7 @@ export const ConversationFilterBar = ({
         <Filter.BarItem queryKey="status">
           <Filter.BarName>
             <IconCheckbox />
-            {t('resolved')}
+            {t('resolved', 'Resolved')}
           </Filter.BarName>
         </Filter.BarItem>
       )}
@@ -329,33 +329,33 @@ export const ConversationFilterBar = ({
       <Filter.BarItem queryKey="unassigned">
         <Filter.BarName>
           <IconUserX />
-          {t('unassigned')}
+          {t('unassigned', 'Unassigned')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="awaitingResponse">
         <Filter.BarName>
           <IconLoader />
-          {t('awaiting-response')}
+          {t('awaiting-response', 'Awaiting response')}
         </Filter.BarName>
       </Filter.BarItem>
 
       <Filter.BarItem queryKey="participated">
         <Filter.BarName>
           <IconUsersGroup />
-          {t('participated')}
+          {t('participated', 'Participated')}
         </Filter.BarName>
       </Filter.BarItem>
       <Filter.BarItem queryKey="participating">
         <Filter.BarName>
           <IconUserCheck />
-          {t('assigned-to-me')}
+          {t('assigned-to-me', 'Assigned to me')}
         </Filter.BarName>
       </Filter.BarItem>
       <Filter.BarItem queryKey="mentioned">
         <Filter.BarName>
           <IconAt />
-          {t('mentions', { defaultValue: 'Mentions' })}
+          {t('mentions', 'Mentions', { defaultValue: 'Mentions' })}
         </Filter.BarName>
       </Filter.BarItem>
       <AutomationStatusFilterBar iconOnly />
@@ -384,11 +384,11 @@ const IntegrationFilterBar = () => {
 
   const label =
     integrationIds.length > 1
-      ? t('selected-integrations', {
+      ? t('selected-integrations', 'Selected integrations', {
           count: integrationIds.length,
           defaultValue: '{{count}} integrations',
         })
-      : integration?.name || integration?.kind || t('integration');
+      : integration?.name || integration?.kind || t('integration', 'Integration');
 
   return (
     <Filter.BarItem queryKey="integrationId">

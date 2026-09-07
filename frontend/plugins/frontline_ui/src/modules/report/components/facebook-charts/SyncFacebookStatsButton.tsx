@@ -24,7 +24,7 @@ export const SyncFacebookStatsButton = ({
         if (result.errors?.length) {
           toast({
             variant: 'destructive',
-            title: t('facebook-sync-partial'),
+            title: t('facebook-sync-partial', 'Some pages could not be synced'),
             description: result.errors
               .map((error) => `${error.pageId}: ${error.message}`)
               .join('\n'),
@@ -34,8 +34,8 @@ export const SyncFacebookStatsButton = ({
 
         toast({
           variant: 'success',
-          title: t('facebook-sync-done'),
-          description: t('facebook-sync-summary', {
+          title: t('facebook-sync-done', 'Synced from Meta'),
+          description: t('facebook-sync-summary', '{{updated}} of {{fetched}} posts updated · {{missing}} not in erxes', {
             updated: result.updated,
             fetched: result.fetched,
             missing: result.missingInErxes,
@@ -45,7 +45,7 @@ export const SyncFacebookStatsButton = ({
       onError: (error) =>
         toast({
           variant: 'destructive',
-          title: t('facebook-sync-failed'),
+          title: t('facebook-sync-failed', 'Sync failed'),
           description: error.message,
         }),
     });
@@ -60,12 +60,12 @@ export const SyncFacebookStatsButton = ({
             size="icon"
             onClick={handleSync}
             disabled={syncing}
-            aria-label={t('facebook-sync')}
+            aria-label={t('facebook-sync', 'Sync from Meta')}
           >
             {syncing ? <Spinner size="sm" /> : <IconRefresh />}
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>{t('facebook-sync-tooltip')}</Tooltip.Content>
+        <Tooltip.Content>{t('facebook-sync-tooltip', 'Fetch comment, reaction and share counts from Facebook')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

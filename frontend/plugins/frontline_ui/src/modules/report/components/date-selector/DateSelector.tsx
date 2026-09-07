@@ -117,14 +117,14 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
       } catch {
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm">{t('custom-date')}</span>
+            <span className="text-sm">{t('custom-date', 'Custom Date')}</span>
           </div>
         );
       }
     }
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm">Custom Date</span>
+        <span className="text-sm">{t('custom-date', 'Custom Date')}</span>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export const DateSelectorCustomDate = () => {
       <DatePicker
         value={customDate}
         onChange={handleDateChange}
-        placeholder={t('select-custom-date-range')}
+        placeholder={t('select-custom-date-range', 'Select custom date range')}
         format="MMM DD, YYYY"
         variant="outline"
         className="w-full"
@@ -259,7 +259,7 @@ const DateSelectorRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
-          <DateSelectorValue placeholder={t('select-date')} />
+          <DateSelectorValue placeholder={t('select-date', 'Select date')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>
           <DateSelectorContent />

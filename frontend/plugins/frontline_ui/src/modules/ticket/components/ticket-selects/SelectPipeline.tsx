@@ -158,23 +158,23 @@ const SelectPipelineContent = () => {
   const { pipelines, channelId } = useSelectPipelineContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-pipelines')} />
+      <Command.Input placeholder={t('search-pipelines', 'Search pipelines...')} />
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">
             {channelId ? (
               <div className="flex items-center flex-col gap-2">
-                {t('no-pipelines-found')}
+                {t('no-pipelines-found', 'No pipelines found')}
                 <Button asChild variant="secondary">
                   <Link
                     to={`/settings/frontline/channels/${channelId}/pipelines`}
                   >
-                    {t('add-pipeline')}
+                    {t('add-pipeline', 'Add pipeline')}
                   </Link>
                 </Button>
               </div>
             ) : (
-              t('channel-not-selected')
+              t('channel-not-selected', 'Channel not selected')
             )}
           </div>
         </Command.Empty>

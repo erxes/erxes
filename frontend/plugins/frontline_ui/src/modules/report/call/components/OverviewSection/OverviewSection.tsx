@@ -18,8 +18,8 @@ export function OverviewSection() {
       <div className="grid gap-4 lg:grid-cols-3">
         <SectionCard
           className="lg:col-span-2"
-          title={t('call-volume-over-time')}
-          description={t('daily-inbound-outbound-breakdown')}
+          title={t('call-volume-over-time', 'Call Volume Over Time')}
+          description={t('daily-inbound-outbound-breakdown', 'Daily inbound / outbound breakdown')}
           loading={volumeLoading}
           skeletonHeight="h-64"
         >
@@ -27,8 +27,8 @@ export function OverviewSection() {
         </SectionCard>
 
         <SectionCard
-          title={t('carrier-breakdown')}
-          description={t('by-mongolian-phone-prefix')}
+          title={t('carrier-breakdown', 'Carrier Breakdown')}
+          description={t('by-mongolian-phone-prefix', 'By Mongolian phone prefix')}
           loading={carrierLoading}
           skeletonHeight="h-40"
         >
@@ -37,8 +37,8 @@ export function OverviewSection() {
       </div>
 
       <SectionCard
-        title={t('hour-day-heatmap')}
-        description={t('call-volume-by-hour-and-day')}
+        title={t('hour-day-heatmap', 'Hour × Day Heatmap')}
+        description={t('call-volume-by-hour-and-day', 'Call volume by hour and day of week')}
         loading={heatLoading}
         skeletonHeight="h-48"
       >

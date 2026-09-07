@@ -51,7 +51,9 @@ const SelectTeamMembersField = ({
     >
       <PopoverScoped>
         <Combobox.Trigger className="w-full">
-          <SelectMember.Value placeholder={t('select-team-members')} />
+          <SelectMember.Value
+            placeholder={t('select-team-members', 'Select team members')}
+          />
         </Combobox.Trigger>
         <Combobox.Content>
           <SelectMember.Content />
@@ -87,7 +89,12 @@ const VisibilityRuleRow = ({
           name="selectedUsers"
           render={({ field }) => (
             <Form.Item className="pb-3">
-              <Form.Label>{t('members-see-all-tickets')}</Form.Label>
+              <Form.Label>
+                {t(
+                  'members-see-all-tickets',
+                  'Members who still see every ticket',
+                )}
+              </Form.Label>
               <Form.Control>
                 <SelectTeamMembersField field={field} />
               </Form.Control>
@@ -144,8 +151,8 @@ const StatusPermissionsSection = ({
           variant="outline"
         >
           {visibleStatusCount >= statuses.length
-            ? t('show-less')
-            : t('show-n-more', {
+            ? t('show-less', 'Show Less')
+            : t('show-n-more', 'Show {{count}} More', {
                 count: Math.min(
                   INITIAL_STATUS_COUNT,
                   statuses.length - visibleStatusCount,
@@ -172,13 +179,18 @@ const PipelinePermissionsFormBody = ({
 
   return (
     <div className="flex flex-col divide-y">
-      <PipelineSection title={t('pipeline-visibility')}>
+      <PipelineSection
+        title={t('pipeline-visibility', 'Pipeline Visibility')}
+      >
         <PipelineVisibility control={form.control} />
       </PipelineSection>
 
       <PipelineSection
-        description={t('control-ticket-visibility')}
-        title={t('visibility-rules')}
+        description={t(
+          'control-ticket-visibility',
+          'Control ticket visibility inside this pipeline',
+        )}
+        title={t('visibility-rules', 'Visibility Rules')}
       >
         <div className="flex flex-col divide-y">
           {VISIBILITY_RULES.map((rule) => (
@@ -192,7 +204,9 @@ const PipelinePermissionsFormBody = ({
       </PipelineSection>
 
       {statuses.length > 0 && (
-        <PipelineSection title={t('status-permissions')}>
+        <PipelineSection
+          title={t('status-permissions', 'Status Permissions')}
+        >
           <StatusPermissionsSection
             statuses={statuses}
             updateStatus={updateStatus}
@@ -333,7 +347,7 @@ export const PipelinePermissionsList = memo(() => {
           // render sees the same pending change and retries the failed save
           // forever.
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });

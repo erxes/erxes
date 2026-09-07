@@ -18,7 +18,7 @@ export const TicketsEditTagsTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconTags className="size-4" />
-        {t('change-tags')}
+        {t('change-tags', 'Change tags')}
       </div>
       <IconChevronRight className="size-4 text-muted-foreground" />
     </Command.Item>
@@ -48,7 +48,7 @@ export const TicketsEditTagsContent = ({
           ticketIds,
           { tagIds: newTagIds },
           {
-            successMessage: t('tickets-updated-successfully'),
+            successMessage: t('tickets-updated-successfully', 'Tickets updated successfully'),
             // The control holds one value for the whole selection, so it can
             // only go back when nothing was applied.
             onError: (failedIds) => {

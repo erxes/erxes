@@ -22,21 +22,25 @@ export const TicketsDelete = ({
   const handleDelete = () => {
     setOpen(false);
     confirm({
-      message: t('confirm-delete-selected-tickets', {
-        count: ticketIds.length,
-      }),
+      message: t(
+        'confirm-delete-selected-tickets',
+        'Are you sure you want to delete the {{count}} selected Ticket?',
+        {
+          count: ticketIds.length,
+        },
+      ),
     }).then(async () => {
       try {
         await removeTicket(ticketIds);
         rows.forEach((row) => row.toggleSelected(false));
         toast({
-          title: t('success'),
+          title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully'),
+          description: t('ticket-deleted-successfully', 'Ticket deleted successfully'),
         });
       } catch (e) {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: e instanceof Error ? e.message : String(e),
           variant: 'destructive',
         });
@@ -47,7 +51,7 @@ export const TicketsDelete = ({
   return (
     <Command.Item className="text-destructive" onSelect={handleDelete}>
       <IconTrash className="size-4" />
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Command.Item>
   );
 };

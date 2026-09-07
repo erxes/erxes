@@ -125,7 +125,7 @@ const ActionConfigMessage = ({
             _id={_id}
             type={type}
             actionData={actionData}
-            text={t('action-requires-trigger')}
+            text={t('action-requires-trigger', 'This action must be part of a chain that starts with a trigger')}
           />
         );
       }
@@ -139,8 +139,8 @@ const ActionConfigMessage = ({
             message.input?.type || ''
           }`}
           buttons={[
-            { _id: botId, text: t('if-reply') },
-            { _id: 'ifNotReply', text: t('if-not-reply') },
+            { _id: botId, text: t('if-reply', 'If Reply') },
+            { _id: 'ifNotReply', text: t('if-not-reply', 'If Not Reply') },
           ]}
         />
       );

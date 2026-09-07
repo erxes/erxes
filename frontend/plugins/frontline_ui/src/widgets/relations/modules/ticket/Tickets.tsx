@@ -80,7 +80,9 @@ export const TicketRelationWidget = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconTicketOff />
         </div>
-        <span className="text-sm">No tickets to display at the moment.</span>
+        <span className="text-sm">
+          {t('no-tickets-to-display', 'No tickets to display at the moment.')}
+        </span>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"
@@ -93,7 +95,7 @@ export const TicketRelationWidget = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tickets')}</span>
+        <span className="font-medium text-primary">{t('tickets', 'Tickets')}</span>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"

@@ -22,11 +22,11 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('manage-channel-forms')}</p>
+          <p>{t('manage-channel-forms', 'Manage channel forms')}</p>
 
           <div className="flex items-center gap-2">
             <p className="text-xs">
-              {t('form', { count: total })}
+              {t('form', 'Form', { count: total })}
             </p>
             <IconChevronRight className="w-4 h-4" />
           </div>

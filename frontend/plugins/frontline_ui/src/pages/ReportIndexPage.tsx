@@ -46,11 +46,11 @@ export default function ReportIndexPage() {
   let activeSectionLabel: string | undefined;
 
   if (activeSection === 'call') {
-    activeSectionLabel = t('call-center');
+    activeSectionLabel = t('call-center', 'Call center');
   } else if (activeSection === 'ticket') {
-    activeSectionLabel = t('ticket');
+    activeSectionLabel = t('ticket', 'Ticket');
   } else if (activeSection === 'facebook') {
-    activeSectionLabel = t('facebook-reports');
+    activeSectionLabel = t('facebook-reports', 'Facebook');
   }
 
   let reportContent = <ReportsView />;
@@ -65,7 +65,7 @@ export default function ReportIndexPage() {
 
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     'Frontline',
-    t('reports'),
+    t('reports', 'Reports'),
     activeSectionLabel,
   );
   const kpiDateFilterId =
@@ -83,7 +83,7 @@ export default function ReportIndexPage() {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/reports">
                     <IconChartHistogram />
-                    {t('reports')}
+                    {t('reports', 'Reports')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -99,13 +99,13 @@ export default function ReportIndexPage() {
             }}
           >
             <ToggleGroup.Item value="overview">
-              {t('frontline-overview')}
+              {t('frontline-overview', 'Frontline Overview')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">{t('ticket')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">{t('ticket', 'Ticket')}</ToggleGroup.Item>
             <ToggleGroup.Item value="facebook">
-              {t('facebook-reports')}
+              {t('facebook-reports', 'Facebook')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="call">{t('call-center')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="call">{t('call-center', 'Call center')}</ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton

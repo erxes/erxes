@@ -182,7 +182,7 @@ export function TopicDrawer({
     <Sheet open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
         <Sheet.Header className="border-b gap-3 shrink-0">
-          <Sheet.Title>{isEditing ? t('kb-edit-topic') : t('kb-new-topic')}</Sheet.Title>
+          <Sheet.Title>{isEditing ? t('kb-edit-topic', 'Edit Topic') : t('kb-new-topic', 'New Topic')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 
@@ -197,9 +197,9 @@ export function TopicDrawer({
               rules={{ required: 'Title is required' }}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kb-title-required')}</Form.Label>
+                  <Form.Label>{t('kb-title-required', 'Title *')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('kb-enter-topic-title')} />
+                    <Input {...field} placeholder={t('kb-enter-topic-title', 'Enter topic title')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -212,9 +212,9 @@ export function TopicDrawer({
               rules={{ required: 'Code is required' }}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kb-code-required')}</Form.Label>
+                  <Form.Label>{t('kb-code-required', 'Code *')}</Form.Label>
                   <Form.Control>
-                    <Input {...field} placeholder={t('kb-enter-topic-code')} />
+                    <Input {...field} placeholder={t('kb-enter-topic-code', 'Enter topic code')} />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
@@ -226,11 +226,11 @@ export function TopicDrawer({
               name="description"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('description')}</Form.Label>
+                  <Form.Label>{t('description', 'Description')}</Form.Label>
                   <Form.Control>
                     <Textarea
                       {...field}
-                      placeholder={t('kb-enter-topic-description')}
+                      placeholder={t('kb-enter-topic-description', 'Enter topic description')}
                     />
                   </Form.Control>
                   <Form.Message />
@@ -244,7 +244,7 @@ export function TopicDrawer({
               rules={{ required: 'Brand is required' }}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kb-brand-required')}</Form.Label>
+                  <Form.Label>{t('kb-brand-required', 'Brand *')}</Form.Label>
                   <Form.Control>
                     <SelectBrand
                       onValueChange={field.onChange}
@@ -263,7 +263,7 @@ export function TopicDrawer({
                 rules={{ required: 'Color is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('kb-color-required')}</Form.Label>
+                    <Form.Label>{t('kb-color-required', 'Color *')}</Form.Label>
                     <Form.Control>
                       <Input {...field} type="color" />
                     </Form.Control>
@@ -278,14 +278,14 @@ export function TopicDrawer({
                 rules={{ required: 'Language is required' }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('kb-language-required')}</Form.Label>
+                    <Form.Label>{t('kb-language-required', 'Language *')}</Form.Label>
                     <Form.Control>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <Select.Trigger>
-                          <Select.Value placeholder={t('kb-select-language')} />
+                          <Select.Value placeholder={t('kb-select-language', 'Select language')} />
                         </Select.Trigger>
                         <Select.Content>
                           {LANGUAGES.map((lang) => (
@@ -307,7 +307,7 @@ export function TopicDrawer({
               name="backgroundImage"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('kb-background-image')}</Form.Label>
+                  <Form.Label>{t('kb-background-image', 'Background Image')}</Form.Label>
                   <Form.Control>
                     <Upload.Root
                       value={field.value}
@@ -329,7 +329,7 @@ export function TopicDrawer({
                           type="button"
                         >
                           <IconUpload className="h-4 w-4 mr-2" />
-                          {t('kb-upload-image')}
+                          {t('kb-upload-image', 'Upload image')}
                         </Upload.Button>
                         <Upload.RemoveButton
                           size="sm"
@@ -347,7 +347,7 @@ export function TopicDrawer({
             {isEditing && topic && (
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-sm">{t('kb-embed-script')}</h4>
+                  <h4 className="font-medium text-sm">{t('kb-embed-script', 'Embed Script')}</h4>
                   <Button
                     type="button"
                     size="sm"
@@ -355,12 +355,12 @@ export function TopicDrawer({
                     onClick={() => setScriptDialogOpen(true)}
                   >
                     <IconCode className="h-4 w-4 mr-2" />
-                    {t('kb-view-script')}
+                    {t('kb-view-script', 'View Script')}
                   </Button>
                 </div>
                 <Badge variant="info" className="block w-full h-auto p-3">
                   <p className="text-sm">
-                    {t('kb-embed-description')}
+                    {t('kb-embed-description', 'Embed this knowledge base topic into your website using the script below.')}
                   </p>
                 </Badge>
               </div>
@@ -375,7 +375,7 @@ export function TopicDrawer({
             variant="outline"
             disabled={busy}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <Button
             type="submit"
@@ -384,11 +384,11 @@ export function TopicDrawer({
           >
             {busy
               ? isEditing
-                ? t('saving')
-                : t('kb-creating')
+                ? t('saving', 'Saving…')
+                : t('kb-creating', 'Creating...')
               : isEditing
-              ? t('kb-save-changes')
-              : t('kb-create-topic')}
+              ? t('kb-save-changes', 'Save Changes')
+              : t('kb-create-topic', 'Create Topic')}
           </Button>
         </div>
       </Sheet.View>
@@ -397,9 +397,9 @@ export function TopicDrawer({
         <Dialog open={scriptDialogOpen} onOpenChange={setScriptDialogOpen}>
           <Dialog.Content className="max-w-2xl">
             <Dialog.Header>
-              <Dialog.Title>{t('kb-embed-script-title')}</Dialog.Title>
+              <Dialog.Title>{t('kb-embed-script-title', 'Knowledge Base Embed Script')}</Dialog.Title>
               <Dialog.Description>
-                {t('kb-embed-script-description')}
+                {t('kb-embed-script-description', 'Copy and paste this script into your website\'s HTML to embed this knowledge base topic.')}
               </Dialog.Description>
             </Dialog.Header>
 
@@ -416,19 +416,19 @@ export function TopicDrawer({
                     handleCopyScript(generateTopicScript(topic._id))
                   }
                 >
-                  {t('kb-copy-script')}
+                  {t('kb-copy-script', 'Copy Script')}
                 </Button>
               </div>
 
               <Badge variant="info" className="block w-full h-auto p-3">
                 <h4 className="font-medium text-sm mb-2">
-                  {t('installation-steps')}
+                  {t('installation-steps', 'Installation steps')}
                 </h4>
                 <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
-                  <li>{t('installation-step-1')}</li>
-                  <li>{t('installation-step-2')}</li>
-                  <li>{t('installation-step-3')}</li>
-                  <li>{t('kb-install-step-4')}</li>
+                  <li>{t('installation-step-1', 'Copy the script above')}</li>
+                  <li>{t('installation-step-2', 'Paste it into your website\'s HTML')}</li>
+                  <li>{t('installation-step-3', 'Place it just before the closing </body> tag')}</li>
+                  <li>{t('kb-install-step-4', 'The knowledge base topic widget will appear on your site')}</li>
                 </ol>
               </Badge>
             </div>
@@ -438,7 +438,7 @@ export function TopicDrawer({
                 variant="secondary"
                 onClick={() => setScriptDialogOpen(false)}
               >
-                {t('close')}
+                {t('close', 'Close')}
               </Button>
             </Dialog.Footer>
           </Dialog.Content>

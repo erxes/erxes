@@ -30,7 +30,7 @@ export const ConversationDisplay = () => {
           </Button>
         </Tooltip.Trigger>
         <Tooltip.Content>
-          {view === 'split' ? t('list-view') : t('split-view')}
+          {view === 'split' ? t('list-view', 'List view') : t('split-view', 'Split view')}
         </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

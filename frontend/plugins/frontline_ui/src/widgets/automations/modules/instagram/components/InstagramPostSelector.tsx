@@ -31,10 +31,10 @@ export const InstagramPostSelector = ({
           />
           <Button className="w-full mt-2">
             {isOpen
-              ? t('hide-posts')
+              ? t('hide-posts', 'Hide posts')
               : selectedPostId
-              ? t('change-selected-post')
-              : t('select-post')}
+              ? t('change-selected-post', 'Change selected post')
+              : t('select-post', 'Select post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -90,7 +90,7 @@ const InstagramSelectedPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground bg-muted">
             <IconImageInPicture size={24} />
-            <span className="text-xs">{t('no-image')}</span>
+            <span className="text-xs">{t('no-image', 'No Image')}</span>
           </div>
         )}
       </div>
@@ -99,7 +99,7 @@ const InstagramSelectedPost = ({
           {instagramGetBotPost?.message}
         </h5>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{t('created-at')}</span>
+          <span>{t('created-at', 'Created at')}</span>
           <span>
             {instagramGetBotPost?.created_time
               ? format(instagramGetBotPost.created_time, 'MMM dd, yyyy HH:mm')
@@ -112,7 +112,7 @@ const InstagramSelectedPost = ({
           rel="noopener noreferrer"
           className="text-xs text-pink-600 hover:text-pink-800"
         >
-          {t('see-post-in-instagram')}
+          {t('see-post-in-instagram', 'See post in Instagram')}
         </a>
       </div>
     </Card>
@@ -190,7 +190,7 @@ const InstagramPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground">
             <IconImageInPicture size={36} />
-            <span>{t('no-image')}</span>
+            <span>{t('no-image', 'No Image')}</span>
           </div>
         )}
       </div>
@@ -198,7 +198,7 @@ const InstagramPost = ({
       <div className="p-2">
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
-          <p className="text-xs text-muted-foreground mb-2">{t('created-at')}</p>
+          <p className="text-xs text-muted-foreground mb-2">{t('created-at', 'Created at')}</p>
           <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
           </p>
@@ -208,7 +208,7 @@ const InstagramPost = ({
           target="_blank"
           className="text-xs text-pink-600 hover:text-pink-800"
         >
-          {t('see-post-in-instagram')}
+          {t('see-post-in-instagram', 'See post in Instagram')}
         </a>
       </div>
     </Card>

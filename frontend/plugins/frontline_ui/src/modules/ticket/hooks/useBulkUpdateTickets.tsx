@@ -85,25 +85,25 @@ export const useBulkUpdateTickets = (): TUseBulkUpdateTickets => {
 
     // A stale list has to be reported even when the batch also had a mutation
     // failure, otherwise the tickets that did change look untouched.
-    const refreshHint = refetchFailed ? ` ${t('tickets-refresh-failed')}` : '';
+    const refreshHint = refetchFailed ? ` ${t('tickets-refresh-failed', 'The list could not be refreshed — refresh to see the latest.')}` : '';
 
     if (failures.length > 0) {
       onError?.(failedIds);
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: failures[0].errorMessage + refreshHint,
         variant: 'destructive',
       });
     } else if (refetchFailed) {
       // The mutations landed, so nothing rolls back.
       toast({
-        title: t('error'),
+        title: t('error', 'Error'),
         description: successMessage + refreshHint,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: t('success'),
+        title: t('success', 'Success!'),
         variant: 'success',
         description: successMessage,
       });

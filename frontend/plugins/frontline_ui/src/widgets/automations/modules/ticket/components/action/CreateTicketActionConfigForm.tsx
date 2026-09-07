@@ -162,7 +162,7 @@ export const CreateTicketActionConfigForm = ({
           name="channelId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('channel-label')}</Form.Label>
+              <Form.Label>{t('channel-label', 'Channel')}</Form.Label>
               <SelectChannel.FormItem
                 value={field.value || ''}
                 onValueChange={(value) => {
@@ -180,7 +180,7 @@ export const CreateTicketActionConfigForm = ({
           name="pipelineId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('pipeline-label')}</Form.Label>
+              <Form.Label>{t('pipeline-label', 'Pipeline')}</Form.Label>
               <SelectPipeline
                 variant="form"
                 value={field.value || ''}
@@ -199,7 +199,7 @@ export const CreateTicketActionConfigForm = ({
           name="statusId"
           render={({ field }) => (
             <Form.Item className={FULL_WIDTH_SELECT_ITEM_CLASS}>
-              <Form.Label>{t('status')}</Form.Label>
+              <Form.Label>{t('status', 'Status')}</Form.Label>
               <TicketStatusConfigSelect
                 value={field.value || ''}
                 pipelineId={pipelineId}
@@ -216,7 +216,7 @@ export const CreateTicketActionConfigForm = ({
         name="name"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('name')}</Form.Label>
+            <Form.Label>{t('name', 'Name')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -232,7 +232,7 @@ export const CreateTicketActionConfigForm = ({
         name="description"
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>{t('description')}</Form.Label>
+            <Form.Label>{t('description', 'Description')}</Form.Label>
             <PlaceholderInput
               propertyType={propertyType}
               value={field.value || ''}
@@ -248,7 +248,7 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="priority"
-          label={t('priority-label')}
+          label={t('priority-label', 'Priority')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Option]}
           selectionType={TPlaceholderInputSuggestion.Option}
@@ -264,7 +264,7 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="assigneeId"
-          label={t('assignee')}
+          label={t('assignee', 'Assignee')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.CallUser]}
         />
@@ -274,14 +274,14 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="startDate"
-          label={t('start-date')}
+          label={t('start-date', 'Start date')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Date]}
         />
         <PlaceholderFormField
           control={control}
           name="targetDate"
-          label={t('target-date')}
+          label={t('target-date', 'Target date')}
           propertyType={propertyType}
           enabled={[TPlaceholderInputSuggestion.Date]}
         />
@@ -291,7 +291,7 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="tagIds"
-          label={t('tags')}
+          label={t('tags', 'Tags')}
           propertyType={propertyType}
           selectMode="many"
           enabled={[TPlaceholderInputSuggestion.CallTag]}
@@ -299,14 +299,14 @@ export const CreateTicketActionConfigForm = ({
         <PlaceholderFormField
           control={control}
           name="labelIds"
-          label={t('labels')}
+          label={t('labels', 'Labels')}
           propertyType={propertyType}
           selectMode="many"
         />
         <PlaceholderFormField
           control={control}
           name="companyIds"
-          label={t('companies')}
+          label={t('companies', 'Companies')}
           propertyType={propertyType}
           selectMode="many"
           enabled={[TPlaceholderInputSuggestion.CallCompany]}

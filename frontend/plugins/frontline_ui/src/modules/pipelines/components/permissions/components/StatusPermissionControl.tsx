@@ -126,9 +126,14 @@ export const StatusPermissionControl = ({
         }
       } catch (error) {
         toast({
-          title: t('error'),
-          description: `${t('failed-to-update-visibility')}: ${
-            error instanceof Error ? error.message : t('unknown')
+          title: t('error', 'Error'),
+          description: `${t(
+            'failed-to-update-visibility',
+            'Failed to update visibility',
+          )}: ${
+            error instanceof Error
+              ? error.message
+              : t('unknown', 'Unknown')
           }`,
           variant: 'destructive',
         });
@@ -160,9 +165,14 @@ export const StatusPermissionControl = ({
         }));
       } catch (error) {
         toast({
-          title: t('error'),
-          description: `${t('failed-to-update-member-permission')}: ${
-            error instanceof Error ? error.message : t('unknown')
+          title: t('error', 'Error'),
+          description: `${t(
+            'failed-to-update-member-permission',
+            'Failed to update member permission',
+          )}: ${
+            error instanceof Error
+              ? error.message
+              : t('unknown', 'Unknown')
           }`,
           variant: 'destructive',
         });
@@ -204,8 +214,12 @@ export const StatusPermissionControl = ({
           value={visibility}
           variant="outline"
         >
-          <ToggleGroup.Item value="public">{t('public')}</ToggleGroup.Item>
-          <ToggleGroup.Item value="private">{t('private')}</ToggleGroup.Item>
+          <ToggleGroup.Item value="public">
+            {t('public', 'Public')}
+          </ToggleGroup.Item>
+          <ToggleGroup.Item value="private">
+            {t('private', 'Private')}
+          </ToggleGroup.Item>
         </ToggleGroup>
       </div>
 

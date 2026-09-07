@@ -34,10 +34,10 @@ const BotActionsCell = ({ _id }: { _id?: string }) => {
     REPAIR_INSTAGRAM_BOT,
     {
       variables: { _id },
-      onCompleted: () => toast({ title: t('repaired-successfully') }),
+      onCompleted: () => toast({ title: t('repaired-successfully', 'Repaired successfully') }),
       onError: (error) =>
         toast({
-          title: t('something-went-wrong'),
+          title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -50,10 +50,10 @@ const BotActionsCell = ({ _id }: { _id?: string }) => {
       variables: { _id },
       refetchQueries: INSTAGRAM_BOTS_REFETCH_QUERIES,
       awaitRefetchQueries: true,
-      onCompleted: () => toast({ title: t('removed-successfully') }),
+      onCompleted: () => toast({ title: t('removed-successfully', 'Removed successfully') }),
       onError: (error) =>
         toast({
-          title: t('something-went-wrong'),
+          title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
           description: error.message,
           variant: 'destructive',
         }),

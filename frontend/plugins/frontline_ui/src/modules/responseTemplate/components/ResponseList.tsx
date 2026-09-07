@@ -43,7 +43,7 @@ const ResponseMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-response'),
+      message: t('confirm-delete-response', 'Are you sure you want to delete this response?'),
       options: { confirmationValue: 'delete' },
     })
       .then(() => {
@@ -60,14 +60,14 @@ const ResponseMoreCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item
               value="delete"
               onSelect={handleDelete}
               className="text-destructive"
             >
-              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete')}
+              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -105,7 +105,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
     {
       accessorKey: 'name',
       id: 'name',
-      header: () => <RecordTable.InlineHead label={t('title-label')} icon={IconAlignLeft} />,
+      header: () => <RecordTable.InlineHead label={t('title-label', 'Title')} icon={IconAlignLeft} />,
       size: 400,
       cell: ResponseNameCell,
     },
@@ -113,7 +113,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       accessorKey: 'createdAt',
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label={t('created-at')} icon={IconCalendarPlus} />
+        <RecordTable.InlineHead label={t('created-at', 'Created at')} icon={IconCalendarPlus} />
       ),
       size: 120,
       cell: ({ cell }) => (
@@ -128,7 +128,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       accessorKey: 'updatedAt',
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label={t('updated-at-label')} icon={IconCalendarUp} />
+        <RecordTable.InlineHead label={t('updated-at-label', 'Updated At')} icon={IconCalendarUp} />
       ),
       size: 120,
       cell: ({ cell }) => (
@@ -163,12 +163,12 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
             <IconGitBranch />
           </Empty.Media>
           <Empty.Title>
-            {searchValue ? t('no-results-found') : t('no-responses-yet')}
+            {searchValue ? t('no-results-found', 'No results found') : t('no-responses-yet', 'No responses yet')}
           </Empty.Title>
           <Empty.Description>
             {searchValue
-              ? t('try-different-search-term')
-              : t('get-started-creating-first-response')}
+              ? t('try-different-search-term', 'Try a different search term')
+              : t('get-started-creating-first-response', 'Get started by creating your first response')}
           </Empty.Description>
         </Empty.Header>
         {!searchValue && (

@@ -29,8 +29,8 @@ export const useUpdateTicketStatus = () => {
       },
       onError: (error) => {
         toast({
-          title: t('error'),
-          description: t('update-failed', { message: error.message }),
+          title: t('error', 'Error'),
+          description: t('update-failed', 'Update failed: {{message}}', { message: error.message }),
           variant: 'destructive',
         });
       },

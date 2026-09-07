@@ -36,10 +36,10 @@ export const FacebookPostSelector = ({
           <FacebookSelectedPost botId={botId} selectedPostId={selectedPostId} />
           <Button className="w-full mt-2">
             {isOpen
-              ? t('hide-posts')
+              ? t('hide-posts', 'Hide posts')
               : selectedPostId
-              ? t('change-selected-post')
-              : t('select-post')}
+              ? t('change-selected-post', 'Change selected post')
+              : t('select-post', 'Select post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -100,7 +100,7 @@ const FacebookSelectedPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground bg-muted">
             <IconImageInPicture size={24} />
-            <span className="text-xs">{t('no-image')}</span>
+            <span className="text-xs">{t('no-image', 'No Image')}</span>
           </div>
         )}
       </div>
@@ -111,7 +111,7 @@ const FacebookSelectedPost = ({
         </h5>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{t('created-at')}</span>
+          <span>{t('created-at', 'Created at')}</span>
           <span>
             {facebookGetBotPost?.created_time
               ? format(facebookGetBotPost.created_time, 'MMM dd, yyyy HH:mm')
@@ -125,7 +125,7 @@ const FacebookSelectedPost = ({
           rel="noopener noreferrer"
           className="text-xs text-blue-600 hover:text-blue-800"
         >
-          {t('see-post-in-facebook')}
+          {t('see-post-in-facebook', 'See post in Facebook')}
         </a>
       </div>
     </Card>
@@ -204,7 +204,7 @@ const FacebookPost = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-accent-foreground">
             <IconImageInPicture size={36} />
-            <span>{t('no-image')}</span>
+            <span>{t('no-image', 'No Image')}</span>
           </div>
         )}
       </div>
@@ -213,7 +213,7 @@ const FacebookPost = ({
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
           <p className="text-xs text-muted-foreground mb-2">
-            {t('created-at')}
+            {t('created-at', 'Created at')}
           </p>
           <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
@@ -224,7 +224,7 @@ const FacebookPost = ({
           target="_blank"
           className="text-xs text-info hover:text-info/70"
         >
-          {t('see-post-in-facebook')}
+          {t('see-post-in-facebook', 'See post in Facebook')}
         </a>
       </div>
     </Card>

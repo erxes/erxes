@@ -11,6 +11,7 @@ import { formatDate } from 'date-fns';
 import { MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   IconTicket,
   IconChevronLeft,
@@ -99,7 +100,7 @@ export const TicketList = ({
           className="size-7"
           onClick={handleExport}
           disabled={exportLoading}
-          title={t('export-excel')}
+          title={t('export-excel', 'Export Excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
@@ -113,7 +114,7 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description={t('ticket-list')}
+        description={t('ticket-list', 'Ticket list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -130,13 +131,13 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description={t('ticket-list')}
+        description={t('ticket-list', 'Ticket list')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data')}</Alert.Title>
+            <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -149,7 +150,7 @@ export const TicketList = ({
       <FrontlineCard
         id={id}
         title={title}
-        description={t('no-tickets-found')}
+        description={t('no-tickets-found', 'No tickets found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -167,7 +168,7 @@ export const TicketList = ({
     <FrontlineCard
       id={id}
       title={title}
-      description={t('ticket-count', { count: totalCount })}
+      description={t('ticket-count', '{{count}} tickets', { count: totalCount })}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -210,7 +211,7 @@ const Pagination = memo(function Pagination({
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t">
       <span className="text-xs text-muted-foreground">
-        {t('pagination-range', { from, to, total: totalCount })}
+        {t('pagination-range', '{{from}}–{{to}} of {{total}}', { from, to, total: totalCount })}
       </span>
       <div className="flex items-center gap-1">
         <Button
@@ -220,7 +221,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          {t('prev')}
+          {t('prev', 'Prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -231,7 +232,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          {t('next')}
+          {t('next', 'Next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>
@@ -244,11 +245,12 @@ const TicketListTable = memo(function TicketListTable({
 }: {
   tickets: TicketListItem[];
 }) {
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={tickets}
-        columns={ticketListColumns}
+        columns={ticketListColumns(t)}
         className="m-3"
         tableId="frontline_ticket_report_record_table"
       >
@@ -265,10 +267,12 @@ const TicketListTable = memo(function TicketListTable({
   );
 });
 
-export const ticketListColumns: ColumnDef<TicketListItem>[] = [
+export const ticketListColumns = (
+  t: TFunction,
+): ColumnDef<TicketListItem>[] => [
   {
     id: 'name',
-    header: 'Name',
+    header: t('name', 'Name'),
     accessorKey: 'name',
     cell: ({ cell }) => (
       <RecordTableInlineCell className="px-4 text-xs font-medium">
@@ -278,7 +282,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'createdAt',
-    header: 'Created',
+    header: t('created', 'Created'),
     accessorKey: 'createdAt',
     cell: ({ cell }) => (
       <RecordTableInlineCell>
@@ -290,7 +294,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     accessorKey: 'status',
     size: 160,
     cell: ({ cell }) => {
@@ -327,7 +331,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'state',
-    header: 'State',
+    header: t('state', 'State'),
     accessorKey: 'state',
     size: 80,
     cell: ({ cell }) => {
@@ -345,14 +349,14 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'assigneeId',
-    header: 'Assigned',
+    header: t('assigned', 'Assigned'),
     accessorKey: 'assigneeId',
     cell: ({ cell }) => {
       const assigneeId = cell.getValue() as string;
       if (!assigneeId)
         return (
           <RecordTableInlineCell className="text-xs text-muted-foreground">
-            Unassigned
+            {t('unassigned', 'Unassigned')}
           </RecordTableInlineCell>
         );
       return (
@@ -367,7 +371,7 @@ export const ticketListColumns: ColumnDef<TicketListItem>[] = [
   },
   {
     id: 'targetDate',
-    header: 'Due Date',
+    header: t('due-date', 'Due Date'),
     accessorKey: 'targetDate',
     size: 100,
     cell: ({ cell }) => {

@@ -167,7 +167,7 @@ export function CallHistorySection() {
       });
     } catch (error) {
       toast({
-        title: t('something-went-wrong'),
+        title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
         description: (error as Error).message,
         variant: 'destructive',
       });
@@ -178,7 +178,7 @@ export function CallHistorySection() {
 
   return (
     <SectionCard
-      title={t('call-history', { defaultValue: 'Call history' })}
+      title={t('call-history', 'Call history', { defaultValue: 'Call history' })}
       description={t('call-history-description', {
         defaultValue: 'Every call in the selected range — one row per call',
       })}
@@ -307,7 +307,7 @@ export function CallHistorySection() {
                   {t('caller', { defaultValue: 'Caller' })}
                 </ReportTable.Head>
                 <ReportTable.Head>
-                  {t('direction', { defaultValue: 'Direction' })}
+                  {t('direction', 'Direction', { defaultValue: 'Direction' })}
                 </ReportTable.Head>
                 <ReportTable.Head>
                   {t('outcome', { defaultValue: 'Outcome' })}
@@ -418,8 +418,8 @@ export function CallHistorySection() {
                           <IconPhoneOutgoing className="h-4 w-4 text-[var(--chart-5)]" />
                         )}
                         {entry.direction === 'incoming'
-                          ? t('incoming', { defaultValue: 'Incoming' })
-                          : t('outgoing', { defaultValue: 'Outgoing' })}
+                          ? t('incoming', 'Incoming', { defaultValue: 'Incoming' })
+                          : t('outgoing', 'Outgoing', { defaultValue: 'Outgoing' })}
                       </span>
                     </ReportTable.Cell>
 

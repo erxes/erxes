@@ -27,55 +27,55 @@ export function CallbacksSection() {
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CallbackMiniKpi
-          label={t('missed-calls')}
+          label={t('missed-calls', 'Missed calls')}
           value={fmtNum(totals.missed)}
           accentVar="var(--destructive)"
         />
         <CallbackMiniKpi
-          label={t('cb-attempts')}
+          label={t('cb-attempts', 'CB Attempts')}
           value={fmtNum(totals.attempts)}
         />
         <CallbackMiniKpi
-          label={t('successful')}
+          label={t('successful', 'Successful')}
           value={fmtNum(totals.successful)}
           accentVar="var(--success)"
         />
         <CallbackMiniKpi
-          label={t('recovery-rate')}
+          label={t('recovery-rate', 'Recovery Rate')}
           value={fmtPct(overallRate)}
           accentVar={rateColorVar(overallRate)}
         />
       </div>
 
       <SectionCard
-        title={t('callback-recovery')}
-        description={t('per-queue-missed-call-follow-up')}
+        title={t('callback-recovery', 'Callback Recovery')}
+        description={t('per-queue-missed-call-follow-up', 'Per-queue missed call follow-up statistics')}
         accentClass="bg-[var(--warning)]"
         loading={loading}
         skeletonHeight="h-32"
       >
         {!stats.length ? (
-          <ReportTable.Empty>{t('no-callback-data')}</ReportTable.Empty>
+          <ReportTable.Empty>{t('no-callback-data', 'No callback data for the selected period')}</ReportTable.Empty>
         ) : (
           <ReportTable>
             <ReportTable.Header>
               <ReportTable.HeaderRow>
-                <ReportTable.Head>{t('queue')}</ReportTable.Head>
-                <ReportTable.Head align="right">{t('missed')}</ReportTable.Head>
+                <ReportTable.Head>{t('queue', 'Queue')}</ReportTable.Head>
+                <ReportTable.Head align="right">{t('missed', 'Missed')}</ReportTable.Head>
                 <ReportTable.Head align="right">
-                  {t('cb-attempts')}
+                  {t('cb-attempts', 'CB Attempts')}
                 </ReportTable.Head>
                 <ReportTable.Head align="right">
-                  {t('successful')}
+                  {t('successful', 'Successful')}
                 </ReportTable.Head>
                 <ReportTable.Head align="right">
-                  {t('pending')}
+                  {t('pending', 'Pending')}
                 </ReportTable.Head>
                 <ReportTable.Head align="right" className="w-40">
-                  {t('cb-rate')}
+                  {t('cb-rate', 'CB Rate')}
                 </ReportTable.Head>
                 <ReportTable.Head align="right">
-                  {t('avg-cb-time')}
+                  {t('avg-cb-time', 'Avg CB Time')}
                 </ReportTable.Head>
               </ReportTable.HeaderRow>
             </ReportTable.Header>
@@ -125,7 +125,7 @@ export function CallbacksSection() {
                     numeric
                     className="font-mono text-sm"
                   >
-                    {fmt(row.averageCallbackTime)} {t('min')}
+                    {fmt(row.averageCallbackTime)} {t('min', 'min')}
                   </ReportTable.Cell>
                 </ReportTable.Row>
               ))}

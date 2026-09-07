@@ -120,7 +120,7 @@ export const SelectChannelsContent = ({
       <Command.Input
         variant="secondary"
         focusOnMount
-        placeholder={t('search-channels')}
+        placeholder={t('search-channels', 'Search channels...')}
         value={search}
         onValueChange={setSearch}
       />
@@ -207,7 +207,7 @@ export const SelectChannelFilterItem = () => {
   return (
     <Filter.Item value="channelId">
       <IconTopologyStar3 />
-      {t('by-channel')}
+      {t('by-channel', 'By Channel')}
     </Filter.Item>
   );
 };
@@ -263,7 +263,7 @@ export const SelectChannelFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'channelId'}>
       <Filter.BarName>
         <IconTopologyStar3 />
-        {!iconOnly && t('select-channel')}
+        {!iconOnly && t('select-channel', 'Select Channel')}
       </Filter.BarName>
       <SelectChannelProvider
         value={channelId || (mode === 'single' ? '' : [])}
@@ -282,7 +282,7 @@ export const SelectChannelFilterBar = ({
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey || 'channelId'}>
               {selectedPersonalChannel ? (
-                selectedPersonalChannel.name || t('personal-channel')
+                selectedPersonalChannel.name || t('personal-channel', 'Personal channel')
               ) : (
                 <SelectChannelsValue />
               )}

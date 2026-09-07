@@ -2,7 +2,6 @@ import { Label, RadioGroup } from 'erxes-ui';
 import { cn } from 'erxes-ui/lib';
 import { cva } from 'class-variance-authority';
 import { IconCheck } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
 
 type HeroStyleVariant = 'glossy' | 'aurora' | 'mesh' | 'flat';
 type NavigationVariant = 'pill' | 'fluid';
@@ -41,7 +40,6 @@ export const HeroStyleRadioGroup = ({
   value,
   onChange,
 }: HeroStyleRadioGroupProps) => {
-  const { t } = useTranslation('frontline');
   return (
   <RadioGroup
     value={value}
@@ -75,7 +73,7 @@ export const HeroStyleRadioGroup = ({
                 : 'text-muted-foreground',
             )}
           >
-            {t(label)}
+            {label}
           </span>
           {selected && (
             <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
@@ -146,7 +144,6 @@ export const NavigationVariantRadioGroup = ({
   value,
   onChange,
 }: NavigationVariantRadioGroupProps) => {
-  const { t } = useTranslation('frontline');
   return (
     <RadioGroup
       value={value}
@@ -179,9 +176,9 @@ export const NavigationVariantRadioGroup = ({
                   selected ? 'text-foreground' : 'text-muted-foreground',
                 )}
               >
-                {t(label)}
+                {label}
               </p>
-              <p className="text-xs text-muted-foreground">{t(description)}</p>
+              <p className="text-xs text-muted-foreground">{description}</p>
             </div>
             {selected && (
               <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">

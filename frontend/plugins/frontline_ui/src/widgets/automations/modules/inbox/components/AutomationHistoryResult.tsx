@@ -35,7 +35,7 @@ export const AutomationHistoryResult = ({
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger>
-            <Badge variant="destructive">{t('error')}</Badge>
+            <Badge variant="destructive">{t('error', 'Error')}</Badge>
           </Tooltip.Trigger>
           <Tooltip.Content>{error}</Tooltip.Content>
         </Tooltip>
@@ -46,14 +46,14 @@ export const AutomationHistoryResult = ({
   const content = getSentMessage(result);
 
   if (!content) {
-    return <Badge variant="secondary">{t('no-message-configured')}</Badge>;
+    return <Badge variant="secondary">{t('no-message-configured', 'No message configured')}</Badge>;
   }
 
   return (
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger>
-          <Badge variant="success">{t('sent-successfully')}</Badge>
+          <Badge variant="success">{t('sent-successfully', 'Sent successfully')}</Badge>
         </Tooltip.Trigger>
         <Tooltip.Content>{content}</Tooltip.Content>
       </Tooltip>

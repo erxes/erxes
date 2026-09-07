@@ -77,7 +77,7 @@ export const TicketTotalCount = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data')}</Alert.Title>
+            <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -95,10 +95,10 @@ export const TicketTotalCount = ({
     >
       <FrontlineCard.Header filter={<TicketReportFilter cardId={id} />} />
       <FrontlineCard.Content>
-        <InfoCard title={t('total-tickets')}>
+        <InfoCard title={t('total-tickets', 'Total Tickets')}>
           <InfoCard.Content className="text-center">
             {loading ? (
-              <span className="text-muted-foreground text-sm">{t('loading')}</span>
+              <span className="text-muted-foreground text-sm">{t('loading', 'Loading...')}</span>
             ) : (
               <span className="text-2xl font-bold">{totalCount}</span>
             )}

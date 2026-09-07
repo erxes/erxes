@@ -139,7 +139,7 @@ export function CallReportsPage() {
 
         {!integrationsLoading && !integrationOptions.length && (
           <div className="m-6 rounded-xl border-2 border-dashed p-12 text-center text-sm text-muted-foreground">
-            {t('no-call-integration-found')}
+            {t('no-call-integration-found', 'No call integration found for this user.')}
           </div>
         )}
 

@@ -44,14 +44,14 @@ export const SaveReportChartButton = ({
     addReportChart({
       variables: { name: name.trim(), chartType, visualType, colSpan, filters },
       onCompleted: () => {
-        toast({ variant: 'success', title: t('chart-saved') });
+        toast({ variant: 'success', title: t('chart-saved', 'Chart saved') });
         form.reset();
         setOpen(false);
       },
       onError: (error) =>
         toast({
           variant: 'destructive',
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
         }),
     });
@@ -72,7 +72,7 @@ export const SaveReportChartButton = ({
           variant="ghost"
           size="icon"
           className="size-7"
-          title={t('save-chart')}
+          title={t('save-chart', 'Save chart')}
         >
           <IconDeviceFloppy className="size-3.5" />
         </Button>
@@ -81,9 +81,9 @@ export const SaveReportChartButton = ({
         <Form {...form}>
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <Dialog.Header>
-              <Dialog.Title>{t('save-chart')}</Dialog.Title>
+              <Dialog.Title>{t('save-chart', 'Save chart')}</Dialog.Title>
               <Dialog.Description>
-                {t('save-chart-description')}
+                {t('save-chart-description', 'Save the filters selected right now as a new chart. The default chart stays as it is.')}
               </Dialog.Description>
             </Dialog.Header>
             <Form.Field
@@ -91,7 +91,7 @@ export const SaveReportChartButton = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('chart-name')}</Form.Label>
+                  <Form.Label>{t('chart-name', 'Chart name')}</Form.Label>
                   <Form.Control>
                     <Input
                       {...field}
@@ -106,11 +106,11 @@ export const SaveReportChartButton = ({
             <Dialog.Footer>
               <Dialog.Close asChild>
                 <Button type="button" variant="ghost">
-                  {t('cancel')}
+                  {t('cancel', 'Cancel')}
                 </Button>
               </Dialog.Close>
               <Button type="submit" disabled={adding}>
-                {adding ? <Spinner /> : t('save')}
+                {adding ? <Spinner /> : t('save', 'Save')}
               </Button>
             </Dialog.Footer>
           </form>

@@ -79,7 +79,7 @@ export const PersonalInboxNav = () => {
     if (!integrationTypes.length) {
       return (
         <div className="text-sm text-accent-foreground ml-8 my-2">
-          {t('no-personal-inbox')}
+          {t('no-personal-inbox', 'No personal inbox yet')}
         </div>
       );
     }
@@ -98,11 +98,11 @@ export const PersonalInboxNav = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('my-inbox', { defaultValue: 'My Inbox' })}
+      name={t('my-inbox', 'My inbox', { defaultValue: 'My Inbox' })}
       onClickCapture={handleGroupClickCapture}
     >
       <ChannelNavItem
-        name={personalChannel?.name || t('personal-channel')}
+        name={personalChannel?.name || t('personal-channel', 'Personal channel')}
         icon={
           <IconComponent
             name={personalChannel?.icon}

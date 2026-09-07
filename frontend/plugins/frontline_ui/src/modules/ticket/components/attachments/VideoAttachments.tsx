@@ -1,5 +1,6 @@
 import { Button } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 import { IAttachment } from '@/ticket/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
@@ -15,13 +16,14 @@ const getCloudflareStreamIframe = (url: string): string | null => {
 };
 
 const VideoAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
+  const { t } = useTranslation('frontline');
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
 
   return (
     <div className="py-4 px-8">
       <h4 className="uppercase text-sm text-muted-foreground pb-4">
-        Video Attachments
+        {t('video-attachments', 'Video Attachments')}
       </h4>
       <div className="overflow-x-auto flex gap-4">
         {attachments.map((attachment) => {

@@ -29,7 +29,7 @@ export const MessageTriggerConfigPanel = () => {
     <div className="m-4 border border-md px-4 py-2">
       <Button variant="ghost" onClick={() => setActiveConditionType('')}>
         <IconChevronLeft />
-        {t('back-to-conditions')}
+        {t('back-to-conditions', 'Back to conditions')}
       </Button>
 
       {activeConditionType === 'direct' ? (

@@ -100,7 +100,7 @@ const SelectStatusValue = ({
   if (!selectedStatus) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || t('select-status')}
+        {placeholder || t('select-status', 'Select status')}
       </span>
     );
   }
@@ -159,10 +159,10 @@ const SelectStatusContent = () => {
   const { statuses, pipelineId } = useSelectStatusContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-status')} />
+      <Command.Input placeholder={t('search-status', 'Search status')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {pipelineId ? t('no-status-found') : t('pipeline-not-selected')}
+          {pipelineId ? t('no-status-found', 'No status found') : t('pipeline-not-selected', 'Pipeline not selected')}
         </span>
       </Command.Empty>
       <Command.List>
@@ -271,7 +271,7 @@ export const SelectStatusTicketFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <Filter.BarButton filterKey="statusId">
-          <SelectStatusValue placeholder={t('status')} />
+          <SelectStatusValue placeholder={t('status', 'Status')} />
         </Filter.BarButton>
         <Combobox.Content>
           <SelectStatusContent />

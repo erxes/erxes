@@ -72,19 +72,19 @@ export const FormMutateLayout = ({
             className="mr-auto bg-border"
             onClick={handleCancel}
           >
-            {t('cancel')}
+            {t('cancel', 'Cancel')}
           </Button>
           <FormMutateLayoutPreviousStepButton />
           <Button type="submit" disabled={isLoading}>
             {isLoading
               ? id
-                ? t('updating-form')
-                : t('creating-form')
+                ? t('updating-form', 'Updating form...')
+                : t('creating-form', 'Creating form...')
               : step === FORM_SETUP_STEPS.CONFIRMATION
                 ? id
-                  ? t('update-form')
-                  : t('create-form')
-                : t('next-step')}
+                  ? t('update-form', 'Update form')
+                  : t('create-form', 'Create form')
+                : t('next-step', 'Next step')}
           </Button>
         </Sheet.Footer>
       </form>
@@ -102,7 +102,7 @@ export const FormMutateLayoutPreviousStepButton = () => {
       onClick={() => setStep(step - 1)}
       disabled={step === FORM_SETUP_STEPS.GENERAL}
     >
-      {t('previous-step')}
+      {t('previous-step', 'Previous step')}
     </Button>
   );
 };

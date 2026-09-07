@@ -48,7 +48,7 @@ export const OpenThreadTriggerEditor = ({
   return (
     <div className="space-y-4 p-4">
       <div className="space-y-2">
-        <Label className="text-sm font-semibold">{tf('type')}</Label>
+        <Label className="text-sm font-semibold">{tf('type', 'Type')}</Label>
         <Select
           value={sourceMode}
           onValueChange={(value) =>
@@ -98,7 +98,7 @@ export const OpenThreadTriggerEditor = ({
 
       {isSpecificMode(sourceMode) ? (
         <div className={cn('space-y-2', { blur: !botId })}>
-          <Label className="text-sm font-semibold">{tf('post')}</Label>
+          <Label className="text-sm font-semibold">{tf('post', 'Post')}</Label>
           <FacebookPostSelector
             botId={botId}
             selectedPostId={selectedSourceId}

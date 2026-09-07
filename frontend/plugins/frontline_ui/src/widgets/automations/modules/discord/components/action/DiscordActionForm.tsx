@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Select, Textarea } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import {
   AutomationActionFormProps,
@@ -123,13 +124,14 @@ export const DiscordActionForm = ({
   onSaveActionConfig,
   targetType,
 }: AutomationActionFormProps<TDiscordMessageActionForm>) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TDiscordMessageActionForm>({
     resolver: zodResolver(discordMessageActionSchema),
     defaultValues: defaultsFromConfig(currentAction?.config),
   });
   const { control, handleSubmit } = form;
   const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Send Discord Message',
+    formName: t('discord-action.form-name', 'Send Discord Message'),
   });
 
   useAutomationRemoteFormSubmit({
@@ -165,23 +167,31 @@ export const DiscordActionForm = ({
           name="target"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Send to</Form.Label>
+              <Form.Label>{t('discord-action.send-to', 'Send to')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value />
                 </Select.Trigger>
                 <Select.Content>
                   <Select.Item value="conversation">
-                    Reply to the triggering conversation
+                    {t(
+                      'discord-action.reply-to-triggering-conversation',
+                      'Reply to the triggering conversation',
+                    )}
                   </Select.Item>
-                  <Select.Item value="channel">A specific channel</Select.Item>
-                  <Select.Item value="dm">A direct message</Select.Item>
+                  <Select.Item value="channel">
+                    {t('discord-action.a-specific-channel', 'A specific channel')}
+                  </Select.Item>
+                  <Select.Item value="dm">
+                    {t('discord-action.a-direct-message', 'A direct message')}
+                  </Select.Item>
                 </Select.Content>
               </Select>
               <Form.Description>
-                &quot;Reply to the triggering conversation&quot; needs a
-                conversation trigger; the others send proactively from a chosen
-                bot.
+                {t(
+                  'discord-action.send-to-description',
+                  '"Reply to the triggering conversation" needs a conversation trigger; the others send proactively from a chosen bot.',
+                )}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -194,10 +204,12 @@ export const DiscordActionForm = ({
             name="botId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Bot</Form.Label>
+                <Form.Label>{t('discord-action.bot', 'Bot')}</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a bot" />
+                    <Select.Value
+                      placeholder={t('select-a-bot', 'Select a bot')}
+                    />
                   </Select.Trigger>
                   <Select.Content>
                     {bots.map((bot) => (
@@ -219,7 +231,7 @@ export const DiscordActionForm = ({
             name="channelId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Channel</Form.Label>
+                <Form.Label>{t('discord-action.channel', 'Channel')}</Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
@@ -228,7 +240,12 @@ export const DiscordActionForm = ({
                   <Select.Trigger>
                     <Select.Value
                       placeholder={
-                        botId ? 'Select a channel' : 'Select a bot first'
+                        botId
+                          ? t('discord-action.select-a-channel', 'Select a channel')
+                          : t(
+                              'discord-action.select-a-bot-first',
+                              'Select a bot first',
+                            )
                       }
                     />
                   </Select.Trigger>
@@ -252,17 +269,24 @@ export const DiscordActionForm = ({
             name="userId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Discord user ID</Form.Label>
+                <Form.Label>
+                  {t('discord-action.discord-user-id', 'Discord user ID')}
+                </Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     value={field.value || ''}
-                    placeholder="e.g. 123456789012345678"
+                    placeholder={t(
+                      'discord-action.discord-user-id-placeholder',
+                      'e.g. 123456789012345678',
+                    )}
                   />
                 </Form.Control>
                 <Form.Description>
-                  The bot must share a server with this user to DM them. DM
-                  replies are sent on Discord but aren&apos;t shown in the inbox.
+                  {t(
+                    'discord-action.discord-user-id-description',
+                    "The bot must share a server with this user to DM them. DM replies are sent on Discord but aren't shown in the inbox.",
+                  )}
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -276,7 +300,7 @@ export const DiscordActionForm = ({
           name="content"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Message</Form.Label>
+              <Form.Label>{t('discord-action.message', 'Message')}</Form.Label>
               <PlaceholderInput
                 propertyType={targetType}
                 value={field.value || ''}
@@ -286,8 +310,10 @@ export const DiscordActionForm = ({
                 <PlaceholderInput.Header />
               </PlaceholderInput>
               <Form.Description>
-                Insert an AI Agent output variable to reply with the agent&apos;s
-                response. Optional if you add an embed, button or attachment.
+                {t(
+                  'discord-action.message-description',
+                  "Insert an AI Agent output variable to reply with the agent's response. Optional if you add an embed, button or attachment.",
+                )}
               </Form.Description>
               <Form.Message />
             </Form.Item>
@@ -295,13 +321,15 @@ export const DiscordActionForm = ({
         />
 
         {/* ── Embed (optional) ──────────────────────────────────────── */}
-        <SectionLabel>Embed (optional)</SectionLabel>
+        <SectionLabel>
+          {t('discord-action.embed-optional', 'Embed (optional)')}
+        </SectionLabel>
         <Form.Field
           control={control}
           name="embed.title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>{t('title-label', 'Title')}</Form.Label>
               <Form.Control>
                 <Input {...field} value={field.value || ''} />
               </Form.Control>
@@ -313,7 +341,7 @@ export const DiscordActionForm = ({
           name="embed.description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Description</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} value={field.value || ''} rows={3} />
               </Form.Control>
@@ -326,7 +354,7 @@ export const DiscordActionForm = ({
             name="embed.color"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Color</Form.Label>
+                <Form.Label>{t('discord-action.color', 'Color')}</Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
@@ -342,12 +370,14 @@ export const DiscordActionForm = ({
             name="embed.imageUrl"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Image URL</Form.Label>
+                <Form.Label>
+                  {t('discord-action.image-url', 'Image URL')}
+                </Form.Label>
                 <Form.Control>
                   <Input
                     {...field}
                     value={field.value || ''}
-                    placeholder="https://…"
+                    placeholder={t('discord-action.url-placeholder', 'https://…')}
                   />
                 </Form.Control>
               </Form.Item>
@@ -356,7 +386,9 @@ export const DiscordActionForm = ({
         </div>
 
         {/* ── Link buttons (optional) ───────────────────────────────── */}
-        <SectionLabel>Link buttons (optional)</SectionLabel>
+        <SectionLabel>
+          {t('discord-action.link-buttons-optional', 'Link buttons (optional)')}
+        </SectionLabel>
         <div className="space-y-2">
           {buttons.fields.map((row, index) => (
             <div key={row.id} className="flex items-end gap-2">
@@ -369,7 +401,7 @@ export const DiscordActionForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        placeholder="Label"
+                        placeholder={t('field-label', 'Label')}
                       />
                     </Form.Control>
                   </Form.Item>
@@ -384,7 +416,7 @@ export const DiscordActionForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        placeholder="https://…"
+                        placeholder={t('discord-action.url-placeholder', 'https://…')}
                       />
                     </Form.Control>
                   </Form.Item>
@@ -407,16 +439,20 @@ export const DiscordActionForm = ({
             onClick={() => buttons.append({ label: '', url: '' })}
           >
             <IconPlus />
-            Add button
+            {t('discord-action.add-button', 'Add button')}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Only link buttons are supported (they open a URL). Interactive
-            buttons need the Discord interactions endpoint.
+            {t(
+              'discord-action.link-buttons-hint',
+              'Only link buttons are supported (they open a URL). Interactive buttons need the Discord interactions endpoint.',
+            )}
           </p>
         </div>
 
         {/* ── Attachments (optional) ────────────────────────────────── */}
-        <SectionLabel>Attachments (optional)</SectionLabel>
+        <SectionLabel>
+          {t('discord-action.attachments-optional', 'Attachments (optional)')}
+        </SectionLabel>
         <div className="space-y-2">
           {attachments.fields.map((row, index) => (
             <div key={row.id} className="flex items-end gap-2">
@@ -429,7 +465,10 @@ export const DiscordActionForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        placeholder="File URL (https://…)"
+                        placeholder={t(
+                          'discord-action.file-url-placeholder',
+                          'File URL (https://…)',
+                        )}
                       />
                     </Form.Control>
                   </Form.Item>
@@ -452,10 +491,13 @@ export const DiscordActionForm = ({
             onClick={() => attachments.append({ url: '', filename: '' })}
           >
             <IconPlus />
-            Add attachment
+            {t('discord-action.add-attachment', 'Add attachment')}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Each URL is fetched and uploaded to Discord (max 8MB per file).
+            {t(
+              'discord-action.attachments-hint',
+              'Each URL is fetched and uploaded to Discord (max 8MB per file).',
+            )}
           </p>
         </div>
       </div>

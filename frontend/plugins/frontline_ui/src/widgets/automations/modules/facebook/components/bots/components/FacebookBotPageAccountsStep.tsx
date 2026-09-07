@@ -22,12 +22,12 @@ export const FacebookBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder={t('search-for-an-account')} />
+            <Input placeholder={t('search-for-an-account', 'Search for an account')} />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {t('accounts-found', { count: facebookGetAccounts.length })}
+            {t('accounts-found', '{{count}} accounts found', { count: facebookGetAccounts.length })}
           </div>
 
           <Button variant="ghost" className="text-primary" asChild>
@@ -37,7 +37,7 @@ export const FacebookBotPageAccountsStep = ({
               rel="noreferrer"
             >
               <IconPlus />
-              {t('add-account-via-facebook')}
+              {t('add-account-via-facebook', 'Add account via facebook')}
             </Link>
           </Button>
         </div>

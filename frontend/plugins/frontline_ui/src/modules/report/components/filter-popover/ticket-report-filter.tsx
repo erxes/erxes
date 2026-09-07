@@ -175,27 +175,27 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
-                <Filter.Item value="member">{t('assigned-user')}</Filter.Item>
-                <Filter.Item value="pipeline">{t('pipelines')}</Filter.Item>
-                <Filter.Item value="ticketStatus">{t('status')}</Filter.Item>
-                <Filter.Item value="state">{t('state-label')}</Filter.Item>
+                <Filter.Item value="channel">{t('channel-label', 'Channel')}</Filter.Item>
+                <Filter.Item value="member">{t('assigned-user', 'Assigned User')}</Filter.Item>
+                <Filter.Item value="pipeline">{t('pipelines', 'Pipelines')}</Filter.Item>
+                <Filter.Item value="ticketStatus">{t('status', 'Status')}</Filter.Item>
+                <Filter.Item value="state">{t('state-label', 'State')}</Filter.Item>
                 <Filter.Item value="priority">
-                  {t('priority-label')}
+                  {t('priority-label', 'Priority')}
                 </Filter.Item>
-                <Filter.Item value="tag">{t('tags-label')}</Filter.Item>
+                <Filter.Item value="tag">{t('tags-label', 'Tags')}</Filter.Item>
                 <Filter.Item value="customer">
-                  {t('customer-label')}
+                  {t('customer-label', 'Customer')}
                 </Filter.Item>
-                <Filter.Item value="company">{t('company-label')}</Filter.Item>
+                <Filter.Item value="company">{t('company-label', 'Company')}</Filter.Item>
                 <Filter.Item value="properties">
-                  {t('properties-label')}
+                  {t('properties-label', 'Properties')}
                 </Filter.Item>
-                <Filter.Item value="group">{t('group-by-label')}</Filter.Item>
+                <Filter.Item value="group">{t('group-by-label', 'Group by')}</Filter.Item>
                 <Filter.Item value="frequency">
-                  {t('frequency-label')}
+                  {t('frequency-label', 'Frequency')}
                 </Filter.Item>
-                <Filter.Item value="date">{t('date')}</Filter.Item>
+                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -204,7 +204,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      {t('clear-all')}
+                      {t('clear-all', 'Clear all')}
                     </Command.Item>
                   </>
                 )}
@@ -407,7 +407,7 @@ const ChannelFilterView = ({
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>{t('all-channels')}</span>
+          <span>{t('all-channels', 'All Channels')}</span>
         </div>
       </Command.Item>
       {channels.map((channel) => (
@@ -532,19 +532,19 @@ const TicketStatusFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {!pipelineId ? (
-        <Command.Empty>{t('pipeline-not-selected')}</Command.Empty>
+        <Command.Empty>{t('pipeline-not-selected', 'Pipeline not selected')}</Command.Empty>
       ) : loading ? (
-        <Command.Empty>{t('loading')}</Command.Empty>
+        <Command.Empty>{t('loading', 'Loading...')}</Command.Empty>
       ) : (
         <>
           <Command.Item value="all" onSelect={() => onValueChange([])}>
             <div className="flex items-center gap-2">
               {value.length === 0 && <IconCheck className="size-4" />}
-              <span>{t('all-statuses')}</span>
+              <span>{t('all-statuses', 'All Statuses')}</span>
             </div>
           </Command.Item>
           {statuses.length === 0 && (
-            <Command.Empty>{t('no-status-found')}</Command.Empty>
+            <Command.Empty>{t('no-status-found', 'No status found')}</Command.Empty>
           )}
           {(statuses as ITicketStatusChoice[]).map((status) => (
             <Command.Item
@@ -585,7 +585,7 @@ const StateFilterView = ({
       <Command.Item value="all" onSelect={() => onValueChange('all')}>
         <div className="flex items-center gap-2">
           {value === 'all' && <IconCheck className="size-4" />}
-          <span>{t('all-states')}</span>
+          <span>{t('all-states', 'All States')}</span>
         </div>
       </Command.Item>
       {TICKET_STATE_OPTIONS.map((option) => (
@@ -624,7 +624,7 @@ const PriorityFilterView = ({
       <Command.Item value="all" onSelect={() => onValueChange([])}>
         <div className="flex items-center gap-2">
           {value.length === 0 && <IconCheck className="size-4" />}
-          <span>{t('all-priorities')}</span>
+          <span>{t('all-priorities', 'All Priorities')}</span>
         </div>
       </Command.Item>
       {PRIORITY_OPTIONS.map((option) => (
@@ -659,7 +659,7 @@ const PropertyFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {loading ? (
-        <Command.Empty>{t('loading')}</Command.Empty>
+        <Command.Empty>{t('loading', 'Loading...')}</Command.Empty>
       ) : (
         <>
           <Command.Item value="all" onSelect={() => onValueChange([])}>
@@ -667,11 +667,11 @@ const PropertyFilterView = ({
               {(!value || value.length === 0) && (
                 <IconCheck className="size-4" />
               )}
-              <span>{t('all-properties')}</span>
+              <span>{t('all-properties', 'All Properties')}</span>
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>{t('no-custom-properties-found')}</Command.Empty>
+            <Command.Empty>{t('no-custom-properties-found', 'No custom properties found.')}</Command.Empty>
           )}
           {fields.map((field) => (
             <Filter.Item key={field._id} value={`property:${field._id}`}>
@@ -705,17 +705,17 @@ const GroupByFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {loading ? (
-        <Command.Empty>{t('loading')}</Command.Empty>
+        <Command.Empty>{t('loading', 'Loading...')}</Command.Empty>
       ) : (
         <>
           <Command.Item value="none" onSelect={() => onValueChange('')}>
             <div className="flex items-center gap-2">
               {!value && <IconCheck className="size-4" />}
-              <span>{t('no-grouping')}</span>
+              <span>{t('no-grouping', 'No grouping')}</span>
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>{t('no-custom-properties-found')}</Command.Empty>
+            <Command.Empty>{t('no-custom-properties-found', 'No custom properties found.')}</Command.Empty>
           )}
           {fields.map((field) => (
             <Command.Item
@@ -798,6 +798,7 @@ const PropertyValueFilterView = ({
   value: TicketPropertyFilter[];
   onValueChange: (value: TicketPropertyFilter[]) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   if (field.type === 'date') {
     return (
       <PropertyDateFilter
@@ -839,7 +840,9 @@ const PropertyValueFilterView = ({
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      {options.length === 0 && <Command.Empty>No options found.</Command.Empty>}
+      {options.length === 0 && (
+        <Command.Empty>{t('no-options-found', 'No options found.')}</Command.Empty>
+      )}
       {options.map((option) => (
         <Command.Item
           key={option.value}
@@ -860,7 +863,7 @@ const PropertyValueFilterView = ({
         onSelect={() => onValueChange(clearPropertyFilter(value, field._id))}
         className="text-destructive"
       >
-        Clear property
+        {t('clear-property', 'Clear property')}
       </Command.Item>
     </Command.List>
   );
@@ -885,6 +888,7 @@ const PropertyDateFilter = ({
   value: TicketPropertyFilter[];
   onValueChange: (value: TicketPropertyFilter[]) => void;
 }) => {
+  const { t } = useTranslation('frontline');
   const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
   const selectedValues = getPropertyFilterValues(value, field._id);
   const selectedValue = selectedValues[0];
@@ -908,7 +912,7 @@ const PropertyDateFilter = ({
       <div className="space-y-3 px-2 py-2">
         <div className="space-y-1.5">
           <div className="text-muted-foreground px-1 text-xs font-medium">
-            Exact date
+            {t('exact-date', 'Exact date')}
           </div>
           <DatePicker
             value={selectedDate}
@@ -925,7 +929,7 @@ const PropertyDateFilter = ({
             }}
             mode="single"
             format="MMM D, YYYY"
-            placeholder="Select exact date"
+            placeholder={t('select-exact-date', 'Select exact date')}
             className="w-full"
             defaultMonth={selectedDate || new Date()}
           />
@@ -941,7 +945,7 @@ const PropertyDateFilter = ({
         onSelect={() => onValueChange(clearPropertyFilter(value, field._id))}
         className="text-destructive"
       >
-        Clear property
+        {t('clear-property', 'Clear property')}
       </Command.Item>
     </Command.List>
   );
@@ -1079,7 +1083,7 @@ const DateView = ({
           className={cn('h-8', isCustomDate && 'text-primary')}
         >
           <IconCalendar className="size-4" />
-          {isCustomDate ? getReportDisplayValue(selected) : t('custom-range')}
+          {isCustomDate ? getReportDisplayValue(selected) : t('custom-range', 'Custom Range...')}
         </Command.Item>
       </Command.List>
     </Command>

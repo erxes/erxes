@@ -22,7 +22,7 @@ export const ResponseDelete = ({
       disabled={loading}
       onClick={() =>
         confirm({
-          message: t('confirm-delete-responses', { count: responseIds.length }),
+          message: t('confirm-delete-responses', 'Are you sure you want to delete the {{count}} selected response(s)?', { count: responseIds.length }),
         }).then(async () => {
           try {
             await Promise.all(
@@ -32,13 +32,13 @@ export const ResponseDelete = ({
             );
             rows.forEach((row) => row.toggleSelected(false));
             toast({
-              title: t('success'),
+              title: t('success', 'Success!'),
               variant: 'success',
-              description: t('responses-deleted-successfully', { count: responseIds.length }),
+              description: t('responses-deleted-successfully', '{{count}} response(s) deleted successfully', { count: responseIds.length }),
             });
           } catch (e: any) {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -47,7 +47,7 @@ export const ResponseDelete = ({
       }
     >
       {loading ? <Spinner /> : <IconTrash />}
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

@@ -97,7 +97,7 @@ export const ConversationRelationDetails = ({
         </Sheet.Trigger>
         <Sheet.View>
           <Sheet.Header>
-            <Sheet.Title>{t('conversation-details')}</Sheet.Title>
+            <Sheet.Title>{t('conversation-details', 'Conversation Details')}</Sheet.Title>
             <Sheet.Close />
           </Sheet.Header>
           <Sheet.Content>
@@ -128,7 +128,7 @@ export const ConversationItemContent = () => {
     const { direction, status } = callContent;
     return (
       <div className="font-medium">
-        {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+        {direction === 'incoming' ? t('incoming-call', 'Incoming Call') : t('outgoing-call', 'Outgoing Call')}
         {status ? ` · ${t(CALL_STATUS_LABEL_KEYS[status])}` : ''}
       </div>
     );

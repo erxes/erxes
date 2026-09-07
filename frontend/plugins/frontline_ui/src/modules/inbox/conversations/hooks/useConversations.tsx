@@ -341,7 +341,7 @@ export const useConversations = (
       });
     } catch (error) {
       toast({
-        title: t('something-went-wrong'),
+        title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
         description: error instanceof Error ? error.message : undefined,
         variant: 'destructive',
       });

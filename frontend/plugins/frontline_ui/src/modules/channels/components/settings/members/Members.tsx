@@ -21,7 +21,7 @@ export function Members() {
   return (
     <div className="overflow-auto h-full px-8 hide-scroll styled-scroll scroll-smooth">
       <div className="ml-auto flex justify-between py-6">
-        <h1 className="text-xl font-semibold">{t('members-title')}</h1>
+        <h1 className="text-xl font-semibold">{t('members-title', 'Members')}</h1>
         <AddMembers />
       </div>
       <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">

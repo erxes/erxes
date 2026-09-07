@@ -16,15 +16,15 @@ export const DirectMessageEmptyState = ({
 
       <div className="space-y-1">
         <p className="text-sm font-medium">
-          {t('no-direct-message-conditions')}
+          {t('no-direct-message-conditions', 'No direct message conditions yet')}
         </p>
         <p className="text-xs text-muted-foreground">
-          {t('no-conditions-hint')}
+          {t('no-conditions-hint', 'Leave this empty to trigger on any direct text message, or add conditions to match specific keywords.')}
         </p>
       </div>
 
       <Button className="mt-4" onClick={onAddFirstCondition}>
-        {t('add-optional-condition')}
+        {t('add-optional-condition', 'Add optional condition')}
       </Button>
     </div>
   );

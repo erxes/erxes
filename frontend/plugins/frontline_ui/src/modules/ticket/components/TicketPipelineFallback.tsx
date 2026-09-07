@@ -22,12 +22,12 @@ export const TicketPipelineFallback = ({
         </Empty.Media>
         <Empty.Title>
           {channelId
-            ? t('no-pipeline-yet')
+            ? t('no-pipeline-yet', 'No pipeline yet')
             : t('select-channel-first', { defaultValue: 'Select a channel' })}
         </Empty.Title>
         <Empty.Description>
           {channelId
-            ? t('create-pipeline-description')
+            ? t('create-pipeline-description', 'Create a pipeline to start organizing your board.')
             : t('select-channel-for-tickets-description', {
                 defaultValue:
                   'Choose or configure a channel before managing ticket pipelines.',
@@ -39,7 +39,7 @@ export const TicketPipelineFallback = ({
           <Link to={settingsPath}>
             <IconSettings />
             {channelId
-              ? t('manage-pipelines')
+              ? t('manage-pipelines', 'Manage pipelines')
               : t('manage-channels', { defaultValue: 'Manage channels' })}
           </Link>
         </Button>

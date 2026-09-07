@@ -26,11 +26,11 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           ...data,
         },
         onCompleted: () => {
-          toast({ title: t('success') });
+          toast({ title: t('success', 'Success!') });
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -53,8 +53,8 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
               name="icon"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('icon')}</Form.Label>
-                  <Form.Description className="sr-only">{t('icon')}</Form.Description>
+                  <Form.Label>{t('icon', 'Icon')}</Form.Label>
+                  <Form.Description className="sr-only">{t('icon', 'Icon')}</Form.Description>
                   <Form.Control>
                     <IconPicker
                       onValueChange={field.onChange}
@@ -72,7 +72,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
+                  <Form.Label>{t('name', 'Name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -86,7 +86,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           name="description"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('description')}</Form.Label>
+              <Form.Label>{t('description', 'Description')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -94,7 +94,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">{t('update')}</Button>
+          <Button type="submit">{t('update', 'Update')}</Button>
         </div>
       </form>
     </Form>

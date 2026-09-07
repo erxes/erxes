@@ -21,7 +21,7 @@ export const PipelinePropertiesPage = () => {
     <div className="flex flex-col gap-5">
       <InfoCard
         title={t('common:properties')}
-        description={t('select-ticket-property-fields-description')}
+        description={t('select-ticket-property-fields-description', 'Select fields from the ticket property groups to show in the pipeline form')}
       >
         <InfoCard.Content>
           {loading ? (
@@ -47,7 +47,7 @@ export const PipelinePropertiesPage = () => {
             })
           }
         >
-          {updating ? <Spinner /> : t('update')}
+          {updating ? <Spinner /> : t('update', 'Update')}
         </Button>
       </div>
     </div>

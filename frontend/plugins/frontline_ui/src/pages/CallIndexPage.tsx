@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 export const CallIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('queue-switchboard'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('queue-switchboard', 'Queue Switchboard'));
 
   return (
     <PageContainer>
@@ -19,7 +19,7 @@ export const CallIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    {t('queue-switchboard')}
+                    {t('queue-switchboard', 'Queue Switchboard')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -28,7 +28,7 @@ export const CallIndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/calls/statistics">
                     <IconPhone />
-                    {t('queue-statistics')}
+                    {t('queue-statistics', 'Queue Statistics')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>

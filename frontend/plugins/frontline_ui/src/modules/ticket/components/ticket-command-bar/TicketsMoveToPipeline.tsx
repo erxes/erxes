@@ -18,7 +18,7 @@ export const TicketsMoveToPipelineTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconGitBranch className="size-4" />
-        {t('move-to-pipeline')}
+        {t('move-to-pipeline', 'Move to pipeline')}
       </div>
       <IconChevronRight className="size-4 text-muted-foreground" />
     </Command.Item>
@@ -53,7 +53,7 @@ export const TicketsMoveToPipelineContent = ({
       { pipelineId: targetPipelineId },
       {
         refetchList: true,
-        successMessage: t('tickets-moved-successfully'),
+        successMessage: t('tickets-moved-successfully', 'Tickets moved successfully'),
       },
     );
 

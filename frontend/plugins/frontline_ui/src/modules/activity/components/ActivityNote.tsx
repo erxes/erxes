@@ -6,5 +6,5 @@ export const ActivityNote = ({
   action: IActivity['action'];
 }) => {
   const { t } = useTranslation('frontline');
-  return <div className="lowercase">{t('activity-note', { action })}</div>;
+  return <div className="lowercase">{t('activity-note', '{{action}} note', { action })}</div>;
 };

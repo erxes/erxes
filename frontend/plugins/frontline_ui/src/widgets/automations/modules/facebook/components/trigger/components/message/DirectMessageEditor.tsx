@@ -31,12 +31,12 @@ export const DirectMessageEditor = ({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        {t('no-conditions-description')}
+        {t('no-conditions-description', 'When no conditions are added, this trigger will run for any incoming direct text message.')}
       </p>
 
       <div className="flex justify-end">
         <Button variant="ghost" onClick={addCondition}>
-          {t('add-optional-condition')}
+          {t('add-optional-condition', 'Add optional condition')}
         </Button>
       </div>
 

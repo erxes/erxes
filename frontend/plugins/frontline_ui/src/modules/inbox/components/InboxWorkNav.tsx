@@ -69,7 +69,7 @@ export const InboxWorkNav = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('work-queue', { defaultValue: 'Work queue' })}
+      name={t('work-queue', 'Work queue', { defaultValue: 'Work queue' })}
     >
       {loading && (
         <div className="flex flex-col gap-2 px-2 py-1">
@@ -80,7 +80,7 @@ export const InboxWorkNav = () => {
         </div>
       )}
       {!loading && error && (
-        <div className="px-2 py-3 text-xs text-destructive">{t('error')}</div>
+        <div className="px-2 py-3 text-xs text-destructive">{t('error', 'Error')}</div>
       )}
       {!loading &&
         !error &&

@@ -32,7 +32,7 @@ const useActionButton = (accountId?: string) => {
   };
 
   return {
-    text: isLastStep ? t('save') : t('next-step'),
+    text: isLastStep ? t('save', 'Save') : t('next-step', 'Next step'),
     disabled:
       activeStep === 2
         ? !selectedAccountId || !selectedPageId
@@ -65,7 +65,7 @@ export const InstagramBotPageSelectorSteps = ({
           <Badge className="rounded-xl text-xs font-mono">
             STEP {activeStep}
           </Badge>
-          <h2 className="text-primary font-semibold text-base">{t('connect-page')}</h2>
+          <h2 className="text-primary font-semibold text-base">{t('connect-page', 'Connect Page')}</h2>
         </div>
         <Sheet.Close />
       </Sheet.Header>
@@ -83,7 +83,7 @@ export const InstagramBotPageSelectorSteps = ({
             ))}
           </div>
           <div className="text-xs text-accent-foreground">
-            {t('select-page-to-link-bot')}
+            {t('select-page-to-link-bot', 'Select a page to link your bot to.')}
           </div>
         </div>
         {activeStep === 1 && (
@@ -98,7 +98,7 @@ export const InstagramBotPageSelectorSteps = ({
           onClick={() => setStep(1)}
           disabled={activeStep === 1}
         >
-          {t('previous-step')}
+          {t('previous-step', 'Previous step')}
         </Button>
         <Button onClick={onClick} disabled={disabled}>
           {text}

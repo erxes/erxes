@@ -78,10 +78,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="source">{t('source')}</Filter.Item>
-                <Filter.Item value="channel">{t('channel-label')}</Filter.Item>
-                <Filter.Item value="member">{t('member-label')}</Filter.Item>
-                <Filter.Item value="date">{t('date')}</Filter.Item>
+                <Filter.Item value="source">{t('source', 'Source')}</Filter.Item>
+                <Filter.Item value="channel">{t('channel-label', 'Channel')}</Filter.Item>
+                <Filter.Item value="member">{t('member-label', 'Member')}</Filter.Item>
+                <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>
                     <Command.Separator />
@@ -90,7 +90,7 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
                       onSelect={handleClear}
                       className="text-destructive"
                     >
-                      {t('clear-all')}
+                      {t('clear-all', 'Clear all')}
                     </Command.Item>
                   </>
                 )}
@@ -227,7 +227,7 @@ const ChannelFilterView = ({
       <Command.Item value="all" onSelect={() => handleSelect('all')}>
         <div className="flex items-center gap-2">
           {(!value || value.length === 0) && <IconCheck className="size-4" />}
-          <span>{t('all-channels')}</span>
+          <span>{t('all-channels', 'All Channels')}</span>
         </div>
       </Command.Item>
       {channels.map((channel) => (
@@ -330,7 +330,7 @@ export const DateFilterCommand = ({
             setOpenDialog(true);
           }}
         >
-          {t('custom-date')}
+          {t('custom-date', 'Custom Date')}
         </Command.Item>
       </Command.List>
     </Command>

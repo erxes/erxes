@@ -17,7 +17,7 @@ export const TicketsAssignToTrigger = ({
     >
       <div className="flex gap-2 items-center">
         <IconUser className="size-4" />
-        {t('assign-to')}
+        {t('assign-to', 'Assign to')}
       </div>
       <IconChevronRight className="size-4 text-muted-foreground" />
     </Command.Item>
@@ -44,7 +44,7 @@ export const TicketsAssignToContent = ({
         await bulkUpdateTickets(
           ticketIds,
           { assigneeId: Array.isArray(value) ? value[0] : value },
-          { successMessage: t('tickets-updated-successfully') },
+          { successMessage: t('tickets-updated-successfully', 'Tickets updated successfully') },
         );
       }}
     >

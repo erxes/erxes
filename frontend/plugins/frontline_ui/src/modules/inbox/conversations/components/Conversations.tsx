@@ -90,12 +90,12 @@ export const Conversations = () => {
               <IconInbox />
             </Empty.Media>
             <Empty.Title>
-              {t('no-conversations-found', {
+              {t('no-conversations-found', 'No conversations found', {
                 defaultValue: 'No conversations found',
               })}
             </Empty.Title>
             <Empty.Description>
-              {t('no-conversations-description', {
+              {t('no-conversations-description', 'There are no conversations matching your filters.', {
                 defaultValue:
                   'Adjust the active filters or wait for a new conversation.',
               })}

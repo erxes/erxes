@@ -14,7 +14,7 @@ export const ChannelDetails = () => {
   const { channel, loading } = useGetChannel({ variables: { id } });
 
   if (loading) return null;
-  if (!channel) return <div>{t('not-found')}</div>;
+  if (!channel) return <div>{t('not-found', 'Not found')}</div>;
 
   return (
     <div className="w-full px-4 sm:px-8 lg:px-16 pb-16 flex flex-col gap-4">

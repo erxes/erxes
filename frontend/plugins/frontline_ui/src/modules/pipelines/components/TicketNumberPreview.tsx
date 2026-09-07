@@ -16,7 +16,7 @@ export const TicketNumberPreview = ({
   return (
     <div className="flex items-baseline gap-3 rounded-lg bg-muted/60 px-3 py-2">
       <span className="font-mono text-xs uppercase text-accent-foreground">
-        {t('preview')}
+        {t('preview', 'Preview')}
       </span>
       <span
         aria-live="polite"
@@ -30,7 +30,7 @@ export const TicketNumberPreview = ({
             </span>
           </>
         ) : (
-          <span className="text-muted-foreground">{t('none')}</span>
+          <span className="text-muted-foreground">{t('none', 'None')}</span>
         )}
       </span>
     </div>

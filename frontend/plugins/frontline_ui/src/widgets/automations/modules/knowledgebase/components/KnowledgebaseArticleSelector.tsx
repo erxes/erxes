@@ -100,12 +100,12 @@ export const KnowledgebaseArticleSelector = ({
       <Command.Input
         value={searchValue}
         onValueChange={setSearchValue}
-        placeholder={t('search-knowledge-articles')}
+        placeholder={t('search-knowledge-articles', 'Search knowledge base articles...')}
         variant="secondary"
       />
       <div className="flex items-center justify-between gap-2 border-b px-3 py-1.5">
         <span className="text-xs font-medium text-muted-foreground">
-          {t('knowledge-articles-selected', { count: value.length })}
+          {t('knowledge-articles-selected', '{{count}} articles selected', { count: value.length })}
         </span>
         <Button
           type="button"
@@ -115,8 +115,8 @@ export const KnowledgebaseArticleSelector = ({
           onClick={toggleSelectAllVisible}
         >
           {allVisibleSelected
-            ? t('knowledge-clear-selection')
-            : t('knowledge-select-all')}
+            ? t('knowledge-clear-selection', 'Deselect all')
+            : t('knowledge-select-all', 'Select all')}
         </Button>
       </div>
       <Command.List className="max-h-72 space-y-1.5 overflow-y-auto p-1.5">
@@ -127,11 +127,11 @@ export const KnowledgebaseArticleSelector = ({
         )}
 
         {!loading && error && (
-          <Command.Empty>{t('knowledge-articles-load-error')}</Command.Empty>
+          <Command.Empty>{t('knowledge-articles-load-error', 'Knowledge base articles could not be loaded.')}</Command.Empty>
         )}
 
         {!loading && !error && articles.length === 0 && (
-          <Command.Empty>{t('no-knowledge-articles')}</Command.Empty>
+          <Command.Empty>{t('no-knowledge-articles', 'No published knowledge base articles found.')}</Command.Empty>
         )}
 
         {!loading &&
@@ -159,7 +159,7 @@ export const KnowledgebaseArticleSelector = ({
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
                       <p className="truncate text-sm font-medium">
-                        {article.title || t('untitled-knowledge-article')}
+                        {article.title || t('untitled-knowledge-article', 'Untitled knowledge base article')}
                       </p>
                       {article.code && (
                         <span className="shrink-0 rounded bg-muted px-1 font-mono text-[10px] leading-4 text-muted-foreground">
@@ -183,7 +183,7 @@ export const KnowledgebaseArticleSelector = ({
                   )}
                   {status?.status === 'indexed' && (
                     <p className="text-xs text-muted-foreground">
-                      {t('knowledge-indexed-chunks', {
+                      {t('knowledge-indexed-chunks', '{{count}} chunks indexed', {
                         count: status.chunkCount || 0,
                       })}
                     </p>
@@ -202,7 +202,7 @@ export const KnowledgebaseArticleSelector = ({
       </Command.List>
       {value.length > 0 && (
         <div className="border-t px-3 py-2 text-xs text-muted-foreground">
-          {t('knowledge-articles-index-summary', {
+          {t('knowledge-articles-index-summary', '{{indexed}} indexed · {{indexing}} indexing', {
             indexed: indexedCount,
             indexing: indexingCount,
           })}

@@ -33,8 +33,8 @@ export const FormCallout = () => {
 
   return (
     <FormMutateLayout
-      title={t('callout-label')}
-      description={t('callout-settings')}
+      title={t('callout-label', 'Callout')}
+      description={t('callout-settings', 'Callout settings')}
       form={form}
       onSubmit={onSubmit}
     >
@@ -50,7 +50,7 @@ export const FormCallout = () => {
                   onCheckedChange={field.onChange}
                 />
               </Form.Control>
-              <Form.Label variant="peer">{t('callout-skip')}</Form.Label>
+              <Form.Label variant="peer">{t('callout-skip', 'Skip callout')}</Form.Label>
               <Form.Message />
             </Form.Item>
           )}
@@ -59,7 +59,7 @@ export const FormCallout = () => {
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('title-label')}</Form.Label>
+              <Form.Label>{t('title-label', 'Title')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -71,7 +71,7 @@ export const FormCallout = () => {
           name="body"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('callout-body')}</Form.Label>
+              <Form.Label>{t('callout-body', 'Body')}</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
@@ -83,7 +83,7 @@ export const FormCallout = () => {
           name="buttonText"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('button-text')}</Form.Label>
+              <Form.Label>{t('button-text', 'Button text')}</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -95,7 +95,7 @@ export const FormCallout = () => {
           name="featuredImage"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('image-label')}</Form.Label>
+              <Form.Label>{t('image-label', 'Image')}</Form.Label>
               <Form.Control>
                 <FormCalloutImage
                   value={field.value}

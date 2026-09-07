@@ -53,7 +53,7 @@ export const useFormMutate = () => {
       {
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -65,7 +65,7 @@ export const useFormMutate = () => {
     useMutation(FORM_BULK_ACTION, {
       onError: (error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -92,16 +92,16 @@ export const useFormMutate = () => {
             ),
             onCompleted: () => {
               toast({
-                title: t('success'),
+                title: t('success', 'Success!'),
                 variant: 'success',
-                description: t('form-updated-successfully'),
+                description: t('form-updated-successfully', 'Form updated successfully'),
               });
             },
           });
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });
@@ -111,7 +111,7 @@ export const useFormMutate = () => {
       if (!channelId) {
         toast({
           variant: 'destructive',
-          title: t('channel-id-required'),
+          title: t('channel-id-required', 'Channel ID is required to create a form'),
         });
         return;
       }
@@ -131,9 +131,9 @@ export const useFormMutate = () => {
             },
             onCompleted: () => {
               toast({
-                title: t('success'),
+                title: t('success', 'Success!'),
                 variant: 'success',
-                description: t('form-created-successfully'),
+                description: t('form-created-successfully', 'Form created successfully'),
               });
             },
           });
@@ -141,7 +141,7 @@ export const useFormMutate = () => {
         },
         onError: (error) => {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });

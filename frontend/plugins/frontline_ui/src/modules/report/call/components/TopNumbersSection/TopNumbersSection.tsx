@@ -14,14 +14,14 @@ export function TopNumbersSection() {
 
   return (
     <SectionCard
-      title={t('top-contact-numbers')}
-      description={t('highest-volume-phone-numbers')}
+      title={t('top-contact-numbers', 'Top Contact Numbers')}
+      description={t('highest-volume-phone-numbers', 'Highest-volume phone numbers in the selected period')}
       accentClass="bg-[var(--chart-5)]"
       loading={loading}
       skeletonHeight="h-48"
     >
       {!numbers.length ? (
-        <ReportTable.Empty>{t('no-top-number-data')}</ReportTable.Empty>
+        <ReportTable.Empty>{t('no-top-number-data', 'No top-number data for the selected period')}</ReportTable.Empty>
       ) : (
         <ReportTable>
           <ReportTable.Header>
@@ -29,15 +29,15 @@ export function TopNumbersSection() {
               <ReportTable.Head align="center" className="w-14 px-2">
                 #
               </ReportTable.Head>
-              <ReportTable.Head>{t('number')}</ReportTable.Head>
-              <ReportTable.Head>{t('carrier')}</ReportTable.Head>
+              <ReportTable.Head>{t('number', 'Number')}</ReportTable.Head>
+              <ReportTable.Head>{t('carrier', 'Carrier')}</ReportTable.Head>
               <ReportTable.Head align="right" className="w-36">
-                {t('attempts')}
+                {t('attempts', 'Attempts')}
               </ReportTable.Head>
-              <ReportTable.Head align="right">{t('answered')}</ReportTable.Head>
-              <ReportTable.Head align="right">{t('missed')}</ReportTable.Head>
+              <ReportTable.Head align="right">{t('answered', 'Answered')}</ReportTable.Head>
+              <ReportTable.Head align="right">{t('missed', 'Missed')}</ReportTable.Head>
               <ReportTable.Head align="right">
-                {t('total-talk')}
+                {t('total-talk', 'Total Talk')}
               </ReportTable.Head>
             </ReportTable.HeaderRow>
           </ReportTable.Header>

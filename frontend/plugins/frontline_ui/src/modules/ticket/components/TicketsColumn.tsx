@@ -94,7 +94,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
       ),
       cell: TicketNameCell,
       size: 240,
@@ -104,7 +104,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label={t('status')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -127,7 +127,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'channel',
       accessorKey: 'channel',
       header: () => (
-        <RecordTable.InlineHead label={t('channel')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead label={t('channel', 'Channel')} icon={IconProgressCheck} />
       ),
       cell: ({ cell }) => {
         return (
@@ -135,7 +135,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
               <Tooltip.Content>
-                {t('channel-cannot-be-changed')}
+                {t('channel-cannot-be-changed', 'Channel cannot be changed')}
               </Tooltip.Content>
               <SelectChannel
                 variant="table"
@@ -158,7 +158,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'pipeline',
       header: () => (
         <RecordTable.InlineHead
-          label={t('pipeline')}
+          label={t('pipeline', 'Pipeline')}
           icon={IconProgressCheck}
         />
       ),
@@ -168,7 +168,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
             <div className="relative">
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed" />
               <Tooltip.Content>
-                {t('pipeline-cannot-be-changed')}
+                {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
               </Tooltip.Content>
               <SelectPipeline
                 variant="table"
@@ -257,7 +257,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
     {
       id: 'assigneeId',
       header: () => (
-        <RecordTable.InlineHead label={t('assignee')} icon={IconUser} />
+        <RecordTable.InlineHead label={t('assignee', 'Assignee')} icon={IconUser} />
       ),
       cell: ({ cell }) => {
         return (
@@ -280,7 +280,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'priority',
       header: () => (
         <RecordTable.InlineHead
-          label={t('priority')}
+          label={t('priority', 'Priority')}
           icon={IconAlertSquareRounded}
         />
       ),
@@ -305,7 +305,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'startDate',
       header: () => (
         <RecordTable.InlineHead
-          label={t('start-date')}
+          label={t('start-date', 'Start date')}
           icon={IconCalendarFilled}
         />
       ),
@@ -326,7 +326,7 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       accessorKey: 'targetDate',
       header: () => (
         <RecordTable.InlineHead
-          label={t('target-date')}
+          label={t('target-date', 'Target date')}
           icon={IconCalendarFilled}
         />
       ),

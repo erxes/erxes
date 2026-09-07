@@ -35,11 +35,11 @@ export const CreateBrand = () => {
     addBrand({
       variables: data,
       onCompleted: () => {
-        toast({ variant: 'success', title: t('brand-created') });
+        toast({ variant: 'success', title: t('brand-created', 'Brand created') });
         form.reset();
       },
       onError: (error) =>
-        toast({ title: t('error'), description: error.message, variant: 'destructive' }),
+        toast({ title: t('error', 'Error'), description: error.message, variant: 'destructive' }),
     });
   });
 
@@ -54,7 +54,7 @@ export const CreateBrand = () => {
         <Form {...form}>
           <form className="flex flex-col size-full gap-0" onSubmit={onSubmit}>
             <Sheet.Header>
-              <Sheet.Title>{t('create-brand')}</Sheet.Title>
+              <Sheet.Title>{t('create-brand', 'Create brand')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow flex flex-col px-5 py-4 gap-4">
@@ -63,7 +63,7 @@ export const CreateBrand = () => {
                 name="name"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('name')}</Form.Label>
+                    <Form.Label>{t('name', 'Name')}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -76,7 +76,7 @@ export const CreateBrand = () => {
                 name="description"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('description')}</Form.Label>
+                    <Form.Label>{t('description', 'Description')}</Form.Label>
                     <Form.Control>
                       <Textarea {...field} />
                     </Form.Control>
@@ -87,10 +87,10 @@ export const CreateBrand = () => {
             </Sheet.Content>
             <Sheet.Footer>
               <Sheet.Close asChild>
-                <Button variant="ghost">{t('cancel')}</Button>
+                <Button variant="ghost">{t('cancel', 'Cancel')}</Button>
               </Sheet.Close>
               <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create')}
+                {loading ? <Spinner /> : t('create', 'Create')}
               </Button>
             </Sheet.Footer>
           </form>

@@ -127,9 +127,9 @@ export const ConversationItem = ({
         )}
         <ConversationItemContent />
         <div className="w-auto text-right flex-none">
-          <span> {t('to')} </span>
+          <span> {t('to', 'to')} </span>
           {channel && <span title={channel.name}>{channel.name}</span>}
-          <span> {t('via')} </span>
+          <span> {t('via', 'via')} </span>
           {integration && (
             <span title={integration.kind}>{integration.kind}</span>
           )}
@@ -181,7 +181,7 @@ export const ConversationItemContent = () => {
             <IconPhoneOutgoing className="size-4" />
           )}
           <span>
-            {direction === 'incoming' ? t('incoming-call') : t('outgoing-call')}
+            {direction === 'incoming' ? t('incoming-call', 'Incoming Call') : t('outgoing-call', 'Outgoing Call')}
           </span>
           {status && (
             <span

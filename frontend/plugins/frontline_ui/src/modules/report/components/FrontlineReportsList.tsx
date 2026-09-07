@@ -266,7 +266,7 @@ export const FrontlineReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       {kpiError && (
         <Alert variant="destructive">
-          <Alert.Title>{t('error-loading-data')}</Alert.Title>
+          <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
           <Alert.Description>{kpiError.message}</Alert.Description>
         </Alert>
       )}
@@ -285,9 +285,9 @@ export const FrontlineReportsList = () => {
         }
       >
         <KpiCard
-          title={t('open-conversations')}
+          title={t('open-conversations', 'Open Conversations')}
           value={String(conversationOpen?.count ?? 0)}
-          subtitle={t('percent-of-total', {
+          subtitle={t('percent-of-total', '{{percent}}% of total', {
             percent: conversationOpen?.percentage ?? 0,
           })}
           icon={<IconInbox className="h-5 w-5" />}
@@ -295,9 +295,9 @@ export const FrontlineReportsList = () => {
           iconClass="bg-[var(--chart-1)]/10 text-[var(--chart-1)]"
         />
         <KpiCard
-          title={t('closed-conversations')}
+          title={t('closed-conversations', 'Closed Conversations')}
           value={String(conversationClosed?.count ?? 0)}
-          subtitle={t('percent-resolved', {
+          subtitle={t('percent-resolved', '{{percent}}% resolved', {
             percent: conversationClosed?.percentage ?? 0,
           })}
           icon={<IconCircleCheck className="h-5 w-5" />}
@@ -305,18 +305,18 @@ export const FrontlineReportsList = () => {
           iconClass="bg-[var(--pos)]/10 text-[var(--pos)]"
         />
         <KpiCard
-          title={t('top-performing-source')}
+          title={t('top-performing-source', 'Top Performing Source')}
           value={String(topPerformingSource?.count ?? 0)}
           subtitle={
             INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', {
+              ? t('source-name-percent', '{{name}} · {{percent}}%', {
                   name: INTEGRATIONS[
                     topPerformingSource._id as keyof typeof INTEGRATIONS
                   ].name,
                   percent: topPerformingSource?.percentage ?? 0,
                 })
-              : t('percent-share', {
+              : t('percent-share', '{{percent}}% share', {
                   percent: topPerformingSource?.percentage ?? 0,
                 })
           }
@@ -325,18 +325,18 @@ export const FrontlineReportsList = () => {
           iconClass="bg-[var(--chart-2)]/10 text-[var(--chart-2)]"
         />
         <KpiCard
-          title={t('top-converting-source')}
+          title={t('top-converting-source', 'Top Converting Source')}
           value={String(topConvertingSource?.count ?? 0)}
           subtitle={
             INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
               ?.name
-              ? t('source-name-percent', {
+              ? t('source-name-percent', '{{name}} · {{percent}}%', {
                   name: INTEGRATIONS[
                     topConvertingSource._id as keyof typeof INTEGRATIONS
                   ].name,
                   percent: topConvertingSource?.percentage ?? 0,
                 })
-              : t('percent-share', {
+              : t('percent-share', '{{percent}}% share', {
                   percent: topConvertingSource?.percentage ?? 0,
                 })
           }

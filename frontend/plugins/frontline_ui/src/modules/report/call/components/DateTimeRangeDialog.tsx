@@ -82,7 +82,7 @@ export function DateTimeRangeDialog({
       <Dialog.Content className="max-w-xl p-0">
         <Dialog.Header className="p-6 pb-3">
           <Dialog.Title className="text-sm">
-            {t('custom-range', { defaultValue: 'Custom range' })}
+            {t('custom-range', 'Custom Range...', { defaultValue: 'Custom range' })}
           </Dialog.Title>
         </Dialog.Header>
 
@@ -107,10 +107,10 @@ export function DateTimeRangeDialog({
                 next && setFromTime(new Time(next.hour, next.minute))
               }
               hourCycle={24}
-              aria-label={t('from', { defaultValue: 'From' })}
+              aria-label={t('from', 'from', { defaultValue: 'From' })}
             >
               <span className="mb-1 block text-xs text-muted-foreground">
-                {t('from', { defaultValue: 'From' })}
+                {t('from', 'from', { defaultValue: 'From' })}
               </span>
               <DateInput className="w-24 justify-center" />
             </TimeField>
@@ -121,10 +121,10 @@ export function DateTimeRangeDialog({
                 next && setToTime(new Time(next.hour, next.minute))
               }
               hourCycle={24}
-              aria-label={t('to', { defaultValue: 'To' })}
+              aria-label={t('to', 'to', { defaultValue: 'To' })}
             >
               <span className="mb-1 block text-xs text-muted-foreground">
-                {t('to', { defaultValue: 'To' })}
+                {t('to', 'to', { defaultValue: 'To' })}
               </span>
               <DateInput className="w-24 justify-center" />
             </TimeField>
@@ -153,7 +153,7 @@ export function DateTimeRangeDialog({
         <Dialog.Footer className="p-6 pt-4">
           <Dialog.Close asChild>
             <Button variant="ghost" size="lg">
-              {t('cancel', { defaultValue: 'Cancel' })}
+              {t('cancel', 'Cancel', { defaultValue: 'Cancel' })}
             </Button>
           </Dialog.Close>
           <Button
@@ -161,7 +161,7 @@ export function DateTimeRangeDialog({
             disabled={!from || !to || invalid}
             onClick={handleApply}
           >
-            {t('apply', { defaultValue: 'Apply' })}
+            {t('apply', 'Apply', { defaultValue: 'Apply' })}
           </Button>
         </Dialog.Footer>
       </Dialog.Content>

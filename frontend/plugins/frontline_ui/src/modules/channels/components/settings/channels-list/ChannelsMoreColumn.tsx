@@ -30,7 +30,10 @@ export const ChannelsMoreColumnCell = ({
 
   const handleDelete = () => {
     const confirmationValue = 'delete';
-    const confirmationMessage = t('confirm-delete-channel');
+    const confirmationMessage = t(
+      'confirm-delete-channel',
+      'Are you sure you want to delete this channel?',
+    );
 
     confirm({
       message: confirmationMessage,
@@ -49,10 +52,10 @@ export const ChannelsMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
+              <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete')}
+              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

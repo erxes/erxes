@@ -30,13 +30,13 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
               <span className="capitalize">{icon.label}</span>
             </div>
           ) : (
-            <span>{t('kb-select-icon')}</span>
+            <span>{t('kb-select-icon', 'Select icon...')}</span>
           )}
         </Button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Content className="w-[250px] p-0 max-h-64 overflow-auto">
         <Command>
-          <Command.Input placeholder={t('kb-search-icons')} className="h-9" />
+          <Command.Input placeholder={t('kb-search-icons', 'Search icons...')} className="h-9" />
           <div className="max-h-52 overflow-y-auto">
             <Command.Group>
               {ICONS.map((item) => (

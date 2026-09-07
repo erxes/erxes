@@ -25,7 +25,7 @@ export const CommentActionForm = ({
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveActionConfig, () =>
       toast({
-        title: t('form-error'),
+        title: t('form-error', 'There is some error in the form'),
         variant: 'destructive',
       }),
     ),
@@ -41,7 +41,7 @@ export const CommentActionForm = ({
             <Form.Item>
               <Form.Label className="flex flex-row justify-between ">
                 <div className="flex flex-row gap-2 items-center">
-                  {t('text')}
+                  {t('text', 'Text')}
                   <InputTextCounter
                     count={field.value?.length || 0}
                     limit={8000}
@@ -49,7 +49,7 @@ export const CommentActionForm = ({
                 </div>
               </Form.Label>
               <Form.Control>
-                <Textarea {...field} placeholder={t('enter-your-text')} />
+                <Textarea {...field} placeholder={t('enter-your-text', 'Enter your text')} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -60,10 +60,10 @@ export const CommentActionForm = ({
           name="attachments"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('attachments-label')}</Form.Label>
+              <Form.Label>{t('attachments-label', 'Attachments')}</Form.Label>
               <Form.Control>
                 <Button disabled variant="secondary">
-                  {t('upload-attachments-wip')}
+                  {t('upload-attachments-wip', 'Upload Attachments (Work in progress)')}
                 </Button>
               </Form.Control>
             </Form.Item>
