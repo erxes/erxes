@@ -1341,6 +1341,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Ticket notes accept and return attachments
+
+- **Summary:** `Note` now stores an `attachments` array using the shared
+  `attachmentSchema`, so files attached in the ticket note composer persist and
+  are returned to the client instead of being silently dropped.
+- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
+  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
+  `modules/ticket/graphql/resolvers/mutations/note.ts`
+- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
+  `attachments: [AttachmentInput]`; the `Note` type exposes
+  `attachments: [Attachment]`.
+
 <<<<<<< HEAD
 
 ### `2026-09-01` — `checkTargetMatch` producer removed

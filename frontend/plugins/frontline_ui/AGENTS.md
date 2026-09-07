@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-04`
 
 ## Scope
 
@@ -189,6 +189,7 @@
 | Mail add wizard        | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                    |
 | Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config |
 | Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                        |
+| Ticket note composer   | `src/modules/activity/components/{NoteInput,NoteAttachments,NoteInputToolbar}.tsx`, `src/modules/activity/hooks/{useNoteAttachments,useNoteTemplateSuggestions}.tsx`, `src/modules/activity/utils/noteBlocks.ts` | `NoteInput` composes the editor; attachments, template suggestions, block trimming, and the toolbar live in their own hook or component |
 | Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                           |
 
 ## Contracts
@@ -788,6 +789,69 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Ticket note attachments persist and render
+
+- **Summary:** Note attachments are now sent with `TicketCreateNote`, returned by
+  `TicketGetNote`, and rendered in `NoteInputReadOnly` (inline images, file rows
+  for everything else); `@` mention is gated to internal-note mode and response
+  templates to reply mode, matching the inbox composer.
+- **Affected areas:** `modules/activity/components/NoteInput.tsx`,
+  `NoteInputReadOnly.tsx`, `NoteAttachments.tsx`, `modules/activity/types.ts`,
+  `modules/activity/graphql/mutations/createTicketNote.ts`,
+  `modules/activity/graphql/queries/getTicketNote.ts`,
+  `modules/inbox/.../ResponseTemplateSelector.tsx`
+- **Contracts changed:** `TicketCreateNote` gains `$attachments:
+  [AttachmentInput]`; `TicketGetNote` and `TicketCreateNote` now select
+  `attachments { name url type size }`.
+
+### `2026-09-04` — Ticket note composer split into hooks and child components
+
+- **Summary:** `NoteInput.tsx` shrank from 381 lines to a ~135-line composition
+  with no user-visible change: attachment upload, preview, removal and reset
+  moved to `useNoteAttachments`; response-template search, debounce, suggestion
+  derivation, keyboard navigation and insertion moved to
+  `useNoteTemplateSuggestions`; `trimEmptyBlocks` and `parseTemplateToBlocks`
+  moved to `utils/noteBlocks.ts`; the attachment preview/list and the bottom
+  toolbar became the presentational `NoteAttachments` and `NoteInputToolbar`;
+  and `INoteAttachment` / `INoteTemplateSuggestion` now live in
+  `src/modules/activity/types.ts`.
+- **Affected areas:** `src/modules/activity/{components,hooks,utils,types.ts}`.
+- **Contracts changed:** `None`.
+
+### `2026-09-04` — Ticket note composer condensed without behavior change
+
+- **Summary:** `NoteInput.tsx` was tightened in place with no new files and no
+  user-visible change: the response-template suggestion list is now derived with
+  `useMemo` from `useGetResponses` instead of being mirrored into `suggestions`
+  and `showSuggestions` state through two `useEffect`s, so Escape only sets a
+  `isDropdownDismissed` flag and the query is skipped whenever the note is
+  internal; template insertion uses a single `editor.replaceBlocks` and strips
+  markup with a regex instead of building a throwaway DOM node; the empty
+  leading/trailing paragraph trim in `onSend` moved to a module-level
+  `trimEmptyBlocks` helper; and the duplicate `IAttachment`/`IAttachmentPreview`
+  pair collapsed into one interface.
+- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`.
+- **Contracts changed:** `None`.
+
+### `2026-09-04` — Ticket note composer matched to the inbox internal note
+
+- **Summary:** The ticket detail's "Leave a note" composer now mirrors the inbox
+  message input's internal-note surface — an `Internal Note` toggle (pressed by
+  default), a 3px `bg-primary` left accent bar and the `internal-note` editor
+  class while it is pressed, a 120px (`min-h-30`) editor that grows as it fills,
+  paperclip plus drag-and-drop attachment upload with an inline preview and
+  per-file removal, a send spinner, and an error toast. Both response-template
+  surfaces are reused on the same `!isInternalNote` condition the inbox uses —
+  the `ResponseTemplateSelector` popover button and the `ResponseTemplateDropdown`
+  that suggests templates as the agent types, with arrow-key, Enter and Escape
+  handling — so templates appear only when the note is not internal. The
+  composer keeps the surrounding background untinted; only the left bar marks
+  the mode.
+- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`.
+- **Contracts changed:** `None` — `ticketCreateNote` is still called with
+  `content`, `contentId` and `mentions` only; the toggle and attachments are
+  presentation state and are not yet sent to the API.
+
 ### `2026-09-02` — IMAP integration UI removed
 
 - **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
@@ -893,54 +957,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
 - **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
 - **Contracts changed:** None
-
-### `2026-08-26` — Sidebar selections no longer strand each other
-
-- **Summary:** Selecting a Discord channel and then a team or personal channel
-  left `integrationId` set alongside `channelId`, and the two intersect to
-  nothing, so the list emptied with no chip explaining why. Every inbox
-  navigation selector now writes the whole target through `INBOX_TARGET_KEYS`
-  and clears the params it does not own, and a Discord selection finally shows as
-  its own removable chip in the filter bar.
-- **Affected areas:**
-  `src/modules/inbox/conversations/constants/inboxTarget.ts` (new),
-  `src/modules/integrations/discord/components/DiscordChannelFilterBar.tsx` (new),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`,
-  `src/modules/integrations/components/ChooseIntegrationType.tsx`,
-  `src/modules/integrations/discord/components/DiscordChannelsNav.tsx`,
-  `src/modules/inbox/conversations/components/ConversationsFilter.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-26` — Mail automation surface and the draft card removed
-
-- **Summary:** The mail channel's automation widgets (trigger form and both
-  action forms) are gone along with their `AutomationRemoteEntry` registration,
-  and so is the reply-draft card in the thread — the backend action that was the
-  only thing able to create a draft was removed with them.
-- **Affected areas:** `src/widgets/automations/modules/mail/` (deleted),
-  `src/widgets/automations/components/AutomationRemoteEntry.tsx`,
-  `src/modules/integrations/mail/components/{MailDraftCard.tsx (deleted),MailConversationDetail.tsx}`,
-  `src/modules/integrations/mail/hooks/useMailDraft.tsx` (deleted),
-  `src/modules/integrations/mail/graphql/{queries/mailQueries,mutations/mailMutations}.ts`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** Stops consuming `mailConversationDraft`,
-  `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
-  `mailDraftChanged` subscription; drops the `mail` automation remote entry.
-  Removed the five now-unused `draft` translation keys.
-
-### `2026-08-25` — Integration rows show their unread count again
-
-- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
-  `integrationsGetUsedTypesByChannel` query it already makes, instead of
-  recomputing the figure through a second `conversationCounts` request per
-  expanded channel that was rendering blank; a row and its channel row now count
-  the same thing.
-- **Affected areas:**
-  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
-  `src/modules/integrations/types/Integration.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
-  (`useConversationCountsByIntegrationType` narrowed to
-  `useAwaitingCountsByIntegrationType`),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
-- **Contracts changed:** None on the API; the by-channel used-types document now
-  selects `unreadConversationCount`.
