@@ -55,6 +55,9 @@
   body bytes, with tests for valid and modified payloads. Defines Viber
   integration types, a schema, and a tenant-scoped Mongoose model; no Viber
   HTTP route is registered.
+- Provides a pure Viber account-info parser that checks `status`, `id`, and
+  `name` and returns only `{ id, name }`. Its tests cover success, nonzero
+  status, null, and array responses; it makes no network or database calls.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -124,8 +127,10 @@
 
 ## Architecture
 
-Viber's signature utility and its colocated tests live under
-`src/modules/integrations/viber/utils/`.
+Viber's signature verification and account-info parsing utilities, with their
+colocated tests, live under `src/modules/integrations/viber/utils/`.
+The account-info result type lives in
+`src/modules/integrations/viber/@types/account.ts`.
 Its integration interfaces live in
 `src/modules/integrations/viber/@types/integration.ts`, and its
 schema lives in `src/modules/integrations/viber/db/definitions/integrations.ts`.
@@ -550,6 +555,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `rawBody`. Reject missing tokens and missing or malformed signatures before
   the timing-safe comparison. Never parse and reserialize the body for signing
   or log the token, signature, or payload.
+- `parseViberAccountInfo` accepts `unknown` and requires a non-null, non-array
+  object with numeric `status === 0` and non-blank string `id` and `name`.
+  Preserve the original strings and return a new object containing only those
+  two fields; reject invalid input with `Invalid Viber account info response`.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1283,11 +1292,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
 - No `test` target is defined in `project.json`; do not invent one.
-- Viber signature tests, from the repository root:
-  `pnpm exec tsx --test backend/plugins/frontline_api/src/modules/integrations/viber/utils/__tests__/signature.spec.ts`.
+- Viber utility tests, from the repository root:
+  `pnpm exec tsx --test backend/plugins/frontline_api/src/modules/integrations/viber/utils/__tests__/*.spec.ts`.
   Uses the existing `tsx` dependency and Node's built-in test runner; no
   project-wide test configuration is required. The `.spec.ts` suffix keeps
-  the test file out of the production TypeScript build.
+  the test files out of the production TypeScript build.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1330,6 +1339,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-07` — Viber account-info validation
+
+- **Summary:** Added a typed, pure account-info parser with successful-response,
+  nonzero-status, null, and array regression tests.
+- **Affected areas:** `src/modules/integrations/viber/@types/account.ts`,
+  `src/modules/integrations/viber/utils/account.ts`,
+  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
+- **Contracts changed:** Internal
+  `parseViberAccountInfo(value: unknown): IViberAccountInfo`; no public API or
+  HTTP route is added.
 
 ### `2026-09-07` — Viber integration model registration
 
@@ -1456,19 +1476,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** The inbound webhook payload's `headers` may now carry
   `delivered-to`. The worker bundle version changed, so a workspace running the
   worker on its own Cloudflare account has to press _Update worker_.
-
-### `2026-08-27` — An inbox can choose the name recipients see
-
-- **Summary:** Replies carried the inbox integration's `name` as their display
-  name with no way to change it, so a mailbox called "support" appeared to
-  recipients as `support`. A mail integration now owns an optional `senderName`,
-  used for the `From` display name and falling back to the inbox name when empty.
-  It is validated on create and edit: line breaks are rejected so the value cannot
-  smuggle a second header, and length is capped at `MAIL_SENDER_NAME_MAX_LENGTH`.
-  The `From` address itself is unchanged.
-- **Affected areas:** `src/modules/integrations/mail/db/definitions/integrations.ts`,
-  `src/modules/integrations/mail/@types/integration.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`.
-- **Contracts changed:** `mailCreateIntegration` and `mailUpdateIntegration` accept
-  `data.senderName`; `mailIntegrationDetails` returns it.
