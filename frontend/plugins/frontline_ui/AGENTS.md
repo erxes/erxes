@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-04`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -804,6 +804,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   [AttachmentInput]`; `TicketGetNote` and `TicketCreateNote` now select
   `attachments { name url type size }`.
 
+### `2026-09-05` — `Property groups share one card shell`
+
+- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
+- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-04` — Ticket note composer split into hooks and child components
 
 - **Summary:** `NoteInput.tsx` shrank from 381 lines to a ~135-line composition
@@ -928,32 +934,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `backend/gateway/src/locales/{en,mn}/frontline.json`.
 - **Contracts changed:** sends `data.senderName` on integration create and
   `details.senderName` on edit; reads `senderName` from integration details.
-
-### `2026-08-27` — The Sending domains panel is gone; replies are Cloudflare-only
-
-- **Summary:** Settings → Integrations config no longer carries a Sending domains
-  section, and the add-inbox wizard and edit dialog no longer offer a per-inbox
-  sender. Replies always leave from the inbox's own address, signed by the
-  workspace's connected Cloudflare account or, failing that, the deployment's.
-  Step 3 of the wizard became a confirmation naming that domain, and blocks with
-  `mailSendingReadiness.cloudflare.reason` plus a link to Integrations config when
-  neither account can sign. The SES/SendGrid form, its DNS-record and verification
-  UI and the account mutations are deleted.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/{MailSendingChoice,MailSendingAccountForm,MailSendingAccounts}.tsx`
-  and `src/modules/integrations/mail/graphql/mutations/mailSendingMutations.ts`
-  deleted; `MailSendingRequired.tsx` reduced to the Cloudflare route;
-  `useMailSendingAccounts.tsx` replaced by `hooks/useMailSendingReadiness.tsx`;
-  `graphql/queries/mailSendingQueries.ts`, `MailIntegrationForm.tsx`,
-  `MailIntegrationDetail.tsx`, `src/pages/IntegrationConfigPage.tsx`.
-- **Contracts changed:** stops sending `data.sendingAccountId` /
-  `data.sendingAddress` on integration create and edit; stops using
-  `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
-  `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
-  `frontline_api` removed.
-
-### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
-
-- **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
-- **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
-- **Contracts changed:** None

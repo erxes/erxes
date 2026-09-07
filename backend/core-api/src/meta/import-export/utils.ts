@@ -1,6 +1,57 @@
+import {
+  collectPropertyDataFromColumns,
+  propertyDataPath,
+  toPropertyGroupKey,
+  toPropertyRowColumnKey,
+} from 'erxes-api-shared/core-modules';
 import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
+import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getCustomFields } from '~/modules/forms/utils';
+
+const MAX_ROW_COLUMNS = 20;
+
+const COLLECTION_BY_CONTENT_TYPE: Record<string, keyof IModels> = {
+  'core:customer': 'Customers',
+  'core:company': 'Companies',
+  'core:product': 'Products',
+  'core:user': 'Users',
+};
+
+const countRepeatingGroupRows = async (
+  models: IModels,
+  contentType: string,
+  groupIds: string[],
+): Promise<Map<string, number>> => {
+  const counts = new Map(groupIds.map((groupId) => [groupId, 1]));
+  const modelName = COLLECTION_BY_CONTENT_TYPE[contentType];
+
+  if (!modelName || !groupIds.length) {
+    return counts;
+  }
+
+  const collection = models[modelName] as unknown as Model<unknown>;
+
+  for (const groupId of groupIds) {
+    const path = propertyDataPath(toPropertyGroupKey(groupId));
+
+    const [largest] = await collection
+      .aggregate([
+        { $match: { [path]: { $type: 'array' } } },
+        { $project: { size: { $size: `$${path}` } } },
+        { $sort: { size: -1 } },
+        { $limit: 1 },
+      ])
+      .exec();
+
+    counts.set(
+      groupId,
+      Math.min(Math.max(Number(largest?.size) || 1, 1), MAX_ROW_COLUMNS),
+    );
+  }
+
+  return counts;
+};
 
 export const getCustomPropertyHeaders = async (
   models: IModels,
@@ -21,15 +72,24 @@ export const getCustomPropertyHeaders = async (
     : [];
   const groupById = new Map(groups.map((group) => [String(group._id), group]));
 
-  return customFields.map((field) => {
+  const rowCounts = await countRepeatingGroupRows(
+    models,
+    contentType,
+    groups
+      .filter((group) => group.configs?.isMultiple)
+      .map((group) => String(group._id)),
+  );
+
+  return customFields.flatMap((field) => {
     const group = field.groupId ? groupById.get(String(field.groupId)) : null;
     const fieldId = String(field._id);
-    const label = group?.name ? `${group.name} / ${field.name}` : field.name;
-    const uniqueLabel = field.code ? `${label} [${field.code}]` : label;
-    const key = `propertiesData.${fieldId}`;
+    const groupId = group ? String(group._id) : '';
 
-    return {
-      label: uniqueLabel,
+    const buildHeader = (
+      label: string,
+      key: string,
+    ): ImportHeaderDefinition => ({
+      label: field.code ? `${label} [${field.code}]` : label,
       key,
       aliases: [
         label,
@@ -39,7 +99,25 @@ export const getCustomPropertyHeaders = async (
         key,
       ].filter(Boolean),
       type: 'customProperty',
-    };
+    });
+
+    if (group?.configs?.isMultiple) {
+      const rows = rowCounts.get(groupId) || 1;
+
+      return Array.from({ length: rows }, (_, offset) =>
+        buildHeader(
+          `${group.name} ${offset + 1} / ${field.name}`,
+          toPropertyRowColumnKey(groupId, fieldId, offset + 1),
+        ),
+      );
+    }
+
+    return [
+      buildHeader(
+        group?.name ? `${group.name} / ${field.name}` : field.name,
+        propertyDataPath(fieldId),
+      ),
+    ];
   });
 };
 
@@ -47,22 +125,7 @@ export const extractPropertiesData = async (
   models: IModels,
   doc: Record<string, any>,
 ) => {
-  const propertiesData: Record<string, any> = {};
-
-  for (const key of Object.keys(doc)) {
-    if (!key.startsWith('propertiesData.')) {
-      continue;
-    }
-
-    const field = key.replace('propertiesData.', '');
-    const value = doc[key];
-
-    delete doc[key];
-
-    if (value !== undefined && value !== null && value !== '') {
-      propertiesData[field] = value;
-    }
-  }
+  const propertiesData = collectPropertyDataFromColumns(doc);
 
   if (Object.keys(propertiesData).length) {
     doc.propertiesData = await models.Fields.validateFieldValues({

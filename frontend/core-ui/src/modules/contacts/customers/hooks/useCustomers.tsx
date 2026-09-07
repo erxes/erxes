@@ -114,7 +114,8 @@ export const useCustomers = (
   const { list: customers, pageInfo, totalCount } = data?.customers || {};
 
   useEffect(() => {
-    if (!totalCount) return;
+    // 0 is a real count: skipping it leaves the previous filter's number up
+    if (isUndefinedOrNull(totalCount)) return;
     setCustomerTotalCount(totalCount);
   }, [totalCount]);
 

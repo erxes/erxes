@@ -1,3 +1,4 @@
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
   ISearchTokenConfig,
@@ -5,7 +6,6 @@ import {
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
-import { withPropertyConditions } from '@/properties/utils';
 
 export const generateFilter = async (
   subdomain: string,
@@ -158,7 +158,7 @@ export const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
