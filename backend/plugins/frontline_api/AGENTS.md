@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -401,7 +401,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `erxes-api-shared/core-modules`: `sendNotification`, `canGroup`,
   import/export producer handlers, automation types,
   `replaceOutputPlaceholders`, `splitType`, `sendAutomationTrigger`,
-  `EXECUTE_WAIT_TYPES`, `attachmentSchema`.
+  `EXECUTE_WAIT_TYPES`, `attachmentSchema`, `propertyPath`.
 - `core` over tRPC — brands, tags, users, structure,
   `configs.getFileUploadConfigs`, `users.findOne`, `fields.find` (validating the
   ticket property fields chosen in a ticket config).
@@ -547,6 +547,30 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- The conversation collection must never get an event dispatcher. Every
+  message written writes back to its conversation, so a dispatcher would make
+  the highest-volume write in the product also the highest-volume segment
+  event. `conversationsChanged` announces from the specific writes instead, and
+  is given the update document so a message - which names only `updatedAt` and
+  `messageCount` - announces nothing.
+- A new write that moves `customerId`, `integrationId`, `assignedUserId`,
+  `tagIds`, `status`, `closedAt`, `isBot` or `firstRespondedDate` on a
+  conversation must call `conversationsChanged`. Nothing else will.
+- Messages are declared in `segmentFields` but never in `contentTypes`: a
+  single message is nobody's audience, and the declaration exists only to give
+  the `customer.messages` relation a vocabulary.
+- `ticketSchema` must stay wrapped in `schemaWrapper`: membership is written
+  onto the record as `segmentIds`, and an unwrapped schema is a ticket segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`tickets.assigneeId`, `tickets.assignedMembers`). Without one the measure
+  scans the collection.
+- A ticket content type declaration must carry `contentType`. Without it the
+  dispatcher's `frontline:tickets.tickets` maps to nothing and no write ever
+  reaches a segment built on it.
 - Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
   `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
   _every_ ticket list, not only pipeline-scoped ones. Without a
@@ -1340,6 +1364,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-05` — `Export repeating ticket properties by row`
+
+- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
+- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
+- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
+
+### `2026-09-05` — `Use the shared propertiesData path helper`
+
+- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
+- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-03` — A help center carries its published site's appearance
 
 - **Summary:** Added a nested `styles` block to the knowledge base topic holding
@@ -1409,6 +1445,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   unscoped lists, which also stops private-pipeline tickets leaking there.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
 - # **Contracts changed:** None (`getTickets` arguments are unchanged).
+  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1428,66 +1465,26 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   registered.
   > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
 
-### `2026-08-28` — Every zone is listed, and the picker says which are usable
+### `2026-09-01` — `checkTargetMatch` producer removed
 
-- **Summary:** `listZones` asked for a single page of 50, so an account with more
-  domains than that silently lost the rest — including, quite possibly, the only
-  one it could use. It now pages until a short page. Eligibility reasons were
-  reusing the full `checkZone` error, three lines of explanation per row; they now
-  have a summary form for the picker while the long form stays on the thrown
-  error. `describeZones` bounds the per-zone MX lookups to
-  `ELIGIBILITY_CONCURRENCY` and returns usable domains first.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`,
-  `.../cloudflare/{api,connect}.ts`.
-- **Contracts changed:** None — `MailCloudflareZone.reason` is shorter prose.
+- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
+  automations object and from the ticket module's producers; automation target
+  matching now runs through the segment engine, so the Elasticsearch-era
+  selector round-trip has no caller left anywhere in the repository.
+- **Affected areas:** `src/meta/automations.ts`,
+  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
+- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
+  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
+  `erxes-api-shared`.
 
-### `2026-08-28` — The domain picker says which domains can actually be connected
+### `2026-09-01` — Elasticsearch-era segment producers removed
 
-- **Summary:** `mailCloudflareZones` returned every zone a token could reach, so a
-  domain that already carries another provider's MX looked selectable and only
-  failed at `checkZone`, three provisioning steps into Connect. The two tests
-  `checkZone` runs now live in `utils/cloudflare/zones.ts` and the listing applies
-  them per zone, returning `eligible` and the `reason`. A zone whose MX cannot be
-  read stays eligible rather than being wrongly withheld — `checkZone` is still the
-  gate, the picker only spends one extra MX lookup per zone to warn earlier.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`
-  (new), `.../cloudflare/{connect,provision}.ts`,
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/graphql/schema/mail.ts`.
-- **Contracts changed:** `MailCloudflareZone` gains `eligible` and `reason`.
-
-### `2026-08-28` — One Cloudflare account can serve more than one workspace
-
-- **Summary:** `connectCloudflare` named the worker, queue and dead-letter queue
-  from module constants, so a second workspace connecting the same Cloudflare
-  account collided on the queue name and provisioning died at `attachConsumer` —
-  the account was effectively single-tenant, whatever domain was chosen. Those
-  three names now carry the tenant, which is already resolved two lines above
-  them; the R2 bucket stays shared because its objects are keyed by tenant
-  anyway. Existing connections keep the names stored on their document, so
-  nothing already provisioned is stranded. Disconnecting now deletes the worker
-  and both queues, since tenant-scoped names would otherwise accumulate.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/connect.ts`,
-  `src/modules/integrations/mail/utils/cloudflare/api.ts` (adds `deleteQueue`,
-  `deleteScript`), `src/modules/integrations/mail/utils/cloudflare/provision.ts`
-  (two guard messages no longer claim one account serves one workspace).
-- **Contracts changed:** None. `provision.ts` already read every name from the
-  connection document, and `buildScriptMetadata` already took them as arguments.
-
-### `2026-08-28` — Header threading works again on sent replies
-
-- **Summary:** `createCloudflareTransport` discarded the `message_id` Cloudflare
-  returns, so every sent reply was stored with no `providerMessageId`. The
-  machinery around it was already complete — `toWireReferences` swaps the internal
-  id for the wire one, and inbound matching checks `providerMessageId` — but with
-  the field empty the sent message was filtered out of outgoing `References`
-  entirely and a customer reply quoting it could not be matched. Replies still
-  threaded through the tagged `Reply-To` and the original inbound id, which is why
-  this stayed hidden. The stored `from` on a sent message now also carries the
-  display name that actually went out instead of repeating the address.
-- **Affected areas:**
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/utils/transports/cloudflare.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`.
-- **Contracts changed:** None — `providerMessageId` was already stored and
-  returned; it was simply never populated for Cloudflare sends.
+- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
+  `propertyConditionExtender` were deleted from the ticket module and from the
+  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
+  segment call, and no plugin-to-plugin RPC loop can form.
+- **Affected areas:** `src/meta/segments.ts`,
+  `src/modules/ticket/meta/segments/index.ts`.
+- **Contracts changed:** `/segments` no longer answers `associationFilter`,
+  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
+  existed for any of them.

@@ -36,7 +36,11 @@ export const loadClass = (models: IModels) => {
         throw new Error('Automation not found');
       }
 
-      const duplicated = await buildDuplicatedAutomation(models, automation);
+      const duplicated = await buildDuplicatedAutomation(
+        models,
+        automation,
+        userId,
+      );
       const now = new Date();
 
       return models.Automations.create({

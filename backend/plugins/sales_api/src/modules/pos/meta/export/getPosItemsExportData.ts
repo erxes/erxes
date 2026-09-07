@@ -143,13 +143,20 @@ export async function getPosItemsExportData(
       params.ids = ids;
     }
 
-    const batch = (await posOrderRecordsQuery(models, subdomain, params)) as IOrderRecord[];
+    const batch = (await posOrderRecordsQuery(
+      models,
+      subdomain,
+      params,
+    )) as IOrderRecord[];
     if (!Array.isArray(batch) || batch.length === 0) break;
     allOrders.push(...batch);
     if (batch.length < perPage) break;
   }
 
-  const fields = selectedFields && selectedFields.length > 0 ? selectedFields : DEFAULT_FIELDS;
+  const fields =
+    selectedFields && selectedFields.length > 0
+      ? selectedFields
+      : DEFAULT_FIELDS;
 
   return allOrders.map((order) => {
     const row: ExportRow = {};

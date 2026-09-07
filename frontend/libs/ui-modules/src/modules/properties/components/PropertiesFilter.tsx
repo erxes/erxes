@@ -1,4 +1,9 @@
-import { IconListDetails, IconTextSize, IconX } from '@tabler/icons-react';
+import {
+  IconArrowsShuffle,
+  IconListDetails,
+  IconTextSize,
+  IconX,
+} from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -12,7 +17,7 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useFields } from '../hooks/useFields';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFieldDetail } from '../hooks/useFieldDetail';
@@ -23,6 +28,7 @@ import {
   PropertyFilterOperator,
 } from '../types/fieldsTypes';
 import { OPERATOR_BY_TYPE } from '../constants/field_operators';
+import { parsePropertyDataKey, toPropertyRowKey } from '../propertyUtils';
 import { FIELD_ICON_BY_TYPE } from '../constants/field_icons';
 import {
   CompaniesInline,
@@ -31,9 +37,21 @@ import {
   SelectCustomer,
 } from 'ui-modules/modules/contacts';
 import { ProductsInline, SelectProduct } from 'ui-modules/modules/products';
+import {
+  BranchesInline,
+  DepartmentsInline,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules/modules/structure';
 import { MembersInline, SelectMember } from 'ui-modules/modules/team-members';
 
 const QUERY_KEY = 'propertiesData';
+
+const rowKeyOf = (fieldId: string) => {
+  const key = parsePropertyDataKey(fieldId);
+
+  return key.kind === 'row' ? key : null;
+};
 
 // Conditions are encoded in the URL as `fieldId:operator:value`, joined with
 // `;`. Multiple values (in / notIn / fileType) are comma-separated. Each
@@ -144,10 +162,27 @@ const usePropertiesFilterState = () => {
     write(conditions.filter((c) => c.fieldId !== fieldId));
   };
 
+  // the mode lives in the key, so flipping it rewrites every condition of
+  // the group at once — they can never disagree
+  const setGroupRowMode = (groupId: string, anyRow: boolean) =>
+    write(
+      conditions.map((condition) => {
+        const key = rowKeyOf(condition.fieldId);
+
+        return key && key.groupId === groupId
+          ? {
+              ...condition,
+              fieldId: toPropertyRowKey(groupId, key.fieldId, anyRow),
+            }
+          : condition;
+      }),
+    );
+
   return {
     conditions,
     upsert,
     removeByFieldId,
+    setGroupRowMode,
   };
 };
 
@@ -230,8 +265,8 @@ const PropertyValueInput = ({
       const selected = Array.isArray(value)
         ? (value as string[])
         : value
-          ? [value as string]
-          : [];
+        ? [value as string]
+        : [];
 
       const toggle = (optionValue: string) => {
         if (multiple) {
@@ -278,7 +313,7 @@ const PropertyValueInput = ({
     case 'file': {
       const text = Array.isArray(value)
         ? (value as string[]).join(', ')
-        : ((value as string) ?? '');
+        : (value as string) ?? '';
       return (
         <Input
           value={text}
@@ -341,6 +376,20 @@ const RelationValueInput = ({
       return <SelectProduct {...commonProps} />;
     case 'relation:core:teamMembers':
       return <SelectMember {...commonProps} />;
+    case 'relation:core:branch':
+      return (
+        <SelectBranches.Root
+          {...commonProps}
+          onValueChange={(val) => onChange(val ?? null)}
+        />
+      );
+    case 'relation:core:department':
+      return (
+        <SelectDepartments.Root
+          {...commonProps}
+          onValueChange={(val) => onChange(val ?? null)}
+        />
+      );
     default:
       return null;
   }
@@ -364,6 +413,10 @@ const RelationValueDisplay = ({
       return <ProductsInline productIds={ids} />;
     case 'relation:core:teamMembers':
       return <MembersInline memberIds={ids} />;
+    case 'relation:core:branch':
+      return <BranchesInline branchIds={ids} />;
+    case 'relation:core:department':
+      return <DepartmentsInline departmentIds={ids} />;
     default:
       return <>{ids.join(', ')}</>;
   }
@@ -371,11 +424,15 @@ const RelationValueDisplay = ({
 
 const PropertyConditionEditor = ({
   field,
+  fieldKey,
   condition,
+  sameRowGroupName,
   onApply,
 }: {
   field: IField;
+  fieldKey: string;
   condition?: IPropertyFilterCondition;
+  sameRowGroupName?: string;
   onApply: (condition: IPropertyFilterCondition) => void;
 }) => {
   const operators =
@@ -392,7 +449,7 @@ const PropertyConditionEditor = ({
 
   const apply = (op: PropertyFilterOperator, val: unknown) =>
     onApply({
-      fieldId: field._id,
+      fieldId: fieldKey,
       type: field.type,
       operator: op,
       value: isNoValue(op) ? undefined : val,
@@ -400,6 +457,11 @@ const PropertyConditionEditor = ({
 
   return (
     <div className="w-72">
+      {sameRowGroupName && (
+        <div className="border-b px-2 py-1.5 text-xs text-muted-foreground">
+          Must hold in the same {sameRowGroupName} row as its other filters.
+        </div>
+      )}
       <Command>
         <Command.List className="max-h-none p-1">
           {operators.map((op) => (
@@ -472,7 +534,7 @@ const PropertyOperatorPicker = ({
             value={op.value}
             onSelect={() =>
               onApply({
-                fieldId: field._id,
+                fieldId: condition.fieldId,
                 type: field.type,
                 operator: op.value,
                 value: op.noValue ? undefined : condition.value,
@@ -523,7 +585,7 @@ const PropertyValueEditor = ({
         }
         onClick={() =>
           onApply({
-            fieldId: field._id,
+            fieldId: condition.fieldId,
             type: field.type,
             operator: condition.operator,
             value,
@@ -543,7 +605,7 @@ const PropertyGroupItems = ({
 }: {
   group: IFieldGroup;
   contentType: string;
-  onSelect: (field: IField) => void;
+  onSelect: (field: IField, group: IFieldGroup) => void;
 }) => {
   const { fields } = useFields({ groupId: group._id, contentType });
 
@@ -559,7 +621,7 @@ const PropertyGroupItems = ({
           <Command.Item
             key={field._id}
             value={`${group.name} ${field.name} ${field.code}`}
-            onSelect={() => onSelect(field)}
+            onSelect={() => onSelect(field, group)}
             className="h-8"
           >
             <TypeIcon className="mr-1 size-4 text-muted-foreground" />
@@ -577,7 +639,26 @@ const PropertiesFilterView = ({ contentType }: { contentType: string }) => {
   const { fieldGroups, loading: groupsLoading } = useFieldGroups({
     contentType,
   });
-  const [selectedField, setSelectedField] = useState<IField | null>(null);
+  const [selected, setSelected] = useState<{
+    field: IField;
+    group: IFieldGroup;
+  } | null>(null);
+
+  // a new condition joins the mode its group is already filtered by, and
+  // starts a group off on any-row
+  const groupRowMode = selected
+    ? conditions
+        .map((c) => rowKeyOf(c.fieldId))
+        .find((key) => key?.groupId === selected.group._id)
+    : undefined;
+
+  const groupAnyRow = groupRowMode ? groupRowMode.anyRow : true;
+
+  const fieldKey = selected
+    ? selected.group.configs?.isMultiple
+      ? toPropertyRowKey(selected.group._id, selected.field._id, groupAnyRow)
+      : selected.field._id
+    : '';
 
   if (groupsLoading) {
     return (
@@ -589,13 +670,24 @@ const PropertiesFilterView = ({ contentType }: { contentType: string }) => {
 
   return (
     <Filter.View filterKey={QUERY_KEY}>
-      {selectedField ? (
+      {selected ? (
         <PropertyConditionEditor
-          field={selectedField}
-          condition={conditions.find((c) => c.fieldId === selectedField._id)}
+          field={selected.field}
+          fieldKey={fieldKey}
+          condition={conditions.find((c) => c.fieldId === fieldKey)}
+          sameRowGroupName={
+            !groupAnyRow &&
+            conditions.some(
+              (c) =>
+                c.fieldId !== fieldKey &&
+                rowKeyOf(c.fieldId)?.groupId === selected.group._id,
+            )
+              ? selected.group.name
+              : undefined
+          }
           onApply={(condition) => {
             upsert(condition);
-            setSelectedField(null);
+            setSelected(null);
             resetFilterState();
           }}
         />
@@ -609,7 +701,7 @@ const PropertiesFilterView = ({ contentType }: { contentType: string }) => {
                 key={group._id}
                 group={group}
                 contentType={contentType}
-                onSelect={setSelectedField}
+                onSelect={(field, group) => setSelected({ field, group })}
               />
             ))}
           </Command.List>
@@ -619,43 +711,136 @@ const PropertiesFilterView = ({ contentType }: { contentType: string }) => {
   );
 };
 
-const PropertiesFilterBar = (_: { contentType: string }) => {
-  const { conditions, upsert, removeByFieldId } = usePropertiesFilterState();
+type PropertyConditionChunk = {
+  key: string;
+  groupId: string | null;
+  anyRow: boolean;
+  conditions: IPropertyFilterCondition[];
+};
+
+const chunkConditionsByGroup = (
+  conditions: IPropertyFilterCondition[],
+): PropertyConditionChunk[] => {
+  const chunks: PropertyConditionChunk[] = [];
+  const byGroupId = new Map<string, PropertyConditionChunk>();
+
+  for (const condition of conditions) {
+    const key = rowKeyOf(condition.fieldId);
+
+    if (!key) {
+      chunks.push({
+        key: condition.fieldId,
+        groupId: null,
+        anyRow: false,
+        conditions: [condition],
+      });
+      continue;
+    }
+
+    const open = byGroupId.get(key.groupId);
+
+    if (open) {
+      open.conditions.push(condition);
+      continue;
+    }
+
+    const chunk: PropertyConditionChunk = {
+      key: key.groupId,
+      groupId: key.groupId,
+      anyRow: key.anyRow,
+      conditions: [condition],
+    };
+
+    byGroupId.set(key.groupId, chunk);
+    chunks.push(chunk);
+  }
+
+  return chunks;
+};
+
+const PropertiesFilterBar = ({ contentType }: { contentType: string }) => {
+  const { conditions, upsert, removeByFieldId, setGroupRowMode } =
+    usePropertiesFilterState();
+  const chunks = chunkConditionsByGroup(conditions);
+  const { fieldGroups } = useFieldGroups({
+    contentType,
+    skip: !chunks.some((chunk) => chunk.groupId),
+  });
 
   if (!conditions.length) {
     return null;
   }
 
+  const groupName = (groupId: string) =>
+    fieldGroups.find((group) => group._id === groupId)?.name ?? 'Group';
+
   return (
     <>
-      {conditions.map((condition) => (
-        <PropertyBarItem
-          key={condition.fieldId}
-          condition={condition}
-          onApply={upsert}
-          onRemove={() => removeByFieldId(condition.fieldId)}
-        />
-      ))}
+      {chunks.map((chunk) => {
+        const grouped = !!chunk.groupId && chunk.conditions.length > 1;
+
+        const items = chunk.conditions.map((condition) => (
+          <PropertyBarItem
+            key={condition.fieldId}
+            condition={condition}
+            groupName={
+              chunk.groupId && !grouped ? groupName(chunk.groupId) : undefined
+            }
+            onApply={upsert}
+            onRemove={() => removeByFieldId(condition.fieldId)}
+          />
+        ));
+
+        if (!chunk.groupId || !grouped) {
+          return <Fragment key={chunk.key}>{items}</Fragment>;
+        }
+
+        const groupId = chunk.groupId;
+
+        return (
+          <div
+            key={chunk.key}
+            className="flex items-stretch gap-1 rounded border border-dashed border-muted-foreground/40 p-1"
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto self-center whitespace-nowrap px-1 py-0 text-xs text-muted-foreground"
+              onClick={() => setGroupRowMode(groupId, !chunk.anyRow)}
+              title="Switch between matching one row and matching across rows"
+            >
+              <IconArrowsShuffle className="size-3" />
+              {groupName(groupId)} &middot;{' '}
+              {chunk.anyRow ? 'any row' : 'same row'}
+            </Button>
+            {items}
+          </div>
+        );
+      })}
     </>
   );
 };
 
 const PropertyBarItem = ({
   condition,
+  groupName,
   onApply,
   onRemove,
 }: {
   condition: IPropertyFilterCondition;
+  groupName?: string;
   onApply: (condition: IPropertyFilterCondition) => void;
   onRemove: () => void;
 }) => {
   const [operatorOpen, setOperatorOpen] = useState(false);
   const [valueOpen, setValueOpen] = useState(false);
 
-  const { field: fetched } = useFieldDetail(condition.fieldId);
+  const { fieldId } = parsePropertyDataKey(condition.fieldId);
+
+  const { field: fetched } = useFieldDetail(fieldId);
 
   const field: IField =
-    fetched ?? ({ _id: condition.fieldId, name: '', type: 'text' } as IField);
+    fetched ?? ({ _id: fieldId, name: '', type: 'text' } as IField);
 
   const isRelation = field.type.startsWith('relation');
   const operators =
@@ -687,6 +872,9 @@ const PropertyBarItem = ({
     <div className="flex items-stretch gap-px bg-muted shadow-xs rounded h-7 font-medium text-sm">
       <Filter.BarName>
         <IconListDetails />
+        {groupName && (
+          <span className="text-muted-foreground">{groupName} /</span>
+        )}
         {field.name || 'Property'}
       </Filter.BarName>
 

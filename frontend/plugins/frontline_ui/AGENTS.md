@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-03`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -916,6 +916,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-05` — `Property groups share one card shell`
+
+- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
+- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-04` — Fonts are picked from a list
 
 - **Summary:** The appearance tab's base and heading fonts were free text, so a
@@ -1010,18 +1016,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   drawer's slots use the repo's usual handler and clearing works.
 - **Affected areas:** `src/modules/knowledgebase/components/TopicDrawer.tsx`
 - **Contracts changed:** None.
-
-### `2026-09-03` — Editing a help center is a drawer, not a page
-
-- **Summary:** Removed the per-help-center detail page and its General
-  settings/Categories/Appearance sub-navigation; Edit from the row menu and the
-  nav sub-group now set an `editId` URL query that opens the topic drawer over
-  the list, with the shared `toTopicDrawerRecord` mapper widening a list record
-  for it.
-- **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
-  `src/modules/FrontlineMain.tsx`,
-  `src/modules/helpcenter/components/{HelpCenterMoreColumn,HelpCenterSubGroup}.tsx`,
-  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`; deleted
-  `src/pages/HelpCenterDetailPage.tsx` and the
-  `HelpCenter{Edit,Panels,Sidebar,CategoriesTable}` components.
-- **Contracts changed:** The `/frontline/helpcenter/:id` route is gone.

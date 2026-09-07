@@ -1,5 +1,14 @@
-import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
-import { getRealIdFromElk, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  buildPropertyDataColumns,
+  ImportHeaderDefinition,
+  parsePropertyColumnKey,
+  propertyDataPath,
+  readPropertyDataColumn,
+  toPropertyGroupKey,
+  toPropertyRowColumnKey,
+} from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 import { STATUS_TYPES } from '@/status/constants/types';
 
@@ -14,7 +23,10 @@ function stringifyObject(obj: Record<string, unknown>): string | undefined {
     return obj.toHexString();
   }
   const toStringFn = obj.toString;
-  if (typeof toStringFn === 'function' && toStringFn !== Object.prototype.toString) {
+  if (
+    typeof toStringFn === 'function' &&
+    toStringFn !== Object.prototype.toString
+  ) {
     return toStringFn.call(obj);
   }
   return undefined;
@@ -77,7 +89,10 @@ export const STATUS_TYPE_LABELS: Record<number, string> = {
 /**
  * Joins a list of names/IDs using a semicolon separator.
  */
-export const joinNames = (ids: unknown[] | undefined, map: Map<string, string>): string => {
+export const joinNames = (
+  ids: unknown[] | undefined,
+  map: Map<string, string>,
+): string => {
   if (!ids?.length) return '';
   return ids
     .map((id) => map.get(stringifyId(id)) || '')
@@ -134,9 +149,48 @@ export const formatDate = (dateValue: Date | string | undefined): string => {
  * @param contentType The content type to query (e.g. TASK_CONTENT_TYPE, PROJECT_CONTENT_TYPE).
  * @returns A promise resolving to an array of import/export header definitions.
  */
+const MAX_ROW_COLUMNS = 20;
+
+const MODEL_BY_CONTENT_TYPE: Record<string, 'Task' | 'Project'> = {
+  [TASK_CONTENT_TYPE]: 'Task',
+  [PROJECT_CONTENT_TYPE]: 'Project',
+};
+
+const countRepeatingGroupRows = async (
+  models: IModels | undefined,
+  contentType: string,
+  groupIds: string[],
+): Promise<Map<string, number>> => {
+  const counts = new Map(groupIds.map((groupId) => [groupId, 1]));
+  const modelName = MODEL_BY_CONTENT_TYPE[contentType];
+
+  if (!models || !modelName || !groupIds.length) {
+    return counts;
+  }
+
+  for (const groupId of groupIds) {
+    const path = propertyDataPath(toPropertyGroupKey(groupId));
+
+    const [largest] = await models[modelName].aggregate([
+      { $match: { [path]: { $type: 'array' } } },
+      { $project: { size: { $size: `$${path}` } } },
+      { $sort: { size: -1 } },
+      { $limit: 1 },
+    ]);
+
+    counts.set(
+      groupId,
+      Math.min(Math.max(Number(largest?.size) || 1, 1), MAX_ROW_COLUMNS),
+    );
+  }
+
+  return counts;
+};
+
 export const getCustomPropertyHeaders = async (
   subdomain: string,
   contentType: string,
+  models?: IModels,
 ): Promise<ImportHeaderDefinition[]> => {
   const fields: Record<string, unknown>[] = await sendTRPCMessage({
     subdomain,
@@ -173,18 +227,32 @@ export const getCustomPropertyHeaders = async (
 
   const groupById = new Map(groups.map((g) => [stringifyId(g._id), g]));
 
-  return fields.map((field) => {
-    const group = field.groupId ? groupById.get(stringifyId(field.groupId)) : null;
-    const fieldId = getRealIdFromElk(stringifyId(field._id));
-    const groupName = group && typeof group.name === 'string' ? group.name : null;
+  const rowCounts = await countRepeatingGroupRows(
+    models,
+    contentType,
+    groups
+      .filter(
+        (g) => (g.configs as { isMultiple?: boolean } | undefined)?.isMultiple,
+      )
+      .map((g) => stringifyId(g._id)),
+  );
+
+  return fields.flatMap((field) => {
+    const group = field.groupId
+      ? groupById.get(stringifyId(field.groupId))
+      : null;
+    const fieldId = stringifyId(field._id);
+    const groupId = group ? stringifyId(group._id) : '';
+    const groupName =
+      group && typeof group.name === 'string' ? group.name : null;
     const fieldName = typeof field.name === 'string' ? field.name : '';
     const fieldCode = typeof field.code === 'string' ? field.code : '';
-    const label = groupName ? `${groupName} / ${fieldName}` : fieldName;
-    const uniqueLabel = fieldCode ? `${label} [${fieldCode}]` : label;
-    const key = `propertiesData.${fieldId}`;
 
-    return {
-      label: uniqueLabel,
+    const buildHeader = (
+      label: string,
+      key: string,
+    ): ImportHeaderDefinition => ({
+      label: fieldCode ? `${label} [${fieldCode}]` : label,
       key,
       aliases: [
         label,
@@ -194,7 +262,28 @@ export const getCustomPropertyHeaders = async (
         key,
       ].filter(Boolean),
       type: 'customProperty' as const,
-    };
+    });
+
+    const isMultiple = (group?.configs as { isMultiple?: boolean } | undefined)
+      ?.isMultiple;
+
+    if (isMultiple && groupName) {
+      const rows = rowCounts.get(groupId) || 1;
+
+      return Array.from({ length: rows }, (_, offset) =>
+        buildHeader(
+          `${groupName} ${offset + 1} / ${fieldName}`,
+          toPropertyRowColumnKey(groupId, fieldId, offset + 1),
+        ),
+      );
+    }
+
+    return [
+      buildHeader(
+        groupName ? `${groupName} / ${fieldName}` : fieldName,
+        propertyDataPath(fieldId),
+      ),
+    ];
   });
 };
 
@@ -206,8 +295,9 @@ export const getCustomPropertyHeaders = async (
  */
 export const getTaskCustomPropertyHeaders = (
   subdomain: string,
-): Promise<ImportHeaderDefinition[]> => getCustomPropertyHeaders(subdomain, TASK_CONTENT_TYPE);
-
+  models?: IModels,
+): Promise<ImportHeaderDefinition[]> =>
+  getCustomPropertyHeaders(subdomain, TASK_CONTENT_TYPE, models);
 
 /**
  * Resolves the final list of export header definitions by combining system fields and custom property fields.
@@ -221,8 +311,13 @@ export async function resolveExportHeaders(
   subdomain: string,
   systemFields: ImportHeaderDefinition[],
   contentType: string,
+  models?: IModels,
 ): Promise<ImportHeaderDefinition[]> {
-  const customFields = await getCustomPropertyHeaders(subdomain, contentType);
+  const customFields = await getCustomPropertyHeaders(
+    subdomain,
+    contentType,
+    models,
+  );
   return [...systemFields, ...customFields];
 }
 
@@ -279,9 +374,15 @@ export const EXPORT_HEADER_CONFIG = {
 export async function getExportHeaders(
   type: 'task' | 'project',
   subdomain: string,
+  models?: IModels,
 ): Promise<ImportHeaderDefinition[]> {
   const config = EXPORT_HEADER_CONFIG[type];
-  return await resolveExportHeaders(subdomain, config.fields, config.type);
+  return await resolveExportHeaders(
+    subdomain,
+    config.fields,
+    config.type,
+    models,
+  );
 }
 
 /**
@@ -297,7 +398,9 @@ export function buildUserMap(members: unknown[]): Map<string, string> {
     };
     const name =
       item.details?.fullName ||
-      `${item.details?.firstName || ''} ${item.details?.lastName || ''}`.trim() ||
+      `${item.details?.firstName || ''} ${
+        item.details?.lastName || ''
+      }`.trim() ||
       item.email ||
       '';
     map.set(stringifyId(item._id), name);
@@ -353,19 +456,21 @@ export function finalizeExportRow(
   selectedFields?: string[],
 ): Record<string, string> {
   if (propertiesData && typeof propertiesData === 'object') {
-    for (const [fieldId, value] of Object.entries(propertiesData)) {
-      if (value !== undefined && value !== null) {
-        allFields[`propertiesData.${fieldId}`] = formatValue(value);
-      }
-    }
+    Object.assign(
+      allFields,
+      buildPropertyDataColumns(propertiesData, formatValue),
+    );
   }
 
   if (selectedFields?.length) {
     const result: Record<string, string> = { _id: stringifyId(_id) };
     for (const key of selectedFields) {
-      if (key.startsWith('propertiesData.')) {
-        const fieldId = key.slice('propertiesData.'.length);
-        result[key] = formatValue(propertiesData?.[fieldId]);
+      const column = parsePropertyColumnKey(key);
+
+      if (column) {
+        result[key] = formatValue(
+          readPropertyDataColumn(propertiesData, column),
+        );
       } else {
         result[key] = allFields[key] ?? '';
       }
@@ -375,4 +480,3 @@ export function finalizeExportRow(
 
   return allFields;
 }
-

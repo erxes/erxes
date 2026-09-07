@@ -17,7 +17,7 @@ export const useSegmentConfigWidget = (contentType: string) => {
   const hasSegmentConfigWidget = plugins.some(
     (plugin) =>
       plugin.name === pluginName &&
-      plugin.modules.some(
+      (plugin.modules || []).some(
         (module) =>
           [moduleName, `${moduleName}s`].includes(module.name) &&
           module.hasSegmentConfigWidget,

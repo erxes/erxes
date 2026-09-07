@@ -10,11 +10,6 @@ export const useAutomationsRemoteModules = (pluginName: string) => {
 
   const plugins = Object.values(pluginsMetaData);
 
-  // Module-federation container names can't contain dashes, so a dashed plugin
-  // name (e.g. "erxes-agent") is registered — and stored in pluginsConfigState —
-  // in its underscore form ("erxes_agent"). Automation node types keep the real
-  // dashed name, so normalize before matching. Mirrors core-api's
-  // get-frontend-plugins `remoteName()`.
   const normalizedName = pluginName.replaceAll('-', '_');
 
   const result = plugins

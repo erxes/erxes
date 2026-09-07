@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { detectTimeZone } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { AvailableLanguage, useSwitchLanguage } from '~/i18n';
 import { generalSettingsSchema } from '../schema';
@@ -15,7 +14,10 @@ const useGeneralSettingsForms = () => {
       CHECK_TEAM_MEMBER_SHOWN: false,
       BRANCHES_MASTER_TEAM_MEMBERS_IDS: [],
       DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS: [],
-      TIMEZONE: detectTimeZone(),
+      // Left blank rather than guessed from the browser: prefilling the
+      // viewer's own zone made an organization that has never set one look
+      // configured, while the server kept deciding every day boundary in UTC.
+      TIMEZONE: '',
     },
     resolver: zodResolver(generalSettingsSchema),
   });

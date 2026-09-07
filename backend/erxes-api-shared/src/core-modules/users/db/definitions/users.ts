@@ -152,7 +152,6 @@ export const userSchema = schemaWrapper(
       type: Number,
       optional: true,
       label: 'Score',
-      esType: 'number',
       default: 0,
     }),
 

@@ -474,29 +474,4 @@ export const operationAutomationHandlers = {
       targetType,
     });
   },
-
-  checkTargetMatch: async (
-    data: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],
-    { models }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const { moduleName, collectionType, targetId, selector } = data;
-
-    if (collectionType === 'tasks' && moduleName === 'task') {
-      return Boolean(
-        await models.Task.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
-
-    if (collectionType === 'projects' && moduleName === 'project') {
-      return Boolean(
-        await models.Project.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
-
-    return false;
-  },
 };

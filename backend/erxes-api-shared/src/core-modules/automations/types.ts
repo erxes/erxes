@@ -3,7 +3,6 @@ import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
   FindObjectInput,
-  CheckTargetMatchInput,
   LoadAiKnowledgeDocumentBatchInput,
   LookupAiToolInput,
   ReceiveActionsInput,
@@ -281,11 +280,6 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<boolean>;
 
-  checkTargetMatch?: (
-    args: z.infer<typeof CheckTargetMatchInput>,
-    context: IAutomationContext,
-  ) => Promise<boolean>;
-
   findObject?: (
     args: z.infer<typeof FindObjectInput>,
     context: IAutomationContext,
@@ -425,7 +419,6 @@ export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
-  CHECK_TARGET_MATCH = 'checkTargetMatch',
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',

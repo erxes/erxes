@@ -21,12 +21,13 @@ import {
   TagsFilter,
   SelectBrand,
   PropertiesFilter,
+  SegmentsFilter,
 } from 'ui-modules';
 import { CustomerTotalCount } from './CustomerTotalCount';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
 
-const CustomersFilterPopover = () => {
+const CustomersFilterPopover = ({ contentType }: { contentType: string }) => {
   const { t } = useTranslation('common');
   const [queries] = useMultiQueryState<{
     tags: string[];
@@ -35,7 +36,16 @@ const CustomersFilterPopover = () => {
     updated: string;
     lastSeen: string;
     brand: string;
-  }>(['tags', 'searchValue', 'created', 'updated', 'lastSeen', 'brand']);
+    segments: string[];
+  }>([
+    'tags',
+    'searchValue',
+    'created',
+    'updated',
+    'lastSeen',
+    'brand',
+    'segments',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -59,6 +69,7 @@ const CustomersFilterPopover = () => {
                   {t('filter.search')}
                 </Filter.Item>
                 <TagsFilter />
+                <SegmentsFilter />
                 <Filter.Item value="brand">
                   <IconLabel />
                   {t('filter.brand')}
@@ -89,6 +100,7 @@ const CustomersFilterPopover = () => {
           <SelectMember.FilterView />
           <SelectBrand.FilterView />
           <TagsFilter.View tagType="core:customer" />
+          <SegmentsFilter.View contentType={contentType} />
           <Filter.View filterKey="created">
             <Filter.DateView filterKey="created" />
           </Filter.View>
@@ -128,7 +140,13 @@ const CustomersFilterPopover = () => {
 export const CustomersFilter = () => {
   const { t } = useTranslation('common');
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const { sessionKey } = useIsCustomerLeadSessionKey();
+  const { sessionKey, isLead } = useIsCustomerLeadSessionKey();
+
+  // Leads and customers share a collection but not a segment type, so the
+  // picker has to offer the one this page is actually showing.
+  const contentType = isLead
+    ? 'core:contacts.leads'
+    : 'core:contacts.customers';
 
   return (
     <Filter id="customers-filter" sessionKey={sessionKey}>
@@ -143,6 +161,7 @@ export const CustomersFilter = () => {
           </Filter.BarButton>
         </Filter.BarItem>
         <TagsFilter.Bar tagType="core:customer" />
+        <SegmentsFilter.Bar contentType={contentType} />
         <Filter.BarItem queryKey="created">
           <Filter.BarName>
             <IconCalendarPlus />
@@ -174,7 +193,7 @@ export const CustomersFilter = () => {
         <SelectMember.FilterBar />
         <SelectBrand.FilterBar />
         <PropertiesFilter.Bar contentType="core:customer" />
-        <CustomersFilterPopover />
+        <CustomersFilterPopover contentType={contentType} />
         <CustomerTotalCount />
       </Filter.Bar>
     </Filter>

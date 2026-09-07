@@ -1,4 +1,45 @@
+# Changelog
 
+## [3.1.1](https://github.com/erxes/erxes/compare/3.1.0...3.1.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* posclient some queries skipPermission ([70c0b35](https://github.com/erxes/erxes/commit/70c0b353d2227879676e6abbac26215304508e97))
+* remove unnecessary logging of customer filter in cpCustomers query ([81b638d](https://github.com/erxes/erxes/commit/81b638d51dde9b4bed527e9f5576224ec5e4e8be))
+* update task mutation to return status and sort tasks by status ([#9202](https://github.com/erxes/erxes/issues/9202)) ([91151b1](https://github.com/erxes/erxes/commit/91151b13ec641aa06365f7040147aad656d95843))
+
+
+### Features
+
+* **documents:** Improve document printing and browsing ([#9228](https://github.com/erxes/erxes/issues/9228)) ([040962b](https://github.com/erxes/erxes/commit/040962b31376f9e6da9cc66d81b4ad64bcfd907e))
+* Refactor property groups to use unified card shell ([28eabb4](https://github.com/erxes/erxes/commit/28eabb4b970f5629853e596e89ff0c21883ea9e3))
+
+# [3.1.0](https://github.com/erxes/erxes/compare/3.0.98...3.1.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* add jest preset configuration to Dockerfile ([bd118fb](https://github.com/erxes/erxes/commit/bd118fb4a60d3a93500a5822350051fb6b094e9d))
+
+
+### Features
+
+* **segments:** segment references, relation measures, visibility, manual rebuild and save guards ([#9217](https://github.com/erxes/erxes/issues/9217)) ([c97bf89](https://github.com/erxes/erxes/commit/c97bf89b37a82a0aab0b4a9080729b01bd1633ea))
+
+## [3.0.98](https://github.com/erxes/erxes/compare/3.0.97...3.0.98) (2026-09-03)
+
+
+### Bug Fixes
+
+* add branch and department relation property types ([#9188](https://github.com/erxes/erxes/issues/9188)) ([e4e16ee](https://github.com/erxes/erxes/commit/e4e16eedc6934582a934b1f94f25289a39514984))
+* gallery images not loading ([#9080](https://github.com/erxes/erxes/issues/9080)) ([641efbc](https://github.com/erxes/erxes/commit/641efbcbc903f273c66439bff7c421c2dc3d8e92))
+* restore the string list property type ([#9197](https://github.com/erxes/erxes/issues/9197)) ([f703aac](https://github.com/erxes/erxes/commit/f703aacc345e1d5adf35682fb92efac90c961d3c))
+
+
+### Features
+
+* **payment:** update Pocket payment api integration ([#9154](https://github.com/erxes/erxes/issues/9154)) ([7161482](https://github.com/erxes/erxes/commit/7161482df4b9a767e3a3b9c28a22a6a65dd9b407))
 
 ## [3.0.97](https://github.com/erxes/erxes/compare/3.0.96...3.0.97) (2026-09-02)
 
@@ -221,7 +262,7 @@
 
 * (accounting) related accounts ([#9043](https://github.com/erxes/erxes/issues/9043)) ([577c4b8](https://github.com/erxes/erxes/commit/577c4b828cb6c0892adfb5f1a8f241f654ab2b12))
 
-# Changelog
+
 
 ## [3.0.82](https://github.com/erxes/erxes/compare/3.0.81...3.0.82) (2026-08-17)
 

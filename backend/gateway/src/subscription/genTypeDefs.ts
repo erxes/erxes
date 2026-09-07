@@ -14,6 +14,7 @@ export default function getTypeDefs(plugins): DocumentNode {
       ${pluginTypeDefs}
       activityLogsChanged: Boolean
       userChanged(userId: String): JSON
+      segmentBuildChanged(segmentId: String!): JSON
     }
   `;
 }

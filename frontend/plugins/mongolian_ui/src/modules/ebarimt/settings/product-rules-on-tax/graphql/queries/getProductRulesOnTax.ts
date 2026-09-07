@@ -39,7 +39,7 @@ export const GET_PRODUCT_RULES_ON_TAX = gql`
         excludeProductIds
         tagIds
         excludeTagIds
-        
+
         kind
         taxType
         taxCode
@@ -115,7 +115,6 @@ export const GET_PRODUCT_RULES_ON_TAX_VALUE = gql`
     $pipelineId: String
     $boardId: String
     $segment: String
-    $segmentData: String
     $image: String
   ) {
     products(
@@ -134,7 +133,6 @@ export const GET_PRODUCT_RULES_ON_TAX_VALUE = gql`
       pipelineId: $pipelineId
       boardId: $boardId
       segment: $segment
-      segmentData: $segmentData
       image: $image
     ) {
       _id

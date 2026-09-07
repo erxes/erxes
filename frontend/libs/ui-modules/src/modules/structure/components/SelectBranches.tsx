@@ -62,23 +62,28 @@ export const SelectBranchesProvider = ({
     if (!branch) return;
 
     const isSingleMode = mode === 'single';
+
+    if (isSingleMode) {
+      const isCurrent = value === branch._id;
+
+      setSelectedBranches(isCurrent ? [] : [branch]);
+      onValueChange?.(isCurrent ? undefined : branch._id);
+      return;
+    }
+
     const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(branch._id);
+    const isSelected = multipleValue.includes(branch._id);
 
-    const newSelectedBranchIds = isSingleMode
-      ? [branch._id]
-      : isSelected
-        ? multipleValue.filter((p) => p !== branch._id)
-        : [...multipleValue, branch._id];
+    const newSelectedBranchIds = isSelected
+      ? multipleValue.filter((p) => p !== branch._id)
+      : [...multipleValue, branch._id];
 
-    const newSelectedBranches = isSingleMode
-      ? [branch]
-      : isSelected
-        ? selectedBranches.filter((p) => p._id !== branch._id)
-        : [...selectedBranches, branch];
+    const newSelectedBranches = isSelected
+      ? selectedBranches.filter((p) => p._id !== branch._id)
+      : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
-    onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
+    onValueChange?.(newSelectedBranchIds);
   };
 
   return (
@@ -272,7 +277,11 @@ export const BranchesList = ({
   );
 };
 
-export const SelectBranchesValue = () => {
+export const SelectBranchesValue = ({
+  placeholder,
+}: {
+  placeholder?: string;
+}) => {
   const { branchIds, mode } = useSelectBranchesContext();
 
   if (mode === 'multiple' && (branchIds?.length ?? 0) > 1)
@@ -284,7 +293,7 @@ export const SelectBranchesValue = () => {
 
   return (
     <BranchesList
-      placeholder="Select branches"
+      placeholder={placeholder ?? 'Select branches'}
       renderAsPlainText={mode === 'single'}
     />
   );
@@ -302,6 +311,54 @@ export const SelectBranchesContent = () => {
   }
   return <SelectBranchesCommand />;
 };
+
+export const SelectBranchesRoot = React.forwardRef<
+  React.ElementRef<typeof Combobox.Trigger>,
+  Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> &
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      placeholder?: string;
+      scope?: string;
+    }
+>(
+  (
+    { onValueChange, className, mode, value, placeholder, scope, ...props },
+    ref,
+  ) => {
+    const [open, setOpen] = useState<boolean>(false);
+
+    return (
+      <SelectBranchesProvider
+        mode={mode}
+        value={value}
+        onValueChange={(newValue) => {
+          if (mode === 'single') {
+            setOpen(false);
+          }
+          onValueChange?.(newValue);
+        }}
+      >
+        <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
+          <Combobox.Trigger
+            className={cn('inline-flex w-full', className)}
+            variant="outline"
+            ref={ref}
+            {...props}
+          >
+            <SelectBranchesValue placeholder={placeholder} />
+          </Combobox.Trigger>
+          <Combobox.Content>
+            <SelectBranchesContent />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectBranchesProvider>
+    );
+  },
+);
+
+SelectBranchesRoot.displayName = 'SelectBranchesRoot';
 
 export const SelectBranchesInlineCell = ({
   onValueChange,
@@ -593,6 +650,7 @@ export const SelectBranchesFilterBar = ({
 };
 
 export const SelectBranches = Object.assign(SelectBranchesProvider, {
+  Root: SelectBranchesRoot,
   CommandBarItem: SelectBranchesCommandbarItem,
   Content: SelectBranchesContent,
   Command: SelectBranchesCommand,
