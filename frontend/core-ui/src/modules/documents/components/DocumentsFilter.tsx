@@ -63,6 +63,30 @@ export const DocumentsFilter = () => {
   );
 };
 
+/** Selects document tag filters using the shared tag picker. */
+const DocumentTagFilter = () => {
+  const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
+    'tagIds',
+  ]);
+  return (
+    <TagsSelect.Provider
+      type="core:documents"
+      value={tagIds || EMPTY_TAG_IDS}
+      mode="multiple"
+      onValueChange={(tagIds) => setQueries({ tagIds })}
+    >
+      <Popover.Trigger>
+        <Filter.BarButton filterKey="tagIds">
+          <TagsSelect.SelectedList />
+        </Filter.BarButton>
+      </Popover.Trigger>
+      <Popover.Content className="p-0">
+        <TagsSelect.Content />
+      </Popover.Content>
+    </TagsSelect.Provider>
+  );
+};
+
 const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
   const { searchValue, createdBy } = queries || {};
   const { t } = useTranslation('documents', {
@@ -152,28 +176,5 @@ const DocumentFilterView = () => {
         <Filter.DateView filterKey="createdAt" />
       </Filter.View>
     </>
-  );
-};
-
-const DocumentTagFilter = () => {
-  const [{ tagIds }, setQueries] = useMultiQueryState<DocumentFilterState>([
-    'tagIds',
-  ]);
-  return (
-    <TagsSelect.Provider
-      type="core:documents"
-      value={tagIds || EMPTY_TAG_IDS}
-      mode="multiple"
-      onValueChange={(tagIds) => setQueries({ tagIds })}
-    >
-      <Popover.Trigger>
-        <Filter.BarButton filterKey="tagIds">
-          <TagsSelect.SelectedList />
-        </Filter.BarButton>
-      </Popover.Trigger>
-      <Popover.Content className="p-0">
-        <TagsSelect.Content />
-      </Popover.Content>
-    </TagsSelect.Provider>
   );
 };
