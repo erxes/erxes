@@ -181,6 +181,7 @@ export const types = `
       url: String
       kbToggle: Boolean
       kbLabel: String
+      kbTopicId: String
       ticketToggle: Boolean
       ticketLabel: String
       ticketChannelId: String
@@ -203,6 +204,7 @@ export const types = `
       url: String
       kbToggle: Boolean
       kbLabel: String
+      kbTopicId: String
       ticketToggle: Boolean
       ticketLabel: String
       ticketChannelId: String

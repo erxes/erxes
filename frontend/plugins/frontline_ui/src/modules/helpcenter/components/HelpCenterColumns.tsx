@@ -9,11 +9,13 @@ import {
   IconTicket,
   IconWorld,
 } from '@tabler/icons-react';
+import { useQuery } from '@apollo/client';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
 import {
   Badge,
   Combobox,
+  Command,
   Input,
   PopoverScoped,
   RecordTable,
@@ -35,6 +37,7 @@ import {
   useEditHelpCenter,
 } from '@/helpcenter/hooks/useEditHelpCenter';
 import { HelpCenterHotKeyScope, IHelpCenter } from '@/helpcenter/types';
+import { TOPICS_SHORT } from '@/knowledgebase/graphql/queries';
 
 const cellScope = (helpCenter: IHelpCenter, field: string) =>
   clsx(HelpCenterHotKeyScope.HelpCentersPage, helpCenter._id, field);
@@ -121,6 +124,64 @@ const FeatureLabelCell = ({
         className={clsx(!enabled && 'text-muted-foreground/60 line-through')}
       />
     </InlineTextCell>
+  );
+};
+
+const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
+  const { t } = useTranslation('frontline');
+  const helpCenter = cell.row.original;
+  const { editHelpCenter } = useEditHelpCenter();
+  const [open, setOpen] = useState(false);
+  const enabled = Boolean(helpCenter.kbToggle);
+
+  const { data, loading } = useQuery<{
+    knowledgeBaseTopics: { _id: string; title?: string }[];
+  }>(TOPICS_SHORT, {
+    variables: { page: 1, perPage: 20 },
+    skip: !open,
+  });
+
+  const topics = (data?.knowledgeBaseTopics ?? []).filter(
+    (topic) => topic._id !== helpCenter._id,
+  );
+  const selected = topics.find((topic) => topic._id === helpCenter.kbTopicId);
+
+  return (
+    <PopoverScoped
+      scope={cellScope(helpCenter, 'kbTopicId')}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <SelectTriggerTicket variant="table" disabled={!enabled}>
+        <TextOverflowTooltip
+          value={selected?.title || helpCenter.kbTopicId || ''}
+          className={clsx(!enabled && 'text-muted-foreground/60 line-through')}
+        />
+      </SelectTriggerTicket>
+      <Combobox.Content>
+        <Command>
+          <Command.Input placeholder={t('search-topics', 'Search topics')} />
+          <Command.List>
+            <Combobox.Empty loading={loading} />
+            {topics.map((topic) => (
+              <Command.Item
+                key={topic._id}
+                value={topic._id}
+                onSelect={() => {
+                  editHelpCenter(helpCenter, { kbTopicId: topic._id });
+                  setOpen(false);
+                }}
+              >
+                <TextOverflowTooltip
+                  value={topic.title || t('unnamed-topic')}
+                />
+                <Combobox.Check checked={helpCenter.kbTopicId === topic._id} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </PopoverScoped>
   );
 };
 
@@ -304,6 +365,18 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     cell: ({ cell }) => (
       <FeatureLabelCell cell={cell} field="kbLabel" feature="kbToggle" />
     ),
+  },
+  {
+    id: 'kbTopicId',
+    accessorKey: 'kbTopicId',
+    size: 200,
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('knowledgebase-topic', 'Knowledge base topic')}
+        icon={IconBook}
+      />
+    ),
+    cell: ({ cell }) => <KbTopicCell cell={cell} />,
   },
   {
     id: 'ticketToggle',

@@ -44,6 +44,7 @@ export const topicSchema = new Schema(
     url: { type: String },
     kbToggle: { type: Boolean },
     kbLabel: { type: String },
+    kbTopicId: { type: String },
     ticketToggle: { type: Boolean },
     ticketLabel: { type: String },
     ticketChannelId: { type: String },

@@ -25,6 +25,7 @@ export const GET_HELP_CENTERS = gql`
       url
       kbToggle
       kbLabel
+      kbTopicId
       ticketToggle
       ticketLabel
       ticketChannelId

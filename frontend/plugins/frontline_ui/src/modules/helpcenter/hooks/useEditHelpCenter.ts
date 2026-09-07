@@ -29,6 +29,7 @@ export type THelpCenterPatch = Partial<
     | 'url'
     | 'kbToggle'
     | 'kbLabel'
+    | 'kbTopicId'
     | 'ticketToggle'
     | 'ticketLabel'
     | 'ticketChannelId'
@@ -54,6 +55,7 @@ export const useEditHelpCenter = () => {
       url: helpCenter.url ?? '',
       kbToggle: helpCenter.kbToggle ?? false,
       kbLabel: helpCenter.kbLabel ?? '',
+      kbTopicId: helpCenter.kbTopicId ?? '',
       ticketToggle: helpCenter.ticketToggle ?? false,
       ticketLabel: helpCenter.ticketLabel ?? '',
       ticketChannelId: helpCenter.ticketChannelId ?? '',
@@ -111,6 +113,7 @@ export const useEditHelpCenter = () => {
             url: () => doc.url,
             kbToggle: () => doc.kbToggle,
             kbLabel: () => doc.kbLabel,
+            kbTopicId: () => doc.kbTopicId,
             ticketToggle: () => doc.ticketToggle,
             ticketLabel: () => doc.ticketLabel,
             ticketChannelId: () => doc.ticketChannelId,

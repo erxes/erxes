@@ -1364,6 +1364,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — A help center points at the knowledge base topic it serves
+
+- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
+  center can name which other topic supplies its articles instead of only
+  toggling the feature on with a menu label.
+- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
+  `KnowledgeBaseTopicDoc` accepts it.
+
 ### `2026-09-05` — `Export repeating ticket properties by row`
 
 - **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
@@ -1476,15 +1487,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
   The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
   `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the ticket module and from the
-  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
-  segment call, and no plugin-to-plugin RPC loop can form.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/ticket/meta/segments/index.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.

@@ -916,6 +916,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — The help center table picks its knowledge base topic
+
+- **Summary:** Added a `Knowledge base topic` column to the help center record
+  table; it lists the other knowledge base topics through `TOPICS_SHORT`,
+  writes the choice with `useEditHelpCenter`, excludes the row's own topic, and
+  stays disabled and struck through while `kbToggle` is off, matching the
+  existing feature-label cells.
+- **Affected areas:**
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
+  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`
+- **Contracts changed:** `frontlineHelpCenterList` selects `kbTopicId`, and the
+  edit mutation sends it.
+
 ### `2026-09-05` — `Property groups share one card shell`
 
 - **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
@@ -1006,13 +1020,4 @@ type="color">` swatches with a hex box beside them; they now use `erxes-ui`'s
 - **Affected areas:**
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
   `src/modules/helpcenter/constants/index.ts`
-- **Contracts changed:** None.
-
-### `2026-09-03` — Removing a help center image actually clears it
-
-- **Summary:** Remove left the uploaded logo, favicon or cover in place, because
-  `Upload.RemoveButton` reported a removal as a bare `''` that every handler in
-  the repo drops. It now reports `{ url: '' }` like an upload does, so the
-  drawer's slots use the repo's usual handler and clearing works.
-- **Affected areas:** `src/modules/knowledgebase/components/TopicDrawer.tsx`
 - **Contracts changed:** None.

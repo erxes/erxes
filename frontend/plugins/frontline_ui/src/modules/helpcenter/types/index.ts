@@ -45,6 +45,7 @@ export interface IHelpCenter {
   url?: string;
   kbToggle?: boolean;
   kbLabel?: string;
+  kbTopicId?: string;
   ticketToggle?: boolean;
   ticketLabel?: string;
   ticketChannelId?: string;
