@@ -1,6 +1,6 @@
 import { IDeal } from '@/deals/types/deals';
 import { formatDealSearchResultDate } from '@/deals/utils/dealSearch';
-import { Badge, highlightMatch } from 'erxes-ui';
+import { Badge, Button, highlightMatch } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type TDealSearchResultProps = {
@@ -22,10 +22,11 @@ export const DealSearchResult = ({
   );
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       disabled={!hasPipeline}
-      className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-4 py-3 text-left text-sm hover:bg-muted focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+      className="grid h-auto w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-none px-4 py-3 text-left text-sm whitespace-normal disabled:cursor-not-allowed disabled:opacity-60"
       onClick={() => onSelect(deal)}
     >
       <span className="min-w-0 truncate font-medium">
@@ -54,6 +55,6 @@ export const DealSearchResult = ({
       >
         {deal.createdAt ? formatDealSearchResultDate(deal.createdAt) : '—'}
       </time>
-    </button>
+    </Button>
   );
 };

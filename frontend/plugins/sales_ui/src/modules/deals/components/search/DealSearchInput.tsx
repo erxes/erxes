@@ -40,7 +40,6 @@ export const DealSearchInput = ({
       <div className="relative border-b">
         <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          autoFocus
           className="h-10 rounded-none border-0 pl-9 shadow-none focus-visible:shadow-none focus-visible:ring-0 focus-visible:outline-none"
           type="search"
           placeholder={placeholders[category]}

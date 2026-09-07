@@ -21,7 +21,7 @@ export const useCommonDealSearch = () => {
   const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [searches, setSearches] = useState(INITIAL_TEXT_SEARCHES);
   const [open, setOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange>();
+  const [dateRange, setDateRange] = useState<DateRange | null>(null);
   const [category, setCategory] = useState<TDealSearchCategory>('name');
   const [sortOrder, setSortOrder] = useState<TSearchSortOrder>('newest');
   const trimmedNameSearch = searches.name.trim();
@@ -35,10 +35,8 @@ export const useCommonDealSearch = () => {
   const normalizedActiveSearch =
     category === 'number' ? activeSearch.replace(/^#\s*/, '') : activeSearch;
   const searchSettled =
-    category === 'date' ||
-    (category === 'name'
-      ? debouncedNameSearch === trimmedNameSearch
-      : debouncedNumberSearch === trimmedNumberSearch);
+    debouncedNameSearch === trimmedNameSearch &&
+    debouncedNumberSearch === trimmedNumberSearch;
   const hasSearchFilter =
     Boolean(dateRange?.from) || nameSearchReady || numberSearchReady;
   const hasIncompleteActiveSearch =
@@ -68,6 +66,10 @@ export const useCommonDealSearch = () => {
     setSearches((current) => ({ ...current, [category]: value }));
   };
 
+  const setSearchDateRange = (value?: DateRange) => {
+    setDateRange(value ?? null);
+  };
+
   const selectDeal = (deal: IDeal) => {
     const pipelineId = deal.pipeline?._id;
     const boardId = deal.boardId || deal.pipeline?.boardId;
@@ -76,7 +78,7 @@ export const useCommonDealSearch = () => {
 
     setActiveDealId(deal._id);
     setSearches(INITIAL_TEXT_SEARCHES);
-    setDateRange(undefined);
+    setDateRange(null);
     setOpen(false);
     navigate(
       `/sales/deals?boardId=${boardId}&pipelineId=${pipelineId}&salesItemId=${deal._id}`,
@@ -86,7 +88,7 @@ export const useCommonDealSearch = () => {
   return {
     ...searchResult,
     category,
-    dateRange,
+    dateRange: dateRange ?? undefined,
     loadMoreRef,
     nameSearch: nameSearchReady ? debouncedNameSearch : '',
     nameSearchReady,
@@ -99,7 +101,7 @@ export const useCommonDealSearch = () => {
     selectDeal,
     setActiveSearch,
     setCategory,
-    setDateRange,
+    setDateRange: setSearchDateRange,
     setOpen,
     setSortOrder,
     sortOrder,
