@@ -53,8 +53,8 @@
 
 - Provides an internal Viber HMAC-SHA256 signature verifier for exact webhook
   body bytes, with tests for valid and modified payloads. Defines Viber
-  integration types and a Mongoose schema; no Viber model or HTTP route is
-  registered.
+  integration types, a schema, and a tenant-scoped Mongoose model; no Viber
+  HTTP route is registered.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -127,8 +127,12 @@
 Viber's signature utility and its colocated tests live under
 `src/modules/integrations/viber/utils/`.
 Its integration interfaces live in
-`src/modules/integrations/viber/@types/integration.ts`, and its unregistered
+`src/modules/integrations/viber/@types/integration.ts`, and its
 schema lives in `src/modules/integrations/viber/db/definitions/integrations.ts`.
+The model type and `loadViberIntegrationClass` loader live in
+`src/modules/integrations/viber/db/models/Integrations.ts`;
+`src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied
+tenant connection.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -438,9 +442,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- Viber's unregistered integration schema defines a generated string `_id` and
-  required `inboxId`, `botId`, and `token` fields, with separate unique index
-  declarations on `inboxId` and `botId`. No Viber collection is registered.
+- `viber_integrations` (`models.ViberIntegrations`) uses a generated string
+  `_id` and required `inboxId`, `botId`, and `token` fields. Its schema declares
+  separate unique indexes on `inboxId` and `botId`.
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
@@ -537,6 +541,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Register Viber through the supplied `db` in `loadClasses`, not the global
+  `mongoose.model`, so it follows the existing tenant connection selection.
 - Viber's `inboxId` references the generic inbox integration, not a channel or
   conversation. Its `token` uses `select: false` and must stay out of public API
   responses; this default query projection is not encryption.
@@ -1325,6 +1331,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Viber integration model registration
+
+- **Summary:** Registered the Viber integration model on the tenant connection
+  using a named model type and the provider's schema loader.
+- **Affected areas:** `src/connectionResolvers.ts`,
+  `src/modules/integrations/viber/db/models/Integrations.ts`.
+- **Contracts changed:** Internal `IModels` adds `ViberIntegrations`; no public
+  API or HTTP route is added.
+
 ### `2026-09-07` — Viber integration types and schema
 
 - **Summary:** Defined Viber integration document types and a schema with
@@ -1457,35 +1472,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/mail/{messageBroker,constants}.ts`.
 - **Contracts changed:** `mailCreateIntegration` and `mailUpdateIntegration` accept
   `data.senderName`; `mailIntegrationDetails` returns it.
-
-### `2026-08-27` — Mail sends through Cloudflare only; SES and SendGrid are gone
-
-- **Summary:** Outbound mail now leaves through Cloudflare Email Sending on every
-  path, matching the inbound side. A workspace that has connected its own
-  Cloudflare account replies from its own zone; every other workspace replies from
-  its generated address on `MAIL_DOMAIN` through the deployment's Cloudflare
-  account, configured with `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`.
-  The workspace-owned SES/SendGrid sending domains — the model, its DNS-proof
-  verification, the provider transport and the whole Settings → Integrations config
-  → Sending domains panel — are removed, along with the per-inbox sender choice:
-  an inbox always answers from its own address. `checkPlatformSendRate` still caps
-  the shared lane, because a Cloudflare account shares its daily quota and its
-  suppression list across every workspace on it.
-- **Affected areas:** `src/modules/integrations/mail/utils/`
-  (`platformConfig.ts` rewritten, `transports/{index,readiness,types}.ts`;
-  `dnsProof.ts`, `sendingSerialize.ts`, `transports/provider.ts` deleted),
-  `src/modules/integrations/mail/db/{definitions,models}/` (`sending.ts`,
-  `SendingAccounts.ts` deleted; `integrations.ts` loses `sendingAccountId` /
-  `sendingAddress`), `src/modules/integrations/mail/@types/{sending,integration}.ts`,
-  `src/modules/integrations/mail/{messageBroker,constants}.ts`,
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/graphql/`, `src/connectionResolvers.ts`.
-- **Contracts changed:** removes the `mailSendingAccounts` query, the
-  `mailSendingAccountAdd` / `mailSendingAccountVerify` / `mailSendingAccountRemove`
-  mutations, the `MailSendingAccount` and `MailSendingDnsRecord` types and
-  `MailSendingReadiness.accounts`; `mailCreateIntegration` and
-  `mailUpdateIntegration` ignore `data.sendingAccountId` / `data.sendingAddress`.
-  Env `MAIL_SENDING_DEFAULT_EMAIL_SERVICE`, `MAIL_SENDING_AWS_SES_*`,
-  `MAIL_SENDING_AWS_REGION` and `MAIL_SENDING_SENDGRID_API_KEY` are replaced by
-  `MAIL_SENDING_ACCOUNT_ID` and `MAIL_SENDING_API_TOKEN`. The
-  `mail_sending_accounts` collection is orphaned and can be dropped.

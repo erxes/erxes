@@ -314,6 +314,13 @@ import {
   loadReportChartClass,
 } from '@/reports/db/models/Charts';
 
+// Viber imports
+import {
+  IViberIntegrationModel,
+  loadViberIntegrationClass,
+} from '@/integrations/viber/db/models/Integrations';
+import { IViberIntegrationDocument } from '@/integrations/viber/@types/integration';
+
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -375,6 +382,9 @@ export interface IModels {
   MailMessages: IMailMessageModel;
   MailCloudflare: IMailCloudflareModel;
 
+  // viber
+
+  ViberIntegrations: IViberIntegrationModel;
   // ticket
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
@@ -655,6 +665,11 @@ export const loadClasses = (
     'logs_callpro',
     loadCallProLogClass(),
   );
+
+  models.ViberIntegrations = db.model<
+    IViberIntegrationDocument,
+    IViberIntegrationModel
+  >('viber_integrations', loadViberIntegrationClass());
 
   models.MailIntegrations = db.model<
     IMailIntegrationDocument,
