@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-05`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
