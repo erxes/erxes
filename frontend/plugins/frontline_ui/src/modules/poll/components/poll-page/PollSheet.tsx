@@ -15,10 +15,7 @@ import { ReactNode, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SelectBrands } from 'ui-modules';
-import {
-  pollFormSchema,
-  TPollForm,
-} from '@/poll/constants/pollFormSchema';
+import { pollFormSchema, TPollForm } from '@/poll/constants/pollFormSchema';
 import { usePollAdd, usePollEdit } from '@/poll/hooks/usePollMutations';
 import {
   IPoll,
