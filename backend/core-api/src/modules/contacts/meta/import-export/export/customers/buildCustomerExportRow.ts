@@ -1,3 +1,8 @@
+import {
+  buildPropertyDataColumns,
+  parsePropertyColumnKey,
+  readPropertyDataColumn,
+} from 'erxes-api-shared/core-modules';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
 import { defaultContactFieldFormatter } from '../utils';
 
@@ -7,9 +12,12 @@ const getFieldValue = (
   tagMap?: Map<string, string>,
   formatValue = defaultContactFieldFormatter,
 ): string => {
-  if (key.startsWith('propertiesData.')) {
-    const fieldId = key.replace('propertiesData.', '');
-    return formatValue((customer as any).propertiesData?.[fieldId]);
+  const column = parsePropertyColumnKey(key);
+
+  if (column) {
+    return formatValue(
+      readPropertyDataColumn((customer as any).propertiesData, column),
+    );
   }
 
   if (key.startsWith('customFieldsData.')) {
@@ -115,11 +123,10 @@ export const buildCustomerExportRow = (
 
   const propertiesData = (customer as any).propertiesData;
   if (propertiesData && typeof propertiesData === 'object') {
-    for (const [fieldId, value] of Object.entries(propertiesData)) {
-      if (value !== undefined && value !== null) {
-        allFields[`propertiesData.${fieldId}`] = formatValue(value);
-      }
-    }
+    Object.assign(
+      allFields,
+      buildPropertyDataColumns(propertiesData, formatValue),
+    );
   }
 
   if (selectedFields && selectedFields.length > 0) {

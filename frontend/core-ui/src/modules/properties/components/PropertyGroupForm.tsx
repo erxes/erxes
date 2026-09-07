@@ -1,4 +1,4 @@
-import { Button, Form, Input, Sheet, Spinner } from 'erxes-ui';
+import { Button, Form, Input, Sheet, Spinner, Switch } from 'erxes-ui';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IPropertyGroupForm } from '../types/Properties';
@@ -90,6 +90,31 @@ export const PropertyGroupForm = ({
                   />
                 </Form.Control>
                 <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            name="isMultiple"
+            render={({ field }) => (
+              <Form.Item>
+                <div className="flex items-center gap-2">
+                  <Form.Control>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Label variant="peer">
+                    {t('group-is-multiple', 'Allow multiple entries')}
+                  </Form.Label>
+                </div>
+                <Form.Description>
+                  {t(
+                    'group-is-multiple-description',
+                    'Records can fill this group more than once.',
+                  )}
+                </Form.Description>
               </Form.Item>
             )}
           />

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -788,6 +788,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-05` — `Property groups share one card shell`
+
+- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
+- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-02` — IMAP integration UI removed
 
 - **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
@@ -927,20 +933,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `mailDraftSave`, `mailDraftApprove`, `mailDraftRemove` and the
   `mailDraftChanged` subscription; drops the `mail` automation remote entry.
   Removed the five now-unused `draft` translation keys.
-
-### `2026-08-25` — Integration rows show their unread count again
-
-- **Summary:** The inbox navigation now reads `unreadConversationCount` from the
-  `integrationsGetUsedTypesByChannel` query it already makes, instead of
-  recomputing the figure through a second `conversationCounts` request per
-  expanded channel that was rendering blank; a row and its channel row now count
-  the same thing.
-- **Affected areas:**
-  `src/modules/integrations/graphql/queries/getIntegrations.ts`,
-  `src/modules/integrations/types/Integration.ts`,
-  `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`
-  (`useConversationCountsByIntegrationType` narrowed to
-  `useAwaitingCountsByIntegrationType`),
-  `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`.
-- **Contracts changed:** None on the API; the by-channel used-types document now
-  selects `unreadConversationCount`.

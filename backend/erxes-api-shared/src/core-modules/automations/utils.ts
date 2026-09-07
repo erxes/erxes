@@ -1,4 +1,10 @@
 import { pluralFormation } from '../../utils';
+import {
+  parsePropertyDataKey,
+  propertyDataPath,
+  toPropertyGroupKey,
+} from '../properties/keys';
+import { nanoid } from 'nanoid';
 import { sendTRPCMessage } from '../../utils/trpc';
 import { AUTOMATION_PROPERTY_OPERATORS } from './constants';
 import {
@@ -89,6 +95,18 @@ const safeArithmeticEval = (expr: string): number => {
   };
 
   return parseAddSub();
+};
+
+const parseRepeatingGroupField = (fieldPath?: string) => {
+  if (!fieldPath?.startsWith(PROPERTY_DATA_PREFIX)) {
+    return null;
+  }
+
+  const key = parsePropertyDataKey(
+    fieldPath.slice(PROPERTY_DATA_PREFIX.length),
+  );
+
+  return key.kind === 'row' ? key : null;
 };
 
 const getPropertiesDataKey = (fieldPath: string) => {
@@ -528,6 +546,72 @@ const syncSetChangeValues = (
     };
   });
 
+const buildRepeatingGroupRowUpdate = async ({
+  subdomain,
+  groupId,
+  rules,
+  execution,
+}: {
+  subdomain: string;
+  groupId: string;
+  rules: TAutomationSetPropertyRule[];
+  execution: IPropertyProps<unknown>['execution'];
+}): Promise<{
+  modifier: TAutomationSetPropertyModifier;
+  changes: TAutomationSetPropertyChange[];
+}> => {
+  const row: TSetPropertyRecord = {};
+  const changes: TAutomationSetPropertyChange[] = [];
+
+  for (const rule of rules) {
+    const leafFieldId = parseRepeatingGroupField(rule.field)?.fieldId || '';
+
+    const value = await resolveRuleValueWithFallback({
+      subdomain,
+      execution,
+      rule,
+      fieldPath: rule.field,
+    });
+
+    if (!leafFieldId || isEmptyRuleValue(value)) {
+      changes.push(
+        buildSetPropertyChange({ rule, value: undefined, status: 'skipped' }),
+      );
+
+      continue;
+    }
+
+    row[leafFieldId] = value;
+    changes.push(buildSetPropertyChange({ rule, value, status: 'updated' }));
+  }
+
+  if (!Object.keys(row).length) {
+    return { modifier: {}, changes };
+  }
+
+  const validatedRow = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'fields',
+    action: 'validateFieldValues',
+    input: { data: row },
+    defaultValue: row,
+  });
+
+  return {
+    modifier: {
+      $push: {
+        [propertyDataPath(toPropertyGroupKey(groupId))]: {
+          ...validatedRow,
+          _id: nanoid(),
+        },
+      },
+    },
+    changes,
+  };
+};
+
 const buildSetPropertyUpdatePayload = async ({
   subdomain,
   rules,
@@ -542,7 +626,17 @@ const buildSetPropertyUpdatePayload = async ({
   let modifier: TAutomationSetPropertyModifier = {};
   const changes: TAutomationSetPropertyChange[] = [];
 
+  // one appended entry per group, so `school` and `year` land in the same row
+  const rulesByGroup = new Map<string, TAutomationSetPropertyRule[]>();
+
   for (const rule of rules || []) {
+    const groupId = parseRepeatingGroupField(rule.field)?.groupId;
+
+    if (groupId) {
+      rulesByGroup.set(groupId, [...(rulesByGroup.get(groupId) || []), rule]);
+      continue;
+    }
+
     const ruleUpdate = await buildRuleUpdate({
       subdomain,
       relatedItem,
@@ -555,6 +649,18 @@ const buildSetPropertyUpdatePayload = async ({
     if (ruleUpdate.change) {
       changes.push(ruleUpdate.change);
     }
+  }
+
+  for (const [groupId, groupRules] of rulesByGroup) {
+    const rowUpdate = await buildRepeatingGroupRowUpdate({
+      subdomain,
+      groupId,
+      rules: groupRules,
+      execution,
+    });
+
+    modifier = mergeModifier(modifier, rowUpdate.modifier);
+    changes.push(...rowUpdate.changes);
   }
 
   const validatedModifier = await validatePropertiesDataInModifier({

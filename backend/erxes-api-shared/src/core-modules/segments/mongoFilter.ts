@@ -1,3 +1,5 @@
+import { parsePropertyDataKey, toPropertyGroupKey } from '../properties/keys';
+import { mergePropertyRowConditions } from '../properties/mergeRows';
 import { SegmentOperator, normalizeSegmentOperator } from './operators';
 import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import {
@@ -229,9 +231,35 @@ const compileField = (
     return undefined;
   }
 
+  const entryKey = rest.join('.');
+  const key = parsePropertyDataKey(entryKey);
+
+  // the leaf path is relative to one row, so the comparison goes inside it
+  if (key.kind === 'row') {
+    const rowsPath = `${namespace.path}.${toPropertyGroupKey(key.groupId)}`;
+
+    if (anniversary !== undefined) {
+      const branches = anniversaryOn(
+        key.fieldId,
+        node.value,
+        now,
+        timeZone,
+        anniversary,
+      );
+
+      return branches ? { [rowsPath]: { $elemMatch: branches } } : undefined;
+    }
+
+    const rowComparison = compareOn(operator, node.value, now, timeZone);
+
+    return rowComparison
+      ? { [rowsPath]: { $elemMatch: { [key.fieldId]: rowComparison } } }
+      : undefined;
+  }
+
   // The values are one object keyed by field id, so a namespaced field is the
   // dotted path it reads as - the same shape any stored field compiles to.
-  const path = `${namespace.path}.${rest.join('.')}`;
+  const path = `${namespace.path}.${entryKey}`;
 
   if (anniversary !== undefined) {
     const branches = anniversaryOn(
@@ -279,13 +307,17 @@ const compileNode = (
     };
   }
 
-  const children = node.children
+  const compiled = node.children
     .map((child) => compileNode(child, context, now, unsupported))
     .filter((child): child is SegmentMongoFilter => Boolean(child));
 
-  if (!children.length) {
+  if (!compiled.length) {
     return undefined;
   }
+
+  // only siblings that all have to hold can share one entry
+  const children =
+    node.conjunction === 'or' ? compiled : mergePropertyRowConditions(compiled);
 
   if (children.length === 1) {
     return children[0];

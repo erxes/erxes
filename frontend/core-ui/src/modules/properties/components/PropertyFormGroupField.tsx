@@ -82,7 +82,7 @@ export const PropertyFormGroupField = ({
                 <PropertyGroupForm
                   onSubmit={handleCreateGroup}
                   loading={loading}
-                  defaultValues={{ name: '', code: '' }}
+                  defaultValues={{ name: '', code: '', isMultiple: false }}
                   onCancel={() => setOpen(false)}
                 />
               </Sheet.View>

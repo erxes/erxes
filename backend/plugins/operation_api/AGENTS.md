@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-09-01`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -118,6 +118,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-05` — `Export repeating task properties by row`
+
+- **Summary:** Task and project import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, using the shared property import/export helpers.
+- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/getTaskExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`, `src/meta/import-export/import/processTaskRows.ts`
+- **Contracts changed:** Export and import headers for a repeating group are now numbered; `getExportHeaders`, `resolveExportHeaders`, `getCustomPropertyHeaders` and `getTaskCustomPropertyHeaders` take an optional `models` argument.
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 

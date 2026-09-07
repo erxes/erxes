@@ -23,10 +23,6 @@ export const RenderPluginsComponentWrapper = ({
   }
 
   const { isEnabled } = useAutomationsRemoteModules(pluginName);
-
-  // Dashed plugin names map to underscore MF container names (see
-  // useAutomationsRemoteModules / core-api get-frontend-plugins `remoteName()`),
-  // so the remote is "erxes_agent_ui", never "erxes-agent_ui".
   const remoteContainerName = `${pluginName.replaceAll('-', '_')}_ui`;
 
   if (!isEnabled) {
