@@ -1,4 +1,9 @@
-import { IUserDocument, Resolver } from '../../core-types';
+import {
+  IPermissionAction,
+  IPermissionModule,
+  IUserDocument,
+  Resolver,
+} from '../../core-types';
 import {
   getPlugin,
   sendTRPCMessage,
@@ -173,6 +178,26 @@ export const canGroup = async (
   return actionsMap[action] === true;
 };
 
+export const hasDeclaredOAuthScopes = (
+  action: Pick<IPermissionAction, 'oauthScope' | 'oauthScopes'>,
+): boolean => Boolean(action.oauthScopes?.length || action.oauthScope);
+
+export const resolveActionOAuthScopes = (
+  pluginName: string,
+  module: Pick<IPermissionModule, 'name'>,
+  action: Pick<IPermissionAction, 'oauthScope' | 'oauthScopes'>,
+): string[] => {
+  if (action.oauthScopes?.length) {
+    return action.oauthScopes;
+  }
+
+  if (action.oauthScope) {
+    return [action.oauthScope];
+  }
+
+  return [`${pluginName}:${module.name}`];
+};
+
 const getOAuthActionScopeMap = async () => {
   const activePlugins = await getActivePlugins();
   const scopeMap: Record<string, string[]> = {};
@@ -183,15 +208,11 @@ const getOAuthActionScopeMap = async () => {
 
     for (const module of modules) {
       for (const action of module.actions || []) {
-        const actionScopes = action.oauthScopes?.length
-          ? action.oauthScopes
-          : action.oauthScope
-            ? [action.oauthScope]
-            : [];
-
-        if (actionScopes.length) {
-          scopeMap[action.name] = actionScopes;
-        }
+        scopeMap[action.name] = resolveActionOAuthScopes(
+          pluginName,
+          module,
+          action,
+        );
       }
     }
   }
