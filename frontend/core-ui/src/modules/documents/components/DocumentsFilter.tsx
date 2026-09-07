@@ -13,6 +13,8 @@ import { DocumentFilterState } from '../types';
 import { useTranslation } from 'react-i18next';
 import { DocumentsViewControl } from './DocumentsViewControl';
 
+const EMPTY_TAG_IDS: string[] = [];
+
 export const DocumentsFilter = () => {
   const [searchParams] = useSearchParams();
 
@@ -94,7 +96,7 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
         </Filter.BarName>
         <TagsSelect.Provider
           type="core:documents"
-          value={tagIds || []}
+          value={tagIds || EMPTY_TAG_IDS}
           mode="multiple"
           onValueChange={(tagIds) => setQueries({ tagIds })}
         >
@@ -155,7 +157,7 @@ const DocumentFilterView = () => {
       <Filter.View filterKey="tagIds">
         <TagsSelect.Provider
           type="core:documents"
-          value={tagIds || []}
+          value={tagIds || EMPTY_TAG_IDS}
           mode="multiple"
           onValueChange={(tagIds) => setQueries({ tagIds })}
         >

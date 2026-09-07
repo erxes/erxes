@@ -21,6 +21,7 @@ import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
 
+/** Updates cached document tags and refreshes filtered lists after tagging. */
 export function getDocumentsTagOptions(
   documentIds: string[],
 ): ComponentProps<typeof TagsSelect>['options'] {

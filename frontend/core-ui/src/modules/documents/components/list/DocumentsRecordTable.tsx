@@ -2,7 +2,7 @@ import { useDocuments } from '@/documents/hooks/useDocuments';
 import { IconFileOff } from '@tabler/icons-react';
 import { Empty, RecordTable } from 'erxes-ui';
 import { DocumentsColumn } from './DocumentsColumn';
-import DocumentsRecordTableCommandBar from './DocumentsRecordTableCommandBar';
+import { DocumentsRecordTableCommandBar } from './DocumentsRecordTableCommandBar';
 
 function DocumentsEmptyState() {
   return (
