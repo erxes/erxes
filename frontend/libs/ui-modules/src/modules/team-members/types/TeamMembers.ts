@@ -6,6 +6,7 @@ export interface IUser {
   username?: string;
   isOwner?: boolean;
   isActive?: boolean;
+  isDeleted?: boolean;
   configs?: any;
   isOnboarded: boolean;
   details?: {
