@@ -56,8 +56,11 @@
   integration types, a schema, and a tenant-scoped Mongoose model; no Viber
   HTTP route is registered.
 - Provides a pure Viber account-info parser that checks `status`, `id`, and
-  `name` and returns only `{ id, name }`. Its tests cover success, nonzero
-  status, null, and array responses; it makes no network or database calls.
+  `name` and returns only `{ id, name }`, without network or database calls.
+- Provides an internal Viber account-info HTTP helper with token validation,
+  a ten-second abort signal, HTTP status checks, and response parsing through
+  the account-info parser. Offline tests cover the request shape and failure
+  paths; the helper is not yet wired into an integration lifecycle or route.
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -127,8 +130,8 @@
 
 ## Architecture
 
-Viber's signature verification and account-info parsing utilities, with their
-colocated tests, live under `src/modules/integrations/viber/utils/`.
+Viber's signature verification, account-info HTTP helper, and response parser,
+with their colocated tests, live under `src/modules/integrations/viber/utils/`.
 The account-info result type lives in
 `src/modules/integrations/viber/@types/account.ts`.
 Its integration interfaces live in
@@ -414,6 +417,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
+- Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
+  through Node's `fetch`, with an `X-Viber-Auth-Token` header and an empty
+  JSON object body.
 - `erxes-api-shared/utils`: `startPlugin`, `sendTRPCMessage`, `fetchEs`,
   `getEnv`, `sendWorkerQueue`, `getUniqueValue`, `randomAlphanumeric`,
   `schemaWrapper`, `mongooseStringRandomId`.
@@ -559,6 +565,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   object with numeric `status === 0` and non-blank string `id` and `name`.
   Preserve the original strings and return a new object containing only those
   two fields; reject invalid input with `Invalid Viber account info response`.
+- `getViberAccountInfo(token)` rejects empty or whitespace-only tokens before
+  `fetch` with `Viber bot token is required`. Its fixed HTTPS POST sends the
+  token only in the authentication header, JSON `{}`, and
+  `AbortSignal.timeout(10_000)`.
+- The Viber account lookup rejects non-success HTTP responses with
+  `Viber account info request failed (HTTP <status>)` without reading its body.
+  JSON decoding failures use `Invalid Viber account info response`; decoded
+  data stays `unknown` until `parseViberAccountInfo` validates it. A rejected
+  `fetch` propagates to the caller; the helper does not retry or access models.
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1297,6 +1312,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Uses the existing `tsx` dependency and Node's built-in test runner; no
   project-wide test configuration is required. The `.spec.ts` suffix keeps
   the test files out of the production TypeScript build.
+  HTTP tests replace `globalThis.fetch` with a fake implementation through
+  `t.mock.method` before calling the helper, require no real credentials or network,
+  and must remain non-concurrent because they replace a global method.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1339,6 +1357,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-07` — Viber account-info HTTP helper
+
+- **Summary:** Added a token-authenticated account lookup with a ten-second
+  abort signal and offline tests for request construction and failure handling.
+- **Affected areas:** `src/modules/integrations/viber/utils/account.ts`,
+  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
+- **Contracts changed:** Internal
+  `getViberAccountInfo(token: string): Promise<IViberAccountInfo>`; no public
+  API or HTTP route is added.
 
 ### `2026-09-07` — Viber account-info validation
 
@@ -1457,22 +1485,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/integrations/mail/db/models/Messages.ts`.
 - **Contracts changed:** None — `providerMessageId` was already stored and
   returned; it was simply never populated for Cloudflare sends.
-
-### `2026-08-28` — A forwarded message is no longer flagged as an unverified sender
-
-- **Summary:** Mail arriving through a forwarding rule was always banded
-  "Unverified sender". `isForwardedBy` compared the SMTP envelope sender against
-  the inbox's `forwardFrom`, but a forwarder hands the message over under its own
-  relay — Gmail's is a rotating `postmaster@mail-….google.com` — so no value of
-  `forwardFrom` could ever match and the guard could not be satisfied at all. The
-  worker now carries `Delivered-To` (every hop, joined, since the forwarding
-  mailbox is only one of them) and `isForwardedBy` accepts a match on either that
-  or the envelope sender. A genuine sender mismatch is still flagged.
-- **Affected areas:**
-  `src/modules/integrations/mail/controller/receiveMessage.ts`,
-  `src/modules/integrations/mail/worker/bundle.generated.ts`,
-  `cloudflare/mail-worker/src/parse.ts`,
-  `cloudflare/mail-worker/fixtures/delivered-to.json`.
-- **Contracts changed:** The inbound webhook payload's `headers` may now carry
-  `delivered-to`. The worker bundle version changed, so a workspace running the
-  worker on its own Cloudflare account has to press _Update worker_.

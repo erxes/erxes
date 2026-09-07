@@ -25,3 +25,40 @@ export const parseViberAccountInfo = (value: unknown): IViberAccountInfo => {
 
   return { id, name };
 };
+
+export const getViberAccountInfo = async (
+  token: string,
+): Promise<IViberAccountInfo> => {
+  if (typeof token !== 'string' || !token.trim()) {
+    throw new Error('Viber bot token is required');
+  }
+
+  const response = await fetch(
+    'https://chatapi.viber.com/pa/get_account_info',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Viber-Auth-Token': token,
+      },
+      body: '{}',
+      signal: AbortSignal.timeout(10_000),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Viber account info request failed (HTTP ${response.status})`,
+    );
+  }
+
+  let value: unknown;
+
+  try {
+    value = await response.json();
+  } catch {
+    throw new Error('Invalid Viber account info response');
+  }
+
+  return parseViberAccountInfo(value);
+};
