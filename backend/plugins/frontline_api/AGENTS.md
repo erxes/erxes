@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-05`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -1341,6 +1341,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Ticket notes accept and return attachments
+
+- **Summary:** `Note` now stores an `attachments` array using the shared
+  `attachmentSchema`, so files attached in the ticket note composer persist and
+  are returned to the client instead of being silently dropped.
+- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
+  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
+  `modules/ticket/graphql/resolvers/mutations/note.ts`
+- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
+  `attachments: [AttachmentInput]`; the `Note` type exposes
+  `attachments: [Attachment]`.
+
 ### `2026-09-05` — `Export repeating ticket properties by row`
 
 - **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
@@ -1352,8 +1364,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
 - **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
 - **Contracts changed:** `None`
-
-<<<<<<< HEAD
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 
@@ -1410,7 +1420,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `contentType: 'frontline:tickets.tickets'`; new relations
   `customer.tickets`, `company.tickets`, `user.assignedTickets`.
   =======
-  <<<<<<< HEAD
 
 ### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
 
@@ -1456,18 +1465,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`,
   `.../cloudflare/{api,connect}.ts`.
 - **Contracts changed:** None — `MailCloudflareZone.reason` is shorter prose.
-
-### `2026-08-28` — The domain picker says which domains can actually be connected
-
-- **Summary:** `mailCloudflareZones` returned every zone a token could reach, so a
-  domain that already carries another provider's MX looked selectable and only
-  failed at `checkZone`, three provisioning steps into Connect. The two tests
-  `checkZone` runs now live in `utils/cloudflare/zones.ts` and the listing applies
-  them per zone, returning `eligible` and the `reason`. A zone whose MX cannot be
-  read stays eligible rather than being wrongly withheld — `checkZone` is still the
-  gate, the picker only spends one extra MX lookup per zone to warn earlier.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`
-  (new), `.../cloudflare/{connect,provision}.ts`,
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/graphql/schema/mail.ts`.
-- **Contracts changed:** `MailCloudflareZone` gains `eligible` and `reason`.

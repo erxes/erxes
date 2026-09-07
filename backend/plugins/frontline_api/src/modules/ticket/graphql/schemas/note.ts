@@ -5,6 +5,7 @@ export const types = `
         contentId: String
         createdBy: String
         mentions: [String]
+        attachments: [Attachment]
         statusId: String
 
         createdAt: String
@@ -16,6 +17,7 @@ const createNoteParams = `
     content: String
     contentId: String
     mentions: [String]
+    attachments: [AttachmentInput]
 `;
 
 const updateNoteParams = `
@@ -23,6 +25,7 @@ const updateNoteParams = `
     content: String
     contentId: String
     mentions: [String]
+    attachments: [AttachmentInput]
 `;
 
 export const queries = `

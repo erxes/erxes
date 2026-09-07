@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 export const noteMutations = {
   ticketCreateNote: async (
     _parent: undefined,
-    { content, contentId, mentions },
+    { content, contentId, mentions, attachments },
     { models, user, subdomain }: IContext,
   ) => {
     const userId = user._id || '';
@@ -13,6 +13,7 @@ export const noteMutations = {
         content,
         contentId,
         mentions,
+        attachments,
         createdBy: user._id,
       },
       subdomain,
