@@ -59,6 +59,10 @@ export const pollMutations = {
       throw new Error('This poll belongs to another channel');
     }
 
+    if (poll.brandId && poll.brandId !== integration.brandId) {
+      throw new Error('This poll belongs to another brand');
+    }
+
     const message = await models.ConversationMessages.addMessage(
       {
         conversationId,

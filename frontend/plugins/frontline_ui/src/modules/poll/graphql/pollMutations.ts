@@ -5,6 +5,7 @@ export const POLL_ADD = gql`
     $title: String!
     $question: String!
     $channelId: String
+    $brandId: String
     $options: [PollOptionInput!]!
     $allowMultiselect: Boolean
     $durationHours: Int
@@ -13,6 +14,7 @@ export const POLL_ADD = gql`
       title: $title
       question: $question
       channelId: $channelId
+      brandId: $brandId
       options: $options
       allowMultiselect: $allowMultiselect
       durationHours: $durationHours
@@ -28,6 +30,7 @@ export const POLL_EDIT = gql`
     $title: String!
     $question: String!
     $channelId: String
+    $brandId: String
     $options: [PollOptionInput!]!
     $allowMultiselect: Boolean
     $durationHours: Int
@@ -37,6 +40,7 @@ export const POLL_EDIT = gql`
       title: $title
       question: $question
       channelId: $channelId
+      brandId: $brandId
       options: $options
       allowMultiselect: $allowMultiselect
       durationHours: $durationHours
@@ -45,6 +49,7 @@ export const POLL_EDIT = gql`
       title
       question
       channelId
+      brandId
       options {
         _id
         text

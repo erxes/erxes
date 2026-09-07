@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-05`
+- **Last synchronized:** `2026-09-07`
 
 ## Scope
 
@@ -54,23 +54,24 @@
 ## Current Capabilities
 
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
-  `allowMultiselect`, optional `durationHours`, `active`/`archived` status)
-  owned by a channel through `channelId`. An agent posts one into a messenger
+  `allowMultiselect`, optional `durationHours`, optional `brandId`,
+  `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
   conversation with `pollSendToConversation`,
   which writes a snapshot to the message's `extraData.poll` and bumps the
-  poll's `sentCount` and sets `hasPoll` on the conversation. Customers vote
-  through `widgetsPollVote`; each vote recomputes the tallies, marks the
+  poll's `sentCount` and sets `hasPoll` on the conversation. Client portal
+  users vote through `cpPollVote`; each vote recomputes the tallies, marks the
   conversation as customer-responded and unread, then republishes the message
   through `pConversationClientMessageInserted`, so the conversation rises in
-  the agent's list and both the inbox and the widget update without a refresh.
+  the agent's list and both the inbox and the portal update without a refresh.
 - Every conversation filter query accepts `withPoll: String` — `"true"` keeps
   only conversations carrying a poll (the denormalized `hasPoll` flag).
-- The public `widgetsPoll*` mutations remain available for an external client:
-  `widgetsPollConnect` serves a poll by `code` for a channel, `widgetsPollSubmit`
-  resolves or creates the visitor's customer and opens a conversation carrying
-  the poll snapshot, and `widgetsPollVote` records a vote on an existing poll
-  message. No client in this repository calls them — `frontline-widgets` carries
-  no poll surface — so poll tallies only move through those endpoints.
+- Answering a poll is a client portal surface, not a messenger widget one.
+  `cpPollDetail` serves a poll by `code` for a channel, `cpPollSubmit` resolves
+  the respondent's erxes customer and opens a conversation carrying the poll
+  snapshot, and `cpPollVote` records a vote on an existing poll message. All
+  four accept a signed-in portal user **or** a guest identified by a
+  client-supplied `visitorId`, so an unauthenticated portal visitor can answer
+  while a signed-in one is still pinned to their own account.
 
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
@@ -176,18 +177,20 @@
 
 - GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
   `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
-  `pollEdit`, `pollRemove(_ids)`, `pollToggleStatus(_ids, status)`, and
+  `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
+  `pollToggleStatus(_ids, status)`, and
   `pollSendToConversation(_id, conversationId)` which returns the created
   `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
   vote ledger across every conversation the poll was sent to.
-- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
-  pollCode, cachedCustomerId)` returns the active poll plus the caller's
-  previous selection; `widgetsPollSubmit(pollCode, optionIds,
-  cachedCustomerId)` files a site answer as a new conversation.
-- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
-  customerId, visitorId)` returns the voter's own selections for the
-  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
-  records a vote and returns the refreshed `ConversationMessage`.
+- GraphQL (client portal, `forClientPortal` only — no `cpUserRequired`):
+  `cpPollDetail(channelId, pollCode, visitorId)` is a query returning the active
+  poll plus the caller's previous selection as `CpPollResponse`;
+  `cpPollVotes(conversationId, visitorId)` returns the caller's own selections
+  for the conversation. The mutations are
+  `cpPollSubmit(pollCode, optionIds, visitorId)`, which files an answer as a new
+  conversation, and `cpPollVote(messageId, optionIds, visitorId)`, which records
+  a vote and returns the refreshed `ConversationMessage`. `visitorId` is ignored
+  whenever a `cpUser` is present, and required when one is not.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
@@ -469,7 +472,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
   the previous selection instead of stacking. `voterId` is the `customerId`
-  when there is one, otherwise the `visitorId`.
+  when there is one, otherwise the `visitorId`. A guest vote also persists the
+  raw `visitorId` on its own indexed field, which is how a returning guest is
+  reconnected to the visitor customer they were given the first time.
 - A poll message stores a *snapshot* under `extraData.poll`
   (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
   `results`). Editing the poll definition afterwards never rewrites messages
@@ -612,22 +617,52 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   indexes, so option reordering cannot reassign existing votes. Discord's
   native polls keep their own numeric ids in the same `extraData.poll` shape;
   any renderer must accept both.
-- `widgetsPollVote` is the only write path for votes. It rejects a closed poll,
-  a multi-select payload on a single-answer poll, and any option id absent from
-  the message snapshot, then recomputes `extraData.poll.results` from the
-  ledger — counts are never incremented in place.
+- `cpPollVote` and `cpPollSubmit` are the only write paths for votes. Both
+  reject a closed poll, a multi-select payload on a single-answer poll, and any
+  option id absent from the snapshot, then recompute `extraData.poll.results`
+  from the ledger — counts are never incremented in place.
+- A vote's `voterId` is `cpUser.erxesCustomerId || cpUser._id || visitorId`,
+  resolved only through `getCpVoterId`. A signed-in caller can never be
+  impersonated through the argument, because `visitorId` is consulted last;
+  a guest's identity is only as strong as the id their client keeps, so the
+  unique `{ messageId, voterId }` index pins one vote per portal account and one
+  vote per retained visitor id. Both write paths reject a request that resolves
+  to no voter at all.
 - `hasPoll` is a denormalized conversation flag set by `pollSendToConversation`
   and read by the `withPoll` filter — the same shape as `isCustomerRespondedLast`
   behind `awaitingResponse`. The filter param is deliberately named `withPoll`
   because `IConversationListParams` extends `IConversation`, so reusing
   `hasPoll` would collide with the boolean document field.
-- A poll's `code` is a unique nanoid minted on create; the embed snippet and
-  `widgetsPollConnect` address the poll by it, never by `_id` alone.
-- `widgetsPollSubmit` files the conversation under the channel's `messenger`
+- `brandId` is optional on a poll, but `createPoll`/`updatePoll` reject one whose
+  brand has no active `messenger` integration in the poll's channel, so an
+  unresolvable pairing can never be saved. A poll with no `brandId` keeps the
+  legacy behaviour of taking whichever active messenger integration the channel
+  returns first.
+- A poll's `code` is a unique nanoid minted on create; the portal link and
+  `cpPollDetail` address the poll by it, never by `_id` alone.
+- Client portal poll reads are queries and writes are mutations. `cpPollDetail`
+  performs no writes, so it must never move back under `Mutation`. Both
+  client-portal resolver maps keep `forClientPortal` and deliberately omit
+  `cpUserRequired`, so a guest reaches the resolver; they must never fall back to
+  `skipPermission`, which would also drop the `x-app-token` portal check and
+  leave the customer- and conversation-creating `cpPollSubmit` open to anyone.
+  Nothing under these resolvers may dereference `cpUser` without optional
+  chaining.
+- `cpPollSubmit` files the conversation under the channel's `messenger`
   integration; a channel without one rejects the submit rather than inventing
-  an integration.
+  an integration, and narrows the lookup by the poll's `brandId` when it has one
+  so a channel carrying several messenger integrations resolves deterministically.
+  For a signed-in caller it resolves the conversation's customer
+  from `cpUser.erxesCustomerId` first, then `customers.getWidgetCustomer` by the
+  portal user's email/phone, and only then creates one with
+  `customers.createMessengerCustomer`. For a guest it reuses the `customerId` of
+  any earlier vote carrying the same `visitorId`, and otherwise creates a
+  `state: 'visitor'` customer through `customers.createCustomer`. Do not pass
+  `scopeBrandIds` there — it is a product field, absent from the customer schema,
+  so mongoose strict mode drops it silently.
 - `pollSendToConversation` only accepts a `messenger` integration, and refuses
-  a poll whose `channelId` differs from the integration's channel. Discord
+  a poll whose `channelId` or `brandId` differs from the integration's.
+  Both guards are skipped when the poll leaves the field unset. Discord
   polls keep their own native path through `conversationMessageAdd(poll:)`.
 - `pollList` / `pollTotalCount` without a `channelId` are scoped to the caller's
   `ChannelMembers` channels (plus channel-less polls) unless the user is an
@@ -1412,6 +1447,60 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Polls pin their messenger integration by brand
+
+- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
+  `pollSendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the poll's channel — removing the arbitrary
+  `findOne` pick on a channel with several messenger integrations.
+- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
+  `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
+  `Poll` type.
+
+### `2026-09-07` — Guest voting on the client portal poll surface
+
+- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
+  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+  return, while a signed-in `cpUser` still wins over the argument.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
+  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
+  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
+
+### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
+
+- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
+  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
+  module's shared `utils.ts` so both resolver maps use one lookup.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
+  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/utils.ts`.
+- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
+  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
+  `PollConnectResponse` to `CpPollResponse`.
+
+### `2026-09-07` — Poll answering moved from the widget to the client portal
+
+- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
+  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
+  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
+  anonymous widget visitor. The voter is now taken from `cpUser`
+  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
+  `visitorId` / `cachedCustomerId` arguments.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
+  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
+  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/{utils.ts,@types/poll.ts}`,
+  `src/apollo/resolvers/{queries,mutations}.ts`.
+- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
+  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
+  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
+  `cpPollSubmit(pollCode, optionIds)`.
+
 ### `2026-09-05` — Poll voting has no in-repo client
 
 - **Summary:** The customer-facing poll surfaces were removed from
@@ -1492,62 +1581,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** New segment content type
   `frontline:inbox.conversations`; new relations `customer.conversations`,
   `customer.messages`. `loadClass` for conversations now takes `subdomain`.
-
-### `2026-09-01` — Tickets became a real segment content type
-
-- **Summary:** `frontline:tickets.tickets` is now declared with its event
-  content type, filterable on 24 user-facing fields, materialisable, and
-  reachable from customer, company and team-member segments; the module moved
-  off the Elasticsearch-era producers onto the shared evaluator.
-- **Affected areas:** `src/modules/ticket/meta/segments/` (`fields/`,
-  `collections.ts`, `members.ts`, `membership.ts`, `evaluate.ts`,
-  `relations.ts`, `configs.ts`, `index.ts`); `src/meta/segments.ts`;
-  `src/modules/ticket/db/definitions/ticket.ts` (schemaWrapper, join indexes).
-- **Contracts changed:** Ticket content type now declares
-  `contentType: 'frontline:tickets.tickets'`; new relations
-  `customer.tickets`, `company.tickets`, `user.assignedTickets`.
-  =======
-  <<<<<<< HEAD
-
-### `2026-08-31` — Messenger polls
-
-- **Summary:** Added a reusable poll module an agent can post into a messenger
-  conversation, with a per-voter ledger, live tally refresh, and permissions.
-- **Affected areas:** `src/modules/poll/**`, `src/connectionResolvers.ts`,
-  `src/apollo/{schema/schema.ts,resolvers/{queries,mutations,resolvers}.ts}`,
-  `src/meta/permissions.ts`.
-- **Contracts changed:** Added `pollList`, `pollDetail`, `pollTotalCount`,
-  `pollAdd`, `pollEdit`, `pollRemove`, `pollToggleStatus`,
-  `pollSendToConversation`, `widgetsPollVotes`, `widgetsPollVote`, and the
-  `poll` permission module. `Poll` carries `channelId` / `channel`, the list
-  queries accept `channelId`, every conversation filter query accepts
-  `withPoll`, and the public widget surface gained `widgetsPollConnect` /
-  `widgetsPollSubmit`.
-
-### `2026-08-28` — Every zone is listed, and the picker says which are usable
-
-- **Summary:** `listZones` asked for a single page of 50, so an account with more
-  domains than that silently lost the rest — including, quite possibly, the only
-  one it could use. It now pages until a short page. Eligibility reasons were
-  reusing the full `checkZone` error, three lines of explanation per row; they now
-  have a summary form for the picker while the long form stays on the thrown
-  error. `describeZones` bounds the per-zone MX lookups to
-  `ELIGIBILITY_CONCURRENCY` and returns usable domains first.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`,
-  `.../cloudflare/{api,connect}.ts`.
-- **Contracts changed:** None — `MailCloudflareZone.reason` is shorter prose.
-
-### `2026-08-28` — The domain picker says which domains can actually be connected
-
-- **Summary:** `mailCloudflareZones` returned every zone a token could reach, so a
-  domain that already carries another provider's MX looked selectable and only
-  failed at `checkZone`, three provisioning steps into Connect. The two tests
-  `checkZone` runs now live in `utils/cloudflare/zones.ts` and the listing applies
-  them per zone, returning `eligible` and the `reason`. A zone whose MX cannot be
-  read stays eligible rather than being wrongly withheld — `checkZone` is still the
-  gate, the picker only spends one extra MX lookup per zone to warn earlier.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`
-  (new), `.../cloudflare/{connect,provision}.ts`,
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/graphql/schema/mail.ts`.
-- **Contracts changed:** `MailCloudflareZone` gains `eligible` and `reason`.

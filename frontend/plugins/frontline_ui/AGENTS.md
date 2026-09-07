@@ -427,6 +427,13 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 
 ## Local Invariants
 
+- A poll's `brandId` is optional and selected in `PollSheet` through
+  `SelectBrands.FormItem` (`mode="single"`, `disableCreateOption`), which pins
+  which of the channel's messenger integrations the poll's answers are filed
+  under. Inline brand creation stays disabled there: a brand invented in this
+  form has no messenger integration in the channel, and `frontline_api` rejects
+  it. The selector lists every brand in the org, so a wrong pick surfaces as the
+  mutation's error toast rather than as a filtered-out option.
 - Creating, editing, archiving, and removing a poll lives only under a
   channel's settings page. `frontline/polls` must stay read-only —
   `PollSubHeader` only renders the create button when passed `canCreate`, and
@@ -846,6 +853,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Poll form picks the brand
+
+- **Summary:** `PollSheet` gained an optional single-select brand field backed by
+  `SelectBrands.FormItem`, so an admin decides which messenger integration in the
+  channel a poll's answers are filed under instead of leaving it to the API's
+  arbitrary pick.
+- **Affected areas:** `src/modules/poll/components/poll-page/PollSheet.tsx`,
+  `src/modules/poll/constants/pollFormSchema.ts`,
+  `src/modules/poll/types/pollTypes.ts`,
+  `src/modules/poll/graphql/{pollMutations.ts,pollQueries.ts}`.
+- **Contracts changed:** `pollAdd` and `pollEdit` now send `brandId: String`, and
+  the `PollFields` fragment selects `brandId`.
+
 ### `2026-09-05` — Poll surfaces removed from the customer widget
 
 - **Summary:** The website poll popup and the in-messenger voting card are gone
@@ -987,9 +1007,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
   `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
   `frontline_api` removed.
-
-### `2026-08-27` — Facebook replies past 24h use HUMAN_AGENT only
-
-- **Summary:** The stale-conversation gate offers a single "Reply as human agent" action instead of the three Meta-retired tags, measures both windows from the customer's last message, blocks replies after 7 days, and resets the chosen tag when switching conversations.
-- **Affected areas:** `src/modules/integrations/facebook/components/FacebookMessageInputWrapper.tsx`, `constants/FbMessageWindow.ts`, `types/FacebookTypes.ts` (`EnumFacebookTag` now HUMAN_AGENT only), removed `constants/FbTagSchema.ts`
-- **Contracts changed:** None

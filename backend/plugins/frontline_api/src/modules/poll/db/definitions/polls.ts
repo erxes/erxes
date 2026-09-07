@@ -21,6 +21,7 @@ export const pollSchema = new Schema(
     _id: mongooseStringRandomId,
     title: { type: String, required: true, label: 'Title' },
     channelId: { type: String, index: true, label: 'Channel' },
+    brandId: { type: String, index: true, label: 'Brand' },
     code: { type: String, unique: true, sparse: true, label: 'Code' },
     question: { type: String, required: true, label: 'Question' },
     options: { type: [pollOptionSchema], default: [], label: 'Options' },

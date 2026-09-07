@@ -32,6 +32,7 @@ export const pollFormSchema = z.object({
     }),
   allowMultiselect: z.boolean(),
   durationHours: z.number().int().min(1).max(768).nullable(),
+  brandId: z.string().nullable(),
 });
 
 export type TPollForm = z.infer<typeof pollFormSchema>;

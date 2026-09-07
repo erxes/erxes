@@ -11,6 +11,7 @@ export interface IPoll {
   title: string;
   question: string;
   channelId?: string;
+  brandId?: string;
   code?: string;
   options: IPollOption[];
   allowMultiselect?: boolean;
@@ -38,6 +39,15 @@ export interface IPollVote {
 }
 
 export type IPollVoteDocument = HydratedDocument<IPollVote>;
+
+export interface IPollCpUser {
+  _id: string;
+  erxesCustomerId?: string;
+  email?: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 export interface IPollAnswerSnapshot {
   id: string;

@@ -18,6 +18,7 @@ export interface IPollInput {
   title: string;
   question: string;
   channelId?: string;
+  brandId?: string;
   options: IPollOptionInput[];
   allowMultiselect?: boolean;
   durationHours?: number;
@@ -85,10 +86,34 @@ const validateDoc = (doc: IPollInput) => {
     title,
     question,
     channelId: doc.channelId || undefined,
+    brandId: doc.brandId || undefined,
     options: normalizePollOptions(doc.options),
     allowMultiselect: Boolean(doc.allowMultiselect),
     durationHours: doc.durationHours ?? undefined,
   };
+};
+
+const assertBrandMessenger = async (
+  models: IModels,
+  channelId?: string,
+  brandId?: string,
+) => {
+  if (!channelId || !brandId) {
+    return;
+  }
+
+  const integration = await models.Integrations.findOne({
+    channelId,
+    brandId,
+    kind: 'messenger',
+    isActive: { $ne: false },
+  }).lean();
+
+  if (!integration) {
+    throw new Error(
+      'The selected brand has no active messenger integration in this channel',
+    );
+  }
 };
 
 export const loadPollClass = (models: IModels) => {
@@ -116,6 +141,8 @@ export const loadPollClass = (models: IModels) => {
     }
 
     public static async createPoll(doc: IPollInput, createdUserId: string) {
+      await assertBrandMessenger(models, doc.channelId, doc.brandId);
+
       return models.Polls.create({
         ...validateDoc(doc),
         code: await models.Polls.generateCode(),
@@ -127,6 +154,8 @@ export const loadPollClass = (models: IModels) => {
 
     public static async updatePoll(_id: string, doc: IPollInput) {
       await models.Polls.getPoll(_id);
+
+      await assertBrandMessenger(models, doc.channelId, doc.brandId);
 
       await models.Polls.updateOne(
         { _id },

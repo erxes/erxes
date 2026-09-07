@@ -14,6 +14,7 @@ import {
 import { ReactNode, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { SelectBrands } from 'ui-modules';
 import {
   pollFormSchema,
   TPollForm,
@@ -35,6 +36,7 @@ const toFormValues = (poll?: IPoll): TPollForm => ({
     : [{ text: '' }, { text: '' }],
   allowMultiselect: Boolean(poll?.allowMultiselect),
   durationHours: poll?.durationHours ?? null,
+  brandId: poll?.brandId ?? null,
 });
 
 export const PollSheet = ({
@@ -75,6 +77,7 @@ export const PollSheet = ({
       })),
       allowMultiselect: values.allowMultiselect,
       durationHours: values.durationHours,
+      brandId: values.brandId,
     };
 
     const onCompleted = () => {
@@ -206,6 +209,30 @@ export const PollSheet = ({
                   </Button>
                 )}
               </div>
+
+              <Form.Field
+                control={form.control}
+                name="brandId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('brand')}</Form.Label>
+                    <SelectBrands.FormItem
+                      mode="single"
+                      disableCreateOption
+                      value={field.value || ''}
+                      onValueChange={(value) =>
+                        field.onChange(
+                          typeof value === 'string' && value ? value : null,
+                        )
+                      }
+                    />
+                    <Form.Description>
+                      {t('choose-brand-description')}
+                    </Form.Description>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
               <Form.Field
                 control={form.control}

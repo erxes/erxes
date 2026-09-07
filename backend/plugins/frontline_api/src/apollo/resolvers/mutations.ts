@@ -18,8 +18,7 @@ import { fieldMutations } from '~/modules/form/graphql/resolvers/mutations/field
 import { formMutations } from '~/modules/form/graphql/resolvers/mutations/forms';
 import { widgetFormMutation } from '~/modules/form/graphql/resolvers/mutations/widget';
 import { pollMutations } from '~/modules/poll/graphql/resolvers/mutations/polls';
-import { widgetPollMutations } from '~/modules/poll/graphql/resolvers/mutations/widget';
-import { widgetPollPopupMutations } from '~/modules/poll/graphql/resolvers/mutations/widgetPopup';
+import { cpPollMutations } from '~/modules/poll/graphql/resolvers/mutations/clientPortal';
 import { responseTemplateMutations } from '~/modules/response/graphql/responseTemplateMutations';
 import ticketMutations from '~/modules/ticket/graphql/resolvers/mutations';
 
@@ -41,8 +40,7 @@ export const mutations = {
   ...widgetFormMutation,
   ...fieldMutations,
   ...pollMutations,
-  ...widgetPollMutations,
-  ...widgetPollPopupMutations,
+  ...cpPollMutations,
   ...knowledgeBaseMutations,
   ...reportInboxQueries,
   ...reportTicketQueries,

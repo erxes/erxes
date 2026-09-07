@@ -25,6 +25,7 @@ export const types = `
     question: String!
     channelId: String
     channel: Channel
+    brandId: String
     options: [PollOption!]!
     allowMultiselect: Boolean
     durationHours: Int
@@ -53,7 +54,7 @@ export const types = `
     optionIds: [String!]!
   }
 
-  type PollConnectResponse {
+  type CpPollResponse {
     poll: Poll
     votedOptionIds: [String!]
   }
@@ -75,6 +76,7 @@ const commonPollFields = `
   title: String!
   question: String!
   channelId: String
+  brandId: String
   options: [PollOptionInput!]!
   allowMultiselect: Boolean
   durationHours: Int
@@ -93,7 +95,8 @@ export const queries = `
   pollList(searchValue: String, status: String, channelId: String, ${pollCursorParams}): PollListResponse
   pollDetail(_id: String!): Poll
   pollTotalCount(searchValue: String, status: String, channelId: String): PollTotalCount
-  widgetsPollVotes(conversationId: String!, customerId: String, visitorId: String): [PollVoteSelection!]
+  cpPollDetail(channelId: String!, pollCode: String!, visitorId: String): CpPollResponse
+  cpPollVotes(conversationId: String!, visitorId: String): [PollVoteSelection!]
 `;
 
 export const mutations = `
@@ -102,7 +105,6 @@ export const mutations = `
   pollRemove(_ids: [String!]!): [String]
   pollToggleStatus(_ids: [String!]!, status: String!): Boolean
   pollSendToConversation(_id: String!, conversationId: String!): ConversationMessage
-  widgetsPollVote(messageId: String!, optionIds: [String!]!, customerId: String, visitorId: String): ConversationMessage
-  widgetsPollConnect(channelId: String!, pollCode: String!, cachedCustomerId: String): PollConnectResponse
-  widgetsPollSubmit(pollCode: String!, optionIds: [String!]!, cachedCustomerId: String): PollSubmitResponse
+  cpPollSubmit(pollCode: String!, optionIds: [String!]!, visitorId: String): PollSubmitResponse
+  cpPollVote(messageId: String!, optionIds: [String!]!, visitorId: String): ConversationMessage
 `;

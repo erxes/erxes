@@ -1,6 +1,16 @@
-import { IPollDocument, IPollSnapshot } from '@/poll/@types/poll';
+import { IPollCpUser, IPollDocument, IPollSnapshot } from '@/poll/@types/poll';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { POLL_STATUSES } from '@/poll/db/definitions/polls';
 import { IModels } from '~/connectionResolvers';
+
+export const getActivePoll = async (
+  models: IModels,
+  pollCode: string,
+): Promise<IPollDocument | null> =>
+  models.Polls.findOne({
+    $or: [{ code: pollCode }, { _id: pollCode }],
+    status: POLL_STATUSES.ACTIVE,
+  });
 
 export const buildPollSnapshot = (poll: IPollDocument): IPollSnapshot => ({
   pollId: poll._id,
@@ -14,6 +24,11 @@ export const buildPollSnapshot = (poll: IPollDocument): IPollSnapshot => ({
     : undefined,
   results: { isFinalized: false, answerCounts: [] },
 });
+
+export const getCpVoterId = (
+  cpUser: IPollCpUser | undefined,
+  visitorId?: string,
+): string | undefined => cpUser?.erxesCustomerId || cpUser?._id || visitorId;
 
 export const isPollClosed = (snapshot: IPollSnapshot) => {
   if (snapshot.results?.isFinalized) {

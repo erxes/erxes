@@ -7,6 +7,7 @@ const POLL_FIELDS = gql`
     title
     question
     channelId
+    brandId
     options {
       _id
       text

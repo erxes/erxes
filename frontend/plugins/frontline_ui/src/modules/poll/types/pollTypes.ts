@@ -30,6 +30,7 @@ export interface IPoll {
   title: string;
   question: string;
   channelId?: string;
+  brandId?: string;
   code?: string;
   options: IPollOption[];
   allowMultiselect?: boolean;
@@ -48,6 +49,7 @@ export interface IPollFormValues {
   options: { _id?: string; text: string }[];
   allowMultiselect: boolean;
   durationHours: number | null;
+  brandId: string | null;
 }
 
 export enum PollsPageHotKeyScope {
