@@ -20,8 +20,7 @@ export interface IDocumentDocument extends IDocument, Document {
 }
 
 export interface IDocumentFilterQueryParams
-  extends IListParams,
-    ICursorPaginateParams {
+  extends IListParams, ICursorPaginateParams {
   limit: number;
   contentType: string;
   subType?: string;
