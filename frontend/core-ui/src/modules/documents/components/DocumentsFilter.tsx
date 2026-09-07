@@ -100,16 +100,14 @@ const DocumentFilterBar = ({ queries }: { queries: DocumentFilterState }) => {
           mode="multiple"
           onValueChange={(tagIds) => setQueries({ tagIds })}
         >
-          <Popover>
-            <Popover.Trigger>
-              <Filter.BarButton filterKey="tagIds">
-                <TagsSelect.SelectedList />
-              </Filter.BarButton>
-            </Popover.Trigger>
-            <Popover.Content className="p-0">
-              <TagsSelect.Content />
-            </Popover.Content>
-          </Popover>
+          <Popover.Trigger>
+            <Filter.BarButton filterKey="tagIds">
+              <TagsSelect.SelectedList />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Popover.Content className="p-0">
+            <TagsSelect.Content />
+          </Popover.Content>
         </TagsSelect.Provider>
       </Filter.BarItem>
       {createdBy && (
