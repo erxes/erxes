@@ -55,6 +55,24 @@ const getViewModeTitle = (viewMode: ViewMode): string => {
   return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
 };
 
+const TemplateListSkeleton = (): JSX.Element => (
+  <div className="col-span-2 p-4 space-y-2">
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+  </div>
+);
+
+const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
+      {search ? t('no-matching-templates') : t('no-templates-available')}
+    </div>
+  );
+};
+
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
@@ -200,19 +218,11 @@ export const ResponseTemplateSelector: React.FC<
                   : 'space-y-1.5',
               )}
             >
-              {isInitialLoad ? (
-                <div className="col-span-2 p-4 space-y-2">
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                </div>
-              ) : templates.length === 0 ? (
-                <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
-                  {search
-                    ? t('no-matching-templates')
-                    : t('no-templates-available')}
-                </div>
-              ) : (
+              {isInitialLoad && <TemplateListSkeleton />}
+              {!isInitialLoad && templates.length === 0 && (
+                <TemplateListEmpty search={search} />
+              )}
+              {!isInitialLoad && templates.length > 0 && (
                 <>
                   {templates.map((template) => (
                     <Command.Item

@@ -77,7 +77,7 @@ export const useNoteTemplateSuggestions = ({
     if (!editor) return;
 
     const html = await editor.blocksToHTMLLossy(editor.document);
-    const plain = html?.replace(/<[^>]+>/g, '')?.trim() || '';
+    const plain = html?.replace(/<[^<>]*>/g, '')?.trim() || '';
 
     setSearchValue(plain);
     if (!plain) setIsDropdownDismissed(false);

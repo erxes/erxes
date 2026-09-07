@@ -23,7 +23,7 @@ export const parseTemplateToBlocks = (templateHtml: string) => {
   return [
     {
       type: 'paragraph',
-      content: templateHtml.replace(/<[^>]+>/g, '').trim(),
+      content: templateHtml.replace(/<[^<>]*>/g, '').trim(),
       props: {},
     },
   ];
