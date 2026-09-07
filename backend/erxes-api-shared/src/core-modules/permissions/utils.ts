@@ -195,7 +195,7 @@ export const resolveActionOAuthScopes = (
     return [action.oauthScope];
   }
 
-  return [`${pluginName}:${module.name}`];
+  return [`${pluginName}-${module.name}:manage`];
 };
 
 const getOAuthActionScopeMap = async () => {

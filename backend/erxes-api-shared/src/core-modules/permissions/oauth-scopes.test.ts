@@ -67,14 +67,14 @@ describe('oauth scopes for plugin actions', () => {
       ),
     ).toEqual(['contacts:read', 'contacts:create']);
     expect(resolveActionOAuthScopes('sales', { name: 'deal' }, {})).toEqual([
-      'sales:deal',
+      'sales-deal:manage',
     ]);
   });
 
   it('lets an oauth token with the derived module scope call plugin actions', async () => {
     const check = checkPermissionGroup(
       'sub',
-      user({ isOwner: true, oauthScopes: ['sales:deal'] }),
+      user({ isOwner: true, oauthScopes: ['sales-deal:manage'] }),
     );
     await expect(check('dealsAdd')).resolves.toBeUndefined();
   });
