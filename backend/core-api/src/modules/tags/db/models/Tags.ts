@@ -251,6 +251,7 @@ export const loadTagClass = (
           form: models.Forms,
           product: models.Products,
           automation: models.Automations,
+          documents: models.Documents,
         };
 
         const model = modelMap[moduleName];
@@ -353,6 +354,7 @@ export const loadTagClass = (
         user: models.Users,
         form: models.Forms,
         automation: models.Automations,
+        documents: models.Documents,
       };
       const model = taggables[record];
 

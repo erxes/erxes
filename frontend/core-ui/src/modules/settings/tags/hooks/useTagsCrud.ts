@@ -52,23 +52,11 @@ export const useTagsCrud = (type: string | null) => {
             totalObjectCount: 0,
           },
         },
-        update: (cache, { data }) => {
-          const tagsAdd = data?.tagsAdd;
-          if (!tagsAdd) return;
-
-          cache.updateQuery(
-            {
-              query: TAGS_QUERY,
-              variables: {
-                excludeWorkspaceTags: true,
-                type: variables.type,
-              },
-            },
-            (current) => ({
-              tagsMain: [tagsAdd, ...(current?.tagsMain || [])],
-            }),
-          );
+        update: (cache) => {
+          cache.evict({ fieldName: 'tagsMain' });
         },
+        refetchQueries: ['TagsMain'],
+        awaitRefetchQueries: true,
         onError: (error) => {
           toast({
             title: 'Error',

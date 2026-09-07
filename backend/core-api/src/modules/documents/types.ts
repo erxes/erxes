@@ -11,6 +11,7 @@ export interface IDocument {
   content: string;
   replacer: string;
   code?: string;
+  tagIds?: string[];
 }
 
 export interface IDocumentDocument extends IDocument, Document {
@@ -26,4 +27,5 @@ export interface IDocumentFilterQueryParams
   subType?: string;
   userIds?: string[];
   dateFilters?: string;
+  tagIds?: string[];
 }
