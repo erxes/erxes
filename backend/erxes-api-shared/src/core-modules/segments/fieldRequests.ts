@@ -1,3 +1,4 @@
+import { parsePropertyDataKey, toPropertyGroupKey } from '../properties/keys';
 import { SegmentFieldMeta, SegmentFieldNamespace } from './fieldMeta';
 import { SEGMENT_MEMBERSHIP_FIELD } from './nodes';
 import { SegmentRelationRequest, SegmentValueRequest } from './plan';
@@ -143,7 +144,25 @@ export const readNamespacedValue = (
     return undefined;
   }
 
-  return (values as Record<string, unknown>)[request.entryKey];
+  const bag = values as Record<string, unknown>;
+  const key = parsePropertyDataKey(request.entryKey);
+
+  if (key.kind === 'row') {
+    const rows = bag[toPropertyGroupKey(key.groupId)];
+
+    if (!Array.isArray(rows)) {
+      return undefined;
+    }
+
+    // same shape a path walk through an array produces
+    const collected = rows
+      .map((row) => (row as Record<string, unknown>)?.[key.fieldId])
+      .filter((item) => item !== undefined && item !== null);
+
+    return collected.length ? collected : undefined;
+  }
+
+  return bag[request.entryKey];
 };
 
 export const namespacePaths = (

@@ -40,16 +40,6 @@ export const customerQueries: Record<
     params: ICustomerQueryFilterParams,
     { models, subdomain }: IContext,
   ) {
-    const startedAt = performance.now();
-    const searchValue = params.searchValue?.trim();
-
-    logCustomersMemory('start', startedAt, {
-      hasSearchValue: Boolean(searchValue),
-      searchValueLength: searchValue?.length ?? 0,
-      limit: params.limit,
-      hasCursor: Boolean(params.cursor),
-    });
-
     try {
       const filter: FilterQuery<ICustomerDocument> = await generateFilter(
         subdomain,
@@ -58,8 +48,6 @@ export const customerQueries: Record<
         customerSearchTokenConfig,
       );
 
-      logCustomersMemory('filter-generated', startedAt);
-
       const { list, totalCount, pageInfo } =
         await cursorPaginate<ICustomerDocument>({
           model: models.Customers,
@@ -67,17 +55,8 @@ export const customerQueries: Record<
           query: filter,
         });
 
-      logCustomersMemory('pagination-complete', startedAt, {
-        listLength: list.length,
-        totalCount,
-      });
-
       return { list, totalCount, pageInfo };
     } catch (error) {
-      logCustomersMemory('error', startedAt, {
-        errorName: error instanceof Error ? error.name : 'UnknownError',
-      });
-
       throw error;
     }
   },

@@ -441,7 +441,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - `erxes-api-shared/core-modules`: `sendNotification`, `canGroup`,
   import/export producer handlers, automation types,
   `replaceOutputPlaceholders`, `splitType`, `sendAutomationTrigger`,
-  `EXECUTE_WAIT_TYPES`, `attachmentSchema`.
+  `EXECUTE_WAIT_TYPES`, `attachmentSchema`, `propertyPath`.
 - `core` over tRPC — brands, tags, users, structure,
   `configs.getFileUploadConfigs`, `users.findOne`, `fields.find` (validating the
   ticket property fields chosen in a ticket config).
@@ -1501,6 +1501,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
   `cpPollSubmit(pollCode, optionIds)`.
 
+### `2026-09-05` — `Export repeating ticket properties by row`
+
+- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
+- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
+- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
+
+### `2026-09-05` — `Use the shared propertiesData path helper`
+
+- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
+- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-05` — Poll voting has no in-repo client
 
 - **Summary:** The customer-facing poll surfaces were removed from
@@ -1520,8 +1532,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   Rules now live in `buildVisibilityCondition` and are applied per pipeline on
   unscoped lists, which also stops private-pipeline tickets leaking there.
 - **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- # **Contracts changed:** None (`getTickets` arguments are unchanged).
-  > > > > > > > cba2acc12f171a512ce661d11ce7c9a5481eb89c
+- **Contracts changed:** None (`getTickets` arguments are unchanged).
 
 ### `2026-09-02` — IMAP integration removed
 
@@ -1539,7 +1550,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
   `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
   registered.
-  > > > > > > > 8b1bde58e0fa2b2698872aef1fc19189dc98bd8d
 
 ### `2026-09-01` — `checkTargetMatch` producer removed
 
@@ -1552,32 +1562,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
   The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
   `erxes-api-shared`.
-
-### `2026-09-01` — Elasticsearch-era segment producers removed
-
-- **Summary:** `associationFilter`, `esTypesMap`, `initialSelector` and
-  `propertyConditionExtender` were deleted from the ticket module and from the
-  plugin-level segment object; the plugin no longer makes any plugin-to-plugin
-  segment call, and no plugin-to-plugin RPC loop can form.
-- **Affected areas:** `src/meta/segments.ts`,
-  `src/modules/ticket/meta/segments/index.ts`.
-- **Contracts changed:** `/segments` no longer answers `associationFilter`,
-  `esTypesMap`, `initialSelector` or `propertyConditionExtender`. No caller
-  existed for any of them.
-
-### `2026-09-01` — Conversations and messages reachable from a segment
-
-- **Summary:** `frontline:inbox.conversations` is a segment content type with
-  12 fields including a derived `integrationKind` channel; conversations and
-  messages are both reachable from a customer segment
-  (`customer.conversations`, `customer.messages`), which is what answers "came
-  in from Facebook" and "wrote a comment saying 111". Conversation writes
-  announce themselves from the four places that move a declared field rather
-  than through a dispatcher.
-- **Affected areas:** `src/modules/inbox/meta/segments/` (new);
-  `src/modules/inbox/db/models/Conversations.ts`;
-  `src/modules/inbox/trpc/conversation.ts`; `src/meta/segments.ts`;
-  `src/connectionResolvers.ts`.
-- **Contracts changed:** New segment content type
-  `frontline:inbox.conversations`; new relations `customer.conversations`,
-  `customer.messages`. `loadClass` for conversations now takes `subdomain`.
