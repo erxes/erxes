@@ -47,7 +47,6 @@ export const customerQueries: Record<
         models,
         customerSearchTokenConfig,
       );
-      console.log(JSON.stringify(filter, null, 2));
 
       const { list, totalCount, pageInfo } =
         await cursorPaginate<ICustomerDocument>({
