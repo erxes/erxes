@@ -1,11 +1,13 @@
+import { Empty } from 'erxes-ui';
+
 export const AutomationVariableBrowserEmptyState = ({
   text,
 }: {
   text: string;
 }) => {
   return (
-    <div className="rounded-md border bg-background px-3 py-2 text-muted-foreground">
-      {text}
-    </div>
+    <Empty className="gap-2 border p-3 md:p-3">
+      <Empty.Description>{text}</Empty.Description>
+    </Empty>
   );
 };
