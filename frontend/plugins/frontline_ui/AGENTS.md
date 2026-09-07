@@ -384,9 +384,9 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
 - The help center list is read twice on purpose: `useHelpCenters` applies the
   `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
   filter bar, while `useAllHelpCenters` reads the same document unfiltered so
-  the sidebar sub-group keeps listing every help center — and can resolve the
-  one `editId` names — while the table is narrowed. With no filter set both resolve to the
-  same variables and Apollo serves one request.
+  `HelpCenterIndexPage` can resolve the one help center `editId` names even when
+  the table is narrowed past it. With no filter set both resolve to the same
+  variables and Apollo serves one request.
 
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
@@ -456,7 +456,7 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   which opens `TopicDrawer` over the table. The page mounts **one** drawer for
   both creating and editing, keyed on the record — two would each mount a
   `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the name cell's
-  anchor, the nav sub-group and a shared link all go through that one param — never reintroduce
+  anchor and a shared link all go through that one param — never reintroduce
   a detail route. Every surface widens a list record for the drawer through
   `toTopicDrawerRecord`; passing a partial record would reset the fields it
   omitted on the next save.
@@ -475,6 +475,46 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   `topicDrawerConstants.ts`, **not** in the module's `types.ts` / `constants.ts`
   — those two re-export from `content_ui`, so importing them pulls another
   plugin's code into this remote and breaks it at runtime.
+- The help center table shows the three identifying columns — name, website,
+  knowledge base topic — followed by the three ticket routing selects, each
+  headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
+  as one ticket target rather than three unrelated picks. Those three headers
+  pass their own `ticket-*-label` keys with inline English fallbacks; the bare
+  `channel-label` / `pipeline-label` / `status-label` keys are shared repo-wide
+  and live in the gateway locales, outside this plugin, so never rename them to
+  suit this table. The two on/off switches (`kbToggle`, `ticketToggle`), the
+  knowledge base name (`kbLabel`), the ticket menu label and the description are
+  drawer-only; put a new field of that kind in `TopicGeneralTab`, not in a
+  column. `kbLabel` still ships in `frontlineHelpCenterList` and is rebuilt by
+  `useEditHelpCenter` on every inline write even though no column shows it —
+  dropping it from either would blank the drawer's field on the next save. The ticket selects cascade: pipeline is disabled until a channel is
+  chosen and status until a pipeline is, and `useEditHelpCenter` clears the
+  downstream ids when an upstream one changes.
+- The website (`url`) is optional but, once filled, must be a full `http://` or
+  `https://` address. Both write paths share one validator,
+  `helpcenter/utils/helpCenterUrl.ts` — the drawer field through a
+  `rules.validate`, the table cell through `InlineTextCell`'s `validate` prop.
+  A bare `z.string().url()` would also pass `ftp:` and `javascript:`, so the
+  schema checks the protocol explicitly; keep any new URL field on that helper
+  rather than re-deriving the rule.
+- `InlineTextCell` is controlled (`open` state) rather than using
+  `closeOnEnter`, so Enter on a value its `validate` rejects holds the cell open
+  and shows the message instead of closing over an edit that never saved.
+  Clicking away from a rejected value drops it — the cell must never trap the
+  user until the value is fixed, and must never write a value that failed.
+- `kbToggle` defaults to **on** everywhere a help center is read or written: a
+  new topic starts from `EMPTY_TOPIC_FORM`, an existing one is widened by
+  `TopicDrawer`'s reset and `toTopicDrawerRecord`, and an inline table edit
+  rebuilds the doc in `useEditHelpCenter`. All four say `?? true` / `true`, so a
+  help center saved from any surface keeps its knowledge base showing. Change
+  the default in all four or none — one `?? false` among them silently switches
+  the feature off on the next save from that path.
+- The `Knowledge base topic` select is one component,
+  `helpcenter/components/SelectHelpCenterTopic.tsx`, rendered by both surfaces:
+  the table cell passes `variant="table"` plus a cell `scope`, the drawer field
+  passes `variant="form"`. Both exclude the row's own `_id` so a help center
+  cannot point at itself. Change the option query or the exclusion in that one
+  file — never fork a second copy for one of the two surfaces.
 - The topic drawer is split by responsibility: `TopicDrawer.tsx` owns only the
   sheet, the form and the mutations; `TopicGeneralTab.tsx` and
   `TopicAppearanceTab.tsx` own a tab each; `TopicStyleFields.tsx` the reusable
@@ -916,6 +956,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — The website field insists on a real URL
+
+- **Summary:** `url` took any text from either the drawer or the table cell and
+  stored it, so a help center could ship a website that no browser would follow;
+  a non-empty value must now parse as an `http://` or `https://` URL. The rule
+  lives once in `helpcenter/utils/helpCenterUrl.ts`, and `InlineTextCell` grew
+  an optional `validate` prop plus controlled open state so a rejected value
+  keeps the cell open with its message instead of saving.
+- **Affected areas:**
+  `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-07` — The ticket columns say they are ticket columns
+
+- **Summary:** The table's `Channel`, `Pipeline` and `Status` headers gave no
+  hint they were one ticket target, and the `Knowledge base name` column
+  duplicated a drawer-only field; the three ticket headers now read
+  `Ticket channel` / `Ticket pipeline` / `Ticket status` under their own
+  `ticket-*-label` keys, and the `kbLabel` column is gone. `kbLabel` itself is
+  untouched — the drawer still edits it and `useEditHelpCenter` still sends it.
+- **Affected areas:**
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-07` — The help center page drops its sidebar sub-group
+
+- **Summary:** `/frontline/helpcenter` listed every help center a second time in
+  the left navigation, duplicating the record table it sat next to; the
+  `HelpCenterSubGroup` component and the `isHelpCenter` branch in
+  `FrontlineSubGroups` are gone, so the page now renders no frontline
+  sub-group. `useAllHelpCenters` stays — `HelpCenterIndexPage` still needs the
+  unfiltered list to resolve `editId`.
+- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
+  `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
+- **Contracts changed:** `None`
+
+### `2026-09-07` — A new help center shows its knowledge base by default
+
+- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
+  the topic and label fields under it stayed hidden until the switch was found;
+  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
+  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
+  with `?? false`, which switched the feature off on the next inline edit of a
+  help center that had no stored value — it now agrees with the other three.
+- **Affected areas:**
+  `src/modules/knowledgebase/topicDrawerConstants.ts`,
+  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
+- **Contracts changed:** `None`
+
+### `2026-09-07` — The help center table drops its drawer-only columns
+
+- **Summary:** Removed the description column and the two ticket columns the
+  drawer already owns — the `Show tickets` switch and the ticket menu label —
+  leaving name, website, knowledge base name and knowledge base topic followed
+  by the three ticket routing selects (channel, pipeline, status). The drawer
+  gained the piece it was missing, a required `Knowledge base topic` select in
+  its Knowledge base section, and the table cell and that field now share one
+  `SelectHelpCenterTopic` component.
+- **Affected areas:**
+  `src/modules/helpcenter/components/{HelpCenterColumns.tsx,SelectHelpCenterTopic.tsx}`,
+  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
+  `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
+  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
+- **Contracts changed:** `None`
+
 ### `2026-09-07` — The help center table picks its knowledge base topic
 
 - **Summary:** Replaced the `Show articles` switch column with a
@@ -969,57 +1076,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `constants.ts`, which re-export from `content_ui`.
 - **Affected areas:** `src/pages/HelpCenterIndexPage.tsx`,
   `src/modules/knowledgebase/topicDrawer{Types,Constants}.ts`
-- **Contracts changed:** None.
-
-### `2026-09-04` — The topic drawer is split by responsibility
-
-- **Summary:** `TopicDrawer.tsx` had grown to 1174 lines holding its types,
-  constants, field helpers, both tab panes and the embed dialog. Each moved to
-  its own file, leaving the drawer at 258 lines owning only the sheet, the form
-  and the mutations. No behaviour changed.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/Topic{Drawer,GeneralTab,AppearanceTab,StyleFields,EmbedScriptDialog}.tsx`,
-  `src/modules/knowledgebase/{types,constants}.ts`
-- **Contracts changed:** None.
-
-### `2026-09-03` — The ticket target is editable from the table
-
-- **Summary:** Added inline channel, pipeline and status columns to the help
-  center table, so a ticket target can be set without opening the drawer;
-  `useEditHelpCenter` already clears the levels below whichever one changes.
-  Narrowed the two toggle columns to fit their switch and badge.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-03` — Switched-off features actually collapse
-
-- **Summary:** A feature's fields and the inactive tab pane were hidden with the
-  `hidden` attribute, which Tailwind v4's `display` utilities override, so
-  nothing was ever hidden; they now toggle the class. The table's toggle cells
-  gained an On/Off badge beside the switch, and a menu-label cell whose feature
-  is off is shown struck through and muted rather than as live settings.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/TopicDrawer.tsx`,
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-03` — Appearance colours use the shared palette
-
-- **Summary:** The topic drawer's colour fields were native `<input
-type="color">` swatches with a hex box beside them; they now use `erxes-ui`'s
-  `ColorPicker`, the same palette POS and tags pick from, whose popover carries
-  its own hex field.
-- **Affected areas:** `src/modules/knowledgebase/components/TopicDrawer.tsx`
-- **Contracts changed:** None.
-
-### `2026-09-03` — The name cell opens the edit drawer
-
-- **Summary:** Clicking a help center's name still navigated to the removed
-  detail route and landed on a blank page; it now sets `editId` like the row
-  menu's Edit does. Removed the brand and language cells left unused when those
-  columns went, along with the imports and the languages constant they needed.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/constants/index.ts`
 - **Contracts changed:** None.

@@ -18,6 +18,7 @@ export const toTopicDrawerRecord = (helpCenter?: IHelpCenter) => {
     url: helpCenter.url ?? '',
     kbToggle: helpCenter.kbToggle ?? true,
     kbLabel: helpCenter.kbLabel ?? '',
+    kbTopicId: helpCenter.kbTopicId ?? '',
     ticketToggle: helpCenter.ticketToggle ?? false,
     ticketLabel: helpCenter.ticketLabel ?? '',
     ticketChannelId: helpCenter.ticketChannelId ?? '',

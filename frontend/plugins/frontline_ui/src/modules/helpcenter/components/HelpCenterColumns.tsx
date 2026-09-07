@@ -1,26 +1,19 @@
 import {
-  IconAlignLeft,
   IconBook,
   IconInbox,
   IconLabelFilled,
   IconLayoutKanban,
-  IconMenu2,
   IconProgressCheck,
-  IconTicket,
   IconWorld,
 } from '@tabler/icons-react';
-import { useQuery } from '@apollo/client';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
 import {
-  Badge,
   Combobox,
-  Command,
   Input,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  Switch,
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
@@ -28,16 +21,17 @@ import { TFunction } from 'i18next';
 import { ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { helpCenterMoreColumn } from '@/helpcenter/components/HelpCenterMoreColumn';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
+import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
 import {
   THelpCenterPatch,
   useEditHelpCenter,
 } from '@/helpcenter/hooks/useEditHelpCenter';
 import { HelpCenterHotKeyScope, IHelpCenter } from '@/helpcenter/types';
-import { TOPICS_SHORT } from '@/knowledgebase/graphql/queries';
+import { getHelpCenterUrlError } from '@/helpcenter/utils/helpCenterUrl';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
 const cellScope = (helpCenter: IHelpCenter, field: string) =>
   clsx(HelpCenterHotKeyScope.HelpCentersPage, helpCenter._id, field);
@@ -46,42 +40,57 @@ const InlineTextCell = ({
   cell,
   field,
   placeholder,
+  validate,
   children,
 }: {
   cell: Cell<IHelpCenter, unknown>;
   field: keyof THelpCenterPatch;
   placeholder?: string;
+  validate?: (value: string) => string | undefined;
   children?: ReactNode;
 }) => {
   const helpCenter = cell.row.original;
   const savedValue = (cell.getValue() as string) || '';
+  const [open, setOpen] = useState(false);
   const [value, setValue] = useState(savedValue);
+  const [error, setError] = useState<string>();
   const { editHelpCenter } = useEditHelpCenter();
 
   const saved = useRef(false);
 
   const handleSave = () => {
-    if (saved.current) return;
+    if (saved.current) return true;
 
     const next = value.trim();
 
-    if (next === savedValue) return;
+    if (next === savedValue) return true;
+
+    const message = validate?.(next);
+
+    if (message) {
+      setError(message);
+      return false;
+    }
 
     saved.current = true;
     editHelpCenter(helpCenter, { [field]: next });
+    return true;
   };
 
   return (
     <PopoverScoped
       scope={cellScope(helpCenter, field)}
-      closeOnEnter
-      onOpenChange={(open) => {
-        if (open) {
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
           setValue(savedValue);
+          setError(undefined);
           saved.current = false;
+          setOpen(true);
           return;
         }
         handleSave();
+        setOpen(false);
       }}
     >
       <RecordTableInlineCell.Trigger>
@@ -91,92 +100,41 @@ const InlineTextCell = ({
         <Input
           value={value}
           placeholder={placeholder}
-          onChange={(event) => setValue(event.target.value)}
+          onChange={(event) => {
+            setValue(event.target.value);
+            setError(undefined);
+          }}
           autoFocus
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              handleSave();
+            if (event.key !== 'Enter') return;
+
+            event.preventDefault();
+
+            if (handleSave()) {
+              setOpen(false);
             }
           }}
         />
+        {error && <p className="px-2 pb-2 text-xs text-destructive">{error}</p>}
       </RecordTableInlineCell.Content>
     </PopoverScoped>
   );
 };
 
-const FeatureLabelCell = ({
-  cell,
-  field,
-  feature,
-}: {
-  cell: Cell<IHelpCenter, unknown>;
-  field: 'kbLabel' | 'ticketLabel';
-  feature: 'kbToggle' | 'ticketToggle';
-}) => {
-  const enabled = Boolean(cell.row.original[feature]);
-  const value = (cell.getValue() as string) || '';
-
-  return (
-    <InlineTextCell cell={cell} field={field}>
-      <TextOverflowTooltip
-        value={value}
-        className={clsx(!enabled && 'text-muted-foreground/60 line-through')}
-      />
-    </InlineTextCell>
-  );
-};
-
 const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
-  const { t } = useTranslation('frontline');
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
-  const [open, setOpen] = useState(false);
-
-  const { data, loading } = useQuery<{
-    knowledgeBaseTopics: { _id: string; title?: string }[];
-  }>(TOPICS_SHORT, { variables: { page: 1, perPage: 100 } });
-
-  const topics = (data?.knowledgeBaseTopics ?? []).filter(
-    (topic) => topic._id !== helpCenter._id,
-  );
-  const selected = topics.find((topic) => topic._id === helpCenter.kbTopicId);
 
   return (
-    <PopoverScoped
+    <SelectHelpCenterTopic
+      variant="table"
+      value={helpCenter.kbTopicId ?? ''}
+      excludeId={helpCenter._id}
       scope={cellScope(helpCenter, 'kbTopicId')}
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <SelectTriggerTicket variant="table">
-        <TextOverflowTooltip
-          value={selected?.title || t('select-topic', 'Select a topic')}
-        />
-      </SelectTriggerTicket>
-      <Combobox.Content>
-        <Command>
-          <Command.Input placeholder={t('search-topics', 'Search topics')} />
-          <Command.List>
-            <Combobox.Empty loading={loading} />
-            {topics.map((topic) => (
-              <Command.Item
-                key={topic._id}
-                value={topic._id}
-                onSelect={() => {
-                  editHelpCenter(helpCenter, { kbTopicId: topic._id });
-                  setOpen(false);
-                }}
-              >
-                <TextOverflowTooltip
-                  value={topic.title || t('unnamed-topic')}
-                />
-                <Combobox.Check checked={helpCenter.kbTopicId === topic._id} />
-              </Command.Item>
-            ))}
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </PopoverScoped>
+      onValueChange={(topicId) =>
+        editHelpCenter(helpCenter, { kbTopicId: topicId })
+      }
+    />
   );
 };
 
@@ -246,37 +204,6 @@ const TicketStatusCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
-const ToggleCell = ({
-  cell,
-  field,
-  t,
-}: {
-  cell: Cell<IHelpCenter, unknown>;
-  field: 'kbToggle' | 'ticketToggle';
-  t: TFunction;
-}) => {
-  const helpCenter = cell.row.original;
-  const checked = Boolean(cell.getValue());
-  const { editHelpCenter, loading } = useEditHelpCenter();
-
-  return (
-    <RecordTableInlineCell>
-      <div className="flex gap-1.5 items-center">
-        <Switch
-          checked={checked}
-          disabled={loading}
-          onCheckedChange={(next) =>
-            editHelpCenter(helpCenter, { [field]: next })
-          }
-        />
-        <Badge variant={checked ? 'success' : 'secondary'}>
-          {checked ? t('on', 'On') : t('off', 'Off')}
-        </Badge>
-      </div>
-    </RecordTableInlineCell>
-  );
-};
-
 const TitleCell = ({
   cell,
   t,
@@ -309,15 +236,6 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     cell: ({ cell }) => <TitleCell cell={cell} t={t} />,
   },
   {
-    id: 'description',
-    accessorKey: 'description',
-    size: 260,
-    header: () => (
-      <RecordTable.InlineHead label={t('description')} icon={IconAlignLeft} />
-    ),
-    cell: ({ cell }) => <InlineTextCell cell={cell} field="description" />,
-  },
-  {
     id: 'url',
     accessorKey: 'url',
     size: 220,
@@ -332,20 +250,15 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
         cell={cell}
         field="url"
         placeholder={t('website', 'Website')}
+        validate={(value) => {
+          const error = getHelpCenterUrlError(value);
+
+          return error
+            ? t(error, 'Enter a full website address starting with https://')
+            : undefined;
+        }}
       />
     ),
-  },
-  {
-    id: 'kbLabel',
-    accessorKey: 'kbLabel',
-    size: 200,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('knowledgebase-name', 'Knowledge base name')}
-        icon={IconMenu2}
-      />
-    ),
-    cell: ({ cell }) => <InlineTextCell cell={cell} field="kbLabel" />,
   },
   {
     id: 'kbTopicId',
@@ -360,41 +273,14 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     cell: ({ cell }) => <KbTopicCell cell={cell} />,
   },
   {
-    id: 'ticketToggle',
-    accessorKey: 'ticketToggle',
-    size: 120,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('show-tickets', 'Show tickets')}
-        icon={IconTicket}
-      />
-    ),
-    cell: ({ cell }) => <ToggleCell cell={cell} field="ticketToggle" t={t} />,
-  },
-  {
-    id: 'ticketLabel',
-    accessorKey: 'ticketLabel',
-    size: 200,
-    header: () => (
-      <RecordTable.InlineHead
-        label={t('ticket-name', 'Tickets name')}
-        icon={IconMenu2}
-      />
-    ),
-    cell: ({ cell }) => (
-      <FeatureLabelCell
-        cell={cell}
-        field="ticketLabel"
-        feature="ticketToggle"
-      />
-    ),
-  },
-  {
     id: 'ticketChannelId',
     accessorKey: 'ticketChannelId',
     size: 200,
     header: () => (
-      <RecordTable.InlineHead label={t('channel-label')} icon={IconInbox} />
+      <RecordTable.InlineHead
+        label={t('ticket-channel-label', 'Ticket channel')}
+        icon={IconInbox}
+      />
     ),
     cell: ({ cell }) => <TicketChannelCell cell={cell} />,
   },
@@ -404,7 +290,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 200,
     header: () => (
       <RecordTable.InlineHead
-        label={t('pipeline-label')}
+        label={t('ticket-pipeline-label', 'Ticket pipeline')}
         icon={IconLayoutKanban}
       />
     ),
@@ -416,7 +302,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
     size: 200,
     header: () => (
       <RecordTable.InlineHead
-        label={t('status-label')}
+        label={t('ticket-status-label', 'Ticket status')}
         icon={IconProgressCheck}
       />
     ),

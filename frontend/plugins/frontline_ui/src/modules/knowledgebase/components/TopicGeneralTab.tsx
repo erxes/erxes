@@ -12,6 +12,8 @@ import {
 import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
+import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
+import { getHelpCenterUrlError } from '@/helpcenter/utils/helpCenterUrl';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -135,6 +137,18 @@ export function TopicGeneralTab({
             <Form.Field
               control={control}
               name="url"
+              rules={{
+                validate: (value) => {
+                  const error = getHelpCenterUrlError(value);
+
+                  return error
+                    ? t(
+                        error,
+                        'Enter a full website address starting with https://',
+                      )
+                    : true;
+                },
+              }}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('website', 'Website')}</Form.Label>
@@ -221,6 +235,31 @@ export function TopicGeneralTab({
                           'kb-enter-menu-label',
                           'Shown name on menu',
                         )}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={control}
+                name="kbTopicId"
+                rules={{
+                  validate: (value) =>
+                    !showKnowledgeBase || !!value || 'Topic is required',
+                }}
+                render={({ field }) => (
+                  <Form.Item className={FULL_WIDTH_SELECT}>
+                    <Form.Label>
+                      {t('knowledgebase-topic', 'Knowledge base topic')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <SelectHelpCenterTopic
+                        variant="form"
+                        value={field.value}
+                        excludeId={topic?._id}
+                        onValueChange={field.onChange}
                       />
                     </Form.Control>
                     <Form.Message />

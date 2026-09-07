@@ -63,8 +63,6 @@ export function TopicDrawer({
     ? (selectedTab as TTopicTab)
     : 'general';
 
-  // The tab lives in the URL, so it has to be dropped with the drawer or the
-  // next one opens on whichever tab was last looked at.
   const handleClose = () => {
     setSelectedTab(null);
     onClose();
@@ -86,6 +84,7 @@ export function TopicDrawer({
         url: topic.url || '',
         kbToggle: topic.kbToggle ?? true,
         kbLabel: topic.kbLabel || '',
+        kbTopicId: topic.kbTopicId || '',
         ticketToggle: topic.ticketToggle ?? false,
         ticketLabel: topic.ticketLabel || '',
         ticketChannelId: topic.ticketChannelId || '',
@@ -148,6 +147,7 @@ export function TopicDrawer({
       description: data.description?.trim(),
       url: data.url?.trim(),
       kbLabel: data.kbToggle ? data.kbLabel?.trim() : '',
+      kbTopicId: data.kbToggle ? data.kbTopicId : '',
       ticketLabel: data.ticketToggle ? data.ticketLabel?.trim() : '',
       ticketChannelId: data.ticketToggle ? data.ticketChannelId : '',
       ticketPipelineId: data.ticketToggle ? data.ticketPipelineId : '',

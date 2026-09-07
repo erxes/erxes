@@ -53,7 +53,7 @@ export const useEditHelpCenter = () => {
       languageCode: helpCenter.languageCode ?? '',
       notificationSegmentId: helpCenter.notificationSegmentId ?? '',
       url: helpCenter.url ?? '',
-      kbToggle: helpCenter.kbToggle ?? false,
+      kbToggle: helpCenter.kbToggle ?? true,
       kbLabel: helpCenter.kbLabel ?? '',
       kbTopicId: helpCenter.kbTopicId ?? '',
       ticketToggle: helpCenter.ticketToggle ?? false,

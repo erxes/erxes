@@ -5,7 +5,6 @@ import { CreateChannel } from '@/channels/components/settings/channels-list/Crea
 import { NavigationMenuGroup, useQueryState } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { KnowledgeBaseSubGroup } from '@/knowledgebase/components/KnowledgeBaseTopicsNav';
-import { HelpCenterSubGroup } from '@/helpcenter/components/HelpCenterSubGroup';
 import { DiscordServersNav } from '@/integrations/discord/components/DiscordChannelsNav';
 import { PersonalInboxNav } from '@/inbox/channel/components/PersonalInboxNav';
 import { TeamChannelsNav } from '@/inbox/channel/components/TeamChannelsNav';
@@ -20,15 +19,11 @@ export const FrontlineSubGroups = () => {
   const isTickets = pathname.startsWith('/frontline/tickets');
   const isKnowledgeBase = pathname.startsWith('/frontline/knowledgebase');
   const isForms = pathname.startsWith('/frontline/forms');
-  const isHelpCenter = pathname.startsWith('/frontline/helpcenter');
   if (isTickets) {
     return <TicketNavigations />;
   }
   if (isKnowledgeBase) {
     return <KnowledgeBaseSubGroup />;
-  }
-  if (isHelpCenter) {
-    return <HelpCenterSubGroup />;
   }
   if (isForms) {
     return (
