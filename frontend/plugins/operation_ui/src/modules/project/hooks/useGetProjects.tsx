@@ -97,11 +97,13 @@ export const useProjects = (
       document: PROJECT_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, project } =
           subscriptionData.data.operationProjectListChanged;
-        const currentList = prev.getProjects.list;
+        const currentList = prev?.getProjects?.list;
+
+        if (!currentList) return prev;
 
         let updatedList = currentList;
 
@@ -136,8 +138,8 @@ export const useProjects = (
               type === 'create'
                 ? prev.getProjects.totalCount + 1
                 : type === 'remove'
-                ? prev.getProjects.totalCount - 1
-                : prev.getProjects.totalCount,
+                  ? prev.getProjects.totalCount - 1
+                  : prev.getProjects.totalCount,
           },
         };
       },

@@ -5,7 +5,7 @@ import {
   TAutomationProducersInput,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { IPosOrder } from '~/modules/pos/@types/orders';
 import { createPosOrderAction } from './action/createPosOrderAction';
 import { checkPosOrderEventTrigger } from './trigger/checkPosOrderEventTrigger';
@@ -89,22 +89,5 @@ export const posAutomationHandlers = {
     };
 
     return await setProperty(setPropertyArgs);
-  },
-  checkTargetMatch: async (
-    data: TAutomationProducersInput[TAutomationProducers.CHECK_TARGET_MATCH],
-    { subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const models = await generateModels(subdomain);
-    const { moduleName, collectionType, targetId, selector } = data || {};
-
-    if (collectionType === 'orders' && moduleName === 'pos') {
-      return Boolean(
-        await models.PosOrders.exists({
-          $and: [{ _id: targetId }, selector],
-        }),
-      );
-    }
-
-    return false;
   },
 };

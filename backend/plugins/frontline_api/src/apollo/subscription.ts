@@ -5,7 +5,9 @@ export default {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
+			conversationMessageUpdated(_id: String!): ConversationMessage
 			conversationClientMessageInserted(userId: String!): ConversationMessage
+			conversationUnreadCountChanged: ConversationUnreadCountChangedResponse
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -25,6 +27,17 @@ export default {
 
 		`,
   generateResolvers: (graphqlPubsub) => {
+    const getTenantTopics = (topic, subdomain, suffix) => {
+      // OSS background workers use the stable `os` tenant key, while browser
+      // subscriptions derive theirs from the request hostname (for example,
+      // `localhost`). Listen to both aliases so worker events reach the UI.
+      const tenantKeys =
+        process.env.VERSION === 'saas'
+          ? [subdomain]
+          : [...new Set([subdomain, 'os'])];
+
+      return tenantKeys.map((tenantKey) => `${topic}:${tenantKey}:${suffix}`);
+    };
     const enforceCallAuth = () =>
       process.env.CALL_SUBSCRIPTION_REQUIRE_AUTH === 'true';
     const requireAuth = (context, label) => {
@@ -173,6 +186,18 @@ export default {
           graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
       },
 
+      conversationUnreadCountChanged: {
+        subscribe: (_root, _args, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Authentication required');
+          }
+
+          return graphqlPubsub.asyncIterator(
+            `conversationUnreadCountChanged:${subdomain}:${user._id}`,
+          );
+        },
+      },
+
       /*
        * Listen for new message insertion
        */
@@ -192,6 +217,28 @@ export default {
               return true;
             }
             return false;
+          },
+        ),
+      },
+
+      /*
+       * An existing message changed (e.g. read state) — never a new insert
+       */
+      conversationMessageUpdated: {
+        resolve: (payload) => payload.conversationMessageUpdated,
+        subscribe: withFilter(
+          (_root, { _id }, { subdomain, user }) => {
+            if (!user?._id) {
+              throw new Error('Authentication required');
+            }
+            return graphqlPubsub.asyncIterator(
+              `conversationMessageUpdated:${subdomain}:${_id}`,
+            );
+          },
+          async (payload, variables) => {
+            const conversationId =
+              payload.conversationMessageUpdated.conversationId;
+            return !!conversationId && variables._id === conversationId;
           },
         ),
       },
@@ -255,7 +302,11 @@ export default {
         subscribe: withFilter(
           (_, { userId }, { subdomain }) => {
             return graphqlPubsub.asyncIterator(
-              `conversationClientMessageInserted:${subdomain}:${userId}`,
+              getTenantTopics(
+                'conversationClientMessageInserted',
+                subdomain,
+                userId,
+              ),
             );
           },
           async (payload) => {

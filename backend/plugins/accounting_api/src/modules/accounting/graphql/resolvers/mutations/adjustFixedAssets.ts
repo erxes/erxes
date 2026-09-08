@@ -18,7 +18,7 @@ export const AdjustFixedAssets = {
     doc: IAdjustFixedAsset,
     { user, models, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustFixedAssets');
 
     const { beginDate } = await checkValidFixedAssetDate(models, {
       _id: '',
@@ -37,7 +37,7 @@ export const AdjustFixedAssets = {
     { adjustId }: { adjustId: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('removeAdjustInventories');
+    await checkPermission('removeAdjustFixedAssets');
 
     return models.AdjustFixedAssets.removeAdjustFixedAsset(adjustId);
   },
@@ -47,7 +47,7 @@ export const AdjustFixedAssets = {
     { adjustId }: { adjustId: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('publishAdjustInventories');
+    await checkPermission('publishAdjustFixedAssets');
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 
@@ -59,7 +59,7 @@ export const AdjustFixedAssets = {
     { adjustId }: { adjustId: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('cancelAdjustInventories');
+    await checkPermission('cancelAdjustFixedAssets');
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 
@@ -71,7 +71,7 @@ export const AdjustFixedAssets = {
     { adjustId }: { adjustId: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('clearAdjustInventories');
+    await checkPermission('clearAdjustFixedAssets');
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 
@@ -83,7 +83,7 @@ export const AdjustFixedAssets = {
     { adjustId }: { adjustId: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustFixedAssets');
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 
@@ -113,8 +113,8 @@ export const AdjustFixedAssets = {
     }: { adjustId: string; expenseAccountId: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
-    await checkPermission('manageTransactions');
+    await checkPermission('manageAdjustFixedAssets');
+    await checkPermission('manageMainTransactions');
 
     const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(adjustId);
 

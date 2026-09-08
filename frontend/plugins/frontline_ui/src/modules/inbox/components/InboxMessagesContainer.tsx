@@ -1,7 +1,9 @@
-import { ScrollArea } from 'erxes-ui';
+import { Empty, ScrollArea } from 'erxes-ui';
+import { IconMessages } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { InboxMessagesSkeleton } from './InboxMessagesSkeleton';
+import { useTranslation } from 'react-i18next';
+import { InboxMessagesSkeleton } from '@/inbox/components/InboxMessagesSkeleton';
 
 export const InboxMessagesContainer = ({
   fetchMore,
@@ -15,6 +17,7 @@ export const InboxMessagesContainer = ({
   totalCount: number;
   loading: boolean;
 }>) => {
+  const { t } = useTranslation('frontline');
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const [fetchMoreRef] = useInView({
@@ -49,14 +52,33 @@ export const InboxMessagesContainer = ({
   }, [messagesLength, fetchMore]);
 
   return (
-    <ScrollArea.Root className="h-full">
-      <ScrollArea.Viewport ref={viewportRef}>
+    <ScrollArea.Root className="h-full bg-muted/20">
+      <ScrollArea.Viewport ref={viewportRef} className="h-full">
         {!!messagesLength && totalCount > messagesLength && (
           <p ref={fetchMoreRef} />
         )}
-        <div className="flex flex-col max-w-[648px] mx-auto p-6">
-          {children}
-        </div>
+        {!loading && totalCount === 0 ? (
+          <Empty className="min-h-full rounded-none border-0">
+            <Empty.Header>
+              <Empty.Media variant="icon">
+                <IconMessages />
+              </Empty.Media>
+              <Empty.Title>
+                {t('no-messages-yet', { defaultValue: 'No messages yet' })}
+              </Empty.Title>
+              <Empty.Description>
+                {t('start-conversation-description', {
+                  defaultValue:
+                    'Write a message below to start the conversation.',
+                })}
+              </Empty.Description>
+            </Empty.Header>
+          </Empty>
+        ) : (
+          <div className="mx-auto flex w-full max-w-[720px] flex-col px-4 py-6 md:px-6">
+            {children}
+          </div>
+        )}
         <InboxMessagesSkeleton isFetched={!loading} />
       </ScrollArea.Viewport>
       <ScrollArea.Bar orientation="vertical" />

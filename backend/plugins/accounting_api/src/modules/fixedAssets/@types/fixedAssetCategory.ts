@@ -8,10 +8,10 @@ export interface IFixedAssetCategory {
   status: string;
 
   depreciationMethod?: string;
-  defaultUsefulLife?: number;
+  defaultAnnualDepreciationRate?: number;
   defaultSalvageValue?: number;
   taxDepreciationMethod?: string;
-  defaultTaxUsefulLife?: number;
+  defaultTaxAnnualDepreciationRate?: number;
   defaultTaxSalvageValue?: number;
 
   createdAt?: Date;

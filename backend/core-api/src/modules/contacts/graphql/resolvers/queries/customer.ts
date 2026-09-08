@@ -7,6 +7,26 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
+import { customerSearchTokenConfig } from '@/contacts/db/definitions/customers';
+
+const logCustomersMemory = (
+  stage: string,
+  startedAt: number,
+  details: Record<string, boolean | number | string | undefined> = {},
+) => {
+  const memory = process.memoryUsage();
+
+  console.info('[customers-memory]', {
+    stage,
+    elapsedMs: Math.round(performance.now() - startedAt),
+    rssMb: Math.round(memory.rss / 1024 / 1024),
+    heapUsedMb: Math.round(memory.heapUsed / 1024 / 1024),
+    heapTotalMb: Math.round(memory.heapTotal / 1024 / 1024),
+    externalMb: Math.round(memory.external / 1024 / 1024),
+    arrayBuffersMb: Math.round(memory.arrayBuffers / 1024 / 1024),
+    ...details,
+  });
+};
 
 export const customerQueries: Record<
   string,
@@ -20,31 +40,37 @@ export const customerQueries: Record<
     params: ICustomerQueryFilterParams,
     { models, subdomain }: IContext,
   ) {
-    const filter: FilterQuery<ICustomerDocument> = await generateFilter(
-      subdomain,
-      params,
-      models,
-    );
-
-    const { list, totalCount, pageInfo } =
-      await cursorPaginate<ICustomerDocument>({
-        model: models.Customers,
+    try {
+      const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+        subdomain,
         params,
-        query: filter,
-      });
+        models,
+        customerSearchTokenConfig,
+      );
 
-    return { list, totalCount, pageInfo };
+      const { list, totalCount, pageInfo } =
+        await cursorPaginate<ICustomerDocument>({
+          model: models.Customers,
+          params,
+          query: filter,
+        });
+
+      return { list, totalCount, pageInfo };
+    } catch (error) {
+      throw error;
+    }
   },
 
   async cpCustomers(
     _parent: undefined,
     params: ICustomerQueryFilterParams,
-    { models, subdomain, clientPortal }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const filter: FilterQuery<ICustomerDocument> = await generateFilter(
       subdomain,
-      { ...params, clientPortalId: params.clientPortalId || clientPortal?._id },
+      params,
       models,
+      customerSearchTokenConfig,
     );
 
     const { list, totalCount, pageInfo } =

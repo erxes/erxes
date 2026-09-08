@@ -8,7 +8,7 @@ import callProQueries from '@/integrations/callpro/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
 import { discordQueries } from '@/integrations/discord/graphql/resolvers/queries';
 import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
-import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
+import { mailQueries } from '@/integrations/mail/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 import { reportCallQueries } from '@/reports/graphql/resolvers/callQueries';
 import { reportChartQueries } from '@/reports/graphql/resolvers/chartQueries';
@@ -18,6 +18,8 @@ import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
+import { pollQueries } from '~/modules/poll/graphql/resolvers/queries/polls';
+import { cpPollQueries } from '~/modules/poll/graphql/resolvers/queries/clientPortal';
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
@@ -30,12 +32,14 @@ export const queries = {
   ...instagramQueries,
   ...callQueries,
   ...callProQueries,
-  ...imapQueries,
+  ...mailQueries,
   ...ticketQueries,
   ...widgetQueries,
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
+  ...pollQueries,
+  ...cpPollQueries,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportFacebookQueries,

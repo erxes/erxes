@@ -200,26 +200,24 @@ export const automationMutations = {
       });
     }
 
-    let segmentIds: string[] = [];
+    const segmentIds: string[] = [];
 
     for (const automation of automations) {
       const { triggers, actions } = automation;
 
-      const triggerIds = triggers.map((trigger) => {
-        return trigger.config.contentId;
-      });
-
-      const actionIds = actions.map((action) => {
-        return action.config.contentId;
-      });
-
-      segmentIds = [...triggerIds, ...actionIds];
+      segmentIds.push(
+        ...triggers.map((trigger) => trigger.config?.contentId),
+        ...actions.map((action) => action.config?.contentId),
+      );
     }
 
     await models.Automations.deleteMany({ _id: { $in: automationIds } });
     await models.AutomationExecutions.removeExecutions(automationIds);
 
-    await models.Segments.deleteMany({ _id: { $in: segmentIds } });
+    await models.Segments.deleteMany({
+      _id: { $in: segmentIds.filter(Boolean) },
+      ownedBy: 'automation',
+    });
     await requestScheduleReconcile(subdomain);
 
     return automationIds;
@@ -295,6 +293,27 @@ export const automationMutations = {
       contentId: _id,
       action: 'delete',
     });
+
+    const dependents = await models.Automations.find(
+      {
+        $or: [
+          { 'actions.config.aiAgentId': _id },
+          { 'workflows.actions.config.aiAgentId': _id },
+        ],
+      },
+      { name: 1, status: 1 },
+    ).lean();
+
+    if (dependents.length) {
+      const names = dependents
+        .map(({ name, status }) => `${name || 'Untitled'} (${status})`)
+        .join(', ');
+
+      throw new Error(
+        `This AI agent is used by ${dependents.length} automation(s): ${names}. ` +
+          'Remove it from them before deleting the agent.',
+      );
+    }
 
     await models.AiAgents.deleteOne({ _id });
     await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: _id });

@@ -96,7 +96,6 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
@@ -106,7 +105,8 @@ export const productSchema = schemaWrapper(
     external: field({
       type: Boolean,
       optional: true,
-      label: 'Pushed in by another plugin, not built from the pos product groups',
+      label:
+        'Pushed in by another plugin, not built from the pos product groups',
     }),
     isCheckRems: field({
       type: Object,
@@ -145,7 +145,6 @@ export const productCategorySchema = schemaHooksWrapper(
       optional: true,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     }),
     createdAt: getDateFieldDefinition('Created at'),
@@ -153,7 +152,8 @@ export const productCategorySchema = schemaHooksWrapper(
     external: field({
       type: Boolean,
       optional: true,
-      label: 'Pushed in by another plugin, not built from the pos product groups',
+      label:
+        'Pushed in by another plugin, not built from the pos product groups',
     }),
     mask: field({ type: Object, label: 'Mask' }),
     isSimilarity: field({ type: Boolean, label: 'is Similiraties' }),

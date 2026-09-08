@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-08-10`
+- **Last synchronized:** `2026-08-29`
 
 ## Scope
 
@@ -94,6 +94,10 @@
   empty cell while permissions load.
 - `invoiceEdit` returns the edited `Invoice` with `_id`, so Apollo's normalized cache refreshes
   the row; do not add a refetch for it.
+- The payment settings sheet closes only after the `paymentAdd` / `paymentEdit` mutation
+  resolves. `PaymentForm`'s `onSubmit` is `async` and awaits the mutation, so a failure keeps
+  the sheet open with the entered values and reports the error through a `destructive` toast.
+  Never call `onCancel()` before the awaited mutation.
 - Translation keys live outside this plugin (`backend/gateway/src/locales/*/payment.json`), so
   new UI text must reuse existing keys of the `payment` namespace.
 
@@ -107,6 +111,15 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-08-29` — Payment settings sheet waits for the mutation before closing
+
+- **Summary:** `PaymentForm` now awaits `paymentAdd` / `paymentEdit` before calling `onCancel`,
+  so the add/edit sheet closes only on success and stays open with the entered values when the
+  mutation fails, showing the error in a `destructive` toast; awaiting also makes
+  `formState.isSubmitting` disable the footer buttons for the real request duration.
+- **Affected areas:** `src/modules/settings/payment/components/PaymentForm.tsx`.
+- **Contracts changed:** `None`
 
 ### `2026-08-10` — Permission-gated inline invoice editing
 

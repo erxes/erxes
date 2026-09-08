@@ -11,12 +11,19 @@ export const AutomationExecActionInput = z.object({
   startedAt: z.string().optional(),
   finishedAt: z.string().optional(),
   durationMs: z.number().optional(),
-  status: z.enum(['success', 'error', 'waiting']).optional(),
+  status: z
+    .enum(['success', 'error', 'waiting', 'queued', 'standby', 'dropped'])
+    .optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),
   nextActionId: z.string().optional(),
   result: z.any().optional(),
+  jobId: z.string().optional(),
+  // Dates arrive serialized across the producer boundary, but stay Date
+  // objects when the execution is passed in-process.
+  queuedAt: z.union([z.string(), z.date()]).optional(),
+  expiresAt: z.union([z.string(), z.date()]).optional(),
 });
 
 export const AutomationExecutionInput = z.object({
@@ -85,14 +92,6 @@ export const CheckCustomTriggerInputData = z.object({
   eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
-export const CheckTargetMatchInputData = z.object({
-  moduleName: z.string(),
-  contentType: z.string(),
-  collectionType: z.string(),
-  targetId: z.string(),
-  selector: z.record(z.any()),
-});
-
 export const FindObjectInputData = z.object({
   objectType: z.string(),
   field: z.string(),
@@ -148,10 +147,6 @@ export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
 });
 
-export const CheckTargetMatchInput = AutomationBaseInput.extend({
-  data: CheckTargetMatchInputData,
-});
-
 export const FindObjectInput = AutomationBaseInput.extend({
   data: FindObjectInputData,
 });
@@ -182,9 +177,6 @@ export type TAutomationProducersInput = {
   >;
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
-  >;
-  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
-    typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<

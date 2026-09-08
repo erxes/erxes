@@ -22,15 +22,20 @@ export const posExportHandlers: TExportHandlers = {
       posExportMap[collectionName as keyof typeof posExportMap]
         ?.getExportHeaders;
     if (!handler)
-      throw new Error(`Export headers handler not found for "${collectionName}" (type: ${typeof collectionName})`);
+      throw new Error(
+        `Export headers handler not found for "${collectionName}" (type: ${typeof collectionName})`,
+      );
     return handler(args, ctx);
   },
   getExportData: (args: GetExportDataArgs, ctx: IImportExportContext) => {
-    const collectionName = (args?.data as { collectionName?: string })?.collectionName;
+    const collectionName = (args?.data as { collectionName?: string })
+      ?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]?.getExportData;
     if (!handler)
-      throw new Error(`Export data handler not found for "${collectionName}" (type: ${typeof collectionName})`);
+      throw new Error(
+        `Export data handler not found for "${collectionName}" (type: ${typeof collectionName})`,
+      );
     return handler(args, ctx);
   },
 };

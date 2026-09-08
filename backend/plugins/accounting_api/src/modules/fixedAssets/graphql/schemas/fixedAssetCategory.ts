@@ -8,10 +8,10 @@ export const types = `
     status: String
 
     depreciationMethod: String
-    defaultUsefulLife: Float
+    defaultAnnualDepreciationRate: Float
     defaultSalvageValue: Float
     taxDepreciationMethod: String
-    defaultTaxUsefulLife: Float
+    defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
 
     createdAt: Date
@@ -34,10 +34,10 @@ export const mutations = `
     parentId: String
     status: String
     depreciationMethod: String
-    defaultUsefulLife: Float
+    defaultAnnualDepreciationRate: Float
     defaultSalvageValue: Float
     taxDepreciationMethod: String
-    defaultTaxUsefulLife: Float
+    defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
   ): FixedAssetCategory
 
@@ -49,10 +49,10 @@ export const mutations = `
     parentId: String
     status: String
     depreciationMethod: String
-    defaultUsefulLife: Float
+    defaultAnnualDepreciationRate: Float
     defaultSalvageValue: Float
     taxDepreciationMethod: String
-    defaultTaxUsefulLife: Float
+    defaultTaxAnnualDepreciationRate: Float
     defaultTaxSalvageValue: Float
   ): FixedAssetCategory
 

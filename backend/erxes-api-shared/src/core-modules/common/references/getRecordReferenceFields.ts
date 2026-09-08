@@ -1,4 +1,5 @@
-import { getPlugin, getPlugins, getRealIdFromElk } from '../../../utils';
+import { propertyDataPath, toPropertyRowKey } from '../../properties/keys';
+import { getPlugin, getPlugins } from '../../../utils';
 import {
   normalizeRecordReferenceExtensions,
   normalizeRecordReferenceTypes,
@@ -33,6 +34,12 @@ type TPropertyField = {
   name?: string;
   text?: string;
   type?: string;
+  groupId?: string;
+};
+
+type TPropertyGroup = {
+  _id: string | { toString: () => string };
+  name?: string;
 };
 
 type TPropertyFieldsQuery = {
@@ -44,6 +51,11 @@ type TPropertyFieldsQuery = {
 type TReferenceFieldsModels = {
   Fields?: {
     find: (filter: { contentType: string }) => TPropertyFieldsQuery;
+  };
+  FieldsGroups?: {
+    find: (filter: { contentType: string; 'configs.isMultiple': true }) => {
+      lean: () => Promise<TPropertyGroup[]>;
+    };
   };
 };
 
@@ -154,12 +166,35 @@ const getCustomRecordReferenceFields = async (
     .sort({ order: 1, code: 1 })
     .lean();
 
+  const repeatingGroups = models.FieldsGroups
+    ? await models.FieldsGroups.find({
+        contentType: referenceType,
+        'configs.isMultiple': true,
+      }).lean()
+    : [];
+
+  const groupNameById = new Map(
+    repeatingGroups.map((group) => [String(group._id), group.name || '']),
+  );
+
   return fields.map((field) => {
-    const fieldId = getRealIdFromElk(String(field._id));
+    const fieldId = String(field._id);
+    const groupId = field.groupId ? String(field.groupId) : '';
+    const groupName = groupNameById.get(groupId);
+    const label =
+      field.label || field.text || field.name || field.code || fieldId;
+
+    if (groupName !== undefined) {
+      return {
+        key: propertyDataPath(toPropertyRowKey(groupId, fieldId)),
+        label: groupName ? `${groupName} / ${label}` : label,
+        type: field.type,
+      };
+    }
 
     return {
-      key: `propertiesData.${fieldId}`,
-      label: field.label || field.text || field.name || field.code || fieldId,
+      key: propertyDataPath(fieldId),
+      label,
       type: field.type,
     };
   });

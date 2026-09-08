@@ -1,14 +1,33 @@
-
 import { Schema } from 'mongoose';
 
 import {
   CUSTOMER_SELECT_OPTIONS,
   customFieldSchema,
 } from 'erxes-api-shared/core-modules';
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import {
+  ISearchTokenConfig,
+  mongooseStringRandomId,
+  schemaWrapper,
+} from 'erxes-api-shared/utils';
 
 const getEnum = (fieldName: string): string[] => {
   return CUSTOMER_SELECT_OPTIONS[fieldName].map((option) => option.value);
+};
+
+export const customerSearchTokenConfig: ISearchTokenConfig = {
+  enabled: true,
+  fields: [
+    { path: 'firstName', mode: 'prefix', minLength: 2 },
+    { path: 'middleName', mode: 'prefix', minLength: 2 },
+    { path: 'lastName', mode: 'prefix', minLength: 2 },
+    { path: 'primaryEmail', mode: 'word-prefix', minLength: 3 },
+    { path: 'emails', mode: 'word-prefix', minLength: 3 },
+    { path: 'primaryPhone', mode: 'word-prefix', minLength: 1 },
+    { path: 'phones', mode: 'word-prefix', minLength: 1 },
+    { path: 'code', mode: 'exact', minLength: 1 },
+    { path: 'visitorContactInfo.email', mode: 'word-prefix', minLength: 3 },
+    { path: 'visitorContactInfo.phone', mode: 'word-prefix', minLength: 1 },
+  ],
 };
 
 export const visitorContactSchema = new Schema(
@@ -44,7 +63,6 @@ export const customerSchema = schemaWrapper(
 
       state: {
         type: String,
-        esType: 'keyword',
         label: 'State',
         default: 'visitor',
         enum: getEnum('STATE'),
@@ -52,8 +70,8 @@ export const customerSchema = schemaWrapper(
         selectOptions: CUSTOMER_SELECT_OPTIONS.STATE,
       },
 
-      createdAt: { type: Date, label: 'Created at', esType: 'date' },
-      updatedAt: { type: Date, label: 'Modified at', esType: 'date' },
+      createdAt: { type: Date, label: 'Created at' },
+      updatedAt: { type: Date, label: 'Modified at' },
       avatar: { type: String, optional: true, label: 'Avatar' },
 
       firstName: { type: String, label: 'First name', optional: true },
@@ -64,13 +82,11 @@ export const customerSchema = schemaWrapper(
         type: Date,
         label: 'Date of birth',
         optional: true,
-        esType: 'date',
       },
       sex: {
         type: Number,
         label: 'Pronoun',
         optional: true,
-        esType: 'keyword',
         default: 0,
         enum: getEnum('SEX'),
         selectOptions: CUSTOMER_SELECT_OPTIONS.SEX,
@@ -80,7 +96,6 @@ export const customerSchema = schemaWrapper(
         type: String,
         label: 'Primary Email',
         optional: true,
-        esType: 'email',
       },
       emails: { type: [String], optional: true, label: 'Emails' },
       emailValidationStatus: {
@@ -88,7 +103,6 @@ export const customerSchema = schemaWrapper(
         enum: getEnum('EMAIL_VALIDATION_STATUSES'),
         default: 'unknown',
         label: 'Email validation status',
-        esType: 'keyword',
         selectOptions: CUSTOMER_SELECT_OPTIONS.EMAIL_VALIDATION_STATUSES,
       },
 
@@ -111,7 +125,6 @@ export const customerSchema = schemaWrapper(
         enum: getEnum('PHONE_VALIDATION_STATUSES'),
         default: 'unknown',
         label: 'Phone validation status',
-        esType: 'keyword',
         selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
       },
 
@@ -121,7 +134,6 @@ export const customerSchema = schemaWrapper(
         optional: true,
         label: 'Status',
         default: 'Active',
-        esType: 'keyword',
         index: true,
         selectOptions: CUSTOMER_SELECT_OPTIONS.STATUSES,
       },
@@ -158,7 +170,6 @@ export const customerSchema = schemaWrapper(
         type: String,
         optional: true,
         label: 'Position',
-        esType: 'keyword',
       },
       department: { type: String, optional: true, label: 'Department' },
 
@@ -167,7 +178,6 @@ export const customerSchema = schemaWrapper(
         enum: getEnum('LEAD_STATUS_TYPES'),
         optional: true,
         label: 'Lead Status',
-        esType: 'keyword',
         selectOptions: CUSTOMER_SELECT_OPTIONS.LEAD_STATUS_TYPES,
       },
       hasAuthority: {
@@ -181,7 +191,6 @@ export const customerSchema = schemaWrapper(
       relatedIntegrationIds: {
         type: [String],
         label: 'Related integrations',
-        esType: 'keyword',
         optional: true,
       },
       integrationId: {
@@ -189,14 +198,12 @@ export const customerSchema = schemaWrapper(
         optional: true,
         label: 'Integration',
         index: true,
-        esType: 'keyword',
       },
       clientPortalId: {
         type: String,
         optional: true,
         label: 'Client portal',
         index: true,
-        esType: 'keyword',
       },
 
       // Merged customer ids
@@ -244,13 +251,11 @@ export const customerSchema = schemaWrapper(
         type: Date,
         label: 'Last seen at',
         optional: true,
-        esType: 'date',
       },
       sessionCount: {
         type: Number,
         label: 'Session count',
         optional: true,
-        esType: 'number',
       },
       visitorId: { type: String, optional: true },
       data: { type: Object, optional: true },
@@ -259,7 +264,12 @@ export const customerSchema = schemaWrapper(
       timestamps: true,
     },
   ),
+  { search: customerSearchTokenConfig },
 );
 
 customerSchema.index({ _id: 1, createdAt: 1, searchText: 1 });
 customerSchema.index({ state: 1, status: 1, createdAt: -1 });
+customerSchema.index({ state: 1, createdAt: -1, _id: 1 });
+customerSchema.index({ searchTokens: 1, state: 1, status: 1 });
+customerSchema.index({ ownerId: 1 }, { sparse: true });
+customerSchema.index({ birthDate: 1 }, { sparse: true });

@@ -29,6 +29,8 @@ export const getFieldTypeLabel = (fieldType?: string) => {
       return 'Select';
     case 'multiSelect':
       return 'Multiple Select';
+    case 'list':
+      return 'String List';
     case 'check':
       return 'Checkbox';
     case 'radio':
@@ -179,7 +181,11 @@ export const normalizePropertyValue = (
     };
   }
 
-  if (baseFieldType === 'relation' || baseFieldType === 'file') {
+  if (
+    baseFieldType === 'relation' ||
+    baseFieldType === 'file' ||
+    baseFieldType === 'list'
+  ) {
     const values = Array.isArray(value) ? value : [value];
 
     return {

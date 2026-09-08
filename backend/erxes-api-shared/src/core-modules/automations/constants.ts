@@ -117,6 +117,35 @@ export const AUTOMATION_EMAIL_RECIPIENTS_TYPES = [
  * at the single execution error chokepoint and grouped by execution stats, so
  * "what kind of failure" is answerable without parsing error messages.
  */
+// Core actions own their own pause semantics, so deferring them would fight
+// the engine rather than help it.
+export const AUTOMATION_NON_DEFERRABLE_CORE_ACTIONS = [
+  AUTOMATION_CORE_ACTIONS.WORKFLOW,
+  AUTOMATION_CORE_ACTIONS.DELAY,
+  AUTOMATION_CORE_ACTIONS.IF,
+  AUTOMATION_CORE_ACTIONS.SPLIT,
+  AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
+];
+
+/**
+ * Core actions have no plugin to queue work on their behalf, so the engine
+ * reads their deferral straight from here. Empty means nothing is deferred;
+ * add an entry to move a core action off the synchronous path.
+ */
+export const AUTOMATION_CORE_ACTION_DEFERRED: Record<
+  string,
+  { mode: 'standby' | 'ignore'; timeoutMinutes?: number }
+> = {
+  // A provider call can outlast any sane synchronous budget, so the flow parks
+  // on it rather than holding the trigger open.
+  [AUTOMATION_CORE_ACTIONS.AI_AGENT]: { mode: 'standby', timeoutMinutes: 3 },
+};
+
+export const AUTOMATION_DEFERRED_TIMEOUT = {
+  DEFAULT_MINUTES: 10,
+  MAX_MINUTES: 60,
+};
+
 export const AUTOMATION_ERROR_CODES = {
   // Set explicitly where the failure is thrown
   CONFIG_INVALID: 'CONFIG_INVALID',
@@ -125,6 +154,7 @@ export const AUTOMATION_ERROR_CODES = {
   PLUGIN_ACTION_FAILED: 'PLUGIN_ACTION_FAILED',
   AI_AGENT_FAILED: 'AI_AGENT_FAILED',
   WORKFLOW_DEPTH_EXCEEDED: 'WORKFLOW_DEPTH_EXCEEDED',
+  DEFERRED_TIMEOUT: 'DEFERRED_TIMEOUT',
   // Derived from the outgoing webhook failure phase
   WEBHOOK_TIMEOUT: 'WEBHOOK_TIMEOUT',
   WEBHOOK_NETWORK_FAILED: 'WEBHOOK_NETWORK_FAILED',

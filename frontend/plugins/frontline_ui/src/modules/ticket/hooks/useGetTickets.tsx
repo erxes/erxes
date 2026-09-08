@@ -101,12 +101,13 @@ export const useTickets = (
       document: TICKET_LIST_CHANGED,
       variables: { filter: variables },
       updateQuery: (prev, { subscriptionData }) => {
-        if (!prev || !subscriptionData.data) return prev;
+        if (!subscriptionData.data) return prev;
 
         const { type, ticket } = subscriptionData.data.ticketListChanged;
-        const currentList = prev.getTickets.list;
 
-        if (!ticket) return prev;
+        const currentList = prev?.getTickets?.list;
+
+        if (!ticket || !currentList) return prev;
 
         const isRemoval = type === 'delete' || type === 'remove';
 

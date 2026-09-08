@@ -6,7 +6,6 @@ import { InboxLayout } from '@/inbox/components/InboxLayout';
 import { ConversationDetail } from '@/inbox/conversations/conversation-detail/components/ConversationDetail';
 import { Conversations } from '@/inbox/conversations/components/Conversations';
 import { useTranslation } from 'react-i18next';
-import { InboxWorkspaceToggleGroup } from '@/inbox/components/InboxWorkspaceToggleGroup';
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
@@ -28,8 +27,6 @@ const InboxIndexPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-          <Separator.Inline />
-          <InboxWorkspaceToggleGroup />
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton
             breadcrumb={favoriteBreadcrumb}

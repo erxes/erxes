@@ -2,6 +2,12 @@ import { executeCoreActions } from './executeCoreActions';
 import { executeCreateAction } from './actions/executeCreateAction';
 import { notifyParentExecution } from './startWorkflowExecution';
 import { markExecActionStarted } from './executionActionMetrics';
+import {
+  buildCoreDeferredMarker,
+  enqueueCoreDeferredAction,
+  resolveCoreDeferredConfig,
+} from './deferCoreAction';
+import { handleDeferredActionResponse } from './handleDeferredActionResponse';
 import { handleExecutionActionResponse } from './handleExecutionActionResponse';
 import { handleExecutionError } from './handleExecutionError';
 import { AutomationActionError } from './errorCodes';
@@ -10,6 +16,7 @@ import {
   AUTOMATION_ERROR_CODES,
   AUTOMATION_EXECUTION_STATUS,
   IAutomationAction,
+  IAutomationDeferredMarker,
   IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
@@ -25,7 +32,7 @@ import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '../constants';
  * @param triggerType - The trigger type as fallback
  * @returns The target type string
  */
-const getTargetType = (
+export const getTargetType = (
   action: IAutomationAction,
   actionsMap: IAutomationActionsMap,
   triggerType: string,
@@ -86,6 +93,8 @@ export const executeActions = async (
   markExecActionStarted(execAction);
 
   let actionResponse: any = null;
+  let deferredMarker: IAutomationDeferredMarker | undefined;
+  let deferredCoreAction: IAutomationAction | undefined;
   const actionType = action.type;
 
   const targetType = getTargetType(action, actionsMap, triggerType);
@@ -96,28 +105,36 @@ export const executeActions = async (
 
   try {
     if (isCoreAction) {
-      const coreActionResponse = await executeCoreActions(
-        triggerType,
-        targetType,
-        actionType,
-        subdomain,
-        execution,
-        action,
-        execAction,
-        actionsMap,
-      );
+      const coreDeferred = resolveCoreDeferredConfig(actionType);
 
-      if (coreActionResponse?.shouldBreak) {
-        execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
-        await handleExecutionActionResponse(
-          coreActionResponse.actionResponse,
+      if (coreDeferred) {
+        deferredMarker = buildCoreDeferredMarker(coreDeferred);
+        deferredCoreAction = action;
+      } else {
+        const coreActionResponse = await executeCoreActions(
+          triggerType,
+          targetType,
+          actionType,
+          subdomain,
           execution,
+          action,
           execAction,
-          'waiting',
+          actionsMap,
         );
-        return EXECUTION_STATUS.PAUSED;
+
+        if (coreActionResponse?.shouldBreak) {
+          execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
+          await handleExecutionActionResponse(
+            coreActionResponse.actionResponse,
+            execution,
+            execAction,
+            'waiting',
+          );
+          return EXECUTION_STATUS.PAUSED;
+        }
+
+        actionResponse = coreActionResponse.actionResponse;
       }
-      actionResponse = coreActionResponse.actionResponse;
     } else {
       const [serviceName, , , method] = splitType(actionType);
       const isRemoteAction = (await getPlugins()).includes(serviceName);
@@ -146,6 +163,7 @@ export const executeActions = async (
           return EXECUTION_STATUS.PAUSED;
         }
         actionResponse = createActionResponse.actionResponse;
+        deferredMarker = createActionResponse.deferred;
       }
     }
   } catch (e) {
@@ -154,7 +172,32 @@ export const executeActions = async (
     return EXECUTION_STATUS.ERROR;
   }
 
-  await handleExecutionActionResponse(actionResponse, execution, execAction);
+  if (deferredMarker) {
+    await handleDeferredActionResponse(
+      subdomain,
+      actionResponse,
+      execution,
+      execAction,
+      deferredMarker,
+    );
+
+    // The work is queued only once the exec action exists to report back on.
+    if (deferredCoreAction) {
+      await enqueueCoreDeferredAction(
+        subdomain,
+        execution,
+        deferredCoreAction,
+        deferredMarker.jobId,
+      );
+    }
+
+    // 'standby' parks the flow until the job reports back; 'ignore' does not.
+    if (deferredMarker.mode === 'standby') {
+      return EXECUTION_STATUS.PAUSED;
+    }
+  } else {
+    await handleExecutionActionResponse(actionResponse, execution, execAction);
+  }
 
   return executeActions(
     subdomain,

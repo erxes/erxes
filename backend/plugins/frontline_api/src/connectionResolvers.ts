@@ -159,20 +159,26 @@ import {
   loadCallProLogClass,
 } from '@/integrations/callpro/db/models/Logs';
 
+import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration';
+import { IMailCustomerDocument } from '@/integrations/mail/@types/customer';
+import { IMailMessageDocument } from '@/integrations/mail/@types/message';
+import { IMailCloudflareDocument } from '@/integrations/mail/@types/cloudflare';
 import {
-  ICustomerImapDocument,
-  IIntegrationImapDocument,
-  IMessageImapDocument,
-  ICustomerImapModel,
-  IIntegrationImapModel,
-  IMessageImapModel,
-  loadImapCustomerClass,
-  loadImapIntegrationClass,
-  loadImapMessageClass,
-  ILogImapModel,
-  ILogImapDocument,
-  loadImapLogClass,
-} from '@/integrations/imap/models';
+  IMailIntegrationModel,
+  loadMailIntegrationClass,
+} from '@/integrations/mail/db/models/Integrations';
+import {
+  IMailCustomerModel,
+  loadMailCustomerClass,
+} from '@/integrations/mail/db/models/Customers';
+import {
+  IMailMessageModel,
+  loadMailMessageClass,
+} from '@/integrations/mail/db/models/Messages';
+import {
+  IMailCloudflareModel,
+  loadMailCloudflareClass,
+} from '@/integrations/mail/db/models/CloudflareConnections';
 import {
   IChannelMemberModel,
   loadChannelMemberClass,
@@ -229,6 +235,10 @@ import {
   loadFormClass,
   loadFormSubmissionClass,
 } from './modules/form/db/models/Forms';
+
+import { IPollDocument, IPollVoteDocument } from '@/poll/@types/poll';
+import { IPollModel, loadPollClass } from '@/poll/db/models/Polls';
+import { IPollVoteModel, loadPollVoteClass } from '@/poll/db/models/PollVotes';
 
 import { IArticleDocument } from '@/knowledgebase/@types/article';
 import { ICategoryDocument } from '@/knowledgebase/@types/category';
@@ -364,11 +374,10 @@ export interface IModels {
   CallProConversations: ICallProConversationModel;
   CallProLogs: ICallProLogModel;
 
-  //imap
-  ImapCustomers: ICustomerImapModel;
-  ImapIntegrations: IIntegrationImapModel;
-  ImapMessages: IMessageImapModel;
-  ImapLogs: ILogImapModel;
+  MailIntegrations: IMailIntegrationModel;
+  MailCustomers: IMailCustomerModel;
+  MailMessages: IMailMessageModel;
+  MailCloudflare: IMailCloudflareModel;
 
   // ticket
   Pipeline: ITicketPipelineModel;
@@ -387,6 +396,8 @@ export interface IModels {
   Fields: IFieldModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
+  Polls: IPollModel;
+  PollVotes: IPollVoteModel;
 
   //knowledgebase
   Article: IArticleModel;
@@ -459,7 +470,7 @@ export const loadClasses = (
   );
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
     'conversations',
-    loadConversationClass(models),
+    loadConversationClass(models, subdomain),
   );
   models.ConversationMessages = db.model<IMessageDocument, IMessageModel>(
     'conversation_messages',
@@ -651,23 +662,22 @@ export const loadClasses = (
     loadCallProLogClass(),
   );
 
-  //imap models
-  models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
-    'imap_customers',
-    loadImapCustomerClass(models),
+  models.MailIntegrations = db.model<
+    IMailIntegrationDocument,
+    IMailIntegrationModel
+  >('mail_integrations', loadMailIntegrationClass(models));
+  models.MailCustomers = db.model<IMailCustomerDocument, IMailCustomerModel>(
+    'mail_customers',
+    loadMailCustomerClass(models),
   );
-  models.ImapIntegrations = db.model<
-    IIntegrationImapDocument,
-    IIntegrationImapModel
-  >('imap_integrations', loadImapIntegrationClass(models));
-  models.ImapMessages = db.model<IMessageImapDocument, IMessageImapModel>(
-    'imap_messages',
-    loadImapMessageClass(models),
+  models.MailMessages = db.model<IMailMessageDocument, IMailMessageModel>(
+    'mail_messages',
+    loadMailMessageClass(models),
   );
-  models.ImapLogs = db.model<ILogImapDocument, ILogImapModel>(
-    'imap_logs',
-    loadImapLogClass(models),
-  );
+  models.MailCloudflare = db.model<
+    IMailCloudflareDocument,
+    IMailCloudflareModel
+  >('mail_cloudflare', loadMailCloudflareClass(models), 'mail_cloudflare');
   models.MessengerApps = db.model<IMessengerAppDocument, IMessengerAppModel>(
     'messenger_apps',
     loadMessengerAppClass(models),
@@ -688,6 +698,15 @@ export const loadClasses = (
     IFormSubmissionDocument,
     IFormSubmissionModel
   >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Polls = db.model<IPollDocument, IPollModel>(
+    'frontline_polls',
+    loadPollClass(models),
+  );
+  models.PollVotes = db.model<IPollVoteDocument, IPollVoteModel>(
+    'frontline_poll_votes',
+    loadPollVoteClass(models),
+  );
 
   models.Article = db.model<IArticleDocument, IArticleModel>(
     'knowledgebase_articles',

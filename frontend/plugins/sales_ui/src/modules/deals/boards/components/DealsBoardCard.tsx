@@ -15,10 +15,15 @@ import {
   SelectCustomerFilterBar,
 } from 'ui-modules/modules/contacts';
 import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
-import { useManageRelations, useFields, type IField } from 'ui-modules';
 import {
-  type DealCardDetailItem,
-  DealCardDetails,
+  CardDetailBadges,
+  formatFieldValue,
+  hasFieldValue,
+  useManageRelations,
+  useFields,
+  type CardDetailBadgeItem,
+} from 'ui-modules';
+import {
   DealCardProducts,
   DealCardRelationDetails,
 } from './DealsBoardCardDetails';
@@ -41,47 +46,10 @@ const normalizeSelectedIds = (value?: string | string[]) => {
   return Array.isArray(value) ? value : [value];
 };
 
-const hasFieldValue = (value: unknown) => {
-  if (value === null || value === undefined || value === '') return false;
-  if (Array.isArray(value) && value.length === 0) return false;
-  return true;
-};
-
-const formatFieldValue = (field: IField, value: unknown): string => {
-  if (Array.isArray(value)) {
-    if (field.options?.length) {
-      return value
-        .map(
-          (v) =>
-            field.options?.find((option) => option.value === v)?.label ??
-            String(v),
-        )
-        .join(', ');
-    }
-    return value.join(', ');
-  }
-  if (field.options?.length) {
-    return (
-      field.options.find((option) => option.value === value)?.label ??
-      String(value)
-    );
-  }
-  if (field.type === 'boolean' || field.type === 'check') {
-    return value ? 'Yes' : 'No';
-  }
-  if (field.type === 'date') {
-    const date = new Date(value as string);
-    return Number.isNaN(date.getTime())
-      ? String(value)
-      : date.toLocaleDateString();
-  }
-  return String(value);
-};
-
 const normalizeCustomProperty = (
   property: unknown,
   index: number,
-): DealCardDetailItem | null => {
+): CardDetailBadgeItem | null => {
   if (typeof property !== 'object' || property === null) {
     return null;
   }
@@ -193,7 +161,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   const customPropertyItems = Array.isArray(customProperties)
     ? customProperties
         .map((property, index) => normalizeCustomProperty(property, index))
-        .filter((item): item is DealCardDetailItem => Boolean(item))
+        .filter((item): item is CardDetailBadgeItem => Boolean(item))
     : [];
 
   if (
@@ -230,9 +198,21 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
         tags?.length || customPropertyItems.length || cardPropertyItems.length,
       ) && (
         <div className="mt-1 flex flex-col gap-1">
-          <DealCardDetails items={tags || []} color="#FF6600" />
-          <DealCardDetails items={customPropertyItems} color="#FF9900" />
-          <DealCardDetails items={cardPropertyItems} color="#0EA5E9" />
+          <CardDetailBadges
+            items={tags || []}
+            color="#FF6600"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={customPropertyItems}
+            color="#FF9900"
+            maxVisibleItems={5}
+          />
+          <CardDetailBadges
+            items={cardPropertyItems}
+            color="#0EA5E9"
+            maxVisibleItems={5}
+          />
         </div>
       )}
     </div>

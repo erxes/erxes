@@ -361,11 +361,13 @@ export const getPosToken = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
-  const pos = await models.Pos.findOne({ isOnline: true }).lean();
+  const posList = await models.Pos.find({}).lean();
 
-  if (!pos) {
+  if (!posList.length) {
     return res.status(404).json({ error: 'POS not found' });
   }
 
-  return res.status(200).json({ token: pos.token });
+  return res
+    .status(200)
+    .json(posList.map((pos) => ({ name: pos.name, token: pos.token })));
 };

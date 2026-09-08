@@ -7,6 +7,9 @@ import {
   FIXED_ASSETS_ADD,
   FIXED_ASSETS_EDIT,
   FIXED_ASSETS_REMOVE,
+  FIXED_ASSET_OWNER_RECORDS_ADD,
+  FIXED_ASSET_OWNER_RECORDS_REMOVE,
+  FIXED_ASSET_OWNER_RECORDS_TRANSFER,
 } from '../graphql/mutations/fixedAssets';
 
 const withToast = (
@@ -32,6 +35,30 @@ const withToast = (
   },
 });
 
+const withoutVariables = (
+  options: OperationVariables,
+  keys: string[],
+): OperationVariables => {
+  const variables = Object.fromEntries(
+    Object.entries(options.variables || {}).filter(
+      ([key]) => !keys.includes(key),
+    ),
+  );
+
+  return {
+    ...options,
+    variables,
+  };
+};
+
+const withoutUsefulLifeVariables = (options: OperationVariables) =>
+  withoutVariables(options, [
+    'defaultUsefulLife',
+    'defaultTaxUsefulLife',
+    'usefulLife',
+    'taxUsefulLife',
+  ]);
+
 export const useFixedAssetCategoryAdd = () => {
   const [mutate, { loading }] = useMutation(FIXED_ASSET_CATEGORIES_ADD, {
     refetchQueries: ['fixedAssetCategories'],
@@ -39,7 +66,12 @@ export const useFixedAssetCategoryAdd = () => {
 
   return {
     addFixedAssetCategory: (options: OperationVariables) =>
-      mutate(withToast(options, 'Үндсэн хөрөнгийн бүлэг нэмэгдлээ')),
+      mutate(
+        withToast(
+          withoutUsefulLifeVariables(options),
+          'Үндсэн хөрөнгийн бүлэг нэмэгдлээ',
+        ),
+      ),
     loading,
   };
 };
@@ -51,7 +83,12 @@ export const useFixedAssetCategoryEdit = () => {
 
   return {
     editFixedAssetCategory: (options: OperationVariables) =>
-      mutate(withToast(options, 'Үндсэн хөрөнгийн бүлэг шинэчлэгдлээ')),
+      mutate(
+        withToast(
+          withoutUsefulLifeVariables(options),
+          'Үндсэн хөрөнгийн бүлэг шинэчлэгдлээ',
+        ),
+      ),
     loading,
   };
 };
@@ -75,7 +112,12 @@ export const useFixedAssetAdd = () => {
 
   return {
     addFixedAsset: (options: OperationVariables) =>
-      mutate(withToast(options, 'Үндсэн хөрөнгө нэмэгдлээ')),
+      mutate(
+        withToast(
+          withoutUsefulLifeVariables(options),
+          'Үндсэн хөрөнгө нэмэгдлээ',
+        ),
+      ),
     loading,
   };
 };
@@ -87,7 +129,12 @@ export const useFixedAssetEdit = () => {
 
   return {
     editFixedAsset: (options: OperationVariables) =>
-      mutate(withToast(options, 'Үндсэн хөрөнгө шинэчлэгдлээ')),
+      mutate(
+        withToast(
+          withoutUsefulLifeVariables(options),
+          'Үндсэн хөрөнгө шинэчлэгдлээ',
+        ),
+      ),
     loading,
   };
 };
@@ -100,6 +147,45 @@ export const useFixedAssetRemove = () => {
   return {
     removeFixedAsset: (options: OperationVariables) =>
       mutate(withToast(options, 'Үндсэн хөрөнгө устгагдлаа')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordAdd = () => {
+  const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_ADD, {
+    refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+  });
+
+  return {
+    addFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн бүртгэл нэмэгдлээ')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordTransfer = () => {
+  const [mutate, { loading }] = useMutation(
+    FIXED_ASSET_OWNER_RECORDS_TRANSFER,
+    {
+      refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+    },
+  );
+
+  return {
+    transferFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн шилжүүлэг бүртгэгдлээ')),
+    loading,
+  };
+};
+
+export const useFixedAssetOwnerRecordRemove = () => {
+  const [mutate, { loading }] = useMutation(FIXED_ASSET_OWNER_RECORDS_REMOVE, {
+    refetchQueries: ['AccountingFixedAssetOwnerRecords'],
+  });
+
+  return {
+    removeFixedAssetOwnerRecord: (options: OperationVariables) =>
+      mutate(withToast(options, 'Эд хариуцагчийн бүртгэл устгагдлаа')),
     loading,
   };
 };

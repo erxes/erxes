@@ -13,6 +13,7 @@ export const GET_CLIENT_PORTAL = gql`
       url
       erxesIntegrationToken
       enableManualVerification
+      useB2B
       auth {
         authConfig {
           deliveryMethod

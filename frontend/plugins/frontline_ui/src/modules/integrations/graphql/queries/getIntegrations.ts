@@ -19,6 +19,7 @@ export const INTEGRATION_INLINE = gql`
   query IntegrationInline($_id: String!) {
     integrationDetail(_id: $_id) {
       _id
+      name
       kind
     }
   }

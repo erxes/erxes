@@ -4,25 +4,6 @@ export interface ApiResponse<T = any> {
   errorMessage?: string;
 }
 
-export interface ImapMessage {
-  messageId: string;
-  inReplyTo?: string;
-  references?: string[];
-  subject: string;
-  body?: string;
-  to?: Array<{ address: string; name?: string }>;
-  cc?: Array<{ address: string; name?: string }>;
-  bcc?: Array<{ address: string; name?: string }>;
-  from?: Array<{ address: string; name?: string }>;
-  attachments?: Array<{
-    filename: string;
-    contentType: string;
-    size: number;
-  }>;
-  date: Date;
-  html?: string;
-}
-
 export interface CustomerData {
   _id: string;
   primaryEmail?: string;
@@ -38,12 +19,6 @@ export interface ConversationData {
   status?: string;
   createdAt?: Date;
   updatedAt?: Date;
-}
-
-export interface ListenResult {
-  reconnect: boolean;
-  error?: Error;
-  result?: string;
 }
 
 export interface IntegrationHealth {

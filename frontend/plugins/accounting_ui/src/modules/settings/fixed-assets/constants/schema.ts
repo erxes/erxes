@@ -10,11 +10,13 @@ export const fixedAssetCategorySchema = z.object({
   status: z.string().optional(),
   depreciationMethod: z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES).optional(),
   defaultUsefulLife: z.coerce.number().optional(),
+  defaultAnnualDepreciationRate: z.coerce.number().optional(),
   defaultSalvageValue: z.coerce.number().optional(),
   taxDepreciationMethod: z
     .enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)
     .optional(),
   defaultTaxUsefulLife: z.coerce.number().optional(),
+  defaultTaxAnnualDepreciationRate: z.coerce.number().optional(),
   defaultTaxSalvageValue: z.coerce.number().optional(),
 });
 
@@ -26,11 +28,13 @@ export const fixedAssetSchema = z.object({
   status: z.string().optional(),
   depreciationMethod: z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES).optional(),
   usefulLife: z.coerce.number().optional(),
+  annualDepreciationRate: z.coerce.number().optional(),
   salvageValue: z.coerce.number().optional(),
   taxDepreciationMethod: z
     .enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)
     .optional(),
   taxUsefulLife: z.coerce.number().optional(),
+  taxAnnualDepreciationRate: z.coerce.number().optional(),
   taxSalvageValue: z.coerce.number().optional(),
   propertiesData: undefed(z.record(z.string(), z.unknown())),
 });

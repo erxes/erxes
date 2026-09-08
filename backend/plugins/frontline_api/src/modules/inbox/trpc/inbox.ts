@@ -24,6 +24,7 @@ interface CreateConversationAndMessageParams {
   content: string;
   engageData?: IEngageData;
   formWidgetData?: Record<string, unknown>;
+  extraData?: Record<string, unknown>;
 }
 const EngageDataSchema = z.object({
   messageId: z.string(),
@@ -47,6 +48,7 @@ export const createConversationAndMessage = async (
     content,
     engageData,
     formWidgetData,
+    extraData,
   } = params;
   // create conversation
   const conversation = await models.Conversations.createConversation({
@@ -62,6 +64,7 @@ export const createConversationAndMessage = async (
   const message = await models.ConversationMessages.createMessage({
     engageData,
     formWidgetData,
+    extraData,
     conversationId: conversation._id,
     userId,
     customerId,
@@ -926,7 +929,7 @@ export const inboxTrpcRouter = t.router({
     getIntegrationKinds: t.procedure
       .meta(
         agentMeta(
-          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, imap, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
+          'List the integration kinds available on this workspace as a kind to label map (e.g. messenger, lead, webhook, mail, facebook-messenger). Call this before filtering integrations by kind with inbox.integrations.find.',
           { module: 'integration', action: 'showIntegrations' },
         ),
       )

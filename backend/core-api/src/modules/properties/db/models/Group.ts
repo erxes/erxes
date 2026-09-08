@@ -79,9 +79,9 @@ export const loadFieldGroupClass = (models: IModels) => {
     }: {
       contentType: string;
     }) {
-      const group = await models.FieldsGroups.findOne({ contentType }).sort({
-        order: -1,
-      });
+      const group = await models.FieldsGroups.findOne({ contentType })
+        .sort({ order: -1 })
+        .lean();
 
       return (group?.order || 0) + ORDER_GAP;
     }

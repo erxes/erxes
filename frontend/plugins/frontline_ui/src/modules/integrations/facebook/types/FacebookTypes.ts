@@ -76,8 +76,9 @@ export type TBotData =
   | TBotDataText
   | TBotDataQuickReplies;
 
+// Meta retired CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE / ACCOUNT_UPDATE
+// on 2026-04-27; sends using them fail with "Invalid parameter". HUMAN_AGENT
+// is the only tag valid for inbox replies outside the 24-hour window.
 export enum EnumFacebookTag {
-  CONFIRMED_EVENT_UPDATE = 'CONFIRMED_EVENT_UPDATE',
-  POST_PURCHASE_UPDATE = 'POST_PURCHASE_UPDATE',
-  ACCOUNT_UPDATE = 'ACCOUNT_UPDATE',
+  HUMAN_AGENT = 'HUMAN_AGENT',
 }

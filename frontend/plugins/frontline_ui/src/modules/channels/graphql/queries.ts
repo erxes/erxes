@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const GET_CHANNELS = gql`
-  query GetChannels(
+  query frontlineChannelList(
     $name: String
     $userId: String
     $channelIds: [String]
@@ -22,6 +22,7 @@ const GET_CHANNELS = gql`
       updatedAt
       memberCount
       pipelineCount
+      hasTickets
       responseTemplateCount
       formCount
       integrationCount

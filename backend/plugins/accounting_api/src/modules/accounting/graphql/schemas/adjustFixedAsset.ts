@@ -19,7 +19,6 @@ export const types = `
   type AdjustFxaDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     adjustId: String
-    fxaInstanceId: String
     fixedAssetId: String
     categoryId: String
     accountId: String

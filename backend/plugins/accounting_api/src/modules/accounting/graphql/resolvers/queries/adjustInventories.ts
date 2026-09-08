@@ -90,8 +90,9 @@ const adjustInventoryQueries = {
   async adjustInventoriesCount(
     _root,
     params: IQueryParams,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
     const filter = await generateFilter(models, params, user);
 
     return models.AdjustInventories.find(filter).countDocuments();
@@ -100,16 +101,18 @@ const adjustInventoryQueries = {
   async adjustInventoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
     return await models.AdjustInventories.findOne({ _id }).lean();
   },
 
   async adjustInventoryDetails(
     _root,
     params: IDetailsQueryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
     const { _id, sortField, sortDirection, page, perPage } = params;
 
     const pagintationArgs = { page, perPage };
@@ -128,8 +131,9 @@ const adjustInventoryQueries = {
   async adjustInventoryDetailsCount(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustInventories');
     return await models.AdjustInvDetails.find({
       adjustId: _id,
     }).countDocuments();

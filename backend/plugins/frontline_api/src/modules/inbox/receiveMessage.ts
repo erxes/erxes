@@ -2,6 +2,7 @@ import {
   AUTOMATED_REPLY_STATUS,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
   graphqlPubsub,
   RPError,
@@ -57,8 +58,11 @@ export const receiveInboxMessage = async (
   data,
 ): Promise<RPResult> => {
   const { action, metaInfo, payload } = data;
-  const { Integrations, ConversationMessages, Conversations } =
-    await generateModels(subdomain);
+  const {
+    Integrations,
+    ConversationMessages,
+    Conversations,
+  } = await generateModels(subdomain);
   let doc = JSON.parse(JSON.stringify(payload) || '{}');
   if (typeof doc === 'string') {
     doc = JSON.parse(doc);
@@ -290,12 +294,13 @@ export const receiveInboxMessage = async (
       conversationDoc,
     );
 
-    await graphqlPubsub.publish(
-      `conversationMessageInserted:${message.conversationId}`,
-      {
-        conversationMessageInserted: message,
-      },
-    );
+    // Publishes both `conversationMessageInserted:<conversationId>` and the
+    // per-member `conversationClientMessageInserted:<subdomain>:<userId>`
+    // events, each with the `conversation` and `integration` fields the
+    // subscriptions' filters require — publishing bare messages here got them
+    // silently dropped (Discord chats then only showed up after a refresh).
+    await pConversationClientMessageInserted(subdomain, message);
+
     return sendSuccess({ _id: message._id });
   }
 

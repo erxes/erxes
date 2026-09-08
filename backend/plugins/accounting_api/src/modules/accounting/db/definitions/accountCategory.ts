@@ -1,6 +1,9 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-import { ACCOUNT_CATEGORY_MASK_TYPES, ACCOUNT_CATEGORY_STATUSES } from '../../@types/constants';
+import {
+  ACCOUNT_CATEGORY_MASK_TYPES,
+  ACCOUNT_CATEGORY_STATUSES,
+} from '../../@types/constants';
 
 export const accountCategorySchema = schemaWrapper(
   new Schema({
@@ -16,7 +19,6 @@ export const accountCategorySchema = schemaWrapper(
       optional: true,
       label: 'Status',
       default: 'active',
-      esType: 'keyword',
       index: true,
     },
     createdAt: {

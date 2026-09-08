@@ -23,6 +23,15 @@ const conversationClientMessageInserted = `
   }
 `;
 
+const conversationMessageUpdated = `
+  subscription frontlineConversationMessageUpdated($_id: String!) {
+    conversationMessageUpdated(_id: $_id) {
+      _id
+      isCustomerRead
+    }
+  }
+`;
+
 const conversationClientTypingStatusChanged = `
   subscription conversationClientTypingStatusChanged($_id: String!) {
     conversationClientTypingStatusChanged(_id: $_id) {
@@ -171,6 +180,7 @@ const ticketActivityChanged = `
 export default {
   conversationChanged,
   conversationMessageInserted,
+  conversationMessageUpdated,
   conversationClientMessageInserted,
   conversationClientTypingStatusChanged,
   conversationExternalIntegrationMessageInserted,

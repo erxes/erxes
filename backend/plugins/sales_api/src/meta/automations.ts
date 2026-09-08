@@ -50,14 +50,6 @@ export default {
     generateModels,
   }),
 
-  checkTargetMatch: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
-
   findObject: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

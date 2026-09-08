@@ -6,13 +6,27 @@ export const CONVERSATION_COUNTS = gql`
     $channelId: String
     $brandId: String
     $awaitingResponse: String
+    $withPoll: String
   ) {
     conversationCounts(
       only: $only
       channelId: $channelId
       brandId: $brandId
       awaitingResponse: $awaitingResponse
+      withPoll: $withPoll
     )
+  }
+`;
+
+export const INBOX_SIDEBAR_WORK_COUNTS = gql`
+  query FrontlineInboxSidebarWorkCounts($unread: String) {
+    conversationCounts(unread: $unread)
+  }
+`;
+
+export const INBOX_UNREAD_CONVERSATION_COUNT = gql`
+  query FrontlineInboxUnreadConversationCount {
+    conversationsTotalCount(unread: "true")
   }
 `;
 

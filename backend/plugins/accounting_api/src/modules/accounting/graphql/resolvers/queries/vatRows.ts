@@ -22,8 +22,12 @@ const generateFilterCat = async ({ kinds, searchValue, status }) => {
 };
 
 const vatRowQueries = {
-  async vatRows(_root, { kinds, searchValue, status }, { models, checkPermission }: IContext) {
-    await checkPermission('readVatRows');
+  async vatRows(
+    _root,
+    { kinds, searchValue, status },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTaxRows');
     const filter = await generateFilterCat({
       kinds,
       status,
@@ -43,7 +47,7 @@ const vatRowQueries = {
     { kinds, searchValue, status },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readVatRows');
+    await checkPermission('readTaxRows');
     const filter = await generateFilterCat({
       searchValue,
       status,
@@ -52,8 +56,12 @@ const vatRowQueries = {
     return models.VatRows.find(filter).countDocuments();
   },
 
-  async vatRowDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
-    await checkPermission('readVatRows');
+  async vatRowDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTaxRows');
     return models.VatRows.findOne({ _id }).lean();
   },
 };

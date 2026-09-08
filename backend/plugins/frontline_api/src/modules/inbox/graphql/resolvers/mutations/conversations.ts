@@ -14,6 +14,8 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { pConversationClientMessageInserted } from './widget';
+import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
@@ -39,6 +41,18 @@ const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
+
+const publishUnreadCountsSafely = async (
+  params: Parameters<typeof publishConversationUnreadCounts>[0],
+) => {
+  try {
+    await publishConversationUnreadCounts(params);
+  } catch (error) {
+    debugError(
+      `Failed to publish conversation unread counts: ${getErrorMessage(error)}`,
+    );
+  }
+};
 
 const buildFacebookMessengerTextPayload = ({
   recipientId,
@@ -492,8 +506,9 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation =
-        await models.Conversations.getConversation(conversationId);
+      const conversation = await models.Conversations.getConversation(
+        conversationId,
+      );
       if (!conversation?.integrationId) {
         return false;
       }
@@ -612,6 +627,13 @@ export const conversationMutations = {
           doc,
           userId,
         );
+        await publishUnreadCountsSafely({
+          conversationId,
+          integrationId,
+          userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+          models,
+          subdomain,
+        });
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
         );
@@ -668,16 +690,24 @@ export const conversationMutations = {
           );
         }
 
-        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } = {
-          ...doc,
-          ...(displayContent ? { content: displayContent } : {}),
-          ...(extraData ? { extraData } : {}),
-        };
+        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
+          {
+            ...doc,
+            ...(displayContent ? { content: displayContent } : {}),
+            ...(extraData ? { extraData } : {}),
+          };
 
         const message = await models.ConversationMessages.addMessage(
           messageDoc,
           userId,
         );
+        await publishUnreadCountsSafely({
+          conversationId,
+          integrationId,
+          userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+          models,
+          subdomain,
+        });
 
         const dbMessage = await models.ConversationMessages.getMessage(
           message._id,
@@ -689,11 +719,18 @@ export const conversationMutations = {
           userId,
         });
 
-        publishMessage(models, dbMessage, conversation.customerId);
+        await pConversationClientMessageInserted(subdomain, dbMessage);
         return dbMessage;
       }
 
       const message = await models.ConversationMessages.addMessage(doc, userId);
+      await publishUnreadCountsSafely({
+        conversationId,
+        integrationId,
+        userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+        models,
+        subdomain,
+      });
       const dbMessage = await models.ConversationMessages.getMessage(
         message._id,
       );
@@ -835,9 +872,24 @@ export const conversationMutations = {
   async conversationMarkAsRead(
     _root,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    return await models.Conversations.markAsReadConversation(_id, user._id);
+    const conversation = await models.Conversations.markAsReadConversation(
+      _id,
+      user._id,
+    );
+
+    if (conversation.integrationId) {
+      await publishUnreadCountsSafely({
+        conversationId: _id,
+        integrationId: conversation.integrationId,
+        userIds: [user._id],
+        models,
+        subdomain,
+      });
+    }
+
+    return conversation;
   },
 
   async changeConversationOperator(

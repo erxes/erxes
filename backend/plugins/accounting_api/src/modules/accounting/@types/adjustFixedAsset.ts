@@ -18,7 +18,6 @@ export const DEFERRED_TAX_TYPES = {
 
 export interface IAdjustFxaDetail {
   adjustId: string;
-  fxaInstanceId: string;
   fixedAssetId?: string;
   categoryId?: string;
   accountId?: string;

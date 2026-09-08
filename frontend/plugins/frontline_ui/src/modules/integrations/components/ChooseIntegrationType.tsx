@@ -6,18 +6,19 @@ import {
   cn,
   useMultiQueryState,
 } from 'erxes-ui';
-import { INTEGRATION_ICONS } from '../constants/integrationImages';
+import { INTEGRATION_ICONS } from '@/integrations/constants/integrationImages';
 import { IconCheck, IconInbox } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useUsedIntegrationTypes } from '../hooks/useUsedIntegrationTypes';
-import { IIntegrationType } from '../types/Integration';
+import { useUsedIntegrationTypes } from '@/integrations/hooks/useUsedIntegrationTypes';
+import { IIntegrationType } from '@/integrations/types/Integration';
 import { IntegrationType } from '@/types/Integration';
-import { FacebookPostSheet } from '../facebook/components/FacebookPostSheet';
+import { FacebookPostSheet } from '@/integrations/facebook/components/FacebookPostSheet';
 import {
-  INBOX_TARGET_KEYS,
-  InboxTarget,
-} from '@/inbox/conversations/constants/inboxTarget';
+  CLEARED_INBOX_NAVIGATION_FILTERS,
+  INBOX_NAVIGATION_FILTER_KEYS,
+  TInboxNavigationFilters,
+} from '@/inbox/types/InboxNavigation';
 
 type Props = {
   allowedIntegrationTypes?: string[];
@@ -72,13 +73,14 @@ export const IntegrationTypeItem = ({
 }) => {
   const { t } = useTranslation('frontline');
   const [{ channelId: selectedChannelId, integrationType }, setFilters] =
-    useMultiQueryState<InboxTarget>(INBOX_TARGET_KEYS);
+    useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
   const isActive =
     integrationType === _id && (!channelId || selectedChannelId === channelId);
 
   const handleClick = () => {
     setFilters({
+      ...CLEARED_INBOX_NAVIGATION_FILTERS,
       integrationType: isActive ? null : _id,
       integrationId: null,
       ...(channelId ? { channelId: isActive ? null : channelId } : {}),
@@ -94,7 +96,10 @@ export const IntegrationTypeItem = ({
   const trigger = (
     <Button
       variant={isActive ? 'secondary' : 'ghost'}
-      className="justify-start pl-7 relative overflow-hidden text-left w-full"
+      className={cn(
+        'relative w-full justify-start overflow-hidden text-left',
+        nested ? 'pl-10' : 'pl-7',
+      )}
       onClick={handleClick}
     >
       {isActive ? (

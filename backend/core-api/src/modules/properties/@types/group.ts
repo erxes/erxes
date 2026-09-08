@@ -15,6 +15,7 @@ export interface IFieldGroup {
   order: number;
 
   logics: string;
+  configs?: { isMultiple?: boolean };
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {

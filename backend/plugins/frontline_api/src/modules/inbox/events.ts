@@ -1,9 +1,4 @@
-const getUuid = require('uuid-by-string');
-import {
-  client,
-  getIndexPrefix,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 
@@ -24,7 +19,11 @@ interface ICustomerIdentifyParams {
   integrationId?: string;
 }
 
-export const saveEvent = async (models: IModels, subdomain: string, args: ISaveEventArgs) => {
+export const saveEvent = async (
+  models: IModels,
+  subdomain: string,
+  args: ISaveEventArgs,
+) => {
   const { type, name, triggerAutomation, attributes, additionalQuery } = args;
 
   if (!type) {
@@ -38,46 +37,9 @@ export const saveEvent = async (models: IModels, subdomain: string, args: ISaveE
   let visitorId = args.visitorId;
   let customerId = args.customerId;
 
-  const searchQuery = {
-    bool: {
-      must: [
-        { term: { name } },
-        { term: customerId ? { customerId } : { visitorId } },
-      ],
-    },
-  };
-
-  if (additionalQuery) {
-    searchQuery.bool.must.push(additionalQuery);
-  }
-
-  const index = `${getIndexPrefix()}events`;
-
-  try {
-    await client.update({
-      index,
-      // generate unique id based on searchQuery
-      id: getUuid(JSON.stringify(searchQuery)),
-      body: {
-        script: { source: 'ctx._source["count"] += 1', lang: 'painless' },
-        upsert: {
-          type,
-          name,
-          visitorId,
-          customerId,
-          createdAt: new Date(),
-          count: 1,
-          attributes: await models.Fields.generateTypedListFromMap(attributes),
-        },
-      },
-    });
-  } catch (e) {
-    debugError(`Save event error ${e.message}`);
-
-    customerId = undefined;
-    visitorId = undefined;
-  }
-
+  // Visitor events were only ever written to an Elasticsearch index this
+  // deployment never had. The seam is kept so a real store can fill it; today
+  // nothing is recorded.
   if (triggerAutomation && customerId) {
     await sendTRPCMessage({
       subdomain,

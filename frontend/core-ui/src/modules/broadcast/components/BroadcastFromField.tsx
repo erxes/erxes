@@ -10,7 +10,7 @@ const isEmail = (value?: string) =>
   !value || z.string().email().safeParse(value).success;
 
 export const BroadcastFromField = () => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
   const { alignedFrom } = useSenderOptions();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
@@ -52,7 +52,15 @@ export const BroadcastFromField = () => {
                   <Form.Control>
                     <SelectVerifiedSender
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(value, sender) => {
+                        field.onChange(value);
+
+                        if (sender?.name) {
+                          setValue('email.sender', sender.name, {
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
                       placeholder={alignedFrom}
                     />
                   </Form.Control>

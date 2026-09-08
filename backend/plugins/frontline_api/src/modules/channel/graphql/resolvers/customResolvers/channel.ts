@@ -25,6 +25,20 @@ export const Channel = {
     return models.Pipeline.countDocuments({ channelId: channel._id });
   },
 
+  // The navigation only needs existence; avoid counting every matching ticket.
+  hasTickets: async (
+    channel: IChannelDocument,
+    _params: undefined,
+    { models }: IContext,
+  ) => {
+    return Boolean(
+      await models.Ticket.exists({
+        channelId: channel._id,
+        state: { $ne: 'deleted' },
+      }),
+    );
+  },
+
   responseTemplateCount: async (
     channel: IChannelDocument,
     _params: undefined,

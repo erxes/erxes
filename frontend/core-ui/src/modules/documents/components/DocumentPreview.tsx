@@ -26,7 +26,7 @@ export const DocumentPreview = ({ document }: any) => {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className="scale-[0.3] origin-top-left w-[333%] h-auto pointer-events-none select-none">
+      <div className="scale-[0.7] origin-top-left w-[333%] h-auto pointer-events-none select-none">
         <BlockEditor editor={editor} readonly className="py-8 px-4" />
       </div>
     </div>

@@ -19,7 +19,6 @@ export const adjustFixedAssetFields = `
 export const adjustFxaDetailFields = `
   _id
   adjustId
-  fxaInstanceId
   fixedAssetId
   categoryId
   accountId

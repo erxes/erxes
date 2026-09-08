@@ -129,7 +129,7 @@ export const columns: ColumnDef<Cover>[] = [
   },
 ]
 
-export default function DataTable({ data }: { data: Cover[] }) {
+export default function DataTable({ data = [] }: { data?: Cover[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -156,6 +156,7 @@ export default function DataTable({ data }: { data: Cover[] }) {
       rowSelection,
     },
   })
+  const rows = table.getRowModel().rows;
 
   return (
     <div className="w-full py-4">
@@ -180,8 +181,8 @@ export default function DataTable({ data }: { data: Cover[] }) {
             ))}
           </TableHeader>
           <TableBody>
-            {table?.getRowModel()?.rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {rows.length ? (
+              rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}

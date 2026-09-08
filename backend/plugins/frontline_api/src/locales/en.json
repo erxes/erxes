@@ -8,5 +8,9 @@
   "username": "Username",
   "password": "Password",
   "hide-conversations": "Hide conversations",
-  "show-conversations": "Show conversations"
+  "show-conversations": "Show conversations",
+  "no-form-responses": "No form responses yet",
+  "form-responses-empty-description": "Submitted form details will appear here.",
+  "discord-open-conversations_one": "{{count}} open conversation",
+  "discord-open-conversations_other": "{{count}} open conversations"
 }
