@@ -6,10 +6,7 @@ import {
   type PortalResult,
 } from '@/modules/apollo/utils/result';
 import { sanitizePortalHtml } from '@/modules/ui/components/RichText';
-import {
-  FORM_PORTAL_DETAIL,
-  FORM_PORTAL_LIST,
-} from './graphql/queries/forms';
+import { FORM_PORTAL_DETAIL, FORM_PORTAL_LIST } from './graphql/queries/forms';
 import type { FormSummary, PortalForm } from './types';
 
 type ListResponse = { cpForms: { list: FormSummary[] | null } | null };
@@ -22,7 +19,9 @@ type DetailResponse = { cpFormDetail: PortalForm | null };
 const taggedForPortal = (form: { tagIds: string[] | null }, tagId: string) =>
   (form.tagIds ?? []).includes(tagId);
 
-export const getPortalForms = async (): Promise<PortalResult<FormSummary[]>> => {
+export const getPortalForms = async (): Promise<
+  PortalResult<FormSummary[]>
+> => {
   const unconfigured = formsGate<FormSummary[]>();
 
   if (unconfigured) {

@@ -74,6 +74,7 @@ const topicWithArticles = (articleFields: string, settings: string) => `
     title
     description
     color
+    backgroundImage
     ${settings}
     parentCategories {
       ${CATEGORY_FIELDS}
@@ -96,6 +97,7 @@ const overview = (settings: string) => `
     title
     description
     color
+    backgroundImage
     ${settings}
     parentCategories {
       ${CATEGORY_FIELDS}

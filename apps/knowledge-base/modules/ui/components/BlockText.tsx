@@ -26,11 +26,7 @@ const Inline = ({ nodes }: { nodes: InlineNode[] }) => (
             rel="noopener noreferrer"
             className="font-medium text-brand underline underline-offset-2 hover:text-brand-strong"
           >
-            {node.content?.length ? (
-              <Inline nodes={node.content} />
-            ) : (
-              node.href
-            )}
+            {node.content?.length ? <Inline nodes={node.content} /> : node.href}
           </a>
         );
       }
@@ -74,7 +70,11 @@ const Inline = ({ nodes }: { nodes: InlineNode[] }) => (
   </>
 );
 
-const HEADINGS: Record<number, 'h3' | 'h4' | 'h5'> = { 1: 'h3', 2: 'h4', 3: 'h5' };
+const HEADINGS: Record<number, 'h3' | 'h4' | 'h5'> = {
+  1: 'h3',
+  2: 'h4',
+  3: 'h5',
+};
 
 const LISTS: Record<string, 'ul' | 'ol'> = {
   bulletListItem: 'ul',
@@ -187,7 +187,10 @@ const renderBlocks = (blocks: Block[], apiUrl: string): ReactNode[] => {
       const Tag = HEADINGS[block.props?.level ?? 1] ?? 'h5';
 
       out.push(
-        <Tag key={key} className="mt-4 mb-1.5 font-semibold text-ink first:mt-0">
+        <Tag
+          key={key}
+          className="mt-4 mb-1.5 font-semibold text-ink first:mt-0"
+        >
           <Inline nodes={inlineOf(block)} />
         </Tag>,
       );

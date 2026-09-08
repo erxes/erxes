@@ -1,12 +1,7 @@
+import { storedFileUrl } from '@/modules/apollo/utils/file';
 import type { IconName } from '@/modules/ui/components/Icon';
 import { resolveIcon } from '../constants/icons';
-import type {
-  KbArticle,
-  KbCategory,
-  KbSection,
-  KbTopic,
-  KbTopicStyles,
-} from '../types';
+import type { KbArticle, KbCategory, KbSection, KbTopic } from '../types';
 
 export type PortalArticle = {
   _id: string;
@@ -36,6 +31,8 @@ export type PortalSection = PortalCategory & {
 export type PortalTheme = {
   mainLogo: string | null;
   favicon: string | null;
+  /** Sits behind the hero band, in place of its drawn pattern. */
+  heroImage: string | null;
   colors: Record<string, string>;
   baseFont: string | null;
   headingFont: string | null;
@@ -149,8 +146,17 @@ const paint = (
  * from `globals.css`. One stored colour can drive several tokens — `bodyColor`
  * is both the page surface and what `erxes-ui` reads as `--color-background`.
  */
-const normalizeTheme = (styles: KbTopicStyles): PortalTheme => {
+const normalizeTheme = (topic: KbTopic): PortalTheme => {
+  const { styles } = topic;
   const colors: Record<string, string> = {};
+
+  /*
+   * The topic's own `color` is the accent picked on the appearance tab beside
+   * the background image, and predates the `styles` block. It seeds the accent
+   * so a topic that only set that much is still themed; anything in `styles`
+   * is written after and wins.
+   */
+  paint(colors, ['--color-brand', '--color-primary'], text(topic.color));
 
   /*
    * Written most general first, so a more specific field set alongside it wins
@@ -193,9 +199,14 @@ const normalizeTheme = (styles: KbTopicStyles): PortalTheme => {
   paint(colors, ['--color-primary'], text(styles?.primaryButtonColor));
   paint(colors, ['--color-muted'], text(styles?.secondaryButtonColor));
 
+  /*
+   * All three are uploads, so they come back as storage keys rather than URLs
+   * and have to be resolved before anything renders them.
+   */
   return {
-    mainLogo: text(styles?.mainLogo),
-    favicon: text(styles?.favicon),
+    mainLogo: storedFileUrl(text(styles?.mainLogo)),
+    favicon: storedFileUrl(text(styles?.favicon)),
+    heroImage: storedFileUrl(text(topic.backgroundImage)),
     colors,
     baseFont: text(styles?.baseFont),
     headingFont: text(styles?.headingFont),
@@ -223,5 +234,5 @@ export const normalizeTopic = (topic: KbTopic): PortalTopic => ({
     pipelineId: text(topic.ticketPipelineId) ?? '',
     statusId: text(topic.ticketStatusId) ?? '',
   },
-  theme: normalizeTheme(topic.styles),
+  theme: normalizeTheme(topic),
 });

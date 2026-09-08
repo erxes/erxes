@@ -202,8 +202,8 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
         .split('·')
         .map((part) => part.trim())
         .filter(Boolean)
-    : [user?.name, user?.email, user?.phone].filter(
-        (part): part is string => Boolean(part),
+    : [user?.name, user?.email, user?.phone].filter((part): part is string =>
+        Boolean(part),
       );
 
   const reporter = contactLines[0] ?? 'Та';

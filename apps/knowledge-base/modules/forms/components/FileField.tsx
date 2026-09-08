@@ -10,7 +10,9 @@ import { readableSize, uploadFormFile } from '../utils/upload';
 
 const asFiles = (value: FormValue): FormAttachment[] =>
   Array.isArray(value)
-    ? value.filter((entry): entry is FormAttachment => typeof entry === 'object')
+    ? value.filter(
+        (entry): entry is FormAttachment => typeof entry === 'object',
+      )
     : [];
 
 export const FileField = ({
@@ -43,7 +45,9 @@ export const FileField = ({
       onChange([...files, ...uploaded]);
     } catch (caught) {
       setFailure(
-        caught instanceof Error ? caught.message : 'Файлыг байршуулж чадсангүй.',
+        caught instanceof Error
+          ? caught.message
+          : 'Файлыг байршуулж чадсангүй.',
       );
     } finally {
       setBusy(false);
@@ -64,7 +68,11 @@ export const FileField = ({
               key={file.url}
               className="flex items-center gap-3 rounded-lg border border-line bg-white px-3.5 py-2.5"
             >
-              <Icon name="paperclip" size={16} className="shrink-0 text-muted-foreground" />
+              <Icon
+                name="paperclip"
+                size={16}
+                className="shrink-0 text-muted-foreground"
+              />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm text-ink">
                   {file.name}

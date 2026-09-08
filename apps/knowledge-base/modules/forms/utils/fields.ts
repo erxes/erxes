@@ -49,9 +49,7 @@ const BY_VALIDATION: Record<string, FieldKind> = {
 };
 
 export const fieldKind = (field: FormField): FieldKind =>
-  BY_TYPE[field.type ?? ''] ??
-  BY_VALIDATION[field.validation ?? ''] ??
-  'text';
+  BY_TYPE[field.type ?? ''] ?? BY_VALIDATION[field.validation ?? ''] ?? 'text';
 
 export const isAnswerable = (field: FormField): boolean => {
   const kind = fieldKind(field);
@@ -95,9 +93,10 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const issueFor = (field: FormField, entry: FormValue): string | null => {
   const kind = fieldKind(field);
-  const empty = MULTI.includes(kind) || kind === 'file'
-    ? asList(entry).length === 0
-    : !asText(entry);
+  const empty =
+    MULTI.includes(kind) || kind === 'file'
+      ? asList(entry).length === 0
+      : !asText(entry);
 
   if (field.isRequired && empty) {
     return MULTI.includes(kind) || kind === 'file'

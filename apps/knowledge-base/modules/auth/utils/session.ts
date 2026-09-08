@@ -47,7 +47,8 @@ export const parseSession = (raw: string | null): SessionUser | null => {
       typeof (parsed as SessionUser).name === 'string' &&
       typeof (parsed as SessionUser).email === 'string'
     ) {
-      const { name, email, phone, customerId, cpUserId } = parsed as SessionUser;
+      const { name, email, phone, customerId, cpUserId } =
+        parsed as SessionUser;
       return {
         name,
         email,

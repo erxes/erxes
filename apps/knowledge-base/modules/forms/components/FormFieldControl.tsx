@@ -13,7 +13,9 @@ const asText = (value: FormValue): string =>
   typeof value === 'string' ? value : '';
 
 const asList = (value: FormValue): string[] =>
-  Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+  Array.isArray(value)
+    ? value.filter((v): v is string => typeof v === 'string')
+    : [];
 
 const Choice = ({
   checked,
@@ -140,7 +142,15 @@ export const FormFieldControl = ({
 
   return (
     <TextInput
-      type={kind === 'email' ? 'email' : kind === 'phone' ? 'tel' : kind === 'number' ? 'number' : 'text'}
+      type={
+        kind === 'email'
+          ? 'email'
+          : kind === 'phone'
+          ? 'tel'
+          : kind === 'number'
+          ? 'number'
+          : 'text'
+      }
       inputMode={kind === 'number' ? 'numeric' : undefined}
       value={asText(value)}
       onChange={(event) => onChange(event.target.value)}

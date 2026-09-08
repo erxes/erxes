@@ -66,6 +66,7 @@ export type KbTopic = {
   title: string | null;
   description: string | null;
   color: string | null;
+  backgroundImage: string | null;
   url: string | null;
   kbToggle: boolean | null;
   kbLabel: string | null;

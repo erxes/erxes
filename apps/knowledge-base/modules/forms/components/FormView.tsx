@@ -81,9 +81,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
           <Icon name="check" size={22} />
         </span>
-        <h2 className="text-lg font-semibold text-ink">
-          Маягт хүлээн авлаа
-        </h2>
+        <h2 className="text-lg font-semibold text-ink">Маягт хүлээн авлаа</h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
           Баярлалаа. Таны бөглөсөн мэдээллийг дэмжлэгийн баг хүлээн авлаа.
         </p>
@@ -142,8 +140,8 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                   key={field._id}
                   className="flex items-start gap-2 rounded-lg bg-warning-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-warning"
                 >
-                  <Icon name="alert" size={15} className="mt-px shrink-0" />
-                  «{fieldLabel(field)}» талбарыг одоогоор порталаас бөглөх
+                  <Icon name="alert" size={15} className="mt-px shrink-0" />«
+                  {fieldLabel(field)}» талбарыг одоогоор порталаас бөглөх
                   боломжгүй тул дэмжлэгийн багт хандана уу.
                 </p>
               );
