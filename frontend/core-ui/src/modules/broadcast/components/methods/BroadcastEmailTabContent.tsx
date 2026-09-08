@@ -1,7 +1,12 @@
 import { useQuery } from '@apollo/client';
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { BlockEditor, EmailPreviewFrame, JSONContent, useBlockEditor } from 'erxes-ui';
+import {
+  BlockEditor,
+  EmailPreviewFrame,
+  JSONContent,
+  useBlockEditor,
+} from 'erxes-ui';
 import { useEffect } from 'react';
 import { MembersInline } from 'ui-modules';
 import { BROADCAST_RENDER_PREVIEW } from '../../graphql/queries';
@@ -113,7 +118,10 @@ const EmailPreview = ({ message }: { message?: TEmailPreviewMessage }) => {
       </div>
 
       {contentJson ? (
-        <MailyContentPreview contentJson={contentJson} previewText={previewText} />
+        <MailyContentPreview
+          contentJson={contentJson}
+          previewText={previewText}
+        />
       ) : (
         <LegacyBlockContentPreview content={content || ''} />
       )}

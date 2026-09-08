@@ -11,7 +11,12 @@ export const BroadcastComposerSettings = () => {
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <Button variant="secondary" size="icon" type="button" aria-label={t('settings')}>
+        <Button
+          variant="secondary"
+          size="icon"
+          type="button"
+          aria-label={t('settings')}
+        >
           <IconSettings />
         </Button>
       </Popover.Trigger>

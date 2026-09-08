@@ -16,7 +16,9 @@ export type EmailEditorVariablesResolver = (opts: {
   editor: TiptapEditor;
 }) => EmailEditorVariable[];
 
-export type EmailEditorVariables = EmailEditorVariable[] | EmailEditorVariablesResolver;
+export type EmailEditorVariables =
+  | EmailEditorVariable[]
+  | EmailEditorVariablesResolver;
 
 export interface EmailEditorProps {
   contentJson?: JSONContent;

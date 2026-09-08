@@ -5,7 +5,10 @@ export interface EmailPreviewFrameProps {
   className?: string;
 }
 
-export const EmailPreviewFrame = ({ html, className }: EmailPreviewFrameProps) => (
+export const EmailPreviewFrame = ({
+  html,
+  className,
+}: EmailPreviewFrameProps) => (
   <iframe
     title="Email preview"
     srcDoc={html}

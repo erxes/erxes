@@ -8,7 +8,10 @@ export const useBroadcastEmailTemplateAdd = () => {
   const addEmailTemplate = ({
     variables,
     ...options
-  }: MutationHookOptions<{ broadcastEmailTemplateAdd: { _id: string } }, any>) => {
+  }: MutationHookOptions<
+    { broadcastEmailTemplateAdd: { _id: string } },
+    any
+  >) => {
     return mutate({
       ...options,
       variables,
