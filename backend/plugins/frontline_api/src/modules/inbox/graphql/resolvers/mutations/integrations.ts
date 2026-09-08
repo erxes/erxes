@@ -41,6 +41,8 @@ import {
   callProRemoveIntegration,
   callProUpdateIntegration,
 } from '@/integrations/callpro/messageBroker';
+
+import { viberCreateIntegration } from '@/integrations/viber/messageBroker';
 import {
   getUniqueValue,
   sendTRPCMessage,
@@ -85,6 +87,8 @@ export const sendCreateIntegration = async (
         return await callCreateIntegration({ subdomain, data });
       case 'mail':
         return await mailCreateIntegration({ subdomain, data });
+      case 'viber':
+        return await viberCreateIntegration({ subdomain, data });
 
       case 'instagram':
         return await instagramCreateIntegrations({ subdomain, data });

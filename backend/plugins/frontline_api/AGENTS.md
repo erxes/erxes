@@ -57,7 +57,8 @@
   account information, and create tenant-scoped connections after checking the
   inbox and duplicate bot/inbox. The creation adapter validates serialized
   settings and wraps the helper result with Frontline's success/error response.
-  No Viber route or creation-dispatcher branch is registered.
+  The external-integration creation dispatcher routes the `viber` service prefix
+  to this adapter. No Viber HTTP route or message delivery handler is registered.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -152,7 +153,8 @@ creation, `messageBroker.ts` adapts creation input and response handling, `utils
 holds signature/account helpers and their colocated tests, and `@types/` and `db/`
 hold document types, schema definitions, and the model loader.
 `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
-connection.
+connection. `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
+dispatches Viber creation to the adapter through `sendCreateIntegration`.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1510,6 +1512,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Viber creation dispatcher wiring
+
+- **Summary:** Connected Viber creation to the existing external-integration
+  dispatcher, preserving its success/error handling and failure cleanup.
+- **Affected areas:** `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`.
+- **Contracts changed:** `sendCreateIntegration` now accepts the `viber` service
+  prefix and calls `viberCreateIntegration({ subdomain, data })`; the GraphQL
+  schema is unchanged.
+
 ### `2026-09-09` — Viber integration creation adapter
 
 - **Summary:** Added validated settings parsing and the standard success/error
@@ -1605,11 +1616,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
 - **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-05` — Poll voting has no in-repo client
-
-- **Summary:** The customer-facing poll surfaces were removed from
-  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
-  have no caller in this repository.
-- **Affected areas:** `AGENTS.md` only — no API change.
-- **Contracts changed:** None.
