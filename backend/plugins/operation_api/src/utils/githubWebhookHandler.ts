@@ -20,6 +20,9 @@ interface GithubInstallationPayload {
 
 interface GithubIssuesPayload {
   action: string;
+  installation?: {
+    id: number;
+  };
   sender?: {
     type?: string;
   };
@@ -127,7 +130,7 @@ const handleIssues = async (
   payload: GithubIssuesPayload,
   subdomain: string,
 ): Promise<void> => {
-  const { action, issue, sender, repository } = payload;
+  const { action, installation, issue, sender, repository } = payload;
   const { state_reason } = issue || {};
   if (sender?.type === 'Bot') {
     return;
@@ -149,7 +152,9 @@ const handleIssues = async (
 
   if (!taskCheckByIssue && !triageCheckByIssue && action === 'opened') {
     const config = await models.GithubConfig.findOne({
+      installationId: installation?.id,
       repoName: repository?.full_name,
+      subdomain,
     }).lean();
 
     if (
@@ -267,20 +272,20 @@ export const handleGithubWebhook = async (
     const rawBody = Buffer.isBuffer(req.rawBody)
       ? req.rawBody
       : Buffer.isBuffer(req.body)
-        ? req.body
-        : Buffer.from(
-            typeof req.rawBody === 'string'
-              ? req.rawBody
-              : typeof req.body === 'string'
-                ? req.body
-                : JSON.stringify(req.body ?? {}),
-            'utf8',
-          );
+      ? req.body
+      : Buffer.from(
+          typeof req.rawBody === 'string'
+            ? req.rawBody
+            : typeof req.body === 'string'
+            ? req.body
+            : JSON.stringify(req.body ?? {}),
+          'utf8',
+        );
 
     let isValid: boolean;
     try {
       isValid = verifyGithubSignature(rawBody, signature);
-    } catch (err) {
+    } catch {
       res.status(500).send('Webhook secret not configured');
       return;
     }
