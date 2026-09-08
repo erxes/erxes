@@ -24,27 +24,33 @@ export const FIELD_TAB: Record<keyof TopicFormData, TTopicTab> = {
   styles: 'appearance',
 };
 
+/*
+ * A new help center opens on the published site's own palette rather than on
+ * blank white, so it looks finished before anyone touches the appearance tab.
+ * These are the portal's default tokens; changing one here changes what every
+ * help center created afterwards starts from, not what existing ones show.
+ */
 export const EMPTY_TOPIC_STYLES: TopicStyles = {
   mainLogo: '',
   favicon: '',
 
   bodyColor: '#ffffff',
-  headerColor: '#ffffff',
+  headerColor: '#403474',
   footerColor: '#ffffff',
-  helpCenterColor: '#ffffff',
-  backgroundColor: '#ffffff',
-  activeTabColor: '#4f46e5',
+  helpCenterColor: '#4f33af',
+  backgroundColor: '#f7f6fb',
+  activeTabColor: '#3f2790',
 
   baseFont: '',
-  baseColor: '#111827',
+  baseColor: '#3d3b55',
   headingFont: '',
-  headingColor: '#111827',
-  linkColor: '#4f46e5',
-  linkHoverColor: '#4338ca',
+  headingColor: '#17162a',
+  linkColor: '#4f33af',
+  linkHoverColor: '#3f2790',
 
-  primaryButtonColor: '#4f46e5',
-  secondaryButtonColor: '#e5e7eb',
-  dividerColor: '#e5e7eb',
+  primaryButtonColor: '#4f33af',
+  secondaryButtonColor: '#e9e7f1',
+  dividerColor: '#e9e7f1',
 
   headerHtml: '',
   footerHtml: '',
@@ -53,7 +59,8 @@ export const EMPTY_TOPIC_STYLES: TopicStyles = {
 export const EMPTY_TOPIC_FORM: TopicFormData = {
   title: '',
   description: '',
-  color: '#000000',
+  /* The topic's own accent; starts on the palette above, not on black. */
+  color: '#4f33af',
   backgroundImage: '',
   notificationSegmentId: '',
   url: '',

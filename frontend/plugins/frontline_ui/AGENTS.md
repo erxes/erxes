@@ -538,6 +538,13 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   and shows the message instead of closing over an edit that never saved.
   Clicking away from a rejected value drops it — the cell must never trap the
   user until the value is fixed, and must never write a value that failed.
+- `EMPTY_TOPIC_STYLES` seeds a new help center with the published portal's own
+  palette (`apps/knowledge-base/app/globals.css`) rather than blank white, so a
+  topic looks finished before anyone opens the appearance tab. A stored white is
+  indistinguishable from an unset colour on the portal, which drops blanks and
+  falls back to its own token — so seeding white produced a colourless site.
+  Keep the two palettes in step when either moves; existing topics keep whatever
+  they already stored and are only changed from the appearance tab.
 - `kbToggle` defaults to **on** everywhere a help center is read or written: a
   new topic starts from `EMPTY_TOPIC_FORM`, an existing one is widened by
   `TopicDrawer`'s reset and `toTopicDrawerRecord`, and an inline table edit
@@ -1020,6 +1027,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-08` — A new help center starts on the portal's palette
+
+- **Summary:** `EMPTY_TOPIC_STYLES` seeded every colour as white and the topic
+  accent as black, so a freshly created help center published a colourless site
+  — the portal cannot tell a stored white from an unset colour. The defaults are
+  now the portal's own tokens.
+- **Affected areas:**
+  `src/modules/knowledgebase/topicDrawerConstants.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-07` — The website field insists on a real URL
 
 - **Summary:** `url` took any text from either the drawer or the table cell and
@@ -1131,14 +1148,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
 - **Contracts changed:** None in this project. The public `widgetsPoll*`
   mutations still exist in `frontline_api` but have no in-repo caller.
-
-### `2026-09-04` — Fonts are picked from a list
-
-- **Summary:** The appearance tab's base and heading fonts were free text, so a
-  typo silently produced an unstyled site; they now pick from
-  `HELP_CENTER_FONTS`, each option previewing itself in the face it names and
-  storing the full CSS stack.
-- **Affected areas:**
-  `src/modules/knowledgebase/components/Topic{StyleFields,AppearanceTab}.tsx`,
-  `src/modules/knowledgebase/topicDrawerConstants.ts`
-- **Contracts changed:** None.
