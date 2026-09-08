@@ -154,6 +154,13 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- The Facebook message trigger reads without opening anything: each condition
+  card shows what it currently listens for, and the bot picker shows each bot's
+  page and health, refusing a broken one.
+- The Facebook comment trigger names the other automations answering the same
+  post scope on that bot, since two of them post two public replies under one
+  post. A new one starts on first-level comments only; a saved one keeps
+  whatever it had.
 - Names, on the Facebook message trigger form, which other automations already
   listen for the same Get Started, persistent menu item, ice breaker, keyword or
   keyword-less direct message on that bot. Any claim — draft included, since a
@@ -189,6 +196,17 @@
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
   opening the bot form with that integration's account and page already bound.
+  The bots settings sheet shows that same form for a saved bot, and keeps the
+  account/page steps only for creating one.
+- The Facebook comment reply action holds a set of reply variants and one is
+  picked at random per comment; a single variant is warned about, because Meta's
+  Spam policy restricts pages "posting repetitive content" regardless of rate.
+  Public replies are also capped per post, paced through an outbox so a page
+  sends at most a set number a minute, and paused on the bot for hours after
+  Facebook refuses one. History reports the queue, the skip, the pause and which
+  variant went out. Private replies are never paced. The bot form reports its
+  own health: the breaker's pause, the last error, and how many replies are
+  queued, sent and failed for that page.
 - Facebook bot message action supports a drag-orderable message sequence of
   text, card, quick replies, input, image, attachments, audio, and video, with
   postback/link buttons and optional connects.
@@ -1055,6 +1073,104 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-08` — The bot form reports its delivery health
+
+- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
+  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
+  holds for the bot's page plus when it next sends. The bot form shows the health
+  badge, the pause with its reason, and queued/sent/failed counts, polling while
+  the sheet is open.
+- **Affected areas:** `frontline_api`
+  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
+  `frontline_ui` new
+  `components/bots/components/FacebookBotHealthPanel.tsx` and
+  `components/bots/hooks/useFacebookBotDelivery.tsx`;
+  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
+  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
+- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
+  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
+  `facebookMessengerBotDelivery(_id: String!)` is new.
+
+### `2026-09-08` — Public comment replies go through a paced outbox
+
+- **Summary:** `frontline:facebook.comments.create` declares
+  `deferred: { enable: true, mode: 'ignore' }`, records the reply in a new
+  `comment_outbox_facebook` collection and returns a queued marker, so the
+  private reply after it runs immediately instead of waiting behind the pacing.
+  A per-page Redis counter hands out send slots
+  (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
+  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
+  the page breaker, and reports back through the new
+  `sendAutomationDeferredCompletion`.
+- **Affected areas:** `erxes-api-shared`
+  `core-modules/automations/sendAutomationMessage.ts`. `frontline_api` new
+  `modules/integrations/facebook/{commentOutbox,commentOutboxWorker}.ts`,
+  `db/definitions/comment_outbox.ts`, `db/models/CommentOutbox.ts`;
+  `commentGuard.ts`, `meta/automation/{constants.ts,comments/index.ts}`,
+  `connectionResolvers.ts`, `main.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action now returns a deferred marker rather
+  than a send result; `sendAutomationDeferredCompletion` is new in
+  `erxes-api-shared`.
+
+### `2026-09-08` — Facebook's refusal now stops public comment replies
+
+- **Summary:** `sendReply` throws a `FacebookSendError` carrying Meta's `code`
+  and `error_subcode`, which it previously logged and discarded. A spam refusal
+  or `#613` opens a breaker on the bot's `health` — `sendBlockedUntil`,
+  `sendBlockReason`, `sendBlockCount` — pausing public comment replies for 1h,
+  doubling per consecutive refusal up to 24h, and a reply that gets through
+  closes it. On the 2026-09-07 dump the same page was hit for five days across
+  three enforcement windows; this turns that into an hour. Both the pause and a
+  refusal are reported instead of thrown, so the private reply that follows still
+  runs. Private replies are untouched: 141,158 of them went out with no refusal.
+- **Affected areas:** `frontline_api` new
+  `modules/integrations/facebook/errors.ts`; `utils.ts`,
+  `db/definitions/bots.ts` (health fields and a `pageId` index),
+  `db/models/Bots.ts`, `meta/automation/comments/index.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action result gains
+  `{ status: 'skipped', reason: 'send-blocked', blockedUntil }` and
+  `{ status: 'failed', error, blockedUntil }`.
+
+### `2026-09-08` — Public comment replies are capped per post
+
+- **Summary:** `frontline:facebook.comments.create` now spends a per-post budget
+  before replying publicly (`FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST`, default
+  100, counted in Redis for seven days). Over the cap it returns
+  `{ status: 'skipped' }` instead of throwing, so the private reply that follows
+  it in the automation still runs — a thrown action ends the execution. The run
+  also records the variant it posted, so history shows the reply that actually
+  went out, and renders the skip with its reason.
+- **Affected areas:** `frontline_api` new
+  `modules/integrations/facebook/commentGuard.ts`;
+  `meta/automation/comments/index.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action result gains `text` on success and a
+  `{ status: 'skipped', reason, limit, used }` shape when capped.
+
+### `2026-09-08` — Comment replies rotate between variants
+
+- **Summary:** `frontline:facebook.comments.create` now stores `texts[]` instead
+  of a single `text` and picks one at random per comment. The form edits the set,
+  warns while only one variant exists, and the node shows how many there are.
+  Automations saved before this keep working: `pickReplyText` and
+  `toCommentActionFormValues` both fall back to the old `text`. Measured on the
+  2026-09-07 production dump: no rate threshold separated blocked hours from
+  clean ones (a clean hour reached 3,003 replies), but one post carried 10,284
+  replies with a single sentence used 8,517 times — which is what Meta's Spam
+  policy names.
+- **Affected areas:** `frontline_api`
+  `modules/integrations/facebook/meta/automation/comments/index.ts`;
+  `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
+  and `components/replyComment/{CommentActionForm,ActionCommentConfigContent}.tsx`.
+- **Contracts changed:** the action config gains `texts: [String]`; `text` is
+  still read for existing automations.
+
 ### `2026-09-08` — The message trigger says who else already listens
 
 - **Summary:** Every condition on the Facebook message trigger form reports the
@@ -1166,171 +1282,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
   `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-07` — The ticket columns say they are ticket columns
-
-- **Summary:** The table's `Channel`, `Pipeline` and `Status` headers gave no
-  hint they were one ticket target, and the `Knowledge base name` column
-  duplicated a drawer-only field; the three ticket headers now read
-  `Ticket channel` / `Ticket pipeline` / `Ticket status` under their own
-  `ticket-*-label` keys, and the `kbLabel` column is gone. `kbLabel` itself is
-  untouched — the drawer still edits it and `useEditHelpCenter` still sends it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center page drops its sidebar sub-group
-
-- **Summary:** `/frontline/helpcenter` listed every help center a second time in
-  the left navigation, duplicating the record table it sat next to; the
-  `HelpCenterSubGroup` component and the `isHelpCenter` branch in
-  `FrontlineSubGroups` are gone, so the page now renders no frontline
-  sub-group. `useAllHelpCenters` stays — `HelpCenterIndexPage` still needs the
-  unfiltered list to resolve `editId`.
-- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
-  `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
-- **Contracts changed:** `None`
-
-### `2026-09-07` — A new help center shows its knowledge base by default
-
-- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
-  the topic and label fields under it stayed hidden until the switch was found;
-  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
-  with `?? false`, which switched the feature off on the next inline edit of a
-  help center that had no stored value — it now agrees with the other three.
-- **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`,
-  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table drops its drawer-only columns
-
-- **Summary:** Removed the description column and the two ticket columns the
-  drawer already owns — the `Show tickets` switch and the ticket menu label —
-  leaving name, website, knowledge base name and knowledge base topic followed
-  by the three ticket routing selects (channel, pipeline, status). The drawer
-  gained the piece it was missing, a required `Knowledge base topic` select in
-  its Knowledge base section, and the table cell and that field now share one
-  `SelectHelpCenterTopic` component.
-- **Affected areas:**
-  `src/modules/helpcenter/components/{HelpCenterColumns.tsx,SelectHelpCenterTopic.tsx}`,
-  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
-  `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
-  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table picks its knowledge base topic
-
-- **Summary:** Replaced the `Show articles` switch column with a
-  `Knowledge base topic` select that lists the other topics through
-  `TOPICS_SHORT`, excludes the row's own topic, and writes the choice with
-  `useEditHelpCenter`. The `kbToggle` field itself stays — the topic drawer
-  still owns that switch — and `Knowledge base name` is now a plain inline
-  text cell instead of striking itself through against a switch the table no
-  longer shows.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`
-- **Contracts changed:** `frontlineHelpCenterList` selects `kbTopicId`, and the
-  edit mutation sends it.
-
-### `2026-09-07` — Poll form picks the brand
-
-- **Summary:** `PollSheet` gained an optional single-select brand field backed by
-  `SelectBrands.FormItem`, so an admin decides which messenger integration in the
-  channel a poll's answers are filed under instead of leaving it to the API's
-  arbitrary pick.
-- **Affected areas:** `src/modules/poll/components/poll-page/PollSheet.tsx`,
-  `src/modules/poll/constants/pollFormSchema.ts`,
-  `src/modules/poll/types/pollTypes.ts`,
-  `src/modules/poll/graphql/{pollMutations.ts,pollQueries.ts}`.
-- **Contracts changed:** `pollAdd` and `pollEdit` now send `brandId: String`, and
-  the `PollFields` fragment selects `brandId`.
-
-### `2026-09-05` — `Property groups share one card shell`
-
-- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
-- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll surfaces removed from the customer widget
-
-- **Summary:** The website poll popup and the in-messenger voting card are gone
-  from `frontline-widgets`, so the agent-side install-script action went with
-  them; a customer now sees a sent poll as the plain question message.
-- **Affected areas:**
-  `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
-- **Contracts changed:** None in this project. The public `widgetsPoll*`
-  mutations still exist in `frontline_api` but have no in-repo caller.
-
-### `2026-09-04` — Fonts are picked from a list
-
-- **Summary:** The appearance tab's base and heading fonts were free text, so a
-  typo silently produced an unstyled site; they now pick from
-  `HELP_CENTER_FONTS`, each option previewing itself in the face it names and
-  storing the full CSS stack.
-- **Affected areas:**
-  `src/modules/channels/components/settings/breadcrumbs/ChannelSettingsBreadcrumb.tsx`,
-  `src/modules/poll/components/poll-page/polls-create.tsx` (new),
-  `src/modules/poll/components/poll-page/PollSubHeader.tsx`,
-  `src/modules/poll/components/poll-page/PollPageList.tsx`,
-  `src/pages/ChannelPollsPage.tsx`
-- **Contracts changed:** `PollSubHeader` no longer accepts `canCreate`.
-
-### `2026-09-02` — IMAP integration UI removed
-
-- **Summary:** Every IMAP surface was deleted — the connect form and sheet, the
-  integration detail and row actions, the threaded conversation reader, its
-  hooks, GraphQL documents and Jotai state — and `imap` is gone from the
-  integration type enum, catalog, chips and icon map, so the kind can no longer
-  be listed, connected or opened.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted),
-  `src/modules/inbox/conversations/conversation-detail/graphql/queries/getImapConversationDetail.ts`
-  (deleted), `src/modules/types/Integration.ts`,
-  `src/modules/integrations/constants/{integrations.ts,integrationImages.ts}`,
-  `src/modules/integrations/components/{ConversationIntegrationDetail,IntegrationMoreColumn}.tsx`,
-  `src/pages/IntegrationDetailPage.tsx`,
-  `src/modules/channels/components/settings/channels-list/IntegrationChips.tsx`,
-  `src/modules/inbox/conversations/conversation-detail/components/ConversationDetail.tsx`.
-- **Contracts changed:** `IntegrationType.IMAP` removed; the UI no longer sends
-  `imapConversationDetail`, `imapGetIntegrations` or `imapSendMail`. The
-  conversation detail no longer suppresses `MessageInput` for the `imap` kind.
-
-### `2026-08-31` — Messenger polls
-
-- **Summary:** Added the poll module — per-channel management under
-  `settings/frontline/channels/:id/polls` (list, create/edit sheet, results
-  dialog, command bar), a read-only results board on `frontline/polls`, and the
-  composer dialog that posts a saved poll into a messenger conversation.
-- **Affected areas:** `src/modules/poll/**`,
-  `src/pages/{PollsIndexPage,ChannelPollsPage}.tsx`, `src/config.tsx`,
-  `src/modules/{FrontlineMain,FrontlineNavigation}.tsx`,
-  `src/modules/types/FrontlinePaths.ts`,
-  `src/modules/channels/components/settings/{Settings.tsx,channel-details/{ChannelDetails,PollsSection}.tsx}`,
-  `src/modules/inbox/conversations/conversation-detail/components/{SendPollDialog,MessageInput}.tsx`,
-  `src/modules/inbox/{types/Conversation.ts,conversation-messages/components/MessagePoll.tsx}`.
-- **Contracts changed:** New routes `frontline/polls` and
-  `settings/frontline/channels/:id/polls`, with a `polls` entry in
-  `CONFIG.modules`; `IMessagePoll` answer ids widened to `string | number`;
-  the conversation queries and inbox query state gained `withPoll`.
-
-### `2026-08-28` — The domain picker is searchable and says which domains are usable
-
-- **Summary:** The Cloudflare domain field was a plain `Select` listing every zone
-  a token reached, which on an account with hundreds of domains is unusable — and
-  a domain already carrying another provider's MX only failed after Connect. It is
-  now a `Combobox` + `Command` with search, matching how the rest of the plugin
-  picks from many. Ineligible zones stay listed but disabled, with the server's
-  short reason under the name: shown rather than hidden, so nobody wonders why
-  their domain is missing. The server returns usable domains first.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `src/modules/integrations/mail/graphql/queries/mailCloudflareQueries.ts`,
-  `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
-  `src/modules/knowledgebase/components/Topic{StyleFields,AppearanceTab}.tsx`,
-  `src/modules/knowledgebase/topicDrawerConstants.ts`
-- **Contracts changed:** None.

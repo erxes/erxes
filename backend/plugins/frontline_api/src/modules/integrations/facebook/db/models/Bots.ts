@@ -142,6 +142,9 @@ type TMessengerProfileRequest = {
 
 export const DEFAULT_GET_STARTED_TITLE = 'Get Started';
 
+const SEND_BREAKER_BASE_HOURS = 1;
+const SEND_BREAKER_MAX_HOURS = 24;
+
 /**
  * Ice breaker actions as Facebook stores them. A blank question is dropped the
  * same way a blank persistent-menu title is.
@@ -303,6 +306,14 @@ export interface IFacebookBotModel extends Model<IFacebookBotDocument> {
     accountId: string,
     options: { reason: string; userId?: string; notify?: boolean },
   ): Promise<void>;
+  openSendBreaker(
+    pageId: string,
+    reason: string,
+  ): Promise<{ until: Date; attempt: number } | null>;
+  getSendBlock(
+    pageId: string,
+  ): Promise<{ until: Date; reason?: string } | null>;
+  closeSendBreaker(pageId: string): Promise<void>;
   markBrokenByPageIds(
     pageIds: string[],
     options: { reason: string; userId?: string; notify?: boolean },
@@ -504,6 +515,71 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       for (const bot of bots) {
         await this.markBroken(bot._id, { reason, userId, notify });
       }
+    }
+
+    /**
+     * Facebook refused this page. Each consecutive refusal doubles the pause,
+     * because on the 2026-09-07 dump the same page was hit for five days across
+     * three separate enforcement windows.
+     */
+    static async openSendBreaker(pageId: string, reason: string) {
+      const bot = await models.FacebookBots.findOne({ pageId }).lean();
+
+      if (!bot) {
+        return null;
+      }
+
+      const attempt = (bot.health?.sendBlockCount || 0) + 1;
+      const hours = Math.min(
+        SEND_BREAKER_BASE_HOURS * 2 ** (attempt - 1),
+        SEND_BREAKER_MAX_HOURS,
+      );
+      const until = new Date(Date.now() + hours * 3600_000);
+
+      await models.FacebookBots.updateOne(
+        { _id: bot._id },
+        {
+          $set: {
+            'health.sendBlockedUntil': until,
+            'health.sendBlockReason': reason,
+            'health.sendBlockCount': attempt,
+            updatedAt: new Date(),
+          },
+        },
+      );
+
+      return { until, attempt };
+    }
+
+    static async getSendBlock(pageId: string) {
+      const bot = await models.FacebookBots.findOne(
+        { pageId },
+        { health: 1 },
+      ).lean();
+      const until = bot?.health?.sendBlockedUntil;
+
+      if (!until || new Date(until).getTime() <= Date.now()) {
+        return null;
+      }
+
+      return { until: new Date(until), reason: bot?.health?.sendBlockReason };
+    }
+
+    /** A reply got through, so the page is answering again. */
+    static async closeSendBreaker(pageId: string) {
+      await models.FacebookBots.updateOne(
+        { pageId, 'health.sendBlockCount': { $gt: 0 } },
+        {
+          $set: {
+            'health.sendBlockCount': 0,
+            updatedAt: new Date(),
+          },
+          $unset: {
+            'health.sendBlockedUntil': '',
+            'health.sendBlockReason': '',
+          },
+        },
+      );
     }
 
     static async markBrokenByPageIds(

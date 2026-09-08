@@ -631,6 +631,39 @@ export const facebookQueries = {
     return await models.FacebookBots.findOne({ _id });
   },
 
+  /** What the outbox is holding for this bot's page, and when it next sends. */
+  async facebookMessengerBotDelivery(_root, { _id }, { models }: IContext) {
+    const bot = await models.FacebookBots.findOne({ _id }, { pageId: 1 }).lean();
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    const [counts, next] = await Promise.all([
+      models.FacebookCommentOutbox.aggregate([
+        { $match: { pageId: bot.pageId } },
+        { $group: { _id: '$status', n: { $sum: 1 } } },
+      ]),
+      models.FacebookCommentOutbox.findOne(
+        { pageId: bot.pageId, status: 'pending' },
+        { sendAfter: 1 },
+      )
+        .sort({ sendAfter: 1 })
+        .lean(),
+    ]);
+
+    const byStatus = Object.fromEntries(
+      counts.map(({ _id: status, n }) => [status, n]),
+    );
+
+    return {
+      pending: byStatus.pending || 0,
+      sent: byStatus.sent || 0,
+      failed: byStatus.failed || 0,
+      nextSendAt: next?.sendAfter || null,
+    };
+  },
+
   async facebookGetBotPosts(_root, { botId }, { models }: IContext) {
     const bot = await models.FacebookBots.findOne({ _id: botId });
 

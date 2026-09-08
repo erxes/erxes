@@ -1585,5 +1585,22 @@
   "create-automation-for-this": "Create an automation for this",
   "unsaved": "unsaved",
   "menu-outcome-unsaved-item": "Not saved yet, so no automation can point at it. Save the bot first.",
-  "menu-outcome-handoff": "Hands the conversation to a person and pauses automated replies. No automation runs."
+  "menu-outcome-handoff": "Hands the conversation to a person and pauses automated replies. No automation runs.",
+  "reply-variants": "Reply variants",
+  "reply-variants-description": "One is picked at random for each comment, so the same sentence does not fill a post.",
+  "add-reply-variant": "Add reply variant",
+  "single-reply-variant-warning": "With one variant every reply under a post is identical, which Meta treats as repetitive content. Add at least two more.",
+  "n-variants": "+{{extra}} more",
+  "comment-post-limit-reached": "Skipped: this post already received {{limit}} public replies. The private reply still went out.",
+  "skipped": "Skipped",
+  "comment-send-blocked": "Skipped: Facebook refused a public reply on this page, so they are paused until {{until}}. The private reply still went out.",
+  "public-replies-paused": "Public replies paused until",
+  "comment-queued-in": "Queued — sending in about {{minutes}} min",
+  "comment-queued": "Queued — sending shortly",
+  "public-replies-paused-until": "Facebook refused a public reply, so they are paused until {{until}}. Private replies are unaffected.",
+  "next-public-reply-at": "Next public reply at {{at}}",
+  "queued": "Queued",
+  "sent": "Sent",
+  "failed": "Failed",
+  "comment-no-conditions-description": "With no keywords this trigger answers every comment it sees."
 }

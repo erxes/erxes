@@ -15,6 +15,11 @@ import { IFacebookConversationDocument } from '@/integrations/facebook/@types/co
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookCommentConversationDocument } from '@/integrations/facebook/@types/comment_conversations';
 import { IFacebookCommentConversationReplyDocument } from '@/integrations/facebook/@types/comment_conversations_reply';
+import { IFacebookCommentOutboxDocument } from '@/integrations/facebook/db/definitions/comment_outbox';
+import {
+  IFacebookCommentOutboxModel,
+  loadFacebookCommentOutboxClass,
+} from '@/integrations/facebook/db/models/CommentOutbox';
 import { IFacebookPostConversationDocument } from '@/integrations/facebook/@types/postConversations';
 import { IFacebookConfigDocument } from '@/integrations/facebook/@types/config';
 import { IChannelModel, loadChannelClass } from '@/channel/db/models/Channel';
@@ -335,6 +340,7 @@ export interface IModels {
   FacebookConversationMessages: IFacebookConversationMessageModel;
   FacebookCommentConversation: IFacebookCommentConversationModel;
   FacebookCommentConversationReply: IFacebookCommentConversationReplyModel;
+  FacebookCommentOutbox: IFacebookCommentOutboxModel;
   FacebookLogs: IFacebookLogModel;
   FacebookPostConversations: IFacebookPostConversationModel;
   FacebookConfigs: IFacebookConfigModel;
@@ -510,6 +516,10 @@ export const loadClasses = (
     'comment_conversations_reply_facebook',
     loadFacebookCommentConversationReplyClass(models),
   );
+  models.FacebookCommentOutbox = db.model<
+    IFacebookCommentOutboxDocument,
+    IFacebookCommentOutboxModel
+  >('comment_outbox_facebook', loadFacebookCommentOutboxClass(models));
   models.FacebookIntegrations = db.model<
     IFacebookIntegrationDocument,
     IFacebookIntegrationModel

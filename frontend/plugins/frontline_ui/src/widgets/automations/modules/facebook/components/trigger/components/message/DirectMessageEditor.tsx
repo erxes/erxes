@@ -11,6 +11,8 @@ type Props = {
   // claims are then empty.
   botId?: string;
   currentTriggerId?: string;
+  // The comment trigger reuses this editor, where "direct message" is wrong.
+  emptyDescription?: string;
   conditions: TMessageTriggerDirectConditions;
   onConditionChange: (
     fieldName: 'persistentMenuIds' | 'conditions',
@@ -21,6 +23,7 @@ type Props = {
 export const DirectMessageEditor = ({
   botId,
   currentTriggerId,
+  emptyDescription,
   conditions,
   onConditionChange,
 }: Props) => {
@@ -39,7 +42,7 @@ export const DirectMessageEditor = ({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        {t('no-conditions-description')}
+        {emptyDescription || t('no-conditions-description')}
       </p>
 
       <div className="flex justify-end">

@@ -5,6 +5,7 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
+import { FacebookSendError } from '@/integrations/facebook/errors';
 import * as AWS from 'aws-sdk';
 import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
@@ -627,10 +628,14 @@ export const sendReply = async (
     }
 
     if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
+      throw new FacebookSendError(
+        'Comment has been deleted by the customer',
+        e.code,
+        e.error_subcode,
+      );
     }
 
-    throw new Error(e.message);
+    throw new FacebookSendError(e.message, e.code, e.error_subcode);
   }
 };
 

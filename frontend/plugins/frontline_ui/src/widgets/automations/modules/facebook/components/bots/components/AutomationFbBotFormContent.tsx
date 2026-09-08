@@ -21,6 +21,7 @@ import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/compone
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 import { FacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations';
+import { FacebookBotHealthPanel } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotHealthPanel';
 import { FacebookIceBreakerGenerator } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookIceBreakerGenerator';
 import {
   FACEBOOK_GET_STARTED_TITLE,
@@ -268,6 +269,7 @@ export const AutomationFbBotFormContent = ({
               </Collapsible.Content>
             </Collapsible>
             <Separator />
+            <FacebookBotHealthPanel bot={facebookMessengerBot} />
             <FacebookBotAutomations botId={facebookMessengerBot?._id} />
           </div>
         </Form>
