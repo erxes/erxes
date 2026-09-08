@@ -55,8 +55,9 @@
 
 - Internal Viber helpers verify webhook signatures, fetch and validate bot
   account information, and create tenant-scoped connections after checking the
-  inbox and duplicate bot/inbox. No Viber route or creation-dispatcher branch
-  is registered.
+  inbox and duplicate bot/inbox. The creation adapter validates serialized
+  settings and wraps the helper result with Frontline's success/error response.
+  No Viber route or creation-dispatcher branch is registered.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -147,10 +148,11 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, `utils/` holds signature/account helpers and their colocated tests,
-and `@types/` and `db/` hold document types, schema definitions, and the model
-loader. `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied
-tenant connection.
+creation, `messageBroker.ts` adapts creation input and response handling, `utils/`
+holds signature/account helpers and their colocated tests, and `@types/` and `db/`
+hold document types, schema definitions, and the model loader.
+`src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
+connection.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -620,10 +622,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens, uses a ten-second abort signal, and reports
   HTTP/JSON failures without exposing the provider response body.
-- `viberCreateIntegration` obtains models through `generateModels(subdomain)`,
+- `createViberIntegration` obtains models through `generateModels(subdomain)`,
   takes `botId` only from the validated account response, and awaits the save.
   Its duplicate precheck provides a friendly error but does not replace database
   unique indexes. Dependency failures propagate to the caller.
+- `viberCreateIntegration` is the creation adapter in `messageBroker.ts`, not
+  the persistence helper. It validates serialized settings as `unknown`, rejects
+  missing or blank tokens, preserves the original token string, and awaits
+  `createViberIntegration` inside `withErrorHandling`. JSON parse failures use
+  a fixed error message without reflecting the supplied settings.
 - Viber tokens use `select: false`, which is a default query projection, not
   encryption or protection for a newly created document. The creation helper
   returns `Promise<void>`, never the token-containing document.
@@ -1503,6 +1510,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Viber integration creation adapter
+
+- **Summary:** Added validated settings parsing and the standard success/error
+  response wrapper, with distinct helper and adapter names.
+- **Affected areas:** `src/modules/integrations/viber/{helpers,messageBroker}.ts`.
+- **Contracts changed:** Renamed the internal helper to
+  `createViberIntegration(subdomain, integrationId, token): Promise<void>`;
+  `viberCreateIntegration` accepts `IViberIntegrationInput` and returns
+  `Promise<ApiResponse<void>>`. No public API or dispatcher branch is added.
+
 ### `2026-09-09` — Viber connection creation helper
 
 - **Summary:** Added inbox validation, verified bot identity lookup, duplicate
@@ -1596,18 +1613,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   have no caller in this repository.
 - **Affected areas:** `AGENTS.md` only — no API change.
 - **Contracts changed:** None.
-
-### `2026-09-03` — A help center carries its published site's appearance
-
-- **Summary:** Added a nested `styles` block to the knowledge base topic holding
-  the published site's logo and favicon, six surface colours, base and heading
-  fonts with their text and link colours, three form-element colours, and raw
-  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
-  `KnowledgeBaseTopicStylesInput`.
-- **Affected areas:**
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic.styles` and
-  `KnowledgeBaseTopicDoc.styles` added, with the two new
-  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.

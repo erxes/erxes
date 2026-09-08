@@ -1,7 +1,7 @@
 import { generateModels } from '~/connectionResolvers';
 import { getViberAccountInfo } from '@/integrations/viber/utils/account';
 
-export const viberCreateIntegration = async (
+export const createViberIntegration = async (
   subdomain: string,
   integrationId: string,
   token: string,
