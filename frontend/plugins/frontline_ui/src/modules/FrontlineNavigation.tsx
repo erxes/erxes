@@ -5,6 +5,7 @@ import {
   IconChartHistogram,
   IconForms,
   IconBook,
+  IconLifebuoy,
   IconPlus,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
@@ -73,6 +74,11 @@ export const FrontlineDestinationLinks = () => {
             <IconPlus className="size-4" />
           </Button>
         }
+      />
+      <NavigationMenuLinkItem
+        name={t('help-center', 'Help Center')}
+        icon={IconLifebuoy}
+        path="frontline/helpcenter"
       />
     </>
   );

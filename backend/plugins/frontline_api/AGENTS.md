@@ -483,6 +483,29 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
+- A knowledge base topic also carries its published site's settings: `url`,
+  plus one group per feature the site can expose — `kbToggle` / `kbLabel` and
+  `ticketToggle` / `ticketLabel` / `ticketChannelId` / `ticketPipelineId` /
+  `ticketStatusId`. `Topic.updateDoc` writes with `$set`, so a caller that omits
+  them leaves them untouched — never switch it to a whole-document replace.
+- A topic's published-site appearance lives in one nested `styles` block
+  (`stylesSchema`, `_id: false`), not as twenty more top-level fields: the logo
+  pair, six surface colours, two font families with their text colours, three
+  form-element colours and the raw header/footer markup. It is read and written
+  whole, and `KnowledgeBaseTopicDoc.styles` takes
+  `KnowledgeBaseTopicStylesInput` while the topic exposes
+  `KnowledgeBaseTopicStyles` — keep the two mirrored when adding a style.
+  `color` and `backgroundImage` stay top-level: they are the topic's own accent
+  and cover, not the site chrome.
+- `KnowledgeBaseTopicDoc.brandId` is optional (`String`): a topic need not
+  belong to a brand, and the help center drawer does not collect one. The
+  `KnowledgeBaseTopic.brand` resolver therefore returns `null` for a missing or
+  empty `brandId` rather than a Brand reference with an empty key — keep that
+  guard if the resolver is touched.
+- `topicSchema` carries mongoose `timestamps` but no `createdDate` field, so a
+  topic's creation time is only ever stored as `createdAt`. The
+  `KnowledgeBaseTopic.createdDate` resolver reads through to it — never assume
+  the persisted document has a `createdDate`.
 - Call Pro owns four collections: `integrations_callpro` (unique
   `phoneNumber`, `inboxId`), `customers_callpro` (unique `phoneNumber`),
   `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
@@ -1444,6 +1467,17 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — A help center points at the knowledge base topic it serves
+
+- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
+  center can name which other topic supplies its articles instead of only
+  toggling the feature on with a menu label.
+- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
+  `KnowledgeBaseTopicDoc` accepts it.
+
 ### `2026-09-07` — Polls pin their messenger integration by brand
 
 - **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
@@ -1518,44 +1552,29 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Affected areas:** `AGENTS.md` only — no API change.
 - **Contracts changed:** None.
 
-### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
+### `2026-09-03` — A help center carries its published site's appearance
 
-- **Summary:** All four pipeline visibility rules were dead on the channel
-  ticket list: `generateFilter` only consulted the pipeline when the query
-  carried a `filter.pipelineId`, and the channel page never sends one, so every
-  ticket in the channel was returned. `isCheckDate` was additionally never
-  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
-  pipeline access gates rather than the per-ticket filters their labels promise.
-  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
-  unscoped lists, which also stops private-pipeline tickets leaking there.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- **Contracts changed:** None (`getTickets` arguments are unchanged).
+- **Summary:** Added a nested `styles` block to the knowledge base topic holding
+  the published site's logo and favicon, six surface colours, base and heading
+  fonts with their text and link colours, three form-element colours, and raw
+  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
+  `KnowledgeBaseTopicStylesInput`.
+- **Affected areas:**
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic.styles` and
+  `KnowledgeBaseTopicDoc.styles` added, with the two new
+  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
 
-### `2026-09-02` — IMAP integration removed
+### `2026-09-03` — A knowledge base topic need not have a brand
 
-- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
-  message processing/saving, models, message broker, and GraphQL layer — along
-  with every registration that referenced it.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
-  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
-  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
-  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
-  `src/shared/types.ts`, `package.json`.
-- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
-  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
-  `IMapIntegration`; `imap` is no longer an accepted integration kind for
-  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
-  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
-  registered.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the ticket module's producers; automation target
-  matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.
+- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
+  not be created without a brand; the help center drawer no longer collects one,
+  so the input field is now nullable and the `brand` resolver returns `null` for
+  a missing or empty `brandId` instead of a Brand reference with an empty key.
+- **Affected areas:**
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
+  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
+- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
+  (was `String!`).

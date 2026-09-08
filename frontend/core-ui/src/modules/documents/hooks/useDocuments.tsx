@@ -20,18 +20,23 @@ type DocumentsQueryResponse = {
 };
 
 export const useDocuments = () => {
-  const [{ createdAt, createdBy, contentType, searchValue }] =
+  const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([
       'createdAt',
       'createdBy',
       'contentType',
       'searchValue',
+      'tagIds',
     ]);
 
   const variables: Record<string, unknown> = {
     limit: DOCUMENTS_PER_PAGE,
     orderBy: { createdAt: -1 },
   };
+
+  if (tagIds?.length) {
+    variables.tagIds = tagIds;
+  }
 
   if (contentType) {
     variables['contentType'] = contentType;

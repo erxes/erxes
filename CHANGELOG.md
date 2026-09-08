@@ -1,3 +1,23 @@
+
+
+## [3.1.2](https://github.com/erxes/erxes/compare/3.1.1...3.1.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* add tags on Documents ([#9245](https://github.com/erxes/erxes/issues/9245)) ([5376e2b](https://github.com/erxes/erxes/commit/5376e2bccafb8eba6caab1af85ca78ae8ad99a1d))
+* empty tag filter dropdown on Products page ([#9229](https://github.com/erxes/erxes/issues/9229)) ([8f41bb9](https://github.com/erxes/erxes/commit/8f41bb941c3cc612e81388ada618e37757463e93))
+* **sales:** keep deal product updates in sync ([#9019](https://github.com/erxes/erxes/issues/9019)) ([c28f009](https://github.com/erxes/erxes/commit/c28f009e3378b915fff7826b370de988898ebc4c))
+
+
+### Features
+
+* added help center  ([#9248](https://github.com/erxes/erxes/issues/9248)) ([e36c24a](https://github.com/erxes/erxes/commit/e36c24afb6851078adcf7b0cf0b42a39564eda21))
+* enhance AI agent configuration and usage tracking ([b3ab1eb](https://github.com/erxes/erxes/commit/b3ab1eb1dbf19503b032917dd0cb5acf8f9828e1))
+* enhance automation property handling with new hooks and error utilities ([8b93470](https://github.com/erxes/erxes/commit/8b93470066b87394e4b9ebdefc2485b77350d624))
+* **frontline:** add polls for messenger conversations  ([f31acda](https://github.com/erxes/erxes/commit/f31acda70ac0490efd333a1e69660532e9123279))
+* refactor empty state components to use unified Empty component ([a7864ff](https://github.com/erxes/erxes/commit/a7864ff3b221459eb1e764ab1af366bcf312430f))
+
 # Changelog
 
 ## [3.1.1](https://github.com/erxes/erxes/compare/3.1.0...3.1.1) (2026-09-07)
