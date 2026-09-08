@@ -388,7 +388,9 @@ const IntegrationFilterBar = () => {
           count: integrationIds.length,
           defaultValue: '{{count}} integrations',
         })
-      : integration?.name || integration?.kind || t('integration', 'Integration');
+      : integration?.name ||
+        integration?.kind ||
+        t('integration', 'Integration');
 
   return (
     <Filter.BarItem queryKey="integrationId">
@@ -420,11 +422,7 @@ const BrandFilterBar = () => {
     <Filter.BarItem queryKey="brandId">
       <Filter.BarName>
         <IconBuildingStore />
-        {loading || !brandName ? (
-          <Skeleton className="h-4 w-20" />
-        ) : (
-          brandName
-        )}
+        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
       </Filter.BarName>
     </Filter.BarItem>
   );

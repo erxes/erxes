@@ -136,7 +136,9 @@ export const FacebookInputMessage = ({
                   <Select.Value placeholder={t('select-unit', 'Select unit')} />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="minute">{t('minutes', 'Minutes')}</Select.Item>
+                  <Select.Item value="minute">
+                    {t('minutes', 'Minutes')}
+                  </Select.Item>
                   <Select.Item value="hour">{t('hours', 'Hours')}</Select.Item>
                   <Select.Item value="day">{t('days', 'Days')}</Select.Item>
                   <Select.Item value="month">{t('month', 'Month')}</Select.Item>

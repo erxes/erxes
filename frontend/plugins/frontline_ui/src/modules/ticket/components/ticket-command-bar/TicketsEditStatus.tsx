@@ -46,7 +46,12 @@ export const TicketsEditStatusContent = ({
         await bulkUpdateTickets(
           ticketIds,
           { statusId: value },
-          { successMessage: t('tickets-updated-successfully', 'Tickets updated successfully') },
+          {
+            successMessage: t(
+              'tickets-updated-successfully',
+              'Tickets updated successfully',
+            ),
+          },
         );
       }}
     >

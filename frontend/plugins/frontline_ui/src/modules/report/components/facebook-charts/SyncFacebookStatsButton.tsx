@@ -35,11 +35,15 @@ export const SyncFacebookStatsButton = ({
         toast({
           variant: 'success',
           title: t('facebook-sync-done', 'Synced from Meta'),
-          description: t('facebook-sync-summary', '{{updated}} of {{fetched}} posts updated · {{missing}} not in erxes', {
-            updated: result.updated,
-            fetched: result.fetched,
-            missing: result.missingInErxes,
-          }),
+          description: t(
+            'facebook-sync-summary',
+            '{{updated}} of {{fetched}} posts updated · {{missing}} not in erxes',
+            {
+              updated: result.updated,
+              fetched: result.fetched,
+              missing: result.missingInErxes,
+            },
+          ),
         });
       },
       onError: (error) =>
@@ -65,7 +69,12 @@ export const SyncFacebookStatsButton = ({
             {syncing ? <Spinner size="sm" /> : <IconRefresh />}
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>{t('facebook-sync-tooltip', 'Fetch comment, reaction and share counts from Facebook')}</Tooltip.Content>
+        <Tooltip.Content>
+          {t(
+            'facebook-sync-tooltip',
+            'Fetch comment, reaction and share counts from Facebook',
+          )}
+        </Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

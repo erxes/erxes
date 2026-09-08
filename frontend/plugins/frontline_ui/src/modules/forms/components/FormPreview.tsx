@@ -53,7 +53,9 @@ export const FormPreview = () => {
       <div className="p-5">
         <InfoCard title={formGeneral.title}>
           <InfoCard.Content>
-            <p className="text-muted-foreground">{t('no-fields-to-preview', 'No fields to preview')}</p>
+            <p className="text-muted-foreground">
+              {t('no-fields-to-preview', 'No fields to preview')}
+            </p>
           </InfoCard.Content>
         </InfoCard>
       </div>
@@ -66,7 +68,12 @@ export const FormPreview = () => {
         <InfoCard title={formCallout.title || formGeneral.title}>
           <InfoCard.Content>
             {formCallout.skip ? (
-              <p className="text-muted-foreground">{t('callout-skipped', 'The callout is skipped. The form opens on its first step.')}</p>
+              <p className="text-muted-foreground">
+                {t(
+                  'callout-skipped',
+                  'The callout is skipped. The form opens on its first step.',
+                )}
+              </p>
             ) : (
               <>
                 {formCallout.body && (
@@ -227,7 +234,10 @@ export const FormPreviewContent = ({
           if (stepsLength === step) {
             toast({
               title: t('form-submitted', 'Form submitted'),
-              description: t('form-submitted-successfully', 'Form submitted successfully'),
+              description: t(
+                'form-submitted-successfully',
+                'Form submitted successfully',
+              ),
               variant: 'success',
             });
             return;
@@ -508,7 +518,8 @@ export const FormPreviewContent = ({
                                   variant={'outline'}
                                   size="sm"
                                 >
-                                  {erxesField.placeholder || t('upload-file', 'Upload file')}
+                                  {erxesField.placeholder ||
+                                    t('upload-file', 'Upload file')}
                                 </Upload.Button>
                               </Upload.Root>
                             </Form.Control>

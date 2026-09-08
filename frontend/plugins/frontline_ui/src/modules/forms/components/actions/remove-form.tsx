@@ -27,15 +27,25 @@ export const RemoveForm = ({
 
     confirm({
       message: title
-        ? t('confirm-delete-form-title', 'Are you sure you want to delete "{{title}}"?', { title })
-        : t('confirm-delete-this-form', 'Are you sure you want to delete this form?'),
+        ? t(
+            'confirm-delete-form-title',
+            'Are you sure you want to delete "{{title}}"?',
+            { title },
+          )
+        : t(
+            'confirm-delete-this-form',
+            'Are you sure you want to delete this form?',
+          ),
     }).then(async () => {
       try {
         await removeForm([formId]);
         toast({
           title: t('success', 'Success!'),
           variant: 'success',
-          description: t('form-deleted-successfully', 'Form deleted successfully'),
+          description: t(
+            'form-deleted-successfully',
+            'Form deleted successfully',
+          ),
         });
       } catch (e: any) {
         toast({

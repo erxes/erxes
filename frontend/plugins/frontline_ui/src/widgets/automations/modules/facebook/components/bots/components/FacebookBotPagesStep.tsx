@@ -54,7 +54,9 @@ export const FacebookBotPagesStep = () => {
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {t('pages-found', '{{count}} pages found', { count: facebookGetPages.length })}
+            {t('pages-found', '{{count}} pages found', {
+              count: facebookGetPages.length,
+            })}
           </div>
         </div>
         <RadioGroup value={selectedPage} onValueChange={setSelectedPage}>

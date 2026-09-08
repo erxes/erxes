@@ -62,20 +62,28 @@ export function TicketsMoreColumnCell({
     }
 
     confirm({
-      message: t('confirm-delete-ticket', 'Are you sure you want to delete this ticket?'),
+      message: t(
+        'confirm-delete-ticket',
+        'Are you sure you want to delete this ticket?',
+      ),
     }).then(async () => {
       try {
         await removeTicket([_id]);
         toast({
           title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully', 'Ticket deleted successfully'),
+          description: t(
+            'ticket-deleted-successfully',
+            'Ticket deleted successfully',
+          ),
         });
       } catch (error: unknown) {
         toast({
           title: t('error', 'Error'),
           description:
-            error instanceof Error ? error.message : t('something-went-wrong', 'Uh oh! Something went wrong.'),
+            error instanceof Error
+              ? error.message
+              : t('something-went-wrong', 'Uh oh! Something went wrong.'),
           variant: 'destructive',
         });
       }

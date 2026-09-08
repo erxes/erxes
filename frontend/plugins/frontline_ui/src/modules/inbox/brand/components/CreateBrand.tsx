@@ -35,11 +35,18 @@ export const CreateBrand = () => {
     addBrand({
       variables: data,
       onCompleted: () => {
-        toast({ variant: 'success', title: t('brand-created', 'Brand created') });
+        toast({
+          variant: 'success',
+          title: t('brand-created', 'Brand created'),
+        });
         form.reset();
       },
       onError: (error) =>
-        toast({ title: t('error', 'Error'), description: error.message, variant: 'destructive' }),
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
     });
   });
 

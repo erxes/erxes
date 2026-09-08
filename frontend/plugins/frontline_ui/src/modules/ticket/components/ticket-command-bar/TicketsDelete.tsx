@@ -36,7 +36,10 @@ export const TicketsDelete = ({
         toast({
           title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully', 'Ticket deleted successfully'),
+          description: t(
+            'ticket-deleted-successfully',
+            'Ticket deleted successfully',
+          ),
         });
       } catch (e) {
         toast({

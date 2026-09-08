@@ -33,7 +33,12 @@ export const PersistentMenuSelector = ({
       <div className="flex justify-center text-muted-foreground">
         <IconList className="h-6 w-6" />
         <p>{t('no-persistent-menus', 'No persistent menus in selected bot')}</p>
-        <span>{t('persistent-menu-link-note', 'Persistent menu with link can\'t display as selectable condition on section')}</span>
+        <span>
+          {t(
+            'persistent-menu-link-note',
+            "Persistent menu with link can't display as selectable condition on section",
+          )}
+        </span>
       </div>
     );
   }

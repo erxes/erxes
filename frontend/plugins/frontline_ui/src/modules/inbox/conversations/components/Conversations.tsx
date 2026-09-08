@@ -95,10 +95,14 @@ export const Conversations = () => {
               })}
             </Empty.Title>
             <Empty.Description>
-              {t('no-conversations-description', 'There are no conversations matching your filters.', {
-                defaultValue:
-                  'Adjust the active filters or wait for a new conversation.',
-              })}
+              {t(
+                'no-conversations-description',
+                'There are no conversations matching your filters.',
+                {
+                  defaultValue:
+                    'Adjust the active filters or wait for a new conversation.',
+                },
+              )}
             </Empty.Description>
           </Empty.Header>
         </Empty>

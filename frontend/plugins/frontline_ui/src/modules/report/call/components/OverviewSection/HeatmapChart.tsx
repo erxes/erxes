@@ -109,13 +109,22 @@ export const HeatmapChart = memo(function HeatmapChart({
           value={metric}
           onValueChange={(value) => value && setMetric(value as HeatMetric)}
         >
-          <ToggleGroup.Item value="total" aria-label={t('total-calls', 'Total calls')}>
+          <ToggleGroup.Item
+            value="total"
+            aria-label={t('total-calls', 'Total calls')}
+          >
             {t('total-calls', 'Total calls')}
           </ToggleGroup.Item>
-          <ToggleGroup.Item value="answered" aria-label={t('answered', 'Answered')}>
+          <ToggleGroup.Item
+            value="answered"
+            aria-label={t('answered', 'Answered')}
+          >
             {t('answered', 'Answered')}
           </ToggleGroup.Item>
-          <ToggleGroup.Item value="noAnswer" aria-label={t('no-answer', 'No answer')}>
+          <ToggleGroup.Item
+            value="noAnswer"
+            aria-label={t('no-answer', 'No answer')}
+          >
             {t('no-answer', 'No answer')}
           </ToggleGroup.Item>
         </ToggleGroup>

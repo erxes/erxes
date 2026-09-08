@@ -46,10 +46,10 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
     sourceFilter === 'calls' && callStatusFilter !== 'all';
   const hasFilters = Boolean(
     sourceFilter !== 'all' ||
-      (channelFilter && channelFilter.length > 0) ||
-      (memberFilter && memberFilter.length > 0) ||
-      (dateValue && dateValue.length > 0) ||
-      isCallsWithStatus,
+    (channelFilter && channelFilter.length > 0) ||
+    (memberFilter && memberFilter.length > 0) ||
+    (dateValue && dateValue.length > 0) ||
+    isCallsWithStatus,
   );
 
   const handleClear = () => {
@@ -78,9 +78,15 @@ export const ReportFilter = ({ cardId }: ReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="source">{t('source', 'Source')}</Filter.Item>
-                <Filter.Item value="channel">{t('channel-label', 'Channel')}</Filter.Item>
-                <Filter.Item value="member">{t('member-label', 'Member')}</Filter.Item>
+                <Filter.Item value="source">
+                  {t('source', 'Source')}
+                </Filter.Item>
+                <Filter.Item value="channel">
+                  {t('channel-label', 'Channel')}
+                </Filter.Item>
+                <Filter.Item value="member">
+                  {t('member-label', 'Member')}
+                </Filter.Item>
                 <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>

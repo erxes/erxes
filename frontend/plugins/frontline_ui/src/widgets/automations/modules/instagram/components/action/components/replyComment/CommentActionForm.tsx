@@ -60,7 +60,10 @@ export const CommentActionForm = ({
                 </div>
               </Form.Label>
               <Form.Control>
-                <Textarea {...field} placeholder={t('enter-your-text', 'Enter your text')} />
+                <Textarea
+                  {...field}
+                  placeholder={t('enter-your-text', 'Enter your text')}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -74,7 +77,10 @@ export const CommentActionForm = ({
               <Form.Label>{t('attachments-label', 'Attachments')}</Form.Label>
               <Form.Control>
                 <Button disabled variant="secondary">
-                  {t('upload-attachments-wip', 'Upload Attachments (Work in progress)')}
+                  {t(
+                    'upload-attachments-wip',
+                    'Upload Attachments (Work in progress)',
+                  )}
                 </Button>
               </Form.Control>
             </Form.Item>

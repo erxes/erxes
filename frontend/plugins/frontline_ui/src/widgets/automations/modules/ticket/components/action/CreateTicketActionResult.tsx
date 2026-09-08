@@ -83,7 +83,9 @@ export const CreateTicketActionResult = ({
         target="_blank"
       >
         <Button variant="link" className="w-full">
-          {t('go-to-ticket', 'Go to Ticket: {{label}}', { label: label || ticketResult.ticketId })}
+          {t('go-to-ticket', 'Go to Ticket: {{label}}', {
+            label: label || ticketResult.ticketId,
+          })}
           <IconExternalLink />
         </Button>
       </Link>

@@ -66,7 +66,9 @@ export function FormToggleStatus({
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === 'active' ? t('archive', 'Archive') : t('unarchive', 'Unarchive')}
+      {status === 'active'
+        ? t('archive', 'Archive')
+        : t('unarchive', 'Unarchive')}
     </DropdownMenu.Item>
   );
 }
@@ -194,7 +196,12 @@ export const formColumns: ColumnDef<IForm>[] = [
     id: 'name',
     header: function FormPageNameHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('col-name', 'Name')} icon={IconLabel} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('col-name', 'Name')}
+          icon={IconLabel}
+        />
+      );
     },
     cell: function FormPageNameCell({ cell }) {
       const navigate = useNavigate();
@@ -219,7 +226,10 @@ export const formColumns: ColumnDef<IForm>[] = [
     header: function FormPageStatusHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconToggleRight} />
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconToggleRight}
+        />
       );
     },
     cell: ({ cell }) => {
@@ -235,7 +245,10 @@ export const formColumns: ColumnDef<IForm>[] = [
     header: function FormPageChannelHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('channel-label', 'Channel')} icon={IconCircles} />
+        <RecordTable.InlineHead
+          label={t('channel-label', 'Channel')}
+          icon={IconCircles}
+        />
       );
     },
     id: 'channelId',
@@ -257,7 +270,10 @@ export const formColumns: ColumnDef<IForm>[] = [
             toast({
               title: t('success', 'Success!'),
               variant: 'success',
-              description: t('form-updated-successfully', 'Form updated successfully'),
+              description: t(
+                'form-updated-successfully',
+                'Form updated successfully',
+              ),
             });
           },
           onError: (error) => {
@@ -283,7 +299,9 @@ export const formColumns: ColumnDef<IForm>[] = [
     id: 'tagIds',
     header: function FormPageTagsHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />;
+      return (
+        <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -302,7 +320,12 @@ export const formColumns: ColumnDef<IForm>[] = [
     id: 'createdUserId',
     header: function FormPageCreatedByHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-by', 'Created by')} icon={IconUser} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-by', 'Created by')}
+          icon={IconUser}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

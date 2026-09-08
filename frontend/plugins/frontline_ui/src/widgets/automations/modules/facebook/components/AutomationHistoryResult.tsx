@@ -29,7 +29,9 @@ export const AutomationHistoryResult = ({
   if (isCommentReply) {
     return (
       <>
-        <ActionResult.Status>{t('sent-successfully', 'Sent successfully')}</ActionResult.Status>
+        <ActionResult.Status>
+          {t('sent-successfully', 'Sent successfully')}
+        </ActionResult.Status>
         <ActionResult.Fields>
           <ActionResult.Field label={t('reply', 'Reply')} value={commentText} />
           <ActionResult.Field
@@ -42,13 +44,19 @@ export const AutomationHistoryResult = ({
   }
 
   if (!messages.length) {
-    return <ActionResult.Status>{t('sent-successfully', 'Sent successfully')}</ActionResult.Status>;
+    return (
+      <ActionResult.Status>
+        {t('sent-successfully', 'Sent successfully')}
+      </ActionResult.Status>
+    );
   }
 
   return (
     <>
       <ActionResult.Status status={isWaiting ? 'waiting' : 'success'}>
-        {t('messages-sent', '{{count}} message sent', { count: messages.length })}
+        {t('messages-sent', '{{count}} message sent', {
+          count: messages.length,
+        })}
       </ActionResult.Status>
 
       <ol className="min-w-0 space-y-2">

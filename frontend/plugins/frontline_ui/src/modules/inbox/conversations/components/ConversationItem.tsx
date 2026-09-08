@@ -181,7 +181,9 @@ export const ConversationItemContent = () => {
             <IconPhoneOutgoing className="size-4" />
           )}
           <span>
-            {direction === 'incoming' ? t('incoming-call', 'Incoming Call') : t('outgoing-call', 'Outgoing Call')}
+            {direction === 'incoming'
+              ? t('incoming-call', 'Incoming Call')
+              : t('outgoing-call', 'Outgoing Call')}
           </span>
           {status && (
             <span

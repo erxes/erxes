@@ -61,7 +61,12 @@ export const FormsList = () => {
             <IconForms />
           </Empty.Media>
           <Empty.Title>{t('no-forms-found', 'No forms found')}</Empty.Title>
-          <Empty.Description>{t('forms-empty-description', 'Create a form to start collecting data.')}</Empty.Description>
+          <Empty.Description>
+            {t(
+              'forms-empty-description',
+              'Create a form to start collecting data.',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <FormsCreateButton />
@@ -165,7 +170,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'name',
     header: function FormNameHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('col-name', 'Name')} icon={IconLabel} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('col-name', 'Name')}
+          icon={IconLabel}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -188,7 +198,10 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: function FormStatusHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconToggleRight} />
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconToggleRight}
+        />
       );
     },
     cell: ({ cell }) => {
@@ -209,7 +222,10 @@ const formsColumns: ColumnDef<IForm>[] = [
     header: function FormChannelHeader() {
       const { t } = useTranslation('frontline');
       return (
-        <RecordTable.InlineHead label={t('channel-label', 'Channel')} icon={IconCircles} />
+        <RecordTable.InlineHead
+          label={t('channel-label', 'Channel')}
+          icon={IconCircles}
+        />
       );
     },
     cell: function FormChannelCell({ cell }) {
@@ -229,7 +245,9 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'tagIds',
     header: function FormTagsHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />;
+      return (
+        <RecordTable.InlineHead label={t('tags', 'Tags')} icon={IconTag} />
+      );
     },
     cell: ({ cell }) => {
       return (
@@ -248,7 +266,12 @@ const formsColumns: ColumnDef<IForm>[] = [
     id: 'createdUserId',
     header: function FormCreatedByHeader() {
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('created-by', 'Created by')} icon={IconUser} />;
+      return (
+        <RecordTable.InlineHead
+          label={t('created-by', 'Created by')}
+          icon={IconUser}
+        />
+      );
     },
     cell: ({ cell }) => {
       return (

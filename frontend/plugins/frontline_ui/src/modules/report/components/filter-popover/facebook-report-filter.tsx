@@ -69,7 +69,9 @@ export const FacebookReportFilter = ({
                     {t('search', 'Search')}
                   </Filter.Item>
                 )}
-                <Filter.Item value="page">{t('facebook-page', 'Facebook page')}</Filter.Item>
+                <Filter.Item value="page">
+                  {t('facebook-page', 'Facebook page')}
+                </Filter.Item>
                 <Filter.Item value="date">{t('date', 'Date')}</Filter.Item>
                 {hasFilters && (
                   <>

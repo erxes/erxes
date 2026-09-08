@@ -49,19 +49,26 @@ export function CallbacksSection() {
 
       <SectionCard
         title={t('callback-recovery', 'Callback Recovery')}
-        description={t('per-queue-missed-call-follow-up', 'Per-queue missed call follow-up statistics')}
+        description={t(
+          'per-queue-missed-call-follow-up',
+          'Per-queue missed call follow-up statistics',
+        )}
         accentClass="bg-[var(--warning)]"
         loading={loading}
         skeletonHeight="h-32"
       >
         {!stats.length ? (
-          <ReportTable.Empty>{t('no-callback-data', 'No callback data for the selected period')}</ReportTable.Empty>
+          <ReportTable.Empty>
+            {t('no-callback-data', 'No callback data for the selected period')}
+          </ReportTable.Empty>
         ) : (
           <ReportTable>
             <ReportTable.Header>
               <ReportTable.HeaderRow>
                 <ReportTable.Head>{t('queue', 'Queue')}</ReportTable.Head>
-                <ReportTable.Head align="right">{t('missed', 'Missed')}</ReportTable.Head>
+                <ReportTable.Head align="right">
+                  {t('missed', 'Missed')}
+                </ReportTable.Head>
                 <ReportTable.Head align="right">
                   {t('cb-attempts', 'CB Attempts')}
                 </ReportTable.Head>

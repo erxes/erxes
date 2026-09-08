@@ -32,7 +32,9 @@ function CopyButton({
       })
       .catch(() => {
         toast({
-          title: t('failed-to-copy', 'Failed to copy {{label}}', { label: label.toLowerCase() }),
+          title: t('failed-to-copy', 'Failed to copy {{label}}', {
+            label: label.toLowerCase(),
+          }),
           description: t('please-try-again', 'Please try again'),
           variant: 'destructive',
         });
@@ -122,9 +124,14 @@ export function FormInstallScript({
         <Dialog.Content className="max-w-2xl p-0 gap-0 overflow-hidden">
           <div className="flex flex-col max-h-[75vh] overflow-hidden p-6 gap-4">
             <Dialog.Header>
-              <Dialog.Title>{t('installation-guide', 'Installation Guide')}</Dialog.Title>
+              <Dialog.Title>
+                {t('installation-guide', 'Installation Guide')}
+              </Dialog.Title>
               <Dialog.Description>
-                {t('installation-guide-description', 'Follow the steps below to embed this form on your website.')}
+                {t(
+                  'installation-guide-description',
+                  'Follow the steps below to embed this form on your website.',
+                )}
               </Dialog.Description>
             </Dialog.Header>
 
@@ -136,11 +143,17 @@ export function FormInstallScript({
                       1
                     </span>
                     <p className="text-sm font-medium">
-                      {t('install-step-1-title', 'Add the loader script to your HTML')}
+                      {t(
+                        'install-step-1-title',
+                        'Add the loader script to your HTML',
+                      )}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-1-description', 'Paste this snippet just before the closing </body> tag. It loads the form widget asynchronously without blocking your page.')}
+                    {t(
+                      'install-step-1-description',
+                      'Paste this snippet just before the closing </body> tag. It loads the form widget asynchronously without blocking your page.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -156,11 +169,17 @@ export function FormInstallScript({
                       2
                     </span>
                     <p className="text-sm font-medium">
-                      {t('install-step-2-title', 'Place the embed element where the form should appear')}
+                      {t(
+                        'install-step-2-title',
+                        'Place the embed element where the form should appear',
+                      )}
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-2-description', 'Add this element anywhere in your page body. The form will render inside it.')}
+                    {t(
+                      'install-step-2-description',
+                      'Add this element anywhere in your page body. The form will render inside it.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -169,7 +188,10 @@ export function FormInstallScript({
                     <CopyButton text={embed} label="" />
                   </div>
                   <p className="text-xs text-muted-foreground pl-7">
-                    {t('install-step-2-popup-note', 'If your form style is a popup, additionally paste this code after the main code.')}
+                    {t(
+                      'install-step-2-popup-note',
+                      'If your form style is a popup, additionally paste this code after the main code.',
+                    )}
                   </p>
                   <div className="relative pl-7">
                     <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono">
@@ -180,12 +202,34 @@ export function FormInstallScript({
                 </div>
 
                 <Badge variant="info" className="block w-full h-auto p-3">
-                  <h4 className="font-medium text-sm mb-2">{t('quick-checklist', 'Quick checklist')}</h4>
+                  <h4 className="font-medium text-sm mb-2">
+                    {t('quick-checklist', 'Quick checklist')}
+                  </h4>
                   <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
-                    <li>{t('checklist-loader-script', 'Loader script is placed before </body>')}</li>
-                    <li>{t('checklist-embed-element', 'Embed element is placed where you want the form to appear')}</li>
-                    <li>{t('checklist-same-page', 'Both snippets are on the same page')}</li>
-                    <li>{t('checklist-https', 'Page is served over HTTPS (required for the widget)')}</li>
+                    <li>
+                      {t(
+                        'checklist-loader-script',
+                        'Loader script is placed before </body>',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-embed-element',
+                        'Embed element is placed where you want the form to appear',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-same-page',
+                        'Both snippets are on the same page',
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        'checklist-https',
+                        'Page is served over HTTPS (required for the widget)',
+                      )}
+                    </li>
                   </ul>
                 </Badge>
               </div>

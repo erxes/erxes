@@ -29,9 +29,16 @@ export const FormContent = () => {
   });
 
   return (
-    <FormMutateLayout title={t('content-label', 'Content')} description={t('content-label', 'Content')} form={form}>
+    <FormMutateLayout
+      title={t('content-label', 'Content')}
+      description={t('content-label', 'Content')}
+      form={form}
+    >
       <FormValueEffectComponent form={form} atom={formSetupContentAtom} />
-      <InfoCard title={t('fields-label', 'Fields')} description={t('drag-to-reorder', 'Drag to reorder fields')}>
+      <InfoCard
+        title={t('fields-label', 'Fields')}
+        description={t('drag-to-reorder', 'Drag to reorder fields')}
+      >
         <Form.Field
           name="steps"
           control={form.control}

@@ -41,7 +41,12 @@ export const TicketsEditPriorityContent = ({
         await bulkUpdateTickets(
           ticketIds,
           { priority: value },
-          { successMessage: t('tickets-updated-successfully', 'Tickets updated successfully') },
+          {
+            successMessage: t(
+              'tickets-updated-successfully',
+              'Tickets updated successfully',
+            ),
+          },
         );
       }}
     >

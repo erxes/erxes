@@ -30,12 +30,16 @@ export const InstagramBotPageAccountsStep = ({
       <Command>
         <div className="p-1">
           <Command.Primitive.Input asChild>
-            <Input placeholder={t('search-for-an-account', 'Search for an account')} />
+            <Input
+              placeholder={t('search-for-an-account', 'Search for an account')}
+            />
           </Command.Primitive.Input>
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {t('accounts-found', '{{count}} accounts found', { count: instagramGetAccounts.length })}
+            {t('accounts-found', '{{count}} accounts found', {
+              count: instagramGetAccounts.length,
+            })}
           </div>
           <Button variant="ghost" className="text-pink-600" asChild>
             <a

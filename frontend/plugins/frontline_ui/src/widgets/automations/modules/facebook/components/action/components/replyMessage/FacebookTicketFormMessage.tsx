@@ -18,7 +18,13 @@ export const FacebookTicketFormMessage = ({
           <Form.Item>
             <Form.Label>{t('prompt-text', 'Prompt text')}</Form.Label>
             <Form.Control>
-              <Input placeholder={t('fill-in-ticket-details', 'Please fill in the ticket details:')} {...field} />
+              <Input
+                placeholder={t(
+                  'fill-in-ticket-details',
+                  'Please fill in the ticket details:',
+                )}
+                {...field}
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -30,7 +36,8 @@ export const FacebookTicketFormMessage = ({
         </p>
         <div className="flex flex-col gap-1">
           <div className="text-xs text-foreground/70 bg-muted rounded px-2 py-1">
-            {t('ticket-name', 'Ticket Name')} <span className="text-destructive">*</span>
+            {t('ticket-name', 'Ticket Name')}{' '}
+            <span className="text-destructive">*</span>
           </div>
           <div className="text-xs text-foreground/70 bg-muted rounded px-2 py-1">
             {t('description', 'Description')}

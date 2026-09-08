@@ -239,7 +239,9 @@ export const TicketReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       {priorityError && (
         <Alert variant="destructive">
-          <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
+          <Alert.Title>
+            {t('error-loading-data', 'Error loading data')}
+          </Alert.Title>
           <Alert.Description>{priorityError.message}</Alert.Description>
         </Alert>
       )}
@@ -262,7 +264,9 @@ export const TicketReportsList = () => {
           value={String(totalCount)}
           subtitle={
             noPriorityCount
-              ? t('without-priority', '{{value}} without priority', { value: noPriorityCount })
+              ? t('without-priority', '{{value}} without priority', {
+                  value: noPriorityCount,
+                })
               : t('all-priorities', 'All Priorities')
           }
           icon={<IconTicket className="h-5 w-5" />}
@@ -274,7 +278,9 @@ export const TicketReportsList = () => {
             key={p.priority}
             title={p.name}
             value={String(p.count)}
-            subtitle={t('percent-of-total', '{{percent}}% of total', { percent: p.percentage })}
+            subtitle={t('percent-of-total', '{{percent}}% of total', {
+              percent: p.percentage,
+            })}
             icon={<PriorityIcon priority={p.priority} />}
             valueStyle={{ color: p.color }}
             iconStyle={{ backgroundColor: `${p.color}1a`, color: p.color }}

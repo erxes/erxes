@@ -282,7 +282,8 @@ export const SelectChannelFilterBar = ({
           <Popover.Trigger asChild>
             <Filter.BarButton filterKey={queryKey || 'channelId'}>
               {selectedPersonalChannel ? (
-                selectedPersonalChannel.name || t('personal-channel', 'Personal channel')
+                selectedPersonalChannel.name ||
+                t('personal-channel', 'Personal channel')
               ) : (
                 <SelectChannelsValue />
               )}

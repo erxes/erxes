@@ -132,7 +132,9 @@ export const DateSelectorValue = ({ placeholder }: { placeholder: string }) => {
   const selectedOption = DATE_OPTIONS.find((option) => option.value === value);
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm">{selectedOption ? t(selectedOption.label) : placeholder}</span>
+      <span className="text-sm">
+        {selectedOption ? t(selectedOption.label) : placeholder}
+      </span>
     </div>
   );
 };

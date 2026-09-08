@@ -57,7 +57,10 @@ export const ChannelFormsSubHeader = () => {
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem value="tagId" label={tf('by-tag', 'By Tag')} />
+                  <SelectTags.FilterItem
+                    value="tagId"
+                    label={tf('by-tag', 'By Tag')}
+                  />
                   <FormStatus.Item />
                 </Command.List>
               </Command>

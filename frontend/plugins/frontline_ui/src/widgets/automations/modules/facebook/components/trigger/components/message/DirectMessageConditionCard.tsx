@@ -60,12 +60,17 @@ export const DirectMessageConditionCard = ({
           </Select.Content>
         </Select>
 
-        <Input placeholder={t('add-keyword', '+ add keyword')} onKeyDown={handleKeyPress} />
+        <Input
+          placeholder={t('add-keyword', '+ add keyword')}
+          onKeyDown={handleKeyPress}
+        />
 
         {!hasKeywords ? (
           <div className="flex flex-col items-center text-muted-foreground">
             <IconSquareKey />
-            <span className="text-xs">{t('no-keywords-configured', 'There is no keywords configured')}</span>
+            <span className="text-xs">
+              {t('no-keywords-configured', 'There is no keywords configured')}
+            </span>
           </div>
         ) : (
           <div className="flex flex-wrap gap-4 py-4">

@@ -285,7 +285,10 @@ export const StatusGroup = ({
       if (hasFailure) {
         toast({
           title: t('error', 'Error'),
-          description: t('reorder-failed', 'Some statuses could not be reordered.'),
+          description: t(
+            'reorder-failed',
+            'Some statuses could not be reordered.',
+          ),
           variant: 'destructive',
         });
       }

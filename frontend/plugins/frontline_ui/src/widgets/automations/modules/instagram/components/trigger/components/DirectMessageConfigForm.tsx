@@ -78,7 +78,9 @@ const DirectMessageCondition = ({
       return (
         <div className="text-muted-foreground flex flex-col items-center">
           <IconSquareKey />
-          <span className="text-xs">{t('no-keywords-configured', 'There is no keywords configured')}</span>
+          <span className="text-xs">
+            {t('no-keywords-configured', 'There is no keywords configured')}
+          </span>
         </div>
       );
     }
@@ -128,7 +130,10 @@ const DirectMessageCondition = ({
           ))}
         </Select.Content>
       </Select>
-      <Input placeholder={t('add-keyword', '+ add keyword')} onKeyDown={handleKeyPress} />
+      <Input
+        placeholder={t('add-keyword', '+ add keyword')}
+        onKeyDown={handleKeyPress}
+      />
       {renderKeywords()}
     </div>
   );

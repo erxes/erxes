@@ -16,7 +16,10 @@ export const useUpdateResponse = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('response-updated-successfully', 'Response updated successfully'),
+          title: t(
+            'response-updated-successfully',
+            'Response updated successfully',
+          ),
           variant: 'default',
         });
         options.onCompleted?.(data);

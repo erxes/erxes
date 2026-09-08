@@ -125,7 +125,10 @@ const ActionConfigMessage = ({
             _id={_id}
             type={type}
             actionData={actionData}
-            text={t('action-requires-trigger', 'This action must be part of a chain that starts with a trigger')}
+            text={t(
+              'action-requires-trigger',
+              'This action must be part of a chain that starts with a trigger',
+            )}
           />
         );
       }

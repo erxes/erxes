@@ -46,7 +46,10 @@ export const ProgressSource = ({ customerId }: { customerId?: string }) => {
   if (Object.keys(sourceStats).length === 0) {
     return (
       <div className="p-4 text-center text-sm text-muted-foreground">
-        {t('no-conversation-source-data', 'No conversation source data available')}
+        {t(
+          'no-conversation-source-data',
+          'No conversation source data available',
+        )}
       </div>
     );
   }

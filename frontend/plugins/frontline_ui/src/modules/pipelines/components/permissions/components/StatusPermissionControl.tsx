@@ -131,9 +131,7 @@ export const StatusPermissionControl = ({
             'failed-to-update-visibility',
             'Failed to update visibility',
           )}: ${
-            error instanceof Error
-              ? error.message
-              : t('unknown', 'Unknown')
+            error instanceof Error ? error.message : t('unknown', 'Unknown')
           }`,
           variant: 'destructive',
         });
@@ -170,9 +168,7 @@ export const StatusPermissionControl = ({
             'failed-to-update-member-permission',
             'Failed to update member permission',
           )}: ${
-            error instanceof Error
-              ? error.message
-              : t('unknown', 'Unknown')
+            error instanceof Error ? error.message : t('unknown', 'Unknown')
           }`,
           variant: 'destructive',
         });

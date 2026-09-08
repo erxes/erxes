@@ -26,7 +26,12 @@ export const ProgressDot = ({ status }: { status: ConversationStatus }) => (
   </Tooltip.Provider>
 );
 
-const DISPLAY_STATUSES: ConversationStatus[] = ['new', 'open', 'closed', 'resolved'];
+const DISPLAY_STATUSES: ConversationStatus[] = [
+  'new',
+  'open',
+  'closed',
+  'resolved',
+];
 
 export const Progress = ({ customerId }: ProgressProps) => {
   const { t } = useTranslation('frontline');

@@ -205,7 +205,9 @@ export const ReportDateFilter = ({
     <Dialog.Content className="max-w-xl p-0">
       <Tabs value={tabs} onValueChange={setTabs}>
         <Dialog.Header className="p-6 space-y-3">
-          <Dialog.Title className="text-sm capitalize">{t('date', 'Date')}</Dialog.Title>
+          <Dialog.Title className="text-sm capitalize">
+            {t('date', 'Date')}
+          </Dialog.Title>
           <div>
             <ToggleGroup
               type="single"
@@ -216,8 +218,12 @@ export const ReportDateFilter = ({
               className="inline-flex"
             >
               <ToggleGroup.Item value="day">{t('day', 'Day')}</ToggleGroup.Item>
-              <ToggleGroup.Item value="month">{t('month', 'Month')}</ToggleGroup.Item>
-              <ToggleGroup.Item value="year">{t('year', 'Year')}</ToggleGroup.Item>
+              <ToggleGroup.Item value="month">
+                {t('month', 'Month')}
+              </ToggleGroup.Item>
+              <ToggleGroup.Item value="year">
+                {t('year', 'Year')}
+              </ToggleGroup.Item>
             </ToggleGroup>
           </div>
         </Dialog.Header>

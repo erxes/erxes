@@ -27,7 +27,10 @@ export const TicketPipelineFallback = ({
         </Empty.Title>
         <Empty.Description>
           {channelId
-            ? t('create-pipeline-description', 'Create a pipeline to start organizing your board.')
+            ? t(
+                'create-pipeline-description',
+                'Create a pipeline to start organizing your board.',
+              )
             : t('select-channel-for-tickets-description', {
                 defaultValue:
                   'Choose or configure a channel before managing ticket pipelines.',

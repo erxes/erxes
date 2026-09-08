@@ -178,7 +178,9 @@ export function CallHistorySection() {
 
   return (
     <SectionCard
-      title={t('call-history', 'Call history', { defaultValue: 'Call history' })}
+      title={t('call-history', 'Call history', {
+        defaultValue: 'Call history',
+      })}
       description={t('call-history-description', {
         defaultValue: 'Every call in the selected range — one row per call',
       })}
@@ -418,8 +420,12 @@ export function CallHistorySection() {
                           <IconPhoneOutgoing className="h-4 w-4 text-[var(--chart-5)]" />
                         )}
                         {entry.direction === 'incoming'
-                          ? t('incoming', 'Incoming', { defaultValue: 'Incoming' })
-                          : t('outgoing', 'Outgoing', { defaultValue: 'Outgoing' })}
+                          ? t('incoming', 'Incoming', {
+                              defaultValue: 'Incoming',
+                            })
+                          : t('outgoing', 'Outgoing', {
+                              defaultValue: 'Outgoing',
+                            })}
                       </span>
                     </ReportTable.Cell>
 

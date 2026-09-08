@@ -29,7 +29,9 @@ interface ArticleListProps {
 
 function ArticleTitleHeader() {
   const { t } = useTranslation('frontline');
-  return <RecordTable.InlineHead icon={IconFileText} label={t('col-name', 'Name')} />;
+  return (
+    <RecordTable.InlineHead icon={IconFileText} label={t('col-name', 'Name')} />
+  );
 }
 
 function ArticleTitleCell({
@@ -54,7 +56,9 @@ function ArticleTitleCell({
 
 function ArticleStatusHeader() {
   const { t } = useTranslation('frontline');
-  return <RecordTable.InlineHead icon={IconEye} label={t('status', 'Status')} />;
+  return (
+    <RecordTable.InlineHead icon={IconEye} label={t('status', 'Status')} />
+  );
 }
 
 function ArticleStatusCell({ article }: Readonly<{ article: Article }>) {
@@ -90,12 +94,19 @@ function ArticleStatusCell({ article }: Readonly<{ article: Article }>) {
 
 function ArticleOwnerHeader() {
   const { t } = useTranslation('frontline');
-  return <RecordTable.InlineHead icon={IconUser} label={t('kb-owner', 'Owner')} />;
+  return (
+    <RecordTable.InlineHead icon={IconUser} label={t('kb-owner', 'Owner')} />
+  );
 }
 
 function ArticleCreatedHeader() {
   const { t } = useTranslation('frontline');
-  return <RecordTable.InlineHead icon={IconCalendar} label={t('kb-created', 'Created')} />;
+  return (
+    <RecordTable.InlineHead
+      icon={IconCalendar}
+      label={t('kb-created', 'Created')}
+    />
+  );
 }
 
 function ArticleCreatedDateCell({ article }: Readonly<{ article: Article }>) {
@@ -107,7 +118,11 @@ function ArticleCreatedDateCell({ article }: Readonly<{ article: Article }>) {
 
   const date = new Date(article.createdDate);
   if (Number.isNaN(date.getTime())) {
-    return <div className="opacity-80 ml-2">{t('kb-invalid-date', 'Invalid date')}</div>;
+    return (
+      <div className="opacity-80 ml-2">
+        {t('kb-invalid-date', 'Invalid date')}
+      </div>
+    );
   }
 
   return (
@@ -200,7 +215,10 @@ function ArticleCommandBar({
         }),
         options: {
           confirmationValue: 'delete',
-          description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+          description: t(
+            'kb-action-permanent',
+            'This action is permanent and cannot be undone.',
+          ),
         },
       });
     } catch {
@@ -225,7 +243,9 @@ function ArticleCommandBar({
     <CommandBar open={selectedArticles.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>
-          {t('n-selected', '{{count}} selected', { count: selectedArticles.length })}
+          {t('n-selected', '{{count}} selected', {
+            count: selectedArticles.length,
+          })}
         </CommandBar.Value>
         <Separator.Inline />
         <Button
@@ -360,11 +380,21 @@ export function ArticleList({
           </div>
           <div className="text-base font-semibold mb-2">
             {q.trim()
-              ? t('kb-no-results-for', 'No results found for "{{query}}"', { query: q })
+              ? t('kb-no-results-for', 'No results found for "{{query}}"', {
+                  query: q,
+                })
               : t('kb-no-articles', 'No articles in this category')}
           </div>
           <div className="mt-1 text-sm opacity-70 mb-4">
-            {q.trim() ? t('kb-adjust-search', 'Try adjusting your search terms or filters.') : t('kb-create-first-article', 'Create your first article to get started with this category.')}
+            {q.trim()
+              ? t(
+                  'kb-adjust-search',
+                  'Try adjusting your search terms or filters.',
+                )
+              : t(
+                  'kb-create-first-article',
+                  'Create your first article to get started with this category.',
+                )}
           </div>
           {!q.trim() && (
             <Button onClick={onCreateArticle}>{t('create', 'Create')}</Button>

@@ -136,11 +136,18 @@ export function KnowledgeBaseSubGroup() {
   );
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = t('kb-confirm-delete-category', 'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.', { title: category.title });
+    const message = t(
+      'kb-confirm-delete-category',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.',
+      { title: category.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -165,11 +172,18 @@ export function KnowledgeBaseSubGroup() {
     const topic = topics.find((t) => t._id === topicId);
     if (!topic) return;
 
-    const message = t('kb-confirm-delete-topic', 'Are you sure you want to delete "{{title}}"? This will also delete all associated categories and articles. This action cannot be undone.', { title: topic.title });
+    const message = t(
+      'kb-confirm-delete-topic',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated categories and articles. This action cannot be undone.',
+      { title: topic.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -418,7 +432,9 @@ const Categories = ({
           {!topicCategories?.length && (
             <Sidebar.MenuItem>
               <Sidebar.MenuButton disabled={true}>
-                <span className="text-foreground">{t('kb-no-categories', 'No categories')}</span>
+                <span className="text-foreground">
+                  {t('kb-no-categories', 'No categories')}
+                </span>
               </Sidebar.MenuButton>
             </Sidebar.MenuItem>
           )}

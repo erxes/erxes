@@ -36,8 +36,8 @@ export function QueueCard({ stat, label, hint }: QueueCardProps) {
             answerRate >= 80
               ? 'text-[var(--pos)]'
               : answerRate >= 60
-              ? 'text-[var(--warn)]'
-              : 'text-[var(--neg)]'
+                ? 'text-[var(--warn)]'
+                : 'text-[var(--neg)]'
           }
         />
         <Metric

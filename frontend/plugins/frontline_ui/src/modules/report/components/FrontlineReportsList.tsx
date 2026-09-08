@@ -266,7 +266,9 @@ export const FrontlineReportsList = () => {
     <div className="flex flex-col overflow-hidden h-full relative m-3 gap-3">
       {kpiError && (
         <Alert variant="destructive">
-          <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
+          <Alert.Title>
+            {t('error-loading-data', 'Error loading data')}
+          </Alert.Title>
           <Alert.Description>{kpiError.message}</Alert.Description>
         </Alert>
       )}

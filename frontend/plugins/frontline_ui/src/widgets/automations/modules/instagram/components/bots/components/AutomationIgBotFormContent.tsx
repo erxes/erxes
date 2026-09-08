@@ -58,9 +58,14 @@ export const AutomationIgBotFormContent = () => {
               name="persistentMenus"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('persistent-menu', 'Persistent menu')}</Form.Label>
+                  <Form.Label>
+                    {t('persistent-menu', 'Persistent menu')}
+                  </Form.Label>
                   <Form.Description>
-                    {t('persistent-menu-description', 'Configure menu items that appear in your bot')}
+                    {t(
+                      'persistent-menu-description',
+                      'Configure menu items that appear in your bot',
+                    )}
                   </Form.Description>
                   <FacebookMessageButtonsGenerator
                     addButtonContent={
@@ -81,7 +86,12 @@ export const AutomationIgBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? t('hide', 'Hide') : t('show-optional-configuration', 'Show Optional configuration')}{' '}
+                    {isOptionalOpen
+                      ? t('hide', 'Hide')
+                      : t(
+                          'show-optional-configuration',
+                          'Show Optional configuration',
+                        )}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>
                 </Button>
@@ -98,11 +108,16 @@ export const AutomationIgBotFormContent = () => {
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder={t('select-tag', 'Select tag')} />
+                          <Select.Value
+                            placeholder={t('select-tag', 'Select tag')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            {t('confirmed-event-update', 'Confirmed event update')}
+                            {t(
+                              'confirmed-event-update',
+                              'Confirmed event update',
+                            )}
                           </Select.Item>
                           <Select.Item value="POST_PURCHASE_UPDATE">
                             {t('post-purchase-update', 'Post purchase update')}
@@ -121,7 +136,9 @@ export const AutomationIgBotFormContent = () => {
                   name="greetText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('greet-message', 'Greet Message')}</Form.Label>
+                      <Form.Label>
+                        {t('greet-message', 'Greet Message')}
+                      </Form.Label>
                       <Input {...field} />
                       <Form.Message />
                     </Form.Item>
@@ -133,7 +150,10 @@ export const AutomationIgBotFormContent = () => {
                   render={({ field }) => (
                     <Form.Item className="flex justify-between">
                       <Form.Label className="mt-3">
-                        {t('enable-back-button', 'Enable Back Button on Persistence menu')}
+                        {t(
+                          'enable-back-button',
+                          'Enable Back Button on Persistence menu',
+                        )}
                       </Form.Label>
                       <Switch
                         className="flex-none"
@@ -149,7 +169,9 @@ export const AutomationIgBotFormContent = () => {
                   name="backButtonText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('back-button-text', 'Back Button Text')}</Form.Label>
+                      <Form.Label>
+                        {t('back-button-text', 'Back Button Text')}
+                      </Form.Label>
                       <Input
                         {...field}
                         disabled={!form.watch('isEnabledBackBtn')}

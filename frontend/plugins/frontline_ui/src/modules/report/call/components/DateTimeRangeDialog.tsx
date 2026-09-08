@@ -82,7 +82,9 @@ export function DateTimeRangeDialog({
       <Dialog.Content className="max-w-xl p-0">
         <Dialog.Header className="p-6 pb-3">
           <Dialog.Title className="text-sm">
-            {t('custom-range', 'Custom Range...', { defaultValue: 'Custom range' })}
+            {t('custom-range', 'Custom Range...', {
+              defaultValue: 'Custom range',
+            })}
           </Dialog.Title>
         </Dialog.Header>
 
@@ -140,13 +142,13 @@ export function DateTimeRangeDialog({
                   defaultValue: 'The start must come before the end',
                 })
               : from && to
-              ? `${format(from, 'MMM dd, HH:mm')} — ${format(
-                  to,
-                  'MMM dd, HH:mm',
-                )}`
-              : t('select-date-range', {
-                  defaultValue: 'Select a date range',
-                })}
+                ? `${format(from, 'MMM dd, HH:mm')} — ${format(
+                    to,
+                    'MMM dd, HH:mm',
+                  )}`
+                : t('select-date-range', {
+                    defaultValue: 'Select a date range',
+                  })}
           </p>
         </div>
 

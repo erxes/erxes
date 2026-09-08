@@ -101,11 +101,15 @@ export default function ReportIndexPage() {
             <ToggleGroup.Item value="overview">
               {t('frontline-overview', 'Frontline Overview')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="ticket">{t('ticket', 'Ticket')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">
+              {t('ticket', 'Ticket')}
+            </ToggleGroup.Item>
             <ToggleGroup.Item value="facebook">
               {t('facebook-reports', 'Facebook')}
             </ToggleGroup.Item>
-            <ToggleGroup.Item value="call">{t('call-center', 'Call center')}</ToggleGroup.Item>
+            <ToggleGroup.Item value="call">
+              {t('call-center', 'Call center')}
+            </ToggleGroup.Item>
           </ToggleGroup>
           <Separator.Inline />
           <PageHeader.FavoriteToggleButton

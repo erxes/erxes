@@ -16,10 +16,16 @@ export const DirectMessageEmptyState = ({
 
       <div className="space-y-1">
         <p className="text-sm font-medium">
-          {t('no-direct-message-conditions', 'No direct message conditions yet')}
+          {t(
+            'no-direct-message-conditions',
+            'No direct message conditions yet',
+          )}
         </p>
         <p className="text-xs text-muted-foreground">
-          {t('no-conditions-hint', 'Leave this empty to trigger on any direct text message, or add conditions to match specific keywords.')}
+          {t(
+            'no-conditions-hint',
+            'Leave this empty to trigger on any direct text message, or add conditions to match specific keywords.',
+          )}
         </p>
       </div>
 

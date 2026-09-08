@@ -48,7 +48,10 @@ export const TicketsAssignedMembersContent = ({
           ticketIds,
           { assignedMembers: memberIds },
           {
-            successMessage: t('tickets-updated-successfully', 'Tickets updated successfully'),
+            successMessage: t(
+              'tickets-updated-successfully',
+              'Tickets updated successfully',
+            ),
             // The control holds one value for the whole selection, so it can
             // only go back when nothing was applied.
             onError: (failedIds) => {

@@ -10,9 +10,14 @@ export const NoConversationSelected = () => {
         <Empty.Media variant="icon">
           <IconMessages />
         </Empty.Media>
-        <Empty.Title>{t('no-conversations-selected', 'No conversations selected')}</Empty.Title>
+        <Empty.Title>
+          {t('no-conversations-selected', 'No conversations selected')}
+        </Empty.Title>
         <Empty.Description>
-          {t('select-conversation-to-view', 'Please select a conversation to view its details.')}
+          {t(
+            'select-conversation-to-view',
+            'Please select a conversation to view its details.',
+          )}
         </Empty.Description>
       </Empty.Header>
     </Empty>

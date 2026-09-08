@@ -33,8 +33,8 @@ export const InstagramPostSelector = ({
             {isOpen
               ? t('hide-posts', 'Hide posts')
               : selectedPostId
-              ? t('change-selected-post', 'Change selected post')
-              : t('select-post', 'Select post')}
+                ? t('change-selected-post', 'Change selected post')
+                : t('select-post', 'Select post')}
           </Button>
         </div>
       </Collapsible.Trigger>
@@ -198,7 +198,9 @@ const InstagramPost = ({
       <div className="p-2">
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
-          <p className="text-xs text-muted-foreground mb-2">{t('created-at', 'Created at')}</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {t('created-at', 'Created at')}
+          </p>
           <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
           </p>

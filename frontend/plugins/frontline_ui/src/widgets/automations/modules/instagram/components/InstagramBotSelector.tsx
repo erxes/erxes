@@ -84,10 +84,15 @@ const InstagramBotList = ({
     return (
       <div className="flex flex-col gap-2 items-center text-accent-foreground">
         <IconRobotFace />
-        <p>{t('no-bots-configured', 'There\'s no bots configured')}</p>
+        <p>{t('no-bots-configured', "There's no bots configured")}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/instagram-messenger-bots`}>
-            <Label>{t('create-first-instagram-bot', 'Create first Instagram messenger bot')}</Label>
+            <Label>
+              {t(
+                'create-first-instagram-bot',
+                'Create first Instagram messenger bot',
+              )}
+            </Label>
           </Link>
         </Button>
       </div>

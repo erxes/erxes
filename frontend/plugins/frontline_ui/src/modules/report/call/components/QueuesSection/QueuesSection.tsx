@@ -45,7 +45,10 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
   return (
     <SectionCard
       title={t('queue-snapshot', 'Queue Snapshot')}
-      description={t('per-queue-answer-rate', 'Per-queue answer rate, wait and talk times')}
+      description={t(
+        'per-queue-answer-rate',
+        'Per-queue answer rate, wait and talk times',
+      )}
       accentClass="bg-[var(--chart-1)]"
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -56,7 +59,7 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
             label={
               stat.queue === NO_QUEUE
                 ? t('no-queue', { defaultValue: 'Outside a queue' })
-                : labelMap[stat.queue] ?? stat.queue
+                : (labelMap[stat.queue] ?? stat.queue)
             }
             hint={
               stat.queue === NO_QUEUE

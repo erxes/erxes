@@ -1,5 +1,15 @@
-import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
+import {
+  useGetResponses,
+  RESPONSES_PER_PAGE,
+} from '@/responseTemplate/hooks/useGetResponses';
+import {
+  Popover,
+  Skeleton,
+  Button,
+  Command,
+  cn,
+  EnumCursorDirection,
+} from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
@@ -69,7 +79,6 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-
   useEffect(() => {
     refetch({
       filter: {
@@ -135,7 +144,8 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
+  const isInitialLoad =
+    (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -144,14 +154,20 @@ export const ResponseTemplateSelector: React.FC<
       <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
-            <h3 className="font-semibold text-sm">{t('response-templates', 'Response templates')}</h3>
+            <h3 className="font-semibold text-sm">
+              {t('response-templates', 'Response templates')}
+            </h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={toggleViewMode}
                 variant={'ghost'}
                 size="icon"
                 className="h-8 w-8 rounded hover:bg-muted"
-                title={viewMode === 'grid' ? t('switch-to-list-view', 'Switch to list view') : t('switch-to-grid-view', 'Switch to grid view')}
+                title={
+                  viewMode === 'grid'
+                    ? t('switch-to-list-view', 'Switch to list view')
+                    : t('switch-to-grid-view', 'Switch to grid view')
+                }
               >
                 <ViewModeIcon />
               </Button>

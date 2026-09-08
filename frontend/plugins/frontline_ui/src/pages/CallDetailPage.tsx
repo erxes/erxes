@@ -267,7 +267,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'member_extension',
-      header: () => <RecordTable.InlineHead label={t('extension', 'Extension')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('extension', 'Extension')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-mono">
           <Badge variant="secondary">{cell.getValue() as string}</Badge>
@@ -291,7 +293,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'answer',
-      header: () => <RecordTable.InlineHead label={t('answered', 'Answered')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('answered', 'Answered')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as number}
@@ -301,7 +305,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'abandon',
-      header: () => <RecordTable.InlineHead label={t('abandoned', 'Abandoned')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('abandoned', 'Abandoned')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as number}
@@ -311,7 +317,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'talktime',
-      header: () => <RecordTable.InlineHead label={t('talk-time', 'Talk Time')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('talk-time', 'Talk Time')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatSeconds(cell.getValue() as number)}
@@ -321,7 +329,9 @@ export const useAgentColumns = (): ColumnDef<ICallQueueAgent>[] => {
     },
     {
       accessorKey: 'pausetime',
-      header: () => <RecordTable.InlineHead label={t('pause-time', 'Pause Time')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('pause-time', 'Pause Time')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {safeFormatDate(cell?.getValue())}
@@ -365,7 +375,8 @@ export const CallDetailCard = ({
         <h3 className="font-semibold text-2xl leading-none">{value}</h3>
         <Separator />
         <div className="text-accent-foreground text-xs leading-none">
-          {t('updated', 'Updated')} {date && <RelativeDateDisplay.Value value={date} />}
+          {t('updated', 'Updated')}{' '}
+          {date && <RelativeDateDisplay.Value value={date} />}
         </div>
       </div>
     </div>
@@ -383,7 +394,9 @@ export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
   return [
     {
       accessorKey: 'callerid',
-      header: () => <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatPhoneNumber({
@@ -395,7 +408,9 @@ export const useWaitingColumns = (): ColumnDef<WaitingCall>[] => {
     },
     {
       accessorKey: 'callerchannel',
-      header: () => <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as string}
@@ -463,7 +478,9 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
   return [
     {
       accessorKey: 'callerid',
-      header: () => <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-id', 'Caller ID')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {formatPhoneNumber({
@@ -475,7 +492,9 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
     },
     {
       accessorKey: 'calleeid',
-      header: () => <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('caller-channel', 'Caller Channel')} />
+      ),
       cell: ({ cell }) => (
         <RecordTableInlineCell className="font-medium">
           {cell.getValue() as string}
@@ -484,7 +503,9 @@ export const useTalkingColumns = (): ColumnDef<TalkingCall>[] => {
     },
     {
       accessorKey: 'bridge_time',
-      header: () => <RecordTable.InlineHead label={t('duration', 'Duration')} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('duration', 'Duration')} />
+      ),
       cell: ({ cell }) => (
         <TalkingCallDurationCell
           value={cell.getValue() as string | Date | undefined}

@@ -16,7 +16,9 @@ import { useTranslation } from 'react-i18next';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const { t } = useTranslation('frontline');
-  const editor = useBlockEditor({ placeholder: t('leave-a-note', 'Leave a note...') });
+  const editor = useBlockEditor({
+    placeholder: t('leave-a-note', 'Leave a note...'),
+  });
   const { createTicketNote, loading } = useCreateTicketNote();
   const {
     setHotkeyScopeAndMemorizePreviousScope,

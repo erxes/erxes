@@ -62,7 +62,10 @@ export const DiscordTriggerForm = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Label>
-                {t('discord-trigger.keyword-filter-optional', 'Keyword filter (optional)')}
+                {t(
+                  'discord-trigger.keyword-filter-optional',
+                  'Keyword filter (optional)',
+                )}
               </Form.Label>
               <Form.Control>
                 <Input

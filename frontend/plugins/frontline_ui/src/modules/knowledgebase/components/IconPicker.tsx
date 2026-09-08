@@ -36,7 +36,10 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Content className="w-[250px] p-0 max-h-64 overflow-auto">
         <Command>
-          <Command.Input placeholder={t('kb-search-icons', 'Search icons...')} className="h-9" />
+          <Command.Input
+            placeholder={t('kb-search-icons', 'Search icons...')}
+            className="h-9"
+          />
           <div className="max-h-52 overflow-y-auto">
             <Command.Group>
               {ICONS.map((item) => (

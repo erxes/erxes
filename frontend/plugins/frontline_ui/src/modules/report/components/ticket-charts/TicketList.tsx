@@ -137,7 +137,9 @@ export const TicketList = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -168,7 +170,9 @@ export const TicketList = ({
     <FrontlineCard
       id={id}
       title={title}
-      description={t('ticket-count', '{{count}} tickets', { count: totalCount })}
+      description={t('ticket-count', '{{count}} tickets', {
+        count: totalCount,
+      })}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -211,7 +215,11 @@ const Pagination = memo(function Pagination({
   return (
     <div className="flex items-center justify-between px-4 py-3 border-t">
       <span className="text-xs text-muted-foreground">
-        {t('pagination-range', '{{from}}–{{to}} of {{total}}', { from, to, total: totalCount })}
+        {t('pagination-range', '{{from}}–{{to}} of {{total}}', {
+          from,
+          to,
+          total: totalCount,
+        })}
       </span>
       <div className="flex items-center gap-1">
         <Button

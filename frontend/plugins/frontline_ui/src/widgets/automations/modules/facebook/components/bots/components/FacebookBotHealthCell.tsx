@@ -29,9 +29,14 @@ export const FacebookBotHealthCell = ({
             </Popover.Trigger>
             <Popover.Content align="end" className="w-80 space-y-3">
               <div className="space-y-1">
-                <div className="text-sm font-medium">{t('bot-health', 'Bot health')}</div>
+                <div className="text-sm font-medium">
+                  {t('bot-health', 'Bot health')}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  {t('current-verification-details', 'Current verification details')}
+                  {t(
+                    'current-verification-details',
+                    'Current verification details',
+                  )}
                 </div>
               </div>
 

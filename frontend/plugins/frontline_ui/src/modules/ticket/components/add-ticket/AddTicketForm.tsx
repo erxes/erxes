@@ -98,7 +98,10 @@ export const AddTicketForm = ({
       onCompleted: (data) => {
         toast({
           title: t('success', 'Success!'),
-          description: t('ticket-created-successfully', 'Ticket created successfully'),
+          description: t(
+            'ticket-created-successfully',
+            'Ticket created successfully',
+          ),
           variant: 'default',
         });
         onClose();
@@ -120,7 +123,9 @@ export const AddTicketForm = ({
         className="h-full flex flex-col"
       >
         <Sheet.Header className="flex items-center gap-2 ">
-          <Sheet.Title className="">{t('new-ticket', 'New ticket')}</Sheet.Title>
+          <Sheet.Title className="">
+            {t('new-ticket', 'New ticket')}
+          </Sheet.Title>
         </Sheet.Header>
         <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
@@ -145,7 +150,9 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('channels', 'Channels')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('channels', 'Channels')}
+                  </Form.Label>
                   <SelectChannel.FormItem
                     value={field.value || ''}
                     onValueChange={(value) => {
@@ -313,7 +320,9 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">{t('tags-label', 'Tags')}</Form.Label>
+                  <Form.Label className="sr-only">
+                    {t('tags-label', 'Tags')}
+                  </Form.Label>
                   <SelectTagsTicket.FormItem
                     value={field.value || []}
                     onValueChange={(value) => field.onChange(value)}

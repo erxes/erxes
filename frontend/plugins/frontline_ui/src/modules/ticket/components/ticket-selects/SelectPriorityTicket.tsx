@@ -116,7 +116,9 @@ const SelectPriorityContent = () => {
   return (
     <Command>
       <Command.Input placeholder={t('search-priority', 'Search priority')} />
-      <Command.Empty>{t('no-priority-found', 'No priority found')}</Command.Empty>
+      <Command.Empty>
+        {t('no-priority-found', 'No priority found')}
+      </Command.Empty>
       <Command.List>
         {PROJECT_PRIORITIES_OPTIONS.map((priority, index) => (
           <SelectPriorityCommandItem key={priority} priority={index} />

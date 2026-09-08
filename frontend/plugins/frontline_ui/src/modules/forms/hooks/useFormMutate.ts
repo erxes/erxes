@@ -94,7 +94,10 @@ export const useFormMutate = () => {
               toast({
                 title: t('success', 'Success!'),
                 variant: 'success',
-                description: t('form-updated-successfully', 'Form updated successfully'),
+                description: t(
+                  'form-updated-successfully',
+                  'Form updated successfully',
+                ),
               });
             },
           });
@@ -111,7 +114,10 @@ export const useFormMutate = () => {
       if (!channelId) {
         toast({
           variant: 'destructive',
-          title: t('channel-id-required', 'Channel ID is required to create a form'),
+          title: t(
+            'channel-id-required',
+            'Channel ID is required to create a form',
+          ),
         });
         return;
       }
@@ -133,7 +139,10 @@ export const useFormMutate = () => {
               toast({
                 title: t('success', 'Success!'),
                 variant: 'success',
-                description: t('form-created-successfully', 'Form created successfully'),
+                description: t(
+                  'form-created-successfully',
+                  'Form created successfully',
+                ),
               });
             },
           });

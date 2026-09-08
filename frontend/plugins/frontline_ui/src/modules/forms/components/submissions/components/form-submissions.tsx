@@ -35,7 +35,9 @@ const CopyLink = ({
       })
       .catch(() => {
         toast({
-          title: t('failed-to-copy', 'Failed to copy {{label}}', { label: label.toLowerCase() }),
+          title: t('failed-to-copy', 'Failed to copy {{label}}', {
+            label: label.toLowerCase(),
+          }),
           description: t('please-try-again', 'Please try again'),
           variant: 'destructive',
         });
@@ -82,7 +84,9 @@ export const FormSubmissions = () => {
             <IconAlertTriangle />
           </Empty.Media>
           <Empty.Title>{t('error', 'Error')}</Empty.Title>
-          <Empty.Description>{t('please-try-again', 'Please try again')}</Empty.Description>
+          <Empty.Description>
+            {t('please-try-again', 'Please try again')}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button
@@ -104,8 +108,15 @@ export const FormSubmissions = () => {
           <Empty.Media>
             <IconListDetails />
           </Empty.Media>
-          <Empty.Title>{t('no-submissions-found', 'No submissions found')}</Empty.Title>
-          <Empty.Description>{t('share-link-description', 'Share link below to gather form submissions')}</Empty.Description>
+          <Empty.Title>
+            {t('no-submissions-found', 'No submissions found')}
+          </Empty.Title>
+          <Empty.Description>
+            {t(
+              'share-link-description',
+              'Share link below to gather form submissions',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <CopyLink

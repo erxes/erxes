@@ -43,12 +43,14 @@ const ResponseMoreCell = ({
 
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-response', 'Are you sure you want to delete this response?'),
+      message: t(
+        'confirm-delete-response',
+        'Are you sure you want to delete this response?',
+      ),
       options: { confirmationValue: 'delete' },
-    })
-      .then(() => {
-        removeResponse({ variables: { id: _id } });
-      });
+    }).then(() => {
+      removeResponse({ variables: { id: _id } });
+    });
   };
 
   return (
@@ -67,7 +69,8 @@ const ResponseMoreCell = ({
               onSelect={handleDelete}
               className="text-destructive"
             >
-              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete', 'Delete')}
+              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>
@@ -105,7 +108,12 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
     {
       accessorKey: 'name',
       id: 'name',
-      header: () => <RecordTable.InlineHead label={t('title-label', 'Title')} icon={IconAlignLeft} />,
+      header: () => (
+        <RecordTable.InlineHead
+          label={t('title-label', 'Title')}
+          icon={IconAlignLeft}
+        />
+      ),
       size: 400,
       cell: ResponseNameCell,
     },
@@ -113,7 +121,10 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       accessorKey: 'createdAt',
       id: 'createdAt',
       header: () => (
-        <RecordTable.InlineHead label={t('created-at', 'Created at')} icon={IconCalendarPlus} />
+        <RecordTable.InlineHead
+          label={t('created-at', 'Created at')}
+          icon={IconCalendarPlus}
+        />
       ),
       size: 120,
       cell: ({ cell }) => (
@@ -128,7 +139,10 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       accessorKey: 'updatedAt',
       id: 'updatedAt',
       header: () => (
-        <RecordTable.InlineHead label={t('updated-at-label', 'Updated At')} icon={IconCalendarUp} />
+        <RecordTable.InlineHead
+          label={t('updated-at-label', 'Updated At')}
+          icon={IconCalendarUp}
+        />
       ),
       size: 120,
       cell: ({ cell }) => (
@@ -149,11 +163,12 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
     'searchValue',
   ]);
 
-  const { responses, isInitialLoad, handleFetchMore, pageInfo } = useGetResponses({
-    variables: {
-      filter: { channelId, searchValue: searchValue || undefined },
-    },
-  });
+  const { responses, isInitialLoad, handleFetchMore, pageInfo } =
+    useGetResponses({
+      variables: {
+        filter: { channelId, searchValue: searchValue || undefined },
+      },
+    });
 
   if (!isInitialLoad && responses?.length === 0) {
     return (
@@ -163,12 +178,17 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
             <IconGitBranch />
           </Empty.Media>
           <Empty.Title>
-            {searchValue ? t('no-results-found', 'No results found') : t('no-responses-yet', 'No responses yet')}
+            {searchValue
+              ? t('no-results-found', 'No results found')
+              : t('no-responses-yet', 'No responses yet')}
           </Empty.Title>
           <Empty.Description>
             {searchValue
               ? t('try-different-search-term', 'Try a different search term')
-              : t('get-started-creating-first-response', 'Get started by creating your first response')}
+              : t(
+                  'get-started-creating-first-response',
+                  'Get started by creating your first response',
+                )}
           </Empty.Description>
         </Empty.Header>
         {!searchValue && (
@@ -194,10 +214,14 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
             {isInitialLoad && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
-            <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>

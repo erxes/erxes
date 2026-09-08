@@ -222,13 +222,22 @@ export const MessageInput = ({
       upload({
         files,
         beforeUpload: () =>
-          toast({ title: t('uploading-file', 'Uploading file...'), variant: 'default' }),
+          toast({
+            title: t('uploading-file', 'Uploading file...'),
+            variant: 'default',
+          }),
         afterRead: ({ result, fileInfo }) =>
           setAttachmentPreview({ ...fileInfo, data: result }),
         afterUpload: ({ response, fileInfo }) => {
           setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
-          toast({ title: t('file-uploaded-successfully', 'File uploaded successfully!'), variant: 'default' });
+          toast({
+            title: t(
+              'file-uploaded-successfully',
+              'File uploaded successfully!',
+            ),
+            variant: 'default',
+          });
         },
       });
     },
@@ -249,7 +258,10 @@ export const MessageInput = ({
 
   const handleDeleteAttachment = (name: string) => {
     setAttachments((prev) => prev.filter((f) => f.name !== name));
-    toast({ title: t('attachment-removed', 'Attachment removed'), variant: 'default' });
+    toast({
+      title: t('attachment-removed', 'Attachment removed'),
+      variant: 'default',
+    });
   };
 
   const stripHtml = (html: string): string => {
@@ -263,7 +275,10 @@ export const MessageInput = ({
     templateId?: string,
   ) => {
     if (!editor) {
-      return toast({ title: t('editor-not-ready', 'Editor not ready'), variant: 'destructive' });
+      return toast({
+        title: t('editor-not-ready', 'Editor not ready'),
+        variant: 'destructive',
+      });
     }
 
     const parseTemplateToBlocks = (content: string) => {
@@ -298,7 +313,10 @@ export const MessageInput = ({
       setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
-      toast({ title: t('failed-to-insert-template', 'Failed to insert template'), variant: 'destructive' });
+      toast({
+        title: t('failed-to-insert-template', 'Failed to insert template'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -406,7 +424,10 @@ export const MessageInput = ({
           : {}),
       },
       onCompleted: () => {
-        toast({ title: t('message-sent', 'Message sent!'), variant: 'default' });
+        toast({
+          title: t('message-sent', 'Message sent!'),
+          variant: 'default',
+        });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(undefined);
@@ -426,7 +447,9 @@ export const MessageInput = ({
       ],
       onError: (err) =>
         toast({
-          title: t('failed-to-send', 'Failed to send: {{message}}', { message: err.message }),
+          title: t('failed-to-send', 'Failed to send: {{message}}', {
+            message: err.message,
+          }),
           variant: 'destructive',
         }),
     });
@@ -591,7 +614,9 @@ export const MessageInput = ({
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
           >
-            <span className="truncate">{t('internal-note', 'Internal Note')}</span>
+            <span className="truncate">
+              {t('internal-note', 'Internal Note')}
+            </span>
           </Toggle>
 
           {!isInternalNote && (

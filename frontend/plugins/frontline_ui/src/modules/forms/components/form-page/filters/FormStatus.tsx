@@ -1,7 +1,19 @@
-import { IconCircleCheck, IconCircleDashed, IconSquareToggle } from "@tabler/icons-react"
-import { Badge, Combobox, Command, Filter, Popover, useFilterContext, useQueryState } from "erxes-ui"
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import {
+  IconCircleCheck,
+  IconCircleDashed,
+  IconSquareToggle,
+} from '@tabler/icons-react';
+import {
+  Badge,
+  Combobox,
+  Command,
+  Filter,
+  Popover,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const BarItem = () => {
   const { t } = useTranslation('frontline');
@@ -26,8 +38,12 @@ const BarItem = () => {
           <Command>
             <Command.List>
               <Command.Group>
-                <Command.Item onSelect={handleSelect} value="active">{t('active', 'Active')}</Command.Item>
-                <Command.Item onSelect={handleSelect} value="archived">{t('archived', 'Archived')}</Command.Item>
+                <Command.Item onSelect={handleSelect} value="active">
+                  {t('active', 'Active')}
+                </Command.Item>
+                <Command.Item onSelect={handleSelect} value="archived">
+                  {t('archived', 'Archived')}
+                </Command.Item>
               </Command.Group>
             </Command.List>
           </Command>
@@ -35,7 +51,7 @@ const BarItem = () => {
       </Popover>
     </Filter.BarItem>
   );
-}
+};
 
 const View = () => {
   const { t } = useTranslation('frontline');
@@ -51,15 +67,19 @@ const View = () => {
         <Command>
           <Command.List>
             <Command.Group>
-              <Command.Item onSelect={handleSelect} value="active">{t('active', 'Active')}</Command.Item>
-              <Command.Item onSelect={handleSelect} value="archived">{t('archived', 'Archived')}</Command.Item>
+              <Command.Item onSelect={handleSelect} value="active">
+                {t('active', 'Active')}
+              </Command.Item>
+              <Command.Item onSelect={handleSelect} value="archived">
+                {t('archived', 'Archived')}
+              </Command.Item>
             </Command.Group>
           </Command.List>
         </Command>
       </Combobox.Content>
     </Filter.View>
-  )
-}
+  );
+};
 
 const Item = () => {
   const { t } = useTranslation('frontline');
@@ -68,16 +88,25 @@ const Item = () => {
       <IconSquareToggle />
       {t('status', 'Status')}
     </Filter.Item>
-  )
-}
+  );
+};
 
 const StatusBadge = ({ status }: { status: string }) => {
   return (
     <Badge variant={status === 'active' ? 'success' : 'secondary'}>
-      {status === 'active' ? <IconCircleCheck size={16} /> : <IconCircleDashed size={16} />}
+      {status === 'active' ? (
+        <IconCircleCheck size={16} />
+      ) : (
+        <IconCircleDashed size={16} />
+      )}
       {status}
     </Badge>
-  )
-}
+  );
+};
 
-export const FormStatus = Object.assign({ BarItem, View, Item, Badge: StatusBadge });
+export const FormStatus = Object.assign({
+  BarItem,
+  View,
+  Item,
+  Badge: StatusBadge,
+});

@@ -46,14 +46,20 @@ export const AutomationHistoryResult = ({
   const content = getSentMessage(result);
 
   if (!content) {
-    return <Badge variant="secondary">{t('no-message-configured', 'No message configured')}</Badge>;
+    return (
+      <Badge variant="secondary">
+        {t('no-message-configured', 'No message configured')}
+      </Badge>
+    );
   }
 
   return (
     <Tooltip.Provider>
       <Tooltip>
         <Tooltip.Trigger>
-          <Badge variant="success">{t('sent-successfully', 'Sent successfully')}</Badge>
+          <Badge variant="success">
+            {t('sent-successfully', 'Sent successfully')}
+          </Badge>
         </Tooltip.Trigger>
         <Tooltip.Content>{content}</Tooltip.Content>
       </Tooltip>

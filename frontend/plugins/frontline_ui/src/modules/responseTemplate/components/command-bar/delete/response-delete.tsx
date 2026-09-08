@@ -22,19 +22,25 @@ export const ResponseDelete = ({
       disabled={loading}
       onClick={() =>
         confirm({
-          message: t('confirm-delete-responses', 'Are you sure you want to delete the {{count}} selected response(s)?', { count: responseIds.length }),
+          message: t(
+            'confirm-delete-responses',
+            'Are you sure you want to delete the {{count}} selected response(s)?',
+            { count: responseIds.length },
+          ),
         }).then(async () => {
           try {
             await Promise.all(
-              responseIds.map((id) =>
-                removeResponse({ variables: { id } }),
-              ),
+              responseIds.map((id) => removeResponse({ variables: { id } })),
             );
             rows.forEach((row) => row.toggleSelected(false));
             toast({
               title: t('success', 'Success!'),
               variant: 'success',
-              description: t('responses-deleted-successfully', '{{count}} response(s) deleted successfully', { count: responseIds.length }),
+              description: t(
+                'responses-deleted-successfully',
+                '{{count}} response(s) deleted successfully',
+                { count: responseIds.length },
+              ),
             });
           } catch (e: any) {
             toast({

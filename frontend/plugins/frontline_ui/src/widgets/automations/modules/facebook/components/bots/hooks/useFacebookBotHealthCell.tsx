@@ -34,7 +34,9 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
     { label: t('status', 'Status'), value: statusLabel },
     {
       label: t('subscription', 'Subscription'),
-      value: hasSubscriptionIssue ? t('missing-label', 'Missing') : t('ok', 'OK'),
+      value: hasSubscriptionIssue
+        ? t('missing-label', 'Missing')
+        : t('ok', 'OK'),
     },
     {
       label: t('profile-sync', 'Profile sync'),

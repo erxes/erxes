@@ -47,7 +47,8 @@ const IndexPage = () => {
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
     t('knowledge-base', 'Knowledge Base'),
     topicId && (currentTopic?.title || t('unnamed-topic', 'Unnamed topic')),
-    categoryId && (currentCategory?.title || t('unnamed-category', 'Unnamed category')),
+    categoryId &&
+      (currentCategory?.title || t('unnamed-category', 'Unnamed category')),
   );
 
   const handleEditTopic = (topic: any) => {
@@ -90,7 +91,8 @@ const IndexPage = () => {
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
                       <Link to={`/frontline/knowledgeBase?topicId=${topicId}`}>
-                        {currentTopic?.title || t('unnamed-topic', 'Unnamed topic')}
+                        {currentTopic?.title ||
+                          t('unnamed-topic', 'Unnamed topic')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -105,7 +107,8 @@ const IndexPage = () => {
                       <Link
                         to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
                       >
-                        {currentCategory?.title || t('unnamed-category', 'Unnamed category')}
+                        {currentCategory?.title ||
+                          t('unnamed-category', 'Unnamed category')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -136,7 +139,9 @@ const IndexPage = () => {
             className="h-7 py-1"
           >
             <IconPlus className="w-4 h-4" />
-            {categoryId ? t('new-article', 'New Article') : t('kb-new-topic', 'New Topic')}
+            {categoryId
+              ? t('new-article', 'New Article')
+              : t('kb-new-topic', 'New Topic')}
             <Kbd>C</Kbd>
           </Button>
         </PageHeader.End>

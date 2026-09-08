@@ -65,7 +65,9 @@ export const InstagramBotPageSelectorSteps = ({
           <Badge className="rounded-xl text-xs font-mono">
             STEP {activeStep}
           </Badge>
-          <h2 className="text-primary font-semibold text-base">{t('connect-page', 'Connect Page')}</h2>
+          <h2 className="text-primary font-semibold text-base">
+            {t('connect-page', 'Connect Page')}
+          </h2>
         </div>
         <Sheet.Close />
       </Sheet.Header>

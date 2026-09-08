@@ -36,7 +36,9 @@ export function FormToggleStatus({ formId, status, setOpen }: Props) {
   return (
     <DropdownMenu.Item onSelect={onSelect}>
       <IconSquareToggle />
-      {status === 'active' ? t('archive', 'Archive') : t('unarchive', 'Unarchive')}
+      {status === 'active'
+        ? t('archive', 'Archive')
+        : t('unarchive', 'Unarchive')}
     </DropdownMenu.Item>
   );
 }

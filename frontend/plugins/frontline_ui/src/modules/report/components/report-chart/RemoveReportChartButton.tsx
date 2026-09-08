@@ -20,7 +20,10 @@ export const RemoveReportChartButton = ({
     removeReportChart({
       variables: { _id: chartId },
       onCompleted: () =>
-        toast({ variant: 'success', title: t('chart-deleted', 'Chart deleted') }),
+        toast({
+          variant: 'success',
+          title: t('chart-deleted', 'Chart deleted'),
+        }),
       onError: (error) =>
         toast({
           variant: 'destructive',
@@ -44,9 +47,15 @@ export const RemoveReportChartButton = ({
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>{t('delete-chart', 'Delete chart')}</AlertDialog.Title>
+          <AlertDialog.Title>
+            {t('delete-chart', 'Delete chart')}
+          </AlertDialog.Title>
           <AlertDialog.Description>
-            {t('confirm-delete-chart', 'Are you sure you want to delete "{{name}}"?', { name: chartName })}
+            {t(
+              'confirm-delete-chart',
+              'Are you sure you want to delete "{{name}}"?',
+              { name: chartName },
+            )}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>

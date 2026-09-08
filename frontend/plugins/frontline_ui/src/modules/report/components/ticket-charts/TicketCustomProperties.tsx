@@ -162,7 +162,9 @@ export const TicketCustomProperties = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>
@@ -375,10 +377,20 @@ const TicketCustomPropertyRankedBars = memo(
     return (
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-6 border-b pb-3">
-          <RankMetric value={total} label={t('total-tickets', 'Total Tickets')} />
-          <RankMetric value={typesCount} label={t('report-value-types', 'Types')} />
+          <RankMetric
+            value={total}
+            label={t('total-tickets', 'Total Tickets')}
+          />
+          <RankMetric
+            value={typesCount}
+            label={t('report-value-types', 'Types')}
+          />
           {!isGrouped && (
-            <RankMetric value={`${top2Pct}%`} label={t('top-2-share', 'Top 2 share')} accent />
+            <RankMetric
+              value={`${top2Pct}%`}
+              label={t('top-2-share', 'Top 2 share')}
+              accent
+            />
           )}
         </div>
 

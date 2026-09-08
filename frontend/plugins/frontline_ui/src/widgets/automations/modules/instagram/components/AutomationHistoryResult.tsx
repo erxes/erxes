@@ -18,5 +18,9 @@ export const InstagramAutomationHistoryResult = ({
     );
   }
 
-  return <Badge variant="success">{t('sent-successfully', 'Sent successfully')}</Badge>;
+  return (
+    <Badge variant="success">
+      {t('sent-successfully', 'Sent successfully')}
+    </Badge>
+  );
 };

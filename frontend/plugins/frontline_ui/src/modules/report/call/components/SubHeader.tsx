@@ -162,7 +162,9 @@ export function SubHeader({
                 <DropdownMenu.Separator />
                 <DropdownMenu.Item onSelect={() => setTimeRangeOpen(true)}>
                   <IconSelector className="h-3.5 w-3.5" />
-                  {t('custom-range', 'Custom Range...', { defaultValue: 'Custom range…' })}
+                  {t('custom-range', 'Custom Range...', {
+                    defaultValue: 'Custom range…',
+                  })}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu>
@@ -286,7 +288,9 @@ function SelectChip({
               <Command.Input placeholder={`Search ${label.toLowerCase()}…`} />
             )}
             <Command.List className="pb-2">
-              <Command.Empty>{t('no-options-found', 'No options found')}</Command.Empty>
+              <Command.Empty>
+                {t('no-options-found', 'No options found')}
+              </Command.Empty>
               <Command.Group>
                 {options.map((opt) => (
                   <Command.Item

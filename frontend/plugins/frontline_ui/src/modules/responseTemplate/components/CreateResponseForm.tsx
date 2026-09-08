@@ -89,7 +89,9 @@ export const CreateResponseForm = ({
 
           <span className="flex justify-end">
             <Button type="submit" disabled={!form.formState.isDirty || loading}>
-              {type === 'create' ? t('create', 'Create') : t('update', 'Update')}
+              {type === 'create'
+                ? t('create', 'Create')
+                : t('update', 'Update')}
             </Button>
           </span>
         </div>

@@ -158,7 +158,9 @@ const SelectPipelineContent = () => {
   const { pipelines, channelId } = useSelectPipelineContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-pipelines', 'Search pipelines...')} />
+      <Command.Input
+        placeholder={t('search-pipelines', 'Search pipelines...')}
+      />
       <Command.List>
         <Command.Empty>
           <div className="text-muted-foreground">

@@ -162,7 +162,9 @@ const SelectStatusContent = () => {
       <Command.Input placeholder={t('search-status', 'Search status')} />
       <Command.Empty>
         <span className="text-muted-foreground">
-          {pipelineId ? t('no-status-found', 'No status found') : t('pipeline-not-selected', 'Pipeline not selected')}
+          {pipelineId
+            ? t('no-status-found', 'No status found')
+            : t('pipeline-not-selected', 'Pipeline not selected')}
         </span>
       </Command.Empty>
       <Command.List>

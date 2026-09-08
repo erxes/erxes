@@ -53,7 +53,10 @@ export const TicketsMoveToPipelineContent = ({
       { pipelineId: targetPipelineId },
       {
         refetchList: true,
-        successMessage: t('tickets-moved-successfully', 'Tickets moved successfully'),
+        successMessage: t(
+          'tickets-moved-successfully',
+          'Tickets moved successfully',
+        ),
       },
     );
 

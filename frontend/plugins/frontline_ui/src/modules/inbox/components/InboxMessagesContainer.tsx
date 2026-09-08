@@ -64,13 +64,19 @@ export const InboxMessagesContainer = ({
                 <IconMessages />
               </Empty.Media>
               <Empty.Title>
-                {t('no-messages-yet', 'No messages yet', { defaultValue: 'No messages yet' })}
+                {t('no-messages-yet', 'No messages yet', {
+                  defaultValue: 'No messages yet',
+                })}
               </Empty.Title>
               <Empty.Description>
-                {t('start-conversation-description', 'Write a message below to start the conversation.', {
-                  defaultValue:
-                    'Write a message below to start the conversation.',
-                })}
+                {t(
+                  'start-conversation-description',
+                  'Write a message below to start the conversation.',
+                  {
+                    defaultValue:
+                      'Write a message below to start the conversation.',
+                  },
+                )}
               </Empty.Description>
             </Empty.Header>
           </Empty>

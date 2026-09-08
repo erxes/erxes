@@ -165,7 +165,11 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         }}
       >
         <Button variant="ghost">
-          <legend>{isSubscribed ? t('unsubscribe', 'UnSubscribe') : t('subscribe', 'Subscribe')}</legend>
+          <legend>
+            {isSubscribed
+              ? t('unsubscribe', 'UnSubscribe')
+              : t('subscribe', 'Subscribe')}
+          </legend>
         </Button>
       </div>
     );
@@ -190,7 +194,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
 
   const handleDeleteTicket = async () => {
     confirm({
-      message: t('confirm-delete-ticket', 'Are you sure you want to delete this ticket?'),
+      message: t(
+        'confirm-delete-ticket',
+        'Are you sure you want to delete this ticket?',
+      ),
     }).then(async () => {
       isRemovedRef.current = true;
       nameDebounce.cancel();
@@ -200,7 +207,10 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
         toast({
           title: t('success', 'Success!'),
           variant: 'success',
-          description: t('ticket-deleted-successfully', 'Ticket deleted successfully'),
+          description: t(
+            'ticket-deleted-successfully',
+            'Ticket deleted successfully',
+          ),
         });
       } catch (e: any) {
         isRemovedRef.current = false;
@@ -279,7 +289,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
               <Tooltip.Trigger className="absolute inset-0 cursor-not-allowed"></Tooltip.Trigger>
               <SelectChannel value={channelId} variant="detail" disabled />
             </div>
-            <Tooltip.Content>{t('channel-cannot-be-changed', 'Channel cannot be changed')}</Tooltip.Content>
+            <Tooltip.Content>
+              {t('channel-cannot-be-changed', 'Channel cannot be changed')}
+            </Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <div className="relative">
@@ -291,7 +303,9 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
                 disabled
               />
             </div>
-            <Tooltip.Content>{t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}</Tooltip.Content>
+            <Tooltip.Content>
+              {t('pipeline-cannot-be-changed', 'Pipeline cannot be changed')}
+            </Tooltip.Content>
           </Tooltip>
           <Tooltip>
             <div className="relative">
@@ -371,13 +385,17 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             <DropdownMenu.Trigger asChild>
               <Button variant="ghost" size="sm">
                 <IconSquareToggle />
-                {state === 'active' ? t('archive', 'Archive') : t('unarchive', 'Unarchive')}
+                {state === 'active'
+                  ? t('archive', 'Archive')
+                  : t('unarchive', 'Unarchive')}
               </Button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
               <DropdownMenu.Item onSelect={handleArchiveToggle}>
                 <IconSquareToggle />
-                {state === 'active' ? t('archive', 'Archive') : t('unarchive', 'Unarchive')}
+                {state === 'active'
+                  ? t('archive', 'Archive')
+                  : t('unarchive', 'Unarchive')}
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onSelect={handleDeleteTicket}

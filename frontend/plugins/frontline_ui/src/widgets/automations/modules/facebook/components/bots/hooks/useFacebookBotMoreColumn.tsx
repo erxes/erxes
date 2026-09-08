@@ -43,7 +43,8 @@ export const useFacebookBotMoreColumn = (_id: string) => {
           },
         );
       },
-      onCompleted: () => toast({ title: t('repaired-successfully', 'Repaired successfully') }),
+      onCompleted: () =>
+        toast({ title: t('repaired-successfully', 'Repaired successfully') }),
       onError: (error) =>
         toast({
           title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
@@ -75,7 +76,8 @@ export const useFacebookBotMoreColumn = (_id: string) => {
           },
         );
       },
-      onCompleted: () => toast({ title: t('removed-successfully', 'Removed successfully') }),
+      onCompleted: () =>
+        toast({ title: t('removed-successfully', 'Removed successfully') }),
       onError: (error) =>
         toast({
           title: t('something-went-wrong', 'Uh oh! Something went wrong.'),

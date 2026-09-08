@@ -87,7 +87,9 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />;
+      return (
+        <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
+      );
     },
     cell: (cell) => {
       const value = cell.getValue() as string | undefined;
@@ -188,7 +190,9 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
             ) : (
               <Badge variant="info" className="rounded-lg">
                 <IconCheckbox size={12} />
-                {t('n-selected', '{{count}} selected', { count: options.length })}
+                {t('n-selected', '{{count}} selected', {
+                  count: options.length,
+                })}
               </Badge>
             )}
           </RecordTableInlineCell>

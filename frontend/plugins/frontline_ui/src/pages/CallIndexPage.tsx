@@ -7,7 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 export const CallIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const favoriteBreadcrumb = createFavoriteBreadcrumb(t('queue-switchboard', 'Queue Switchboard'));
+  const favoriteBreadcrumb = createFavoriteBreadcrumb(
+    t('queue-switchboard', 'Queue Switchboard'),
+  );
 
   return (
     <PageContainer>

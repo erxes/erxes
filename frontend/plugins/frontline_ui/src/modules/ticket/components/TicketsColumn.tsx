@@ -94,7 +94,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'name',
       accessorKey: 'name',
       header: () => (
-        <RecordTable.InlineHead label={t('name', 'Name')} icon={IconLabelFilled} />
+        <RecordTable.InlineHead
+          label={t('name', 'Name')}
+          icon={IconLabelFilled}
+        />
       ),
       cell: TicketNameCell,
       size: 240,
@@ -104,7 +107,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'status',
       accessorKey: 'status',
       header: () => (
-        <RecordTable.InlineHead label={t('status', 'Status')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('status', 'Status')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
@@ -127,7 +133,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       id: 'channel',
       accessorKey: 'channel',
       header: () => (
-        <RecordTable.InlineHead label={t('channel', 'Channel')} icon={IconProgressCheck} />
+        <RecordTable.InlineHead
+          label={t('channel', 'Channel')}
+          icon={IconProgressCheck}
+        />
       ),
       cell: ({ cell }) => {
         return (
@@ -257,7 +266,10 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
     {
       id: 'assigneeId',
       header: () => (
-        <RecordTable.InlineHead label={t('assignee', 'Assignee')} icon={IconUser} />
+        <RecordTable.InlineHead
+          label={t('assignee', 'Assignee')}
+          icon={IconUser}
+        />
       ),
       cell: ({ cell }) => {
         return (

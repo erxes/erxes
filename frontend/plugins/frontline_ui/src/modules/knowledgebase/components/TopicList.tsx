@@ -46,11 +46,18 @@ export function TopicList(props: TopicListProps) {
   const [isTopicsCollapsed, setIsTopicsCollapsed] = useState(false);
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = t('kb-confirm-delete-category', 'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.', { title: category.title });
+    const message = t(
+      'kb-confirm-delete-category',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.',
+      { title: category.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -69,7 +76,10 @@ export function TopicList(props: TopicListProps) {
     } catch (error) {
       toast({
         type: 'foreground',
-        title: t('kb-failed-delete-category', 'Failed to delete category. Please try again.'),
+        title: t(
+          'kb-failed-delete-category',
+          'Failed to delete category. Please try again.',
+        ),
       });
     }
   };
@@ -266,14 +276,21 @@ export function TopicItem(props: {
 
   const handleDeleteTopic = async (topic: ITopic) => {
     const categoryCount = topic.categories?.length || 0;
-    const message = t('kb-confirm-delete-topic-with-count', 'Are you sure you want to delete "{{title}}"? This will also delete {{count}} categories and all their associated articles. This action cannot be undone.', {
-      title: topic.title,
-      count: categoryCount,
-    });
+    const message = t(
+      'kb-confirm-delete-topic-with-count',
+      'Are you sure you want to delete "{{title}}"? This will also delete {{count}} categories and all their associated articles. This action cannot be undone.',
+      {
+        title: topic.title,
+        count: categoryCount,
+      },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -289,11 +306,18 @@ export function TopicItem(props: {
   };
 
   const handleDeleteCategory = async (category: ICategory) => {
-    const message = t('kb-confirm-delete-category', 'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.', { title: category.title });
+    const message = t(
+      'kb-confirm-delete-category',
+      'Are you sure you want to delete "{{title}}"? This will also delete all associated articles. This action cannot be undone.',
+      { title: category.title },
+    );
 
     const confirmOptions = {
       confirmationValue: 'delete',
-      description: t('kb-action-permanent', 'This action is permanent and cannot be undone.'),
+      description: t(
+        'kb-action-permanent',
+        'This action is permanent and cannot be undone.',
+      ),
     };
 
     try {
@@ -312,7 +336,10 @@ export function TopicItem(props: {
     } catch (error) {
       toast({
         type: 'foreground',
-        title: t('kb-failed-delete-category', 'Failed to delete category. Please try again.'),
+        title: t(
+          'kb-failed-delete-category',
+          'Failed to delete category. Please try again.',
+        ),
       });
     }
   };

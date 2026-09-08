@@ -25,7 +25,10 @@ export const useCreateTicket = () => {
       onCompleted: () => {
         toast({
           title: t('success', 'Success!'),
-          description: t('ticket-created-successfully', 'Ticket created successfully'),
+          description: t(
+            'ticket-created-successfully',
+            'Ticket created successfully',
+          ),
           variant: 'default',
         });
         setCursor('');

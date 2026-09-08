@@ -8,7 +8,12 @@ export const useRemoveResponse = () => {
   const { t } = useTranslation('frontline');
   const [removeResponse, { loading, error }] = useMutation(REMOVE_RESPONSE, {
     onCompleted: () => {
-      toast({ title: t('response-removed-successfully', 'Response removed successfully') });
+      toast({
+        title: t(
+          'response-removed-successfully',
+          'Response removed successfully',
+        ),
+      });
     },
     refetchQueries: [{ query: GET_RESPONSES }],
   });

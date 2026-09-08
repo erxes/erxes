@@ -44,7 +44,12 @@ export const TicketsAssignToContent = ({
         await bulkUpdateTickets(
           ticketIds,
           { assigneeId: Array.isArray(value) ? value[0] : value },
-          { successMessage: t('tickets-updated-successfully', 'Tickets updated successfully') },
+          {
+            successMessage: t(
+              'tickets-updated-successfully',
+              'Tickets updated successfully',
+            ),
+          },
         );
       }}
     >

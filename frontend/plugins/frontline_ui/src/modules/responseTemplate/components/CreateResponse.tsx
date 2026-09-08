@@ -84,7 +84,9 @@ export const CreateResponse = () => {
 
       <Sheet.View className="p-0">
         <Sheet.Header>
-          <Sheet.Title>{t('add-response-template', 'Add response template')}</Sheet.Title>
+          <Sheet.Title>
+            {t('add-response-template', 'Add response template')}
+          </Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
 

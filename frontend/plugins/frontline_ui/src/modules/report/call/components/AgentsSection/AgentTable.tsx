@@ -20,7 +20,11 @@ export function AgentTable({ stats }: AgentTableProps) {
     setExpanded((prev) => (prev === agent ? null : agent));
 
   if (!stats.length) {
-    return <ReportTable.Empty>{t('no-agent-data', 'No agent data for the selected range')}</ReportTable.Empty>;
+    return (
+      <ReportTable.Empty>
+        {t('no-agent-data', 'No agent data for the selected range')}
+      </ReportTable.Empty>
+    );
   }
 
   const busiest = Math.max(...stats.map(({ totalCalls }) => totalCalls), 1);
@@ -34,13 +38,21 @@ export function AgentTable({ stats }: AgentTableProps) {
           <ReportTable.Head align="right" className="w-32">
             {t('total', 'Total')}
           </ReportTable.Head>
-          <ReportTable.Head align="right">{t('answered', 'Answered')}</ReportTable.Head>
-          <ReportTable.Head align="right">{t('missed', 'Missed')}</ReportTable.Head>
+          <ReportTable.Head align="right">
+            {t('answered', 'Answered')}
+          </ReportTable.Head>
+          <ReportTable.Head align="right">
+            {t('missed', 'Missed')}
+          </ReportTable.Head>
           <ReportTable.Head align="right" className="w-32">
             Ans. Rate
           </ReportTable.Head>
-          <ReportTable.Head align="right">{t('avg-wait', 'Avg Wait')}</ReportTable.Head>
-          <ReportTable.Head align="right">{t('avg-talk', 'Avg Talk')}</ReportTable.Head>
+          <ReportTable.Head align="right">
+            {t('avg-wait', 'Avg Wait')}
+          </ReportTable.Head>
+          <ReportTable.Head align="right">
+            {t('avg-talk', 'Avg Talk')}
+          </ReportTable.Head>
         </ReportTable.HeaderRow>
       </ReportTable.Header>
       <ReportTable.Body>

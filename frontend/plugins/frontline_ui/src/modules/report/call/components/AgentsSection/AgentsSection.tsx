@@ -11,7 +11,10 @@ export function AgentsSection() {
   return (
     <SectionCard
       title={t('agent-leaderboard', 'Agent Leaderboard')}
-      description={t('per-agent-performance', 'Per-agent answered / missed / talk-time performance')}
+      description={t(
+        'per-agent-performance',
+        'Per-agent answered / missed / talk-time performance',
+      )}
       accentClass="bg-[var(--chart-2)]"
       loading={loading}
       skeletonHeight="h-64"

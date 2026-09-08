@@ -57,8 +57,14 @@ export const ConversationEventTriggerForm = ({
     callback: () => {
       form.handleSubmit(onSaveTriggerConfig, () => {
         toast({
-          title: t('validation-error-title', 'Conversation event trigger is incomplete'),
-          description: t('validation-error-description', 'Select at least one conversation event, keep at least one action enabled, and choose the required targets.'),
+          title: t(
+            'validation-error-title',
+            'Conversation event trigger is incomplete',
+          ),
+          description: t(
+            'validation-error-description',
+            'Select at least one conversation event, keep at least one action enabled, and choose the required targets.',
+          ),
           variant: 'destructive',
         });
       })();
@@ -243,7 +249,9 @@ const ConversationEventGroupCard = ({
         ))}
       </ToggleGroup>
       {hasActionError ? (
-        <p className="text-xs text-destructive">{t('action-required', 'Select at least one action.')}</p>
+        <p className="text-xs text-destructive">
+          {t('action-required', 'Select at least one action.')}
+        </p>
       ) : null}
 
       {group.type === 'assignee' && isSelected ? (
@@ -256,7 +264,9 @@ const ConversationEventGroupCard = ({
             placeholder={t(group.targetPlaceholderKey || '')}
           />
           {hasTargetError ? (
-            <p className="text-xs text-destructive">{t('target-required', 'Select at least one target.')}</p>
+            <p className="text-xs text-destructive">
+              {t('target-required', 'Select at least one target.')}
+            </p>
           ) : null}
         </Form.Item>
       ) : null}
@@ -271,7 +281,9 @@ const ConversationEventGroupCard = ({
             onValueChange={(value) => onTargetsChange(normalizeIds(value))}
           />
           {hasTargetError ? (
-            <p className="text-xs text-destructive">{t('target-required', 'Select at least one target.')}</p>
+            <p className="text-xs text-destructive">
+              {t('target-required', 'Select at least one target.')}
+            </p>
           ) : null}
         </Form.Item>
       ) : null}

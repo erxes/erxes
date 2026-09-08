@@ -175,11 +175,21 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
           <Filter.View>
             <Command>
               <Command.List>
-                <Filter.Item value="channel">{t('channel-label', 'Channel')}</Filter.Item>
-                <Filter.Item value="member">{t('assigned-user', 'Assigned User')}</Filter.Item>
-                <Filter.Item value="pipeline">{t('pipelines', 'Pipelines')}</Filter.Item>
-                <Filter.Item value="ticketStatus">{t('status', 'Status')}</Filter.Item>
-                <Filter.Item value="state">{t('state-label', 'State')}</Filter.Item>
+                <Filter.Item value="channel">
+                  {t('channel-label', 'Channel')}
+                </Filter.Item>
+                <Filter.Item value="member">
+                  {t('assigned-user', 'Assigned User')}
+                </Filter.Item>
+                <Filter.Item value="pipeline">
+                  {t('pipelines', 'Pipelines')}
+                </Filter.Item>
+                <Filter.Item value="ticketStatus">
+                  {t('status', 'Status')}
+                </Filter.Item>
+                <Filter.Item value="state">
+                  {t('state-label', 'State')}
+                </Filter.Item>
                 <Filter.Item value="priority">
                   {t('priority-label', 'Priority')}
                 </Filter.Item>
@@ -187,11 +197,15 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                 <Filter.Item value="customer">
                   {t('customer-label', 'Customer')}
                 </Filter.Item>
-                <Filter.Item value="company">{t('company-label', 'Company')}</Filter.Item>
+                <Filter.Item value="company">
+                  {t('company-label', 'Company')}
+                </Filter.Item>
                 <Filter.Item value="properties">
                   {t('properties-label', 'Properties')}
                 </Filter.Item>
-                <Filter.Item value="group">{t('group-by-label', 'Group by')}</Filter.Item>
+                <Filter.Item value="group">
+                  {t('group-by-label', 'Group by')}
+                </Filter.Item>
                 <Filter.Item value="frequency">
                   {t('frequency-label', 'Frequency')}
                 </Filter.Item>
@@ -532,7 +546,9 @@ const TicketStatusFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {!pipelineId ? (
-        <Command.Empty>{t('pipeline-not-selected', 'Pipeline not selected')}</Command.Empty>
+        <Command.Empty>
+          {t('pipeline-not-selected', 'Pipeline not selected')}
+        </Command.Empty>
       ) : loading ? (
         <Command.Empty>{t('loading', 'Loading...')}</Command.Empty>
       ) : (
@@ -544,7 +560,9 @@ const TicketStatusFilterView = ({
             </div>
           </Command.Item>
           {statuses.length === 0 && (
-            <Command.Empty>{t('no-status-found', 'No status found')}</Command.Empty>
+            <Command.Empty>
+              {t('no-status-found', 'No status found')}
+            </Command.Empty>
           )}
           {(statuses as ITicketStatusChoice[]).map((status) => (
             <Command.Item
@@ -671,7 +689,9 @@ const PropertyFilterView = ({
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>{t('no-custom-properties-found', 'No custom properties found.')}</Command.Empty>
+            <Command.Empty>
+              {t('no-custom-properties-found', 'No custom properties found.')}
+            </Command.Empty>
           )}
           {fields.map((field) => (
             <Filter.Item key={field._id} value={`property:${field._id}`}>
@@ -715,7 +735,9 @@ const GroupByFilterView = ({
             </div>
           </Command.Item>
           {fields.length === 0 && (
-            <Command.Empty>{t('no-custom-properties-found', 'No custom properties found.')}</Command.Empty>
+            <Command.Empty>
+              {t('no-custom-properties-found', 'No custom properties found.')}
+            </Command.Empty>
           )}
           {fields.map((field) => (
             <Command.Item
@@ -841,7 +863,9 @@ const PropertyValueFilterView = ({
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
       {options.length === 0 && (
-        <Command.Empty>{t('no-options-found', 'No options found.')}</Command.Empty>
+        <Command.Empty>
+          {t('no-options-found', 'No options found.')}
+        </Command.Empty>
       )}
       {options.map((option) => (
         <Command.Item
@@ -1083,7 +1107,9 @@ const DateView = ({
           className={cn('h-8', isCustomDate && 'text-primary')}
         >
           <IconCalendar className="size-4" />
-          {isCustomDate ? getReportDisplayValue(selected) : t('custom-range', 'Custom Range...')}
+          {isCustomDate
+            ? getReportDisplayValue(selected)
+            : t('custom-range', 'Custom Range...')}
         </Command.Item>
       </Command.List>
     </Command>

@@ -33,7 +33,9 @@ export const ConversationActions = () => {
       onPressedChange={handleChangeConversationStatus}
       disabled={loading}
     >
-      {status === ConversationStatus.CLOSED ? t('open-label', 'Open') : t('resolve', 'Resolve')}
+      {status === ConversationStatus.CLOSED
+        ? t('open-label', 'Open')
+        : t('resolve', 'Resolve')}
     </Toggle>
   );
 };

@@ -6,7 +6,11 @@ import { ScrollArea, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IRelationWidgetProps, useCreateMultipleRelations, useRelations } from 'ui-modules';
+import {
+  IRelationWidgetProps,
+  useCreateMultipleRelations,
+  useRelations,
+} from 'ui-modules';
 import { TicketWidget } from './TicketWidget';
 
 export const TicketRelationWidget = ({
@@ -95,7 +99,9 @@ export const TicketRelationWidget = ({
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('tickets', 'Tickets')}</span>
+        <span className="font-medium text-primary">
+          {t('tickets', 'Tickets')}
+        </span>
         <AddTicketSheet
           onComplete={onComplete}
           variant="secondary"

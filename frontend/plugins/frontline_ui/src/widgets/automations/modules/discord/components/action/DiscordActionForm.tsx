@@ -150,10 +150,7 @@ export const DiscordActionForm = ({
   const botId = useWatch({ control, name: 'botId' });
 
   const { bots } = useDiscordBots();
-  const { channels } = useDiscordBotChannels(
-    botId || '',
-    target !== 'channel',
-  );
+  const { channels } = useDiscordBotChannels(botId || '', target !== 'channel');
 
   const buttons = useFieldArray({ control, name: 'buttons' });
   const attachments = useFieldArray({ control, name: 'attachments' });
@@ -180,7 +177,10 @@ export const DiscordActionForm = ({
                     )}
                   </Select.Item>
                   <Select.Item value="channel">
-                    {t('discord-action.a-specific-channel', 'A specific channel')}
+                    {t(
+                      'discord-action.a-specific-channel',
+                      'A specific channel',
+                    )}
                   </Select.Item>
                   <Select.Item value="dm">
                     {t('discord-action.a-direct-message', 'A direct message')}
@@ -231,7 +231,9 @@ export const DiscordActionForm = ({
             name="channelId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('discord-action.channel', 'Channel')}</Form.Label>
+                <Form.Label>
+                  {t('discord-action.channel', 'Channel')}
+                </Form.Label>
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
@@ -241,7 +243,10 @@ export const DiscordActionForm = ({
                     <Select.Value
                       placeholder={
                         botId
-                          ? t('discord-action.select-a-channel', 'Select a channel')
+                          ? t(
+                              'discord-action.select-a-channel',
+                              'Select a channel',
+                            )
                           : t(
                               'discord-action.select-a-bot-first',
                               'Select a bot first',
@@ -377,7 +382,10 @@ export const DiscordActionForm = ({
                   <Input
                     {...field}
                     value={field.value || ''}
-                    placeholder={t('discord-action.url-placeholder', 'https://…')}
+                    placeholder={t(
+                      'discord-action.url-placeholder',
+                      'https://…',
+                    )}
                   />
                 </Form.Control>
               </Form.Item>
@@ -416,7 +424,10 @@ export const DiscordActionForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        placeholder={t('discord-action.url-placeholder', 'https://…')}
+                        placeholder={t(
+                          'discord-action.url-placeholder',
+                          'https://…',
+                        )}
                       />
                     </Form.Control>
                   </Form.Item>

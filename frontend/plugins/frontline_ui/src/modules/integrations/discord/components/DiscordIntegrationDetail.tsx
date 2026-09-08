@@ -361,7 +361,9 @@ export const DiscordIntegrationDetail = () => {
               onSubmit={form.handleSubmit(onSubmit)}
             >
               <Sheet.Header>
-                <Sheet.Title>{t('discord-add-bot', 'Add Discord bot')}</Sheet.Title>
+                <Sheet.Title>
+                  {t('discord-add-bot', 'Add Discord bot')}
+                </Sheet.Title>
                 <Sheet.Description>
                   {t(
                     'discord-add-bot-description',
@@ -421,9 +423,13 @@ export const DiscordIntegrationDetail = () => {
                         <Alert variant="default">
                           <IconCircleCheck className="size-4 text-green-600" />
                           <Alert.Title>
-                            {t('discord-connected-as', 'Connected as {{botUsername}}', {
-                              botUsername: currentValidation.botUsername,
-                            })}
+                            {t(
+                              'discord-connected-as',
+                              'Connected as {{botUsername}}',
+                              {
+                                botUsername: currentValidation.botUsername,
+                              },
+                            )}
                           </Alert.Title>
                           <Alert.Description>
                             {t(
@@ -477,7 +483,10 @@ export const DiscordIntegrationDetail = () => {
                           className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                         >
                           <IconExternalLink className="size-4" />
-                          {t('discord-add-bot-to-server', 'Add this bot to a server')}
+                          {t(
+                            'discord-add-bot-to-server',
+                            'Add this bot to a server',
+                          )}
                         </a>
                       )}
 
@@ -603,7 +612,10 @@ export const DiscordIntegrationDetail = () => {
                           }}
                           placeholder={
                             channelsLoading
-                              ? t('discord-loading-channels', 'Loading channels…')
+                              ? t(
+                                  'discord-loading-channels',
+                                  'Loading channels…',
+                                )
                               : t(
                                   'discord-select-one-or-more-channels',
                                   'Select one or more channels',
@@ -631,7 +643,10 @@ export const DiscordIntegrationDetail = () => {
                         render={({ field }) => (
                           <Form.Item>
                             <Form.Label>
-                              {t('discord-integration-name', 'Integration name')}
+                              {t(
+                                'discord-integration-name',
+                                'Integration name',
+                              )}
                             </Form.Label>
                             {namePresets.length > 0 ? (
                               <IntegrationNamePicker

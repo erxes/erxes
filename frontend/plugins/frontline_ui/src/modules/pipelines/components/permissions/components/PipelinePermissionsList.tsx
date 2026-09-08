@@ -179,9 +179,7 @@ const PipelinePermissionsFormBody = ({
 
   return (
     <div className="flex flex-col divide-y">
-      <PipelineSection
-        title={t('pipeline-visibility', 'Pipeline Visibility')}
-      >
+      <PipelineSection title={t('pipeline-visibility', 'Pipeline Visibility')}>
         <PipelineVisibility control={form.control} />
       </PipelineSection>
 
@@ -204,9 +202,7 @@ const PipelinePermissionsFormBody = ({
       </PipelineSection>
 
       {statuses.length > 0 && (
-        <PipelineSection
-          title={t('status-permissions', 'Status Permissions')}
-        >
+        <PipelineSection title={t('status-permissions', 'Status Permissions')}>
           <StatusPermissionsSection
             statuses={statuses}
             updateStatus={updateStatus}

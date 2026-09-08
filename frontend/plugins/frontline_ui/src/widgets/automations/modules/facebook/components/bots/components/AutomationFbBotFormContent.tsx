@@ -72,9 +72,14 @@ export const AutomationFbBotFormContent = () => {
               name="persistentMenus"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('persistent-menu', 'Persistent menu')}</Form.Label>
+                  <Form.Label>
+                    {t('persistent-menu', 'Persistent menu')}
+                  </Form.Label>
                   <Form.Description>
-                    {t('persistent-menu-description', 'Configure menu items that appear in your bot')}
+                    {t(
+                      'persistent-menu-description',
+                      'Configure menu items that appear in your bot',
+                    )}
                   </Form.Description>
                   <FacebookPersistentMenuGenerator
                     menus={field.value}
@@ -107,11 +112,16 @@ export const AutomationFbBotFormContent = () => {
                         onValueChange={field.onChange}
                       >
                         <Select.Trigger id="messenger-tag" className="mt-1">
-                          <Select.Value placeholder={t('select-tag', 'Select tag')} />
+                          <Select.Value
+                            placeholder={t('select-tag', 'Select tag')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           <Select.Item value="CONFIRMED_EVENT_UPDATE">
-                            {t('confirmed-event-update', 'Confirmed event update')}
+                            {t(
+                              'confirmed-event-update',
+                              'Confirmed event update',
+                            )}
                           </Select.Item>
                           <Select.Item value="POST_PURCHASE_UPDATE">
                             {t('post-purchase-update', 'Post purchase update')}
@@ -145,7 +155,9 @@ export const AutomationFbBotFormContent = () => {
                   name="greetText"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{t('greet-message', 'Greet Message')}</Form.Label>
+                      <Form.Label>
+                        {t('greet-message', 'Greet Message')}
+                      </Form.Label>
                       <Input {...field} />
                       <Form.Message />
                     </Form.Item>
@@ -159,7 +171,10 @@ export const AutomationFbBotFormContent = () => {
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {t('inactivity-pause-minutes', 'Inactivity pause minutes')}
+                            {t(
+                              'inactivity-pause-minutes',
+                              'Inactivity pause minutes',
+                            )}
                           </Form.Label>
                           <Input
                             type="number"
@@ -178,7 +193,12 @@ export const AutomationFbBotFormContent = () => {
                       name="handoffMessage"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>{t('human-handoff-message', 'Human handoff message')}</Form.Label>
+                          <Form.Label>
+                            {t(
+                              'human-handoff-message',
+                              'Human handoff message',
+                            )}
+                          </Form.Label>
                           <Input {...field} />
                           <Form.Message />
                         </Form.Item>
@@ -190,7 +210,10 @@ export const AutomationFbBotFormContent = () => {
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>
-                            {t('automation-active-message', 'Automation active message')}
+                            {t(
+                              'automation-active-message',
+                              'Automation active message',
+                            )}
                           </Form.Label>
                           <Input {...field} />
                           <Form.Message />

@@ -123,7 +123,12 @@ export const FileUploadSection = ({
         ) : (
           <>
             <IconPhotoScan className="w-24 h-24 text-accent-foreground" />
-            <Label>{t('drag-drop-or-upload', 'Drag and Drop, choose from your Media library or upload')}</Label>
+            <Label>
+              {t(
+                'drag-drop-or-upload',
+                'Drag and Drop, choose from your Media library or upload',
+              )}
+            </Label>
           </>
         )}
       </label>

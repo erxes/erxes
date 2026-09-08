@@ -27,7 +27,9 @@ export const InstagramBotPagesStep = () => {
         </div>
         <div className="flex justify-between items-center px-1 py-2">
           <div className="text-sm text-muted-foreground">
-            {t('pages-found', '{{count}} pages found', { count: instagramGetPages.length })}
+            {t('pages-found', '{{count}} pages found', {
+              count: instagramGetPages.length,
+            })}
           </div>
         </div>
         <RadioGroup

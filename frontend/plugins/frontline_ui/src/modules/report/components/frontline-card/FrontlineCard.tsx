@@ -132,7 +132,9 @@ export function FrontlineCardHeader({ filter }: { filter?: React.ReactNode }) {
           onClick={toggleColSpan}
           className="p-1 hover:bg-accent rounded"
           title={
-            colSpan === 6 ? t('expand-to-full-width', 'Expand to full width') : t('collapse-to-half-width', 'Collapse to half width')
+            colSpan === 6
+              ? t('expand-to-full-width', 'Expand to full width')
+              : t('collapse-to-half-width', 'Collapse to half width')
           }
         >
           {colSpan === 6 ? (

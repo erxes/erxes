@@ -6,7 +6,6 @@ import { IAttachment } from '@/ticket/types/attachments';
 import { useAttachmentContext } from './AttachmentContext';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 
-
 const getCloudflareStreamIframe = (url: string): string | null => {
   const match = url.match(
     /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,

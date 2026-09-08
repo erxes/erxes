@@ -105,7 +105,11 @@ export const useFbBotFileUploadSection = ({
       if (file.size > sizeLimit) {
         toast({
           title: t('file-size-exceeds-limit', 'File size exceeds limit'),
-          description: t('file-size-must-be-less-than', 'File size must be less than {{limit}}MB', { limit }),
+          description: t(
+            'file-size-must-be-less-than',
+            'File size must be less than {{limit}}MB',
+            { limit },
+          ),
           variant: 'destructive',
         });
         return;

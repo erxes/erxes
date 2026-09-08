@@ -44,25 +44,26 @@ export const FormStatusToggle = ({
           variant: 'destructive',
         });
       }
-    })
-  }
+    });
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button
-          variant="secondary"
-          disabled={loading}
-        >
+        <Button variant="secondary" disabled={loading}>
           {loading ? <Spinner /> : <IconSquareToggle />}
           {t('status', 'Status')}
         </Button>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content sideOffset={15} align='end'>
-        <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'archived')}>
+      <DropdownMenu.Content sideOffset={15} align="end">
+        <DropdownMenu.Item
+          onClick={() => handleToggleStatus(formIds, 'archived')}
+        >
           {t('archive', 'Archive')}
         </DropdownMenu.Item>
-        <DropdownMenu.Item onClick={() => handleToggleStatus(formIds, 'active')}>
+        <DropdownMenu.Item
+          onClick={() => handleToggleStatus(formIds, 'active')}
+        >
           {t('activate', 'Activate')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>

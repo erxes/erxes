@@ -50,7 +50,9 @@ export const FormCallout = () => {
                   onCheckedChange={field.onChange}
                 />
               </Form.Control>
-              <Form.Label variant="peer">{t('callout-skip', 'Skip callout')}</Form.Label>
+              <Form.Label variant="peer">
+                {t('callout-skip', 'Skip callout')}
+              </Form.Label>
               <Form.Message />
             </Form.Item>
           )}

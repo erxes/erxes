@@ -83,7 +83,10 @@ export const SaveReportChartButton = ({
             <Dialog.Header>
               <Dialog.Title>{t('save-chart', 'Save chart')}</Dialog.Title>
               <Dialog.Description>
-                {t('save-chart-description', 'Save the filters selected right now as a new chart. The default chart stays as it is.')}
+                {t(
+                  'save-chart-description',
+                  'Save the filters selected right now as a new chart. The default chart stays as it is.',
+                )}
               </Dialog.Description>
             </Dialog.Header>
             <Form.Field

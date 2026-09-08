@@ -195,7 +195,9 @@ export const ConversationList = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data', 'Error loading data')}</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation list'}
             </Alert.Description>
@@ -420,9 +422,7 @@ export const conversationListColumns = (
     cell: ({ cell }) => {
       const { readUsers } = cell.row.original || {};
       if (!readUsers) {
-        return (
-          <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>
-        );
+        return <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>;
       }
       return (
         <RecordTableInlineCell>

@@ -109,7 +109,10 @@ export const WelcomeMessageContent = () => {
   return (
     <WelcomeNotificationContentLayout
       title="erxes Frontline"
-      description={t('engage-customers-description', 'Engage customers, respond quickly, improve satisfaction')}
+      description={t(
+        'engage-customers-description',
+        'Engage customers, respond quickly, improve satisfaction',
+      )}
       tabItems={TabItems}
       videoSrc="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/frontline-web.mp4"
       videoPoster="https://pub-3bcba1ff529f4ce3bf25b4e16962c239.r2.dev/erxes-frontline-thumbnail.png"

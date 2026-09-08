@@ -55,7 +55,8 @@ export const ChannelsMoreColumnCell = ({
               <IconEdit /> {t('edit', 'Edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
-              {loading ? <Spinner size="sm" /> : <IconTrash />} {t('delete', 'Delete')}
+              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+              {t('delete', 'Delete')}
             </Command.Item>
           </Command.List>
         </Command>

@@ -102,7 +102,9 @@ export const PersonalInboxNav = () => {
       onClickCapture={handleGroupClickCapture}
     >
       <ChannelNavItem
-        name={personalChannel?.name || t('personal-channel', 'Personal channel')}
+        name={
+          personalChannel?.name || t('personal-channel', 'Personal channel')
+        }
         icon={
           <IconComponent
             name={personalChannel?.icon}

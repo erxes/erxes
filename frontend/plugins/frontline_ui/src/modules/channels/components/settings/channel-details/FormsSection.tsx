@@ -25,9 +25,7 @@ export const FormsSection = ({ channel }: { channel: IChannel }) => {
           <p>{t('manage-channel-forms', 'Manage channel forms')}</p>
 
           <div className="flex items-center gap-2">
-            <p className="text-xs">
-              {t('form', 'Form', { count: total })}
-            </p>
+            <p className="text-xs">{t('form', 'Form', { count: total })}</p>
             <IconChevronRight className="w-4 h-4" />
           </div>
         </div>

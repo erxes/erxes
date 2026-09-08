@@ -171,7 +171,9 @@ export const FormFieldDetail = ({
               />
             </div>
             <div className="space-y-2 col-span-2 flex gap-2 items-center">
-              <Label className="flex items-center m-0!">{t('required', 'Required')}</Label>
+              <Label className="flex items-center m-0!">
+                {t('required', 'Required')}
+              </Label>
               <Checkbox
                 checked={fieldData?.required}
                 onCheckedChange={(checked) =>
@@ -213,7 +215,9 @@ export const FormFieldDetail = ({
               </ToggleGroup>
             </div>
             <div className="space-y-2 col-span-2">
-              <Label>{t('placeholder-attribute', 'Placeholder Attribute')}</Label>
+              <Label>
+                {t('placeholder-attribute', 'Placeholder Attribute')}
+              </Label>
               <Input
                 value={fieldData?.placeholder}
                 onChange={(e) =>
@@ -257,7 +261,12 @@ export const FormFieldDetail = ({
                     }
                   >
                     <Select.Trigger>
-                      <Select.Value placeholder={t('select-preset-rule', 'Select a preset rule')} />
+                      <Select.Value
+                        placeholder={t(
+                          'select-preset-rule',
+                          'Select a preset rule',
+                        )}
+                      />
                     </Select.Trigger>
                     <Select.Content>
                       {VALIDATOR_PRESET_OPTIONS.map((opt) => (
@@ -275,7 +284,10 @@ export const FormFieldDetail = ({
                     onChange={(e) =>
                       handleChangeValidator({ customRegex: e.target.value })
                     }
-                    placeholder={t('regex-pattern-placeholder', 'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)')}
+                    placeholder={t(
+                      'regex-pattern-placeholder',
+                      'Regex pattern (e.g. ^[A-Z]{3}\\d{4}$)',
+                    )}
                     spellCheck={false}
                   />
                 )}
@@ -287,7 +299,10 @@ export const FormFieldDetail = ({
                       onChange={(e) =>
                         handleChangeValidator({ errorMessage: e.target.value })
                       }
-                      placeholder={t('error-message-placeholder', 'Error message shown to the user')}
+                      placeholder={t(
+                        'error-message-placeholder',
+                        'Error message shown to the user',
+                      )}
                     />
                   )}
               </div>
@@ -316,7 +331,10 @@ export const FormFieldDetail = ({
                       />
                     </Tooltip.Trigger>
                     <Tooltip.Content>
-                      {t('enables-search-in-options', 'Enables searching within options')}
+                      {t(
+                        'enables-search-in-options',
+                        'Enables searching within options',
+                      )}
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
@@ -348,11 +366,20 @@ export const FormFieldDetail = ({
                 }
               >
                 <Select.Trigger>
-                  <Select.Value placeholder={t('select-logic-action', 'Select logic action')} />
+                  <Select.Value
+                    placeholder={t(
+                      'select-logic-action',
+                      'Select logic action',
+                    )}
+                  />
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="show">{t('show-this-field', 'Show this field')}</Select.Item>
-                  <Select.Item value="hide">{t('hide-this-field', 'Hide this field')}</Select.Item>
+                  <Select.Item value="show">
+                    {t('show-this-field', 'Show this field')}
+                  </Select.Item>
+                  <Select.Item value="hide">
+                    {t('hide-this-field', 'Hide this field')}
+                  </Select.Item>
                 </Select.Content>
               </Select>
             </div>
@@ -383,7 +410,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('select-field', 'Select field')} />
+                          <Select.Value
+                            placeholder={t('select-field', 'Select field')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {availableFields.map((f) => (
@@ -400,7 +429,9 @@ export const FormFieldDetail = ({
                         }
                       >
                         <Select.Trigger className="col-span-1">
-                          <Select.Value placeholder={t('operator', 'Operator')} />
+                          <Select.Value
+                            placeholder={t('operator', 'Operator')}
+                          />
                         </Select.Trigger>
                         <Select.Content>
                           {operators.map((op) => (

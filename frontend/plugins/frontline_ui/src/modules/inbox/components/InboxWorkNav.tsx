@@ -80,7 +80,9 @@ export const InboxWorkNav = () => {
         </div>
       )}
       {!loading && error && (
-        <div className="px-2 py-3 text-xs text-destructive">{t('error', 'Error')}</div>
+        <div className="px-2 py-3 text-xs text-destructive">
+          {t('error', 'Error')}
+        </div>
       )}
       {!loading &&
         !error &&

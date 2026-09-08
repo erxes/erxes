@@ -1,11 +1,20 @@
-import { Combobox, Command, Filter, isUndefinedOrNull, PageSubHeader, Skeleton, useMultiQueryState, useQueryState } from "erxes-ui";
-import { FormsPageHotKeyScope } from "@/forms/types/formTypes";
-import { IconTag } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
-import { FormStatus } from "./filters/FormStatus";
-import { SelectTags } from "ui-modules";
-import { useFormsList } from "@/forms/hooks/useFormsList";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
+import {
+  Combobox,
+  Command,
+  Filter,
+  isUndefinedOrNull,
+  PageSubHeader,
+  Skeleton,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
+import { FormsPageHotKeyScope } from '@/forms/types/formTypes';
+import { IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { FormStatus } from './filters/FormStatus';
+import { SelectTags } from 'ui-modules';
+import { useFormsList } from '@/forms/hooks/useFormsList';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 
 export const FormSubHeader = () => {
   const { t } = useTranslation('common');
@@ -47,7 +56,10 @@ export const FormSubHeader = () => {
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem value="tagId" label={tf('by-tag', 'By Tag')} />
+                  <SelectTags.FilterItem
+                    value="tagId"
+                    label={tf('by-tag', 'By Tag')}
+                  />
                   <FormStatus.Item />
                   <SelectChannel.FilterItem />
                 </Command.List>
@@ -67,7 +79,7 @@ export const FormSubHeader = () => {
         <SelectChannel.FilterBar />
 
         <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-          {(isUndefinedOrNull(totalCount) || loading) ? (
+          {isUndefinedOrNull(totalCount) || loading ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
             `${totalCount} ${t('records-found', 'Records Found')}`
@@ -96,4 +108,4 @@ export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
       />
     </Filter.BarItem>
   );
-}
+};
