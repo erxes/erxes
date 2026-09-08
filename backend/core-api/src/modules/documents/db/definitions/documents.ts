@@ -6,6 +6,7 @@ export const documentSchema = new Schema(
     contentType: { type: String },
     subType: { type: String, optional: true },
     name: { type: String },
+    tagIds: { type: [String] },
     content: { type: String },
     replacer: { type: String },
     code: { type: String, optional: true },
