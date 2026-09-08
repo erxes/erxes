@@ -376,10 +376,13 @@ const generateFilter = async (
   if (tagIds) {
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      const tagsById = new Map(tagObjs.map((tag) => [tag._id, tag]));
 
       andFilters.push(
-        ...tagObjs.map((tag) => ({
-          tagIds: { $in: [tag._id, ...(tag.relatedIds || [])] },
+        ...tagIds.map((tagId) => ({
+          tagIds: {
+            $in: [tagId, ...(tagsById.get(tagId)?.relatedIds || [])],
+          },
         })),
       );
     } else {
