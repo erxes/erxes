@@ -35,10 +35,46 @@ export type KbSection = KbCategory & {
   childrens: KbCategory[] | null;
 };
 
+export type KbTopicStyles = {
+  mainLogo: string | null;
+  favicon: string | null;
+
+  bodyColor: string | null;
+  headerColor: string | null;
+  footerColor: string | null;
+  helpCenterColor: string | null;
+  backgroundColor: string | null;
+  activeTabColor: string | null;
+
+  baseFont: string | null;
+  baseColor: string | null;
+  headingFont: string | null;
+  headingColor: string | null;
+  linkColor: string | null;
+  linkHoverColor: string | null;
+
+  primaryButtonColor: string | null;
+  secondaryButtonColor: string | null;
+  dividerColor: string | null;
+
+  headerHtml: string | null;
+  footerHtml: string | null;
+} | null;
+
 export type KbTopic = {
   _id: string;
   title: string | null;
   description: string | null;
   color: string | null;
+  url: string | null;
+  kbToggle: boolean | null;
+  kbLabel: string | null;
+  kbTopicId: string | null;
+  ticketToggle: boolean | null;
+  ticketLabel: string | null;
+  ticketChannelId: string | null;
+  ticketPipelineId: string | null;
+  ticketStatusId: string | null;
+  styles: KbTopicStyles;
   parentCategories: KbSection[] | null;
 };

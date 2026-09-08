@@ -29,10 +29,22 @@ const resolveAlias = Object.fromEntries(
   ]),
 );
 
+/*
+ * The browser talks to this app's own origin and Next forwards to the gateway
+ * server-side, so a gateway that does not allowlist this dev origin for CORS
+ * still works. The rewrite is the only path the client-side Apollo link uses;
+ * server components call the gateway directly and never reach it.
+ */
+const gatewayUrl = process.env.NEXT_PUBLIC_ERXES_API_URL ?? '';
+
 const nextConfig: NextConfig = {
   experimental: {
     externalDir: true,
   },
+  rewrites: async () =>
+    gatewayUrl
+      ? [{ source: '/api/gateway/:path*', destination: `${gatewayUrl}/:path*` }]
+      : [],
   turbopack: {
     root: path.join(appDir, '..', '..'),
     resolveAlias,

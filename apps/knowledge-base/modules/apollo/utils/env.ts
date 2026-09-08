@@ -63,6 +63,11 @@ export const readTicketEnv = (): TicketEnv => ({
   statusId: process.env.NEXT_PUBLIC_ERXES_TICKET_STATUS_ID ?? '',
 });
 
+/*
+ * Reported per level, because a help center may supply some of the target and
+ * leave the rest to the environment. Whatever is still unset after both is what
+ * the setup notice names.
+ */
 export const missingTicketEnvKeys = (env: TicketEnv): string[] =>
   missingKeys([
     ['NEXT_PUBLIC_ERXES_TICKET_PIPELINE_ID', env.pipelineId],

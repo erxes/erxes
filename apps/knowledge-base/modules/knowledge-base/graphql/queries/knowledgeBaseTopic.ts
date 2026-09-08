@@ -35,12 +35,46 @@ const ARTICLE_FIELDS = `
   content
 `;
 
-const topicWithArticles = (articleFields: string) => `
+const TOPIC_SETTINGS_FIELDS = `
+  url
+  kbToggle
+  kbLabel
+  kbTopicId
+  ticketToggle
+  ticketLabel
+  ticketChannelId
+  ticketPipelineId
+  ticketStatusId
+  styles {
+    mainLogo
+    favicon
+    bodyColor
+    headerColor
+    footerColor
+    helpCenterColor
+    backgroundColor
+    activeTabColor
+    baseFont
+    baseColor
+    headingFont
+    headingColor
+    linkColor
+    linkHoverColor
+    primaryButtonColor
+    secondaryButtonColor
+    dividerColor
+    headerHtml
+    footerHtml
+  }
+`;
+
+const topicWithArticles = (articleFields: string, settings: string) => `
   cpKnowledgeBaseTopicDetail(_id: $topicId) {
     _id
     title
     description
     color
+    ${settings}
     parentCategories {
       ${CATEGORY_FIELDS}
       articles {
@@ -56,31 +90,60 @@ const topicWithArticles = (articleFields: string) => `
   }
 `;
 
-export const KB_PORTAL_TOPIC_OVERVIEW = gql`
-  query kbPortalTopicOverview($topicId: String!) {
-    cpKnowledgeBaseTopicDetail(_id: $topicId) {
-      _id
-      title
-      description
-      color
-      parentCategories {
+const overview = (settings: string) => `
+  cpKnowledgeBaseTopicDetail(_id: $topicId) {
+    _id
+    title
+    description
+    color
+    ${settings}
+    parentCategories {
+      ${CATEGORY_FIELDS}
+      childrens {
         ${CATEGORY_FIELDS}
-        childrens {
-          ${CATEGORY_FIELDS}
-        }
       }
     }
   }
 `;
 
+/*
+ * Each read comes in two shapes. The full one selects the help center's
+ * settings; the plain one omits them, for a gateway old enough not to declare
+ * them — there, asking would fail the whole document at validation and cost the
+ * portal its articles too. `api.ts` falls back on that specific error.
+ */
+export const KB_PORTAL_TOPIC_OVERVIEW = gql`
+  query kbPortalTopicOverview($topicId: String!) {
+    ${overview(TOPIC_SETTINGS_FIELDS)}
+  }
+`;
+
+export const KB_PORTAL_TOPIC_OVERVIEW_PLAIN = gql`
+  query kbPortalTopicOverviewPlain($topicId: String!) {
+    ${overview('')}
+  }
+`;
+
 export const KB_PORTAL_TOPIC_ARTICLE_LIST = gql`
   query kbPortalTopicArticleList($topicId: String!) {
-    ${topicWithArticles(ARTICLE_LIST_FIELDS)}
+    ${topicWithArticles(ARTICLE_LIST_FIELDS, TOPIC_SETTINGS_FIELDS)}
+  }
+`;
+
+export const KB_PORTAL_TOPIC_ARTICLE_LIST_PLAIN = gql`
+  query kbPortalTopicArticleListPlain($topicId: String!) {
+    ${topicWithArticles(ARTICLE_LIST_FIELDS, '')}
   }
 `;
 
 export const KB_PORTAL_TOPIC_ARTICLES = gql`
   query kbPortalTopicArticles($topicId: String!) {
-    ${topicWithArticles(ARTICLE_FIELDS)}
+    ${topicWithArticles(ARTICLE_FIELDS, TOPIC_SETTINGS_FIELDS)}
+  }
+`;
+
+export const KB_PORTAL_TOPIC_ARTICLES_PLAIN = gql`
+  query kbPortalTopicArticlesPlain($topicId: String!) {
+    ${topicWithArticles(ARTICLE_FIELDS, '')}
   }
 `;

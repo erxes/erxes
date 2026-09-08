@@ -1,13 +1,21 @@
-import { getPortalIdentity } from '@/modules/layout/api';
+import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import { TrackTicketForm } from '@/modules/tickets/components/TrackTicketForm';
 import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { Container } from '@/modules/ui/components/Container';
+import { FeatureOff } from '@/modules/ui/components/FeatureOff';
+import {
+  TICKETS_OFF_REASON,
+  TICKETS_OFF_TITLE,
+} from '@/modules/tickets/constants/guard';
 
 export const metadata = { title: 'Хүсэлт хянах' };
 
 export default async function TrackTicketPage() {
-  const { headline } = await getPortalIdentity();
+  const [{ headline }, settings] = await Promise.all([
+    getPortalIdentity(),
+    getPortalSettings(),
+  ]);
 
   return (
     <>
@@ -30,7 +38,14 @@ export default async function TrackTicketPage() {
         </p>
 
         <div className="mt-7">
-          <TrackTicketForm />
+          {settings.ticketsEnabled ? (
+            <TrackTicketForm />
+          ) : (
+            <FeatureOff
+              title={TICKETS_OFF_TITLE}
+              description={TICKETS_OFF_REASON}
+            />
+          )}
         </div>
       </Container>
     </>

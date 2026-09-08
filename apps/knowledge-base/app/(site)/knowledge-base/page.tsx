@@ -6,7 +6,12 @@ import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { ButtonLink } from '@/modules/ui/components/Button';
+import {
+  KB_OFF_REASON,
+  KB_OFF_TITLE,
+} from '@/modules/knowledge-base/constants/guard';
 import { Container } from '@/modules/ui/components/Container';
+import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
@@ -62,6 +67,8 @@ export default async function KnowledgeBasePage() {
             <SetupNotice missing={topic.missing} />
           ) : topic.state === 'error' ? (
             <LoadError message={topic.message} />
+          ) : !topic.data.knowledgeBaseEnabled ? (
+            <FeatureOff title={KB_OFF_TITLE} description={KB_OFF_REASON} />
           ) : topic.data.sections.length ? (
             <div className="space-y-14">
               {topic.data.sections.map((section) => (

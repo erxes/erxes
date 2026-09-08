@@ -69,6 +69,15 @@ export default async function HomePage() {
     getPortalForms(),
   ]);
 
+  /*
+   * Read off the topic itself rather than through `getPortalSettings`, so a
+   * topic that failed to load leaves both panels visible with their own error
+   * state instead of being silently dropped from the page.
+   */
+  const knowledgeBaseEnabled =
+    topic.state !== 'ready' || topic.data.knowledgeBaseEnabled;
+  const ticketsEnabled = topic.state !== 'ready' || topic.data.ticketsEnabled;
+
   /* A portal with no forms tagged for it simply does not show the panel. */
   const portalForms = forms.state === 'ready' ? forms.data : [];
 
@@ -87,64 +96,68 @@ export default async function HomePage() {
           хүсэлт илгээнэ үү.
         </p>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2">
-          <ActionCard
-            href={NEW_TICKET_ROUTE}
-            reason={NEW_TICKET_REASON}
-            icon="inbox"
-            title="Хүсэлт илгээх"
-            description="Дэмжлэгийн багт шинэ хүсэлт үүсгэх маягтыг бөглөнө үү."
-          />
-          <ActionCard
-            href="/tickets/track"
-            icon="binoculars"
-            title="Хүсэлт хянах"
-            description="Бүртгэлгүй юу? Хүсэлтийн дугаараа ашиглан төлөвөө шалгана уу."
-          />
-        </div>
+        {ticketsEnabled ? (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            <ActionCard
+              href={NEW_TICKET_ROUTE}
+              reason={NEW_TICKET_REASON}
+              icon="inbox"
+              title="Хүсэлт илгээх"
+              description="Дэмжлэгийн багт шинэ хүсэлт үүсгэх маягтыг бөглөнө үү."
+            />
+            <ActionCard
+              href="/tickets/track"
+              icon="binoculars"
+              title="Хүсэлт хянах"
+              description="Бүртгэлгүй юу? Хүсэлтийн дугаараа ашиглан төлөвөө шалгана уу."
+            />
+          </div>
+        ) : null}
 
         <div className="mt-6 space-y-6">
-          <AccordionSection
-            id="knowledgebase"
-            icon="book"
-            title="Мэдлэгийн сан"
-            description="Түгээмэл асуултын хариулт, заавар, бодлогыг ангиллаар нь үзнэ үү."
-          >
-            {topic.state === 'unconfigured' ? (
-              <SetupNotice missing={topic.missing} />
-            ) : topic.state === 'error' ? (
-              <LoadError message={topic.message} />
-            ) : topic.data.sections.length ? (
-              <>
-                <TopicOutline topic={topic.data} />
-                <div className="mt-5">
-                  <ButtonLink
-                    href="/knowledge-base"
-                    size="sm"
-                    variant="secondary"
-                  >
-                    Бүх ангилал
-                    <Icon name="chevronRight" size={15} />
-                  </ButtonLink>
-                </div>
-              </>
-            ) : (
-              <EmptyState
-                icon="book"
-                title="Мэдлэгийн сан хоосон байна"
-                description="Энэ сэдэвт нийтлэгдсэн ангилал алга. Frontline → Knowledge Base хэсгээс ангилал нэмнэ үү."
-                action={
-                  <SessionLink
-                    href={NEW_TICKET_ROUTE}
-                    reason={NEW_TICKET_REASON}
-                    className={buttonClass({ size: 'sm' })}
-                  >
-                    Хүсэлт үүсгэх
-                  </SessionLink>
-                }
-              />
-            )}
-          </AccordionSection>
+          {knowledgeBaseEnabled ? (
+            <AccordionSection
+              id="knowledgebase"
+              icon="book"
+              title="Мэдлэгийн сан"
+              description="Түгээмэл асуултын хариулт, заавар, бодлогыг ангиллаар нь үзнэ үү."
+            >
+              {topic.state === 'unconfigured' ? (
+                <SetupNotice missing={topic.missing} />
+              ) : topic.state === 'error' ? (
+                <LoadError message={topic.message} />
+              ) : topic.data.sections.length ? (
+                <>
+                  <TopicOutline topic={topic.data} />
+                  <div className="mt-5">
+                    <ButtonLink
+                      href="/knowledge-base"
+                      size="sm"
+                      variant="secondary"
+                    >
+                      Бүх ангилал
+                      <Icon name="chevronRight" size={15} />
+                    </ButtonLink>
+                  </div>
+                </>
+              ) : (
+                <EmptyState
+                  icon="book"
+                  title="Мэдлэгийн сан хоосон байна"
+                  description="Энэ сэдэвт нийтлэгдсэн ангилал алга. Frontline → Knowledge Base хэсгээс ангилал нэмнэ үү."
+                  action={
+                    <SessionLink
+                      href={NEW_TICKET_ROUTE}
+                      reason={NEW_TICKET_REASON}
+                      className={buttonClass({ size: 'sm' })}
+                    >
+                      Хүсэлт үүсгэх
+                    </SessionLink>
+                  }
+                />
+              )}
+            </AccordionSection>
+          ) : null}
 
           {portalForms.length ? (
             <AccordionSection

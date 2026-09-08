@@ -8,22 +8,61 @@ import { Avatar } from '@/modules/ui/components/Avatar';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
 import { cn } from '@/modules/ui/lib/cn';
-import { navItems } from '../constants/site';
+import { visibleNavItems } from '../utils/nav';
 
-const Wordmark = ({ title }: { title: string }) => (
+const Wordmark = ({ title, logo }: { title: string; logo: string | null }) => (
   <Link href="/" className="flex items-center gap-3.5">
-    <span className="text-2xl font-semibold lowercase tracking-tight">
-      er<span className="text-white/70">x</span>es
-    </span>
-    <span aria-hidden="true" className="hidden h-6 w-px bg-white/30 sm:block" />
-    <span className="hidden text-sm font-normal text-white/85 sm:block">
-      {title}
-    </span>
+    {logo ? (
+      /*
+       * The uploaded logo replaces the erxes wordmark outright — a help center
+       * that supplied its own branding should not sit under someone else's.
+       * It is a remote URL from erxes storage, so `next/image` is not used.
+       */
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={logo}
+        alt={title}
+        className="h-9 w-auto max-w-44 object-contain"
+      />
+    ) : (
+      <>
+        <span className="text-2xl font-semibold lowercase tracking-tight">
+          er<span className="text-white/70">x</span>es
+        </span>
+        <span
+          aria-hidden="true"
+          className="hidden h-6 w-px bg-white/30 sm:block"
+        />
+        <span className="hidden text-sm font-normal text-white/85 sm:block">
+          {title}
+        </span>
+      </>
+    )}
   </Link>
 );
 
-export const SiteHeader = ({ title }: { title: string }) => {
+export const SiteHeader = ({
+  title,
+  logo,
+  knowledgeBaseEnabled,
+  knowledgeBaseLabel,
+  ticketsEnabled,
+  ticketLabel,
+}: {
+  title: string;
+  logo: string | null;
+  knowledgeBaseEnabled: boolean;
+  knowledgeBaseLabel: string;
+  ticketsEnabled: boolean;
+  ticketLabel: string;
+}) => {
   const pathname = usePathname();
+  const items = visibleNavItems({
+    knowledgeBaseEnabled,
+    knowledgeBaseLabel,
+    ticketsEnabled,
+    ticketLabel,
+  });
   const { user, ready, signOut } = useSession();
   const [menu, setMenu] = useState({ open: false, path: pathname });
   const menuRef = useRef<HTMLDivElement>(null);
@@ -67,7 +106,7 @@ export const SiteHeader = ({ title }: { title: string }) => {
   return (
     <header className="relative z-20 bg-hero text-white">
       <Container className="flex h-20 items-center justify-between gap-4">
-        <Wordmark title={title} />
+        <Wordmark title={title} logo={logo} />
 
         <div className="flex items-center gap-2 sm:gap-3">
           {!ready ? (
@@ -131,7 +170,7 @@ export const SiteHeader = ({ title }: { title: string }) => {
                 className="absolute right-0 top-12 w-72 overflow-hidden rounded-xl border border-line bg-white text-ink shadow-[0_16px_40px_rgba(23,22,42,0.18)]"
               >
                 <nav className="p-2">
-                  {navItems.map((item) => {
+                  {items.map((item) => {
                     const active =
                       item.href === '/'
                         ? pathname === '/'

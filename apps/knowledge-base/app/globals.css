@@ -24,6 +24,11 @@
   --color-hero-soft: #4b3f88;
   --color-hero-line: #584c97;
 
+  /* Overridable by a help center's appearance; default to the portal's own. */
+  --color-footer: #ffffff;
+  --color-link: var(--color-brand);
+  --color-link-hover: var(--color-brand-strong);
+
   --color-success: #12855c;
   --color-success-soft: #e4f5ee;
   --color-warning: #b3690a;
@@ -97,7 +102,12 @@
   }
 
   .kb-article a {
-    @apply text-brand underline underline-offset-2 hover:text-brand-strong;
+    @apply underline underline-offset-2;
+    color: var(--color-link);
+  }
+
+  .kb-article a:hover {
+    color: var(--color-link-hover);
   }
 
   .kb-article :is(ul, ol) {
@@ -182,8 +192,7 @@
     opacity: 0;
     /* Evenly paced: a front-loaded curve covers most of the travel at once
      * and reads as a snap rather than an opening. */
-    transition:
-      height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 240ms cubic-bezier(0.4, 0, 0.2, 1),
       content-visibility 300ms allow-discrete;
   }

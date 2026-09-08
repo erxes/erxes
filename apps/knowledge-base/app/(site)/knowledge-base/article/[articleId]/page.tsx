@@ -51,6 +51,11 @@ export default async function ArticlePage({ params }: Props) {
     );
   }
 
+  /* With the knowledge base turned off, its pages are not part of the site. */
+  if (!topic.data.knowledgeBaseEnabled) {
+    notFound();
+  }
+
   const article = findArticle(topic.data, articleId);
 
   if (!article) {

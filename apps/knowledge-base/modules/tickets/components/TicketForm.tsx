@@ -66,8 +66,25 @@ type CreatedTicket = {
   } | null;
 };
 
-export const TicketForm = () => {
-  const ticketEnv = readTicketEnv();
+/**
+ * The help center's own ticket target, when it chose one. Each id falls back to
+ * the matching environment variable, so a portal configured only through `.env`
+ * keeps working and a help center may override one level without setting all
+ * three.
+ */
+export type TicketTarget = {
+  channelId: string;
+  pipelineId: string;
+  statusId: string;
+};
+
+export const TicketForm = ({ target }: { target?: TicketTarget }) => {
+  const env = readTicketEnv();
+  const ticketEnv = {
+    channelId: target?.channelId || env.channelId,
+    pipelineId: target?.pipelineId || env.pipelineId,
+    statusId: target?.statusId || env.statusId,
+  };
   const missing = missingTicketEnvKeys(ticketEnv);
   const { user, updateUser } = useSession();
 
@@ -336,8 +353,8 @@ export const TicketForm = () => {
                       />
                     </Form.Control>
                     <Form.Description>
-                      Бүртгэлийн хаяг. Өөрчлөхийг хүсвэл дэмжлэгийн багт
-                      хандана уу.
+                      Бүртгэлийн хаяг. Өөрчлөхийг хүсвэл дэмжлэгийн багт хандана
+                      уу.
                     </Form.Description>
                   </Form.Item>
                 )}

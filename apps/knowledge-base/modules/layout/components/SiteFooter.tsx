@@ -20,6 +20,9 @@ const supportLinks: FooterLink[] = [
   { href: '/forms', label: 'Маягт бөглөх' },
 ];
 
+/* With tickets turned off, only the form entry point is left to link to. */
+const formOnlyLinks: FooterLink[] = [{ href: '/forms', label: 'Маягт бөглөх' }];
+
 const knowledgeLinks: FooterLink[] = [
   { href: '/knowledge-base', label: 'Бүх ангилал' },
   { href: '/search', label: 'Хайлт' },
@@ -67,8 +70,16 @@ const FooterColumn = ({
   </div>
 );
 
-export const SiteFooter = ({ title }: { title: string }) => (
-  <footer className="mt-auto border-t border-line bg-white">
+export const SiteFooter = ({
+  title,
+  knowledgeBaseEnabled,
+  ticketsEnabled,
+}: {
+  title: string;
+  knowledgeBaseEnabled: boolean;
+  ticketsEnabled: boolean;
+}) => (
+  <footer className="mt-auto border-t border-line bg-(--color-footer)">
     <Container className="py-14">
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
         <div className="max-w-sm">
@@ -81,8 +92,14 @@ export const SiteFooter = ({ title }: { title: string }) => (
           </p>
         </div>
 
-        <FooterColumn heading="Дэмжлэг" links={supportLinks} />
-        <FooterColumn heading="Мэдлэгийн сан" links={knowledgeLinks} />
+        {ticketsEnabled ? (
+          <FooterColumn heading="Дэмжлэг" links={supportLinks} />
+        ) : (
+          <FooterColumn heading="Дэмжлэг" links={formOnlyLinks} />
+        )}
+        {knowledgeBaseEnabled ? (
+          <FooterColumn heading="Мэдлэгийн сан" links={knowledgeLinks} />
+        ) : null}
         <FooterColumn heading="Бүртгэл" links={accountLinks} />
       </div>
     </Container>

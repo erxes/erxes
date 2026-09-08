@@ -1,6 +1,12 @@
 import type { IconName } from '@/modules/ui/components/Icon';
 import { resolveIcon } from '../constants/icons';
-import type { KbArticle, KbCategory, KbSection, KbTopic } from '../types';
+import type {
+  KbArticle,
+  KbCategory,
+  KbSection,
+  KbTopic,
+  KbTopicStyles,
+} from '../types';
 
 export type PortalArticle = {
   _id: string;
@@ -27,11 +33,36 @@ export type PortalSection = PortalCategory & {
   children: PortalCategory[];
 };
 
+export type PortalTheme = {
+  mainLogo: string | null;
+  favicon: string | null;
+  colors: Record<string, string>;
+  baseFont: string | null;
+  headingFont: string | null;
+  headerHtml: string | null;
+  footerHtml: string | null;
+};
+
+export type PortalTicketTarget = {
+  channelId: string;
+  pipelineId: string;
+  statusId: string;
+};
+
 export type PortalTopic = {
   _id: string;
   title: string;
   description: string;
   sections: PortalSection[];
+  /** Whether the published site shows the knowledge base at all. */
+  knowledgeBaseEnabled: boolean;
+  knowledgeBaseLabel: string;
+  /** Whether visitors may raise a ticket from the published site. */
+  ticketsEnabled: boolean;
+  ticketLabel: string;
+  /** Empty ids mean the help center never chose a target; the env fills in. */
+  ticketTarget: PortalTicketTarget;
+  theme: PortalTheme;
 };
 
 const UNKNOWN_AUTHOR = 'Тодорхойгүй зохиогч';
@@ -87,9 +118,110 @@ const normalizeSection = (section: KbSection): PortalSection => ({
   children: (section.childrens ?? []).map(normalizeCategory),
 });
 
+const text = (value: string | null | undefined): string | null => {
+  const trimmed = value?.trim();
+
+  return trimmed ? trimmed : null;
+};
+
+/*
+ * The help center writes a colour only where one was picked, and the appearance
+ * form stores an unset control as an empty string. Anything blank has to drop
+ * out entirely so the portal's own token keeps its value instead of resolving
+ * to an empty custom property.
+ */
+const paint = (
+  colors: Record<string, string>,
+  tokens: string[],
+  value: string | null,
+) => {
+  if (!value) {
+    return;
+  }
+
+  for (const token of tokens) {
+    colors[token] = value;
+  }
+};
+
+/*
+ * Maps the help center's appearance fields onto the portal's own theme tokens
+ * from `globals.css`. One stored colour can drive several tokens — `bodyColor`
+ * is both the page surface and what `erxes-ui` reads as `--color-background`.
+ */
+const normalizeTheme = (styles: KbTopicStyles): PortalTheme => {
+  const colors: Record<string, string> = {};
+
+  /*
+   * Written most general first, so a more specific field set alongside it wins
+   * the token they share: `helpCenterColor` is the accent everywhere, and
+   * `primaryButtonColor` overrides it on buttons alone when both are set.
+   */
+  paint(
+    colors,
+    ['--color-brand', '--color-primary'],
+    text(styles?.helpCenterColor),
+  );
+  paint(
+    colors,
+    ['--color-hero', '--color-hero-soft'],
+    text(styles?.headerColor),
+  );
+  paint(
+    colors,
+    ['--color-subtle', '--color-accent'],
+    text(styles?.backgroundColor),
+  );
+  paint(colors, ['--color-background'], text(styles?.bodyColor));
+  paint(colors, ['--color-brand-strong'], text(styles?.activeTabColor));
+  paint(
+    colors,
+    ['--color-ink-soft', '--color-foreground'],
+    text(styles?.baseColor),
+  );
+  paint(colors, ['--color-ink'], text(styles?.headingColor));
+  paint(colors, ['--color-line', '--color-border'], text(styles?.dividerColor));
+  /* The footer is the only surface painted from its own colour. */
+  paint(colors, ['--color-footer'], text(styles?.footerColor));
+  /* Article and portal links; `linkHoverColor` doubles as the pressed accent. */
+  paint(colors, ['--color-link'], text(styles?.linkColor));
+  paint(
+    colors,
+    ['--color-link-hover', '--color-brand-strong'],
+    text(styles?.linkHoverColor),
+  );
+  paint(colors, ['--color-primary'], text(styles?.primaryButtonColor));
+  paint(colors, ['--color-muted'], text(styles?.secondaryButtonColor));
+
+  return {
+    mainLogo: text(styles?.mainLogo),
+    favicon: text(styles?.favicon),
+    colors,
+    baseFont: text(styles?.baseFont),
+    headingFont: text(styles?.headingFont),
+    headerHtml: text(styles?.headerHtml),
+    footerHtml: text(styles?.footerHtml),
+  };
+};
+
 export const normalizeTopic = (topic: KbTopic): PortalTopic => ({
   _id: topic._id,
   title: topic.title?.trim() ?? '',
   description: topic.description?.trim() ?? '',
   sections: (topic.parentCategories ?? []).map(normalizeSection),
+  /*
+   * Both toggles default to what the help center form defaults to, so a topic
+   * saved before these fields existed keeps the portal's previous behaviour:
+   * articles shown, tickets available.
+   */
+  knowledgeBaseEnabled: topic.kbToggle ?? true,
+  knowledgeBaseLabel: text(topic.kbLabel) ?? '',
+  ticketsEnabled: topic.ticketToggle ?? true,
+  ticketLabel: text(topic.ticketLabel) ?? '',
+  ticketTarget: {
+    channelId: text(topic.ticketChannelId) ?? '',
+    pipelineId: text(topic.ticketPipelineId) ?? '',
+    statusId: text(topic.ticketStatusId) ?? '',
+  },
+  theme: normalizeTheme(topic.styles),
 });

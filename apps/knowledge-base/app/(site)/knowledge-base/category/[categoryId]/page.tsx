@@ -61,6 +61,11 @@ export default async function CategoryPage({ params }: Props) {
     );
   }
 
+  /* With the knowledge base turned off, its pages are not part of the site. */
+  if (!topic.data.knowledgeBaseEnabled) {
+    notFound();
+  }
+
   const category = findCategory(topic.data, categoryId);
 
   if (!category) {
