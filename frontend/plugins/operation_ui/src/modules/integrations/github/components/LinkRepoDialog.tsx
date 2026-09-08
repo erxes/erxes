@@ -40,7 +40,7 @@ export function LinkRepoDialog({
     ? currentConfig?.installationId
     : connections[0]?.installationId;
   const initialRepoName = hasCurrentInstallation
-    ? currentConfig?.repoName ?? ''
+    ? (currentConfig?.repoName ?? '')
     : '';
   const form = useForm<TGithubTeamConnectionForm>({
     resolver: zodResolver(GITHUB_TEAM_CONNECTION_SCHEMA),
