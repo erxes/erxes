@@ -375,17 +375,17 @@ const generateFilter = async (
   }
 
   if (tagIds) {
-    const baseTagIds: Set<string> = new Set(tagIds);
-
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
 
-      for (const tag of tagObjs) {
-        (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
-      }
+      andFilters.push(
+        ...tagObjs.map((tag) => ({
+          tagIds: { $in: [tag._id, ...(tag.relatedIds || [])] },
+        })),
+      );
+    } else {
+      andFilters.push({ tagIds: { $all: tagIds } });
     }
-
-    andFilters.push({ tagIds: { $in: Array.from(baseTagIds) } });
   }
 
   if (excludeTagIds?.length) {
