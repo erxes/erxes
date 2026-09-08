@@ -1,5 +1,5 @@
 import { TDealSearchCategory } from '@/deals/types/dealSearch';
-import { Badge, SearchOrderSelect, Tabs, TSearchSortOrder } from 'erxes-ui';
+import { SearchOrderSelect, Tabs, TSearchSortOrder } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type TDealSearchToolbarProps = {
@@ -41,25 +41,31 @@ export const DealSearchToolbar = ({
           className="flex w-full justify-start gap-1 border-b-0 px-2 py-0"
         >
           <Tabs.Trigger
-            className="h-8 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
+            className="h-8 gap-1.5 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
             value="date"
           >
             {t('by-date', 'By date')}
-            {hasDateFilter && <Badge variant="secondary">1</Badge>}
+            {hasDateFilter && (
+              <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+            )}
           </Tabs.Trigger>
           <Tabs.Trigger
-            className="h-8 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
+            className="h-8 gap-1.5 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
             value="number"
           >
             {t('by-deal-number', 'By deal number')}
-            {hasNumberFilter && <Badge variant="secondary">1</Badge>}
+            {hasNumberFilter && (
+              <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+            )}
           </Tabs.Trigger>
           <Tabs.Trigger
-            className="h-8 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
+            className="h-8 gap-1.5 px-2 text-xs transition-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none data-[state=active]:hover:bg-transparent"
             value="name"
           >
             {t('by-name', 'By name')}
-            {hasNameFilter && <Badge variant="secondary">1</Badge>}
+            {hasNameFilter && (
+              <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+            )}
           </Tabs.Trigger>
         </Tabs.List>
       </Tabs>
