@@ -1,12 +1,13 @@
 import { Maily } from '@maily-to/render';
 import { JSONContent, RenderEmailHtmlOptions } from '../@types';
 
-/**
- * Turns a Maily (Tiptap JSON) email document into email-client-safe HTML.
- * This is the single rendering path shared by campaign preview and send —
- * they must never drift, so every consumer should call this instead of
- * touching `@maily-to/render` directly.
- */
+const addMissingLinkTargets = (html: string): string =>
+  html.replace(/<a\s[^>]*>/gi, (tag) =>
+    /\btarget=/i.test(tag)
+      ? tag
+      : tag.replace(/^<a\s/i, '<a target="_blank" rel="noopener noreferrer" '),
+  );
+
 export const renderEmailHtml = async (
   contentJson: JSONContent,
   options: RenderEmailHtmlOptions = {},
@@ -27,5 +28,7 @@ export const renderEmailHtml = async (
     maily.setPayloadValue(key, value);
   }
 
-  return maily.render();
+  const html = await maily.render();
+
+  return addMissingLinkTargets(html);
 };

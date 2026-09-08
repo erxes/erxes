@@ -69,9 +69,6 @@ export const EmailEditor = ({
         {`
           [data-tippy-root] { pointer-events: auto; }
 
-          /* Only the drag-handle's mispositioned tooltip uses z-index: 50;
-             Show If popovers (Section/Columns/Repeat/etc.) use z-index: 9999
-             and must stay visible. */
           [data-tippy-root] [data-radix-popper-content-wrapper][style*="z-index: 50;"] {
             display: none;
           }
@@ -83,7 +80,7 @@ export const EmailEditor = ({
         extensions={extensions}
         config={{
           hasMenuBar: false,
-          contentClassName: 'px-6',
+          contentClassName: 'pl-16 pr-6',
           bodyClassName: 'border-none! mt-0!',
         }}
         onCreate={(editor) => {

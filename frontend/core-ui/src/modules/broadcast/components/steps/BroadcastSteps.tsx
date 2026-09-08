@@ -56,8 +56,6 @@ export const BroadcastSteps = ({
 }) => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
 
-  // Email has its own single-screen composer (matches the Maily playground
-  // layout) rather than this step wizard - see BroadcastEmailComposer.
   if (method === 'email') {
     return <BroadcastEmailComposer setOpen={setOpen} />;
   }

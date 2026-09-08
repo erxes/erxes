@@ -97,12 +97,6 @@ const generateFilter = async (
 };
 
 export const engageQueries = {
-  /**
-   * Renders a Maily document to HTML for preview - the same renderer the
-   * send worker uses, so preview always matches what recipients receive.
-   * Unresolved variables fall back to their configured placeholder text
-   * since there is no single recipient to personalize for at preview time.
-   */
   async engageMessageRenderPreview(
     _root: undefined,
     { contentJson, previewText }: { contentJson: JSONContent; previewText?: string },

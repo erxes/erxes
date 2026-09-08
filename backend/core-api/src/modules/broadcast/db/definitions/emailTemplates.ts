@@ -7,7 +7,6 @@ export const broadcastEmailTemplateSchema = new Schema(
 
     name: { type: String, label: 'Name', required: true },
     description: { type: String, label: 'Description' },
-    // Maily (Tiptap) document.
     contentJson: {
       type: Schema.Types.Mixed,
       label: 'Content JSON',

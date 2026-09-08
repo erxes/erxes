@@ -28,9 +28,7 @@ export const emailSchema = new Schema(
     sender: { type: String, label: 'Sender' },
     replyTo: { type: String, label: 'Reply to' },
     previewText: { type: String, label: 'Preview text' },
-    // BlockNote block JSON (legacy path, still required for old campaigns).
     content: { type: String, label: 'Content' },
-    // Maily (Tiptap) document. Campaigns with this field render via @maily-to/render.
     contentJson: { type: Schema.Types.Mixed, label: 'Content JSON' },
   },
   {

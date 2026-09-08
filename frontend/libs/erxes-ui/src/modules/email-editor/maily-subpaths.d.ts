@@ -1,10 +1,3 @@
-/**
- * @maily-to/core publishes "./blocks" and "./extensions" as package.json
- * subpath exports, but this repo's tsconfig uses classic "node" module
- * resolution, which does not consult the exports map (only "bundler" /
- * "node16"+ do). Rspack resolves these subpaths correctly at build/runtime;
- * these ambient declarations only fill the gap for the TypeScript checker.
- */
 declare module '@maily-to/core/blocks' {
   import type { Editor, Range } from '@tiptap/core';
 

@@ -43,9 +43,6 @@ export const BroadcastFromField = () => {
           />
 
           {alignedFrom ? (
-            // The org has a verified/aligned sender domain - fromEmail picks
-            // *which* aligned address to send from, so it must stay visible
-            // (it's required), not hidden behind the Reply-To toggle below.
             <Form.Field
               name="fromEmail"
               control={control}

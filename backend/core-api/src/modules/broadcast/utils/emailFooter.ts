@@ -1,10 +1,3 @@
-/**
- * Maily's renderer has no concept of erxes' unsubscribe/postal-address
- * footer, so unlike the legacy blocksToHtml() path (which takes a wrapper
- * option), Maily campaigns get the footer spliced onto the rendered HTML
- * here. This keeps the unsubscribe link guaranteed present regardless of
- * what the user builds in the editor, matching the legacy path's guarantee.
- */
 export const appendUnsubscribeFooter = (
   html: string,
   { unsubscribeUrl, postalAddress }: { unsubscribeUrl: string; postalAddress?: string },
