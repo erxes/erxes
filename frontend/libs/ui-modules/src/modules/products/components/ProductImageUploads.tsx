@@ -1,19 +1,24 @@
 import { gql, useQuery } from '@apollo/client';
 import {
   IconGripVertical,
+  IconLink,
   IconPlayerPlayFilled,
   IconTrash,
   IconUpload,
   IconVideo,
 } from '@tabler/icons-react';
 import {
+  Button,
   Dialog,
+  Input,
+  Popover,
   readImage,
   useErxesUpload,
   useRemoveFile,
   useUploadChunked,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { parseVideoEmbedUrl } from '../utils/videoEmbed';
 
 export type ProductAttachmentItem = {
   name: string;
@@ -367,6 +372,8 @@ export function ProductSecondaryImagesUpload({
   );
 }
 
+const isEmbedVideo = (item: ProductAttachmentItem) => item.type === 'embed';
+
 export function ProductVideosUpload({
   value,
   onChange,
@@ -387,9 +394,42 @@ export function ProductVideosUpload({
   );
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [embedPopoverOpen, setEmbedPopoverOpen] = useState(false);
+  const [embedUrlInput, setEmbedUrlInput] = useState('');
+  const [embedError, setEmbedError] = useState<string | null>(null);
+
+  const handleAddEmbed = useCallback(() => {
+    const parsed = parseVideoEmbedUrl(embedUrlInput);
+
+    if (!parsed) {
+      setEmbedError('Enter a valid YouTube or Vimeo link.');
+      return;
+    }
+
+    onChange(
+      [
+        ...videos,
+        {
+          name: embedUrlInput.trim(),
+          url: embedUrlInput.trim(),
+          type: 'embed',
+          size: 0,
+        },
+      ].slice(0, maxVideos),
+    );
+
+    setEmbedUrlInput('');
+    setEmbedError(null);
+    setEmbedPopoverOpen(false);
+  }, [embedUrlInput, maxVideos, onChange, videos]);
+
   const previewBase = previewItem
     ? getCloudflareStreamBase(previewItem.url)
     : null;
+  const previewEmbed =
+    previewItem && isEmbedVideo(previewItem)
+      ? parseVideoEmbedUrl(previewItem.url)
+      : null;
 
   const handleSelect = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -429,6 +469,15 @@ export function ProductVideosUpload({
 
   const handleRemove = useCallback(
     (item: ProductAttachmentItem) => {
+      if (isEmbedVideo(item)) {
+        onChange(
+          videos.filter(
+            (file) => file.url !== item.url || file.name !== item.name,
+          ),
+        );
+        return;
+      }
+
       removeFile(item.name, (status) => {
         if (status === 'ok') {
           onChange(
@@ -446,13 +495,32 @@ export function ProductVideosUpload({
     <div className="flex flex-col gap-3 h-full min-h-24 min-w-0">
       <div className="flex flex-1 flex-wrap content-start gap-4 min-h-24 min-w-0">
         {videos.map((item, index) => {
-          const base = getCloudflareStreamBase(item.url);
+          const embed = isEmbedVideo(item)
+            ? parseVideoEmbedUrl(item.url)
+            : null;
+          const base = !embed ? getCloudflareStreamBase(item.url) : null;
           return (
             <div
               key={`${item.url}-${index}`}
               className="overflow-hidden relative w-24 shrink-0 rounded-md border shadow-sm aspect-square bg-black group"
             >
-              {base ? (
+              {embed ? (
+                embed.thumbnailUrl ? (
+                  <img
+                    src={embed.thumbnailUrl}
+                    alt={item.name || 'Video'}
+                    loading="lazy"
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="flex flex-col gap-1 justify-center items-center w-full h-full text-white/80">
+                    <IconLink size={18} />
+                    <span className="text-[10px] capitalize">
+                      {embed.provider}
+                    </span>
+                  </div>
+                )
+              ) : base ? (
                 <img
                   src={`${base}/thumbnails/thumbnail.jpg`}
                   alt={item.name || 'Video'}
@@ -506,6 +574,62 @@ export function ProductVideosUpload({
             )}
           </button>
         )}
+
+        {videos.length < maxVideos && (
+          <Popover
+            open={embedPopoverOpen}
+            onOpenChange={(open) => {
+              setEmbedPopoverOpen(open);
+              if (!open) {
+                setEmbedUrlInput('');
+                setEmbedError(null);
+              }
+            }}
+          >
+            <Popover.Trigger asChild>
+              <button
+                type="button"
+                className="flex flex-col justify-center items-center w-24 h-24 shrink-0 aspect-square rounded-md border border-dashed transition cursor-pointer text-muted-foreground bg-background hover:bg-accent"
+              >
+                <IconLink size={18} />
+                <span className="text-[11px]">Embed link</span>
+              </button>
+            </Popover.Trigger>
+            <Popover.Content className="w-80">
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-medium">Embed a video</p>
+                <p className="text-xs text-muted-foreground">
+                  Paste a YouTube or Vimeo link.
+                </p>
+                <Input
+                  autoFocus
+                  value={embedUrlInput}
+                  onChange={(event) => {
+                    setEmbedUrlInput(event.target.value);
+                    setEmbedError(null);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      handleAddEmbed();
+                    }
+                  }}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                {embedError && (
+                  <p className="text-xs text-destructive">{embedError}</p>
+                )}
+                <Button
+                  type="button"
+                  onClick={handleAddEmbed}
+                  disabled={!embedUrlInput.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+            </Popover.Content>
+          </Popover>
+        )}
       </div>
 
       {!streamEnabled && !configLoading && videos.length === 0 && (
@@ -540,7 +664,16 @@ export function ProductVideosUpload({
       >
         <Dialog.Content className="max-w-3xl">
           {previewItem &&
-            (previewBase ? (
+            (previewEmbed ? (
+              <iframe
+                key={previewItem.url}
+                className="w-full rounded aspect-video"
+                src={previewEmbed.embedUrl}
+                title={previewItem.name || 'Video'}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : previewBase ? (
               <iframe
                 key={previewItem.url}
                 className="w-full rounded aspect-video"
