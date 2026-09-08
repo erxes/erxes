@@ -1,6 +1,9 @@
 export const appendUnsubscribeFooter = (
   html: string,
-  { unsubscribeUrl, postalAddress }: { unsubscribeUrl: string; postalAddress?: string },
+  {
+    unsubscribeUrl,
+    postalAddress,
+  }: { unsubscribeUrl: string; postalAddress?: string },
 ): string => {
   const footer = `<table role="presentation" width="100%" style="max-width:600px;margin:0 auto;"><tr><td style="padding:24px 24px 0 24px;text-align:center;font-size:12px;line-height:18px;color:#8898aa;">${
     postalAddress ? `${postalAddress}<br/>` : ''

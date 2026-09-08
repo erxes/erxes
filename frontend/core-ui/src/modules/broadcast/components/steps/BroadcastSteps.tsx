@@ -111,7 +111,9 @@ const BroadcastStepsWizard = ({
 
     const currentStep = BROADCAST_STEPS[step - 1];
     const validateFields =
-      step - 1 === 1 ? getConfigValidateFields(method) : currentStep?.validateFields;
+      step - 1 === 1
+        ? getConfigValidateFields(method)
+        : currentStep?.validateFields;
 
     if (validateFields) {
       const isValid = await form.trigger(validateFields as any);

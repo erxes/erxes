@@ -99,7 +99,10 @@ const generateFilter = async (
 export const engageQueries = {
   async engageMessageRenderPreview(
     _root: undefined,
-    { contentJson, previewText }: { contentJson: JSONContent; previewText?: string },
+    {
+      contentJson,
+      previewText,
+    }: { contentJson: JSONContent; previewText?: string },
   ) {
     return renderEmailHtml(contentJson, { previewText });
   },

@@ -16,7 +16,8 @@ export const BroadcastConfigStep = () => {
     return <div>Method not found, Try to refresh the page</div>;
   }
 
-  const MethodContent = BROADCAST_CONFIG_METHOD[method as BROADCAST_CONFIG_METHOD_KEY];
+  const MethodContent =
+    BROADCAST_CONFIG_METHOD[method as BROADCAST_CONFIG_METHOD_KEY];
 
   return <MethodContent />;
 };

@@ -10,14 +10,12 @@ export interface IBroadcastEmailTemplate {
 }
 
 export interface IBroadcastEmailTemplateDocument
-  extends IBroadcastEmailTemplate,
-    Document {
+  extends IBroadcastEmailTemplate, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IBroadcastEmailTemplateQueryParams
-  extends ICursorPaginateParams {
+export interface IBroadcastEmailTemplateQueryParams extends ICursorPaginateParams {
   searchValue?: string;
 }

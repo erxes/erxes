@@ -6,8 +6,7 @@ import {
 } from '@/broadcast/@types';
 import { IModels } from '~/connectionResolvers';
 
-export interface IBroadcastEmailTemplateModel
-  extends Model<IBroadcastEmailTemplateDocument> {
+export interface IBroadcastEmailTemplateModel extends Model<IBroadcastEmailTemplateDocument> {
   getEmailTemplate(_id: string): Promise<IBroadcastEmailTemplateDocument>;
   createEmailTemplate(
     doc: IBroadcastEmailTemplate,
