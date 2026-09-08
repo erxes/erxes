@@ -29,10 +29,21 @@ const VALIDATE_FIELDS = [
   'targetType',
   'targetIds',
   'fromEmail',
+  'email.sender',
   'email.subject',
   'email.replyTo',
   'email.contentJson',
 ];
+
+const FIELD_LABELS: Record<string, string> = {
+  title: 'Broadcast title',
+  targetIds: 'Recipients',
+  fromEmail: 'From address',
+  'email.sender': 'Sender name',
+  'email.subject': 'Subject',
+  'email.replyTo': 'Reply-to address',
+  'email.contentJson': 'Email content',
+};
 
 export const BroadcastEmailComposer = ({
   setOpen,
@@ -68,13 +79,37 @@ export const BroadcastEmailComposer = ({
         });
         handleClose();
       },
-    });
+      onError: (error) => {
+        toast({ variant: 'destructive', title: error.message });
+      },
+    }).catch(() => {});
   };
 
   const handleSave = async (action: 'draft' | 'live') => {
     const isValid = await form.trigger(VALIDATE_FIELDS as any);
 
-    if (!isValid) {
+    // targetIds lives inside a Popover.Content that only mounts (and
+    // registers with the form) once opened, so trigger() above can't
+    // catch an empty selection if that popover was never opened.
+    const hasRecipients = (form.getValues('targetIds')?.length ?? 0) > 0;
+
+    if (!isValid || !hasRecipients) {
+      const getError = (path: string) =>
+        path
+          .split('.')
+          .reduce<any>((node, key) => node?.[key], form.formState.errors);
+
+      const missingFields = VALIDATE_FIELDS.filter(
+        (field) => getError(field) || (field === 'targetIds' && !hasRecipients),
+      ).map((field) => FIELD_LABELS[field] || field);
+
+      toast({
+        variant: 'destructive',
+        title: missingFields.length
+          ? `Missing required fields: ${missingFields.join(', ')}`
+          : 'Please fill in all required fields before saving',
+      });
+
       return;
     }
 

@@ -1,7 +1,7 @@
 import { SelectVerifiedSender } from '@/settings/mail-config/components/SelectVerifiedSender';
 import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { Form, Input } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -10,11 +10,17 @@ const isEmail = (value?: string) =>
   !value || z.string().email().safeParse(value).success;
 
 export const BroadcastFromField = () => {
-  const { control, setValue } = useFormContext();
+  const { control, setValue, getValues } = useFormContext();
   const { alignedFrom } = useSenderOptions();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   const [showReplyTo, setShowReplyTo] = useState(false);
+
+  useEffect(() => {
+    if (alignedFrom && getValues('fromEmail') !== alignedFrom) {
+      setValue('fromEmail', alignedFrom, { shouldValidate: true });
+    }
+  }, [alignedFrom, getValues, setValue]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -43,31 +49,9 @@ export const BroadcastFromField = () => {
           />
 
           {alignedFrom ? (
-            <Form.Field
-              name="fromEmail"
-              control={control}
-              rules={{ required: 'From address is required' }}
-              render={({ field }) => (
-                <Form.Item className="shrink-0">
-                  <Form.Control>
-                    <SelectVerifiedSender
-                      value={field.value}
-                      onChange={(value, sender) => {
-                        field.onChange(value);
-
-                        if (sender?.name) {
-                          setValue('email.sender', sender.name, {
-                            shouldDirty: true,
-                          });
-                        }
-                      }}
-                      placeholder={alignedFrom}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+            <span className="shrink-0 text-sm text-muted-foreground">
+              &lt;{alignedFrom}&gt;
+            </span>
           ) : (
             <Form.Field
               name="fromEmail"

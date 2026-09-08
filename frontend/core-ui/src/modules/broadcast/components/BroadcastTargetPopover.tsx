@@ -1,4 +1,4 @@
-import { Form, Popover } from 'erxes-ui';
+import { cn, Form, Popover } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { BroadcastSelectTargetType } from './select/BroadcastSelectTargetType';
@@ -11,7 +11,11 @@ const BROADCAST_TARGET_CONTENT = {
 };
 
 export const BroadcastTargetPopover = () => {
-  const { control, watch } = useFormContext();
+  const {
+    control,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
   const targetType: 'tag' | 'segment' = watch('targetType');
@@ -30,7 +34,10 @@ export const BroadcastTargetPopover = () => {
         <Popover.Trigger asChild>
           <button
             type="button"
-            className="flex-1 text-left text-sm text-muted-foreground hover:text-foreground py-1"
+            className={cn(
+              'flex-1 text-left text-sm text-muted-foreground hover:text-foreground py-1',
+              errors.targetIds && 'text-destructive hover:text-destructive',
+            )}
           >
             {targetIds?.length
               ? t('recipientsCount', { count: targetCount || 0 })
@@ -58,7 +65,10 @@ export const BroadcastTargetPopover = () => {
           <Form.Field
             name="targetIds"
             control={control}
-            rules={{ required: 'Customer are required' }}
+            rules={{
+              validate: (value?: string[]) =>
+                (value?.length ?? 0) > 0 || 'Customer are required',
+            }}
             render={({ field }) => (
               <Form.Item className="max-h-80 overflow-hidden">
                 <Form.Control>
