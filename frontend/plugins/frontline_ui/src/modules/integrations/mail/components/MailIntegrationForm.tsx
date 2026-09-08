@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Spinner, toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { Control, useForm } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
@@ -63,14 +63,17 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
   },
 ];
 
-export const MailFormField = ({
+export const MailFormField = <TValues extends FieldValues>({
   name,
   label,
   placeholder,
   required,
   description,
   control,
-}: FormFieldConfig & { control: Control<MailFormValues> }) => {
+}: Omit<FormFieldConfig, 'name'> & {
+  name: FieldPath<TValues>;
+  control: Control<TValues>;
+}) => {
   const { t } = useTranslation('frontline');
 
   return (

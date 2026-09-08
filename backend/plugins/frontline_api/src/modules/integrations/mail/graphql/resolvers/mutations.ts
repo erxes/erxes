@@ -3,7 +3,18 @@ import {
   IMailMessageDocument,
   IMailSendArgs,
 } from '@/integrations/mail/@types/message';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { checkMailConnection } from '@/integrations/mail/utils/connection';
+import {
+  IPipelineMailSettings,
+  connectPipelineMail,
+  disconnectPipelineMail,
+  updatePipelineMail,
+} from '@/integrations/mail/utils/pipeline';
+import {
+  IMailTicketSendArgs,
+  sendTicketMail,
+} from '@/integrations/mail/utils/tickets';
 import {
   connectCloudflare,
   disconnectCloudflare,
@@ -61,6 +72,51 @@ export const mailMutations = {
     return toDeliveryOutcome(
       await models.MailMessages.createSendMail(args, subdomain),
     );
+  },
+
+  async mailPipelineConnect(
+    _root: undefined,
+    { pipelineId, ...settings }: { pipelineId: string } & IPipelineMailSettings,
+    { subdomain, models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    await createPermissionValidator(models).validatePipelineAccess(
+      pipelineId,
+      user,
+    );
+
+    return connectPipelineMail({ models, subdomain, pipelineId, ...settings });
+  },
+
+  async mailPipelineUpdate(
+    _root: undefined,
+    { pipelineId, ...settings }: { pipelineId: string } & IPipelineMailSettings,
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    await createPermissionValidator(models).validatePipelineAccess(
+      pipelineId,
+      user,
+    );
+
+    return updatePipelineMail(models, pipelineId, settings);
+  },
+
+  async mailPipelineDisconnect(
+    _root: undefined,
+    { pipelineId }: { pipelineId: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    await createPermissionValidator(models).validatePipelineAccess(
+      pipelineId,
+      user,
+    );
+
+    return disconnectPipelineMail(models, pipelineId);
   },
 
   async mailMessageRetry(

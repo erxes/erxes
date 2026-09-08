@@ -26,7 +26,7 @@ export const PipelineSidebar = () => {
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent className="md:pt-2">
           <Sidebar.Menu className="flex-row overflow-x-auto md:flex-col">
-            {PIPELINE_TABS.map(({ segment, labelKey }) => (
+            {PIPELINE_TABS.map(({ segment, labelKey, defaultLabel }) => (
               <Sidebar.MenuItem
                 className="flex-none md:flex-auto"
                 key={labelKey}
@@ -37,7 +37,9 @@ export const PipelineSidebar = () => {
                 >
                   {({ isActive }) => (
                     <Sidebar.MenuButton asChild={false} isActive={isActive}>
-                      <span className="truncate">{t(labelKey)}</span>
+                      <span className="truncate">
+                        {t(labelKey, defaultLabel ?? labelKey)}
+                      </span>
                     </Sidebar.MenuButton>
                   )}
                 </NavLink>

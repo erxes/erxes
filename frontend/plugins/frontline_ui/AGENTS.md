@@ -281,6 +281,8 @@
 | Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config                          |
 | Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                                 |
 | Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                                    |
+| Mail thread            | `src/modules/integrations/mail/components/MailThread.tsx`                                                                                    | The thread reader and compose box the inbox renders; extracted so a second surface can reuse it rather than restate it                          |
+| Pipeline mail settings | `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification}.tsx`, `src/pages/PipelineMailPage.tsx`           | The pipeline's `Mail settings` tab: the address to forward to, the forwarding mailbox, the held forwarding confirmation, the sender name, connect, update and remove |
 
 ## Contracts
 
@@ -1118,6 +1120,26 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — A ticket pipeline gets a mail settings tab
+
+- **Summary:** A pipeline now has a `Mail settings` tab that shows the address
+  mail is sent or forwarded to, takes the forwarding mailbox and the sender name
+  recipients see, and connects, updates or removes the address. While the
+  forwarding address is waiting to be confirmed the tab says so and polls; when
+  the provider's confirmation arrives it is shown there with a copyable code, a
+  link, and a button that ends the waiting state.
+- **Affected areas:** `src/modules/integrations/mail/components/{PipelineMailSettings,PipelineForwardVerification,MailThread,MailConversationDetail,MailIntegrationForm}.tsx`,
+  `src/modules/integrations/mail/{hooks,graphql}/`,
+  `src/pages/PipelineMailPage.tsx`,
+  `src/modules/pipelines/constants/pipelineTabs.ts`,
+  `src/modules/channels/components/settings/Settings.tsx`.
+- **Contracts changed:** Added the `mailPipelineIntegration` query and the
+  `mailPipelineConnect`, `mailPipelineUpdate`, `mailPipelineForwardVerified` and
+  `mailPipelineDisconnect` mutation documents. `MailFormField` gained an
+  optional `descriptionFallback` and `MailAddressCallout` an optional
+  `description`/`descriptionFallback`, so the pipeline tab can say `ticket`
+  where the inbox says `conversation`.
+
 ### `2026-09-10` — Quality gate fixes across the note input and help center drawer
 
 - **Summary:** The submit button's label came from a doubly nested ternary and
@@ -1253,21 +1275,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
 - **Contracts changed:** None. The action config gained an optional
   `mentionSender` boolean.
-
-### `2026-09-08` — The bot form reports its delivery health
-
-- **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
-  and a new `facebookMessengerBotDelivery` query counts what the comment outbox
-  holds for the bot's page plus when it next sends. The bot form shows the health
-  badge, the pause with its reason, and queued/sent/failed counts, polling while
-  the sheet is open.
-- **Affected areas:** `frontline_api`
-  `modules/integrations/facebook/graphql/{schema/facebook.ts,resolvers/queries.ts}`.
-  `frontline_ui` new
-  `components/bots/components/FacebookBotHealthPanel.tsx` and
-  `components/bots/hooks/useFacebookBotDelivery.tsx`;
-  `modules/integrations/facebook/graphql/queries/facebookBots.ts`,
-  `types/FacebookBot.ts`, `components/bots/components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `FacebookBotHealth` gains `lastError`,
-  `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
-  `facebookMessengerBotDelivery(_id: String!)` is new.

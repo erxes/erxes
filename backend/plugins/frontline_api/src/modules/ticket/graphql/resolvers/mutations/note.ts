@@ -1,14 +1,29 @@
 import { INoteDocument } from '@/ticket/@types/note';
+import { IAttachment } from 'erxes-api-shared/core-types';
+import { mailTicketComment } from '@/integrations/mail/utils/comments';
 import { IContext } from '~/connectionResolvers';
 
 export const noteMutations = {
   ticketCreateNote: async (
     _parent: undefined,
-    { content, contentId, mentions, attachments, isInternal },
+    {
+      content,
+      contentId,
+      mentions,
+      attachments,
+      isInternal,
+    }: {
+      content: string;
+      contentId: string;
+      mentions?: string[];
+      attachments?: IAttachment[];
+      isInternal?: boolean;
+    },
     { models, user, subdomain }: IContext,
   ) => {
     const userId = user._id || '';
-    return models.Note.createNote({
+
+    const note = await models.Note.createNote({
       doc: {
         content,
         contentId,
@@ -20,6 +35,8 @@ export const noteMutations = {
       subdomain,
       userId,
     });
+
+    return mailTicketComment(models, subdomain, note);
   },
 
   ticketUpdateNote: async (

@@ -1,17 +1,11 @@
-import { generateModels, IModels } from '~/connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 import { withErrorHandling } from '../../../shared/utils';
+import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
+import { allocateMailAddress } from '@/integrations/mail/utils/allocate';
 import {
-  MAIL_HEALTH_STATUSES,
-  MAIL_SENDER_NAME_MAX_LENGTH,
-} from '@/integrations/mail/constants';
-import {
-  buildInboxAddress,
-  buildOwnDomainAddress,
-  isEmailAddress,
-  resolveMailTenant,
-} from '@/integrations/mail/utils/address';
-import { readConnectedCloudflare } from '@/integrations/mail/utils/cloudflare/connection';
-import { platformMailDomain } from '@/integrations/mail/utils/platformConfig';
+  normalizeForwardFrom,
+  normalizeSenderName,
+} from '@/integrations/mail/utils/settings';
 import { ensureMailIndexes } from '@/integrations/mail/utils/indexes';
 import { assertSendableIntegration } from '@/integrations/mail/utils/transports/readiness';
 
@@ -30,71 +24,6 @@ interface IMailIntegrationRefInput {
   data: { integrationId: string };
 }
 
-const buildAddress = async (
-  models: IModels,
-  subdomain: string,
-  name: string,
-) => {
-  const connection = await readConnectedCloudflare(subdomain);
-
-  const address = connection?.zoneName
-    ? buildOwnDomainAddress(name, connection.zoneName)
-    : buildInboxAddress(
-        resolveMailTenant(subdomain),
-        name,
-        platformMailDomain(subdomain),
-      );
-
-  if (await models.MailIntegrations.exists({ address })) {
-    throw new Error(
-      `${address} already belongs to another inbox — give this one a different name`,
-    );
-  }
-
-  return address;
-};
-
-const normalizeSenderName = (value: unknown) => {
-  const senderName = typeof value === 'string' ? value.trim() : '';
-
-  if (!senderName) {
-    return '';
-  }
-
-  if (/[\r\n]/.test(senderName)) {
-    throw new Error('A sender name cannot contain line breaks');
-  }
-
-  if (senderName.length > MAIL_SENDER_NAME_MAX_LENGTH) {
-    throw new Error(
-      `A sender name can be at most ${MAIL_SENDER_NAME_MAX_LENGTH} characters`,
-    );
-  }
-
-  return senderName;
-};
-
-const normalizeForwardFrom = (value: unknown, address: string) => {
-  const forwardFrom =
-    typeof value === 'string' ? value.trim().toLowerCase() : '';
-
-  if (!forwardFrom) {
-    return '';
-  }
-
-  if (!isEmailAddress(forwardFrom)) {
-    throw new Error(`${forwardFrom} is not a valid email address`);
-  }
-
-  if (forwardFrom === address) {
-    throw new Error(
-      'The forwarding address cannot be the inbox address itself — that would loop mail back into this inbox',
-    );
-  }
-
-  return forwardFrom;
-};
-
 export const mailCreateIntegration = withErrorHandling(
   async ({ subdomain, data }: IMailIntegrationInput) => {
     const { integrationId, data: jsonData } = data;
@@ -105,7 +34,7 @@ export const mailCreateIntegration = withErrorHandling(
 
     const inbox = await models.Integrations.findOne({ _id: integrationId });
 
-    const address = await buildAddress(
+    const address = await allocateMailAddress(
       models,
       subdomain,
       inbox?.name || 'inbox',

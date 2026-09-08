@@ -7,11 +7,16 @@ const SCOPED_MESSAGE_INDEX = 'inboxIntegrationId_1_messageId_1';
 
 const MESSAGE_LOOKUP_INDEX = 'messageId_1_lookup';
 
+const PIPELINE_INTEGRATION_INDEX = 'pipelineId_1';
+
+const INBOX_INTEGRATION_INDEX = 'inboxId_1';
+
 const reconciled = new Set<string>();
 
 interface IExistingIndex {
   name?: string;
   unique?: boolean;
+  sparse?: boolean;
   key?: Record<string, unknown>;
 }
 
@@ -19,6 +24,30 @@ const isMessageIdLookup = (index: IExistingIndex) => {
   const key = index.key ?? {};
 
   return Object.keys(key).length === 1 && key.messageId === 1;
+};
+
+const reconcileIntegrationIndexes = async (models: IModels) => {
+  const collection = models.MailIntegrations.collection;
+
+  const indexes: IExistingIndex[] = await collection.indexes();
+
+  const inboxIndex = indexes.find(
+    (index) => Object.keys(index.key ?? {}).join() === 'inboxId',
+  );
+
+  if (inboxIndex?.name && !inboxIndex.sparse) {
+    await collection.dropIndex(inboxIndex.name);
+  }
+
+  await collection.createIndex(
+    { inboxId: 1 },
+    { unique: true, sparse: true, name: INBOX_INTEGRATION_INDEX },
+  );
+
+  await collection.createIndex(
+    { pipelineId: 1 },
+    { unique: true, sparse: true, name: PIPELINE_INTEGRATION_INDEX },
+  );
 };
 
 export const ensureMailIndexes = async (
@@ -64,6 +93,8 @@ export const ensureMailIndexes = async (
         { name: MESSAGE_LOOKUP_INDEX },
       );
     }
+
+    await reconcileIntegrationIndexes(models);
   } catch (e) {
     reconciled.delete(subdomain);
 
