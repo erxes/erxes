@@ -28,7 +28,6 @@ export const GET_EBARIMTS = gql`
     $pipelineId: String
     $boardId: String
     $segment: String
-    $segmentData: String
     $image: String
   ) {
     products(
@@ -47,7 +46,6 @@ export const GET_EBARIMTS = gql`
       pipelineId: $pipelineId
       boardId: $boardId
       segment: $segment
-      segmentData: $segmentData
       image: $image
     ) {
       _id

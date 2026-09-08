@@ -105,6 +105,27 @@ export const authMutations = {
     { email }: { email: string },
     { subdomain, models }: IContext,
   ) {
+    const tag = '[forgot-password]';
+    const value = (email || '').toLowerCase().trim();
+
+    const exact = await models.Users.findOne({ email: value }).lean();
+    const insensitive = await models.Users.findOne({
+      email: {
+        $regex: new RegExp(
+          `^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+          'i',
+        ),
+      },
+    }).lean();
+
+    console.log(
+      `${tag} subdomain=${subdomain} input=${JSON.stringify(
+        email,
+      )} normalized=${JSON.stringify(value)} exact=${!!exact} ci=${!!insensitive} stored=${JSON.stringify(
+        insensitive?.email,
+      )} userId=${insensitive?._id} isActive=${insensitive?.isActive}`,
+    );
+
     const token = await models.Users.forgotPassword(email);
 
     // send email ==============
@@ -112,20 +133,29 @@ export const authMutations = {
 
     const link = `${DOMAIN}/reset-password?token=${token}`;
 
-    await sendEmail(
-      subdomain,
-      {
-        toEmails: [email],
-        title: 'Reset password',
-        template: {
-          name: 'resetPassword',
-          data: {
-            content: link,
+    console.log(`${tag} token=${!!token} domain=${DOMAIN} to=${email}`);
+
+    try {
+      await sendEmail(
+        subdomain,
+        {
+          toEmails: [email],
+          title: 'Reset password',
+          template: {
+            name: 'resetPassword',
+            data: {
+              content: link,
+            },
           },
         },
-      },
-      models,
-    );
+        models,
+      );
+
+      console.log(`${tag} sendEmail returned`);
+    } catch (e) {
+      console.log(`${tag} sendEmail threw: ${e.name}: ${e.message}`);
+      throw e;
+    }
 
     return 'sent';
   },

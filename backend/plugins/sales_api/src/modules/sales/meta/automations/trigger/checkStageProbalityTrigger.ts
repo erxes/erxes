@@ -27,7 +27,6 @@ export const checkTriggerDealStageProbality = async ({
     return false;
   }
 
-
   const stageChange = eventUpdateDescription?.updated?.stageId as
     | EventFieldChange
     | undefined;

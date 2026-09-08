@@ -38,6 +38,12 @@ export const ChannelResponsePage = lazy(() =>
   })),
 );
 
+export const ChannelPollsPage = lazy(() =>
+  import('~/pages/ChannelPollsPage').then((module) => ({
+    default: module.ChannelPollsPage,
+  })),
+);
+
 export const ChannelFormsPage = lazy(() =>
   import('~/pages/FormsPage').then((module) => ({
     default: module.FormsPage,
@@ -190,6 +196,10 @@ const ChannelsSettings = () => {
           <Route
             path={FrontlinePaths.ChannelForms}
             element={<ChannelFormsPage />}
+          />
+          <Route
+            path={FrontlinePaths.ChannelPolls}
+            element={<ChannelPollsPage />}
           />
           <Route
             path={FrontlinePaths.FormsCreate}

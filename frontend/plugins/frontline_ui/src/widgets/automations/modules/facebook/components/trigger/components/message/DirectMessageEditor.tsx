@@ -1,11 +1,16 @@
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
+import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 import { DirectMessageConditionCard } from './DirectMessageConditionCard';
 import { DirectMessageEmptyState } from './DirectMessageEmptyState';
 
 type Props = {
+  // Absent for the comment trigger, which reuses this editor without a bot;
+  // claims are then empty.
+  botId?: string;
+  currentTriggerId?: string;
   conditions: TMessageTriggerDirectConditions;
   onConditionChange: (
     fieldName: 'persistentMenuIds' | 'conditions',
@@ -14,10 +19,13 @@ type Props = {
 };
 
 export const DirectMessageEditor = ({
+  botId,
+  currentTriggerId,
   conditions,
   onConditionChange,
 }: Props) => {
   const { t } = useTranslation('frontline');
+  const { claims } = useFacebookBotTriggerClaims(botId, currentTriggerId);
   const { hasConditions, addCondition, removeCondition, updateCondition } =
     useDirectMessageEditor({
       conditions,
@@ -44,6 +52,7 @@ export const DirectMessageEditor = ({
         <DirectMessageConditionCard
           key={condition._id}
           condition={condition}
+          keywordClaims={claims.directKeywords}
           onChange={(name, value) =>
             updateCondition(condition._id, name, value)
           }

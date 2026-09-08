@@ -99,7 +99,7 @@ export const checkMessageTrigger = async (
   }
 
   const payload = target?.payload || {};
-  const { persistentMenuId, isBackBtn } = payload;
+  const { persistentMenuId, isBackBtn, iceBreakerId } = payload;
   if (persistentMenuId && isBackBtn) {
     sendWorkerQueue('automations', 'playWait').add('playWait', {
       subdomain,
@@ -120,13 +120,27 @@ export const checkMessageTrigger = async (
     isSelected,
     type,
     persistentMenuIds,
+    iceBreakerIds,
     conditions: directMessageCondtions = [],
     sourceMode = 'all',
     sourceIds = [],
   } of conditions) {
     if (isSelected) {
-      if (type === 'getStarted' && target.content === 'Get Started') {
+      // Matched by payload, not by the button's label: the Get Started title is
+      // configurable, and a visitor typing those words is not a postback.
+      if (
+        type === 'getStarted' &&
+        payload?.botId &&
+        !persistentMenuId &&
+        !iceBreakerId
+      ) {
         return true;
+      }
+
+      if (type === 'iceBreaker' && iceBreakerId) {
+        if ((iceBreakerIds || []).includes(String(iceBreakerId))) {
+          return true;
+        }
       }
 
       if (type === 'persistentMenu' && payload) {

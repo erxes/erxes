@@ -33,6 +33,10 @@ const FACEBOOK_BOT_FIELDS = `
   persistentMenus {
     _id,text,type,link
   }
+  iceBreakers {
+    _id,question
+  }
+  getStartedText
   health {
     status
     isSubscribed
@@ -82,6 +86,10 @@ export const GET_FACEBOOK_BOT_PROFILE = gql`
         text
         type
         link
+      }
+      iceBreakers {
+        _id
+        question
       }
     }
   }

@@ -191,29 +191,32 @@ export const useUpload = () => {
       },
       body: `fileName=${fileName}`,
       credentials: 'include',
-    }).then((response) => {
-      response
-        .text()
-        .then((text) => {
-          setIsLoading(false);
+    })
+      .then((response) => {
+        response
+          .text()
+          .then((text) => {
+            setIsLoading(false);
 
-          if (!response.ok) {
+            const body = text.trim();
+            const removed = response.ok && body === 'ok';
+
+            setStatus(removed);
+
+            return afterRemove({ status: removed ? 'ok' : body || 'error' });
+          })
+          .catch((error) => {
+            setIsLoading(false);
             setStatus(false);
-            return afterRemove({
-              status: text,
-            });
-          }
-
-          setStatus(true);
-
-          return afterRemove({ status: 'ok' });
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          setStatus(false);
-          toast({ description: error.message });
-        });
-    });
+            toast({ description: error.message });
+          });
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        setStatus(false);
+        toast({ description: error.message, variant: 'destructive' });
+        afterRemove({ status: 'error' });
+      });
   };
 
   return { isLoading, status, upload, remove };

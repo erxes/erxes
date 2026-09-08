@@ -12,9 +12,11 @@ export const ConversationRelationWidget = ({
     variables: {
       contentId,
       contentType,
-      relatedContentType: 'core:customer',
+      relatedContentType: 'frontline:conversation',
     },
-    skip: contentType === 'core:customer',
+    skip:
+      contentType === 'core:customer' ||
+      contentType === 'frontline:conversation',
   });
 
   const { conversations } = useConversations({
@@ -51,14 +53,16 @@ export const ConversationRelationWidget = ({
   return (
     <div className="flex flex-col flex-1 overflow-y-auto h-full gap-2 w-full p-2">
       <ConversationReportContent customerId={customerId} />
-      {ownEntities?.map((entity) => {
-        return (
-          <ConversationRelationDetails
-            key={entity.contentId}
-            conversationId={entity.contentId}
-          />
-        );
-      })}
+      {ownEntities
+        ?.filter((entity) => entity.contentType === 'frontline:conversation')
+        .map((entity) => {
+          return (
+            <ConversationRelationDetails
+              key={entity.contentId}
+              conversationId={entity.contentId}
+            />
+          );
+        })}
     </div>
   );
 };

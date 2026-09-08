@@ -15,18 +15,19 @@ import { useRemoveSegments } from '../hooks/useRemoveSegments';
 export const SegmentMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<{ order: string; hasChildren: boolean } & ISegment, unknown>;
+  cell: Cell<ISegment, unknown>;
 }) => {
   const { _id, name } = cell.row.original;
   const [, setSegmentId] = useQueryState<string>('segmentId');
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeSegments } = useRemoveSegments();
+  const { removeSegments, readUsage } = useRemoveSegments();
 
   const handleEdit = () => {
     setSegmentId(_id);
   };
-  const handleDelete = () => {
+
+  const handleDelete = async () => {
     if (!_id) {
       toast({
         title: 'Error',
@@ -36,8 +37,29 @@ export const SegmentMoreColumnCell = ({
       return;
     }
 
+    let description = 'This cannot be undone.';
+
+    try {
+      const [usage] = await readUsage([_id]);
+      const automations = usage?.automations || [];
+
+      if (automations.length) {
+        const named = automations
+          .map((automation) => automation.name || automation._id)
+          .join(', ');
+
+        description =
+          `${automations.length} automation(s) use this segment: ${named}. ` +
+          'They will stop enrolling anyone. This cannot be undone.';
+      }
+    } catch (e) {
+      description =
+        'What uses this segment could not be checked. This cannot be undone.';
+    }
+
     confirm({
-      message: `Are you sure you want to delete "${name}"?`,
+      message: `Delete "${name}"?`,
+      options: { description, confirmationValue: 'delete', okLabel: 'Delete' },
     }).then(async () => {
       try {
         await removeSegments([_id]);

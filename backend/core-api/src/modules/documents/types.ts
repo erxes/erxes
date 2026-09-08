@@ -11,6 +11,7 @@ export interface IDocument {
   content: string;
   replacer: string;
   code?: string;
+  tagIds?: string[];
 }
 
 export interface IDocumentDocument extends IDocument, Document {
@@ -19,11 +20,11 @@ export interface IDocumentDocument extends IDocument, Document {
 }
 
 export interface IDocumentFilterQueryParams
-  extends IListParams,
-    ICursorPaginateParams {
+  extends IListParams, ICursorPaginateParams {
   limit: number;
   contentType: string;
   subType?: string;
   userIds?: string[];
   dateFilters?: string;
+  tagIds?: string[];
 }

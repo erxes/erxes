@@ -1,10 +1,12 @@
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
-import { Button, Collapsible, InfoCard, Spinner } from 'erxes-ui';
+import { InfoCard, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   FieldsInGroup,
   IFieldGroup,
   MultipleFieldsInGroup,
+  PropertyGroupCard,
+  PropertyGroupShell,
   FieldsInDetail,
   mutateFunction,
   useFieldGroups,
@@ -48,22 +50,16 @@ const SelectedGroup = ({
   }
 
   return (
-    <Collapsible defaultOpen>
-      <Collapsible.Trigger asChild>
-        <Button variant="secondary" className="justify-start w-full">
-          <Collapsible.TriggerIcon />
-          {group.name}
-        </Button>
-      </Collapsible.Trigger>
-      <Collapsible.Content className="pt-4">
+    <PropertyGroupShell group={group}>
+      <PropertyGroupCard>
         <FieldsInGroup
           group={group}
           fields={selectedFields}
           contentType={CONTENT_TYPE}
           {...props}
         />
-      </Collapsible.Content>
-    </Collapsible>
+      </PropertyGroupCard>
+    </PropertyGroupShell>
   );
 };
 

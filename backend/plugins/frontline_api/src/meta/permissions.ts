@@ -231,6 +231,38 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'poll',
+      description: 'Poll management',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All polls' }],
+      actions: [
+        {
+          title: 'View polls',
+          name: 'showPolls',
+          description: 'View polls list',
+          always: true,
+        },
+        { title: 'Add poll', name: 'pollAdd', description: 'Create polls' },
+        { title: 'Edit poll', name: 'pollEdit', description: 'Edit polls' },
+        {
+          title: 'Remove poll',
+          name: 'pollRemove',
+          description: 'Delete polls',
+        },
+        {
+          title: 'Toggle poll status',
+          name: 'pollToggleStatus',
+          description: 'Activate or archive polls',
+        },
+        {
+          title: 'Send poll',
+          name: 'pollSendToConversation',
+          description: 'Send a poll into a messenger conversation',
+        },
+      ],
+    },
+    {
       name: 'callReport',
       description: 'Call centre reports',
       scopeField: null,

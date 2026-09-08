@@ -1,15 +1,9 @@
 import { ApolloError, useMutation } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
-import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import {
-  SEGMENT_ADD,
-  SEGMENT_EDIT,
-} from 'ui-modules/modules/segments/graphql/mutations';
-import {
-  SegmentFormMode,
-  TConditionsConjunction,
-  TSegmentForm,
-} from 'ui-modules/modules/segments/types';
+import { useSegment } from '../context/SegmentProvider';
+import { SEGMENT_ADD, SEGMENT_EDIT } from '../graphql/mutations';
+import { SEGMENT_DETAIL, SEGMENTS } from '../graphql/queries';
+import { TSegmentForm } from '../types';
 
 export const useSegmentActions = ({
   callback,
@@ -17,117 +11,52 @@ export const useSegmentActions = ({
 }: {
   callback?: (id: string) => void;
   onCreateSuccess?: (id: string) => void;
-}) => {
-  const { form, contentType, segment, mode } = useSegment();
+} = {}) => {
+  const { form, contentType, ownedBy, segment } = useSegment();
   const [segmentId, setSegmentId] = useQueryState<string>('segmentId');
 
-  const [segmentAdd] = useMutation(SEGMENT_ADD);
-  const [segmentsEdit] = useMutation(SEGMENT_EDIT);
-
-  const onAddSegmentGroup = () => {
-    if (!contentType) {
-      return toast({
-        title: 'Content type is not selected',
-        variant: 'destructive',
-      });
-    }
-
-    const conditions = form.getValues('conditions') || [];
-    const subSegments = form.getValues('conditionSegments') || [];
-    const hasSubSegments = subSegments.length > 0;
-
-    if (!hasSubSegments) {
-      form.setValue('conditionSegments', [
-        {
-          contentType: contentType,
-          conditionsConjunction: TConditionsConjunction.AND,
-          conditions: Array.isArray(conditions) ? conditions : [],
-        },
-        {
-          contentType: contentType,
-          conditionsConjunction: TConditionsConjunction.AND,
-          conditions: [
-            {
-              propertyType: contentType,
-              propertyName: '',
-              propertyOperator: '',
-            },
-          ],
-        },
-      ]);
-      if (conditions.length > 0) {
-        form.setValue('conditions', []);
-      }
-      return;
-    }
-    form.setValue('conditionSegments', [
-      ...(subSegments || []),
-      {
-        contentType: contentType,
-        conditionsConjunction: TConditionsConjunction.AND,
-        conditions: [
-          {
-            propertyType: contentType,
-            propertyName: '',
-            propertyOperator: '',
-          },
-        ],
-      },
-    ]);
-  };
+  const [segmentsAdd, { loading: adding }] = useMutation(SEGMENT_ADD);
+  const [segmentsEdit, { loading: editing }] = useMutation(SEGMENT_EDIT);
 
   const handleSave = (data: TSegmentForm) => {
-    const mutation = segment ? segmentsEdit : segmentAdd;
-
-    const variables = {
-      contentType: contentType,
-      shouldWriteActivityLog: false,
-      _id: segment ? segment?._id : undefined,
-      name: data.name,
-      subOf: data.subOf,
-      description: data.description,
-      config: data.config || {},
-      conditionsConjunction: data.conditionsConjunction,
-      conditions: mode === SegmentFormMode.SINGLE ? data.conditions : undefined,
-      conditionSegments:
-        mode === SegmentFormMode.SINGLE ? undefined : data.conditionSegments,
-    };
+    const mutation = segment ? segmentsEdit : segmentsAdd;
 
     mutation({
-      variables,
-      onError: (e: ApolloError) => {
-        toast({
-          title: 'Error',
-          variant: 'destructive',
-          description: e.message,
-        });
+      variables: {
+        _id: segment?._id,
+        contentType,
+        ...(!segment && ownedBy && !data.name?.trim() ? { ownedBy } : {}),
+        name: data.name,
+        description: data.description,
+        color: data.color,
+        visibility: data.visibility,
+        root: data.root,
       },
-      onCompleted: (data) => {
-        const { segmentsAdd, segmentsEdit } = data || {};
-        const { _id } = segmentsAdd || segmentsEdit || {};
-
+      refetchQueries: [SEGMENTS, ...(segment ? [SEGMENT_DETAIL] : [])],
+      onError: (error: ApolloError) =>
         toast({
-          title: `${segment ? 'Edited' : 'Created'} successfully`,
-        });
-        if (callback) {
-          callback(_id);
-        }
+          title: 'Could not save the segment',
+          description: error.message,
+          variant: 'destructive',
+        }),
+      onCompleted: (result) => {
+        const saved = result?.segmentsAdd || result?.segmentsEdit;
+
+        toast({ title: segment ? 'Segment updated' : 'Segment created' });
 
         form.reset(form.getValues());
+        callback?.(saved._id);
 
         if (!segmentId) {
           if (onCreateSuccess) {
-            onCreateSuccess(_id);
+            onCreateSuccess(saved._id);
           } else {
-            setSegmentId(_id);
+            setSegmentId(saved._id);
           }
         }
       },
     });
   };
 
-  return {
-    handleSave,
-    onAddSegmentGroup,
-  };
+  return { handleSave, saving: adding || editing };
 };

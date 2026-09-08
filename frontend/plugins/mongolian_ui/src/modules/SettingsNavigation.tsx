@@ -1,3 +1,10 @@
+import {
+  IconCurrencyDollar,
+  IconMapPin,
+  IconPlugConnected,
+  IconReceiptTax,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
@@ -12,26 +19,31 @@ export const SettingsNavigation = () => {
             pathPrefix="mongolian"
             path="/ebarimt"
             name={t('ebarimt')}
+            icon={IconReceiptTax}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/sync-erkhet"
             name={t('erkhet')}
+            icon={IconRefresh}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/product-places"
             name={t('product-place')}
+            icon={IconMapPin}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/exchange-rates"
             name={t('exchange-rates-label')}
+            icon={IconCurrencyDollar}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix="mongolian"
             path="/msdynamic"
             name={t('ms-dynamic')}
+            icon={IconPlugConnected}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>

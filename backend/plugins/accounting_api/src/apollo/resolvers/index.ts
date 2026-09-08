@@ -40,7 +40,6 @@ import {
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
-import { FxaInstance } from '@/fixedAssets/graphql/resolvers/customResolvers/fxaInstance';
 import {
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
@@ -70,7 +69,6 @@ const resolvers: any = {
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
-  FxaInstance,
 
   Mutation: {
     ...MutationsAccountCategory,

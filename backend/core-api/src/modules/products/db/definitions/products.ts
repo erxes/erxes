@@ -64,7 +64,6 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'Status',
         default: 'active',
-        esType: 'keyword',
         index: true,
       },
       vendorId: { type: String, optional: true, label: 'Vendor' },

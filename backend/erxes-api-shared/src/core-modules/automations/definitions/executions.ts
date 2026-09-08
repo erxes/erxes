@@ -5,7 +5,7 @@ export interface IAutomationExecAction {
   startedAt?: string;
   finishedAt?: string;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting';
+  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -15,6 +15,14 @@ export interface IAutomationExecAction {
   errorCode?: string;
   // Set on workflow node actions: links to the child execution for drill-in
   childExecutionId?: string;
+  // Deferred actions only: matches the completion callback to this attempt so
+  // a stale or retried job can never overwrite a newer one.
+  jobId?: string;
+  // Date in-process, an ISO string once the execution crosses a producer
+  // boundary — both shapes reach this type.
+  queuedAt?: Date | string;
+  // When the sweep gives up on a deferred action that never reported back.
+  expiresAt?: Date | string;
 }
 
 export interface IAutomationExecution {
@@ -56,10 +64,12 @@ export interface IAutomationExecutionDocument
 export const AUTOMATION_EXECUTION_STATUS = {
   ACTIVE: 'active',
   WAITING: 'waiting',
+  // Paused on a deferred action the flow still needs the result of.
+  STANDBY: 'standby',
   ERROR: 'error',
   MISSID: 'missed',
   COMPLETE: 'complete',
-  ALL: ['active', 'waiting', 'error', 'missed', 'complete'],
+  ALL: ['active', 'waiting', 'standby', 'error', 'missed', 'complete'],
 };
 
 const execActionSchema = new Schema({
@@ -67,7 +77,10 @@ const execActionSchema = new Schema({
   startedAt: { type: Date },
   finishedAt: { type: Date },
   durationMs: { type: Number },
-  status: { type: String, enum: ['success', 'error', 'waiting'] },
+  status: {
+    type: String,
+    enum: ['success', 'error', 'waiting', 'queued', 'standby', 'dropped'],
+  },
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
@@ -75,6 +88,9 @@ const execActionSchema = new Schema({
   result: { type: Object },
   childExecutionId: { type: String },
   errorCode: { type: String },
+  jobId: { type: String },
+  queuedAt: { type: Date },
+  expiresAt: { type: Date },
 });
 
 export const automationExecutionSchema = new Schema({

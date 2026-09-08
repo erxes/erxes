@@ -29,11 +29,6 @@ export const validatePipelinePropertyIds = async (
   });
 
   const validIds = new Set(fields.map(({ _id }) => String(_id)));
-  const invalidId = uniquePropertyIds.find((id) => !validIds.has(id));
 
-  if (invalidId) {
-    throw new Error(`Ticket property field not found: ${invalidId}`);
-  }
-
-  return uniquePropertyIds;
+  return uniquePropertyIds.filter((id) => validIds.has(id));
 };

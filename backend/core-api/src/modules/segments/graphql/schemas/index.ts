@@ -1,82 +1,171 @@
 export const types = `
-  input EventAttributeFilter {
-    name: String,
-    operator: String,
-    value: String,
-  }
-
-  input SubSegment {
-    _id: String
-    contentType: String
-    conditions: JSON
-    conditionsConjunction: String
-
-    config: JSON
-  }
-
-  input SegmentCondition {
-    type: String,
-
-    propertyType: String,
-    propertyName: String,
-    propertyOperator: String,
-    propertyValue: String,
-
-    eventName: String,
-    eventOccurrence: String,
-    eventOccurenceValue: Float,
-    eventAttributeFilters: [EventAttributeFilter],
-
-    subSegmentId: String
-
-    config: JSON
-    meta: JSON
-  }
+  enum SegmentVisibility { private organization }
+  enum SegmentStatus { draft building active failed cancelled }
 
   type Segment @key(fields: "_id") {
-    _id: String!
+    _id: ID!
     contentType: String!
+
+    """Absent only while a feature owns the segment."""
     name: String
+
     description: String
-    subOf: String
     color: String
-    conditions: JSON
-    conditionsConjunction: String
-    shouldWriteActivityLog: Boolean
 
-    getSubSegments: [Segment]
-    subSegmentConditions: [Segment]
-    
-    config: JSON
+    """The feature this segment belongs to, when it is not the organization's
+    own. Owned segments are never listed or materialised, and are removed with
+    whatever created them. Naming one promotes it to an ordinary segment."""
+    ownedBy: String
 
+    """The condition tree. See SegmentNode in erxes-api-shared."""
+    root: JSON!
+
+    visibility: SegmentVisibility!
+    ownerId: String!
+
+    status: SegmentStatus!
+    revision: Int!
+
+    """How many records the segmentation worker last settled as members. Absent
+    until it has run, which is not the same as a count of zero."""
+    membersCount: Int
+    membersCountedAt: Date
+
+    """Set only while a rebuild is running. There is no total to compare to."""
+    buildStartedAt: Date
+    buildProcessed: Int
+    buildTotal: Int
+    buildCancelRequested: Boolean
+
+    createdBy: String!
+    updatedBy: String
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type SegmentUsageAutomation {
+    _id: String!
+    name: String
+    status: String
+  }
+
+  type SegmentUsageSegment {
+    _id: String!
+    name: String
+  }
+
+  type SegmentUsage {
+    segmentId: String!
+    automations: [SegmentUsageAutomation!]!
+    segments: [SegmentUsageSegment!]!
+  }
+
+  type SegmentMemberCount {
+    count: Int!
+    """Parts of the tree the query could not express, so the count is narrower."""
+    unsupported: [String!]
+    """The count gave up before finishing, so the number is not the answer."""
+    exceeded: Boolean
+  }
+
+  """One day of a segment's life: where it ended, and what moved it there."""
+  type SegmentDay {
+    """Start of the bucket this point covers - hourly on a short window."""
+    at: Date
+    date: String!
+    """Closing membership. Absent on days the worker never settled it."""
     count: Int
+    joined: Int!
+    left: Int!
+  }
+
+  type SegmentMemberPage {
+    ids: [String!]!
+    nextCursor: String
+    unsupported: [String!]
+  }
+
+  type SegmentOperator {
+    value: String!
+    label: String!
+    """What the operator needs from the user: none, field or number."""
+    input: String!
+    """Shown under the row where the label alone would be read wrong."""
+    hint: String
+  }
+
+  type SegmentRelation {
+    key: String!
+    label: String!
+    subjectType: String!
+    relatedType: String!
+    """Operators a count or sum of this relation is compared with."""
+    measureOperators: [SegmentOperator!]!
+  }
+
+  type SegmentField {
+    key: String!
+    label: String!
+    operators: [SegmentOperator!]!
+    kind: String!
+    input: String!
+    source: String
+    options: JSON
+    query: JSON
+    component: String
   }
 `;
 
 export const queries = `
   segmentsGetTypes: [JSON]
-  segmentsGetAssociationTypes(contentType: String!): [JSON]
-  segments(contentTypes: [String]!, config: JSON, ids: [String],excludeIds:[String],searchValue:String): [Segment]
-  segmentDetail(_id: String): Segment
-  segmentsGetHeads(contentType:String): [Segment]
-  segmentsEvents(contentType: String!): [JSON]
-  segmentsPreviewCount(contentType: String!, conditions: JSON, subOf: String, config: JSON, conditionsConjunction: String): JSON
+
+  """What still points at these segments, read before deleting one."""
+  segmentUsage(ids: [String!]!): [SegmentUsage!]!
+
+  segments(contentTypes: [String]!, ids: [String], excludeIds: [String], searchValue: String): [Segment]
+  segmentDetail(_id: String!): Segment
+
+  """Filterable fields for a content type, including tenant custom properties."""
+  segmentFields(contentType: String!): [SegmentField!]!
+
+  """Related entities a segment on this content type can reach."""
+  segmentRelations(subjectType: String!): [SegmentRelation!]!
+
+  """How many records a tree would match, for the form's live count."""
+  segmentsPreviewCount(contentType: String!, root: JSON!): SegmentMemberCount!
+
+  """The segment already asking this, if one exists."""
+  segmentSameDefinition(
+    contentType: String!
+    root: JSON!
+    excludeId: String
+  ): Segment
+
+  segmentMembers(segmentId: String!, cursor: String, limit: Int): SegmentMemberPage!
+  segmentMemberCount(segmentId: String!): SegmentMemberCount!
+
+  """A segment's membership and movement per day, oldest first."""
+  segmentGrowth(segmentId: String!, days: Int): [SegmentDay!]!
 `;
 
 const commonFields = `
-  name: String,
-  description: String,
-  subOf: String,
-  color: String,
-  conditions: [SegmentCondition],
-  config: JSON
-  conditionsConjunction: String
-  conditionSegments: [SubSegment]
-  shouldWriteActivityLog: Boolean!
+  name: String
+  description: String
+  color: String
+  root: JSON!
+  visibility: SegmentVisibility
+  status: SegmentStatus
+`;
+
+const ownableFields = `
+  ${commonFields}
+  ownedBy: String
 `;
 
 export const mutations = `
-  segmentsAdd(contentType: String!, ${commonFields}): Segment
+  segmentsAdd(contentType: String!, ${ownableFields}): Segment
   segmentsEdit(_id: String!, ${commonFields}): Segment
-  segmentsRemove(_id: String,ids:[String]): JSON
+  segmentsRemove(ids: [String!]!): JSON
+  segmentsRebuild(_id: String!): JSON
+  segmentsStopRebuild(_id: String!): JSON
 `;

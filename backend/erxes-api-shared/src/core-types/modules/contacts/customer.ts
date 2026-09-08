@@ -67,6 +67,7 @@ export interface ICustomerDocument extends ICustomer, Document {
 
   location?: ILocation;
   searchText?: string;
+  searchTokens?: string[];
 }
 
 export interface ICustomerQueryFilterParams
@@ -80,6 +81,9 @@ export interface ICustomerQueryFilterParams
   tagIds?: string[];
   excludeTagIds?: string[];
   tagWithRelated?: boolean;
+
+  /** Membership as the segmentation worker materialised it onto the record. */
+  segmentIds?: string[];
 
   integrationIds?: string[];
   integrationTypes?: string[];

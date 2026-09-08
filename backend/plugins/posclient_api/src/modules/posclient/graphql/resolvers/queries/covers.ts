@@ -1,4 +1,4 @@
-import { getPureDate, paginate } from 'erxes-api-shared/utils';
+import { getPureDate, markResolvers, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 
 const coverQueries = {
@@ -91,5 +91,12 @@ const coverQueries = {
     return result;
   },
 };
+
+markResolvers(coverQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
 
 export default coverQueries;

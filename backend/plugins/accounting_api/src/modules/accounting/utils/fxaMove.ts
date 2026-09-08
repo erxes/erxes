@@ -6,41 +6,26 @@ import {
   TR_FOLLOW_TYPES,
   TR_SIDES,
 } from '../@types/constants';
-import {
-  FXA_INSTANCE_STATUSES,
-  FXA_LOG_EVENT_TYPES,
-} from '@/fixedAssets/@types/constants';
 import { ITransactionDocument, ITrDetail } from '../@types/transaction';
 import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
   getFxaMoveFollowInfos,
-  getSelectedInstanceIds,
+  getUniqueFxaOwnerRecordIds,
+  rebuildFixedAssetCurrentCounts,
+  removeFxaOwnerRecordsByTransaction,
+  syncFxaOwnerRecordMovements,
 } from './fixedAssets';
+import {
+  FXA_OWNER_RECORD_STATUSES,
+  FXA_LOG_EVENT_TYPES,
+} from '@/fixedAssets/@types/constants';
 
 export const removeFxaMoveInstances = async (
   models: IModels,
   transaction: ITransactionDocument,
 ) => {
-  const logs = await models.FxaInstanceLogs.findByTransaction(
-    transaction._id,
-    FXA_LOG_EVENT_TYPES.MOVE,
-  );
-
-  if (!logs.length) {
-    return;
-  }
-
-  for (const log of logs) {
-    await models.FxaInstances.restoreMoveInstance(log.fxaInstanceId, {
-      branchId: log.fromBranchId,
-      departmentId: log.fromDepartmentId,
-      responsibleUserId: log.fromResponsibleUserId,
-      status: log.fromStatus || FXA_INSTANCE_STATUSES.ACTIVE,
-    });
-  }
-
-  await models.FxaInstanceLogs.deleteByTransaction(transaction._id);
+  await removeFxaOwnerRecordsByTransaction(models, transaction);
 };
 
 export const createFxaMoveInFollowTr = async (
@@ -50,8 +35,8 @@ export const createFxaMoveInFollowTr = async (
 ) => {
   const followInfos = getFxaMoveFollowInfos(transaction);
 
-  if (!followInfos.moveInBranchId) {
-    throw new Error('Move destination branch is required');
+  if (!followInfos.moveInBranchId && !followInfos.moveInDepartmentId) {
+    throw new Error('Move destination branch or department is required');
   }
 
   const oldMoveInTr = await cleanFxaFollowTr(
@@ -108,49 +93,22 @@ export const syncFxaMoveInstances = async (
   userId: string,
   transaction: ITransactionDocument,
 ) => {
-  await removeFxaMoveInstances(models, transaction);
+  await syncFxaOwnerRecordMovements({
+    eventType: FXA_LOG_EVENT_TYPES.MOVE,
+    models,
+    status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+    transaction,
+    userId,
+  });
 
-  const instanceIds = await getSelectedInstanceIds(models, transaction);
-
-  if (!instanceIds.length) {
-    return;
-  }
-
-  const date = transaction.date || new Date();
-  const moveFollowInfos = getFxaMoveFollowInfos(transaction);
-  const destinationBranchId = moveFollowInfos.moveInBranchId;
-  const destinationDepartmentId = moveFollowInfos.moveInDepartmentId;
-
-  if (!destinationBranchId) {
-    throw new Error('Move destination branch is required');
-  }
-
-  const instances = await models.FxaInstances.findByIds(instanceIds);
-
-  for (const instance of instances) {
-    await models.FxaInstances.applyMove({
-      instanceId: instance._id,
-      branchId: destinationBranchId,
-      departmentId: destinationDepartmentId,
-      userId,
-    });
-
-    await models.FxaInstanceLogs.createLog({
-      fxaInstanceId: instance._id,
-      fixedAssetId: instance.fixedAssetId,
-      eventType: FXA_LOG_EVENT_TYPES.MOVE,
-      eventDate: date,
-      transactionId: transaction._id,
-      fromBranchId: instance.branchId,
-      toBranchId: destinationBranchId,
-      fromDepartmentId: instance.departmentId,
-      toDepartmentId: destinationDepartmentId,
-      fromResponsibleUserId: instance.responsibleUserId,
-      toResponsibleUserId: instance.responsibleUserId,
-      fromStatus: instance.status,
-      toStatus: instance.status,
-      createdBy: userId,
-      createdAt: new Date(),
-    });
-  }
+  await rebuildFixedAssetCurrentCounts(
+    models,
+    getUniqueFxaOwnerRecordIds(
+      (transaction.details || [])
+        .map((detail) => detail.fixedAssetId)
+        .filter((fixedAssetId): fixedAssetId is string =>
+          Boolean(fixedAssetId),
+        ),
+    ),
+  );
 };

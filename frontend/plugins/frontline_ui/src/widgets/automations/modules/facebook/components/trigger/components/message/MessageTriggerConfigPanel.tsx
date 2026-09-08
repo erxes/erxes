@@ -6,10 +6,15 @@ import { useMessageTriggerFormContext } from '../../context/MessageTriggerFormCo
 import { useMessageTriggerConditions } from '../../hooks/useMessageTriggerConditions';
 import { TMessageTriggerForm } from '../../types/messageTrigger';
 import { DirectMessageEditor } from './DirectMessageEditor';
+import { IceBreakerSelector } from './IceBreakerSelector';
 import { OpenThreadTriggerEditor } from './OpenThreadTriggerEditor';
 import { PersistentMenuSelector } from './PersistentMenuSelector';
 
-export const MessageTriggerConfigPanel = () => {
+export const MessageTriggerConfigPanel = ({
+  currentTriggerId,
+}: {
+  currentTriggerId?: string;
+}) => {
   const { t } = useTranslation('frontline');
   const { watch } = useFormContext<TMessageTriggerForm>();
   const { activeConditionType, setActiveConditionType } =
@@ -34,6 +39,8 @@ export const MessageTriggerConfigPanel = () => {
 
       {activeConditionType === 'direct' ? (
         <DirectMessageEditor
+          botId={botId}
+          currentTriggerId={currentTriggerId}
           conditions={currentCondition?.conditions || []}
           onConditionChange={(fieldName, fieldValue) =>
             updateCondition(activeConditionType, fieldName, fieldValue as any)
@@ -44,7 +51,19 @@ export const MessageTriggerConfigPanel = () => {
       {activeConditionType === 'persistentMenu' ? (
         <PersistentMenuSelector
           botId={botId}
+          currentTriggerId={currentTriggerId}
           selectedPersistentMenuIds={currentCondition?.persistentMenuIds}
+          onConditionChange={(fieldName, fieldValue) =>
+            updateCondition(activeConditionType, fieldName, fieldValue as any)
+          }
+        />
+      ) : null}
+
+      {activeConditionType === 'iceBreaker' ? (
+        <IceBreakerSelector
+          botId={botId}
+          currentTriggerId={currentTriggerId}
+          selectedIceBreakerIds={currentCondition?.iceBreakerIds}
           onConditionChange={(fieldName, fieldValue) =>
             updateCondition(activeConditionType, fieldName, fieldValue as any)
           }

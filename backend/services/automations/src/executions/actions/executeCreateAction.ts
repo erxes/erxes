@@ -1,7 +1,9 @@
 import { setWaitActionResponse } from '../setWaitActionResponse';
 import {
+  AUTOMATION_DEFERRED_TIMEOUT,
   AUTOMATION_ERROR_CODES,
   IAutomationAction,
+  IAutomationDeferredMarker,
   IAutomationExecutionDocument,
   splitType,
   TAutomationProducers,
@@ -12,7 +14,35 @@ import { AutomationActionError } from '../errorCodes';
 type TCreateActionResponse = Promise<{
   shouldBreak: boolean;
   actionResponse: any;
+  deferred?: IAutomationDeferredMarker;
 }>;
+
+/**
+ * Only a well-formed marker defers an action, and the plugin never gets to
+ * park the flow for longer than the platform allows.
+ */
+const resolveDeferredMarker = (
+  marker: unknown,
+): IAutomationDeferredMarker | undefined => {
+  const { jobId, mode, timeoutMinutes } = (marker ??
+    {}) as Partial<IAutomationDeferredMarker>;
+
+  if (!jobId || (mode !== 'ignore' && mode !== 'standby')) {
+    return undefined;
+  }
+
+  const { DEFAULT_MINUTES, MAX_MINUTES } = AUTOMATION_DEFERRED_TIMEOUT;
+  const requested = Number(timeoutMinutes);
+
+  return {
+    jobId,
+    mode,
+    timeoutMinutes:
+      Number.isFinite(requested) && requested > 0
+        ? Math.min(requested, MAX_MINUTES)
+        : DEFAULT_MINUTES,
+  };
+};
 
 export const executeCreateAction = async (
   subdomain: string,
@@ -56,5 +86,14 @@ export const executeCreateAction = async (
     shouldBreak = true;
   }
 
-  return { shouldBreak, actionResponse };
+  // The owning plugin queued the work itself and told us how to carry on.
+  const deferred = shouldBreak
+    ? undefined
+    : resolveDeferredMarker(actionResponse?.deferred);
+
+  if (deferred) {
+    actionResponse = actionResponse.result ?? null;
+  }
+
+  return { shouldBreak, actionResponse, deferred };
 };

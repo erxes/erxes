@@ -357,7 +357,13 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'sales',
           module: 'deal',
-          actions: ['showDeals', 'dealsAdd', 'dealsEdit', 'dealsWatch'],
+          actions: [
+            'showDeals',
+            'dealsAdd',
+            'dealsEdit',
+            'dealsWatch',
+            'dealsArchive',
+          ],
           scope: 'group',
         },
         {

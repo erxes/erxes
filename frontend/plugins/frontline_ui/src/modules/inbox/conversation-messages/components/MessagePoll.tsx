@@ -15,11 +15,12 @@ const timeLeftLabel = (expiry?: string): string => {
 };
 
 /** Pluralize a vote-count label ("1 vote" / "n votes"). */
-const votesLabel = (count: number) => `${count} ${count === 1 ? 'vote' : 'votes'}`;
+const votesLabel = (count: number) =>
+  `${count} ${count === 1 ? 'vote' : 'votes'}`;
 
 /** Renders a Discord poll with per-answer tallies and totals. */
 export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
-  const countById = new Map<number, number>(
+  const countById = new Map<string | number, number>(
     (poll.results?.answerCounts ?? []).map((c) => [c.id, c.count]),
   );
   const totalVotes = [...countById.values()].reduce((sum, n) => sum + n, 0);
@@ -33,13 +34,16 @@ export const MessagePoll = ({ poll }: { poll: IMessagePoll }) => {
     <div className="mt-2 w-full rounded-lg border bg-background p-3">
       <div className="text-sm font-semibold">{poll.question || 'Poll'}</div>
       <div className="mb-2 text-xs text-muted-foreground">
-        {poll.allowMultiselect ? 'Select multiple answers' : 'Select one answer'}
+        {poll.allowMultiselect
+          ? 'Select multiple answers'
+          : 'Select one answer'}
       </div>
 
       <div className="flex flex-col gap-1.5">
         {poll.answers.map((answer) => {
           const count = countById.get(answer.id) ?? 0;
-          const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+          const pct =
+            totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
           return (
             <div
               key={answer.id}

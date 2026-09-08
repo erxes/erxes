@@ -121,6 +121,7 @@ export const PROPERTY_OPERATOR = {
 export const STATUSES_BADGE_VARIABLES = {
   active: 'default',
   waiting: 'secondary',
+  standby: 'secondary',
   error: 'destructive',
   missed: 'warning',
   complete: 'success',

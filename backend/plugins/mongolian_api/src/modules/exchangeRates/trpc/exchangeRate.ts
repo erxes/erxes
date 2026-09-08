@@ -57,7 +57,7 @@ export const exchangeRateTrpcRouter = t.router({
     getActiveRate: t.procedure
       .input(
         z.object({
-          date: z.date(),
+          date: z.coerce.date(),
           rateCurrency: z.string(),
           mainCurrency: z.string().optional(),
         }),

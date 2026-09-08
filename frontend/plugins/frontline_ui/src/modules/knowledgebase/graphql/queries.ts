@@ -84,6 +84,35 @@ export const TOPICS = gql`
       createdDate
       modifiedBy
       notificationSegmentId
+      url
+      kbToggle
+      kbLabel
+      ticketToggle
+      ticketLabel
+      ticketChannelId
+      ticketPipelineId
+      ticketStatusId
+      styles {
+        mainLogo
+        favicon
+        bodyColor
+        headerColor
+        footerColor
+        helpCenterColor
+        backgroundColor
+        activeTabColor
+        baseFont
+        baseColor
+        headingFont
+        headingColor
+        linkColor
+        linkHoverColor
+        primaryButtonColor
+        secondaryButtonColor
+        dividerColor
+        headerHtml
+        footerHtml
+      }
       parentCategories {
         ...ParentCategoryFragment
       }

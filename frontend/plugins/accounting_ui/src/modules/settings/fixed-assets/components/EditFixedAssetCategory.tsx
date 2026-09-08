@@ -10,6 +10,11 @@ import { useFixedAssetCategoryEdit } from '../hooks/useFixedAssetMutations';
 import { TFixedAssetCategoryForm } from '../types/FixedAsset';
 import { FixedAssetCategoryForm } from './FixedAssetCategoryForm';
 
+const roundRate = (value: number) => Math.round(value * 100) / 100;
+
+const getUsefulLifeFromRate = (annualRate?: number) =>
+  annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
+
 export const EditFixedAssetCategory = () => {
   const [open, setOpen] = useQueryState<string>('fixedAssetCategoryId');
 
@@ -46,6 +51,12 @@ const EditFixedAssetCategoryForm = () => {
       reset({
         ...FIXED_ASSET_CATEGORY_DEFAULT_VALUES,
         ...fixedAssetCategoryDetail,
+        defaultUsefulLife: getUsefulLifeFromRate(
+          fixedAssetCategoryDetail.defaultAnnualDepreciationRate,
+        ),
+        defaultTaxUsefulLife: getUsefulLifeFromRate(
+          fixedAssetCategoryDetail.defaultTaxAnnualDepreciationRate,
+        ),
       });
     }
   }, [fixedAssetCategoryDetail, reset]);
@@ -54,6 +65,12 @@ const EditFixedAssetCategoryForm = () => {
     const initialData = {
       ...FIXED_ASSET_CATEGORY_DEFAULT_VALUES,
       ...fixedAssetCategoryDetail,
+      defaultUsefulLife: getUsefulLifeFromRate(
+        fixedAssetCategoryDetail?.defaultAnnualDepreciationRate,
+      ),
+      defaultTaxUsefulLife: getUsefulLifeFromRate(
+        fixedAssetCategoryDetail?.defaultTaxAnnualDepreciationRate,
+      ),
     };
 
     if (isDeeplyEqual({ ...initialData, ...data }, initialData)) {

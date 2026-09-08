@@ -27,6 +27,8 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
+- Polls: channel-scoped poll definitions, the snapshot an agent posts into a
+  messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
 - Frontline reports, including the saved report charts that persist a named
@@ -51,16 +53,26 @@
 
 ## Current Capabilities
 
-- Provides an internal Viber HMAC-SHA256 signature verifier for exact webhook
-  body bytes, with tests for valid and modified payloads. Defines Viber
-  integration types, a schema, and a tenant-scoped Mongoose model; no Viber
-  HTTP route is registered.
-- Provides a pure Viber account-info parser that checks `status`, `id`, and
-  `name` and returns only `{ id, name }`, without network or database calls.
-- Provides an internal Viber account-info HTTP helper with token validation,
-  a ten-second abort signal, HTTP status checks, and response parsing through
-  the account-info parser. Offline tests cover the request shape and failure
-  paths; the helper is not yet wired into an integration lifecycle or route.
+- Polls are a reusable definition (`title`, `question`, ordered `options`,
+  `allowMultiselect`, optional `durationHours`, optional `brandId`,
+  `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
+  conversation with `pollSendToConversation`,
+  which writes a snapshot to the message's `extraData.poll` and bumps the
+  poll's `sentCount` and sets `hasPoll` on the conversation. Client portal
+  users vote through `cpPollVote`; each vote recomputes the tallies, marks the
+  conversation as customer-responded and unread, then republishes the message
+  through `pConversationClientMessageInserted`, so the conversation rises in
+  the agent's list and both the inbox and the portal update without a refresh.
+- Every conversation filter query accepts `withPoll: String` — `"true"` keeps
+  only conversations carrying a poll (the denormalized `hasPoll` flag).
+- Answering a poll is a client portal surface, not a messenger widget one.
+  `cpPollDetail` serves a poll by `code` for a channel, `cpPollSubmit` resolves
+  the respondent's erxes customer and opens a conversation carrying the poll
+  snapshot, and `cpPollVote` records a vote on an existing poll message. All
+  four accept a signed-in portal user **or** a guest identified by a
+  client-supplied `visitorId`, so an unauthenticated portal visitor can answer
+  while a signed-in one is still pinned to their own account.
+
 - Ticket pipelines persist an ordered unique `propertyIds` selection. Create
   and update validate every id against Core `frontline:ticket` fields before
   writing it. `isPropertySelectionConfigured` distinguishes untouched legacy
@@ -130,18 +142,6 @@
 
 ## Architecture
 
-Viber's signature verification, account-info HTTP helper, and response parser,
-with their colocated tests, live under `src/modules/integrations/viber/utils/`.
-The account-info result type lives in
-`src/modules/integrations/viber/@types/account.ts`.
-Its integration interfaces live in
-`src/modules/integrations/viber/@types/integration.ts`, and its
-schema lives in `src/modules/integrations/viber/db/definitions/integrations.ts`.
-The model type and `loadViberIntegrationClass` loader live in
-`src/modules/integrations/viber/db/models/Integrations.ts`;
-`src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied
-tenant connection.
-
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Bootstrap            | `src/main.ts`                                                               | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                          |
@@ -166,6 +166,7 @@ tenant connection.
 | FB app resolution    | `src/modules/integrations/facebook/commonUtils.ts`                          | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                 |
 | Ticket               | `src/modules/ticket/`                                                       | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                |
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
+| Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
@@ -173,6 +174,22 @@ tenant connection.
 ## Contracts
 
 ### Provides
+
+- GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
+  `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
+  `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
+  `pollToggleStatus(_ids, status)`, and
+  `pollSendToConversation(_id, conversationId)` which returns the created
+  `ConversationMessage`. `Poll.results` is a field resolver that aggregates the
+  vote ledger across every conversation the poll was sent to.
+- GraphQL (public widget, `skipPermission`): `widgetsPollConnect(channelId,
+pollCode, cachedCustomerId)` returns the active poll plus the caller's
+  previous selection; `widgetsPollSubmit(pollCode, optionIds,
+cachedCustomerId)` files a site answer as a new conversation.
+- GraphQL (public widget, `skipPermission`): `widgetsPollVotes(conversationId,
+customerId, visitorId)` returns the voter's own selections for the
+  conversation; `widgetsPollVote(messageId, optionIds, customerId, visitorId)`
+  records a vote and returns the refreshed `ConversationMessage`.
 
 - GraphQL subgraph on port `3304` (queries, mutations, subscriptions) federated
   by the gateway.
@@ -417,16 +434,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
-- Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
-  through Node's `fetch`, with an `X-Viber-Auth-Token` header and an empty
-  JSON object body.
 - `erxes-api-shared/utils`: `startPlugin`, `sendTRPCMessage`, `fetchEs`,
   `getEnv`, `sendWorkerQueue`, `getUniqueValue`, `randomAlphanumeric`,
   `schemaWrapper`, `mongooseStringRandomId`.
 - `erxes-api-shared/core-modules`: `sendNotification`, `canGroup`,
   import/export producer handlers, automation types,
   `replaceOutputPlaceholders`, `splitType`, `sendAutomationTrigger`,
-  `EXECUTE_WAIT_TYPES`, `attachmentSchema`.
+  `EXECUTE_WAIT_TYPES`, `attachmentSchema`, `propertyPath`.
 - `core` over tRPC — brands, tags, users, structure,
   `configs.getFileUploadConfigs`, `users.findOne`, `fields.find` (validating the
   ticket property fields chosen in a ticket config).
@@ -453,15 +467,45 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
-- `viber_integrations` (`models.ViberIntegrations`) uses a generated string
-  `_id` and required `inboxId`, `botId`, and `token` fields. Its schema declares
-  separate unique indexes on `inboxId` and `botId`.
+- `frontline_polls` — poll definitions with an indexed `channelId` and embedded
+  `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
+  message, with a unique `(messageId, voterId)` index so a repeat vote replaces
+  the previous selection instead of stacking. `voterId` is the `customerId`
+  when there is one, otherwise the `visitorId`.
+- A poll message stores a _snapshot_ under `extraData.poll`
+  (`pollId`, `question`, `answers[{id,text}]`, `allowMultiselect`, `expiry`,
+  `results`). Editing the poll definition afterwards never rewrites messages
+  already sent.
+
 - Tenant-scoped Mongo collections generated per `subdomain` through
   `generateModels`; all reads and writes are tenant-scoped.
 - Collections are namespaced per module: `Facebook*`, `Instagram*`, `Call*`,
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
+- A knowledge base topic also carries its published site's settings: `url`,
+  plus one group per feature the site can expose — `kbToggle` / `kbLabel` and
+  `ticketToggle` / `ticketLabel` / `ticketChannelId` / `ticketPipelineId` /
+  `ticketStatusId`. `Topic.updateDoc` writes with `$set`, so a caller that omits
+  them leaves them untouched — never switch it to a whole-document replace.
+- A topic's published-site appearance lives in one nested `styles` block
+  (`stylesSchema`, `_id: false`), not as twenty more top-level fields: the logo
+  pair, six surface colours, two font families with their text colours, three
+  form-element colours and the raw header/footer markup. It is read and written
+  whole, and `KnowledgeBaseTopicDoc.styles` takes
+  `KnowledgeBaseTopicStylesInput` while the topic exposes
+  `KnowledgeBaseTopicStyles` — keep the two mirrored when adding a style.
+  `color` and `backgroundImage` stay top-level: they are the topic's own accent
+  and cover, not the site chrome.
+- `KnowledgeBaseTopicDoc.brandId` is optional (`String`): a topic need not
+  belong to a brand, and the help center drawer does not collect one. The
+  `KnowledgeBaseTopic.brand` resolver therefore returns `null` for a missing or
+  empty `brandId` rather than a Brand reference with an empty key — keep that
+  guard if the resolver is touched.
+- `topicSchema` carries mongoose `timestamps` but no `createdDate` field, so a
+  topic's creation time is only ever stored as `createdAt`. The
+  `KnowledgeBaseTopic.createdDate` resolver reads through to it — never assume
+  the persisted document has a `createdDate`.
 - Call Pro owns four collections: `integrations_callpro` (unique
   `phoneNumber`, `inboxId`), `customers_callpro` (unique `phoneNumber`),
   `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
@@ -552,28 +596,98 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
-- Register Viber through the supplied `db` in `loadClasses`, not the global
-  `mongoose.model`, so it follows the existing tenant connection selection.
-- Viber's `inboxId` references the generic inbox integration, not a channel or
-  conversation. Its `token` uses `select: false` and must stay out of public API
-  responses; this default query projection is not encryption.
-- Viber signature verification uses the bot token and the exact received
-  `rawBody`. Reject missing tokens and missing or malformed signatures before
-  the timing-safe comparison. Never parse and reserialize the body for signing
-  or log the token, signature, or payload.
-- `parseViberAccountInfo` accepts `unknown` and requires a non-null, non-array
-  object with numeric `status === 0` and non-blank string `id` and `name`.
-  Preserve the original strings and return a new object containing only those
-  two fields; reject invalid input with `Invalid Viber account info response`.
-- `getViberAccountInfo(token)` rejects empty or whitespace-only tokens before
-  `fetch` with `Viber bot token is required`. Its fixed HTTPS POST sends the
-  token only in the authentication header, JSON `{}`, and
-  `AbortSignal.timeout(10_000)`.
-- The Viber account lookup rejects non-success HTTP responses with
-  `Viber account info request failed (HTTP <status>)` without reading its body.
-  JSON decoding failures use `Invalid Viber account info response`; decoded
-  data stays `unknown` until `parseViberAccountInfo` validates it. A rejected
-  `fetch` propagates to the caller; the helper does not retry or access models.
+- The plugin answers segment requests only about its own collections. No
+  segment producer here may call another plugin: that shape is what produced
+  the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
+- The conversation collection must never get an event dispatcher. Every
+  message written writes back to its conversation, so a dispatcher would make
+  the highest-volume write in the product also the highest-volume segment
+  event. `conversationsChanged` announces from the specific writes instead, and
+  is given the update document so a message - which names only `updatedAt` and
+  `messageCount` - announces nothing.
+- A new write that moves `customerId`, `integrationId`, `assignedUserId`,
+  `tagIds`, `status`, `closedAt`, `isBot` or `firstRespondedDate` on a
+  conversation must call `conversationsChanged`. Nothing else will.
+- Messages are declared in `segmentFields` but never in `contentTypes`: a
+  single message is nobody's audience, and the declaration exists only to give
+  the `customer.messages` relation a vocabulary.
+- `ticketSchema` must stay wrapped in `schemaWrapper`: membership is written
+  onto the record as `segmentIds`, and an unwrapped schema is a ticket segment
+  that lists members and records none of them.
+- Every field-joined relation needs an index on the path it groups by
+  (`tickets.assigneeId`, `tickets.assignedMembers`). Without one the measure
+  scans the collection.
+- A ticket content type declaration must carry `contentType`. Without it the
+  dispatcher's `frontline:tickets.tickets` maps to nothing and no write ever
+  reaches a segment built on it.
+- Ticket pipeline visibility rules (`isCheckUser`, `isCheckBranch`,
+  `isCheckDepartment`, `isCheckDate`) are enforced by `generateFilter` on
+  _every_ ticket list, not only pipeline-scoped ones. Without a
+  `filter.pipelineId` the in-scope pipelines are loaded (by `channelId` when
+  present) and each restricted pipeline contributes its own
+  `{ pipelineId, <rule> }` branch to an `$or`, with unrestricted pipelines
+  passing through a `$nin`. Adding a rule means extending
+  `buildVisibilityCondition`, never the pipeline-scoped branch alone.
+- Tickets in a private pipeline the user is not a member of are excluded from
+  unscoped lists too, not just rejected on the pipeline-scoped query.
+- `isCheckDate` means `createdAt >= start of the server's current day`.
+- `excludeCheckUserIds` bypasses `isCheckUser` only, matching the settings UI
+  where that member picker is nested under the "my tickets only" toggle.
+- Poll answer ids in a message snapshot are the poll option `_id`s, not array
+  indexes, so option reordering cannot reassign existing votes. Discord's
+  native polls keep their own numeric ids in the same `extraData.poll` shape;
+  any renderer must accept both.
+- `cpPollVote` and `cpPollSubmit` are the only write paths for votes. Both
+  reject a closed poll, a multi-select payload on a single-answer poll, and any
+  option id absent from the snapshot, then recompute `extraData.poll.results`
+  from the ledger — counts are never incremented in place.
+- A vote's `voterId` is `cpUser.erxesCustomerId || cpUser._id || visitorId`,
+  resolved only through `getCpVoterId`. A signed-in caller can never be
+  impersonated through the argument, because `visitorId` is consulted last;
+  a guest's identity is only as strong as the id their client keeps, so the
+  unique `{ messageId, voterId }` index pins one vote per portal account and one
+  vote per retained visitor id. Both write paths reject a request that resolves
+  to no voter at all.
+- `hasPoll` is a denormalized conversation flag set by `pollSendToConversation`
+  and read by the `withPoll` filter — the same shape as `isCustomerRespondedLast`
+  behind `awaitingResponse`. The filter param is deliberately named `withPoll`
+  because `IConversationListParams` extends `IConversation`, so reusing
+  `hasPoll` would collide with the boolean document field.
+- `brandId` is optional on a poll, but `createPoll`/`updatePoll` reject one whose
+  brand has no active `messenger` integration in the poll's channel, so an
+  unresolvable pairing can never be saved. A poll with no `brandId` keeps the
+  legacy behaviour of taking whichever active messenger integration the channel
+  returns first.
+- A poll's `code` is a unique nanoid minted on create; the portal link and
+  `cpPollDetail` address the poll by it, never by `_id` alone.
+- Client portal poll reads are queries and writes are mutations. `cpPollDetail`
+  performs no writes, so it must never move back under `Mutation`. Both
+  client-portal resolver maps keep `forClientPortal` and deliberately omit
+  `cpUserRequired`, so a guest reaches the resolver; they must never fall back to
+  `skipPermission`, which would also drop the `x-app-token` portal check and
+  leave the customer- and conversation-creating `cpPollSubmit` open to anyone.
+  Nothing under these resolvers may dereference `cpUser` without optional
+  chaining.
+- `cpPollSubmit` files the conversation under the channel's `messenger`
+  integration; a channel without one rejects the submit rather than inventing
+  an integration, and narrows the lookup by the poll's `brandId` when it has one
+  so a channel carrying several messenger integrations resolves deterministically.
+  For a signed-in caller it resolves the conversation's customer
+  from `cpUser.erxesCustomerId` first, then `customers.getWidgetCustomer` by the
+  portal user's email/phone, and only then creates one with
+  `customers.createMessengerCustomer`. For a guest it reuses the `customerId` of
+  any earlier vote carrying the same `visitorId`, and otherwise creates a
+  `state: 'visitor'` customer through `customers.createCustomer`. Do not pass
+  `scopeBrandIds` there — it is a product field, absent from the customer schema,
+  so mongoose strict mode drops it silently.
+- `pollSendToConversation` only accepts a `messenger` integration, and refuses
+  a poll whose `channelId` or `brandId` differs from the integration's.
+  Both guards are skipped when the poll leaves the field unset. Discord
+  polls keep their own native path through `conversationMessageAdd(poll:)`.
+- `pollList` / `pollTotalCount` without a `channelId` are scoped to the caller's
+  `ChannelMembers` channels (plus channel-less polls) unless the user is an
+  owner — the same visibility rule the forms queries apply.
+
 - Call Pro stays invisible unless `CALLPRO_ENABLED=true`. That single env var
   gates the webhook route, the create/update handlers, `callProAudio`, and —
   through `callProConfig` — every UI surface. It is independent of the
@@ -1306,15 +1420,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   lint the files you touched)
 - `pnpm nx build frontline_api`
 - `npx tsc -p backend/plugins/frontline_api/tsconfig.json --noEmit`
+- Smoke: turn on "Show only tickets assigned to the user" for one pipeline,
+  then open the channel ticket list (no `pipelineId` in the URL); only that
+  pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
-- Viber utility tests, from the repository root:
-  `pnpm exec tsx --test backend/plugins/frontline_api/src/modules/integrations/viber/utils/__tests__/*.spec.ts`.
-  Uses the existing `tsx` dependency and Node's built-in test runner; no
-  project-wide test configuration is required. The `.spec.ts` suffix keeps
-  the test files out of the production TypeScript build.
-  HTTP tests replace `globalThis.fetch` with a fake implementation through
-  `t.mock.method` before calling the helper, require no real credentials or network,
-  and must remain non-concurrent because they replace a global method.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1358,130 +1467,114 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-07` — Viber account-info HTTP helper
+### `2026-09-07` — A help center points at the knowledge base topic it serves
 
-- **Summary:** Added a token-authenticated account lookup with a ten-second
-  abort signal and offline tests for request construction and failure handling.
-- **Affected areas:** `src/modules/integrations/viber/utils/account.ts`,
-  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
-- **Contracts changed:** Internal
-  `getViberAccountInfo(token: string): Promise<IViberAccountInfo>`; no public
-  API or HTTP route is added.
+- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
+  center can name which other topic supplies its articles instead of only
+  toggling the feature on with a menu label.
+- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
+  `KnowledgeBaseTopicDoc` accepts it.
 
-### `2026-09-07` — Viber account-info validation
+### `2026-09-07` — Polls pin their messenger integration by brand
 
-- **Summary:** Added a typed, pure account-info parser with successful-response,
-  nonzero-status, null, and array regression tests.
-- **Affected areas:** `src/modules/integrations/viber/@types/account.ts`,
-  `src/modules/integrations/viber/utils/account.ts`,
-  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
-- **Contracts changed:** Internal
-  `parseViberAccountInfo(value: unknown): IViberAccountInfo`; no public API or
-  HTTP route is added.
+- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
+  `pollSendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the poll's channel — removing the arbitrary
+  `findOne` pick on a channel with several messenger integrations.
+- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
+  `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
+  `Poll` type.
 
-### `2026-09-07` — Viber integration model registration
+### `2026-09-07` — Guest voting on the client portal poll surface
 
-- **Summary:** Registered the Viber integration model on the tenant connection
-  using a named model type and the provider's schema loader.
-- **Affected areas:** `src/connectionResolvers.ts`,
-  `src/modules/integrations/viber/db/models/Integrations.ts`.
-- **Contracts changed:** Internal `IModels` adds `ViberIntegrations`; no public
-  API or HTTP route is added.
+- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
+  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+  return, while a signed-in `cpUser` still wins over the argument.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
+  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
+  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
 
-### `2026-09-07` — Viber integration types and schema
+### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
 
-- **Summary:** Defined Viber integration document types and a schema with
-  required connection fields, unique index declarations, and a token excluded
-  from default query results.
-- **Affected areas:** `src/modules/integrations/viber/@types/integration.ts`,
-  `src/modules/integrations/viber/db/definitions/integrations.ts`.
-- **Contracts changed:** None; no model or public API is registered.
+- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
+  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
+  module's shared `utils.ts` so both resolver maps use one lookup.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
+  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/utils.ts`.
+- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
+  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
+  `PollConnectResponse` to `CpPollResponse`.
 
-### `2026-09-07` — Viber webhook signature verification
+### `2026-09-07` — Poll answering moved from the widget to the client portal
 
-- **Summary:** Added an internal HMAC-SHA256 verifier with valid-payload and
-  modified-payload regression tests.
-- **Affected areas:** `src/modules/integrations/viber/utils/signature.ts`,
-  `src/modules/integrations/viber/utils/__tests__/signature.spec.ts`.
-- **Contracts changed:** None; no public API or route is registered.
+- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
+  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
+  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
+  anonymous widget visitor. The voter is now taken from `cpUser`
+  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
+  `visitorId` / `cachedCustomerId` arguments.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
+  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
+  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/{utils.ts,@types/poll.ts}`,
+  `src/apollo/resolvers/{queries,mutations}.ts`.
+- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
+  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
+  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
+  `cpPollSubmit(pollCode, optionIds)`.
 
-### `2026-09-02` — IMAP integration removed
+### `2026-09-05` — `Export repeating ticket properties by row`
 
-- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
-  message processing/saving, models, message broker, and GraphQL layer — along
-  with every registration that referenced it.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
-  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
-  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
-  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
-  `src/shared/types.ts`, `package.json`.
-- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
-  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
-  `IMapIntegration`; `imap` is no longer an accepted integration kind for
-  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
-  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
-  registered.
+- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
+- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
+- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
 
-### `2026-08-28` — Every zone is listed, and the picker says which are usable
+### `2026-09-05` — `Use the shared propertiesData path helper`
 
-- **Summary:** `listZones` asked for a single page of 50, so an account with more
-  domains than that silently lost the rest — including, quite possibly, the only
-  one it could use. It now pages until a short page. Eligibility reasons were
-  reusing the full `checkZone` error, three lines of explanation per row; they now
-  have a summary form for the picker while the long form stays on the thrown
-  error. `describeZones` bounds the per-zone MX lookups to
-  `ELIGIBILITY_CONCURRENCY` and returns usable domains first.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`,
-  `.../cloudflare/{api,connect}.ts`.
-- **Contracts changed:** None — `MailCloudflareZone.reason` is shorter prose.
+- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
+- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
+- **Contracts changed:** `None`
 
-### `2026-08-28` — The domain picker says which domains can actually be connected
+### `2026-09-05` — Poll voting has no in-repo client
 
-- **Summary:** `mailCloudflareZones` returned every zone a token could reach, so a
-  domain that already carries another provider's MX looked selectable and only
-  failed at `checkZone`, three provisioning steps into Connect. The two tests
-  `checkZone` runs now live in `utils/cloudflare/zones.ts` and the listing applies
-  them per zone, returning `eligible` and the `reason`. A zone whose MX cannot be
-  read stays eligible rather than being wrongly withheld — `checkZone` is still the
-  gate, the picker only spends one extra MX lookup per zone to warn earlier.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/zones.ts`
-  (new), `.../cloudflare/{connect,provision}.ts`,
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/graphql/schema/mail.ts`.
-- **Contracts changed:** `MailCloudflareZone` gains `eligible` and `reason`.
+- **Summary:** The customer-facing poll surfaces were removed from
+  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
+  have no caller in this repository.
+- **Affected areas:** `AGENTS.md` only — no API change.
+- **Contracts changed:** None.
 
-### `2026-08-28` — One Cloudflare account can serve more than one workspace
+### `2026-09-03` — A help center carries its published site's appearance
 
-- **Summary:** `connectCloudflare` named the worker, queue and dead-letter queue
-  from module constants, so a second workspace connecting the same Cloudflare
-  account collided on the queue name and provisioning died at `attachConsumer` —
-  the account was effectively single-tenant, whatever domain was chosen. Those
-  three names now carry the tenant, which is already resolved two lines above
-  them; the R2 bucket stays shared because its objects are keyed by tenant
-  anyway. Existing connections keep the names stored on their document, so
-  nothing already provisioned is stranded. Disconnecting now deletes the worker
-  and both queues, since tenant-scoped names would otherwise accumulate.
-- **Affected areas:** `src/modules/integrations/mail/utils/cloudflare/connect.ts`,
-  `src/modules/integrations/mail/utils/cloudflare/api.ts` (adds `deleteQueue`,
-  `deleteScript`), `src/modules/integrations/mail/utils/cloudflare/provision.ts`
-  (two guard messages no longer claim one account serves one workspace).
-- **Contracts changed:** None. `provision.ts` already read every name from the
-  connection document, and `buildScriptMetadata` already took them as arguments.
-
-### `2026-08-28` — Header threading works again on sent replies
-
-- **Summary:** `createCloudflareTransport` discarded the `message_id` Cloudflare
-  returns, so every sent reply was stored with no `providerMessageId`. The
-  machinery around it was already complete — `toWireReferences` swaps the internal
-  id for the wire one, and inbound matching checks `providerMessageId` — but with
-  the field empty the sent message was filtered out of outgoing `References`
-  entirely and a customer reply quoting it could not be matched. Replies still
-  threaded through the tagged `Reply-To` and the original inbound id, which is why
-  this stayed hidden. The stored `from` on a sent message now also carries the
-  display name that actually went out instead of repeating the address.
+- **Summary:** Added a nested `styles` block to the knowledge base topic holding
+  the published site's logo and favicon, six surface colours, base and heading
+  fonts with their text and link colours, three form-element colours, and raw
+  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
+  `KnowledgeBaseTopicStylesInput`.
 - **Affected areas:**
-  `src/modules/integrations/mail/@types/cloudflare.ts`,
-  `src/modules/integrations/mail/utils/transports/cloudflare.ts`,
-  `src/modules/integrations/mail/db/models/Messages.ts`.
-- **Contracts changed:** None — `providerMessageId` was already stored and
-  returned; it was simply never populated for Cloudflare sends.
+  `src/modules/knowledgebase/@types/topic.ts`,
+  `src/modules/knowledgebase/db/definitions/topic.ts`,
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
+- **Contracts changed:** `KnowledgeBaseTopic.styles` and
+  `KnowledgeBaseTopicDoc.styles` added, with the two new
+  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
+
+### `2026-09-03` — A knowledge base topic need not have a brand
+
+- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
+  not be created without a brand; the help center drawer no longer collects one,
+  so the input field is now nullable and the `brand` resolver returns `null` for
+  a missing or empty `brandId` instead of a Brand reference with an empty key.
+- **Affected areas:**
+  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
+  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
+- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
+  (was `String!`).

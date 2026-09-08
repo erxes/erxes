@@ -1,12 +1,17 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
+import {
+  buildSearchTokenFilter,
+  ISearchTokenConfig,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
-import { withPropertyConditions } from '@/properties/utils';
 
 export const generateFilter = async (
   subdomain: string,
   params: any,
   models: IModels,
+  searchConfig?: ISearchTokenConfig,
 ) => {
   const {
     searchValue,
@@ -22,6 +27,7 @@ export const generateFilter = async (
     status,
     ids,
     excludeIds,
+    segmentIds,
     clientPortalId,
   } = params;
 
@@ -38,18 +44,22 @@ export const generateFilter = async (
   }
 
   if (searchValue) {
-    const regex = { $regex: searchValue, $options: 'i' };
+    if (searchConfig?.enabled) {
+      Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
+    } else {
+      const regex = { $regex: searchValue, $options: 'i' };
 
-    filter['$or'] = [
-      { searchText: regex },
-      { primaryEmail: regex },
-      { emails: regex },
-      { primaryPhone: regex },
-      { phones: regex },
-      { firstName: regex },
-      { lastName: regex },
-      { middleName: regex },
-    ];
+      filter['$or'] = [
+        { searchText: regex },
+        { primaryEmail: regex },
+        { emails: regex },
+        { primaryPhone: regex },
+        { phones: regex },
+        { firstName: regex },
+        { lastName: regex },
+        { middleName: regex },
+      ];
+    }
   }
 
   if (ids?.length) {
@@ -116,6 +126,13 @@ export const generateFilter = async (
     }
   }
 
+  // Membership is read off the record, not recomputed: the segmentation worker
+  // maintains `segmentIds`, so filtering by segment is an indexed lookup rather
+  // than a run of the whole definition.
+  if (segmentIds?.length) {
+    filter['segmentIds'] = { $in: segmentIds };
+  }
+
   if (dateFilters) {
     try {
       const dateFilter = JSON.parse(dateFilters);
@@ -141,7 +158,7 @@ export const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];

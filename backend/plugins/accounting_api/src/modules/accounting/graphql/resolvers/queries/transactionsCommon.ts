@@ -13,9 +13,16 @@ import {
 } from 'erxes-api-shared/utils';
 import { IModels, IContext } from '~/connectionResolvers';
 import { TR_STATUSES } from '@/accounting/@types/constants';
-import { ITransactionDocument } from '@/accounting/@types/transaction';
+import {
+  IHiddenTransaction,
+  ITransactionDocument,
+} from '@/accounting/@types/transaction';
 import { generateFilter as accountGenerateFilter } from './accounts';
 import { checkPermissionTrs } from '../../../utils/trPermissions';
+import {
+  applyTransactionJournalPermissionFilter,
+  getPermittedTransactionJournals,
+} from '../../../utils/transactionPermissions';
 
 interface IQueryParams {
   ids?: string[];
@@ -78,7 +85,17 @@ const getAccountIds = async (
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
-): Promise<string[]> => {
+): Promise<string[] | undefined> => {
+  const dominantUserIds = await models.Configs.getConfigValue(
+    'dominantReadAccountUsers',
+    undefined,
+    [],
+  );
+
+  if (Array.isArray(dominantUserIds) && dominantUserIds?.includes(user._id)) {
+    return;
+  }
+
   const {
     accountIds,
     accountKind,
@@ -228,6 +245,105 @@ const applyDefaultStructureFilter = async ({
   }
 };
 
+const applyReadTransactionJournalFilter = async (
+  filter: Record<string, unknown>,
+  user: IUserDocument,
+  checkPermission: (action: string) => Promise<void>,
+) => {
+  const permittedJournals = await getPermittedTransactionJournals(
+    { checkPermission, user },
+    'read',
+  );
+
+  applyTransactionJournalPermissionFilter(filter, permittedJournals);
+};
+
+const checkReadTransactionJournal = async (
+  transactions: ITransactionDocument[],
+  user: IUserDocument,
+  checkPermission: (action: string) => Promise<void>,
+) => {
+  const permittedJournals = await getPermittedTransactionJournals(
+    { checkPermission, user },
+    'read',
+  );
+
+  if (
+    !transactions.some((transaction) =>
+      permittedJournals.includes(transaction.journal),
+    )
+  ) {
+    throw new Error('Permission denied');
+  }
+};
+
+const getExpandedGroupFilter = (transactions: ITransactionDocument[]) => {
+  const filters: Record<string, string>[] = [];
+  const pushFilter = (field: 'parentId' | 'ptrId', value?: string) => {
+    if (!value) {
+      return;
+    }
+
+    filters.push({ [field]: value });
+  };
+
+  for (const transaction of transactions) {
+    pushFilter('parentId', transaction.parentId);
+    pushFilter('ptrId', transaction.ptrId);
+  }
+
+  return filters.length ? { $or: filters } : undefined;
+};
+
+const getVisibleCheckedTransactions = async (
+  models: IModels,
+  transactions: ITransactionDocument[],
+  user: IUserDocument,
+  checkPermission: (action: string) => Promise<void>,
+) => {
+  const permittedJournals = await getPermittedTransactionJournals(
+    { checkPermission, user },
+    'read',
+  );
+  const groupedTransactions = new Map<string, ITransactionDocument[]>();
+
+  for (const transaction of transactions) {
+    const groupKey =
+      transaction.parentId || transaction.ptrId || transaction._id;
+    const group = groupedTransactions.get(groupKey) || [];
+    group.push(transaction);
+    groupedTransactions.set(groupKey, group);
+  }
+
+  const visibleTransactions: (ITransactionDocument | IHiddenTransaction)[] = [];
+
+  for (const groupTransactions of groupedTransactions.values()) {
+    if (
+      !groupTransactions.some((transaction) =>
+        permittedJournals.includes(transaction.journal),
+      )
+    ) {
+      continue;
+    }
+
+    const checkedTransactions = await checkPermissionTrs(
+      models,
+      groupTransactions,
+      user,
+    );
+
+    if (
+      checkedTransactions.some(
+        (transaction) => transaction.permission !== 'hidden',
+      )
+    ) {
+      visibleTransactions.push(...checkedTransactions);
+    }
+  }
+
+  return visibleTransactions;
+};
+
 export const generateFilter = async (
   subdomain: string,
   models: IModels,
@@ -311,12 +427,6 @@ export const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  if (!options.skipAccountPermission) {
-    filter['details.accountId'] = {
-      $in: await getAccountIds(models, params, user),
-    };
-  }
-
   if (journals?.length) {
     filter.journal = { $in: journals };
   }
@@ -386,24 +496,22 @@ export const generateFilter = async (
 
   if (branchId) {
     filter.branchId = {
-      $in: await getStructureIdsWithChildren(
-        subdomain, 'branches', [branchId]
-      )
-    }
+      $in: await getStructureIdsWithChildren(subdomain, 'branches', [branchId]),
+    };
   }
 
   if (departmentId) {
     filter.departmentId = {
-      $in: await getStructureIdsWithChildren(
-        subdomain, 'departments', [departmentId]
-      )
+      $in: await getStructureIdsWithChildren(subdomain, 'departments', [
+        departmentId,
+      ]),
     };
   }
 
   await applyDefaultStructureFilter({
     subdomain,
     filter,
-    user
+    user,
   });
 
   if (customerType) {
@@ -423,6 +531,15 @@ export const generateFilter = async (
     filter['details.currency'] = currency;
   }
 
+  if (!options.skipAccountPermission) {
+    const accountIds = await getAccountIds(models, params, user);
+    if (Array.isArray(accountIds)) {
+      filter['details.accountId'] = {
+        $in: accountIds,
+      };
+    }
+  }
+
   if (orFilter.length) {
     andFilter.push({ $or: orFilter });
   }
@@ -439,7 +556,6 @@ const transactionCommon = {
     params: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const { _id } = params;
     let firstTr = await models.Transactions.getTransaction({
       $or: [{ _id }, { parentId: _id }],
@@ -455,6 +571,8 @@ const transactionCommon = {
       $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }],
     }).lean();
 
+    await checkReadTransactionJournal(relatedTrs, user, checkPermission);
+
     return await checkPermissionTrs(models, relatedTrs, user);
   },
 
@@ -463,18 +581,34 @@ const transactionCommon = {
     params: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
-    const transaction = await models.Transactions.findOne({
+    const transaction = (await models.Transactions.findOne({
       _id: params._id,
-    }).lean();
+    }).lean()) as ITransactionDocument | null;
 
     if (!transaction) {
       throw new Error('Transaction not found');
     }
 
+    let rootTransaction: ITransactionDocument = transaction;
+
+    if (transaction.originId) {
+      rootTransaction = await models.Transactions.getTransaction({
+        _id: transaction.originId,
+      });
+    }
+
+    const relatedTrs: ITransactionDocument[] = await models.Transactions.find({
+      $or: [
+        { ptrId: rootTransaction.ptrId },
+        { parentId: rootTransaction.parentId },
+      ],
+    }).lean();
+
+    await checkReadTransactionJournal(relatedTrs, user, checkPermission);
+
     const [checkedTransaction] = await checkPermissionTrs(
       models,
-      [transaction],
+      relatedTrs.filter(({ _id }) => `${_id}` === `${transaction._id}`),
       user,
     );
 
@@ -486,8 +620,8 @@ const transactionCommon = {
     params: IQueryParams & ICursorPaginateParams,
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
 
     // Set default orderBy
     params.orderBy ??= { ptrNumber: -1 };
@@ -508,8 +642,8 @@ const transactionCommon = {
     params: IQueryParams & { page: number; perPage: number },
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
@@ -541,8 +675,6 @@ const transactionCommon = {
     params: IQueryParams & { page: number; perPage: number },
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
-
     const { sortField, sortDirection, page, perPage } = params;
     const pageArgs = { page, perPage };
 
@@ -551,20 +683,33 @@ const transactionCommon = {
       sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
     }
 
-    const listFilter = await generateFilter(subdomain, models, params, user);
     const countFilter = await generateFilter(subdomain, models, params, user, {
       skipAccountPermission: true,
     });
-
-    const list = await defaultPaginate(
-      models.Transactions.find(listFilter)
+    const contentTransactions: ITransactionDocument[] =
+      await models.Transactions.find(countFilter)
         .sort({ ...sort, parentId: 1, ptrId: 1 })
-        .lean(),
-      pageArgs,
+        .lean();
+    const groupFilter = getExpandedGroupFilter(contentTransactions);
+    const relatedTrs: ITransactionDocument[] = groupFilter
+      ? await models.Transactions.find(groupFilter)
+          .sort({ ...sort, parentId: 1, ptrId: 1 })
+          .lean()
+      : [];
+    const checkedTransactions = await getVisibleCheckedTransactions(
+      models,
+      relatedTrs,
+      user,
+      checkPermission,
     );
-    const totalCount = await models.Transactions.find(
-      countFilter,
-    ).countDocuments();
+
+    const pageNumber = Number(pageArgs.page || '1');
+    const perPageNumber = Number(pageArgs.perPage || '20');
+    const list = checkedTransactions.slice(
+      (pageNumber - 1) * perPageNumber,
+      pageNumber * perPageNumber,
+    );
+    const totalCount = checkedTransactions.length;
 
     return { list, totalCount };
   },
@@ -574,8 +719,8 @@ const transactionCommon = {
     params: IQueryParams,
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
 
     return models.Transactions.find(filter).countDocuments();
   },
@@ -585,8 +730,8 @@ const transactionCommon = {
     params: IRecordsParams & ICursorPaginateParams,
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
     const { ids, excludeIds } = params;
 
     const paginationParams: ICursorPaginateParams = {
@@ -645,8 +790,8 @@ const transactionCommon = {
     params: IRecordsParams & { page: number; perPage: number },
     { models, user, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
     const pageArgs = { page, perPage };
@@ -702,8 +847,8 @@ const transactionCommon = {
     params: IRecordsParams,
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
+    await applyReadTransactionJournalFilter(filter, user, checkPermission);
 
     const count = await models.Transactions.aggregate([
       { $match: { ...filter } },

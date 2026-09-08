@@ -82,8 +82,7 @@ import {
 } from './modules/inventories/db/models/ReserveRems';
 import { IFixedAssetCategoryDocument } from './modules/fixedAssets/@types/fixedAssetCategory';
 import { IFixedAssetDocument } from './modules/fixedAssets/@types/fixedAsset';
-import { IFxaInstanceDocument } from './modules/fixedAssets/@types/fxaInstance';
-import { IFxaInstanceLogDocument } from './modules/fixedAssets/@types/fxaInstanceLog';
+import { IFxaOwnerRecordDocument } from './modules/fixedAssets/@types/fxaOwnerRecord';
 import {
   IFixedAssetCategoryModel,
   loadFixedAssetCategoryClass,
@@ -93,13 +92,9 @@ import {
   loadFixedAssetClass,
 } from './modules/fixedAssets/db/models/FixedAssets';
 import {
-  IFxaInstanceModel,
-  loadFxaInstanceClass,
-} from './modules/fixedAssets/db/models/FxaInstances';
-import {
-  IFxaInstanceLogModel,
-  loadFxaInstanceLogClass,
-} from './modules/fixedAssets/db/models/FxaInstanceLogs';
+  IFxaOwnerRecordModel,
+  loadFxaOwnerRecordClass,
+} from './modules/fixedAssets/db/models/FxaOwnerRecords';
 import {
   ISafeRemainderItemModel,
   loadSafeRemainderItemClass,
@@ -126,8 +121,7 @@ export interface IModels {
   AdjustInvDetails: IAdjustInvDetailsModel;
   FixedAssetCategories: IFixedAssetCategoryModel;
   FixedAssets: IFixedAssetModel;
-  FxaInstances: IFxaInstanceModel;
-  FxaInstanceLogs: IFxaInstanceLogModel;
+  FxaOwnerRecords: IFxaOwnerRecordModel;
   AdjustFixedAssets: IAdjustFixedAssetModel;
   AdjustFxaDetails: IAdjustFxaDetailModel;
   TransactionCounters: mongoose.Model<ITransactionCounterDocument>;
@@ -212,15 +206,10 @@ export const loadClasses = (
     loadFixedAssetClass(),
   );
 
-  models.FxaInstances = db.model<IFxaInstanceDocument, IFxaInstanceModel>(
-    'fxa_instances',
-    loadFxaInstanceClass(),
-  );
-
-  models.FxaInstanceLogs = db.model<
-    IFxaInstanceLogDocument,
-    IFxaInstanceLogModel
-  >('fxa_instance_logs', loadFxaInstanceLogClass());
+  models.FxaOwnerRecords = db.model<
+    IFxaOwnerRecordDocument,
+    IFxaOwnerRecordModel
+  >('fxa_owner_records', loadFxaOwnerRecordClass());
 
   models.AdjustFixedAssets = db.model<
     IAdjustFixedAssetDocument,

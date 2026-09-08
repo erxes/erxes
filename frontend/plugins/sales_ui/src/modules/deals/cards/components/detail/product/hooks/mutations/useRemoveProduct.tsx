@@ -7,11 +7,14 @@ import {
 import { useCallback } from 'react';
 
 import { productRemove } from '@/deals/cards/components/detail/product/graphql/mutations/ProductsActions';
+import { useCurrentDealId } from '@/deals/cards/hooks/useCurrentDealId';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { IProductData } from 'ui-modules';
-import { useQueryState, useToast } from 'erxes-ui';
+import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { updateDealProductsCache } from './updateDealProductsCache';
+import {
+  serializeDealProductMutation,
+  withDealIdVariables,
+} from './serializeDealProductMutation';
 
 interface RemoveProductsVariables {
   processId: string;
@@ -22,7 +25,7 @@ export const useRemoveProducts = () => {
   const [mutateRemoveProducts, { loading }] = useMutation(productRemove);
   const { toast } = useToast();
   const { t } = useTranslation('sales');
-  const [salesItemId] = useQueryState<string>('salesItemId');
+  const dealId = useCurrentDealId();
   const client = useApolloClient();
 
   // Callbacks run manually: passing onError to useMutation makes the mutate
@@ -36,21 +39,14 @@ export const useRemoveProducts = () => {
       const { onCompleted, onError, ...executeOptions } = options;
 
       try {
-        // dealId always comes from the URL, not the caller: it must match
-        // the id updateDealProductsCache writes into below.
-        const result = await mutateRemoveProducts({
-          ...executeOptions,
-          variables: {
-            ...executeOptions.variables,
-            dealId: salesItemId || '',
-          },
+        const result = await serializeDealProductMutation({
+          client,
+          dealId,
+          mutation: () =>
+            mutateRemoveProducts(withDealIdVariables(executeOptions, dealId)),
+          selectProductsData: (mutationResult) =>
+            mutationResult.data?.dealsDeleteProductData?.productsData,
         });
-        const remainingProductsData: IProductData[] | undefined =
-          result.data?.dealsDeleteProductData?.productsData;
-
-        if (remainingProductsData) {
-          updateDealProductsCache(client, salesItemId, remainingProductsData);
-        }
 
         toast({
           title: t('products-deleted'),
@@ -74,7 +70,7 @@ export const useRemoveProducts = () => {
         return undefined;
       }
     },
-    [client, mutateRemoveProducts, salesItemId, t, toast],
+    [client, dealId, mutateRemoveProducts, t, toast],
   );
 
   return { removeProducts, loading };

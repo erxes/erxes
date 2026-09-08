@@ -3,7 +3,6 @@ import {
   AutomationBaseInput,
   CheckCustomTriggerInput,
   FindObjectInput,
-  CheckTargetMatchInput,
   LoadAiKnowledgeDocumentBatchInput,
   LookupAiToolInput,
   ReceiveActionsInput,
@@ -109,6 +108,24 @@ export type IAutomationsActionConfigFolkConfig = {
   type: TAutomationActionFolks;
 };
 
+export type TDeferredMode = 'standby' | 'ignore';
+
+// Set by the action author, not the end user: 'ignore' lets the flow continue
+// while the work is queued, 'standby' pauses until the result is back.
+export type IAutomationsDeferredConfig = {
+  enable: boolean;
+  mode: TDeferredMode;
+  timeoutMinutes?: number;
+};
+
+// Returned by the owning plugin instead of a result: it queued the work and
+// tells the engine whether the flow may carry on without it.
+export type IAutomationDeferredMarker = {
+  jobId: string;
+  mode: TDeferredMode;
+  timeoutMinutes?: number;
+};
+
 export type IAutomationsActionConfig = {
   type?: string;
   moduleName?: string;
@@ -127,6 +144,7 @@ export type IAutomationsActionConfig = {
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
   setPropertyTargets?: TAutomationSetPropertyTarget[];
+  deferred?: IAutomationsDeferredConfig;
 };
 
 export type IAutomationsBotsConfig = {
@@ -281,11 +299,6 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<boolean>;
 
-  checkTargetMatch?: (
-    args: z.infer<typeof CheckTargetMatchInput>,
-    context: IAutomationContext,
-  ) => Promise<boolean>;
-
   findObject?: (
     args: z.infer<typeof FindObjectInput>,
     context: IAutomationContext,
@@ -425,7 +438,6 @@ export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
-  CHECK_TARGET_MATCH = 'checkTargetMatch',
   FIND_OBJECT = 'findObject',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',

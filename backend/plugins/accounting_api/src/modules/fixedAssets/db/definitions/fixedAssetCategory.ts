@@ -30,11 +30,11 @@ export const fixedAssetCategorySchema = new Schema({
     enum: FIXED_ASSET_DEPRECIATION_METHODS.ALL,
     label: 'Depreciation method',
   },
-  // Тухайн бүлэгт шинээр үүсэх хөрөнгийн анхны ашиглах хугацаа
-  defaultUsefulLife: {
+  // Жилд элэгдэх хувь
+  defaultAnnualDepreciationRate: {
     type: Number,
     optional: true,
-    label: 'Default useful life',
+    label: 'Default annual depreciation rate',
   },
   // Тухайн бүлэгт шинээр үүсэх хөрөнгийн анхны үлдэх өртөг
   defaultSalvageValue: {
@@ -49,11 +49,11 @@ export const fixedAssetCategorySchema = new Schema({
     enum: FIXED_ASSET_DEPRECIATION_METHODS.ALL,
     label: 'Tax depreciation method',
   },
-  // Татварын элэгдэлд ашиглах анхны хугацаа
-  defaultTaxUsefulLife: {
+  // Татварын жилд элэгдэх хувь
+  defaultTaxAnnualDepreciationRate: {
     type: Number,
     optional: true,
-    label: 'Default tax useful life',
+    label: 'Default tax annual depreciation rate',
   },
   // Татварын элэгдэлд ашиглах анхны үлдэх өртөг
   defaultTaxSalvageValue: {

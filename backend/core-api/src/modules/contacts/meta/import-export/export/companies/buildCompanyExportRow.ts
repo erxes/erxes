@@ -1,3 +1,8 @@
+import {
+  buildPropertyDataColumns,
+  parsePropertyColumnKey,
+  readPropertyDataColumn,
+} from 'erxes-api-shared/core-modules';
 import { defaultContactFieldFormatter } from '../utils';
 
 const getFieldValue = (
@@ -6,9 +11,10 @@ const getFieldValue = (
   tagMap?: Map<string, string>,
   formatValue = defaultContactFieldFormatter,
 ): string => {
-  if (key.startsWith('propertiesData.')) {
-    const fieldId = key.replace('propertiesData.', '');
-    return formatValue(company?.propertiesData?.[fieldId]);
+  const column = parsePropertyColumnKey(key);
+
+  if (column) {
+    return formatValue(readPropertyDataColumn(company?.propertiesData, column));
   }
 
   if (key === 'tagIds') {
@@ -64,17 +70,20 @@ export const buildCompanyExportRow = (
     code: formatValue(company.code),
     location: formatValue(company.location),
 
-    createdAt: formatValue(company.createdAt ? new Date(company.createdAt) : ''),
-    updatedAt: formatValue(company.updatedAt ? new Date(company.updatedAt) : ''),
+    createdAt: formatValue(
+      company.createdAt ? new Date(company.createdAt) : '',
+    ),
+    updatedAt: formatValue(
+      company.updatedAt ? new Date(company.updatedAt) : '',
+    ),
   };
 
   const propertiesData = company?.propertiesData;
   if (propertiesData && typeof propertiesData === 'object') {
-    for (const [fieldId, value] of Object.entries(propertiesData)) {
-      if (value !== undefined && value !== null) {
-        allFields[`propertiesData.${fieldId}`] = formatValue(value);
-      }
-    }
+    Object.assign(
+      allFields,
+      buildPropertyDataColumns(propertiesData, formatValue),
+    );
   }
 
   if (selectedFields && selectedFields.length > 0) {

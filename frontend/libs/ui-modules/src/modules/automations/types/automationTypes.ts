@@ -78,7 +78,7 @@ export interface IAutomationHistoryAction {
   startedAt?: Date;
   finishedAt?: Date;
   durationMs?: number;
-  status?: 'success' | 'error' | 'waiting';
+  status?: 'success' | 'error' | 'waiting' | 'queued' | 'standby' | 'dropped';
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -99,7 +99,7 @@ export interface IAutomationHistory {
   nextActionId?: string;
   targetId: string;
   target: any;
-  status: 'active' | 'waiting' | 'error' | 'missed' | 'complete';
+  status: 'active' | 'waiting' | 'standby' | 'error' | 'missed' | 'complete';
   description: string;
   actions?: IAutomationHistoryAction[];
   startWaitingDate?: Date;

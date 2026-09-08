@@ -14,6 +14,7 @@ import { generateTrStatusActivityLog, setPtrStatus } from './utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
+  checkPtr(ptrId: string): Promise<string>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
   getOriginTransactions(trId: string): Promise<{
     mainTr: ITransactionDocument;

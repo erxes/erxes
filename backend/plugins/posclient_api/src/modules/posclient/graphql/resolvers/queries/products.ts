@@ -1,3 +1,10 @@
+import {
+  isPropertyDataPath,
+  propertyDataExistsFilter,
+  fieldIdFromPropertyDataPath,
+  propertyDataRegexFilter,
+  buildPropertyFilter,
+} from 'erxes-api-shared/core-modules';
 import { IProductCategoryDocument } from 'erxes-api-shared/core-types';
 import {
   escapeRegExp,
@@ -5,6 +12,7 @@ import {
   paginate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { segmentProductIds } from '~/modules/posclient/utils';
 import { IModels } from '~/connectionResolvers';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IContext } from '~/modules/posclient/@types/types';
@@ -13,7 +21,6 @@ import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '~/modules/posclient/maskUtils';
-import { Builder } from '~/modules/posclient/utils';
 import {
   checkRemainders,
   getDiscountSortedProducts,
@@ -23,235 +30,11 @@ import {
   type ProductWithRemainder,
 } from '~/modules/posclient/utils/products';
 
-const getPropertyFieldId = (field: string) =>
-  field.replace('propertiesData.', '');
-
 const getProductPropertyValue = (product: any, fieldId: string) =>
   product?.propertiesData?.[fieldId];
 
 const getProductPropertyIds = (product: any) =>
   Object.keys(product.propertiesData || {});
-
-const isPropertyField = (field: string) => field.includes('propertiesData.');
-
-const propertyExistsFilter = (fieldIds: string[]) => ({
-  $or: [
-    ...fieldIds.map((fieldId) => ({
-      [`propertiesData.${fieldId}`]: { $exists: true },
-    })),
-  ],
-});
-
-const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
-  [`propertiesData.${fieldId}`]: { $regex: regex },
-});
-
-type PropertyFilterOperator =
-  | 'eq'
-  | 'ne'
-  | 'contains'
-  | 'doesNotContain'
-  | 'gt'
-  | 'gte'
-  | 'lt'
-  | 'lte'
-  | 'isTrue'
-  | 'isFalse'
-  | 'in'
-  | 'notIn'
-  | 'isSet'
-  | 'isNotSet'
-  | 'fileType';
-
-interface IPropertyFilterCondition {
-  fieldId: string;
-  operator?: PropertyFilterOperator;
-  value?: unknown;
-}
-
-const CONDITION_SEP = ';';
-const PART_SEP = ':';
-const VALUE_SEP = ',';
-
-const MULTI_OPERATORS: PropertyFilterOperator[] = ['in', 'notIn', 'fileType'];
-
-const PROPERTY_OPERATORS: Record<
-  PropertyFilterOperator,
-  (
-    propertyPath: string,
-    value: unknown,
-  ) => Record<string, unknown> | null
-> = {
-  eq: (propertyPath, value) => ({ [propertyPath]: { $in: eqValues(value) } }),
-  ne: (propertyPath, value) => ({ [propertyPath]: { $nin: eqValues(value) } }),
-  gt: (propertyPath, value) => ({
-    [propertyPath]: { $gt: asNumberOrString(value) },
-  }),
-  gte: (propertyPath, value) => ({
-    [propertyPath]: { $gte: asNumberOrString(value) },
-  }),
-  lt: (propertyPath, value) => ({
-    [propertyPath]: { $lt: asNumberOrString(value) },
-  }),
-  lte: (propertyPath, value) => ({
-    [propertyPath]: { $lte: asNumberOrString(value) },
-  }),
-  isTrue: (propertyPath) => ({
-    [propertyPath]: { $in: [true, 'true', 'Yes', 'yes'] },
-  }),
-  isFalse: (propertyPath) => ({
-    [propertyPath]: { $in: [false, 'false', 'No', 'no', null] },
-  }),
-  isSet: (propertyPath) => ({
-    [propertyPath]: { $exists: true, $nin: [null, '', []] },
-  }),
-  isNotSet: (propertyPath) => ({
-    $or: [
-      { [propertyPath]: { $exists: false } },
-      { [propertyPath]: { $in: [null, ''] } },
-    ],
-  }),
-  contains: (propertyPath, value) =>
-    isEmpty(value)
-      ? null
-      : {
-          [propertyPath]: {
-            $regex: escapeRegExp(String(value)),
-            $options: 'i',
-          },
-        },
-  doesNotContain: (propertyPath, value) =>
-    isEmpty(value)
-      ? null
-      : {
-          [propertyPath]: {
-            $not: { $regex: escapeRegExp(String(value)), $options: 'i' },
-          },
-        },
-  in: (propertyPath, value) =>
-    toArray(value).length ? { [propertyPath]: { $in: toArray(value) } } : null,
-  notIn: (propertyPath, value) =>
-    toArray(value).length
-      ? { [propertyPath]: { $nin: toArray(value) } }
-      : null,
-  fileType: (propertyPath, value) => {
-    const types = fileTypes(value);
-
-    return types.length
-      ? {
-          [`${propertyPath}.type`]: {
-            $regex: types.map(escapeRegExp).join('|'),
-            $options: 'i',
-          },
-        }
-      : null;
-  },
-};
-
-const isEmpty = (value: unknown) =>
-  value === undefined || value === null || value === '';
-
-const toArray = (value: unknown): unknown[] =>
-  Array.isArray(value) ? value : isEmpty(value) ? [] : [value];
-
-const fileTypes = (value: unknown): string[] =>
-  toArray(value)
-    .map((item) => String(item ?? '').trim())
-    .filter(Boolean);
-
-const asNumberOrString = (value: unknown): number | string => {
-  const stringValue = String(value ?? '');
-
-  return stringValue !== '' && !isNaN(Number(stringValue))
-    ? Number(stringValue)
-    : stringValue;
-};
-
-const eqValues = (value: unknown): unknown[] => {
-  const normalized = asNumberOrString(value);
-
-  return typeof normalized === 'number'
-    ? [normalized, String(value)]
-    : [normalized];
-};
-
-const isPropertyFilterOperator = (
-  operator: string,
-): operator is PropertyFilterOperator => operator in PROPERTY_OPERATORS;
-
-const decodeConditionValue = (
-  operator: PropertyFilterOperator,
-  raw: string,
-): unknown => {
-  if (MULTI_OPERATORS.includes(operator)) {
-    return raw
-      .split(VALUE_SEP)
-      .filter(Boolean)
-      .map((value) => decodeURIComponent(value));
-  }
-
-  return decodeURIComponent(raw);
-};
-
-const parsePropertyConditions = (
-  propertiesData: string,
-): IPropertyFilterCondition[] =>
-  String(propertiesData)
-    .split(CONDITION_SEP)
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .reduce<IPropertyFilterCondition[]>((conditions, entry) => {
-      const firstSep = entry.indexOf(PART_SEP);
-
-      if (firstSep === -1) {
-        return conditions;
-      }
-
-      const fieldId = decodeURIComponent(entry.slice(0, firstSep));
-      const rest = entry.slice(firstSep + 1);
-      const secondSep = rest.indexOf(PART_SEP);
-      const rawOperator =
-        secondSep === -1 ? rest : rest.slice(0, secondSep);
-
-      if (!fieldId || !isPropertyFilterOperator(rawOperator)) {
-        return conditions;
-      }
-
-      const condition: IPropertyFilterCondition = {
-        fieldId,
-        operator: rawOperator,
-      };
-
-      if (secondSep !== -1) {
-        condition.value = decodeConditionValue(
-          rawOperator,
-          rest.slice(secondSep + 1),
-        );
-      }
-
-      conditions.push(condition);
-
-      return conditions;
-    }, []);
-
-const withPropertyConditions = (
-  propertiesData: string,
-): Record<string, unknown>[] =>
-  parsePropertyConditions(propertiesData).reduce<Record<string, unknown>[]>(
-    (conditions, { fieldId, operator = 'contains', value }) => {
-      const property = PROPERTY_OPERATORS[operator](
-        `propertiesData.${fieldId}`,
-        value,
-      );
-
-      if (property) {
-        conditions.push(property);
-      }
-
-      return conditions;
-    },
-    [],
-  );
 
 export interface ICommonParams {
   sortField?: string;
@@ -272,7 +55,6 @@ export interface IProductParams extends ICommonParams {
   excludeTags?: string[];
   tagWithRelated?: boolean;
   segment?: string;
-  segmentData?: string;
   isKiosk?: boolean;
   groupedSimilarity?: string;
   isSimilarity?: boolean;
@@ -320,7 +102,6 @@ const generateFilter = async (
     ids,
     excludeIds,
     segment,
-    segmentData,
     categoryMeta,
     isKiosk,
     image,
@@ -366,7 +147,7 @@ const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       $and.push(...propertyConditions);
@@ -450,14 +231,8 @@ const generateFilter = async (
     ];
   }
 
-  if (segment || segmentData) {
-    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
-
-    await qb.buildAllQueries();
-
-    const { list } = await qb.runQueries();
-
-    filter._id = { $in: list.map((l) => l._id) };
+  if (segment) {
+    filter._id = { $in: await segmentProductIds(subdomain, segment) };
   }
 
   if (vendorId) {
@@ -851,8 +626,9 @@ const productQueries = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = getProductPropertyIds(product);
@@ -862,8 +638,8 @@ const productQueries = {
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (isPropertyField(filterFieldDef)) {
-          const fieldId = getPropertyFieldId(filterFieldDef);
+        if (isPropertyDataPath(filterFieldDef)) {
+          const fieldId = fieldIdFromPropertyDataPath(filterFieldDef);
           if (
             !String(getProductPropertyValue(product, fieldId) || '').match(
               regexer,
@@ -904,10 +680,10 @@ const productQueries = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (isPropertyField(filterFieldDef)) {
+        if (isPropertyDataPath(filterFieldDef)) {
           codeRegexs.push(
-            propertyRegexFilter(
-              getPropertyFieldId(filterFieldDef),
+            propertyDataRegexFilter(
+              fieldIdFromPropertyDataPath(filterFieldDef),
               getRegex(matchedMask),
             ),
           );
@@ -931,7 +707,7 @@ const productQueries = {
           {
             $or: codeRegexs,
           },
-          propertyExistsFilter(fieldIds),
+          propertyDataExistsFilter(fieldIds),
         ],
       };
 
@@ -973,7 +749,7 @@ const productQueries = {
       $and: [
         {
           categoryId: category._id,
-          ...propertyExistsFilter(fieldIds),
+          ...propertyDataExistsFilter(fieldIds),
         },
       ],
     };
@@ -1141,9 +917,11 @@ const productQueries = {
     return JSON.stringify(response ?? {});
   },
 };
+
 markResolvers(productQueries, {
   wrapperConfig: {
     skipPermission: true,
   },
 });
+
 export default productQueries;

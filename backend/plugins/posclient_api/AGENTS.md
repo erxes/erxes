@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-08-23`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -47,12 +47,16 @@
 
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, and `permissionConfig`.
 - Shared `erxes-api-shared` context, GraphQL, and date utility contracts.
+- `erxes-api-shared/core-modules` property filtering: `withPropertyConditions`,
+  `isPropertyPath`, `propertyFieldIdFromPath`, `propertyExistsFilter`,
+  `propertyRegexFilter`. The plugin no longer keeps a local copy of the
+  operator table or the condition parser.
 
 ## Data and State
 
 - Tenant-scoped POS client collections are generated per `subdomain`.
 - `Configs.permissionConfig.cashiers.seeReport` controls cashier access to `dailyReport`.
-- Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are applied to `Products.propertiesData.<fieldId>`.
+- Product `propertiesData` filters are encoded as `fieldId:operator:value` conditions separated by semicolons and are parsed by the shared property filter util; a `g:<groupId>/<fieldId>` key targets one row of a repeating group through `$elemMatch`.
 
 ## Local Invariants
 
@@ -69,6 +73,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-05` — `Use the shared property filter util`
+
+- **Summary:** Replaced the plugin's copied `propertiesData` operator table, condition parser, and path helpers with the shared implementation in `erxes-api-shared/core-modules`.
+- **Affected areas:** `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts`, `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/cpProducts.ts`
+- **Contracts changed:** `None` — the encoded filter string and resulting query are unchanged for plain fields.
 
 ### `2026-08-23` — `Filter POS products by properties`
 

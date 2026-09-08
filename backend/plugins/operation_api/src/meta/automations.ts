@@ -39,12 +39,4 @@ export const automations: AutomationConfigs = {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-
-  checkTargetMatch: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
 };

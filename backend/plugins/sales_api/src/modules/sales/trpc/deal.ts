@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { agentMeta } from '~/trpc/agentMeta';
@@ -423,25 +423,3 @@ export const dealTrpcRouter = t.router({
       }),
   },
 });
-
-export const fetchSegment = async (
-  subdomain: string,
-  segmentId: string,
-  options?,
-  segmentData?: any,
-) => {
-  return await sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'core',
-    method: 'query',
-    module: 'segments',
-    action: 'fetchSegment',
-    input: {
-      segmentId,
-      options,
-      segmentData,
-    },
-    defaultValue: [],
-  });
-};

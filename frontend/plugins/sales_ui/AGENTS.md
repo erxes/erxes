@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-08-12`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -116,6 +116,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-05` — `Property groups share one card shell`
+
+- **Summary:** The deal detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
+- **Affected areas:** `src/modules/deals/cards/components/detail/DealPipelineProperties.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-08-12` — Select deal properties by group
 
