@@ -1,4 +1,9 @@
 import {
+  buildPropertyDataColumns,
+  parsePropertyColumnKey,
+  readPropertyDataColumn,
+} from 'erxes-api-shared/core-modules';
+import {
   TICKET_DEFAULT_STATUSES,
   TICKET_PRIORITY_TYPES,
 } from '@/ticket/constants/types';
@@ -67,19 +72,21 @@ export const buildTicketExportRow = (
   };
 
   if (ticket.propertiesData && typeof ticket.propertiesData === 'object') {
-    for (const [fieldId, value] of Object.entries(ticket.propertiesData)) {
-      if (value !== undefined && value !== null) {
-        allFields[`propertiesData.${fieldId}`] = formatValue(value);
-      }
-    }
+    Object.assign(
+      allFields,
+      buildPropertyDataColumns(ticket.propertiesData, formatValue),
+    );
   }
 
   if (selectedFields?.length) {
     const result: Record<string, any> = { _id: String(ticket._id || '') };
     for (const key of selectedFields) {
-      if (key.startsWith('propertiesData.')) {
-        const fieldId = key.replace('propertiesData.', '');
-        result[key] = formatValue(ticket.propertiesData?.[fieldId]);
+      const column = parsePropertyColumnKey(key);
+
+      if (column) {
+        result[key] = formatValue(
+          readPropertyDataColumn(ticket.propertiesData, column),
+        );
       } else {
         result[key] = allFields[key] ?? '';
       }

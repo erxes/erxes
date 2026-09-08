@@ -89,7 +89,7 @@ export const AutomationFbBotFormContent = () => {
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
                   <Label className="flex items-center gap-2">
-                    {isOptionalOpen ? t('hide', 'Hide') : t('show')}{' '}
+                    {isOptionalOpen ? t('hide', 'Hide') : t('show', 'Show')}{' '}
                     {t('optional-configuration', 'Optional configuration')}{' '}
                     {isOptionalOpen ? <IconChevronUp /> : <IconChevronDown />}
                   </Label>

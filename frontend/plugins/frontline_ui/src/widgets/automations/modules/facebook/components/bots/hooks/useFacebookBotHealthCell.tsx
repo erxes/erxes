@@ -34,11 +34,11 @@ export const useFacebookBotHealthCell = (health?: IFacebookBotHealth) => {
     { label: t('status', 'Status'), value: statusLabel },
     {
       label: t('subscription', 'Subscription'),
-      value: hasSubscriptionIssue ? t('missing-label', 'Missing') : t('ok'),
+      value: hasSubscriptionIssue ? t('missing-label', 'Missing') : t('ok', 'OK'),
     },
     {
       label: t('profile-sync', 'Profile sync'),
-      value: hasProfileIssue ? t('out-of-sync', 'Out of sync') : t('ok'),
+      value: hasProfileIssue ? t('out-of-sync', 'Out of sync') : t('ok', 'OK'),
     },
     ...(lastError ? [{ label: t('message'), value: lastError }] : []),
   ];

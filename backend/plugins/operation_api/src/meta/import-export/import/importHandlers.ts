@@ -26,15 +26,13 @@ const TASK_SYSTEM_HEADERS = [
 export const taskImportHandlers = {
   getImportHeaders: async (
     { collectionName }: { collectionName: string },
-    { subdomain }: TCoreModuleProducerContext<IModels>,
+    { subdomain, models }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     if (collectionName !== 'task') {
-      throw new Error(
-        `Import headers handler not found for ${collectionName}`,
-      );
+      throw new Error(`Import headers handler not found for ${collectionName}`);
     }
 
-    const customHeaders = await getTaskCustomPropertyHeaders(subdomain);
+    const customHeaders = await getTaskCustomPropertyHeaders(subdomain, models);
     return [...TASK_SYSTEM_HEADERS, ...customHeaders];
   },
 

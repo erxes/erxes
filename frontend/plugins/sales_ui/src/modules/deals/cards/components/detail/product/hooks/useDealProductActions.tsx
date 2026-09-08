@@ -1,10 +1,4 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 
 import { AdjustmentByCurrency } from './useProductCalculations';
@@ -125,7 +119,11 @@ export const useDealProductActions = ({
 
       // The server schema has no `product` field: send the stripped rows as
       // docs and keep the embedded product snapshot only for optimistic UI.
-      const docs = rows.map(({ product, ...doc }) => doc);
+      const docs = rows.map((row) => {
+        const doc = { ...row };
+        delete doc.product;
+        return doc;
+      });
 
       createProductsData(docs, rows);
     },
@@ -199,7 +197,7 @@ export const useDealProductActions = ({
       pendingProductDeletionsRef.current.add(productData._id);
       removeRows([productData._id]);
 
-      const processId = localStorage.getItem('processId') || '';
+      const processId = startProcess();
 
       void removeProducts({
         variables: {

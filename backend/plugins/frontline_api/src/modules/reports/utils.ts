@@ -1,3 +1,4 @@
+import { propertyDataPath } from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
@@ -393,7 +394,7 @@ export function buildTicketMatch(filters: IReportFilters) {
       continue;
     }
 
-    const propertyPath = `propertiesData.${propertyFilter.propertyId}`;
+    const fieldPath = propertyDataPath(propertyFilter.propertyId);
     const values = propertyFilter.values || [];
 
     if (!values.length) {
@@ -413,7 +414,7 @@ export function buildTicketMatch(filters: IReportFilters) {
         $dateToString: {
           date: {
             $convert: {
-              input: `$${propertyPath}`,
+              input: `$${fieldPath}`,
               to: 'date',
               onError: null,
               onNull: null,
@@ -432,7 +433,7 @@ export function buildTicketMatch(filters: IReportFilters) {
         andConditions.push({
           $or: [
             {
-              [propertyPath]: {
+              [fieldPath]: {
                 $gte: fromDateKey,
                 $lte: `${toDateKey}T23:59:59.999Z`,
               },
@@ -464,7 +465,7 @@ export function buildTicketMatch(filters: IReportFilters) {
 
       andConditions.push({
         $or: [
-          { [propertyPath]: { $regex: `^${dateKey}` } },
+          { [fieldPath]: { $regex: `^${dateKey}` } },
           {
             $expr: {
               $eq: [dateStringExpression, dateKey],
@@ -480,12 +481,12 @@ export function buildTicketMatch(filters: IReportFilters) {
       propertyFilter.type === 'multiSelect' ||
       propertyFilter.type === 'radio'
     ) {
-      andConditions.push({ [propertyPath]: { $in: values } });
+      andConditions.push({ [fieldPath]: { $in: values } });
       continue;
     }
 
     andConditions.push(
-      ...values.map((value) => ({ [propertyPath]: { $all: [value] } })),
+      ...values.map((value) => ({ [fieldPath]: { $all: [value] } })),
     );
   }
 

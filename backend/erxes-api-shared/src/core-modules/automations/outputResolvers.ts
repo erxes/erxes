@@ -1,3 +1,4 @@
+import { parsePropertyDataKey, toPropertyGroupKey } from '../properties/keys';
 import { getPlugin, sendCoreModuleProducer } from '../../utils';
 import { sendTRPCMessage } from '../../utils/trpc';
 import { resolveRecordReferenceValue } from '../common/references';
@@ -65,10 +66,7 @@ export const resolveFromSourceField =
       defaultValue,
     });
 
-export const matchAutomationResolverKey = (
-  resolverKey: string,
-  path: string,
-) =>
+export const matchAutomationResolverKey = (resolverKey: string, path: string) =>
   resolverKey.endsWith('.*')
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
@@ -84,13 +82,35 @@ export const getValueByPath = (
     if (
       current === null ||
       current === undefined ||
-      typeof current !== 'object' ||
-      !(segment in current)
+      typeof current !== 'object'
     ) {
       return { found: false };
     }
 
-    current = (current as Record<string, unknown>)[segment];
+    const bag = current as Record<string, unknown>;
+
+    if (segment in bag) {
+      current = bag[segment];
+      continue;
+    }
+
+    const key = parsePropertyDataKey(segment);
+    const rows =
+      key.kind === 'row' ? bag[toPropertyGroupKey(key.groupId)] : undefined;
+
+    if (!Array.isArray(rows)) {
+      return { found: false };
+    }
+
+    const collected = rows
+      .map((row) => (row as Record<string, unknown>)?.[key.fieldId])
+      .filter((item) => item !== undefined && item !== null);
+
+    if (!collected.length) {
+      return { found: false };
+    }
+
+    current = collected;
   }
 
   return { found: true, value: current };
@@ -402,7 +422,7 @@ const resolveOutputPathsFromDefinition = async ({
         | undefined;
 
       result[path] = field
-        ? (propertiesData?.[field._id] ?? defaultValue)
+        ? propertiesData?.[field._id] ?? defaultValue
         : defaultValue;
       continue;
     }
@@ -909,7 +929,7 @@ const replaceOutputPlaceholderValue = (
       return resolved;
     }
 
-    return keepUnresolvedPlaceholders ? (defaultValue ?? value) : defaultValue;
+    return keepUnresolvedPlaceholders ? defaultValue ?? value : defaultValue;
   }
 
   // Otherwise replace placeholders in curly -> bracket order.

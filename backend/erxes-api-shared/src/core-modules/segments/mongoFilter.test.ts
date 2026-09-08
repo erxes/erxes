@@ -147,6 +147,90 @@ describe('compileSegmentMongoFilter · namespaces', () => {
       'propertiesData.plan': { $eq: 'enterprise' },
     });
   });
+
+  it('matches one row of a repeating group', () => {
+    const { filter } = compile(
+      field(
+        'propertiesData.g:edu/school',
+        SegmentOperator.Equals,
+        'enterprise',
+      ),
+    );
+
+    expect(filter).toEqual({
+      'propertiesData.g:edu': { $elemMatch: { school: { $eq: 'enterprise' } } },
+    });
+  });
+
+  it('makes both conditions hold for one shared row', () => {
+    const { filter } = compile({
+      kind: 'group',
+      conjunction: 'and',
+      children: [
+        field('propertiesData.g:edu/school', SegmentOperator.Equals, 'MUIS'),
+        field('propertiesData.g:edu/year', SegmentOperator.Equals, '2020'),
+      ],
+    });
+
+    expect(filter).toEqual({
+      'propertiesData.g:edu': {
+        $elemMatch: { school: { $eq: 'MUIS' }, year: { $eq: '2020' } },
+      },
+    });
+  });
+
+  it('keeps or branches apart', () => {
+    const { filter } = compile({
+      kind: 'group',
+      conjunction: 'or',
+      children: [
+        field('propertiesData.g:edu/school', SegmentOperator.Equals, 'MUIS'),
+        field('propertiesData.g:edu/school', SegmentOperator.Equals, 'SUIS'),
+      ],
+    });
+
+    expect(filter).toEqual({
+      $or: [
+        { 'propertiesData.g:edu': { $elemMatch: { school: { $eq: 'MUIS' } } } },
+        { 'propertiesData.g:edu': { $elemMatch: { school: { $eq: 'SUIS' } } } },
+      ],
+    });
+  });
+
+  it('narrows one leaf with two operators instead of two rows', () => {
+    const { filter } = compile({
+      kind: 'group',
+      conjunction: 'and',
+      children: [
+        field('propertiesData.g:edu/year', SegmentOperator.NumberGt, '2018'),
+        field('propertiesData.g:edu/year', SegmentOperator.NumberLt, '2022'),
+      ],
+    });
+
+    expect(filter).toEqual({
+      'propertiesData.g:edu': {
+        $elemMatch: { year: { $gte: 2018, $lte: 2022 } },
+      },
+    });
+  });
+
+  it('leaves a plain field beside a folded row', () => {
+    const { filter } = compile({
+      kind: 'group',
+      conjunction: 'and',
+      children: [
+        field('propertiesData.plan', SegmentOperator.Equals, 'pro'),
+        field('propertiesData.g:edu/school', SegmentOperator.Equals, 'MUIS'),
+      ],
+    });
+
+    expect(filter).toEqual({
+      $and: [
+        { 'propertiesData.plan': { $eq: 'pro' } },
+        { 'propertiesData.g:edu': { $elemMatch: { school: { $eq: 'MUIS' } } } },
+      ],
+    });
+  });
 });
 
 describe('compileSegmentMongoFilter · trees', () => {

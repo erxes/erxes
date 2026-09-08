@@ -3,20 +3,45 @@ import {
   IconCategory,
   IconFileText,
   IconUser,
+  IconTags,
 } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
+  toast,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   useSetQueryStateByKey,
 } from 'erxes-ui';
-import { MembersInline } from 'ui-modules';
+import { ComponentProps } from 'react';
+import { Can, MembersInline, TagsSelect } from 'ui-modules';
 
 import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
+
+/** Updates cached document tags and refreshes filtered lists after tagging. */
+export function getDocumentsTagOptions(
+  documentIds: string[],
+): ComponentProps<typeof TagsSelect>['options'] {
+  return (newSelectedTagIds) => ({
+    update: (cache) => {
+      documentIds.forEach((_id) => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Document', _id }),
+          fields: {
+            tagIds: () => newSelectedTagIds,
+          },
+        });
+      });
+    },
+    refetchQueries: ['Documents'],
+    onCompleted: () => {
+      toast({ title: 'Document tags updated', variant: 'success' });
+    },
+  });
+}
 
 function DocumentNameCell({ document }: { document: IDocument }) {
   const setQuery = useSetQueryStateByKey();
@@ -96,6 +121,23 @@ export function DocumentsColumn(): ColumnDef<IDocument>[] {
       header: () => <RecordTable.InlineHead label="Type" icon={IconCategory} />,
       cell: DocumentTypeCell,
       size: 220,
+    },
+    {
+      id: 'tagIds',
+      accessorKey: 'tagIds',
+      header: () => <RecordTable.InlineHead label="Tags" icon={IconTags} />,
+      cell: ({ row }) => (
+        <Can action="tagsTag">
+          <TagsSelect.InlineCell
+            type="core:documents"
+            mode="multiple"
+            targetIds={[row.original._id]}
+            value={row.original.tagIds || []}
+            options={getDocumentsTagOptions([row.original._id])}
+          />
+        </Can>
+      ),
+      size: 240,
     },
     {
       id: 'createdUser',
