@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -53,6 +53,10 @@
 
 ## Current Capabilities
 
+- Internal Viber helpers verify webhook signatures, fetch and validate bot
+  account information, and create tenant-scoped connections after checking the
+  inbox and duplicate bot/inbox. No Viber route or creation-dispatcher branch
+  is registered.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -141,6 +145,12 @@
   import/export handlers to the platform through `meta/`.
 
 ## Architecture
+
+Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
+creation, `utils/` holds signature/account helpers and their colocated tests,
+and `@types/` and `db/` hold document types, schema definitions, and the model
+loader. `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied
+tenant connection.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -434,6 +444,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### Consumes
 
+- Viber Bot REST API: `POST https://chatapi.viber.com/pa/get_account_info`
+  through Node's `fetch`, with the token in `X-Viber-Auth-Token` and an empty
+  JSON object body.
 - `erxes-api-shared/utils`: `startPlugin`, `sendTRPCMessage`, `fetchEs`,
   `getEnv`, `sendWorkerQueue`, `getUniqueValue`, `randomAlphanumeric`,
   `schemaWrapper`, `mongooseStringRandomId`.
@@ -467,6 +480,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Data and State
 
+- `viber_integrations` (`models.ViberIntegrations`) has a generated string `_id`
+  and required `inboxId`, `botId`, and `token` fields. The schema declares
+  separate unique indexes on `inboxId` and `botId`; `inboxId` references the
+  generic Frontline integration, not a channel or conversation.
 - `frontline_polls` — poll definitions with an indexed `channelId` and embedded
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
@@ -596,6 +613,20 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Viber signatures authenticate the exact `rawBody` with the bot token; reject
+  missing tokens and non-64-hex signatures. Never parse and reserialize the body
+  for signing or log tokens, signatures, or payloads.
+- Viber account responses stay `unknown` until validated: numeric `status === 0`
+  and non-blank string `id` and `name`, returning only those two fields. The
+  HTTP helper rejects blank tokens, uses a ten-second abort signal, and reports
+  HTTP/JSON failures without exposing the provider response body.
+- `viberCreateIntegration` obtains models through `generateModels(subdomain)`,
+  takes `botId` only from the validated account response, and awaits the save.
+  Its duplicate precheck provides a friendly error but does not replace database
+  unique indexes. Dependency failures propagate to the caller.
+- Viber tokens use `select: false`, which is a default query projection, not
+  encryption or protection for a newly created document. The creation helper
+  returns `Promise<void>`, never the token-containing document.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1424,6 +1455,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   then open the channel ticket list (no `pipelineId` in the URL); only that
   pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
+- Viber utility tests, from the repository root:
+  `pnpm exec tsx --test backend/plugins/frontline_api/src/modules/integrations/viber/utils/__tests__/*.spec.ts`.
+  They use the existing `tsx` dependency and Node's test runner. HTTP tests fake
+  `globalThis.fetch` with `t.mock.method` and remain non-concurrent. No real
+  credentials, network, or project-wide test configuration are required.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1466,6 +1502,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — Viber connection creation helper
+
+- **Summary:** Added inbox validation, verified bot identity lookup, duplicate
+  checks, and tenant-scoped Viber connection persistence.
+- **Affected areas:** `src/modules/integrations/viber/helpers.ts`.
+- **Contracts changed:** Implemented internal
+  `viberCreateIntegration(subdomain, integrationId, token): Promise<void>`;
+  no public API, route, or creation-dispatcher branch is added.
 
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
@@ -1566,15 +1611,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `KnowledgeBaseTopic.styles` and
   `KnowledgeBaseTopicDoc.styles` added, with the two new
   `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-
-### `2026-09-03` — A knowledge base topic need not have a brand
-
-- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
-  not be created without a brand; the help center drawer no longer collects one,
-  so the input field is now nullable and the `brand` resolver returns `null` for
-  a missing or empty `brandId` instead of a Brand reference with an empty key.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
-- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
-  (was `String!`).
