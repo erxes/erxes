@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-08`
 
 ## Scope
 
@@ -226,6 +226,7 @@
 | Mail add wizard        | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
 | Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Ticket note composer   | `src/modules/activity/components/{NoteInput,NoteAttachments,NoteInputToolbar}.tsx`, `src/modules/activity/hooks/{useNoteAttachments,useNoteTemplateSuggestions}.tsx`, `src/modules/activity/utils/noteBlocks.ts` | `NoteInput` composes the editor; attachments, template suggestions, block trimming, and the toolbar live in their own hook or component |
 | Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                     |
 
 ## Contracts
@@ -1037,6 +1038,21 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/knowledgebase/topicDrawerConstants.ts`
 - **Contracts changed:** `None`
 
+### `2026-09-07` — Ticket note attachments persist and render
+
+- **Summary:** Note attachments are now sent with `TicketCreateNote`, returned by
+  `TicketGetNote`, and rendered in `NoteInputReadOnly` (inline images, file rows
+  for everything else); `@` mention is gated to internal-note mode and response
+  templates to reply mode, matching the inbox composer.
+- **Affected areas:** `modules/activity/components/NoteInput.tsx`,
+  `NoteInputReadOnly.tsx`, `NoteAttachments.tsx`, `modules/activity/types.ts`,
+  `modules/activity/graphql/mutations/createTicketNote.ts`,
+  `modules/activity/graphql/queries/getTicketNote.ts`,
+  `modules/inbox/.../ResponseTemplateSelector.tsx`
+- **Contracts changed:** `TicketCreateNote` gains `$attachments: [AttachmentInput]`;
+  `TicketGetNote` and `TicketCreateNote` now select
+  `attachments { name url type size }`.
+
 ### `2026-09-07` — The website field insists on a real URL
 
 - **Summary:** `url` took any text from either the drawer or the table cell and
@@ -1138,13 +1154,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
 - **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
 - **Contracts changed:** `None`
-
-### `2026-09-05` — Poll surfaces removed from the customer widget
-
-- **Summary:** The website poll popup and the in-messenger voting card are gone
-  from `frontline-widgets`, so the agent-side install-script action went with
-  them; a customer now sees a sent poll as the plain question message.
-- **Affected areas:**
-  `src/modules/poll/components/poll-page/{PollInstallScript.tsx (deleted),poll-columns.tsx}`.
-- **Contracts changed:** None in this project. The public `widgetsPoll*`
-  mutations still exist in `frontline_api` but have no in-repo caller.

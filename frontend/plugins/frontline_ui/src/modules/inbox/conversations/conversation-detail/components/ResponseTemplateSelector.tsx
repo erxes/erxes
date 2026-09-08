@@ -1,8 +1,23 @@
-import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
-import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
+import {
+  useGetResponses,
+  RESPONSES_PER_PAGE,
+} from '@/responseTemplate/hooks/useGetResponses';
+import {
+  Popover,
+  Skeleton,
+  Button,
+  Command,
+  cn,
+  EnumCursorDirection,
+} from 'erxes-ui';
+import { useState, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
+import {
+  IconLayoutGrid,
+  IconList,
+  IconFilter,
+  IconX,
+} from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { getPreviewText } from '@/inbox/types/inbox';
 import type { TViewMode as ViewMode } from '../types';
@@ -40,6 +55,24 @@ const getViewModeTitle = (viewMode: ViewMode): string => {
   return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
 };
 
+const TemplateListSkeleton = (): JSX.Element => (
+  <div className="col-span-2 p-4 space-y-2">
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+    <Skeleton className="w-full h-10" />
+  </div>
+);
+
+const TemplateListEmpty = ({ search }: { search: string }): JSX.Element => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
+      {search ? t('no-matching-templates') : t('no-templates-available')}
+    </div>
+  );
+};
+
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
@@ -48,7 +81,7 @@ export const ResponseTemplateSelector: React.FC<
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
-  const [selectedChannel, setSelectedChannel] = useState<string>('all');
+  const [selectedChannel, setSelectedChannel] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
@@ -63,42 +96,24 @@ export const ResponseTemplateSelector: React.FC<
   } = useGetResponses({
     variables: {
       filter: {
-        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        channelId: selectedChannel || undefined,
         searchValue: debouncedSearch || undefined,
       },
     },
   });
-
 
   useEffect(() => {
     refetch({
       filter: {
         limit: RESPONSES_PER_PAGE,
         orderBy: { createdAt: -1 },
-        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        channelId: selectedChannel || undefined,
         searchValue: debouncedSearch || undefined,
       },
     });
   }, [debouncedSearch, selectedChannel, refetch]);
 
-  const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
-    if (!responses) return [];
-
-    const searchLower = debouncedSearch.toLowerCase();
-
-    return responses.filter((template: ResponseTemplate) => {
-      const templateContent = getPreviewText(template.content).toLowerCase();
-      const matchesSearch =
-        debouncedSearch === '' ||
-        template.name.toLowerCase().includes(searchLower) ||
-        templateContent.includes(searchLower);
-
-      const matchesChannel =
-        selectedChannel === 'all' || template.channelId === selectedChannel;
-
-      return matchesSearch && matchesChannel;
-    });
-  }, [responses, debouncedSearch, selectedChannel]);
+  const templates: ResponseTemplate[] = responses ?? [];
 
   useEffect(() => {
     isFetchingRef.current = false;
@@ -124,7 +139,7 @@ export const ResponseTemplateSelector: React.FC<
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [pageInfo?.hasNextPage, handleFetchMore, filteredTemplates.length]);
+  }, [pageInfo?.hasNextPage, handleFetchMore, templates.length]);
 
   const handleSelectTemplate = (content: string): void => {
     onSelect(content);
@@ -135,7 +150,8 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
+  const isInitialLoad =
+    (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -151,7 +167,11 @@ export const ResponseTemplateSelector: React.FC<
                 variant={'ghost'}
                 size="icon"
                 className="h-8 w-8 rounded hover:bg-muted"
-                title={viewMode === 'grid' ? t('switch-to-list-view') : t('switch-to-grid-view')}
+                title={
+                  viewMode === 'grid'
+                    ? t('switch-to-list-view')
+                    : t('switch-to-grid-view')
+                }
               >
                 <ViewModeIcon />
               </Button>
@@ -168,6 +188,17 @@ export const ResponseTemplateSelector: React.FC<
                   onValueChange={(value) => setSelectedChannel(value as string)}
                 />
               </div>
+              {selectedChannel && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 flex-none rounded-full text-muted-foreground hover:text-foreground"
+                  title={t('select-channels')}
+                  onClick={() => setSelectedChannel('')}
+                >
+                  <IconX size={14} />
+                </Button>
+              )}
             </div>
           </div>
 
@@ -187,21 +218,13 @@ export const ResponseTemplateSelector: React.FC<
                   : 'space-y-1.5',
               )}
             >
-              {isInitialLoad ? (
-                <div className="col-span-2 p-4 space-y-2">
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                  <Skeleton className="w-full h-10" />
-                </div>
-              ) : filteredTemplates.length === 0 ? (
-                <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
-                  {search
-                    ? t('no-matching-templates')
-                    : t('no-templates-available')}
-                </div>
-              ) : (
+              {isInitialLoad && <TemplateListSkeleton />}
+              {!isInitialLoad && templates.length === 0 && (
+                <TemplateListEmpty search={search} />
+              )}
+              {!isInitialLoad && templates.length > 0 && (
                 <>
-                  {filteredTemplates.map((template) => (
+                  {templates.map((template) => (
                     <Command.Item
                       key={template._id}
                       value={template._id}

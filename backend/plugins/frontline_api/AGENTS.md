@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-08`
 
 ## Scope
 
@@ -1467,6 +1467,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-07` — Ticket notes accept and return attachments
+
+- **Summary:** `Note` now stores an `attachments` array using the shared
+  `attachmentSchema`, so files attached in the ticket note composer persist and
+  are returned to the client instead of being silently dropped.
+- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
+  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
+  `modules/ticket/graphql/resolvers/mutations/note.ts`
+- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
+  `attachments: [AttachmentInput]`; the `Note` type exposes
+  `attachments: [Attachment]`.
+
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
 - **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
@@ -1566,15 +1578,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `KnowledgeBaseTopic.styles` and
   `KnowledgeBaseTopicDoc.styles` added, with the two new
   `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-
-### `2026-09-03` — A knowledge base topic need not have a brand
-
-- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
-  not be created without a brand; the help center drawer no longer collects one,
-  so the input field is now nullable and the `brand` resolver returns `null` for
-  a missing or empty `brandId` instead of a Brand reference with an empty key.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
-- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
-  (was `String!`).
