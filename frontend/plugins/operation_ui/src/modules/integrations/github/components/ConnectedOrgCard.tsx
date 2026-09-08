@@ -1,5 +1,6 @@
 import { IconExternalLink } from '@tabler/icons-react';
-import { Avatar, Badge, Button, Spinner } from 'erxes-ui';
+import { Avatar, Badge, Button } from 'erxes-ui';
+import { IGithubConnection } from '../types';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -9,39 +10,19 @@ function formatDate(iso: string) {
   });
 }
 
-export function ConnectedOrgCard({
-  org,
-  onDisconnect,
-  disconnecting,
-}: {
-  org: {
-    installationId: number;
-    orgName: string;
-    orgAvatarUrl?: string;
-    orgType: string;
-    createdAt: string;
-  };
-  onDisconnect: () => void;
-  disconnecting: boolean;
-}) {
+export function ConnectedOrgCard({ org }: { org: IGithubConnection }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-surface p-3">
       <div className="flex items-center gap-3">
-        <Avatar
-          src={org.orgAvatarUrl}
-          alt={org.orgName}
-          fallback={org.orgName[0]?.toUpperCase()}
-          size="md"
-        />
+        <Avatar size="xl">
+          <Avatar.Image src={org.orgAvatarUrl} alt={org.orgName} />
+          <Avatar.Fallback>{org.orgName[0]?.toUpperCase()}</Avatar.Fallback>
+        </Avatar>
         <div>
           <div className="flex items-center gap-2">
             <span className="font-semibold ">{org.orgName}</span>
-            <Badge variant="success" size="sm">
-              Active
-            </Badge>
-            <Badge variant="outline" size="sm">
-              {org.orgType}
-            </Badge>
+            <Badge variant="success">Active</Badge>
+            <Badge variant="secondary">{org.orgType}</Badge>
           </div>
           <span className="mt-2 text-xs text-muted-foreground">
             Connected {formatDate(org.createdAt)}
@@ -58,15 +39,6 @@ export function ConnectedOrgCard({
             Manage on GitHub
             <IconExternalLink className="h-4 w-4" />
           </a>
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={onDisconnect}
-          disabled={disconnecting}
-          className="gap-2"
-        >
-          {disconnecting ? <Spinner size="sm" /> : 'Disconnect'}
         </Button>
       </div>
     </div>
