@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-08`
 
 ## Scope
 
@@ -148,6 +148,41 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- Names, on the Facebook message trigger form, which other automations already
+  listen for the same Get Started, persistent menu item, ice breaker, keyword or
+  keyword-less direct message on that bot. Any claim — draft included, since a
+  draft becomes active later and nobody watches for that moment — stops the
+  condition from being selected, unless this automation already selected it,
+  which stays editable. A condition that owns a configuration also cannot be
+  turned on while that configuration is empty. Only Get Started is unopenable,
+  because it is the one condition with nothing to configure.
+- Configures a Facebook bot's ice breakers — the questions Messenger shows under
+  “Tap to send” before the first message — and the Get Started button's label,
+  both previewed and both usable as automation trigger conditions.
+- Previews a Facebook bot beside its form: a Messenger frame showing the
+  welcome screen (greeting plus Get Started) and the persistent menu exactly as
+  `connectBotPageMessenger` composes it, on a phone or the desktop chat window,
+  including the Get Started action the backend prepends, and flagging menu items
+  that never reach Facebook. Tapping a menu action in the preview names what it
+  actually does — opens a webview, hands off to a person, resumes a paused step,
+  starts a listed automation, or reaches nothing. Only a plain button menu item
+  can be listened for; a link, a human handoff and a back action are each
+  consumed before the trigger. Typing in the preview's composer resolves the
+  same way for direct messages, mirroring `checkContentConditions`. When nothing
+  listens, the preview links to a new automation already carrying the trigger
+  condition that would catch that exact tap or message, plus an empty Send
+  Facebook Message action wired to it. A menu item or ice breaker added since
+  the last save is marked unsaved and offers no link, because a trigger
+  condition addresses it by an id that does not exist yet.
+- Lists the automations already listening to a bot on the bot form itself,
+  matched by `botId` inside a `frontline:facebook.messages` trigger config.
+- Starts an automation from a saved bot: the bot sheet links to the automation
+  builder with a `frontline:facebook.messages` trigger already carrying that
+  `botId`, built through `buildAutomationSeedLink` from `ui-modules`.
+- Attaches a Facebook Messenger bot to an integration from the integration list
+  itself: a `Bot` column on the facebook-messenger table and a bot section in the
+  integration edit dialog, both showing the bot's name and health, and both
+  opening the bot form with that integration's account and page already bound.
 - Facebook bot message action supports a drag-orderable message sequence of
   text, card, quick replies, input, image, attachments, audio, and video, with
   postback/link buttons and optional connects.
@@ -853,6 +888,104 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-08` — The message trigger says who else already listens
+
+- **Summary:** Every condition on the Facebook message trigger form reports the
+  other automations on the same bot that already claim it — the Get Started card,
+  each persistent-menu row, each ice breaker, each direct-message keyword, and a
+  keyword-less direct message. A catch-all claim blocks the Direct Message
+  condition only while this trigger names no keywords of its own. A claim
+  disables the checkbox (or refuses the keyword) and names where to remove it,
+  drafts included; an already-selected
+  condition is never blocked, or it could not be undone; and the trigger being
+  edited is excluded by its own node id. Persistent menu and ice breaker
+  conditions additionally stay unselectable until at least one item is picked
+  inside them. Blocked cards still open, so their configuration remains
+  reachable.
+- **Affected areas:** `src/widgets/automations/modules/facebook/components/` —
+  new `trigger/hooks/useFacebookBotTriggerClaims.ts` and
+  `trigger/components/message/TriggerClaimNote.tsx`;
+  `trigger/components/message/{MessageTriggerForm,MessageTriggerConditionsList,MessageTriggerConditionCard,MessageTriggerConfigPanel,PersistentMenuSelector,IceBreakerSelector,DirectMessageEditor,DirectMessageConditionCard}.tsx`;
+  `bots/hooks/useFacebookBotAutomations.tsx` now keeps trigger ids, and
+  `bots/utils/resolveBotMenuOutcome.ts` follows.
+- **Contracts changed:** `None`.
+
+### `2026-09-08` — Ice breakers, and Get Started stops matching on its label
+
+- **Summary:** A bot now carries `iceBreakers` and `getStartedText`. Ice breakers
+  are written to and verified against `messenger_profile.ice_breakers` — read
+  back in either the localized or the flat shape Facebook may return — appear in
+  the welcome preview under “Tap to send”, and can be selected as a new
+  `iceBreaker` trigger condition. The Get Started button's label is editable
+  because the trigger no longer compares `target.content` to the literal string
+  “Get Started” — it matches the postback payload instead (a `botId` with no
+  `persistentMenuId` and no `iceBreakerId`), which also stops a visitor who types
+  those words from firing the trigger.
+- **Affected areas:** `frontline_api` —
+  `modules/integrations/facebook/db/definitions/bots.ts`,
+  `db/models/Bots.ts`, `graphql/schema/facebook.ts`,
+  `meta/automation/messages/index.ts`,
+  `meta/automation/utils/messageUtils.ts`. `frontline_ui` — new
+  `components/bots/components/FacebookIceBreakerGenerator.tsx` and
+  `components/trigger/components/message/IceBreakerSelector.tsx`;
+  bot form schema, context, mutations and queries; the simulator, its preview and
+  outcome utils; the message trigger schema, options, types and condition hook.
+- **Contracts changed:** `facebookMessengerAddBot` / `facebookMessengerUpdateBot`
+  accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
+  `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
+  `iceBreaker` condition with `iceBreakerIds`.
+
+### `2026-09-08` — The bot form previews what Messenger will show
+
+- **Summary:** The bot sheet is now two columns: the form on the left and a
+  Messenger simulation on the right, toggling between phone and desktop chrome
+  and between the welcome screen and an open persistent menu. Menu actions are
+  tappable and resolve to the automations that would start, following the same
+  order as `receiveFacebookMessageTrigger`. The form lists the bot's connected
+  automations. The preview is derived by
+  `buildMessengerProfilePreview`, which mirrors
+  `FacebookBots.connectBotPageMessenger`, so it shows the Get Started action the
+  backend prepends and warns when a menu item has no text (dropped), a link item
+  has no URL (sent as a plain button), the greeting exceeds 160 characters, or
+  the menu exceeds Facebook's five actions per level. The persistent-menu form
+  limit dropped from five to four, derived from that cap minus the prepended
+  Get Started.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/` — new
+  `utils/buildMessengerProfilePreview.ts` and
+  `utils/resolveBotMenuOutcome.ts`,
+  `components/simulator/{MessengerFrame,FacebookBotSimulator}.tsx`,
+  `components/FacebookBotAutomations.tsx`,
+  `graphql/botAutomationsQueries.ts`, `hooks/useFacebookBotAutomations.tsx`,
+  `constants.ts`; `components/FacebookBotFormBody.tsx`,
+  `components/FacebookBotSheet.tsx`,
+  `components/AutomationFbBotFormContent.tsx`.
+- **Contracts changed:** `None` — reads existing `automations(triggerTypes:)`.
+
+### `2026-09-08` — A Facebook bot is created from its integration
+
+- **Summary:** The facebook-messenger integration table gained a `Bot` column and
+  the integration edit dialog a bot section; both show the connected bot's name
+  and health, and both open the bot form with the integration's `accountId` and
+  page already bound, so the two-step account/page wizard is skipped. Both
+  surfaces open the same sheet — the table row mounts it and the dialog opens it
+  through a `botId` query parameter, so it survives a reload or the back button
+  and never stacks twice. Saving leaves the sheet open. A
+  saved bot's sheet also links to a seeded new automation. The save
+  hook now takes the bot id from the form's own record instead of reading only
+  the `facebookBotId` query param, which previously made an edit opened outside
+  the bots settings page run the add mutation.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/` — new
+  `hooks/useFacebookIntegrationBot.tsx` and
+  `components/{FacebookBotSummary,FacebookBotFormBody,FacebookBotSheet,FacebookIntegrationBotCell,FacebookIntegrationBotSection}.tsx`;
+  `context/FbBotFormContext.tsx`, `components/AutomationFbBotFormContent.tsx`,
+  `components/AutomationBotFormEffect.tsx`, `hooks/useFacebookBotForm.tsx`;
+  `src/modules/integrations/components/IntegrationsRecordTable.tsx` and
+  `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
+- **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
+  bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
+
 ### `2026-09-07` — Poll form picks the brand
 
 - **Summary:** `PollSheet` gained an optional single-select brand field backed by
@@ -942,68 +1075,3 @@ Polls` breadcrumb with the `Create poll` button in the settings header instead
   `src/modules/integrations/mail/hooks/useMailCloudflareSetup.tsx`,
   `backend/gateway/src/locales/{en,mn}/frontline.json`.
 - **Contracts changed:** reads `eligible` and `reason` from `mailCloudflareZones`.
-
-### `2026-08-28` — A sent message shows who sent it, not who received it
-
-- **Summary:** `MailConversationDetail` took the first recipient as the "sender"
-  of an outbound message, so a reply was titled with the customer's address while
-  the `to:` line underneath repeated it and the agent-side sender never appeared —
-  including the `senderName` an inbox now sets. The avatar colour and initial came
-  from the same recipient, so every bubble in a thread looked alike. The header now
-  always reads `mailData.from`, which makes outbound and inbound symmetric and
-  gives agent messages their own avatar.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConversationDetail.tsx`.
-- **Contracts changed:** None.
-
-### `2026-08-27` — The mail config section says what connecting actually does
-
-- **Summary:** The Integrations config panel was titled `Email`, taken from the
-  shared `INTEGRATIONS[MAIL].name` that also labels the integration list and the
-  channel chips, so it read as the channel rather than as what the panel does. It
-  now carries its own title, **Bring your own Cloudflare Email Routing & Sending**,
-  while the logo still comes from the shared constant. The trigger wraps instead
-  of clipping the longer title.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/MailConfigUpdate.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** None.
-
-### `2026-08-27` — The basics step takes a sender name and previews it
-
-- **Summary:** The add wizard's **first** step and the edit dialog now carry a
-  `senderName` field, and both render a `Name <address>` preview of what a
-  recipient sees. It sits next to the inbox name it defaults from, and on step 1
-  rather than the sending step because that step falls back to
-  `MailSendingRequired` when nothing can sign yet — which put the field out of
-  reach exactly when an inbox was being created. Left empty the inbox name is
-  used, which is the previous behaviour. The `sender-name*` labels were missing
-  from the locale files, so the field had been rendering its raw key.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/{MailIntegrationForm,MailIntegrationDetail}.tsx`,
-  `backend/gateway/src/locales/{en,mn}/frontline.json`.
-- **Contracts changed:** sends `data.senderName` on integration create and
-  `details.senderName` on edit; reads `senderName` from integration details.
-
-### `2026-08-27` — The Sending domains panel is gone; replies are Cloudflare-only
-
-- **Summary:** Settings → Integrations config no longer carries a Sending domains
-  section, and the add-inbox wizard and edit dialog no longer offer a per-inbox
-  sender. Replies always leave from the inbox's own address, signed by the
-  workspace's connected Cloudflare account or, failing that, the deployment's.
-  Step 3 of the wizard became a confirmation naming that domain, and blocks with
-  `mailSendingReadiness.cloudflare.reason` plus a link to Integrations config when
-  neither account can sign. The SES/SendGrid form, its DNS-record and verification
-  UI and the account mutations are deleted.
-- **Affected areas:**
-  `src/modules/integrations/mail/components/{MailSendingChoice,MailSendingAccountForm,MailSendingAccounts}.tsx`
-  and `src/modules/integrations/mail/graphql/mutations/mailSendingMutations.ts`
-  deleted; `MailSendingRequired.tsx` reduced to the Cloudflare route;
-  `useMailSendingAccounts.tsx` replaced by `hooks/useMailSendingReadiness.tsx`;
-  `graphql/queries/mailSendingQueries.ts`, `MailIntegrationForm.tsx`,
-  `MailIntegrationDetail.tsx`, `src/pages/IntegrationConfigPage.tsx`.
-- **Contracts changed:** stops sending `data.sendingAccountId` /
-  `data.sendingAddress` on integration create and edit; stops using
-  `mailSendingAccounts`, `mailSendingAccountAdd`, `mailSendingAccountVerify`,
-  `mailSendingAccountRemove` and `MailSendingReadiness.accounts`, all of which
-  `frontline_api` removed.

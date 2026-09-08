@@ -4,15 +4,13 @@ import {
 } from '@/integrations/facebook/states/facebookStates';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { TFacebookBotForm } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
 import { useFbBotFormContext } from '../context/FbBotFormContext';
 
-type Props = {
-  formDefaultValues?: any;
-};
-
-export const AutomationBotFormEffect = () => {
+export const AutomationBotFormEffect = ({
+  isPageFixed,
+}: {
+  isPageFixed?: boolean;
+}) => {
   const { facebookMessengerBot, form } = useFbBotFormContext();
   const { setValue } = form;
   const [atomAccountId, setAtomAccountId] = useAtom(
@@ -21,6 +19,11 @@ export const AutomationBotFormEffect = () => {
   const [atomPageId, setAtomPageId] = useAtom(selectedFacebookPageAtom);
 
   useEffect(() => {
+    // The page comes from the integration, so the shared selection atoms —
+    // which the integration setup wizard also writes — must not overwrite it.
+    if (isPageFixed) {
+      return;
+    }
     if (atomAccountId) {
       setValue('accountId', atomAccountId);
     }
@@ -33,7 +36,7 @@ export const AutomationBotFormEffect = () => {
     if (facebookMessengerBot?.pageId && !atomPageId) {
       setAtomPageId(facebookMessengerBot.pageId);
     }
-  }, [atomAccountId, atomPageId]);
+  }, [atomAccountId, atomPageId, isPageFixed]);
 
   return <></>;
 };

@@ -1,4 +1,5 @@
 import { SUBSCRIBED_FIELDS } from '@/integrations/facebook/constants';
+import { debugError } from '@/integrations/facebook/debuggers';
 import {
   getPageAccessToken,
   graphRequest,
@@ -15,11 +16,18 @@ type TBotPersistentMenuInput = {
   link?: string;
 };
 
+type TBotIceBreakerInput = {
+  _id: string;
+  question: string;
+};
+
 export type TCreateBotInputDoc = {
   name: string;
   accountId: string;
   pageId: string;
   persistentMenus: TBotPersistentMenuInput[];
+  iceBreakers?: TBotIceBreakerInput[];
+  getStartedText?: string;
   greetText: string;
   handoffMessage?: string;
   automationActiveMessage?: string;
@@ -59,10 +67,25 @@ type TProfilePersistentMenu = {
   call_to_actions?: TProfilePersistentMenuAction[];
 };
 
+type TProfileIceBreakerAction = {
+  question?: string;
+  payload?: string;
+};
+
+/**
+ * Facebook accepts ice breakers localized (`call_to_actions` under a locale)
+ * and reads them back either that way or as a flat question/payload list, so
+ * both shapes have to be understood.
+ */
+type TProfileIceBreaker = TProfileIceBreakerAction & {
+  call_to_actions?: TProfileIceBreakerAction[];
+};
+
 type TMessengerProfileData = {
   get_started?: TProfileGetStarted;
   greeting?: TProfileGreeting[];
   persistent_menu?: TProfilePersistentMenu[];
+  ice_breakers?: TProfileIceBreaker[];
 };
 
 type TMessengerProfileResponse = TMessengerProfileData & {
@@ -109,7 +132,41 @@ type TMessengerProfileRequest = {
       text: string;
     },
   ];
+  ice_breakers?: [
+    {
+      locale: 'default';
+      call_to_actions: Array<{ question: string; payload: string }>;
+    },
+  ];
 };
+
+export const DEFAULT_GET_STARTED_TITLE = 'Get Started';
+
+/**
+ * Ice breaker actions as Facebook stores them. A blank question is dropped the
+ * same way a blank persistent-menu title is.
+ */
+const buildIceBreakerActions = (
+  botId: string,
+  iceBreakers?: TBotIceBreakerInput[],
+) =>
+  (iceBreakers || [])
+    .filter(({ question }) => Boolean(question))
+    .map(({ _id, question }) => ({
+      question,
+      payload: JSON.stringify({ botId, iceBreakerId: _id }),
+    }));
+
+const flattenIceBreakerActions = (
+  entries: TProfileIceBreaker[] = [],
+): TProfileIceBreakerAction[] =>
+  entries.flatMap((entry) => {
+    if (entry?.call_to_actions?.length) {
+      return entry.call_to_actions;
+    }
+
+    return entry?.question ? [entry] : [];
+  });
 
 const validateDoc = async (
   models: IModels,
@@ -143,6 +200,7 @@ const FACEBOOK_BOT_HEALTH_CHECKS = {
   HAS_VALID_GET_STARTED: 'hasValidGetStarted',
   HAS_VALID_PERSISTENT_MENU: 'hasValidPersistentMenu',
   HAS_VALID_GREETING: 'hasValidGreeting',
+  HAS_VALID_ICE_BREAKERS: 'hasValidIceBreakers',
 } as const;
 
 const FACEBOOK_BOT_HEALTH_MESSAGES = {
@@ -154,6 +212,8 @@ const FACEBOOK_BOT_HEALTH_MESSAGES = {
     'Persistent menu is out of sync',
   [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GREETING]:
     'Greeting text is out of sync',
+  [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_ICE_BREAKERS]:
+    'Ice breakers are out of sync',
 } as const;
 
 type TBotHealthStatus = 'healthy' | 'degraded' | 'broken' | 'syncing';
@@ -517,6 +577,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
     static buildExpectedPersistentMenus({
       botId,
       persistentMenus,
+      getStartedText,
       isEnabledBackBtn,
       backButtonText,
     }: {
@@ -527,13 +588,14 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         text: string;
         link?: string;
       }>;
+      getStartedText?: string;
       isEnabledBackBtn?: boolean;
       backButtonText?: string;
     }) {
       const expectedMenus: TExpectedPersistentMenu[] = [
         {
           type: 'postback',
-          title: 'Get Started',
+          title: getStartedText || DEFAULT_GET_STARTED_TITLE,
           payload: JSON.stringify({ botId }),
         },
       ];
@@ -651,6 +713,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       const expectedPersistentMenus = this.buildExpectedPersistentMenus({
         botId: bot._id as string,
         persistentMenus: bot.persistentMenus,
+        getStartedText: bot.getStartedText,
         isEnabledBackBtn: bot.isEnabledBackBtn,
         backButtonText: bot.backButtonText,
       });
@@ -669,6 +732,35 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       );
     }
 
+    static hasValidIceBreakers(
+      bot: Partial<IFacebookBotDocument>,
+      profileData: TMessengerProfileData,
+    ) {
+      const expected = buildIceBreakerActions(
+        bot._id as string,
+        bot.iceBreakers,
+      );
+      const actual = flattenIceBreakerActions(profileData?.ice_breakers);
+      const isValid =
+        expected.length === actual.length &&
+        expected.every(
+          (item, index) =>
+            item.question === (actual[index]?.question || '') &&
+            item.payload === (actual[index]?.payload || ''),
+        );
+
+      if (!isValid) {
+        // Names the difference, so a mismatch is read rather than guessed at.
+        debugError(
+          `Ice breakers differ for bot ${bot._id}: expected ${JSON.stringify(
+            expected,
+          )}, Facebook returned ${JSON.stringify(profileData?.ice_breakers)}`,
+        );
+      }
+
+      return isValid;
+    }
+
     static async fetchBotProfileState(pageAccessToken: string): Promise<{
       subscribedData: TSubscribedApp[];
       profileData: TMessengerProfileData;
@@ -679,7 +771,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       )) as TSubscribedAppsResponse;
 
       const messengerProfile = (await graphRequest.get(
-        '/me/messenger_profile?fields=get_started,persistent_menu,greeting',
+        '/me/messenger_profile?fields=get_started,persistent_menu,greeting,ice_breakers',
         pageAccessToken,
       )) as TMessengerProfileResponse;
 
@@ -714,6 +806,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         bot.greetText,
         profileData,
       );
+      const hasValidIceBreakers = this.hasValidIceBreakers(bot, profileData);
 
       const checks = {
         [FACEBOOK_BOT_HEALTH_CHECKS.IS_SUBSCRIBED]: isSubscribed,
@@ -721,6 +814,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_PERSISTENT_MENU]:
           hasValidPersistentMenu,
         [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_GREETING]: hasValidGreeting,
+        [FACEBOOK_BOT_HEALTH_CHECKS.HAS_VALID_ICE_BREAKERS]:
+          hasValidIceBreakers,
       };
 
       const failedChecks = Object.entries(checks)
@@ -728,7 +823,10 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         .map(([name]) => name);
 
       const isProfileSynced =
-        hasValidGetStarted && hasValidPersistentMenu && hasValidGreeting;
+        hasValidGetStarted &&
+        hasValidPersistentMenu &&
+        hasValidGreeting &&
+        hasValidIceBreakers;
 
       return {
         checks,
@@ -836,6 +934,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       botId,
       pageAccessToken,
       persistentMenus,
+      iceBreakers,
+      getStartedText,
       greetText,
       isEnabledBackBtn,
       backButtonText,
@@ -844,6 +944,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       botId: string;
       pageAccessToken: string;
       persistentMenus?: IFacebookBotDocument['persistentMenus'];
+      iceBreakers?: IFacebookBotDocument['iceBreakers'];
+      getStartedText?: string;
       greetText?: string;
       isEnabledBackBtn?: boolean;
       backButtonText?: string;
@@ -853,6 +955,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         botId,
         pageAccessToken,
         persistentMenus,
+        iceBreakers,
+        getStartedText,
         greetText,
         isEnabledBackBtn,
         backButtonText,
@@ -917,12 +1021,16 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           pageAccessToken: bot.token,
           botId: bot._id,
           persistentMenus: bot.persistentMenus,
+          iceBreakers: bot?.iceBreakers,
+          getStartedText: bot?.getStartedText,
           greetText: bot?.greetText,
           isEnabledBackBtn: bot?.isEnabledBackBtn,
           backButtonText: bot?.backButtonText,
           expectedState: {
             token: bot.token,
             persistentMenus: bot.persistentMenus,
+            iceBreakers: bot.iceBreakers,
+            getStartedText: bot.getStartedText,
             greetText: bot.greetText,
             isEnabledBackBtn: bot.isEnabledBackBtn,
             backButtonText: bot.backButtonText,
@@ -976,12 +1084,16 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           botId: bot._id,
           pageAccessToken: bot.token,
           persistentMenus: bot.persistentMenus,
+          iceBreakers: bot.iceBreakers,
+          getStartedText: bot.getStartedText,
           greetText: bot.greetText,
           isEnabledBackBtn: bot?.isEnabledBackBtn,
           backButtonText: bot?.backButtonText,
           expectedState: {
             token: bot.token,
             persistentMenus: bot.persistentMenus,
+            iceBreakers: bot.iceBreakers,
+            getStartedText: bot.getStartedText,
             greetText: bot.greetText,
             isEnabledBackBtn: bot.isEnabledBackBtn,
             backButtonText: bot.backButtonText,
@@ -1025,6 +1137,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       const {
         pageId,
         persistentMenus,
+        iceBreakers,
+        getStartedText,
         greetText,
         isEnabledBackBtn,
         backButtonText,
@@ -1040,6 +1154,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         JSON.stringify({
           pageId,
           persistentMenus,
+          iceBreakers,
+          getStartedText,
           greetText,
           isEnabledBackBtn,
           backButtonText,
@@ -1047,6 +1163,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         JSON.stringify({
           pageId: bot.pageId,
           persistentMenus: bot.persistentMenus,
+          iceBreakers: bot.iceBreakers,
+          getStartedText: bot.getStartedText,
           greetText: bot.greetText,
           isEnabledBackBtn: bot.isEnabledBackBtn,
           backButtonText: bot.backButtonText,
@@ -1063,12 +1181,16 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
             botId: bot._id,
             pageAccessToken: bot.token,
             persistentMenus,
+            iceBreakers,
+            getStartedText,
             greetText: greetText !== bot.greetText ? greetText : undefined,
             isEnabledBackBtn,
             backButtonText,
             expectedState: {
               token: bot.token,
               persistentMenus,
+              iceBreakers,
+              getStartedText,
               greetText,
               isEnabledBackBtn,
               backButtonText,
@@ -1123,6 +1245,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       botId,
       pageAccessToken,
       persistentMenus,
+      iceBreakers,
+      getStartedText,
       greetText,
       isEnabledBackBtn,
       backButtonText,
@@ -1130,6 +1254,8 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       botId: string;
       pageAccessToken: string;
       persistentMenus?: IFacebookBotDocument['persistentMenus'];
+      iceBreakers?: IFacebookBotDocument['iceBreakers'];
+      getStartedText?: string;
       greetText?: string;
       isEnabledBackBtn?: boolean;
       backButtonText?: string;
@@ -1197,7 +1323,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
             call_to_actions: [
               {
                 type: 'postback',
-                title: 'Get Started',
+                title: getStartedText || DEFAULT_GET_STARTED_TITLE,
                 payload: JSON.stringify({ botId: botId }),
               },
               ...generatedPersistentMenus,
@@ -1215,6 +1341,17 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
         ];
       }
 
+      const generatedIceBreakers = buildIceBreakerActions(botId, iceBreakers);
+
+      if (generatedIceBreakers.length) {
+        doc.ice_breakers = [
+          {
+            locale: 'default',
+            call_to_actions: generatedIceBreakers,
+          },
+        ];
+      }
+
       await graphRequest.post('/me/messenger_profile', pageAccessToken, doc);
 
       return { status: 'success' };
@@ -1227,7 +1364,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       await this.markSyncing(bot._id);
 
       try {
-        const fields = ['get_started', 'persistent_menu'];
+        const fields = ['get_started', 'persistent_menu', 'ice_breakers'];
 
         await graphRequest.delete('/me/messenger_profile', pageAccessToken, {
           fields,

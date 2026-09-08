@@ -18,6 +18,8 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
+  iceBreakers:[BotIceBreakerInput],
+  getStartedText:String,
   greetText:String,
   handoffMessage:String,
   automationActiveMessage:String,
@@ -123,6 +125,16 @@ export const types = `
     link: String
   }
 
+  type BotIceBreakerType {
+    _id:String
+    question: String
+  }
+
+  input BotIceBreakerInput {
+    _id:String
+    question: String
+  }
+
   type FacebookMessengerBot {
     _id: String
     name:String
@@ -137,6 +149,8 @@ export const types = `
     createdUser: User
     updatedUser: User
     persistentMenus:[BotPersistentMenuType]
+    iceBreakers:[BotIceBreakerType]
+    getStartedText:String
     profileUrl:String
     greetText:String
     handoffMessage:String
