@@ -1,3 +1,4 @@
+import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import { IProductDocument, Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
@@ -13,13 +14,11 @@ import {
   PRODUCT_SIMILARITY_STATUSES,
   PRODUCT_STATUSES,
 } from '@/products/constants';
-import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
 import { getPipelineInventoryScope } from '@/products/graphql/resolvers/customResolvers/product';
-import { withPropertyConditions } from '@/properties/utils';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
@@ -292,7 +291,7 @@ const generateFilter = async (
   commonQuerySelector: any,
   params: IProductParams,
 ) => {
-  const { models, subdomain } = context;
+  const { models } = context;
   const {
     type,
     categoryIds,
@@ -307,7 +306,6 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
-    segmentData,
     propertiesData,
     branchId,
     departmentId,
@@ -344,7 +342,7 @@ const generateFilter = async (
   }
 
   if (propertiesData) {
-    const propertyConditions = withPropertyConditions(propertiesData);
+    const propertyConditions = buildPropertyFilter(propertiesData);
 
     if (propertyConditions.length) {
       andFilters.push(...propertyConditions);
@@ -356,8 +354,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -576,20 +575,8 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment || segmentData) {
-    const segmentObj = segmentData
-      ? JSON.parse(segmentData)
-      : await models.Segments.findOne({ _id: segment }).lean();
-
-    if (segmentObj) {
-      const segmentProductIds = await fetchSegment(
-        models,
-        subdomain,
-        segmentObj,
-      );
-
-      andFilters.push({ _id: { $in: segmentProductIds } });
-    }
+  if (segment) {
+    andFilters.push({ segmentIds: segment });
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -794,8 +781,9 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         );
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

@@ -14,9 +14,12 @@ export const TimezoneSelect = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
+        {/* Nothing chosen is a real state - an organization that has never set
+            a zone stores none - and the formatter throws on an empty one. The
+            placeholder is what that state looks like. */}
         <Combobox.Value
           placeholder="Select timezone"
-          value={formatTimeZoneLabel(value)}
+          value={value ? formatTimeZoneLabel(value) : undefined}
         />
       </Combobox.Trigger>
       <Combobox.Content>

@@ -25,12 +25,15 @@ const TICKET_SYSTEM_HEADERS = [
 export const ticketImportHandlers = {
   getImportHeaders: async (
     { collectionName }: { collectionName: string },
-    { subdomain }: TCoreModuleProducerContext<IModels>,
+    { subdomain, models }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     if (collectionName !== 'ticket')
       throw new Error(`Import headers handler not found for ${collectionName}`);
 
-    const customHeaders = await getTicketCustomPropertyHeaders(subdomain);
+    const customHeaders = await getTicketCustomPropertyHeaders(
+      subdomain,
+      models,
+    );
     return [...TICKET_SYSTEM_HEADERS, ...customHeaders];
   },
   insertImportRows: async (

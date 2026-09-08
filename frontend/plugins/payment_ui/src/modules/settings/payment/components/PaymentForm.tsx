@@ -286,7 +286,7 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
-        config[key] = value;
+        config[key] = key === 'pocketTerminalId' ? Number(value) : value;
       }
     });
     input.config = config;

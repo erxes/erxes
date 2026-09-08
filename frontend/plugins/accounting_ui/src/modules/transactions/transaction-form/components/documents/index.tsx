@@ -1,3 +1,4 @@
+import { ComponentType } from 'react';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { TrJournalEnum } from '~/modules/transactions/types/constants';
 import { PRINT_DOCUMENTS } from '../../contants/printDocuments';
@@ -66,7 +67,10 @@ export const PrintBody = ({
     );
   }
 
-  const Component = PRINT_DOCUMENTS[transaction.journal];
+  const printDocuments = PRINT_DOCUMENTS as Partial<
+    Record<TrJournalEnum, ComponentType<{ transaction: ITransaction }> | ''>
+  >;
+  const Component = printDocuments[transaction.journal];
   if (!Component) {
     return <div className="p-10 text-red-500">Баримт олдсонгүй.</div>;
   }

@@ -15,6 +15,10 @@ import {
   PageInfo,
 } from './cursor-util';
 import { mongooseStringRandomId } from './mongoose-types';
+import {
+  configureSchemaSearchTokens,
+  ISchemaWrapperOptions,
+} from './search-tokens';
 
 export interface IOrderInput {
   _id: string;
@@ -121,8 +125,8 @@ export const cursorPaginate = async <T extends Document>({
       direction === 'forward'
         ? normalizedOrder
         : normalizedOrder === 1
-        ? -1
-        : 1;
+          ? -1
+          : 1;
   }
 
   sortOrder._id = (direction === 'forward' ? 1 : -1) as 1 | -1;
@@ -264,9 +268,34 @@ export const checkCollectionCodeDuplication = async (
   }
 };
 
-export const schemaWrapper = (schema: Schema) => {
+export const schemaWrapper = (
+  schema: Schema,
+  options: ISchemaWrapperOptions = {},
+) => {
   schema.add({ _id: mongooseStringRandomId });
   schema.add({ processId: { type: String, optional: true } });
+
+  // Segment membership is written here by the segmentation worker, for whatever
+  // content types segments are built against. Declared once for every schema
+  // rather than per model: a field that has to be added and indexed by hand on
+  // each of a hundred schemas is a field that will be missing from some of them.
+  //
+  // `default: undefined` keeps the field absent until membership is actually
+  // written, which is what lets the sparse index stay empty - and cost nothing -
+  // on the collections no segment ever targets.
+  schema.add({
+    segmentIds: {
+      type: [String],
+      optional: true,
+      default: undefined,
+      index: true,
+      sparse: true,
+    },
+  });
+
+  if (options.search) {
+    configureSchemaSearchTokens(schema, options.search);
+  }
 
   return schema;
 };

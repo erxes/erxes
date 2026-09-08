@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
@@ -52,35 +51,33 @@ export default class CurrencyTr {
 
     this.spotRate = await sendTRPCMessage({
       subdomain: this.subdomain,
-      method: 'query',
-      pluginName: 'core',
+      pluginName: 'mongolian',
       module: 'exchangeRates',
       action: 'getActiveRate',
       input: {
-        date: dayjs(this.doc.date).format('YYYY-MM-DD'),
+        date: new Date(this.doc.date),
         rateCurrency: account.currency,
         mainCurrency,
       },
       defaultValue: {},
     });
 
-    const spotRate = this.spotRate.rate;
+    const spotRate = Number(this.spotRate?.rate || 0);
+    const customRate = Number(detail.customRate || 0);
+    const hasRateDiff =
+      !!customRate && Math.abs(fixNum(customRate - spotRate, 8)) > 0;
 
-    if (
-      detail.customRate &&
-      spotRate !== detail.customRate &&
-      !detail.followInfos?.currencyDiffAccountId
-    ) {
+    if (!spotRate) {
+      throw new Error(`exchange rate not found: ${account.currency}`);
+    }
+
+    if (hasRateDiff && !detail.followInfos?.currencyDiffAccountId) {
       throw new Error('must fill currency diff account');
     }
 
-    if (
-      detail.customRate &&
-      spotRate !== detail.customRate &&
-      detail.followInfos.currencyDiffAccountId
-    ) {
-      const rateDiff = detail.customRate - spotRate;
-      let amount = detail.currencyAmount * rateDiff;
+    if (hasRateDiff && detail.followInfos.currencyDiffAccountId) {
+      const rateDiff = customRate - spotRate;
+      let amount = fixNum(detail.currencyAmount * rateDiff, 4);
 
       let side = this.doc.side;
       if (amount < 0) {

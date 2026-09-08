@@ -33,6 +33,14 @@ const NumberInput = ({
   />
 );
 
+const roundRate = (value: number) => Math.round(value * 100) / 100;
+
+const getRateFromUsefulLife = (usefulLife?: number) =>
+  usefulLife && usefulLife > 0 ? roundRate(100 / usefulLife) : undefined;
+
+const getUsefulLifeFromRate = (annualRate?: number) =>
+  annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
+
 export const FixedAssetForm = ({
   form,
   handleSubmit,
@@ -64,13 +72,27 @@ export const FixedAssetForm = ({
       'depreciationMethod',
       getDepreciationMethod(category.depreciationMethod),
     );
-    form.setValue('usefulLife', category.defaultUsefulLife);
+    form.setValue(
+      'usefulLife',
+      getUsefulLifeFromRate(category.defaultAnnualDepreciationRate),
+    );
+    form.setValue(
+      'annualDepreciationRate',
+      category.defaultAnnualDepreciationRate,
+    );
     form.setValue('salvageValue', category.defaultSalvageValue);
     form.setValue(
       'taxDepreciationMethod',
       getDepreciationMethod(category.taxDepreciationMethod),
     );
-    form.setValue('taxUsefulLife', category.defaultTaxUsefulLife);
+    form.setValue(
+      'taxUsefulLife',
+      getUsefulLifeFromRate(category.defaultTaxAnnualDepreciationRate),
+    );
+    form.setValue(
+      'taxAnnualDepreciationRate',
+      category.defaultTaxAnnualDepreciationRate,
+    );
     form.setValue('taxSalvageValue', category.defaultTaxSalvageValue);
   };
 
@@ -81,6 +103,7 @@ export const FixedAssetForm = ({
       categoryId: 'Бүлэг',
       depreciationMethod: 'Элэгдлийн арга',
       usefulLife: 'Ашиглах хугацаа',
+      annualDepreciationRate: 'Жилд элэгдэх хувь',
       salvageValue: 'Үлдэх өртөг',
       taxDepreciationMethod: 'Татварын элэгдлийн арга',
       taxUsefulLife: 'Татварын ашиглах хугацаа',
@@ -177,9 +200,46 @@ export const FixedAssetForm = ({
               name="usefulLife"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Ашиглах хугацаа</Form.Label>
+                  <Form.Label>Ашиглах жил</Form.Label>
                   <Form.Control>
-                    <NumberInput field={field} />
+                    <NumberInput
+                      field={{
+                        ...field,
+                        onChange: (value?: number) => {
+                          field.onChange(value);
+                          form.setValue(
+                            'annualDepreciationRate',
+                            getRateFromUsefulLife(value),
+                            { shouldDirty: true, shouldValidate: true },
+                          );
+                        },
+                      }}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="annualDepreciationRate"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Жилд элэгдэх хувь</Form.Label>
+                  <Form.Control>
+                    <NumberInput
+                      field={{
+                        ...field,
+                        onChange: (value?: number) => {
+                          field.onChange(value);
+                          form.setValue(
+                            'usefulLife',
+                            getUsefulLifeFromRate(value),
+                            { shouldDirty: true, shouldValidate: true },
+                          );
+                        },
+                      }}
+                    />
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>

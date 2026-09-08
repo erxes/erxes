@@ -30,14 +30,18 @@ export const AuthenticationLayout = ({
                 <span className="text-sm text-center inline-flex gap-1 justify-center">
                   <a
                     className="text-primary font-medium hover:underline"
-                    href="#"
+                    href="https://erxes.io/legal/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Terms of use
                   </a>
                   and
                   <a
                     className="text-primary font-medium hover:underline"
-                    href="#"
+                    href="https://erxes.io/legal/privacy"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     Privacy policy
                   </a>

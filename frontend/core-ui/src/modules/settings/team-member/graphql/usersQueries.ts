@@ -167,29 +167,13 @@ const GET_UNITS_QUERY = gql`
 
 const GET_SEGMENTS_QUERY = gql`
   query segments($contentTypes: [String]!, $config: JSON) {
-    segments(contentTypes: $contentTypes, config: $config) {
+    segments(contentTypes: $contentTypes) {
       _id
       contentType
       name
       description
-      subOf
       color
-      conditions
-      conditionsConjunction
-      shouldWriteActivityLog
-      config
-      getSubSegments {
-        _id
-        contentType
-        name
-        description
-        subOf
-        color
-        conditions
-        conditionsConjunction
-        shouldWriteActivityLog
-        config
-      }
+      root
     }
   }
 `;

@@ -15,4 +15,12 @@ export const CORE_RELATION_TYPES = [
     label: 'Team members',
     value: 'core:user',
   },
+  {
+    label: 'Branches',
+    value: 'core:branch',
+  },
+  {
+    label: 'Departments',
+    value: 'core:department',
+  },
 ];

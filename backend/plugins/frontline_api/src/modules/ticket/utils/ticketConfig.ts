@@ -56,20 +56,16 @@ export const validateTicketPropertyFields = async (
 
   const fieldById = new Map(fields.map((field) => [String(field._id), field]));
 
-  const missingField = uniqueFields.find(
-    (propertyField) => !fieldById.has(propertyField.fieldId),
+  const existingFields = uniqueFields.filter((propertyField) =>
+    fieldById.has(propertyField.fieldId),
   );
-
-  if (missingField) {
-    throw new Error(`Ticket property field not found: ${missingField.fieldId}`);
-  }
 
   // Both orders come from the submitted array, never from the submitted values:
   // a property's position is its `order`, and the position of the block its
   // group forms is that group's `groupOrder`.
   const groupPositions = new Map<string, number>();
 
-  return uniqueFields.map((propertyField, index) => {
+  return existingFields.map((propertyField, index) => {
     const field = fieldById.get(propertyField.fieldId);
     const groupId = propertyField.groupId || field?.groupId || undefined;
     const groupKey = groupId || '';

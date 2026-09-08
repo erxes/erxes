@@ -20,6 +20,7 @@ export type MessageProps = {
   defaultValue?: any;
   options?: TRPCRequestOptions;
   context?: CommonTRPCContext;
+  throwOnError?: boolean;
 };
 
 export type CommonTRPCContext = {
@@ -110,6 +111,7 @@ export const sendTRPCMessage = async ({
   defaultValue,
   options,
   context,
+  throwOnError,
 }: MessageProps) => {
   if (!method) {
     method = 'query';
@@ -143,6 +145,10 @@ export const sendTRPCMessage = async ({
     } else {
       // Validate plugin address before constructing URL
       if (!pluginInfo.address || pluginInfo.address.trim() === '') {
+        if (throwOnError) {
+          throw new Error(`Plugin "${pluginName}" has no address`);
+        }
+
         console.warn(
           `Plugin "${pluginName}" address is not available. Returning defaultValue.`,
         );
@@ -164,6 +170,10 @@ export const sendTRPCMessage = async ({
     const result = await client[method](`${module}.${action}`, input, options);
     return result || defaultValue;
   } catch (e) {
+    if (throwOnError) {
+      throw e;
+    }
+
     return defaultValue;
   }
 };

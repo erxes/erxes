@@ -13,8 +13,10 @@ const adjustClosingEntryMutations = {
   async adjustClosingAdd(
     _root: undefined,
     doc: IAdjustClosing,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustClosings');
+
     return await models.AdjustClosings.createAdjustClosing({
       ...doc,
       createdBy: user?._id || '',
@@ -34,8 +36,10 @@ const adjustClosingEntryMutations = {
       detailId?: string;
       entryId?: string;
     } & Partial<IAdjustClosing>,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustClosings');
+
     await models.AdjustClosings.getAdjustClosing({ _id });
     return await models.AdjustClosings.updateAdjustClosing(_id, {
       ...doc,
@@ -48,8 +52,10 @@ const adjustClosingEntryMutations = {
   async adjustClosingRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('removeAdjustClosings');
+
     const response = await models.AdjustClosings.removeAdjustClosing(_id);
     return response;
   },
@@ -57,16 +63,20 @@ const adjustClosingEntryMutations = {
   async adjustClosingPublish(
     _root: undefined,
     { adjustId }: { adjustId: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('publishAdjustClosings');
+
     return models.AdjustClosings.publishAdjustClosing(adjustId);
   },
 
   async adjustClosingCancel(
     _root: undefined,
     { adjustId }: { adjustId: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('cancelAdjustClosings');
+
     const closing = await models.AdjustClosings.getAdjustClosing({
       _id: adjustId,
     });
@@ -84,8 +94,10 @@ const adjustClosingEntryMutations = {
   async adjustClosingCalculate(
     _root: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustClosings');
+
     const closing = await models.AdjustClosings.getAdjustClosing({ _id });
 
     if (closing.status === 'publish') {
@@ -98,8 +110,11 @@ const adjustClosingEntryMutations = {
   async adjustClosingDoTransaction(
     _root: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustClosings');
+    await checkPermission('manageMainTransactions');
+
     const closing = await models.AdjustClosings.getAdjustClosing({ _id });
 
     if (closing.status === 'publish') {
@@ -116,8 +131,10 @@ const adjustClosingEntryMutations = {
   async adjustClosingRun(
     _root: undefined,
     { _id }: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAdjustClosings');
+
     const closing = await models.AdjustClosings.getAdjustClosing({ _id });
     return calculateAdjustClosing(models, user?._id || '', closing);
   },

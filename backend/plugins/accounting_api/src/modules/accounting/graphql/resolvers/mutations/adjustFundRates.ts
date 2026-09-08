@@ -24,7 +24,7 @@ const adjustFundRateMutations = {
     doc: IAdjustFundRateInput,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustFundRates');
 
     const adjustFundRate = await models.AdjustFundRates.createAdjustFundRate({
       ...doc,
@@ -44,7 +44,7 @@ const adjustFundRateMutations = {
     { _id, ...doc }: { _id: string } & IAdjustFundRateInput,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
@@ -86,7 +86,7 @@ const adjustFundRateMutations = {
     { adjustFundRateIds }: { adjustFundRateIds: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('removeAdjustInventories');
+    await checkPermission('removeAdjustFundRates');
 
     for (const _id of adjustFundRateIds) {
       await models.AdjustFundRates.removeAdjustFundRate(_id);
@@ -100,7 +100,7 @@ const adjustFundRateMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
+    await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
@@ -112,8 +112,7 @@ const adjustFundRateMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
-    await checkPermission('manageTransactions');
+    await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
@@ -125,8 +124,7 @@ const adjustFundRateMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAdjustInventories');
-    await checkPermission('manageTransactions');
+    await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 

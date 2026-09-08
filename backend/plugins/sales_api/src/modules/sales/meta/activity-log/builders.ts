@@ -55,7 +55,9 @@ export const buildDealStageMovedActivity = (params: {
     target: buildDealTarget(deal),
     action: {
       type: 'moved',
-      description: `moved from "${fromStage || prev}" to "${toStage || current}"`,
+      description: `moved from "${fromStage || prev}" to "${
+        toStage || current
+      }"`,
     },
     changes: { prev: { stageId: prev }, current: { stageId: current } },
     metadata: {

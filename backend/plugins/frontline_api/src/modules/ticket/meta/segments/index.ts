@@ -1,96 +1,42 @@
 import {
-  gatherAssociatedTypes,
-  getContentType,
-  getPluginName,
   TCoreModuleProducerContext,
   TSegmentProducers,
   TSegmentProducersInput,
 } from 'erxes-api-shared/core-modules';
-import {
-  fetchByQueryWithScroll,
-  getEsIndexByContentType,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ticketsSegmentConfigs } from './configs';
+import { evaluateTicketFields } from './evaluate';
+import { FRONTLINE_SEGMENT_FIELDS } from './fields';
+import { countTicketSegmentMembers, listTicketSegmentMembers } from './members';
+import { applyTicketSegmentMembership } from './membership';
+import { TICKET_SEGMENT_RELATIONS } from './relations';
 
 export const ticketsSegments = {
   dependentModules: ticketsSegmentConfigs.dependentModules,
 
   contentTypes: ticketsSegmentConfigs.contentTypes,
 
-  propertyConditionExtender: async () => {
-    let positive;
-    let ignoreThisPostiveQuery;
+  segmentFields: FRONTLINE_SEGMENT_FIELDS,
 
-    return { data: { positive, ignoreThisPostiveQuery }, status: 'success' };
-  },
+  segmentRelations: TICKET_SEGMENT_RELATIONS,
 
-  associationFilter: async (
-    {
-      mainType,
-      propertyType,
-      positiveQuery,
-      negativeQuery,
-    }: TSegmentProducersInput[TSegmentProducers.ASSOCIATION_FILTER],
-    { subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
+  evaluateFields: async (
+    data: TSegmentProducersInput[TSegmentProducers.EVALUATE_FIELDS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => evaluateTicketFields(models, data),
 
-    let ids: string[] = [];
+  listSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.LIST_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => listTicketSegmentMembers(models, data),
 
-    if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQueryWithScroll({
-        subdomain,
-        index: await getEsIndexByContentType(propertyType),
-        positiveQuery,
-        negativeQuery,
-      });
+  countSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.COUNT_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => countTicketSegmentMembers(models, data),
 
-      ids = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'relation',
-        action: 'filterRelationIds',
-        input: {
-          contentType: getContentType(propertyType),
-          contentIds: mainTypeIds,
-          relatedContentType: getContentType(mainType),
-        },
-      });
-    } else {
-      const pluginName = getPluginName(propertyType);
-
-      if (pluginName === 'frontline') {
-        return { data: [], status: 'error' };
-      }
-
-      ids = [];
-      await sendTRPCMessage({
-        subdomain,
-        pluginName,
-        module: 'segments',
-        action: 'associationFilter',
-        input: {
-          mainType,
-          propertyType,
-          positiveQuery,
-          negativeQuery,
-        },
-        defaultValue: [],
-      });
-    }
-
-    return ids;
-  },
-
-  esTypesMap: async () => {
-    return { data: { typesMap: {} }, status: 'success' };
-  },
-
-  initialSelector: async () => {
-    let positive;
-
-    return { data: { positive }, status: 'success' };
-  },
+  applyMembership: async (
+    data: TSegmentProducersInput[TSegmentProducers.APPLY_MEMBERSHIP],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => applyTicketSegmentMembership(models, data),
 };

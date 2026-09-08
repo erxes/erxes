@@ -26,7 +26,7 @@ import {
   cn,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { UseFormReturn, useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IField, useFieldGroups, useFields } from 'ui-modules';
 import { TICKET_PROPERTY_CONTENT_TYPE } from '../constant';
@@ -40,6 +40,18 @@ type PropertyGroup = {
   name: string;
   groupFields: IField[];
 };
+
+const toPropertyValue = (
+  field: IField,
+): TPipelineConfig['propertyFields'][number] => ({
+  fieldId: field._id,
+  groupId: field.groupId ?? null,
+  label: field.name,
+  placeholder: '',
+  isRequired: !!field.isRequired,
+  type: field.type ?? null,
+  options: (field.options ?? []).map(({ label, value }) => ({ label, value })),
+});
 
 // The properties list is a picker, the platform cursor pagination caps at 100.
 const PROPERTY_FIELDS_LIMIT = 100;
@@ -70,6 +82,8 @@ export const TicketPropertyFields = ({ form }: Props) => {
     control,
     name: 'propertyFields',
   });
+
+  const propertyValues = useWatch({ control, name: 'propertyFields' }) ?? [];
 
   const [groupIds, setGroupIds] = useState<string[]>([]);
   const [openGroupIds, setOpenGroupIds] = useState<string[]>([]);
@@ -218,18 +232,52 @@ export const TicketPropertyFields = ({ form }: Props) => {
       if (groupId === field.groupId) break;
     }
 
-    insert(Math.min(insertAt, selectedFields.length), {
-      fieldId: field._id,
-      groupId: field.groupId ?? null,
-      label: field.name,
-      placeholder: '',
-      isRequired: !!field.isRequired,
-      type: field.type ?? null,
-      options: (field.options ?? []).map(({ label, value }) => ({
-        label,
-        value,
-      })),
+    insert(Math.min(insertAt, selectedFields.length), toPropertyValue(field));
+  };
+
+  const groupRank = (groupId?: string | null) => {
+    const position = groupIds.indexOf(groupId ?? '');
+
+    return position === -1 ? groupIds.length : position;
+  };
+
+  const toggleGroup = (group: PropertyGroup, checked: boolean) => {
+    const values = form.getValues('propertyFields') ?? [];
+    const groupFieldIds = new Set(group.groupFields.map((field) => field._id));
+
+    replace(
+      (checked
+        ? [
+            ...values,
+            ...group.groupFields
+              .filter((field) => indexOfSelected(field._id) === -1)
+              .map(toPropertyValue),
+          ]
+        : values.filter((value) => !groupFieldIds.has(value.fieldId))
+      ).sort((a, b) => groupRank(a.groupId) - groupRank(b.groupId)),
+    );
+  };
+
+  const toggleGroupRequired = (group: PropertyGroup, checked: boolean) => {
+    group.groupFields.forEach((field) => {
+      const index = indexOfSelected(field._id);
+
+      if (index > -1) {
+        form.setValue(`propertyFields.${index}.isRequired`, checked);
+      }
     });
+  };
+
+  const isGroupRequired = (group: PropertyGroup) => {
+    const selectedIds = selectedIdsOf(group);
+
+    return (
+      selectedIds.length > 0 &&
+      selectedIds.every(
+        (fieldId) =>
+          propertyValues.find((value) => value.fieldId === fieldId)?.isRequired,
+      )
+    );
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -311,6 +359,9 @@ export const TicketPropertyFields = ({ form }: Props) => {
                   group={group}
                   indexOfSelected={indexOfSelected}
                   onToggleField={toggleField}
+                  onToggleGroup={toggleGroup}
+                  onToggleGroupRequired={toggleGroupRequired}
+                  required={isGroupRequired(group)}
                   selectedIds={selectedIdsOf(group)}
                 />
               ))}
@@ -327,12 +378,18 @@ const SortablePropertyGroup = ({
   group,
   indexOfSelected,
   onToggleField,
+  onToggleGroup,
+  onToggleGroupRequired,
+  required,
   selectedIds,
 }: {
   form: UseFormReturn<TPipelineConfig>;
   group: PropertyGroup;
   indexOfSelected: (fieldId: string) => number;
   onToggleField: (field: IField, checked: boolean) => void;
+  onToggleGroup: (group: PropertyGroup, checked: boolean) => void;
+  onToggleGroupRequired: (group: PropertyGroup, checked: boolean) => void;
+  required: boolean;
   selectedIds: string[];
 }) => {
   const { t } = useTranslation('frontline');
@@ -372,8 +429,28 @@ const SortablePropertyGroup = ({
         <Accordion.Trigger className="py-2.5 flex-1 text-sm hover:no-underline">
           {group.name}
         </Accordion.Trigger>
+        {!!selectedFields.length && (
+          <div className="flex flex-none items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {t('required-attribute')}
+            </span>
+            <Switch
+              aria-label={t('required-attribute')}
+              checked={required}
+              onCheckedChange={(checked) =>
+                onToggleGroupRequired(group, checked)
+              }
+            />
+          </div>
+        )}
+        <Switch
+          aria-label={group.name}
+          checked={!unselectedFields.length}
+          className="flex-none"
+          onCheckedChange={(checked) => onToggleGroup(group, checked)}
+        />
       </div>
-      <Accordion.Content className="flex flex-col divide-y pb-2.5 pl-6 pt-0">
+      <Accordion.Content className="flex flex-col divide-y pb-2.5 pl-6 pt-2">
         <SortableContext
           items={selectedIds.map((fieldId) => `${FIELD_DRAG_PREFIX}${fieldId}`)}
           strategy={verticalListSortingStrategy}

@@ -4,19 +4,21 @@ import { useEffect, useRef, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { SEGMENTS } from '../graphql/queries';
 import { ISegment } from '../types';
-import { generateOrderPath } from '../utils/segmentsUtils';
 
 export const useSelectSegments = ({
   selected,
   exclude,
   focusOnMount,
+  contentType: forContentType,
 }: {
   selected?: string;
   exclude?: string[];
   focusOnMount?: boolean;
+  contentType?: string;
 }) => {
   const [search, setSearch] = useState('');
-  const [contentType] = useQueryState('contentType');
+  const [routeContentType] = useQueryState<string>('contentType');
+  const contentType = forContentType || routeContentType;
   const [debouncedSearch] = useDebounce(search, 500);
   const { data, loading, error } = useQuery(SEGMENTS, {
     variables: {
@@ -41,7 +43,7 @@ export const useSelectSegments = ({
   }, [focusOnMount]);
 
   return {
-    segments: generateOrderPath(segments),
+    segments,
     loading,
     error,
     inputRef,

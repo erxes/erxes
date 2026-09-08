@@ -42,7 +42,6 @@ const queryParams = `
   branchIds: [String]
   departmentIds: [String]
   segment: String
-  segmentData:String
   createdStartDate: Date
   createdEndDate: Date
   stateChangedStartDate: Date

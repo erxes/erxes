@@ -29,7 +29,6 @@ export const productCategorySchema = schemaWrapper(
         optional: true,
         label: 'Status',
         default: 'active',
-        esType: 'keyword',
         index: true,
       },
       maskType: {

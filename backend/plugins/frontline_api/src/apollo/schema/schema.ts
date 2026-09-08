@@ -47,10 +47,10 @@ import {
 } from '@/integrations/callpro/graphql/schema';
 
 import {
-  mutations as ImapMutations,
-  queries as ImapQueries,
-  types as ImapTypes,
-} from '@/integrations/imap/graphql/schema/imap';
+  mutations as MailMutations,
+  queries as MailQueries,
+  types as MailTypes,
+} from '@/integrations/mail/graphql/schema/mail';
 
 import {
   queries as WidgetQueries,
@@ -74,6 +74,12 @@ import {
   fieldsQueries as FieldQueries,
   fieldsTypes as FieldTypes,
 } from '~/modules/form/graphql/schema/field';
+
+import {
+  mutations as PollMutations,
+  queries as PollQueries,
+  types as PollTypes,
+} from '~/modules/poll/graphql/schema/poll';
 
 import {
   queries as ReportCallQueries,
@@ -129,7 +135,7 @@ export const types = `
     ${InstagramTypes}
     ${CallTypes}
     ${CallProTypes}
-    ${ImapTypes}
+    ${MailTypes}
     ${TicketTypes}
     ${WidgetTypes}
     ${ResponseTemplateTypes}
@@ -140,6 +146,7 @@ export const types = `
     ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
+    ${PollTypes}
     ${KnowledgeBaseTypes}
   `;
 
@@ -152,7 +159,7 @@ export const queries = `
     ${InstagramQueries}
     ${CallQueries}
     ${CallProQueries}
-    ${ImapQueries}
+    ${MailQueries}
     ${TicketQuery}
     ${WidgetQueries}
     ${ResponseTemplateQueries}
@@ -163,6 +170,7 @@ export const queries = `
     ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
+    ${PollQueries}
     ${KnowledgeBaseQueries}
     ${CpInboxQueries}
   `;
@@ -176,12 +184,13 @@ export const mutations = `
    ${InstagramMutations}
    ${CallMutations}
    ${CallProMutations}
-   ${ImapMutations}
+   ${MailMutations}
    ${TicketMutations}
    ${WidgetMutations}
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
+   ${PollMutations}
    ${KnowledgeBaseMutations}
    ${CpInboxMutations}
    ${ReportChartMutations}

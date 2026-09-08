@@ -10,6 +10,7 @@ import {
 
 const MAX_VISIBLE_TAGS = 5;
 const MAX_VISIBLE_PROPERTIES = 3;
+const PROPERTY_FIELDS_LIMIT = 100;
 const TAG_COLOR = '#FF6600';
 const PROPERTY_COLOR = '#0EA5E9';
 
@@ -40,7 +41,10 @@ export const TicketCardDetails = ({
   onTagsOverflowClick,
   onPropertiesOverflowClick,
 }: TicketCardDetailsProps) => {
-  const { fields } = useFields({ contentType: 'frontline:ticket' });
+  const { fields } = useFields({
+    contentType: 'frontline:ticket',
+    limit: PROPERTY_FIELDS_LIMIT,
+  });
   const { tags } = useGetTags({ variables: { type: 'frontline:ticket' } });
 
   const selectedTags = tagIds

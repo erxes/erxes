@@ -1,5 +1,9 @@
+import {
+  buildPropertyDataColumns,
+  parsePropertyColumnKey,
+  readPropertyDataColumn,
+} from 'erxes-api-shared/core-modules';
 import { ICustomerDocument } from 'erxes-api-shared/core-types';
-import { getRealIdFromElk } from 'erxes-api-shared/utils';
 import { defaultContactFieldFormatter } from '../utils';
 
 const getFieldValue = (
@@ -8,18 +12,19 @@ const getFieldValue = (
   tagMap?: Map<string, string>,
   formatValue = defaultContactFieldFormatter,
 ): string => {
-  if (key.startsWith('propertiesData.')) {
-    const fieldId = key.replace('propertiesData.', '');
-    return formatValue((customer as any).propertiesData?.[fieldId]);
+  const column = parsePropertyColumnKey(key);
+
+  if (column) {
+    return formatValue(
+      readPropertyDataColumn((customer as any).propertiesData, column),
+    );
   }
 
   if (key.startsWith('customFieldsData.')) {
     const fieldId = key.replace('customFieldsData.', '');
     const customFieldsData = customer.customFieldsData || [];
     if (customFieldsData?.length) {
-      const cf = customFieldsData.find(
-        (c) => getRealIdFromElk(c.field || '') === fieldId,
-      );
+      const cf = customFieldsData.find((c) => c.field || '' === fieldId);
       return formatValue(cf?.value);
     }
     return '';
@@ -110,7 +115,7 @@ export const buildCustomerExportRow = (
   if (customFieldsData?.length) {
     for (const { field, value } of customFieldsData) {
       if (field && value !== undefined) {
-        const fieldId = getRealIdFromElk(field || '');
+        const fieldId = field || '';
         allFields[`customFieldsData.${fieldId}`] = formatValue(value);
       }
     }
@@ -118,11 +123,10 @@ export const buildCustomerExportRow = (
 
   const propertiesData = (customer as any).propertiesData;
   if (propertiesData && typeof propertiesData === 'object') {
-    for (const [fieldId, value] of Object.entries(propertiesData)) {
-      if (value !== undefined && value !== null) {
-        allFields[`propertiesData.${fieldId}`] = formatValue(value);
-      }
-    }
+    Object.assign(
+      allFields,
+      buildPropertyDataColumns(propertiesData, formatValue),
+    );
   }
 
   if (selectedFields && selectedFields.length > 0) {

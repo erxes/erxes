@@ -12,7 +12,6 @@ export const commonParams = `
   $branchIds: [String]
   $departmentIds: [String]
   $segment: String
-  $segmentData:String
   $createdStartDate: Date
   $createdEndDate: Date
   $stageChangedStartDate: Date
@@ -35,7 +34,6 @@ export const commonParamDefs = `
   branchIds:$branchIds
   departmentIds:$departmentIds
   segment: $segment
-  segmentData:$segmentData
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
   stateChangedStartDate: $stageChangedStartDate

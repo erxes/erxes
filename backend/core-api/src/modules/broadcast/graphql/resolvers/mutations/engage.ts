@@ -311,25 +311,6 @@ export const engageMutations = {
 
     doc.userId = user._id;
 
-    // TODO: uncomment
-    // if (doc.integrationId) {
-    //   try {
-    //     const imapSendMail = await sendTRPCMessage({
-    //       subdomain,
-    //       pluginName: 'frontline',
-    //       method: 'mutation',
-    //       module: 'imap',
-    //       action: 'create',
-    //       input: {
-    //         ...doc,
-    //       },
-    //     });
-    //     return imapSendMail;
-    //   } catch (e) {
-    //     console.log(e);
-    //     throw e;
-    //   }
-    // }
     return;
   },
 };

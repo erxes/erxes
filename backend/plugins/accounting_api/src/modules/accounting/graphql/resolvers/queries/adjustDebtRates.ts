@@ -94,7 +94,7 @@ const adjustDebtRateQueries = {
     params: IQueryParams & ICursorPaginateParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustDebtRates');
 
     const filter = await generateFilter(params);
 
@@ -117,7 +117,7 @@ const adjustDebtRateQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAdjustInventories');
+    await checkPermission('readAdjustDebtRates');
 
     const adjust = await models.AdjustDebtRates.getAdjustDebtRate(_id);
     return enrichDebtRateAdjustment(models, adjust);

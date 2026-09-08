@@ -1,5 +1,6 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
+import { conversationsChanged } from '@/inbox/meta/segments';
 import { FrontlineTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
@@ -13,7 +14,7 @@ export const conversationTrpcRouter = t.router({
       return models.Conversations.find(query).lean();
     }),
     tag: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
 
       const { targetIds, tagIds, action } = input;
 
@@ -30,6 +31,8 @@ export const conversationTrpcRouter = t.router({
           { _id: { $in: targetIds } },
           { $set: { tagIds } },
         );
+
+        conversationsChanged(subdomain, targetIds, { tagIds });
 
         response = await models.Conversations.find({
           _id: { $in: targetIds },

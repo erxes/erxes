@@ -72,6 +72,15 @@ export const isTimeInBetween = (
   const end = getHourAndMinute(closeTime);
   const closeDate = moment(now).hours(end.hour).minutes(end.minute);
 
+  if (!closeDate.isAfter(startDate)) {
+    closeDate.add(1, 'day');
+
+    if (now.isBefore(startDate)) {
+      startDate.subtract(1, 'day');
+      closeDate.subtract(1, 'day');
+    }
+  }
+
   return now.isBetween(startDate, closeDate);
 };
 
@@ -580,10 +589,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       /*
        * Auto
        */
-      const day = daysAsString[now.getDay()];
+      const day = daysAsString[moment(now).tz(timezoneString).day()];
 
       // check by everyday config
-      const everydayConf = onlineHours.find((c) => c.day === 'everyday');
+      const everydayConf = onlineHours.find(
+        (c) => c.day === 'everyday' && c.from && c.to,
+      );
 
       if (everydayConf) {
         return isTimeInBetween(

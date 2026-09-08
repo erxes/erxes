@@ -5,6 +5,54 @@ import { IModels } from '~/connectionResolvers';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
+const startOfToday = () => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return start;
+};
+
+const isPipelineHidden = (pipeline: any, userId?: string) =>
+  pipeline.visibility === 'private' &&
+  !(!!userId && (pipeline.memberIds || []).includes(userId));
+
+const buildVisibilityCondition = (
+  pipeline: any,
+  user: IUserDocument | undefined,
+): FilterQuery<ITicketDocument> | null => {
+  const userId = user?._id;
+
+  if (!userId) {
+    return null;
+  }
+
+  const conditions: FilterQuery<ITicketDocument>[] = [];
+
+  if (
+    pipeline.isCheckUser &&
+    !(pipeline.excludeCheckUserIds || []).includes(userId)
+  ) {
+    conditions.push({ $or: [{ assigneeId: userId }, { createdBy: userId }] });
+  }
+
+  if (pipeline.isCheckBranch) {
+    conditions.push({ branchId: { $in: user?.branchIds || [] } });
+  }
+
+  if (pipeline.isCheckDepartment) {
+    conditions.push({ departmentId: { $in: user?.departmentIds || [] } });
+  }
+
+  if (pipeline.isCheckDate) {
+    conditions.push({ createdAt: { $gte: startOfToday() } });
+  }
+
+  if (!conditions.length) {
+    return null;
+  }
+
+  return conditions.length === 1 ? conditions[0] : { $and: conditions };
+};
+
 export const generateFilter = async (
   filter: any,
   user: IUserDocument | undefined,
@@ -27,13 +75,10 @@ export const generateFilter = async (
       throw new Error('Pipeline not found');
     }
 
-    if (pipeline.visibility === 'private') {
-      const isMember = !!userId && (pipeline.memberIds || []).includes(userId);
-      if (!isMember) {
-        throw new Error(
-          'Access denied: You do not have access to this private pipeline',
-        );
-      }
+    if (isPipelineHidden(pipeline, userId)) {
+      throw new Error(
+        'Access denied: You do not have access to this private pipeline',
+      );
     }
 
     if (pipeline.isCheckDepartment && pipeline.departmentIds?.length) {
@@ -60,12 +105,47 @@ export const generateFilter = async (
       }
     }
 
-    if (
-      userId &&
-      pipeline.isCheckUser &&
-      !(pipeline.excludeCheckUserIds || []).includes(userId)
-    ) {
-      ownershipOrCondition = [{ assigneeId: userId }, { createdBy: userId }];
+    const visibilityCondition = buildVisibilityCondition(pipeline, user);
+
+    if (visibilityCondition) {
+      andConditions.push(visibilityCondition);
+    }
+  } else {
+    const pipelines = await models.Pipeline.find(
+      filter.channelId ? { channelId: filter.channelId } : {},
+    ).lean();
+
+    const hiddenPipelineIds: string[] = [];
+    const restrictedPipelineIds: string[] = [];
+    const restrictedConditions: FilterQuery<ITicketDocument>[] = [];
+
+    for (const pipeline of pipelines) {
+      if (isPipelineHidden(pipeline, userId)) {
+        hiddenPipelineIds.push(pipeline._id);
+        continue;
+      }
+
+      const visibilityCondition = buildVisibilityCondition(pipeline, user);
+
+      if (visibilityCondition) {
+        restrictedPipelineIds.push(pipeline._id);
+        restrictedConditions.push({
+          $and: [{ pipelineId: pipeline._id }, visibilityCondition],
+        });
+      }
+    }
+
+    if (hiddenPipelineIds.length) {
+      andConditions.push({ pipelineId: { $nin: hiddenPipelineIds } });
+    }
+
+    if (restrictedConditions.length) {
+      andConditions.push({
+        $or: [
+          { pipelineId: { $nin: restrictedPipelineIds } },
+          ...restrictedConditions,
+        ],
+      });
     }
   }
 

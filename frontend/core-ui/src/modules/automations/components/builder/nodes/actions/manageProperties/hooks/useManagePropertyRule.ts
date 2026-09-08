@@ -20,6 +20,7 @@ const ARRAY_FIELD_TYPES = new Set([
   'checkbox',
   'multiSelect',
   'multiselect',
+  'list',
 ]);
 
 const getManagePropertyOperatorType = (field?: IField) => {

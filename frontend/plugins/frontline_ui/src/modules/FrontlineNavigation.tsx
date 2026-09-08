@@ -1,17 +1,14 @@
 import {
   IconMail,
+  IconChartBar,
   IconTicket,
   IconChartHistogram,
   IconForms,
   IconBook,
+  IconLifebuoy,
   IconPlus,
 } from '@tabler/icons-react';
-import {
-  NavigationMenuLinkItem,
-  Button,
-  Skeleton,
-  Badge,
-} from 'erxes-ui';
+import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useInboxUnreadConversationCount } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +50,11 @@ export const FrontlineDestinationLinks = () => {
         path="frontline/forms"
       />
       <NavigationMenuLinkItem
+        name={t('polls')}
+        icon={IconChartBar}
+        path="frontline/polls"
+      />
+      <NavigationMenuLinkItem
         name={t('knowledge-base')}
         icon={IconBook}
         className="group/knowledgebase"
@@ -72,6 +74,11 @@ export const FrontlineDestinationLinks = () => {
             <IconPlus className="size-4" />
           </Button>
         }
+      />
+      <NavigationMenuLinkItem
+        name={t('help-center', 'Help Center')}
+        icon={IconLifebuoy}
+        path="frontline/helpcenter"
       />
     </>
   );

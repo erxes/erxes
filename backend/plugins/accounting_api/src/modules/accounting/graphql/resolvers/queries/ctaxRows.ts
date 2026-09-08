@@ -22,8 +22,12 @@ const generateFilterCat = async ({ kinds, searchValue, status }) => {
 };
 
 const ctaxRowQueries = {
-  async ctaxRows(_root, { kinds, searchValue, status }, { models, checkPermission }: IContext) {
-    await checkPermission('readCtaxRows');
+  async ctaxRows(
+    _root,
+    { kinds, searchValue, status },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTaxRows');
     const filter = await generateFilterCat({
       kinds,
       status,
@@ -43,7 +47,7 @@ const ctaxRowQueries = {
     { kinds, searchValue, status },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readCtaxRows');
+    await checkPermission('readTaxRows');
     const filter = await generateFilterCat({
       searchValue,
       status,
@@ -52,8 +56,12 @@ const ctaxRowQueries = {
     return models.CtaxRows.find(filter).countDocuments();
   },
 
-  async ctaxRowDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
-    await checkPermission('readCtaxRows');
+  async ctaxRowDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTaxRows');
     return models.CtaxRows.findOne({ _id }).lean();
   },
 };

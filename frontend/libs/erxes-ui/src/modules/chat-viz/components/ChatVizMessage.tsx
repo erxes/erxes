@@ -1,13 +1,23 @@
 import * as React from 'react';
 
+import { Slider } from 'erxes-ui/components/slider';
 import { cn } from 'erxes-ui/lib/utils';
 
+import {
+  applyChartVizTransforms,
+  getChartVizInteractiveDomain,
+  getDefaultChartVizControlValues,
+  type ChartVizControlValues,
+} from '../utils/chartVizTransforms';
 import { sanitizeChartVizPayload } from '../utils/chatVizSanitize';
 import { ChatVizArea } from './ChatVizArea';
 import { ChatVizBar } from './ChatVizBar';
 import { ChatVizLine } from './ChatVizLine';
 import { ChatVizPie } from './ChatVizPie';
-import type { ChartVizPayload } from '../types/chatVizTypes';
+import type {
+  ChartVizPayload,
+  ChartVizSliderControl,
+} from '../types/chatVizTypes';
 
 interface Props {
   /**
@@ -24,7 +34,7 @@ interface Props {
   className?: string;
 }
 
-export function ChatVizMessage({ rawPayload, className }: Props) {
+export function ChatVizMessage({ rawPayload, className }: Readonly<Props>) {
   const payload = React.useMemo(
     () => sanitizeChartVizPayload(rawPayload),
     [rawPayload],
@@ -32,10 +42,50 @@ export function ChatVizMessage({ rawPayload, className }: Props) {
 
   if (!payload) return null;
 
+  return <SanitizedChatVizMessage payload={payload} className={className} />;
+}
+
+/** Owns local controls for one payload that has crossed the sanitizer boundary. */
+function SanitizedChatVizMessage({
+  payload,
+  className,
+}: Readonly<{
+  payload: ChartVizPayload;
+  className?: string;
+}>) {
+  const defaultValues = React.useMemo(
+    () => getDefaultChartVizControlValues(payload),
+    [payload],
+  );
+  const [controlValues, setControlValues] =
+    React.useState<ChartVizControlValues>(defaultValues);
+
+  React.useEffect(() => {
+    setControlValues(defaultValues);
+  }, [defaultValues]);
+
+  const renderedPayload = React.useMemo(
+    () => applyChartVizTransforms(payload, controlValues),
+    [controlValues, payload],
+  );
+
+  // One axis domain covering every control extreme, computed from the
+  // BASELINE payload. Freezing this while sliders move makes the chart
+  // geometry visibly move; scaling per render would only relabel the ticks.
+  const interactiveDomain = React.useMemo(
+    () => getChartVizInteractiveDomain(payload),
+    [payload],
+  );
+  const interactiveBarDomain = React.useMemo(
+    () => getChartVizInteractiveDomain(payload, { includeZero: true }),
+    [payload],
+  );
+  const controls = payload.controls ?? [];
+
   return (
     <figure
       className={cn(
-        'rounded-xl border bg-card p-4 shadow-sm space-y-2 max-w-lg w-full',
+        'rounded-xl border bg-card p-4 shadow-sm space-y-3 max-w-lg w-full',
         className,
       )}
       aria-label={payload.title}
@@ -46,19 +96,112 @@ export function ChatVizMessage({ rawPayload, className }: Props) {
           <p className="text-muted-foreground text-xs">{payload.description}</p>
         )}
       </figcaption>
-      <ChartRouter payload={payload} />
+      {controls.length > 0 && (
+        <ChartVizControls
+          controls={controls}
+          values={controlValues}
+          onChange={(key, value) =>
+            setControlValues((current) => ({ ...current, [key]: value }))
+          }
+        />
+      )}
+      <ChartRouter
+        payload={renderedPayload}
+        domain={interactiveDomain}
+        barDomain={interactiveBarDomain}
+      />
     </figure>
   );
 }
 
-function ChartRouter({ payload }: { payload: ChartVizPayload }) {
+const VALUE_FORMATTER = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 6,
+});
+
+/** Renders the bounded slider controls admitted by the payload sanitizer. */
+function ChartVizControls({
+  controls,
+  values,
+  onChange,
+}: Readonly<{
+  controls: ChartVizSliderControl[];
+  values: ChartVizControlValues;
+  onChange: (key: string, value: number) => void;
+}>) {
+  return (
+    <div
+      className="space-y-3 rounded-lg border bg-muted/30 p-3"
+      aria-label="What-if controls"
+    >
+      {controls.map((control) => {
+        const value = values[control.key] ?? control.defaultValue;
+
+        return (
+          <div key={control.key} className="space-y-2">
+            <div className="flex items-start justify-between gap-3 text-xs">
+              <div>
+                <p className="font-medium text-foreground">{control.label}</p>
+                {control.description && (
+                  <p className="mt-0.5 text-muted-foreground">
+                    {control.description}
+                  </p>
+                )}
+              </div>
+              <output
+                className="shrink-0 rounded-md border bg-background px-2 py-0.5 font-mono font-medium tabular-nums"
+                aria-live="polite"
+              >
+                {control.valuePrefix}
+                {VALUE_FORMATTER.format(value)}
+                {control.valueSuffix}
+              </output>
+            </div>
+            <Slider
+              value={[value]}
+              min={control.min}
+              max={control.max}
+              step={control.step}
+              aria-label={control.label}
+              onValueChange={([nextValue]) => {
+                if (nextValue !== undefined) onChange(control.key, nextValue);
+              }}
+            />
+            <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+              <span>
+                {control.valuePrefix}
+                {VALUE_FORMATTER.format(control.min)}
+                {control.valueSuffix}
+              </span>
+              <span>
+                {control.valuePrefix}
+                {VALUE_FORMATTER.format(control.max)}
+                {control.valueSuffix}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Selects the trusted renderer registered for the sanitized chart type. */
+function ChartRouter({
+  payload,
+  domain,
+  barDomain,
+}: Readonly<{
+  payload: ChartVizPayload;
+  domain?: [number, number];
+  barDomain?: [number, number];
+}>) {
   switch (payload.chartType) {
     case 'bar':
-      return <ChatVizBar payload={payload} />;
+      return <ChatVizBar payload={payload} domain={barDomain} />;
     case 'line':
-      return <ChatVizLine payload={payload} />;
+      return <ChatVizLine payload={payload} domain={domain} />;
     case 'area':
-      return <ChatVizArea payload={payload} />;
+      return <ChatVizArea payload={payload} domain={domain} />;
     case 'pie':
       return <ChatVizPie payload={payload} />;
     default:

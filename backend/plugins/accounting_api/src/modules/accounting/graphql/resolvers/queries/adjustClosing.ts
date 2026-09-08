@@ -23,8 +23,10 @@ const adjustClosingQueries = {
   async adjustClosings(
     _root: undefined,
     params: IQueryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustClosings');
+
     const filter = await generateFilter(models, params);
 
     const { sortField, sortDirection } = params;
@@ -43,8 +45,10 @@ const adjustClosingQueries = {
   async adjustClosingsCount(
     _root: undefined,
     params: IQueryParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustClosings');
+
     const filter = await generateFilter(models, params);
     return models.AdjustClosings.countDocuments(filter);
   },
@@ -52,16 +56,20 @@ const adjustClosingQueries = {
   async adjustClosingDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustClosings');
+
     return models.AdjustClosings.findById(_id).lean();
   },
 
   async adjustClosingEntriesCount(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAdjustClosings');
+
     const adjust = await models.AdjustClosings.findById(_id).lean();
     if (!adjust?.details) {
       return 0;

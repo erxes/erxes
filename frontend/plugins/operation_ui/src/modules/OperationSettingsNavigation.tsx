@@ -1,3 +1,4 @@
+import { IconBrandGithub, IconUsersGroup } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { OperationPaths } from '~/types/paths';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
@@ -13,11 +14,13 @@ export const OperationSettingsNavigation = () => {
             pathPrefix={OperationPaths.Operation}
             path={OperationPaths.TeamList}
             name={t('teams')}
+            icon={IconUsersGroup}
           />
           <SettingsNavigationMenuLinkItem
             pathPrefix={OperationPaths.Operation}
             path={OperationPaths.GithubIntegration}
             name="GitHub Integration"
+            icon={IconBrandGithub}
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
