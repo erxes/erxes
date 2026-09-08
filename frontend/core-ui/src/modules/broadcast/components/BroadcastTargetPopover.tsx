@@ -2,21 +2,19 @@ import { Form, Popover } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { BroadcastSelectTargetType } from './select/BroadcastSelectTargetType';
-import { BroadcastBrandStep } from './steps/BroadcastBrandStep';
 import { BroadcastSegmentStep } from './steps/BroadcastSegmentStep';
 import { BroadcastTagStep } from './steps/BroadcastTagStep';
 
 const BROADCAST_TARGET_CONTENT = {
   segment: BroadcastSegmentStep,
   tag: BroadcastTagStep,
-  brand: BroadcastBrandStep,
 };
 
 export const BroadcastTargetPopover = () => {
   const { control, watch } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
 
-  const targetType: 'tag' | 'segment' | 'brand' = watch('targetType');
+  const targetType: 'tag' | 'segment' = watch('targetType');
   const targetIds: string[] = watch('targetIds');
   const targetCount = watch('targetCount');
 
