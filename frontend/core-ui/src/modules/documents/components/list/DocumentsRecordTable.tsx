@@ -1,8 +1,8 @@
 import { useDocuments } from '@/documents/hooks/useDocuments';
 import { IconFileOff } from '@tabler/icons-react';
 import { Empty, RecordTable } from 'erxes-ui';
-
 import { DocumentsColumn } from './DocumentsColumn';
+import { DocumentsRecordTableCommandBar } from './DocumentsRecordTableCommandBar';
 
 function DocumentsEmptyState() {
   return (
@@ -64,6 +64,7 @@ export function DocumentsRecordTable() {
         >
           <DocumentsTable handleFetchMore={handleFetchMore} loading={loading} />
         </RecordTable.CursorProvider>
+        <DocumentsRecordTableCommandBar />
       </RecordTable.Provider>
     </div>
   );
