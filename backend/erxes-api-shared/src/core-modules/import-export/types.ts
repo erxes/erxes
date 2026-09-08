@@ -13,6 +13,9 @@ export interface ImportHeaderDefinition {
   aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
+  fieldType?: 'text' | 'number' | 'date' | 'relation' | 'select';
+  relationKind?: string;
+  options?: { label: string; value: string }[];
 }
 
 export interface ImportExportTypeDefinition {

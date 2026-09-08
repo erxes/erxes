@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import { START_EXPORT } from '../../graphql/export/exportMutations';
 import { GET_ACTIVE_EXPORTS } from '../../graphql/export/exportQueries';
 import { toast, useConfirm } from 'erxes-ui';
+import { TSystemFieldCondition } from '../../types/export/exportTypes';
 
 export const useExport = ({
   entityType,
@@ -55,12 +56,23 @@ export const useExport = ({
     [startExportMutation],
   );
 
-  const onFieldSelectionConfirm = (selectedFields: string[]) => {
+  const onFieldSelectionConfirm = (
+    selectedFields: string[],
+    systemFieldConditions?: TSystemFieldCondition[],
+  ) => {
     // If ids exist, export only selected rows
     // Otherwise, get filters from parent component for filtered export
+    const isIdsMode = !!ids && ids.length > 0;
+    const baseFilters = isIdsMode
+      ? undefined
+      : getFilters
+        ? getFilters()
+        : undefined;
     const filters =
-      ids && ids.length > 0 ? undefined : getFilters ? getFilters() : undefined;
-    const exportIds = ids && ids.length > 0 ? ids : undefined;
+      !isIdsMode && systemFieldConditions?.length
+        ? { ...baseFilters, systemFieldConditions }
+        : baseFilters;
+    const exportIds = isIdsMode ? ids : undefined;
 
     confirm({ message: confirmMessage }).then(() =>
       startExport(entityType, {
