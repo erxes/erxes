@@ -604,7 +604,7 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   `helpcenter/components/SelectHelpCenterWebsite.tsx`, rendered by both surfaces
   the same way the topic select is. It reads `getClientPortals` and passes the
   chosen portal's `domain` **and its `token`** up — `onValueChange(domain,
-  erxesAppToken)` — because picking a website is also what fills the config's
+erxesAppToken)` — because picking a website is also what fills the config's
   `erxesAppToken`, the widget token the published site boots with. Both call
   sites must write both fields (the drawer through `form.setValue`, the table
   cell through one `editHelpCenter` patch); writing only `url` leaves a config
