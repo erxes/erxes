@@ -47,12 +47,11 @@ export const FileField = ({
       setFailure(
         caught instanceof Error
           ? caught.message
-          : 'Файлыг байршуулж чадсангүй.',
+          : 'Could not upload the file.',
       );
     } finally {
       setBusy(false);
 
-      /* Cleared so picking the same file again still fires a change. */
       if (input.current) {
         input.current.value = '';
       }
@@ -83,7 +82,7 @@ export const FileField = ({
               </span>
               <button
                 type="button"
-                aria-label={`${file.name} устгах`}
+                aria-label={`Remove ${file.name}`}
                 onClick={() =>
                   onChange(files.filter((entry) => entry.url !== file.url))
                 }
@@ -111,7 +110,7 @@ export const FileField = ({
         onClick={() => input.current?.click()}
       >
         <Icon name="paperclip" size={15} />
-        {busy ? 'Байршуулж байна…' : 'Файл хавсаргах'}
+        {busy ? 'Uploading…' : 'Attach a file'}
       </Button>
 
       {failure ? (

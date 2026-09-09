@@ -596,6 +596,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Every client-portal read of ticket notes must exclude `isInternal` notes.
+  `cpTicketGetNotes` is the customer's view of a ticket, so a resolver added
+  beside it that returns notes has to carry the same filter; the agent-side
+  toggle is presentation and cannot be relied on to keep one hidden.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1467,6 +1471,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-08` — An internal ticket note stays out of the portal
+
+- **Summary:** `Note` gained an `isInternal` flag, `ticketCreateNote` stores it,
+  and `cpTicketGetNotes` filters flagged notes out, so the agent-side "Internal
+  Note" toggle now actually hides the note from the customer instead of only
+  tinting the composer. Notes written before this change carry no flag and stay
+  visible.
+- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
+  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
+  `modules/ticket/graphql/resolvers/mutations/note.ts`,
+  `modules/ticket/graphql/resolvers/queries/clientPortal.ts`
+- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
+  `isInternal: Boolean`; the `Note` type exposes `isInternal: Boolean`.
+  `cpTicketCreateNote` is unchanged — a portal visitor cannot write one.
+
 ### `2026-09-07` — Ticket notes accept and return attachments
 
 - **Summary:** `Note` now stores an `attachments` array using the shared
@@ -1563,18 +1582,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   have no caller in this repository.
 - **Affected areas:** `AGENTS.md` only — no API change.
 - **Contracts changed:** None.
-
-### `2026-09-03` — A help center carries its published site's appearance
-
-- **Summary:** Added a nested `styles` block to the knowledge base topic holding
-  the published site's logo and favicon, six surface colours, base and heading
-  fonts with their text and link colours, three form-element colours, and raw
-  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
-  `KnowledgeBaseTopicStylesInput`.
-- **Affected areas:**
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic.styles` and
-  `KnowledgeBaseTopicDoc.styles` added, with the two new
-  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.

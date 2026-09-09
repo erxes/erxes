@@ -2,7 +2,6 @@ export type SessionUser = {
   name: string;
   email: string;
   phone?: string;
-  /** The erxes customer this account is linked to; tickets are filed under it. */
   customerId?: string;
   cpUserId?: string;
 };

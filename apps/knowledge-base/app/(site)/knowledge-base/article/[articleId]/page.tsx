@@ -26,7 +26,7 @@ export const generateMetadata = async ({ params }: Props) => {
   const article =
     topic.state === 'ready' ? findArticle(topic.data, articleId) : null;
 
-  return { title: article?.title ?? 'Нийтлэл' };
+  return { title: article?.title ?? 'Article' };
 };
 
 export default async function ArticlePage({ params }: Props) {
@@ -51,7 +51,6 @@ export default async function ArticlePage({ params }: Props) {
     );
   }
 
-  /* With the knowledge base turned off, its pages are not part of the site. */
   if (!topic.data.knowledgeBaseEnabled) {
     notFound();
   }
@@ -71,7 +70,7 @@ export default async function ArticlePage({ params }: Props) {
     : [];
 
   const crumbs: Crumb[] = [
-    { label: 'Мэдлэгийн сан', href: '/knowledge-base' },
+    { label: 'Knowledge base', href: '/knowledge-base' },
     ...(section && section._id !== category?._id
       ? [
           {
@@ -112,7 +111,7 @@ export default async function ArticlePage({ params }: Props) {
             {related.length ? (
               <Card className="mt-6 p-6">
                 <h2 className="text-base font-semibold text-ink">
-                  Холбоотой нийтлэлүүд
+                  Related articles
                 </h2>
                 <ul className="mt-4 space-y-2">
                   {related.map((item) => (
@@ -133,14 +132,14 @@ export default async function ArticlePage({ params }: Props) {
             <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
               <div>
                 <h2 className="text-base font-semibold text-ink">
-                  Хариултаа олсонгүй юу?
+                  Did not find your answer?
                 </h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  Дэмжлэгийн багт хүсэлт үүсгэвэл хариу өгнө.
+                  Raise a ticket and the support team will get back to you.
                 </p>
               </div>
               <ButtonLink href="/tickets/new" size="sm">
-                Хүсэлт илгээх
+                Submit a ticket
               </ButtonLink>
             </Card>
           </div>

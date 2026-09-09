@@ -7,7 +7,7 @@ import { site } from '@/modules/layout/constants/site';
 
 type Props = { searchParams: Promise<{ next?: string | string[] }> };
 
-export const metadata = { title: 'Бүртгүүлэх' };
+export const metadata = { title: 'Sign up' };
 
 export default async function SignUpPage({ searchParams }: Props) {
   const [{ headline }, params] = await Promise.all([
@@ -15,23 +15,22 @@ export default async function SignUpPage({ searchParams }: Props) {
     searchParams,
   ]);
 
-  /* Carried over from the guarded route the visitor was sent away from. */
   const next = internalPath(params.next);
 
   return (
     <AuthLayout
-      title="Бүртгэл үүсгэх"
-      subtitle="Мэдлэгийн сан, дэмжлэгийн порталыг бүрэн ашиглахын тулд бүртгүүлнэ үү."
+      title="Create an account"
+      subtitle="Sign up to get the most out of the knowledge base and support portal."
       headline={headline}
       blurb={site.authBlurb}
       footer={
         <>
-          Бүртгэлтэй юу?{' '}
+          Already have an account?{' '}
           <Link
             href={withNext('/sign-in', next)}
             className="font-semibold text-brand transition-colors hover:text-brand-strong"
           >
-            Нэвтрэх
+            Sign in
           </Link>
         </>
       }

@@ -24,12 +24,8 @@ export const formsGate = <T>(): PortalResult<T> | null =>
   gate<T>(missingFormEnvKeys(readPortalEnv(), readFormEnv()));
 
 export const errorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : 'Тодорхойгүй алдаа гарлаа.';
+  error instanceof Error ? error.message : 'An unknown error occurred.';
 
-/**
- * Apollo hands a failure over either as a thrown error or as a response
- * carrying `errors`, so the server's own wording is read out of both.
- */
 export const graphqlErrorMessage = (caught: unknown): string => {
   if (caught && typeof caught === 'object' && 'errors' in caught) {
     const { errors } = caught as { errors?: { message?: string }[] };

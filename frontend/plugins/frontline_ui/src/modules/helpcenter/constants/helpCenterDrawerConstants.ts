@@ -2,7 +2,7 @@ import {
   TopicFormData,
   TopicStyles,
   TTopicTab,
-} from '@/knowledgebase/topicDrawerTypes';
+} from '@/helpcenter/types/helpCenterDrawerTypes';
 
 export const FULL_WIDTH_SELECT = '[&_button]:w-full [&_button]:max-w-none';
 

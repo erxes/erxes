@@ -25,7 +25,6 @@ const isFailure = <T>(value: T | TopicFailure): value is TopicFailure =>
 
 type TopicDocument = typeof KB_PORTAL_TOPIC_OVERVIEW;
 
-/** The settings-free twin of each read, used when the gateway rejects the full one. */
 const PLAIN_OF = new Map<TopicDocument, TopicDocument>([
   [KB_PORTAL_TOPIC_OVERVIEW, KB_PORTAL_TOPIC_OVERVIEW_PLAIN],
   [KB_PORTAL_TOPIC_ARTICLE_LIST, KB_PORTAL_TOPIC_ARTICLE_LIST_PLAIN],
@@ -34,15 +33,6 @@ const PLAIN_OF = new Map<TopicDocument, TopicDocument>([
 
 const UNKNOWN_FIELD = /Cannot query field/i;
 
-/*
- * A gateway older than the help center's settings fields rejects the whole
- * document at validation, which would cost the portal its articles as well as
- * the settings. Only that failure is retried without them.
- *
- * Such a rejection arrives as HTTP 400, which Apollo raises as a `ServerError`
- * whose `message` is only the status code; the GraphQL errors stay unparsed in
- * `bodyText`, so the reason is read from there.
- */
 const isUnknownFieldError = (error: unknown): boolean => {
   if (UNKNOWN_FIELD.test(errorMessage(error))) {
     return true;
@@ -71,7 +61,7 @@ const runTopic = async (
 
   if (!topic) {
     return {
-      error: `«${topicId}» ID-тай мэдлэгийн сангийн сэдэв олдсонгүй.`,
+      error: `No knowledge base topic was found with the ID "${topicId}".`,
     };
   }
 
@@ -110,12 +100,6 @@ const fetchTopic = async (
       return { state: 'error', message: topic.error };
     }
 
-    /*
-     * A help center may serve another topic's articles. The settings — theme,
-     * toggles, ticket target — stay with the configured topic; only the
-     * categories and articles come from the one it points at. A self-reference
-     * is ignored so the portal cannot ask for the same document twice.
-     */
     const sourceId = topic.kbTopicId?.trim();
 
     if (!sourceId || sourceId === topicId) {

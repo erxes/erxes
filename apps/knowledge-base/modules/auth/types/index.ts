@@ -8,7 +8,6 @@ export type CurrentUser = {
   lastName: string | null;
   username: string | null;
   isVerified: boolean;
-  /** erxes files this account's tickets and contact details under the customer. */
   erxesCustomerId: string | null;
 };
 
@@ -47,7 +46,7 @@ export const loginToken = (
 export const displayName = (user: CurrentUser): string => {
   const full = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
 
-  return full || user.username || user.email || 'Хэрэглэгч';
+  return full || user.username || user.email || 'User';
 };
 
 export const sessionFromCurrentUser = (

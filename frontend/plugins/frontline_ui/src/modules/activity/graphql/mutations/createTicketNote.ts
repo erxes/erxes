@@ -5,12 +5,14 @@ export const CREATE_TICKET_NOTE = gql`
     $contentId: String
     $mentions: [String]
     $attachments: [AttachmentInput]
+    $isInternal: Boolean
   ) {
     ticketCreateNote(
       content: $content
       contentId: $contentId
       mentions: $mentions
       attachments: $attachments
+      isInternal: $isInternal
     ) {
       _id
       content
@@ -23,6 +25,7 @@ export const CREATE_TICKET_NOTE = gql`
         type
         size
       }
+      isInternal
       createdAt
       updatedAt
     }

@@ -15,7 +15,7 @@ import { Container } from '@/modules/ui/components/Container';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { Icon } from '@/modules/ui/components/Icon';
 
-export const metadata = { title: 'Дэмжлэгийн портал' };
+export const metadata = { title: 'Support portal' };
 
 export default async function TicketsPage() {
   const [{ headline }, settings] = await Promise.all([
@@ -29,11 +29,11 @@ export default async function TicketsPage() {
 
       <Container className="py-10 lg:py-14">
         <Breadcrumbs
-          items={[{ label: 'Мэдлэгийн сан', href: '/' }, { label: 'Дэмжлэг' }]}
+          items={[{ label: 'Knowledge base', href: '/' }, { label: 'Support' }]}
         />
 
-        <h1 className="mt-6 text-[28px] font-semibold text-ink">
-          Дэмжлэгийн портал
+        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Support portal
         </h1>
 
         {!settings.ticketsEnabled ? (
@@ -56,10 +56,10 @@ export default async function TicketsPage() {
                 </span>
                 <span>
                   <span className="block text-base font-semibold text-ink">
-                    Хүсэлт илгээх
+                    Submit a ticket
                   </span>
                   <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                    Дэмжлэгийн багт шинэ хүсэлт үүсгэх маягтыг бөглөнө үү.
+                    Fill in the form to raise a new ticket with the support team.
                   </span>
                 </span>
               </SessionLink>
@@ -73,10 +73,10 @@ export default async function TicketsPage() {
                 </span>
                 <span>
                   <span className="block text-base font-semibold text-ink">
-                    Хүсэлт хянах
+                    Track a ticket
                   </span>
                   <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                    Хүсэлтийн дугаараа ашиглан төлөв, хариуг шалгана уу.
+                    Use your ticket number to check its status and replies.
                   </span>
                 </span>
               </CardLink>
@@ -85,7 +85,7 @@ export default async function TicketsPage() {
             <section aria-labelledby="my-tickets" className="mt-12">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="my-tickets" className="text-xl font-semibold text-ink">
-                  Миний хүсэлтүүд
+                  My tickets
                 </h2>
                 <SessionLink
                   href={NEW_TICKET_ROUTE}
@@ -93,7 +93,7 @@ export default async function TicketsPage() {
                   className={buttonClass({ size: 'sm' })}
                 >
                   <Icon name="plus" size={16} />
-                  Шинэ хүсэлт
+                  New ticket
                 </SessionLink>
               </div>
 

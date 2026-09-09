@@ -24,7 +24,6 @@ import { TICKET_PORTAL_CREATE } from '../graphql/mutations/tickets';
 const SUBJECT_MAX = 120;
 const DESCRIPTION_MAX = 4000;
 
-/** A Mongolian number is eight digits; a country code or spacing may precede it. */
 const PHONE_MIN_DIGITS = 8;
 
 const digitsOf = (value: string) => value.replace(/\D/g, '');
@@ -34,25 +33,25 @@ const ticketFormSchema = z.object({
     .string()
     .max(SUBJECT_MAX)
     .refine((value) => value.trim().length >= 5, {
-      message: 'Гарчиг дор хаяж 5 тэмдэгт байна.',
+      message: 'The title must be at least 5 characters.',
     }),
   description: z
     .string()
     .max(DESCRIPTION_MAX)
     .refine((value) => value.trim().length >= 20, {
-      message: 'Асуудлаа дор хаяж 20 тэмдэгтээр тайлбарлана уу.',
+      message: 'Describe the issue in at least 20 characters.',
     }),
   contactName: z.string().refine((value) => value.trim().length >= 2, {
-    message: 'Нэрээ бичнэ үү.',
+    message: 'Please enter your name.',
   }),
-  contactEmail: z.string().email('Зөв и-мэйл хаяг бичнэ үү.'),
+  contactEmail: z.string().email('Please enter a valid email address.'),
   contactPhone: z
     .string()
     .refine((value) => value.trim().length > 0, {
-      message: 'Утасны дугаараа бичнэ үү.',
+      message: 'Please enter your phone number.',
     })
     .refine((value) => digitsOf(value).length >= PHONE_MIN_DIGITS, {
-      message: `Утасны дугаар дор хаяж ${PHONE_MIN_DIGITS} оронтой байна.`,
+      message: `The phone number must have at least ${PHONE_MIN_DIGITS} digits.`,
     }),
 });
 
@@ -66,12 +65,6 @@ type CreatedTicket = {
   } | null;
 };
 
-/**
- * The help center's own ticket target, when it chose one. Each id falls back to
- * the matching environment variable, so a portal configured only through `.env`
- * keeps working and a help center may override one level without setting all
- * three.
- */
 export type TicketTarget = {
   channelId: string;
   pipelineId: string;
@@ -94,21 +87,12 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
 
   const [createTicket, { data, loading, error, reset }] =
     useMutation<CreatedTicket>(TICKET_PORTAL_CREATE, {
-      /*
-       * `MyTickets` reads `cpGetTickets` cache-first on another route, so the
-       * cached list is dropped here — otherwise a freshly created ticket is
-       * missing from it until a hard reload.
-       */
       update: (cache) => {
         cache.evict({ id: 'ROOT_QUERY', fieldName: 'cpGetTickets' });
         cache.gc();
       },
     });
 
-  /*
-   * `RequireSession` withholds this form until the session is known, so the
-   * contact fields start out on the signed-in identity and stay editable.
-   */
   const form = useForm<TicketFormValues>({
     resolver: zodResolver(ticketFormSchema),
     defaultValues: {
@@ -126,10 +110,6 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
 
   const created = data?.cpCreateTicket;
 
-  /*
-   * The contact details go onto the requester's customer record, where an agent
-   * reads them next to the ticket, instead of being pasted into the body.
-   */
   const syncContact = async (
     values: TicketFormValues,
   ): Promise<string | null> => {
@@ -142,17 +122,13 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
       const { data } = await editCustomer({
         variables: {
           firstName,
-          /*
-           * erxes skips a contact field only when it is absent: a `null` slips
-           * past its `!== undefined` guard and is then trimmed, which throws.
-           */
           ...(lastName ? { lastName } : {}),
           primaryPhone: phone,
         },
       });
 
       if (!data?.clientPortalCustomerEdit) {
-        return 'Харилцагчийн бүртгэл олдсонгүй.';
+        return 'No customer record was found.';
       }
 
       updateUser({ name, phone });
@@ -178,8 +154,8 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
     if (submitted?.data && contactError) {
       toast({
         variant: 'warning',
-        title: 'Холбоо барих мэдээлэл хадгалагдсангүй',
-        description: `Хүсэлт илгээгдлээ. ${contactError}`,
+        title: 'Contact details were not saved',
+        description: `Your ticket was submitted. ${contactError}`,
       });
     }
   };
@@ -191,19 +167,19 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
           <Icon name="check" size={22} />
         </span>
         <h2 className="text-lg font-semibold text-ink">
-          Хүсэлт амжилттай илгээгдлээ
+          Your ticket was submitted
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Таны хүсэлтийн дугаар{' '}
+          Your ticket number is{' '}
           <span className="font-semibold text-ink">
             {created.number ?? created._id}
           </span>
-          . Явцыг энэ дугаараар хянах боломжтой.
+          . You can track progress with this number.
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
           <ButtonLink href={`/tickets/${created._id}`}>
-            Хүсэлтээ нээх
+            Open your ticket
           </ButtonLink>
           <Button
             variant="secondary"
@@ -216,7 +192,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
               reset();
             }}
           >
-            Өөр хүсэлт илгээх
+            Submit another ticket
           </Button>
         </div>
       </Card>
@@ -232,10 +208,10 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
       >
         <div className="border-b border-line px-5 py-4">
           <h2 className="text-base font-semibold text-ink">
-            Хүсэлтийн мэдээлэл
+            Ticket details
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Тодорхой бичих тусам хурдан шийдэгдэнэ.
+            The clearer your description, the faster it is resolved.
           </p>
         </div>
 
@@ -250,7 +226,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                     className="text-[13px] font-medium text-ink"
                     variant="peer"
                   >
-                    Гарчиг
+                    Title
                   </Form.Label>
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {field.value.length}/{SUBJECT_MAX}
@@ -260,7 +236,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                   <TextInput
                     {...field}
                     maxLength={SUBJECT_MAX}
-                    placeholder="Асуудлаа нэг өгүүлбэрээр бичнэ үү"
+                    placeholder="Describe your issue in one sentence"
                   />
                 </Form.Control>
                 <Form.Message />
@@ -278,7 +254,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                     className="text-[13px] font-medium text-ink"
                     variant="peer"
                   >
-                    Дэлгэрэнгүй
+                    Description
                   </Form.Label>
                   <span className="text-xs tabular-nums text-muted-foreground">
                     {field.value.length}/{DESCRIPTION_MAX}
@@ -289,12 +265,12 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                     {...field}
                     rows={5}
                     maxLength={DESCRIPTION_MAX}
-                    placeholder="Асуудлын дэлгэрэнгүй тайлбар"
+                    placeholder="A detailed description of the issue"
                   />
                 </Form.Control>
                 <Form.Description>
-                  Юу тохиолдсон, хэзээ эхэлсэн, ямар алхмаар давтагддагийг бичнэ
-                  үү.
+                  Tell us what happened, when it started, and the steps that
+                  reproduce it.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -302,10 +278,10 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
           />
 
           <div className="border-t border-line pt-5">
-            <h3 className="text-sm font-semibold text-ink">Холбоо барих</h3>
+            <h3 className="text-sm font-semibold text-ink">Contact</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Эдгээрийг дэмжлэгийн баг таны хүсэлтийн хажууд харна. Нэр, утсаа
-              засвал бүртгэлд чинь хадгалагдана.
+              The support team sees these beside your ticket. Editing your name
+              or phone number saves it to your record.
             </p>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -318,13 +294,13 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Нэр
+                      Name
                     </Form.Label>
                     <Form.Control>
                       <TextInput
                         {...field}
                         autoComplete="name"
-                        placeholder="Таны нэр"
+                        placeholder="Your name"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -341,7 +317,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      И-мэйл
+                      Email
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -353,8 +329,8 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                       />
                     </Form.Control>
                     <Form.Description>
-                      Бүртгэлийн хаяг. Өөрчлөхийг хүсвэл дэмжлэгийн багт хандана
-                      уу.
+                      The address on your account. Contact the support team to
+                      change it.
                     </Form.Description>
                   </Form.Item>
                 )}
@@ -369,7 +345,7 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Утас
+                      Phone
                     </Form.Label>
                     <Form.Control>
                       <TextInput
@@ -392,18 +368,18 @@ export const TicketForm = ({ target }: { target?: TicketTarget }) => {
               className="flex items-start gap-2 rounded-lg bg-danger-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-danger"
             >
               <Icon name="alert" size={15} className="mt-px shrink-0" />
-              Хүсэлт илгээхэд алдаа гарлаа: {error.message}
+              Something went wrong submitting your ticket: {error.message}
             </p>
           ) : null}
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line bg-subtle px-5 py-3.5">
           <ButtonLink href="/tickets" variant="ghost">
-            Болих
+            Cancel
           </ButtonLink>
           <Button type="submit" disabled={loading}>
             <Icon name="send" size={15} />
-            {loading ? 'Илгээж байна…' : 'Хүсэлт илгээх'}
+            {loading ? 'Submitting…' : 'Submit ticket'}
           </Button>
         </div>
       </form>

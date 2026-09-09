@@ -24,15 +24,15 @@ export default function AuthError({
       <span className="mb-6 flex size-14 items-center justify-center rounded-full bg-danger-soft text-danger">
         <Icon name="alert" size={26} />
       </span>
-      <h1 className="text-xl font-semibold text-ink">Хуудсыг нээж чадсангүй</h1>
+      <h1 className="text-xl font-semibold text-ink">Could not open the page</h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Дахин оролдоод үзнэ үү.
+        Please try again.
       </p>
 
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <Button onClick={reset}>Дахин оролдох</Button>
+        <Button onClick={reset}>Try again</Button>
         <ButtonLink href="/" variant="secondary">
-          Нүүр хуудас
+          Home page
         </ButtonLink>
       </div>
     </Container>

@@ -7,11 +7,6 @@ export type NavVisibility = {
   ticketLabel: string;
 };
 
-/**
- * Drops the destinations the help center turned off and applies the labels it
- * chose for the two features it names. The home page is never dropped: it is
- * the portal's own entry point rather than one of the toggled features.
- */
 export const visibleNavItems = ({
   knowledgeBaseEnabled,
   knowledgeBaseLabel,

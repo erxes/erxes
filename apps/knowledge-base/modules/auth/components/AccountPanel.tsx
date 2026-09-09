@@ -30,11 +30,11 @@ export const AccountPanel = () => {
     return (
       <EmptyState
         icon="user"
-        title="Та нэвтрээгүй байна"
-        description="Хувийн мэдээлэл болон хүсэлтийн түүхээ харахын тулд нэвтэрнэ үү."
+        title="You are not signed in"
+        description="Sign in to see your details and ticket history."
         action={
           <ButtonLink href="/sign-in" size="sm">
-            Нэвтрэх
+            Sign in
           </ButtonLink>
         }
       />
@@ -56,7 +56,7 @@ export const AccountPanel = () => {
       <div className="mt-7 flex flex-wrap gap-3 border-t border-line pt-6">
         <ButtonLink href="/tickets" size="sm" variant="secondary">
           <Icon name="ticket" size={16} />
-          Миний хүсэлтүүд
+          My tickets
         </ButtonLink>
         <Button
           size="sm"
@@ -67,7 +67,7 @@ export const AccountPanel = () => {
           }}
         >
           <Icon name="logout" size={16} />
-          Гарах
+          Sign out
         </Button>
       </div>
     </Card>

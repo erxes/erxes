@@ -9,7 +9,7 @@ import {
   TICKETS_OFF_TITLE,
 } from '@/modules/tickets/constants/guard';
 
-export const metadata = { title: 'Хүсэлт хянах' };
+export const metadata = { title: 'Track a ticket' };
 
 export default async function TrackTicketPage() {
   const [{ headline }, settings] = await Promise.all([
@@ -24,17 +24,17 @@ export default async function TrackTicketPage() {
       <Container column="text" className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
-            { label: 'Мэдлэгийн сан', href: '/' },
-            { label: 'Дэмжлэг', href: '/tickets' },
-            { label: 'Хүсэлт хянах' },
+            { label: 'Knowledge base', href: '/' },
+            { label: 'Support', href: '/tickets' },
+            { label: 'Track a ticket' },
           ]}
         />
 
-        <h1 className="mt-6 text-[28px] font-semibold text-ink">
-          Хүсэлт хянах
+        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Track a ticket
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Хүсэлт үүсгэхэд олгогдсон дугаарыг ашиглан төлөвөө шалгана уу.
+          Use the number you were given when the ticket was created to check its status.
         </p>
 
         <div className="mt-7">

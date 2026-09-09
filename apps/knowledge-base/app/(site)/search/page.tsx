@@ -21,10 +21,11 @@ import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import { plural } from '@/modules/ui/lib/plural';
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
-export const metadata = { title: 'Хайлт' };
+export const metadata = { title: 'Search' };
 
 type ResultRow = {
   key: string;
@@ -120,7 +121,7 @@ export default async function SearchPage({ searchParams }: Props) {
     key: `kb-${article._id}`,
     href: `/knowledge-base/article/${article._id}`,
     icon: 'article',
-    kind: 'Мэдлэгийн сан',
+    kind: 'Knowledge base',
     title: article.title,
     summary: article.summary,
     meta: formatDate(article.modifiedAt),
@@ -134,8 +135,8 @@ export default async function SearchPage({ searchParams }: Props) {
     key: `cms-${post._id}`,
     href: announcementHref(post),
     icon: 'megaphone',
-    kind: 'Мэдээ мэдээлэл',
-    title: post.title ?? 'Гарчиггүй зарлал',
+    kind: 'Announcements',
+    title: post.title ?? 'Untitled announcement',
     summary: post.excerpt ?? '',
     meta: formatPostDate(post.publishedDate ?? post.createdAt),
   }));
@@ -148,24 +149,26 @@ export default async function SearchPage({ searchParams }: Props) {
 
       <Container className="py-10 lg:py-14">
         <h1 className="text-2xl font-semibold text-ink">
-          {term ? `«${term}» — ${rows.length} үр дүн` : 'Бүх агуулга'}
+          {term
+            ? `“${term}” — ${plural(rows.length, 'result')}`
+            : 'All content'}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {term
             ? cmsReady
-              ? `Мэдлэгийн сангаас ${articleRows.length}, мэдээ мэдээллээс ${postRows.length} илэрц олдлоо.`
-              : `Мэдлэгийн сангаас ${articleRows.length} илэрц олдлоо.`
-            : `Мэдлэгийн санд нийт ${articleRows.length} нийтлэл байна.`}
+              ? `Found ${plural(articleRows.length, 'match')} in the knowledge base and ${plural(postRows.length, 'match')} in announcements.`
+              : `Found ${plural(articleRows.length, 'match')} in the knowledge base.`
+            : `The knowledge base holds ${plural(articleRows.length, 'article')}.`}
         </p>
 
         {cmsReady ? null : (
           <p className="mt-4 flex items-start gap-2 rounded-lg bg-warning-soft px-4 py-3 text-[13px] text-warning">
             <Icon name="alert" size={15} className="mt-px shrink-0" />
             {announcements.state === 'error'
-              ? `Мэдээ мэдээллийг хайлтад оруулж чадсангүй: ${announcements.message}`
-              : `Мэдээ мэдээлэл хайлтад ороогүй — ${announcements.missing.join(
+              ? `Announcements could not be included in the search: ${announcements.message}`
+              : `Announcements are not included in the search — ${announcements.missing.join(
                   ', ',
-                )} тохируулаагүй байна.`}
+                )} is not configured.`}
           </p>
         )}
 
@@ -175,11 +178,11 @@ export default async function SearchPage({ searchParams }: Props) {
           ) : (
             <EmptyState
               icon="search"
-              title="Үр дүн олдсонгүй"
-              description="Өөр түлхүүр үгээр хайж үзнэ үү. Хариулт олдохгүй бол дэмжлэгийн багт хүсэлт үүсгээрэй."
+              title="No results found"
+              description="Try a different keyword. If you cannot find an answer, raise a ticket with the support team."
               action={
                 <ButtonLink href="/tickets/new" size="sm">
-                  Хүсэлт үүсгэх
+                  Create a ticket
                 </ButtonLink>
               }
             />

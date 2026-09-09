@@ -1,12 +1,6 @@
 import { z } from 'zod';
 import type { FormAttachment, FormField, FormSubmission } from '../types';
 
-/**
- * erxes stores a form field's type as the contact property it feeds, so a
- * dozen names ('firstName', 'companyName', 'position', …) all render as one
- * plain text box. They are folded into the handful of controls the portal
- * actually draws.
- */
 export type FieldKind =
   | 'text'
   | 'email'
@@ -37,7 +31,6 @@ const BY_TYPE: Record<string, FieldKind> = {
   file: 'file',
   avatar: 'file',
   companyAvatar: 'file',
-  /* Repeating rows and a map picker need controls the portal does not draw. */
   objectList: 'unsupported',
   map: 'unsupported',
 };
@@ -63,9 +56,8 @@ export const fieldOptions = (field: FormField): string[] =>
   (field.options ?? []).filter(Boolean);
 
 export const fieldLabel = (field: FormField): string =>
-  field.text?.trim() || 'Асуулт';
+  field.text?.trim() || 'Question';
 
-/** `text` fields carry their hint in `content`; everything else in `description`. */
 export const fieldHint = (field: FormField): string =>
   (field.description?.trim() || field.content?.trim()) ?? '';
 
@@ -87,7 +79,6 @@ const asText = (entry: FormValue): string =>
 const asList = (entry: FormValue): unknown[] =>
   Array.isArray(entry) ? entry : [];
 
-/* Mirrors what erxes itself rejects, so nothing bounces back from the server. */
 const PHONE = /^\d{8,}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -100,8 +91,8 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
 
   if (field.isRequired && empty) {
     return MULTI.includes(kind) || kind === 'file'
-      ? 'Дор хаяж нэгийг сонгоно уу.'
-      : 'Энэ талбарыг бөглөнө үү.';
+      ? 'Please choose at least one option.'
+      : 'Please fill in this field.';
   }
 
   if (empty) {
@@ -111,24 +102,20 @@ const issueFor = (field: FormField, entry: FormValue): string | null => {
   const text = asText(entry);
 
   if (kind === 'email' && !EMAIL.test(text)) {
-    return 'Зөв и-мэйл хаяг бичнэ үү.';
+    return 'Please enter a valid email address.';
   }
 
   if (kind === 'phone' && !PHONE.test(text.replace(/[\s()+-.]|ext/gi, ''))) {
-    return 'Утасны дугаар дор хаяж 8 оронтой байна.';
+    return 'The phone number must have at least 8 digits.';
   }
 
   if (kind === 'number' && Number.isNaN(Number(text))) {
-    return 'Зөвхөн тоо бичнэ үү.';
+    return 'Please enter digits only.';
   }
 
   return null;
 };
 
-/**
- * One schema for the whole form: the fields are only known at runtime, so each
- * answer is checked in a single pass rather than through a built-up shape.
- */
 export const formSchema = (fields: FormField[]) =>
   z.record(z.string(), value).superRefine((values, ctx) => {
     for (const field of fields.filter(isAnswerable)) {
@@ -161,7 +148,6 @@ const submissionValue = (
     return Array.isArray(entry) ? (entry as FormAttachment[]) : [];
   }
 
-  /* Multi-answer fields are stored as one readable line, as erxes' own widget does. */
   return Array.isArray(entry) ? entry.join(', ') : entry.trim();
 };
 

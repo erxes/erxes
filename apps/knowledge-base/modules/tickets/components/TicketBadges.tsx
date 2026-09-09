@@ -27,7 +27,7 @@ const toneForPriority = (priority: number | null): BadgeTone => {
 
 export const StatusBadge = ({ status }: { status: TicketStatusRef }) => (
   <Badge tone={toneForStatusType(status?.type ?? null)}>
-    {status?.name ?? 'Төлөвгүй'}
+    {status?.name ?? 'No status'}
   </Badge>
 );
 

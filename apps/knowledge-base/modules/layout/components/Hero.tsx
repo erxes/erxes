@@ -18,14 +18,8 @@ export const Hero = async ({
   const image = theme?.heroImage;
 
   return (
-    <section className="relative overflow-hidden bg-hero pb-16 pt-14 text-white">
+    <section className="relative overflow-hidden bg-hero bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-hero-soft),transparent_62%)] pb-16 pt-14 text-white sm:pb-20 sm:pt-16">
       {image ? (
-        /*
-         * The help center's background image replaces the drawn pattern rather
-         * than layering over it. It is a remote URL from erxes storage, so
-         * `next/image` is not used, and it stays behind a scrim: the headline
-         * and search sit on top and have to stay readable over any photo.
-         */
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -43,13 +37,17 @@ export const Hero = async ({
         <HeroPattern />
       )}
       <Container className="relative text-center">
-        <h1 className="mx-auto max-w-4xl text-balance text-xl font-normal leading-relaxed sm:text-2xl md:text-[28px] md:leading-[1.5]">
+        <h1 className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both mx-auto max-w-3xl text-balance text-[22px] font-semibold leading-[1.35] tracking-[-0.02em] duration-700 sm:text-[28px]">
           {headline}
         </h1>
-        <div className="mt-9">
+        <div className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both mx-auto mt-8 max-w-2xl delay-150 duration-700">
           <SearchBar initialQuery={searchQuery} />
         </div>
-        {children ? <div className="mt-6">{children}</div> : null}
+        {children ? (
+          <div className="animate-in fade-in fill-mode-both mt-6 delay-300 duration-700">
+            {children}
+          </div>
+        ) : null}
       </Container>
     </section>
   );

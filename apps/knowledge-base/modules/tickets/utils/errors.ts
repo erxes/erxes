@@ -1,27 +1,22 @@
 import { graphqlErrorMessage } from '@/modules/apollo/utils/result';
 
-/** What erxes rejects a contact write with, said in the reader's language. */
 const REASONS: [RegExp, string][] = [
   [
     /duplicated phone/i,
-    'Энэ утасны дугаар өөр харилцагчид бүртгэлтэй байна. Өөр дугаар оруулна уу.',
+    'This phone number is registered to another customer. Please enter a different number.',
   ],
-  [/duplicated email/i, 'Энэ и-мэйл өөр харилцагчид бүртгэлтэй байна.'],
+  [/duplicated email/i, 'This email is registered to another customer.'],
   [
     /no linked customer/i,
-    'Таны бүртгэл харилцагчийн картад холбогдоогүй байна. Дэмжлэгийн багт хандана уу.',
+    'Your account is not linked to a customer record. Please contact the support team.',
   ],
   [
     /not authenticated|not logged in/i,
-    'Нэвтрэлт хүчингүй боллоо. Дахин нэвтэрч оролдоно уу.',
+    'Your session has expired. Please sign in and try again.',
   ],
 ];
 
-/*
- * Anything unrecognised is a fault on our side of the wire, so the reader gets
- * a plain sentence rather than the server's stack-level wording.
- */
-const FALLBACK = 'Нэр, утсыг бүртгэлд хадгалж чадсангүй.';
+const FALLBACK = 'Could not save your name and phone number to the record.';
 
 export const contactErrorMessage = (caught: unknown): string => {
   const raw = graphqlErrorMessage(caught);

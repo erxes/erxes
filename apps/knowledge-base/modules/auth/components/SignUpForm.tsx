@@ -27,25 +27,24 @@ import {
   type RegisterResponse,
 } from '../types';
 
-/** Mirrors the portal's own rule, so the server never rejects what passed here. */
 const PASSWORD_RULE = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
 const signUpSchema = z
   .object({
     name: z.string().refine((value) => value.trim().length > 0, {
-      message: 'Нэрээ оруулна уу.',
+      message: 'Please enter your name.',
     }),
-    email: z.string().email('Имэйл хаяг буруу байна.'),
+    email: z.string().email('That email address is not valid.'),
     password: z
       .string()
       .regex(
         PASSWORD_RULE,
-        'Нууц үг том, жижиг үсэг, тоо агуулсан 8-аас доошгүй тэмдэгт байх ёстой.',
+        'The password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.',
       ),
     confirm: z.string(),
   })
   .refine((values) => values.confirm === values.password, {
-    message: 'Нууц үг таарахгүй байна.',
+    message: 'The passwords do not match.',
     path: ['confirm'],
   });
 
@@ -85,18 +84,14 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       const created = data?.clientPortalUserRegister;
 
       if (!created) {
-        throw new Error('Бүртгэл үүсгэж чадсангүй.');
+        throw new Error('Could not create the account.');
       }
 
-      /*
-       * Portals that require email verification create the account unverified,
-       * and logging in before it is confirmed is rejected by the API.
-       */
       if (!created.isVerified) {
         toast({
-          title: 'Бүртгэл үүслээ',
+          title: 'Account created',
           description:
-            'Имэйл рүү илгээсэн зааврын дагуу бүртгэлээ баталгаажуулаад нэвтэрнэ үү.',
+            'Follow the instructions sent to your email to confirm your account, then sign in.',
         });
         router.replace(withNext('/sign-in', next ?? null));
         return;
@@ -121,15 +116,15 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       const current = session?.clientPortalCurrentUser;
 
       if (!current) {
-        throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
+        throw new Error('No signed-in user was returned.');
       }
 
       signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
-        title: 'Бүртгэл амжилттай үүслээ',
-        description: `Тавтай морил, ${displayName(current)}.`,
+        title: 'Your account is ready',
+        description: `Welcome, ${displayName(current)}.`,
       });
 
       router.replace(next ?? '/');
@@ -139,7 +134,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Бүртгүүлж чадсангүй',
+        title: 'Could not sign up',
         description: message,
       });
     }
@@ -161,13 +156,13 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Нэр
+                Name
               </Form.Label>
               <Form.Control>
                 <TextInput
                   {...field}
                   autoComplete="name"
-                  placeholder="Таны нэр"
+                  placeholder="Your name"
                 />
               </Form.Control>
               <Form.Message />
@@ -184,7 +179,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Имэйл
+                Email
               </Form.Label>
               <Form.Control>
                 <TextInput
@@ -208,7 +203,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Нууц үг
+                Password
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -231,7 +226,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Нууц үг давтах
+                Confirm password
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -257,7 +252,7 @@ export const SignUpForm = ({ next }: { next?: string | null }) => {
 
         <Button type="submit" disabled={loading} className="mt-2 w-full">
           <Icon name="user" size={15} />
-          {loading ? 'Бүртгэж байна…' : 'Бүртгүүлэх'}
+          {loading ? 'Signing up…' : 'Sign up'}
         </Button>
       </form>
     </Form>

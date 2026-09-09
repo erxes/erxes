@@ -203,7 +203,7 @@
 | Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                              |
 | Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                              |
-| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` site-settings drawer (`HelpCenterDrawer` + its tabs, types and constants) over it |
 | Polls management       | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                   | Channel-scoped list, create/edit sheet, results dialog, command bar                                                                             |
 | Polls channel row      | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                  | `Manage channel polls` row on the channel detail page                                                                                           |
 | Polls results          | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/polls`                                                                                         |
@@ -458,7 +458,7 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   help center surface can trigger must select the website and feature fields
   (`url`, `kbToggle`, `kbLabel`, `ticketToggle`, `ticketLabel`,
   `ticketChannelId`, `ticketPipelineId`, `ticketStatusId`), or a refetch blanks
-  those surfaces. `TopicDrawer` likewise needs the full record in its `topic`
+  those surfaces. `HelpCenterDrawer` likewise needs the full record in its `topic`
   prop: it resets its form from that prop and saves the whole doc, so a missing
   field is silently written back as its default.
 - `knowledgeBaseTopicsEdit` replaces the whole `KnowledgeBaseTopicDoc`, so an
@@ -471,13 +471,13 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   `Select*` components in their `table` variant, but pass their own
   `onValueChange` — those components' roots save onto a ticket, and
   `SelectStatusTicket`'s needs an `id`, so the status cell composes the provider
-  itself the way `TopicDrawer` does.
+  itself the way `HelpCenterDrawer` does.
 - A help center's ticket target is a channel → pipeline → status chain, so
   changing a level clears the levels under it — `useEditHelpCenter` does this
-  for inline edits and `TopicDrawer` does it through `form.setValue`. The
+  for inline edits and `HelpCenterDrawer` does it through `form.setValue`. The
   drawer also saves a switched-off feature with its fields cleared, so a
   disabled feature never keeps stale configuration.
-- `TopicDrawer` splits across two `SheetNavSidebar` tabs, **general** and
+- `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
   **appearance**: general owns title, website, description, the embed script and
   the knowledge base and ticket feature cards; appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
@@ -490,13 +490,25 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   that map.
 - A help center has **no page of its own**: `/frontline/helpcenter/:id` was
   removed, and editing is addressed by the `editId` URL query on the list page,
-  which opens `TopicDrawer` over the table. The page mounts **one** drawer for
+  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer for
   both creating and editing, keyed on the record — two would each mount a
   `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the name cell's
   anchor and a shared link all go through that one param — never reintroduce
   a detail route. Every surface widens a list record for the drawer through
-  `toTopicDrawerRecord`; passing a partial record would reset the fields it
+  `toHelpCenterDrawerRecord`; passing a partial record would reset the fields it
   omitted on the next save.
+- The Knowledge Base page and the Help Center page each own **their own
+  drawer**, and the two must not be merged again.
+  `knowledgebase/components/TopicDrawer.tsx` edits a knowledge base topic —
+  title, code, description, brand, colour, language, background image and the
+  embed script — in a plain
+  `Sheet`; `helpcenter/components/HelpCenterDrawer.tsx` edits a published help
+  center's site settings in a two-tab `FocusSheet`. Both write the same
+  `knowledgeBaseTopicsAdd` / `knowledgeBaseTopicsEdit` mutations because one
+  collection backs both surfaces, so a field one drawer never renders is simply
+  left out of that drawer's `doc` and keeps its stored value. Adding a help
+  center setting to `TopicDrawer` would put site configuration back on the
+  Knowledge Base page, which is what this split exists to prevent.
 - Category editing lives on the Knowledge Base page (`TopicList`), which owns
   create, edit and delete. The help center surface does not duplicate it.
 - The upload slots use the repo's usual `Upload.Root` handler
@@ -508,8 +520,8 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
   visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
   both the drawer's tab panes and its feature sections do.
-- The drawer's own types and constants live in `topicDrawerTypes.ts` and
-  `topicDrawerConstants.ts`, **not** in the module's `types.ts` / `constants.ts`
+- The drawer's own types and constants live in `types/helpCenterDrawerTypes.ts` and
+  `constants/helpCenterDrawerConstants.ts`, **not** in the module's `types.ts` / `constants.ts`
   — those two re-export from `content_ui`, so importing them pulls another
   plugin's code into this remote and breaks it at runtime.
 - The help center table shows the three identifying columns — name, website,
@@ -521,7 +533,7 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   and live in the gateway locales, outside this plugin, so never rename them to
   suit this table. The two on/off switches (`kbToggle`, `ticketToggle`), the
   knowledge base name (`kbLabel`), the ticket menu label and the description are
-  drawer-only; put a new field of that kind in `TopicGeneralTab`, not in a
+  drawer-only; put a new field of that kind in `HelpCenterGeneralTab`, not in a
   column. `kbLabel` still ships in `frontlineHelpCenterList` and is rebuilt by
   `useEditHelpCenter` on every inline write even though no column shows it —
   dropping it from either would blank the drawer's field on the next save. The ticket selects cascade: pipeline is disabled until a channel is
@@ -548,7 +560,7 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   they already stored and are only changed from the appearance tab.
 - `kbToggle` defaults to **on** everywhere a help center is read or written: a
   new topic starts from `EMPTY_TOPIC_FORM`, an existing one is widened by
-  `TopicDrawer`'s reset and `toTopicDrawerRecord`, and an inline table edit
+  `HelpCenterDrawer`'s reset and `toHelpCenterDrawerRecord`, and an inline table edit
   rebuilds the doc in `useEditHelpCenter`. All four say `?? true` / `true`, so a
   help center saved from any surface keeps its knowledge base showing. Change
   the default in all four or none — one `?? false` among them silently switches
@@ -559,10 +571,10 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   passes `variant="form"`. Both exclude the row's own `_id` so a help center
   cannot point at itself. Change the option query or the exclusion in that one
   file — never fork a second copy for one of the two surfaces.
-- The topic drawer is split by responsibility: `TopicDrawer.tsx` owns only the
-  sheet, the form and the mutations; `TopicGeneralTab.tsx` and
-  `TopicAppearanceTab.tsx` own a tab each; `TopicStyleFields.tsx` the reusable
-  `Style*Field` helpers; `TopicEmbedScriptDialog.tsx` the embed snippet; and the
+- The topic drawer is split by responsibility: `HelpCenterDrawer.tsx` owns only the
+  sheet, the form and the mutations; `HelpCenterGeneralTab.tsx` and
+  `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the reusable
+  `Style*Field` helpers; `HelpCenterEmbedScriptDialog.tsx` the embed snippet; and the
   module's `types.ts` / `constants.ts` the shapes and defaults. Add new fields to
   the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
@@ -578,7 +590,7 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   already carries a hex field; never a native `<input type="color">` — add a style through those
   rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
   cached block carries a `__typename` that `KnowledgeBaseTopicStylesInput`
-  rejects: `TopicDrawer` strips it in `omitTypename` on reset and
+  rejects: `HelpCenterDrawer` strips it in `omitTypename` on reset and
   `useEditHelpCenter` in `stripTypename` before every inline write. Any new
   path that sends `styles` back must strip it too.
 - Both `TOPICS` and `frontlineHelpCenterList` select the `styles` block. They
@@ -589,11 +601,11 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   untouched. The record still carries them and the table still reads them, so do
   not delete them from the `Topic` shape or from the queries.
 - `SelectTriggerTicket`'s `form` variant is `w-fit max-w-64` and takes no
-  `className`, and ~15 other ticket forms depend on that width. `TopicDrawer`
+  `className`, and ~15 other ticket forms depend on that width. `HelpCenterDrawer`
   needs its channel/pipeline/status pickers full width, so it overrides them
   from its own `Form.Item` wrappers via `FULL_WIDTH_SELECT`; widen the pickers
   there, never in the shared trigger.
-- `TopicDrawer` composes `SelectPipeline` (root) and
+- `HelpCenterDrawer` composes `SelectPipeline` (root) and
   `SelectStatusTicket.Provider` directly rather than their `FormItem` variants:
   `SelectPipeline.FormItem` is typed to `addTicketSchema` and both watch
   `channelId` / `pipelineId` field names this form does not use, and
@@ -1028,6 +1040,44 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-08` — The Knowledge Base drawer goes back to editing a topic
+
+- **Summary:** The Knowledge Base page's Edit Topic sheet had been replaced by
+  the help center's site-settings drawer, so editing a topic there asked for a
+  published site's features and palette instead of the topic's own title, code,
+  brand, colour, language and background image. `TopicDrawer` is the plain topic
+  sheet again, and the site-settings drawer moved to the help center module as
+  `HelpCenterDrawer` with its tabs, style fields, embed dialog, types and
+  constants, where `/frontline/helpcenter` alone renders it.
+- **Affected areas:**
+  `src/modules/knowledgebase/components/TopicDrawer.tsx`,
+  `src/modules/helpcenter/components/{HelpCenterDrawer,HelpCenterGeneralTab,HelpCenterAppearanceTab,HelpCenterStyleFields,HelpCenterEmbedScriptDialog}.tsx`,
+  `src/modules/helpcenter/{types/helpCenterDrawerTypes.ts,constants/helpCenterDrawerConstants.ts,utils/toHelpCenterDrawerRecord.ts}`,
+  `src/pages/HelpCenterIndexPage.tsx`
+- **Contracts changed:** `None`
+
+### `2026-09-08` — The internal-note toggle reaches the API
+
+- **Summary:** `NoteInput` sends its `isInternalNote` state as `isInternal`, and
+  `NoteInputReadOnly` marks a stored internal note in the timeline with the
+  composer's accent bar and a lock label, so an agent can tell which notes the
+  customer portal never receives.
+- **Affected areas:** `src/modules/activity/components/{NoteInput,NoteInputReadOnly}.tsx`,
+  `src/modules/activity/graphql/{mutations/createTicketNote,queries/getTicketNote}.ts`,
+  `src/modules/activity/types.ts`
+- **Contracts changed:** `TicketCreateNote` sends `$isInternal: Boolean`; it and
+  `TicketGetNote` select `isInternal`.
+
+### `2026-09-08` — Ticket navigation asks for a page the API accepts
+
+- **Summary:** `TicketNavigations` requested `limit: 1000` for its pipeline
+  lookup, but `cursorPaginate` rejects anything above 100, so `getTicketPipelines`
+  failed with `Limit must be between 1 and 100` and the channel/pipeline sidebar
+  rendered no tickets. The request now asks for `PIPELINES_PER_PAGE` (100), the
+  largest page the API allows.
+- **Affected areas:** `src/modules/ticket/components/ticket-navigations/TicketNavigations.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-08` — A new help center starts on the portal's palette
 
 - **Summary:** `EMPTY_TOPIC_STYLES` seeded every colour as white and the topic
@@ -1035,7 +1085,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   — the portal cannot tell a stored white from an unset colour. The defaults are
   now the portal's own tokens.
 - **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`
+  `src/modules/helpcenter/constants/helpCenterDrawerConstants.ts`
 - **Contracts changed:** `None`
 
 ### `2026-09-07` — Ticket note attachments persist and render
@@ -1064,7 +1114,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
+  `src/modules/helpcenter/components/HelpCenterGeneralTab.tsx`
 - **Contracts changed:** `None`
 
 ### `2026-09-07` — The ticket columns say they are ticket columns
@@ -1096,11 +1146,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
   the topic and label fields under it stayed hidden until the switch was found;
   `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
+  and `toHelpCenterDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
   with `?? false`, which switched the feature off on the next inline edit of a
   help center that had no stored value — it now agrees with the other three.
 - **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`,
+  `src/modules/helpcenter/constants/helpCenterDrawerConstants.ts`,
   `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
 - **Contracts changed:** `None`
 
@@ -1118,39 +1168,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
   `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
   `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table picks its knowledge base topic
-
-- **Summary:** Replaced the `Show articles` switch column with a
-  `Knowledge base topic` select that lists the other topics through
-  `TOPICS_SHORT`, excludes the row's own topic, and writes the choice with
-  `useEditHelpCenter`. The `kbToggle` field itself stays — the topic drawer
-  still owns that switch — and `Knowledge base name` is now a plain inline
-  text cell instead of striking itself through against a switch the table no
-  longer shows.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/{types/index.ts,hooks/useEditHelpCenter.ts}`,
-  `src/modules/helpcenter/graphql/queries/getHelpCenters.ts`
-- **Contracts changed:** `frontlineHelpCenterList` selects `kbTopicId`, and the
-  edit mutation sends it.
-
-### `2026-09-07` — Poll form picks the brand
-
-- **Summary:** `PollSheet` gained an optional single-select brand field backed by
-  `SelectBrands.FormItem`, so an admin decides which messenger integration in the
-  channel a poll's answers are filed under instead of leaving it to the API's
-  arbitrary pick.
-- **Affected areas:** `src/modules/poll/components/poll-page/PollSheet.tsx`,
-  `src/modules/poll/constants/pollFormSchema.ts`,
-  `src/modules/poll/types/pollTypes.ts`,
-  `src/modules/poll/graphql/{pollMutations.ts,pollQueries.ts}`.
-- **Contracts changed:** `pollAdd` and `pollEdit` now send `brandId: String`, and
-  the `PollFields` fragment selects `brandId`.
-
-### `2026-09-05` — `Property groups share one card shell`
-
-- **Summary:** The ticket detail property groups render through `PropertyGroupShell` / `PropertyGroupCard` from `ui-modules`, so a plain group and a repeating one look the same instead of a secondary-button header beside a card tray.
-- **Affected areas:** `src/modules/ticket/components/ticket-detail/TicketPipelineProperties.tsx`
 - **Contracts changed:** `None`

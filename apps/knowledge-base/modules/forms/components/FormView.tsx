@@ -23,7 +23,6 @@ import {
 } from '../utils/fields';
 import { FormFieldControl } from './FormFieldControl';
 
-/* erxes stores what a lead was filled in from; the portal reports itself. */
 const browserInfo = () => ({
   url: typeof window === 'undefined' ? '' : window.location.href,
   hostname: typeof window === 'undefined' ? '' : window.location.hostname,
@@ -59,17 +58,16 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
     if (saved?.status === 'ok') {
       toast({
         variant: 'success',
-        title: 'Хүлээн авлаа',
-        description: 'Таны бөглөсөн маягтыг амжилттай хадгаллаа.',
+        title: 'Received',
+        description: 'Your completed form was saved.',
       });
       return;
     }
 
-    /* The server answers field-by-field, so each message lands on its own field. */
     for (const issue of saved?.errors ?? []) {
       if (issue.fieldId) {
         form.setError(issue.fieldId, {
-          message: issue.text ?? 'Утга буруу байна.',
+          message: issue.text ?? 'That value is not valid.',
         });
       }
     }
@@ -81,14 +79,14 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
         <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-success-soft text-success">
           <Icon name="check" size={22} />
         </span>
-        <h2 className="text-lg font-semibold text-ink">Маягт хүлээн авлаа</h2>
+        <h2 className="text-lg font-semibold text-ink">Form received</h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Баярлалаа. Таны бөглөсөн мэдээллийг дэмжлэгийн баг хүлээн авлаа.
+          Thank you. The support team has received the details you submitted.
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
           <ButtonLink href="/forms" variant="secondary">
-            Бусад маягт
+            Other forms
           </ButtonLink>
           <Button
             variant="ghost"
@@ -97,7 +95,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
               reset();
             }}
           >
-            Дахин бөглөх
+            Fill it in again
           </Button>
         </div>
       </Card>
@@ -108,7 +106,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
     return (
       <Card className="p-7 text-center">
         <p className="text-sm text-muted-foreground">
-          Энэ маягтад бөглөх талбар алга байна.
+          This form has no fields to fill in.
         </p>
       </Card>
     );
@@ -124,7 +122,6 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
         <div className="space-y-6 px-5 py-6 sm:px-7">
           {fields.map((field) => {
             if (fieldKind(field) === 'content') {
-              /* Sanitised server-side in `modules/forms/api.ts`. */
               return field.content ? (
                 <div
                   key={field._id}
@@ -140,9 +137,9 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                   key={field._id}
                   className="flex items-start gap-2 rounded-lg bg-warning-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-warning"
                 >
-                  <Icon name="alert" size={15} className="mt-px shrink-0" />«
-                  {fieldLabel(field)}» талбарыг одоогоор порталаас бөглөх
-                  боломжгүй тул дэмжлэгийн багт хандана уу.
+                  <Icon name="alert" size={15} className="mt-px shrink-0" />The
+                  “{fieldLabel(field)}” field cannot be filled in from the
+                  portal yet — please contact the support team.
                 </p>
               );
             }
@@ -188,7 +185,7 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
               className="flex items-start gap-2 rounded-lg bg-danger-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-danger"
             >
               <Icon name="alert" size={15} className="mt-px shrink-0" />
-              Маягтыг илгээхэд алдаа гарлаа: {error.message}
+              Something went wrong submitting the form: {error.message}
             </p>
           ) : null}
         </div>
@@ -198,13 +195,13 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
             <span aria-hidden="true" className="text-danger">
               *
             </span>{' '}
-            тэмдэгтэй талбарууд заавал бөглөнө.
+            marks a required field.
           </p>
           <Button type="submit" disabled={loading}>
             <Icon name="send" size={15} />
             {loading
-              ? 'Илгээж байна…'
-              : definition.buttonText?.trim() || 'Илгээх'}
+              ? 'Submitting…'
+              : definition.buttonText?.trim() || 'Submit'}
           </Button>
         </div>
       </form>

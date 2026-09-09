@@ -24,10 +24,10 @@ export const TicketListItem = ({ ticket }: { ticket: Ticket }) => (
           <PriorityBadge priority={ticket.priority} />
         </span>
         <span className="mt-1.5 block text-[15px] font-semibold text-ink">
-          {ticket.name ?? 'Гарчиггүй хүсэлт'}
+          {ticket.name ?? 'Untitled ticket'}
         </span>
         <span className="mt-1 block text-[13px] text-muted-foreground">
-          Шинэчлэгдсэн {formatDateTime(ticket.updatedAt ?? ticket.createdAt)}
+          Updated {formatDateTime(ticket.updatedAt ?? ticket.createdAt)}
         </span>
       </span>
       <span className="mt-1 text-muted-foreground">

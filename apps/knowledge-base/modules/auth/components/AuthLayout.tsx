@@ -24,20 +24,22 @@ export const AuthLayout = ({
   children: ReactNode;
 }) => (
   <div className="grid flex-1 lg:grid-cols-2">
-    <aside className="relative hidden overflow-hidden bg-ink px-14 py-12 text-white lg:flex lg:flex-col">
-      <AuthPattern className="text-white/[0.07]" />
+    <aside className="relative hidden overflow-hidden bg-hero bg-[radial-gradient(120%_90%_at_20%_0%,var(--color-hero-soft),transparent_62%)] px-14 py-12 text-white lg:flex lg:flex-col">
+      <AuthPattern className="text-white/[0.06]" />
       <Link
         href="/"
-        className="relative self-center text-xl font-semibold lowercase tracking-tight text-white transition-opacity hover:opacity-80"
+        className="relative self-start text-xl font-semibold lowercase tracking-tight text-white transition-opacity hover:opacity-80"
       >
         er<span className="text-white/60">x</span>es
       </Link>
 
-      <div className="relative mt-auto max-w-md">
-        <h2 className="text-[28px] font-semibold leading-tight text-balance">
+      <div className="relative my-auto max-w-md py-10">
+        <h2 className="text-[30px] font-semibold leading-[1.25] tracking-[-0.02em] text-balance">
           {headline}
         </h2>
-        <p className="mt-4 text-sm leading-relaxed text-white/55">{blurb}</p>
+        <p className="mt-4 text-[15px] leading-relaxed text-white/65">
+          {blurb}
+        </p>
       </div>
     </aside>
 

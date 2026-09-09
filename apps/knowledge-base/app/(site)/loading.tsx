@@ -1,10 +1,9 @@
 import { Container } from '@/modules/ui/components/Container';
 
-/** Shown while a route's server data is still in flight. */
 export default function SiteLoading() {
   return (
     <Container className="py-10 lg:py-14" aria-busy>
-      <span className="sr-only">Ачаалж байна…</span>
+      <span className="sr-only">Loading…</span>
       <span className="block h-4 w-56 animate-pulse rounded bg-line" />
       <span className="mt-6 block h-8 w-80 max-w-full animate-pulse rounded bg-line" />
 

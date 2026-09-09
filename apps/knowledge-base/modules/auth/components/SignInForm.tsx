@@ -23,8 +23,8 @@ import {
 } from '../types';
 
 const signInSchema = z.object({
-  email: z.string().email('Имэйл хаяг буруу байна.'),
-  password: z.string().min(1, 'Нууц үгээ оруулна уу.'),
+  email: z.string().email('That email address is not valid.'),
+  password: z.string().min(1, 'Please enter your password.'),
 });
 
 type SignInValues = z.infer<typeof signInSchema>;
@@ -48,11 +48,6 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
         variables: { email: address, password },
       });
 
-      /*
-       * Depending on the portal's delivery method the token either comes back
-       * here or was just set as a cookie. The follow-up read has to carry it
-       * explicitly, because it is not in storage yet.
-       */
       const token = loginToken(
         data?.clientPortalUserLoginWithCredentials ?? null,
       );
@@ -68,21 +63,17 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
       const current = session?.clientPortalCurrentUser;
 
       if (!current) {
-        throw new Error('Нэвтэрсэн хэрэглэгчийн мэдээлэл ирсэнгүй.');
+        throw new Error('No signed-in user was returned.');
       }
 
       signIn(sessionFromCurrentUser(current, address), token);
 
       toast({
         variant: 'success',
-        title: 'Амжилттай нэвтэрлээ',
-        description: `Тавтай морил, ${displayName(current)}.`,
+        title: 'Signed in',
+        description: `Welcome back, ${displayName(current)}.`,
       });
 
-      /*
-       * Replaced rather than pushed, so going back from the guarded route the
-       * visitor was after does not land them on the sign-in form again.
-       */
       router.replace(next ?? '/');
     } catch (caught) {
       const message = authErrorMessage(caught);
@@ -90,7 +81,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
       form.setError('root', { message });
       toast({
         variant: 'destructive',
-        title: 'Нэвтэрч чадсангүй',
+        title: 'Could not sign in',
         description: message,
       });
     }
@@ -112,7 +103,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Имэйл
+                Email
               </Form.Label>
               <Form.Control>
                 <TextInput
@@ -136,7 +127,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
                 className="text-[13px] font-medium text-ink"
                 variant="peer"
               >
-                Нууц үг
+                Password
               </Form.Label>
               <Form.Control>
                 <PasswordInput
@@ -162,7 +153,7 @@ export const SignInForm = ({ next }: { next?: string | null }) => {
 
         <Button type="submit" disabled={loading} className="mt-2 w-full">
           <Icon name="lock" size={15} />
-          {loading ? 'Нэвтэрч байна…' : 'Нэвтрэх'}
+          {loading ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
     </Form>

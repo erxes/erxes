@@ -108,12 +108,6 @@ const overview = (settings: string) => `
   }
 `;
 
-/*
- * Each read comes in two shapes. The full one selects the help center's
- * settings; the plain one omits them, for a gateway old enough not to declare
- * them — there, asking would fail the whole document at validation and cost the
- * portal its articles too. `api.ts` falls back on that specific error.
- */
 export const KB_PORTAL_TOPIC_OVERVIEW = gql`
   query kbPortalTopicOverview($topicId: String!) {
     ${overview(TOPIC_SETTINGS_FIELDS)}

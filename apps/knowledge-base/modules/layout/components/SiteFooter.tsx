@@ -12,27 +12,26 @@ type FooterLink = { href: string; label: string; reason?: string };
 const supportLinks: FooterLink[] = [
   {
     href: NEW_TICKET_ROUTE,
-    label: 'Хүсэлт илгээх',
+    label: 'Submit a ticket',
     reason: NEW_TICKET_REASON,
   },
-  { href: '/tickets/track', label: 'Хүсэлт хянах' },
-  { href: '/tickets', label: 'Миний хүсэлт' },
-  { href: '/forms', label: 'Маягт бөглөх' },
+  { href: '/tickets/track', label: 'Track a ticket' },
+  { href: '/tickets', label: 'My tickets' },
+  { href: '/forms', label: 'Fill in a form' },
 ];
 
-/* With tickets turned off, only the form entry point is left to link to. */
-const formOnlyLinks: FooterLink[] = [{ href: '/forms', label: 'Маягт бөглөх' }];
+const formOnlyLinks: FooterLink[] = [{ href: '/forms', label: 'Fill in a form' }];
 
 const knowledgeLinks: FooterLink[] = [
-  { href: '/knowledge-base', label: 'Бүх ангилал' },
-  { href: '/search', label: 'Хайлт' },
-  { href: '/announcements', label: 'Мэдээ мэдээлэл' },
+  { href: '/knowledge-base', label: 'All categories' },
+  { href: '/search', label: 'Search' },
+  { href: '/announcements', label: 'Announcements' },
 ];
 
 const accountLinks: FooterLink[] = [
-  { href: '/account', label: 'Миний хуудас' },
-  { href: '/sign-in', label: 'Нэвтрэх' },
-  { href: '/sign-up', label: 'Бүртгүүлэх' },
+  { href: '/account', label: 'My account' },
+  { href: '/sign-in', label: 'Sign in' },
+  { href: '/sign-up', label: 'Sign up' },
 ];
 
 const linkClass = 'text-sm text-ink-soft transition-colors hover:text-brand';
@@ -80,38 +79,38 @@ export const SiteFooter = ({
   ticketsEnabled: boolean;
 }) => (
   <footer className="mt-auto border-t border-line bg-(--color-footer)">
-    <Container className="py-14">
+    <Container className="py-12">
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))] lg:gap-12">
         <div className="max-w-sm">
           <p className="text-xl font-semibold lowercase tracking-tight text-ink">
             er<span className="text-brand">x</span>es
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            {title} — erxes дэмжлэгийн портал. Асуултынхаа хариултыг мэдлэгийн
-            сангаас хайж олоод, олдохгүй бол дэмжлэгийн багт хандаарай.
+            {title} — the erxes support portal. Search the knowledge base for
+            your answer, and reach out to the support team if you cannot find it.
           </p>
         </div>
 
         {ticketsEnabled ? (
-          <FooterColumn heading="Дэмжлэг" links={supportLinks} />
+          <FooterColumn heading="Support" links={supportLinks} />
         ) : (
-          <FooterColumn heading="Дэмжлэг" links={formOnlyLinks} />
+          <FooterColumn heading="Support" links={formOnlyLinks} />
         )}
         {knowledgeBaseEnabled ? (
-          <FooterColumn heading="Мэдлэгийн сан" links={knowledgeLinks} />
+          <FooterColumn heading="Knowledge base" links={knowledgeLinks} />
         ) : null}
-        <FooterColumn heading="Бүртгэл" links={accountLinks} />
+        <FooterColumn heading="Account" links={accountLinks} />
       </div>
     </Container>
 
     <div className="border-t border-line">
       <Container className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] text-muted-foreground">
-          © {new Date().getFullYear()} erxes. Бүх эрх хамгаалагдсан.
+          © {new Date().getFullYear()} erxes. All rights reserved.
         </p>
         <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
           <Icon name="language" size={15} />
-          Монгол
+          English
         </span>
       </Container>
     </div>

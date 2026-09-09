@@ -1,5 +1,5 @@
 import { useGetTicketNote } from '@/activity/hooks/useGetTicketNote';
-import { IconFile } from '@tabler/icons-react';
+import { IconFile, IconLock } from '@tabler/icons-react';
 import {
   BlockEditorReadOnly,
   IAttachment,
@@ -7,18 +7,33 @@ import {
   formatBytes,
   readImage,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 interface NoteInputReadOnlyProps {
   newValueId: string;
 }
 
 export const NoteInputReadOnly = ({ newValueId }: NoteInputReadOnlyProps) => {
+  const { t } = useTranslation('frontline');
   const { note, loading } = useGetTicketNote(newValueId);
+  const isInternal = Boolean(note?.isInternal);
 
   return (
-    <div className="flex flex-col border rounded-lg min-h-14 px-4 py-3 gap-2 ml-4">
+    <div
+      className={cn(
+        'relative flex flex-col overflow-hidden border rounded-lg min-h-14 px-4 py-3 gap-2 ml-4',
+        isInternal &&
+          'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[3px] before:bg-primary',
+      )}
+    >
       {!loading && (
         <>
+          {isInternal && (
+            <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              <IconLock className="size-3.5" />
+              {t('internal-note')}
+            </span>
+          )}
           <BlockEditorReadOnly
             content={note?.content || ''}
             className="read-only"

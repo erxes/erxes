@@ -18,8 +18,8 @@ import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel'
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
-import { FULL_WIDTH_SELECT } from '@/knowledgebase/topicDrawerConstants';
-import { Topic, TopicFormData } from '@/knowledgebase/topicDrawerTypes';
+import { FULL_WIDTH_SELECT } from '@/helpcenter/constants/helpCenterDrawerConstants';
+import { Topic, TopicFormData } from '@/helpcenter/types/helpCenterDrawerTypes';
 
 function FeatureSection({
   control,
@@ -92,7 +92,7 @@ function TicketStatusField({
   );
 }
 
-export function TopicGeneralTab({
+export function HelpCenterGeneralTab({
   form,
   topic,
   isEditing,

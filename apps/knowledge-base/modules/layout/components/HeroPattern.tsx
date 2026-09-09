@@ -1,29 +1,43 @@
-export const HeroPattern = () => (
+const Shapes = ({ id, className }: { id: string; className: string }) => (
   <svg
     aria-hidden="true"
-    className="pointer-events-none absolute inset-0 h-full w-full"
-    viewBox="0 0 1440 420"
-    preserveAspectRatio="xMidYMid slice"
+    className={className}
+    viewBox="0 0 420 400"
+    fill="none"
   >
-    <g className="text-hero-soft" fill="currentColor">
-      <rect x="118" y="196" width="224" height="224" rx="12" />
-      <path d="M342 84a112 112 0 0 1-112 112V84z" />
-      <circle cx="500" cy="292" r="86" />
-      <rect x="1004" y="40" width="180" height="180" rx="90" />
-      <path d="M1440 0v120a120 120 0 0 1-120-120z" />
-      <rect x="1160" y="188" width="320" height="232" rx="12" />
-      <path d="M1004 420V300a120 120 0 0 1 120 120z" />
-      <rect x="640" y="0" width="150" height="150" rx="12" />
+    <defs>
+      <linearGradient id={id} x1="0" y1="0" x2="0.8" y2="1">
+        <stop offset="0" stopColor="currentColor" stopOpacity="0.9" />
+        <stop offset="1" stopColor="currentColor" stopOpacity="0.35" />
+      </linearGradient>
+    </defs>
+
+    <g fill={`url(#${id})`}>
+      <rect x="196" y="36" width="140" height="140" rx="16" />
+      <circle cx="104" cy="250" r="66" />
     </g>
+
     <g
       className="text-hero-line"
-      fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
+      opacity="0.75"
     >
-      <rect x="230" y="60" width="180" height="180" rx="12" />
-      <circle cx="1100" cy="330" r="96" />
-      <path d="M790 0v150a150 150 0 0 1-150-150" />
+      <rect x="232" y="212" width="150" height="150" rx="16" />
+      <circle cx="88" cy="96" r="58" />
     </g>
   </svg>
+);
+
+export const HeroPattern = () => (
+  <>
+    <Shapes
+      id="hero-shapes-left"
+      className="pointer-events-none absolute -left-40 -top-24 hidden h-[400px] w-[420px] -scale-x-100 text-hero-soft opacity-80 lg:block"
+    />
+    <Shapes
+      id="hero-shapes-right"
+      className="pointer-events-none absolute -right-40 -top-24 hidden h-[400px] w-[420px] text-hero-soft opacity-80 sm:block"
+    />
+  </>
 );

@@ -1,11 +1,6 @@
 import { ButtonLink } from './Button';
 import { Icon } from './Icon';
 
-/**
- * Shown where a route belongs to a feature the help center turned off. The
- * route still exists — a stale link or a bookmark reaches it — so it explains
- * itself and offers the way back rather than 404ing.
- */
 export const FeatureOff = ({
   title,
   description,
@@ -22,7 +17,7 @@ export const FeatureOff = ({
       {description}
     </p>
     <div className="mt-5">
-      <ButtonLink href="/">Нүүр хуудас руу буцах</ButtonLink>
+      <ButtonLink href="/">Back to the home page</ButtonLink>
     </div>
   </div>
 );

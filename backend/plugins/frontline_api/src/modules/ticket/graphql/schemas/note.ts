@@ -6,6 +6,7 @@ export const types = `
         createdBy: String
         mentions: [String]
         attachments: [Attachment]
+        isInternal: Boolean
         statusId: String
 
         createdAt: String
@@ -18,6 +19,7 @@ const createNoteParams = `
     contentId: String
     mentions: [String]
     attachments: [AttachmentInput]
+    isInternal: Boolean
 `;
 
 const updateNoteParams = `
@@ -26,6 +28,7 @@ const updateNoteParams = `
     contentId: String
     mentions: [String]
     attachments: [AttachmentInput]
+    isInternal: Boolean
 `;
 
 export const queries = `

@@ -23,7 +23,6 @@ export type PortalForm = FormSummary & {
   fields: FormField[] | null;
 };
 
-/** What `/upload-file` hands back, in the shape erxes stores attachments in. */
 export type FormAttachment = {
   name: string;
   url: string;
@@ -47,4 +46,4 @@ export type SaveLeadResponse = {
 };
 
 export const formTitle = (form: FormSummary): string =>
-  form.title?.trim() || form.name?.trim() || 'Гарчиггүй маягт';
+  form.title?.trim() || form.name?.trim() || 'Untitled form';

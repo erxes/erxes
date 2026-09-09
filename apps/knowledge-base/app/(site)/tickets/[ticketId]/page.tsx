@@ -6,7 +6,7 @@ import { Container } from '@/modules/ui/components/Container';
 
 type Props = { params: Promise<{ ticketId: string }> };
 
-export const metadata = { title: 'Хүсэлт' };
+export const metadata = { title: 'Ticket' };
 
 export default async function TicketPage({ params }: Props) {
   const [{ headline }, { ticketId }] = await Promise.all([
@@ -21,9 +21,9 @@ export default async function TicketPage({ params }: Props) {
       <Container className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
-            { label: 'Мэдлэгийн сан', href: '/' },
-            { label: 'Дэмжлэг', href: '/tickets' },
-            { label: 'Хүсэлт' },
+            { label: 'Knowledge base', href: '/' },
+            { label: 'Support', href: '/tickets' },
+            { label: 'Ticket' },
           ]}
         />
 

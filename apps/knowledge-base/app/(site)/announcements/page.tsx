@@ -8,7 +8,7 @@ import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
 
-export const metadata = { title: 'Мэдээ мэдээлэл' };
+export const metadata = { title: 'Announcements' };
 
 export default async function AnnouncementsPage() {
   const [{ headline }, posts] = await Promise.all([
@@ -22,14 +22,14 @@ export default async function AnnouncementsPage() {
 
       <Container className="py-10 lg:py-14">
         <Breadcrumbs
-          items={[{ label: 'Нүүр', href: '/' }, { label: 'Мэдээ мэдээлэл' }]}
+          items={[{ label: 'Home', href: '/' }, { label: 'Announcements' }]}
         />
 
-        <h1 className="mt-6 text-[28px] font-semibold text-ink">
-          Мэдээ мэдээлэл
+        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Announcements
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          CMS дээр нийтлэгдсэн зарлал, шинэчлэлтүүд.
+          Notices and updates published in the CMS.
         </p>
 
         <div className="mt-7">
@@ -44,8 +44,8 @@ export default async function AnnouncementsPage() {
           ) : (
             <EmptyState
               icon="megaphone"
-              title="Зарлал байхгүй байна"
-              description="CMS дээр нийтлэгдсэн зарлал алга. Шинэ мэдээлэл нийтлэгдмэгц энд харагдана."
+              title="No announcements yet"
+              description="Nothing has been published in the CMS yet. New notices appear here as soon as they go live."
             />
           )}
         </div>

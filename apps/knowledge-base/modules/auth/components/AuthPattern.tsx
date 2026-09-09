@@ -1,6 +1,5 @@
 import { cn } from '@/modules/ui/lib/cn';
 
-/** Nested hexagon outlines, sized to bleed off the top of an auth panel. */
 export const AuthPattern = ({ className }: { className?: string }) => (
   <svg
     aria-hidden="true"

@@ -25,11 +25,11 @@ export type TicketNote = {
 };
 
 export const priorityLabels: Record<number, string> = {
-  4: 'Яаралтай',
-  3: 'Өндөр',
-  2: 'Дунд',
-  1: 'Бага',
+  4: 'Urgent',
+  3: 'High',
+  2: 'Medium',
+  1: 'Low',
 };
 
 export const priorityLabel = (priority: number | null): string =>
-  priorityLabels[priority ?? 0] ?? 'Тодорхойгүй';
+  priorityLabels[priority ?? 0] ?? 'Unknown';

@@ -1,6 +1,6 @@
 import { IHelpCenter } from '@/helpcenter/types';
 
-export const toTopicDrawerRecord = (helpCenter?: IHelpCenter) => {
+export const toHelpCenterDrawerRecord = (helpCenter?: IHelpCenter) => {
   if (!helpCenter) {
     return undefined;
   }

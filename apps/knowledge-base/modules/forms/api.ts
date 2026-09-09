@@ -12,10 +12,6 @@ import type { FormSummary, PortalForm } from './types';
 type ListResponse = { cpForms: { list: FormSummary[] | null } | null };
 type DetailResponse = { cpFormDetail: PortalForm | null };
 
-/**
- * `cpForms` accepts a `tagId` but ignores it, so the tag that marks a form as
- * belonging in this portal is applied here instead.
- */
 const taggedForPortal = (form: { tagIds: string[] | null }, tagId: string) =>
   (form.tagIds ?? []).includes(tagId);
 
@@ -75,16 +71,10 @@ export const getPortalForm = async (
 
     const form = data?.cpFormDetail ?? null;
 
-    /* A form reachable by id but never published here stays out of the portal. */
     if (!form || !taggedForPortal(form, tagId)) {
       return { state: 'ready', data: null };
     }
 
-    /*
-     * Content blocks are admin-written HTML. They are cleaned here so the
-     * client only ever renders markup that has already been through the
-     * portal's one sanitiser.
-     */
     return {
       state: 'ready',
       data: {

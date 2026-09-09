@@ -12,12 +12,13 @@ import {
   NEW_TICKET_REASON,
   NEW_TICKET_ROUTE,
 } from '@/modules/tickets/constants/guard';
-import { AccordionSection } from '@/modules/ui/components/Accordion';
 import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { buttonClass, ButtonLink } from '@/modules/ui/components/Button';
-import { CardLink, cardLinkClass } from '@/modules/ui/components/Card';
+import { Card, CardLink, cardLinkClass } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { Reveal } from '@/modules/ui/components/Reveal';
+import { Section } from '@/modules/ui/components/Section';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
 
@@ -32,20 +33,22 @@ const ActionCard = ({
   icon: 'inbox' | 'binoculars';
   title: string;
   description: string;
-  /** Set when the route is behind a session, so the click is gated here. */
   reason?: string;
 }) => {
-  const className = cardLinkClass('flex items-start gap-4 p-6');
+  const className = cardLinkClass('group flex items-center gap-3.5 px-4 py-3.5');
   const body = (
     <>
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
-        <Icon name={icon} size={22} />
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">
+        <Icon name={icon} size={19} />
       </span>
-      <span>
-        <span className="block text-base font-semibold text-ink">{title}</span>
-        <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-ink">{title}</span>
+        <span className="mt-0.5 block text-[13px] leading-relaxed text-muted-foreground">
           {description}
         </span>
+      </span>
+      <span className="shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand">
+        <Icon name="chevronRight" size={17} />
       </span>
     </>
   );
@@ -69,166 +72,151 @@ export default async function HomePage() {
     getPortalForms(),
   ]);
 
-  /*
-   * Read off the topic itself rather than through `getPortalSettings`, so a
-   * topic that failed to load leaves both panels visible with their own error
-   * state instead of being silently dropped from the page.
-   */
   const knowledgeBaseEnabled =
     topic.state !== 'ready' || topic.data.knowledgeBaseEnabled;
   const ticketsEnabled = topic.state !== 'ready' || topic.data.ticketsEnabled;
 
-  /* A portal with no forms tagged for it simply does not show the panel. */
   const portalForms = forms.state === 'ready' ? forms.data : [];
 
   return (
     <>
       <Hero headline={headline} />
 
-      <Container className="py-10 lg:py-14">
-        <Breadcrumbs items={[{ label: title, href: '/' }, { label: 'Нүүр' }]} />
+      <Container className="py-9 lg:py-12">
+        <Breadcrumbs items={[{ label: title, href: '/' }, { label: 'Home' }]} />
 
-        <h1 className="mt-6 text-[28px] font-semibold text-ink">
-          Дэмжлэгийн портал
+        <h1 className="mt-5 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Support portal
         </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Хариултаа мэдлэгийн сангаас хайж олоод, олдохгүй бол дэмжлэгийн багт
-          хүсэлт илгээнэ үү.
-        </p>
 
         {ticketsEnabled ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <Reveal className="mt-6 grid gap-3 sm:grid-cols-2">
             <ActionCard
               href={NEW_TICKET_ROUTE}
               reason={NEW_TICKET_REASON}
               icon="inbox"
-              title="Хүсэлт илгээх"
-              description="Дэмжлэгийн багт шинэ хүсэлт үүсгэх маягтыг бөглөнө үү."
+              title="Submit a ticket"
+              description="Fill in the form to raise a new ticket with the support team."
             />
             <ActionCard
               href="/tickets/track"
               icon="binoculars"
-              title="Хүсэлт хянах"
-              description="Бүртгэлгүй юу? Хүсэлтийн дугаараа ашиглан төлөвөө шалгана уу."
+              title="Track a ticket"
+              description="No account? Use your ticket number to check its status."
             />
-          </div>
+          </Reveal>
         ) : null}
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-10 space-y-10 lg:mt-12 lg:space-y-12">
           {knowledgeBaseEnabled ? (
-            <AccordionSection
-              id="knowledgebase"
+            <Section
               icon="book"
-              title="Мэдлэгийн сан"
-              description="Түгээмэл асуултын хариулт, заавар, бодлогыг ангиллаар нь үзнэ үү."
+              title="Knowledge base"
+              description="Browse answers to common questions, guides, and policies by category."
+              action={
+                topic.state === 'ready' && topic.data.sections.length ? (
+                  <ButtonLink
+                    href="/knowledge-base"
+                    size="sm"
+                    variant="secondary"
+                  >
+                    All categories
+                    <Icon name="chevronRight" size={15} />
+                  </ButtonLink>
+                ) : null
+              }
             >
               {topic.state === 'unconfigured' ? (
                 <SetupNotice missing={topic.missing} />
               ) : topic.state === 'error' ? (
                 <LoadError message={topic.message} />
               ) : topic.data.sections.length ? (
-                <>
-                  <TopicOutline topic={topic.data} />
-                  <div className="mt-5">
-                    <ButtonLink
-                      href="/knowledge-base"
-                      size="sm"
-                      variant="secondary"
-                    >
-                      Бүх ангилал
-                      <Icon name="chevronRight" size={15} />
-                    </ButtonLink>
-                  </div>
-                </>
+                <TopicOutline topic={topic.data} />
               ) : (
                 <EmptyState
                   icon="book"
-                  title="Мэдлэгийн сан хоосон байна"
-                  description="Энэ сэдэвт нийтлэгдсэн ангилал алга. Frontline → Knowledge Base хэсгээс ангилал нэмнэ үү."
+                  title="The knowledge base is empty"
+                  description="This topic has no published categories. Add one under Frontline → Knowledge Base."
                   action={
                     <SessionLink
                       href={NEW_TICKET_ROUTE}
                       reason={NEW_TICKET_REASON}
                       className={buttonClass({ size: 'sm' })}
                     >
-                      Хүсэлт үүсгэх
+                      Create a ticket
                     </SessionLink>
                   }
                 />
               )}
-            </AccordionSection>
+            </Section>
           ) : null}
 
           {portalForms.length ? (
-            <AccordionSection
-              id="forms"
+            <Section
               icon="clipboard"
-              title="Маягт"
-              description="Дэмжлэгийн багт мэдээлэл хүргэх бэлэн маягтуудыг бөглөнө үү."
-            >
-              <FormList forms={portalForms.slice(0, 4)} />
-
-              {portalForms.length > 4 ? (
-                <div className="mt-5">
+              title="Forms"
+              description="Fill in a ready-made form to send details to the support team."
+              action={
+                portalForms.length > 4 ? (
                   <ButtonLink href="/forms" size="sm" variant="secondary">
-                    Бүх маягт
+                    All forms
                     <Icon name="chevronRight" size={15} />
                   </ButtonLink>
-                </div>
-              ) : null}
-            </AccordionSection>
+                ) : null
+              }
+            >
+              <FormList forms={portalForms.slice(0, 4)} />
+            </Section>
           ) : null}
 
-          <div className="grid items-start gap-6 sm:grid-cols-2">
-            <AccordionSection
-              id="announcements"
+          <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-8">
+            <Section
               icon="megaphone"
-              title="Мэдээ мэдээлэл"
-              description="Хамгийн сүүлийн үеийн зарлал, шинэчлэлтүүдийг үзнэ үү."
+              title="Announcements"
+              description="See the latest notices and updates."
+              action={
+                announcements.state === 'ready' && announcements.data.length ? (
+                  <ButtonLink
+                    href="/announcements"
+                    size="sm"
+                    variant="secondary"
+                  >
+                    All
+                    <Icon name="chevronRight" size={15} />
+                  </ButtonLink>
+                ) : null
+              }
             >
               {announcements.state === 'unconfigured' ? (
                 <SetupNotice missing={announcements.missing} />
               ) : announcements.state === 'error' ? (
                 <LoadError message={announcements.message} />
               ) : announcements.data.length ? (
-                <>
+                <Card className="px-3 py-1">
                   <AnnouncementList posts={announcements.data} />
-                  <div className="mt-5">
-                    <ButtonLink
-                      href="/announcements"
-                      size="sm"
-                      variant="secondary"
-                    >
-                      Бүх зарлал
-                      <Icon name="chevronRight" size={15} />
-                    </ButtonLink>
-                  </div>
-                </>
+                </Card>
               ) : (
                 <EmptyState
                   icon="megaphone"
-                  title="Зарлал байхгүй байна"
-                  description="CMS дээр нийтлэгдсэн зарлал алга. Шинэ мэдээлэл гармагц энд харагдана."
+                  title="No announcements yet"
+                  description="Nothing has been published in the CMS yet. New notices appear here."
                 />
               )}
-            </AccordionSection>
+            </Section>
 
-            {/* The list reads the signed-in session, so it fills in on the client. */}
-            <AccordionSection
-              id="tickets"
+            <Section
               icon="ticket"
-              title="Миний хүсэлтүүд"
-              description="Илгээсэн хүсэлтийнхээ явц, хариуг эндээс хянана уу."
-            >
-              <MyTickets limit={5} framed={false} />
-
-              <div className="mt-5">
+              title="My tickets"
+              description="Progress and replies on tickets you have raised."
+              action={
                 <ButtonLink href="/tickets" size="sm" variant="secondary">
-                  Бүх хүсэлт
+                  All
                   <Icon name="chevronRight" size={15} />
                 </ButtonLink>
-              </div>
-            </AccordionSection>
+              }
+            >
+              <MyTickets limit={5} />
+            </Section>
           </div>
         </div>
       </Container>

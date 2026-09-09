@@ -2,17 +2,12 @@ import type { FormAttachment } from '../types';
 
 const MAX_BYTES = 20 * 1024 * 1024;
 
-/**
- * erxes' `/upload-file` answers with the stored file's key as plain text, which
- * is what a submission carries; the rest of the attachment is read off the file
- * the visitor picked.
- */
 export const uploadFormFile = async (
   file: File,
   apiUrl: string,
 ): Promise<FormAttachment> => {
   if (file.size > MAX_BYTES) {
-    throw new Error('Файл 20MB-аас бага байх ёстой.');
+    throw new Error('The file must be smaller than 20MB.');
   }
 
   const body = new FormData();
@@ -27,7 +22,7 @@ export const uploadFormFile = async (
   const text = (await response.text()).trim();
 
   if (!response.ok || !text) {
-    throw new Error(text || 'Файлыг байршуулж чадсангүй.');
+    throw new Error(text || 'Could not upload the file.');
   }
 
   return { name: file.name, url: text, size: file.size, type: file.type };

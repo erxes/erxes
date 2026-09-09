@@ -1,8 +1,3 @@
-/**
- * Where a guarded route sends the visitor back to once they have signed in.
- * Only a path inside the portal is ever honoured, so a crafted `?next=` cannot
- * bounce someone onto another origin straight after they typed their password.
- */
 export const internalPath = (
   value: string | string[] | undefined,
 ): string | null => {

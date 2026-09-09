@@ -14,6 +14,7 @@ export const GET_TICKET_NOTE = gql`
         type
         size
       }
+      isInternal
       createdAt
       updatedAt
     }

@@ -8,6 +8,7 @@ export const noteSchema = new Schema(
     createdBy: { type: String, required: true },
     mentions: { type: [String], default: [] },
     attachments: { type: [attachmentSchema], label: 'Attachments' },
+    isInternal: { type: Boolean, default: false, label: 'Internal note' },
     statusId: { type: String },
   },
   {

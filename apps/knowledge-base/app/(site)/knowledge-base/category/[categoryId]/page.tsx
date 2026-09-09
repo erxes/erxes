@@ -20,6 +20,7 @@ import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import { plural } from '@/modules/ui/lib/plural';
 
 type Props = { params: Promise<{ categoryId: string }> };
 
@@ -29,15 +30,10 @@ export const generateMetadata = async ({ params }: Props) => {
   const category =
     topic.state === 'ready' ? findCategory(topic.data, categoryId) : null;
 
-  return { title: category?.title ?? 'Ангилал' };
+  return { title: category?.title ?? 'Category' };
 };
 
 export default async function CategoryPage({ params }: Props) {
-  /*
-   * Article pages need the tree with bodies, which is the slow request. Start
-   * it here without awaiting: the fetcher caches the promise, so opening an
-   * article from this list reuses it instead of waiting on a fresh one.
-   */
   void getTopicWithArticles();
 
   const [{ headline }, { categoryId }, topic] = await Promise.all([
@@ -61,7 +57,6 @@ export default async function CategoryPage({ params }: Props) {
     );
   }
 
-  /* With the knowledge base turned off, its pages are not part of the site. */
   if (!topic.data.knowledgeBaseEnabled) {
     notFound();
   }
@@ -76,7 +71,7 @@ export default async function CategoryPage({ params }: Props) {
   const articles = sortByRecency(category.articles);
 
   const crumbs: Crumb[] = [
-    { label: 'Мэдлэгийн сан', href: '/knowledge-base' },
+    { label: 'Knowledge base', href: '/knowledge-base' },
     ...(section && section._id !== category._id
       ? [
           {
@@ -118,8 +113,8 @@ export default async function CategoryPage({ params }: Props) {
                   </p>
                 ) : null}
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <Badge>{category.articleCount} нийтлэл</Badge>
-                  <Badge>{category.authorCount} зохиогч</Badge>
+                  <Badge>{plural(category.articleCount, 'article')}</Badge>
+                  <Badge>{plural(category.authorCount, 'author')}</Badge>
                 </div>
               </div>
             </header>
@@ -142,25 +137,25 @@ export default async function CategoryPage({ params }: Props) {
                   <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
                     <div>
                       <h2 className="text-base font-semibold text-ink">
-                        Хариултаа олсонгүй юу?
+                        Did not find your answer?
                       </h2>
                       <p className="mt-1.5 text-sm text-muted-foreground">
-                        Дэмжлэгийн багт хүсэлт үүсгэвэл хариу өгнө.
+                        Raise a ticket and the support team will get back to you.
                       </p>
                     </div>
                     <ButtonLink href="/tickets/new" size="sm">
-                      Хүсэлт илгээх
+                      Submit a ticket
                     </ButtonLink>
                   </Card>
                 </>
               ) : (
                 <EmptyState
                   icon="article"
-                  title="Нийтлэл байхгүй байна"
-                  description="Энэ ангилалд нийтлэгдсэн нийтлэл алга. Хайж буй мэдээллээ олохгүй бол хүсэлт үүсгэнэ үү."
+                  title="No articles yet"
+                  description="This category has no published articles. If you cannot find what you need, raise a ticket."
                   action={
                     <ButtonLink href="/tickets/new" size="sm">
-                      Хүсэлт үүсгэх
+                      Create a ticket
                     </ButtonLink>
                   }
                 />

@@ -4,18 +4,8 @@ import {
   trimTrailingEmpty,
 } from '@/modules/ui/lib/blocks';
 
-/**
- * Tickets raised before contact details moved onto the customer record carry
- * the reporter's contact line appended after the message. New ones do not, so
- * this marker only ever reads those older bodies back apart.
- */
 export const CONTACT_MARKER = '— Холбоо барих: ';
 
-/**
- * Splits that legacy line off the body so it is shown once, beside the ticket,
- * instead of twice. An agent editing the body in erxes turns it into a BlockNote
- * document, which carries the line in a block of its own.
- */
 export const splitTicketBody = (
   description: string | null,
 ): { message: string; contact: string | null } => {

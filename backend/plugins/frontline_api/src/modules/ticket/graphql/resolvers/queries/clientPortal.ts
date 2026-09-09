@@ -51,13 +51,22 @@ export const cpTicketQueries = {
     return models.Status.getStatus(_id);
   },
 
+  /*
+   * An agent's internal note never reaches the customer: the portal reads this
+   * query, so anything flagged internal is filtered out here rather than being
+   * hidden by the client.
+   */
   cpTicketGetNotes: async (
     _parent: undefined,
     { ticketId }: { ticketId: string },
     { models }: IContext,
   ) => {
-     return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
-
+    return models.Note.find({
+      contentId: ticketId,
+      isInternal: { $ne: true },
+    })
+      .sort({ createdAt: -1 })
+      .lean();
   },
 };
 

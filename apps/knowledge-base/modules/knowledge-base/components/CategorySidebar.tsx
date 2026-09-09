@@ -11,7 +11,7 @@ export const CategorySidebar = ({
   topic: PortalTopic;
   activeCategoryId?: string;
 }) => (
-  <nav aria-label="Мэдлэгийн сангийн ангилал" className="space-y-6">
+  <nav aria-label="Knowledge base categories" className="space-y-6">
     {topic.sections.map((section) => (
       <div key={section._id}>
         <div className="flex items-center gap-2 pr-2.5">

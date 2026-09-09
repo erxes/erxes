@@ -76,6 +76,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
         attachments: attachments
           .filter((file) => !!file.url)
           .map(({ name, url, type, size }) => ({ name, url, type, size })),
+        isInternal: isInternalNote,
       },
       onCompleted: () => {
         editor.replaceBlocks(editor.topLevelBlocks, []);

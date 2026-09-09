@@ -57,18 +57,8 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const user = useMemo(() => parseSession(raw), [raw]);
 
-  /*
-   * What is in storage is only a cache of the account. Reading the portal back
-   * whenever a session exists keeps the fields the server owns — the linked
-   * customer id above all — correct without making anyone sign in again.
-   */
   const { data: account } = useQuery<CurrentUserResponse>(
     AUTH_PORTAL_CURRENT_USER,
-    /*
-     * `all` keeps the response body when the portal answers with an error, so
-     * a rejected session is still readable below as a null user instead of
-     * being collapsed into an error with no data.
-     */
     { skip: !raw, errorPolicy: 'all' },
   );
 
@@ -77,10 +67,6 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     writeSession(next);
   }, []);
 
-  /*
-   * Merges into the stored session and leaves the token alone, for details the
-   * user changes while signed in.
-   */
   const updateUser = useCallback((changes: Partial<SessionUser>) => {
     const current = parseSession(readRawSession());
 
@@ -97,26 +83,12 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    /*
-     * A stored session the portal no longer accepts — a token minted against
-     * another erxes instance, or one the server has since expired — would
-     * otherwise leave the UI signed in against an account that fails every
-     * request, with no way out but clearing storage by hand. Once the portal
-     * has answered and named no user, the stale copy goes. A network failure
-     * leaves `account` undefined and is deliberately left alone: the session
-     * may still be good when the connection returns.
-     */
     if (account) {
       writeToken(null);
       writeSession(null);
     }
   }, [account, user?.email, updateUser]);
 
-  /*
-   * The local session is dropped straight away so the UI never lags behind the
-   * click; the portal is told afterwards, with the token this session was still
-   * holding, and the cache is emptied of anything that was read as this user.
-   */
   const signOut = useCallback(() => {
     const token = readToken();
 

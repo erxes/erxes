@@ -18,8 +18,8 @@ import {
   useAllHelpCenters,
   useHelpCenters,
 } from '@/helpcenter/hooks/useHelpCenters';
-import { TopicDrawer } from '@/knowledgebase/components/TopicDrawer';
-import { toTopicDrawerRecord } from '@/helpcenter/utils/toTopicDrawerRecord';
+import { HelpCenterDrawer } from '@/helpcenter/components/HelpCenterDrawer';
+import { toHelpCenterDrawerRecord } from '@/helpcenter/utils/toHelpCenterDrawerRecord';
 
 const HelpCenterIndexPage = () => {
   const { t } = useTranslation('frontline');
@@ -82,9 +82,9 @@ const HelpCenterIndexPage = () => {
 
       <HelpCenterRecordTable onCreate={() => setIsCreateOpen(true)} />
 
-      <TopicDrawer
+      <HelpCenterDrawer
         key={editing?._id ?? 'create'}
-        topic={toTopicDrawerRecord(editing)}
+        topic={toHelpCenterDrawerRecord(editing)}
         isOpen={isCreateOpen || !!editing}
         onClose={handleCloseDrawer}
         onSaved={handleSaved}

@@ -26,14 +26,8 @@ const makeClient = () => {
     };
   });
 
-  /*
-   * Browser requests go through this app's own origin, which `next.config.ts`
-   * rewrites to the gateway. That keeps them same-origin, so a gateway that
-   * does not allowlist this origin for CORS still answers. Server components
-   * use `apolloClient.ts` and call the gateway directly instead.
-   */
   const httpLink = new HttpLink({
-    uri: apiUrl ? '/api/gateway/graphql' : '',
+    uri: apiUrl ? `${apiUrl}/graphql` : '',
     fetchOptions: { credentials: 'include' },
   });
 

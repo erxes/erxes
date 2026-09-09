@@ -1,4 +1,4 @@
-export const KB_OFF_TITLE = 'Мэдлэгийн сан нээлттэй биш байна';
+export const KB_OFF_TITLE = 'The knowledge base is not open';
 
 export const KB_OFF_REASON =
-  'Энэ порталд мэдлэгийн сангийн нийтлэлүүдийг түр хаасан байна.';
+  'Knowledge base articles are turned off on this portal for now.';

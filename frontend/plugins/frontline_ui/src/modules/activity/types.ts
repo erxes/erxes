@@ -30,6 +30,7 @@ export interface INote {
   contentId: string;
   mentions: string[];
   attachments?: IAttachment[];
+  isInternal?: boolean;
   updatedAt: string;
 }
 

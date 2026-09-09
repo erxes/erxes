@@ -8,13 +8,12 @@ export const SetupNotice = ({ missing }: { missing: string[] }) => (
       </span>
       <div className="min-w-0">
         <h2 className="text-base font-semibold text-ink">
-          Портал тохируулаагүй байна
+          The portal is not configured
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Мэдлэгийн сан болон CMS-ийн агуулгыг татахын тулд дараах орчны
-          хувьсагчийг <code className="text-ink">.env.local</code> дотор
-          тохируулна уу (загварыг <code className="text-ink">.env.example</code>
-          -ээс үзнэ үү).
+          To load knowledge base and CMS content, set the following environment
+          variables in <code className="text-ink">.env.local</code> (see{' '}
+          <code className="text-ink">.env.example</code> for a template).
         </p>
         <ul className="mt-4 space-y-1.5">
           {missing.map((key) => (
@@ -34,7 +33,7 @@ export const SetupNotice = ({ missing }: { missing: string[] }) => (
 
 export const LoadError = ({
   message,
-  title = 'Агуулгыг татаж чадсангүй',
+  title = 'Could not load the content',
 }: {
   message: string;
   title?: string;
@@ -50,8 +49,8 @@ export const LoadError = ({
           {message}
         </p>
         <p className="mt-3 text-[13px] text-muted-foreground">
-          erxes gateway ажиллаж байгаа эсэх, app token болон topic ID зөв
-          эсэхийг шалгана уу.
+          Check that the erxes gateway is running and that the app token and
+          topic ID are correct.
         </p>
       </div>
     </div>

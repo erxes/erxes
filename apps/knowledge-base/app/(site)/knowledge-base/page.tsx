@@ -13,10 +13,11 @@ import {
 import { Container } from '@/modules/ui/components/Container';
 import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
+import { Section } from '@/modules/ui/components/Section';
 import { Icon } from '@/modules/ui/components/Icon';
 import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
 
-export const metadata = { title: 'Мэдлэгийн сан' };
+export const metadata = { title: 'Knowledge base' };
 
 export default async function KnowledgeBasePage() {
   const [{ headline }, topic, forms] = await Promise.all([
@@ -25,10 +26,6 @@ export default async function KnowledgeBasePage() {
     getPortalForms(),
   ]);
 
-  /*
-   * Forms sit with the articles they belong beside; a portal with none
-   * configured simply shows nothing here, and `/forms` reports why.
-   */
   const portalForms = forms.state === 'ready' ? forms.data : [];
 
   return (
@@ -37,32 +34,14 @@ export default async function KnowledgeBasePage() {
 
       <Container className="py-10 lg:py-14">
         <Breadcrumbs
-          items={[{ label: 'Нүүр', href: '/' }, { label: 'Мэдлэгийн сан' }]}
+          items={[{ label: 'Home', href: '/' }, { label: 'Knowledge base' }]}
         />
 
-        <h1 className="mt-6 text-[28px] font-semibold text-ink">
-          Мэдлэгийн сан
+        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Knowledge base
         </h1>
 
-        {portalForms.length ? (
-          <section className="mt-8 rounded-xl border border-line bg-white p-6">
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <h2 className="text-base font-semibold text-ink">Маягт</h2>
-              <ButtonLink href="/forms" size="sm" variant="ghost">
-                Бүх маягт
-                <Icon name="chevronRight" size={15} />
-              </ButtonLink>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Дэмжлэгийн багт мэдээлэл хүргэх бэлэн маягтууд.
-            </p>
-            <div className="mt-5">
-              <FormList forms={portalForms.slice(0, 4)} />
-            </div>
-          </section>
-        ) : null}
-
-        <div className="mt-10">
+        <div className="mt-10 lg:mt-12">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
           ) : topic.state === 'error' ? (
@@ -78,16 +57,35 @@ export default async function KnowledgeBasePage() {
           ) : (
             <EmptyState
               icon="book"
-              title="Мэдлэгийн сан хоосон байна"
-              description="Энэ сэдэвт нийтлэгдсэн ангилал алга. Frontline → Knowledge Base хэсгээс ангилал нэмнэ үү."
+              title="The knowledge base is empty"
+              description="This topic has no published categories. Add one under Frontline → Knowledge Base."
               action={
                 <ButtonLink href="/tickets/new" size="sm">
-                  Хүсэлт үүсгэх
+                  Create a ticket
                 </ButtonLink>
               }
             />
           )}
         </div>
+
+        {portalForms.length ? (
+          <Section
+            className="mt-14 border-t border-line pt-12 lg:mt-16"
+            icon="clipboard"
+            title="Forms"
+            description="Ready-made forms for sending details to the support team."
+            action={
+              portalForms.length > 4 ? (
+                <ButtonLink href="/forms" size="sm" variant="secondary">
+                  All forms
+                  <Icon name="chevronRight" size={15} />
+                </ButtonLink>
+              ) : null
+            }
+          >
+            <FormList forms={portalForms.slice(0, 4)} />
+          </Section>
+        ) : null}
       </Container>
     </>
   );

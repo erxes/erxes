@@ -46,7 +46,6 @@ const Choice = ({
   </label>
 );
 
-/** Draws whichever control the field's kind calls for, over one form value. */
 export const FormFieldControl = ({
   field,
   value,
@@ -65,7 +64,7 @@ export const FormFieldControl = ({
         rows={4}
         value={asText(value)}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Хариултаа бичнэ үү"
+        placeholder="Write your answer"
       />
     );
   }
@@ -74,7 +73,7 @@ export const FormFieldControl = ({
     return (
       <Select value={asText(value)} onValueChange={onChange}>
         <Select.Trigger className="h-11 w-full rounded-lg bg-subtle px-3.5 text-[15px] shadow-none">
-          <Select.Value placeholder="Сонгоно уу" />
+          <Select.Value placeholder="Choose an option" />
         </Select.Trigger>
         <Select.Content>
           {options.map((option) => (
@@ -154,7 +153,7 @@ export const FormFieldControl = ({
       inputMode={kind === 'number' ? 'numeric' : undefined}
       value={asText(value)}
       onChange={(event) => onChange(event.target.value)}
-      placeholder="Хариултаа бичнэ үү"
+      placeholder="Write your answer"
     />
   );
 };

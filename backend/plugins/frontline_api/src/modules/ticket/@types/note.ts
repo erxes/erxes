@@ -7,6 +7,7 @@ export interface INote {
   createdBy: string;
   mentions?: string[];
   attachments?: IAttachment[];
+  isInternal?: boolean;
   statusId?: string;
 }
 

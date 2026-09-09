@@ -19,7 +19,7 @@ export const generateMetadata = async ({
 
   return {
     title:
-      form.state === 'ready' && form.data ? formTitle(form.data) : 'Маягт',
+      form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
   };
 };
 
@@ -41,13 +41,13 @@ export default async function FormPage({ params }: Props) {
       <Container column="text" className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
-            { label: 'Мэдлэгийн сан', href: '/' },
-            { label: 'Маягт', href: '/forms' },
+            { label: 'Knowledge base', href: '/' },
+            { label: 'Forms', href: '/forms' },
             {
               label:
                 form.state === 'ready' && form.data
                   ? formTitle(form.data)
-                  : 'Маягт',
+                  : 'Form',
             },
           ]}
         />
@@ -58,11 +58,11 @@ export default async function FormPage({ params }: Props) {
           </div>
         ) : form.state === 'error' ? (
           <div className="mt-7">
-            <LoadError title="Маягтыг татаж чадсангүй" message={form.message} />
+            <LoadError title="Could not load the form" message={form.message} />
           </div>
         ) : form.data ? (
           <>
-            <h1 className="mt-6 text-[28px] font-semibold leading-snug text-ink">
+            <h1 className="mt-6 text-[30px] font-semibold leading-snug tracking-[-0.02em] text-ink sm:text-[34px]">
               {formTitle(form.data)}
             </h1>
             {form.data.description?.trim() ? (

@@ -38,8 +38,8 @@ export const ArticleView = ({ article }: { article: PortalArticle }) => (
     ) : (
       <EmptyState
         icon="article"
-        title="Агуулга хоосон байна"
-        description="Энэ нийтлэлд одоогоор бичвэр оруулаагүй байна."
+        title="This article is empty"
+        description="No content has been added to this article yet."
       />
     )}
   </article>

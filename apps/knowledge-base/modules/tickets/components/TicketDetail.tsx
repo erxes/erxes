@@ -25,19 +25,19 @@ import {
 } from '../graphql/queries/tickets';
 import type { Ticket, TicketNote } from '../types';
 import { PriorityBadge, StatusBadge } from './TicketBadges';
+import { plural } from '@/modules/ui/lib/plural';
 
 type DetailResponse = { cpGetTicket: Ticket | null };
 type NotesResponse = { cpTicketGetNotes: TicketNote[] | null };
 
 const replySchema = z.object({
   content: z.string().refine((value) => value.trim().length >= 2, {
-    message: 'Хариу мессежээ бичнэ үү.',
+    message: 'Please write your reply.',
   }),
 });
 
 type ReplyValues = z.infer<typeof replySchema>;
 
-/* Shaped like the page it stands in, so nothing jumps once the ticket lands. */
 const Skeleton = () => (
   <div className="animate-pulse">
     <span className="block h-4 w-24 rounded bg-line" />
@@ -58,13 +58,8 @@ const Skeleton = () => (
   </div>
 );
 
-const TEAM_NAME = 'Дэмжлэгийн баг';
+const TEAM_NAME = 'Support team';
 
-/**
- * The portal stamps its own notes `cp:<id>`; anything else on a ticket the
- * requester is looking at was written by staff. Either way the raw id never
- * reaches the page.
- */
 const authorOf = (createdBy: string | null, reporter: string) =>
   createdBy?.startsWith('cp:')
     ? { name: reporter, team: false }
@@ -94,7 +89,7 @@ const Message = ({
         <span className="text-sm font-semibold text-ink">{author}</span>
         {origin ? (
           <span className="text-[13px] text-muted-foreground">
-            хүсэлтийг үүсгэсэн
+            created this ticket
           </span>
         ) : null}
         <span className="ml-auto text-[13px] tabular-nums text-muted-foreground">
@@ -118,15 +113,15 @@ const CopyNumber = ({ number }: { number: string }) => (
         .then(() =>
           toast({
             variant: 'success',
-            title: 'Хуулагдлаа',
-            description: 'Хүсэлтийн дугаарыг санах ойд хууллаа.',
+            title: 'Copied',
+            description: 'The ticket number was copied to your clipboard.',
           }),
         )
         .catch(() =>
           toast({
             variant: 'destructive',
-            title: 'Хуулж чадсангүй',
-            description: 'Дугаарыг гараар тэмдэглэн хуулна уу.',
+            title: 'Could not copy',
+            description: 'Please select and copy the number manually.',
           }),
         );
     }}
@@ -174,7 +169,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
   if (error) {
     return (
-      <LoadError title="Хүсэлтийг татаж чадсангүй" message={error.message} />
+      <LoadError title="Could not load the ticket" message={error.message} />
     );
   }
 
@@ -184,8 +179,8 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
     return (
       <EmptyState
         icon="ticket"
-        title="Хүсэлт олдсонгүй"
-        description="Энэ хүсэлт устсан эсвэл та түүнийг үзэх эрхгүй байна."
+        title="Ticket not found"
+        description="This ticket was deleted, or you do not have permission to view it."
       />
     );
   }
@@ -193,10 +188,6 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
   const thread = notes.data?.cpTicketGetNotes ?? [];
   const { message, contact } = splitTicketBody(ticket.description);
 
-  /*
-   * Older tickets carry the contact line in the body; newer ones keep it on the
-   * customer record, so it is read back from the session that raised them.
-   */
   const contactLines = contact
     ? contact
         .split('·')
@@ -206,7 +197,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
         Boolean(part),
       );
 
-  const reporter = contactLines[0] ?? 'Та';
+  const reporter = contactLines[0] ?? 'You';
 
   const onSubmit = async ({ content }: ReplyValues) => {
     const result = await addNote({
@@ -217,13 +208,12 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
       form.reset({ content: '' });
       toast({
         variant: 'success',
-        title: 'Илгээлээ',
-        description: 'Мессежийг хүсэлт дээр нэмлээ.',
+        title: 'Sent',
+        description: 'Your message was added to the ticket.',
       });
     }
   };
 
-  /* A ticket nothing has happened to yet repeats one timestamp three times. */
   const created = formatDateTime(ticket.createdAt);
   const updated = formatDateTime(ticket.updatedAt);
   const statusChanged = ticket.statusChangedDate
@@ -231,10 +221,10 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
     : null;
 
   const meta = [
-    { label: 'Үүсгэсэн', value: created },
-    ...(updated !== created ? [{ label: 'Шинэчлэгдсэн', value: updated }] : []),
+    { label: 'Created', value: created },
+    ...(updated !== created ? [{ label: 'Updated', value: updated }] : []),
     ...(statusChanged && statusChanged !== created
-      ? [{ label: 'Төлөв өөрчлөгдсөн', value: statusChanged }]
+      ? [{ label: 'Status changed', value: statusChanged }]
       : []),
   ];
 
@@ -246,11 +236,11 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
           className="inline-flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-brand"
         >
           <Icon name="arrowLeft" size={15} />
-          Бүх хүсэлт
+          All tickets
         </Link>
 
         <h1 className="mt-3 text-[26px] font-semibold leading-snug text-ink">
-          {ticket.name ?? 'Гарчиггүй хүсэлт'}
+          {ticket.name ?? 'Untitled ticket'}
         </h1>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <StatusBadge status={ticket.status} />
@@ -259,15 +249,11 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
       </header>
 
       <div className="mt-7 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_290px]">
-        {/*
-         * The description is the reporter's opening message, so it heads the
-         * same thread the replies land in rather than sitting in its own card.
-         */}
         <Card className="order-2 overflow-hidden lg:order-1">
           <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
-            <h2 className="text-sm font-semibold text-ink">Харилцаа</h2>
+            <h2 className="text-sm font-semibold text-ink">Conversation</h2>
             <span className="text-[13px] text-muted-foreground">
-              {thread.length + 1} мессеж
+              {plural(thread.length + 1, 'message')}
             </span>
           </div>
 
@@ -276,7 +262,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
               author={reporter}
               team={false}
               at={ticket.createdAt}
-              body={message || 'Тайлбар оруулаагүй байна.'}
+              body={message || 'No description was provided.'}
               origin
             />
 
@@ -297,19 +283,19 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
           {notes.loading ? (
             <p className="border-t border-line px-5 py-4 text-[13px] text-muted-foreground">
-              Харилцааг ачаалж байна…
+              Loading the conversation…
             </p>
           ) : notes.error ? (
             <div className="border-t border-line p-5">
               <LoadError
-                title="Харилцааг татаж чадсангүй"
+                title="Could not load the conversation"
                 message={notes.error.message}
               />
             </div>
           ) : !thread.length ? (
             <p className="flex items-center gap-2 border-t border-line px-5 py-4 text-[13px] text-muted-foreground">
               <Icon name="clock" size={15} className="shrink-0" />
-              Дэмжлэгийн багийн хариу энд харагдана.
+              Replies from the support team appear here.
             </p>
           ) : null}
 
@@ -328,13 +314,13 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
                       className="text-[13px] font-medium text-ink"
                       variant="peer"
                     >
-                      Хариу бичих
+                      Write a reply
                     </Form.Label>
                     <Form.Control>
                       <TextareaInput
                         {...field}
                         rows={3}
-                        placeholder="Нэмэлт мэдээлэл эсвэл асуултаа бичнэ үү"
+                        placeholder="Add more detail or ask a question"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -354,11 +340,11 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-muted-foreground">
-                  Илгээсэн мессежийг дэмжлэгийн баг шууд харна.
+                  The support team sees your message right away.
                 </p>
                 <Button type="submit" disabled={sending}>
                   <Icon name="send" size={15} />
-                  {sending ? 'Илгээж байна…' : 'Илгээх'}
+                  {sending ? 'Sending…' : 'Send'}
                 </Button>
               </div>
             </form>
@@ -367,9 +353,9 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
         <aside className="order-1 space-y-4 lg:order-2">
           <Card className="p-5">
-            <h2 className="text-sm font-semibold text-ink">Хүсэлтийн дугаар</h2>
+            <h2 className="text-sm font-semibold text-ink">Ticket number</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-              Нэвтрэхгүйгээр явцаа шалгахад энэ дугаарыг ашиглана.
+              Use this number to check progress without signing in.
             </p>
             <div className="mt-3">
               {ticket.number ? (
@@ -380,10 +366,9 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
             </div>
           </Card>
 
-          {/* One card, so the rail reads as a single panel beside the thread. */}
           <Card className="divide-y divide-line">
             <div className="p-5">
-              <h2 className="text-sm font-semibold text-ink">Дэлгэрэнгүй</h2>
+              <h2 className="text-sm font-semibold text-ink">Details</h2>
               <dl className="mt-4 space-y-3.5">
                 {meta.map((item) => (
                   <div
@@ -403,7 +388,7 @@ export const TicketDetail = ({ ticketId }: { ticketId: string }) => {
 
             {contactLines.length ? (
               <div className="p-5">
-                <h2 className="text-sm font-semibold text-ink">Холбоо барих</h2>
+                <h2 className="text-sm font-semibold text-ink">Contact</h2>
                 <ul className="mt-3 space-y-1.5">
                   {contactLines.map((part) => (
                     <li

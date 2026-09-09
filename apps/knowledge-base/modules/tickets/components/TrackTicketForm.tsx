@@ -19,7 +19,7 @@ type ListResponse = { cpGetTickets: Ticket[] | null };
 
 const trackFormSchema = z.object({
   ticketNumber: z.string().refine((value) => value.trim().length > 0, {
-    message: 'Хүсэлтийн дугаарыг оруулна уу.',
+    message: 'Please enter the ticket number.',
   }),
 });
 
@@ -61,13 +61,13 @@ export const TrackTicketForm = () => {
                   className="text-[13px] font-medium text-ink"
                   variant="peer"
                 >
-                  Хүсэлтийн дугаар
+                  Ticket number
                 </Form.Label>
                 <Form.Control>
-                  <TextInput {...field} placeholder="Жишээ: 1042" />
+                  <TextInput {...field} placeholder="For example: 1042" />
                 </Form.Control>
                 <Form.Description>
-                  Хүсэлт үүсгэхэд олгогдсон дугаараа оруулна уу.
+                  Enter the number you were given when the ticket was created.
                 </Form.Description>
                 <Form.Message />
               </Form.Item>
@@ -77,7 +77,7 @@ export const TrackTicketForm = () => {
           <div className="mt-5">
             <Button type="submit" disabled={loading}>
               <Icon name="binoculars" size={15} />
-              {loading ? 'Хайж байна…' : 'Хүсэлт хайх'}
+              {loading ? 'Searching…' : 'Find ticket'}
             </Button>
           </div>
         </form>
@@ -85,7 +85,7 @@ export const TrackTicketForm = () => {
 
       {queryError ? (
         <LoadError
-          title="Хүсэлтийг татаж чадсангүй"
+          title="Could not load the ticket"
           message={queryError.message}
         />
       ) : loading ? (
@@ -105,8 +105,8 @@ export const TrackTicketForm = () => {
         ) : (
           <EmptyState
             icon="binoculars"
-            title="Хүсэлт олдсонгүй"
-            description="Энэ дугаартай хүсэлт олдсонгүй. Дугаараа шалгаад дахин оролдоно уу."
+            title="Ticket not found"
+            description="No ticket was found with that number. Check the number and try again."
           />
         )
       ) : null}

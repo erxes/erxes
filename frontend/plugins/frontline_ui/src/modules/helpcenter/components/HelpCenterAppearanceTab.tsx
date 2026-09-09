@@ -7,10 +7,10 @@ import {
   StyleFontField,
   StyleHtmlField,
   StyleImageField,
-} from '@/knowledgebase/components/TopicStyleFields';
-import { TopicFormData } from '@/knowledgebase/topicDrawerTypes';
+} from '@/helpcenter/components/HelpCenterStyleFields';
+import { TopicFormData } from '@/helpcenter/types/helpCenterDrawerTypes';
 
-export function TopicAppearanceTab({
+export function HelpCenterAppearanceTab({
   control,
   t,
 }: Readonly<{

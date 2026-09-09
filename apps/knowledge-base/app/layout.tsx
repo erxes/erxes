@@ -8,11 +8,6 @@ import { PortalTheme } from '@/modules/layout/components/PortalTheme';
 import { site } from '@/modules/layout/constants/site';
 import { Toaster } from '@/modules/ui/components/Toaster';
 
-/**
- * Knowledge base and CMS content is read through Apollo rather than `fetch`,
- * so the App Router would otherwise prerender these routes once at build time.
- * Revalidating keeps every page on live content without a request-per-render.
- */
 export const revalidate = 60;
 
 const openSans = Open_Sans({
@@ -30,7 +25,6 @@ export const generateMetadata = async (): Promise<Metadata> => {
   return {
     title: { default: `${title} | ${site.brand}`, template: `%s | ${title}` },
     description: headline,
-    // Only override the app's own icon when the help center uploaded one.
     ...(theme?.favicon ? { icons: { icon: theme.favicon } } : {}),
   };
 };
@@ -41,8 +35,13 @@ export default async function RootLayout({
   const { theme } = await getPortalSettings();
 
   return (
-    <html lang="mn" className={`${openSans.variable} h-full`}>
+    <html lang="en" className={`${openSans.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-subtle text-ink">
+        <noscript>
+          <style>
+            {'[data-reveal]{opacity:1!important;transform:none!important}'}
+          </style>
+        </noscript>
         <PortalTheme theme={theme} />
         <ApolloWrapper>
           <SessionProvider>

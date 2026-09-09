@@ -31,7 +31,6 @@ export type PortalSection = PortalCategory & {
 export type PortalTheme = {
   mainLogo: string | null;
   favicon: string | null;
-  /** Sits behind the hero band, in place of its drawn pattern. */
   heroImage: string | null;
   colors: Record<string, string>;
   baseFont: string | null;
@@ -51,18 +50,15 @@ export type PortalTopic = {
   title: string;
   description: string;
   sections: PortalSection[];
-  /** Whether the published site shows the knowledge base at all. */
   knowledgeBaseEnabled: boolean;
   knowledgeBaseLabel: string;
-  /** Whether visitors may raise a ticket from the published site. */
   ticketsEnabled: boolean;
   ticketLabel: string;
-  /** Empty ids mean the help center never chose a target; the env fills in. */
   ticketTarget: PortalTicketTarget;
   theme: PortalTheme;
 };
 
-const UNKNOWN_AUTHOR = 'Тодорхойгүй зохиогч';
+const UNKNOWN_AUTHOR = 'Unknown author';
 
 const normalizeArticle = (
   article: KbArticle,
@@ -70,7 +66,7 @@ const normalizeArticle = (
 ): PortalArticle => ({
   _id: article._id,
   categoryId: article.categoryId ?? categoryId,
-  title: article.title?.trim() || 'Гарчиггүй нийтлэл',
+  title: article.title?.trim() || 'Untitled article',
   summary: article.summary?.trim() ?? '',
   content: article.content ?? '',
   author: article.createdUser?.details?.fullName?.trim() || UNKNOWN_AUTHOR,
@@ -79,11 +75,6 @@ const normalizeArticle = (
   viewCount: article.viewCount ?? 0,
 });
 
-/*
- * A parent category exposes no `status` argument, so the gateway hands back
- * drafts beside published articles, and erxes treats `isPrivate` as internal.
- * Neither belongs on a public portal, so both go before anything renders.
- */
 const isPublished = (article: KbArticle): boolean =>
   article.status === 'publish' && !article.isPrivate;
 
@@ -94,14 +85,9 @@ const normalizeCategory = (category: KbCategory): PortalCategory => {
 
   return {
     _id: category._id,
-    title: category.title?.trim() || 'Нэргүй ангилал',
+    title: category.title?.trim() || 'Untitled category',
     description: category.description?.trim() ?? '',
     icon: resolveIcon(category.icon),
-    /*
-     * Where the articles were asked for, the count is what the portal will
-     * actually show; `numOfArticles` only stands in for the overview query,
-     * which reads categories without their articles.
-     */
     articleCount: category.articles
       ? articles.length
       : category.numOfArticles ?? 0,
@@ -121,12 +107,6 @@ const text = (value: string | null | undefined): string | null => {
   return trimmed ? trimmed : null;
 };
 
-/*
- * The help center writes a colour only where one was picked, and the appearance
- * form stores an unset control as an empty string. Anything blank has to drop
- * out entirely so the portal's own token keeps its value instead of resolving
- * to an empty custom property.
- */
 const paint = (
   colors: Record<string, string>,
   tokens: string[],
@@ -141,28 +121,12 @@ const paint = (
   }
 };
 
-/*
- * Maps the help center's appearance fields onto the portal's own theme tokens
- * from `globals.css`. One stored colour can drive several tokens — `bodyColor`
- * is both the page surface and what `erxes-ui` reads as `--color-background`.
- */
 const normalizeTheme = (topic: KbTopic): PortalTheme => {
   const { styles } = topic;
   const colors: Record<string, string> = {};
 
-  /*
-   * The topic's own `color` is the accent picked on the appearance tab beside
-   * the background image, and predates the `styles` block. It seeds the accent
-   * so a topic that only set that much is still themed; anything in `styles`
-   * is written after and wins.
-   */
   paint(colors, ['--color-brand', '--color-primary'], text(topic.color));
 
-  /*
-   * Written most general first, so a more specific field set alongside it wins
-   * the token they share: `helpCenterColor` is the accent everywhere, and
-   * `primaryButtonColor` overrides it on buttons alone when both are set.
-   */
   paint(
     colors,
     ['--color-brand', '--color-primary'],
@@ -187,9 +151,7 @@ const normalizeTheme = (topic: KbTopic): PortalTheme => {
   );
   paint(colors, ['--color-ink'], text(styles?.headingColor));
   paint(colors, ['--color-line', '--color-border'], text(styles?.dividerColor));
-  /* The footer is the only surface painted from its own colour. */
   paint(colors, ['--color-footer'], text(styles?.footerColor));
-  /* Article and portal links; `linkHoverColor` doubles as the pressed accent. */
   paint(colors, ['--color-link'], text(styles?.linkColor));
   paint(
     colors,
@@ -199,10 +161,6 @@ const normalizeTheme = (topic: KbTopic): PortalTheme => {
   paint(colors, ['--color-primary'], text(styles?.primaryButtonColor));
   paint(colors, ['--color-muted'], text(styles?.secondaryButtonColor));
 
-  /*
-   * All three are uploads, so they come back as storage keys rather than URLs
-   * and have to be resolved before anything renders them.
-   */
   return {
     mainLogo: storedFileUrl(text(styles?.mainLogo)),
     favicon: storedFileUrl(text(styles?.favicon)),
@@ -220,11 +178,6 @@ export const normalizeTopic = (topic: KbTopic): PortalTopic => ({
   title: topic.title?.trim() ?? '',
   description: topic.description?.trim() ?? '',
   sections: (topic.parentCategories ?? []).map(normalizeSection),
-  /*
-   * Both toggles default to what the help center form defaults to, so a topic
-   * saved before these fields existed keeps the portal's previous behaviour:
-   * articles shown, tickets available.
-   */
   knowledgeBaseEnabled: topic.kbToggle ?? true,
   knowledgeBaseLabel: text(topic.kbLabel) ?? '',
   ticketsEnabled: topic.ticketToggle ?? true,

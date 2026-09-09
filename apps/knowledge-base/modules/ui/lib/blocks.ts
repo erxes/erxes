@@ -1,8 +1,3 @@
-/**
- * erxes stores rich text as a BlockNote document — a JSON array of blocks. A
- * body this portal wrote is still plain text, so both shapes travel together
- * and are told apart here rather than at every reader.
- */
 export type InlineStyles = {
   bold?: boolean;
   italic?: boolean;
@@ -54,7 +49,6 @@ export const parseBlocks = (raw: string): Block[] | null => {
   }
 };
 
-/* A block's `content` is an inline array, except on tables, which carry an object. */
 export const inlineOf = (block: Block): InlineNode[] =>
   Array.isArray(block.content) ? (block.content as InlineNode[]) : [];
 
@@ -67,7 +61,6 @@ const inlineText = (nodes: InlineNode[]): string =>
     )
     .join('');
 
-/** The block's words with every mark dropped, for matching and previews. */
 export const blockText = (block: Block): string => inlineText(inlineOf(block));
 
 const isEmpty = (block: Block): boolean =>

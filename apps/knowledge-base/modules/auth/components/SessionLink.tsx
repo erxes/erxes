@@ -12,12 +12,6 @@ type SessionLinkProps = Omit<ComponentProps<typeof Link>, 'href'> & {
   reason: string;
 };
 
-/**
- * A link into a route that `RequireSession` guards. The session already lives
- * in this browser, so a signed-out visitor is turned around on the click
- * itself — waiting for the guarded route to be fetched and rendered first only
- * to bounce off it leaves them staring at a loading screen for nothing.
- */
 export const SessionLink = ({
   href,
   reason,
@@ -31,7 +25,6 @@ export const SessionLink = ({
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
 
-    /* A modified click belongs to the browser: it opens a tab of its own. */
     if (
       !blocked ||
       event.defaultPrevented ||
@@ -47,7 +40,7 @@ export const SessionLink = ({
 
     toast({
       variant: 'warning',
-      title: 'Нэвтрэх шаардлагатай',
+      title: 'Sign-in required',
       description: reason,
     });
 
@@ -58,7 +51,6 @@ export const SessionLink = ({
     <Link
       href={href}
       onClick={handleClick}
-      /* Nothing to warm up for a visitor who cannot open the route yet. */
       prefetch={blocked ? false : undefined}
       {...props}
     />

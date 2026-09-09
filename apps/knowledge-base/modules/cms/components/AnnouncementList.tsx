@@ -17,7 +17,7 @@ export const AnnouncementList = ({ posts }: { posts: CmsPost[] }) => (
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-[15px] font-semibold text-ink">
-                {post.title ?? 'Гарчиггүй зарлал'}
+                {post.title ?? 'Untitled announcement'}
               </span>
               {post.excerpt ? (
                 <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">

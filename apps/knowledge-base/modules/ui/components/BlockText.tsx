@@ -8,7 +8,6 @@ import {
 } from '@/modules/ui/lib/blocks';
 import { cn } from '@/modules/ui/lib/cn';
 
-/** Attachments are stored by key, which only resolves through the erxes reader. */
 const fileUrl = (value: string, apiUrl: string): string =>
   /^(https?:)?\/\//.test(value) || value.startsWith('/')
     ? value
@@ -148,7 +147,7 @@ const renderBlocks = (blocks: Block[], apiUrl: string): ReactNode[] => {
           <img
             key={key}
             src={fileUrl(url, apiUrl)}
-            alt={block.props?.caption || block.props?.name || 'Хавсралт'}
+            alt={block.props?.caption || block.props?.name || 'Attachment'}
             className="my-3 max-w-full rounded-lg border border-line"
           />,
         );
@@ -199,7 +198,6 @@ const renderBlocks = (blocks: Block[], apiUrl: string): ReactNode[] => {
 
     const nodes = inlineOf(block);
 
-    /* An empty paragraph is the editor's blank line, so it keeps its space. */
     out.push(
       <p key={key} className={nodes.length ? 'my-2 first:mt-0' : 'h-3'}>
         <Inline nodes={nodes} />

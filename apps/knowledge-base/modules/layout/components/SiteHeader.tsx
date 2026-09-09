@@ -13,11 +13,6 @@ import { visibleNavItems } from '../utils/nav';
 const Wordmark = ({ title, logo }: { title: string; logo: string | null }) => (
   <Link href="/" className="flex items-center gap-3.5">
     {logo ? (
-      /*
-       * The uploaded logo replaces the erxes wordmark outright — a help center
-       * that supplied its own branding should not sit under someone else's.
-       * It is a remote URL from erxes storage, so `next/image` is not used.
-       */
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={logo}
@@ -118,14 +113,14 @@ export const SiteHeader = ({
             <>
               <Link
                 href="/announcements"
-                aria-label="Мэдээ мэдээлэл"
+                aria-label="Announcements"
                 className="flex size-10 items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <Icon name="bell" size={20} />
               </Link>
               <Link
                 href="/account"
-                aria-label={`${user.name} — Миний хуудас`}
+                aria-label={`${user.name} — My account`}
                 title={user.name}
               >
                 <Avatar
@@ -155,7 +150,7 @@ export const SiteHeader = ({
           <div className="relative" ref={menuRef}>
             <button
               type="button"
-              aria-label="Цэс"
+              aria-label="Menu"
               aria-expanded={menuOpen}
               aria-haspopup="menu"
               onClick={() => setMenu({ open: !menuOpen, path: pathname })}
@@ -231,7 +226,7 @@ export const SiteHeader = ({
                         className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-danger transition-colors hover:bg-danger-soft"
                       >
                         <Icon name="logout" size={17} />
-                        Гарах
+                        Sign out
                       </button>
                     </>
                   ) : (
@@ -241,7 +236,7 @@ export const SiteHeader = ({
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-brand transition-colors hover:bg-brand-soft"
                     >
                       <Icon name="user" size={17} />
-                      Нэвтрэх
+                      Sign in
                     </Link>
                   )}
                 </div>

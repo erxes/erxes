@@ -18,7 +18,6 @@ export const parseTemplateToBlocks = (templateHtml: string) => {
     const parsed = JSON.parse(templateHtml);
     if (Array.isArray(parsed)) return parsed;
   } catch {
-    // not serialized blocks - fall through to plain text
   }
   return [
     {

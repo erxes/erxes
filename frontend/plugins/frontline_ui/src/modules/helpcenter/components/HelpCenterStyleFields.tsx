@@ -1,8 +1,8 @@
 import { IconUpload } from '@tabler/icons-react';
 import { ColorPicker, Form, Select, Textarea, Upload } from 'erxes-ui';
 import { Control } from 'react-hook-form';
-import { HELP_CENTER_FONTS } from '@/knowledgebase/topicDrawerConstants';
-import { TopicFormData, TStyleName } from '@/knowledgebase/topicDrawerTypes';
+import { HELP_CENTER_FONTS } from '@/helpcenter/constants/helpCenterDrawerConstants';
+import { TopicFormData, TStyleName } from '@/helpcenter/types/helpCenterDrawerTypes';
 
 export function StyleColorField({
   control,

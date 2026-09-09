@@ -21,8 +21,8 @@ export const generateMetadata = async ({ params }: Props) => {
   return {
     title:
       post.state === 'ready' && post.data
-        ? post.data.title ?? 'Зарлал'
-        : 'Зарлал',
+        ? post.data.title ?? 'Announcement'
+        : 'Announcement',
   };
 };
 
@@ -45,13 +45,13 @@ export default async function AnnouncementPage({ params }: Props) {
       <Container column="text" className="py-10 lg:py-14">
         <Breadcrumbs
           items={[
-            { label: 'Нүүр', href: '/' },
-            { label: 'Мэдээ мэдээлэл', href: '/announcements' },
+            { label: 'Home', href: '/' },
+            { label: 'Announcements', href: '/announcements' },
             {
               label:
                 post.state === 'ready'
-                  ? post.data?.title ?? 'Зарлал'
-                  : 'Зарлал',
+                  ? post.data?.title ?? 'Announcement'
+                  : 'Announcement',
             },
           ]}
         />
@@ -69,7 +69,7 @@ export default async function AnnouncementPage({ params }: Props) {
                   {formatDate(post.data.publishedDate ?? post.data.createdAt)}
                 </p>
                 <h1 className="mt-3 text-2xl font-semibold leading-snug text-ink sm:text-[26px]">
-                  {post.data.title ?? 'Гарчиггүй зарлал'}
+                  {post.data.title ?? 'Untitled announcement'}
                 </h1>
                 {post.data.excerpt ? (
                   <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
@@ -84,18 +84,18 @@ export default async function AnnouncementPage({ params }: Props) {
                 ) : (
                   <EmptyState
                     icon="megaphone"
-                    title="Агуулга хоосон байна"
-                    description="Энэ зарлалд бичвэр оруулаагүй байна."
+                    title="This announcement is empty"
+                    description="No content has been added to this announcement."
                   />
                 )}
               </article>
 
               <Card className="mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
                 <p className="text-sm text-muted-foreground">
-                  Бусад зарлал, шинэчлэлтийг үзнэ үү.
+                  Browse other notices and updates.
                 </p>
                 <ButtonLink href="/announcements" size="sm" variant="secondary">
-                  Бүх зарлал
+                  All announcements
                 </ButtonLink>
               </Card>
             </>

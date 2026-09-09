@@ -30,11 +30,6 @@ export type FormEnv = {
   tagId: string;
 };
 
-/**
- * Frontline forms are read per channel, and `cpForms` throws without one. The
- * tag is what marks a form as belonging in this portal: erxes exposes a
- * `tagId` argument but ignores it, so the portal filters on `tagIds` itself.
- */
 export const readFormEnv = (): FormEnv => ({
   channelId:
     process.env.NEXT_PUBLIC_ERXES_FORM_CHANNEL_ID ||
@@ -63,11 +58,6 @@ export const readTicketEnv = (): TicketEnv => ({
   statusId: process.env.NEXT_PUBLIC_ERXES_TICKET_STATUS_ID ?? '',
 });
 
-/*
- * Reported per level, because a help center may supply some of the target and
- * leave the rest to the environment. Whatever is still unset after both is what
- * the setup notice names.
- */
 export const missingTicketEnvKeys = (env: TicketEnv): string[] =>
   missingKeys([
     ['NEXT_PUBLIC_ERXES_TICKET_PIPELINE_ID', env.pipelineId],

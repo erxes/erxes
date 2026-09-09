@@ -20,6 +20,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { IconGitBranch, IconMinus, IconPlus } from '@tabler/icons-react';
 
+const PIPELINES_PER_PAGE = 100;
+
 function LoadingSkeleton() {
   return (
     <div className="space-y-4">
@@ -85,7 +87,7 @@ export function TicketNavigations() {
       filter: {
         applyVisibilityFilter: true,
         direction: 'forward',
-        limit: 1000,
+        limit: PIPELINES_PER_PAGE,
       },
     },
   });

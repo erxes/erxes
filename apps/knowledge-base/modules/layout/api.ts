@@ -43,12 +43,6 @@ const EMPTY_TARGET: PortalTicketTarget = {
   statusId: '',
 };
 
-/*
- * Read wherever a surface has to know what the help center turned on. The topic
- * is cached upstream, so every caller in a render shares one request, and a
- * topic that cannot be read leaves the portal fully enabled rather than
- * hiding everything behind an outage.
- */
 export const getPortalSettings = async (): Promise<PortalSettings> => {
   const topic = await getTopicOverview();
 
