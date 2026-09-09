@@ -3,14 +3,21 @@ import { Badge, Button, Input, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { DIRECT_MESSAGE_OPERATOR_TYPES } from '../../constants/messageTriggerOptions';
 import { useDirectMessageConditionCard } from '../../hooks/useDirectMessageConditionCard';
+import {
+  TTriggerClaim,
+  normalizeKeyword,
+} from '../../hooks/useFacebookBotTriggerClaims';
 import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
+import { TriggerClaimNote } from './TriggerClaimNote';
 
 export const DirectMessageConditionCard = ({
   condition,
+  keywordClaims,
   onChange,
   onRemove,
 }: {
   condition: TMessageTriggerDirectConditions[number];
+  keywordClaims?: Record<string, TTriggerClaim[]>;
   onChange: (
     name: 'operator' | 'keywords',
     value:
@@ -22,6 +29,8 @@ export const DirectMessageConditionCard = ({
   const { t } = useTranslation('frontline');
   const {
     hasKeywords,
+    draftKeyword,
+    setDraftKeyword,
     handleKeyPress,
     onRemoveConditionKeyword,
     onChangeKeyword,
@@ -29,6 +38,8 @@ export const DirectMessageConditionCard = ({
     handleBlur,
   } = useDirectMessageConditionCard({
     condition,
+    isKeywordBlocked: (text) =>
+      Boolean(keywordClaims?.[normalizeKeyword(text)]?.length),
     onChange,
   });
 
@@ -62,7 +73,12 @@ export const DirectMessageConditionCard = ({
 
         <Input
           placeholder={t('add-keyword', '+ add keyword')}
+          value={draftKeyword}
+          onChange={(event) => setDraftKeyword(event.currentTarget.value)}
           onKeyDown={handleKeyPress}
+        />
+        <TriggerClaimNote
+          claims={keywordClaims?.[normalizeKeyword(draftKeyword)]}
         />
 
         {!hasKeywords ? (
@@ -73,28 +89,41 @@ export const DirectMessageConditionCard = ({
             </span>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4 py-4">
-            {(condition.keywords || []).map(({ _id, text, isEditing }) => (
-              <Badge
-                key={_id}
-                id={_id}
-                onDoubleClick={toggleKeywordState}
-                onClose={() => onRemoveConditionKeyword(_id)}
-              >
-                {isEditing ? (
-                  <Input
-                    key={_id}
-                    id={_id}
-                    variant="secondary"
-                    value={text}
-                    onBlur={handleBlur}
-                    onKeyDown={onChangeKeyword}
-                    className="h-full bg-transparent"
-                  />
-                ) : (
-                  text
-                )}
-              </Badge>
+          <div className="flex flex-col gap-2 py-4">
+            <div className="flex flex-wrap gap-4">
+              {(condition.keywords || []).map(({ _id, text, isEditing }) => (
+                <Badge
+                  key={_id}
+                  id={_id}
+                  variant={
+                    keywordClaims?.[normalizeKeyword(text || '')]?.length
+                      ? 'warning'
+                      : 'default'
+                  }
+                  onDoubleClick={toggleKeywordState}
+                  onClose={() => onRemoveConditionKeyword(_id)}
+                >
+                  {isEditing ? (
+                    <Input
+                      key={_id}
+                      id={_id}
+                      variant="secondary"
+                      value={text}
+                      onBlur={handleBlur}
+                      onKeyDown={onChangeKeyword}
+                      className="h-full bg-transparent"
+                    />
+                  ) : (
+                    text
+                  )}
+                </Badge>
+              ))}
+            </div>
+            {(condition.keywords || []).map(({ _id, text }) => (
+              <TriggerClaimNote
+                key={`${_id}-claim`}
+                claims={keywordClaims?.[normalizeKeyword(text || '')]}
+              />
             ))}
           </div>
         )}

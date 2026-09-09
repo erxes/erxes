@@ -5,6 +5,11 @@ export type IFacebookBotPersistentMenu = {
   link?: string;
 };
 
+export type IFacebookBotIceBreaker = {
+  _id: string;
+  question: string;
+};
+
 export type IFacebookBotHealth = {
   status?: 'healthy' | 'degraded' | 'broken' | 'syncing';
   isSubscribed?: boolean;
@@ -39,6 +44,8 @@ export type IFacebookBot = {
   pageId: string;
   profileUrl: string;
   persistentMenus: IFacebookBotPersistentMenu[];
+  iceBreakers?: IFacebookBotIceBreaker[];
+  getStartedText?: string;
   greetText: string;
   handoffMessage?: string;
   automationActiveMessage?: string;

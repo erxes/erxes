@@ -17,6 +17,7 @@ type TFacebookAutomationPayload = {
   isBackBtn?: boolean;
   persistentMenuId?: string;
   persistentMenuType?: string;
+  iceBreakerId?: string;
 };
 
 type TFacebookOpenThreadAdData = {
@@ -77,6 +78,7 @@ export const parseAutomationPayload = (
       isBackBtn: getBooleanValue(parsed.isBackBtn),
       persistentMenuId: getStringValue(parsed.persistentMenuId),
       persistentMenuType: getStringValue(parsed.persistentMenuType),
+      iceBreakerId: getStringValue(parsed.iceBreakerId),
     };
   } catch {
     return {};

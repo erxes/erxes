@@ -20,14 +20,28 @@ import { FacebookPersistentMenuGenerator } from '~/widgets/automations/modules/f
 import { FacebookPageInfo } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookPageInfo';
 import { useFacebookBotSave } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
+import { FacebookBotAutomations } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations';
+import { FacebookIceBreakerGenerator } from '~/widgets/automations/modules/facebook/components/bots/components/FacebookIceBreakerGenerator';
+import {
+  FACEBOOK_GET_STARTED_TITLE,
+  FACEBOOK_ICE_BREAKER_LIMIT,
+  FACEBOOK_PERSISTENT_MENU_USER_LIMIT,
+} from '~/widgets/automations/modules/facebook/components/bots/utils/buildMessengerProfilePreview';
 import { useFbBotFormContext } from '../context/FbBotFormContext';
 import { AutomationBotFormEffect } from './AutomationBotFormEffect';
 
-export const AutomationFbBotFormContent = () => {
+export const AutomationFbBotFormContent = ({
+  isPageFixed,
+}: {
+  // The page came from the caller, so the selector and its gate are dropped.
+  isPageFixed?: boolean;
+} = {}) => {
   const { t } = useTranslation('frontline');
-  const { form } = useFbBotFormContext();
+  const { form, facebookMessengerBot } = useFbBotFormContext();
   const [isOptionalOpen, setOptionalOpen] = useState(false);
-  const { onSave, onSaveloading } = useFacebookBotSave();
+  const { onSave, onSaveloading } = useFacebookBotSave(
+    facebookMessengerBot?._id,
+  );
   const [accountId, pageId, persistentMenus] = form.watch([
     'accountId',
     'pageId',
@@ -46,13 +60,19 @@ export const AutomationFbBotFormContent = () => {
 
   return (
     <>
-      <Sheet.Content className="p-4">
+      <Sheet.Content className="overflow-y-auto p-4">
         <Form {...form}>
-          <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
-          <AutomationBotFormEffect />
+          {isPageFixed ? (
+            <div className="flex items-center pb-2">
+              <FacebookPageInfo accountId={accountId} pageId={pageId} />
+            </div>
+          ) : (
+            <FbBotFormSecondarySheet accountId={accountId} pageId={pageId} />
+          )}
+          <AutomationBotFormEffect isPageFixed={isPageFixed} />
           <div
             className={cn('flex flex-col gap-4', {
-              blur: !accountId || !pageId,
+              blur: !isPageFixed && (!accountId || !pageId),
             })}
           >
             <Form.Field
@@ -84,12 +104,34 @@ export const AutomationFbBotFormContent = () => {
                   <FacebookPersistentMenuGenerator
                     menus={field.value}
                     setMenus={field.onChange}
-                    limit={5}
+                    limit={FACEBOOK_PERSISTENT_MENU_USER_LIMIT}
                   />
                   <Form.Message />
                 </Form.Item>
               )}
             />
+            <Form.Field
+              control={form.control}
+              name="iceBreakers"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t('ice-breakers', { defaultValue: 'Ice breakers' })}</Form.Label>
+                  <Form.Description>
+                    {t('ice-breakers-description', {
+                      defaultValue:
+                        'Questions Messenger shows under “Tap to send” before the first message.',
+                    })}
+                  </Form.Description>
+                  <FacebookIceBreakerGenerator
+                    iceBreakers={field.value || []}
+                    setIceBreakers={field.onChange}
+                    limit={FACEBOOK_ICE_BREAKER_LIMIT}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
             <Collapsible open={isOptionalOpen} onOpenChange={setOptionalOpen}>
               <Collapsible.Trigger asChild>
                 <Button variant="secondary" className="w-full">
@@ -146,6 +188,30 @@ export const AutomationFbBotFormContent = () => {
                           Learn more
                         </a>
                       </span>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="getStartedText"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        {t('get-started-label', {
+                          defaultValue: 'Get Started label',
+                        })}
+                      </Form.Label>
+                      <Form.Description>
+                        {t('get-started-label-description', {
+                          defaultValue:
+                            'Rename the button visitors see. Automations keep matching it, because the match is on its payload.',
+                        })}
+                      </Form.Description>
+                      <Input
+                        {...field}
+                        placeholder={FACEBOOK_GET_STARTED_TITLE}
+                      />
                       <Form.Message />
                     </Form.Item>
                   )}
@@ -224,6 +290,8 @@ export const AutomationFbBotFormContent = () => {
                 )}
               </Collapsible.Content>
             </Collapsible>
+            <Separator />
+            <FacebookBotAutomations botId={facebookMessengerBot?._id} />
           </div>
         </Form>
       </Sheet.Content>
