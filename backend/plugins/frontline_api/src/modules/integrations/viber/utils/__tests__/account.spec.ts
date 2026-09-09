@@ -116,6 +116,23 @@ test('rejects an empty string token without calling fetch', async (t) => {
   strictEqual(fetchMock.mock.callCount(), 0);
 });
 
+test('rejects padded tokens without calling fetch', async (t) => {
+  const fetchMock = t.mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('{}', { status: 200 }),
+  );
+
+  for (const token of [' valid-token', 'valid-token ', '\tvalid-token\n']) {
+    await rejects(() => getViberAccountInfo(token), {
+      message:
+        'Viber bot token must not contain leading or trailing whitespace',
+    });
+  }
+
+  strictEqual(fetchMock.mock.callCount(), 0);
+});
+
 test('rejects with the HTTP status on a 401 response', async (t) => {
   t.mock.method(
     globalThis,

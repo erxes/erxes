@@ -33,6 +33,11 @@ export const getViberAccountInfo = async (
     throw new Error('Viber bot token is required');
   }
 
+  if (token !== token.trim()) {
+    throw new Error(
+      'Viber bot token must not contain leading or trailing whitespace',
+    );
+  }
   const response = await fetch(
     'https://chatapi.viber.com/pa/get_account_info',
     {

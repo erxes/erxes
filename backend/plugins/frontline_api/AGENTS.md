@@ -630,8 +630,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   for signing or log tokens, signatures, or payloads.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
-  HTTP helper rejects blank tokens, uses a ten-second abort signal, and reports
-  HTTP/JSON failures without exposing the provider response body.
+  HTTP helper rejects blank tokens and tokens with leading or trailing
+  whitespace before `fetch`, preserving accepted tokens unchanged. It uses a
+  ten-second abort signal and reports HTTP/JSON failures without exposing the
+  provider response body.
 - `createViberIntegration` obtains models through `generateModels(subdomain)`,
   takes `botId` only from the validated account response, and awaits the save.
   Its duplicate precheck provides a friendly error but does not replace database
@@ -1532,6 +1534,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Viber token whitespace validation
+
+- **Summary:** Reject bot tokens with leading or trailing whitespace before
+  account validation reaches Viber, preserving accepted tokens unchanged.
+- **Affected areas:** `src/modules/integrations/viber/utils/account.ts`,
+  `src/modules/integrations/viber/utils/__tests__/account.spec.ts`.
+- **Contracts changed:** `getViberAccountInfo` rejects padded tokens with a
+  specific validation error before `fetch`; API/schema shapes are unchanged.
+
 ### `2026-09-09` — Viber integration removal
 
 - **Summary:** Connected tenant-scoped Viber record cleanup to the existing
@@ -1634,9 +1645,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
   `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
   `cpPollSubmit(pollCode, optionIds)`.
-
-### `2026-09-05` — `Export repeating ticket properties by row`
-
-- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
