@@ -18,10 +18,7 @@ import {
   useUploadChunked,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  parseVideoEmbedUrl,
-  type VideoEmbedInfo,
-} from '../utils/videoEmbed';
+import { parseVideoEmbedUrl, type VideoEmbedInfo } from '../utils/videoEmbed';
 
 export type ProductAttachmentItem = {
   name: string;
