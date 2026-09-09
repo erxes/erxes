@@ -118,66 +118,70 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return () => undefined;
+    let cleanup: (() => void) | undefined;
 
-    let frame = 0;
-    let imageElements: HTMLImageElement[] = [];
+    if (el) {
+      let frame = 0;
+      let imageElements: HTMLImageElement[] = [];
 
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
+      const measure = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          const doc = el.contentDocument;
+          if (!doc?.body) return;
+
+          // The body has auto height, so it can shrink without resetting the
+          // iframe viewport and triggering another resize notification.
+          const nextHeight =
+            Math.max(doc.body.scrollHeight, doc.body.offsetHeight, 40) + 8;
+
+          if (el.style.height !== `${nextHeight}px`) {
+            el.style.height = `${nextHeight}px`;
+            setH(nextHeight);
+          }
+        });
+      };
+
+      let previousWidth = 0;
+      const widthObserver = new ResizeObserver(([entry]) => {
+        if (entry.contentRect.width !== previousWidth) {
+          previousWidth = entry.contentRect.width;
+          measure();
+        }
+      });
+      widthObserver.observe(el);
+
+      const onLoad = () => {
         const doc = el.contentDocument;
         if (!doc?.body) return;
 
-        // The body has auto height, so it can shrink without resetting the
-        // iframe viewport and triggering another resize notification.
-        const nextHeight =
-          Math.max(doc.body.scrollHeight, doc.body.offsetHeight, 40) + 8;
-
-        if (el.style.height !== `${nextHeight}px`) {
-          el.style.height = `${nextHeight}px`;
-          setH(nextHeight);
-        }
-      });
-    };
-
-    let previousWidth = 0;
-    const widthObserver = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width !== previousWidth) {
-        previousWidth = entry.contentRect.width;
+        imageElements.forEach((image) => {
+          image.removeEventListener('load', measure);
+        });
+        imageElements = Array.from(doc.images);
+        imageElements.forEach((image) => {
+          image.addEventListener('load', measure);
+        });
         measure();
-      }
-    });
-    widthObserver.observe(el);
+      };
 
-    const onLoad = () => {
-      const doc = el.contentDocument;
-      if (!doc?.body) return;
+      el.addEventListener('load', onLoad);
+      window.addEventListener('resize', measure);
 
-      imageElements.forEach((image) => {
-        image.removeEventListener('load', measure);
-      });
-      imageElements = Array.from(doc.images);
-      imageElements.forEach((image) => {
-        image.addEventListener('load', measure);
-      });
-      measure();
-    };
+      if (el.contentDocument?.readyState === 'complete') onLoad();
 
-    el.addEventListener('load', onLoad);
-    window.addEventListener('resize', measure);
+      cleanup = () => {
+        widthObserver.disconnect();
+        cancelAnimationFrame(frame);
+        imageElements.forEach((image) => {
+          image.removeEventListener('load', measure);
+        });
+        el.removeEventListener('load', onLoad);
+        window.removeEventListener('resize', measure);
+      };
+    }
 
-    if (el.contentDocument?.readyState === 'complete') onLoad();
-
-    return () => {
-      widthObserver.disconnect();
-      cancelAnimationFrame(frame);
-      imageElements.forEach((image) => {
-        image.removeEventListener('load', measure);
-      });
-      el.removeEventListener('load', onLoad);
-      window.removeEventListener('resize', measure);
-    };
+    return cleanup;
   }, [html]);
 
   if (!body)

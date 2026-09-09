@@ -2,34 +2,54 @@ import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
   ISearchTokenConfig,
+  MessageProps,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
 
-export const generateFilter = async (
+type ContactFilter = Record<string, unknown>;
+
+interface ContactFilterParams {
+  searchValue?: string;
+  tagIds?: string[];
+  excludeTagIds?: string[];
+  tagWithRelated?: boolean;
+  type?: string;
+  dateFilters?: string;
+  propertiesData?: string;
+  brandIds?: string[];
+  integrationIds?: string[];
+  integrationTypes?: string[];
+  status?: string;
+  ids?: string[];
+  excludeIds?: boolean;
+  segmentIds?: string[];
+  clientPortalId?: string;
+  emailValidationStatus?: string;
+}
+
+export const findIntegrations = (
   subdomain: string,
-  params: any,
-  models: IModels,
-  searchConfig?: ISearchTokenConfig,
+  query: Record<string, unknown>,
+  options?: MessageProps['options'],
+) =>
+  sendTRPCMessage({
+    subdomain,
+
+    pluginName: 'frontline',
+    method: 'query',
+    module: 'integration',
+    action: 'find',
+    input: { query },
+    defaultValue: [],
+    options,
+  });
+
+const applyBasicFilters = (
+  filter: ContactFilter,
+  params: ContactFilterParams,
 ) => {
-  const filter: any = {
-    status: { $ne: CONTACT_STATUSES.deleted },
-  };
-
-  applyBasicFilters(filter, params);
-  applySearchFilter(filter, params, searchConfig);
-  applyIdFilter(filter, params);
-  await applyIntegrationFilter(filter, subdomain, params);
-  await applyTagFilter(filter, params, models);
-  applySegmentFilter(filter, params);
-  applyDateRangeFilter(filter, params);
-  applyPropertyFilter(filter, params);
-
-  return filter;
-};
-
-const applyBasicFilters = (filter: any, params: any) => {
   const { type, status, clientPortalId, emailValidationStatus } = params;
 
   if (type) {
@@ -50,8 +70,8 @@ const applyBasicFilters = (filter: any, params: any) => {
 };
 
 const applySearchFilter = (
-  filter: any,
-  params: any,
+  filter: ContactFilter,
+  params: ContactFilterParams,
   searchConfig?: ISearchTokenConfig,
 ) => {
   const { searchValue } = params;
@@ -79,7 +99,7 @@ const applySearchFilter = (
   ];
 };
 
-const applyIdFilter = (filter: any, params: any) => {
+const applyIdFilter = (filter: ContactFilter, params: ContactFilterParams) => {
   const { ids, excludeIds } = params;
 
   if (ids?.length) {
@@ -87,9 +107,12 @@ const applyIdFilter = (filter: any, params: any) => {
   }
 };
 
-const collectRelatedIntegrationIds = async (subdomain: string, params: any) => {
+const collectRelatedIntegrationIds = async (
+  subdomain: string,
+  params: ContactFilterParams,
+) => {
   const { brandIds, integrationIds, integrationTypes } = params;
-  const relatedIntegrationIdSet = new Set();
+  const relatedIntegrationIdSet = new Set<string>();
 
   if (brandIds) {
     const integrations = await findIntegrations(subdomain, {
@@ -116,9 +139,9 @@ const collectRelatedIntegrationIds = async (subdomain: string, params: any) => {
 };
 
 const applyIntegrationFilter = async (
-  filter: any,
+  filter: ContactFilter,
   subdomain: string,
-  params: any,
+  params: ContactFilterParams,
 ) => {
   const { brandIds, integrationIds, integrationTypes } = params;
 
@@ -139,7 +162,7 @@ const applyIntegrationFilter = async (
 };
 
 const resolveTagIds = async (
-  params: any,
+  params: ContactFilterParams,
   models: IModels,
   baseTagIds: string[],
 ) => {
@@ -158,7 +181,11 @@ const resolveTagIds = async (
   return [...new Set(baseTagIds)];
 };
 
-const applyTagFilter = async (filter: any, params: any, models: IModels) => {
+const applyTagFilter = async (
+  filter: ContactFilter,
+  params: ContactFilterParams,
+  models: IModels,
+) => {
   const { tagIds, excludeTagIds } = params;
 
   if (!(tagIds?.length || excludeTagIds?.length)) {
@@ -189,7 +216,10 @@ const applyTagFilter = async (filter: any, params: any, models: IModels) => {
   }
 };
 
-const applySegmentFilter = (filter: any, params: any) => {
+const applySegmentFilter = (
+  filter: ContactFilter,
+  params: ContactFilterParams,
+) => {
   const { segmentIds } = params;
 
   // Membership is read off the record, not recomputed: the segmentation worker
@@ -200,7 +230,10 @@ const applySegmentFilter = (filter: any, params: any) => {
   }
 };
 
-const applyDateRangeFilter = (filter: any, params: any) => {
+const applyDateRangeFilter = (
+  filter: ContactFilter,
+  params: ContactFilterParams,
+) => {
   const { dateFilters } = params;
 
   if (!dateFilters) {
@@ -222,19 +255,24 @@ const applyDateRangeFilter = (filter: any, params: any) => {
       continue;
     }
 
-    filter[key] = {};
+    const range: Record<string, string> = {};
 
     if (gte) {
-      filter[key]['$gte'] = gte;
+      range['$gte'] = gte;
     }
 
     if (lte) {
-      filter[key]['$lte'] = lte;
+      range['$lte'] = lte;
     }
+
+    filter[key] = range;
   }
 };
 
-const applyPropertyFilter = (filter: any, params: any) => {
+const applyPropertyFilter = (
+  filter: ContactFilter,
+  params: ContactFilterParams,
+) => {
   const { propertiesData } = params;
 
   if (!propertiesData) {
@@ -244,8 +282,34 @@ const applyPropertyFilter = (filter: any, params: any) => {
   const propertyConditions = buildPropertyFilter(propertiesData);
 
   if (propertyConditions.length) {
-    filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
+    const existingConditions = filter['$and'];
+    const baseConditions = Array.isArray(existingConditions)
+      ? existingConditions
+      : [];
+    filter['$and'] = [...baseConditions, ...propertyConditions];
   }
+};
+
+export const generateFilter = async (
+  subdomain: string,
+  params: ContactFilterParams,
+  models: IModels,
+  searchConfig?: ISearchTokenConfig,
+) => {
+  const filter: ContactFilter = {
+    status: { $ne: CONTACT_STATUSES.deleted },
+  };
+
+  applyBasicFilters(filter, params);
+  applySearchFilter(filter, params, searchConfig);
+  applyIdFilter(filter, params);
+  await applyIntegrationFilter(filter, subdomain, params);
+  await applyTagFilter(filter, params, models);
+  applySegmentFilter(filter, params);
+  applyDateRangeFilter(filter, params);
+  applyPropertyFilter(filter, params);
+
+  return filter;
 };
 
 export const createOrUpdate = async ({
@@ -297,19 +361,6 @@ export const createOrUpdate = async ({
 
   return collection.bulkWrite(operations);
 };
-
-export const findIntegrations = (subdomain: string, query, options?) =>
-  sendTRPCMessage({
-    subdomain,
-
-    pluginName: 'frontline',
-    method: 'query',
-    module: 'integration',
-    action: 'find',
-    input: { query },
-    defaultValue: [],
-    options,
-  });
 
 export const customersCount = async ({
   models,

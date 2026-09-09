@@ -530,6 +530,114 @@ const EmailRowHeader = ({
   );
 };
 
+const QuotedToggle = ({
+  replies,
+  attachments,
+  showQuoted,
+  onToggle,
+}: {
+  replies: string;
+  attachments?: Attachment[];
+  showQuoted: boolean;
+  onToggle: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        className="rounded border border-[rgba(0,0,0,0.15)] px-2 py-0.5 text-[11px] leading-none text-[#5f6368] transition-colors hover:bg-background/[0.04] dark:border-[rgba(255,255,255,0.15)] dark:text-[#9aa0a6]"
+        onClick={onToggle}
+        title={t('toggle-quoted-text')}
+        aria-label={t('toggle-quoted-text')}
+        aria-expanded={showQuoted}
+      >
+        •••
+      </button>
+      {showQuoted && <EmailBody body={replies} attachments={attachments} />}
+    </div>
+  );
+};
+
+const AttachmentList = ({ attachments }: { attachments: Attachment[] }) => (
+  <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
+    {attachments.map((a, i) => (
+      <AttachmentChip key={`${a.url ?? a.filename}-${i}`} attachment={a} />
+    ))}
+  </div>
+);
+
+const EmailExpandedContent = ({
+  messageId,
+  mailData,
+  visibleAttachments,
+  multiRecipient,
+  showQuoted,
+  onToggleQuoted,
+  onReply,
+  onReplyAll,
+  onForward,
+  actionClassName,
+}: {
+  messageId: string;
+  mailData: MailData;
+  visibleAttachments: Attachment[];
+  multiRecipient: boolean;
+  showQuoted: boolean;
+  onToggleQuoted: () => void;
+  onReply: () => void;
+  onReplyAll: () => void;
+  onForward: () => void;
+  actionClassName: string;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="min-w-0 px-3 pb-2 sm:ml-12 sm:px-4">
+      <SenderNotice mailData={mailData} />
+
+      <EmailBody
+        body={mailData.newContent ?? mailData.body}
+        attachments={mailData.attachments}
+      />
+
+      {mailData.replies && (
+        <QuotedToggle
+          replies={mailData.replies}
+          attachments={mailData.attachments}
+          showQuoted={showQuoted}
+          onToggle={onToggleQuoted}
+        />
+      )}
+
+      <DeliveryNotice messageId={messageId} mailData={mailData} />
+
+      {!!visibleAttachments.length && (
+        <AttachmentList attachments={visibleAttachments} />
+      )}
+
+      <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
+        <button type="button" className={actionClassName} onClick={onReply}>
+          <IconArrowBackUp size={13} /> {t('reply')}
+        </button>
+        {multiRecipient && (
+          <button
+            type="button"
+            className={actionClassName}
+            onClick={onReplyAll}
+          >
+            <IconUsers size={13} /> {t('reply-all')}
+          </button>
+        )}
+        <button type="button" className={actionClassName} onClick={onForward}>
+          <IconMailForward size={13} /> {t('forward')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const EmailRow: React.FC<{
   message: MailMessage;
   defaultExpanded?: boolean;
@@ -545,7 +653,6 @@ const EmailRow: React.FC<{
   onForward,
   onNewEmail,
 }) => {
-  const { t } = useTranslation('frontline');
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [showQuoted, setShowQuoted] = useState(false);
   const { mailData, createdAt } = message;
@@ -598,62 +705,18 @@ const EmailRow: React.FC<{
       </SenderContextMenu>
 
       {expanded && (
-        <div className="min-w-0 px-3 pb-2 sm:ml-12 sm:px-4">
-          <SenderNotice mailData={mailData} />
-
-          <EmailBody
-            body={mailData.newContent ?? mailData.body}
-            attachments={mailData.attachments}
-          />
-
-          {mailData.replies && (
-            <div className="space-y-1">
-              <button
-                type="button"
-                className="rounded border border-[rgba(0,0,0,0.15)] px-2 py-0.5 text-[11px] leading-none text-[#5f6368] transition-colors hover:bg-background/[0.04] dark:border-[rgba(255,255,255,0.15)] dark:text-[#9aa0a6]"
-                onClick={() => setShowQuoted((v) => !v)}
-                title={t('toggle-quoted-text')}
-                aria-label={t('toggle-quoted-text')}
-                aria-expanded={showQuoted}
-              >
-                •••
-              </button>
-              {showQuoted && (
-                <EmailBody
-                  body={mailData.replies}
-                  attachments={mailData.attachments}
-                />
-              )}
-            </div>
-          )}
-
-          <DeliveryNotice messageId={message._id} mailData={mailData} />
-
-          {!!visibleAttachments.length && (
-            <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
-              {visibleAttachments.map((a, i) => (
-                <AttachmentChip
-                  key={`${a.url ?? a.filename}-${i}`}
-                  attachment={a}
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="flex gap-2 pt-3 mt-2 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)]">
-            <button type="button" className={actionBtn} onClick={onReply}>
-              <IconArrowBackUp size={13} /> {t('reply')}
-            </button>
-            {multiRecipient && (
-              <button type="button" className={actionBtn} onClick={onReplyAll}>
-                <IconUsers size={13} /> {t('reply-all')}
-              </button>
-            )}
-            <button type="button" className={actionBtn} onClick={onForward}>
-              <IconMailForward size={13} /> {t('forward')}
-            </button>
-          </div>
-        </div>
+        <EmailExpandedContent
+          messageId={message._id}
+          mailData={mailData}
+          visibleAttachments={visibleAttachments}
+          multiRecipient={multiRecipient}
+          showQuoted={showQuoted}
+          onToggleQuoted={() => setShowQuoted((v) => !v)}
+          onReply={onReply}
+          onReplyAll={onReplyAll}
+          onForward={onForward}
+          actionClassName={actionBtn}
+        />
       )}
     </article>
   );

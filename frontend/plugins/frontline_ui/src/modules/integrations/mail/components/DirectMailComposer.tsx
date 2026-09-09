@@ -360,6 +360,32 @@ const CcBccField = ({
   );
 };
 
+const CcBccFields = ({
+  showCc,
+  showBcc,
+  register,
+  errors,
+}: {
+  showCc: boolean;
+  showBcc: boolean;
+  register: UseFormRegister<ComposeValues>;
+  errors: FieldErrors<ComposeValues>;
+}) => (
+  <>
+    {(['cc', 'bcc'] as const).map(
+      (field) =>
+        (field === 'cc' ? showCc : showBcc) && (
+          <CcBccField
+            key={field}
+            field={field}
+            register={register}
+            error={errors[field]}
+          />
+        ),
+    )}
+  </>
+);
+
 const SubjectRow = ({
   register,
   error,
@@ -560,17 +586,12 @@ export const DirectMailComposer = () => {
           onShowCc={() => setShowCc(true)}
           onShowBcc={() => setShowBcc(true)}
         />
-        {(['cc', 'bcc'] as const).map(
-          (field) =>
-            (field === 'cc' ? showCc : showBcc) && (
-              <CcBccField
-                key={field}
-                field={field}
-                register={register}
-                error={errors[field]}
-              />
-            ),
-        )}
+        <CcBccFields
+          showCc={showCc}
+          showBcc={showBcc}
+          register={register}
+          errors={errors}
+        />
         <SubjectRow register={register} error={errors.subject} />
         <BodyField register={register} error={errors.body} />
         <ComposerFooter
