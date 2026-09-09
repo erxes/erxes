@@ -1100,6 +1100,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — A new help center starts on the portal's palette
+
+- **Summary:** `DEFAULT_HELP_CENTER_STYLES` seeded most colours as white and the
+  topic accent as black, so a help center created here published a colourless
+  site — the portal cannot tell a stored white from an unset colour. Each field
+  is now the portal token it feeds, and `EMPTY_HELP_CENTER_FORM.color` is the
+  brand rather than `#000000`.
+- **Affected areas:** `src/modules/helpcenter/constants/index.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-09` — The website picker says when no portal has a domain
 
 - **Summary:** A client portal's `domain` is optional, so the picker could come
@@ -1271,13 +1281,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/activity/types.ts`
 - **Contracts changed:** `TicketCreateNote` sends `$isInternal: Boolean`; it and
   `TicketGetNote` select `isInternal`.
-
-### `2026-09-08` — Ticket navigation asks for a page the API accepts
-
-- **Summary:** `TicketNavigations` requested `limit: 1000` for its pipeline
-  lookup, but `cursorPaginate` rejects anything above 100, so `getTicketPipelines`
-  failed with `Limit must be between 1 and 100` and the channel/pipeline sidebar
-  rendered no tickets. The request now asks for `PIPELINES_PER_PAGE` (100), the
-  largest page the API allows.
-- **Affected areas:** `src/modules/ticket/components/ticket-navigations/TicketNavigations.tsx`
-- **Contracts changed:** `None`
