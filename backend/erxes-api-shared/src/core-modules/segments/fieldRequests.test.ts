@@ -223,6 +223,42 @@ describe('splitSegmentFieldRequests · namespaces', () => {
     expect(split.namespaced).toEqual([]);
   });
 
+  it('collects the leaf value of every row in a repeating group', () => {
+    const split = splitSegmentFieldRequests(
+      [fieldRequest('propertiesData.g:edu/school')],
+      fields,
+      namespaces,
+    );
+
+    const document = {
+      propertiesData: {
+        plan: 'enterprise',
+        'g:edu': [
+          { _id: 'r1', school: 'MUIS', year: 2018 },
+          { _id: 'r2', school: 'SUIS' },
+          { _id: 'r3', year: 2022 },
+        ],
+      },
+    };
+
+    expect(readNamespacedValue(document, split.namespaced[0])).toEqual([
+      'MUIS',
+      'SUIS',
+    ]);
+  });
+
+  it('reads nothing when a repeating group holds no rows', () => {
+    const split = splitSegmentFieldRequests(
+      [fieldRequest('propertiesData.g:edu/school')],
+      fields,
+      namespaces,
+    );
+
+    expect(
+      readNamespacedValue({ propertiesData: { plan: 'x' } }, split.namespaced[0]),
+    ).toBeUndefined();
+  });
+
   it('reads the value the key holds', () => {
     const split = splitSegmentFieldRequests(
       [fieldRequest('propertiesData.plan')],

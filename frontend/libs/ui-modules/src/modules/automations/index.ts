@@ -21,3 +21,6 @@ export type {
   TPlaceholderInputSuggestionsOption,
   TPlaceholderInputSuggestionType,
 } from './types/placeholderInputTypes';
+export * from './hooks/useAutomationSetPropertyTargets';
+export * from './hooks/useGetFieldsProperties';
+export * from './utils/groupFieldsByType';

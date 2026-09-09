@@ -27,7 +27,7 @@ export const AutomationExecutionResultPanel = () => {
   }
 
   return (
-    <aside className="flex w-80 shrink-0 flex-col border-l bg-background">
+    <aside className="flex min-w-0 flex-1 flex-col border-l bg-background">
       <div className="flex items-start justify-between gap-2 p-3">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-2">

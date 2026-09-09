@@ -71,8 +71,8 @@ const prepare = (body: string, trusted: Set<string>, showImages: boolean) => {
 };
 
 const wrapHtml = (body: string, imageSources: string) =>
-  `<!DOCTYPE html><html><head><meta charset="utf-8"/>` +
-  `<meta name="viewport" content="width=device-width,initial-scale=1"/>` +
+  '<!DOCTYPE html><html><head><meta charset="utf-8"/>' +
+  '<meta name="viewport" content="width=device-width,initial-scale=1"/>' +
   `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${imageSources}; style-src 'unsafe-inline'"/>` +
   `<style>
     :root{color-scheme:light dark}
@@ -118,7 +118,7 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el) return () => undefined;
 
     let frame = 0;
     let imageElements: HTMLImageElement[] = [];

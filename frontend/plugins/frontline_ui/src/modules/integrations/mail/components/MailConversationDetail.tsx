@@ -400,7 +400,7 @@ const SenderContextMenu = ({
           {email || sender?.name || 'Unknown sender'}
         </ContextMenu.Label>
         <ContextMenu.Separator />
-        <ContextMenu.Item disabled={!email} onSelect={() => void copyAddress()}>
+        <ContextMenu.Item disabled={!email} onSelect={copyAddress}>
           <IconCopy className="size-4" />
           Copy address
         </ContextMenu.Item>
@@ -429,6 +429,103 @@ const SenderContextMenu = ({
   );
 };
 
+const EmailExpandedMeta = ({ mailData }: { mailData: MailData }) => {
+  const { t } = useTranslation('frontline');
+  const isSent = mailData.type === 'SENT';
+
+  return (
+    <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
+      {mailData.from?.length ? (
+        <p className="break-words">
+          {t('from')}: {fmt(mailData.from)}
+        </p>
+      ) : null}
+      {mailData.to?.length ? (
+        <p className="break-words">
+          {t('to')}: {fmt(mailData.to)}
+        </p>
+      ) : null}
+      {mailData.cc?.length ? (
+        <p className="break-words">
+          {t('cc')}: {fmt(mailData.cc)}
+        </p>
+      ) : null}
+      {isSent && mailData.bcc?.length ? (
+        <p className="break-words">
+          {t('bcc')}: {fmt(mailData.bcc)}
+        </p>
+      ) : null}
+    </div>
+  );
+};
+
+const EmailRowHeader = ({
+  sender,
+  expanded,
+  mailData,
+  createdAt,
+  delivery,
+}: {
+  sender?: EmailAddress;
+  expanded: boolean;
+  mailData: MailData;
+  createdAt: string;
+  delivery?: MailDeliveryStatus;
+}) => {
+  const bg = avatarBg(sender?.name, sender?.email);
+
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className="flex size-9 flex-none select-none items-center justify-center rounded-full text-sm font-bold text-foreground ring-2 ring-background"
+        style={{ background: bg }}
+      >
+        {initial(sender?.name, sender?.email)}
+      </span>
+
+      <div className="flex-1 min-w-0">
+        {expanded ? (
+          <div className="space-y-0.5">
+            <span className="block truncate text-[13px] font-semibold text-foreground">
+              {sender?.name || sender?.email || '—'}
+            </span>
+            <EmailExpandedMeta mailData={mailData} />
+          </div>
+        ) : (
+          <>
+            <span className="block truncate text-[13px] font-semibold text-foreground">
+              {sender?.name || sender?.email || '—'}
+            </span>
+            <p className="mt-1 truncate text-[12px] leading-4 text-muted-foreground">
+              {mailData.body
+                ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 120)
+                : mailData.subject}
+            </p>
+          </>
+        )}
+      </div>
+
+      <span className="flex min-w-20 flex-none flex-col items-end gap-1.5 self-stretch text-[#5f6368] dark:text-[#9aa0a6]">
+        <span className="flex items-center gap-1.5">
+          {delivery && delivery !== 'sent' && (
+            <DeliveryBadge status={delivery} />
+          )}
+          <span className="whitespace-nowrap text-[11px]">
+            {formatDateISOStringToRelativeDate(createdAt)}
+          </span>
+        </span>
+        <span className="mt-auto rounded-full p-0.5">
+          {expanded ? (
+            <IconChevronUp size={14} />
+          ) : (
+            <IconChevronDown size={14} />
+          )}
+        </span>
+      </span>
+    </div>
+  );
+};
+
 const EmailRow: React.FC<{
   message: MailMessage;
   defaultExpanded?: boolean;
@@ -452,7 +549,6 @@ const EmailRow: React.FC<{
   const sender = mailData.from?.[0];
   const multiRecipient =
     (mailData.to?.length ?? 0) + (mailData.cc?.length ?? 0) > 1;
-  const bg = avatarBg(sender?.name, sender?.email);
   const delivery = isSent ? mailData.deliveryStatus : undefined;
   const visibleAttachments = (mailData.attachments ?? []).filter(
     (attachment) => attachment.disposition !== 'inline',
@@ -487,75 +583,13 @@ const EmailRow: React.FC<{
           onClick={() => setExpanded((v) => !v)}
           title="Right-click for sender actions"
         >
-          <div className="flex items-center gap-3">
-            <span
-              className="flex size-9 flex-none select-none items-center justify-center rounded-full text-sm font-bold text-foreground ring-2 ring-background"
-              style={{ background: bg }}
-            >
-              {initial(sender?.name, sender?.email)}
-            </span>
-
-            <div className="flex-1 min-w-0">
-              {expanded ? (
-                <div className="space-y-0.5">
-                  <span className="block truncate text-[13px] font-semibold text-foreground">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
-                  <div className="text-[11px] text-[#5f6368] dark:text-[#9aa0a6] space-y-px">
-                    {mailData.from?.length ? (
-                      <p className="break-words">
-                        {t('from')}: {fmt(mailData.from)}
-                      </p>
-                    ) : null}
-                    {mailData.to?.length ? (
-                      <p className="break-words">
-                        {t('to')}: {fmt(mailData.to)}
-                      </p>
-                    ) : null}
-                    {mailData.cc?.length ? (
-                      <p className="break-words">
-                        {t('cc')}: {fmt(mailData.cc)}
-                      </p>
-                    ) : null}
-                    {isSent && mailData.bcc?.length ? (
-                      <p className="break-words">
-                        {t('bcc')}: {fmt(mailData.bcc)}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <span className="block truncate text-[13px] font-semibold text-foreground">
-                    {sender?.name || sender?.email || '—'}
-                  </span>
-                  <p className="mt-1 truncate text-[12px] leading-4 text-muted-foreground">
-                    {mailData.body
-                      ? mailData.body.replace(/<[^<>]*>/g, '').slice(0, 120)
-                      : mailData.subject}
-                  </p>
-                </>
-              )}
-            </div>
-
-            <span className="flex min-w-20 flex-none flex-col items-end gap-1.5 self-stretch text-[#5f6368] dark:text-[#9aa0a6]">
-              <span className="flex items-center gap-1.5">
-                {delivery && delivery !== 'sent' && (
-                  <DeliveryBadge status={delivery} />
-                )}
-                <span className="whitespace-nowrap text-[11px]">
-                  {formatDateISOStringToRelativeDate(createdAt)}
-                </span>
-              </span>
-              <span className="mt-auto rounded-full p-0.5">
-                {expanded ? (
-                  <IconChevronUp size={14} />
-                ) : (
-                  <IconChevronDown size={14} />
-                )}
-              </span>
-            </span>
-          </div>
+          <EmailRowHeader
+            sender={sender}
+            expanded={expanded}
+            mailData={mailData}
+            createdAt={createdAt}
+            delivery={delivery}
+          />
         </button>
       </SenderContextMenu>
 

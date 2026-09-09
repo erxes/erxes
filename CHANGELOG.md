@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.1.1](https://github.com/erxes/erxes/compare/3.1.0...3.1.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* posclient some queries skipPermission ([70c0b35](https://github.com/erxes/erxes/commit/70c0b353d2227879676e6abbac26215304508e97))
+* remove unnecessary logging of customer filter in cpCustomers query ([81b638d](https://github.com/erxes/erxes/commit/81b638d51dde9b4bed527e9f5576224ec5e4e8be))
+* update task mutation to return status and sort tasks by status ([#9202](https://github.com/erxes/erxes/issues/9202)) ([91151b1](https://github.com/erxes/erxes/commit/91151b13ec641aa06365f7040147aad656d95843))
+
+
+### Features
+
+* **documents:** Improve document printing and browsing ([#9228](https://github.com/erxes/erxes/issues/9228)) ([040962b](https://github.com/erxes/erxes/commit/040962b31376f9e6da9cc66d81b4ad64bcfd907e))
+* Refactor property groups to use unified card shell ([28eabb4](https://github.com/erxes/erxes/commit/28eabb4b970f5629853e596e89ff0c21883ea9e3))
+
 # [3.1.0](https://github.com/erxes/erxes/compare/3.0.98...3.1.0) (2026-09-03)
 
 

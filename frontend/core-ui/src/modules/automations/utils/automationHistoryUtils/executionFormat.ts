@@ -1,6 +1,12 @@
 import { IAutomationHistoryAction } from 'ui-modules';
 
-export type TExecutionStatus = 'success' | 'error' | 'waiting';
+export type TExecutionStatus =
+  | 'success'
+  | 'error'
+  | 'waiting'
+  | 'queued'
+  | 'standby'
+  | 'dropped';
 
 export const formatExecutionDuration = (durationMs?: number) => {
   if (typeof durationMs !== 'number' || durationMs < 0) {

@@ -44,6 +44,7 @@ export const PipelineStages = ({ form, stagesLoading }: Props) => {
       status: 'active',
       memberIds: [],
       departmentIds: [],
+      defaultTick: true,
     });
   };
 

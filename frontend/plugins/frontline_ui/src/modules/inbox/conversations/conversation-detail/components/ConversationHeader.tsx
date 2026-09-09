@@ -375,6 +375,22 @@ export const ConversationHeader = () => {
   const view = useInboxLayout();
   const { ref: headerRef, isCompact } = useCompactWidth<HTMLDivElement>(480);
 
+  const isClosed = status === ConversationStatus.CLOSED;
+  const isNew = status === ConversationStatus.NEW;
+  const ConversationStatusIcon = isClosed ? IconCircleCheck : IconCircleDashed;
+  const statusIconClassName = isClosed
+    ? 'size-4 text-success'
+    : 'size-4 text-primary';
+
+  let statusLabel: string;
+  if (isClosed) {
+    statusLabel = t('closed', { defaultValue: 'Closed' });
+  } else if (isNew) {
+    statusLabel = t('new', { defaultValue: 'New' });
+  } else {
+    statusLabel = t('open-label');
+  }
+
   return (
     <div className="flex-none border-b bg-background">
       <div
@@ -413,16 +429,8 @@ export const ConversationHeader = () => {
       </div>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t bg-muted/20 px-3 py-2 text-xs">
         <span className="flex items-center gap-1.5 font-medium">
-          {status === ConversationStatus.CLOSED ? (
-            <IconCircleCheck className="size-4 text-success" />
-          ) : (
-            <IconCircleDashed className="size-4 text-primary" />
-          )}
-          {status === ConversationStatus.CLOSED
-            ? t('closed', { defaultValue: 'Closed' })
-            : status === ConversationStatus.NEW
-              ? t('new', { defaultValue: 'New' })
-              : t('open-label')}
+          <ConversationStatusIcon className={statusIconClassName} />
+          {statusLabel}
         </span>
         <div className="flex min-w-0 items-center gap-2">
           <span className="text-muted-foreground">{t('assignee')}</span>

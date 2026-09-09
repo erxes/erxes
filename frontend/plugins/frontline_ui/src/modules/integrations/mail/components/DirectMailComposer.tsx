@@ -17,7 +17,14 @@ import {
   ValidationStatus,
 } from 'erxes-ui';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import {
+  Controller,
+  useForm,
+  type Control,
+  type FieldError,
+  type FieldErrors,
+  type UseFormRegister,
+} from 'react-hook-form';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useCustomers } from 'ui-modules';
@@ -157,8 +164,265 @@ const VerifiedEmailSelect = ({
   );
 };
 
-export const DirectMailComposer = () => {
+const ComposerHeader = ({
+  onClose,
+  loading,
+}: {
+  onClose: () => void;
+  loading: boolean;
+}) => (
+  <header className="flex h-12 flex-none items-center justify-between border-b bg-muted/30 px-4">
+    <span className="flex items-center gap-2 text-sm font-semibold">
+      <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <IconMail className="size-4" />
+      </span>
+      {'New email'}
+    </span>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-8"
+      aria-label="Close email composer"
+      onClick={onClose}
+      disabled={loading}
+    >
+      <IconX className="size-4" />
+    </Button>
+  </header>
+);
+
+const FromRow = ({
+  sendersLoading,
+  selectedSender,
+  integrationError,
+  sendersError,
+  hasSenders,
+  onRetry,
+}: {
+  sendersLoading: boolean;
+  selectedSender?: MailSender;
+  integrationError?: FieldError;
+  sendersError?: unknown;
+  hasSenders: boolean;
+  onRetry: () => void;
+}) => {
   const { t } = useTranslation('frontline');
+
+  const renderSender = () => {
+    if (sendersLoading) {
+      return (
+        <span className="flex items-center gap-2 text-muted-foreground">
+          <Spinner size="sm" />
+          {'Loading sender…'}
+        </span>
+      );
+    }
+
+    if (selectedSender) {
+      return (
+        <span className="truncate" title={selectedSender.address}>
+          {selectedSender.name}{' '}
+          <span className="text-muted-foreground">
+            &lt;{selectedSender.address}&gt;
+          </span>
+        </span>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
+      <span className="text-xs text-muted-foreground">From</span>
+      <div className="flex min-h-9 min-w-0 items-center text-sm">
+        {renderSender()}
+      </div>
+      {integrationError && (
+        <p className="col-start-2 text-xs text-destructive">
+          {integrationError.message}
+        </p>
+      )}
+      {sendersError && (
+        <div className="col-start-2 text-xs text-destructive" role="alert">
+          <p>{t('error-loading-data')}</p>
+          <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
+            {t('try-again')}
+          </Button>
+        </div>
+      )}
+      {!sendersLoading && !sendersError && !hasSenders && (
+        <p className="col-start-2 text-xs text-destructive">
+          {t('no-integration-found', { name: t('email') })}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const ToRow = ({
+  control,
+  errors,
+  showCc,
+  showBcc,
+  onShowCc,
+  onShowBcc,
+}: {
+  control: Control<ComposeValues>;
+  errors: FieldErrors<ComposeValues>;
+  showCc: boolean;
+  showBcc: boolean;
+  onShowCc: () => void;
+  onShowBcc: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center border-b px-4 py-1.5">
+      <label className="text-xs text-muted-foreground" htmlFor="direct-mail-to">
+        To
+      </label>
+      <Controller
+        name="to"
+        control={control}
+        render={({ field }) => (
+          <VerifiedEmailSelect
+            value={field.value}
+            onValueChange={field.onChange}
+          />
+        )}
+      />
+      <div className="flex items-center gap-1">
+        {!showCc && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs text-muted-foreground"
+            onClick={onShowCc}
+          >
+            {t('cc')}
+          </Button>
+        )}
+        {!showBcc && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs text-muted-foreground"
+            onClick={onShowBcc}
+          >
+            {t('bcc')}
+          </Button>
+        )}
+      </div>
+      {errors.to && (
+        <p className="col-start-2 col-span-2 text-xs text-destructive">
+          {errors.to.message}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const CcBccField = ({
+  field,
+  register,
+  error,
+}: {
+  field: 'cc' | 'bcc';
+  register: UseFormRegister<ComposeValues>;
+  error?: FieldError;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
+      <label
+        className="text-xs text-muted-foreground"
+        htmlFor={`direct-mail-${field}`}
+      >
+        {t(field)}
+      </label>
+      <Input
+        id={`direct-mail-${field}`}
+        className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
+        {...register(field)}
+      />
+      {error && (
+        <p className="col-start-2 text-xs text-destructive" role="alert">
+          {error.message}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const SubjectRow = ({
+  register,
+  error,
+}: {
+  register: UseFormRegister<ComposeValues>;
+  error?: FieldError;
+}) => (
+  <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
+    <label
+      className="text-xs text-muted-foreground"
+      htmlFor="direct-mail-subject"
+    >
+      Subject
+    </label>
+    <Input
+      id="direct-mail-subject"
+      className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
+      {...register('subject')}
+    />
+    {error && (
+      <p className="col-start-2 text-xs text-destructive">{error.message}</p>
+    )}
+  </div>
+);
+
+const BodyField = ({
+  register,
+  error,
+}: {
+  register: UseFormRegister<ComposeValues>;
+  error?: FieldError;
+}) => (
+  <div className="min-h-0 flex-1 bg-muted/10 p-3">
+    <Textarea
+      id="direct-mail-body"
+      aria-label="Email message"
+      className="h-full min-h-52 resize-none rounded-lg border-0 bg-transparent p-2 text-sm leading-6 shadow-none focus-visible:ring-0"
+      placeholder="Write your message"
+      {...register('body')}
+    />
+    {error && <p className="mt-1 text-xs text-destructive">{error.message}</p>}
+  </div>
+);
+
+const ComposerFooter = ({
+  disabled,
+  loading,
+}: {
+  disabled: boolean;
+  loading: boolean;
+}) => {
+  const { t } = useTranslation('frontline');
+
+  return (
+    <footer className="flex flex-none items-center justify-end border-t bg-muted/20 px-4 py-2.5">
+      <Button type="submit" disabled={disabled}>
+        {loading ? <Spinner size="sm" /> : <IconSend className="size-4" />}
+        {t('send')}
+      </Button>
+    </footer>
+  );
+};
+
+export const DirectMailComposer = () => {
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
@@ -236,6 +500,12 @@ export const DirectMailComposer = () => {
     }
   }, [integrationId, senders, setValue, target]);
 
+  useEffect(() => {
+    if (target) {
+      document.getElementById('direct-mail-body')?.focus();
+    }
+  }, [target]);
+
   if (!target) return null;
 
   const close = () => {
@@ -258,202 +528,59 @@ export const DirectMailComposer = () => {
     );
   };
 
+  const handleRetry = () => {
+    refetch().catch(() => undefined);
+  };
+
   return (
     <section
       aria-label="New email"
       className="fixed inset-x-2 bottom-2 z-50 flex max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(40rem,calc(100vw-2rem))]"
     >
-      <header className="flex h-12 flex-none items-center justify-between border-b bg-muted/30 px-4">
-        <span className="flex items-center gap-2 text-sm font-semibold">
-          <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <IconMail className="size-4" />
-          </span>
-          New email
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          aria-label="Close email composer"
-          onClick={close}
-          disabled={loading}
-        >
-          <IconX className="size-4" />
-        </Button>
-      </header>
+      <ComposerHeader onClose={close} loading={loading} />
 
       <form
         className="flex min-h-0 flex-1 flex-col overflow-y-auto"
         onSubmit={handleSubmit(submit)}
       >
-        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
-          <span className="text-xs text-muted-foreground">From</span>
-          <div className="flex min-h-9 min-w-0 items-center text-sm">
-            {sendersLoading ? (
-              <span className="flex items-center gap-2 text-muted-foreground">
-                <Spinner size="sm" />
-                Loading sender…
-              </span>
-            ) : selectedSender ? (
-              <span className="truncate" title={selectedSender.address}>
-                {selectedSender.name}{' '}
-                <span className="text-muted-foreground">
-                  &lt;{selectedSender.address}&gt;
-                </span>
-              </span>
-            ) : null}
-          </div>
-          {errors.integrationId && (
-            <p className="col-start-2 text-xs text-destructive">
-              {errors.integrationId.message}
-            </p>
-          )}
-          {sendersError && (
-            <div className="col-start-2 text-xs text-destructive" role="alert">
-              <p>{t('error-loading-data')}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => void refetch().catch(() => undefined)}
-              >
-                {t('try-again')}
-              </Button>
-            </div>
-          )}
-          {!sendersLoading && !sendersError && !senders.length && (
-            <p className="col-start-2 text-xs text-destructive">
-              {t('no-integration-found', { name: t('email') })}
-            </p>
-          )}
-        </div>
-
-        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center border-b px-4 py-1.5">
-          <label
-            className="text-xs text-muted-foreground"
-            htmlFor="direct-mail-to"
-          >
-            To
-          </label>
-          <Controller
-            name="to"
-            control={control}
-            render={({ field }) => (
-              <VerifiedEmailSelect
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            )}
-          />
-          <div className="flex items-center gap-1">
-            {!showCc && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs text-muted-foreground"
-                onClick={() => setShowCc(true)}
-              >
-                {t('cc')}
-              </Button>
-            )}
-            {!showBcc && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs text-muted-foreground"
-                onClick={() => setShowBcc(true)}
-              >
-                {t('bcc')}
-              </Button>
-            )}
-          </div>
-          {errors.to && (
-            <p className="col-start-2 col-span-2 text-xs text-destructive">
-              {errors.to.message}
-            </p>
-          )}
-        </div>
+        <FromRow
+          sendersLoading={sendersLoading}
+          selectedSender={selectedSender}
+          integrationError={errors.integrationId}
+          sendersError={sendersError}
+          hasSenders={senders.length > 0}
+          onRetry={handleRetry}
+        />
+        <ToRow
+          control={control}
+          errors={errors}
+          showCc={showCc}
+          showBcc={showBcc}
+          onShowCc={() => setShowCc(true)}
+          onShowBcc={() => setShowBcc(true)}
+        />
         {(['cc', 'bcc'] as const).map(
           (field) =>
             (field === 'cc' ? showCc : showBcc) && (
-              <div
+              <CcBccField
                 key={field}
-                className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5"
-              >
-                <label
-                  className="text-xs text-muted-foreground"
-                  htmlFor={`direct-mail-${field}`}
-                >
-                  {t(field)}
-                </label>
-                <Input
-                  id={`direct-mail-${field}`}
-                  className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
-                  {...register(field)}
-                />
-                {errors[field] && (
-                  <p
-                    className="col-start-2 text-xs text-destructive"
-                    role="alert"
-                  >
-                    {errors[field]?.message}
-                  </p>
-                )}
-              </div>
+                field={field}
+                register={register}
+                error={errors[field]}
+              />
             ),
         )}
-
-        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
-          <label
-            className="text-xs text-muted-foreground"
-            htmlFor="direct-mail-subject"
-          >
-            Subject
-          </label>
-          <Input
-            id="direct-mail-subject"
-            className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
-            {...register('subject')}
-          />
-          {errors.subject && (
-            <p className="col-start-2 text-xs text-destructive">
-              {errors.subject.message}
-            </p>
-          )}
-        </div>
-
-        <div className="min-h-0 flex-1 bg-muted/10 p-3">
-          <Textarea
-            aria-label="Email message"
-            className="h-full min-h-52 resize-none rounded-lg border-0 bg-transparent p-2 text-sm leading-6 shadow-none focus-visible:ring-0"
-            placeholder="Write your message"
-            autoFocus
-            {...register('body')}
-          />
-          {errors.body && (
-            <p className="mt-1 text-xs text-destructive">
-              {errors.body.message}
-            </p>
-          )}
-        </div>
-
-        <footer className="flex flex-none items-center justify-end border-t bg-muted/20 px-4 py-2.5">
-          <Button
-            type="submit"
-            disabled={
-              loading ||
-              sendersLoading ||
-              Boolean(sendersError) ||
-              !senders.length
-            }
-          >
-            {loading ? <Spinner size="sm" /> : <IconSend className="size-4" />}
-            {t('send')}
-          </Button>
-        </footer>
+        <SubjectRow register={register} error={errors.subject} />
+        <BodyField register={register} error={errors.body} />
+        <ComposerFooter
+          disabled={
+            loading ||
+            sendersLoading ||
+            Boolean(sendersError) ||
+            !senders.length
+          }
+          loading={loading}
+        />
       </form>
     </section>
   );

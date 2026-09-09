@@ -30,6 +30,7 @@ import { ComposerAttachment } from '@/inbox/conversations/conversation-detail/co
 import { PollComposer } from '@/inbox/conversations/conversation-detail/components/PollComposer';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateSelector';
+import { SendPollDialog } from '@/inbox/conversations/conversation-detail/components/SendPollDialog';
 import {
   useMessageInputController,
   type MessageInputController,
@@ -217,12 +218,15 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
   const {
     attachments,
     content,
+    conversationId,
     handleFileInput,
     handleSendPoll,
     handleSubmit,
     handleTemplateSelect,
+    integrationChannelId,
     isDiscord,
     isInternalNote,
+    isMessenger,
     isLoading,
     loading,
     onlyInternal,
@@ -231,6 +235,15 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
   } = controller;
   const sendDisabled =
     loading || isLoading || (!content?.length && attachments.length === 0);
+
+  let sendIcon;
+  if (loading || isLoading) {
+    sendIcon = <Spinner size="sm" />;
+  } else if (isInternalNote) {
+    sendIcon = <IconLock />;
+  } else {
+    sendIcon = <IconArrowUp />;
+  }
 
   return (
     <div className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:px-3">
@@ -264,6 +277,14 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
 
       {isDiscord && !isInternalNote && (
         <PollComposer onSubmit={handleSendPoll} loading={loading} />
+      )}
+
+      {isMessenger && !isInternalNote && (
+        <SendPollDialog
+          conversationId={conversationId}
+          channelId={integrationChannelId}
+          disabled={loading}
+        />
       )}
 
       <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
@@ -318,13 +339,7 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
           disabled={sendDisabled}
           onClick={handleSubmit}
         >
-          {loading || isLoading ? (
-            <Spinner size="sm" />
-          ) : isInternalNote ? (
-            <IconLock />
-          ) : (
-            <IconArrowUp />
-          )}
+          {sendIcon}
           <span>
             {isInternalNote
               ? t('add-note', { defaultValue: 'Add note' })
@@ -354,10 +369,7 @@ const Composer = ({
         controller.isInternalNote && 'border-warning/50 bg-warning/20',
       )}
     >
-      <div
-        className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-muted-foreground"
-        role="status"
-      >
+      <output className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-muted-foreground">
         {controller.isInternalNote ? (
           <IconLock className="size-3.5 shrink-0" />
         ) : (
@@ -382,7 +394,7 @@ const Composer = ({
             <IconChevronDown className="size-4" />
           </Button>
         )}
-      </div>
+      </output>
       <ComposerPreviews controller={controller} />
       <TemplateSuggestions controller={controller} />
       <ComposerEditor controller={controller} />
