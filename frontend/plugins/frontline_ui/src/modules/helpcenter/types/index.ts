@@ -1,12 +1,3 @@
-export interface IHelpCenterCategory {
-  _id: string;
-  title?: string;
-  code?: string;
-  description?: string;
-  icon?: string;
-  numOfArticles?: number;
-}
-
 export interface IHelpCenterStyles {
   mainLogo?: string;
   favicon?: string;
@@ -32,33 +23,66 @@ export interface IHelpCenterStyles {
 export interface IHelpCenter {
   _id: string;
   title?: string;
-  code?: string;
   description?: string;
-  languageCode?: string;
-  color?: string;
-  backgroundImage?: string;
-  notificationSegmentId?: string;
-  brand?: { _id: string; name?: string } | null;
-  categories?: IHelpCenterCategory[];
-  createdDate?: string;
-
   url?: string;
+  brandId?: string;
+  languageCode?: string;
+
   kbToggle?: boolean;
   kbLabel?: string;
   kbTopicId?: string;
+
   ticketToggle?: boolean;
   ticketLabel?: string;
   ticketChannelId?: string;
   ticketPipelineId?: string;
   ticketStatusId?: string;
 
+  color?: string;
+  backgroundImage?: string;
   styles?: IHelpCenterStyles | null;
+
+  brand?: { _id: string; name?: string } | null;
+  createdAt?: string;
 }
 
 export interface IHelpCenterListResponse {
-  knowledgeBaseTopics: IHelpCenter[];
-  knowledgeBaseTopicsTotalCount: number;
+  helpCenterConfigs: IHelpCenter[];
+  helpCenterConfigsTotalCount: number;
 }
+
+export interface IHelpCenterDetailResponse {
+  helpCenterConfig: IHelpCenter | null;
+}
+
+export interface IHelpCenterConfigInput {
+  _id?: string;
+  title: string;
+  description: string;
+  url: string;
+  brandId: string;
+  languageCode: string;
+
+  kbToggle: boolean;
+  kbLabel: string;
+  kbTopicId: string;
+
+  ticketToggle: boolean;
+  ticketLabel: string;
+  ticketChannelId: string;
+  ticketPipelineId: string;
+  ticketStatusId: string;
+
+  color: string;
+  backgroundImage: string;
+  styles: IHelpCenterStyles;
+}
+
+export type THelpCenterTab = 'general' | 'appearance';
+
+export const HELP_CENTER_TABS: THelpCenterTab[] = ['general', 'appearance'];
+
+export type TStyleName = `styles.${keyof IHelpCenterStyles}`;
 
 export enum HelpCenterHotKeyScope {
   HelpCentersPage = 'help-centers-page',
