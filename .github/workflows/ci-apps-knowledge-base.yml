@@ -26,11 +26,18 @@ jobs:
         with:
           node-version: 22.19.0
 
+      # The portal compiles a few components out of the erxes-ui source tree,
+      # and those files resolve their own imports by walking up from
+      # frontend/libs to a root node_modules — which only a pnpm workspace
+      # install creates. This job installs the app alone, so the app's own
+      # node_modules is published at the root for that walk to find. The
+      # Dockerfile does the same thing for the same reason.
       - name: Build
         run: |
           cd apps/knowledge-base
           rm -rf node_modules
           npm install
+          ln -sfn apps/knowledge-base/node_modules "$GITHUB_WORKSPACE/node_modules"
           npm run build
         env:
           NEXT_PUBLIC_ERXES_API_URL: https://example.erxes.io/gateway
