@@ -149,6 +149,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — `Safe Remainder Delete Hook Fix`
+
+- **Summary:** Safe remainder deletion now reads list filter variables at hook initialization instead of calling a query-state hook from the delete click handler.
+- **Affected areas:** `src/modules/inventories/safeRemainders/hooks/useSafeRemainderRemove.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-09-09` — `Bound Dev Watchers`
 
 - **Summary:** Accounting UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
@@ -207,10 +213,4 @@
 
 - **Summary:** Fixed asset out, move, and sale detail rows keep direct asset selection, and their add-row controls now include a category-filtered bulk asset picker that appends selected assets as separate details with count and cost data loaded from fixed asset queries.
 - **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/components/SelectFixedAssetsBulk.tsx`, `src/modules/settings/fixed-assets/components/SelectFixedAsset.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
-- **Contracts changed:** None.
-
-### `2026-08-28` — `Fixed Asset Detail Bootstrap Guard`
-
-- **Summary:** Fixed asset income, out, move, and sale detail tables now render safely when form details are not initialized during create-route bootstrap, and disposal follow-transaction effects no longer reference removed owner-record selection state.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/Fxa*Form/FixedAssetForm.tsx`, `src/modules/transactions/transaction-form/components/forms/hooks/useFxaDisposalFollowTrs.ts`.
 - **Contracts changed:** None.
