@@ -1,4 +1,3 @@
-// Template preview; the existing product replacer supplies the barcode when printing.
 export const BarcodeAttribute = () => (
   <span
     contentEditable={false}

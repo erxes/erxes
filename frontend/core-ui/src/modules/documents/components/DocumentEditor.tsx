@@ -251,7 +251,7 @@ export const DocumentEditor = () => {
       <DocumentsErrorState
         title="Couldn’t load document"
         description="Check your connection and try again."
-        onRetry={() => void refetch()}
+        onRetry={refetch}
       />
     );
   }
