@@ -2,6 +2,14 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { recordTableCursorAtomFamily } from '../states/RecordTableCursorState';
 
+/**
+ * Validates that a value retrieved from `sessionStorage` is a properly formed
+ * cursor token — a base64-encoded JSON object that contains an `_id` field.
+ *
+ * Returns `false` for legacy raw Mongo ObjectId strings, empty values, JSON
+ * arrays or primitives, and any corrupted or non-base64 content, ensuring the
+ * table always falls back to the first page rather than rendering blank.
+ */
 export const isValidCursor = (cursor: string): boolean => {
   if (!cursor || typeof cursor !== 'string' || !cursor.trim()) {
     return false;

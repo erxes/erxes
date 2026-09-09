@@ -95,6 +95,25 @@ export const defaultPaginate = (
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
 
+/** @internal Shape of a mongoose document or plain lean object accepted by attachCursors. */
+type DocLike = Record<string, unknown> & { toObject?: () => Record<string, unknown> };
+
+/**
+ * Maps a list of mongoose documents or lean objects to plain objects,
+ * each augmented with an opaque base64-encoded `cursor` string.
+ * Extracted as a shared helper to avoid duplication between cursorPaginate
+ * and cursorPaginateAggregation.
+ */
+const attachCursors = <T>(
+  items: T[],
+  sortFields: string[],
+): (Record<string, unknown> & { cursor: string })[] =>
+  items.map((item) => {
+    const doc = item as unknown as DocLike;
+    const plain = typeof doc.toObject === 'function' ? doc.toObject() : doc;
+    return { ...plain, cursor: encodeCursor(doc, sortFields) };
+  });
+
 export const cursorPaginate = async <T extends Document>({
   model,
   params,
@@ -147,10 +166,7 @@ export const cursorPaginate = async <T extends Document>({
     list = list.reverse();
   }
 
-  const listWithCursor = list.map((item: any) => ({
-    ...(typeof item?.toObject === 'function' ? item.toObject() : item),
-    cursor: encodeCursor(item, sortFields),
-  }));
+  const listWithCursor = attachCursors(list, sortFields);
 
   const startCursor =
     listWithCursor.length > 0 ? listWithCursor[0].cursor : null;
@@ -238,10 +254,7 @@ export async function cursorPaginateAggregation<T>({
     list = list.reverse();
   }
 
-  const listWithCursor = list.map((item: any) => ({
-    ...(typeof item?.toObject === 'function' ? item.toObject() : item),
-    cursor: encodeCursor(item, sortFields),
-  }));
+  const listWithCursor = attachCursors(list, sortFields);
 
   const startCursor =
     listWithCursor.length > 0 ? listWithCursor[0].cursor : null;
