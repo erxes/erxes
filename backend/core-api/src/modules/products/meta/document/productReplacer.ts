@@ -2,7 +2,7 @@ import { dateToShortStr, getEnv } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
 import { IModels } from '~/connectionResolvers';
 import { generateBarcodeSvg } from '~/modules/documents/barcode';
-import { blocksToHtml } from '~/modules/documents/blocksToHtml';
+import { blocksToHtml, escapeHtml } from '~/modules/documents/blocksToHtml';
 
 const readFileUrl = (key: string, subdomain: string) => {
   if (key.startsWith('http://') || key.startsWith('https://')) {
@@ -137,9 +137,8 @@ export const buildProductReplacer = async ({
       );
       const barcodeImageUrl = product.variants?.[baseBarcode]?.image?.url;
       const barcode = barcodeImageUrl
-        ? `<img src="${readFileUrl(
-            barcodeImageUrl,
-            subdomain,
+        ? `<img src="${escapeHtml(
+            readFileUrl(barcodeImageUrl, subdomain),
           )}" width="${width}" height="${height}" alt="" />`
         : generateBarcodeSvg(barcodeValue, { width, height });
 

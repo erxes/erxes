@@ -38,6 +38,7 @@ export const BarcodeAttribute = ({
     }
   }, [height, width]);
 
+  /** Calculates bounded dimensions from the active top-right resize drag. */
   const getResizedDimensions = (event: ReactPointerEvent) => {
     const start = dragStart.current;
 
@@ -57,6 +58,7 @@ export const BarcodeAttribute = ({
     };
   };
 
+  /** Starts resizing and captures subsequent pointer movement. */
   const handleResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -68,12 +70,14 @@ export const BarcodeAttribute = ({
     };
   };
 
+  /** Updates the barcode preview while the resize handle is moving. */
   const handleResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (dragStart.current) {
       setSize(getResizedDimensions(event));
     }
   };
 
+  /** Persists the final dimensions in the inline attribute props. */
   const handleResizeEnd = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (!dragStart.current) {
       return;

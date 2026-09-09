@@ -54,7 +54,7 @@ const getColor = (
   return color;
 };
 
-const escapeHtml = (text: string): string => {
+export const escapeHtml = (text: string): string => {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -268,8 +268,8 @@ const renderBlock = (block: Block | PartialBlock, config?: Config): string => {
 
       let html = `<div style="margin: 16px 0;">
         <img src="${escapeHtml(src)}" alt="${escapeHtml(
-          name || '',
-        )}" width="${width}" style="${imgStyle}" />`;
+        name || '',
+      )}" width="${width}" style="${imgStyle}" />`;
 
       if (caption) {
         html += `<div style="margin-top: 8px; font-size: 14px; color: #666; font-style: italic;">${escapeHtml(
