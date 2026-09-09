@@ -59,7 +59,7 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
     <CompanyEmails
       primaryEmail={company.primaryEmail || ''}
       _id={company._id}
-      scope={ContactsHotKeyScope.CompaniesPage + '.' + company._id + '.Emails'}
+      scope={`${ContactsHotKeyScope.CompaniesPage}.${company._id}.Emails`}
       emailValidationStatus={company.emailValidationStatus}
       emails={company.emails || []}
       Trigger={RecordTableInlineCell.Trigger}
@@ -149,7 +149,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
             primaryPhone={primaryPhone || ''}
             phones={phones || []}
             phoneValidationStatus={phoneValidationStatus}
-            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Phones'}
+            scope={`${ContactsHotKeyScope.CompaniesPage}.${_id}.Phones`}
             Trigger={RecordTableInlineCell.Trigger}
           />
         );

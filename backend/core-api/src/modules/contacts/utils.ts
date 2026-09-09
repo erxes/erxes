@@ -13,28 +13,24 @@ export const generateFilter = async (
   models: IModels,
   searchConfig?: ISearchTokenConfig,
 ) => {
-  const {
-    searchValue,
-    tagIds,
-    excludeTagIds,
-    tagWithRelated,
-    type,
-    dateFilters,
-    propertiesData,
-    brandIds,
-    integrationIds,
-    integrationTypes,
-    status,
-    ids,
-    excludeIds,
-    segmentIds,
-    clientPortalId,
-    emailValidationStatus,
-  } = params;
-
   const filter: any = {
     status: { $ne: CONTACT_STATUSES.deleted },
   };
+
+  applyBasicFilters(filter, params);
+  applySearchFilter(filter, params, searchConfig);
+  applyIdFilter(filter, params);
+  await applyIntegrationFilter(filter, subdomain, params);
+  await applyTagFilter(filter, params, models);
+  applySegmentFilter(filter, params);
+  applyDateRangeFilter(filter, params);
+  applyPropertyFilter(filter, params);
+
+  return filter;
+};
+
+const applyBasicFilters = (filter: any, params: any) => {
+  const { type, status, clientPortalId, emailValidationStatus } = params;
 
   if (type) {
     filter['state'] = { $eq: type };
@@ -44,29 +40,6 @@ export const generateFilter = async (
     filter.status = { $eq: CONTACT_STATUSES[status] };
   }
 
-  if (searchValue) {
-    if (searchConfig?.enabled) {
-      Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
-    } else {
-      const regex = { $regex: searchValue, $options: 'i' };
-
-      filter['$or'] = [
-        { searchText: regex },
-        { primaryEmail: regex },
-        { emails: regex },
-        { primaryPhone: regex },
-        { phones: regex },
-        { firstName: regex },
-        { lastName: regex },
-        { middleName: regex },
-      ];
-    }
-  }
-
-  if (ids?.length) {
-    filter['_id'] = excludeIds ? { $nin: ids } : { $in: ids };
-  }
-
   if (clientPortalId) {
     filter['clientPortalId'] = { $eq: clientPortalId };
   }
@@ -74,62 +47,150 @@ export const generateFilter = async (
   if (emailValidationStatus) {
     filter['emailValidationStatus'] = { $eq: emailValidationStatus };
   }
+};
 
-  if (brandIds || integrationIds || integrationTypes) {
-    const relatedIntegrationIdSet = new Set();
+const applySearchFilter = (
+  filter: any,
+  params: any,
+  searchConfig?: ISearchTokenConfig,
+) => {
+  const { searchValue } = params;
 
-    if (brandIds) {
-      const integrations = await findIntegrations(subdomain, {
-        brandId: { $in: brandIds },
-      });
-      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-    }
-
-    if (integrationIds) {
-      const integrations = await findIntegrations(subdomain, {
-        _id: { $in: integrationIds },
-      });
-      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-    }
-
-    if (integrationTypes) {
-      const integrations = await findIntegrations(subdomain, {
-        kind: { $in: integrationTypes },
-      });
-      integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
-    }
-
-    if (relatedIntegrationIdSet.size > 0) {
-      filter['relatedIntegrationIds'] = {
-        $in: Array.from(relatedIntegrationIdSet),
-      };
-    }
+  if (!searchValue) {
+    return;
   }
 
-  if (tagIds?.length || excludeTagIds?.length) {
-    let baseTagIds = tagIds || excludeTagIds || [];
-
-    if (tagWithRelated) {
-      const tagObjs = await models.Tags.find({ _id: { $in: baseTagIds } });
-
-      tagObjs.forEach((tag) => {
-        baseTagIds = baseTagIds.concat(tag.relatedIds || []);
-      });
-    }
-
-    baseTagIds = [...new Set(baseTagIds)];
-
-    if (tagIds?.length && excludeTagIds?.length) {
-      filter['tagIds'] = {
-        $in: baseTagIds.filter((id) => tagIds.includes(id)),
-        $nin: baseTagIds.filter((id) => excludeTagIds.includes(id)),
-      };
-    } else if (tagIds?.length) {
-      filter['tagIds'] = { $in: baseTagIds };
-    } else if (excludeTagIds?.length) {
-      filter['tagIds'] = { $nin: baseTagIds };
-    }
+  if (searchConfig?.enabled) {
+    Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
+    return;
   }
+
+  const regex = { $regex: searchValue, $options: 'i' };
+
+  filter['$or'] = [
+    { searchText: regex },
+    { primaryEmail: regex },
+    { emails: regex },
+    { primaryPhone: regex },
+    { phones: regex },
+    { firstName: regex },
+    { lastName: regex },
+    { middleName: regex },
+  ];
+};
+
+const applyIdFilter = (filter: any, params: any) => {
+  const { ids, excludeIds } = params;
+
+  if (ids?.length) {
+    filter['_id'] = excludeIds ? { $nin: ids } : { $in: ids };
+  }
+};
+
+const collectRelatedIntegrationIds = async (subdomain: string, params: any) => {
+  const { brandIds, integrationIds, integrationTypes } = params;
+  const relatedIntegrationIdSet = new Set();
+
+  if (brandIds) {
+    const integrations = await findIntegrations(subdomain, {
+      brandId: { $in: brandIds },
+    });
+    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+  }
+
+  if (integrationIds) {
+    const integrations = await findIntegrations(subdomain, {
+      _id: { $in: integrationIds },
+    });
+    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+  }
+
+  if (integrationTypes) {
+    const integrations = await findIntegrations(subdomain, {
+      kind: { $in: integrationTypes },
+    });
+    integrations.forEach((i) => relatedIntegrationIdSet.add(i._id));
+  }
+
+  return relatedIntegrationIdSet;
+};
+
+const applyIntegrationFilter = async (
+  filter: any,
+  subdomain: string,
+  params: any,
+) => {
+  const { brandIds, integrationIds, integrationTypes } = params;
+
+  if (!(brandIds || integrationIds || integrationTypes)) {
+    return;
+  }
+
+  const relatedIntegrationIdSet = await collectRelatedIntegrationIds(
+    subdomain,
+    params,
+  );
+
+  if (relatedIntegrationIdSet.size > 0) {
+    filter['relatedIntegrationIds'] = {
+      $in: Array.from(relatedIntegrationIdSet),
+    };
+  }
+};
+
+const resolveTagIds = async (
+  params: any,
+  models: IModels,
+  baseTagIds: string[],
+) => {
+  const { tagWithRelated } = params;
+
+  if (!tagWithRelated) {
+    return [...new Set(baseTagIds)];
+  }
+
+  const tagObjs = await models.Tags.find({ _id: { $in: baseTagIds } });
+
+  for (const tag of tagObjs) {
+    baseTagIds = baseTagIds.concat(tag.relatedIds || []);
+  }
+
+  return [...new Set(baseTagIds)];
+};
+
+const applyTagFilter = async (filter: any, params: any, models: IModels) => {
+  const { tagIds, excludeTagIds } = params;
+
+  if (!(tagIds?.length || excludeTagIds?.length)) {
+    return;
+  }
+
+  const baseTagIds = await resolveTagIds(
+    params,
+    models,
+    tagIds || excludeTagIds || [],
+  );
+
+  if (tagIds?.length && excludeTagIds?.length) {
+    filter['tagIds'] = {
+      $in: baseTagIds.filter((id) => tagIds.includes(id)),
+      $nin: baseTagIds.filter((id) => excludeTagIds.includes(id)),
+    };
+    return;
+  }
+
+  if (tagIds?.length) {
+    filter['tagIds'] = { $in: baseTagIds };
+    return;
+  }
+
+  if (excludeTagIds?.length) {
+    filter['tagIds'] = { $nin: baseTagIds };
+  }
+};
+
+const applySegmentFilter = (filter: any, params: any) => {
+  const { segmentIds } = params;
 
   // Membership is read off the record, not recomputed: the segmentation worker
   // maintains `segmentIds`, so filtering by segment is an indexed lookup rather
@@ -137,40 +198,54 @@ export const generateFilter = async (
   if (segmentIds?.length) {
     filter['segmentIds'] = { $in: segmentIds };
   }
+};
 
-  if (dateFilters) {
-    try {
-      const dateFilter = JSON.parse(dateFilters);
+const applyDateRangeFilter = (filter: any, params: any) => {
+  const { dateFilters } = params;
 
-      for (const [key, value] of Object.entries(dateFilter)) {
-        const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
-
-        if (gte || lte) {
-          filter[key] = {};
-
-          if (gte) {
-            filter[key]['$gte'] = gte;
-          }
-
-          if (lte) {
-            filter[key]['$lte'] = lte;
-          }
-        }
-      }
-    } catch (err) {
-      throw new Error(`Invalid dateFilters JSON: ${err}`);
-    }
+  if (!dateFilters) {
+    return;
   }
 
-  if (propertiesData) {
-    const propertyConditions = buildPropertyFilter(propertiesData);
+  let dateFilter: Record<string, { gte?: string; lte?: string }>;
 
-    if (propertyConditions.length) {
-      filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
-    }
+  try {
+    dateFilter = JSON.parse(dateFilters);
+  } catch (err) {
+    throw new Error(`Invalid dateFilters JSON: ${err}`);
   }
 
-  return filter;
+  for (const [key, value] of Object.entries(dateFilter)) {
+    const { gte, lte } = value || {};
+
+    if (!(gte || lte)) {
+      continue;
+    }
+
+    filter[key] = {};
+
+    if (gte) {
+      filter[key]['$gte'] = gte;
+    }
+
+    if (lte) {
+      filter[key]['$lte'] = lte;
+    }
+  }
+};
+
+const applyPropertyFilter = (filter: any, params: any) => {
+  const { propertiesData } = params;
+
+  if (!propertiesData) {
+    return;
+  }
+
+  const propertyConditions = buildPropertyFilter(propertiesData);
+
+  if (propertyConditions.length) {
+    filter['$and'] = [...(filter['$and'] || []), ...propertyConditions];
+  }
 };
 
 export const createOrUpdate = async ({
