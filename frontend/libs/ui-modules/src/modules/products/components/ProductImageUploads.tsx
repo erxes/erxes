@@ -441,7 +441,7 @@ const VideoPreview = ({
         title={item.name || 'Video'}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
-        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
       />
     );
   }
@@ -455,7 +455,7 @@ const VideoPreview = ({
         title={item.name || 'Video'}
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
         allowFullScreen
-        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
       />
     );
   }
