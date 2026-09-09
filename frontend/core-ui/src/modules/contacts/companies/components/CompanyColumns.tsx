@@ -41,9 +41,35 @@ import clsx from 'clsx';
 import { TFunction } from 'i18next';
 import { companyMoreColumn } from './CompanyMoreColumn';
 
+const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
+  const handleEmailClick = (email: string) => {
+    const emails = [company.primaryEmail, ...(company.emails || [])].filter(
+      (value, index, values): value is string =>
+        Boolean(value) && values.indexOf(value) === index,
+    );
+
+    window.dispatchEvent(
+      new CustomEvent('frontline:compose-email', {
+        detail: { companyId: company._id, email, emails },
+      }),
+    );
+  };
+
+  return (
+    <CompanyEmails
+      primaryEmail={company.primaryEmail || ''}
+      _id={company._id}
+      scope={ContactsHotKeyScope.CompaniesPage + '.' + company._id + '.Emails'}
+      emailValidationStatus={company.emailValidationStatus}
+      emails={company.emails || []}
+      Trigger={RecordTableInlineCell.Trigger}
+      onEmailClick={handleEmailClick}
+    />
+  );
+};
+
 export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
-  return [
-    companyMoreColumn,
+  return [    companyMoreColumn,
     RecordTable.checkboxColumn as ColumnDef<TCompany>,
     {
       id: 'avatar',
@@ -103,19 +129,7 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
         <RecordTable.InlineHead icon={IconMail} label={t('emails')} />
       ),
       cell: ({ cell }) => {
-        const { primaryEmail, _id, emails, emailValidationStatus } =
-          cell.row.original;
-
-        return (
-          <CompanyEmails
-            primaryEmail={primaryEmail || ''}
-            _id={_id}
-            scope={ContactsHotKeyScope.CompaniesPage + '.' + _id + '.Emails'}
-            emailValidationStatus={emailValidationStatus}
-            emails={emails || []}
-            Trigger={RecordTableInlineCell.Trigger}
-          />
-        );
+        return <CompanyEmailsCell company={cell.row.original} />;
       },
     },
     {

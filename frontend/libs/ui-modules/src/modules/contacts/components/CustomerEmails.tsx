@@ -8,7 +8,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEmailDoubleClick } from './useEmailDoubleClick';
 
 interface CustomerEmailsProps {
   primaryEmail: string;
@@ -30,11 +30,8 @@ export function CustomerEmails({
   onEmailClick,
 }: CustomerEmailsProps) {
   const { customerEdit } = useCustomerEdit();
-  const [open, setOpen] = useState(false);
-  const pendingClickRef = useRef<{
-    email: string;
-    timeoutId: number;
-  } | null>(null);
+  const { open, setOpen, handleEmailClick: handleVerifiedEmailClick } =
+    useEmailDoubleClick(onEmailClick);
 
   const emailProps = {
     primaryEmail,
@@ -67,38 +64,6 @@ export function CustomerEmails({
         }),
     });
   };
-
-  const handleVerifiedEmailClick = (email: string) => {
-    const pendingClick = pendingClickRef.current;
-
-    if (pendingClick?.email === email) {
-      window.clearTimeout(pendingClick.timeoutId);
-      pendingClickRef.current = null;
-      onEmailClick?.(email);
-      return;
-    }
-
-    if (pendingClick) {
-      window.clearTimeout(pendingClick.timeoutId);
-    }
-
-    pendingClickRef.current = {
-      email,
-      timeoutId: window.setTimeout(() => {
-        pendingClickRef.current = null;
-        setOpen(true);
-      }, 300),
-    };
-  };
-
-  useEffect(
-    () => () => {
-      if (pendingClickRef.current) {
-        window.clearTimeout(pendingClickRef.current.timeoutId);
-      }
-    },
-    [],
-  );
 
   return (
     <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>

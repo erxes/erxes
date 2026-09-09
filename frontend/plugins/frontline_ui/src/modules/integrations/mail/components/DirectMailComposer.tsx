@@ -41,7 +41,8 @@ interface MailSender {
 }
 
 interface ComposeEmailTarget {
-  customerId: string;
+  customerId?: string;
+  companyId?: string;
   email: string;
   emails?: string[];
 }
@@ -464,7 +465,7 @@ export const DirectMailComposer = () => {
     const handleComposeRequest = (event: Event) => {
       const detail = (event as CustomEvent<ComposeEmailTarget>).detail;
       if (
-        !detail?.customerId ||
+        (!detail?.customerId && !detail?.companyId) ||
         !z.string().email().safeParse(detail.email).success
       ) {
         return;

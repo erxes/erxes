@@ -154,11 +154,13 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
       const doc = el.contentDocument;
       if (!doc?.body) return;
 
-      imageElements.forEach((image) =>
-        image.removeEventListener('load', measure),
-      );
+      imageElements.forEach((image) => {
+        image.removeEventListener('load', measure);
+      });
       imageElements = Array.from(doc.images);
-      imageElements.forEach((image) => image.addEventListener('load', measure));
+      imageElements.forEach((image) => {
+        image.addEventListener('load', measure);
+      });
       measure();
     };
 
@@ -170,9 +172,9 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
     return () => {
       widthObserver.disconnect();
       cancelAnimationFrame(frame);
-      imageElements.forEach((image) =>
-        image.removeEventListener('load', measure),
-      );
+      imageElements.forEach((image) => {
+        image.removeEventListener('load', measure);
+      });
       el.removeEventListener('load', onLoad);
       window.removeEventListener('resize', measure);
     };

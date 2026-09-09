@@ -24,7 +24,7 @@ export const EmailDisplay = ({
         (email) =>
           email.email && (
             <span key={email.email} className="inline-flex">
-              {onEmailClick && email.status === ValidationStatus.Valid ? (
+              {onEmailClick ? (
                 <Badge
                   variant="secondary"
                   className="cursor-pointer hover:bg-primary/10 hover:text-primary"

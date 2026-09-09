@@ -406,7 +406,11 @@ const SenderContextMenu = ({
         </ContextMenu.Item>
         <ContextMenu.Item
           disabled={!email || !onNewEmail}
-          onSelect={() => email && onNewEmail?.(email)}
+          onSelect={() => {
+            if (email) {
+              onNewEmail?.(email);
+            }
+          }}
         >
           <IconMailPlus className="size-4" />
           New email

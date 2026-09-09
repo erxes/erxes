@@ -107,14 +107,25 @@ export const loadMailMessageClass = (models: IModels) => {
       );
 
       let targetConversationId = conversationId;
+      let effectiveCustomerId = customerId;
       if (!targetConversationId) {
-        if (!customerId) {
+        const [firstRecipient] = to ?? [];
+
+        if (!effectiveCustomerId && firstRecipient) {
+          effectiveCustomerId = await models.MailCustomers.findOrCreate(
+            subdomain,
+            firstRecipient.trim().toLowerCase(),
+            integration.inboxId,
+          );
+        }
+
+        if (!effectiveCustomerId) {
           throw new Error('Starting an email conversation requires a customer');
         }
 
         const conversation = await models.Conversations.createConversation({
           integrationId: integration.inboxId,
-          customerId,
+          customerId: effectiveCustomerId,
           content: subject,
         });
         targetConversationId = conversation._id;
@@ -122,7 +133,7 @@ export const loadMailMessageClass = (models: IModels) => {
 
       await Message.ensureCustomer(
         subdomain,
-        customerId,
+        effectiveCustomerId,
         to,
         integration.inboxId,
       );
