@@ -13,13 +13,13 @@ import { TFunction } from 'i18next';
 import { useState } from 'react';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
-import { getHelpCenterUrlError } from '@/helpcenter/utils/helpCenterUrl';
+import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
+import { FULL_WIDTH_SELECT } from '@/helpcenter/constants';
+import { IHelpCenterConfigInput } from '@/helpcenter/types';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
-import { FULL_WIDTH_SELECT } from '@/knowledgebase/topicDrawerConstants';
-import { Topic, TopicFormData } from '@/knowledgebase/topicDrawerTypes';
 
 function FeatureSection({
   control,
@@ -29,7 +29,7 @@ function FeatureSection({
   enabled,
   children,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   toggleName: 'kbToggle' | 'ticketToggle';
   title: string;
   description: string;
@@ -92,15 +92,13 @@ function TicketStatusField({
   );
 }
 
-export function TopicGeneralTab({
+export function HelpCenterGeneralTab({
   form,
-  topic,
   isEditing,
   onViewScript,
   t,
 }: Readonly<{
-  form: UseFormReturn<TopicFormData>;
-  topic?: Topic;
+  form: UseFormReturn<IHelpCenterConfigInput>;
   isEditing: boolean;
   onViewScript: () => void;
   t: TFunction;
@@ -111,6 +109,7 @@ export function TopicGeneralTab({
   const showTickets = useWatch({ control, name: 'ticketToggle' });
   const ticketChannelId = useWatch({ control, name: 'ticketChannelId' });
   const ticketPipelineId = useWatch({ control, name: 'ticketPipelineId' });
+  const kbTopicId = useWatch({ control, name: 'kbTopicId' });
 
   return (
     <div className="grid gap-4">
@@ -137,28 +136,17 @@ export function TopicGeneralTab({
             <Form.Field
               control={control}
               name="url"
-              rules={{
-                validate: (value) => {
-                  const error = getHelpCenterUrlError(value);
-
-                  return error
-                    ? t(
-                        error,
-                        'Enter a full website address starting with https://',
-                      )
-                    : true;
-                },
-              }}
               render={({ field }) => (
-                <Form.Item>
+                <Form.Item className={FULL_WIDTH_SELECT}>
                   <Form.Label>{t('website', 'Website')}</Form.Label>
                   <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder={t(
-                        'kb-enter-website',
-                        'https://help.example.com',
-                      )}
+                    <SelectHelpCenterWebsite
+                      variant="form"
+                      value={field.value}
+                      onValueChange={(domain, erxesAppToken) => {
+                        field.onChange(domain);
+                        form.setValue('erxesAppToken', erxesAppToken);
+                      }}
                     />
                   </Form.Control>
                   <Form.Message />
@@ -185,7 +173,7 @@ export function TopicGeneralTab({
         </InfoCard.Content>
       </InfoCard>
 
-      {isEditing && topic && (
+      {isEditing && (
         <InfoCard title={t('kb-embed-script')}>
           <InfoCard.Content>
             <div className="flex gap-3 justify-between items-start">
@@ -197,6 +185,7 @@ export function TopicGeneralTab({
                 size="sm"
                 variant="outline"
                 className="shrink-0"
+                disabled={!kbTopicId}
                 onClick={onViewScript}
               >
                 <IconCode className="mr-2 w-4 h-4" />
@@ -258,7 +247,6 @@ export function TopicGeneralTab({
                       <SelectHelpCenterTopic
                         variant="form"
                         value={field.value}
-                        excludeId={topic?._id}
                         onValueChange={field.onChange}
                       />
                     </Form.Control>

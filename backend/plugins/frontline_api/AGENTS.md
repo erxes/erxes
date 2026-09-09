@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -31,6 +31,10 @@
   messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
+- Help centers: the client portal config record behind a published help center
+  site — its general settings (name, description, website, knowledge base and
+  ticket feature groups) and its appearance (logo pair, surface colours, fonts,
+  form-element colours, accent colour, cover image, raw header/footer markup).
 - Frontline reports, including the saved report charts that persist a named
   filter configuration for a report card.
 - Plugin-owned automation triggers/actions/bots contributed to the platform
@@ -168,6 +172,7 @@
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
+| Help center          | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
@@ -175,6 +180,30 @@
 
 ### Provides
 
+- GraphQL: help center configs — `helpCenterConfig(_id)`,
+  `helpCenterConfigs(page, perPage, searchValue, brandId)`,
+  `helpCenterConfigsTotalCount(searchValue, brandId)`;
+  `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
+  keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
+  `showHelpCenter`, writes check `helpCenterManage`.
+- GraphQL: `helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig` —
+  the published site's own bootstrap read, the help center counterpart of
+  core's client portal lookup. It is the **one public operation in this
+  module** (`wrapperConfig.skipPermission`): the site calling it has no staff
+  user, no `cpUser` and no client portal header yet, because the domain is how
+  it discovers which help center it is. It matches `url` — the client portal
+  domain the config stores — after the same normalization the write path
+  applies, and returns `null` for a domain no help center claims. Never add a
+  permission check to it and never widen it into a list.
+- GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
+  `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- Nothing in this module is named `clientPortal*`, and it must stay that way.
+  `core-api` owns the real client portal — portal users, auth, OAuth — and
+  already publishes its own `ClientPortalConfigInput` with different fields; two
+  subgraphs declaring one input name with different fields is a federation
+  composition error, and the two domains are unrelated besides. A help center's
+  settings are `helpCenterConfig*` operations over `HelpCenterConfig` types in
+  `frontline_help_center_configs`.
 - GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
   `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
   `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
@@ -483,25 +512,33 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
-- A knowledge base topic also carries its published site's settings: `url`,
-  plus one group per feature the site can expose — `kbToggle` / `kbLabel` and
-  `ticketToggle` / `ticketLabel` / `ticketChannelId` / `ticketPipelineId` /
-  `ticketStatusId`. `Topic.updateDoc` writes with `$set`, so a caller that omits
-  them leaves them untouched — never switch it to a whole-document replace.
-- A topic's published-site appearance lives in one nested `styles` block
-  (`stylesSchema`, `_id: false`), not as twenty more top-level fields: the logo
-  pair, six surface colours, two font families with their text colours, three
-  form-element colours and the raw header/footer markup. It is read and written
-  whole, and `KnowledgeBaseTopicDoc.styles` takes
-  `KnowledgeBaseTopicStylesInput` while the topic exposes
-  `KnowledgeBaseTopicStyles` — keep the two mirrored when adding a style.
-  `color` and `backgroundImage` stay top-level: they are the topic's own accent
-  and cover, not the site chrome.
+- `frontline_help_center_configs` — one document per help center, holding
+  everything the published site needs: general settings (`title`,
+  `description`, `url`, `erxesAppToken`, `brandId`, `languageCode`, the
+  `kbToggle` / `kbLabel` /
+  `kbTopicId` group and the `ticketToggle` / `ticketLabel` / `ticketChannelId` /
+  `ticketPipelineId` / `ticketStatusId` group) and appearance (`color`,
+  `backgroundImage`, and the nested `styles` block). A knowledge base topic
+  carries none of them — it names articles, and a config points at one through
+  `kbTopicId`.
+- A config's appearance lives in one nested `styles` block (`stylesSchema`,
+  `_id: false`), not as twenty more top-level fields: the logo pair, six surface
+  colours, two font families with their text colours, three form-element colours
+  and the raw header/footer markup. It is read and written whole, and
+  `HelpCenterConfigInput.styles` takes `HelpCenterConfigStylesInput` while
+  the type exposes `HelpCenterConfigStyles` — keep the two mirrored when
+  adding a style. `color` and `backgroundImage` stay top-level: they are the
+  help center's own accent and cover, not the site chrome.
+- `models.HelpCenterConfigs.createOrUpdateConfig` writes with `$set` over the whole
+  normalized document, so every caller must send the complete config, not a
+  patch — a partial input clears the fields it omits. That is the whole-config
+  shape 2.0's `clientPortalConfigUpdate` used, and the UI merges before it
+  sends.
 - `KnowledgeBaseTopicDoc.brandId` is optional (`String`): a topic need not
-  belong to a brand, and the help center drawer does not collect one. The
-  `KnowledgeBaseTopic.brand` resolver therefore returns `null` for a missing or
+  belong to a brand. Both the `KnowledgeBaseTopic.brand` and the
+  `HelpCenterConfig.brand` resolver therefore return `null` for a missing or
   empty `brandId` rather than a Brand reference with an empty key — keep that
-  guard if the resolver is touched.
+  guard if either resolver is touched.
 - `topicSchema` carries mongoose `timestamps` but no `createdDate` field, so a
   topic's creation time is only ever stored as `createdAt`. The
   `KnowledgeBaseTopic.createdDate` resolver reads through to it — never assume
@@ -596,6 +633,28 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- A help center's general settings and appearance belong to
+  `frontline_help_center_configs`, never to a knowledge base topic. The
+  knowledge base owns article content; a config points at the topic it publishes
+  through `kbTopicId`. Never re-add `url`, the `kb*`/`ticket*` groups or a
+  `styles` block to `topicSchema` to make a help center screen work.
+- `erxesAppToken` is this plugin's **own stored string**, the messenger widget
+  token the published site boots with — the 1.x client portal field of the same
+  name. `content_api`'s `Web` model carries it the same way, seeded from the
+  client portal's `token`. It is a copy taken when a website is chosen, not a
+  live read: this plugin never reaches into core's `ClientPortal`, so a token
+  regenerated in core does not follow, and re-picking the website refreshes it.
+  Never resolve it through a cross-service call to make it live.
+- A domain is matched against a config's `url` through one helper,
+  `normalizeHelpCenterUrl` in `helpcenter/utils/helpCenterConfig.ts`, used by
+  both `normalizeHelpCenterConfig` on write and `getConfigByDomain` on read. The
+  two sides must normalize identically or a site's own domain stops finding its
+  config — never re-derive the trim/trailing-slash rule at a call site.
+- `normalizeHelpCenterConfig` is the only validation gate for a config: it
+  requires a title, rejects a non-http(s) website, requires `kbTopicId` when
+  `kbToggle` is on and a channel plus pipeline when `ticketToggle` is on, and
+  blanks a disabled feature's group. Resolvers stay thin — add a rule there, not
+  in a resolver or in the UI alone.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1424,6 +1483,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   then open the channel ticket list (no `pipelineId` in the URL); only that
   pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
+- Smoke (help center by domain): query
+  `helpCenterGetConfigByDomain(domain: "<a config's website>")` with no
+  authorization header — it must return that config, return `null` for an
+  unknown domain, and behave the same whether or not the domain carries a
+  trailing slash.
+- Smoke (help center): open `/frontline/helpcenter`, save a name/website change
+  from the drawer's General tab and a colour from its Appearance tab, reload —
+  the values persist and the network tab shows `helpCenterConfig` and
+  `helpCenterConfigUpdate`, never a `knowledgeBase*` operation.
+- Migration: run `src/migrations/migrateHelpCenterConfigs.ts` once per
+  deployment before serving the new help center screens; it is idempotent
+  (an existing config is left alone, the topic is cleaned either way).
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1466,6 +1537,55 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — A help center carries its messenger app token
+
+- **Summary:** Added `erxesAppToken` to `HelpCenterConfig` and its input, so
+  `helpCenterGetConfigByDomain` hands the published site the widget token it
+  boots with — the 1.x client portal field of the same name, stored the way
+  `content_api`'s `Web` stores it.
+- **Affected areas:**
+  `src/modules/helpcenter/{@types,db/definitions,graphql/schemas,utils}/helpCenterConfig.ts`
+- **Contracts changed:** `HelpCenterConfig.erxesAppToken` and
+  `HelpCenterConfigInput.erxesAppToken` added. Nothing removed or renamed.
+
+### `2026-09-09` — A help center is readable by its own domain
+
+- **Summary:** Added `helpCenterGetConfigByDomain(domain)`, the help center's
+  own public counterpart of the client portal's domain lookup, so a published
+  site can fetch its config without a staff session and without going through
+  a client portal operation. Domain matching reuses the write path's
+  normalization through the new `normalizeHelpCenterUrl` helper.
+- **Affected areas:**
+  `src/modules/helpcenter/graphql/{schemas,resolvers/queries}/helpCenterConfig.ts`,
+  `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
+  `src/modules/helpcenter/utils/helpCenterConfig.ts`
+- **Contracts changed:** Added the `helpCenterGetConfigByDomain` query. No
+  existing operation, type or input changed.
+
+### `2026-09-09` — Help center settings left the knowledge base topic
+
+- **Summary:** General settings and appearance moved off `KnowledgeBaseTopic`
+  into a plugin-owned `frontline_help_center_configs` collection read through
+  `helpCenterConfig`/`helpCenterConfigs` and written through
+  `helpCenterConfigUpdate` — the 2.0 business portal's whole-config shape under
+  a name that says which domain owns it, not `clientPortal*`, which is
+  `core-api`'s unrelated entity;
+  `src/migrations/migrateHelpCenterConfigs.ts` moves existing topic values across
+  and unsets them on the topic.
+- **Affected areas:** `src/modules/helpcenter/**` (new),
+  `src/modules/knowledgebase/{@types/topic.ts,db/definitions/topic.ts,graphql/schemas/knowledgeBaseTypeDefs.ts}`,
+  `src/{connectionResolvers.ts,meta/permissions.ts}`, `src/apollo/**`,
+  `src/migrations/migrateHelpCenterConfigs.ts`
+- **Contracts changed:** Added `HelpCenterConfig`, `HelpCenterConfigStyles`,
+  `HelpCenterConfigInput`, `HelpCenterConfigStylesInput`, the three
+  `helpCenterConfig*` queries and `helpCenterConfigUpdate` /
+  `helpCenterConfigRemove`, plus a `helpCenter` permission module
+  (`showHelpCenter`, `helpCenterManage`). Removed `url`, `kbToggle`, `kbLabel`,
+  `kbTopicId`, `ticketToggle`, `ticketLabel`, `ticketChannelId`,
+  `ticketPipelineId`, `ticketStatusId` and `styles` from `KnowledgeBaseTopic`
+  and `KnowledgeBaseTopicDoc`, and dropped `KnowledgeBaseTopicStyles` /
+  `KnowledgeBaseTopicStylesInput`.
 
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
@@ -1543,38 +1663,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
 - **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
 - **Contracts changed:** `None`
-
-### `2026-09-05` — Poll voting has no in-repo client
-
-- **Summary:** The customer-facing poll surfaces were removed from
-  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
-  have no caller in this repository.
-- **Affected areas:** `AGENTS.md` only — no API change.
-- **Contracts changed:** None.
-
-### `2026-09-03` — A help center carries its published site's appearance
-
-- **Summary:** Added a nested `styles` block to the knowledge base topic holding
-  the published site's logo and favicon, six surface colours, base and heading
-  fonts with their text and link colours, three form-element colours, and raw
-  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
-  `KnowledgeBaseTopicStylesInput`.
-- **Affected areas:**
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic.styles` and
-  `KnowledgeBaseTopicDoc.styles` added, with the two new
-  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-
-### `2026-09-03` — A knowledge base topic need not have a brand
-
-- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
-  not be created without a brand; the help center drawer no longer collects one,
-  so the input field is now nullable and the `brand` resolver returns `null` for
-  a missing or empty `brandId` instead of a Brand reference with an empty key.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
-- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
-  (was `String!`).

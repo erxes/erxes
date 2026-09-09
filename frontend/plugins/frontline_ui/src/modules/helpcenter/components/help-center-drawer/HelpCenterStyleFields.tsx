@@ -1,15 +1,15 @@
 import { IconUpload } from '@tabler/icons-react';
 import { ColorPicker, Form, Select, Textarea, Upload } from 'erxes-ui';
 import { Control } from 'react-hook-form';
-import { HELP_CENTER_FONTS } from '@/knowledgebase/topicDrawerConstants';
-import { TopicFormData, TStyleName } from '@/knowledgebase/topicDrawerTypes';
+import { HELP_CENTER_FONTS } from '@/helpcenter/constants';
+import { IHelpCenterConfigInput, TStyleName } from '@/helpcenter/types';
 
 export function StyleColorField({
   control,
   name,
   label,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   name: TStyleName;
   label: string;
 }>) {
@@ -42,7 +42,7 @@ export function StyleImageField({
   label,
   description,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   name: TStyleName;
   label: string;
   description: string;
@@ -91,7 +91,7 @@ export function StyleFontField({
   label,
   placeholder,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   name: TStyleName;
   label: string;
   placeholder: string;
@@ -135,7 +135,7 @@ export function StyleHtmlField({
   name,
   label,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   name: TStyleName;
   label: string;
 }>) {
