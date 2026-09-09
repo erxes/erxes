@@ -1,3 +1,4 @@
+/** Renders a template preview; printing supplies the selected product barcode. */
 export const BarcodeAttribute = () => (
   <span
     contentEditable={false}

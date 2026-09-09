@@ -8,6 +8,9 @@
   "add-document": "Баримт нэмэх",
   "no-document-title": "Одоогоор баримт алга",
   "no-document-description": "Эхний баримтаа үүсгэж эхлээрэй.",
+  "filtered-empty-title": "Баримт олдсонгүй",
+  "filtered-empty-description": "Шүүлтүүрээ өөрчлөх эсвэл арилгана уу.",
+  "clear-filters": "Шүүлтүүр арилгах",
   "filter": {
     "search": "Хайх",
     "created-at": "Үүсгэсэн огноо",

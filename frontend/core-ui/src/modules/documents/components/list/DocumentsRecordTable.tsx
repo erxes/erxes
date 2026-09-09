@@ -24,11 +24,12 @@ function DocumentsTable({ handleFetchMore, loading }: DocumentsTableProps) {
   );
 }
 
-type DocumentsRecordTableProps = {
+type DocumentsRecordTableProps = Readonly<{
   hasFilters: boolean;
   onClearFilters: () => void;
-};
+}>;
 
+/** Renders the paginated documents table and its query states. */
 export function DocumentsRecordTable({
   hasFilters,
   onClearFilters,

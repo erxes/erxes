@@ -2,11 +2,12 @@ import { IconFilePlus, IconFilterOff } from '@tabler/icons-react';
 import { Button, Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-type DocumentsEmptyStateProps = {
+type DocumentsEmptyStateProps = Readonly<{
   hasFilters: boolean;
   onClearFilters: () => void;
-};
+}>;
 
+/** Renders the document empty state and lets users clear active filters. */
 export function DocumentsEmptyState({
   hasFilters,
   onClearFilters,
@@ -20,18 +21,18 @@ export function DocumentsEmptyState({
           {hasFilters ? <IconFilterOff /> : <IconFilePlus />}
         </Empty.Media>
         <Empty.Title>
-          {hasFilters ? 'No documents found' : t('no-document-title')}
+          {hasFilters ? t('filtered-empty-title') : t('no-document-title')}
         </Empty.Title>
         <Empty.Description>
           {hasFilters
-            ? 'Try changing or clearing your filters.'
+            ? t('filtered-empty-description')
             : t('no-document-description')}
         </Empty.Description>
       </Empty.Header>
       {hasFilters && (
         <Empty.Content>
           <Button variant="outline" onClick={onClearFilters}>
-            Clear filters
+            {t('clear-filters')}
           </Button>
         </Empty.Content>
       )}

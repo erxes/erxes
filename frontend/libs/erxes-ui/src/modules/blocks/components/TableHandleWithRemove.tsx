@@ -168,7 +168,7 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
   const toggleHeader = () => {
     const block = editor.getBlock(props.block.id);
 
-    if (!block || block.type !== 'table') {
+    if (block?.type !== 'table') {
       return;
     }
 
