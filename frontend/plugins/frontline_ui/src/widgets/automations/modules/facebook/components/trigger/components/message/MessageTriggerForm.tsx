@@ -44,8 +44,12 @@ export const MessageTriggerForm = ({
           <div
             className={cn('relative flex flex-1 flex-col', { blur: !botId })}
           >
-            {!activeConditionType ? <MessageTriggerConditionsList /> : null}
-            <MessageTriggerConfigPanel />
+            {!activeConditionType ? (
+              <MessageTriggerConditionsList
+                currentTriggerId={activeTrigger?.id}
+              />
+            ) : null}
+            <MessageTriggerConfigPanel currentTriggerId={activeTrigger?.id} />
           </div>
         </div>
       </FormProvider>

@@ -11,11 +11,13 @@ export const messageTriggerSchema = z.object({
           type: z.enum([
             'getStarted',
             'persistentMenu',
+            'iceBreaker',
             'direct',
             'open_thread',
           ]),
           isSelected: z.boolean().optional(),
           persistentMenuIds: z.array(z.string()).optional(),
+          iceBreakerIds: z.array(z.string()).optional(),
           sourceMode: z.enum(['all', 'specific']).optional(),
           sourceIds: z.array(z.string()).optional(),
           conditions: z
@@ -35,8 +37,14 @@ export const messageTriggerSchema = z.object({
             .optional(),
         })
         .superRefine((data, ctx) => {
-          const { type, isSelected, persistentMenuIds, sourceMode, sourceIds } =
-            data;
+          const {
+            type,
+            isSelected,
+            persistentMenuIds,
+            iceBreakerIds,
+            sourceMode,
+            sourceIds,
+          } = data;
 
           if (isSelected) {
             if (
@@ -47,6 +55,17 @@ export const messageTriggerSchema = z.object({
                 code: z.ZodIssueCode.custom,
                 message: 'You should select some persistent menu',
                 path: ['persistentMenuIds'],
+              });
+            }
+
+            if (
+              type === 'iceBreaker' &&
+              (!iceBreakerIds || iceBreakerIds.length === 0)
+            ) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'You should select some ice breaker',
+                path: ['iceBreakerIds'],
               });
             }
 

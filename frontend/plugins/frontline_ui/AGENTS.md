@@ -154,6 +154,41 @@
   pipelines, and response templates.
 - Renders plugin-specific automation trigger/action forms selected by node type
   in each module's `*RemoteEntry.tsx`.
+- Names, on the Facebook message trigger form, which other automations already
+  listen for the same Get Started, persistent menu item, ice breaker, keyword or
+  keyword-less direct message on that bot. Any claim — draft included, since a
+  draft becomes active later and nobody watches for that moment — stops the
+  condition from being selected, unless this automation already selected it,
+  which stays editable. A condition that owns a configuration also cannot be
+  turned on while that configuration is empty. Only Get Started is unopenable,
+  because it is the one condition with nothing to configure.
+- Configures a Facebook bot's ice breakers — the questions Messenger shows under
+  “Tap to send” before the first message — and the Get Started button's label,
+  both previewed and both usable as automation trigger conditions.
+- Previews a Facebook bot beside its form: a Messenger frame showing the
+  welcome screen (greeting plus Get Started) and the persistent menu exactly as
+  `connectBotPageMessenger` composes it, on a phone or the desktop chat window,
+  including the Get Started action the backend prepends, and flagging menu items
+  that never reach Facebook. Tapping a menu action in the preview names what it
+  actually does — opens a webview, hands off to a person, resumes a paused step,
+  starts a listed automation, or reaches nothing. Only a plain button menu item
+  can be listened for; a link, a human handoff and a back action are each
+  consumed before the trigger. Typing in the preview's composer resolves the
+  same way for direct messages, mirroring `checkContentConditions`. When nothing
+  listens, the preview links to a new automation already carrying the trigger
+  condition that would catch that exact tap or message, plus an empty Send
+  Facebook Message action wired to it. A menu item or ice breaker added since
+  the last save is marked unsaved and offers no link, because a trigger
+  condition addresses it by an id that does not exist yet.
+- Lists the automations already listening to a bot on the bot form itself,
+  matched by `botId` inside a `frontline:facebook.messages` trigger config.
+- Starts an automation from a saved bot: the bot sheet links to the automation
+  builder with a `frontline:facebook.messages` trigger already carrying that
+  `botId`, built through `buildAutomationSeedLink` from `ui-modules`.
+- Attaches a Facebook Messenger bot to an integration from the integration list
+  itself: a `Bot` column on the facebook-messenger table and a bot section in the
+  integration edit dialog, both showing the bot's name and health, and both
+  opening the bot form with that integration's account and page already bound.
 - Facebook bot message action supports a drag-orderable message sequence of
   text, card, quick replies, input, image, attachments, audio, and video, with
   postback/link buttons and optional connects.
@@ -1040,6 +1075,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+
 ### `2026-09-08` — The Knowledge Base drawer goes back to editing a topic
 
 - **Summary:** The Knowledge Base page's Edit Topic sheet had been replaced by
@@ -1088,6 +1124,104 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/constants/helpCenterDrawerConstants.ts`
 - **Contracts changed:** `None`
 
+### `2026-09-08` — The message trigger says who else already listens
+
+- **Summary:** Every condition on the Facebook message trigger form reports the
+  other automations on the same bot that already claim it — the Get Started card,
+  each persistent-menu row, each ice breaker, each direct-message keyword, and a
+  keyword-less direct message. A catch-all claim blocks the Direct Message
+  condition only while this trigger names no keywords of its own. A claim
+  disables the checkbox (or refuses the keyword) and names where to remove it,
+  drafts included; an already-selected
+  condition is never blocked, or it could not be undone; and the trigger being
+  edited is excluded by its own node id. Persistent menu and ice breaker
+  conditions additionally stay unselectable until at least one item is picked
+  inside them. Blocked cards still open, so their configuration remains
+  reachable.
+- **Affected areas:** `src/widgets/automations/modules/facebook/components/` —
+  new `trigger/hooks/useFacebookBotTriggerClaims.ts` and
+  `trigger/components/message/TriggerClaimNote.tsx`;
+  `trigger/components/message/{MessageTriggerForm,MessageTriggerConditionsList,MessageTriggerConditionCard,MessageTriggerConfigPanel,PersistentMenuSelector,IceBreakerSelector,DirectMessageEditor,DirectMessageConditionCard}.tsx`;
+  `bots/hooks/useFacebookBotAutomations.tsx` now keeps trigger ids, and
+  `bots/utils/resolveBotMenuOutcome.ts` follows.
+- **Contracts changed:** `None`.
+
+### `2026-09-08` — Ice breakers, and Get Started stops matching on its label
+
+- **Summary:** A bot now carries `iceBreakers` and `getStartedText`. Ice breakers
+  are written to and verified against `messenger_profile.ice_breakers` — read
+  back in either the localized or the flat shape Facebook may return — appear in
+  the welcome preview under “Tap to send”, and can be selected as a new
+  `iceBreaker` trigger condition. The Get Started button's label is editable
+  because the trigger no longer compares `target.content` to the literal string
+  “Get Started” — it matches the postback payload instead (a `botId` with no
+  `persistentMenuId` and no `iceBreakerId`), which also stops a visitor who types
+  those words from firing the trigger.
+- **Affected areas:** `frontline_api` —
+  `modules/integrations/facebook/db/definitions/bots.ts`,
+  `db/models/Bots.ts`, `graphql/schema/facebook.ts`,
+  `meta/automation/messages/index.ts`,
+  `meta/automation/utils/messageUtils.ts`. `frontline_ui` — new
+  `components/bots/components/FacebookIceBreakerGenerator.tsx` and
+  `components/trigger/components/message/IceBreakerSelector.tsx`;
+  bot form schema, context, mutations and queries; the simulator, its preview and
+  outcome utils; the message trigger schema, options, types and condition hook.
+- **Contracts changed:** `facebookMessengerAddBot` / `facebookMessengerUpdateBot`
+  accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
+  `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
+  `iceBreaker` condition with `iceBreakerIds`.
+
+### `2026-09-08` — The bot form previews what Messenger will show
+
+- **Summary:** The bot sheet is now two columns: the form on the left and a
+  Messenger simulation on the right, toggling between phone and desktop chrome
+  and between the welcome screen and an open persistent menu. Menu actions are
+  tappable and resolve to the automations that would start, following the same
+  order as `receiveFacebookMessageTrigger`. The form lists the bot's connected
+  automations. The preview is derived by
+  `buildMessengerProfilePreview`, which mirrors
+  `FacebookBots.connectBotPageMessenger`, so it shows the Get Started action the
+  backend prepends and warns when a menu item has no text (dropped), a link item
+  has no URL (sent as a plain button), the greeting exceeds 160 characters, or
+  the menu exceeds Facebook's five actions per level. The persistent-menu form
+  limit dropped from five to four, derived from that cap minus the prepended
+  Get Started.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/` — new
+  `utils/buildMessengerProfilePreview.ts` and
+  `utils/resolveBotMenuOutcome.ts`,
+  `components/simulator/{MessengerFrame,FacebookBotSimulator}.tsx`,
+  `components/FacebookBotAutomations.tsx`,
+  `graphql/botAutomationsQueries.ts`, `hooks/useFacebookBotAutomations.tsx`,
+  `constants.ts`; `components/FacebookBotFormBody.tsx`,
+  `components/FacebookBotSheet.tsx`,
+  `components/AutomationFbBotFormContent.tsx`.
+- **Contracts changed:** `None` — reads existing `automations(triggerTypes:)`.
+
+### `2026-09-08` — A Facebook bot is created from its integration
+
+- **Summary:** The facebook-messenger integration table gained a `Bot` column and
+  the integration edit dialog a bot section; both show the connected bot's name
+  and health, and both open the bot form with the integration's `accountId` and
+  page already bound, so the two-step account/page wizard is skipped. Both
+  surfaces open the same sheet — the table row mounts it and the dialog opens it
+  through a `botId` query parameter, so it survives a reload or the back button
+  and never stacks twice. Saving leaves the sheet open. A
+  saved bot's sheet also links to a seeded new automation. The save
+  hook now takes the bot id from the form's own record instead of reading only
+  the `facebookBotId` query param, which previously made an edit opened outside
+  the bots settings page run the add mutation.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/` — new
+  `hooks/useFacebookIntegrationBot.tsx` and
+  `components/{FacebookBotSummary,FacebookBotFormBody,FacebookBotSheet,FacebookIntegrationBotCell,FacebookIntegrationBotSection}.tsx`;
+  `context/FbBotFormContext.tsx`, `components/AutomationFbBotFormContent.tsx`,
+  `components/AutomationBotFormEffect.tsx`, `hooks/useFacebookBotForm.tsx`;
+  `src/modules/integrations/components/IntegrationsRecordTable.tsx` and
+  `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
+- **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
+  bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
+
 ### `2026-09-07` — Ticket note attachments persist and render
 
 - **Summary:** Note attachments are now sent with `TicketCreateNote`, returned by
@@ -1115,57 +1249,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
   `src/modules/helpcenter/components/HelpCenterGeneralTab.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The ticket columns say they are ticket columns
-
-- **Summary:** The table's `Channel`, `Pipeline` and `Status` headers gave no
-  hint they were one ticket target, and the `Knowledge base name` column
-  duplicated a drawer-only field; the three ticket headers now read
-  `Ticket channel` / `Ticket pipeline` / `Ticket status` under their own
-  `ticket-*-label` keys, and the `kbLabel` column is gone. `kbLabel` itself is
-  untouched — the drawer still edits it and `useEditHelpCenter` still sends it.
-- **Affected areas:**
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center page drops its sidebar sub-group
-
-- **Summary:** `/frontline/helpcenter` listed every help center a second time in
-  the left navigation, duplicating the record table it sat next to; the
-  `HelpCenterSubGroup` component and the `isHelpCenter` branch in
-  `FrontlineSubGroups` are gone, so the page now renders no frontline
-  sub-group. `useAllHelpCenters` stays — `HelpCenterIndexPage` still needs the
-  unfiltered list to resolve `editId`.
-- **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
-  `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
-- **Contracts changed:** `None`
-
-### `2026-09-07` — A new help center shows its knowledge base by default
-
-- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
-  the topic and label fields under it stayed hidden until the switch was found;
-  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toHelpCenterDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
-  with `?? false`, which switched the feature off on the next inline edit of a
-  help center that had no stored value — it now agrees with the other three.
-- **Affected areas:**
-  `src/modules/helpcenter/constants/helpCenterDrawerConstants.ts`,
-  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The help center table drops its drawer-only columns
-
-- **Summary:** Removed the description column and the two ticket columns the
-  drawer already owns — the `Show tickets` switch and the ticket menu label —
-  leaving name, website, knowledge base name and knowledge base topic followed
-  by the three ticket routing selects (channel, pipeline, status). The drawer
-  gained the piece it was missing, a required `Knowledge base topic` select in
-  its Knowledge base section, and the table cell and that field now share one
-  `SelectHelpCenterTopic` component.
-- **Affected areas:**
-  `src/modules/helpcenter/components/{HelpCenterColumns.tsx,SelectHelpCenterTopic.tsx}`,
-  `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`,
-  `src/modules/knowledgebase/components/{TopicDrawer.tsx,TopicGeneralTab.tsx}`,
-  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts}`
 - **Contracts changed:** `None`
