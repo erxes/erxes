@@ -29,6 +29,7 @@ export const generateFilter = async (
     excludeIds,
     segmentIds,
     clientPortalId,
+    emailValidationStatus,
   } = params;
 
   const filter: any = {
@@ -68,6 +69,10 @@ export const generateFilter = async (
 
   if (clientPortalId) {
     filter['clientPortalId'] = { $eq: clientPortalId };
+  }
+
+  if (emailValidationStatus) {
+    filter['emailValidationStatus'] = { $eq: emailValidationStatus };
   }
 
   if (brandIds || integrationIds || integrationTypes) {

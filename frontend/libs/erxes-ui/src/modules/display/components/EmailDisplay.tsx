@@ -1,5 +1,5 @@
 import { IEmailFieldProps } from 'erxes-ui/modules/inputs';
-import { Badge, badgeVariants } from 'erxes-ui/components';
+import { Badge } from 'erxes-ui/components';
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
 import { formatEmails } from '../utils/formatEmails';
 import { ValidationStatus } from 'erxes-ui/types';
@@ -8,9 +8,9 @@ export const EmailDisplay = ({
   primaryEmail,
   emails,
   emailValidationStatus,
-  onEmailDoubleClick,
+  onEmailClick,
 }: IEmailFieldProps & {
-  onEmailDoubleClick?: (email: string) => void;
+  onEmailClick?: (email: string) => void;
 }) => {
   const emailsWithProperties = formatEmails(
     primaryEmail,
@@ -24,22 +24,15 @@ export const EmailDisplay = ({
         (email) =>
           email.email && (
             <span key={email.email} className="inline-flex">
-              {onEmailDoubleClick ? (
-                <button
-                  type="button"
-                  className={badgeVariants({
-                    variant: 'secondary',
-                    className:
-                      email.status === ValidationStatus.Valid
-                        ? 'cursor-pointer'
-                        : 'cursor-default',
-                  })}
-                  onDoubleClick={(event) => {
-                    if (email.status === ValidationStatus.Valid) {
-                      event.stopPropagation();
-                      onEmailDoubleClick(email.email || '');
-                    }
+              {onEmailClick && email.status === ValidationStatus.Valid ? (
+                <Badge
+                  variant="secondary"
+                  className="cursor-pointer hover:bg-primary/10 hover:text-primary"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEmailClick(email.email || '');
                   }}
+                  onDoubleClick={(event) => event.stopPropagation()}
                 >
                   {email.isPrimary &&
                     (email.status === ValidationStatus.Valid ? (
@@ -48,7 +41,7 @@ export const EmailDisplay = ({
                       <IconCircleDashed className="text-muted-foreground size-4" />
                     ))}
                   {email.email}
-                </button>
+                </Badge>
               ) : (
                 <Badge variant="secondary">
                   {email.isPrimary &&

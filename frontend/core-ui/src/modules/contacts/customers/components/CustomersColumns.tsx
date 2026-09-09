@@ -54,10 +54,15 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
   const laneOf = useEmailLane();
   const deliveryStatus = LANE_AS_STATUS[laneOf(customer.primaryEmail)];
 
-  const handleEmailDoubleClick = (email: string) => {
+  const handleEmailClick = (email: string) => {
+    const emails = [customer.primaryEmail, ...(customer.emails || [])].filter(
+      (value, index, values): value is string =>
+        Boolean(value) && values.indexOf(value) === index,
+    );
+
     window.dispatchEvent(
       new CustomEvent('frontline:compose-email', {
-        detail: { customerId: customer._id, email },
+        detail: { customerId: customer._id, email, emails },
       }),
     );
   };
@@ -70,7 +75,7 @@ const CustomerEmailsCell = ({ customer }: { customer: ICustomer }) => {
       emails={customer.emails || []}
       scope={ContactsHotKeyScope.CustomersTableInlinePopover}
       Trigger={RecordTableInlineCell.Trigger}
-      onEmailDoubleClick={handleEmailDoubleClick}
+      onEmailClick={handleEmailClick}
     />
   );
 };

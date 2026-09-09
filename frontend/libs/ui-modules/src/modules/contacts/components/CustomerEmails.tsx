@@ -8,6 +8,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useCustomerEdit } from 'ui-modules/modules/contacts/hooks';
+import { useEffect, useRef, useState } from 'react';
 
 interface CustomerEmailsProps {
   primaryEmail: string;
@@ -16,7 +17,7 @@ interface CustomerEmailsProps {
   emails: string[];
   scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
-  onEmailDoubleClick?: (email: string) => void;
+  onEmailClick?: (email: string) => void;
 }
 
 export function CustomerEmails({
@@ -26,9 +27,14 @@ export function CustomerEmails({
   emails,
   scope,
   Trigger,
-  onEmailDoubleClick,
+  onEmailClick,
 }: CustomerEmailsProps) {
   const { customerEdit } = useCustomerEdit();
+  const [open, setOpen] = useState(false);
+  const pendingClickRef = useRef<{
+    email: string;
+    timeoutId: number;
+  } | null>(null);
 
   const emailProps = {
     primaryEmail,
@@ -62,10 +68,50 @@ export function CustomerEmails({
     });
   };
 
+  const handleVerifiedEmailClick = (email: string) => {
+    const pendingClick = pendingClickRef.current;
+
+    if (pendingClick?.email === email) {
+      window.clearTimeout(pendingClick.timeoutId);
+      pendingClickRef.current = null;
+      onEmailClick?.(email);
+      return;
+    }
+
+    if (pendingClick) {
+      window.clearTimeout(pendingClick.timeoutId);
+    }
+
+    pendingClickRef.current = {
+      email,
+      timeoutId: window.setTimeout(() => {
+        pendingClickRef.current = null;
+        setOpen(true);
+      }, 300),
+    };
+  };
+
+  useEffect(
+    () => () => {
+      if (pendingClickRef.current) {
+        window.clearTimeout(pendingClickRef.current.timeoutId);
+      }
+    },
+    [],
+  );
+
   return (
-    <PopoverScoped scope={scope || ''} modal>
+    <PopoverScoped
+      scope={scope || ''}
+      modal
+      open={open}
+      onOpenChange={setOpen}
+    >
       <Trigger>
-        <EmailDisplay {...emailProps} onEmailDoubleClick={onEmailDoubleClick} />
+        <EmailDisplay
+          {...emailProps}
+          onEmailClick={handleVerifiedEmailClick}
+        />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField

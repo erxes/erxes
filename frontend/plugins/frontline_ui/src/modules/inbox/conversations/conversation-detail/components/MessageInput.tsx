@@ -4,7 +4,7 @@ import {
   Input,
   Kbd,
   Spinner,
-  Toggle,
+  DropdownMenu,
   cn,
   readImage,
 } from 'erxes-ui';
@@ -15,10 +15,14 @@ import {
   IconCornerDownLeft,
   IconFile,
   IconMessage2,
+  IconLock,
+  IconChevronDown,
+  IconChevronUp,
   IconPaperclip,
   IconPhoto,
   IconX,
 } from '@tabler/icons-react';
+import { useState } from 'react';
 import { AssignMemberInEditor, MentionInEditor } from 'ui-modules';
 
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
@@ -229,19 +233,7 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
     loading || isLoading || (!content?.length && attachments.length === 0);
 
   return (
-    <div className="mt-1 flex min-w-0 flex-none items-center gap-1 border-t border-border/50 px-2 py-2 sm:px-3">
-      <Toggle
-        pressed={isInternalNote}
-        size="lg"
-        variant="outline"
-        className="min-w-0 max-w-24 px-2 sm:max-w-full sm:px-4"
-        onPressedChange={() => {
-          if (!onlyInternal) setIsInternalNote(!isInternalNote);
-        }}
-      >
-        <span className="truncate">{t('internal-note')}</span>
-      </Toggle>
-
+    <div className="mt-1 flex min-w-0 flex-none flex-wrap items-center gap-1 border-t border-border/50 px-2 py-2 sm:px-3">
       {!isInternalNote && (
         <ResponseTemplateSelector onSelect={handleTemplateSelect}>
           <Button
@@ -274,25 +266,84 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
         <PollComposer onSubmit={handleSendPoll} loading={loading} />
       )}
 
-      <Button
-        size="sm"
-        aria-label={t('send')}
-        className="ml-auto h-9 flex-none rounded-lg px-2.5 sm:px-4"
-        disabled={sendDisabled}
-        onClick={handleSubmit}
-      >
-        {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-        <span className="hidden sm:inline">{t('send')}</span>
-        <Kbd className="ml-1 hidden lg:flex">
-          <IconCommand size={12} />
-          <IconCornerDownLeft size={12} />
-        </Kbd>
-      </Button>
+      <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+        {!onlyInternal && (
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={onlyInternal || loading || isLoading}
+                aria-label={t('message-mode', { defaultValue: 'Message mode' })}
+                className={cn(
+                  'h-9 gap-1.5',
+                  isInternalNote && 'border-warning/50 bg-warning/20',
+                )}
+              >
+                {isInternalNote ? <IconLock /> : <IconMessage2 />}
+                {isInternalNote
+                  ? t('internal-note')
+                  : t('reply', { defaultValue: 'Reply' })}
+                <IconChevronDown className="size-3.5" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              <DropdownMenu.RadioGroup
+                value={isInternalNote ? 'note' : 'reply'}
+                onValueChange={(value) => setIsInternalNote(value === 'note')}
+              >
+                <DropdownMenu.RadioItem value="reply" disabled={onlyInternal}>
+                  {t('reply-to-customer', {
+                    defaultValue: 'Reply to customer',
+                  })}
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="note">
+                  {t('internal-note')}
+                </DropdownMenu.RadioItem>
+              </DropdownMenu.RadioGroup>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        )}
+        <Button
+          size="sm"
+          aria-label={
+            isInternalNote
+              ? t('add-note', { defaultValue: 'Add note' })
+              : t('send-reply', { defaultValue: 'Send reply' })
+          }
+          className={cn(
+            'h-9 flex-none rounded-lg px-2.5 sm:px-4',
+            isInternalNote && 'bg-warning text-foreground hover:bg-warning/80',
+          )}
+          disabled={sendDisabled}
+          onClick={handleSubmit}
+        >
+          {loading || isLoading ? (
+            <Spinner size="sm" />
+          ) : isInternalNote ? (
+            <IconLock />
+          ) : (
+            <IconArrowUp />
+          )}
+          <span>
+            {isInternalNote
+              ? t('add-note', { defaultValue: 'Add note' })
+              : t('send-reply', { defaultValue: 'Send reply' })}
+          </span>
+          <Kbd className="ml-1 hidden lg:flex">
+            <IconCommand size={12} />
+            <IconCornerDownLeft size={12} />
+          </Kbd>
+        </Button>
+      </div>
     </div>
   );
 };
 
-const Composer = ({ controller }: MessageInputControllerProps) => (
+const Composer = ({
+  controller,
+  onCollapse,
+}: MessageInputControllerProps & { onCollapse: () => void }) => (
   <div className="px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3 sm:pt-3 sm:pb-3">
     <div
       onDropCapture={controller.handleDrop}
@@ -300,9 +351,38 @@ const Composer = ({ controller }: MessageInputControllerProps) => (
       onDragOverCapture={(event) => event.preventDefault()}
       className={cn(
         'mx-auto flex max-h-[min(70vh,40rem)] min-h-28 w-full max-w-3xl flex-col gap-1 rounded-2xl border border-border/70 bg-background/95 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.08)] transition-colors duration-150',
-        controller.isInternalNote && 'bg-warning/20',
+        controller.isInternalNote && 'border-warning/50 bg-warning/20',
       )}
     >
+      <div
+        className="flex items-center gap-2 px-3 py-1 text-xs font-medium text-muted-foreground"
+        role="status"
+      >
+        {controller.isInternalNote ? (
+          <IconLock className="size-3.5 shrink-0" />
+        ) : (
+          <IconMessage2 className="size-3.5 shrink-0" />
+        )}
+        {controller.isInternalNote
+          ? controller.t('note-visibility', {
+              defaultValue: 'Internal note · Only visible to your team',
+            })
+          : controller.t('reply-visibility', {
+              defaultValue: 'Reply · Sent to the customer',
+            })}
+        {controller.isInternalNote && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="ml-auto size-7 rounded-full"
+            aria-label="Collapse internal note composer"
+            onClick={onCollapse}
+          >
+            <IconChevronDown className="size-4" />
+          </Button>
+        )}
+      </div>
       <ComposerPreviews controller={controller} />
       <TemplateSuggestions controller={controller} />
       <ComposerEditor controller={controller} />
@@ -311,10 +391,49 @@ const Composer = ({ controller }: MessageInputControllerProps) => (
   </div>
 );
 
+const CompactInternalNote = ({
+  controller,
+  onExpand,
+}: MessageInputControllerProps & { onExpand: () => void }) => (
+  <div className="px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-3">
+    <Button
+      type="button"
+      variant="outline"
+      className="mx-auto flex h-11 w-full max-w-3xl justify-start rounded-xl border-warning/40 bg-warning/10 px-3 text-warning hover:bg-warning/20"
+      onClick={onExpand}
+      aria-label="Expand internal note composer"
+    >
+      <IconLock className="size-4" />
+      <span className="text-xs font-medium">
+        {controller.t('internal-note')}
+      </span>
+      <span className="hidden truncate text-xs font-normal text-muted-foreground sm:inline">
+        {controller.t('note-visibility', {
+          defaultValue: 'Only visible to your team',
+        })}
+      </span>
+      <IconChevronUp className="ml-auto size-4" />
+    </Button>
+  </div>
+);
+
 const MessageInputView = ({ controller }: MessageInputControllerProps) => {
+  const [compact, setCompact] = useState(false);
+
   if (controller.hideInput) return null;
 
-  return <Composer controller={controller} />;
+  if (compact && controller.isInternalNote) {
+    return (
+      <CompactInternalNote
+        controller={controller}
+        onExpand={() => setCompact(false)}
+      />
+    );
+  }
+
+  return (
+    <Composer controller={controller} onCollapse={() => setCompact(true)} />
+  );
 };
 
 export const MessageInput = ({

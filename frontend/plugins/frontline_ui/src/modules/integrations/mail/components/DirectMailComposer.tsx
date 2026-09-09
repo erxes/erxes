@@ -1,10 +1,26 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { IconMail, IconSend, IconX } from '@tabler/icons-react';
-import { Button, Input, Select, Spinner, Textarea } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { IconChevronDown, IconMail, IconSend, IconX } from '@tabler/icons-react';
+import {
+  Button,
+  Combobox,
+  Command,
+  Input,
+  Popover,
+  Spinner,
+  Textarea,
+  ValidationStatus,
+} from 'erxes-ui';
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
+import { useCustomers } from 'ui-modules';
 
 import { MAIL_SENDERS_QUERY } from '@/integrations/mail/graphql/queries/mailSenders';
 import { useMailSendMail } from '@/integrations/mail/hooks/useMailConversationDetail';
@@ -20,11 +36,30 @@ interface MailSender {
 interface ComposeEmailTarget {
   customerId: string;
   email: string;
+  emails?: string[];
 }
+
+const splitAddresses = (value: string): string[] =>
+  value
+    .split(/[,;]+/)
+    .map((address) => address.trim())
+    .filter(Boolean);
+
+const optionalRecipients = z
+  .string()
+  .refine(
+    (value) =>
+      splitAddresses(value).every(
+        (address) => z.string().email().safeParse(address).success,
+      ),
+    'Enter valid email addresses separated by commas',
+  );
 
 const composeSchema = z.object({
   integrationId: z.string().min(1, 'Choose a sender'),
-  to: z.string().email('Enter a valid recipient email'),
+  to: z.string().trim().email('Enter a valid recipient email'),
+  cc: optionalRecipients,
+  bcc: optionalRecipients,
   subject: z.string().trim().min(1, 'Subject is required'),
   body: z.string().trim().min(1, 'Message is required'),
 });
@@ -40,15 +75,111 @@ const toHtml = (value: string) =>
     .replaceAll("'", '&#39;')
     .replaceAll('\n', '<br/>');
 
+const VerifiedEmailSelect = ({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+  const {
+    customers,
+    loading,
+    error,
+    handleFetchMore,
+    totalCount,
+  } = useCustomers({
+    variables: {
+      emailValidationStatus: ValidationStatus.Valid,
+      searchValue: deferredSearch,
+    },
+  });
+  const options = [
+    ...new Set([
+      value,
+      ...customers.flatMap((customer) => [
+        customer.primaryEmail ?? '',
+        ...(customer.emails ?? []),
+      ]),
+    ]),
+  ].filter((email) => z.string().email().safeParse(email).success);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Popover.Trigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-9 min-w-0 justify-between px-0 font-normal hover:bg-transparent"
+          aria-label="Select recipient"
+        >
+          <span className="truncate">{value}</span>
+          <IconChevronDown className="size-4 shrink-0 text-muted-foreground" />
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content
+        align="start"
+        className="w-[min(24rem,calc(100vw-2rem))] p-0"
+      >
+        <Command shouldFilter={false}>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search verified emails"
+            focusOnMount
+          />
+          <Command.List className="max-h-64 overflow-y-auto">
+            <Combobox.Empty loading={loading} error={error} />
+            {!loading &&
+              options.map((email) => (
+                <Command.Item
+                  key={email}
+                  value={email}
+                  onSelect={() => {
+                    onValueChange(email);
+                    setOpen(false);
+                  }}
+                >
+                  <IconMail className="size-4 text-muted-foreground" />
+                  <span className="truncate">{email}</span>
+                  <Combobox.Check checked={email === value} />
+                </Command.Item>
+              ))}
+            {!loading && (
+              <Combobox.FetchMore
+                fetchMore={handleFetchMore}
+                currentLength={customers.length}
+                totalCount={totalCount}
+              />
+            )}
+          </Command.List>
+        </Command>
+      </Popover.Content>
+    </Popover>
+  );
+};
+
 export const DirectMailComposer = () => {
+  const { t } = useTranslation('frontline');
   const [target, setTarget] = useState<ComposeEmailTarget | null>(null);
-  const { data, loading: sendersLoading } = useQuery<{
+  const [showCc, setShowCc] = useState(false);
+  const [showBcc, setShowBcc] = useState(false);
+  const {
+    data,
+    loading: sendersLoading,
+    error: sendersError,
+    refetch,
+  } = useQuery<{
     mailSenders: MailSender[];
   }>(MAIL_SENDERS_QUERY, { skip: !target });
   const { mailSendMail, loading } = useMailSendMail();
   const senders = useMemo(() => data?.mailSenders ?? [], [data?.mailSenders]);
   const {
     formState: { errors },
+    control,
     handleSubmit,
     register,
     reset,
@@ -56,9 +187,19 @@ export const DirectMailComposer = () => {
     watch,
   } = useForm<ComposeValues>({
     resolver: zodResolver(composeSchema),
-    defaultValues: { integrationId: '', to: '', subject: '', body: '' },
+    defaultValues: {
+      integrationId: '',
+      to: '',
+      cc: '',
+      bcc: '',
+      subject: '',
+      body: '',
+    },
   });
   const integrationId = watch('integrationId');
+  const selectedSender = senders.find(
+    (sender) => sender.integrationId === integrationId,
+  );
 
   useEffect(() => {
     const handleComposeRequest = (event: Event) => {
@@ -70,8 +211,21 @@ export const DirectMailComposer = () => {
         return;
       }
 
-      setTarget(detail);
-      reset({ integrationId: '', to: detail.email, subject: '', body: '' });
+      const emails = [...new Set([detail.email, ...(detail.emails ?? [])])].filter(
+        (email) => z.string().email().safeParse(email).success,
+      );
+
+      setTarget({ ...detail, emails });
+      setShowCc(false);
+      setShowBcc(false);
+      reset({
+        integrationId: '',
+        to: detail.email,
+        cc: '',
+        bcc: '',
+        subject: '',
+        body: '',
+      });
     };
 
     window.addEventListener(COMPOSE_EMAIL_EVENT, handleComposeRequest);
@@ -102,6 +256,8 @@ export const DirectMailComposer = () => {
         subject: values.subject.trim(),
         body: toHtml(values.body.trim()),
         to: [values.to.trim()],
+        cc: showCc ? splitAddresses(values.cc) : undefined,
+        bcc: showBcc ? splitAddresses(values.bcc) : undefined,
       },
       close,
     );
@@ -110,11 +266,13 @@ export const DirectMailComposer = () => {
   return (
     <section
       aria-label="New email"
-      className="fixed right-4 bottom-4 z-50 flex max-h-[calc(100vh-2rem)] w-[min(38rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl"
+      className="fixed inset-x-2 bottom-2 z-50 flex max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-xl border bg-background shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[min(40rem,calc(100vw-2rem))]"
     >
-      <header className="flex h-11 flex-none items-center justify-between border-b bg-primary/5 px-4">
+      <header className="flex h-12 flex-none items-center justify-between border-b bg-muted/30 px-4">
         <span className="flex items-center gap-2 text-sm font-semibold">
-          <IconMail className="size-4 text-primary" />
+          <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <IconMail className="size-4" />
+          </span>
           New email
         </span>
         <Button
@@ -131,77 +289,131 @@ export const DirectMailComposer = () => {
       </header>
 
       <form
-        className="flex min-h-0 flex-1 flex-col"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto"
         onSubmit={handleSubmit(submit)}
       >
-        <div className="grid flex-none grid-cols-[4rem_minmax(0,1fr)] items-center border-b px-4 py-2">
-          <label
-            className="text-xs text-muted-foreground"
-            htmlFor="direct-mail-from"
-          >
+        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
+          <span className="text-xs text-muted-foreground">
             From
-          </label>
-          <Select
-            value={integrationId}
-            onValueChange={(value) =>
-              setValue('integrationId', value, { shouldValidate: true })
-            }
-          >
-            <Select.Trigger
-              id="direct-mail-from"
-              className="h-8 border-0 px-0 shadow-none"
-            >
-              <Select.Value
-                placeholder={
-                  sendersLoading
-                    ? 'Loading senders…'
-                    : 'Select a verified email'
-                }
-              />
-            </Select.Trigger>
-            <Select.Content>
-              {senders.map((sender) => (
-                <Select.Item
-                  key={sender.integrationId}
-                  value={sender.integrationId}
-                >
-                  {sender.name} &lt;{sender.address}&gt;
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
+          </span>
+          <div className="flex min-h-9 min-w-0 items-center text-sm">
+            {sendersLoading ? (
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Spinner size="sm" />
+                Loading sender…
+              </span>
+            ) : selectedSender ? (
+              <span className="truncate" title={selectedSender.address}>
+                {selectedSender.name}{' '}
+                <span className="text-muted-foreground">
+                  &lt;{selectedSender.address}&gt;
+                </span>
+              </span>
+            ) : null}
+          </div>
           {errors.integrationId && (
             <p className="col-start-2 text-xs text-destructive">
               {errors.integrationId.message}
             </p>
           )}
-          {!sendersLoading && !senders.length && (
+          {sendersError && (
+            <div className="col-start-2 text-xs text-destructive" role="alert">
+              <p>{t('error-loading-data')}</p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetch().catch(() => undefined)}
+              >
+                {t('try-again')}
+              </Button>
+            </div>
+          )}
+          {!sendersLoading && !sendersError && !senders.length && (
             <p className="col-start-2 text-xs text-destructive">
-              No verified mail sender is available.
+              {t('no-integration-found', { name: t('email') })}
             </p>
           )}
         </div>
 
-        <div className="grid flex-none grid-cols-[4rem_minmax(0,1fr)] items-center border-b px-4 py-2">
+        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center border-b px-4 py-1.5">
           <label
             className="text-xs text-muted-foreground"
             htmlFor="direct-mail-to"
           >
             To
           </label>
-          <Input
-            id="direct-mail-to"
-            className="h-8 border-0 px-0 shadow-none"
-            {...register('to')}
+          <Controller
+            name="to"
+            control={control}
+            render={({ field }) => (
+              <VerifiedEmailSelect
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            )}
           />
+          <div className="flex items-center gap-1">
+            {!showCc && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={() => setShowCc(true)}
+              >
+                {t('cc')}
+              </Button>
+            )}
+            {!showBcc && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={() => setShowBcc(true)}
+              >
+                {t('bcc')}
+              </Button>
+            )}
+          </div>
           {errors.to && (
-            <p className="col-start-2 text-xs text-destructive">
+            <p className="col-start-2 col-span-2 text-xs text-destructive">
               {errors.to.message}
             </p>
           )}
         </div>
+        {(['cc', 'bcc'] as const).map(
+          (field) =>
+            (field === 'cc' ? showCc : showBcc) && (
+              <div
+                key={field}
+                className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5"
+              >
+                <label
+                  className="text-xs text-muted-foreground"
+                  htmlFor={`direct-mail-${field}`}
+                >
+                  {t(field)}
+                </label>
+                <Input
+                  id={`direct-mail-${field}`}
+                  className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
+                  {...register(field)}
+                />
+                {errors[field] && (
+                  <p
+                    className="col-start-2 text-xs text-destructive"
+                    role="alert"
+                  >
+                    {errors[field]?.message}
+                  </p>
+                )}
+              </div>
+            ),
+        )}
 
-        <div className="grid flex-none grid-cols-[4rem_minmax(0,1fr)] items-center border-b px-4 py-2">
+        <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
           <label
             className="text-xs text-muted-foreground"
             htmlFor="direct-mail-subject"
@@ -210,7 +422,7 @@ export const DirectMailComposer = () => {
           </label>
           <Input
             id="direct-mail-subject"
-            className="h-8 border-0 px-0 shadow-none"
+            className="h-9 border-0 px-0 shadow-none focus-visible:ring-0"
             {...register('subject')}
           />
           {errors.subject && (
@@ -220,10 +432,10 @@ export const DirectMailComposer = () => {
           )}
         </div>
 
-        <div className="min-h-48 flex-1 p-4">
+        <div className="min-h-0 flex-1 bg-muted/10 p-3">
           <Textarea
             aria-label="Email message"
-            className="h-full min-h-44 resize-none border-0 p-0 shadow-none focus-visible:ring-0"
+            className="h-full min-h-52 resize-none rounded-lg border-0 bg-transparent p-2 text-sm leading-6 shadow-none focus-visible:ring-0"
             placeholder="Write your message"
             autoFocus
             {...register('body')}
@@ -235,13 +447,18 @@ export const DirectMailComposer = () => {
           )}
         </div>
 
-        <footer className="flex flex-none justify-end border-t px-4 py-3">
+        <footer className="flex flex-none items-center justify-end border-t bg-muted/20 px-4 py-2.5">
           <Button
             type="submit"
-            disabled={loading || sendersLoading || !senders.length}
+            disabled={
+              loading ||
+              sendersLoading ||
+              Boolean(sendersError) ||
+              !senders.length
+            }
           >
             {loading ? <Spinner size="sm" /> : <IconSend className="size-4" />}
-            Send
+            {t('send')}
           </Button>
         </footer>
       </form>
