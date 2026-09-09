@@ -131,11 +131,8 @@ export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
 
         // The body has auto height, so it can shrink without resetting the
         // iframe viewport and triggering another resize notification.
-        const nextHeight = Math.max(
-          doc.body.scrollHeight,
-          doc.body.offsetHeight,
-          40,
-        ) + 8;
+        const nextHeight =
+          Math.max(doc.body.scrollHeight, doc.body.offsetHeight, 40) + 8;
 
         if (el.style.height !== `${nextHeight}px`) {
           el.style.height = `${nextHeight}px`;
