@@ -75,9 +75,7 @@ export const AutomationHistoryResult = ({
           t('comment-send-blocked', {
             defaultValue:
               'Skipped: Facebook refused a public reply on this page, so they are paused until {{until}}. The private reply still went out.',
-            until: blockedUntil
-              ? new Date(blockedUntil).toLocaleString()
-              : '—',
+            until: blockedUntil ? new Date(blockedUntil).toLocaleString() : '—',
           })}
         {!skipReason && t('skipped', { defaultValue: 'Skipped' })}
       </ActionResult.Status>

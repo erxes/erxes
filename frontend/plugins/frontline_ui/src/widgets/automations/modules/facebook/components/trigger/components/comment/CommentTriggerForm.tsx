@@ -22,10 +22,7 @@ export const CommentTriggerForm = ({
   });
   const { control } = form;
   const postId = form.watch('postId');
-  const { claims } = useFacebookCommentTriggerClaims(
-    botId,
-    activeTrigger?.id,
-  );
+  const { claims } = useFacebookCommentTriggerClaims(botId, activeTrigger?.id);
   // A wider rule elsewhere cannot be avoided from here, so only the identical
   // scope is called out as a duplicate.
   const scopeClaims =

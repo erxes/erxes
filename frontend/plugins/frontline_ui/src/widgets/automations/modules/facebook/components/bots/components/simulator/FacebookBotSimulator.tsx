@@ -141,16 +141,16 @@ export const FacebookBotSimulator = () => {
         outcome: resolveDirectMessageOutcome(composerValue, automations),
       }
     : selectedItem
-    ? {
-        title: selectedItem.title,
-        outcome: resolveBotMenuOutcome(selectedItem, automations),
-      }
-    : selectedIceBreaker
-    ? {
-        title: selectedIceBreaker.question,
-        outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
-      }
-    : undefined;
+      ? {
+          title: selectedItem.title,
+          outcome: resolveBotMenuOutcome(selectedItem, automations),
+        }
+      : selectedIceBreaker
+        ? {
+            title: selectedIceBreaker.question,
+            outcome: resolveIceBreakerOutcome(selectedIceBreaker, automations),
+          }
+        : undefined;
 
   return (
     <div className="flex h-full flex-col gap-3 p-4">

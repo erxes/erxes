@@ -19,8 +19,8 @@ export const buildConditionValue = (
   bot?: IFacebookBot,
 ) => {
   if (condition.type === 'direct') {
-    const keywords = (condition.conditions || []).flatMap(
-      ({ keywords = [] }) => getKeywordTexts(keywords),
+    const keywords = (condition.conditions || []).flatMap(({ keywords = [] }) =>
+      getKeywordTexts(keywords),
     );
 
     if (!keywords.length) {
@@ -122,20 +122,22 @@ export const buildCommentTriggerConditionSummaries = ({
     },
   ];
 
-  return scope.concat(conditions.map((condition) => {
-    const keywords = getKeywordTexts(condition.keywords);
-    const operator = DIRECT_MESSAGE_OPERATOR_TYPES.find(
-      ({ value }) => value === condition.operator,
-    );
+  return scope.concat(
+    conditions.map((condition) => {
+      const keywords = getKeywordTexts(condition.keywords);
+      const operator = DIRECT_MESSAGE_OPERATOR_TYPES.find(
+        ({ value }) => value === condition.operator,
+      );
 
-    return {
-      _id: condition._id,
-      type: 'commentContent',
-      label: 'Comment content',
-      description: keywords.length
-        ? operator?.label || 'Matches keywords'
-        : 'No keywords configured',
-      value: keywords.join(', '),
-    };
-  }));
+      return {
+        _id: condition._id,
+        type: 'commentContent',
+        label: 'Comment content',
+        description: keywords.length
+          ? operator?.label || 'Matches keywords'
+          : 'No keywords configured',
+        value: keywords.join(', '),
+      };
+    }),
+  );
 };

@@ -5,8 +5,7 @@ import {
   IFacebookCommentOutboxDocument,
 } from '../definitions/comment_outbox';
 
-export interface IFacebookCommentOutboxModel
-  extends Model<IFacebookCommentOutboxDocument> {
+export interface IFacebookCommentOutboxModel extends Model<IFacebookCommentOutboxDocument> {
   markSent(_id: string): Promise<void>;
   markFailed(_id: string, error: string): Promise<void>;
 }
