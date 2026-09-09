@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -48,12 +48,14 @@
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
 - Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
 | Area                | Path                                                          | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
+| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.                |
 | Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
@@ -147,6 +149,30 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — `Safe Remainder Empty Location Cells`
+
+- **Summary:** Safe remainder list branch and department columns now render blank cells when no branch or department is selected instead of showing undefined labels.
+- **Affected areas:** `src/modules/inventories/safeRemainders/components/SafeRemainderColumns.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-09` — `Safe Remainder List Query Ownership`
+
+- **Summary:** Safe remainder list page now runs the list query once and shares loading, count, and rows with the filter count badge and table.
+- **Affected areas:** `src/pages/inventories/SafeRemaindersPage.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemainderTable.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemaindersTotalCount.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-09` — `Safe Remainder Delete Hook Fix`
+
+- **Summary:** Safe remainder deletion now reads list filter variables at hook initialization instead of calling a query-state hook from the delete click handler.
+- **Affected areas:** `src/modules/inventories/safeRemainders/hooks/useSafeRemainderRemove.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-09` — `Bound Dev Watchers`
+
+- **Summary:** Accounting UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
+- **Affected areas:** `rspack.config.ts`.
+- **Contracts changed:** None.
+
 ### `2026-09-02` — `Tax Row Permission Guard`
 
 - **Summary:** Updated accounting settings import visibility to use the unified tax-row import permission.
@@ -188,21 +214,3 @@
 - **Summary:** Fixed asset out, move, and sale rows now refetch location-specific remainder when fixed asset, branch, department, or date changes and clamp count from that result.
 - **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/hooks/useFixedAssetLocationRemainder.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
 - **Contracts changed:** Consumes `fixedAssetLocationRemainder`.
-
-### `2026-08-28` — `Fixed Asset Owner Record Selection`
-
-- **Summary:** Fixed asset out, move, and sale rows now expose an owner-record sheet that lists active owner allocations for the row asset/location and saves count-matched selections through transaction extra data.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/contants`.
-- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries use `ownerId` and count; `fxaOwnerRecords` selection uses `balanceOnly` owner balances while branch/department quantity remains validated by transaction-detail location remainder.
-
-### `2026-08-28` — `Fixed Asset Disposal Bulk Selection`
-
-- **Summary:** Fixed asset out, move, and sale detail rows keep direct asset selection, and their add-row controls now include a category-filtered bulk asset picker that appends selected assets as separate details with count and cost data loaded from fixed asset queries.
-- **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/components/SelectFixedAssetsBulk.tsx`, `src/modules/settings/fixed-assets/components/SelectFixedAsset.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
-- **Contracts changed:** None.
-
-### `2026-08-28` — `Fixed Asset Detail Bootstrap Guard`
-
-- **Summary:** Fixed asset income, out, move, and sale detail tables now render safely when form details are not initialized during create-route bootstrap, and disposal follow-transaction effects no longer reference removed owner-record selection state.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/Fxa*Form/FixedAssetForm.tsx`, `src/modules/transactions/transaction-form/components/forms/hooks/useFxaDisposalFollowTrs.ts`.
-- **Contracts changed:** None.
