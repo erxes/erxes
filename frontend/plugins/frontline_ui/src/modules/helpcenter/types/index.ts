@@ -86,6 +86,12 @@ export const HELP_CENTER_TABS: THelpCenterTab[] = ['general', 'appearance'];
 
 export type TStyleName = `styles.${keyof IHelpCenterStyles}`;
 
+export type HelpCenterColorField = {
+  name: TStyleName;
+  key: string;
+  label: string;
+};
+
 export enum HelpCenterHotKeyScope {
   HelpCentersPage = 'help-centers-page',
 }

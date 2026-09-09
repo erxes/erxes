@@ -1,0 +1,47 @@
+name: KNOWLEDGE-BASE CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/knowledge-base/**'
+      - 'frontend/libs/erxes-ui/src/**'
+      - '.github/workflows/ci-apps-knowledge-base.yml'
+  pull_request:
+    paths:
+      - 'apps/knowledge-base/**'
+      - 'frontend/libs/erxes-ui/src/**'
+      - '.github/workflows/ci-apps-knowledge-base.yml'
+
+jobs:
+  knowledge-base:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.19.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+
+      - name: Build
+        run: |
+          cd apps/knowledge-base
+          rm -rf node_modules
+          npm install
+          npm run build
+        env:
+          NEXT_PUBLIC_ERXES_API_URL: https://example.erxes.io/gateway
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build \
+            -t erxes/knowledge-base:latest \
+            -f apps/knowledge-base/Dockerfile \
+            --build-arg NEXT_PUBLIC_ERXES_API_URL=${{ secrets.KNOWLEDGE_BASE_API_URL }} \
+            .
+          docker push erxes/knowledge-base:latest

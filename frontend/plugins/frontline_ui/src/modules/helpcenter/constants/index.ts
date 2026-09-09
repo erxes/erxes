@@ -1,4 +1,5 @@
 import {
+  HelpCenterColorField,
   IHelpCenterConfigInput,
   IHelpCenterStyles,
   THelpCenterTab,
@@ -11,6 +12,60 @@ export const HELP_CENTER_TABLE_ID = 'frontline_help_center_record_table';
 export const HELP_CENTER_FILTER_ID = 'help-centers-filter';
 
 export const FULL_WIDTH_SELECT = '[&_button]:w-full [&_button]:max-w-none';
+
+export const HELP_CENTER_MAIN_COLOR_FIELDS = [
+  { name: 'styles.bodyColor', key: 'kb-body-color', label: 'Body' },
+  { name: 'styles.headerColor', key: 'kb-header-color', label: 'Header' },
+  { name: 'styles.footerColor', key: 'kb-footer-color', label: 'Footer' },
+  {
+    name: 'styles.helpCenterColor',
+    key: 'kb-help-center-color',
+    label: 'Help center',
+  },
+  {
+    name: 'styles.backgroundColor',
+    key: 'kb-background-color',
+    label: 'Background',
+  },
+  {
+    name: 'styles.activeTabColor',
+    key: 'kb-active-tab-color',
+    label: 'Active tab',
+  },
+] as const satisfies readonly HelpCenterColorField[];
+
+export const HELP_CENTER_TEXT_COLOR_FIELDS = [
+  { name: 'styles.baseColor', key: 'kb-base-color', label: 'Base color' },
+  {
+    name: 'styles.headingColor',
+    key: 'kb-heading-color',
+    label: 'Heading color',
+  },
+  { name: 'styles.linkColor', key: 'kb-link-color', label: 'Link text' },
+  {
+    name: 'styles.linkHoverColor',
+    key: 'kb-link-hover-color',
+    label: 'Link hover text',
+  },
+] as const satisfies readonly HelpCenterColorField[];
+
+export const HELP_CENTER_FORM_COLOR_FIELDS = [
+  {
+    name: 'styles.primaryButtonColor',
+    key: 'kb-primary-button-color',
+    label: 'Primary action button',
+  },
+  {
+    name: 'styles.secondaryButtonColor',
+    key: 'kb-secondary-button-color',
+    label: 'Secondary action button',
+  },
+  {
+    name: 'styles.dividerColor',
+    key: 'kb-divider-color',
+    label: 'Heading divider & input focus glow',
+  },
+] as const satisfies readonly HelpCenterColorField[];
 
 export const DEFAULT_HELP_CENTER_STYLES: IHelpCenterStyles = {
   mainLogo: '',

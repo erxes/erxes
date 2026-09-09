@@ -1,0 +1,4 @@
+# Build output that carries its own package.json. Next writes several of these
+# under .next, and Nx would otherwise read each one as an unnamed project and
+# fail to build the graph at all.
+apps/*/.next

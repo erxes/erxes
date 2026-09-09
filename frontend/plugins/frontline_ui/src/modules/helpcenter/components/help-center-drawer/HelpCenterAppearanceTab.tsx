@@ -1,5 +1,4 @@
-import { IconUpload } from '@tabler/icons-react';
-import { ColorPicker, Form, InfoCard, Upload } from 'erxes-ui';
+import { InfoCard } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { Control } from 'react-hook-form';
 import {
@@ -8,7 +7,16 @@ import {
   StyleHtmlField,
   StyleImageField,
 } from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
+import {
+  HELP_CENTER_FORM_COLOR_FIELDS,
+  HELP_CENTER_MAIN_COLOR_FIELDS,
+  HELP_CENTER_TEXT_COLOR_FIELDS,
+} from '@/helpcenter/constants';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
+import {
+  TopicBackgroundImageField,
+  TopicColorField,
+} from '@/knowledgebase/components/TopicAppearanceFields';
 
 export function HelpCenterAppearanceTab({
   control,
@@ -53,36 +61,14 @@ export function HelpCenterAppearanceTab({
       <InfoCard title={t('kb-main-colors', 'Main colors')}>
         <InfoCard.Content>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StyleColorField
-              control={control}
-              name="styles.bodyColor"
-              label={t('kb-body-color', 'Body')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.headerColor"
-              label={t('kb-header-color', 'Header')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.footerColor"
-              label={t('kb-footer-color', 'Footer')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.helpCenterColor"
-              label={t('kb-help-center-color', 'Help center')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.backgroundColor"
-              label={t('kb-background-color', 'Background')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.activeTabColor"
-              label={t('kb-active-tab-color', 'Active tab')}
-            />
+            {HELP_CENTER_MAIN_COLOR_FIELDS.map((field) => (
+              <StyleColorField
+                key={field.name}
+                control={control}
+                name={field.name}
+                label={t(field.key, field.label)}
+              />
+            ))}
           </div>
         </InfoCard.Content>
       </InfoCard>
@@ -96,32 +82,20 @@ export function HelpCenterAppearanceTab({
               label={t('kb-base-font', 'Base font')}
               placeholder={t('kb-select-font', 'Please select a font')}
             />
-            <StyleColorField
-              control={control}
-              name="styles.baseColor"
-              label={t('kb-base-color', 'Base color')}
-            />
             <StyleFontField
               control={control}
               name="styles.headingFont"
               label={t('kb-heading-font', 'Heading font')}
               placeholder={t('kb-select-font', 'Please select a font')}
             />
-            <StyleColorField
-              control={control}
-              name="styles.headingColor"
-              label={t('kb-heading-color', 'Heading color')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.linkColor"
-              label={t('kb-link-color', 'Link text')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.linkHoverColor"
-              label={t('kb-link-hover-color', 'Link hover text')}
-            />
+            {HELP_CENTER_TEXT_COLOR_FIELDS.map((field) => (
+              <StyleColorField
+                key={field.name}
+                control={control}
+                name={field.name}
+                label={t(field.key, field.label)}
+              />
+            ))}
           </div>
         </InfoCard.Content>
       </InfoCard>
@@ -129,24 +103,14 @@ export function HelpCenterAppearanceTab({
       <InfoCard title={t('kb-form-elements-color', 'Form elements color')}>
         <InfoCard.Content>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <StyleColorField
-              control={control}
-              name="styles.primaryButtonColor"
-              label={t('kb-primary-button-color', 'Primary action button')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.secondaryButtonColor"
-              label={t('kb-secondary-button-color', 'Secondary action button')}
-            />
-            <StyleColorField
-              control={control}
-              name="styles.dividerColor"
-              label={t(
-                'kb-divider-color',
-                'Heading divider & input focus glow',
-              )}
-            />
+            {HELP_CENTER_FORM_COLOR_FIELDS.map((field) => (
+              <StyleColorField
+                key={field.name}
+                control={control}
+                name={field.name}
+                label={t(field.key, field.label)}
+              />
+            ))}
           </div>
         </InfoCard.Content>
       </InfoCard>
@@ -160,63 +124,11 @@ export function HelpCenterAppearanceTab({
       >
         <InfoCard.Content>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Form.Field
-              control={control}
-              name="color"
-              rules={{ required: 'Color is required' }}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('kb-color-required')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
-                  <Form.Control>
-                    <ColorPicker
-                      className="w-full h-8"
-                      value={field.value}
-                      onValueChange={(value: string) => field.onChange(value)}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
+            <TopicColorField control={control} name="color" t={t} />
+            <TopicBackgroundImageField
               control={control}
               name="backgroundImage"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('kb-background-image')}</Form.Label>
-                  <Form.Control>
-                    <Upload.Root
-                      value={field.value}
-                      onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
-                          field.onChange(fileInfo.url);
-                        }
-                      }}
-                    >
-                      <Upload.Preview />
-                      <div className="flex flex-col gap-2">
-                        <Upload.Button
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        >
-                          <IconUpload className="mr-2 w-4 h-4" />
-                          {t('kb-upload-image')}
-                        </Upload.Button>
-                        <Upload.RemoveButton
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        />
-                      </div>
-                    </Upload.Root>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+              t={t}
             />
           </div>
         </InfoCard.Content>

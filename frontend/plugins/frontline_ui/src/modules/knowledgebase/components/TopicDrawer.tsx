@@ -1,18 +1,13 @@
 import { ApolloError, useMutation } from '@apollo/client';
-import { IconCode, IconUpload } from '@tabler/icons-react';
-import {
-  Button,
-  ColorPicker,
-  Form,
-  Input,
-  Sheet,
-  Textarea,
-  Upload,
-  toast,
-} from 'erxes-ui';
+import { IconCode } from '@tabler/icons-react';
+import { Button, Form, Input, Sheet, Textarea, toast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import {
+  TopicBackgroundImageField,
+  TopicColorField,
+} from '@/knowledgebase/components/TopicAppearanceFields';
 import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
 import { ITopic, ITopicFormData } from '@/knowledgebase/types';
 import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
@@ -156,64 +151,12 @@ export function TopicDrawer({
                 )}
               />
 
-              <Form.Field
-                control={form.control}
-                name="color"
-                rules={{ required: 'Color is required' }}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('kb-color-required')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <ColorPicker
-                        className="w-full h-8"
-                        value={field.value}
-                        onValueChange={(value: string) => field.onChange(value)}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <TopicColorField control={form.control} name="color" t={t} />
 
-              <Form.Field
+              <TopicBackgroundImageField
                 control={form.control}
                 name="backgroundImage"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('kb-background-image')}</Form.Label>
-                    <Form.Control>
-                      <Upload.Root
-                        value={field.value}
-                        onChange={(fileInfo) => {
-                          if ('url' in fileInfo) {
-                            field.onChange(fileInfo.url);
-                          }
-                        }}
-                      >
-                        <Upload.Preview />
-                        <div className="flex flex-col gap-2">
-                          <Upload.Button
-                            size="sm"
-                            variant="outline"
-                            type="button"
-                          >
-                            <IconUpload className="mr-2 w-4 h-4" />
-                            {t('kb-upload-image')}
-                          </Upload.Button>
-                          <Upload.RemoveButton
-                            size="sm"
-                            variant="outline"
-                            type="button"
-                          />
-                        </div>
-                      </Upload.Root>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
+                t={t}
               />
 
               {isEditing && topic && (
@@ -246,8 +189,8 @@ export function TopicDrawer({
                 ? t('saving')
                 : t('kb-creating')
               : isEditing
-                ? t('kb-save-changes')
-                : t('kb-create-topic')}
+              ? t('kb-save-changes')
+              : t('kb-create-topic')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>

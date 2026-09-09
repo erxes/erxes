@@ -1100,6 +1100,19 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Topic colour and image fields serve both drawers
+
+- **Summary:** The topic accent colour and background image were written out
+  twice — once in `TopicDrawer` and again in the help center appearance tab —
+  and the appearance tab repeated a near-identical `StyleColorField` call for
+  each of its twelve colours, which pushed duplication on new code past the
+  Sonar gate. The two fields are now one shared pair in `knowledgebase`, and
+  the colour grids render from field lists in `helpcenter/constants`.
+- **Affected areas:** `src/modules/knowledgebase/components/{TopicAppearanceFields,TopicDrawer}.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab.tsx`,
+  `src/modules/helpcenter/{constants,types}/index.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-09` — A new help center starts on the portal's palette
 
 - **Summary:** `DEFAULT_HELP_CENTER_STYLES` seeded most colours as white and the
@@ -1270,14 +1283,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
   bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
 
-### `2026-09-08` — The internal-note toggle reaches the API
-
-- **Summary:** `NoteInput` sends its `isInternalNote` state as `isInternal`, and
-  `NoteInputReadOnly` marks a stored internal note in the timeline with the
-  composer's accent bar and a lock label, so an agent can tell which notes the
-  customer portal never receives.
-- **Affected areas:** `src/modules/activity/components/{NoteInput,NoteInputReadOnly}.tsx`,
-  `src/modules/activity/graphql/{mutations/createTicketNote,queries/getTicketNote}.ts`,
-  `src/modules/activity/types.ts`
-- **Contracts changed:** `TicketCreateNote` sends `$isInternal: Boolean`; it and
-  `TicketGetNote` select `isInternal`.
