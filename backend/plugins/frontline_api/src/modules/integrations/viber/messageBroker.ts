@@ -1,11 +1,21 @@
 import { withErrorHandling } from '~/shared/utils';
-import { createViberIntegration } from '@/integrations/viber/helpers';
+import {
+  createViberIntegration,
+  removeViberIntegration,
+} from '@/integrations/viber/helpers';
 
 export interface IViberIntegrationInput {
   subdomain: string;
   data: {
     integrationId: string;
     data?: string;
+  };
+}
+
+export interface IViberIntegrationRefInput {
+  subdomain: string;
+  data: {
+    integrationId: string;
   };
 }
 
@@ -45,3 +55,12 @@ export const viberCreateIntegration = withErrorHandling(
     await createViberIntegration(subdomain, data.integrationId, token);
   },
 );
+
+export const viberRemoveIntegration = async ({
+  subdomain,
+  data,
+}: IViberIntegrationRefInput): Promise<string> => {
+  await removeViberIntegration(subdomain, data.integrationId);
+
+  return data.integrationId;
+};

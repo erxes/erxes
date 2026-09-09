@@ -58,7 +58,10 @@
   inbox and duplicate bot/inbox. The creation adapter validates serialized
   settings and wraps the helper result with Frontline's success/error response.
   The external-integration creation dispatcher routes the `viber` service prefix
-  to this adapter. No Viber HTTP route or message delivery handler is registered.
+  to this adapter. The removal dispatcher awaits tenant-scoped Viber record
+  cleanup before the common integration is removed; cleanup failures propagate.
+  Removal is local only. No Viber HTTP route or message delivery handler is
+  registered.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -149,12 +152,13 @@
 ## Architecture
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
-creation, `messageBroker.ts` adapts creation input and response handling, `utils/`
-holds signature/account helpers and their colocated tests, and `@types/` and `db/`
-hold document types, schema definitions, and the model loader.
+creation and local removal, `messageBroker.ts` adapts their inputs and error
+handling, and `utils/` holds signature/account helpers and their colocated tests.
+`@types/` and `db/` hold document types, schema definitions, and the model loader.
 `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
 connection. `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
-dispatches Viber creation to the adapter through `sendCreateIntegration`.
+dispatches Viber creation and removal through `sendCreateIntegration` and
+`sendRemoveIntegration`.
 
 | Area                 | Path                                                                        | Responsibility                                                                                                                                                                                         |
 | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -249,6 +253,10 @@ customerId, visitorId)` returns the voter's own selections for the
 accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   omitting it attaches the integration to the caller's personal channel and
   provisions that channel if it does not exist yet.
+- GraphQL: `integrationsRemove(_id)` routes `viber`-prefixed kinds to local
+  provider cleanup before common integration deletion. An already absent Viber
+  record permits cleanup to continue; a provider cleanup failure rejects the
+  mutation. The GraphQL schema is unchanged.
 - GraphQL: `integrationsGetUsedTypes` and
   `integrationsGetUsedTypesByChannel(channelId: String, scope: String)` — the
   integration kinds that currently have at least one active integration:
@@ -633,6 +641,14 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   missing or blank tokens, preserves the original token string, and awaits
   `createViberIntegration` inside `withErrorHandling`. JSON parse failures use
   a fixed error message without reflecting the supplied settings.
+- `removeViberIntegration` rejects blank integration ids, resolves models through
+  `generateModels(subdomain)`, and deletes only `ViberIntegrations` by `inboxId`.
+  An already absent provider record is a successful no-op. This helper neither
+  deletes the common integration nor calls the Viber API.
+- `viberRemoveIntegration` awaits the removal helper and returns the integration
+  id. Keep it a plain async adapter: the removal resolver does not inspect
+  returned status objects, so cleanup failures must reject to prevent common
+  integration deletion. Do not wrap it in `withErrorHandling`.
 - Viber tokens use `select: false`, which is a default query projection, not
   encryption or protection for a newly created document. The creation helper
   returns `Promise<void>`, never the token-containing document.
@@ -1469,6 +1485,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   They use the existing `tsx` dependency and Node's test runner. HTTP tests fake
   `globalThis.fetch` with `t.mock.method` and remain non-concurrent. No real
   credentials, network, or project-wide test configuration are required.
+- Focused Viber removal checks use mocked tenant models: verify provider cleanup
+  precedes common integration deletion, an absent provider record is tolerated,
+  and a provider cleanup failure prevents common deletion. No bot token or live
+  database is required for these checks.
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1511,6 +1531,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — Viber integration removal
+
+- **Summary:** Connected tenant-scoped Viber record cleanup to the existing
+  integration removal flow, preserving cleanup failures as rejected operations.
+- **Affected areas:** `src/modules/integrations/viber/{helpers,messageBroker}.ts`,
+  `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`.
+- **Contracts changed:** Added `removeViberIntegration(subdomain, integrationId)`
+  and `viberRemoveIntegration({ subdomain, data })`; `sendRemoveIntegration`
+  now handles the `viber` service prefix. The GraphQL schema is unchanged.
 
 ### `2026-09-09` — Viber creation dispatcher wiring
 
@@ -1610,9 +1640,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
 - **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
 - **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
-
-### `2026-09-05` — `Use the shared propertiesData path helper`
-
-- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
-- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
-- **Contracts changed:** `None`

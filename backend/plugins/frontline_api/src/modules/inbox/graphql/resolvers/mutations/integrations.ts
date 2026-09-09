@@ -42,7 +42,10 @@ import {
   callProUpdateIntegration,
 } from '@/integrations/callpro/messageBroker';
 
-import { viberCreateIntegration } from '@/integrations/viber/messageBroker';
+import {
+  viberCreateIntegration,
+  viberRemoveIntegration,
+} from '@/integrations/viber/messageBroker';
 import {
   getUniqueValue,
   sendTRPCMessage,
@@ -172,6 +175,9 @@ export const sendRemoveIntegration = async (
 
       case 'callpro':
         return await callProRemoveIntegration({ subdomain, data });
+
+      case 'viber':
+        return await viberRemoveIntegration({ subdomain, data });
 
       case 'mobinetSms':
         break;

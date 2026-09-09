@@ -34,3 +34,18 @@ export const createViberIntegration = async (
     token,
   });
 };
+
+export const removeViberIntegration = async (
+  subdomain: string,
+  integrationId: string,
+): Promise<void> => {
+  if (!integrationId.trim()) {
+    throw new Error('Integration id is required');
+  }
+
+  const models = await generateModels(subdomain);
+
+  await models.ViberIntegrations.deleteOne({
+    inboxId: integrationId,
+  });
+};
