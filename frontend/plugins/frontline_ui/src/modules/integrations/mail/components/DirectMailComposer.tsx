@@ -1,6 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { IconChevronDown, IconMail, IconSend, IconX } from '@tabler/icons-react';
+import {
+  IconChevronDown,
+  IconMail,
+  IconSend,
+  IconX,
+} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -11,12 +16,7 @@ import {
   Textarea,
   ValidationStatus,
 } from 'erxes-ui';
-import {
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
@@ -85,18 +85,13 @@ const VerifiedEmailSelect = ({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const {
-    customers,
-    loading,
-    error,
-    handleFetchMore,
-    totalCount,
-  } = useCustomers({
-    variables: {
-      emailValidationStatus: ValidationStatus.Valid,
-      searchValue: deferredSearch,
-    },
-  });
+  const { customers, loading, error, handleFetchMore, totalCount } =
+    useCustomers({
+      variables: {
+        emailValidationStatus: ValidationStatus.Valid,
+        searchValue: deferredSearch,
+      },
+    });
   const options = [
     ...new Set([
       value,
@@ -211,9 +206,9 @@ export const DirectMailComposer = () => {
         return;
       }
 
-      const emails = [...new Set([detail.email, ...(detail.emails ?? [])])].filter(
-        (email) => z.string().email().safeParse(email).success,
-      );
+      const emails = [
+        ...new Set([detail.email, ...(detail.emails ?? [])]),
+      ].filter((email) => z.string().email().safeParse(email).success);
 
       setTarget({ ...detail, emails });
       setShowCc(false);
@@ -293,9 +288,7 @@ export const DirectMailComposer = () => {
         onSubmit={handleSubmit(submit)}
       >
         <div className="grid flex-none grid-cols-[3.5rem_minmax(0,1fr)] items-center border-b px-4 py-1.5">
-          <span className="text-xs text-muted-foreground">
-            From
-          </span>
+          <span className="text-xs text-muted-foreground">From</span>
           <div className="flex min-h-9 min-w-0 items-center text-sm">
             {sendersLoading ? (
               <span className="flex items-center gap-2 text-muted-foreground">

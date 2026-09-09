@@ -132,9 +132,9 @@ const AutomatedReplyStatusBadge = () => {
   const label = isActive
     ? 'Automation active'
     : status === 'human_active' &&
-      automatedReplyControl?.reason === 'operator_reply'
-    ? 'Automation paused: operator active'
-    : 'Automation paused';
+        automatedReplyControl?.reason === 'operator_reply'
+      ? 'Automation paused: operator active'
+      : 'Automation paused';
   const nextStatus = isActive ? 'human_active' : 'active';
   const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
@@ -421,8 +421,8 @@ export const ConversationHeader = () => {
           {status === ConversationStatus.CLOSED
             ? t('closed', { defaultValue: 'Closed' })
             : status === ConversationStatus.NEW
-            ? t('new', { defaultValue: 'New' })
-            : t('open-label')}
+              ? t('new', { defaultValue: 'New' })
+              : t('open-label')}
         </span>
         <div className="flex min-w-0 items-center gap-2">
           <span className="text-muted-foreground">{t('assignee')}</span>

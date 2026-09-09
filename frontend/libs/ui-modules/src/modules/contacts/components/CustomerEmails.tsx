@@ -101,17 +101,9 @@ export function CustomerEmails({
   );
 
   return (
-    <PopoverScoped
-      scope={scope || ''}
-      modal
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
       <Trigger>
-        <EmailDisplay
-          {...emailProps}
-          onEmailClick={handleVerifiedEmailClick}
-        />
+        <EmailDisplay {...emailProps} onEmailClick={handleVerifiedEmailClick} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
