@@ -7,8 +7,17 @@ import {
   ATTRIBUTE_DND_MIME,
   insertAttributeAtPoint,
 } from '@/documents/utils/attributeDnd';
-import { IconFileText, IconLayoutSidebarRightExpand } from '@tabler/icons-react';
-import { Button, BlockEditor, cn, IBlockEditor, useBlockEditor } from 'erxes-ui';
+import {
+  IconFileText,
+  IconLayoutSidebarRightExpand,
+} from '@tabler/icons-react';
+import {
+  Button,
+  BlockEditor,
+  cn,
+  IBlockEditor,
+  useBlockEditor,
+} from 'erxes-ui';
 
 import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -97,7 +106,9 @@ const EditorController = ({
     >
       <BlockEditor
         editor={editor}
-        className={cn('w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16')}
+        className={cn(
+          'w-full flex-1 overflow-y-auto overflow-x-hidden px-5 pb-16',
+        )}
       >
         <AttributeInEditor
           editor={editor}
