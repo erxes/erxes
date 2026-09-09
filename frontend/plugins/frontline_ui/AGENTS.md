@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-08`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -44,12 +44,13 @@
   `frontline/polls` route, and the composer dialog that posts a saved poll into
   a messenger conversation.
 - Knowledge base UI: topics, categories, and articles.
-- Help Center UI: the `/frontline/helpcenter` record table over knowledge
-  base topics, its filter bar and command bar, its inline-editable name,
-  description, website, feature-toggle, menu-label and ticket
-  channel/pipeline/status cells, the
-  two-tab topic drawer (General, Appearance), which is the only place a help
-  center is edited.
+- Help Center UI: the `/frontline/helpcenter` record table over client portal
+  configs, its filter bar and command bar, its inline-editable name cell and its
+  website / knowledge base topic / ticket channel / pipeline / status selects,
+  and the
+  two-tab help center drawer (General, Appearance), which is the only place a
+  help center is edited. Both tabs read `helpCenterConfig` and write
+  `helpCenterConfigUpdate` — never a knowledge base operation.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
   and the saved charts board built on top of it.
@@ -218,51 +219,50 @@
 
 ## Architecture
 
-| Area                   | Path                                                                                                                                         | Responsibility                                                                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Host registration      | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
-| Federation             | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                                                                      |
-| Routes                 | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
-| Navigation groups      | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                                                                         |
-| Settings routes        | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                                                                       |
-| Channel picker         | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                                                                |
-| Inbox nav trees        | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                  |
-| Channel nav row        | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                                                                     |
-| Nav group actions      | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                          |
-| Sidebar counts         | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                           |
-| Live unread            | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                                    |
-| Channel settings       | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
-| Personal channel       | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                                       |
-| Inbox                  | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                                |
-| Integrations           | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                                     |
-| Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
-| Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                              |
-| Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                              |
-| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` site-settings drawer (`HelpCenterDrawer` + its tabs, types and constants) over it |
-| Polls management       | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                   | Channel-scoped list, create/edit sheet, results dialog, command bar                                                                             |
-| Polls channel row      | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                  | `Manage channel polls` row on the channel detail page                                                                                           |
-| Polls results          | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/polls`                                                                                         |
-| Polls data             | `src/modules/poll/{graphql,hooks,types,constants}/`                                                                                          | Poll GraphQL documents, list/detail/mutation hooks, Zod schema                                                                                  |
-| Send poll              | `src/modules/inbox/conversations/conversation-detail/components/SendPollDialog.tsx`                                                          | Picks an active poll and posts it into the open messenger conversation                                                                          |
-| Poll inbox row         | `src/modules/poll/components/ChannelPollNavItem.tsx`                                                                                         | `Polls` row inside an expanded team channel, filtering the inbox by `withPoll`                                                                  |
-| Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                                    |
-| Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                                |
-| FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                              |
-| FB post composer       | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                                            |
-| Call report filters    | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                          | Integration/queue/direction chips, date presets, and the date+time custom range                                                                 |
-| Call report export     | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                               | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                      |
-| Call report tables     | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                 |
-| Reports board          | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                        |
-| Saved charts           | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                |
-| Mail conversation      | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                        | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
-| Mail body              | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                     | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
-| Mail data              | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                      | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
-| Mail provider setup    | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard        | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
-| Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
-| Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
-| Ticket note composer   | `src/modules/activity/components/{NoteInput,NoteAttachments,NoteInputToolbar}.tsx`, `src/modules/activity/hooks/{useNoteAttachments,useNoteTemplateSuggestions}.tsx`, `src/modules/activity/utils/noteBlocks.ts` | `NoteInput` composes the editor; attachments, template suggestions, block trimming, and the toolbar live in their own hook or component |
-| Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                     |
+| Area                   | Path                                                                                                                                         | Responsibility                                                                                                                                                 |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host registration      | `src/config.tsx`                                                                                                                             | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                               |
+| Federation             | `module-federation.config.ts`                                                                                                                | Remote name `frontline_ui` and its exposes                                                                                                                     |
+| Routes                 | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                | Routed pages for inbox, ticket, forms, call, channels                                                                                                          |
+| Navigation groups      | `src/modules/FrontlineSubGroups.tsx`                                                                                                         | Route-aware sidebar sub-groups for every frontline page                                                                                                        |
+| Settings routes        | `src/modules/FrontlineSettings.tsx`                                                                                                          | Top-level frontline settings routes and their page chrome                                                                                                      |
+| Channel picker         | `src/modules/inbox/channel/components/ChooseChannel.tsx`                                                                                     | Scope-filtered channel list bound to the `channelId` query param                                                                                               |
+| Inbox nav trees        | `src/modules/inbox/channel/components/{PersonalInboxNav,TeamChannelsNav}.tsx`                                                                | The `Me` group and the `Team inbox` group, each rendering its own `NavigationMenuGroup` header                                                                 |
+| Channel nav row        | `src/modules/inbox/channel/components/ChannelNavItem.tsx`                                                                                    | The shared selectable, collapsible channel row both inbox nav groups render                                                                                    |
+| Nav group actions      | `src/modules/NavigationGroupActions.tsx`                                                                                                     | Click guard for a `NavigationMenuGroup` `actions` slot                                                                                                         |
+| Sidebar counts         | `src/modules/inbox/conversations/hooks/useConversationCounts.tsx`                                                                            | Filter counts, plus the awaiting-reply figure per integration type inside one channel                                                                          |
+| Live unread            | `src/modules/inbox/channel/hooks/useChannelUnreadUpdates.tsx`                                                                                | Subscribes to incoming customer messages and refreshes channel unread counts                                                                                   |
+| Channel settings       | `src/modules/channels`                                                                                                                       | Channel CRUD, members, GraphQL documents, form schemas                                                                                                         |
+| Personal channel       | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                             | Profile page for the user's private inbox                                                                                                                      |
+| Inbox                  | `src/modules/inbox/`                                                                                                                         | Conversations, messages, filters, channels, brands, integrations                                                                                               |
+| Integrations           | `src/modules/integrations/`                                                                                                                  | Per-provider connect forms and detail views                                                                                                                    |
+| Call Pro               | `src/modules/integrations/callpro/`                                                                                                          | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                                |
+| Ticket                 | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                       | Ticket boards, pipelines, statuses                                                                                                                             |
+| Forms                  | `src/modules/forms/`                                                                                                                         | Form builder, preview, submissions                                                                                                                             |
+| Help Center            | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                               | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` two-tab config drawer over it |
+| Polls management       | `src/modules/poll/components/poll-page/`, `src/pages/ChannelPollsPage.tsx`                                                                   | Channel-scoped list, create/edit sheet, results dialog, command bar                                                                                            |
+| Polls channel row      | `src/modules/channels/components/settings/channel-details/PollsSection.tsx`                                                                  | `Manage channel polls` row on the channel detail page                                                                                                          |
+| Polls results          | `src/modules/poll/components/poll-results/`, `src/pages/PollsIndexPage.tsx`                                                                  | Read-only aggregated results board on `frontline/polls`                                                                                                        |
+| Polls data             | `src/modules/poll/{graphql,hooks,types,constants}/`                                                                                          | Poll GraphQL documents, list/detail/mutation hooks, Zod schema                                                                                                 |
+| Send poll              | `src/modules/inbox/conversations/conversation-detail/components/SendPollDialog.tsx`                                                          | Picks an active poll and posts it into the open messenger conversation                                                                                         |
+| Poll inbox row         | `src/modules/poll/components/ChannelPollNavItem.tsx`                                                                                         | `Polls` row inside an expanded team channel, filtering the inbox by `withPoll`                                                                                 |
+| Knowledge base         | `src/modules/knowledgebase/`                                                                                                                 | Topics, categories, articles                                                                                                                                   |
+| Automation widgets     | `src/widgets/automations/modules/<module>/`                                                                                                  | Per-module trigger/action/bot/history components                                                                                                               |
+| FB message action      | `src/widgets/automations/modules/facebook/components/action/`                                                                                | Message sequence form, provider, constants, states                                                                                                             |
+| FB post composer       | `src/modules/integrations/facebook/components/FacebookPostSheet.tsx`, `FacebookPostImagesField.tsx`, `hooks/useFacebookPost*.tsx`            | Post sheet, image upload state, channel/page loading                                                                                                           |
+| Call report filters    | `src/modules/report/call/components/{SubHeader,DateTimeRangeDialog}.tsx`, `src/modules/report/utils/dateFilters.ts`                          | Integration/queue/direction chips, date presets, and the date+time custom range                                                                                |
+| Call report export     | `src/modules/report/call/heatmapExcel.ts`, `src/modules/report/call/hooks/useHeatmapExport.ts`                                               | Date × hour spreadsheet of the heatmap, built with `ExcelJS` and handed to `downloadExcel`                                                                     |
+| Call report tables     | `src/modules/report/call/components/{ReportTable,Meter}.tsx`                                                                                 | Shared density wrapper over `erxes-ui` `Table`, plus the proportional bar used inside its cells                                                                |
+| Reports board          | `src/modules/report/components/TicketReportsList.tsx`, `src/modules/report/types/component-registry.ts`                                      | Card layout, drag-and-drop, and the default-chart + saved-chart registry                                                                                       |
+| Saved charts           | `src/modules/report/components/report-chart/`, `src/modules/report/hooks/{useReportCharts,useTicketChartFilterConfig,useTicketChartCard}.ts` | Save/delete actions, `reportCharts` reads and writes, capturing and restoring a filter selection                                                               |
+| Mail conversation      | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                        | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                                  |
+| Mail body              | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                     | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                               |
+| Mail data              | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                      | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                                     |
+| Mail provider setup    | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                               |
+| Mail add wizard        | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                           | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                                             |
+| Mail sending readiness | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`        | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config                          |
+| Mail delivery check    | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`         | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                                 |
+| Notifications          | `src/widgets/notifications/`                                                                                                                 | Notification remote entries                                                                                                                                    |
 
 ## Contracts
 
@@ -359,10 +359,16 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `ui-modules` properties hooks `useFieldGroups` / `useFields` with
   `contentType: 'frontline:ticket'` — the ticket property groups and their
   fields, read straight from core; this UI never defines property metadata.
-- `frontline_api` GraphQL `knowledgeBaseTopics(page, perPage, searchValue,
-brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
-  center's own `frontlineHelpCenterList` document, plus
-  `knowledgeBaseTopicsRemove` reused from the knowledge base module.
+- `frontline_api` GraphQL `helpCenterConfigs(page, perPage, searchValue,
+brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
+  together as the help center's own `frontlineHelpCenterList` document;
+  `helpCenterConfig(_id)` as `frontlineHelpCenterDetail`; and
+  `helpCenterConfigUpdate(config)` / `helpCenterConfigRemove(_id)` for every
+  write. The help center reads `knowledgeBaseTopics` for one thing only — the
+  `Knowledge base topic` picker's options.
+- `core-api` GraphQL `getClientPortals` as `frontlineHelpCenterWebsiteOptions` —
+  the `Website` picker's options (`_id`, `domain`), read-only. The resolver
+  ignores paging arguments and returns the newest 20 portals.
 - `frontline_api` GraphQL `reportCharts`, `reportChartAdd`, and
   `reportChartRemove` — saved report charts. The board reads **all** saved
   charts in one query and filters them to the chart types it can render, and
@@ -487,63 +493,61 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   cursor, so they need an explicit `RecordTable.Scroll` wrapper — only the
   cursor-paginated tables get a scroll area for free from
   `RecordTable.CursorProvider`.
-- `TOPICS`, `TOPICS_SHORT` and `frontlineHelpCenterList` all read the same root
-  `knowledgeBaseTopics` field, so Apollo normalizes them into one cache entry
-  and the narrowest selection wins whichever ran last. Any topic query that a
-  help center surface can trigger must select the website and feature fields
-  (`url`, `kbToggle`, `kbLabel`, `ticketToggle`, `ticketLabel`,
-  `ticketChannelId`, `ticketPipelineId`, `ticketStatusId`), or a refetch blanks
-  those surfaces. `HelpCenterDrawer` likewise needs the full record in its `topic`
-  prop: it resets its form from that prop and saves the whole doc, so a missing
-  field is silently written back as its default.
-- `knowledgeBaseTopicsEdit` replaces the whole `KnowledgeBaseTopicDoc`, so an
-  inline cell can never send only the field it changed. `useEditHelpCenter`
-  rebuilds the full doc from the cached record, refuses the write when `title`
-  would end up empty, and writes the result back with `cache.modify` because the
-  mutation returns only `_id` and `title`. `title` is the only required field —
-  `brandId` is optional, and a brand-less help center stays inline-editable.
+- This migration deliberately changed **no** user-facing wording: the drawer,
+  its tabs and the table keep the exact `kb-*` i18n keys and English fallbacks
+  they had when a help center was a knowledge base topic. Renaming a label is a
+  separate, explicitly-asked-for change — an API migration must not drift the
+  copy, especially not onto new keys the gateway locales do not carry, which
+  would silently drop non-English users to the English fallback.
+- A help center's settings are **not** a client portal's. `core-api` owns
+  `ClientPortal` (portal users, auth, OAuth) and `core-ui` edits it under
+  Settings; this surface owns `HelpCenterConfig` through `helpCenterConfig*`
+  operations. `getClientPortals` is read for exactly one thing — the website
+  picker's options — and never written: never point a help center write at
+  `clientPortalUpdate`, and never name a help center field `clientPortal*`.
+- Every help center read and write goes through one fragment,
+  `HELP_CENTER_CONFIG_FIELDS` on `HelpCenterConfig`, shared by
+  `frontlineHelpCenterList`, `frontlineHelpCenterDetail` and the
+  `helpCenterConfigUpdate` mutation. Because the mutation selects the same
+  fragment, Apollo normalizes the result onto the cached record and every
+  surface updates without a refetch — never narrow one of the three selections.
+- `helpCenterConfigUpdate` replaces the whole config, so an inline cell can
+  never send only the field it changed. `useEditHelpCenter` rebuilds the full
+  input from the cached record through `toHelpCenterConfigInput`, applies the
+  patch on top, and refuses the write when `title` would end up empty. `title`
+  is the only required field — `brandId` is optional, and a brand-less help
+  center stays inline-editable.
 - The table's ticket channel/pipeline/status cells reuse the ticket module's
   `Select*` components in their `table` variant, but pass their own
   `onValueChange` — those components' roots save onto a ticket, and
   `SelectStatusTicket`'s needs an `id`, so the status cell composes the provider
-  itself the way `HelpCenterDrawer` does.
+  itself the way `HelpCenterGeneralTab` does.
 - A help center's ticket target is a channel → pipeline → status chain, so
   changing a level clears the levels under it — `useEditHelpCenter` does this
-  for inline edits and `HelpCenterDrawer` does it through `form.setValue`. The
-  drawer also saves a switched-off feature with its fields cleared, so a
-  disabled feature never keeps stale configuration.
+  for inline edits and `HelpCenterGeneralTab` does it through `form.setValue`.
+  The API blanks a switched-off feature's whole group in
+  `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
+  configuration no matter which surface saved it.
 - `HelpCenterDrawer` splits across two `SheetNavSidebar` tabs, **general** and
   **appearance**: general owns title, website, description, the embed script and
   the knowledge base and ticket feature cards; appearance owns the published
   site's whole look — logo and favicon, the six main colours, fonts with their
-  text and link colours, the three form-element colours, this topic's own accent
-  colour and cover image, and the raw header/footer HTML. The sidebar keeps the active tab in the `tab` URL query
-  param, so the drawer clears it on close or the next one opens wherever the
-  last was left. Both tabs stay mounted (hidden, not unmounted) so values and
-  validation survive switching, and an invalid submit switches to the tab
-  holding the first failing field via `FIELD_TAB` — add every new form field to
-  that map.
+  text and link colours, the three form-element colours, this help center's own
+  accent colour and cover image, and the raw header/footer HTML. The sidebar
+  keeps the active tab in the `tab` URL query param, so the drawer clears it on
+  close or the next one opens wherever the last was left. Both tabs stay mounted
+  (hidden, not unmounted) so values and validation survive switching, and an
+  invalid submit switches to the tab holding the first failing field via
+  `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
 - A help center has **no page of its own**: `/frontline/helpcenter/:id` was
   removed, and editing is addressed by the `editId` URL query on the list page,
-  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer for
-  both creating and editing, keyed on the record — two would each mount a
-  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the name cell's
-  anchor and a shared link all go through that one param — never reintroduce
-  a detail route. Every surface widens a list record for the drawer through
-  `toHelpCenterDrawerRecord`; passing a partial record would reset the fields it
-  omitted on the next save.
-- The Knowledge Base page and the Help Center page each own **their own
-  drawer**, and the two must not be merged again.
-  `knowledgebase/components/TopicDrawer.tsx` edits a knowledge base topic —
-  title, code, description, brand, colour, language, background image and the
-  embed script — in a plain
-  `Sheet`; `helpcenter/components/HelpCenterDrawer.tsx` edits a published help
-  center's site settings in a two-tab `FocusSheet`. Both write the same
-  `knowledgeBaseTopicsAdd` / `knowledgeBaseTopicsEdit` mutations because one
-  collection backs both surfaces, so a field one drawer never renders is simply
-  left out of that drawer's `doc` and keeps its stored value. Adding a help
-  center setting to `TopicDrawer` would put site configuration back on the
-  Knowledge Base page, which is what this split exists to prevent.
+  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
+  for both creating and editing, keyed on the record — two would each mount a
+  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the
+  name cell's anchor and a shared link all go through that one param — never
+  reintroduce a detail route. Every surface widens a list record for a save
+  through `toHelpCenterConfigInput`; passing a partial record would reset the
+  fields it omitted on the next save.
 - Category editing lives on the Knowledge Base page (`TopicList`), which owns
   create, edit and delete. The help center surface does not duplicate it.
 - The upload slots use the repo's usual `Upload.Root` handler
@@ -555,10 +559,11 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
   visible. Toggle the class instead (`enabled ? 'flex flex-col' : 'hidden'`) —
   both the drawer's tab panes and its feature sections do.
-- The drawer's own types and constants live in `types/helpCenterDrawerTypes.ts` and
-  `constants/helpCenterDrawerConstants.ts`, **not** in the module's `types.ts` / `constants.ts`
-  — those two re-export from `content_ui`, so importing them pulls another
-  plugin's code into this remote and breaks it at runtime.
+- The help center's own types and constants live in `helpcenter/types/index.ts`
+  and `helpcenter/constants/index.ts`, **not** in the knowledge base module's
+  `types.ts` / `constants.ts` — those two re-export from `content_ui`, so
+  importing them pulls another plugin's code into this remote and breaks it at
+  runtime.
 - The help center table shows the three identifying columns — name, website,
   knowledge base topic — followed by the three ticket routing selects, each
   headed `Ticket channel` / `Ticket pipeline` / `Ticket status` so a row reads
@@ -569,54 +574,67 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   suit this table. The two on/off switches (`kbToggle`, `ticketToggle`), the
   knowledge base name (`kbLabel`), the ticket menu label and the description are
   drawer-only; put a new field of that kind in `HelpCenterGeneralTab`, not in a
-  column. `kbLabel` still ships in `frontlineHelpCenterList` and is rebuilt by
+  column. `kbLabel` still ships in `HELP_CENTER_CONFIG_FIELDS` and is rebuilt by
   `useEditHelpCenter` on every inline write even though no column shows it —
-  dropping it from either would blank the drawer's field on the next save. The ticket selects cascade: pipeline is disabled until a channel is
+  dropping it would blank the drawer's field on the next save. `erxesAppToken`
+  is in the fragment for exactly the same reason: no field or column shows it,
+  and a whole-config write that omitted it would clear the site's widget token. The ticket selects cascade: pipeline is disabled until a channel is
   chosen and status until a pipeline is, and `useEditHelpCenter` clears the
   downstream ids when an upstream one changes.
-- The website (`url`) is optional but, once filled, must be a full `http://` or
-  `https://` address. Both write paths share one validator,
-  `helpcenter/utils/helpCenterUrl.ts` — the drawer field through a
-  `rules.validate`, the table cell through `InlineTextCell`'s `validate` prop.
-  A bare `z.string().url()` would also pass `ftp:` and `javascript:`, so the
-  schema checks the protocol explicitly; keep any new URL field on that helper
-  rather than re-deriving the rule.
+- The website (`url`) is optional and is never typed: both write paths pick a
+  client portal through `helpcenter/components/SelectHelpCenterWebsite.tsx` and
+  store that portal's `domain` in `url`. `core-ui` already validates a portal's
+  `domain` as a URL, so the field needs no URL validator of its own here — the
+  plugin's own API still rejects a non-`http(s)` value as a guard. `url` stays a
+  plain string on `HelpCenterConfig`: `ClientPortal` is not a federated entity,
+  so this remote cannot store a portal id and resolve the portal through
+  `frontline_api`. A stored `url` that matches no portal is shown as-is instead
+  of reading blank.
 - `InlineTextCell` is controlled (`open` state) rather than using
-  `closeOnEnter`, so Enter on a value its `validate` rejects holds the cell open
-  and shows the message instead of closing over an edit that never saved.
-  Clicking away from a rejected value drops it — the cell must never trap the
-  user until the value is fixed, and must never write a value that failed.
-- `EMPTY_TOPIC_STYLES` seeds a new help center with the published portal's own
-  palette (`apps/knowledge-base/app/globals.css`) rather than blank white, so a
-  topic looks finished before anyone opens the appearance tab. A stored white is
-  indistinguishable from an unset colour on the portal, which drops blanks and
-  falls back to its own token — so seeding white produced a colourless site.
-  Keep the two palettes in step when either moves; existing topics keep whatever
-  they already stored and are only changed from the appearance tab.
-- `kbToggle` defaults to **on** everywhere a help center is read or written: a
-  new topic starts from `EMPTY_TOPIC_FORM`, an existing one is widened by
-  `HelpCenterDrawer`'s reset and `toHelpCenterDrawerRecord`, and an inline table edit
-  rebuilds the doc in `useEditHelpCenter`. All four say `?? true` / `true`, so a
-  help center saved from any surface keeps its knowledge base showing. Change
-  the default in all four or none — one `?? false` among them silently switches
-  the feature off on the next save from that path.
+  `closeOnEnter`, so a cell writes on Enter or on clicking away and never twice
+  (`saved` ref). It is now the name cell's only user; a field that must come
+  from a fixed set of records gets a select cell instead, as website, knowledge
+  base topic and the three ticket ids do.
+- `kbToggle` defaults to **on** wherever a help center is read or written, and
+  there is now exactly one place that decides it: `toHelpCenterConfigInput`
+  returns `EMPTY_HELP_CENTER_FORM` for a new record and `?? true` for an existing
+  one, and both the drawer's reset and `useEditHelpCenter` go through it. Change
+  the default there, never by adding a second `??` at a call site.
+- The `Website` select is one component,
+  `helpcenter/components/SelectHelpCenterWebsite.tsx`, rendered by both surfaces
+  the same way the topic select is. It reads `getClientPortals` and passes the
+  chosen portal's `domain` **and its `token`** up — `onValueChange(domain,
+erxesAppToken)` — because picking a website is also what fills the config's
+  `erxesAppToken`, the widget token the published site boots with. Both call
+  sites must write both fields (the drawer through `form.setValue`, the table
+  cell through one `editHelpCenter` patch); writing only `url` leaves a config
+  pointing at one portal with another's token. The field is a website, so every surface of it — trigger,
+  option, search — shows **the domain and nothing else**; a portal's `name` is
+  not read here. Because the stored value is a domain, `toWebsiteOptions` keeps
+  only portals that have one and **collapses portals that share a domain** — two
+  rows for one domain would both read as checked. Change the option query and
+  that shaping in the one file.
 - The `Knowledge base topic` select is one component,
   `helpcenter/components/SelectHelpCenterTopic.tsx`, rendered by both surfaces:
   the table cell passes `variant="table"` plus a cell `scope`, the drawer field
-  passes `variant="form"`. Both exclude the row's own `_id` so a help center
-  cannot point at itself. Change the option query or the exclusion in that one
-  file — never fork a second copy for one of the two surfaces.
-- The topic drawer is split by responsibility: `HelpCenterDrawer.tsx` owns only the
-  sheet, the form and the mutations; `HelpCenterGeneralTab.tsx` and
-  `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the reusable
-  `Style*Field` helpers; `HelpCenterEmbedScriptDialog.tsx` the embed snippet; and the
-  module's `types.ts` / `constants.ts` the shapes and defaults. Add new fields to
-  the owning tab, never back into the drawer. The tabs take the form **as a
+  passes `variant="form"`. It reads `knowledgeBaseTopics` — the one knowledge
+  base call a help center surface still makes, because picking which topic the
+  site publishes is a knowledge base read, not a setting stored on a topic.
+  Change the option query in that one file — never fork a second copy for one of
+  the two surfaces.
+- The help center drawer is split by responsibility, all under
+  `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
+  the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
+  `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
+  reusable `Style*Field` helpers; the knowledge base module's
+  `TopicEmbedScriptDialog.tsx` the embed snippet (a presentational component, no
+  query of its own); and `helpcenter/{types,constants}/index.ts` the shapes and
+  defaults. Add new fields to the owning tab, never back into the drawer. The tabs take the form **as a
   prop**: `react-hook-form` is not in this remote's shared `coreLibraries`, so
   the copy backing `useFormContext` here is not the one `erxes-ui`'s `Form`
   provider filled and reading the context returns null. Never reach for
   `useFormContext` across an `erxes-ui` provider in this plugin.
-- Appearance fields are one nested `styles` block on the topic, addressed as
+- Appearance fields are one nested `styles` block on the config, addressed as
   `styles.<name>` through React Hook Form and rendered by the four
   `Style*Field` helpers (colour, image, font, HTML). Fonts pick from
   `HELP_CENTER_FONTS`, storing the CSS stack the site serves rather than a bare
@@ -624,32 +642,31 @@ brandId)` and `knowledgeBaseTopicsTotalCount`, read together as the help
   `ColorPicker` — the palette the rest of the product picks from, whose popover
   already carries a hex field; never a native `<input type="color">` — add a style through those
   rather than hand-rolling a field. Apollo runs with `addTypename: true`, so a
-  cached block carries a `__typename` that `KnowledgeBaseTopicStylesInput`
-  rejects: `HelpCenterDrawer` strips it in `omitTypename` on reset and
-  `useEditHelpCenter` in `stripTypename` before every inline write. Any new
-  path that sends `styles` back must strip it too.
-- Both `TOPICS` and `frontlineHelpCenterList` select the `styles` block. They
-  share the same cache entry, so a query that omits it would blank the
-  appearance on the other surface after a refetch.
-- The drawer does not collect `code`, `brandId` or `languageCode` — they are
-  absent from `TopicFormData`, so a topic created or saved here leaves them
-  untouched. The record still carries them and the table still reads them, so do
-  not delete them from the `Topic` shape or from the queries.
+  cached block carries a `__typename` that `HelpCenterConfigStylesInput`
+  rejects: `toHelpCenterConfigInput` strips it in `stripStylesTypename`, and
+  every write path — drawer reset and inline edit alike — goes through it. Any
+  new path that sends `styles` back must go through it too.
+- The drawer does not collect `brandId` or `languageCode` — they are absent from
+  its fields but present in `IHelpCenterConfigInput`, and
+  `toHelpCenterConfigInput` carries them through every save, so a config edited
+  here keeps them. The brand filter reads `brandId`, so do not drop it from the
+  shape or from `HELP_CENTER_CONFIG_FIELDS`.
 - `SelectTriggerTicket`'s `form` variant is `w-fit max-w-64` and takes no
-  `className`, and ~15 other ticket forms depend on that width. `HelpCenterDrawer`
-  needs its channel/pipeline/status pickers full width, so it overrides them
-  from its own `Form.Item` wrappers via `FULL_WIDTH_SELECT`; widen the pickers
-  there, never in the shared trigger.
-- `HelpCenterDrawer` composes `SelectPipeline` (root) and
+  `className`, and ~15 other ticket forms depend on that width.
+  `HelpCenterGeneralTab` needs its channel/pipeline/status pickers full width,
+  so it overrides them from its own `Form.Item` wrappers via
+  `FULL_WIDTH_SELECT`; widen the pickers there, never in the shared trigger.
+- `HelpCenterGeneralTab` composes `SelectPipeline` (root) and
   `SelectStatusTicket.Provider` directly rather than their `FormItem` variants:
   `SelectPipeline.FormItem` is typed to `addTicketSchema` and both watch
   `channelId` / `pipelineId` field names this form does not use, and
   `SelectStatusTicket`'s root saves onto an existing ticket.
-- `knowledgeBaseTopicsTotalCount` takes no arguments and counts every topic, so
-  the help center's record count falls back to the number of matched rows
-  whenever a filter is set. `HELP_CENTERS_PER_PAGE` therefore has to stay large
-  enough to hold the whole list in one page — the query pages with
-  `page`/`perPage`, not a cursor, and the table has no load-more affordance.
+- `helpCenterConfigsTotalCount` takes the same `searchValue`/`brandId` the
+  list does, so the record count is the server's count under the active filter —
+  `useHelpCenters` reports it directly and never falls back to the row count.
+  `HELP_CENTERS_PER_PAGE` still has to stay large enough to hold the whole list
+  in one page: the query pages with `page`/`perPage`, not a cursor, and the table
+  has no load-more affordance.
 - A poll's `brandId` is optional and selected in `PollSheet` through
   `SelectBrands.FormItem` (`mode="single"`, `disableCreateOption`), which pins
   which of the channel's messenger integrations the poll's answers are filed
@@ -1027,6 +1044,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   changed rather than the whole project.
 - `project.json` defines only `build`, `serve`, and `serve-static` — there is no
   `test` target for this project; do not invent one.
+- Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
+  open the drawer and pick a website on **General** and save a colour on
+  **Appearance**; reload and confirm both persisted. The website picker must
+  list each client portal domain once and nothing but the domain, in the drawer
+  and in the table cell alike. The network tab must show `helpCenterConfig` /
+  `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
+  website picker's option list, and no `knowledgeBase*` operation other than the
+  topic picker's option list.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -1075,54 +1100,56 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Choosing a website also captures its app token
 
-### `2026-09-08` — The Knowledge Base drawer goes back to editing a topic
-
-- **Summary:** The Knowledge Base page's Edit Topic sheet had been replaced by
-  the help center's site-settings drawer, so editing a topic there asked for a
-  published site's features and palette instead of the topic's own title, code,
-  brand, colour, language and background image. `TopicDrawer` is the plain topic
-  sheet again, and the site-settings drawer moved to the help center module as
-  `HelpCenterDrawer` with its tabs, style fields, embed dialog, types and
-  constants, where `/frontline/helpcenter` alone renders it.
+- **Summary:** The website picker now carries the chosen client portal's `token`
+  alongside its domain, and the drawer and table cell store it as the config's
+  `erxesAppToken`, so the published site gets the messenger widget token from
+  `helpCenterGetConfigByDomain` without anyone typing it.
 - **Affected areas:**
-  `src/modules/knowledgebase/components/TopicDrawer.tsx`,
-  `src/modules/helpcenter/components/{HelpCenterDrawer,HelpCenterGeneralTab,HelpCenterAppearanceTab,HelpCenterStyleFields,HelpCenterEmbedScriptDialog}.tsx`,
-  `src/modules/helpcenter/{types/helpCenterDrawerTypes.ts,constants/helpCenterDrawerConstants.ts,utils/toHelpCenterDrawerRecord.ts}`,
-  `src/pages/HelpCenterIndexPage.tsx`
-- **Contracts changed:** `None`
+  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`,
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
+  `src/modules/helpcenter/graphql/queries/{getHelpCenters,getHelpCenterWebsiteOptions}.ts`,
+  `src/modules/helpcenter/{types,constants}/index.ts`,
+  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
+- **Contracts changed:** `HelpCenterConfigFields` now selects `erxesAppToken`;
+  `frontlineHelpCenterWebsiteOptions` now selects the portal's `token`.
 
-### `2026-09-08` — The internal-note toggle reaches the API
+### `2026-09-09` — The help center's website is picked from a client portal
 
-- **Summary:** `NoteInput` sends its `isInternalNote` state as `isInternal`, and
-  `NoteInputReadOnly` marks a stored internal note in the timeline with the
-  composer's accent bar and a lock label, so an agent can tell which notes the
-  customer portal never receives.
-- **Affected areas:** `src/modules/activity/components/{NoteInput,NoteInputReadOnly}.tsx`,
-  `src/modules/activity/graphql/{mutations/createTicketNote,queries/getTicketNote}.ts`,
-  `src/modules/activity/types.ts`
-- **Contracts changed:** `TicketCreateNote` sends `$isInternal: Boolean`; it and
-  `TicketGetNote` select `isInternal`.
-
-### `2026-09-08` — Ticket navigation asks for a page the API accepts
-
-- **Summary:** `TicketNavigations` requested `limit: 1000` for its pipeline
-  lookup, but `cursorPaginate` rejects anything above 100, so `getTicketPipelines`
-  failed with `Limit must be between 1 and 100` and the channel/pipeline sidebar
-  rendered no tickets. The request now asks for `PIPELINES_PER_PAGE` (100), the
-  largest page the API allows.
-- **Affected areas:** `src/modules/ticket/components/ticket-navigations/TicketNavigations.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-08` — A new help center starts on the portal's palette
-
-- **Summary:** `EMPTY_TOPIC_STYLES` seeded every colour as white and the topic
-  accent as black, so a freshly created help center published a colourless site
-  — the portal cannot tell a stored white from an unset colour. The defaults are
-  now the portal's own tokens.
+- **Summary:** The `Website` field in the drawer's General settings and in the
+  record table is now a client portal picker instead of a free-text URL box; it
+  lists client portal domains, one row per domain, and stores the chosen domain
+  in `url`, so the ad-hoc URL validator is gone.
 - **Affected areas:**
-  `src/modules/helpcenter/constants/helpCenterDrawerConstants.ts`
-- **Contracts changed:** `None`
+  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx` (new),
+  `src/modules/helpcenter/graphql/queries/getHelpCenterWebsiteOptions.ts` (new),
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`;
+  deleted `src/modules/helpcenter/utils/helpCenterUrl.ts`.
+- **Contracts changed:** added the `frontlineHelpCenterWebsiteOptions` query
+  over `core-api`'s `getClientPortals`. `HelpCenterConfig` is unchanged.
+
+### `2026-09-09` — Help center settings stopped riding on the knowledge base
+
+- **Summary:** General Settings and Appearance now read `helpCenterConfig` and
+  write `helpCenterConfigUpdate` instead of the knowledge base topic
+  query/mutation; the two-tab drawer moved into
+  `helpcenter/components/help-center-drawer/` as `HelpCenterDrawer`, and the
+  knowledge base's own `TopicDrawer` shrank back to title, description, colour,
+  cover image and the embed script.
+- **Affected areas:** `src/modules/helpcenter/**`,
+  `src/modules/knowledgebase/{components/TopicDrawer.tsx,graphql/queries.ts,types.ts}`,
+  `src/pages/HelpCenterIndexPage.tsx`; deleted
+  `src/modules/knowledgebase/{topicDrawerTypes.ts,topicDrawerConstants.ts,components/TopicGeneralTab.tsx,components/TopicAppearanceTab.tsx,components/TopicStyleFields.tsx}`
+  and `src/modules/helpcenter/utils/toTopicDrawerRecord.ts`.
+- **Contracts changed:** `frontlineHelpCenterList` now reads
+  `helpCenterConfigs` / `helpCenterConfigsTotalCount`; added
+  `frontlineHelpCenterDetail`, the `helpCenterConfigUpdate` and
+  `helpCenterConfigRemove` mutations and the `HelpCenterConfigFields`
+  fragment. `TOPICS` no longer selects `url`, the `kb*`/`ticket*` groups or
+  `styles`.
 
 ### `2026-09-08` — The message trigger says who else already listens
 
@@ -1222,20 +1249,27 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
   bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
 
-### `2026-09-07` — Ticket note attachments persist and render
+### `2026-09-08` — The internal-note toggle reaches the API
 
-- **Summary:** Note attachments are now sent with `TicketCreateNote`, returned by
-  `TicketGetNote`, and rendered in `NoteInputReadOnly` (inline images, file rows
-  for everything else); `@` mention is gated to internal-note mode and response
-  templates to reply mode, matching the inbox composer.
-- **Affected areas:** `modules/activity/components/NoteInput.tsx`,
-  `NoteInputReadOnly.tsx`, `NoteAttachments.tsx`, `modules/activity/types.ts`,
-  `modules/activity/graphql/mutations/createTicketNote.ts`,
-  `modules/activity/graphql/queries/getTicketNote.ts`,
-  `modules/inbox/.../ResponseTemplateSelector.tsx`
-- **Contracts changed:** `TicketCreateNote` gains `$attachments: [AttachmentInput]`;
-  `TicketGetNote` and `TicketCreateNote` now select
-  `attachments { name url type size }`.
+- **Summary:** `NoteInput` sends its `isInternalNote` state as `isInternal`, and
+  `NoteInputReadOnly` marks a stored internal note in the timeline with the
+  composer's accent bar and a lock label, so an agent can tell which notes the
+  customer portal never receives.
+- **Affected areas:** `src/modules/activity/components/{NoteInput,NoteInputReadOnly}.tsx`,
+  `src/modules/activity/graphql/{mutations/createTicketNote,queries/getTicketNote}.ts`,
+  `src/modules/activity/types.ts`
+- **Contracts changed:** `TicketCreateNote` sends `$isInternal: Boolean`; it and
+  `TicketGetNote` select `isInternal`.
+
+### `2026-09-08` — Ticket navigation asks for a page the API accepts
+
+- **Summary:** `TicketNavigations` requested `limit: 1000` for its pipeline
+  lookup, but `cursorPaginate` rejects anything above 100, so `getTicketPipelines`
+  failed with `Limit must be between 1 and 100` and the channel/pipeline sidebar
+  rendered no tickets. The request now asks for `PIPELINES_PER_PAGE` (100), the
+  largest page the API allows.
+- **Affected areas:** `src/modules/ticket/components/ticket-navigations/TicketNavigations.tsx`
+- **Contracts changed:** `None`
 
 ### `2026-09-07` — The website field insists on a real URL
 
@@ -1248,5 +1282,5 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Affected areas:**
   `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
   `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/helpcenter/components/HelpCenterGeneralTab.tsx`
+  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
 - **Contracts changed:** `None`

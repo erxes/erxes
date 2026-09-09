@@ -7,14 +7,14 @@ import {
   StyleFontField,
   StyleHtmlField,
   StyleImageField,
-} from '@/helpcenter/components/HelpCenterStyleFields';
-import { TopicFormData } from '@/helpcenter/types/helpCenterDrawerTypes';
+} from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
+import { IHelpCenterConfigInput } from '@/helpcenter/types';
 
 export function HelpCenterAppearanceTab({
   control,
   t,
 }: Readonly<{
-  control: Control<TopicFormData>;
+  control: Control<IHelpCenterConfigInput>;
   t: TFunction;
 }>) {
   return (

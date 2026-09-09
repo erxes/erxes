@@ -22,12 +22,12 @@ import { ReactNode, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { helpCenterMoreColumn } from '@/helpcenter/components/HelpCenterMoreColumn';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
+import { SelectHelpCenterWebsite } from '@/helpcenter/components/SelectHelpCenterWebsite';
 import {
   THelpCenterPatch,
   useEditHelpCenter,
 } from '@/helpcenter/hooks/useEditHelpCenter';
 import { HelpCenterHotKeyScope, IHelpCenter } from '@/helpcenter/types';
-import { getHelpCenterUrlError } from '@/helpcenter/utils/helpCenterUrl';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
@@ -36,45 +36,42 @@ import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTi
 const cellScope = (helpCenter: IHelpCenter, field: string) =>
   clsx(HelpCenterHotKeyScope.HelpCentersPage, helpCenter._id, field);
 
+type THelpCenterTextField = {
+  [K in keyof THelpCenterPatch]-?: THelpCenterPatch[K] extends
+    | string
+    | undefined
+    ? K
+    : never;
+}[keyof THelpCenterPatch];
+
 const InlineTextCell = ({
   cell,
   field,
   placeholder,
-  validate,
   children,
 }: {
   cell: Cell<IHelpCenter, unknown>;
-  field: keyof THelpCenterPatch;
+  field: THelpCenterTextField;
   placeholder?: string;
-  validate?: (value: string) => string | undefined;
   children?: ReactNode;
 }) => {
   const helpCenter = cell.row.original;
   const savedValue = (cell.getValue() as string) || '';
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(savedValue);
-  const [error, setError] = useState<string>();
   const { editHelpCenter } = useEditHelpCenter();
 
   const saved = useRef(false);
 
   const handleSave = () => {
-    if (saved.current) return true;
+    if (saved.current) return;
 
     const next = value.trim();
 
-    if (next === savedValue) return true;
-
-    const message = validate?.(next);
-
-    if (message) {
-      setError(message);
-      return false;
-    }
+    if (next === savedValue) return;
 
     saved.current = true;
     editHelpCenter(helpCenter, { [field]: next });
-    return true;
   };
 
   return (
@@ -84,7 +81,6 @@ const InlineTextCell = ({
       onOpenChange={(nextOpen) => {
         if (nextOpen) {
           setValue(savedValue);
-          setError(undefined);
           saved.current = false;
           setOpen(true);
           return;
@@ -100,24 +96,35 @@ const InlineTextCell = ({
         <Input
           value={value}
           placeholder={placeholder}
-          onChange={(event) => {
-            setValue(event.target.value);
-            setError(undefined);
-          }}
+          onChange={(event) => setValue(event.target.value)}
           autoFocus
           onKeyDown={(event) => {
             if (event.key !== 'Enter') return;
 
             event.preventDefault();
 
-            if (handleSave()) {
-              setOpen(false);
-            }
+            handleSave();
+            setOpen(false);
           }}
         />
-        {error && <p className="px-2 pb-2 text-xs text-destructive">{error}</p>}
       </RecordTableInlineCell.Content>
     </PopoverScoped>
+  );
+};
+
+const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
+  const helpCenter = cell.row.original;
+  const { editHelpCenter } = useEditHelpCenter();
+
+  return (
+    <SelectHelpCenterWebsite
+      variant="table"
+      value={helpCenter.url ?? ''}
+      scope={cellScope(helpCenter, 'url')}
+      onValueChange={(domain, erxesAppToken) =>
+        editHelpCenter(helpCenter, { url: domain, erxesAppToken })
+      }
+    />
   );
 };
 
@@ -129,7 +136,6 @@ const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
     <SelectHelpCenterTopic
       variant="table"
       value={helpCenter.kbTopicId ?? ''}
-      excludeId={helpCenter._id}
       scope={cellScope(helpCenter, 'kbTopicId')}
       onValueChange={(topicId) =>
         editHelpCenter(helpCenter, { kbTopicId: topicId })
@@ -245,20 +251,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
         icon={IconWorld}
       />
     ),
-    cell: ({ cell }) => (
-      <InlineTextCell
-        cell={cell}
-        field="url"
-        placeholder={t('website', 'Website')}
-        validate={(value) => {
-          const error = getHelpCenterUrlError(value);
-
-          return error
-            ? t(error, 'Enter a full website address starting with https://')
-            : undefined;
-        }}
-      />
-    ),
+    cell: ({ cell }) => <WebsiteCell cell={cell} />,
   },
   {
     id: 'kbTopicId',

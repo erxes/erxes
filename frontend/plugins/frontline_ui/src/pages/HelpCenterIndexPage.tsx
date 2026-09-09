@@ -18,8 +18,7 @@ import {
   useAllHelpCenters,
   useHelpCenters,
 } from '@/helpcenter/hooks/useHelpCenters';
-import { HelpCenterDrawer } from '@/helpcenter/components/HelpCenterDrawer';
-import { toHelpCenterDrawerRecord } from '@/helpcenter/utils/toHelpCenterDrawerRecord';
+import { HelpCenterDrawer } from '@/helpcenter/components/help-center-drawer';
 
 const HelpCenterIndexPage = () => {
   const { t } = useTranslation('frontline');
@@ -84,7 +83,7 @@ const HelpCenterIndexPage = () => {
 
       <HelpCenterDrawer
         key={editing?._id ?? 'create'}
-        topic={toHelpCenterDrawerRecord(editing)}
+        helpCenter={editing}
         isOpen={isCreateOpen || !!editing}
         onClose={handleCloseDrawer}
         onSaved={handleSaved}

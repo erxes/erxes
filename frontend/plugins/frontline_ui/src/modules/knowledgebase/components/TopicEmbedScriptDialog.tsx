@@ -2,7 +2,7 @@ import { Badge, Button, Dialog, toast } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
 
-export function HelpCenterEmbedScriptDialog({
+export function TopicEmbedScriptDialog({
   topicId,
   open,
   onOpenChange,
