@@ -17,6 +17,10 @@ export type IFacebookBotHealth = {
   lastSyncedAt?: string;
   lastVerifiedAt?: string;
   lastError?: string;
+  // Public comment replies are paused until this time after Facebook refused one.
+  sendBlockedUntil?: string;
+  sendBlockReason?: string;
+  sendBlockCount?: number;
 };
 
 export type IFacebookBotUser = {
