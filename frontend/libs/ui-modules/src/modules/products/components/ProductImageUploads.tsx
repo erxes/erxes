@@ -455,6 +455,7 @@ const VideoPreview = ({
         title={item.name || 'Video'}
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
         allowFullScreen
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
       />
     );
   }

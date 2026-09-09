@@ -6,8 +6,11 @@ export type VideoEmbedInfo = {
   thumbnailUrl?: string;
 };
 
-const YOUTUBE_PATTERN =
-  /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([a-z0-9_-]{11})(?=$|[?&#/])/i;
+const YOUTUBE_LONG_PATTERN =
+  /^(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)([a-z0-9_-]{11})(?=$|[?&#/])/i;
+
+const YOUTUBE_SHORT_PATTERN =
+  /^(?:https?:\/\/)?youtu\.be\/([a-z0-9_-]{11})(?=$|[?&#/])/i;
 
 const VIMEO_PATTERN =
   /^(?:https?:\/\/)?(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)(?=$|[?&#/])/i;
@@ -17,7 +20,8 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   const trimmed = url.trim();
   if (!trimmed) return null;
 
-  const youtubeMatch = YOUTUBE_PATTERN.exec(trimmed);
+  const youtubeMatch =
+    YOUTUBE_LONG_PATTERN.exec(trimmed) || YOUTUBE_SHORT_PATTERN.exec(trimmed);
   if (youtubeMatch) {
     const id = youtubeMatch[1];
     return {
