@@ -64,6 +64,7 @@ export function getProductFormDefaultValues(
     shortName: productDetail.shortName || '',
     shortDescription: productDetail.shortDescription || '',
     description: productDetail.description || '',
+    arrivalDate: productDetail.arrivalDate || '',
     barcodeDescription: productDetail.barcodeDescription || '',
     vendorId: productDetail.vendorId || '',
     scopeBrandIds: productDetail.scopeBrandIds || [],

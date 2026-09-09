@@ -8,6 +8,7 @@ const productsAdd = gql`
     $categoryId: String
     $shortDescription: String
     $description: String
+    $arrivalDate: String
     $barcodes: [String]
     $variants: JSON
     $barcodeDescription: String
@@ -32,6 +33,7 @@ const productsAdd = gql`
       categoryId: $categoryId
       shortDescription: $shortDescription
       description: $description
+      arrivalDate: $arrivalDate
       barcodes: $barcodes
       variants: $variants
       barcodeDescription: $barcodeDescription
@@ -59,6 +61,7 @@ const productsAdd = gql`
       propertiesData
       shortDescription
       description
+      arrivalDate
       tagIds
       name
       shortName
@@ -125,6 +128,7 @@ const productsEdit = gql`
     $type: String
     $shortDescription: String
     $description: String
+    $arrivalDate: String
     $unitPrice: Float
     $code: String
     $propertiesData: JSON
@@ -150,6 +154,7 @@ const productsEdit = gql`
       type: $type
       shortDescription: $shortDescription
       description: $description
+      arrivalDate: $arrivalDate
       unitPrice: $unitPrice
       code: $code
       propertiesData: $propertiesData
@@ -178,6 +183,7 @@ const productsEdit = gql`
       status
       shortDescription
       description
+      arrivalDate
       unitPrice
       duration
       durationType

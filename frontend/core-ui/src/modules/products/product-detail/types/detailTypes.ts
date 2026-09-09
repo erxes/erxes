@@ -44,6 +44,7 @@ export interface ProductDetail {
   barcodeDescription?: string;
   shortDescription?: string;
   description?: string;
+  arrivalDate?: string;
   categoryId?: string;
   type?: string;
   code?: string;

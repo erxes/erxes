@@ -20,6 +20,7 @@ export const types = `
     type: String
     shortDescription: String
     description: String
+    arrivalDate: String
     barcodes: [String]
     variants: JSON
     barcodeDescription: String
@@ -149,6 +150,7 @@ export const mutationParams = `
   type: String,
   shortDescription: String,
   description: String,
+  arrivalDate: String,
   barcodes: [String],
   variants: JSON,
   barcodeDescription: String,

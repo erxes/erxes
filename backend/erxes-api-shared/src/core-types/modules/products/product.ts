@@ -59,6 +59,7 @@ export interface IProduct {
   scopeBrandIds?: string[];
   shortDescription?: string;
   description?: string;
+  arrivalDate?: string;
   barcodes?: string[];
   variants: { [code: string]: { image?: IAttachment; name?: string } };
   barcodeDescription?: string;

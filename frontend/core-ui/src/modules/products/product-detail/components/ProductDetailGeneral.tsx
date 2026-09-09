@@ -105,6 +105,16 @@ export const ProductDetailGeneral = () => {
               </div>
             )}
           />
+          <Form.Field
+            control={form.control}
+            name="arrivalDate"
+            render={({ field }) => (
+              <div className="space-y-2">
+                <Label>{t('arrival-date')}</Label>
+                <Input {...field} />
+              </div>
+            )}
+          />
           {productType === 'unique' && (
             <>
               <Form.Field
