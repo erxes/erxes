@@ -7,17 +7,17 @@ export type VideoEmbedInfo = {
 };
 
 const YOUTUBE_PATTERN =
-  /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
+  /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([a-z0-9_-]{11})(?=$|[?&#/])/i;
 
 const VIMEO_PATTERN =
-  /^(?:https?:\/\/)?(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)/i;
+  /^(?:https?:\/\/)?(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d+)(?=$|[?&#/])/i;
 
 /** Parses a YouTube or Vimeo URL into an embeddable iframe URL (and thumbnail, when derivable without a network call). */
 export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
   const trimmed = url.trim();
   if (!trimmed) return null;
 
-  const youtubeMatch = trimmed.match(YOUTUBE_PATTERN);
+  const youtubeMatch = YOUTUBE_PATTERN.exec(trimmed);
   if (youtubeMatch) {
     const id = youtubeMatch[1];
     return {
@@ -27,7 +27,7 @@ export const parseVideoEmbedUrl = (url: string): VideoEmbedInfo | null => {
     };
   }
 
-  const vimeoMatch = trimmed.match(VIMEO_PATTERN);
+  const vimeoMatch = VIMEO_PATTERN.exec(trimmed);
   if (vimeoMatch) {
     const id = vimeoMatch[1];
     return {

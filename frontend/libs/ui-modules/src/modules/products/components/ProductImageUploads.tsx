@@ -18,7 +18,10 @@ import {
   useUploadChunked,
 } from 'erxes-ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { parseVideoEmbedUrl } from '../utils/videoEmbed';
+import {
+  parseVideoEmbedUrl,
+  type VideoEmbedInfo,
+} from '../utils/videoEmbed';
 
 export type ProductAttachmentItem = {
   name: string;
@@ -373,6 +376,103 @@ export function ProductSecondaryImagesUpload({
 
 const isEmbedVideo = (item: ProductAttachmentItem) => item.type === 'embed';
 
+const VideoThumbnail = ({
+  item,
+  embed,
+  base,
+}: {
+  item: ProductAttachmentItem;
+  embed: VideoEmbedInfo | null;
+  base: string | null;
+}) => {
+  if (embed) {
+    if (embed.thumbnailUrl) {
+      return (
+        <img
+          src={embed.thumbnailUrl}
+          alt={item.name || 'Video'}
+          loading="lazy"
+          className="object-cover w-full h-full"
+        />
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-1 justify-center items-center w-full h-full text-white/80">
+        <IconLink size={18} />
+        <span className="text-[10px] capitalize">{embed.provider}</span>
+      </div>
+    );
+  }
+
+  if (base) {
+    return (
+      <img
+        src={`${base}/thumbnails/thumbnail.jpg`}
+        alt={item.name || 'Video'}
+        loading="lazy"
+        className="object-cover w-full h-full"
+      />
+    );
+  }
+
+  return (
+    <video
+      src={readImage(item.url)}
+      preload="metadata"
+      muted
+      className="object-cover w-full h-full"
+    />
+  );
+};
+
+const VideoPreview = ({
+  item,
+  embed,
+  base,
+}: {
+  item: ProductAttachmentItem;
+  embed: VideoEmbedInfo | null;
+  base: string | null;
+}) => {
+  if (embed) {
+    return (
+      <iframe
+        key={item.url}
+        className="w-full rounded aspect-video"
+        src={embed.embedUrl}
+        title={item.name || 'Video'}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+      />
+    );
+  }
+
+  if (base) {
+    return (
+      <iframe
+        key={item.url}
+        className="w-full rounded aspect-video"
+        src={`${base}/iframe`}
+        title={item.name || 'Video'}
+        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+        allowFullScreen
+      />
+    );
+  }
+
+  return (
+    <video
+      key={item.url}
+      className="w-full rounded aspect-video bg-black"
+      src={readImage(item.url)}
+      controls
+      autoPlay
+    />
+  );
+};
+
 export function ProductVideosUpload({
   value,
   onChange,
@@ -467,23 +567,15 @@ export function ProductVideosUpload({
   );
 
   const handleRemove = useCallback(
-    (item: ProductAttachmentItem) => {
+    (item: ProductAttachmentItem, index: number) => {
       if (isEmbedVideo(item)) {
-        onChange(
-          videos.filter(
-            (file) => file.url !== item.url || file.name !== item.name,
-          ),
-        );
+        onChange(videos.filter((_file, i) => i !== index));
         return;
       }
 
       removeFile(item.name, (status) => {
         if (status === 'ok') {
-          onChange(
-            videos.filter(
-              (file) => file.url !== item.url && file.name !== item.name,
-            ),
-          );
+          onChange(videos.filter((_file, i) => i !== index));
         }
       });
     },
@@ -503,37 +595,7 @@ export function ProductVideosUpload({
               key={`${item.url}-${index}`}
               className="overflow-hidden relative w-24 shrink-0 rounded-md border shadow-sm aspect-square bg-black group"
             >
-              {embed ? (
-                embed.thumbnailUrl ? (
-                  <img
-                    src={embed.thumbnailUrl}
-                    alt={item.name || 'Video'}
-                    loading="lazy"
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <div className="flex flex-col gap-1 justify-center items-center w-full h-full text-white/80">
-                    <IconLink size={18} />
-                    <span className="text-[10px] capitalize">
-                      {embed.provider}
-                    </span>
-                  </div>
-                )
-              ) : base ? (
-                <img
-                  src={`${base}/thumbnails/thumbnail.jpg`}
-                  alt={item.name || 'Video'}
-                  loading="lazy"
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <video
-                  src={readImage(item.url)}
-                  preload="metadata"
-                  muted
-                  className="object-cover w-full h-full"
-                />
-              )}
+              <VideoThumbnail item={item} embed={embed} base={base} />
 
               <button
                 type="button"
@@ -547,7 +609,7 @@ export function ProductVideosUpload({
               <button
                 type="button"
                 disabled={isRemoving}
-                onClick={() => handleRemove(item)}
+                onClick={() => handleRemove(item, index)}
                 className="absolute top-1 right-1 z-10 p-1 text-white rounded-md shadow opacity-0 transition group-hover:opacity-100 bg-destructive disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <IconTrash size={14} />
@@ -662,34 +724,13 @@ export function ProductVideosUpload({
         onOpenChange={(open) => !open && setPreviewItem(null)}
       >
         <Dialog.Content className="max-w-3xl">
-          {previewItem &&
-            (previewEmbed ? (
-              <iframe
-                key={previewItem.url}
-                className="w-full rounded aspect-video"
-                src={previewEmbed.embedUrl}
-                title={previewItem.name || 'Video'}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            ) : previewBase ? (
-              <iframe
-                key={previewItem.url}
-                className="w-full rounded aspect-video"
-                src={`${previewBase}/iframe`}
-                title={previewItem.name || 'Video'}
-                allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                allowFullScreen
-              />
-            ) : (
-              <video
-                key={previewItem.url}
-                className="w-full rounded aspect-video bg-black"
-                src={readImage(previewItem.url)}
-                controls
-                autoPlay
-              />
-            ))}
+          {previewItem && (
+            <VideoPreview
+              item={previewItem}
+              embed={previewEmbed}
+              base={previewBase}
+            />
+          )}
         </Dialog.Content>
       </Dialog>
     </div>
