@@ -5,20 +5,28 @@ import {
   InMemoryCache,
   registerApolloClient,
 } from '@apollo/client-integration-nextjs';
-import { readPortalEnv } from './utils/env';
+import { readApiUrl } from './utils/env';
+
+let readAppToken: () => string = () => '';
+
+export const setAppTokenReader = (reader: () => string): void => {
+  readAppToken = reader;
+};
 
 export const { getClient, query, PreloadQuery } = registerApolloClient(() => {
-  const { apiUrl, appToken } = readPortalEnv();
+  const authLink = new SetContextLink(({ headers }) => {
+    const appToken = readAppToken();
 
-  const authLink = new SetContextLink(({ headers }) => ({
-    headers: {
-      ...headers,
-      'x-app-token': appToken,
-    },
-  }));
+    return {
+      headers: {
+        ...headers,
+        ...(appToken ? { 'x-app-token': appToken } : {}),
+      },
+    };
+  });
 
   const httpLink = new HttpLink({
-    uri: `${apiUrl}/graphql`,
+    uri: `${readApiUrl()}/graphql`,
   });
 
   return new ApolloClient({

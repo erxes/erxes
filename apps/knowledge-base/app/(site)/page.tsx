@@ -20,7 +20,11 @@ import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Reveal } from '@/modules/ui/components/Reveal';
 import { Section } from '@/modules/ui/components/Section';
 import { Icon } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 const ActionCard = ({
   href,
@@ -128,6 +132,8 @@ export default async function HomePage() {
             >
               {topic.state === 'unconfigured' ? (
                 <SetupNotice missing={topic.missing} />
+              ) : topic.state === 'unpublished' ? (
+                <Unpublished domain={topic.domain} />
               ) : topic.state === 'error' ? (
                 <LoadError message={topic.message} />
               ) : topic.data.sections.length ? (
@@ -189,6 +195,8 @@ export default async function HomePage() {
             >
               {announcements.state === 'unconfigured' ? (
                 <SetupNotice missing={announcements.missing} />
+              ) : announcements.state === 'unpublished' ? (
+                <Unpublished domain={announcements.domain} />
               ) : announcements.state === 'error' ? (
                 <LoadError message={announcements.message} />
               ) : announcements.data.length ? (

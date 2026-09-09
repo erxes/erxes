@@ -6,7 +6,11 @@ import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 export const metadata = { title: 'Announcements' };
 
@@ -35,6 +39,8 @@ export default async function AnnouncementsPage() {
         <div className="mt-7">
           {posts.state === 'unconfigured' ? (
             <SetupNotice missing={posts.missing} />
+          ) : posts.state === 'unpublished' ? (
+            <Unpublished domain={posts.domain} />
           ) : posts.state === 'error' ? (
             <LoadError message={posts.message} />
           ) : posts.data.length ? (

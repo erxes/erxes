@@ -16,7 +16,11 @@ import { ButtonLink } from '@/modules/ui/components/Button';
 import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { Icon } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 type Props = { params: Promise<{ articleId: string }> };
 
@@ -43,6 +47,8 @@ export default async function ArticlePage({ params }: Props) {
         <Container className="py-10 lg:py-14">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
+          ) : topic.state === 'unpublished' ? (
+            <Unpublished domain={topic.domain} />
           ) : (
             <LoadError message={topic.message} />
           )}

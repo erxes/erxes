@@ -52,14 +52,16 @@ export const SelectHelpCenterWebsite = ({
   const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useQuery<TClientPortalOptionsResponse>(
+  const { data, error, loading } = useQuery<TClientPortalOptionsResponse>(
     GET_HELP_CENTER_WEBSITE_OPTIONS,
   );
 
-  const websites = useMemo(
-    () => toWebsiteOptions(data?.getClientPortals?.list ?? []),
-    [data],
-  );
+  const portals = useMemo(() => data?.getClientPortals?.list ?? [], [data]);
+
+  const websites = useMemo(() => toWebsiteOptions(portals), [portals]);
+
+  const noDomains =
+    !loading && !error && portals.length > 0 && !websites.length;
 
   return (
     <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -74,7 +76,16 @@ export const SelectHelpCenterWebsite = ({
             placeholder={t('search-websites', 'Search client portals')}
           />
           <Command.List>
-            <Combobox.Empty loading={loading} />
+            {noDomains ? (
+              <p className="text-muted-foreground p-8 text-center">
+                {t(
+                  'help-center-website-no-domains',
+                  'No client portal has a domain yet. Add one in the client portal settings to publish a help center on it.',
+                )}
+              </p>
+            ) : (
+              <Combobox.Empty loading={loading} error={error} />
+            )}
             {websites.map((website) => (
               <Command.Item
                 key={website._id}

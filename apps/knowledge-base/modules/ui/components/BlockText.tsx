@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { readPortalEnv } from '@/modules/apollo/utils/env';
+import { readApiUrl } from '@/modules/apollo/utils/env';
 import {
   inlineOf,
   parseBlocks,
@@ -223,7 +223,7 @@ export const BlockText = ({
     return <p className={cn('whitespace-pre-line', className)}>{content}</p>;
   }
 
-  const { apiUrl } = readPortalEnv();
+  const apiUrl = readApiUrl();
 
   return (
     <div className={cn('[&>*:last-child]:mb-0', className)}>

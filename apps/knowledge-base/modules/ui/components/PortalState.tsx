@@ -56,3 +56,30 @@ export const LoadError = ({
     </div>
   </div>
 );
+
+/*
+ * The gateway answered, but no help center is stored against this address. The
+ * fix is in erxes rather than in the deployment, so the notice names the domain
+ * that was looked up and where to claim it.
+ */
+export const Unpublished = ({ domain }: { domain: string }) => (
+  <div className="rounded-xl border border-line bg-white p-7">
+    <div className="flex items-start gap-4">
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
+        <Icon name="alert" size={22} />
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-base font-semibold text-ink">
+          No help center is published here
+        </h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          Nothing in erxes claims this address yet. Open Frontline → Help Center,
+          create or edit a help center, and set its website to:
+        </p>
+        <p className="mt-4 break-all rounded-md bg-subtle px-3 py-2 font-mono text-[13px] text-ink">
+          {domain}
+        </p>
+      </div>
+    </div>
+  </div>
+);

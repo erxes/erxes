@@ -1,4 +1,4 @@
-import { readPortalEnv } from './env';
+import { readApiUrl } from './env';
 
 export const storedFileUrl = (value: string | null): string | null => {
   const key = value?.trim();
@@ -11,7 +11,7 @@ export const storedFileUrl = (value: string | null): string | null => {
     return key;
   }
 
-  const { apiUrl } = readPortalEnv();
+  const apiUrl = readApiUrl();
 
   if (!apiUrl) {
     return null;

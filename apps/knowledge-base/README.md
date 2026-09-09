@@ -29,16 +29,54 @@ npm run lint
 | Variable | Needed for | Notes |
 | --- | --- | --- |
 | `NEXT_PUBLIC_ERXES_API_URL` | everything | Gateway URL, e.g. `https://officenext.erxes.io/gateway` (no trailing slash) |
-| `NEXT_PUBLIC_ERXES_KB_TOPIC_ID` | knowledge base | The Frontline topic to render — the `topicId` in the admin URL |
-| `NEXT_PUBLIC_ERXES_CP_TOKEN` | CMS, tickets | Client portal app token; without it every `cp*` CMS query returns "Client portal required" |
-| `NEXT_PUBLIC_ERXES_TICKET_PIPELINE_ID` | new tickets | Pipeline client-portal requests land in |
-| `NEXT_PUBLIC_ERXES_TICKET_CHANNEL_ID` | new tickets | Channel for those tickets |
-| `NEXT_PUBLIC_ERXES_TICKET_STATUS_ID` | new tickets | Status new tickets start at |
 
-The knowledge base needs only the first two: `cpKnowledgeBaseTopicDetail` is the
-one knowledge base query that skips the permission check. Each surface gates on
-its own variables and renders a setup notice naming exactly what is missing, so
-a portal with no CP token still serves the full knowledge base.
+That is the whole file. Everything else — the portal's name, its app token, the
+knowledge base topic it renders, where a ticket lands, and how it is painted —
+comes from a **help center**, looked up by the address each request arrives on.
+
+Create one under **Frontline → Help Center** and set its **Website** to the
+address this portal is served from; for local work that is
+`http://localhost:3900`. Until a help center claims the address, every page
+says so and names the domain it looked for.
+
+The website field is a client portal picker: choosing one also stores that
+portal's token as the config's `erxesAppToken`, which is what the `cp*` CMS and
+ticket queries authenticate with.
+
+## Docker
+
+The image builds from the **repository root**, because the portal compiles a
+few form controls straight out of the `erxes-ui` source tree:
+
+```bash
+docker build -f apps/knowledge-base/Dockerfile \
+  --build-arg NEXT_PUBLIC_ERXES_API_URL=https://officenext.erxes.io/gateway \
+  -t erxes/knowledge-base .
+
+docker run -p 3900:3900 erxes/knowledge-base
+```
+
+The gateway address is a **build argument**, not a runtime one: Next inlines
+every `NEXT_PUBLIC_*` value into the client bundle during `next build`, so an
+image is tied to the gateway it was built against. One image still serves any
+number of portals on that gateway — the rest of the configuration is looked up
+per request from the help center matching the domain.
+
+Serving the portal behind a proxy, forward the original host, since that is
+what the help center is matched on:
+
+```nginx
+proxy_set_header X-Forwarded-Host  $host;
+proxy_set_header X-Forwarded-Proto $scheme;
+```
+
+`PORT` (default `3900`) and `HOSTNAME` (default `0.0.0.0`) are read at
+container start. The build uses Next's `standalone` output, so the runtime
+stage carries only the traced server bundle rather than a full `node_modules`.
+
+A local `.env.local` is deleted inside the build stage before `next build`
+runs. Without that, the developer file that the build context carries in would
+override the build argument and bake that machine's app token into the image.
 
 ## Routes
 
@@ -63,7 +101,8 @@ a portal with no CP token still serves the full knowledge base.
 app/                     routes only — each page composes modules
 lib/cn.ts                class-name helper
 modules/
-  apollo/                RSC + client Apollo clients, env gating, result type
+  apollo/                RSC + client Apollo clients, gateway URL, result type
+  config/                help center config, resolved from the request domain
   auth/                  session (browser storage) + auth forms
   cms/                   CMS queries for announcements and portal copy
   knowledge-base/        queries, normalization, selectors, components

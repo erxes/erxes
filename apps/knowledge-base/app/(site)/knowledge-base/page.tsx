@@ -1,6 +1,7 @@
 import { getPortalForms } from '@/modules/forms/api';
 import { FormList } from '@/modules/forms/components/FormList';
 import { getTopicOverview } from '@/modules/knowledge-base/api';
+import { CategoryCard } from '@/modules/knowledge-base/components/CategoryCard';
 import { SectionBlock } from '@/modules/knowledge-base/components/SectionBlock';
 import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
@@ -15,7 +16,11 @@ import { FeatureOff } from '@/modules/ui/components/FeatureOff';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Section } from '@/modules/ui/components/Section';
 import { Icon } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 export const metadata = { title: 'Knowledge base' };
 
@@ -44,16 +49,30 @@ export default async function KnowledgeBasePage() {
         <div className="mt-10 lg:mt-12">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
+          ) : topic.state === 'unpublished' ? (
+            <Unpublished domain={topic.domain} />
           ) : topic.state === 'error' ? (
             <LoadError message={topic.message} />
           ) : !topic.data.knowledgeBaseEnabled ? (
             <FeatureOff title={KB_OFF_TITLE} description={KB_OFF_REASON} />
           ) : topic.data.sections.length ? (
-            <div className="space-y-14">
-              {topic.data.sections.map((section) => (
-                <SectionBlock key={section._id} section={section} />
-              ))}
-            </div>
+            topic.data.sections.every((section) => !section.children.length) ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {topic.data.sections.map((section, index) => (
+                  <CategoryCard
+                    key={section._id}
+                    category={section}
+                    index={index}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-14">
+                {topic.data.sections.map((section) => (
+                  <SectionBlock key={section._id} section={section} />
+                ))}
+              </div>
+            )
           ) : (
             <EmptyState
               icon="book"

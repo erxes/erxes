@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { readPortalEnv } from '@/modules/apollo/utils/env';
+import { readApiUrl } from '@/modules/apollo/utils/env';
 import { Button } from '@/modules/ui/components/Button';
 import { Icon } from '@/modules/ui/components/Icon';
 import type { FormAttachment } from '../types';
@@ -22,7 +22,7 @@ export const FileField = ({
   value: FormValue;
   onChange: (next: FormValue) => void;
 }) => {
-  const { apiUrl } = readPortalEnv();
+  const apiUrl = readApiUrl();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);

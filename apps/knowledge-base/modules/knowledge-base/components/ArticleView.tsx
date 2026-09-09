@@ -7,11 +7,11 @@ import { formatDate } from '../utils/selectors';
 
 export const ArticleView = ({ article }: { article: PortalArticle }) => (
   <article className="rounded-xl border border-line bg-white p-6 sm:p-8">
-    <h1 className="text-2xl font-semibold leading-snug text-ink sm:text-[26px]">
+    <h1 className="text-lg font-semibold leading-snug text-ink sm:text-xl">
       {article.title}
     </h1>
 
-    <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
+    <div className="mt-5 flex flex-wrap items-center gap-x-8 gap-y-3 text-[13px] text-muted-foreground">
       <span className="flex items-center gap-2.5">
         <Avatar name={article.author} size={32} />
         <span>

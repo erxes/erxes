@@ -1,10 +1,7 @@
+import { unstable_cache } from 'next/cache';
 import { query } from '@/modules/apollo/apolloClient';
-import { readPortalEnv } from '@/modules/apollo/utils/env';
-import {
-  errorMessage,
-  kbGate,
-  type PortalResult,
-} from '@/modules/apollo/utils/result';
+import { getPortalConfig } from '@/modules/config/api';
+import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import {
   KB_PORTAL_TOPIC_ARTICLES,
   KB_PORTAL_TOPIC_ARTICLES_PLAIN,
@@ -13,7 +10,12 @@ import {
   KB_PORTAL_TOPIC_OVERVIEW,
   KB_PORTAL_TOPIC_OVERVIEW_PLAIN,
 } from './graphql/queries/knowledgeBaseTopic';
-import { normalizeTopic, type PortalTopic } from './utils/normalize';
+import {
+  emptyTopic,
+  normalizeTopic,
+  type PortalTopic,
+} from './utils/normalize';
+import type { PortalConfig } from '@/modules/config/types';
 import type { KbTopic } from './types';
 
 type TopicResponse = { cpKnowledgeBaseTopicDetail: KbTopic | null };
@@ -30,6 +32,14 @@ const PLAIN_OF = new Map<TopicDocument, TopicDocument>([
   [KB_PORTAL_TOPIC_ARTICLE_LIST, KB_PORTAL_TOPIC_ARTICLE_LIST_PLAIN],
   [KB_PORTAL_TOPIC_ARTICLES, KB_PORTAL_TOPIC_ARTICLES_PLAIN],
 ]);
+
+const DOCUMENTS = {
+  overview: KB_PORTAL_TOPIC_OVERVIEW,
+  'article-list': KB_PORTAL_TOPIC_ARTICLE_LIST,
+  articles: KB_PORTAL_TOPIC_ARTICLES,
+} as const;
+
+type TopicDocumentKey = keyof typeof DOCUMENTS;
 
 const UNKNOWN_FIELD = /Cannot query field/i;
 
@@ -84,77 +94,52 @@ const readTopic = async (
 
 const fetchTopic = async (
   document: TopicDocument,
+  config: PortalConfig,
 ): Promise<PortalResult<PortalTopic>> => {
-  const unconfigured = kbGate<PortalTopic>();
-
-  if (unconfigured) {
-    return unconfigured;
+  if (!config.knowledgeBaseEnabled) {
+    return { state: 'ready', data: emptyTopic(config) };
   }
 
-  const { topicId } = readPortalEnv();
-
   try {
-    const topic = await readTopic(document, topicId);
+    const topic = await readTopic(document, config.topicId);
 
     if (isFailure(topic)) {
       return { state: 'error', message: topic.error };
     }
 
-    const sourceId = topic.kbTopicId?.trim();
-
-    if (!sourceId || sourceId === topicId) {
-      return { state: 'ready', data: normalizeTopic(topic) };
-    }
-
-    const source = await readTopic(document, sourceId);
-
-    if (isFailure(source)) {
-      return { state: 'error', message: source.error };
-    }
-
-    return {
-      state: 'ready',
-      data: normalizeTopic({
-        ...topic,
-        parentCategories: source.parentCategories,
-      }),
-    };
+    return { state: 'ready', data: normalizeTopic(topic, config) };
   } catch (caught) {
     return { state: 'error', message: errorMessage(caught) };
   }
 };
 
-const TOPIC_TTL_MS = 60_000;
+const TOPIC_TTL_SECONDS = 60;
 
-type TopicPromise = Promise<PortalResult<PortalTopic>>;
+const cachedTopic = unstable_cache(
+  async (key: TopicDocumentKey, config: PortalConfig) =>
+    fetchTopic(DOCUMENTS[key], config),
+  ['portal-kb-topic'],
+  { revalidate: TOPIC_TTL_SECONDS },
+);
 
-const topicCache = new Map<string, { at: number; value: TopicPromise }>();
+const readTopicFor = async (
+  key: TopicDocumentKey,
+): Promise<PortalResult<PortalTopic>> => {
+  const config = await getPortalConfig();
 
-const cachedTopic = (key: string, document: TopicDocument): TopicPromise => {
-  const hit = topicCache.get(key);
-
-  if (hit && Date.now() - hit.at < TOPIC_TTL_MS) {
-    return hit.value;
+  if (config.state !== 'ready') {
+    return config;
   }
 
-  const value = fetchTopic(document).then((result) => {
-    if (result.state !== 'ready') {
-      topicCache.delete(key);
-    }
+  const result = await cachedTopic(key, config.data);
 
-    return result;
-  });
-
-  topicCache.set(key, { at: Date.now(), value });
-
-  return value;
+  return result.state === 'error'
+    ? fetchTopic(DOCUMENTS[key], config.data)
+    : result;
 };
 
-export const getTopicOverview = () =>
-  cachedTopic('overview', KB_PORTAL_TOPIC_OVERVIEW);
+export const getTopicOverview = () => readTopicFor('overview');
 
-export const getTopicArticleList = () =>
-  cachedTopic('article-list', KB_PORTAL_TOPIC_ARTICLE_LIST);
+export const getTopicArticleList = () => readTopicFor('article-list');
 
-export const getTopicWithArticles = () =>
-  cachedTopic('articles', KB_PORTAL_TOPIC_ARTICLES);
+export const getTopicWithArticles = () => readTopicFor('articles');

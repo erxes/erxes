@@ -244,7 +244,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
   {
     id: 'url',
     accessorKey: 'url',
-    size: 220,
+    size: 340,
     header: () => (
       <RecordTable.InlineHead
         label={t('website', 'Website')}

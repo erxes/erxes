@@ -19,7 +19,11 @@ import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Icon } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 import { plural } from '@/modules/ui/lib/plural';
 
 type Props = { params: Promise<{ categoryId: string }> };
@@ -49,6 +53,8 @@ export default async function CategoryPage({ params }: Props) {
         <Container className="py-10 lg:py-14">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
+          ) : topic.state === 'unpublished' ? (
+            <Unpublished domain={topic.domain} />
           ) : (
             <LoadError message={topic.message} />
           )}

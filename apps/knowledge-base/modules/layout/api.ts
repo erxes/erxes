@@ -1,5 +1,6 @@
+import { readConfig } from '@/modules/config/api';
 import { getPortalCopy } from '@/modules/cms/api';
-import { getTopicOverview } from '@/modules/knowledge-base/api';
+import { normalizeTheme } from '@/modules/knowledge-base/utils/normalize';
 import type {
   PortalTheme,
   PortalTicketTarget,
@@ -12,18 +13,13 @@ export type PortalIdentity = {
 };
 
 export const getPortalIdentity = async (): Promise<PortalIdentity> => {
-  const [copy, topic] = await Promise.all([
-    getPortalCopy(),
-    getTopicOverview(),
-  ]);
-
-  const topicData = topic.state === 'ready' ? topic.data : null;
+  const [copy, config] = await Promise.all([getPortalCopy(), readConfig()]);
 
   return {
-    title: copy?.name?.trim() || topicData?.title || site.fallbackTitle,
+    title: copy?.name?.trim() || config?.title || site.fallbackTitle,
     headline:
       copy?.description?.trim() ||
-      topicData?.description ||
+      config?.description ||
       site.fallbackHeadline,
   };
 };
@@ -44,34 +40,33 @@ const EMPTY_TARGET: PortalTicketTarget = {
 };
 
 export const getPortalSettings = async (): Promise<PortalSettings> => {
-  const topic = await getTopicOverview();
+  const config = await readConfig();
 
-  if (topic.state !== 'ready') {
+  /*
+   * With no config there is nothing to publish, so every feature is off: the
+   * navigation stays bare rather than linking to surfaces that cannot load.
+   */
+  if (!config) {
     return {
-      knowledgeBaseEnabled: true,
+      knowledgeBaseEnabled: false,
       knowledgeBaseLabel: '',
-      ticketsEnabled: true,
+      ticketsEnabled: false,
       ticketLabel: '',
       ticketTarget: EMPTY_TARGET,
       theme: null,
     };
   }
 
-  const {
-    knowledgeBaseEnabled,
-    knowledgeBaseLabel,
-    ticketsEnabled,
-    ticketLabel,
-    ticketTarget,
-    theme,
-  } = topic.data;
-
   return {
-    knowledgeBaseEnabled,
-    knowledgeBaseLabel,
-    ticketsEnabled,
-    ticketLabel,
-    ticketTarget,
-    theme,
+    knowledgeBaseEnabled: config.knowledgeBaseEnabled,
+    knowledgeBaseLabel: config.knowledgeBaseLabel,
+    ticketsEnabled: config.ticketsEnabled,
+    ticketLabel: config.ticketLabel,
+    ticketTarget: {
+      channelId: config.ticketChannelId,
+      pipelineId: config.ticketPipelineId,
+      statusId: config.ticketStatusId,
+    },
+    theme: normalizeTheme(config),
   };
 };

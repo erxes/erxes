@@ -59,7 +59,7 @@
 
 @layer base {
   .kb-article {
-    @apply text-[15px] leading-relaxed text-ink-soft;
+    @apply text-[13px] leading-relaxed text-ink-soft;
   }
 
   .kb-article > * + * {
@@ -75,19 +75,19 @@
   }
 
   .kb-article h1 {
-    @apply text-2xl;
-  }
-
-  .kb-article h2 {
-    @apply text-xl;
-  }
-
-  .kb-article h3 {
     @apply text-[17px];
   }
 
+  .kb-article h2 {
+    @apply text-[15px];
+  }
+
+  .kb-article h3 {
+    @apply text-sm;
+  }
+
   .kb-article h4 {
-    @apply text-base;
+    @apply text-[13px];
   }
 
   .kb-article strong {

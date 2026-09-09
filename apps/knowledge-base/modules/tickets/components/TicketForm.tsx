@@ -6,10 +6,6 @@ import { Form } from 'erxes-ui/components/form';
 import { toast } from 'erxes-ui/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import {
-  missingTicketEnvKeys,
-  readTicketEnv,
-} from '@/modules/apollo/utils/env';
 import { useSession } from '@/modules/auth/components/SessionProvider';
 import { AUTH_PORTAL_CUSTOMER_EDIT } from '@/modules/auth/graphql/mutations/auth';
 import type { CustomerEditResponse } from '@/modules/auth/types';
@@ -71,14 +67,17 @@ export type TicketTarget = {
   statusId: string;
 };
 
-export const TicketForm = ({ target }: { target?: TicketTarget }) => {
-  const env = readTicketEnv();
-  const ticketEnv = {
-    channelId: target?.channelId || env.channelId,
-    pipelineId: target?.pipelineId || env.pipelineId,
-    statusId: target?.statusId || env.statusId,
-  };
-  const missing = missingTicketEnvKeys(ticketEnv);
+/* The help center config decides where a ticket lands; nothing else can. */
+const missingTargetKeys = (target: TicketTarget): string[] =>
+  [
+    !target.channelId && 'ticket channel',
+    !target.pipelineId && 'ticket pipeline',
+    !target.statusId && 'ticket status',
+  ].filter((key): key is string => !!key);
+
+export const TicketForm = ({ target }: { target: TicketTarget }) => {
+  const ticketEnv = target;
+  const missing = missingTargetKeys(target);
   const { user, updateUser } = useSession();
 
   const [editCustomer] = useMutation<CustomerEditResponse>(

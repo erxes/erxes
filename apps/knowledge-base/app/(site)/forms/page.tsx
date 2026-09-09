@@ -6,7 +6,11 @@ import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { ButtonLink } from '@/modules/ui/components/Button';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 export const metadata = { title: 'Forms' };
 
@@ -33,6 +37,8 @@ export default async function FormsPage() {
         <div className="mt-8">
           {forms.state === 'unconfigured' ? (
             <SetupNotice missing={forms.missing} />
+          ) : forms.state === 'unpublished' ? (
+            <Unpublished domain={forms.domain} />
           ) : forms.state === 'error' ? (
             <LoadError title="Could not load the forms" message={forms.message} />
           ) : forms.data.length ? (

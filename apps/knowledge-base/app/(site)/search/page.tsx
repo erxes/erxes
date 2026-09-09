@@ -20,7 +20,11 @@ import { Card } from '@/modules/ui/components/Card';
 import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { Icon, type IconName } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 import { plural } from '@/modules/ui/lib/plural';
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
@@ -105,6 +109,8 @@ export default async function SearchPage({ searchParams }: Props) {
         <Container className="py-10 lg:py-14">
           {topic.state === 'unconfigured' ? (
             <SetupNotice missing={topic.missing} />
+          ) : topic.state === 'unpublished' ? (
+            <Unpublished domain={topic.domain} />
           ) : (
             <LoadError message={topic.message} />
           )}
@@ -166,9 +172,11 @@ export default async function SearchPage({ searchParams }: Props) {
             <Icon name="alert" size={15} className="mt-px shrink-0" />
             {announcements.state === 'error'
               ? `Announcements could not be included in the search: ${announcements.message}`
-              : `Announcements are not included in the search — ${announcements.missing.join(
-                  ', ',
-                )} is not configured.`}
+              : announcements.state === 'unpublished'
+                ? `Announcements are not included in the search — no help center is published at ${announcements.domain}.`
+                : `Announcements are not included in the search — ${announcements.missing.join(
+                    ', ',
+                  )} is not configured.`}
           </p>
         )}
 

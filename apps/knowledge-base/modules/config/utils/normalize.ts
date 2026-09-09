@@ -1,0 +1,39 @@
+import type { HelpCenterConfig, PortalConfig } from '../types';
+
+const text = (value: string | null | undefined): string => value?.trim() ?? '';
+
+export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
+  const kbToggle = config.kbToggle ?? true;
+  const ticketToggle = config.ticketToggle ?? false;
+
+  return {
+    _id: config._id,
+    title: text(config.title),
+    description: text(config.description),
+    url: text(config.url),
+    appToken: text(config.erxesAppToken),
+    languageCode: text(config.languageCode),
+
+    /*
+     * A feature is on only when its own target is set: the help center form
+     * lets a toggle be saved before the topic or pipeline behind it is chosen,
+     * and a surface with nothing to read is worse than one that stays hidden.
+     */
+    knowledgeBaseEnabled: kbToggle && !!text(config.kbTopicId),
+    knowledgeBaseLabel: text(config.kbLabel),
+    topicId: text(config.kbTopicId),
+
+    ticketsEnabled:
+      ticketToggle &&
+      !!text(config.ticketChannelId) &&
+      !!text(config.ticketPipelineId),
+    ticketLabel: text(config.ticketLabel),
+    ticketChannelId: text(config.ticketChannelId),
+    ticketPipelineId: text(config.ticketPipelineId),
+    ticketStatusId: text(config.ticketStatusId),
+
+    color: text(config.color),
+    backgroundImage: text(config.backgroundImage),
+    styles: config.styles,
+  };
+};

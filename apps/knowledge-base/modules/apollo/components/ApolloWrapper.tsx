@@ -9,10 +9,15 @@ import {
 } from '@apollo/client-integration-nextjs';
 import type { ReactNode } from 'react';
 import { readToken } from '@/modules/auth/utils/session';
-import { readPortalEnv } from '../utils/env';
+import { readApiUrl } from '../utils/env';
 
-const makeClient = () => {
-  const { apiUrl, appToken } = readPortalEnv();
+/*
+ * The browser cannot read the help center config itself — it is looked up by
+ * the request's own domain on the server — so the layout passes the app token
+ * down and the client is built around it.
+ */
+const makeClient = (appToken: string) => () => {
+  const apiUrl = readApiUrl();
 
   const authLink = new SetContextLink(({ headers }) => {
     const token = readToken();
@@ -20,7 +25,7 @@ const makeClient = () => {
     return {
       headers: {
         ...headers,
-        'x-app-token': appToken,
+        ...(appToken ? { 'x-app-token': appToken } : {}),
         ...(token ? { 'client-auth-token': token } : {}),
       },
     };
@@ -37,8 +42,14 @@ const makeClient = () => {
   });
 };
 
-export const ApolloWrapper = ({ children }: { children: ReactNode }) => (
-  <ApolloNextAppProvider makeClient={makeClient}>
+export const ApolloWrapper = ({
+  appToken,
+  children,
+}: {
+  appToken: string;
+  children: ReactNode;
+}) => (
+  <ApolloNextAppProvider makeClient={makeClient(appToken)}>
     {children}
   </ApolloNextAppProvider>
 );

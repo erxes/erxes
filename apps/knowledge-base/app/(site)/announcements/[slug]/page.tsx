@@ -10,7 +10,11 @@ import { Container } from '@/modules/ui/components/Container';
 import { EmptyState } from '@/modules/ui/components/EmptyState';
 import { RichText } from '@/modules/ui/components/RichText';
 import { Icon } from '@/modules/ui/components/Icon';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -59,6 +63,8 @@ export default async function AnnouncementPage({ params }: Props) {
         <div className="mt-7">
           {post.state === 'unconfigured' ? (
             <SetupNotice missing={post.missing} />
+          ) : post.state === 'unpublished' ? (
+            <Unpublished domain={post.domain} />
           ) : post.state === 'error' ? (
             <LoadError message={post.message} />
           ) : !post.data ? null : (

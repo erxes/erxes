@@ -1,9 +1,6 @@
 import { query } from '@/modules/apollo/apolloClient';
-import {
-  cmsGate,
-  errorMessage,
-  type PortalResult,
-} from '@/modules/apollo/utils/result';
+import { getPortalConfig } from '@/modules/config/api';
+import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import {
   CMS_PORTAL_ANNOUNCEMENTS,
   CMS_PORTAL_PAGE,
@@ -17,10 +14,10 @@ export const getAnnouncements = async (
   limit = 20,
   searchValue?: string,
 ): Promise<PortalResult<CmsPost[]>> => {
-  const unconfigured = cmsGate<CmsPost[]>();
+  const config = await getPortalConfig();
 
-  if (unconfigured) {
-    return unconfigured;
+  if (config.state !== 'ready') {
+    return config;
   }
 
   try {
@@ -45,10 +42,10 @@ export const getAnnouncements = async (
 export const getAnnouncement = async (
   slug: string,
 ): Promise<PortalResult<CmsPost | null>> => {
-  const unconfigured = cmsGate<CmsPost | null>();
+  const config = await getPortalConfig();
 
-  if (unconfigured) {
-    return unconfigured;
+  if (config.state !== 'ready') {
+    return config;
   }
 
   try {
@@ -71,7 +68,9 @@ export const getAnnouncement = async (
 export const getPortalCopy = async (
   slug: string = PORTAL_COPY_SLUG,
 ): Promise<CmsPage | null> => {
-  if (cmsGate<CmsPage>()) {
+  const config = await getPortalConfig();
+
+  if (config.state !== 'ready') {
     return null;
   }
 

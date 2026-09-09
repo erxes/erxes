@@ -1,7 +1,14 @@
 import { storedFileUrl } from '@/modules/apollo/utils/file';
+import type { PortalConfig } from '@/modules/config/types';
 import type { IconName } from '@/modules/ui/components/Icon';
 import { resolveIcon } from '../constants/icons';
-import type { KbArticle, KbCategory, KbSection, KbTopic } from '../types';
+import type {
+  KbArticle,
+  KbCategory,
+  KbSection,
+  KbTopic,
+  KbTopicStyles,
+} from '../types';
 
 export type PortalArticle = {
   _id: string;
@@ -121,7 +128,15 @@ const paint = (
   }
 };
 
-const normalizeTheme = (topic: KbTopic): PortalTheme => {
+/*
+ * Reads only the appearance fields, so the help center config — which carries
+ * the same three — is themed by this one function rather than a copy of it.
+ */
+export const normalizeTheme = (topic: {
+  color: string | null;
+  backgroundImage: string | null;
+  styles: KbTopicStyles;
+}): PortalTheme => {
   const { styles } = topic;
   const colors: Record<string, string> = {};
 
@@ -173,19 +188,45 @@ const normalizeTheme = (topic: KbTopic): PortalTheme => {
   };
 };
 
-export const normalizeTopic = (topic: KbTopic): PortalTopic => ({
+/*
+ * The topic supplies the article tree; everything else on a portal — its name,
+ * which features are on, where a ticket lands, how it is painted — belongs to
+ * the help center config that points at it.
+ */
+export const normalizeTopic = (
+  topic: KbTopic,
+  config: PortalConfig,
+): PortalTopic => ({
   _id: topic._id,
-  title: topic.title?.trim() ?? '',
-  description: topic.description?.trim() ?? '',
+  title: config.title || topic.title?.trim() || '',
+  description: config.description || topic.description?.trim() || '',
   sections: (topic.parentCategories ?? []).map(normalizeSection),
-  knowledgeBaseEnabled: topic.kbToggle ?? true,
-  knowledgeBaseLabel: text(topic.kbLabel) ?? '',
-  ticketsEnabled: topic.ticketToggle ?? true,
-  ticketLabel: text(topic.ticketLabel) ?? '',
+  knowledgeBaseEnabled: config.knowledgeBaseEnabled,
+  knowledgeBaseLabel: config.knowledgeBaseLabel,
+  ticketsEnabled: config.ticketsEnabled,
+  ticketLabel: config.ticketLabel,
   ticketTarget: {
-    channelId: text(topic.ticketChannelId) ?? '',
-    pipelineId: text(topic.ticketPipelineId) ?? '',
-    statusId: text(topic.ticketStatusId) ?? '',
+    channelId: config.ticketChannelId,
+    pipelineId: config.ticketPipelineId,
+    statusId: config.ticketStatusId,
   },
-  theme: normalizeTheme(topic),
+  theme: normalizeTheme(config),
+});
+
+/** Stands in where the config publishes no knowledge base at all. */
+export const emptyTopic = (config: PortalConfig): PortalTopic => ({
+  _id: config._id,
+  title: config.title,
+  description: config.description,
+  sections: [],
+  knowledgeBaseEnabled: false,
+  knowledgeBaseLabel: config.knowledgeBaseLabel,
+  ticketsEnabled: config.ticketsEnabled,
+  ticketLabel: config.ticketLabel,
+  ticketTarget: {
+    channelId: config.ticketChannelId,
+    pipelineId: config.ticketPipelineId,
+    statusId: config.ticketStatusId,
+  },
+  theme: normalizeTheme(config),
 });

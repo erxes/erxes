@@ -2,13 +2,19 @@ import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
 import './globals.css';
 import { ApolloWrapper } from '@/modules/apollo/components/ApolloWrapper';
+import { readConfig } from '@/modules/config/api';
 import { SessionProvider } from '@/modules/auth/components/SessionProvider';
 import { getPortalIdentity, getPortalSettings } from '@/modules/layout/api';
 import { PortalTheme } from '@/modules/layout/components/PortalTheme';
 import { site } from '@/modules/layout/constants/site';
 import { Toaster } from '@/modules/ui/components/Toaster';
 
-export const revalidate = 60;
+/*
+ * The portal resolves its help center from the domain each request arrives on,
+ * which is request-time data, so pages are rendered per request rather than
+ * revalidated on a timer. The config lookup itself is cached for a minute.
+ */
+export const dynamic = 'force-dynamic';
 
 const openSans = Open_Sans({
   variable: '--font-open-sans',
@@ -32,7 +38,10 @@ export const generateMetadata = async (): Promise<Metadata> => {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { theme } = await getPortalSettings();
+  const [{ theme }, config] = await Promise.all([
+    getPortalSettings(),
+    readConfig(),
+  ]);
 
   return (
     <html lang="en" className={`${openSans.variable} h-full`}>
@@ -43,7 +52,7 @@ export default async function RootLayout({
           </style>
         </noscript>
         <PortalTheme theme={theme} />
-        <ApolloWrapper>
+        <ApolloWrapper appToken={config?.appToken ?? ''}>
           <SessionProvider>
             {children}
             <Toaster />

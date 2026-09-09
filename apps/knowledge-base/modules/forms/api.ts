@@ -1,10 +1,6 @@
 import { query } from '@/modules/apollo/apolloClient';
-import { readFormEnv } from '@/modules/apollo/utils/env';
-import {
-  errorMessage,
-  formsGate,
-  type PortalResult,
-} from '@/modules/apollo/utils/result';
+import { getPortalConfig } from '@/modules/config/api';
+import { errorMessage, type PortalResult } from '@/modules/apollo/utils/result';
 import { sanitizePortalHtml } from '@/modules/ui/components/RichText';
 import { FORM_PORTAL_DETAIL, FORM_PORTAL_LIST } from './graphql/queries/forms';
 import type { FormSummary, PortalForm } from './types';
@@ -12,19 +8,25 @@ import type { FormSummary, PortalForm } from './types';
 type ListResponse = { cpForms: { list: FormSummary[] | null } | null };
 type DetailResponse = { cpFormDetail: PortalForm | null };
 
-const taggedForPortal = (form: { tagIds: string[] | null }, tagId: string) =>
-  (form.tagIds ?? []).includes(tagId);
-
+/*
+ * Forms belong to the channel the help center already files its tickets in, so
+ * the portal offers whatever that channel holds. The config carries no form
+ * fields of its own; when it grows them this is the one place to read them.
+ */
 export const getPortalForms = async (): Promise<
   PortalResult<FormSummary[]>
 > => {
-  const unconfigured = formsGate<FormSummary[]>();
+  const config = await getPortalConfig();
 
-  if (unconfigured) {
-    return unconfigured;
+  if (config.state !== 'ready') {
+    return config;
   }
 
-  const { channelId, tagId } = readFormEnv();
+  const channelId = config.data.ticketChannelId;
+
+  if (!channelId) {
+    return { state: 'ready', data: [] };
+  }
 
   try {
     const { data, error } = await query<ListResponse>({
@@ -37,11 +39,7 @@ export const getPortalForms = async (): Promise<
       return { state: 'error', message: error.message };
     }
 
-    const forms = (data?.cpForms?.list ?? []).filter((form) =>
-      taggedForPortal(form, tagId),
-    );
-
-    return { state: 'ready', data: forms };
+    return { state: 'ready', data: data?.cpForms?.list ?? [] };
   } catch (caught) {
     return { state: 'error', message: errorMessage(caught) };
   }
@@ -50,13 +48,11 @@ export const getPortalForms = async (): Promise<
 export const getPortalForm = async (
   formId: string,
 ): Promise<PortalResult<PortalForm | null>> => {
-  const unconfigured = formsGate<PortalForm | null>();
+  const config = await getPortalConfig();
 
-  if (unconfigured) {
-    return unconfigured;
+  if (config.state !== 'ready') {
+    return config;
   }
-
-  const { tagId } = readFormEnv();
 
   try {
     const { data, error } = await query<DetailResponse>({
@@ -71,7 +67,7 @@ export const getPortalForm = async (
 
     const form = data?.cpFormDetail ?? null;
 
-    if (!form || !taggedForPortal(form, tagId)) {
+    if (!form) {
       return { state: 'ready', data: null };
     }
 

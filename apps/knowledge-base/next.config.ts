@@ -2,6 +2,7 @@ import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const appDir = import.meta.dirname;
+const repoRoot = path.join(appDir, '..', '..');
 
 const sharedDependencies = [
   'react',
@@ -23,11 +24,19 @@ const resolveAlias = Object.fromEntries(
 );
 
 const nextConfig: NextConfig = {
+  /*
+   * `standalone` emits a self-contained server bundle under
+   * `.next/standalone`, so the runtime image carries only the traced files
+   * instead of a full `node_modules`. Tracing starts at the repository root
+   * because the app resolves shared dependencies from there.
+   */
+  output: 'standalone',
+  outputFileTracingRoot: repoRoot,
   experimental: {
     externalDir: true,
   },
   turbopack: {
-    root: path.join(appDir, '..', '..'),
+    root: repoRoot,
     resolveAlias,
   },
 };

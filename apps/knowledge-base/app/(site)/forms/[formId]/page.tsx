@@ -7,7 +7,11 @@ import { getPortalIdentity } from '@/modules/layout/api';
 import { Hero } from '@/modules/layout/components/Hero';
 import { Breadcrumbs } from '@/modules/ui/components/Breadcrumbs';
 import { Container } from '@/modules/ui/components/Container';
-import { LoadError, SetupNotice } from '@/modules/ui/components/PortalState';
+import {
+  LoadError,
+  SetupNotice,
+  Unpublished,
+} from '@/modules/ui/components/PortalState';
 
 type Props = { params: Promise<{ formId: string }> };
 
@@ -55,6 +59,10 @@ export default async function FormPage({ params }: Props) {
         {form.state === 'unconfigured' ? (
           <div className="mt-7">
             <SetupNotice missing={form.missing} />
+          </div>
+        ) : form.state === 'unpublished' ? (
+          <div className="mt-7">
+            <Unpublished domain={form.domain} />
           </div>
         ) : form.state === 'error' ? (
           <div className="mt-7">

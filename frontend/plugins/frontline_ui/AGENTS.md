@@ -1100,6 +1100,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — The website picker says when no portal has a domain
+
+- **Summary:** A client portal's `domain` is optional, so the picker could come
+  back with portals and still list nothing, reporting "No results found" as if
+  none existed. It now separates the two: an empty result with portals present
+  says no portal has a domain yet and where to set one, and the query's error is
+  passed to `Combobox.Empty` instead of being dropped.
+- **Affected areas:**
+  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-09` — Choosing a website also captures its app token
 
 - **Summary:** The website picker now carries the chosen client portal's `token`
@@ -1269,18 +1280,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   rendered no tickets. The request now asks for `PIPELINES_PER_PAGE` (100), the
   largest page the API allows.
 - **Affected areas:** `src/modules/ticket/components/ticket-navigations/TicketNavigations.tsx`
-- **Contracts changed:** `None`
-
-### `2026-09-07` — The website field insists on a real URL
-
-- **Summary:** `url` took any text from either the drawer or the table cell and
-  stored it, so a help center could ship a website that no browser would follow;
-  a non-empty value must now parse as an `http://` or `https://` URL. The rule
-  lives once in `helpcenter/utils/helpCenterUrl.ts`, and `InlineTextCell` grew
-  an optional `validate` prop plus controlled open state so a rejected value
-  keeps the cell open with its message instead of saving.
-- **Affected areas:**
-  `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
 - **Contracts changed:** `None`
