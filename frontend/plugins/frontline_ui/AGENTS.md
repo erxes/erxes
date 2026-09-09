@@ -1282,4 +1282,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
 - **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
   bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
-
