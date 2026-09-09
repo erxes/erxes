@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -48,12 +48,14 @@
 - Empty related account overrides are omitted on submit so backend-calculated default debit/credit related accounts remain active, and the related-account editor falls back to default `dt/ct` codes when `customDt/customCt` are empty.
 - Accounting settings pages manage accounts, account categories, permissions, VAT, CTAX, and sync configuration; VAT/CTAX row access is guarded by the unified tax-row permission actions.
 - Journal report rendering groups backend rows recursively, filters by Erkhet-compatible transaction type plus erxes-native account/product/fixed-asset/customer/branch/department fields, renders account statement, trial balance, general ledger, main journal, main journal summary, fund, debt, inventory cost, inventory sale, inventory sale-cost, inventory sale-period, inventory price, inventory profit, inventory shipper, inventory document, inventory seller subsystem, and fixed asset report variants, derives table headers and footers from report column metadata, keeps date filter controls visually consistent, drills account rows into account statements with filter context, calculates parent/footer totals after render, hides all-zero rows unless users choose to show them, loads account-statement detail rows without mutating report state, and opens transaction edit screens from detail rows.
+- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
 | Area                | Path                                                          | Responsibility                                                                                                  |
 | ------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Runtime             | `src/main.ts`                                                 | Starts the accounting UI remote.                                                                                |
+| Dev server config   | `rspack.config.ts`                                            | Configures Module Federation development serving and ignores generated folders during watch mode.                |
 | Plugin config       | `src/config.tsx`                                              | Registers accounting routes and navigation with the host.                                                       |
 | Route composition   | `src/modules/AccountingMain.tsx`                              | Wires accounting pages into the plugin router.                                                                  |
 | Transactions        | `src/modules/transactions`                                    | Owns transaction tables, forms, GraphQL documents, hooks, and print documents.                                  |
@@ -146,6 +148,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — `Bound Dev Watchers`
+
+- **Summary:** Accounting UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
+- **Affected areas:** `rspack.config.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-02` — `Tax Row Permission Guard`
 

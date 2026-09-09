@@ -17,4 +17,21 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
+  (config: import('@rspack/core').Configuration) => {
+    if (process.env.NODE_ENV !== 'production') {
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: [
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/.nx/**',
+          '**/coverage/**',
+          '**/tmp/**',
+          '**/.git/**',
+        ],
+      };
+    }
+
+    return config;
+  },
 );

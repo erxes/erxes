@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-08-17`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -27,12 +27,15 @@
   saved and reopened in the post editor.
 - Allows individual CMS custom-field file uploads up to 650 MiB through the
   platform's chunked-upload contract.
+- Development Rspack serving preserves CMS image asset handling and ignores
+  generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
 | Area          | Path                                                  | Responsibility                            |
 | ------------- | ----------------------------------------------------- | ----------------------------------------- |
 | Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules. |
+| Dev server     | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules. |
 | CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.           |
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                      |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.               |
@@ -192,6 +195,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — Bound dev watchers
+
+- **Summary:** Content UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders while preserving image asset handling.
+- **Affected areas:** `rspack.config.ts`
+- **Contracts changed:** None
 
 ### `2026-08-17` — Raise custom-field upload limit to 650 MiB
 

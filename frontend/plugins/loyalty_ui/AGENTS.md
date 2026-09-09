@@ -4,6 +4,9 @@ Frontend remote for loyalty. **Pricing UI lives here** under
 `src/modules/pricing` + `src/pages/pricing`. Inherits the repo-wide frontend
 rules in `frontend/plugins/AGENTS.md`.
 
+Development Rspack serving ignores generated dependency/cache/output folders to
+keep local file watchers bounded.
+
 ## Pricing form map
 
 | Concern                      | Path                                                                            |
@@ -79,3 +82,13 @@ landed earlier (see backend AGENTS.md).
 
 `pnpm nx lint loyalty_ui` · `pnpm nx build loyalty_ui` ·
 `pnpm nx test loyalty_ui` (when tested behavior changes).
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — Bound dev watchers
+
+- **Summary:** Loyalty UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
+- **Affected areas:** `rspack.config.ts`.
+- **Contracts changed:** None.
