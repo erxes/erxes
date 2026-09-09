@@ -6,6 +6,7 @@ export const GET_HELP_CENTER_WEBSITE_OPTIONS = gql`
       list {
         _id
         domain
+        token
       }
     }
   }

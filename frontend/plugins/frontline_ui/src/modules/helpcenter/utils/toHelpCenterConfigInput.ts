@@ -37,6 +37,7 @@ export const toHelpCenterConfigInput = (
     title: helpCenter.title ?? '',
     description: helpCenter.description ?? '',
     url: helpCenter.url ?? '',
+    erxesAppToken: helpCenter.erxesAppToken ?? '',
     brandId: helpCenter.brandId ?? helpCenter.brand?._id ?? '',
     languageCode: helpCenter.languageCode ?? '',
     kbToggle: helpCenter.kbToggle ?? true,

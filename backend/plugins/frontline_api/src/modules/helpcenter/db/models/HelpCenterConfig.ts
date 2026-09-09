@@ -4,12 +4,16 @@ import {
   IHelpCenterConfigInput,
 } from '@/helpcenter/@types/helpCenterConfig';
 import { helpCenterConfigSchema } from '@/helpcenter/db/definitions/helpCenterConfig';
-import { normalizeHelpCenterConfig } from '@/helpcenter/utils/helpCenterConfig';
+import {
+  normalizeHelpCenterConfig,
+  normalizeHelpCenterUrl,
+} from '@/helpcenter/utils/helpCenterConfig';
 import { IModels } from '~/connectionResolvers';
 
 export interface IHelpCenterConfigModel
   extends Model<IHelpCenterConfigDocument> {
   getConfig(_id: string): Promise<IHelpCenterConfigDocument>;
+  getConfigByDomain(domain: string): Promise<IHelpCenterConfigDocument | null>;
   createOrUpdateConfig(
     config: IHelpCenterConfigInput,
     userId: string,
@@ -27,6 +31,16 @@ export const loadHelpCenterConfigClass = (models: IModels) => {
       }
 
       return config;
+    }
+
+    public static async getConfigByDomain(domain: string) {
+      const url = normalizeHelpCenterUrl(domain);
+
+      if (!url) {
+        throw new Error('Please enter a website address');
+      }
+
+      return models.HelpCenterConfigs.findOne({ url });
     }
 
     public static async createOrUpdateConfig(

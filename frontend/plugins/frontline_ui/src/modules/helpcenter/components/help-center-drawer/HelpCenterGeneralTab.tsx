@@ -143,7 +143,10 @@ export function HelpCenterGeneralTab({
                     <SelectHelpCenterWebsite
                       variant="form"
                       value={field.value}
-                      onValueChange={field.onChange}
+                      onValueChange={(domain, erxesAppToken) => {
+                        field.onChange(domain);
+                        form.setValue('erxesAppToken', erxesAppToken);
+                      }}
                     />
                   </Form.Control>
                   <Form.Message />

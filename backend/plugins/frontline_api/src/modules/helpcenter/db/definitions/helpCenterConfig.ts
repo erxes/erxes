@@ -37,6 +37,7 @@ export const helpCenterConfigSchema = new Schema(
     title: { type: String, required: true },
     description: { type: String },
     url: { type: String },
+    erxesAppToken: { type: String },
     brandId: { type: String },
     languageCode: { type: String },
 

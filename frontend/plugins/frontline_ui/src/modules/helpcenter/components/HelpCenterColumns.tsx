@@ -121,7 +121,9 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
       variant="table"
       value={helpCenter.url ?? ''}
       scope={cellScope(helpCenter, 'url')}
-      onValueChange={(domain) => editHelpCenter(helpCenter, { url: domain })}
+      onValueChange={(domain, erxesAppToken) =>
+        editHelpCenter(helpCenter, { url: domain, erxesAppToken })
+      }
     />
   );
 };

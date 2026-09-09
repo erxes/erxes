@@ -56,6 +56,7 @@ export const types = `
     title: String
     description: String
     url: String
+    erxesAppToken: String
     brandId: String
     brand: Brand
     languageCode: String
@@ -86,6 +87,7 @@ export const types = `
     title: String!
     description: String
     url: String
+    erxesAppToken: String
     brandId: String
     languageCode: String
 
@@ -109,6 +111,7 @@ export const queries = `
   helpCenterConfig(_id: String!): HelpCenterConfig
   helpCenterConfigs(page: Int, perPage: Int, searchValue: String, brandId: String): [HelpCenterConfig]
   helpCenterConfigsTotalCount(searchValue: String, brandId: String): Int
+  helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig
 `;
 
 export const mutations = `

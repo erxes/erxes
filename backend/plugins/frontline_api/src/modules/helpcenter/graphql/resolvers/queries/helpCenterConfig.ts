@@ -1,3 +1,4 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -33,7 +34,10 @@ const buildQuery = ({ searchValue, brandId }: IListArgs) => {
   return query;
 };
 
-export const helpCenterConfigQueries = {
+export const helpCenterConfigQueries: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async helpCenterConfig(
     _root,
     { _id }: { _id: string },
@@ -68,4 +72,16 @@ export const helpCenterConfigQueries = {
 
     return models.HelpCenterConfigs.countDocuments(buildQuery(args));
   },
+
+  async helpCenterGetConfigByDomain(
+    _root,
+    { domain }: { domain: string },
+    { models }: IContext,
+  ) {
+    return models.HelpCenterConfigs.getConfigByDomain(domain);
+  },
+};
+
+helpCenterConfigQueries.helpCenterGetConfigByDomain.wrapperConfig = {
+  skipPermission: true,
 };

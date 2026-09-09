@@ -576,7 +576,9 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   drawer-only; put a new field of that kind in `HelpCenterGeneralTab`, not in a
   column. `kbLabel` still ships in `HELP_CENTER_CONFIG_FIELDS` and is rebuilt by
   `useEditHelpCenter` on every inline write even though no column shows it —
-  dropping it would blank the drawer's field on the next save. The ticket selects cascade: pipeline is disabled until a channel is
+  dropping it would blank the drawer's field on the next save. `erxesAppToken`
+  is in the fragment for exactly the same reason: no field or column shows it,
+  and a whole-config write that omitted it would clear the site's widget token. The ticket selects cascade: pipeline is disabled until a channel is
   chosen and status until a pipeline is, and `useEditHelpCenter` clears the
   downstream ids when an upstream one changes.
 - The website (`url`) is optional and is never typed: both write paths pick a
@@ -600,8 +602,13 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
   the default there, never by adding a second `??` at a call site.
 - The `Website` select is one component,
   `helpcenter/components/SelectHelpCenterWebsite.tsx`, rendered by both surfaces
-  the same way the topic select is. It reads `getClientPortals` and passes a
-  portal's `domain` up. The field is a website, so every surface of it — trigger,
+  the same way the topic select is. It reads `getClientPortals` and passes the
+  chosen portal's `domain` **and its `token`** up — `onValueChange(domain,
+  erxesAppToken)` — because picking a website is also what fills the config's
+  `erxesAppToken`, the widget token the published site boots with. Both call
+  sites must write both fields (the drawer through `form.setValue`, the table
+  cell through one `editHelpCenter` patch); writing only `url` leaves a config
+  pointing at one portal with another's token. The field is a website, so every surface of it — trigger,
   option, search — shows **the domain and nothing else**; a portal's `name` is
   not read here. Because the stored value is a domain, `toWebsiteOptions` keeps
   only portals that have one and **collapses portals that share a domain** — two
@@ -1093,6 +1100,22 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Choosing a website also captures its app token
+
+- **Summary:** The website picker now carries the chosen client portal's `token`
+  alongside its domain, and the drawer and table cell store it as the config's
+  `erxesAppToken`, so the published site gets the messenger widget token from
+  `helpCenterGetConfigByDomain` without anyone typing it.
+- **Affected areas:**
+  `src/modules/helpcenter/components/SelectHelpCenterWebsite.tsx`,
+  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterGeneralTab.tsx`,
+  `src/modules/helpcenter/graphql/queries/{getHelpCenters,getHelpCenterWebsiteOptions}.ts`,
+  `src/modules/helpcenter/{types,constants}/index.ts`,
+  `src/modules/helpcenter/utils/toHelpCenterConfigInput.ts`
+- **Contracts changed:** `HelpCenterConfigFields` now selects `erxesAppToken`;
+  `frontlineHelpCenterWebsiteOptions` now selects the portal's `token`.
+
 ### `2026-09-09` — The help center's website is picked from a client portal
 
 - **Summary:** The `Website` field in the drawer's General settings and in the
@@ -1262,17 +1285,4 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   unfiltered list to resolve `editId`.
 - **Affected areas:** `src/modules/FrontlineSubGroups.tsx`,
   `src/modules/helpcenter/components/HelpCenterSubGroup.tsx` (deleted)
-- **Contracts changed:** `None`
-
-### `2026-09-07` — A new help center shows its knowledge base by default
-
-- **Summary:** The New Topic drawer opened with `Show knowledge base` off, so
-  the topic and label fields under it stayed hidden until the switch was found;
-  `EMPTY_TOPIC_FORM` now starts it on, matching the `?? true` the drawer reset
-  and `toTopicDrawerRecord` already used. `useEditHelpCenter` rebuilt the doc
-  with `?? false`, which switched the feature off on the next inline edit of a
-  help center that had no stored value — it now agrees with the other three.
-- **Affected areas:**
-  `src/modules/knowledgebase/topicDrawerConstants.ts`,
-  `src/modules/helpcenter/hooks/useEditHelpCenter.ts`
 - **Contracts changed:** `None`

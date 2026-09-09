@@ -6,6 +6,7 @@ export const HELP_CENTER_CONFIG_FIELDS = gql`
     title
     description
     url
+    erxesAppToken
     brandId
     languageCode
 

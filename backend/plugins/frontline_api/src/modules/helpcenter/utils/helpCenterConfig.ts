@@ -14,11 +14,14 @@ const isHttpUrl = (value: string) => {
   }
 };
 
+export const normalizeHelpCenterUrl = (url?: string): string =>
+  url ? removeExtraSpaces(removeLastTrailingSlash(url)) : '';
+
 export const normalizeHelpCenterConfig = (
   config: IHelpCenterConfigInput,
 ): IHelpCenterConfigInput => {
   const title = config.title?.trim() ?? '';
-  const url = config.url ? removeExtraSpaces(removeLastTrailingSlash(config.url)) : '';
+  const url = normalizeHelpCenterUrl(config.url);
 
   if (!title) {
     throw new Error('Please enter a help center name');
@@ -47,6 +50,7 @@ export const normalizeHelpCenterConfig = (
     ...config,
     title,
     url,
+    erxesAppToken: config.erxesAppToken?.trim() ?? '',
     description: config.description?.trim() ?? '',
     kbToggle,
     kbLabel: kbToggle ? (config.kbLabel?.trim() ?? '') : '',

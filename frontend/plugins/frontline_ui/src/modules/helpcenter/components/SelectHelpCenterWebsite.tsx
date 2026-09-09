@@ -10,13 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { GET_HELP_CENTER_WEBSITE_OPTIONS } from '@/helpcenter/graphql/queries/getHelpCenterWebsiteOptions';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
-type TClientPortalOption = { _id: string; domain?: string };
+type TClientPortalOption = { _id: string; domain?: string; token?: string };
 
 type TClientPortalOptionsResponse = {
   getClientPortals: { list: TClientPortalOption[] } | null;
 };
 
-type TWebsiteOption = { _id: string; domain: string };
+type TWebsiteOption = { _id: string; domain: string; erxesAppToken: string };
 
 const toWebsiteOptions = (portals: TClientPortalOption[]): TWebsiteOption[] => {
   const byDomain = new Map<string, TWebsiteOption>();
@@ -28,7 +28,11 @@ const toWebsiteOptions = (portals: TClientPortalOption[]): TWebsiteOption[] => {
       continue;
     }
 
-    byDomain.set(domain, { _id: portal._id, domain });
+    byDomain.set(domain, {
+      _id: portal._id,
+      domain,
+      erxesAppToken: portal.token ?? '',
+    });
   }
 
   return [...byDomain.values()];
@@ -41,7 +45,7 @@ export const SelectHelpCenterWebsite = ({
   scope,
 }: {
   value: string;
-  onValueChange: (domain: string) => void;
+  onValueChange: (domain: string, erxesAppToken: string) => void;
   variant: 'table' | 'form';
   scope?: string;
 }) => {
@@ -76,7 +80,7 @@ export const SelectHelpCenterWebsite = ({
                 key={website._id}
                 value={website.domain}
                 onSelect={() => {
-                  onValueChange(website.domain);
+                  onValueChange(website.domain, website.erxesAppToken);
                   setOpen(false);
                 }}
               >

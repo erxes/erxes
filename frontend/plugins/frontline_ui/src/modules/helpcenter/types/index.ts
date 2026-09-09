@@ -25,6 +25,7 @@ export interface IHelpCenter {
   title?: string;
   description?: string;
   url?: string;
+  erxesAppToken?: string;
   brandId?: string;
   languageCode?: string;
 
@@ -60,6 +61,7 @@ export interface IHelpCenterConfigInput {
   title: string;
   description: string;
   url: string;
+  erxesAppToken: string;
   brandId: string;
   languageCode: string;
 

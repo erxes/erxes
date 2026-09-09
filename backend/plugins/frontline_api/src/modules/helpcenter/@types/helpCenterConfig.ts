@@ -30,6 +30,7 @@ export interface IHelpCenterConfig {
   title?: string;
   description?: string;
   url?: string;
+  erxesAppToken?: string;
   brandId?: string;
   languageCode?: string;
 
