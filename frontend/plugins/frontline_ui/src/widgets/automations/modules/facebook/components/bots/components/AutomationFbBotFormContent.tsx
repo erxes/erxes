@@ -115,7 +115,9 @@ export const AutomationFbBotFormContent = ({
               name="iceBreakers"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t('ice-breakers', { defaultValue: 'Ice breakers' })}</Form.Label>
+                  <Form.Label>
+                    {t('ice-breakers', { defaultValue: 'Ice breakers' })}
+                  </Form.Label>
                   <Form.Description>
                     {t('ice-breakers-description', {
                       defaultValue:
