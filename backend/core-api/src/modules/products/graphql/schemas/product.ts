@@ -18,6 +18,7 @@ export const types = `
     status: String
     code: String
     type: String
+    shortDescription: String
     description: String
     barcodes: [String]
     variants: JSON
@@ -146,6 +147,7 @@ export const mutationParams = `
   shortName: String,
   categoryId: String,
   type: String,
+  shortDescription: String,
   description: String,
   barcodes: [String],
   variants: JSON,

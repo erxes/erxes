@@ -62,6 +62,7 @@ export function getProductFormDefaultValues(
     status: productDetail.status || '',
     uom: toUomValue(productDetail.uom),
     shortName: productDetail.shortName || '',
+    shortDescription: productDetail.shortDescription || '',
     description: productDetail.description || '',
     barcodeDescription: productDetail.barcodeDescription || '',
     vendorId: productDetail.vendorId || '',

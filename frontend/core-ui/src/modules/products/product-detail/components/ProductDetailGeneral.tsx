@@ -169,6 +169,16 @@ export const ProductDetailGeneral = () => {
           />
           <Form.Field
             control={form.control}
+            name="shortDescription"
+            render={({ field }) => (
+              <div className="col-span-2 space-y-2">
+                <Label>{t('short-description')}</Label>
+                <Input {...field} />
+              </div>
+            )}
+          />
+          <Form.Field
+            control={form.control}
             name="description"
             render={({ field }) => (
               <div className="col-span-2 space-y-2">

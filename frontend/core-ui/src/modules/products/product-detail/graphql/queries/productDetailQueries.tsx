@@ -12,6 +12,7 @@ export const PRODUCT_DETAIL_QUERY = gql`
       vendorId
       scopeBrandIds
       status
+      shortDescription
       description
       unitPrice
       duration
