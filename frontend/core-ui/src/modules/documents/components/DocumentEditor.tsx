@@ -1,5 +1,6 @@
 import { DocumentAttributesSidebar } from '@/documents/components/DocumentAttributesSidebar';
 import { DocumentEditorSkeleton } from '@/documents/components/DocumentEditorSkeleton';
+import { DocumentsErrorState } from '@/documents/components/DocumentsErrorState';
 import { useDocument } from '@/documents/hooks/useDocument';
 import { useDocumentAttributes } from '@/documents/hooks/useDocumentAttributes';
 import {
@@ -214,7 +215,7 @@ const DocumentTitleEditor = ({
 };
 
 export const DocumentEditor = () => {
-  const { document, documentId, loading } = useDocument();
+  const { document, documentId, hasError, loading, refetch } = useDocument();
   const editor = useBlockEditor({});
   const { attributes, loading: attributesLoading } = useDocumentAttributes();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -232,6 +233,16 @@ export const DocumentEditor = () => {
 
   if (loading) {
     return <DocumentEditorSkeleton />;
+  }
+
+  if (hasError) {
+    return (
+      <DocumentsErrorState
+        title="Couldn’t load document"
+        description="Check your connection and try again."
+        onRetry={() => void refetch()}
+      />
+    );
   }
 
   if (!document && !isCreating) {

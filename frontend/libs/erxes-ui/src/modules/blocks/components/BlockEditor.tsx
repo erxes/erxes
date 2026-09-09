@@ -3,6 +3,7 @@ import {
   DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
+  TableHandlesController,
 } from '@blocknote/react';
 import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
@@ -16,6 +17,8 @@ import { KeyboardEvent, useState } from 'react';
 import { BlockEditorProps } from '../types';
 import { SlashMenu } from './SlashMenu';
 import { Toolbar } from './Toolbar';
+import { BarcodeAttribute } from './BarcodeAttribute';
+import { TableHandleWithRemove } from './TableHandleWithRemove';
 
 const isEmptyBlock = (block?: any) =>
   !!block &&
@@ -151,6 +154,7 @@ export const BlockEditor = ({
         editable={!readonly && !disabled}
         onChange={onChange}
         formattingToolbar={false}
+        tableHandles={false}
         shadCNComponents={{
           Button: { Button },
           Tooltip: {
@@ -168,6 +172,7 @@ export const BlockEditor = ({
           suggestionMenuComponent={SlashMenu}
         />
         <Toolbar />
+        <TableHandlesController tableHandle={TableHandleWithRemove} />
         {children}
       </BlockNoteView>
     </div>
@@ -210,10 +215,13 @@ export const Attribute = createReactInlineContentSpec(
     content: 'none',
   },
   {
-    render: (props) => (
-      <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
-        {props.inlineContent.props.name}
-      </span>
-    ),
+    render: (props) =>
+      props.inlineContent.props.value === 'barcode' ? (
+        <BarcodeAttribute />
+      ) : (
+        <span className="bg-yellow-50 p-1 rounded font-bold text-sm text-yellow-900 inline-flex items-center">
+          {props.inlineContent.props.name}
+        </span>
+      ),
   },
 );
