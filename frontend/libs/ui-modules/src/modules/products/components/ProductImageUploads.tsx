@@ -53,7 +53,6 @@ const VIDEO_UPLOAD_CONFIG_QUERY = gql`
   }
 `;
 
-
 const useCloudflareStreamEnabled = () => {
   const { data, loading } = useQuery(VIDEO_UPLOAD_CONFIG_QUERY, {
     fetchPolicy: 'cache-first',
