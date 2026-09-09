@@ -39,6 +39,7 @@ type TAutomationRecord = {
 
 export type TBotAutomationTrigger = {
   id: string;
+  type: string;
   config: TBotMessageTriggerConfig;
 };
 
@@ -55,12 +56,16 @@ export type TBotAutomation = {
  */
 export const useFacebookBotAutomations = (
   botId?: string,
-  triggerType: string = FACEBOOK_MESSAGE_TRIGGER_TYPE,
+  triggerType: string | string[] = FACEBOOK_MESSAGE_TRIGGER_TYPE,
 ) => {
+  const triggerTypes = useMemo(
+    () => (Array.isArray(triggerType) ? triggerType : [triggerType]),
+    [triggerType],
+  );
   const { data, loading } = useQuery<{ automations: TAutomationRecord[] }>(
     FACEBOOK_BOT_AUTOMATIONS,
     {
-      variables: { triggerTypes: [triggerType] },
+      variables: { triggerTypes },
       skip: !botId,
     },
   );
@@ -75,10 +80,12 @@ export const useFacebookBotAutomations = (
         const triggers = (automation.triggers || [])
           .filter(
             (trigger) =>
-              trigger.type === triggerType && trigger.config?.botId === botId,
+              triggerTypes.includes(trigger.type) &&
+              trigger.config?.botId === botId,
           )
-          .map(({ id, config }) => ({
+          .map(({ id, type, config }) => ({
             id,
+            type,
             config: config as TBotMessageTriggerConfig,
           }));
 
@@ -98,7 +105,7 @@ export const useFacebookBotAutomations = (
       },
       [],
     );
-  }, [botId, data, triggerType]);
+  }, [botId, data, triggerTypes]);
 
   return { automations, loading };
 };

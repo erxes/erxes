@@ -17,6 +17,7 @@ export interface IFacebookCommentOutbox {
 
   text: string;
   attachments?: any[];
+  mentionSender?: boolean;
 
   status: TCommentOutboxStatus;
   sendAfter: Date;
@@ -46,6 +47,7 @@ export const facebookCommentOutboxSchema = schemaWrapper(
 
     text: { type: String, default: '' },
     attachments: { type: [Object], default: [] },
+    mentionSender: { type: Boolean, default: false },
 
     status: {
       type: String,

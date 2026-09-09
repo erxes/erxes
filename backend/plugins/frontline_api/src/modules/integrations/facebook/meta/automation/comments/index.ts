@@ -31,7 +31,7 @@ export const actionCreateComment = async (
     const { config } = action || {};
 
     const { recipientId, comment_id, senderId, erxesApiId } = target;
-    const { attachments } = config;
+    const { attachments, mentionSender } = config;
     const text = pickReplyText(config);
 
     const inboxConversation = await models.Conversations.findOne({
@@ -81,6 +81,7 @@ export const actionCreateComment = async (
       integrationId: inboxConversation.integrationId,
       text,
       attachments,
+      mentionSender: !!mentionSender,
     });
 
     // The engine records the action as queued and moves on; the outbox worker

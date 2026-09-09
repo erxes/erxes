@@ -132,3 +132,24 @@ export const FACEBOOK_BOT_DELIVERY = gql`
     }
   }
 `;
+
+export const FACEBOOK_BOT_COMMENT_REPLY_STATS = gql`
+  query FacebookMessengerBotCommentReplyStats($_id: String!, $limit: Int) {
+    facebookMessengerBotCommentReplyStats(_id: $_id, limit: $limit) {
+      text
+      total
+      sent
+      failed
+      pending
+      postCount
+      posts {
+        postId
+        count
+        content
+        permalinkUrl
+      }
+      lastAt
+      lastError
+    }
+  }
+`;

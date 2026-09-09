@@ -2,8 +2,10 @@ import { useAutomationBuilderSidebarHooks } from '@/automations/components/build
 import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
+import { automationEdgeInsertTargetState } from '@/automations/states/automationState';
 import { AutomationNodeType } from '@/automations/types';
 import { cn } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { motion } from 'motion/react';
 
 export const AutomationNodeLibraryTabs = ({
@@ -13,9 +15,10 @@ export const AutomationNodeLibraryTabs = ({
 }) => {
   const { awaitingToConnectNodeId } = useAutomation();
   const workflowEditScope = useWorkflowEditScope();
+  const edgeInsertTarget = useAtomValue(automationEdgeInsertTargetState);
   const { openNodeLibrary } = useAutomationBuilderSidebarHooks();
 
-  if (awaitingToConnectNodeId || workflowEditScope) {
+  if (awaitingToConnectNodeId || edgeInsertTarget || workflowEditScope) {
     return null;
   }
 

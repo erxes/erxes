@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -792,6 +792,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   interaction, an already-open window, or a valid tag.
 - Comment-triggered Facebook automations never send `typing_on`, including bot
   sequence steps after the initial private reply.
+- `FACEBOOK_GRAPH_URL` redirects every Graph call to a stand-in through
+  `fbgraph`'s `setGraphUrl`. It exists so the outbox, pacing and breaker can be
+  load tested without a page absorbing the traffic — Meta enforces per page,
+  and a stress run against a real one is what gets it restricted. Unset in any
+  deployment.
+- `POST /facebook/receive` answers every webhook it accepts, including one it
+  ignores or cannot classify. Falling through without a response leaves the
+  request open and makes Facebook redeliver the same event.
+- A public comment reply carries the `@[senderId]` mention only when its action
+  sets `mentionSender`. The mention was unconditional for years, which tagged
+  every commenter publicly whether the automation wanted it or not; the outbox
+  document carries the flag so a queued reply keeps the setting it was created
+  with.
 - In `sendReply`, request-level Graph error codes (`1`, `10`, `100`, `10900`)
   must not flip `FacebookIntegrations.healthStatus` to a token state — only
   genuine token and permission failures may.
@@ -987,6 +1000,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ConversationMessages` model validates the parent against its own
   conversations collection, so a crossed model fails at write time with
   `Conversation not found with id ...` after the message has already been sent.
+- `checkContentConditions` ORs its conditions: each entry is another way for the
+  same trigger to answer, so adding one widens the match. Every branch must
+  keep returning a boolean rather than falling out of the loop — the original
+  returned inside the `switch`, so only the first condition was ever read and a
+  second one silently did nothing. A condition holding no keyword matches
+  nothing; `every` over an empty list is `true`, which made a half-filled rule
+  answer every message. Keyword text is never compiled into a `RegExp`: a
+  comment rule holding a bracket or a plus threw and took the whole trigger
+  check down with it.
 - Status permissions are three separate rules and must stay separate.
   `Status.memberIds` (with `visibilityType: 'private'`) decides who may **see**
   the status, `canMoveMemberIds` who may move tickets **across** it, and
@@ -1467,6 +1489,61 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — Graph calls can be pointed at a stand-in
+
+- **Summary:** The comment outbox had no way to be exercised without sending to
+  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
+  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
+  two paths that returned without answering the request now end it.
+- **Affected areas:**
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`,
+  `src/modules/integrations/facebook/helpers.ts`
+- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
+  empty by default.
+
+### `2026-09-09` — The bot reports which replies it repeats
+
+- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
+  bot surface could say two replies were sent but not what they were;
+  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
+  returns each one's totals, newest failure, last use and the posts it ran
+  under — named by the post's own text from `FacebookPostConversations`, since
+  the outbox only records an id.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
+  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
+- **Contracts changed:** New `FacebookBotCommentReplyStat` and
+  `FacebookBotCommentReplyPost` types and
+  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
+  capped at 50 rows.
+
+### `2026-09-09` — The comment reply mention became opt-in
+
+- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
+  the Send comment action now carries a `mentionSender` flag, stored on the
+  outbox document, and the mention goes out only when it is set.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean; automations without it stop mentioning.
+
+### `2026-09-09` — Keyword conditions on Meta triggers actually work
+
+- **Summary:** `checkContentConditions` read only its first condition, could
+  never satisfy `every` on the Facebook side (it compared each keyword to the
+  whole message), matched every message when a rule held no keyword, and threw
+  whenever a keyword contained a regex metacharacter; conditions now OR
+  together and each operator returns a boolean.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
+- **Contracts changed:** None. `checkContentConditions` returns `boolean`
+  instead of `boolean | undefined`; matching stays case-sensitive except
+  `isContains`, as before.
+
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
 - **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
@@ -1537,44 +1614,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
 - **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
 - **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
-
-### `2026-09-05` — `Use the shared propertiesData path helper`
-
-- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
-- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll voting has no in-repo client
-
-- **Summary:** The customer-facing poll surfaces were removed from
-  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
-  have no caller in this repository.
-- **Affected areas:** `AGENTS.md` only — no API change.
-- **Contracts changed:** None.
-
-### `2026-09-03` — A help center carries its published site's appearance
-
-- **Summary:** Added a nested `styles` block to the knowledge base topic holding
-  the published site's logo and favicon, six surface colours, base and heading
-  fonts with their text and link colours, three form-element colours, and raw
-  header/footer HTML, exposed as `KnowledgeBaseTopicStyles` and accepted as
-  `KnowledgeBaseTopicStylesInput`.
-- **Affected areas:**
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic.styles` and
-  `KnowledgeBaseTopicDoc.styles` added, with the two new
-  `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-
-### `2026-09-03` — A knowledge base topic need not have a brand
-
-- **Summary:** `KnowledgeBaseTopicDoc.brandId` was `String!`, so a topic could
-  not be created without a brand; the help center drawer no longer collects one,
-  so the input field is now nullable and the `brand` resolver returns `null` for
-  a missing or empty `brandId` instead of a Brand reference with an empty key.
-- **Affected areas:**
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`,
-  `src/modules/knowledgebase/graphql/resolvers/customResolvers/topic.ts`
-- **Contracts changed:** `KnowledgeBaseTopicDoc.brandId` is now `String`
-  (was `String!`).

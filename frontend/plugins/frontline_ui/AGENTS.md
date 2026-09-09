@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-08`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -1073,6 +1073,47 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — The bot's Activity tab is about comments
+
+- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
+  with the comment outbox counters and named neither; it is now a Messenger
+  profile block and a Comment replies block that lists each distinct reply with
+  the share it takes of everything the page has said and the posts it ran
+  under, linked by permalink. Connected automations covers
+  comment triggers as well as message ones, badged per row, and Create
+  automation offers both trigger types.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
+- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
+  type or many, and each returned trigger carries its `type`.
+
+### `2026-09-09` — The bot form splits settings from activity
+
+- **Summary:** The Facebook bot sheet mixed what the bot *is* with what it is
+  *doing*; the name stays at the top and the rest moved into Settings
+  (persistent menu, ice breakers, optional configuration) and Activity (health
+  counters, connected automations) tabs.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply mention is a setting
+
+- **Summary:** The Send comment action gained a "Mention the commenter" switch;
+  it is off unless turned on, so a reply no longer tags the commenter by
+  default.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean.
+
 ### `2026-09-08` — The bot form reports its delivery health
 
 - **Summary:** `FacebookBotHealth` exposes `lastError` and the breaker fields,
@@ -1217,68 +1258,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   accept `iceBreakers: [BotIceBreakerInput]` and `getStartedText`;
   `FacebookMessengerBot` returns both. The `facebook:messages` trigger accepts an
   `iceBreaker` condition with `iceBreakerIds`.
-
-### `2026-09-08` — The bot form previews what Messenger will show
-
-- **Summary:** The bot sheet is now two columns: the form on the left and a
-  Messenger simulation on the right, toggling between phone and desktop chrome
-  and between the welcome screen and an open persistent menu. Menu actions are
-  tappable and resolve to the automations that would start, following the same
-  order as `receiveFacebookMessageTrigger`. The form lists the bot's connected
-  automations. The preview is derived by
-  `buildMessengerProfilePreview`, which mirrors
-  `FacebookBots.connectBotPageMessenger`, so it shows the Get Started action the
-  backend prepends and warns when a menu item has no text (dropped), a link item
-  has no URL (sent as a plain button), the greeting exceeds 160 characters, or
-  the menu exceeds Facebook's five actions per level. The persistent-menu form
-  limit dropped from five to four, derived from that cap minus the prepended
-  Get Started.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/` — new
-  `utils/buildMessengerProfilePreview.ts` and
-  `utils/resolveBotMenuOutcome.ts`,
-  `components/simulator/{MessengerFrame,FacebookBotSimulator}.tsx`,
-  `components/FacebookBotAutomations.tsx`,
-  `graphql/botAutomationsQueries.ts`, `hooks/useFacebookBotAutomations.tsx`,
-  `constants.ts`; `components/FacebookBotFormBody.tsx`,
-  `components/FacebookBotSheet.tsx`,
-  `components/AutomationFbBotFormContent.tsx`.
-- **Contracts changed:** `None` — reads existing `automations(triggerTypes:)`.
-
-### `2026-09-08` — A Facebook bot is created from its integration
-
-- **Summary:** The facebook-messenger integration table gained a `Bot` column and
-  the integration edit dialog a bot section; both show the connected bot's name
-  and health, and both open the bot form with the integration's `accountId` and
-  page already bound, so the two-step account/page wizard is skipped. Both
-  surfaces open the same sheet — the table row mounts it and the dialog opens it
-  through a `botId` query parameter, so it survives a reload or the back button
-  and never stacks twice. Saving leaves the sheet open. A
-  saved bot's sheet also links to a seeded new automation. The save
-  hook now takes the bot id from the form's own record instead of reading only
-  the `facebookBotId` query param, which previously made an edit opened outside
-  the bots settings page run the add mutation.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/bots/` — new
-  `hooks/useFacebookIntegrationBot.tsx` and
-  `components/{FacebookBotSummary,FacebookBotFormBody,FacebookBotSheet,FacebookIntegrationBotCell,FacebookIntegrationBotSection}.tsx`;
-  `context/FbBotFormContext.tsx`, `components/AutomationFbBotFormContent.tsx`,
-  `components/AutomationBotFormEffect.tsx`, `hooks/useFacebookBotForm.tsx`;
-  `src/modules/integrations/components/IntegrationsRecordTable.tsx` and
-  `src/modules/integrations/facebook/components/FacebookIntegrationDetail.tsx`.
-- **Contracts changed:** `None` — reuses `facebookGetIntegrations`, the existing
-  bot queries and mutations, and `buildAutomationSeedLink` from `ui-modules`.
-
-### `2026-09-07` — The website field insists on a real URL
-
-- **Summary:** `url` took any text from either the drawer or the table cell and
-  stored it, so a help center could ship a website that no browser would follow;
-  a non-empty value must now parse as an `http://` or `https://` URL. The rule
-  lives once in `helpcenter/utils/helpCenterUrl.ts`, and `InlineTextCell` grew
-  an optional `validate` prop plus controlled open state so a rejected value
-  keeps the cell open with its message instead of saving.
-- **Affected areas:**
-  `src/modules/helpcenter/utils/helpCenterUrl.ts` (new),
-  `src/modules/helpcenter/components/HelpCenterColumns.tsx`,
-  `src/modules/knowledgebase/components/TopicGeneralTab.tsx`
-- **Contracts changed:** `None`

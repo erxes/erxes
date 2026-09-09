@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Form, Textarea, toast } from 'erxes-ui';
+import { Button, Form, Switch, Textarea, toast } from 'erxes-ui';
 import { useImperativeHandle } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -108,6 +108,34 @@ export const CommentActionForm = ({
             })}
           </p>
         )}
+
+        <Form.Field
+          control={control}
+          name="mentionSender"
+          render={({ field }) => (
+            <Form.Item className="flex flex-row items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Form.Label>
+                  {t('mention-commenter', {
+                    defaultValue: 'Mention the commenter',
+                  })}
+                </Form.Label>
+                <Form.Description>
+                  {t('mention-commenter-description', {
+                    defaultValue:
+                      'Tags the person by name at the start of the public reply.',
+                  })}
+                </Form.Description>
+              </div>
+              <Form.Control>
+                <Switch
+                  checked={!!field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
 
         <Form.Field
           control={control}

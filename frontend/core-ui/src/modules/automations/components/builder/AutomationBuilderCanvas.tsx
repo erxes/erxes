@@ -38,6 +38,7 @@ export const AutomationBuilderCanvas = () => {
     onNodeDoubleClick,
     onPaneClick,
     onDragOver,
+    onNodeDrag,
     onNodeDragStop,
     setReactFlowInstance,
   } = useReactFlowEditor();
@@ -58,6 +59,7 @@ export const AutomationBuilderCanvas = () => {
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onPaneClick={onPaneClick}
+        onNodeDrag={isReadOnly ? undefined : onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onInit={setReactFlowInstance}
         onDragOver={isReadOnly ? undefined : onDragOver}

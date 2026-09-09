@@ -129,6 +129,25 @@ export const types = `
     nextSendAt: Date
   }
 
+  type FacebookBotCommentReplyPost {
+    postId: String
+    count: Int
+    content: String
+    permalinkUrl: String
+  }
+
+  type FacebookBotCommentReplyStat {
+    text: String
+    total: Int
+    sent: Int
+    failed: Int
+    pending: Int
+    postCount: Int
+    posts: [FacebookBotCommentReplyPost]
+    lastAt: Date
+    lastError: String
+  }
+
   input BotPersistentMenuInput {
     _id:String
     type:String
@@ -193,6 +212,7 @@ export const queries = `
   facebookMessengerBots:[FacebookMessengerBot]
   facebookMessengerBot(_id:String):FacebookMessengerBot
   facebookMessengerBotDelivery(_id:String!):FacebookBotDelivery
+  facebookMessengerBotCommentReplyStats(_id:String!, limit:Int):[FacebookBotCommentReplyStat]
   facebookGetBotPosts(botId:String):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
 `;

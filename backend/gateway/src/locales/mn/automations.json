@@ -199,6 +199,7 @@
   "trigger-type-description": "Триггер идэвхжүүлдэг автоматжуулалтын төрлөөс эхлэнэ үү",
   "choose-action-type": "Үйлдлийн төрлийг сонгоно уу",
   "action-type-description": "Автоматжуулалт идэвхжсэний дараа юу болохыг сонгоно уу",
+  "placement-new-node": "Шинэ node",
   "choose-workflow": "Workflow сонгоно уу",
   "workflow-description": "Хадгалсан workflow-г энэ автоматжуулалт дотор дахин ашиглана",
   "search": "Хайх...",

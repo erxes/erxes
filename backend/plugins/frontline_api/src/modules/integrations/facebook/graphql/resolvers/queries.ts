@@ -18,6 +18,20 @@ import {
   resolveFacebookApp,
 } from '@/integrations/facebook/commonUtils';
 
+/** How many posts one reply text lists before the count speaks for itself. */
+const TOP_POSTS_PER_REPLY = 5;
+
+type TCommentReplyStat = {
+  text: string;
+  total: number;
+  sent: number;
+  failed: number;
+  pending: number;
+  posts?: { postId: string; count: number }[];
+  lastAt?: Date;
+  lastError?: string;
+};
+
 const buildSelector = async (conversationId: string, model: any) => {
   const query = { conversationId: '' };
 
@@ -662,6 +676,121 @@ export const facebookQueries = {
       failed: byStatus.failed || 0,
       nextSendAt: next?.sendAfter || null,
     };
+  },
+
+  /**
+   * What this page has been saying under its comments, one row per distinct
+   * reply. Meta counts repetition, not volume, so the useful question is which
+   * sentence dominates a page rather than what the last ten replies were.
+   */
+  async facebookMessengerBotCommentReplyStats(
+    _root,
+    { _id, limit }: { _id: string; limit?: number },
+    { models }: IContext,
+  ) {
+    const bot = await models.FacebookBots.findOne({ _id }, { pageId: 1 }).lean();
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    const countIf = (status: string) => ({
+      $sum: { $cond: [{ $eq: ['$status', status] }, 1, 0] },
+    });
+
+    const rows: TCommentReplyStat[] =
+      await models.FacebookCommentOutbox.aggregate([
+        { $match: { pageId: bot.pageId } },
+        { $sort: { createdAt: 1 } },
+        {
+          // Per post first, so the second stage can both total the text and
+          // keep the breakdown of where it was used.
+          $group: {
+            _id: { text: '$text', postId: '$postId' },
+            count: { $sum: 1 },
+            sent: countIf('sent'),
+            failed: countIf('failed'),
+            pending: countIf('pending'),
+            lastAt: { $last: '$createdAt' },
+            // `$last` would report the newest row's error, which is empty
+            // whenever the newest row succeeded. Documents compare field by
+            // field, so a max over `{ at, error }` is the newest failure.
+            lastFailure: {
+              $max: {
+                $cond: [
+                  { $eq: ['$status', 'failed'] },
+                  { at: '$createdAt', error: '$error' },
+                  null,
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.text',
+            total: { $sum: '$count' },
+            sent: { $sum: '$sent' },
+            failed: { $sum: '$failed' },
+            pending: { $sum: '$pending' },
+            lastAt: { $max: '$lastAt' },
+            lastFailure: { $max: '$lastFailure' },
+            posts: { $push: { postId: '$_id.postId', count: '$count' } },
+          },
+        },
+        { $sort: { total: -1 } },
+        { $limit: Math.min(Math.max(limit || 10, 1), 50) },
+        {
+          $project: {
+            _id: 0,
+            text: '$_id',
+            total: 1,
+            sent: 1,
+            failed: 1,
+            pending: 1,
+            posts: 1,
+            lastAt: 1,
+            lastError: '$lastFailure.error',
+          },
+        },
+      ]);
+
+    const postIds = [
+      ...new Set(
+        rows.flatMap(({ posts }) =>
+          (posts || []).map(({ postId }) => postId).filter(Boolean),
+        ),
+      ),
+    ];
+
+    // The outbox only records the id; the post's own text lives with the
+    // conversation Facebook opened for it.
+    const postDocs = postIds.length
+      ? await models.FacebookPostConversations.find(
+          { postId: { $in: postIds } },
+          { postId: 1, content: 1, permalink_url: 1 },
+        ).lean()
+      : [];
+
+    const postById = new Map(postDocs.map((post) => [post.postId, post]));
+
+    return rows.map((row) => {
+      const posts = (row.posts || []).filter(({ postId }) => Boolean(postId));
+
+      return {
+        ...row,
+        postCount: posts.length,
+        posts: posts
+          .sort((a, b) => b.count - a.count)
+          .slice(0, TOP_POSTS_PER_REPLY)
+          .map(({ postId, count }) => ({
+            postId,
+            count,
+            content: postById.get(postId)?.content || '',
+            permalinkUrl: postById.get(postId)?.permalink_url || '',
+          })),
+      };
+    });
   },
 
   async facebookGetBotPosts(_root, { botId }, { models }: IContext) {

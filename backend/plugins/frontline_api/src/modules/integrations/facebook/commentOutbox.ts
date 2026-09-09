@@ -19,6 +19,7 @@ type TQueueReplyInput = {
   integrationId?: string;
   text: string;
   attachments?: any[];
+  mentionSender?: boolean;
 };
 
 /**
@@ -88,7 +89,13 @@ export const drainCommentReply = async (
     });
   }
 
-  const data: any = { message: `@[${outbox.senderId}] ${outbox.text}` };
+  // The mention tags the commenter publicly under the post, so it goes out
+  // only when the automation asked for it.
+  const data: any = {
+    message: outbox.mentionSender
+      ? `@[${outbox.senderId}] ${outbox.text}`
+      : outbox.text,
+  };
   const [attachment] = outbox.attachments || [];
 
   if (attachment?.url) {
