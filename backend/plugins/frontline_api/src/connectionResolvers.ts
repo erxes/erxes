@@ -735,10 +735,7 @@ export const loadClasses = (
   models.HelpCenterConfigs = db.model<
     IHelpCenterConfigDocument,
     IHelpCenterConfigModel
-  >(
-    'frontline_help_center_configs',
-    loadHelpCenterConfigClass(models),
-  );
+  >('frontline_help_center_configs', loadHelpCenterConfigClass(models));
 
   models.ReportCharts = db.model<IReportChartDocument, IReportChartModel>(
     'frontline_report_charts',

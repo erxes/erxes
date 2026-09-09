@@ -1634,4 +1634,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `KnowledgeBaseTopic.styles` and
   `KnowledgeBaseTopicDoc.styles` added, with the two new
   `KnowledgeBaseTopicStyles`/`KnowledgeBaseTopicStylesInput` shapes.
-

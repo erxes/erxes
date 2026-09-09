@@ -18,7 +18,9 @@ export const normalizeHelpCenterConfig = (
   config: IHelpCenterConfigInput,
 ): IHelpCenterConfigInput => {
   const title = config.title?.trim() ?? '';
-  const url = config.url ? removeExtraSpaces(removeLastTrailingSlash(config.url)) : '';
+  const url = config.url
+    ? removeExtraSpaces(removeLastTrailingSlash(config.url))
+    : '';
 
   if (!title) {
     throw new Error('Please enter a help center name');
