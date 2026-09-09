@@ -562,8 +562,15 @@ const QuotedToggle = ({
 
 const AttachmentList = ({ attachments }: { attachments: Attachment[] }) => (
   <div className="flex flex-wrap gap-2 py-3 border-t border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.06)] mt-1">
-    {attachments.map((a, i) => (
-      <AttachmentChip key={`${a.url ?? a.filename}-${i}`} attachment={a} />
+    {attachments.map((a) => (
+      <AttachmentChip
+        key={
+          a.contentId ??
+          a.url ??
+          `${a.filename ?? 'attachment'}-${a.size ?? 0}-${a.mimeType ?? ''}`
+        }
+        attachment={a}
+      />
     ))}
   </div>
 );
@@ -613,7 +620,7 @@ const EmailExpandedContent = ({
 
       <DeliveryNotice messageId={messageId} mailData={mailData} />
 
-      {!!visibleAttachments.length && (
+      {Boolean(visibleAttachments.length) && (
         <AttachmentList attachments={visibleAttachments} />
       )}
 
