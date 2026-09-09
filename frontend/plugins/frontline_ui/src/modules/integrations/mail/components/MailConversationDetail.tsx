@@ -872,7 +872,10 @@ export const MailConversationDetail: React.FC = () => {
   };
 
   return (
-    <ScrollArea className="h-full">
+    <ScrollArea
+      className="h-full min-w-0"
+      viewportClassName="min-w-0 overflow-x-hidden [&>div]:!block"
+    >
       <div className="p-4 max-w-3xl mx-auto pb-8 space-y-3">
         <h2 className="text-[20px] font-normal text-foreground px-1 truncate">
           {baseSubject || '(No subject)'}
