@@ -127,14 +127,28 @@ export const buildProductReplacer = async ({
         return { ...block, type: 'rawHtml', props: { ...props, html: '' } };
       }
 
-      const svg = generateBarcodeSvg(barcodeValue);
+      const width = Math.min(
+        600,
+        Math.max(80, typeof props.width === 'number' ? props.width : 150),
+      );
+      const height = Math.min(
+        300,
+        Math.max(30, typeof props.height === 'number' ? props.height : 50),
+      );
+      const barcodeImageUrl = product.variants?.[baseBarcode]?.image?.url;
+      const barcode = barcodeImageUrl
+        ? `<img src="${readFileUrl(
+            barcodeImageUrl,
+            subdomain,
+          )}" width="${width}" height="${height}" alt="" />`
+        : generateBarcodeSvg(barcodeValue, { width, height });
 
       return {
         ...block,
         type: 'rawHtml',
         props: {
           ...props,
-          html: `<span style="display: inline-block;">${svg}</span>`,
+          html: `<span style="display: inline-block;">${barcode}</span>`,
         },
       };
     }

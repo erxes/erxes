@@ -209,7 +209,9 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
       <Components.Generic.Menu.Divider />
       <Components.Generic.Menu.Item
         className="bn-menu-item"
-        onClick={() => editor.removeBlocks([props.block])}
+        onClick={() =>
+          editor.replaceBlocks([props.block.id], [{ type: 'paragraph' }])
+        }
       >
         Delete table
       </Components.Generic.Menu.Item>
