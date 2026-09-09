@@ -27,8 +27,7 @@ export const CompanyEmails = ({
   onEmailClick?: (email: string) => void;
 }) => {
   const { companiesEdit } = useCompaniesEdit();
-  const { open, setOpen, handleEmailClick } =
-    useEmailDoubleClick(onEmailClick);
+  const { open, setOpen, handleEmailClick } = useEmailDoubleClick(onEmailClick);
   const emailProps = {
     primaryEmail,
     emails,

@@ -30,8 +30,11 @@ export function CustomerEmails({
   onEmailClick,
 }: CustomerEmailsProps) {
   const { customerEdit } = useCustomerEdit();
-  const { open, setOpen, handleEmailClick: handleVerifiedEmailClick } =
-    useEmailDoubleClick(onEmailClick);
+  const {
+    open,
+    setOpen,
+    handleEmailClick: handleVerifiedEmailClick,
+  } = useEmailDoubleClick(onEmailClick);
 
   const emailProps = {
     primaryEmail,

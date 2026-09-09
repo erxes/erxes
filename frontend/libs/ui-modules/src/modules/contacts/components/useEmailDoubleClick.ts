@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const DOUBLE_CLICK_DELAY = 300;
 
-export const useEmailDoubleClick = (
-  onEmailClick?: (email: string) => void,
-) => {
+export const useEmailDoubleClick = (onEmailClick?: (email: string) => void) => {
   const [open, setOpen] = useState(false);
   const pendingClickRef = useRef<{
     email: string;

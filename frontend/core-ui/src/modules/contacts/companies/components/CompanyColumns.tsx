@@ -69,7 +69,8 @@ const CompanyEmailsCell = ({ company }: { company: TCompany }) => {
 };
 
 export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
-  return [    companyMoreColumn,
+  return [
+    companyMoreColumn,
     RecordTable.checkboxColumn as ColumnDef<TCompany>,
     {
       id: 'avatar',
