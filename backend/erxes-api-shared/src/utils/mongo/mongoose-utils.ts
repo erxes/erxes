@@ -147,10 +147,17 @@ export const cursorPaginate = async <T extends Document>({
     list = list.reverse();
   }
 
+  const listWithCursor = list.map((item: any) => ({
+    ...(typeof item?.toObject === 'function' ? item.toObject() : item),
+    cursor: encodeCursor(item, sortFields),
+  }));
+
   const startCursor =
-    list.length > 0 ? encodeCursor(list[0], sortFields) : null;
+    listWithCursor.length > 0 ? listWithCursor[0].cursor : null;
   const endCursor =
-    list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null;
+    listWithCursor.length > 0
+      ? listWithCursor[listWithCursor.length - 1].cursor
+      : null;
 
   const pageInfo: PageInfo = {
     hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
@@ -160,7 +167,7 @@ export const cursorPaginate = async <T extends Document>({
   };
 
   return {
-    list: list as T[],
+    list: listWithCursor as T[],
     totalCount,
     pageInfo,
   };
@@ -231,11 +238,17 @@ export async function cursorPaginateAggregation<T>({
     list = list.reverse();
   }
 
-  // --- cursors ---
+  const listWithCursor = list.map((item: any) => ({
+    ...(typeof item?.toObject === 'function' ? item.toObject() : item),
+    cursor: encodeCursor(item, sortFields),
+  }));
+
   const startCursor =
-    list.length > 0 ? encodeCursor(list[0], sortFields) : null;
+    listWithCursor.length > 0 ? listWithCursor[0].cursor : null;
   const endCursor =
-    list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null;
+    listWithCursor.length > 0
+      ? listWithCursor[listWithCursor.length - 1].cursor
+      : null;
 
   const pageInfo: PageInfo = {
     hasNextPage: direction === 'forward' ? hasMore : Boolean(cursor),
@@ -245,7 +258,7 @@ export async function cursorPaginateAggregation<T>({
   };
 
   return {
-    list,
+    list: listWithCursor,
     totalCount,
     pageInfo,
   };
