@@ -143,7 +143,6 @@ const renderBlocks = (blocks: Block[], apiUrl: string): ReactNode[] => {
 
       if (url) {
         out.push(
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             key={key}
             src={fileUrl(url, apiUrl)}

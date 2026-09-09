@@ -13,7 +13,6 @@ import { visibleNavItems } from '../utils/nav';
 const Wordmark = ({ title, logo }: { title: string; logo: string | null }) => (
   <Link href="/" className="flex items-center gap-3.5">
     {logo ? (
-      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={logo}
         alt={title}

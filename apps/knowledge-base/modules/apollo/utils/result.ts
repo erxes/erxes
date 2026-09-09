@@ -1,7 +1,6 @@
 export type PortalResult<T> =
   | { state: 'ready'; data: T }
   | { state: 'unconfigured'; missing: string[] }
-  /* The portal is wired up, but no help center claims this domain yet. */
   | { state: 'unpublished'; domain: string }
   | { state: 'error'; message: string };
 

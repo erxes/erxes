@@ -14,11 +14,6 @@ export const normalizeConfig = (config: HelpCenterConfig): PortalConfig => {
     appToken: text(config.erxesAppToken),
     languageCode: text(config.languageCode),
 
-    /*
-     * A feature is on only when its own target is set: the help center form
-     * lets a toggle be saved before the topic or pipeline behind it is chosen,
-     * and a surface with nothing to read is worse than one that stays hidden.
-     */
     knowledgeBaseEnabled: kbToggle && !!text(config.kbTopicId),
     knowledgeBaseLabel: text(config.kbLabel),
     topicId: text(config.kbTopicId),

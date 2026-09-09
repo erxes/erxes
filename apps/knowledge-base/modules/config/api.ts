@@ -9,11 +9,6 @@ import type { HelpCenterConfig, PortalConfig } from './types';
 
 type ConfigResponse = { helpCenterGetConfigByDomain: HelpCenterConfig | null };
 
-/**
- * The address this request arrived on, which is what a help center is stored
- * under. `x-forwarded-*` wins because a deployed portal sits behind a proxy
- * that rewrites `host` to its own internal name.
- */
 const requestOrigin = async (): Promise<string> => {
   const list = await headers();
 

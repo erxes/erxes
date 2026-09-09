@@ -8,11 +8,6 @@ import type { FormSummary, PortalForm } from './types';
 type ListResponse = { cpForms: { list: FormSummary[] | null } | null };
 type DetailResponse = { cpFormDetail: PortalForm | null };
 
-/*
- * Forms belong to the channel the help center already files its tickets in, so
- * the portal offers whatever that channel holds. The config carries no form
- * fields of its own; when it grows them this is the one place to read them.
- */
 export const getPortalForms = async (): Promise<
   PortalResult<FormSummary[]>
 > => {

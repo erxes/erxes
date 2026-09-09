@@ -21,7 +21,6 @@ export const Hero = async ({
     <section className="relative overflow-hidden bg-hero bg-[radial-gradient(120%_100%_at_50%_0%,var(--color-hero-soft),transparent_62%)] pb-16 pt-14 text-white sm:pb-20 sm:pt-16">
       {image ? (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt=""

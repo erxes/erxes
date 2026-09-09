@@ -57,11 +57,6 @@ export const LoadError = ({
   </div>
 );
 
-/*
- * The gateway answered, but no help center is stored against this address. The
- * fix is in erxes rather than in the deployment, so the notice names the domain
- * that was looked up and where to claim it.
- */
 export const Unpublished = ({ domain }: { domain: string }) => (
   <div className="rounded-xl border border-line bg-white p-7">
     <div className="flex items-start gap-4">

@@ -410,7 +410,6 @@ export interface IModels {
   Category: ICategoryModel;
   Topic: ITopicModel;
 
-  //help center
   HelpCenterConfigs: IHelpCenterConfigModel;
 
   ReportCharts: IReportChartModel;

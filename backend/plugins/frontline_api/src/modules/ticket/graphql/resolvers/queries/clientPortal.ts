@@ -51,11 +51,6 @@ export const cpTicketQueries = {
     return models.Status.getStatus(_id);
   },
 
-  /*
-   * An agent's internal note never reaches the customer: the portal reads this
-   * query, so anything flagged internal is filtered out here rather than being
-   * hidden by the client.
-   */
   cpTicketGetNotes: async (
     _parent: undefined,
     { ticketId }: { ticketId: string },

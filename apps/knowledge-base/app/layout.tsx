@@ -9,11 +9,6 @@ import { PortalTheme } from '@/modules/layout/components/PortalTheme';
 import { site } from '@/modules/layout/constants/site';
 import { Toaster } from '@/modules/ui/components/Toaster';
 
-/*
- * The portal resolves its help center from the domain each request arrives on,
- * which is request-time data, so pages are rendered per request rather than
- * revalidated on a timer. The config lookup itself is cached for a minute.
- */
 export const dynamic = 'force-dynamic';
 
 const openSans = Open_Sans({

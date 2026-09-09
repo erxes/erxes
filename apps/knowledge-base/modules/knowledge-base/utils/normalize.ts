@@ -128,10 +128,6 @@ const paint = (
   }
 };
 
-/*
- * Reads only the appearance fields, so the help center config — which carries
- * the same three — is themed by this one function rather than a copy of it.
- */
 export const normalizeTheme = (topic: {
   color: string | null;
   backgroundImage: string | null;
@@ -188,11 +184,6 @@ export const normalizeTheme = (topic: {
   };
 };
 
-/*
- * The topic supplies the article tree; everything else on a portal — its name,
- * which features are on, where a ticket lands, how it is painted — belongs to
- * the help center config that points at it.
- */
 export const normalizeTopic = (
   topic: KbTopic,
   config: PortalConfig,
@@ -213,7 +204,6 @@ export const normalizeTopic = (
   theme: normalizeTheme(config),
 });
 
-/** Stands in where the config publishes no knowledge base at all. */
 export const emptyTopic = (config: PortalConfig): PortalTopic => ({
   _id: config._id,
   title: config.title,

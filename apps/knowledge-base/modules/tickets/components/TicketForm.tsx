@@ -67,7 +67,6 @@ export type TicketTarget = {
   statusId: string;
 };
 
-/* The help center config decides where a ticket lands; nothing else can. */
 const missingTargetKeys = (target: TicketTarget): string[] =>
   [
     !target.channelId && 'ticket channel',

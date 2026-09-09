@@ -42,10 +42,6 @@ const EMPTY_TARGET: PortalTicketTarget = {
 export const getPortalSettings = async (): Promise<PortalSettings> => {
   const config = await readConfig();
 
-  /*
-   * With no config there is nothing to publish, so every feature is off: the
-   * navigation stays bare rather than linking to surfaces that cannot load.
-   */
   if (!config) {
     return {
       knowledgeBaseEnabled: false,

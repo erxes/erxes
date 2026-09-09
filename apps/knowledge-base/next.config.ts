@@ -24,12 +24,6 @@ const resolveAlias = Object.fromEntries(
 );
 
 const nextConfig: NextConfig = {
-  /*
-   * `standalone` emits a self-contained server bundle under
-   * `.next/standalone`, so the runtime image carries only the traced files
-   * instead of a full `node_modules`. Tracing starts at the repository root
-   * because the app resolves shared dependencies from there.
-   */
   output: 'standalone',
   outputFileTracingRoot: repoRoot,
   experimental: {
