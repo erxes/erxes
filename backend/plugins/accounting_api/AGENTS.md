@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -168,6 +168,12 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — `Safe Remainder Difference Filter`
+
+- **Summary:** Safe remainder item difference filtering now maps `gt`, `lt`, `eq`, and `ne` explicitly to Mongo `$expr` comparisons against actual count versus previous count.
+- **Affected areas:** `src/modules/inventories/graphql/resolvers/queries/safeRemainderItems.ts`.
+- **Contracts changed:** None.
+
 ### `2026-09-02` — `Permission Modules And Journal Guards`
 
 - **Summary:** Unified VAT/CTAX row access under `taxRow`, added separate permissions for fixed-asset, fund-rate, debt-rate, and closing adjustments, enforced transaction permissions by source journal, and kept grouped transaction details whole with hidden rows for unreadable account lines.
@@ -221,9 +227,3 @@
 - **Summary:** Fixed asset income owner-record validation now allows partial owner assignment while still rejecting owner counts above the detail quantity.
 - **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
 - **Contracts changed:** None.
-
-### `2026-08-31` — `Erkhet Inventory And Currency Follow Accounts`
-
-- **Summary:** Erkhet transaction migration now resolves inventory sale, movement, and currency-difference account codes from follow info before delegating to journal handlers.
-- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/utils/invMove.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `followInfos.saleOutAccountId`, `followInfos.saleCostAccountId`, inventory movement `followInfos.moveInAccountId`, `followInfos.moveInBranchId`, `followInfos.moveInDepartmentId`, and detail `followInfos.currencyDiffAccountId` as source codes.
