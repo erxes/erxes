@@ -68,10 +68,7 @@ export const GET_HELP_CENTERS = gql`
     ) {
       ...HelpCenterConfigFields
     }
-    helpCenterConfigsTotalCount(
-      searchValue: $searchValue
-      brandId: $brandId
-    )
+    helpCenterConfigsTotalCount(searchValue: $searchValue, brandId: $brandId)
   }
 `;
 

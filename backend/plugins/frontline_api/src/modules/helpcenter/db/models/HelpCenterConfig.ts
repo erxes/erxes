@@ -10,8 +10,7 @@ import {
 } from '@/helpcenter/utils/helpCenterConfig';
 import { IModels } from '~/connectionResolvers';
 
-export interface IHelpCenterConfigModel
-  extends Model<IHelpCenterConfigDocument> {
+export interface IHelpCenterConfigModel extends Model<IHelpCenterConfigDocument> {
   getConfig(_id: string): Promise<IHelpCenterConfigDocument>;
   getConfigByDomain(domain: string): Promise<IHelpCenterConfigDocument | null>;
   createOrUpdateConfig(

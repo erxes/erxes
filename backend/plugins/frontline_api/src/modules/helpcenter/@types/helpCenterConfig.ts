@@ -56,9 +56,7 @@ export interface IHelpCenterConfigInput extends IHelpCenterConfig {
   _id?: string;
 }
 
-export interface IHelpCenterConfigDocument
-  extends IHelpCenterConfig,
-    Document {
+export interface IHelpCenterConfigDocument extends IHelpCenterConfig, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
