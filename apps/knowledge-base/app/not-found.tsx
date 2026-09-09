@@ -15,9 +15,9 @@ export default function NotFound() {
         </span>
         <h1 className="text-2xl font-semibold text-ink">Page not found</h1>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-          The page you are looking for may have been removed or its address
-          may have changed. Try searching the knowledge base, or contact the
-          support team.
+          The page you are looking for may have been removed or its address may
+          have changed. Try searching the knowledge base, or contact the support
+          team.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/">Home page</ButtonLink>

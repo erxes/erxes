@@ -14,7 +14,9 @@ export default function AccountPage() {
         ]}
       />
 
-      <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">My account</h1>
+      <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+        My account
+      </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Quick access to your account details and ticket history.
       </p>

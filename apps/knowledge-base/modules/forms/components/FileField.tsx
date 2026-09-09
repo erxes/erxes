@@ -45,9 +45,7 @@ export const FileField = ({
       onChange([...files, ...uploaded]);
     } catch (caught) {
       setFailure(
-        caught instanceof Error
-          ? caught.message
-          : 'Could not upload the file.',
+        caught instanceof Error ? caught.message : 'Could not upload the file.',
       );
     } finally {
       setBusy(false);

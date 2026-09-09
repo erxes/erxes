@@ -68,8 +68,8 @@ export const Unpublished = ({ domain }: { domain: string }) => (
           No help center is published here
         </h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Nothing in erxes claims this address yet. Open Frontline → Help Center,
-          create or edit a help center, and set its website to:
+          Nothing in erxes claims this address yet. Open Frontline → Help
+          Center, create or edit a help center, and set its website to:
         </p>
         <p className="mt-4 break-all rounded-md bg-subtle px-3 py-2 font-mono text-[13px] text-ink">
           {domain}

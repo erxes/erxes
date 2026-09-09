@@ -137,8 +137,8 @@ export const FormView = ({ form: definition }: { form: PortalForm }) => {
                   key={field._id}
                   className="flex items-start gap-2 rounded-lg bg-warning-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-warning"
                 >
-                  <Icon name="alert" size={15} className="mt-px shrink-0" />The
-                  “{fieldLabel(field)}” field cannot be filled in from the
+                  <Icon name="alert" size={15} className="mt-px shrink-0" />
+                  The “{fieldLabel(field)}” field cannot be filled in from the
                   portal yet — please contact the support team.
                 </p>
               );

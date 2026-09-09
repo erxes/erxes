@@ -29,7 +29,9 @@ export default async function FormsPage() {
           items={[{ label: 'Knowledge base', href: '/' }, { label: 'Forms' }]}
         />
 
-        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">Forms</h1>
+        <h1 className="mt-6 text-[30px] font-semibold tracking-[-0.02em] text-ink sm:text-[34px]">
+          Forms
+        </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Fill in a ready-made form here to send details to the support team.
         </p>
@@ -40,7 +42,10 @@ export default async function FormsPage() {
           ) : forms.state === 'unpublished' ? (
             <Unpublished domain={forms.domain} />
           ) : forms.state === 'error' ? (
-            <LoadError title="Could not load the forms" message={forms.message} />
+            <LoadError
+              title="Could not load the forms"
+              message={forms.message}
+            />
           ) : forms.data.length ? (
             <FormList forms={forms.data} />
           ) : (

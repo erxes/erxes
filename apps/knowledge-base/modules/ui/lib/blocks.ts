@@ -57,7 +57,7 @@ const inlineText = (nodes: InlineNode[]): string =>
     .map((node) =>
       node.type === 'link'
         ? inlineText(node.content ?? []) || node.href || ''
-        : node.text ?? '',
+        : (node.text ?? ''),
     )
     .join('');
 

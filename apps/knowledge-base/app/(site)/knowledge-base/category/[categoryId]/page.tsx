@@ -146,7 +146,8 @@ export default async function CategoryPage({ params }: Props) {
                         Did not find your answer?
                       </h2>
                       <p className="mt-1.5 text-sm text-muted-foreground">
-                        Raise a ticket and the support team will get back to you.
+                        Raise a ticket and the support team will get back to
+                        you.
                       </p>
                     </div>
                     <ButtonLink href="/tickets/new" size="sm">

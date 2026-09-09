@@ -20,7 +20,9 @@ const supportLinks: FooterLink[] = [
   { href: '/forms', label: 'Fill in a form' },
 ];
 
-const formOnlyLinks: FooterLink[] = [{ href: '/forms', label: 'Fill in a form' }];
+const formOnlyLinks: FooterLink[] = [
+  { href: '/forms', label: 'Fill in a form' },
+];
 
 const knowledgeLinks: FooterLink[] = [
   { href: '/knowledge-base', label: 'All categories' },
@@ -87,7 +89,8 @@ export const SiteFooter = ({
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             {title} — the erxes support portal. Search the knowledge base for
-            your answer, and reach out to the support team if you cannot find it.
+            your answer, and reach out to the support team if you cannot find
+            it.
           </p>
         </div>
 

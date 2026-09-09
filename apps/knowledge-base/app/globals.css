@@ -23,8 +23,8 @@
   --color-hero-line: #6255a8;
 
   --shadow-card: 0 1px 2px rgb(20 20 43 / 4%), 0 1px 3px rgb(20 20 43 / 3%);
-  --shadow-card-hover: 0 4px 12px rgb(20 20 43 / 6%),
-    0 12px 28px rgb(20 20 43 / 8%);
+  --shadow-card-hover:
+    0 4px 12px rgb(20 20 43 / 6%), 0 12px 28px rgb(20 20 43 / 8%);
 
   --color-footer: #ffffff;
   --color-link: var(--color-brand);
@@ -52,7 +52,8 @@
   --color-accent: var(--color-subtle);
   --color-accent-foreground: var(--color-muted-foreground);
 
-  --shadow-xs: 0 0 0 1px var(--color-line), 0 1px 1px rgb(23 22 42 / 5%),
+  --shadow-xs:
+    0 0 0 1px var(--color-line), 0 1px 1px rgb(23 22 42 / 5%),
     0 2px 2px rgb(23 22 42 / 5%);
   --shadow-focus: 0 0 0 4px rgb(79 51 175 / 25%), 0 0 0 1px var(--color-brand);
 }

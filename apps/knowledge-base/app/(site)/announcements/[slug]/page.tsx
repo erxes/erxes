@@ -25,7 +25,7 @@ export const generateMetadata = async ({ params }: Props) => {
   return {
     title:
       post.state === 'ready' && post.data
-        ? post.data.title ?? 'Announcement'
+        ? (post.data.title ?? 'Announcement')
         : 'Announcement',
   };
 };
@@ -54,7 +54,7 @@ export default async function AnnouncementPage({ params }: Props) {
             {
               label:
                 post.state === 'ready'
-                  ? post.data?.title ?? 'Announcement'
+                  ? (post.data?.title ?? 'Announcement')
                   : 'Announcement',
             },
           ]}

@@ -17,8 +17,7 @@ export const parseTemplateToBlocks = (templateHtml: string) => {
   try {
     const parsed = JSON.parse(templateHtml);
     if (Array.isArray(parsed)) return parsed;
-  } catch {
-  }
+  } catch {}
   return [
     {
       type: 'paragraph',

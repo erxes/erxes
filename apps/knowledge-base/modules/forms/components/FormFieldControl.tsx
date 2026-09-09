@@ -145,10 +145,10 @@ export const FormFieldControl = ({
         kind === 'email'
           ? 'email'
           : kind === 'phone'
-          ? 'tel'
-          : kind === 'number'
-          ? 'number'
-          : 'text'
+            ? 'tel'
+            : kind === 'number'
+              ? 'number'
+              : 'text'
       }
       inputMode={kind === 'number' ? 'numeric' : undefined}
       value={asText(value)}

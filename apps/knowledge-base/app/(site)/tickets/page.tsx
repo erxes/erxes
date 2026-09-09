@@ -59,7 +59,8 @@ export default async function TicketsPage() {
                     Submit a ticket
                   </span>
                   <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                    Fill in the form to raise a new ticket with the support team.
+                    Fill in the form to raise a new ticket with the support
+                    team.
                   </span>
                 </span>
               </SessionLink>

@@ -26,8 +26,8 @@ export default function SiteError({
       </span>
       <h1 className="text-2xl font-semibold text-ink">Something went wrong</h1>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        The page could not be loaded. Please try again, and contact the
-        support team if it keeps happening.
+        The page could not be loaded. Please try again, and contact the support
+        team if it keeps happening.
       </p>
       {error.digest ? (
         <p className="mt-3 text-[13px] tabular-nums text-muted-foreground">

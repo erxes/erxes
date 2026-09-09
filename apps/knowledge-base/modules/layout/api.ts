@@ -18,9 +18,7 @@ export const getPortalIdentity = async (): Promise<PortalIdentity> => {
   return {
     title: copy?.name?.trim() || config?.title || site.fallbackTitle,
     headline:
-      copy?.description?.trim() ||
-      config?.description ||
-      site.fallbackHeadline,
+      copy?.description?.trim() || config?.description || site.fallbackHeadline,
   };
 };
 

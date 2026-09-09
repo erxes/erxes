@@ -22,8 +22,7 @@ export const generateMetadata = async ({
   const form = await getPortalForm(formId);
 
   return {
-    title:
-      form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
+    title: form.state === 'ready' && form.data ? formTitle(form.data) : 'Form',
   };
 };
 

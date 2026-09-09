@@ -26,8 +26,8 @@ npm run lint
 
 ## Configuration
 
-| Variable | Needed for | Notes |
-| --- | --- | --- |
+| Variable                    | Needed for | Notes                                                                       |
+| --------------------------- | ---------- | --------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_ERXES_API_URL` | everything | Gateway URL, e.g. `https://officenext.erxes.io/gateway` (no trailing slash) |
 
 That is the whole file. Everything else — the portal's name, its app token, the
@@ -80,20 +80,20 @@ override the build argument and bake that machine's app token into the image.
 
 ## Routes
 
-| Route | Source |
-| --- | --- |
-| `/` | Support portal landing — ticket actions, announcements and knowledge base sections |
-| `/knowledge-base` | `cpKnowledgeBaseTopicDetail` — full category browse |
-| `/search?q=` | Knowledge base articles + CMS announcements, labelled by type |
-| `/knowledge-base/category/[id]` | category header, sidebar and article list |
-| `/knowledge-base/article/[id]` | article body, author, related articles |
-| `/tickets` | portal home + `cpGetTickets` for the signed-in portal user |
-| `/tickets/new` | `cpCreateTicket` |
-| `/tickets/track` | `cpGetTickets` by ticket number |
-| `/tickets/[id]` | `cpGetTicket` + `cpTicketGetNotes` / `cpTicketCreateNote` |
-| `/announcements` | `cpPostList` (CMS) |
-| `/announcements/[slug]` | `cpPost` (CMS) |
-| `/account`, `/sign-in`, `/sign-up` | session surfaces |
+| Route                              | Source                                                                             |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `/`                                | Support portal landing — ticket actions, announcements and knowledge base sections |
+| `/knowledge-base`                  | `cpKnowledgeBaseTopicDetail` — full category browse                                |
+| `/search?q=`                       | Knowledge base articles + CMS announcements, labelled by type                      |
+| `/knowledge-base/category/[id]`    | category header, sidebar and article list                                          |
+| `/knowledge-base/article/[id]`     | article body, author, related articles                                             |
+| `/tickets`                         | portal home + `cpGetTickets` for the signed-in portal user                         |
+| `/tickets/new`                     | `cpCreateTicket`                                                                   |
+| `/tickets/track`                   | `cpGetTickets` by ticket number                                                    |
+| `/tickets/[id]`                    | `cpGetTicket` + `cpTicketGetNotes` / `cpTicketCreateNote`                          |
+| `/announcements`                   | `cpPostList` (CMS)                                                                 |
+| `/announcements/[slug]`            | `cpPost` (CMS)                                                                     |
+| `/account`, `/sign-in`, `/sign-up` | session surfaces                                                                   |
 
 ## Structure
 

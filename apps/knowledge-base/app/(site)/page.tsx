@@ -39,7 +39,9 @@ const ActionCard = ({
   description: string;
   reason?: string;
 }) => {
-  const className = cardLinkClass('group flex items-center gap-3.5 px-4 py-3.5');
+  const className = cardLinkClass(
+    'group flex items-center gap-3.5 px-4 py-3.5',
+  );
   const body = (
     <>
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand transition-colors group-hover:bg-brand group-hover:text-white">

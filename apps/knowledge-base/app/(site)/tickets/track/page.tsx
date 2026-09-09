@@ -34,7 +34,8 @@ export default async function TrackTicketPage() {
           Track a ticket
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Use the number you were given when the ticket was created to check its status.
+          Use the number you were given when the ticket was created to check its
+          status.
         </p>
 
         <div className="mt-7">
