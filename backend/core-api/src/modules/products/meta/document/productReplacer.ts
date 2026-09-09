@@ -2,7 +2,7 @@ import { dateToShortStr, getEnv } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
 import { IModels } from '~/connectionResolvers';
 import { generateBarcodeSvg } from '~/modules/documents/barcode';
-import { blocksToHtml, escapeHtml } from '~/modules/documents/blocksToHtml';
+import { blocksToHtml } from '~/modules/documents/blocksToHtml';
 
 const readFileUrl = (key: string, subdomain: string) => {
   if (key.startsWith('http://') || key.startsWith('https://')) {
@@ -123,10 +123,6 @@ export const buildProductReplacer = async ({
     const path = props?.value;
 
     if (path === 'barcode') {
-      if (!barcodeValue) {
-        return { ...block, type: 'rawHtml', props: { ...props, html: '' } };
-      }
-
       const width = Math.min(
         600,
         Math.max(80, typeof props.width === 'number' ? props.width : 150),
@@ -135,12 +131,10 @@ export const buildProductReplacer = async ({
         300,
         Math.max(30, typeof props.height === 'number' ? props.height : 50),
       );
-      const barcodeImageUrl = product.variants?.[baseBarcode]?.image?.url;
-      const barcode = barcodeImageUrl
-        ? `<img src="${escapeHtml(
-            readFileUrl(barcodeImageUrl, subdomain),
-          )}" width="${width}" height="${height}" alt="" />`
-        : generateBarcodeSvg(barcodeValue, { width, height });
+      const barcode = generateBarcodeSvg(barcodeValue || '123456789012', {
+        width,
+        height,
+      });
 
       return {
         ...block,

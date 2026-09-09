@@ -7,7 +7,6 @@ type DocumentsEmptyStateProps = Readonly<{
   onClearFilters: () => void;
 }>;
 
-/** Renders the document empty state and lets users clear active filters. */
 export function DocumentsEmptyState({
   hasFilters,
   onClearFilters,

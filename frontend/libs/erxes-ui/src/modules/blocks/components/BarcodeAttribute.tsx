@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react';
 import { Button } from 'erxes-ui/components';
+import { IconArrowsDiagonal } from '@tabler/icons-react';
 
 const MIN_WIDTH = 80;
 const MIN_HEIGHT = 30;
@@ -20,7 +21,6 @@ type BarcodeAttributeProps = Readonly<{
   width: number;
 }>;
 
-/** Renders and resizes the product barcode placeholder. */
 export const BarcodeAttribute = ({
   editable,
   height,
@@ -38,7 +38,6 @@ export const BarcodeAttribute = ({
     }
   }, [height, width]);
 
-  /** Calculates bounded dimensions from the active top-right resize drag. */
   const getResizedDimensions = (event: ReactPointerEvent) => {
     const start = dragStart.current;
 
@@ -58,7 +57,6 @@ export const BarcodeAttribute = ({
     };
   };
 
-  /** Starts resizing and captures subsequent pointer movement. */
   const handleResizeStart = (event: ReactPointerEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -70,14 +68,12 @@ export const BarcodeAttribute = ({
     };
   };
 
-  /** Updates the barcode preview while the resize handle is moving. */
   const handleResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (dragStart.current) {
       setSize(getResizedDimensions(event));
     }
   };
 
-  /** Persists the final dimensions in the inline attribute props. */
   const handleResizeEnd = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (!dragStart.current) {
       return;
@@ -128,7 +124,8 @@ export const BarcodeAttribute = ({
           variant="outline"
           size="icon"
           aria-label="Resize barcode"
-          className="absolute -right-1 -top-1 size-3 cursor-nesw-resize rounded-full border border-primary bg-background p-0"
+          title="Drag up to increase height; drag right to increase width"
+          className="absolute -right-1 -top-1 z-10 size-5 touch-none cursor-nesw-resize rounded-full border border-primary bg-background p-0 text-primary"
           onPointerDown={handleResizeStart}
           onPointerMove={handleResize}
           onPointerUp={handleResizeEnd}
@@ -136,7 +133,9 @@ export const BarcodeAttribute = ({
             dragStart.current = null;
             setSize({ width, height });
           }}
-        />
+        >
+          <IconArrowsDiagonal className="size-3" />
+        </Button>
       )}
     </span>
   );

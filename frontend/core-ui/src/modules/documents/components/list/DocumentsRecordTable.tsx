@@ -29,7 +29,6 @@ type DocumentsRecordTableProps = Readonly<{
   onClearFilters: () => void;
 }>;
 
-/** Renders the paginated documents table and its query states. */
 export function DocumentsRecordTable({
   hasFilters,
   onClearFilters,

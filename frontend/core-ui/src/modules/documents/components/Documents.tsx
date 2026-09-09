@@ -26,7 +26,6 @@ type DocumentsContentProps = Props & {
   onClearFilters: () => void;
 };
 
-/** Renders a document collection with loading, error, and empty states. */
 function DocumentsContent({
   hasFilters,
   onClearFilters,
@@ -66,7 +65,6 @@ export function Documents({ viewType }: Props) {
   ]);
   const hasFilters = Object.values(filters).some((value) => value !== null);
 
-  /** Clears every query parameter that filters the documents query. */
   const clearFilters = () =>
     setFilters({
       contentType: null,

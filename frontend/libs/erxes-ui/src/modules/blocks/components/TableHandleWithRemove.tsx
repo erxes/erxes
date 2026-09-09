@@ -26,7 +26,6 @@ const COLORS = [
   'pink',
 ] as const;
 
-/** Renders the color swatch used by the table cell color menu. */
 const ColorIcon = ({
   backgroundColor = 'default',
   textColor = 'default',
@@ -53,7 +52,6 @@ const ColorIcon = ({
   </span>
 );
 
-/** Renders text and background color controls for the selected table cells. */
 const TableColorPicker = (props: TableHandleMenuProps) => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
@@ -74,7 +72,6 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
   }
 
   const firstCell = mapTableCell(currentCells[0].cell);
-  /** Applies a text or background color to every selected table cell. */
   const updateColor = (color: string, type: 'text' | 'background') => {
     const rows = props.block.content.rows.map((row) => ({
       ...row,
@@ -150,12 +147,11 @@ const TableColorPicker = (props: TableHandleMenuProps) => {
   );
 };
 
-/** Extends the table handle menu with an action that removes the full table. */
 const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext();
 
-  if (!Components) {
+  if (!Components || !props.block?.content) {
     return null;
   }
 
@@ -164,7 +160,6 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
       ? Boolean(props.block.content.headerRows)
       : Boolean(props.block.content.headerCols);
 
-  /** Toggles the first row or column as a table header. */
   const toggleHeader = () => {
     const block = editor.getBlock(props.block.id);
 
@@ -209,9 +204,19 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
       <Components.Generic.Menu.Divider />
       <Components.Generic.Menu.Item
         className="bn-menu-item"
-        onClick={() =>
-          editor.replaceBlocks([props.block.id], [{ type: 'paragraph' }])
-        }
+        onClick={() => {
+          requestAnimationFrame(() => {
+            const block = editor.getBlock(props.block.id);
+            if (block?.type !== 'table') return;
+
+            const { insertedBlocks } = editor.replaceBlocks(
+              [block],
+              [{ type: 'paragraph' }],
+            );
+            editor.setTextCursorPosition(insertedBlocks[0], 'start');
+            editor.focus();
+          });
+        }}
       >
         Delete table
       </Components.Generic.Menu.Item>
@@ -219,10 +224,14 @@ const TableHandleMenuWithRemove = (props: TableHandleMenuProps) => {
   );
 };
 
-/** Renders BlockNote's table handle with the extended removal menu. */
 export const TableHandleWithRemove = (props: TableHandleProps) => {
   return (
-    <TableHandle {...props} tableHandleMenu={TableHandleMenuWithRemove}>
+    <TableHandle
+      {...props}
+      tableHandleMenu={
+        TableHandleMenuWithRemove as unknown as TableHandleProps['tableHandleMenu']
+      }
+    >
       <IconGripVertical size={24} data-test="tableHandle" />
     </TableHandle>
   );

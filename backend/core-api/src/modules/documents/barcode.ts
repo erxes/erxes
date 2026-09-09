@@ -18,7 +18,10 @@ export const generateBarcodeSvg = (
       paddingheight: 0,
     });
 
-    return svg.replace('<svg ', `<svg width="${width}" height="${height}" `);
+    return svg.replace(
+      '<svg ',
+      `<svg width="${width}" height="${height}" preserveAspectRatio="none" `,
+    );
   } catch {
     return '';
   }

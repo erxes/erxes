@@ -7,7 +7,6 @@ type DocumentsErrorStateProps = Readonly<{
   title?: string;
 }>;
 
-/** Renders a retryable error state for document queries. */
 export function DocumentsErrorState({
   description = 'Check your connection and try again.',
   onRetry,
