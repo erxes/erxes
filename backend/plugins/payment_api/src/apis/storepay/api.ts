@@ -7,7 +7,7 @@ import { redis } from 'erxes-api-shared/utils';
 
 export const storepayCallbackHandler = async (
   models: IModels,
-  data: any
+  data: any,
 ): Promise<ITransactionDocument> => {
   const { id } = data;
 
@@ -19,7 +19,7 @@ export const storepayCallbackHandler = async (
     {
       $or: [{ 'response.value': id }, { 'response.value': Number(id) }],
     },
-    true
+    true,
   );
 
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
@@ -38,6 +38,7 @@ export const storepayCallbackHandler = async (
 
     transaction.status = invoiceStatus;
     transaction.updatedAt = new Date();
+
     await transaction.save();
 
     return transaction;
@@ -45,13 +46,12 @@ export const storepayCallbackHandler = async (
     throw new Error(e.message);
   }
 };
+
 export interface IStorePayParams {
   merchantUsername: string;
   merchantPassword: string;
-
   appUsername: string;
   appPassword: string;
-
   storeId: string;
 }
 
@@ -91,16 +91,18 @@ export class StorePayAPI extends BaseAPI {
 
   async authorize() {
     const { username, password, app_password, app_username } = this;
+
     const data = {
       username,
       password,
     };
+
     try {
       const requestOptions = {
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`
+            `${app_username}:${app_password}`,
           ).toString('base64')}`,
           'Content-Type': 'application/json',
         },
@@ -108,27 +110,30 @@ export class StorePayAPI extends BaseAPI {
       };
 
       const res = await fetch(
-        'http://service-merchant.storepay.mn:7701/oauth/token?' +
+        'https://service.storepay.mn/merchant-uaa/oauth/token?' +
           new URLSearchParams({
             grant_type: 'password',
             username,
             password,
           }),
-        requestOptions
+        requestOptions,
       ).then((res) => res.json());
 
       if (res.error) {
         if (res.error === 'invalid_client') {
           throw new Error(
-            'Invalid credentials!!! Please check your credentials'
+            'Invalid credentials!!! Please check your credentials',
           );
         }
 
         if (res.error_description) {
           throw new Error(res.error_description);
         }
+
         throw new Error(res.error);
       }
+
+      return res;
     } catch (e) {
       throw new Error(e.message);
     }
@@ -136,6 +141,7 @@ export class StorePayAPI extends BaseAPI {
 
   async getHeaders() {
     const { username, password, app_password, app_username, store_id } = this;
+
     const data = {
       username,
       password,
@@ -155,7 +161,7 @@ export class StorePayAPI extends BaseAPI {
         method: 'POST',
         headers: {
           Authorization: `Basic ${Buffer.from(
-            `${app_username}:${app_password}`
+            `${app_username}:${app_password}`,
           ).toString('base64')}`,
           'Content-Type': 'application/json',
         },
@@ -163,20 +169,20 @@ export class StorePayAPI extends BaseAPI {
       };
 
       const res = await fetch(
-        'http://service-merchant.storepay.mn:7701/oauth/token?' +
+        'https://service.storepay.mn/merchant-uaa/oauth/token?' +
           new URLSearchParams({
             grant_type: 'password',
             username,
             password,
           }),
-        requestOptions
+        requestOptions,
       ).then((res) => res.json());
 
       await redis.set(
         `storepay_token_${store_id}`,
         res.access_token,
         'EX',
-        res.expires_in - 60
+        res.expires_in - 60,
       );
 
       return {
@@ -190,11 +196,10 @@ export class StorePayAPI extends BaseAPI {
   }
 
   /**
-   * create invoice on monpay
+   * create invoice on StorePay
    * @param {number} amount - amount
    * @param {string} description - description
    * @return {[object]} - Returns invoice object
-   * TODO: update return type
    */
   async createInvoice(invoice: ITransactionDocument) {
     const details = invoice.details || {};
@@ -206,14 +211,13 @@ export class StorePayAPI extends BaseAPI {
         description: invoice.description || 'transaction',
         storeId: this.store_id,
         callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
+        requestId: invoice._id,
       };
 
       const possibleAmount = await this.checkLoanAmount(details.phone);
 
       if (possibleAmount < invoice.amount) {
-        return {
-          error: 'Insufficient amount',
-        };
+        return { error: 'Insufficient amount' };
       }
 
       const res = await this.request({
@@ -230,7 +234,10 @@ export class StorePayAPI extends BaseAPI {
         return { error };
       }
 
-      return { ...res, text: `Invoice has sent to ${details.phone}` };
+      return {
+        ...res,
+        text: `Invoice has sent to ${details.phone}`,
+      };
     } catch (e) {
       return { error: e.message };
     }
@@ -238,7 +245,7 @@ export class StorePayAPI extends BaseAPI {
 
   /**
    * check invoice status
-   * @param {string} uuid - unique identifier of storepay invoice
+   * @param {string} invoiceNumber - unique identifier of StorePay invoice
    * @return {string} - Returns invoice status
    */
   async checkInvoice(invoiceNumber: string) {
@@ -259,11 +266,24 @@ export class StorePayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: ITransactionDocument) {
-    // if (invoice.apiResponse.error) {
-    //   return invoice.apiResponse.error;
-    // }
+  /**
+   * Check invoice creation/confirmation by request ID.
+   */
+  async checkRequest(requestId: string) {
+    try {
+      const res = await this.request({
+        headers: await this.getHeaders(),
+        method: 'GET',
+        path: `merchant/loan/checkRequest/${requestId}`,
+      }).then((res) => res.json());
 
+      return res;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  async manualCheck(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
         headers: await this.getHeaders(),
@@ -286,15 +306,14 @@ export class StorePayAPI extends BaseAPI {
       const res = await this.request({
         headers: await this.getHeaders(),
         method: 'POST',
-        path: `user/possibleAmount`,
+        path: 'user/possibleAmount',
         data: {
           mobileNumber,
         },
       }).then((res) => res.json());
 
-      const { msgList = [], status } = res;
-      if (status === 'Failed' && msgList.length > 0) {
-        throw new Error(msgList[0].code);
+      if (res.status === 'Failed' && res.msgList?.length > 0) {
+        throw new Error(res.msgList[0].code);
       }
 
       if (!res.value || res.value === 0) {
@@ -304,6 +323,73 @@ export class StorePayAPI extends BaseAPI {
       return res.value;
     } catch (e) {
       console.error(e);
+      throw new Error(e.message);
+    }
+  }
+
+  /**
+   * Change StorePay loan amount or cancel a loan.
+   *
+   * changeTypeId:
+   * 1 - change amount
+   * 2 - cancel loan
+   */
+  async loanChange({
+    changeTypeId,
+    loanId,
+    reason,
+    amount,
+  }: {
+    changeTypeId: number;
+    loanId: number;
+    reason: string;
+    amount?: number;
+  }) {
+    try {
+      const data: {
+        changeTypeId: number;
+        loanId: number;
+        reason: string;
+        amount?: number;
+      } = {
+        changeTypeId,
+        loanId,
+        reason,
+      };
+
+      if (changeTypeId === 1) {
+        data.amount = amount;
+      }
+
+      const res = await this.request({
+        method: 'POST',
+        path: 'merchant/loanChange',
+        data,
+        headers: await this.getHeaders(),
+      }).then((res) => res.json());
+
+      return res;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
+
+  /**
+   * Get StorePay loan change list.
+   */
+  async loanChangeList() {
+    try {
+      const res = await this.request({
+        method: 'POST',
+        path: 'merchant/ds/dtable',
+        data: {
+          code: 'MerchantLoanChangeList',
+        },
+        headers: await this.getHeaders(),
+      }).then((res) => res.json());
+
+      return res;
+    } catch (e) {
       throw new Error(e.message);
     }
   }
