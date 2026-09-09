@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -13,14 +13,19 @@ export const useDocument = () => {
 
   const { getValues, setValue } = useFormContext();
 
-  const { data, loading } = useQuery(GET_DOCUMENT_DETAIL, {
-    variables: {
-      _id: cleanDocumentId,
+  const { data, error, loading, networkStatus, refetch } = useQuery(
+    GET_DOCUMENT_DETAIL,
+    {
+      notifyOnNetworkStatusChange: true,
+      variables: {
+        _id: cleanDocumentId,
+      },
+      skip: !cleanDocumentId,
     },
-    skip: !cleanDocumentId,
-  });
+  );
 
   const document = data?.documentsDetail || null;
+  const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   useEffect(() => {
     if (data?.documentsDetail) {
@@ -95,7 +100,9 @@ export const useDocument = () => {
     document,
     documentId: cleanDocumentId,
     documentSave,
+    hasError,
     loading,
+    refetch,
     saving,
   };
 };
