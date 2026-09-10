@@ -100,7 +100,14 @@ export const afterMutationHandlers = async (subdomain: string, params: any) => {
         const config = configsMap[brandId || 'noBrand'];
 
         if (config && !config.useBoard) {
-          await orderToDynamic(subdomain, models, syncLog, updatedDoc, config, brandId);
+          await orderToDynamic(
+            subdomain,
+            models,
+            syncLog,
+            updatedDoc,
+            config,
+            brandId,
+          );
         }
         break;
       }
