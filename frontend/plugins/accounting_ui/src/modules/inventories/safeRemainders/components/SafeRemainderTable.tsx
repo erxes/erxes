@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
-import { useSafeRemainders } from '../hooks/useSafeRemainders';
 import { safeRemainderColumns } from './SafeRemainderColumns';
+import { ISafeRemainder } from '../types/SafeRemainder';
 
 const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const rowKeys = useMemo(
@@ -26,12 +26,21 @@ const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   );
 };
 
-export const SafeRemainderTable = () => {
-  const { safeRemainders, loading, totalCount, handleFetchMore } =
-    useSafeRemainders();
-
+export const SafeRemainderTable = ({
+  handleFetchMore,
+  loading,
+  safeRemainders,
+  totalCount,
+}: {
+  handleFetchMore: () => void;
+  loading: boolean;
+  safeRemainders?: ISafeRemainder[];
+  totalCount?: number;
+}) => {
   const isFetchingMore = loading && (safeRemainders?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
+  const safeRemaindersCount = safeRemainders?.length ?? 0;
+  const totalSafeRemaindersCount = totalCount ?? 0;
 
   return (
     <RecordTable.Provider
@@ -48,7 +57,7 @@ export const SafeRemainderTable = () => {
             <RecordTable.RowList />
             {isInitialLoading && <SafeRemainderInitialSkeleton rows={20} />}
             {!isInitialLoading &&
-              totalCount > (safeRemainders?.length ?? 0) && (
+              totalSafeRemaindersCount > safeRemaindersCount && (
                 <RecordTable.RowSkeleton
                   rows={4}
                   handleInView={handleFetchMore}

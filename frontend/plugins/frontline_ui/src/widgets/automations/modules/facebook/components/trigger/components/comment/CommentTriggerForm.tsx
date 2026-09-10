@@ -1,11 +1,14 @@
-import { cn, Form, Select, Switch } from 'erxes-ui';
+import { Form, Select, Switch, cn } from 'erxes-ui';
+
 import { AutomationTriggerFormProps } from 'ui-modules';
-import { FacebookPostSelector } from '~/widgets/automations/modules/facebook/components/FacebookPostSelector';
-import { FacebookBotSelector } from '~/widgets/automations/modules/facebook/components/MessengerBotSelector';
 import { COMMENT_POST_TYPES } from '../../constants/commentTriggerOptions';
-import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
-import { TCommentTriggerForm } from '../../types/commentTrigger';
 import { DirectMessageEditor } from '../message/DirectMessageEditor';
+import { FacebookBotSelector } from '~/widgets/automations/modules/facebook/components/MessengerBotSelector';
+import { FacebookPostSelector } from '~/widgets/automations/modules/facebook/components/FacebookPostSelector';
+import { TCommentTriggerForm } from '../../types/commentTrigger';
+import { TriggerClaimNote } from '../message/TriggerClaimNote';
+import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
+import { useFacebookCommentTriggerClaims } from '../../hooks/useFacebookCommentTriggerClaims';
 import { useTranslation } from 'react-i18next';
 export const CommentTriggerForm = ({
   formRef,
@@ -19,6 +22,16 @@ export const CommentTriggerForm = ({
     onSaveTriggerConfig,
   });
   const { control } = form;
+  const postId = form.watch('postId');
+  const { claims } = useFacebookCommentTriggerClaims(botId, activeTrigger?.id);
+  // A wider rule elsewhere cannot be avoided from here, so only the identical
+  // scope is called out as a duplicate.
+  const scopeClaims =
+    postType === 'specific'
+      ? postId
+        ? claims.byPost[postId]
+        : undefined
+      : claims.anyPost;
 
   return (
     <div className="h-full">
@@ -43,7 +56,10 @@ export const CommentTriggerForm = ({
             name="postType"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t('type', 'Type')}</Form.Label>
+                <Form.Label className="flex items-center gap-1.5">
+                  {t('type')}
+                  <TriggerClaimNote claims={scopeClaims} />
+                </Form.Label>
                 <Form.Control>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
@@ -128,6 +144,10 @@ export const CommentTriggerForm = ({
               render={({ field }) => (
                 <DirectMessageEditor
                   conditions={field.value || []}
+                  emptyDescription={t('comment-no-conditions-description', {
+                    defaultValue:
+                      'With no keywords this trigger answers every comment it sees.',
+                  })}
                   onConditionChange={(_, values) => field.onChange(values)}
                 />
               )}

@@ -1,3 +1,4 @@
+import { IAttachment } from 'erxes-api-shared/core-types';
 import { Model, Document } from 'mongoose';
 
 export interface INote {
@@ -5,6 +6,8 @@ export interface INote {
   contentId: string;
   createdBy: string;
   mentions?: string[];
+  attachments?: IAttachment[];
+  isInternal?: boolean;
   statusId?: string;
 }
 

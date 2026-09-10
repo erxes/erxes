@@ -1,6 +1,7 @@
 import initCallApp from '@/integrations/call/initApp';
 import { initDiscord } from '@/integrations/discord/initApp';
 import { startPlugin } from 'erxes-api-shared/utils';
+import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commentOutboxWorker';
 import {
   createCoreModuleProducerHandler,
   TImportExportProducers,
@@ -71,6 +72,7 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     initDiscord();
+    startFacebookCommentOutboxWorker();
   },
 
   apolloServerContext: async (subdomain, context) => {

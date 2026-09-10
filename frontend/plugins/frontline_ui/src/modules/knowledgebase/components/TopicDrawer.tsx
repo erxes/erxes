@@ -1,53 +1,32 @@
+import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
 import { ApolloError, useMutation } from '@apollo/client';
+import { Button, Form, Input, Sheet, Textarea, toast } from 'erxes-ui';
+import { ITopic, ITopicFormData } from '@/knowledgebase/types';
 import {
-  Button,
-  FocusSheet,
-  Form,
-  ScrollArea,
-  Sheet,
-  toast,
-  useQueryState,
-} from 'erxes-ui';
+  TopicBackgroundImageField,
+  TopicColorField,
+} from '@/knowledgebase/components/TopicAppearanceFields';
 import { useEffect, useState } from 'react';
+
+import { IconCode } from '@tabler/icons-react';
+import { TOPICS } from '../graphql/queries';
+import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SheetNavSidebar } from 'ui-modules';
-import { TopicAppearanceTab } from '@/knowledgebase/components/TopicAppearanceTab';
-import { TopicEmbedScriptDialog } from '@/knowledgebase/components/TopicEmbedScriptDialog';
-import { TopicGeneralTab } from '@/knowledgebase/components/TopicGeneralTab';
-import {
-  EMPTY_TOPIC_FORM,
-  EMPTY_TOPIC_STYLES,
-  FIELD_TAB,
-} from '@/knowledgebase/topicDrawerConstants';
-import {
-  Topic,
-  TopicFormData,
-  TopicStyles,
-  TOPIC_TABS,
-  TTopicTab,
-} from '@/knowledgebase/topicDrawerTypes';
-import { ADD_TOPIC, EDIT_TOPIC } from '../graphql/mutations';
-import { TOPICS } from '../graphql/queries';
+
+const EMPTY_TOPIC_FORM: ITopicFormData = {
+  title: '',
+  description: '',
+  color: '#000000',
+  backgroundImage: '',
+};
 
 interface TopicDrawerProps {
-  readonly topic?: Topic;
+  readonly topic?: ITopic;
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onSaved?: () => void;
 }
-
-const omitTypename = (styles: Topic['styles']): Partial<TopicStyles> => {
-  if (!styles) {
-    return {};
-  }
-
-  const { __typename, ...rest } = styles as Partial<TopicStyles> & {
-    __typename?: string;
-  };
-
-  return rest;
-};
 
 export function TopicDrawer({
   topic,
@@ -58,47 +37,23 @@ export function TopicDrawer({
   const { t } = useTranslation('frontline');
   const isEditing = !!topic;
   const [scriptDialogOpen, setScriptDialogOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const activeTab: TTopicTab = TOPIC_TABS.includes(selectedTab as TTopicTab)
-    ? (selectedTab as TTopicTab)
-    : 'general';
 
-  const handleClose = () => {
-    setSelectedTab(null);
-    onClose();
-  };
-
-  const form = useForm<TopicFormData>({
+  const form = useForm<ITopicFormData>({
     defaultValues: EMPTY_TOPIC_FORM,
     mode: 'onChange',
   });
 
   useEffect(() => {
-    if (topic) {
-      form.reset({
-        title: topic.title || '',
-        description: topic.description || '',
-        color: topic.color || '',
-        backgroundImage: topic.backgroundImage || '',
-        notificationSegmentId: topic.notificationSegmentId || '',
-        url: topic.url || '',
-        kbToggle: topic.kbToggle ?? true,
-        kbLabel: topic.kbLabel || '',
-        kbTopicId: topic.kbTopicId || '',
-        ticketToggle: topic.ticketToggle ?? false,
-        ticketLabel: topic.ticketLabel || '',
-        ticketChannelId: topic.ticketChannelId || '',
-        ticketPipelineId: topic.ticketPipelineId || '',
-        ticketStatusId: topic.ticketStatusId || '',
-        styles: {
-          ...EMPTY_TOPIC_STYLES,
-          ...omitTypename(topic.styles),
-        },
-      });
-      return;
-    }
-
-    form.reset(EMPTY_TOPIC_FORM);
+    form.reset(
+      topic
+        ? {
+            title: topic.title || '',
+            description: topic.description || '',
+            color: topic.color || EMPTY_TOPIC_FORM.color,
+            backgroundImage: topic.backgroundImage || '',
+          }
+        : EMPTY_TOPIC_FORM,
+    );
   }, [topic, form]);
 
   const notifyError = (error: ApolloError) =>
@@ -108,50 +63,32 @@ export function TopicDrawer({
       variant: 'destructive',
     });
 
+  const notifySaved = (description: string) => {
+    toast({ title: t('success', 'Success!'), description, variant: 'success' });
+    onSaved?.();
+    onClose();
+    form.reset(EMPTY_TOPIC_FORM);
+  };
+
   const [addTopic, { loading: adding }] = useMutation(ADD_TOPIC, {
     refetchQueries: [{ query: TOPICS }],
     awaitRefetchQueries: true,
-    onCompleted: () => {
-      toast({
-        title: t('success', 'Success!'),
-        description: t('kb-topic-created', 'Topic created'),
-        variant: 'success',
-      });
-      onSaved?.();
-      handleClose();
-      form.reset(EMPTY_TOPIC_FORM);
-    },
+    onCompleted: () => notifySaved(t('kb-topic-created', 'Topic created')),
     onError: notifyError,
   });
 
   const [editTopic, { loading: editing }] = useMutation(EDIT_TOPIC, {
     refetchQueries: [{ query: TOPICS }],
     awaitRefetchQueries: true,
-    onCompleted: () => {
-      toast({
-        title: t('success', 'Success!'),
-        description: t('kb-topic-saved', 'Topic saved'),
-        variant: 'success',
-      });
-      onSaved?.();
-      handleClose();
-      form.reset(EMPTY_TOPIC_FORM);
-    },
+    onCompleted: () => notifySaved(t('kb-topic-saved', 'Topic saved')),
     onError: notifyError,
   });
 
-  const onSubmit = (data: TopicFormData) => {
-    const doc: TopicFormData = {
+  const submit = form.handleSubmit((data) => {
+    const doc: ITopicFormData = {
       ...data,
       title: data.title?.trim(),
       description: data.description?.trim(),
-      url: data.url?.trim(),
-      kbLabel: data.kbToggle ? data.kbLabel?.trim() : '',
-      kbTopicId: data.kbToggle ? data.kbTopicId : '',
-      ticketLabel: data.ticketToggle ? data.ticketLabel?.trim() : '',
-      ticketChannelId: data.ticketToggle ? data.ticketChannelId : '',
-      ticketPipelineId: data.ticketToggle ? data.ticketPipelineId : '',
-      ticketStatusId: data.ticketToggle ? data.ticketStatusId : '',
     };
 
     if (isEditing && topic) {
@@ -160,71 +97,88 @@ export function TopicDrawer({
     }
 
     addTopic({ variables: { doc } });
-  };
-
-  const onInvalid = (errors: Record<string, unknown>) => {
-    const firstField = Object.keys(errors)[0] as
-      | keyof TopicFormData
-      | undefined;
-
-    if (firstField && FIELD_TAB[firstField] !== activeTab) {
-      setSelectedTab(FIELD_TAB[firstField]);
-    }
-  };
-
-  const submit = form.handleSubmit(onSubmit, onInvalid);
+  });
 
   const busy = adding || editing;
+
   return (
-    <FocusSheet
-      modal
-      open={isOpen}
-      onOpenChange={(open: boolean) => !open && handleClose()}
-    >
-      <FocusSheet.View className="lg:w-3/4">
-        <FocusSheet.Header
-          title={
-            isEditing
-              ? t('kb-edit-topic', 'Edit Topic')
-              : t('kb-new-topic', 'New Topic')
-          }
-        />
-        <FocusSheet.Content className="flex-1 min-h-0">
-          <FocusSheet.SideBar>
-            <SheetNavSidebar
-              tabs={[...TOPIC_TABS]}
-              groupLabel={t('kb-topic', 'Help center')}
-            />
-          </FocusSheet.SideBar>
+    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Sheet.View className="p-0 md:w-1/2">
+        <Sheet.Header className="border-b p-2.5">
+          <Sheet.Title>
+            {isEditing ? t('kb-edit-topic') : t('kb-new-topic')}
+          </Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
 
+        <Sheet.Content className="grow p-4">
           <Form {...form}>
-            <form
-              onSubmit={submit}
-              className="flex overflow-hidden flex-col flex-1 min-w-0"
-            >
-              <ScrollArea className="flex-1" viewportClassName="p-4">
-                <div className={activeTab === 'general' ? '' : 'hidden'}>
-                  <TopicGeneralTab
-                    form={form}
-                    topic={topic}
-                    isEditing={isEditing}
-                    onViewScript={() => setScriptDialogOpen(true)}
-                    t={t}
-                  />
-                </div>
+            <form onSubmit={submit} className="grid gap-4">
+              <Form.Field
+                control={form.control}
+                name="title"
+                rules={{ required: 'Title is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t('kb-title-required')}{' '}
+                      <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Form.Control>
+                      <Input
+                        {...field}
+                        placeholder={t('kb-enter-topic-title')}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-                <div className={activeTab === 'appearance' ? '' : 'hidden'}>
-                  <TopicAppearanceTab control={form.control} t={t} />
-                </div>
-              </ScrollArea>
+              <Form.Field
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('description')}</Form.Label>
+                    <Form.Control>
+                      <Textarea
+                        {...field}
+                        placeholder={t('kb-enter-topic-description')}
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <TopicColorField control={form.control} name="color" t={t} />
+
+              <TopicBackgroundImageField
+                control={form.control}
+                name="backgroundImage"
+                t={t}
+              />
+
+              {isEditing && topic && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="justify-self-start"
+                  onClick={() => setScriptDialogOpen(true)}
+                >
+                  <IconCode className="mr-2 w-4 h-4" />
+                  {t('kb-view-script')}
+                </Button>
+              )}
             </form>
           </Form>
-        </FocusSheet.Content>
+        </Sheet.Content>
 
         <Sheet.Footer className="flex gap-1 justify-end border-t shrink-0 bg-background p-2.5">
           <Button
             type="button"
-            onClick={handleClose}
+            onClick={onClose}
             variant="outline"
             disabled={busy}
           >
@@ -236,11 +190,11 @@ export function TopicDrawer({
                 ? t('saving', 'Saving…')
                 : t('kb-creating', 'Creating...')
               : isEditing
-                ? t('kb-save-changes', 'Save Changes')
-                : t('kb-create-topic', 'Create Topic')}
+              ? t('kb-save-changes', 'Save Changes')
+              : t('kb-create-topic', 'Create Topic')}
           </Button>
         </Sheet.Footer>
-      </FocusSheet.View>
+      </Sheet.View>
 
       {isEditing && topic && (
         <TopicEmbedScriptDialog
@@ -250,6 +204,6 @@ export function TopicDrawer({
           t={t}
         />
       )}
-    </FocusSheet>
+    </Sheet>
   );
 }

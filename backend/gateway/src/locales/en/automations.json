@@ -199,6 +199,7 @@
   "trigger-type-description": "Start with an automation type that enrolls and triggers off",
   "choose-action-type": "Choose your action type",
   "action-type-description": "Pick what should happen next after the automation is triggered",
+  "placement-new-node": "New node",
   "choose-workflow": "Choose a workflow",
   "workflow-description": "Reuse a saved workflow inside this automation",
   "search": "Search...",

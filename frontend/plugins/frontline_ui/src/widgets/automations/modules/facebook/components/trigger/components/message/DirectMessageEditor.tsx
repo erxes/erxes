@@ -1,16 +1,18 @@
 import { Button } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
-import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
-import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
-import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
 import { DirectMessageConditionCard } from './DirectMessageConditionCard';
 import { DirectMessageEmptyState } from './DirectMessageEmptyState';
+import { TMessageTriggerDirectConditions } from '../../types/messageTrigger';
+import { useDirectMessageEditor } from '../../hooks/useDirectMessageEditor';
+import { useFacebookBotTriggerClaims } from '../../hooks/useFacebookBotTriggerClaims';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   // Absent for the comment trigger, which reuses this editor without a bot;
   // claims are then empty.
   botId?: string;
   currentTriggerId?: string;
+  // The comment trigger reuses this editor, where "direct message" is wrong.
+  emptyDescription?: string;
   conditions: TMessageTriggerDirectConditions;
   onConditionChange: (
     fieldName: 'persistentMenuIds' | 'conditions',
@@ -21,6 +23,7 @@ type Props = {
 export const DirectMessageEditor = ({
   botId,
   currentTriggerId,
+  emptyDescription,
   conditions,
   onConditionChange,
 }: Props) => {
@@ -39,10 +42,11 @@ export const DirectMessageEditor = ({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        {t(
-          'no-conditions-description',
-          'When no conditions are added, this trigger will run for any incoming direct text message.',
-        )}
+        {emptyDescription ||
+          t(
+            'no-conditions-description',
+            'When no conditions are added, this trigger will run for any incoming direct text message.',
+          )}
       </p>
 
       <div className="flex justify-end">

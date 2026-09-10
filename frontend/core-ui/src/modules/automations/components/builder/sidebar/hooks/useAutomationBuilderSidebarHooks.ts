@@ -1,6 +1,8 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
+import { automationEdgeInsertTargetState } from '@/automations/states/automationState';
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
+import { useSetAtom } from 'jotai';
 
 export const useAutomationBuilderSidebarHooks = () => {
   const {
@@ -15,12 +17,14 @@ export const useAutomationBuilderSidebarHooks = () => {
     toggleSecondarySidebar: toggleSecondarySidebarOpen,
   } = useAutomation();
   const { getNode } = useReactFlow<Node<NodeData>>();
+  const setEdgeInsertTarget = useSetAtom(automationEdgeInsertTargetState);
   const activeNode = getNode(queryParams?.activeNodeId || '')?.data;
 
   const handleClose = () => {
     setIsOpenSideBar(false);
     setIsSecondarySidebarOpen(false);
     setAwaitingToConnectNodeId('');
+    setEdgeInsertTarget(null);
     setQueryParams({
       activeNodeId: null,
       activeNodeTab: null,
@@ -29,6 +33,7 @@ export const useAutomationBuilderSidebarHooks = () => {
 
   const handleBack = () => {
     setIsSecondarySidebarOpen(false);
+    setEdgeInsertTarget(null);
     setQueryParams({
       activeNodeId: null,
       activeNodeTab: activeNode?.nodeType || null,
@@ -38,6 +43,7 @@ export const useAutomationBuilderSidebarHooks = () => {
   const closeNodeLibrary = () => {
     setIsOpenSideBar(false);
     setIsSecondarySidebarOpen(false);
+    setEdgeInsertTarget(null);
 
     setQueryParams({
       activeNodeId: null,
