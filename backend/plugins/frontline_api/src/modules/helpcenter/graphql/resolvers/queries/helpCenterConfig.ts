@@ -10,7 +10,7 @@ export interface IListArgs {
 }
 
 const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 const buildQuery = ({ searchValue, brandId }: IListArgs) => {
   const query: Record<string, unknown> = {};

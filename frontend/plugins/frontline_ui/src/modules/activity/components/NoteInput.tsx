@@ -95,6 +95,7 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
 
   return (
     <div
+      role="presentation"
       onDrop={handleDrop}
       onKeyDown={handleKeyDown}
       onDragOver={(e) => e.preventDefault()}

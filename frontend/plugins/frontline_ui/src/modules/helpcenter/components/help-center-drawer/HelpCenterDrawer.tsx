@@ -94,6 +94,10 @@ export function HelpCenterDrawer({
 
   const kbTopicId = form.watch('kbTopicId');
 
+  const idleLabel = isEditing ? t('kb-save-changes') : t('kb-create-topic');
+  const busyLabel = isEditing ? t('saving') : t('kb-creating');
+  const submitLabel = loading ? busyLabel : idleLabel;
+
   return (
     <FocusSheet
       modal
@@ -145,13 +149,7 @@ export function HelpCenterDrawer({
             {t('cancel')}
           </Button>
           <Button type="submit" disabled={loading} onClick={submit}>
-            {loading
-              ? isEditing
-                ? t('saving')
-                : t('kb-creating')
-              : isEditing
-                ? t('kb-save-changes')
-                : t('kb-create-topic')}
+            {submitLabel}
           </Button>
         </Sheet.Footer>
       </FocusSheet.View>

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -1118,6 +1118,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — Quality gate fixes across the note input and help center drawer
+
+- **Summary:** The submit button's label came from a doubly nested ternary and
+  the note wrapper carried a keydown handler with no role, both flagged on new
+  code. The label is now three named values, and the wrapper is marked
+  presentational — it is a drop target whose keydown only sees what the editor
+  inside bubbles up.
+- **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
+  `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-09` — Topic colour and image fields serve both drawers
 
 - **Summary:** The topic accent colour and background image were written out
@@ -1259,26 +1270,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `FacebookBotHealth` gains `lastError`,
   `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
   `facebookMessengerBotDelivery(_id: String!)` is new.
-
-### `2026-09-08` — Public comment replies go through a paced outbox
-
-- **Summary:** `frontline:facebook.comments.create` declares
-  `deferred: { enable: true, mode: 'ignore' }`, records the reply in a new
-  `comment_outbox_facebook` collection and returns a queued marker, so the
-  private reply after it runs immediately instead of waiting behind the pacing.
-  A per-page Redis counter hands out send slots
-  (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
-  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
-  the page breaker, and reports back through the new
-  `sendAutomationDeferredCompletion`.
-- **Affected areas:** `erxes-api-shared`
-  `core-modules/automations/sendAutomationMessage.ts`. `frontline_api` new
-  `modules/integrations/facebook/{commentOutbox,commentOutboxWorker}.ts`,
-  `db/definitions/comment_outbox.ts`, `db/models/CommentOutbox.ts`;
-  `commentGuard.ts`, `meta/automation/{constants.ts,comments/index.ts}`,
-  `connectionResolvers.ts`, `main.ts`. `frontline_ui`
-  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
-  and `components/history/useFacebookAutomationHistoryResult.ts`.
-- **Contracts changed:** the comment action now returns a deferred marker rather
-  than a send result; `sendAutomationDeferredCompletion` is new in
-  `erxes-api-shared`.

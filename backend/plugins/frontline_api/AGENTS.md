@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -1564,6 +1564,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — The help center search escape uses a raw string
+
+- **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
+  which the quality gate flags as avoidable escaping. It now reads as
+  `` String.raw`\$&`  ``; the behaviour is unchanged.
+- **Affected areas:**
+  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-09` — A help center carries its messenger app token
 
 - **Summary:** Added `erxesAppToken` to `HelpCenterConfig` and its input, so
@@ -1692,6 +1701,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
   `attachments: [AttachmentInput]`; the `Note` type exposes
   `attachments: [Attachment]`.
+
 ### `2026-09-07` — A help center points at the knowledge base topic it serves
 
 - **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
@@ -1702,15 +1712,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
 - **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
   `KnowledgeBaseTopicDoc` accepts it.
-
-### `2026-09-07` — Polls pin their messenger integration by brand
-
-- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
-  `pollSendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the poll's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
-  `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
-  `Poll` type.
