@@ -21,6 +21,7 @@ export interface IFacebookCommentOutbox {
 
   status: TCommentOutboxStatus;
   sendAfter: Date;
+  attempts?: number;
   sentAt?: Date;
   error?: string;
   createdAt: Date;
@@ -55,6 +56,7 @@ export const facebookCommentOutboxSchema = schemaWrapper(
       index: true,
     },
     sendAfter: { type: Date, required: true },
+    attempts: { type: Number, default: 0 },
     sentAt: { type: Date, optional: true },
     error: { type: String, optional: true },
     createdAt: { type: Date, default: Date.now },

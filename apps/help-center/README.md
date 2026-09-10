@@ -64,6 +64,30 @@ file first. The rest of the configuration is looked up per request from the
 help center matching the domain, so one image serves any number of portals on
 any gateway.
 
+### Many help centers on one deployment
+
+A single-tenant gateway serves every portal on it, and each one is told apart
+by the domain its request arrived on. That is already enough for many help
+centers behind one address.
+
+On a SaaS install the gateway itself is per tenant. Setting
+`NEXT_PUBLIC_APP_VERSION=SAAS` turns on substitution of a `<subdomain>`
+placeholder in the address — the same switch `apps/posclient-front` uses:
+
+```bash
+docker run -p 3900:3900 \
+  -e NEXT_PUBLIC_APP_VERSION=SAAS \
+  -e NEXT_PUBLIC_ERXES_API_URL='https://<subdomain>.api.erxes.io/gateway' \
+  erxes/help-center
+```
+
+A request to `acme.help.erxes.io` then talks to
+`https://acme.api.erxes.io/gateway`, and one to `globex.help.erxes.io` to
+`https://globex.api.erxes.io/gateway` — the same container, a help center per
+tenant. The substitution happens on both sides: the browser reads the host from
+`window.location`, and the server from the host header of the request it is
+answering.
+
 Serving the portal behind a proxy, forward the original host, since that is
 what the help center is matched on:
 

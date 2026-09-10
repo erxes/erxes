@@ -2,13 +2,13 @@ import { Form, Select, Switch, cn } from 'erxes-ui';
 
 import { AutomationTriggerFormProps } from 'ui-modules';
 import { COMMENT_POST_TYPES } from '../../constants/commentTriggerOptions';
+import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
+import { useFacebookCommentTriggerClaims } from '../../hooks/useFacebookCommentTriggerClaims';
+import { TriggerClaimNote } from '../message/TriggerClaimNote';
+import { TCommentTriggerForm } from '../../types/commentTrigger';
 import { DirectMessageEditor } from '../message/DirectMessageEditor';
 import { FacebookBotSelector } from '~/widgets/automations/modules/facebook/components/MessengerBotSelector';
 import { FacebookPostSelector } from '~/widgets/automations/modules/facebook/components/FacebookPostSelector';
-import { TCommentTriggerForm } from '../../types/commentTrigger';
-import { TriggerClaimNote } from '../message/TriggerClaimNote';
-import { useCommentTriggerForm } from '../../hooks/useCommentTriggerForm';
-import { useFacebookCommentTriggerClaims } from '../../hooks/useFacebookCommentTriggerClaims';
 import { useTranslation } from 'react-i18next';
 export const CommentTriggerForm = ({
   formRef,
