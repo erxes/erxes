@@ -84,7 +84,7 @@ export const useNoteTemplateSuggestions = ({
   }, [editor]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: Pick<KeyboardEvent, 'key' | 'preventDefault'>) => {
       if (!showSuggestions) return;
 
       switch (e.key) {

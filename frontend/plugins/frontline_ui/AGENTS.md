@@ -1121,11 +1121,12 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 ### `2026-09-10` — Quality gate fixes across the note input and help center drawer
 
 - **Summary:** The submit button's label came from a doubly nested ternary and
-  the note wrapper carried a keydown handler with no role, both flagged on new
-  code. The label is now three named values, and the wrapper carries `group` —
-  it is a drop target watching the keys the editor inside bubbles up, not a
-  control of its own.
+  the note wrapper carried a keydown handler on a plain `div`, both flagged on
+  new code. The label is now three named values, and the suggestion keys are
+  listened for on the editor node itself — the wrapper stays a drop target with
+  no keyboard role, and `handleKeyDown` takes the native event.
 - **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
+  `src/modules/activity/hooks/useNoteTemplateSuggestions.tsx`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
 

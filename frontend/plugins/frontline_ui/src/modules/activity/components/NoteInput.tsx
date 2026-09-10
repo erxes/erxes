@@ -17,7 +17,7 @@ import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AssignMemberInEditor } from 'ui-modules';
 
@@ -93,11 +93,28 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
 
   useScopedHotkeys('mod+enter', onSend, TicketHotKeyScope.NoteInput);
 
+  /*
+   * The keys that drive the template suggestions are listened for on the
+   * editor node rather than on the wrapper below: only the editor takes focus,
+   * and the wrapper is a drop target with no keyboard role of its own.
+   */
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = editorRef.current;
+
+    if (!node) {
+      return;
+    }
+
+    node.addEventListener('keydown', handleKeyDown);
+
+    return () => node.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div
-      role="group"
       onDrop={handleDrop}
-      onKeyDown={handleKeyDown}
       onDragOver={(e) => e.preventDefault()}
       className={cn(
         'relative flex flex-col overflow-hidden border rounded-lg px-4 py-3 gap-1',
@@ -116,17 +133,19 @@ export const NoteInput = ({ contentId }: { contentId: string }) => {
         />
       )}
 
-      <BlockEditor
-        editor={editor}
-        onChange={handleEditorChange}
-        onFocus={() =>
-          setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
-        }
-        onBlur={() => goBackToPreviousHotkeyScope()}
-        className="read-only min-h-30 overflow-y-auto"
-      >
-        {isInternalNote && <AssignMemberInEditor editor={editor} />}
-      </BlockEditor>
+      <div ref={editorRef}>
+        <BlockEditor
+          editor={editor}
+          onChange={handleEditorChange}
+          onFocus={() =>
+            setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.NoteInput)
+          }
+          onBlur={() => goBackToPreviousHotkeyScope()}
+          className="read-only min-h-30 overflow-y-auto"
+        >
+          {isInternalNote && <AssignMemberInEditor editor={editor} />}
+        </BlockEditor>
+      </div>
 
       <NoteAttachments
         attachments={attachments}
