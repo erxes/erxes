@@ -34,14 +34,13 @@ import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
-  PRODUCT_VIDEO_LIMIT,
   ProductPrimaryImageUpload,
   ProductSecondaryImagesUpload,
-  ProductVideosUpload,
   toProductAttachmentItem,
   toProductAttachmentList,
   type ProductAttachmentItem,
 } from './ProductImageUploads';
+import { PRODUCT_VIDEO_LIMIT, ProductVideosUpload } from './ProductVideoUploads';
 import { SelectProductType } from './SelectProductType';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';

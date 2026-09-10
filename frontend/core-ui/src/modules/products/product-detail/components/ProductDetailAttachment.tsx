@@ -4,14 +4,16 @@ import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
-  PRODUCT_VIDEO_LIMIT,
   ProductPrimaryImageUpload,
   ProductSecondaryImagesUpload,
-  ProductVideosUpload,
   toProductAttachmentItem,
   toProductAttachmentList,
   type ProductAttachmentItem,
 } from 'ui-modules/modules/products/components/ProductImageUploads';
+import {
+  PRODUCT_VIDEO_LIMIT,
+  ProductVideosUpload,
+} from 'ui-modules/modules/products/components/ProductVideoUploads';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { ProductAttachment } from '../types/detailTypes';
 
@@ -85,7 +87,7 @@ export const ProductDetailAttachment = ({
           </InfoCard>
         </div>
       </div>
-      <InfoCard title={t('videos') || 'Videos'} className="h-full">
+      <InfoCard title={t('videos', 'Videos')} className="h-full">
         <InfoCard.Content className="h-full">
           <ProductVideosUpload
             value={videoItems}
