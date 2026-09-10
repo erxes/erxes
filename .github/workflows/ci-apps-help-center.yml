@@ -26,6 +26,11 @@ jobs:
         with:
           node-version: 22.19.0
 
+      - name: Set environment variables
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build
         run: |
           cd apps/help-center
@@ -41,5 +46,9 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          DOCKER_BUILDKIT=1 docker build -t erxes/help-center:latest -f apps/help-center/Dockerfile .
+          DOCKER_BUILDKIT=1 docker build \
+            -t erxes/help-center:latest \
+            -t "erxes/help-center:$DATE-$SHORT_SHA" \
+            -f apps/help-center/Dockerfile .
           docker push erxes/help-center:latest
+          docker push "erxes/help-center:$DATE-$SHORT_SHA"
