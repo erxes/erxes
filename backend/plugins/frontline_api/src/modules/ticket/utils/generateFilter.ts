@@ -31,7 +31,17 @@ const buildVisibilityCondition = (
     pipeline.isCheckUser &&
     !(pipeline.excludeCheckUserIds || []).includes(userId)
   ) {
-    conditions.push({ $or: [{ assigneeId: userId }, { createdBy: userId }] });
+    conditions.push({
+      $or: [
+        { assigneeId: userId },
+        { createdBy: userId },
+        { subscribedUserIds: userId },
+        {
+          assigneeId: { $in: [null, ''] },
+          'subscribedUserIds.0': { $exists: false },
+        },
+      ],
+    });
   }
 
   if (pipeline.isCheckBranch) {

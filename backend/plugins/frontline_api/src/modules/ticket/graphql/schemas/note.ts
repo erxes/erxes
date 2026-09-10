@@ -8,6 +8,7 @@ export const types = `
         attachments: [Attachment]
         isInternal: Boolean
         statusId: String
+        mailMessageId: String
 
         createdAt: String
         updatedAt: String
@@ -33,6 +34,7 @@ const updateNoteParams = `
 
 export const queries = `
     ticketGetNote(_id: String!): TicketNote
+    ticketGetNotes(contentId: String!, isInternal: Boolean): [TicketNote]
     cpTicketGetNotes(ticketId: String!): [TicketNote]
 `;
 
@@ -41,5 +43,5 @@ export const mutations = `
     ticketUpdateNote(${updateNoteParams}): TicketNote
     ticketDeleteNote(_id: String!): JSON
 
-    cpTicketCreateNote(content: String,contentId: String): TicketNote
+    cpTicketCreateNote(content: String, contentId: String): TicketNote
 `;

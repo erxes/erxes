@@ -29,8 +29,24 @@ const attachmentSchema = new Schema(
 
 export const mailMessageSchema = new Schema({
   _id: mongooseStringRandomId,
-  inboxIntegrationId: { type: String, index: true },
-  inboxConversationId: { type: String, index: true },
+  inboxIntegrationId: {
+    type: String,
+    index: true,
+    label:
+      'Mail integration scope: the inbox id of a channel inbox, the mail integration id of a pipeline address',
+  },
+  inboxConversationId: {
+    type: String,
+    index: true,
+    sparse: true,
+    label: 'Inbox conversation, set only on channel inbox mail',
+  },
+  ticketId: {
+    type: String,
+    index: true,
+    sparse: true,
+    label: 'Ticket this mail thread belongs to, set only on pipeline mail',
+  },
   messageId: { type: String },
   subject: String,
   body: String,
