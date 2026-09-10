@@ -476,9 +476,8 @@ export const loadFieldClass = (models: IModels) => {
         });
       }
 
-      result.propertiesData = await models.Fields.validateFieldValues(
-        mergedData,
-      );
+      result.propertiesData =
+        await models.Fields.validateFieldValues(mergedData);
 
       return result;
     }
