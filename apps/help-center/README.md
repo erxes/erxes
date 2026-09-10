@@ -1,4 +1,4 @@
-# knowledge-base
+# help-center
 
 Public knowledge base and support portal for erxes, built with Next.js 16 (App
 Router), React 19, Tailwind CSS v4 and Apollo Client.
@@ -49,18 +49,20 @@ The image builds from the **repository root**, because the portal compiles a
 few form controls straight out of the `erxes-ui` source tree:
 
 ```bash
-docker build -f apps/knowledge-base/Dockerfile \
-  --build-arg NEXT_PUBLIC_ERXES_API_URL=https://officenext.erxes.io/gateway \
-  -t erxes/knowledge-base .
+docker build -f apps/help-center/Dockerfile -t erxes/help-center .
 
-docker run -p 3900:3900 erxes/knowledge-base
+docker run -p 3900:3900 \
+  -e NEXT_PUBLIC_ERXES_API_URL=https://officenext.erxes.io/gateway \
+  erxes/help-center
 ```
 
-The gateway address is a **build argument**, not a runtime one: Next inlines
-every `NEXT_PUBLIC_*` value into the client bundle during `next build`, so an
-image is tied to the gateway it was built against. One image still serves any
-number of portals on that gateway — the rest of the configuration is looked up
-per request from the help center matching the domain.
+The gateway address is read at **run time**. Next would otherwise inline every
+`NEXT_PUBLIC_*` value into the client bundle during `next build` and tie the
+image to one gateway, so `docker-entrypoint.sh` writes the container's value
+into `public/js/env.js` before the server starts and the root layout loads that
+file first. The rest of the configuration is looked up per request from the
+help center matching the domain, so one image serves any number of portals on
+any gateway.
 
 Serving the portal behind a proxy, forward the original host, since that is
 what the help center is matched on:

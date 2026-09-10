@@ -19,7 +19,7 @@ const sharedDependencies = [
 const resolveAlias = Object.fromEntries(
   sharedDependencies.map((name) => [
     name,
-    `./apps/knowledge-base/node_modules/${name}`,
+    `./apps/help-center/node_modules/${name}`,
   ]),
 );
 
