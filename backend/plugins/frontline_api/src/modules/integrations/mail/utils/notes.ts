@@ -6,21 +6,24 @@ import { noteContentToHtml } from '@/integrations/mail/utils/noteContent';
 import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
 import { sendTicketMail } from '@/integrations/mail/utils/tickets';
 import { splitQuotedReply } from '@/integrations/mail/utils/thread';
+import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
 
 const REPLY_PREFIX = /^re\s*:/i;
 
 const FALLBACK_SUBJECT = 'Re: your request';
 
-const replySubject = async (
-  models: IModels,
-  ticketId: string,
-  fallback: string,
-) => {
-  const latest = await models.MailMessages.findOne({ ticketId })
+const latestMessage = (models: IModels, ticketId: string) =>
+  models.MailMessages.findOne({ ticketId })
     .sort({ createdAt: -1, _id: -1 })
     .lean();
 
-  const subject = (latest?.subject ?? fallback ?? '').trim();
+const latestInbound = (models: IModels, ticketId: string) =>
+  models.MailMessages.findOne({ ticketId, type: MAIL_MESSAGE_TYPES.INBOX })
+    .sort({ createdAt: -1, _id: -1 })
+    .lean();
+
+const replySubject = (latest?: string, fallback?: string) => {
+  const subject = (latest ?? fallback ?? '').trim();
 
   if (!subject) {
     return FALLBACK_SUBJECT;
@@ -29,7 +32,7 @@ const replySubject = async (
   return REPLY_PREFIX.test(subject) ? subject : `Re: ${subject}`;
 };
 
-export const mailTicketComment = async (
+export const mailTicketNote = async (
   models: IModels,
   subdomain: string,
   note: INoteDocument,
@@ -51,18 +54,22 @@ export const mailTicketComment = async (
   }
 
   try {
-    const subject = await replySubject(models, ticket._id, ticket.name);
-
     const body = noteContentToHtml(note.content);
 
     if (!body) {
       return note;
     }
 
+    const latest = await latestMessage(models, ticket._id);
+
+    const parent = (await latestInbound(models, ticket._id)) ?? latest;
+
     const message = await sendTicketMail(models, subdomain, ticket, {
       ticketId: ticket._id,
-      subject,
+      subject: replySubject(latest?.subject, ticket.name),
       body,
+      replyToMessageId: parent?.messageId,
+      references: parent?.references ?? [],
     });
 
     const updated = await models.Note.findOneAndUpdate(
@@ -73,13 +80,13 @@ export const mailTicketComment = async (
 
     return updated ?? note;
   } catch (e) {
-    debugError('Comment could not be mailed to the requester:', e);
+    debugError('Note could not be mailed to the requester:', e);
 
     return note;
   }
 };
 
-export const commentFromMail = async ({
+export const noteFromMail = async ({
   models,
   subdomain,
   ticketId,

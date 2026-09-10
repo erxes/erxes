@@ -34,7 +34,7 @@ import {
   createTicketFromMail,
   isTicketOpen,
 } from '@/integrations/mail/utils/tickets';
-import { commentFromMail } from '@/integrations/mail/utils/comments';
+import { noteFromMail } from '@/integrations/mail/utils/notes';
 import { captureForwardVerification } from '@/integrations/mail/utils/forwardVerification';
 import { describeError } from '@/integrations/mail/utils/errors';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
@@ -368,7 +368,7 @@ const storeTicketMail = async (
   const message = await storeMessage(context, { ticketId });
 
   if (!isAuto) {
-    await commentFromMail({
+    await noteFromMail({
       models: context.models,
       subdomain: context.subdomain,
       ticketId,

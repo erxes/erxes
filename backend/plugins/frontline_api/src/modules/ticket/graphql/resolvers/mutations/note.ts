@@ -1,6 +1,6 @@
 import { INoteDocument } from '@/ticket/@types/note';
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { mailTicketComment } from '@/integrations/mail/utils/comments';
+import { mailTicketNote } from '@/integrations/mail/utils/notes';
 import { IContext } from '~/connectionResolvers';
 
 export const noteMutations = {
@@ -36,7 +36,7 @@ export const noteMutations = {
       userId,
     });
 
-    return mailTicketComment(models, subdomain, note);
+    return mailTicketNote(models, subdomain, note);
   },
 
   ticketUpdateNote: async (

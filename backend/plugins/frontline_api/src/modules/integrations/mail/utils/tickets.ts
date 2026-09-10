@@ -99,7 +99,7 @@ export const createTicketFromMail = async ({
     );
   }
 
-  const openedBy = pipeline.userId ?? '';
+  const owner = pipeline.userId ?? '';
 
   const ticket = await models.Ticket.addTicket(
     {
@@ -110,16 +110,14 @@ export const createTicketFromMail = async ({
       statusId: status._id,
       description: toDescription(body),
     },
-    openedBy,
+    `cp:${customerId}`,
     subdomain,
   );
 
-  if (!openedBy) {
-    await models.Ticket.updateOne(
-      { _id: ticket._id },
-      { $set: { subscribedUserIds: [] } },
-    );
-  }
+  await models.Ticket.updateOne(
+    { _id: ticket._id },
+    { $set: { subscribedUserIds: owner ? [owner] : [] } },
+  );
 
   await relate(subdomain, [
     { contentType: CUSTOMER_TYPE, contentId: customerId },

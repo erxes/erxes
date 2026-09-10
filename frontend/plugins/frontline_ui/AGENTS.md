@@ -363,7 +363,8 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `SelectBrand`, `MembersInline`, contacts and structure selects,
+- `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
+  structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
   `AutomationActionFormProps` (which carries `trigger` and `targetType`),
   `splitAutomationNodeType`, `generateAutomationElementId`,
@@ -507,6 +508,15 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- An activity or ticket author id is not always a team member. A `cp:` prefix
+  marks a client portal or mail requester, and `ActivityAuthor` is the only
+  place that decodes it — the suffix is a customer id, resolved through
+  `CustomersInline`, and a bare id stays on `MembersInline`. Rendering
+  `activity.createdBy` or `ticket.createdBy` straight into `MembersInline`
+  silently shows a blank member for every customer-authored row, so the
+  timeline, the creator line and any future author surface must go through
+  `ActivityAuthorName` / `ActivityAuthorAvatar`. An empty id renders as
+  `unknown`, which is what pre-`cp:` mail tickets still show.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1120,6 +1130,18 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — The activity timeline names a customer author
+
+- **Summary:** A note that arrived by mail is written by the requester, not by
+  a team member, and its `cp:` author id resolved to a blank member row.
+  `ActivityAuthor` now decodes that prefix and renders the customer through
+  `CustomersInline`, a team member through `MembersInline`, and an empty author
+  as `unknown`; the timeline row and the ticket's creator line both use it.
+- **Affected areas:** `src/modules/activity/components/ActivityAuthor.tsx`
+  (new), `src/modules/activity/components/ActivityItemWrapper.tsx`,
+  `src/modules/activity/components/CreatorInfo.tsx`
+- **Contracts changed:** `None`
+
 ### `2026-09-10` — A ticket pipeline gets a mail settings tab
 
 - **Summary:** A pipeline now has a `Mail settings` tab that shows the address
@@ -1264,14 +1286,3 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
   `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`
 - **Contracts changed:** None.
-
-### `2026-09-09` — The comment reply mention is a setting
-
-- **Summary:** The Send comment action gained a "Mention the commenter" switch;
-  it is off unless turned on, so a reply no longer tags the commenter by
-  default.
-- **Affected areas:**
-  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`,
-  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
-- **Contracts changed:** None. The action config gained an optional
-  `mentionSender` boolean.
