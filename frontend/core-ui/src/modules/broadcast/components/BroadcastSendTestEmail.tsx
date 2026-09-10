@@ -1,14 +1,9 @@
-import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
 import { IconSend } from '@tabler/icons-react';
 import { Button, Input, Popover, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 import { useBroadcastSendTestEmail } from '../hooks/useBroadcastSendTestEmail';
-
-const isSingleEmail = (value: string) =>
-  !value.includes(',') && z.string().email().safeParse(value.trim()).success;
 
 export const BroadcastSendTestEmail = ({
   variant = 'secondary',
@@ -18,21 +13,17 @@ export const BroadcastSendTestEmail = ({
   const { getValues } = useFormContext();
   const { toast } = useToast();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
-  const { sendTestEmail, loading: sendLoading } = useBroadcastSendTestEmail();
-  const { alignedFrom, loading: senderOptionsLoading } = useSenderOptions();
+  const { sendTestEmail, loading } = useBroadcastSendTestEmail();
 
   const [to, setTo] = useState('');
   const [open, setOpen] = useState(false);
-
-  const hasComma = to.includes(',');
-  const isValid = isSingleEmail(to);
 
   const handleSend = () => {
     const { fromEmail, email } = getValues();
 
     sendTestEmail({
       variables: {
-        from: alignedFrom || fromEmail,
+        from: fromEmail,
         to,
         contentJson: email?.contentJson,
         previewText: email?.previewText,
@@ -66,22 +57,13 @@ export const BroadcastSendTestEmail = ({
           value={to}
           onChange={(e) => setTo(e.target.value)}
         />
-        {hasComma && (
-          <p className="text-sm text-destructive">
-            {t('sendTestEmailSingleRecipientOnly')}
-          </p>
-        )}
         <Button
           type="button"
-          disabled={!to || !isValid || sendLoading || senderOptionsLoading}
+          disabled={!to || loading}
           onClick={handleSend}
           className="w-full"
         >
-          {sendLoading
-            ? t('sendTestEmailSending')
-            : senderOptionsLoading
-              ? t('sendTestEmailLoadingSenderInfo')
-              : t('sendTestEmailAction')}
+          {loading ? t('sendTestEmailSending') : t('sendTestEmailAction')}
         </Button>
       </Popover.Content>
     </Popover>
