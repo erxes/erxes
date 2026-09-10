@@ -1,25 +1,12 @@
 import { IContext } from '~/connectionResolvers';
-import { IGithubConnection } from '~/modules/githubIntegration/@types/githubConnection';
-import { getAppOctokit } from '~/utils/githubClient';
 
 export const githubConnectionMutations = {
-  async upsertGithubConnection(
-    _parent: undefined,
-    params: IGithubConnection,
-    { models }: IContext,
-  ) {
-    const connection = await models.GithubConnection.upsertConnection(params);
-    return connection;
-  },
   async disconnectGithubConnection(
     _parent: undefined,
     { installationId }: { installationId: number },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
-    const appOctokit = await getAppOctokit();
-    await appOctokit.request('DELETE /app/installations/{installation_id}', {
-      installation_id: installationId,
-    });
+    await checkPermission('teamUpdate');
 
     const connection = await models.GithubConnection.findOne({
       installationId,
@@ -28,6 +15,20 @@ export const githubConnectionMutations = {
     if (!connection) {
       throw new Error('Github connection not found');
     }
+
+    const linkedTeamCount = await models.GithubConfig.countDocuments({
+      installationId,
+      subdomain,
+    });
+
+    if (linkedTeamCount > 0) {
+      throw new Error(
+        `This GitHub organization is still linked to ${linkedTeamCount} team${
+          linkedTeamCount === 1 ? '' : 's'
+        }`,
+      );
+    }
+
     connection.isActive = false;
     await connection.save();
 

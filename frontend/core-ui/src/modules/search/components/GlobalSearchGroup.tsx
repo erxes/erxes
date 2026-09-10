@@ -113,6 +113,7 @@ export const GlobalSearchProviderGroup = ({
 }) => {
   const { t } = useTranslation(group.labelNamespace ?? 'common', {
     keyPrefix: group.labelNamespace ? undefined : 'global-search',
+    useSuspense: false,
   });
   const { t: tCommon } = useTranslation('common', {
     keyPrefix: 'global-search',

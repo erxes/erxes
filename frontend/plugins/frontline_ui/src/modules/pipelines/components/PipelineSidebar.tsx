@@ -22,7 +22,7 @@ export const PipelineSidebar = () => {
     >
       <Sidebar.Group className="py-2 md:py-3">
         <Sidebar.GroupLabel className="hidden md:flex">
-          {t('pipeline')}
+          {t('pipeline', 'Pipeline')}
         </Sidebar.GroupLabel>
         <Sidebar.GroupContent className="md:pt-2">
           <Sidebar.Menu className="flex-row overflow-x-auto md:flex-col">

@@ -53,7 +53,7 @@ export const ActivityAuthorName = ({
     return (
       <CustomersInline.Provider
         customerIds={[customerId]}
-        placeholder={t('unnamed-customer')}
+        placeholder={t('unnamed-customer', 'Unnamed customer')}
         hideAvatar
       >
         <CustomersInline.Title className={className} />
@@ -62,7 +62,9 @@ export const ActivityAuthorName = ({
   }
 
   if (!createdBy) {
-    return <span className="text-muted-foreground">{t('unknown')}</span>;
+    return (
+      <span className="text-muted-foreground">{t('unknown', 'Unknown')}</span>
+    );
   }
 
   return (

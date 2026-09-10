@@ -20,7 +20,7 @@ export const ConversationCount = ({ className }: { className?: string }) => {
       ) : (
         <span className="flex-none">{totalCount}</span>
       )}
-      <span className="truncate">{t('conversations')}</span>
+      <span className="truncate">{t('conversations', 'conversations')}</span>
     </span>
   );
 };

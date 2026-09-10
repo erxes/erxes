@@ -138,7 +138,7 @@ const SelectChannelContent = () => {
   const { loading, channels } = useSelectChannelContext();
   return (
     <Command>
-      <Command.Input placeholder={t('search-channels')} />
+      <Command.Input placeholder={t('search-channels', 'Search channels...')} />
       <Command.List>
         <Combobox.Empty loading={loading} />
         {channels?.map((channel) => (

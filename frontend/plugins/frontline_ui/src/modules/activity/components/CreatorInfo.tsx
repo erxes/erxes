@@ -19,7 +19,7 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       createdAt={contentDetail.createdAt?.toLocaleString()}
       id={contentDetail._id}
     >
-      {t('created-by')}{' '}
+      {t('created-by', 'Created by')}{' '}
       <ActivityAuthorName
         createdBy={contentDetail.createdBy}
         className="font-semibold"

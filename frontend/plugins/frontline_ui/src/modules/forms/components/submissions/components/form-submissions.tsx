@@ -35,8 +35,10 @@ const CopyLink = ({
       })
       .catch(() => {
         toast({
-          title: t('failed-to-copy', { label: label.toLowerCase() }),
-          description: t('please-try-again'),
+          title: t('failed-to-copy', 'Failed to copy {{label}}', {
+            label: label.toLowerCase(),
+          }),
+          description: t('please-try-again', 'Please try again'),
           variant: 'destructive',
         });
       });
@@ -46,7 +48,7 @@ const CopyLink = ({
       {copied ? (
         <>
           <IconCheck className="w-4 h-4 mr-2" />
-          {t('copied')}
+          {t('copied', 'Copied!')}
         </>
       ) : (
         <>
@@ -81,8 +83,10 @@ export const FormSubmissions = () => {
           <Empty.Media>
             <IconAlertTriangle />
           </Empty.Media>
-          <Empty.Title>{t('error')}</Empty.Title>
-          <Empty.Description>{t('please-try-again')}</Empty.Description>
+          <Empty.Title>{t('error', 'Error')}</Empty.Title>
+          <Empty.Description>
+            {t('please-try-again', 'Please try again')}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <Button
@@ -91,7 +95,7 @@ export const FormSubmissions = () => {
               refetch();
             }}
           >
-            {t('try-again')}
+            {t('try-again', 'Try Again')}
           </Button>
         </Empty.Content>
       </Empty>
@@ -104,8 +108,15 @@ export const FormSubmissions = () => {
           <Empty.Media>
             <IconListDetails />
           </Empty.Media>
-          <Empty.Title>{t('no-submissions-found')}</Empty.Title>
-          <Empty.Description>{t('share-link-description')}</Empty.Description>
+          <Empty.Title>
+            {t('no-submissions-found', 'No submissions found')}
+          </Empty.Title>
+          <Empty.Description>
+            {t(
+              'share-link-description',
+              'Share link below to gather form submissions',
+            )}
+          </Empty.Description>
         </Empty.Header>
         <Empty.Content>
           <CopyLink

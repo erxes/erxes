@@ -51,7 +51,7 @@ export const AddTicketSheet = ({
       <Sheet.Trigger asChild>
         <Button {...props}>
           <IconPlus />
-          {t('add-ticket')}
+          {t('add-ticket', 'Add ticket')}
           {!isRelation && <Kbd>C</Kbd>}
         </Button>
       </Sheet.Trigger>
@@ -71,9 +71,9 @@ export const AddTicketSheetHeader = () => {
   const { t } = useTranslation('frontline');
   return (
     <Sheet.Header className="p-5">
-      <Sheet.Title>{t('add-ticket')}</Sheet.Title>
+      <Sheet.Title>{t('add-ticket', 'Add ticket')}</Sheet.Title>
       <Sheet.Description className="sr-only">
-        {t('add-ticket-description')}
+        {t('add-ticket-description', 'Add a new ticket to your organization.')}
       </Sheet.Description>
       <Sheet.Close />
     </Sheet.Header>

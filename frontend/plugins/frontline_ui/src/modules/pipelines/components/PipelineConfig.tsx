@@ -25,7 +25,7 @@ export const PipelineConfig = ({
 
   return (
     <>
-      <PipelineSection title={t('number')}>
+      <PipelineSection title={t('number', 'Number')}>
         <div className="flex items-start gap-2">
           <Form.Field
             control={control}
@@ -33,7 +33,7 @@ export const PipelineConfig = ({
             render={({ field }) => (
               <Form.Item className="min-w-0 flex-1 space-y-1">
                 <Form.Label className="sr-only">
-                  {t('number-configuration')}
+                  {t('number-configuration', 'Number configuration')}
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} placeholder="{year}-" />
@@ -48,7 +48,7 @@ export const PipelineConfig = ({
             render={({ field }) => (
               <Form.Item className="w-16 flex-none space-y-1">
                 <Form.Label className="sr-only">
-                  {t('fractional-part')}
+                  {t('fractional-part', 'Fractional part')}
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} placeholder="1-8" />
@@ -71,7 +71,7 @@ export const PipelineConfig = ({
         />
       </PipelineSection>
 
-      <PipelineSection title={t('name')}>
+      <PipelineSection title={t('name', 'Name')}>
         <div className="flex items-start gap-2">
           <Form.Field
             control={control}
@@ -79,7 +79,7 @@ export const PipelineConfig = ({
             render={({ field }) => (
               <Form.Item className="min-w-0 flex-1 space-y-1">
                 <Form.Label className="sr-only">
-                  {t('name-configuration')}
+                  {t('name-configuration', 'Name configuration')}
                 </Form.Label>
                 <Form.Control>
                   <Input {...field} placeholder="{customer.firstName}" />

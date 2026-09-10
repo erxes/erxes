@@ -1,11 +1,3 @@
-import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
-import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
-import {
-  IconCheck,
-  IconChevronDown,
-  IconRobotFace,
-  IconSettings,
-} from '@tabler/icons-react';
 import {
   Avatar,
   Badge,
@@ -16,10 +8,19 @@ import {
   Skeleton,
   cn,
 } from 'erxes-ui';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import {
+  IconCheck,
+  IconChevronDown,
+  IconRobotFace,
+  IconSettings,
+} from '@tabler/icons-react';
+
+import { IFacebookBot } from '@/integrations/facebook/types/FacebookBot';
 import { Link } from 'react-router';
 import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
+import { useFacebookBots } from '@/integrations/facebook/hooks/useFacebookBots';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   onSelect: (id: string) => void;
@@ -64,7 +65,7 @@ export const FacebookBotSelector = ({ botId, onSelect }: Props) => {
             </Avatar>
             <div className="flex min-w-0 flex-col">
               <Label className="truncate text-base">
-                {selectedBot?.name || t('select-a-bot')}
+                {selectedBot?.name || t('select-a-bot', 'Select a bot')}
               </Label>
               {/* A bot is the page it answers for; the name alone does not say. */}
               {selectedBot && (
@@ -133,10 +134,12 @@ const MessengerBotList = ({
     return (
       <div className="flex flex-col items-center gap-2 text-accent-foreground">
         <IconRobotFace />
-        <p>{t('no-bots-configured')}</p>
+        <p>{t('no-bots-configured', "There's no bots configured")}</p>
         <Button variant="secondary" asChild>
           <Link to={`/settings/automations/bots/facebook-messenger-bots`}>
-            <Label>{t('create-first-bot')}</Label>
+            <Label>
+              {t('create-first-bot', 'Create first facebook messenger bot')}
+            </Label>
           </Link>
         </Button>
       </div>

@@ -60,7 +60,7 @@ export const DirectMessageConditionCard = ({
           onValueChange={(value) => onChange('operator', value)}
         >
           <Select.Trigger>
-            <Select.Value placeholder={t('select')} />
+            <Select.Value placeholder={t('select', 'Select...')} />
           </Select.Trigger>
           <Select.Content>
             {DIRECT_MESSAGE_OPERATOR_TYPES.map(({ label, value }) => (
@@ -72,7 +72,7 @@ export const DirectMessageConditionCard = ({
         </Select>
 
         <Input
-          placeholder={t('add-keyword')}
+          placeholder={t('add-keyword', '+ add keyword')}
           value={draftKeyword}
           onChange={(event) => setDraftKeyword(event.currentTarget.value)}
           onKeyDown={handleKeyPress}
@@ -84,7 +84,9 @@ export const DirectMessageConditionCard = ({
         {!hasKeywords ? (
           <div className="flex flex-col items-center text-muted-foreground">
             <IconSquareKey />
-            <span className="text-xs">{t('no-keywords-configured')}</span>
+            <span className="text-xs">
+              {t('no-keywords-configured', 'There is no keywords configured')}
+            </span>
           </div>
         ) : (
           <div className="flex flex-col gap-2 py-4">

@@ -31,9 +31,9 @@ export const HeatmapChart = memo(function HeatmapChart({
   const { loadForExport, loading: exportLoading } = useHeatmapExport();
 
   const metricLabel: Record<HeatMetric, string> = {
-    total: t('total-calls'),
-    answered: t('answered'),
-    noAnswer: t('no-answer'),
+    total: t('total-calls', 'Total calls'),
+    answered: t('answered', 'Answered'),
+    noAnswer: t('no-answer', 'No answer'),
   };
 
   const handleExport = async () => {
@@ -57,8 +57,8 @@ export const HeatmapChart = memo(function HeatmapChart({
         endDate,
         metric,
         title: `${metricLabel[metric]} · ${dateRangeLabel}`,
-        dateHeader: t('date'),
-        totalHeader: t('total'),
+        dateHeader: t('date', 'Date'),
+        totalHeader: t('total', 'Total'),
         sheetName: metricLabel[metric].slice(0, 31),
         fileName: `call-heatmap-${metric}-${new Date()
           .toISOString()
@@ -72,7 +72,7 @@ export const HeatmapChart = memo(function HeatmapChart({
       });
     } catch (error) {
       toast({
-        title: t('something-went-wrong'),
+        title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
         description: (error as Error).message,
         variant: 'destructive',
       });
@@ -94,7 +94,7 @@ export const HeatmapChart = memo(function HeatmapChart({
   if (!cells.length) {
     return (
       <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
-        {t('no-heatmap-data')}
+        {t('no-heatmap-data', 'No heatmap data')}
       </div>
     );
   }
@@ -109,14 +109,23 @@ export const HeatmapChart = memo(function HeatmapChart({
           value={metric}
           onValueChange={(value) => value && setMetric(value as HeatMetric)}
         >
-          <ToggleGroup.Item value="total" aria-label={t('total-calls')}>
-            {t('total-calls')}
+          <ToggleGroup.Item
+            value="total"
+            aria-label={t('total-calls', 'Total calls')}
+          >
+            {t('total-calls', 'Total calls')}
           </ToggleGroup.Item>
-          <ToggleGroup.Item value="answered" aria-label={t('answered')}>
-            {t('answered')}
+          <ToggleGroup.Item
+            value="answered"
+            aria-label={t('answered', 'Answered')}
+          >
+            {t('answered', 'Answered')}
           </ToggleGroup.Item>
-          <ToggleGroup.Item value="noAnswer" aria-label={t('no-answer')}>
-            {t('no-answer')}
+          <ToggleGroup.Item
+            value="noAnswer"
+            aria-label={t('no-answer', 'No answer')}
+          >
+            {t('no-answer', 'No answer')}
           </ToggleGroup.Item>
         </ToggleGroup>
 
@@ -127,7 +136,7 @@ export const HeatmapChart = memo(function HeatmapChart({
           disabled={exporting || exportLoading}
         >
           <IconDownload />
-          {t('export-excel')}
+          {t('export-excel', 'Export Excel')}
         </Button>
       </div>
 
@@ -160,10 +169,10 @@ export const HeatmapChart = memo(function HeatmapChart({
                       cell
                         ? `${DOW_LABELS[dow]} ${hour}:00 — ${cell.total} ${t(
                             'calls',
-                          )}, ${cell.answered} ${t('answered')}, ${
+                          )}, ${cell.answered} ${t('answered', 'Answered')}, ${
                             cell.noAnswer
-                          } ${t('no-answer')} (${fmtPct(cell.answerRate)})`
-                        : t('no-data')
+                          } ${t('no-answer', 'No answer')} (${fmtPct(cell.answerRate)})`
+                        : t('no-data', 'No data')
                     }
                     className="flex-1 m-[1px] rounded-sm aspect-square"
                     style={{

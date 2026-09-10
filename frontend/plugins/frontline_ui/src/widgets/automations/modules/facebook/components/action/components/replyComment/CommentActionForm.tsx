@@ -1,16 +1,17 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Switch, Textarea, toast } from 'erxes-ui';
-import { useImperativeHandle } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { AutomationActionFormProps } from 'ui-modules';
-import { InputTextCounter } from '~/widgets/automations/modules/facebook/components/action/components/InputTextCounter';
+import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import {
-  commentActionFormSchema,
   TCommentActionForm,
+  commentActionFormSchema,
   toCommentActionFormValues,
 } from '~/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm';
+import { useFieldArray, useForm } from 'react-hook-form';
+
+import { AutomationActionFormProps } from 'ui-modules';
+import { InputTextCounter } from '~/widgets/automations/modules/facebook/components/action/components/InputTextCounter';
+import { useImperativeHandle } from 'react';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const CommentActionForm = ({
   formRef,
@@ -32,7 +33,7 @@ export const CommentActionForm = ({
   useImperativeHandle(formRef, () => ({
     submit: form.handleSubmit(onSaveActionConfig, () =>
       toast({
-        title: t('form-error'),
+        title: t('form-error', 'There is some error in the form'),
         variant: 'destructive',
       }),
     ),
@@ -142,10 +143,13 @@ export const CommentActionForm = ({
           name="attachments"
           render={() => (
             <Form.Item>
-              <Form.Label>{t('attachments-label')}</Form.Label>
+              <Form.Label>{t('attachments-label', 'Attachments')}</Form.Label>
               <Form.Control>
                 <Button disabled variant="secondary">
-                  {t('upload-attachments-wip')}
+                  {t(
+                    'upload-attachments-wip',
+                    'Upload Attachments (Work in progress)',
+                  )}
                 </Button>
               </Form.Control>
             </Form.Item>
