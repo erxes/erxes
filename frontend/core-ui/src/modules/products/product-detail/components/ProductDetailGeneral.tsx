@@ -105,16 +105,6 @@ export const ProductDetailGeneral = () => {
               </div>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="arrivalDate"
-            render={({ field }) => (
-              <div className="space-y-2">
-                <Label>{t('arrival-date')}</Label>
-                <Input {...field} />
-              </div>
-            )}
-          />
           {productType === 'unique' && (
             <>
               <Form.Field
@@ -176,16 +166,6 @@ export const ProductDetailGeneral = () => {
                 </div>
               );
             }}
-          />
-          <Form.Field
-            control={form.control}
-            name="shortDescription"
-            render={({ field }) => (
-              <div className="col-span-2 space-y-2">
-                <Label>{t('short-description')}</Label>
-                <Input {...field} />
-              </div>
-            )}
           />
           <Form.Field
             control={form.control}

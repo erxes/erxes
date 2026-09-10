@@ -42,9 +42,7 @@ export interface ProductDetail {
   _id?: string;
   name?: string;
   barcodeDescription?: string;
-  shortDescription?: string;
   description?: string;
-  arrivalDate?: string;
   categoryId?: string;
   type?: string;
   code?: string;

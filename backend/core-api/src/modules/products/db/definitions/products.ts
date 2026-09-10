@@ -43,17 +43,7 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'Barcode Description',
       },
-      shortDescription: {
-        type: String,
-        optional: true,
-        label: 'Short description',
-      },
       description: { type: String, optional: true, label: 'Description' },
-      arrivalDate: {
-        type: String,
-        optional: true,
-        label: 'Arrival date',
-      },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
       customFieldsData: {
         type: [customFieldSchema],

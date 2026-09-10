@@ -93,8 +93,6 @@
     "category": "Category",
     "currency": "Currency",
     "unit-price": "Unit price",
-    "arrival-date": "Arrival date",
-    "short-description": "Short description",
     "description": "Description",
     "barcode-description": "Barcode description",
     "barcodes": "Barcodes",
