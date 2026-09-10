@@ -19,14 +19,21 @@ export const GET_CONVERSATION_MESSAGES = gql`
     )
    {
       _id
+      mid
       ${commonCommentAndMessageFields}
       customerId
       userId
+      fromBot
       createdAt
       isCustomerRead
       internal
       botData
       source
+      messageKind
+      providerData
+      replyTo
+      expiresAt
+      reactions
       relatedMessage
       attachments {
         url
@@ -35,6 +42,7 @@ export const GET_CONVERSATION_MESSAGES = gql`
         size
       }
     }
+    facebookConversationMessagesCount(conversationId: $conversationId)
   }
 `;
 

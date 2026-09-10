@@ -5,10 +5,10 @@ import { mapMessageCreateToActivity } from '@/integrations/discord/activity';
 import { receiveDiscordMessage } from '@/integrations/discord/controller/receiveMessage';
 import {
   DiscordApiError,
-  getErrorMessage,
   listActiveThreads,
   listChannelMessages,
 } from '@/integrations/discord/utils';
+import { getErrorMessage } from '@/integrations/utils';
 import { debugDiscord, debugError } from '@/integrations/discord/debuggers';
 
 const PAGE_SIZE = 100;

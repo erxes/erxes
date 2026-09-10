@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { ATTACHMENT_GQL } from 'erxes-ui';
 
 export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
   query mailConversationDetail($conversationId: String!, $limit: Int) {
@@ -11,6 +12,27 @@ export const MAIL_CONVERSATION_DETAIL_QUERY = gql`
       }
       hasMore
       __typename
+    }
+    conversationMessages(conversationId: $conversationId, skip: 0, limit: 50) {
+      _id
+      mid
+      conversationId
+      content
+      formWidgetData
+      extraData
+      ${ATTACHMENT_GQL}
+      createdAt
+      internal
+      fromBot
+      userId
+      customerId
+      botData
+      messageKind
+      providerData
+      replyTo
+      reactions
+      deliveryStatus
+      expiresAt
     }
   }
 `;

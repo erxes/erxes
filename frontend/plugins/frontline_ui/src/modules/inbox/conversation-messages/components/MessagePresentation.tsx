@@ -1,0 +1,591 @@
+import { isSameDay } from 'date-fns';
+import {
+  IconCornerUpRight,
+  IconExternalLink,
+  IconPhotoOff,
+  IconPlayerPlay,
+} from '@tabler/icons-react';
+import { Dialog, Skeleton, cn, readImage } from 'erxes-ui';
+import { useEffect, useState } from 'react';
+
+import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { MessageEmbeds } from '@/inbox/conversation-messages/components/MessageEmbeds';
+import { MessagePoll } from '@/inbox/conversation-messages/components/MessagePoll';
+import { Attachments } from '@/inbox/conversation-messages/components/MessageAttachments';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
+import type {
+  IMessageForwardedSnapshot,
+  IMessageSticker,
+} from '@/inbox/types/Conversation';
+import { useFacebookPost } from '@/integrations/facebook/hooks/useFacebookPost';
+import { useIgPost } from '@/integrations/instagram/hooks/useIgPost';
+import { IntegrationType } from '@/types/Integration';
+
+export const MessageDaySeparator = ({
+  createdAt,
+  previousCreatedAt,
+}: {
+  createdAt: string;
+  previousCreatedAt?: string;
+}) => {
+  if (
+    previousCreatedAt &&
+    isSameDay(new Date(previousCreatedAt), new Date(createdAt))
+  ) {
+    return null;
+  }
+  return (
+    <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+      <div className="h-px flex-1 bg-border" />
+      <time dateTime={createdAt}>
+        {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(
+          new Date(createdAt),
+        )}
+      </time>
+      <div className="h-px flex-1 bg-border" />
+    </div>
+  );
+};
+
+export const DeliveryStatus = ({ status }: { status?: string }) => {
+  if (!status || status === 'deleted') return null;
+  return <span aria-label={`Message ${status}`}>· {status}</span>;
+};
+
+export const UnsupportedMessage = ({ text }: { text: string }) => (
+  <div className="mt-2 flex items-center gap-2 rounded-md border border-dashed bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+    <IconPhotoOff className="size-4 shrink-0" />
+    <span>{text}</span>
+  </div>
+);
+
+const StoryUnavailableCard = ({
+  label,
+  expired,
+  sourceUrl,
+  fallbackText,
+}: {
+  readonly label: string;
+  readonly expired: boolean;
+  readonly sourceUrl?: string;
+  readonly fallbackText?: string;
+}) => {
+  const card = (
+    <UnsupportedMessage
+      text={expired ? `${label} expired` : fallbackText || 'Story unavailable'}
+    />
+  );
+
+  if (!sourceUrl) {
+    return card;
+  }
+
+  return (
+    <a
+      href={sourceUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block no-underline"
+    >
+      {card}
+    </a>
+  );
+};
+
+const StoryMedia = ({
+  mediaUrl,
+  mediaKind,
+  expanded,
+  label,
+  hasKnownMediaType,
+  onImageFallback,
+  onFailed,
+}: {
+  readonly mediaUrl: string;
+  readonly mediaKind: 'image' | 'video';
+  readonly expanded: boolean;
+  readonly label: string;
+  readonly hasKnownMediaType: boolean;
+  readonly onImageFallback: () => void;
+  readonly onFailed: () => void;
+}) => {
+  if (mediaKind === 'video') {
+    return (
+      <video
+        src={mediaUrl}
+        controls={expanded}
+        muted={!expanded}
+        playsInline
+        preload="metadata"
+        onError={onFailed}
+        className={
+          expanded
+            ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
+            : 'max-h-96 w-full bg-black object-contain'
+        }
+      >
+        <track kind="captions" />
+      </video>
+    );
+  }
+
+  return (
+    <InboxImage
+      src={mediaUrl}
+      alt={label}
+      loading="lazy"
+      onError={() => {
+        if (!hasKnownMediaType && mediaKind === 'image') {
+          onImageFallback();
+          return;
+        }
+        onFailed();
+      }}
+      className={
+        expanded
+          ? 'block max-h-[88vh] max-w-[90vw] rounded-lg object-contain'
+          : 'max-h-96 w-full object-contain'
+      }
+    />
+  );
+};
+
+export const StoryCard = ({
+  kind,
+  url,
+  sourceUrl,
+  expiresAt,
+  fallbackText,
+  mediaType,
+}: {
+  kind?: string;
+  url?: string;
+  sourceUrl?: string;
+  expiresAt?: string;
+  fallbackText?: string;
+  mediaType?: string;
+}) => {
+  const [failed, setFailed] = useState(false);
+  const [resolvedMediaType, setResolvedMediaType] = useState<'image' | 'video'>(
+    mediaType?.startsWith('video') ? 'video' : 'image',
+  );
+  const hasKnownMediaType = Boolean(
+    mediaType?.startsWith('image') || mediaType?.startsWith('video'),
+  );
+  const [expired, setExpired] = useState(
+    Boolean(expiresAt && new Date(expiresAt) <= new Date()),
+  );
+  useEffect(() => {
+    if (!expiresAt) return undefined;
+    const remaining = new Date(expiresAt).getTime() - Date.now();
+    if (remaining <= 0) {
+      setExpired(true);
+      return undefined;
+    }
+    const timeout = window.setTimeout(
+      () => setExpired(true),
+      Math.min(remaining, 2_147_483_647),
+    );
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [expiresAt]);
+  const unavailable = expired || failed || !url;
+  const label = kind === 'story_reply' ? 'Story reply' : 'Story mention';
+
+  if (unavailable) {
+    return (
+      <StoryUnavailableCard
+        label={label}
+        expired={expired}
+        sourceUrl={sourceUrl}
+        fallbackText={fallbackText}
+      />
+    );
+  }
+
+  const mediaUrl = readImage(url);
+
+  return (
+    <Dialog>
+      <div className="mt-2 overflow-hidden rounded-xl border bg-background">
+        <div className="flex items-center gap-2 border-b px-3 py-2 text-xs font-medium">
+          <IconPlayerPlay className="size-4" />
+          {label}
+        </div>
+        <Dialog.Trigger asChild>
+          <button
+            type="button"
+            aria-label={`Preview ${label.toLowerCase()}`}
+            className="relative block w-full cursor-zoom-in overflow-hidden bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+          >
+            <StoryMedia
+              mediaUrl={mediaUrl}
+              mediaKind={resolvedMediaType}
+              expanded={false}
+              label={label}
+              hasKnownMediaType={hasKnownMediaType}
+              onImageFallback={() => setResolvedMediaType('video')}
+              onFailed={() => setFailed(true)}
+            />
+            {resolvedMediaType === 'video' && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="flex size-11 items-center justify-center rounded-full bg-black/65 text-white shadow-lg">
+                  <IconPlayerPlay className="size-5 fill-current" />
+                </span>
+              </span>
+            )}
+          </button>
+        </Dialog.Trigger>
+      </div>
+      <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        <StoryMedia
+          mediaUrl={mediaUrl}
+          mediaKind={resolvedMediaType}
+          expanded
+          label={label}
+          hasKnownMediaType={hasKnownMediaType}
+          onImageFallback={() => setResolvedMediaType('video')}
+          onFailed={() => setFailed(true)}
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+};
+
+export const ShareCard = ({
+  url,
+  title,
+  previewUrl,
+  shareType,
+  attachmentType,
+}: {
+  url?: string;
+  title?: string;
+  previewUrl?: string;
+  shareType?: 'post' | 'reel';
+  attachmentType?: string;
+}) => {
+  let safeUrl: string | undefined;
+  try {
+    safeUrl =
+      url && ['http:', 'https:'].includes(new URL(url).protocol)
+        ? url
+        : undefined;
+  } catch {
+    safeUrl = undefined;
+  }
+  if (!safeUrl) return <UnsupportedMessage text="Shared content unavailable" />;
+
+  const isInstagram =
+    attachmentType === 'ig_post' || attachmentType === 'ig_reel';
+  if (isInstagram) {
+    return <InstagramShareCard url={safeUrl} attachmentType={attachmentType} />;
+  }
+
+  const isFacebookPost = attachmentType === 'post' || attachmentType === 'reel';
+  const previewLabel = shareType === 'reel' ? 'Reel' : 'Post';
+  let shareTitle = 'Shared content';
+  if (isFacebookPost) {
+    shareTitle = shareType === 'reel' ? 'Facebook reel' : 'Facebook post';
+  }
+
+  return (
+    <a
+      href={safeUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 flex items-center gap-3 rounded-lg border bg-background px-3 py-3 no-underline hover:bg-muted/50"
+    >
+      {previewUrl ? (
+        <InboxImage
+          src={readImage(previewUrl)}
+          alt={`${previewLabel} preview`}
+          loading="lazy"
+          className="size-16 shrink-0 rounded-lg object-cover"
+        />
+      ) : (
+        <IconExternalLink className="size-5 shrink-0 text-muted-foreground" />
+      )}
+      <span className="min-w-0">
+        <span className="block text-sm font-medium text-foreground">
+          {shareTitle}
+        </span>
+        <span className="line-clamp-2 block text-xs text-muted-foreground">
+          {title || safeUrl}
+        </span>
+      </span>
+    </a>
+  );
+};
+
+const InstagramThumbnail = ({
+  thumbnail,
+  label,
+  thumbnailFailed,
+  onFailed,
+  interactive,
+}: {
+  readonly thumbnail: string;
+  readonly label: string;
+  readonly thumbnailFailed: boolean;
+  readonly onFailed: () => void;
+  readonly interactive: boolean;
+}) => {
+  if (thumbnailFailed) {
+    return (
+      <span className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <IconPlayerPlay className="size-5 text-muted-foreground" />
+      </span>
+    );
+  }
+
+  if (!interactive) {
+    return (
+      <InboxImage
+        src={thumbnail}
+        alt={`${label} preview`}
+        loading="lazy"
+        onError={onFailed}
+        className="size-16 shrink-0 rounded-lg object-cover"
+      />
+    );
+  }
+
+  return (
+    <Dialog>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          aria-label="Preview Instagram post image"
+          className="size-16 shrink-0 cursor-zoom-in overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+        >
+          <InboxImage
+            src={thumbnail}
+            alt="Post preview"
+            loading="lazy"
+            onError={onFailed}
+            className="size-full object-cover"
+          />
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+        <InboxImage
+          src={thumbnail}
+          alt="Instagram post preview"
+          className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
+        />
+      </Dialog.Content>
+    </Dialog>
+  );
+};
+
+export function InstagramShareCard({
+  url,
+  attachmentType,
+}: Readonly<{
+  url: string;
+  attachmentType?: string;
+}>) {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const isPost = attachmentType === 'ig_post';
+  const isReel = attachmentType === 'ig_reel';
+  const label = isReel ? 'Reel' : 'Post';
+  const permalink = isReel ? url : undefined;
+  const thumbnail = isPost ? url : `${url.replace(/\/$/, '')}/media/?size=m`;
+  const preview = (
+    <>
+      <InstagramThumbnail
+        thumbnail={thumbnail}
+        label={label}
+        thumbnailFailed={thumbnailFailed}
+        onFailed={() => setThumbnailFailed(true)}
+        interactive={isPost && !thumbnailFailed}
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-foreground">
+          Instagram {label}
+        </span>
+        <span className="block text-xs text-muted-foreground">
+          {permalink ? 'View on Instagram' : 'Post preview'}
+        </span>
+      </span>
+      {permalink && (
+        <IconExternalLink className="size-4 shrink-0 text-muted-foreground" />
+      )}
+    </>
+  );
+
+  if (permalink) {
+    return (
+      <a
+        href={permalink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2 no-underline transition-colors hover:bg-muted/50"
+      >
+        {preview}
+      </a>
+    );
+  }
+
+  return (
+    <div className="mt-1 flex w-56 items-center gap-2 rounded-xl border bg-background p-2">
+      {preview}
+    </div>
+  );
+}
+
+export const PostMediaCard = ({
+  conversationId,
+  integrationKind,
+  fallbackUrl,
+}: {
+  conversationId: string;
+  integrationKind:
+    | IntegrationType.FACEBOOK_POST
+    | IntegrationType.INSTAGRAM_POST;
+  fallbackUrl?: string;
+}) => {
+  const isFacebook = integrationKind === IntegrationType.FACEBOOK_POST;
+  const { post: facebookPost, loading: facebookLoading } = useFacebookPost({
+    erxesApiId: isFacebook ? conversationId : '',
+  });
+  const { post: instagramPost, loading: instagramLoading } = useIgPost({
+    erxesApiId: isFacebook ? undefined : conversationId,
+  });
+  const post = isFacebook ? facebookPost : instagramPost;
+  const permalink = post?.permalink_url;
+  const thumbnail = post?.attachments?.[0]?.url || fallbackUrl;
+  const label = permalink?.includes('/reel/') ? 'Reel' : 'Post';
+
+  if (facebookLoading || instagramLoading) {
+    return <Skeleton className="mt-1 h-20 w-52 rounded-xl" />;
+  }
+
+  const card = (
+    <>
+      {thumbnail ? (
+        <InboxImage
+          src={readImage(thumbnail)}
+          alt={`${label} preview`}
+          loading="lazy"
+          className="size-16 shrink-0 rounded-lg object-cover"
+        />
+      ) : (
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <IconPhotoOff className="size-5 text-muted-foreground" />
+        </span>
+      )}
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-foreground">
+          {label}
+        </span>
+        <span className="block text-xs text-muted-foreground">
+          View on {isFacebook ? 'Facebook' : 'Instagram'}
+        </span>
+      </span>
+      {permalink && (
+        <IconExternalLink className="size-4 text-muted-foreground" />
+      )}
+    </>
+  );
+
+  if (!permalink) {
+    return (
+      <div className="mt-1 flex w-52 items-center gap-2 rounded-xl border bg-background p-2">
+        {card}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={permalink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-1 flex w-52 items-center gap-2 rounded-xl border bg-background p-2 no-underline transition-colors hover:bg-muted/50"
+    >
+      {card}
+    </a>
+  );
+};
+
+export const StickerCard = ({ sticker }: { sticker: IMessageSticker }) => {
+  const [failed, setFailed] = useState(false);
+
+  if (!sticker.url || failed) {
+    return <UnsupportedMessage text={`Sticker · ${sticker.name}`} />;
+  }
+
+  return (
+    <div className="mt-1 max-w-48">
+      <InboxImage
+        src={sticker.url}
+        alt={sticker.name}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="max-h-48 max-w-48 object-contain"
+      />
+      <div className="mt-1 truncate text-xs text-muted-foreground">
+        {sticker.name}
+      </div>
+    </div>
+  );
+};
+
+export const ForwardedMessageCard = ({
+  snapshot,
+  className,
+}: {
+  snapshot: IMessageForwardedSnapshot;
+  className?: string;
+}) => {
+  const socialShareAttachment = snapshot.attachments?.find(
+    (attachment) =>
+      attachment.type === 'share' ||
+      attachment.type === 'ig_post' ||
+      attachment.type === 'ig_reel',
+  );
+
+  return (
+    <div
+      className={cn(
+        className,
+        'overflow-hidden border-l-2 border-muted-foreground/30 pl-3',
+      )}
+    >
+      <div className="mb-2 flex items-center gap-1 text-xs font-medium italic text-muted-foreground">
+        <IconCornerUpRight className="size-3.5" />
+        Forwarded
+      </div>
+      {snapshot.content && (
+        <MessageContent content={snapshot.content} internal={false} />
+      )}
+      {socialShareAttachment ? (
+        <ShareCard
+          url={socialShareAttachment.url}
+          attachmentType={socialShareAttachment.type}
+        />
+      ) : (
+        <Attachments attachments={snapshot.attachments} />
+      )}
+      {Boolean(snapshot.stickers?.length) && (
+        <div className="flex flex-wrap gap-2">
+          {snapshot.stickers?.map((sticker) => (
+            <StickerCard key={sticker.id} sticker={sticker} />
+          ))}
+        </div>
+      )}
+      <MessageEmbeds embeds={snapshot.embeds} />
+      {snapshot.poll && <MessagePoll poll={snapshot.poll} />}
+      {!snapshot.content &&
+        !snapshot.attachments?.length &&
+        !snapshot.stickers?.length &&
+        !snapshot.embeds?.length &&
+        !snapshot.poll && (
+          <UnsupportedMessage text="Forwarded message unavailable" />
+        )}
+    </div>
+  );
+};

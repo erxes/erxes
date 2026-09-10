@@ -21,12 +21,17 @@ const SideWidgetOutsideClose = ({
       const target = event.target as Node | null;
       const container = containerRef.current;
       const boundary = boundaryRef.current;
+      const activeContent = container?.querySelector(
+        '[data-side-widget-content][data-state="active"]',
+      );
+      const sidebar = container?.querySelector('[data-side-widget-sidebar]');
       const isOutside =
         target !== null &&
         container !== null &&
         boundary !== null &&
         boundary.contains(target) &&
-        !container.contains(target);
+        !activeContent?.contains(target) &&
+        !sidebar?.contains(target);
 
       if (isOutside) {
         setActiveTab();
@@ -56,7 +61,13 @@ export const ConversationSideWidget = ({
   const sideMenuRef = useRef<HTMLDivElement>(null);
 
   return (
-    <SideMenu ref={sideMenuRef} className="flex-none">
+    <SideMenu
+      ref={sideMenuRef}
+      className={cn(
+        'flex-none',
+        asSheet && 'absolute inset-0 z-30 pointer-events-none',
+      )}
+    >
       {asSheet && (
         <SideWidgetOutsideClose
           containerRef={sideMenuRef}
@@ -68,11 +79,11 @@ export const ConversationSideWidget = ({
           <SideMenu.Content
             value={module.name}
             key={module.name}
+            data-side-widget-content
             className={cn(
               'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none',
               asSheet
-                ? // Docked under the conversation header instead of taking a column.
-                  'absolute top-11 bottom-0 right-16 z-20 shadow-xl data-[state=active]:w-[min(20rem,calc(100%_-_4rem))]'
+                ? 'pointer-events-auto absolute inset-y-0 right-12 z-30 data-[state=active]:!w-[min(20rem,calc(100%_-_3rem))] shadow-xl'
                 : 'flex-none data-[state=active]:w-72 lg:data-[state=active]:w-80',
             )}
           >
@@ -88,13 +99,20 @@ export const ConversationSideWidget = ({
         );
       })}
 
-      <SideMenu.Sidebar>
+      <SideMenu.Sidebar
+        data-side-widget-sidebar
+        className={cn(
+          asSheet &&
+            'pointer-events-auto absolute inset-y-0 right-0 z-40 flex w-12 overflow-y-auto border-l bg-sidebar/95 shadow-lg backdrop-blur',
+        )}
+      >
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger
               key={module.name}
               value={module.name}
               label={getRelationWidgetLabel(module)}
+              aria-label={getRelationWidgetLabel(module)}
               Icon={module.icon}
             />
           );

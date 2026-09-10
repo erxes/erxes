@@ -25,12 +25,7 @@ export const EMLayout = ({
   return (
     <>
       <Sheet.Content className="grow overflow-hidden flex flex-col">
-        <IntegrationSteps
-          step={step}
-          title={title}
-          stepsLength={6}
-          description=""
-        />
+        <IntegrationSteps step={step} title={title} stepsLength={6} />
         {children}
       </Sheet.Content>
       <Sheet.Footer>

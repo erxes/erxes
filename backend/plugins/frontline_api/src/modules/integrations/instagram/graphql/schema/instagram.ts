@@ -70,6 +70,12 @@ export const types = `
     isCustomerRead: Boolean
     mid: String
     internal: Boolean
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
     permalink_url:String
     postContent: String
     customer: Customer
@@ -84,6 +90,12 @@ export const types = `
     userId: String
     createdAt: Date
     commentId: String
+    messageKind: String
+    providerData: JSON
+    replyTo: JSON
+    reactions: JSON
+    deliveryStatus: String
+    expiresAt: Date
 
     customer: Customer
     user: User

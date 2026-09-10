@@ -1,8 +1,12 @@
-import {
+import type {
   IConversationMessageAdd,
+  IMessage,
   IMessageDocument,
 } from '@/inbox/@types/conversationMessages';
-import { IConversationDocument } from '@/inbox/@types/conversations';
+import type {
+  IConversation,
+  IConversationDocument,
+} from '@/inbox/@types/conversations';
 import {
   AUTOMATED_REPLY_REASON,
   AUTOMATED_REPLY_STATUS,
@@ -14,19 +18,21 @@ import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker
 import { sendReply } from '@/integrations/facebook/utils';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { handleDiscordIntegration } from '@/integrations/discord/messageBroker';
+import { authorizeConversationAccess } from '@/inbox/conversationUtils';
 import { pConversationClientMessageInserted } from './widget';
 import { publishConversationUnreadCounts } from '@/inbox/services/conversationUnreadCounts';
-import { IUserDocument } from 'erxes-api-shared/core-types';
+import type { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   graphqlPubsub,
   sendTRPCMessage,
   markResolvers,
 } from 'erxes-api-shared/utils';
-import * as _ from 'underscore';
-import { generateModels, IContext, IModels } from '~/connectionResolvers';
+import { union, without } from 'underscore';
+import type { IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
 import strip from 'strip';
+import { getErrorMessage } from '@/integrations/utils';
 
 interface DispatchConversationData {
   action: string;
@@ -35,12 +41,25 @@ interface DispatchConversationData {
   integrationId: string;
 }
 
+export interface ConversationConvertToCardParams {
+  _id: string;
+  type: string;
+  itemId?: string;
+  itemName?: string;
+  stageId?: string;
+  customFieldsData?: Exclude<IConversation['customFieldsData'], undefined>;
+  priority?: string;
+  assignedUserIds?: string[];
+  labelIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  attachments?: IMessage['attachments'];
+  description?: string;
+}
+
 const DEFAULT_HANDOFF_MESSAGE =
   'A teammate will take over shortly. Automated replies are paused.';
 const DEFAULT_AUTOMATION_ACTIVE_MESSAGE = 'Automated replies are active again.';
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
 
 const publishUnreadCountsSafely = async (
   params: Parameters<typeof publishConversationUnreadCounts>[0],
@@ -110,6 +129,7 @@ export const dispatchConversationToService = async (
       default:
         throw new Error(`Unsupported service: ${serviceName}`);
     }
+    return undefined;
   } catch (e) {
     throw new Error(
       `Your message was not sent. Error: ${e.message}. Go to integrations list and fix it.`,
@@ -269,14 +289,14 @@ export const conversationNotifReceivers = (
     userIds.push(conversation.assignedUserId);
   }
   if (Array.isArray(conversation.participatedUserIds)) {
-    userIds = _.union(userIds, conversation.participatedUserIds);
+    userIds = union(userIds, conversation.participatedUserIds);
   }
   if (
     exclude &&
     currentUserId &&
     conversation.assignedUserId !== currentUserId
   ) {
-    userIds = _.without(userIds, currentUserId);
+    userIds = without(userIds, currentUserId);
   }
   return userIds;
 };
@@ -285,8 +305,6 @@ export const publishConversationsChanged = async (
   _ids: string[],
   type: string,
 ): Promise<string[]> => {
-  const models = await generateModels(subdomain);
-
   for (const _id of _ids) {
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
@@ -361,7 +379,7 @@ export const sendNotifications = async (
     };
     switch (type) {
       case 'conversationAddMessage':
-        doc.action = `sent you a message`;
+        doc.action = 'sent you a message';
         doc.receivers = conversationNotifReceivers(conversation, user._id);
         break;
       case 'conversationAssigneeChange':
@@ -496,6 +514,213 @@ const getConversationById = async (models: IModels, selector) => {
   return { oldConversationById, oldConversations };
 };
 
+const notifyMentionedUsers = async ({
+  doc,
+  subdomain,
+  userId,
+}: {
+  doc: IConversationMessageAdd;
+  subdomain: string;
+  userId: string;
+}) => {
+  if (!doc.mentionedUserIds?.length) {
+    return;
+  }
+
+  await createNotifications({
+    contentType: 'inbox',
+    contentTypeId: doc.conversationId,
+    fromUserId: userId,
+    subdomain,
+    notificationType: 'internalNote',
+    userIds: doc.mentionedUserIds.filter((id) => id !== userId),
+    action: 'created',
+  });
+};
+
+const sendLeadReplyEmail = async ({
+  content,
+  email,
+  internal,
+  kind,
+  subdomain,
+}: {
+  content: string;
+  email?: string;
+  internal?: boolean;
+  kind: string;
+  subdomain: string;
+}) => {
+  if (internal || kind !== 'lead' || !email) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'mutation',
+    module: 'core',
+    action: 'sendEmail',
+    input: {
+      toEmails: [email],
+      title: 'Reply',
+      template: { data: content },
+    },
+  });
+};
+
+const saveInternalMessage = async ({
+  conversationId,
+  doc,
+  integrationId,
+  models,
+  subdomain,
+  userId,
+}: {
+  conversationId: string;
+  doc: IConversationMessageAdd;
+  integrationId: string;
+  models: IModels;
+  subdomain: string;
+  userId: string;
+}) => {
+  const message = await models.ConversationMessages.addMessage(doc, userId);
+  await publishUnreadCountsSafely({
+    conversationId,
+    integrationId,
+    userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+    models,
+    subdomain,
+  });
+  const dbMessage = await models.ConversationMessages.getMessage(message._id);
+
+  publishMessage(models, dbMessage);
+
+  return dbMessage;
+};
+
+type DispatchResponse = Awaited<
+  ReturnType<typeof dispatchConversationToService>
+>;
+type DispatchResponseData = NonNullable<
+  NonNullable<DispatchResponse>['data']
+>['data'];
+
+const buildDispatchedMessageDoc = (
+  doc: IConversationMessageAdd,
+  responseData: DispatchResponseData,
+) => {
+  const { displayContent, extraData, providerData, replyTo, deliveryStatus } =
+    responseData;
+  const forwardedSnapshot = doc.extraInfo?.forwardedSnapshot;
+  let content: string | undefined;
+  if (forwardedSnapshot) {
+    content = doc.extraInfo.forwardedNote || '';
+  } else if (displayContent) {
+    content = displayContent;
+  }
+
+  return {
+    ...doc,
+    ...(content !== undefined ? { content } : {}),
+    ...(extraData || forwardedSnapshot
+      ? {
+          extraData: {
+            ...extraData,
+            ...(forwardedSnapshot && {
+              forwardedSnapshot,
+              forwardedFrom: doc.extraInfo?.forwardedFrom,
+            }),
+          },
+        }
+      : {}),
+    ...(providerData ? { providerData } : {}),
+    ...(replyTo ? { replyTo } : {}),
+    ...(deliveryStatus ? { deliveryStatus } : {}),
+  };
+};
+
+const saveDispatchedMessage = async ({
+  conversation,
+  doc,
+  integrationId,
+  models,
+  response,
+  subdomain,
+  userId,
+}: {
+  conversation: IConversationDocument;
+  doc: IConversationMessageAdd;
+  integrationId: string;
+  models: IModels;
+  response: DispatchResponse;
+  subdomain: string;
+  userId: string;
+}) => {
+  if (response?.status === 'error') {
+    throw new Error(
+      response.errorMessage || 'Failed to send message to external service',
+    );
+  }
+
+  const responseData = response?.data?.data;
+  if (responseData) {
+    const { conversationId: responseConversationId, content: responseContent } =
+      responseData;
+    if (responseConversationId && responseContent) {
+      await models.Conversations.updateConversation(responseConversationId, {
+        content: responseContent || '',
+        updatedAt: new Date(),
+      });
+    }
+
+    const messageDoc = buildDispatchedMessageDoc(doc, responseData);
+
+    const message = await models.ConversationMessages.addMessage(
+      messageDoc,
+      userId,
+    );
+    await publishUnreadCountsSafely({
+      conversationId: conversation._id,
+      integrationId,
+      userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+      models,
+      subdomain,
+    });
+
+    const dbMessage = await models.ConversationMessages.getMessage(message._id);
+
+    await markAutomatedReplyHumanActive({
+      models,
+      conversation,
+      userId,
+    });
+
+    await pConversationClientMessageInserted(subdomain, dbMessage);
+    return dbMessage;
+  }
+
+  const message = await models.ConversationMessages.addMessage(doc, userId);
+  await publishUnreadCountsSafely({
+    conversationId: conversation._id,
+    integrationId,
+    userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
+    models,
+    subdomain,
+  });
+  const dbMessage = await models.ConversationMessages.getMessage(message._id);
+
+  await markAutomatedReplyHumanActive({
+    models,
+    conversation,
+    userId,
+  });
+
+  publishMessage(models, dbMessage, conversation.customerId);
+
+  return dbMessage;
+};
+
 export const conversationMutations = {
   async conversationAgentTyping(
     _root,
@@ -506,9 +731,8 @@ export const conversationMutations = {
     { models, subdomain }: IContext,
   ) {
     try {
-      const conversation = await models.Conversations.getConversation(
-        conversationId,
-      );
+      const conversation =
+        await models.Conversations.getConversation(conversationId);
       if (!conversation?.integrationId) {
         return false;
       }
@@ -564,6 +788,16 @@ export const conversationMutations = {
       } = doc;
       const { _id: userId } = user;
 
+      const forwardedSourceConversationId =
+        extraInfo?.forwardedFrom?.conversationId;
+      if (typeof forwardedSourceConversationId === 'string') {
+        await authorizeConversationAccess(
+          models,
+          user,
+          forwardedSourceConversationId,
+        );
+      }
+
       await sendNotifications(subdomain, {
         user,
         conversations: [conversation],
@@ -592,55 +826,19 @@ export const conversationMutations = {
 
       const email = customer.primaryEmail;
 
-      if (!internal && kind === 'lead' && email) {
-        await sendTRPCMessage({
-          subdomain,
+      await sendLeadReplyEmail({ content, email, internal, kind, subdomain });
 
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'core',
-          action: 'sendEmail',
-          input: {
-            toEmails: [email],
-            title: 'Reply',
-            template: { data: content },
-          },
-        });
-      }
-
-      if (doc.mentionedUserIds && doc.mentionedUserIds.length > 0) {
-        const userIds = doc.mentionedUserIds.filter((id) => id !== userId);
-
-        await createNotifications({
-          contentType: 'inbox',
-          contentTypeId: doc.conversationId,
-          fromUserId: userId,
-          subdomain,
-          notificationType: 'internalNote',
-          userIds,
-          action: 'created',
-        });
-      }
+      await notifyMentionedUsers({ doc, subdomain, userId });
 
       if (internal) {
-        const message = await models.ConversationMessages.addMessage(
-          doc,
-          userId,
-        );
-        await publishUnreadCountsSafely({
+        return await saveInternalMessage({
           conversationId,
+          doc,
           integrationId,
-          userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
           models,
           subdomain,
+          userId,
         });
-        const dbMessage = await models.ConversationMessages.getMessage(
-          message._id,
-        );
-
-        publishMessage(models, dbMessage);
-
-        return dbMessage;
       }
 
       const serviceName = integration.kind.split('-')[0];
@@ -667,103 +865,134 @@ export const conversationMutations = {
         },
       );
 
-      if (response?.status === 'error') {
-        throw new Error(
-          response.errorMessage || 'Failed to send message to external service',
-        );
-      }
-
-      if (response?.data?.data) {
-        const {
-          conversationId: responseConversationId,
-          content: responseContent,
-          displayContent,
-          extraData,
-        } = response.data.data;
-        if (responseConversationId && responseContent) {
-          await models.Conversations.updateConversation(
-            responseConversationId,
-            {
-              content: responseContent || '',
-              updatedAt: new Date(),
-            },
-          );
-        }
-
-        const messageDoc: typeof doc & { extraData?: Record<string, unknown> } =
-          {
-            ...doc,
-            ...(displayContent ? { content: displayContent } : {}),
-            ...(extraData ? { extraData } : {}),
-          };
-
-        const message = await models.ConversationMessages.addMessage(
-          messageDoc,
-          userId,
-        );
-        await publishUnreadCountsSafely({
-          conversationId,
-          integrationId,
-          userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
-          models,
-          subdomain,
-        });
-
-        const dbMessage = await models.ConversationMessages.getMessage(
-          message._id,
-        );
-
-        await markAutomatedReplyHumanActive({
-          models,
-          conversation,
-          userId,
-        });
-
-        await pConversationClientMessageInserted(subdomain, dbMessage);
-        return dbMessage;
-      }
-
-      const message = await models.ConversationMessages.addMessage(doc, userId);
-      await publishUnreadCountsSafely({
-        conversationId,
+      return await saveDispatchedMessage({
+        conversation,
+        doc,
         integrationId,
-        userIds: doc.mentionedUserIds?.filter((id) => id !== userId) || [],
         models,
+        response,
         subdomain,
+        userId,
       });
-      const dbMessage = await models.ConversationMessages.getMessage(
-        message._id,
-      );
-
-      if (internal) {
-        publishMessage(models, dbMessage);
-      } else {
-        await markAutomatedReplyHumanActive({
-          models,
-          conversation,
-          userId,
-        });
-
-        publishMessage(models, dbMessage, conversation.customerId);
-      }
-
-      return dbMessage;
     } catch (err) {
       throw new Error(`Failed to add message to conversation: ${err.message}`);
     }
   },
 
+  async conversationMessageReact(
+    _root,
+    {
+      conversationId,
+      messageId,
+      reaction,
+      remove,
+    }: {
+      conversationId: string;
+      messageId: string;
+      reaction?: string;
+      remove?: boolean;
+    },
+    { user, models, subdomain }: IContext,
+  ) {
+    await authorizeConversationAccess(models, user, conversationId);
+    const conversation =
+      await models.Conversations.getConversation(conversationId);
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+    const [serviceName, actionType = 'unknown'] = integration.kind.split('-');
+
+    if (
+      ![
+        'facebook-messenger',
+        'instagram-messenger',
+        'discord-messenger',
+      ].includes(integration.kind)
+    ) {
+      throw new Error('Reactions are not supported by this channel');
+    }
+
+    const response = await dispatchConversationToService(
+      subdomain,
+      serviceName,
+      {
+        action: `react-${actionType}`,
+        type: serviceName,
+        payload: JSON.stringify({
+          integrationId: integration._id,
+          conversationId,
+          messageId,
+          reaction,
+          remove,
+          userId: user._id,
+        }),
+        integrationId: integration._id,
+      },
+    );
+
+    if (response?.status === 'error') {
+      throw new Error(response.errorMessage || 'Failed to react to message');
+    }
+
+    return response?.data || { status: 'success' };
+  },
+
+  async conversationMessagePin(
+    _root,
+    {
+      conversationId,
+      messageId,
+      remove,
+    }: { conversationId: string; messageId: string; remove?: boolean },
+    { user, models, subdomain }: IContext,
+  ) {
+    await authorizeConversationAccess(models, user, conversationId);
+    const conversation =
+      await models.Conversations.getConversation(conversationId);
+    const integration = await models.Integrations.getIntegration({
+      _id: conversation.integrationId,
+    });
+
+    if (integration.kind !== 'discord-messenger') {
+      throw new Error('Pinning messages is not supported by this channel');
+    }
+
+    const response = await dispatchConversationToService(subdomain, 'discord', {
+      action: 'pin-messenger',
+      type: 'discord',
+      payload: JSON.stringify({
+        integrationId: integration._id,
+        conversationId,
+        messageId,
+        remove,
+      }),
+      integrationId: integration._id,
+    });
+
+    if (response?.status === 'error') {
+      throw new Error(response.errorMessage || 'Failed to update message pin');
+    }
+
+    return response?.data || { status: 'success' };
+  },
+
   async conversationMessageEdit(
     _root,
-    { _id, ...fields }: any,
+    {
+      _id,
+      ...fields
+    }: { _id: string } & Partial<Omit<IMessage, 'conversationId'>>,
     { user, models }: IContext,
   ) {
     const message = await models.ConversationMessages.getMessage(_id);
     if (message.internal && user._id === message.userId) {
-      return await models.ConversationMessages.updateMessage(_id, fields);
+      return await models.ConversationMessages.updateMessage(_id, {
+        ...fields,
+        conversationId: message.conversationId,
+      });
     }
     throw new Error(
-      `You cannot edit this message. Only the author of an internal message can edit it.`,
+      'You cannot edit this message. Only the author of an internal message can edit it.',
     );
   },
 
@@ -970,7 +1199,7 @@ export const conversationMutations = {
 
   async conversationConvertToCard(
     _root,
-    params: any,
+    params: ConversationConvertToCardParams,
     { user, models }: IContext,
   ) {
     const { _id } = params;
@@ -987,7 +1216,13 @@ export const conversationMutations = {
 
   async conversationEditCustomFields(
     _root,
-    { _id, customFieldsData }: { _id: string; customFieldsData: any },
+    {
+      _id,
+      customFieldsData,
+    }: {
+      _id: string;
+      customFieldsData?: Exclude<IConversation['customFieldsData'], undefined>;
+    },
     { models }: IContext,
   ) {
     await models.Conversations.updateConversation(_id, { customFieldsData });

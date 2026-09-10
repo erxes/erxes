@@ -1,12 +1,18 @@
 import { stripHtml } from 'string-strip-html';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IModels } from '~/connectionResolvers';
+import type { IModels } from '~/connectionResolvers';
 import {
   sendReply,
+  sendReaction,
   generateAttachmentMessages,
 } from '@/integrations/instagram/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { debugError } from '@/integrations/instagram/debuggers';
+import {
+  appendContentImages,
+  getErrorMessage,
+  sanitizeMessageHtml,
+} from '@/integrations/utils';
 
 interface IMsg {
   action: string;
@@ -14,39 +20,105 @@ interface IMsg {
   type: string;
 }
 
-function sanitizeAndFormat(html: string): string {
-  let prev;
-  let output = html;
-  do {
-    prev = output;
-    output = output.replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '');
-  } while (output !== prev);
-  return output.trim();
-}
+type TInstagramAttachment = { type: string; url: string };
 
-export const handleInstagramMessage = async (
+type TInstagramRelayDoc = {
+  internal?: boolean;
+  integrationId: string;
+  conversationId: string;
+  messageId: string;
+  mid: string;
+  content?: string;
+  attachments?: TInstagramAttachment[];
+  userId: string;
+  reaction: string;
+  remove?: boolean;
+  replyToMessageId?: string;
+  extraInfo?: { tag?: string };
+};
+
+const INSTAGRAM_MESSAGE_REACTION = 'love';
+const UNSUPPORTED_REACTION_KINDS = new Set([
+  'story_mention',
+  'story_reply',
+  'share',
+  'deleted',
+  'unsupported',
+]);
+
+const handleInstagramReaction = async (
   models: IModels,
-  msg: IMsg,
-  subdomain: string,
+  doc: TInstagramRelayDoc,
 ) => {
-  const { action, payload } = msg;
-  const doc = JSON.parse(payload || '{}');
-  if (doc.internal) {
-    return models.ConversationMessages.addMessage(doc, doc.userId);
+  const { integrationId, conversationId, messageId, reaction, remove, userId } =
+    doc;
+  const conversation = await models.InstagramConversations.findOne({
+    erxesApiId: conversationId,
+  });
+  if (!conversation) {
+    throw new Error('Conversation not found');
   }
 
- if (action === 'reply-post') {
-  const { conversationId, content = '', attachments = [], userId } = doc;
+  const target = await models.InstagramConversationMessages.findOne({
+    conversationId: conversation._id,
+    mid: messageId,
+  });
+  if (!target) {
+    throw new Error('Message not found in this Instagram conversation');
+  }
+  if (target.userId || target.fromBot) {
+    throw new Error(
+      'Instagram only allows reactions to messages received from the customer',
+    );
+  }
+  if (UNSUPPORTED_REACTION_KINDS.has(target.messageKind || '')) {
+    throw new Error(
+      'Instagram does not support reactions for this message type',
+    );
+  }
 
-  const commentConversation =
-    await models.InstagramCommentConversation.findOne({
-      erxesApiId: conversationId,
+  await sendReaction(
+    models,
+    {
+      recipient: { id: conversation.senderId },
+      sender_action: remove ? 'unreact' : 'react',
+      payload: {
+        message_id: messageId,
+        ...(!remove && { reaction: INSTAGRAM_MESSAGE_REACTION }),
+      },
+    },
+    integrationId,
+  );
+
+  const reactions = (target.reactions || []).filter(
+    (item) => item.senderId !== userId,
+  );
+  if (!remove && reaction) {
+    reactions.push({
+      senderId: userId,
+      reaction: INSTAGRAM_MESSAGE_REACTION,
     });
+  }
+  target.reactions = reactions;
+  await target.save();
 
+  return { status: 'success', data: target.toObject() };
+};
+
+const handleInstagramPostReply = async (
+  models: IModels,
+  doc: TInstagramRelayDoc,
+  subdomain: string,
+) => {
+  const { conversationId, content = '', attachments = [], userId } = doc;
+  const commentConversation = await models.InstagramCommentConversation.findOne(
+    {
+      erxesApiId: conversationId,
+    },
+  );
   if (!commentConversation) {
     throw new Error('Comment not found');
   }
-
   if (!commentConversation.comment_id) {
     throw new Error('Missing Instagram comment_id');
   }
@@ -54,27 +126,21 @@ export const handleInstagramMessage = async (
   const post = await models.InstagramPostConversations.findOne({
     postId: commentConversation.postId,
   });
-
   if (!post) {
     throw new Error('Post not found');
   }
 
-  let strippedContent = stripHtml(content).result.trim();
-  strippedContent = strippedContent.replace(/&amp;/g, '&');
-
+  const strippedContent = stripHtml(content)
+    .result.trim()
+    .replace(/&amp;/g, '&');
   if (!strippedContent && attachments.length === 0) {
     throw new Error('Message content is empty');
   }
-
-  const data: { message: string } = {
-    message: strippedContent,
-  };
 
   try {
     const inboxConversation = await models.Conversations.findOne({
       _id: conversationId,
     });
-
     if (!inboxConversation) {
       throw new Error('Conversation not found');
     }
@@ -82,10 +148,9 @@ export const handleInstagramMessage = async (
     await sendReply(
       models,
       `${commentConversation.comment_id}/replies`,
-      data,
+      { message: strippedContent },
       inboxConversation.integrationId,
     );
-
     await models.InstagramCommentConversationReply.create({
       recipientId: commentConversation.recipientId,
       senderId: commentConversation.senderId,
@@ -104,8 +169,7 @@ export const handleInstagramMessage = async (
       action: 'findOne',
       input: { _id: userId },
     });
-
-    if (user && user._id) {
+    if (user?._id) {
       await sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
@@ -116,112 +180,134 @@ export const handleInstagramMessage = async (
     }
 
     return { status: 'success' };
-  } catch (e) {
-    debugError(`Instagram comment reply error: ${e.message}`);
-    throw new Error(e.message);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    debugError(`Instagram comment reply error: ${message}`);
+    throw new Error(message);
   }
-}
+};
 
+const handleInstagramMessengerReply = async (
+  models: IModels,
+  doc: TInstagramRelayDoc,
+  subdomain: string,
+) => {
+  const {
+    integrationId,
+    conversationId,
+    content = '',
+    attachments = [],
+    extraInfo,
+    replyToMessageId,
+  } = doc;
+  const tag = extraInfo?.tag || '';
+  appendContentImages(content, attachments);
+  const strippedContent = sanitizeMessageHtml(content);
+  const conversation = await models.InstagramConversations.findOne({
+    erxesApiId: conversationId,
+  });
+  if (!conversation) {
+    throw new Error('Conversation not found');
+  }
+
+  let localMessage;
+  try {
+    if (strippedContent) {
+      const response = await sendReply(
+        models,
+        'me/messages',
+        {
+          recipient: { id: conversation.senderId },
+          message: { text: strippedContent },
+          ...(replyToMessageId && { reply_to: { mid: replyToMessageId } }),
+          messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
+          ...(tag && { tag }),
+        },
+        integrationId,
+      );
+      if (response) {
+        const messageDoc = {
+          ...doc,
+          content,
+          conversationId: conversation._id,
+          integrationId: conversation.integrationId,
+          mid: response.message_id,
+          ...(replyToMessageId && {
+            replyTo: { messageId: replyToMessageId },
+          }),
+        };
+        localMessage = await models.InstagramConversationMessages.addMessage(
+          messageDoc,
+          doc.userId,
+        );
+      }
+    }
+
+    for (const message of generateAttachmentMessages(subdomain, attachments)) {
+      const response = await sendReply(
+        models,
+        'me/messages',
+        {
+          recipient: { id: conversation.senderId },
+          message,
+          messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
+          ...(tag && { tag }),
+        },
+        integrationId,
+      );
+      if (response) {
+        const messageDoc = {
+          ...doc,
+          content,
+          conversationId: conversation._id,
+          integrationId: conversation.integrationId,
+          mid: response.message_id,
+        };
+        localMessage = await models.InstagramConversationMessages.addMessage(
+          messageDoc,
+          doc.userId,
+        );
+      }
+    }
+  } catch (error) {
+    if (localMessage) {
+      await models.InstagramConversationMessages.deleteOne({
+        _id: localMessage._id,
+      });
+    }
+    throw new Error(getErrorMessage(error));
+  }
+
+  if (!localMessage) {
+    throw new Error('Failed to send message: no response from Instagram API');
+  }
+
+  return {
+    status: 'success',
+    data: { ...localMessage.toObject(), conversationId },
+  };
+};
+
+export const handleInstagramMessage = (
+  models: IModels,
+  msg: IMsg,
+  subdomain: string,
+) => {
+  const { action, payload } = msg;
+  const doc: TInstagramRelayDoc = JSON.parse(payload || '{}');
+
+  if (doc.internal) {
+    return models.ConversationMessages.addMessage(doc, doc.userId);
+  }
+  if (action === 'react-messenger') {
+    return handleInstagramReaction(models, doc);
+  }
+  if (action === 'reply-post') {
+    return handleInstagramPostReply(models, doc, subdomain);
+  }
   if (action === 'reply-messenger') {
-    const {
-      integrationId,
-      conversationId,
-      content = '',
-      attachments = [],
-      extraInfo,
-    } = doc;
-
-    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
-
-    const images = (content.match(/<img[^>]* src="([^"]*)"/g) || []).map(
-      (img) => img.match(/src="([^"]*)"/)[1],
-    );
-    images.forEach((img) => attachments.push({ type: 'image', url: img }));
-
-    const strippedContent = sanitizeAndFormat(content);
-
-    const conversation = await models.InstagramConversations.findOne({
-      erxesApiId: conversationId,
-    });
-
-    if (!conversation) {
-      throw new Error('Conversation not found');
-    }
-
-
-    const { senderId } = conversation;
-    let localMessage;
-
-    try {
-      if (strippedContent) {
-        const resp = await sendReply(
-          models,
-          'me/messages',
-          {
-            recipient: { id: senderId },
-            message: { text: strippedContent },
-            messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
-            ...(tag && { tag }),
-          },
-          integrationId,
-        );
-
-        if (resp) {
-          localMessage = await models.InstagramConversationMessages.addMessage(
-            {
-              ...doc,
-              conversationId: conversation._id,
-              integrationId: conversation.integrationId,
-              mid: resp.message_id,
-            },
-            doc.userId,
-          );
-        }
-      }
-      for (const message of generateAttachmentMessages(
-        subdomain,
-        attachments,
-      )) {
-        const resp = await sendReply(
-          models,
-          'me/messages',
-          {
-            recipient: { id: senderId },
-            message,
-            messaging_type: tag ? 'MESSAGE_TAG' : 'RESPONSE',
-            ...(tag && { tag }),
-          },
-          integrationId,
-        );
-
-        if (resp) {
-          localMessage = await models.InstagramConversationMessages.addMessage(
-            {
-              ...doc,
-              conversationId: conversation._id,
-              integrationId: conversation.integrationId,
-              mid: resp.message_id,
-            },
-            doc.userId,
-          );
-        }
-      }
-    } catch (e) {
-      if (localMessage) {
-        await models.InstagramConversationMessages.deleteOne({
-          _id: localMessage._id,
-        });
-      }
-      throw new Error(e.message);
-    }
-
-    if (!localMessage) {
-      throw new Error('Failed to send message: no response from Instagram API');
-    }
-
-    return {
-      status: 'success',
-      data: { ...localMessage.toObject(), conversationId },
-    };
+    return handleInstagramMessengerReply(models, doc, subdomain);
   }
+
+  throw new Error(`Unknown Instagram message action: ${action}`);
 };

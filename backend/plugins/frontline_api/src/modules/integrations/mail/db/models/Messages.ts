@@ -101,32 +101,51 @@ export const loadMailMessageClass = (models: IModels) => {
         shouldResolve,
       } = args;
 
-      if (!conversationId) {
-        throw new Error(
-          'A mail reply needs the conversation it belongs to — send it from the inbox thread',
-        );
-      }
-
       const integration = await Message.resolveIntegration(
         integrationId,
         conversationId,
       );
 
+      let targetConversationId = conversationId;
+      let effectiveCustomerId = customerId;
+      if (!targetConversationId) {
+        const [firstRecipient] = to ?? [];
+
+        if (!effectiveCustomerId && firstRecipient) {
+          effectiveCustomerId = await models.MailCustomers.findOrCreate(
+            subdomain,
+            firstRecipient.trim().toLowerCase(),
+            integration.inboxId,
+          );
+        }
+
+        if (!effectiveCustomerId) {
+          throw new Error('Starting an email conversation requires a customer');
+        }
+
+        const conversation = await models.Conversations.createConversation({
+          integrationId: integration.inboxId,
+          customerId: effectiveCustomerId,
+          content: subject,
+        });
+        targetConversationId = conversation._id;
+      }
+
       await Message.ensureCustomer(
         subdomain,
-        customerId,
+        effectiveCustomerId,
         to,
         integration.inboxId,
       );
 
       if (shouldResolve) {
         await models.Conversations.updateOne(
-          { _id: conversationId },
+          { _id: targetConversationId },
           { $set: { status: 'closed' } },
         );
       } else if (shouldOpen) {
         await models.Conversations.updateOne(
-          { _id: conversationId },
+          { _id: targetConversationId },
           { $set: { status: 'new' } },
         );
       }
@@ -139,7 +158,7 @@ export const loadMailMessageClass = (models: IModels) => {
 
       const senderName = integration.senderName || inbox?.name || '';
 
-      const replyTag = await Message.resolveReplyTag(conversationId);
+      const replyTag = await Message.resolveReplyTag(targetConversationId);
 
       const referenceChain = [
         ...new Set(
@@ -152,7 +171,7 @@ export const loadMailMessageClass = (models: IModels) => {
 
       const message = await models.MailMessages.create({
         inboxIntegrationId: integration.inboxId,
-        inboxConversationId: conversationId,
+        inboxConversationId: targetConversationId,
         messageId: buildMessageId(fromAddress),
         inReplyTo: replyToMessageId,
         references: referenceChain,
@@ -179,18 +198,18 @@ export const loadMailMessageClass = (models: IModels) => {
         createdAt: new Date(),
       });
 
-      await models.Conversations.updateConversation(conversationId, {
+      await models.Conversations.updateConversation(targetConversationId, {
         content: subject,
         updatedAt: message.createdAt,
       });
 
       await graphqlPubsub.publish(
-        `conversationMessageInserted:${conversationId}`,
+        `conversationMessageInserted:${targetConversationId}`,
         {
           conversationMessageInserted: {
             _id: String(message._id),
             content: message.body ?? '',
-            conversationId,
+            conversationId: targetConversationId,
           },
         },
       );

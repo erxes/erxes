@@ -1,5 +1,6 @@
 export default `
   _id
+  mid
   content
   attachments {
     url
@@ -22,6 +23,12 @@ export default `
   messengerAppData
   botData
   extraData
+  messageKind
+  providerData
+  replyTo
+  reactions
+  deliveryStatus
+  expiresAt
   user {
     _id
     username

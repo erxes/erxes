@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dialog, BlockEditorReadOnly } from 'erxes-ui';
+import { Dialog, BlockEditorReadOnly, cn } from 'erxes-ui';
+import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 
 export const MessageContent = ({
   content,
@@ -9,6 +10,7 @@ export const MessageContent = ({
   internal?: boolean;
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [viewerFailed, setViewerFailed] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,21 +29,30 @@ export const MessageContent = ({
       {!!content && (
         <BlockEditorReadOnly
           content={content}
-          className="read-only"
+          className={cn('read-only', internal && 'internal-note')}
           ref={messageRef}
         />
       )}
       <Dialog
         open={!!selectedImage}
-        onOpenChange={() => setSelectedImage(null)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedImage(null);
+          setViewerFailed(false);
+        }}
       >
-        <Dialog.Content className="max-w-[90vw] p-0 border-none overflow-hidden">
-          {selectedImage && (
-            <img
+        <Dialog.Content className="!flex !h-auto !max-h-[92vh] !w-auto !max-w-[94vw] items-center justify-center !overflow-hidden !border-0 !bg-black/90 !p-2 shadow-2xl [&>button]:bg-white/10 [&>button]:text-white [&>button]:hover:bg-white/20">
+          {selectedImage && !viewerFailed && (
+            <InboxImage
               src={selectedImage}
               alt="Full size"
-              className="w-full h-auto object-contain"
+              onError={() => setViewerFailed(true)}
+              className="block h-auto max-h-[88vh] w-auto max-w-[90vw] rounded-lg object-contain"
             />
+          )}
+          {viewerFailed && (
+            <div className="rounded-lg bg-background px-6 py-8 text-sm text-muted-foreground shadow-lg">
+              Image unavailable
+            </div>
           )}
         </Dialog.Content>
       </Dialog>

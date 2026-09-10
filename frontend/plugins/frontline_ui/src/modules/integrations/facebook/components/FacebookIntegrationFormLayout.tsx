@@ -30,7 +30,7 @@ export const FacebookIntegrationFormSheet = () => {
         <Sheet.View>
           <Sheet.Header>
             <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
-            <Sheet.Description>
+            <Sheet.Description className="sr-only">
               {t('fb-messenger-setup-description')}
             </Sheet.Description>
             <Sheet.Close />
@@ -68,7 +68,7 @@ export const FacebookIntegrationFormLayout = ({
     <>
       <Sheet.Header>
         <Sheet.Title>{t('add-facebook-messenger')}</Sheet.Title>
-        <Sheet.Description>
+        <Sheet.Description className="sr-only">
           {t('fb-messenger-setup-description')}
         </Sheet.Description>
         <Sheet.Close />
@@ -95,19 +95,9 @@ export const FacebookIntegrationFormLayout = ({
 export const FacebookIntegrationFormSteps = ({
   title,
   step,
-  description,
 }: {
   title: string;
   step: number;
-  description: string;
 }) => {
-  const { t } = useTranslation('frontline');
-  return (
-    <IntegrationSteps
-      step={step}
-      title={t('connect-accounts')}
-      stepsLength={3}
-      description={description}
-    />
-  );
+  return <IntegrationSteps step={step} title={title} stepsLength={3} />;
 };

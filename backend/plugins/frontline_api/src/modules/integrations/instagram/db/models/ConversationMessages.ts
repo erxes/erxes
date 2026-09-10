@@ -54,7 +54,6 @@ export const loadInstagramConversationMessageClass = (models: IModels) => {
       doc: IInstagramConversationMessage,
       userId?: string,
     ) {
-
       const conversation = await models.InstagramConversations.findOne({
         _id: doc.conversationId,
       });
@@ -76,7 +75,11 @@ export const loadInstagramConversationMessageClass = (models: IModels) => {
         throw new Error('Content is required');
       }
 
-      return this.createMessage({ ...doc, userId });
+      return this.createMessage({
+        ...doc,
+        userId,
+        deliveryStatus: userId ? doc.deliveryStatus || 'sent' : undefined,
+      });
     }
   }
 

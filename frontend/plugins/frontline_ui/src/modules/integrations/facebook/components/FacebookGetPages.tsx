@@ -37,11 +37,7 @@ export const FacebookGetPages = () => {
         </>
       }
     >
-      <FacebookIntegrationFormSteps
-        title={t('connect-pages')}
-        step={2}
-        description={t('fb-select-pages-description')}
-      />
+      <FacebookIntegrationFormSteps title={t('connect-pages')} step={2} />
       <div className="flex-1 overflow-hidden p-4 pt-0">
         <Command>
           <div className="p-1">

@@ -39,6 +39,26 @@ export interface IMessage {
   botData?: any;
   messengerAppData?: any;
   extraData?: Record<string, unknown>;
+  messageKind?: string;
+  providerData?: {
+    messageId?: string;
+    attachmentType?: string;
+    fallbackReason?: string;
+    previewText?: string;
+    storyUrl?: string;
+  };
+  replyTo?: {
+    messageId: string;
+    content?: string;
+    authorName?: string;
+  };
+  reactions?: Array<{
+    senderId: string;
+    emoji?: string;
+    reaction?: string;
+  }>;
+  deliveryStatus?: string;
+  expiresAt?: Date;
   engageData?: IEngageData;
   contentType?: string;
   botId?: string;

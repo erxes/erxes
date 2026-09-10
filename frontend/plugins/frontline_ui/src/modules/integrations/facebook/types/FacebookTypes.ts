@@ -1,16 +1,9 @@
-import { IAttachment } from 'erxes-ui';
+import { IMessage } from '@/inbox/types/Conversation';
 
-export interface IFacebookConversationMessage {
-  _id: string;
-  content: string;
-  createdAt: string;
-  attachments: IAttachment[];
+export interface IFacebookConversationMessage extends IMessage {
   botData?: TBotData[];
   source?: IFacebookMessageRelationSource;
   relatedMessage?: IFacebookMessageRelation;
-  customerId?: string;
-  userId?: string;
-  internal?: boolean;
 }
 
 export interface IFacebookMessageRelationSource {
