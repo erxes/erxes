@@ -1568,7 +1568,7 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 - **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
   which the quality gate flags as avoidable escaping. It now reads as
-  `` String.raw`\$&`  ``; the behaviour is unchanged.
+  ``String.raw`\$&` ``; the behaviour is unchanged.
 - **Affected areas:**
   `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`
 - **Contracts changed:** `None`
