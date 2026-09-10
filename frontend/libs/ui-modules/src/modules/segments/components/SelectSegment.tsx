@@ -76,7 +76,7 @@ export const SelectSegment = ({
     setSearch,
     search,
   } = useSelectSegments({
-    selected: isMultiple ? selectedIds[0] : selectedIds[0],
+    selected: selectedIds[0],
     exclude,
     focusOnMount,
     contentType,
