@@ -25,6 +25,8 @@ interface IBlock {
 
 const HEADING_LEVELS = new Set([1, 2, 3]);
 
+const SAFE_COLOR = /^[a-z0-9#(),.%\s-]+$/i;
+
 const LIST_TAGS: Record<string, string> = {
   bulletListItem: 'ul',
   numberedListItem: 'ol',
@@ -49,7 +51,11 @@ const styleAttribute = (styles?: TInlineStyles) => {
   if (styles.italic) css.push('font-style:italic');
   if (styles.strike) css.push('text-decoration:line-through');
   if (styles.underline) css.push('text-decoration:underline');
-  if (typeof styles.textColor === 'string' && styles.textColor !== 'default') {
+  if (
+    typeof styles.textColor === 'string' &&
+    styles.textColor !== 'default' &&
+    SAFE_COLOR.test(styles.textColor)
+  ) {
     css.push(`color:${styles.textColor}`);
   }
 
@@ -73,7 +79,6 @@ const renderInline = (content?: IInline[] | string): string => {
         return `<a href="${href}">${renderInline(item.content) || href}</a>`;
       }
 
-      // A mention carries no text of its own; the reader still needs the name.
       if (item.type === 'mention') {
         return `<strong>@${escapeHtml(item.props?.fullName ?? '')}</strong>`;
       }

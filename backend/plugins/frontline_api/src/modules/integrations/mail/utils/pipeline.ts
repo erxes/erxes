@@ -25,8 +25,13 @@ export interface IPipelineMailConnectInput extends IPipelineMailSettings {
  * keyed on that row's id, survive a reconnect. Every reader wants the connected
  * one; `disabledAt: null` also matches rows written before the field existed.
  */
-export const findPipelineIntegration = (models: IModels, pipelineId: string) =>
-  models.MailIntegrations.findOne({ pipelineId, disabledAt: null });
+export const findPipelineIntegration = async (
+  models: IModels,
+  pipelineId?: string,
+) =>
+  pipelineId
+    ? models.MailIntegrations.findOne({ pipelineId, disabledAt: null })
+    : null;
 
 const findDisconnectedPipelineMail = (models: IModels, pipelineId: string) =>
   models.MailIntegrations.findOne({

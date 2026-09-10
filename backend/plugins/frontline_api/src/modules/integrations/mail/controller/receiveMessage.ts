@@ -474,8 +474,6 @@ export const receiveMailMessage = async (req: Request, res: Response) => {
 
   const { address, tag } = parseTaggedAddress(payload.to);
 
-  // A disconnected address keeps its row to hold the address; it must not
-  // keep accepting mail.
   const integration = await models.MailIntegrations.findOne({
     address,
     disabledAt: null,
