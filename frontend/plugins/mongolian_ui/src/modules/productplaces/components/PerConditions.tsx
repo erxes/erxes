@@ -161,7 +161,9 @@ const PerConditions = ({
               <Select.Content>
                 <Select.Item value={CLEAR_VALUE}>{t('not-use')}</Select.Item>
                 <Select.Item value="lt">{t('low-than-count')}</Select.Item>
-                <Select.Item value="gte">{t('greater-equal-than-count')}</Select.Item>
+                <Select.Item value="gte">
+                  {t('greater-equal-than-count')}
+                </Select.Item>
               </Select.Content>
             </Select>
           </div>

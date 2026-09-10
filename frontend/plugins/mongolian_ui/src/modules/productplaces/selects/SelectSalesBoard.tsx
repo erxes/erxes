@@ -5,12 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import {
-  cn,
-  Combobox,
-  Command,
-  PopoverScoped,
-} from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetSalesBoards } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesBoards';
 import { IBoard } from '@/ebarimt/settings/stage-in-ebarimt-config/types/board';
