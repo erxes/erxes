@@ -67,7 +67,10 @@ const PerConditions = ({
               tagType="core:product"
               value={condition.productTagIds ?? []}
               onValueChange={(ids) =>
-                onChangeConfig('productTagIds', Array.isArray(ids) ? ids : [ids])
+                onChangeConfig(
+                  'productTagIds',
+                  Array.isArray(ids) ? ids : [ids],
+                )
               }
             />
           </div>
@@ -81,7 +84,10 @@ const PerConditions = ({
               tagType="core:product"
               value={condition.excludeTagIds ?? []}
               onValueChange={(ids) =>
-                onChangeConfig('excludeTagIds', Array.isArray(ids) ? ids : [ids])
+                onChangeConfig(
+                  'excludeTagIds',
+                  Array.isArray(ids) ? ids : [ids],
+                )
               }
             />
           </div>
