@@ -1,13 +1,7 @@
-import SettingsContainer from '../../modules/productplaces/containers/Settings';
-import PrintConfig from '../../modules/productplaces/components/PrintConfig';
+import { ProductPlacesConfigManager } from '../../modules/productplaces/components/ProductPlacesConfigManager';
 
 const PrintPage = () => {
-  return (
-    <SettingsContainer
-      component={PrintConfig}
-      configCode="dealsProductsDataPrint"
-    />
-  );
+  return <ProductPlacesConfigManager code="dealsProductsDataPrint" />;
 };
 
 export default PrintPage;

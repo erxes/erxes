@@ -12,7 +12,7 @@ export const handlePrint = async (
   const { customerCode, customerName } = await getCustomer(subdomain, deal);
 
   const branchIds = productsData.map((pd) => pd.branchId).filter(Boolean);
-  let branchById: Record<string, any> = {};
+  const branchById: Record<string, any> = {};
   if (branchIds.length) {
     const branches = await sendTRPCMessage({
       subdomain,
@@ -31,7 +31,7 @@ export const handlePrint = async (
   const departmentIds = productsData
     .map((pd) => pd.departmentId)
     .filter(Boolean);
-  let departmentById: Record<string, any> = {};
+  const departmentById: Record<string, any> = {};
   if (departmentIds.length) {
     const departments = await sendTRPCMessage({
       subdomain,

@@ -1,40 +1,6 @@
-// Define types for the data structures
-interface Product {
-  code?: string;
-  name?: string;
-}
+import { ProductPlacesReceipt, ProductPlacesReceiptStock } from '../types';
 
-interface Stock {
-  product?: Product;
-  unitPrice: string | number;
-  quantity: string | number;
-  amount: string | number;
-}
-
-interface Branch {
-  code?: string;
-  title?: string;
-}
-
-interface Department {
-  code?: string;
-  title?: string;
-}
-
-interface ResponseData {
-  date: string;
-  number?: string;
-  branch?: Branch;
-  department?: Department;
-  customerNo?: string;
-  customerName?: string;
-  pDatas?: Stock[];
-  amount: string | number;
-  headerText?: string; // added for custom header
-  footerText?: string; // added for custom footer
-}
-
-const getRows = (stocks: Stock[]): string => {
+const getRows = (stocks: ProductPlacesReceiptStock[]): string => {
   let res = '';
   let ind = 0;
 
@@ -56,17 +22,16 @@ const getRows = (stocks: Stock[]): string => {
 };
 
 export const PerResponse = (
-  response: ResponseData,
+  response: ProductPlacesReceipt,
   counter?: number,
 ): string => {
   const showSplitter = Boolean(counter && counter > 0);
   const showNumber = Boolean(response.number);
   const showCustomer =
-    Boolean(response.customerNo) || Boolean(response.customerName);
+    Boolean(response.customerCode) || Boolean(response.customerName);
 
-  //  Extracted statements (Sonar fix)
-  const customerNoBlock = response.customerNo
-    ? `<p>ТТД: ${response.customerNo}</p>`
+  const customerCodeBlock = response.customerCode
+    ? `<p>ТТД: ${response.customerCode}</p>`
     : '';
 
   const customerNameBlock = response.customerName
@@ -77,13 +42,12 @@ export const PerResponse = (
     ? `
       <div>
         <p><strong>Худалдан авагч:</strong></p>
-        ${customerNoBlock}
+        ${customerCodeBlock}
         ${customerNameBlock}
       </div>
     `
     : '';
 
-  // Optional header and footer
   const headerHtml = response.headerText
     ? `<div class="header">${response.headerText}</div>`
     : '';

@@ -306,6 +306,7 @@ const generateFilter = async (
     image,
     pipelineId,
     segment,
+    segmentIds,
     propertiesData,
     branchId,
     departmentId,
@@ -577,7 +578,9 @@ const generateFilter = async (
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
   }
 
-  if (segment) {
+  if (segmentIds?.length) {
+    andFilters.push({ segmentIds: { $in: segmentIds } });
+  } else if (segment) {
     andFilters.push({ segmentIds: segment });
   }
 
