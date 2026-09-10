@@ -27,7 +27,9 @@ export const useSurveyMutate = () => {
     const onCompleted = () => {
       toast({
         variant: 'success',
-        title: surveyId ? t('survey-updated', 'Survey updated') : t('survey-created', 'Survey created'),
+        title: surveyId
+          ? t('survey-updated', 'Survey updated')
+          : t('survey-created', 'Survey created'),
       });
       resetSurveySetup();
       navigate(`/settings/frontline/channels/${channelId}/surveys`);

@@ -77,10 +77,10 @@ export const SurveyMutateLayout = <TValues extends FieldValues>({
                 ? t('updating-survey', 'Updating survey...')
                 : t('creating-survey', 'Creating survey...')
               : step === SURVEY_SETUP_STEPS.CONFIRMATION
-              ? surveyId
-                ? t('update-survey', 'Update survey')
-                : t('create-survey', 'Create survey')
-              : t('next-step')}
+                ? surveyId
+                  ? t('update-survey', 'Update survey')
+                  : t('create-survey', 'Create survey')
+                : t('next-step')}
           </Button>
         </Sheet.Footer>
       </form>

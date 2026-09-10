@@ -48,9 +48,8 @@ export const surveyMutations = {
       throw new Error('Only an active survey can be sent');
     }
 
-    const conversation = await models.Conversations.getConversation(
-      conversationId,
-    );
+    const conversation =
+      await models.Conversations.getConversation(conversationId);
 
     const integration = await models.Integrations.getIntegration({
       _id: conversation.integrationId,
