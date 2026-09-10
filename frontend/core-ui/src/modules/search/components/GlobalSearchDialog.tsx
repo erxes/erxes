@@ -42,6 +42,7 @@ const SearchCategoryLabel = ({
 }) => {
   const { t } = useTranslation(category.labelNamespace ?? 'common', {
     keyPrefix: category.labelNamespace ? undefined : 'global-search',
+    useSuspense: false,
   });
 
   return <>{t(category.labelKey ?? category.key, category.label)}</>;

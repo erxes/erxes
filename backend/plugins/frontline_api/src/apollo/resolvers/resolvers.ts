@@ -9,12 +9,14 @@ import {
   Form,
   Submission,
 } from '@/form/graphql/resolvers/customResolvers/forms';
+import { Poll } from '@/poll/graphql/resolvers/customResolvers/poll';
 import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
 import {
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
+import { HelpCenterConfig } from '@/helpcenter/graphql/resolvers/customResolvers/helpCenterConfig';
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,
@@ -25,8 +27,10 @@ export const customResolvers = {
   Ticket,
   Form,
   Submission,
+  Poll,
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,
   KnowledgeBaseTopic,
+  HelpCenterConfig,
 };

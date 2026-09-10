@@ -1,15 +1,22 @@
 import {
+  propertyGroupIdFromKey,
+  isPropertyGroupKey,
+} from 'erxes-api-shared/core-modules';
+import {
   ICustomField,
   ILocationOption,
   IPropertyField,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { Model } from 'mongoose';
+import { nanoid } from 'nanoid';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import { fieldSchema } from '~/modules/properties/db/definitions/field';
 import { IField, IFieldDocument } from '../../@types';
 import { ORDER_GAP } from '../../constants';
+
+const RESERVED_ROW_KEYS = new Set(['_id']);
 
 export interface IFieldModel extends Model<IFieldDocument> {
   getField({ _id }: { _id: string }): Promise<IFieldDocument>;
@@ -145,13 +152,29 @@ export const loadFieldClass = (models: IModels) => {
       const group = await models.FieldsGroups.exists({ _id });
 
       if (group && value && Array.isArray(value)) {
-        for (const fieldValue of value as Array<Record<string, any>>) {
-          for (const [key, value] of Object.entries(fieldValue)) {
-            await this.validateFieldValue(key, value);
+        const rows: Array<Record<string, any>> = [];
+        const seenIds = new Set<string>();
+
+        for (const row of value as Array<Record<string, any>>) {
+          for (const [key, entryValue] of Object.entries(row)) {
+            if (RESERVED_ROW_KEYS.has(key)) {
+              continue;
+            }
+
+            await this.validateFieldValue(key, entryValue);
           }
+
+          // rows migrated from v2 arrive without an id
+          const rowId =
+            typeof row._id === 'string' && row._id && !seenIds.has(row._id)
+              ? row._id
+              : nanoid();
+
+          seenIds.add(rowId);
+          rows.push({ ...row, _id: rowId });
         }
 
-        return value;
+        return rows;
       }
 
       if (!field) {
@@ -191,6 +214,12 @@ export const loadFieldClass = (models: IModels) => {
           );
       }
 
+      const isEmptyValue =
+        value === undefined ||
+        value === null ||
+        value === '' ||
+        (Array.isArray(value) && !value.length);
+
       for (const key in validations) {
         const validation = validations[key];
 
@@ -198,9 +227,16 @@ export const loadFieldClass = (models: IModels) => {
 
         // required
         if (key === 'required') {
-          if (!value?.toString().trim()) {
+          if (isEmptyValue || !value.toString().trim()) {
             throw new Error(`${field.name}: required`);
           }
+
+          continue;
+        }
+
+        // clearing a field must not be rejected as malformed
+        if (isEmptyValue) {
+          continue;
         }
 
         // email
@@ -243,14 +279,25 @@ export const loadFieldClass = (models: IModels) => {
           continue;
         }
 
-        const field = await models.Fields.findOne({
-          $or: [{ code: fieldName }, { _id: fieldName }],
-        }).lean();
+        const isGroup = isPropertyGroupKey(fieldName);
 
-        const group = await models.FieldsGroups.findOne({
-          _id: fieldName,
-          'configs.isMultiple': true,
-        }).lean();
+        const field = isGroup
+          ? null
+          : await models.Fields.findOne({
+              $or: [{ code: fieldName }, { _id: fieldName }],
+            }).lean();
+
+        const group = isGroup
+          ? await models.FieldsGroups.findOne({
+              _id: propertyGroupIdFromKey(fieldName),
+            }).lean()
+          : null;
+
+        // no longer repeating: keep its rows instead of dropping them
+        if (group && !group.configs?.isMultiple) {
+          result[fieldName] = fieldValue;
+          continue;
+        }
 
         if (!field && !group) {
           continue;
@@ -363,14 +410,25 @@ export const loadFieldClass = (models: IModels) => {
       for (const mergedItem in mergedData) {
         const mergedValue = mergedData[mergedItem];
 
-        const field = await models.Fields.findOne({
-          $or: [{ _id: mergedItem }, { code: mergedItem }],
-        }).lean();
+        const isGroup = isPropertyGroupKey(mergedItem);
 
-        const group = await models.FieldsGroups.findOne({
-          _id: mergedItem,
-          'configs.isMultiple': true,
-        }).lean();
+        const field = isGroup
+          ? null
+          : await models.Fields.findOne({
+              $or: [{ _id: mergedItem }, { code: mergedItem }],
+            }).lean();
+
+        const group = isGroup
+          ? await models.FieldsGroups.findOne({
+              _id: propertyGroupIdFromKey(mergedItem),
+              'configs.isMultiple': true,
+            }).lean()
+          : null;
+
+        if (isGroup && !group) {
+          result.propertiesData[mergedItem] = mergedValue;
+          continue;
+        }
 
         const fieldId = group?._id || field?._id;
 
@@ -418,8 +476,9 @@ export const loadFieldClass = (models: IModels) => {
         });
       }
 
-      result.propertiesData =
-        await models.Fields.validateFieldValues(mergedData);
+      result.propertiesData = await models.Fields.validateFieldValues(
+        mergedData,
+      );
 
       return result;
     }

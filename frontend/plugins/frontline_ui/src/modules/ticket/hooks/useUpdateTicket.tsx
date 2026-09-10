@@ -22,7 +22,7 @@ export const useUpdateTicket = () => {
 
         if (!options.onError) {
           toast({
-            title: t('error'),
+            title: t('error', 'Error'),
             description: error.message,
             variant: 'destructive',
           });

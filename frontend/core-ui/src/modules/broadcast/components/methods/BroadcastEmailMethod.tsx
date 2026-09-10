@@ -16,7 +16,7 @@ const ReplyToField = ({
   name: 'fromEmail' | 'email.replyTo';
   required?: boolean;
 }) => {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   return (
     <Form.Field
@@ -35,7 +35,13 @@ const ReplyToField = ({
           </Form.Label>
           <SelectVerifiedSender
             value={field.value}
-            onChange={field.onChange}
+            onChange={(value, sender) => {
+              field.onChange(value);
+
+              if (sender?.name) {
+                setValue('email.sender', sender.name, { shouldDirty: true });
+              }
+            }}
             placeholder="Select a confirmed address"
           />
           <Form.Message />
@@ -55,6 +61,37 @@ const BroadcastEmailFields = () => {
 
   return (
     <>
+      <div className="grid grid-cols-2 gap-3">
+        {!alignedFrom && (
+          <Form.Field
+            name="fromEmail"
+            control={control}
+            rules={{
+              required: 'From address is required',
+              validate: (value?: string) =>
+                isEmail(value) || 'Enter a valid email address',
+            }}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  From<span className="text-destructive">*</span>
+                </Form.Label>
+                <Form.Control>
+                  <Input {...field} placeholder="sales@yourdomain.com" />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+
+        {pickedIsReplyTo ? (
+          <ReplyToField name="fromEmail" required />
+        ) : (
+          <ReplyToField name="email.replyTo" />
+        )}
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <Form.Field
           name="email.sender"
@@ -96,37 +133,6 @@ const BroadcastEmailFields = () => {
             </Form.Item>
           )}
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        {!alignedFrom && (
-          <Form.Field
-            name="fromEmail"
-            control={control}
-            rules={{
-              required: 'From address is required',
-              validate: (value?: string) =>
-                isEmail(value) || 'Enter a valid email address',
-            }}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  From<span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="sales@yourdomain.com" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        )}
-
-        {pickedIsReplyTo ? (
-          <ReplyToField name="fromEmail" required />
-        ) : (
-          <ReplyToField name="email.replyTo" />
-        )}
       </div>
 
       <Form.Field

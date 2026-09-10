@@ -21,6 +21,7 @@ export const AddPropertyGroup = () => {
     defaultValues: {
       name: '',
       code: '',
+      isMultiple: false,
     },
   });
   const [open, setOpen] = useState<boolean>(false);
@@ -31,6 +32,7 @@ export const AddPropertyGroup = () => {
         name: data.name,
         code: data.code,
         contentType: type,
+        configs: { isMultiple: data.isMultiple },
       },
       onCompleted: () => {
         form.reset();

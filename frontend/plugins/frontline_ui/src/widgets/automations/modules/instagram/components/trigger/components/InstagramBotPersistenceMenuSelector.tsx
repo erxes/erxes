@@ -46,9 +46,12 @@ export const InstagramBotPersistenceMenuSelector = ({
     return (
       <div className="text-muted-foreground flex justify-center">
         <IconList className="w-6 h-6" />
-        <p>{t('no-persistent-menus')}</p>
+        <p>{t('no-persistent-menus', 'No persistent menus in selected bot')}</p>
         <span>
-          {t('persistent-menu-link-note')}
+          {t(
+            'persistent-menu-link-note',
+            "Persistent menu with link can't display as selectable condition on section",
+          )}
         </span>
       </div>
     );

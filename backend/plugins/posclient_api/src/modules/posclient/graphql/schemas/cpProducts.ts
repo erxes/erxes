@@ -79,7 +79,6 @@ const productsQueryParams = `
   ids: [String],
   excludeIds: Boolean,
   segment: String,
-  segmentData: String,
   isKiosk: Boolean,
   groupedSimilarity: String,
   categoryMeta: String,

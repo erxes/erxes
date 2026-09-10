@@ -53,6 +53,7 @@ import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import { ResponseTemplateDropdown } from '@/inbox/conversations/conversation-detail/components/ResponseTemplateDropdown';
 import { ResponseTemplateSelector } from './ResponseTemplateSelector';
 import { PollComposer, PollDraft } from './PollComposer';
+import { SendPollDialog } from './SendPollDialog';
 import { getPreviewText } from '@/inbox/types/inbox';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
@@ -90,6 +91,7 @@ export const MessageInput = ({
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const isDiscord = integration?.kind === IntegrationType.DISCORD_MESSENGER;
+  const isMessenger = integration?.kind === IntegrationType.ERXES_MESSENGER;
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
   const [discordReplyTo, setDiscordReplyTo] = useAtom(discordReplyToState);
 
@@ -220,13 +222,22 @@ export const MessageInput = ({
       upload({
         files,
         beforeUpload: () =>
-          toast({ title: t('uploading-file'), variant: 'default' }),
+          toast({
+            title: t('uploading-file', 'Uploading file...'),
+            variant: 'default',
+          }),
         afterRead: ({ result, fileInfo }) =>
           setAttachmentPreview({ ...fileInfo, data: result }),
         afterUpload: ({ response, fileInfo }) => {
           setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
-          toast({ title: t('file-uploaded-successfully'), variant: 'default' });
+          toast({
+            title: t(
+              'file-uploaded-successfully',
+              'File uploaded successfully!',
+            ),
+            variant: 'default',
+          });
         },
       });
     },
@@ -247,7 +258,10 @@ export const MessageInput = ({
 
   const handleDeleteAttachment = (name: string) => {
     setAttachments((prev) => prev.filter((f) => f.name !== name));
-    toast({ title: t('attachment-removed'), variant: 'default' });
+    toast({
+      title: t('attachment-removed', 'Attachment removed'),
+      variant: 'default',
+    });
   };
 
   const stripHtml = (html: string): string => {
@@ -261,7 +275,10 @@ export const MessageInput = ({
     templateId?: string,
   ) => {
     if (!editor) {
-      return toast({ title: t('editor-not-ready'), variant: 'destructive' });
+      return toast({
+        title: t('editor-not-ready', 'Editor not ready'),
+        variant: 'destructive',
+      });
     }
 
     const parseTemplateToBlocks = (content: string) => {
@@ -296,7 +313,10 @@ export const MessageInput = ({
       setResponseTemplateId(templateId || null);
     } catch (error) {
       console.error('Error inserting template:', error);
-      toast({ title: t('failed-to-insert-template'), variant: 'destructive' });
+      toast({
+        title: t('failed-to-insert-template', 'Failed to insert template'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -404,7 +424,10 @@ export const MessageInput = ({
           : {}),
       },
       onCompleted: () => {
-        toast({ title: t('message-sent'), variant: 'default' });
+        toast({
+          title: t('message-sent', 'Message sent!'),
+          variant: 'default',
+        });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(undefined);
@@ -424,7 +447,9 @@ export const MessageInput = ({
       ],
       onError: (err) =>
         toast({
-          title: t('failed-to-send', { message: err.message }),
+          title: t('failed-to-send', 'Failed to send: {{message}}', {
+            message: err.message,
+          }),
           variant: 'destructive',
         }),
     });
@@ -457,7 +482,7 @@ export const MessageInput = ({
             'FrontlineInboxSidebarWorkCounts',
           ],
         });
-        toast({ title: 'Poll sent!', variant: 'default' });
+        toast({ title: t('poll-sent', 'Poll sent!'), variant: 'default' });
         return true;
       } catch (err) {
         toast({
@@ -502,7 +527,7 @@ export const MessageInput = ({
             <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
               <IconArrowBackUp className="size-4 flex-none" />
               <span className="truncate">
-                Replying to: {discordReplyTo.preview}
+                {t('replying-to', 'Replying to:')} {discordReplyTo.preview}
               </span>
             </div>
             <button
@@ -589,7 +614,9 @@ export const MessageInput = ({
               !onlyInternal && setIsInternalNote(!isInternalNote)
             }
           >
-            <span className="truncate">{t('internal-note')}</span>
+            <span className="truncate">
+              {t('internal-note', 'Internal Note')}
+            </span>
           </Toggle>
 
           {!isInternalNote && (
@@ -624,6 +651,13 @@ export const MessageInput = ({
             <PollComposer onSubmit={handleSendPoll} loading={loading} />
           )}
 
+          {isMessenger && !isInternalNote && (
+            <SendPollDialog
+              conversationId={conversationId}
+              channelId={integration?.channelId}
+            />
+          )}
+
           <Button
             size="lg"
             className="ml-auto flex-none"
@@ -635,7 +669,7 @@ export const MessageInput = ({
             onClick={handleSubmit}
           >
             {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-            {t('send')}
+            {t('send', 'Send')}
             <Kbd className="ml-1 hidden sm:flex">
               <IconCommand size={12} />
               <IconCornerDownLeft size={12} />

@@ -20,7 +20,7 @@ export const ChannelMembersPage = () => {
                   onClick={() => navigate(-1)}
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
-                  {t('channel-settings')}
+                  {t('channel-settings', 'Channel Settings')}
                 </Button>
               </Breadcrumb.Link>
             </Breadcrumb.Item>

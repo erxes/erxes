@@ -42,6 +42,11 @@ export interface AiAgentInput {
       sourceIds: string[];
     }>;
   };
+  usage?: {
+    total: number;
+    active: number;
+    automations: Array<{ _id: string; name: string; status: string }>;
+  };
 }
 
 export function useAiAgentDetail({ skip = false }: { skip?: boolean } = {}) {

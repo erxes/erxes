@@ -41,7 +41,7 @@ export const PipelinePropertySelector = ({ value, onChange }: Props) => {
   if (!groups.length) {
     return (
       <p className="text-sm text-muted-foreground">
-        {t('no-ticket-property-fields')}
+        {t('no-ticket-property-fields', 'No ticket property fields found')}
       </p>
     );
   }

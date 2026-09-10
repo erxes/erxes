@@ -50,6 +50,7 @@ export const useConversations = (
     integrationType,
     unassigned,
     awaitingResponse,
+    withPoll,
     automationStatus,
     participating,
     participated,
@@ -72,6 +73,7 @@ export const useConversations = (
       integrationType,
       unassigned: getBooleanFilterVariable(unassigned),
       awaitingResponse: getBooleanFilterVariable(awaitingResponse),
+      withPoll: getBooleanFilterVariable(withPoll),
       automationStatus,
       participating: getBooleanFilterVariable(participating || participated),
       mentioned: getBooleanFilterVariable(mentioned),
@@ -89,6 +91,7 @@ export const useConversations = (
       integrationType,
       unassigned,
       awaitingResponse,
+      withPoll,
       automationStatus,
       participating,
       participated,
@@ -341,7 +344,7 @@ export const useConversations = (
       });
     } catch (error) {
       toast({
-        title: t('something-went-wrong'),
+        title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
         description: error instanceof Error ? error.message : undefined,
         variant: 'destructive',
       });

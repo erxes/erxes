@@ -33,16 +33,23 @@ export const useFacebookAutomationHistoryResult = (
 ) => {
   const error = result?.error;
   const isCommentReply = action?.actionType?.endsWith('comments');
+  const isSkipped = result?.status === 'skipped';
+  const isQueued = result?.status === 'queued';
   const messages = unwrapSentMessages(result).map(toSentMessage);
 
   return {
     error,
     hasError: Boolean(error),
     isCommentReply,
+    isQueued,
+    sendAfterMs: result?.sendAfterMs as number | undefined,
+    isSkipped,
+    skipReason: result?.reason as string | undefined,
+    skipLimit: result?.limit as number | undefined,
+    blockedUntil: result?.blockedUntil as string | undefined,
     messages,
-    // Comment replies record only a status, so the text that went out is read
-    // back from the config the run used
-    commentText: action?.actionConfig?.text,
+    // The run records the variant it posted; older runs only kept the config.
+    commentText: result?.text || action?.actionConfig?.text,
     commentAttachments: (action?.actionConfig?.attachments || []) as {
       url?: string;
     }[],

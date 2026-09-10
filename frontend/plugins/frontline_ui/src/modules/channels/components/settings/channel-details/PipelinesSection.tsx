@@ -14,7 +14,7 @@ export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
   return (
     <PipelineSettingsLink
       description={t('pipeline', { count })}
-      title={t('manage-ticket-pipelines')}
+      title={t('manage-ticket-pipelines', 'Manage ticket pipelines')}
       to={`/settings/frontline/channels/${channel._id}/pipelines`}
     />
   );

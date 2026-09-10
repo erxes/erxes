@@ -231,6 +231,38 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'poll',
+      description: 'Poll management',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All polls' }],
+      actions: [
+        {
+          title: 'View polls',
+          name: 'showPolls',
+          description: 'View polls list',
+          always: true,
+        },
+        { title: 'Add poll', name: 'pollAdd', description: 'Create polls' },
+        { title: 'Edit poll', name: 'pollEdit', description: 'Edit polls' },
+        {
+          title: 'Remove poll',
+          name: 'pollRemove',
+          description: 'Delete polls',
+        },
+        {
+          title: 'Toggle poll status',
+          name: 'pollToggleStatus',
+          description: 'Activate or archive polls',
+        },
+        {
+          title: 'Send poll',
+          name: 'pollSendToConversation',
+          description: 'Send a poll into a messenger conversation',
+        },
+      ],
+    },
+    {
       name: 'callReport',
       description: 'Call centre reports',
       scopeField: null,
@@ -308,6 +340,27 @@ export const permissions: IPermissionConfig = {
           title: 'Manage articles',
           name: 'knowledgeBaseArticlesManage',
           description: 'Add, edit and remove knowledge base articles',
+        },
+      ],
+    },
+    {
+      name: 'helpCenter',
+      description: 'Help center configuration',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [{ name: 'all', description: 'All help center configs' }],
+      actions: [
+        {
+          title: 'View help centers',
+          name: 'showHelpCenter',
+          description: 'View help center general settings and appearance',
+          always: true,
+        },
+        {
+          title: 'Manage help centers',
+          name: 'helpCenterManage',
+          description:
+            'Create, update and remove help center general settings and appearance',
         },
       ],
     },
@@ -417,6 +470,12 @@ export const permissions: IPermissionConfig = {
           ],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter', 'helpCenterManage'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -462,6 +521,12 @@ export const permissions: IPermissionConfig = {
           actions: ['showKnowledgeBase'],
           scope: 'all',
         },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
+          scope: 'all',
+        },
       ],
     },
     {
@@ -492,6 +557,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'frontline',
           module: 'knowledgeBase',
           actions: ['showKnowledgeBase'],
+          scope: 'all',
+        },
+        {
+          plugin: 'frontline',
+          module: 'helpCenter',
+          actions: ['showHelpCenter'],
           scope: 'all',
         },
         {

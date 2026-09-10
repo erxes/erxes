@@ -1,77 +1,71 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createContext, useContext, useEffect, useMemo } from 'react';
+import { useSetAtom } from 'jotai';
+import { createContext, useContext, useEffect } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
-import { segmentFormSchema } from 'ui-modules/modules/segments/states/segmentFormSchema';
-import {
-  ISegment,
-  SegmentFormMode,
-  TSegmentForm,
-} from 'ui-modules/modules/segments/types';
-import { getSegmentFormDefaultValues } from 'ui-modules/modules/segments/utils/segmentFormUtils';
+import { useSegmentStats } from '../hooks/useSegmentStats';
+import { segmentFormDirtyAtom } from '../states/segmentFormDirty';
+import { segmentFormSchemaFor } from '../states/segmentFormSchema';
+import { ISegment, TSegmentForm } from '../types';
+import { emptyCondition, emptyGroup } from '../types/segmentNode';
 
-interface SegmentFormContextType {
+type SegmentFormContextType = {
   contentType: string;
+  ownedBy?: string;
   form: UseFormReturn<TSegmentForm>;
   segment?: ISegment;
-  hasMetadataForm?: boolean;
-  mode: SegmentFormMode;
-}
+  stats: ReturnType<typeof useSegmentStats>;
+};
 
 const SegmentFormContext = createContext<SegmentFormContextType | null>(null);
+
+const defaultValues = (
+  contentType: string,
+  segment?: ISegment,
+): TSegmentForm => ({
+  name: segment?.name || '',
+  description: segment?.description || '',
+  color: segment?.color || '',
+  visibility: segment?.visibility || 'organization',
+  root: segment?.root || {
+    ...emptyGroup(),
+    children: [emptyCondition(contentType)],
+  },
+});
 
 export const SegmentProvider = ({
   children,
   contentType,
   segment,
-  hasMetadataForm = false,
-  mode = SegmentFormMode.DEFAULT,
+  ownedBy,
 }: {
   children: React.ReactNode;
   contentType: string;
   segment?: ISegment;
-  hasMetadataForm?: boolean;
-  mode?: SegmentFormMode.DEFAULT | SegmentFormMode.SINGLE;
+  ownedBy?: string;
 }) => {
-  const defaultValues = contentType
-    ? getSegmentFormDefaultValues(contentType, segment || {}, mode)
-    : undefined;
-
-  const validationSchema = useMemo(() => {
-    if (hasMetadataForm) {
-      return segmentFormSchema.extend({
-        name: z.string().min(1, 'Name is required'),
-      });
-    }
-    return segmentFormSchema;
-  }, [hasMetadataForm]);
+  const owner = segment
+    ? segment.ownedBy || (segment.name?.trim() ? undefined : ownedBy)
+    : ownedBy;
 
   const form = useForm<TSegmentForm>({
-    resolver: zodResolver(validationSchema),
-    defaultValues,
+    resolver: zodResolver(segmentFormSchemaFor(owner)),
+    defaultValues: defaultValues(contentType, segment),
   });
 
+  const { isDirty } = form.formState;
+  const setDirty = useSetAtom(segmentFormDirtyAtom);
+
   useEffect(() => {
-    if (contentType) {
-      const newValues = getSegmentFormDefaultValues(
-        contentType,
-        segment || {},
-        mode,
-      );
-      form.reset(newValues);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentType, segment?._id, mode]);
+    setDirty(isDirty);
+
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
+
+  const stats = useSegmentStats({ contentType, form });
 
   return (
     <SegmentFormContext.Provider
-      value={{
-        form,
-        contentType,
-        segment,
-        hasMetadataForm,
-        mode,
-      }}
+      value={{ contentType, ownedBy: owner, form, segment, stats }}
     >
       {children}
     </SegmentFormContext.Provider>
@@ -79,7 +73,11 @@ export const SegmentProvider = ({
 };
 
 export const useSegment = () => {
-  const ctx = useContext(SegmentFormContext);
-  if (!ctx) throw new Error('useSegment must be used within SegmentProvider');
-  return ctx;
+  const context = useContext(SegmentFormContext);
+
+  if (!context) {
+    throw new Error('useSegment must be used inside a SegmentProvider');
+  }
+
+  return context;
 };

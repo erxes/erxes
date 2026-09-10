@@ -86,67 +86,34 @@ const remapValues = <T>(value: T, idMap: TIdMap): T => {
 };
 
 /**
- * Clones a segment with its sub-segments. The parent is created first so the
- * children can point `subOf` at the clone instead of the original.
+ * Copies a segment. The whole definition lives in `root`, so a clone is one
+ * insert - there are no child documents to walk or re-point.
  */
-const cloneSegmentTree = async (
+const cloneSegment = async (
   models: IModels,
   segmentId: string,
-  subOf: string | undefined,
-  seen: Set<string>,
+  userId: string,
 ): Promise<string | undefined> => {
-  if (!segmentId || seen.has(segmentId)) {
-    return undefined;
-  }
-
-  seen.add(segmentId);
-
   const source = await models.Segments.findOne({ _id: segmentId }).lean();
 
   if (!source) {
     return undefined;
   }
 
-  const { conditions = [] } = source;
-
-  // Copied field by field so nothing identifying the source (`_id`, `processId`)
-  // rides along into the clone.
+  // Copied field by field so nothing identifying the source (`_id`,
+  // `processId`) rides along into the clone.
   const clone = await models.Segments.create({
     contentType: source.contentType,
     name: source.name,
     description: source.description,
     color: source.color,
-    shouldWriteActivityLog: source.shouldWriteActivityLog,
-    conditionsConjunction: source.conditionsConjunction,
-    config: source.config,
-    subOf: subOf ?? source.subOf,
-    conditions: [],
+    root: source.root,
+    visibility: source.visibility,
+    ownerId: source.ownerId,
+    status: source.status,
+    revision: 1,
+    createdBy: userId,
   });
-
-  const clonedConditions: typeof conditions = [];
-
-  for (const condition of conditions) {
-    if (condition.type === 'subSegment' && condition.subSegmentId) {
-      const subSegmentId = await cloneSegmentTree(
-        models,
-        condition.subSegmentId,
-        clone._id,
-        seen,
-      );
-
-      if (subSegmentId) {
-        clonedConditions.push({ ...condition, subSegmentId });
-      }
-      continue;
-    }
-
-    clonedConditions.push(condition);
-  }
-
-  await models.Segments.updateOne(
-    { _id: clone._id },
-    { $set: { conditions: clonedConditions } },
-  );
 
   return clone._id;
 };
@@ -160,6 +127,7 @@ const cloneReferencedSegments = async (
   models: IModels,
   automation: IAutomationDocument,
   idMap: TIdMap,
+  ownerId: string,
 ) => {
   const nodes = [
     ...(automation.triggers || []),
@@ -174,12 +142,7 @@ const cloneReferencedSegments = async (
       continue;
     }
 
-    const clonedSegmentId = await cloneSegmentTree(
-      models,
-      segmentId,
-      undefined,
-      new Set(),
-    );
+    const clonedSegmentId = await cloneSegment(models, segmentId, ownerId);
 
     if (clonedSegmentId) {
       idMap.set(segmentId, clonedSegmentId);
@@ -195,7 +158,8 @@ export const generateDuplicateName = async (
   models: IModels,
   sourceName: string,
 ) => {
-  const baseName = sourceName.replace(DUPLICATE_SUFFIX, '').trim() || sourceName;
+  const baseName =
+    sourceName.replace(DUPLICATE_SUFFIX, '').trim() || sourceName;
 
   const siblings = await models.Automations.find(
     {
@@ -223,6 +187,7 @@ export const generateDuplicateName = async (
 export const buildDuplicatedAutomation = async (
   models: IModels,
   automation: IAutomationDocument,
+  ownerId: string,
 ) => {
   const idMap: TIdMap = new Map();
 
@@ -230,7 +195,7 @@ export const buildDuplicatedAutomation = async (
     idMap.set(id, generateNodeId());
   }
 
-  await cloneReferencedSegments(models, automation, idMap);
+  await cloneReferencedSegments(models, automation, idMap, ownerId);
 
   // Listed rather than spread: identity, authorship and the duplicate marker of
   // the source must never leak into the copy, and a field added later should

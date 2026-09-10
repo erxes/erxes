@@ -1,176 +1,42 @@
 import { salesSegmentConfigs } from '@/sales/meta/segments/segmentConfigs';
 import {
-  generateConditionStageIds,
-  generateProductsCategoryProductIds,
-} from '@/sales/meta/segments/utils';
-import {
-  gatherAssociatedTypes,
-  getContentType,
-  getPluginName,
   TCoreModuleProducerContext,
   TSegmentProducers,
   TSegmentProducersInput,
 } from 'erxes-api-shared/core-modules';
-import {
-  fetchByQueryWithScroll,
-  getEsIndexByContentType,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
+import { evaluateSalesFields } from './evaluate';
+import { SALES_SEGMENT_FIELDS } from './fields';
+import { SALES_SEGMENT_RELATIONS } from './relations';
+import { countDealSegmentMembers, listDealSegmentMembers } from './members';
+import { applyDealSegmentMembership } from './membership';
 
 export const salesSegments = {
   dependentModules: salesSegmentConfigs.dependentModules,
 
   contentTypes: salesSegmentConfigs.contentTypes,
 
-  propertyConditionExtender: async (
-    {
-      condition,
-    }: TSegmentProducersInput[TSegmentProducers.PROPERTY_CONDITION_EXTENDER],
-    { models, subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    let positive;
-    let ignoreThisPostiveQuery;
+  segmentFields: SALES_SEGMENT_FIELDS,
 
-    const stageIds = await generateConditionStageIds(models, {
-      boardId: condition.config?.boardId,
-      pipelineId: condition.config?.pipelineId,
-    });
+  segmentRelations: SALES_SEGMENT_RELATIONS,
 
-    if (stageIds.length > 0) {
-      positive = {
-        terms: {
-          stageId: stageIds,
-        },
-      };
-    }
+  evaluateFields: async (
+    data: TSegmentProducersInput[TSegmentProducers.EVALUATE_FIELDS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => evaluateSalesFields(models, data),
 
-    if (condition.propertyName === 'stageProbability') {
-      const { propertyType, propertyValue } = condition || {};
+  listSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.LIST_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => listDealSegmentMembers(models, data),
 
-      const [_serviceName, contentType] = propertyType.split(':');
+  countSegmentMembers: async (
+    data: TSegmentProducersInput[TSegmentProducers.COUNT_MEMBERS],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => countDealSegmentMembers(models, data),
 
-      const stageIds = await models.Stages.find({
-        type: contentType,
-        probability: propertyValue,
-      })
-        .distinct('_id')
-        .lean();
-
-      positive = {
-        terms: {
-          stageId: stageIds,
-        },
-      };
-      ignoreThisPostiveQuery = true;
-    }
-
-    const productIds = await generateProductsCategoryProductIds(
-      subdomain,
-      condition,
-    );
-    if (productIds.length > 0) {
-      positive = {
-        bool: {
-          should: productIds.map((productId) => ({
-            match: { 'productsData.productId': productId },
-          })),
-        },
-      };
-
-      if (condition.propertyName == 'productsData.categoryId') {
-        ignoreThisPostiveQuery = true;
-      }
-    }
-
-    return { data: { positive, ignoreThisPostiveQuery }, status: 'success' };
-  },
-
-  associationFilter: async (
-    {
-      mainType,
-      propertyType,
-      positiveQuery,
-      negativeQuery,
-    }: TSegmentProducersInput[TSegmentProducers.ASSOCIATION_FILTER],
-    { subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
-
-    let ids: string[] = [];
-
-    if (associatedTypes.includes(propertyType)) {
-      const mainTypeIds = await fetchByQueryWithScroll({
-        subdomain,
-        index: await getEsIndexByContentType(propertyType),
-        positiveQuery,
-        negativeQuery,
-      });
-
-      ids = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        module: 'relation',
-        action: 'filterRelationIds',
-        input: {
-          contentType: getContentType(propertyType),
-          contentIds: mainTypeIds,
-          relatedContentType: getContentType(mainType),
-        },
-      });
-    } else {
-      const pluginName = getPluginName(propertyType);
-
-      if (pluginName === 'sales') {
-        return { data: [], status: 'error' };
-      }
-
-      ids = [];
-      await sendTRPCMessage({
-        subdomain,
-        pluginName,
-        module: 'segments',
-        action: 'associationFilter',
-        input: {
-          mainType,
-          propertyType,
-          positiveQuery,
-          negativeQuery,
-        },
-        defaultValue: [],
-      });
-    }
-
-    return ids;
-  },
-
-  esTypesMap: async (_input, _context) => {
-    return { data: { typesMap: {} }, status: 'success' };
-  },
-
-  initialSelector: async (
-    {
-      segment,
-      options,
-    }: TSegmentProducersInput[TSegmentProducers.INITIAL_SELECTOR],
-    { subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const models = await generateModels(subdomain);
-
-    let positive;
-
-    const config = segment.config || {};
-
-    const stageIds = await generateConditionStageIds(models, {
-      boardId: config.boardId,
-      pipelineId: config.pipelineId,
-      options,
-    });
-
-    if (stageIds.length > 0) {
-      positive = { terms: { stageId: stageIds } };
-    }
-
-    return { data: { positive }, status: 'success' };
-  },
+  applyMembership: async (
+    data: TSegmentProducersInput[TSegmentProducers.APPLY_MEMBERSHIP],
+    { models }: TCoreModuleProducerContext<IModels>,
+  ) => applyDealSegmentMembership(models, data),
 };

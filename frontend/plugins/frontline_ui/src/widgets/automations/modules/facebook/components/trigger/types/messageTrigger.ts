@@ -18,6 +18,10 @@ export type TMessageTriggerPersistentMenuIds = NonNullable<
   >['persistentMenuIds']
 >;
 
+export type TMessageTriggerIceBreakerIds = NonNullable<
+  Extract<TMessageTriggerCondition, { type: 'iceBreaker' }>['iceBreakerIds']
+>;
+
 export type TMessageTriggerSourceMode = NonNullable<
   Extract<TMessageTriggerCondition, { type: 'open_thread' }>['sourceMode']
 >;

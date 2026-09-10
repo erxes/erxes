@@ -45,7 +45,7 @@ export const PipelineDetail = () => {
           updatePipeline({
             variables: data,
             onCompleted: () => {
-              toast({ title: t('success'), variant: 'success' });
+              toast({ title: t('success', 'Success!'), variant: 'success' });
             },
           });
         })}
@@ -58,7 +58,7 @@ export const PipelineDetail = () => {
         </div>
         <div className="mt-5 flex justify-end border-t pt-5">
           <Button disabled={updating} type="submit">
-            {updating ? <Spinner /> : t('update')}
+            {updating ? <Spinner /> : t('update', 'Update')}
           </Button>
         </div>
       </form>

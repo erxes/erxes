@@ -39,12 +39,17 @@ export type IField = {
   configs?: TFieldSelectionConfig;
   selectionConfig?: TFieldSelectionConfig;
   validation?: unknown;
+  validations?: Record<string, unknown>;
   selectOptions?: Array<{ label: string; value: string }>;
   isVisible?: boolean;
   isVisibleToCreate?: boolean;
   isRequired?: boolean;
   isVisibleInCard?: boolean;
 };
+
+export interface IPropertyRow extends Record<string, unknown> {
+  _id: string;
+}
 
 export interface IFieldGroup {
   _id: string;

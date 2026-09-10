@@ -68,6 +68,13 @@ const ADJ_CLOSING_ACTIONS = {
   remove: 'removeAdjustClosings',
 } as const;
 
+const SAFE_REMAINDER_ACTIONS = {
+  read: 'readSafeRemainders',
+  manage: 'manageSafeRemainders',
+  remove: 'removeSafeRemainders',
+  viewItemCounts: 'viewSafeRemainderItemCounts',
+} as const;
+
 const CONFIG_ACTIONS = {
   read: 'readAccountingConfigs',
   manage: 'manageAccountingConfigs',
@@ -96,6 +103,7 @@ const allAdjFxaActions = Object.values(ADJ_FXA_ACTIONS);
 const allAdjFundRateActions = Object.values(ADJ_FUND_RATE_ACTIONS);
 const allAdjDebtRateActions = Object.values(ADJ_DEBT_RATE_ACTIONS);
 const allAdjClosingActions = Object.values(ADJ_CLOSING_ACTIONS);
+const allSafeRemainderActions = Object.values(SAFE_REMAINDER_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
 const allCheckSyncActions = Object.values(CHECK_SYNC_ACTIONS);
 const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
@@ -462,6 +470,38 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    // --- safeRemainder---
+    {
+      name: 'safeRemainder',
+      description: 'Safe remainder management',
+      scopes: [
+        { name: 'own', description: 'Safe remainders created by the user' },
+        { name: 'all', description: 'All safe remainders' },
+      ],
+      actions: [
+        {
+          title: 'View safe remainders',
+          name: SAFE_REMAINDER_ACTIONS.read,
+          description: 'View safe remainders and their item rows',
+          always: true,
+        },
+        {
+          title: 'Manage safe remainders',
+          name: SAFE_REMAINDER_ACTIONS.manage,
+          description: 'Create, update, submit, recalculate, and run safe remainders',
+        },
+        {
+          title: 'Remove safe remainders',
+          name: SAFE_REMAINDER_ACTIONS.remove,
+          description: 'Delete safe remainders and safe remainder items',
+        },
+        {
+          title: 'View safe remainder item counts',
+          name: SAFE_REMAINDER_ACTIONS.viewItemCounts,
+          description: 'View system item counts and use difference filters on safe remainder items',
+        },
+      ],
+    },
     // --- config---
     {
       name: 'config',
@@ -568,6 +608,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'accounting',
+          module: 'safeRemainder',
+          actions: [...allSafeRemainderActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
           module: 'config',
           actions: [...allConfigActions],
           scope: 'all',
@@ -642,6 +688,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'adjustClosing',
           actions: [ADJ_CLOSING_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'safeRemainder',
+          actions: [SAFE_REMAINDER_ACTIONS.read],
           scope: 'all',
         },
         {

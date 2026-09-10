@@ -25,4 +25,5 @@ export interface IFieldGroup {
   contentType: string;
   order: number;
   logics?: Record<string, unknown>;
+  configs?: { isMultiple?: boolean };
 }

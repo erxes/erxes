@@ -76,6 +76,12 @@ import {
 } from '~/modules/form/graphql/schema/field';
 
 import {
+  mutations as PollMutations,
+  queries as PollQueries,
+  types as PollTypes,
+} from '~/modules/poll/graphql/schema/poll';
+
+import {
   queries as ReportCallQueries,
   types as ReportCallTypes,
 } from '@/reports/graphql/schema/call';
@@ -109,6 +115,12 @@ import {
 } from '@/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs';
 
 import {
+  queries as HelpCenterConfigQueries,
+  mutations as HelpCenterConfigMutations,
+  types as HelpCenterConfigTypes,
+} from '@/helpcenter/graphql/schemas/helpCenterConfig';
+
+import {
   mutations as TicketMutations,
   queries as TicketQuery,
   types as TicketTypes,
@@ -140,7 +152,9 @@ export const types = `
     ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
+    ${PollTypes}
     ${KnowledgeBaseTypes}
+    ${HelpCenterConfigTypes}
   `;
 
 export const queries = `
@@ -163,7 +177,9 @@ export const queries = `
     ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
+    ${PollQueries}
     ${KnowledgeBaseQueries}
+    ${HelpCenterConfigQueries}
     ${CpInboxQueries}
   `;
 
@@ -182,7 +198,9 @@ export const mutations = `
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
+   ${PollMutations}
    ${KnowledgeBaseMutations}
+   ${HelpCenterConfigMutations}
    ${CpInboxMutations}
    ${ReportChartMutations}
    ${ReportFacebookMutations}

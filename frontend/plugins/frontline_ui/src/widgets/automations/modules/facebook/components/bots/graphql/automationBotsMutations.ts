@@ -15,6 +15,11 @@ const FACEBOOK_BOT_MUTATION_FIELDS = `
     type
     link
   }
+  iceBreakers {
+    _id
+    question
+  }
+  getStartedText
   greetText
   handoffMessage
   automationActiveMessage
@@ -36,6 +41,8 @@ const FACEBOOK_BOT_PARAMS = `
   $accountId: String,
   $pageId: String,
   $persistentMenus: [BotPersistentMenuInput],
+  $iceBreakers: [BotIceBreakerInput],
+  $getStartedText: String,
   $greetText: String,
   $handoffMessage: String,
   $automationActiveMessage: String,
@@ -50,6 +57,8 @@ const FACEBOOK_BOT_PARAMS_DEF = `
   accountId: $accountId,
   pageId: $pageId,
   persistentMenus: $persistentMenus,
+  iceBreakers: $iceBreakers,
+  getStartedText: $getStartedText,
   greetText: $greetText,
   handoffMessage: $handoffMessage,
   automationActiveMessage: $automationActiveMessage,

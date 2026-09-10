@@ -3,6 +3,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { Db, MongoClient } from 'mongodb';
+import { nanoid } from 'nanoid';
+import { toPropertyGroupKey } from 'erxes-api-shared/core-modules';
 
 const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
   process.env;
@@ -84,7 +86,7 @@ const toObject = (contentType, document, fields, groups) => {
   const propertiesData = {};
 
   for (const customField of customFieldsData || []) {
-    let field = fields.find((field) => field._id === customField.field);
+    const field = fields.find((field) => field._id === customField.field);
 
     if (!field) {
       console.log(
@@ -153,7 +155,10 @@ const toObject = (contentType, document, fields, groups) => {
         }
 
         if (values.length) {
-          propertiesData[group._id] = values;
+          propertiesData[toPropertyGroupKey(group._id)] = values.map((row) => ({
+            ...row,
+            _id: nanoid(),
+          }));
         }
       }
 

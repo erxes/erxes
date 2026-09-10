@@ -3,7 +3,6 @@ import { BROADCAST_CUSTOMERS_COUNT } from '../graphql/queries';
 
 export enum CUSTOMER_RELATION_TYPE {
   TAG = 'TAG',
-  BRAND = 'BRAND',
 }
 
 export const useBroadcastChooser = ({

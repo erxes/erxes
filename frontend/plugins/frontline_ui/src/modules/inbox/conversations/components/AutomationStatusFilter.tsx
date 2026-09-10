@@ -66,7 +66,7 @@ export const AutomationStatusFilterItem = () => {
   return (
     <Filter.Item value="automationStatus">
       <IconRobot />
-      {t('automation-status')}
+      {t('automation-status', 'Automation status')}
     </Filter.Item>
   );
 };
@@ -103,7 +103,7 @@ export const AutomationStatusFilterBar = ({
     <Filter.BarItem queryKey="automationStatus">
       <Filter.BarName>
         <IconRobot />
-        {!iconOnly && t('automation-status')}
+        {!iconOnly && t('automation-status', 'Automation status')}
       </Filter.BarName>
       <Popover>
         <Popover.Trigger asChild>

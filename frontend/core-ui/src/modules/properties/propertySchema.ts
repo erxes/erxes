@@ -4,6 +4,11 @@ export const propertyGroupSchema = z
   .object({
     name: z.string().min(1, 'Group name is required'),
     code: z.string().optional(),
+    isMultiple: z
+      .boolean()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? false),
   })
   .transform((data) => ({
     ...data,
@@ -43,7 +48,14 @@ export const propertySchema = z
     groupId: z.string().min(1, 'Group is required'),
     type: z.string().min(1, 'Type is required'),
     relationType: z.string().optional(),
-    validation: z.string().optional(),
+    validations: z
+      .object({
+        number: z.boolean().optional(),
+        email: z.boolean().optional(),
+        date: z.boolean().optional(),
+      })
+      .nullable()
+      .optional(),
     isSearchable: z.boolean().default(false),
     isVisible: z
       .boolean()
