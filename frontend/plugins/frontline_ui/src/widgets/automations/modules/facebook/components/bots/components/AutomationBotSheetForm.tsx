@@ -37,9 +37,13 @@ export const AutomationBotSheetForm = () => {
           </Button>
         </Sheet.Trigger>
         <Sheet.View
-          className={cn('transition-all duration-300 ease-in-out', {
-            'sm:max-w-lg h-[calc(100dvh-4rem)] inset-y-8': isOpenSecondarySheet,
-          })}
+          className={cn(
+            'transition-all duration-300 ease-in-out sm:max-w-none w-[calc(100vw-1rem)] md:w-[92vw]',
+            {
+              'sm:max-w-lg md:w-3/4 h-[calc(100dvh-4rem)] inset-y-8':
+                isOpenSecondarySheet,
+            },
+          )}
         >
           {isOpen && <AutomationBotForm facebookBotId={facebookBotId} />}
         </Sheet.View>

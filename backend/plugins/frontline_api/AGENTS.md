@@ -879,6 +879,19 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   interaction, an already-open window, or a valid tag.
 - Comment-triggered Facebook automations never send `typing_on`, including bot
   sequence steps after the initial private reply.
+- `FACEBOOK_GRAPH_URL` redirects every Graph call to a stand-in through
+  `fbgraph`'s `setGraphUrl`. It exists so the outbox, pacing and breaker can be
+  load tested without a page absorbing the traffic — Meta enforces per page,
+  and a stress run against a real one is what gets it restricted. Unset in any
+  deployment.
+- `POST /facebook/receive` answers every webhook it accepts, including one it
+  ignores or cannot classify. Falling through without a response leaves the
+  request open and makes Facebook redeliver the same event.
+- A public comment reply carries the `@[senderId]` mention only when its action
+  sets `mentionSender`. The mention was unconditional for years, which tagged
+  every commenter publicly whether the automation wanted it or not; the outbox
+  document carries the flag so a queued reply keeps the setting it was created
+  with.
 - In `sendReply`, request-level Graph error codes (`1`, `10`, `100`, `10900`)
   must not flip `FacebookIntegrations.healthStatus` to a token state — only
   genuine token and permission failures may.
@@ -1074,6 +1087,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ConversationMessages` model validates the parent against its own
   conversations collection, so a crossed model fails at write time with
   `Conversation not found with id ...` after the message has already been sent.
+- `checkContentConditions` ORs its conditions: each entry is another way for the
+  same trigger to answer, so adding one widens the match. Every branch must
+  keep returning a boolean rather than falling out of the loop — the original
+  returned inside the `switch`, so only the first condition was ever read and a
+  second one silently did nothing. A condition holding no keyword matches
+  nothing; `every` over an empty list is `true`, which made a half-filled rule
+  answer every message. Keyword text is never compiled into a `RegExp`: a
+  comment rule holding a bracket or a plus threw and took the whole trigger
+  check down with it.
 - Status permissions are three separate rules and must stay separate.
   `Status.memberIds` (with `visibilityType: 'private'`) decides who may **see**
   the status, `canMoveMemberIds` who may move tickets **across** it, and
@@ -1644,37 +1666,43 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `Survey.steps` and `SurveyResults.steps` are new non-null fields; `surveyAdd` and
   `surveyEdit` accept `steps` and no longer require `question` or `options`.
 
-### `2026-09-07` — A help center points at the knowledge base topic it serves
+### `2026-09-09` — Graph calls can be pointed at a stand-in
 
-- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
-  center can name which other topic supplies its articles instead of only
-  toggling the feature on with a menu label.
-- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
-  `KnowledgeBaseTopicDoc` accepts it.
+- **Summary:** The comment outbox had no way to be exercised without sending to
+  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
+  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
+  two paths that returned without answering the request now end it.
+- **Affected areas:**
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`,
+  `src/modules/integrations/facebook/helpers.ts`
+- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
+  empty by default.
 
-### `2026-09-07` — Surveys pin their messenger integration by brand
+### `2026-09-09` — The bot reports which replies it repeats
 
-- **Summary:** A survey can now carry a `brandId`; the client-portal submit path and
-  `surveySendToConversation` honour it, and create/update refuse a brand that has no
-  active messenger integration in the survey's channel — removing the arbitrary
-  `findOne` pick on a channel with several messenger integrations.
-- **Affected areas:** `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
-  `src/modules/survey/graphql/schema/survey.ts`,
-  `src/modules/survey/graphql/resolvers/mutations/{surveys.ts,clientPortal.ts}`.
-- **Contracts changed:** Added `brandId: String` to `surveyAdd`, `surveyEdit` and the
-  `Survey` type.
+- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
+  bot surface could say two replies were sent but not what they were;
+  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
+  returns each one's totals, newest failure, last use and the posts it ran
+  under — named by the post's own text from `FacebookPostConversations`, since
+  the outbox only records an id.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
+  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
+- **Contracts changed:** New `FacebookBotCommentReplyStat` and
+  `FacebookBotCommentReplyPost` types and
+  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
+  capped at 50 rows.
 
-### `2026-09-07` — Guest voting on the client portal survey surface
+### `2026-09-09` — The comment reply mention became opt-in
 
-- **Summary:** All four `cpSurvey*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a survey;
-  `cpSurveySubmit` gives a guest a `state: 'visitor'` customer and reuses it on
-  return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/survey/graphql/schema/survey.ts`, `src/modules/survey/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpSurveyDetail`,
-  `cpSurveyVotes`, `cpSurveySubmit` and `cpSurveyVote`. Both client-portal survey
-  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
+- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
+  the Send comment action now carries a `mentionSender` flag, stored on the
+  outbox document, and the mention goes out only when it is set.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean; automations without it stop mentioning.
