@@ -64,6 +64,8 @@
   parses numeric message tokens as exact strings, acknowledges webhook checks,
   and rejects malformed message payloads. No Viber HTTP route is mounted, and
   valid messages are not yet persisted or acknowledged by this receiver.
+  A tenant-scoped customer-mapping model is registered, but the receiver does
+  not yet use it to resolve or create Core customers.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -160,9 +162,11 @@ and their colocated tests.
 `controller/receiveMessage.ts` contains the unmounted callback validation path;
 its colocated tests mock tenant lookup while using the real signature and parser
 utilities.
-`@types/` and `db/` hold document types, schema definitions, and the model loader.
-`src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
-connection. `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
+`@types/` and `db/` hold document types, schema definitions, and model loaders;
+customer schema tests live in `db/definitions/__tests__/`.
+`src/connectionResolvers.ts` registers `ViberIntegrations` and `ViberCustomers`
+on the supplied tenant connection.
+`src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
 dispatches Viber creation and removal through `sendCreateIntegration` and
 `sendRemoveIntegration`.
 
@@ -502,6 +506,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and required `inboxId`, `botId`, and `token` fields. The schema declares
   separate unique indexes on `inboxId` and `botId`; `inboxId` references the
   generic Frontline integration, not a channel or conversation.
+- `viber_customers` (`models.ViberCustomers`) maps required `inboxId` and Viber
+  `userId` to a required Core customer `contactsId`, with a generated string
+  `_id` for the mapping itself. The schema declares a compound unique index on
+  `{ inboxId: 1, userId: 1 }`, not uniqueness on either field alone.
 - `frontline_polls` — poll definitions with an indexed `channelId` and embedded
   `options` that carry their own nanoid `_id`. `frontline_poll_votes` — one document per voter per poll
   message, with a unique `(messageId, voterId)` index so a repeat vote replaces
@@ -671,6 +679,10 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber tokens use `select: false`, which is a default query projection, not
   encryption or protection for a newly created document. The creation helper
   returns `Promise<void>`, never the token-containing document.
+- Viber customer mappings belong to the supplied tenant connection and are
+  identified by the inbox/user pair. `contactsId` references a Core-owned
+  customer; it is neither the Viber sender id nor the mapping's string `_id`.
+  Schema index declarations do not prove an index has been built in MongoDB.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1506,13 +1518,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   credentials, network, or project-wide test configuration are required.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
-- All saved Viber utility and receiver tests, from the repository root:
-  `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{utils,controller}/__tests__/*.spec.ts`.
+- All saved Viber utility, receiver, and customer schema tests, from the
+  repository root:
+  `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{utils,controller,db/definitions}/__tests__/*.spec.ts`.
   Receiver tests use the existing plugin aliases and replace only the shared
   tenant lookup and model-loader imports in the CommonJS cache. They restore
   those entries and the receiver entry after each test, remain non-concurrent,
   and use real signature verification and raw-body parsing. No live database,
   server, or bot token is required; successful message persistence is not covered.
+- Viber customer schema tests use real Mongoose with no database connection.
+  They replace the shared utilities import with a deterministic string-id
+  definition to avoid starting infrastructure clients, restoring cache entries
+  after each test. Coverage includes the schema loader, required fields, shared
+  id-definition wiring, document id typing, and the compound unique-index
+  declaration. Actual id randomness, tenant database loading, and database
+  duplicate-key enforcement are not covered by these offline tests.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1559,6 +1579,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-10` — Viber customer mapping model
+
+- **Summary:** Registered a tenant-scoped Viber-to-Core customer mapping model
+  with required fields, a compound unique-index declaration, and schema tests.
+- **Affected areas:** `src/modules/integrations/viber/{@types/customer.ts,db/}`,
+  `src/connectionResolvers.ts`.
+- **Contracts changed:** Added internal `IModels.ViberCustomers` backed by
+  `viber_customers`; no HTTP or GraphQL contract changed.
 
 ### `2026-09-10` — Viber receiver validation coverage
 
@@ -1648,15 +1677,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
 - **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
   `Poll` type.
-
-### `2026-09-07` — Guest voting on the client portal poll surface
-
-- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
-  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
-  return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
-  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
-  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
