@@ -1,4 +1,4 @@
-name: HELP-CENTER CI
+name: help-center-ci
 
 on:
   push:
