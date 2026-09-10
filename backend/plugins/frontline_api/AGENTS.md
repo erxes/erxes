@@ -637,6 +637,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `cpTicketGetNotes` is the customer's view of a ticket, so a resolver added
   beside it that returns notes has to carry the same filter; the agent-side
   toggle is presentation and cannot be relied on to keep one hidden.
+- Every GraphQL type this plugin declares must be prefixed with the plugin or
+  module name. A bare name is merged by federation as a value type with the
+  identically named type in another subgraph, and the two must then stay
+  field-for-field identical forever or the supergraph stops composing. The
+  ticket note type is `TicketNote` for exactly that reason: `operation_api`
+  declares its own `Note`, so adding `attachments`/`isInternal` here broke
+  `updateNote` at the gateway. A rename like that must sweep every schema in the
+  plugin - `modules/inbox/graphql/schemas/widget.ts` returns the ticket note
+  too, and a missed reference fails the subgraph at boot with `Unknown type`.
 - A help center's general settings and appearance belong to
   `frontline_help_center_configs`, never to a knowledge base topic. The
   knowledge base owns article content; a config points at the topic it publishes
@@ -1564,6 +1573,21 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
+
+- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
+  merged by federation with the `Note` value type `operation_api` declares, so
+  the `attachments` and `isInternal` fields only this subgraph has left
+  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
+  the supergraph.
+- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
+  `src/modules/inbox/graphql/schemas/widget.ts`
+- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
+  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
+  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
+  instead of `Note`. Field names and arguments are unchanged, so a document that
+  selects fields without naming the type needs no edit.
+
 ### `2026-09-10` — The help center search escape uses a raw string
 
 - **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
@@ -1701,14 +1725,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
   `attachments: [AttachmentInput]`; the `Note` type exposes
   `attachments: [Attachment]`.
-
-### `2026-09-07` — A help center points at the knowledge base topic it serves
-
-- **Summary:** The knowledge base topic gained a `kbTopicId` field, so a help
-  center can name which other topic supplies its articles instead of only
-  toggling the feature on with a menu label.
-- **Affected areas:** `src/modules/knowledgebase/db/definitions/topic.ts`,
-  `src/modules/knowledgebase/@types/topic.ts`,
-  `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
-- **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
-  `KnowledgeBaseTopicDoc` accepts it.
