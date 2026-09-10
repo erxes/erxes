@@ -32,7 +32,7 @@ const useActionButton = (accountId?: string) => {
   };
 
   return {
-    text: isLastStep ? t('save') : t('next-step'),
+    text: isLastStep ? t('save', 'Save') : t('next-step', 'Next step'),
     disabled:
       activeStep === 2
         ? !selectedAccountId || !selectedPageId
@@ -66,7 +66,7 @@ export const FacebookBotPageSelectorSteps = ({
             STEP {activeStep}
           </Badge>
           <h2 className="text-primary font-semibold text-base">
-            {t('connect-page')}
+            {t('connect-page', 'Connect Page')}
           </h2>
         </div>
 
@@ -86,7 +86,7 @@ export const FacebookBotPageSelectorSteps = ({
             ))}
           </div>
           <div className="text-xs text-accent-foreground">
-            {t('select-page-to-link-bot')}
+            {t('select-page-to-link-bot', 'Select a page to link your bot to.')}
           </div>
         </div>
         {activeStep === 1 && (
@@ -101,7 +101,7 @@ export const FacebookBotPageSelectorSteps = ({
           onClick={() => setStep(1)}
           disabled={activeStep === 1}
         >
-          {t('previous-step')}
+          {t('previous-step', 'Previous step')}
         </Button>
         <Button onClick={onClick} disabled={disabled}>
           {text}

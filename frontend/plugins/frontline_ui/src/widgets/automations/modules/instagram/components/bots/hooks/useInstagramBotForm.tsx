@@ -47,7 +47,7 @@ export const useInstagramBotSave = () => {
       awaitRefetchQueries: true,
       onCompleted: () => {
         toast({
-          title: t('save-successful'),
+          title: t('save-successful', 'Save successful'),
         });
 
         setOpenSecondarySheet(false);
@@ -58,7 +58,7 @@ export const useInstagramBotSave = () => {
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: t('something-went-wrong'),
+          title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
           description: error?.message,
         });
       },

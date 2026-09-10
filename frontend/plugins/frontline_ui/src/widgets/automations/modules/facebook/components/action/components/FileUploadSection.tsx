@@ -117,13 +117,18 @@ export const FileUploadSection = ({
           <div className="flex flex-col gap-2 items-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <Label className="text-sm text-muted-foreground">
-              {t('uploading')}
+              {t('uploading', 'Uploading...')}
             </Label>
           </div>
         ) : (
           <>
             <IconPhotoScan className="w-24 h-24 text-accent-foreground" />
-            <Label>{t('drag-drop-or-upload')}</Label>
+            <Label>
+              {t(
+                'drag-drop-or-upload',
+                'Drag and Drop, choose from your Media library or upload',
+              )}
+            </Label>
           </>
         )}
       </label>

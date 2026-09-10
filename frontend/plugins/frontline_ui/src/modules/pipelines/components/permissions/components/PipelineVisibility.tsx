@@ -20,7 +20,7 @@ export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
         render={({ field }) => (
           <Form.Item className="space-y-0">
             <Form.Label className="sr-only">
-              {t('pipeline-visibility')}
+              {t('pipeline-visibility', 'Pipeline Visibility')}
             </Form.Label>
             <Form.Control>
               <ToggleGroup
@@ -31,10 +31,10 @@ export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
                 variant="outline"
               >
                 <ToggleGroup.Item className="px-4" value="public">
-                  {t('public')}
+                  {t('public', 'Public')}
                 </ToggleGroup.Item>
                 <ToggleGroup.Item className="px-4" value="private">
-                  {t('private')}
+                  {t('private', 'Private')}
                 </ToggleGroup.Item>
               </ToggleGroup>
             </Form.Control>
@@ -48,7 +48,7 @@ export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
           name="memberIds"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('team-members')}</Form.Label>
+              <Form.Label>{t('team-members', 'Team Members')}</Form.Label>
               <Form.Control>
                 <SelectMember.Provider
                   value={field.value || []}
@@ -60,7 +60,10 @@ export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
                   <PopoverScoped>
                     <Combobox.Trigger className="w-full">
                       <SelectMember.Value
-                        placeholder={t('select-team-members')}
+                        placeholder={t(
+                          'select-team-members',
+                          'Select team members',
+                        )}
                       />
                     </Combobox.Trigger>
                     <Combobox.Content>

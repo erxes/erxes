@@ -41,7 +41,7 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
       <DropdownMenu.Content side="bottom" align="start">
         <DropdownMenu.Item onSelect={() => setSubmissionId(_id)}>
           <IconEdit />
-          {t('edit')}
+          {t('edit', 'Edit')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -57,7 +57,7 @@ export const CheckboxCell = ({ value }: { value: string[] }) => {
     <RecordTableInlineCell>
       <Badge className="rounded-lg" variant={'info'}>
         <IconCheckbox size={12} />
-        {t('n-selected', { count: value.length })}
+        {t('n-selected', '{{count}} selected', { count: value.length })}
       </Badge>
     </RecordTableInlineCell>
   );
@@ -87,7 +87,9 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     header: () => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { t } = useTranslation('frontline');
-      return <RecordTable.InlineHead label={t('submitted-at')} />;
+      return (
+        <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
+      );
     },
     cell: (cell) => {
       const value = cell.getValue() as string | undefined;
@@ -188,7 +190,9 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
             ) : (
               <Badge variant="info" className="rounded-lg">
                 <IconCheckbox size={12} />
-                {t('n-selected', { count: options.length })}
+                {t('n-selected', '{{count}} selected', {
+                  count: options.length,
+                })}
               </Badge>
             )}
           </RecordTableInlineCell>

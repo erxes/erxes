@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-09-02`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -26,6 +26,7 @@
 
 - Creates, updates, removes, links, prints, and reports accounting transactions across main, cash, bank, receivable, payable, tax, inventory, fixed asset, and exchange-difference journals.
 - Permission metadata exposes VAT and CTAX row access through one `taxRow` module, exposes inventory/fixed-asset/fund-rate/debt-rate/closing adjustments as separate modules, and gates transaction reads/mutations by source journal while allowing generated follow journals, including `exchangeDiff`, through the source journal's permission.
+- Permission metadata exposes safe remainder read, manage, remove, and system-count visibility actions; users without count visibility see safe remainder item system counts as zero and cannot apply difference filters.
 - Fixed asset income transaction details create or update acquisition-backed fixed asset records from detail category, code, name, account, quantity, unit cost, and category depreciation defaults; multiple income details with the same acquisition code reuse one fixed asset and store acquisition quantity/cost from the supplied migration totals.
 - Fixed asset categories store default annual depreciation percentages; fixed asset income copies the category's annual rate onto the generated fixed asset, and straight-line depreciation turns the annual percentage into monthly depreciation prorated by each month's day count.
 - Fixed asset income detail follow-info inputs store residual value and opening accumulated depreciation; opening depreciation values seed a transaction-linked published fixed asset adjustment independent of owner assignment rows.
@@ -37,6 +38,7 @@
 - Fixed asset adjustment depreciation calculates straight-line, sum-of-years-digits, double-declining-balance, and declining-balance methods by day from transaction detail movements, caches period-end rows in `adjust_fxa_details`, and allocates depreciation by active branch/department quantity while ignoring responsible-user allocation.
 - Stores related debit/credit account codes without nested subdocument ids, normalizes empty related-account overrides before transaction persistence, and recalculates related codes from all transactions sharing the same `ptrId`.
 - Provides account, account category, permission, tax row, inventory, fixed asset, and journal report GraphQL contracts.
+- Provides safe remainder GraphQL list, detail, item list/count, create, edit, remove, recalculate, submit, cancel, transaction-run, transaction-undo, item edit, item bulk edit, and item remove contracts guarded by safe remainder permissions.
 - Generates journal report transaction/detail filters, Erkhet transaction-kind to erxes journal filters, grouping keys, date buckets, line records, and account/customer/product/fixed-asset/user/content enrichment from shared `ReportBase` definitions whose main entrypoints mirror Erkhet names such as `getFilter`, `getRecords`, `recordListWithValues`, and `getGroupRule`.
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
@@ -77,6 +79,7 @@
 - GraphQL query `getAccLastIncomePrice(productIds: [String]): JSON`, returning each requested product's last completed inventory income unit price or `0`.
 - GraphQL query `fixedAssetLocationRemainder(fixedAssetId, branchId, departmentId, date, excludeTransactionId)`, returning the transaction-history quantity for one fixed asset at one branch/department location.
 - GraphQL query `fixedAssetLocationRemainders(searchValue, fixedAssetId, categoryId, branchId, departmentId, date, limit)`, returning positive fixed asset quantities grouped by fixed asset, branch, and department.
+- Permission actions `readSafeRemainders`, `manageSafeRemainders`, `removeSafeRemainders`, and `viewSafeRemainderItemCounts` under the `safeRemainder` module.
 - Fixed asset category GraphQL contracts expose `defaultAnnualDepreciationRate` and `defaultTaxAnnualDepreciationRate`; fixed asset contracts expose `annualDepreciationRate` and `taxAnnualDepreciationRate`. Useful-life years are derived UI/helper values only and are not persisted by the accounting API.
 - GraphQL query `fxaOwnerRecords(searchValue, ids, fixedAssetIds, fixedAssetId, categoryId, action, status, ownerId, balanceOnly, createdFrom, createdTo, transactionId, page, perPage, limit)`, returning owner-record ledger rows or fixed asset/owner balance rows when `balanceOnly` is true.
 - GraphQL mutations `fixedAssetOwnerRecordsAdd`, `fixedAssetOwnerRecordsTransfer`, and `fixedAssetOwnerRecordsRemove`, allowing direct responsible-user owner record receive, transfer, cancel, and cleanup operations without creating accounting transactions.
@@ -133,6 +136,7 @@
 - Erkhet reference migration is the only product, worker-user, exchange-rate, and fixed-asset category bootstrap path; transaction migration must not create products, users, exchange rates, or fixed asset categories and must strip obsolete detail follow-info keys before persistence.
 - Erkhet fixed asset category `dep_year` means annual depreciation percentage and must be sent to `/pl:accounting/migration/erkhet/references` as `defaultAnnualDepreciationRate`, never as useful life.
 - Inventory price lookup must use completed business-active inventory income transactions and default missing product prices to `0`.
+- Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Inventory adjustment outgoing-cost fixes may adjust only related debit transactions in `main`, `receivable`, and `payable` journals; cash and bank debit amounts are explicit payment amounts and must not be rewritten by cost recalculation.
 - Inventory adjustment grouping must use detail-level branch/department when present and fall back to transaction root branch/department so mixed-location transaction rows cost against the correct location.
 - Journal report filters that target transaction details must be applied after `$unwind` so unrelated detail rows from the same transaction are not included in report sums.
@@ -167,6 +171,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — `Safe Remainder Permissions`
+
+- **Summary:** Added safe remainder read/manage/remove permissions, guarded safe remainder queries and mutations, and masked item system counts plus difference filters behind a separate count visibility permission.
+- **Affected areas:** `src/meta/permissions.ts`, `src/modules/inventories/graphql/resolvers`.
+- **Contracts changed:** Adds `readSafeRemainders`, `manageSafeRemainders`, `removeSafeRemainders`, and `viewSafeRemainderItemCounts` permission actions.
+
+### `2026-09-09` — `Safe Remainder Difference Filter`
+
+- **Summary:** Safe remainder item difference filtering now maps `gt`, `lt`, `eq`, and `ne` explicitly to Mongo `$expr` comparisons against actual count versus previous count.
+- **Affected areas:** `src/modules/inventories/graphql/resolvers/queries/safeRemainderItems.ts`.
+- **Contracts changed:** None.
 
 ### `2026-09-02` — `Permission Modules And Journal Guards`
 
@@ -215,15 +231,3 @@
 - **Summary:** Fixed asset move follow transactions now allow destination department-only mappings while still rejecting completely empty destinations.
 - **Affected areas:** `src/modules/accounting/utils/fxaMove.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
 - **Contracts changed:** None.
-
-### `2026-08-31` — `Fixed Asset Income Partial Owners`
-
-- **Summary:** Fixed asset income owner-record validation now allows partial owner assignment while still rejecting owner counts above the detail quantity.
-- **Affected areas:** `src/modules/accounting/utils/fxaIncome.ts`, `src/modules/accounting/utils/__tests__/fixedAssets.test.ts`.
-- **Contracts changed:** None.
-
-### `2026-08-31` — `Erkhet Inventory And Currency Follow Accounts`
-
-- **Summary:** Erkhet transaction migration now resolves inventory sale, movement, and currency-difference account codes from follow info before delegating to journal handlers.
-- **Affected areas:** `src/modules/accounting/routes/erkhetMigration.ts`, `src/modules/accounting/utils/invMove.ts`.
-- **Contracts changed:** `/pl:accounting/migration/erkhet/transactions` accepts `followInfos.saleOutAccountId`, `followInfos.saleCostAccountId`, inventory movement `followInfos.moveInAccountId`, `followInfos.moveInBranchId`, `followInfos.moveInDepartmentId`, and detail `followInfos.currencyDiffAccountId` as source codes.

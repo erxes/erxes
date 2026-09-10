@@ -3,10 +3,17 @@ import {
   IconMessage,
   IconMessages,
   IconRocket,
+  IconSnowflake,
 } from '@tabler/icons-react';
 
+/**
+ * An empty operator falls through `checkContentConditions` and never matches,
+ * so a new condition starts on a real one.
+ */
+export const DEFAULT_DIRECT_MESSAGE_OPERATOR = 'isEqual';
+
 export const DIRECT_MESSAGE_OPERATOR_TYPES = [
-  { label: 'Is Equal to', value: 'isEqual' },
+  { label: 'Is Equal to', value: DEFAULT_DIRECT_MESSAGE_OPERATOR },
   { label: 'Is Contains', value: 'isContains' },
   { label: 'Is Every keywords includes', value: 'every' },
   { label: 'Is Some keywords includes', value: 'some' },
@@ -26,6 +33,12 @@ export const MESSAGE_TRIGGER_CONDITIONS = [
     label: 'Persistent menu',
     icon: IconMenu2,
     description: 'User click on persistent menu on the messenger',
+  },
+  {
+    type: 'iceBreaker',
+    label: 'Ice breaker',
+    icon: IconSnowflake,
+    description: 'User taps an ice breaker on the bot welcome screen',
   },
   {
     type: 'direct',

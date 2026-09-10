@@ -56,7 +56,7 @@ export const TicketWidgetCard = ({ ticket }: { ticket: ITicket }) => {
           <div className="flex flex-col gap-1">
             <h5 className="font-semibold">{name}</h5>
             <div className="text-accent-foreground uppercase">
-              {t('ticket-number', { number })}
+              {t('ticket-number', 'Ticket #{{number}}', { number })}
             </div>
           </div>
           <div className="flex flex-wrap gap-1">

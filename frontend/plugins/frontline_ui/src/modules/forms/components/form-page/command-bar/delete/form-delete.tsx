@@ -31,13 +31,13 @@ export const FormDelete = ({
               row.toggleSelected(false);
             });
             toast({
-              title: t('success'),
+              title: t('success', 'Success!'),
               variant: 'success',
               description: t('forms-deleted', { count: formIds.length }),
             });
           } catch (e: any) {
             toast({
-              title: t('error'),
+              title: t('error', 'Error'),
               description: e.message,
               variant: 'destructive',
             });
@@ -46,7 +46,7 @@ export const FormDelete = ({
       }
     >
       {loading ? <Spinner /> : <IconTrash />}
-      {t('delete')}
+      {t('delete', 'Delete')}
     </Button>
   );
 };

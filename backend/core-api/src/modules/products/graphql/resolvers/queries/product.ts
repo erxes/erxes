@@ -354,9 +354,8 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories = await models.ProductCategories.getChildCategories(
-      categoryIds,
-    );
+    const categories =
+      await models.ProductCategories.getChildCategories(categoryIds);
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -375,17 +374,20 @@ const generateFilter = async (
   }
 
   if (tagIds) {
-    const baseTagIds: Set<string> = new Set(tagIds);
-
     if (tagWithRelated) {
       const tagObjs = await models.Tags.find({ _id: { $in: tagIds } }).lean();
+      const tagsById = new Map(tagObjs.map((tag) => [tag._id, tag]));
 
-      for (const tag of tagObjs) {
-        (tag.relatedIds || []).forEach((id) => baseTagIds.add(id));
-      }
+      andFilters.push(
+        ...tagIds.map((tagId) => ({
+          tagIds: {
+            $in: [tagId, ...(tagsById.get(tagId)?.relatedIds || [])],
+          },
+        })),
+      );
+    } else {
+      andFilters.push({ tagIds: { $all: tagIds } });
     }
-
-    andFilters.push({ tagIds: { $in: Array.from(baseTagIds) } });
   }
 
   if (excludeTagIds?.length) {
@@ -781,9 +783,8 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         );
       };
 
-      const similarityGroups = await models.ProductsConfigs.getConfig(
-        'similarityGroup',
-      );
+      const similarityGroups =
+        await models.ProductsConfigs.getConfig('similarityGroup');
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(

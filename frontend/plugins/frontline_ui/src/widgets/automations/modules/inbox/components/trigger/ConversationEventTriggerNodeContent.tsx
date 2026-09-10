@@ -19,8 +19,8 @@ export const ConversationEventTriggerNodeContent = ({
   if (!conditions.length) {
     return (
       <AutomationNodeMetaInfoRow
-        fieldName={t('events')}
-        content={t('empty-summary')}
+        fieldName={t('events', 'Events')}
+        content={t('empty-summary', 'No events selected')}
       />
     );
   }
@@ -40,7 +40,7 @@ export const ConversationEventTriggerNodeContent = ({
           <div key={condition._id}>
             <AutomationNodeMetaInfoRow
               fieldName={group ? t(group.labelKey) : condition.type}
-              content={actions || t('empty-summary')}
+              content={actions || t('empty-summary', 'No events selected')}
             />
             {group?.targetLabelKey ? (
               <AutomationNodeMetaInfoRow
@@ -49,13 +49,13 @@ export const ConversationEventTriggerNodeContent = ({
                   group.type === 'assignee' ? (
                     <ConversationEventAssigneeTargetContent
                       targetIds={targetIds}
-                      emptyText={t('empty-summary')}
-                      loadingText={t('loading-summary')}
+                      emptyText={t('empty-summary', 'No events selected')}
+                      loadingText={t('loading-summary', 'Loading...')}
                     />
                   ) : targetIds.length ? (
                     targetIds.join(', ')
                   ) : (
-                    t('empty-summary')
+                    t('empty-summary', 'No events selected')
                   )
                 }
               />

@@ -38,7 +38,7 @@ export const ChooseChannel = ({
   if (!visibleChannels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        {emptyMessage ?? t('no-channels-found')}
+        {emptyMessage ?? t('no-channels-found', 'No channels found')}
       </div>
     );
 

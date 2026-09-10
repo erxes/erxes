@@ -143,7 +143,9 @@ export const TicketStatusSummary = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data')}</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>{error.message}</Alert.Description>
           </Alert>
         </FrontlineCard.Content>

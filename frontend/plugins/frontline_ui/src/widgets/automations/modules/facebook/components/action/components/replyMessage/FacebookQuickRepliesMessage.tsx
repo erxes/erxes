@@ -34,7 +34,7 @@ export const FacebookQuickRepliesMessage = ({
           return (
             <Form.Item>
               <Form.Label className="flex flex-row justify-between">
-                {t('quick-replies')}
+                {t('quick-replies', 'Quick replies')}
                 <InputTextCounter count={field.value?.length || 0} limit={13} />
               </Form.Label>
               <Form.Control>
@@ -45,7 +45,7 @@ export const FacebookQuickRepliesMessage = ({
                   addButtonContent={
                     <>
                       <IconPlus />
-                      {t('add-quick-reply')}
+                      {t('add-quick-reply', 'add quick reply')}
                     </>
                   }
                   ContentBeforeInput={QuickReplyImageUploader}

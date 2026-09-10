@@ -119,6 +119,9 @@ export const facebookConstants = {
       icon: 'IconBrandFacebook',
       label: 'Send Facebook Comment',
       description: 'Send Facebook Comments',
+      // Public replies are paced through an outbox, and the private reply that
+      // follows must not wait behind them.
+      deferred: { enable: true, mode: 'ignore' as const, timeoutMinutes: 60 },
       output: facebookCommentActionOutput,
     },
   ],

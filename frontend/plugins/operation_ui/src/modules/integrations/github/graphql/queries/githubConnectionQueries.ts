@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client';
 
-export const GET_GITHUB_CONNECTION = gql`
-  query GithubConnection {
-    getGithubConnection {
+export const GET_GITHUB_CONNECTIONS = gql`
+  query operationGithubConnections {
+    getGithubConnections {
+      _id
       installationId
       orgName
       orgAvatarUrl
@@ -14,7 +15,7 @@ export const GET_GITHUB_CONNECTION = gql`
 `;
 
 export const GET_GITHUB_REPOSITORIES = gql`
-  query GetGithubRepositories($installationId: Int!) {
+  query operationGithubRepositories($installationId: Int!) {
     getGithubRepositories(installationId: $installationId) {
       fullName
       name

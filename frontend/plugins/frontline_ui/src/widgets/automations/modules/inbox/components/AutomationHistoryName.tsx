@@ -25,7 +25,7 @@ export const AutomationHistoryName = ({
   const customerId = target?.customerId;
 
   if (!customerId && !conversationId) {
-    return <span>{t('no-data')}</span>;
+    return <span>{t('no-data', 'No data')}</span>;
   }
 
   return (
@@ -36,7 +36,7 @@ export const AutomationHistoryName = ({
             target="_blank"
             to={`/contacts/customers?contactId=${customerId}`}
           >
-            {t('customer')}
+            {t('customer', 'Customer')}
             <IconExternalLink />
           </Link>
         </Button>
@@ -48,7 +48,7 @@ export const AutomationHistoryName = ({
             target="_blank"
             to={`/frontline/inbox?conversationId=${conversationId}`}
           >
-            {t('go-to-conversation')}
+            {t('go-to-conversation', 'Go to conversation')}
             <IconExternalLink />
           </Link>
         </Button>
