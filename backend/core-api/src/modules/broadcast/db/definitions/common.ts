@@ -27,7 +27,9 @@ export const emailSchema = new Schema(
     subject: { type: String, label: 'Subject', required: true },
     sender: { type: String, label: 'Sender' },
     replyTo: { type: String, label: 'Reply to' },
-    content: { type: String, label: 'Content', required: true },
+    previewText: { type: String, label: 'Preview text' },
+    content: { type: String, label: 'Content' },
+    contentJson: { type: Schema.Types.Mixed, label: 'Content JSON' },
   },
   {
     _id: false,

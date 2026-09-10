@@ -1,10 +1,11 @@
-import { Sheet, useRemoveQueryStateByKey } from 'erxes-ui';
+import { Sheet, useQueryState, useRemoveQueryStateByKey } from 'erxes-ui';
 import { useState } from 'react';
 import { BroadcastMethod } from './BroadcastMethod';
 import { BroadcastSteps } from './steps/BroadcastSteps';
 
 export const BroadcastSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
+  const [method] = useQueryState('method');
 
   const removeQueryStateByKey = useRemoveQueryStateByKey();
 
@@ -21,7 +22,7 @@ export const BroadcastSheet = () => {
       <BroadcastMethod onSelect={() => setOpen(true)} />
 
       <Sheet.View
-        className="sm:max-w-7xl"
+        className={method === 'email' ? 'sm:max-w-3xl' : 'sm:max-w-7xl'}
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}

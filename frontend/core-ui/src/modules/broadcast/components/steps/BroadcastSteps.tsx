@@ -15,6 +15,7 @@ import {
 import { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { prepareBroadcastVariables } from '../../utils/prepareBroadcastVariables';
+import { BroadcastEmailComposer } from '../BroadcastEmailComposer';
 import { BroadcastPreview } from '../BroadcastPreview';
 import { BroadcastConfigStep } from './BroadcastConfigStep';
 import { BroadcastTargetStep } from './BroadcastTargetStep';
@@ -30,12 +31,7 @@ const BROADCAST_STEPS = [
     title: 'Broadcast Config',
     description: 'Configure, Write and Compose your broadcast',
     content: BroadcastConfigStep,
-    validateFields: [
-      'fromEmail',
-      'email.subject',
-      'email.replyTo',
-      'email.content',
-    ],
+    validateFields: [],
   },
 ];
 
@@ -44,17 +40,13 @@ const getConfigValidateFields = (method?: string | null) => {
     return ['cpId', 'notification.title', 'notification.content'];
   }
 
-  if (method === 'messenger') {
-    return [
-      'fromUserId',
-      'messenger.brandId',
-      'messenger.content',
-      'messenger.sentAs',
-      'messenger.kind',
-    ];
-  }
-
-  return ['fromEmail', 'email.subject', 'email.replyTo', 'email.content'];
+  return [
+    'fromUserId',
+    'messenger.brandId',
+    'messenger.content',
+    'messenger.sentAs',
+    'messenger.kind',
+  ];
 };
 
 export const BroadcastSteps = ({
@@ -63,6 +55,21 @@ export const BroadcastSteps = ({
   setOpen: (open: boolean) => void;
 }) => {
   const [method] = useQueryState<IBroadcastMethodEnum>('method');
+
+  if (method === 'email') {
+    return <BroadcastEmailComposer setOpen={setOpen} />;
+  }
+
+  return <BroadcastStepsWizard setOpen={setOpen} method={method} />;
+};
+
+const BroadcastStepsWizard = ({
+  setOpen,
+  method,
+}: {
+  setOpen: (open: boolean) => void;
+  method: IBroadcastMethodEnum | null;
+}) => {
   const removeQueryStateByKey = useRemoveQueryStateByKey();
   const { toast } = useToast();
 
@@ -216,18 +223,20 @@ export const BroadcastStepActions = ({
   step: number;
   handleAction: (step: number, action?: 'draft' | 'live') => void;
 }) => {
+  const isLastStep = step + 1 === BROADCAST_STEPS.length;
+
   return (
     <Sheet.Footer>
       <Button onClick={() => handleAction(step - 1)} variant="secondary">
         {step === 0 ? 'Cancel' : 'Previous step'}
       </Button>
-      {step + 1 === BROADCAST_STEPS.length && (
+      {isLastStep && (
         <Button onClick={() => handleAction(step + 1, 'draft')}>
           Save & Draft
         </Button>
       )}
       <Button onClick={() => handleAction(step + 1, 'live')}>
-        {step + 1 === BROADCAST_STEPS.length ? 'Save & Live' : 'Next step'}
+        {isLastStep ? 'Save & Live' : 'Next step'}
       </Button>
     </Sheet.Footer>
   );

@@ -9,6 +9,7 @@ import {
   countsByTag,
   prepareAvgStats,
 } from '@/broadcast/utils';
+import { JSONContent, renderEmailHtml } from '@/email-editor';
 import {
   getEmailSenderOptions,
   getVerifiedSenderEmails,
@@ -96,6 +97,16 @@ const generateFilter = async (
 };
 
 export const engageQueries = {
+  async engageMessageRenderPreview(
+    _root: undefined,
+    {
+      contentJson,
+      previewText,
+    }: { contentJson: JSONContent; previewText?: string },
+  ) {
+    return renderEmailHtml(contentJson, { previewText });
+  },
+
   /**
    * Group engage messages counts by kind, status, tag
    */

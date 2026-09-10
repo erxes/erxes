@@ -1,4 +1,36 @@
 {
   "broadcasts": "Broadcasts",
-  "broadcast": "Broadcast"
+  "broadcast": "Broadcast",
+  "composer": {
+    "titlePlaceholder": "Untitled broadcast",
+    "settings": "Settings",
+    "attachments": "Attachments",
+    "previewEmail": "Preview Email",
+    "copyHtml": "Copy HTML",
+    "copyHtmlSuccess": "HTML copied to clipboard",
+    "sendEmail": "Send Email",
+    "subject": "Subject",
+    "from": "From",
+    "replyTo": "Reply-To",
+    "to": "To",
+    "selectRecipients": "Select recipients",
+    "recipientsCount": "{{count}} recipients",
+    "previewText": "Preview Text",
+    "previewTextHint": "The snippet of text pulled into the inbox preview, right after the subject line.",
+    "sendTestEmailPlaceholder": "you@example.com",
+    "sendTestEmailAction": "Send test email",
+    "sendTestEmailSending": "Sending...",
+    "sendTestEmailSuccess": "Test email sent to {{email}}",
+    "sendTestEmailSingleRecipientOnly": "Test emails can only be sent to one address at a time",
+    "sendTestEmailLoadingSenderInfo": "Loading sender info...",
+    "saveAsTemplate": "Save as template",
+    "saveAsTemplatePlaceholder": "Template name",
+    "saveAsTemplateAction": "Save template",
+    "saveAsTemplateSaving": "Saving...",
+    "saveAsTemplateSuccess": "Saved template \"{{name}}\"",
+    "insertTemplate": "Insert template",
+    "saveDraft": "Save & Draft",
+    "saveLive": "Save & Live",
+    "cancel": "Cancel"
+  }
 }

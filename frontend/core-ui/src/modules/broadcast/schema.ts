@@ -29,7 +29,9 @@ export const broadcastSchema = z.discriminatedUnion('method', [
         )
         .optional(),
       documentId: z.string(),
-      content: z.string(),
+      content: z.string().optional(),
+      contentJson: z.any().optional(),
+      previewText: z.string().optional(),
     }),
     ...baseSchema,
   }),

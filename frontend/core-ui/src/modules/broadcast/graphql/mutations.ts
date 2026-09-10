@@ -41,6 +41,40 @@ export const BROADCAST_MESSAGE_ADD = gql`
   }
 `;
 
+export const BROADCAST_SEND_TEST_EMAIL = gql`
+  mutation BROADCAST_SEND_TEST_EMAIL(
+    $from: String!
+    $to: String!
+    $contentJson: JSON
+    $previewText: String
+    $title: String!
+  ) {
+    engageMessageSendTestEmail(
+      from: $from
+      to: $to
+      contentJson: $contentJson
+      previewText: $previewText
+      title: $title
+    )
+  }
+`;
+
+export const BROADCAST_EMAIL_TEMPLATE_ADD = gql`
+  mutation BROADCAST_EMAIL_TEMPLATE_ADD(
+    $name: String!
+    $description: String
+    $contentJson: JSON!
+  ) {
+    broadcastEmailTemplateAdd(
+      name: $name
+      description: $description
+      contentJson: $contentJson
+    ) {
+      _id
+    }
+  }
+`;
+
 export const BROADCAST_UPDATE_CONFIGS = gql`
   mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
     broadcastUpdateConfigs(configsMap: $configsMap)

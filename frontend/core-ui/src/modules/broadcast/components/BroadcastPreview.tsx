@@ -1,10 +1,8 @@
 import { useQueryState } from 'erxes-ui';
-import { BroadcastEmailPreview } from './preview/BroadcastEmailPreview';
 import { BroadcastMessengerPreview } from './preview/BroadcastMessengerPreview';
 import { MessengerNotificationPreview } from './preview/MessengerNotificationPreview';
 
 const BROADCAST_PREVIEW = {
-  email: BroadcastEmailPreview,
   messenger: BroadcastMessengerPreview,
   notification: MessengerNotificationPreview,
 };
