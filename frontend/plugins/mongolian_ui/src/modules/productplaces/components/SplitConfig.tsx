@@ -36,9 +36,6 @@ export interface SplitConfigData {
   segmentIds: string[];
 }
 
-const getSingle = (arr: string[]) => arr[0] || '';
-const toSingleArray = (id?: string) => (id ? [id] : []);
-
 const emptyForm: SplitConfigData = {
   title: '',
   boardId: '',
@@ -278,10 +275,11 @@ const SplitConfig: React.FC = () => {
               <div className="flex flex-col gap-2">
                 <Label className="text-sm font-medium">{t('segment')}</Label>
                 <SelectSegment
-                  contentType="core:product"
-                  selected={getSingle(formData.segmentIds)}
-                  onSelect={(id) =>
-                    updateField('segmentIds', toSingleArray(id || undefined))
+                  contentType="core:products.products"
+                  mode="multiple"
+                  selected={formData.segmentIds}
+                  onSelect={(ids) =>
+                    updateField('segmentIds', Array.isArray(ids) ? ids : [])
                   }
                 />
               </div>

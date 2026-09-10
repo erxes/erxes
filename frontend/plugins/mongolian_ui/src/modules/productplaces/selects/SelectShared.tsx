@@ -4,7 +4,6 @@ import {
   Popover,
   Badge,
   Filter,
-  Form,
   Button,
 } from 'erxes-ui';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -58,12 +57,13 @@ export const SelectTrigger = ({
 
   if (variant === SelectTriggerVariant.FORM) {
     return (
-      <Form.Control className="w-full">
-        <Combobox.TriggerBase className="w-full h-8 font-medium">
-          {children}
-          <IconChevronDown className="h-4 w-4 opacity-50 ml-auto" />
-        </Combobox.TriggerBase>
-      </Form.Control>
+      <Combobox.TriggerBase
+        className="w-full h-8 font-medium"
+        disabled={disabled}
+      >
+        {children}
+        <IconChevronDown className="h-4 w-4 opacity-50 ml-auto" />
+      </Combobox.TriggerBase>
     );
   }
 

@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-09-10`
+- **Last synchronized:** `2026-09-11`
 
 ## Scope
 
@@ -27,7 +27,7 @@
 - Stores exchange-rate rows in the tenant-scoped `exchange_rates` Mongo collection, one document per `date + mainCurrency + rateCurrency`.
 - Resolves active exchange rates by selecting the latest row whose `date` is less than or equal to the requested date.
 - Provides ebarimt, product-place, config, Erkhet sync-log, and MS Dynamic backend capabilities through plugin-owned modules.
-- Product places applies default product filters through the plugin `beforeResolvers` hook and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
+- Product places applies default product filters through the plugin `beforeResolvers` hook by reading the current user's `dealsProductsDefaultFilter` config from `subId`, supports multi-segment default filters, and runs split/place/pricing/print behavior only after a sales deal moves to a configured destination stage.
 - Product places publishes full printable receipt payloads through the `productPlacesResponded` GraphQL subscription.
 
 ## Architecture
@@ -73,6 +73,8 @@
 - One exchange-rate document represents exactly one main/rate currency pair for one day.
 - Do not add debug `console.log` calls to exchange-rate tRPC handlers; service-to-service failures should surface through caller validation or returned errors.
 - Product-place after-mutation behavior must stay guarded by real deal stage changes; ordinary deal edits must not run split/place/print side effects.
+- Product-place default filters are stored one config per user with `subId`
+  equal to the user id and read only the config value's `segmentIds` array.
 - Product-place place assignment evaluates every matching condition in order so
   later matching conditions may overwrite earlier branch/department values,
   matching the legacy productplaces plugin behavior.
@@ -90,6 +92,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-11` — `Simplify Product Default Filter Lookup`
+
+- **Summary:** Product-place product list before-resolver now reads only the current user's code/subId config and applies its `segmentIds` directly.
+- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`.
+- **Contracts changed:** Removed legacy blank-subId default-filter fallback from the resolver path.
+
+### `2026-09-10` — `Product Places Multi-Segment Defaults`
+
+- **Summary:** Product-place product list before-resolver now applies multiple default product segments from the current user's `dealsProductsDefaultFilter` config stored under `subId=userId`, while preserving legacy configs.
+- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`.
+- **Contracts changed:** `dealsProductsDefaultFilter` now stores one config document per user with `subId` set to the user id and `value.segmentIds` as the default product segments.
 
 ### `2026-09-10` — `Product Places Place Parity`
 

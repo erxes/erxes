@@ -1,4 +1,5 @@
 import {
+  Badge,
   Combobox,
   Command,
   Popover,
@@ -42,6 +43,7 @@ const SelectBranchBadge = ({
 export const SelectSegment = ({
   selected,
   onSelect,
+  mode = 'single',
   focusOnMount,
   nullable,
   exclude,
@@ -49,8 +51,9 @@ export const SelectSegment = ({
   contentType,
   unnamedLabel = 'Untitled segment',
 }: {
-  selected?: string;
-  onSelect: (categoryId: string | null) => void;
+  selected?: string | string[];
+  onSelect: (categoryId: string | string[] | null) => void;
+  mode?: 'single' | 'multiple';
   focusOnMount?: boolean;
   nullable?: boolean;
   exclude?: string[];
@@ -58,6 +61,12 @@ export const SelectSegment = ({
   contentType?: string;
   unnamedLabel?: string;
 }) => {
+  const selectedIds = Array.isArray(selected)
+    ? selected
+    : selected
+      ? [selected]
+      : [];
+  const isMultiple = mode === 'multiple';
   const {
     segments,
     loading,
@@ -66,12 +75,51 @@ export const SelectSegment = ({
     selectedSegment,
     setSearch,
     search,
-  } = useSelectSegments({ selected, exclude, focusOnMount, contentType });
+  } = useSelectSegments({
+    selected: isMultiple ? selectedIds[0] : selectedIds[0],
+    exclude,
+    focusOnMount,
+    contentType,
+  });
+
+  const selectedSegments = isMultiple
+    ? selectedIds
+        .map((id) => segments.find((segment: ISegment) => segment._id === id))
+        .filter(Boolean)
+    : [];
+
+  const handleSelect = (segmentId: string | null) => {
+    if (!isMultiple) {
+      onSelect(segmentId);
+      return;
+    }
+
+    if (!segmentId) {
+      onSelect([]);
+      return;
+    }
+
+    onSelect(
+      selectedIds.includes(segmentId)
+        ? selectedIds.filter((id) => id !== segmentId)
+        : [...selectedIds, segmentId],
+    );
+  };
 
   return (
     <Popover>
       <Combobox.Trigger>
-        {selectedSegment ? (
+        {isMultiple && selectedSegments.length ? (
+          <div className="flex items-center gap-1 flex-auto overflow-hidden">
+            <TextOverflowTooltip
+              value={selectedSegments[0]?.name || unnamedLabel}
+              className="flex-auto"
+            />
+            {selectedSegments.length > 1 && (
+              <Badge variant="secondary">+{selectedSegments.length - 1}</Badge>
+            )}
+          </div>
+        ) : selectedSegment ? (
           <SelectBranchBadge
             segment={selectedSegment}
             totalCount={segments?.length || 0}
@@ -98,7 +146,7 @@ export const SelectSegment = ({
                 <Command.Item
                   key="null"
                   value="null"
-                  onSelect={() => onSelect(null)}
+                  onSelect={() => handleSelect(null)}
                 >
                   No segment selected
                 </Command.Item>
@@ -111,12 +159,14 @@ export const SelectSegment = ({
                   hasChildren={false}
                   name={segment.name || unnamedLabel}
                   value={segment._id}
-                  onSelect={onSelect}
+                  onSelect={handleSelect}
                   selected={false}
                   disabled={disabled}
                 >
                   <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
-                    {selected === segment._id && <Combobox.Check checked />}
+                    {selectedIds.includes(segment._id) && (
+                      <Combobox.Check checked />
+                    )}
                     <TextOverflowTooltip
                       value={segment.name || unnamedLabel}
                       className="flex-auto"

@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Label, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { SelectSegment } from 'ui-modules';
-import SelectUsers from '../selects/SelectUsers';
+import { SelectMember, SelectSegment } from 'ui-modules';
 
-const SEGMENT_CONTENT_TYPE = 'core:product.product';
+const SEGMENT_CONTENT_TYPE = 'core:products.products';
 
 type FilterConfig = {
   title: string;
-  segmentId: string;
+  segmentIds: string[];
   userIds: string[];
+};
+
+type LegacyFilterConfig = FilterConfig & {
+  segmentId?: string;
 };
 
 type Props = {
   config?: {
     _id?: string;
-    filters?: FilterConfig[];
+    filters?: LegacyFilterConfig[];
   };
   currentStageId?: string;
   save: (config: { _id?: string; filters: FilterConfig[] }) => Promise<boolean>;
@@ -24,7 +27,7 @@ type Props = {
 
 const emptyFilter = (index: number): FilterConfig => ({
   title: `Filter ${index + 1}`,
-  segmentId: '',
+  segmentIds: [],
   userIds: [],
 });
 
@@ -46,7 +49,11 @@ const DefaultFilterConfig: React.FC<Props> = ({
     setFilters(
       incoming.map((f, i: number) => ({
         title: f?.title || `Filter ${i + 1}`,
-        segmentId: f?.segmentId || '',
+        segmentIds: Array.isArray(f?.segmentIds)
+          ? f.segmentIds
+          : f?.segmentId
+            ? [f.segmentId]
+            : [],
         userIds: Array.isArray(f?.userIds) ? f.userIds : [],
       })),
     );
@@ -70,26 +77,6 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
   const removeFilter = (index: number) => {
     setFilters((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const toggleUser = (filterIndex: number, userId: string) => {
-    if (!userId) return;
-
-    setFilters((prev) => {
-      const next = [...prev];
-      const current = next[filterIndex];
-
-      const exists = current.userIds.includes(userId);
-
-      next[filterIndex] = {
-        ...current,
-        userIds: exists
-          ? current.userIds.filter((id) => id !== userId)
-          : [...current.userIds, userId],
-      };
-
-      return next;
-    });
   };
 
   const handleSave = async () => {
@@ -209,9 +196,14 @@ const DefaultFilterConfig: React.FC<Props> = ({
                     </Label>
                     <SelectSegment
                       contentType={SEGMENT_CONTENT_TYPE}
-                      selected={filter.segmentId}
-                      onSelect={(segmentId) =>
-                        updateFilter(index, 'segmentId', segmentId || '')
+                      mode="multiple"
+                      selected={filter.segmentIds}
+                      onSelect={(segmentIds) =>
+                        updateFilter(
+                          index,
+                          'segmentIds',
+                          Array.isArray(segmentIds) ? segmentIds : [],
+                        )
                       }
                     />
                   </div>
@@ -224,12 +216,17 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">
-                      <SelectUsers
-                        value=""
-                        onChange={(userId) => toggleUser(index, userId)}
-                        ids={[]}
-                        excludeIds={false}
-                        isAssignee={true}
+                      <SelectMember
+                        mode="multiple"
+                        value={filter.userIds}
+                        onValueChange={(userIds) =>
+                          updateFilter(
+                            index,
+                            'userIds',
+                            Array.isArray(userIds) ? userIds : [],
+                          )
+                        }
+                        placeholder={t('choose-user')}
                       />
                     </div>
 
@@ -243,27 +240,9 @@ const DefaultFilterConfig: React.FC<Props> = ({
                     </Button>
                   </div>
 
-                  {(filter.userIds || []).length === 0 ? (
+                  {!filter.userIds.length && (
                     <div className="text-sm text-muted-foreground">
                       {t('no-users-selected')}
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {filter.userIds.map((id) => (
-                        <div
-                          key={id}
-                          className="flex items-center gap-2 px-3 py-1 rounded-md border text-sm bg-muted/40"
-                        >
-                          <span className="truncate max-w-[160px]">{id}</span>
-                          <button
-                            type="button"
-                            className="text-muted-foreground hover:text-red-600"
-                            onClick={() => toggleUser(index, id)}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
                     </div>
                   )}
                 </div>

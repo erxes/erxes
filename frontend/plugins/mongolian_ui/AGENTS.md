@@ -31,11 +31,15 @@
   and exchange rates.
 - Product places settings include stage, split, print, and default product
   filter configuration screens under `settings/mongolian/product-places/*`.
+- Product places configuration screens render code-scoped `mnConfigs` rows in
+  `RecordTable` lists and manage create/edit/delete through a right-side
+  `Sheet`.
 - Product places default product filters query Mongolian configs with
-  `dealsProductsDefaultFilter` and persist the config value as the filter array
-  consumed by the backend before-resolver.
+  `dealsProductsDefaultFilter`, store one config document per user with
+  `subId` equal to the selected user id, and persist multi-segment selections
+  in that config value.
 - Product places segment pickers use the shared `ui-modules` `SelectSegment`
-  component instead of plugin-local segment GraphQL selectors.
+  component with `core:products.products` for product segment selection.
 - Product places listens to the `productPlacesResponded` subscription from the
   floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
@@ -86,7 +90,8 @@
 ### Consumes
 
 - Public UI and utility APIs from `erxes-ui` and `ui-modules`.
-- Shared `SelectSegment` from `ui-modules` for product-place segment selection.
+- Shared `SelectSegment` and `SelectMember` from `ui-modules` for product-place
+  segment and assignee selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
 - React Router host mounting contracts from core UI Module Federation.
@@ -139,6 +144,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-10` - Product places config tables
+
+- **Summary:** Product places place, split, print, and default-filter settings now list all configs by code and manage add/edit/delete through a shared right-side sheet; default filters store one user-to-segments config per row.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/selects/SelectShared.tsx`, `src/pages/productplaces`.
+- **Contracts changed:** `dealsProductsDefaultFilter` now stores one config per user with `subId` set to the user id and `value.segmentIds` as the default product segments.
+
+### `2026-09-10` - Multi product-place segments
+
+- **Summary:** Product-place place, split, and default-filter settings now support multiple product segments through shared `SelectSegment`, and default filters use shared member selection.
+- **Affected areas:** `src/modules/productplaces/components`, `src/modules/productplaces/types`.
+- **Contracts changed:** `dealsProductsDefaultFilter` entries now persist `segmentIds` arrays, while legacy `segmentId` entries remain readable.
 
 ### `2026-09-10` - Use shared segment selector
 

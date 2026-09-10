@@ -90,10 +90,20 @@ const PerConditions = ({
               {t('segment')}
             </Label>
             <SelectSegment
-              contentType="core:product"
-              selected={condition.segmentId || ''}
-              onSelect={(segmentId) =>
-                onChangeConfig('segmentId', segmentId || '')
+              contentType="core:products.products"
+              mode="multiple"
+              selected={
+                Array.isArray(condition.segmentIds)
+                  ? condition.segmentIds
+                  : condition.segmentId
+                    ? [condition.segmentId]
+                    : []
+              }
+              onSelect={(segmentIds) =>
+                onChangeConfig(
+                  'segmentIds',
+                  Array.isArray(segmentIds) ? segmentIds : [],
+                )
               }
             />
           </div>

@@ -47,22 +47,22 @@ export type PerSplitConfig = {
   productTagIds?: string[];
   excludeTagIds?: string[];
   excludeProductIds?: string[];
-  segments?: string[];
+  segmentIds?: string[];
   [key: string]: unknown;
 };
 
 export type DefaultFilterConfig = {
   _id: string;
   title: string;
-  segmentId: string;
-  userIds: string[];
+  userId: string;
+  segmentIds: string[];
 };
 
 export type IConfigsMap = {
   dealsProductsDataPrint?: Record<string, PerPrintConfig>;
   dealsProductsDataPlaces?: Record<string, PerPrintConfig>;
   dealsProductsDataSplit?: Record<string, PerSplitConfig>;
-  dealsProductsDefaultFilter?: DefaultFilterConfig[];
+  dealsProductsDefaultFilter?: Record<string, DefaultFilterConfig>;
   // Allow other string keys for flexibility
   [key: string]: unknown;
 };
@@ -148,6 +148,7 @@ export type PlaceConditionUI = {
   excludeTagIds?: string[];
 
   excludeProductIds?: string[];
+  segmentIds?: string[];
 
   ltCount?: number;
   gtCount?: number;
