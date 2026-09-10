@@ -19,9 +19,18 @@ export const useCommentTriggerForm = ({
   'formRef' | 'activeTrigger' | 'onSaveTriggerConfig'
 >) => {
   const { t } = useTranslation('frontline');
+  const config = activeTrigger?.config || ({} as TCommentTriggerForm);
+  // Only a brand new trigger takes the narrower default; injecting it into a
+  // saved config would silently change what an existing automation answers.
+  const isNew = !Object.keys(config).length;
+
   const form = useForm<TCommentTriggerForm>({
     resolver: zodResolver(commentTriggerSchema),
-    defaultValues: { postType: 'specific', ...(activeTrigger?.config || {}) },
+    defaultValues: {
+      postType: 'specific',
+      ...(isNew ? { onlyFirstLevel: true } : {}),
+      ...config,
+    },
   });
 
   const { handleValidationErrors } = useFormValidationErrorHandler({

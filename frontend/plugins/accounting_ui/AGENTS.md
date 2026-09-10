@@ -149,6 +149,18 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — `Safe Remainder Empty Location Cells`
+
+- **Summary:** Safe remainder list branch and department columns now render blank cells when no branch or department is selected instead of showing undefined labels.
+- **Affected areas:** `src/modules/inventories/safeRemainders/components/SafeRemainderColumns.tsx`.
+- **Contracts changed:** None.
+
+### `2026-09-09` — `Safe Remainder List Query Ownership`
+
+- **Summary:** Safe remainder list page now runs the list query once and shares loading, count, and rows with the filter count badge and table.
+- **Affected areas:** `src/pages/inventories/SafeRemaindersPage.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemainderTable.tsx`, `src/modules/inventories/safeRemainders/components/SafeRemaindersTotalCount.tsx`.
+- **Contracts changed:** None.
+
 ### `2026-09-09` — `Safe Remainder Delete Hook Fix`
 
 - **Summary:** Safe remainder deletion now reads list filter variables at hook initialization instead of calling a query-state hook from the delete click handler.
@@ -202,15 +214,3 @@
 - **Summary:** Fixed asset out, move, and sale rows now refetch location-specific remainder when fixed asset, branch, department, or date changes and clamp count from that result.
 - **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/hooks/useFixedAssetLocationRemainder.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
 - **Contracts changed:** Consumes `fixedAssetLocationRemainder`.
-
-### `2026-08-28` — `Fixed Asset Owner Record Selection`
-
-- **Summary:** Fixed asset out, move, and sale rows now expose an owner-record sheet that lists active owner allocations for the row asset/location and saves count-matched selections through transaction extra data.
-- **Affected areas:** `src/modules/transactions/transaction-form/components/forms/FxaOwnerRecordsSheet.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`, `src/modules/transactions/transaction-form/graphql/queries/fixedAssets.ts`, `src/modules/transactions/transaction-form/contants`.
-- **Contracts changed:** Transaction `extraData.fxaOwnerRecords` entries use `ownerId` and count; `fxaOwnerRecords` selection uses `balanceOnly` owner balances while branch/department quantity remains validated by transaction-detail location remainder.
-
-### `2026-08-28` — `Fixed Asset Disposal Bulk Selection`
-
-- **Summary:** Fixed asset out, move, and sale detail rows keep direct asset selection, and their add-row controls now include a category-filtered bulk asset picker that appends selected assets as separate details with count and cost data loaded from fixed asset queries.
-- **Affected areas:** `src/modules/settings/fixed-assets/graphql/queries/fixedAssets.ts`, `src/modules/settings/fixed-assets/components/SelectFixedAssetsBulk.tsx`, `src/modules/settings/fixed-assets/components/SelectFixedAsset.tsx`, `src/modules/transactions/transaction-form/components/forms/FxaOutForm`, `src/modules/transactions/transaction-form/components/forms/FxaMoveForm`, `src/modules/transactions/transaction-form/components/forms/FxaSaleForm`.
-- **Contracts changed:** None.

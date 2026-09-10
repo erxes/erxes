@@ -13,20 +13,21 @@ const getKeywordTexts = (
   }> = [],
 ) => keywords.map(({ text }) => text.trim()).filter(Boolean);
 
-const buildConditionValue = (
+/** What a condition is actually listening for, in the operator's own words. */
+export const buildConditionValue = (
   condition: TMessageTriggerCondition,
   bot?: IFacebookBot,
 ) => {
   if (condition.type === 'direct') {
-    const keywords = (condition.conditions || []).flatMap(
-      ({ keywords = [] }) => getKeywordTexts(keywords),
+    const keywords = (condition.conditions || []).flatMap(({ keywords = [] }) =>
+      getKeywordTexts(keywords),
     );
 
     if (!keywords.length) {
       return 'Any direct text message';
     }
 
-    return keywords.join(',');
+    return keywords.join(', ');
   }
 
   if (condition.type === 'persistentMenu') {
@@ -36,7 +37,16 @@ const buildConditionValue = (
     return persistentMenus
       .filter(({ _id }) => persistentMenuIds.includes(_id))
       .map(({ text }) => text)
-      .join(',');
+      .join(', ');
+  }
+
+  if (condition.type === 'iceBreaker') {
+    const iceBreakerIds = condition.iceBreakerIds || [];
+
+    return (bot?.iceBreakers || [])
+      .filter(({ _id }) => iceBreakerIds.includes(_id))
+      .map(({ question }) => question)
+      .join(', ');
   }
 
   if (condition.type === 'open_thread') {
@@ -44,7 +54,7 @@ const buildConditionValue = (
       return 'All send message entries';
     }
 
-    return (condition.sourceIds || []).join(',');
+    return (condition.sourceIds || []).join(', ');
   }
 
   return '';
@@ -74,25 +84,60 @@ export const buildSelectedConditionSummaries = ({
     });
 };
 
+/**
+ * A comment trigger's scope is most of its configuration, so the node has to
+ * carry it. Keyword rules alone leave the node blank whenever `checkContent`
+ * is off, which is the common case.
+ */
 export const buildCommentTriggerConditionSummaries = ({
   conditions = [],
+  postType,
+  postId,
+  onlyFirstLevel,
 }: {
   conditions?: TCommentTriggerCondition[];
+  postType?: 'any' | 'specific';
+  postId?: string;
+  onlyFirstLevel?: boolean;
 }): TTriggerConditionSummaryItem[] => {
-  return conditions.map((condition) => {
-    const keywords = getKeywordTexts(condition.keywords);
-    const operator = DIRECT_MESSAGE_OPERATOR_TYPES.find(
-      ({ value }) => value === condition.operator,
-    );
+  const scope: TTriggerConditionSummaryItem[] = [
+    {
+      _id: 'postScope',
+      type: 'postScope',
+      label: 'Posts',
+      description: '',
+      value:
+        postType === 'specific'
+          ? // The post's name needs a Facebook call; its tail is enough to tell
+            // two triggers apart on the canvas.
+            `One post …${(postId || '').slice(-6)}`
+          : 'Any post',
+    },
+    {
+      _id: 'commentLevel',
+      type: 'commentLevel',
+      label: 'Comments',
+      description: '',
+      value: onlyFirstLevel ? 'First level only' : 'Including replies',
+    },
+  ];
 
-    return {
-      _id: condition._id,
-      type: 'commentContent',
-      label: 'Comment content',
-      description: keywords.length
-        ? operator?.label || 'Matches keywords'
-        : 'No keywords configured',
-      value: keywords.join(','),
-    };
-  });
+  return scope.concat(
+    conditions.map((condition) => {
+      const keywords = getKeywordTexts(condition.keywords);
+      const operator = DIRECT_MESSAGE_OPERATOR_TYPES.find(
+        ({ value }) => value === condition.operator,
+      );
+
+      return {
+        _id: condition._id,
+        type: 'commentContent',
+        label: 'Comment content',
+        description: keywords.length
+          ? operator?.label || 'Matches keywords'
+          : 'No keywords configured',
+        value: keywords.join(', '),
+      };
+    }),
+  );
 };
