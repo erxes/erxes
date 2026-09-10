@@ -173,9 +173,7 @@ export const checkCondition = async (
   if (condition.productTagIds?.length) {
     tagRes = false;
 
-    if (
-      _.intersection(condition.calcedTagIds, productTagIds).length > 0
-    ) {
+    if (_.intersection(condition.calcedTagIds, productTagIds).length > 0) {
       tagRes = true;
     }
   }

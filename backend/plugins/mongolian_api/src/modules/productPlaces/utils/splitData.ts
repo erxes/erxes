@@ -39,7 +39,10 @@ const checkSplit = async (
     return;
   }
 
-  if (excludeCategoryIds?.length && excludeCategoryIds.includes(product.categoryId)) {
+  if (
+    excludeCategoryIds?.length &&
+    excludeCategoryIds.includes(product.categoryId)
+  ) {
     return;
   }
 
