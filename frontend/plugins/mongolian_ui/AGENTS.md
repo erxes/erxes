@@ -149,8 +149,8 @@
 
 ### `2026-09-11` - Product places stage display
 
-- **Summary:** Product places place, split, and print config rows now render board, pipeline, and stage names in the table instead of raw ids.
-- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`.
+- **Summary:** Product places place, split, and print config rows now render board, pipeline, and stage names in the table instead of raw ids, and the old route-disconnected config UI was removed.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/types.ts`, removed legacy product-place config components, hooks, and helpers.
 - **Contracts changed:** None.
 
 ### `2026-09-11` - Product filter user display

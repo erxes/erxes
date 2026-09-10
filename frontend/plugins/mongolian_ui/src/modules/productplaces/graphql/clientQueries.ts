@@ -1,18 +1,5 @@
 import { gql } from '@apollo/client';
 
-// Existing query (probably)
-export const MN_CONFIG = gql`
-  query productPlacesMnConfig($code: String!, $subId: String) {
-    mnConfig(code: $code, subId: $subId) {
-      _id
-      code
-      subId
-      value
-    }
-  }
-`;
-
-// NEW: query to fetch all configs for a given code
 export const MN_CONFIGS = gql`
   query productPlacesMnConfigs($code: String!) {
     mnConfigs(code: $code) {
@@ -20,15 +7,6 @@ export const MN_CONFIGS = gql`
       code
       subId
       value
-    }
-  }
-`;
-
-export const STAGES_QUERY = gql`
-  query productPlacesStages($pipelineId: String!) {
-    stages(pipelineId: $pipelineId) {
-      _id
-      name
     }
   }
 `;

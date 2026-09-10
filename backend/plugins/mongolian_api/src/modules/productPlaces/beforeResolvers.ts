@@ -5,7 +5,7 @@ const toStringArray = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item) => typeof item === 'string') : [];
 
 export default {
-  productsMain: ['productsMain', 'productsTotalCount'],
+  productsMain: ['productsMain', 'products', 'productsTotalCount'],
 };
 
 export const beforeResolverHandlers = async (

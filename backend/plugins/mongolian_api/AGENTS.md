@@ -74,7 +74,10 @@
 - Do not add debug `console.log` calls to exchange-rate tRPC handlers; service-to-service failures should surface through caller validation or returned errors.
 - Product-place after-mutation behavior must stay guarded by real deal stage changes; ordinary deal edits must not run split/place/print side effects.
 - Product-place default filters are stored one config per user with `subId`
-  equal to the user id and read only the config value's `segmentIds` array.
+  equal to the user id, read only the config value's `segmentIds` array, and
+  apply to `productsMain`, `products`, and `productsTotalCount`.
+- Product-place place and split product matching must honor excluded products,
+  categories, and tags even when the include side is empty or segment-only.
 - Product-place place assignment evaluates every matching condition in order so
   later matching conditions may overwrite earlier branch/department values,
   matching the legacy productplaces plugin behavior.
@@ -95,8 +98,8 @@
 
 ### `2026-09-11` — `Simplify Product Default Filter Lookup`
 
-- **Summary:** Product-place product list before-resolver now reads only the current user's code/subId config and applies its `segmentIds` directly.
-- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`.
+- **Summary:** Product-place product list before-resolver now reads only the current user's code/subId config, applies its `segmentIds` directly to all product list/count queries, product-place matching honors explicit exclude filters consistently, and unused product-place helpers were removed.
+- **Affected areas:** `src/modules/productPlaces/beforeResolvers.ts`, `src/meta/beforeResolvers.ts`, `src/modules/productPlaces/afterMutations.ts`, `src/modules/productPlaces/handlers/handlePlace.ts`, `src/modules/productPlaces/utils/setPlace.ts`, `src/modules/productPlaces/utils/splitData.ts`, `src/modules/productPlaces/utils/utils.ts`.
 - **Contracts changed:** Removed legacy blank-subId default-filter fallback from the resolver path.
 
 ### `2026-09-10` — `Product Places Multi-Segment Defaults`

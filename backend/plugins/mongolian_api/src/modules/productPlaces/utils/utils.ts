@@ -2,56 +2,6 @@ import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '../../../connectionResolvers';
 
-// OLD function - keep for backward compatibility
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  const models = await generateModels(subdomain);
-  const config = await models.Configs.getConfig(code, '');
-
-  if (config) {
-    return config.value;
-  }
-
-  const configs = await models.Configs.getConfigs(code);
-
-  if (configs?.length) {
-    return configs.reduce((acc, conf) => {
-      acc[conf.subId || ''] = conf.value;
-      return acc;
-    }, {});
-  }
-
-  return defaultValue ?? null;
-};
-
-// NEW function for mnConfigs (direct model access)
-export const getMnConfig = async (
-  subdomain,
-  code,
-  subId = '',
-  defaultValue = null,
-) => {
-  try {
-    const models = await generateModels(subdomain);
-
-    const result = await models.Configs.findOne({
-      code,
-      subId,
-    }).lean();
-
-    if (result?.value && Array.isArray(result.value)) {
-      return result.value.reduce((acc: any, item: any) => {
-        acc[item.key] = item.value;
-        return acc;
-      }, {});
-    }
-
-    return result?.value ?? defaultValue;
-  } catch {
-    return defaultValue;
-  }
-};
-
-// Get multiple configs (direct model access)
 export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
   try {
     const models = await generateModels(subdomain);
@@ -139,6 +89,11 @@ export const checkCondition = async (
   let tagRes = true;
   let segmentRes = true;
   let checkUomRes = true;
+  const product = productById[pdata.productId];
+
+  if ((condition.excludeProductIds || []).includes(pdata.productId)) {
+    return false;
+  }
 
   if (condition.gtCount !== undefined && pdata.quantity <= condition.gtCount) {
     return false;
@@ -164,7 +119,6 @@ export const checkCondition = async (
 
   if (condition.subUomType) {
     checkUomRes = false;
-    const product = productById[pdata.productId];
 
     if (product?.subUoms?.length) {
       const ratio = product.subUoms[0].ratio || 0;
@@ -186,12 +140,18 @@ export const checkCondition = async (
 
   if (!checkUomRes) return false;
 
+  if (
+    condition.calcedExcludeCatIds?.length &&
+    product?.categoryId &&
+    condition.calcedExcludeCatIds.includes(product.categoryId)
+  ) {
+    return false;
+  }
+
   if (condition.productCategoryIds?.length) {
     categoryRes = false;
-    const product = productById[pdata.productId];
 
     if (
-      !(condition.excludeProductIds || []).includes(product._id) &&
       product?.categoryId &&
       condition.calcedCatIds.includes(product.categoryId)
     ) {
@@ -201,18 +161,19 @@ export const checkCondition = async (
 
   if (!categoryRes) return false;
 
+  const productTagIds = product?.tagIds || pdata?.tagIds || [];
+
+  if (
+    condition.calcedExcludeTagIds?.length &&
+    _.intersection(condition.calcedExcludeTagIds, productTagIds).length > 0
+  ) {
+    return false;
+  }
+
   if (condition.productTagIds?.length) {
     tagRes = false;
-    const product = productById[pdata.productId];
-
-    // 🔥 FORCE fetch tags from pdata fallback if missing
-    const productTagIds =
-      product?.tagIds ||
-      pdata?.tagIds || // sometimes exists
-      [];
 
     if (
-      !(condition.excludeProductIds || []).includes(product?._id) &&
       _.intersection(condition.calcedTagIds, productTagIds).length > 0
     ) {
       tagRes = true;

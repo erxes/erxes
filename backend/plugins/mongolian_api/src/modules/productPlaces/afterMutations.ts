@@ -1,5 +1,4 @@
 import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
-import { nanoid } from 'nanoid';
 import { handlePlace } from './handlers/handlePlace';
 import { handlePricing } from './handlers/handlePricing';
 import { handlePrint } from './handlers/handlePrint';
@@ -61,8 +60,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
       deal,
       productsData,
       placeConfig,
-      user, // user is the user ID string
-      nanoid(),
     );
 
     productsData = placeResult.productsData;
@@ -88,7 +85,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         });
 
         productById = Object.fromEntries(products.map((p) => [p._id, p]));
-      } catch (error) {
+      } catch {
         productById = {};
       }
     } else {
