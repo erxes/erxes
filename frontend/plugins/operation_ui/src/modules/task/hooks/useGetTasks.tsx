@@ -207,8 +207,8 @@ export const useTasks = (
               type === 'create'
                 ? prev.getTasks.totalCount + 1
                 : type === 'remove'
-                ? prev.getTasks.totalCount - 1
-                : prev.getTasks.totalCount,
+                  ? prev.getTasks.totalCount - 1
+                  : prev.getTasks.totalCount,
           },
         };
       },
