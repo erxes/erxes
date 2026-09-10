@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-07`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -31,6 +31,10 @@
   messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, and the AI knowledge source
   provider that indexes articles.
+- Help centers: the client portal config record behind a published help center
+  site — its general settings (name, description, website, knowledge base and
+  ticket feature groups) and its appearance (logo pair, surface colours, fonts,
+  form-element colours, accent colour, cover image, raw header/footer markup).
 - Frontline reports, including the saved report charts that persist a named
   filter configuration for a report card.
 - Plugin-owned automation triggers/actions/bots contributed to the platform
@@ -168,6 +172,7 @@
 | Forms                | `src/modules/form/`                                                         | Forms, fields, submissions                                                                                                                                                                             |
 | Polls                | `src/modules/poll/`                                                         | Poll definitions, vote ledger, message snapshot, tally refresh                                                                                                                                         |
 | Knowledge base       | `src/modules/knowledgebase/`                                                | Topics, categories, articles, AI knowledge source                                                                                                                                                      |
+| Help center          | `src/modules/helpcenter/`                                                   | Client portal configs: general settings and appearance for a published help center                                                                                                                     |
 | Reports              | `src/modules/reports/`                                                      | Inbox/ticket report aggregations, `buildTicketMatch`, and the saved `ReportCharts` model                                                                                                               |
 | Migrations           | `src/migrations/`                                                           | Plugin-owned data migrations                                                                                                                                                                           |
 
@@ -175,6 +180,30 @@
 
 ### Provides
 
+- GraphQL: help center configs — `helpCenterConfig(_id)`,
+  `helpCenterConfigs(page, perPage, searchValue, brandId)`,
+  `helpCenterConfigsTotalCount(searchValue, brandId)`;
+  `helpCenterConfigUpdate(config: HelpCenterConfigInput!)` (create-or-update,
+  keyed on `config._id`) and `helpCenterConfigRemove(_id)`. Reads check
+  `showHelpCenter`, writes check `helpCenterManage`.
+- GraphQL: `helpCenterGetConfigByDomain(domain: String!): HelpCenterConfig` —
+  the published site's own bootstrap read, the help center counterpart of
+  core's client portal lookup. It is the **one public operation in this
+  module** (`wrapperConfig.skipPermission`): the site calling it has no staff
+  user, no `cpUser` and no client portal header yet, because the domain is how
+  it discovers which help center it is. It matches `url` — the client portal
+  domain the config stores — after the same normalization the write path
+  applies, and returns `null` for a domain no help center claims. Never add a
+  permission check to it and never widen it into a list.
+- GraphQL: `HelpCenterConfig.brand` resolves the federated `Brand`; its
+  `kbTopic` resolves the `KnowledgeBaseTopic` named by `kbTopicId`.
+- Nothing in this module is named `clientPortal*`, and it must stay that way.
+  `core-api` owns the real client portal — portal users, auth, OAuth — and
+  already publishes its own `ClientPortalConfigInput` with different fields; two
+  subgraphs declaring one input name with different fields is a federation
+  composition error, and the two domains are unrelated besides. A help center's
+  settings are `helpCenterConfig*` operations over `HelpCenterConfig` types in
+  `frontline_help_center_configs`.
 - GraphQL: polls — `pollList(searchValue, status, channelId, cursor params)`,
   `pollDetail(_id)`, `pollTotalCount(searchValue, status, channelId)`; `pollAdd`,
   `pollEdit` (both taking `brandId`), `pollRemove(_ids)`,
@@ -483,6 +512,37 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `CallPro*`, `Discord*`, plus inbox (`Conversations`,
   `ConversationMessages`), channel, ticket, form, and knowledge base
   collections.
+- `frontline_help_center_configs` — one document per help center, holding
+  everything the published site needs: general settings (`title`,
+  `description`, `url`, `erxesAppToken`, `brandId`, `languageCode`, the
+  `kbToggle` / `kbLabel` /
+  `kbTopicId` group and the `ticketToggle` / `ticketLabel` / `ticketChannelId` /
+  `ticketPipelineId` / `ticketStatusId` group) and appearance (`color`,
+  `backgroundImage`, and the nested `styles` block). A knowledge base topic
+  carries none of them — it names articles, and a config points at one through
+  `kbTopicId`.
+- A config's appearance lives in one nested `styles` block (`stylesSchema`,
+  `_id: false`), not as twenty more top-level fields: the logo pair, six surface
+  colours, two font families with their text colours, three form-element colours
+  and the raw header/footer markup. It is read and written whole, and
+  `HelpCenterConfigInput.styles` takes `HelpCenterConfigStylesInput` while
+  the type exposes `HelpCenterConfigStyles` — keep the two mirrored when
+  adding a style. `color` and `backgroundImage` stay top-level: they are the
+  help center's own accent and cover, not the site chrome.
+- `models.HelpCenterConfigs.createOrUpdateConfig` writes with `$set` over the whole
+  normalized document, so every caller must send the complete config, not a
+  patch — a partial input clears the fields it omits. That is the whole-config
+  shape 2.0's `clientPortalConfigUpdate` used, and the UI merges before it
+  sends.
+- `KnowledgeBaseTopicDoc.brandId` is optional (`String`): a topic need not
+  belong to a brand. Both the `KnowledgeBaseTopic.brand` and the
+  `HelpCenterConfig.brand` resolver therefore return `null` for a missing or
+  empty `brandId` rather than a Brand reference with an empty key — keep that
+  guard if either resolver is touched.
+- `topicSchema` carries mongoose `timestamps` but no `createdDate` field, so a
+  topic's creation time is only ever stored as `createdAt`. The
+  `KnowledgeBaseTopic.createdDate` resolver reads through to it — never assume
+  the persisted document has a `createdDate`.
 - Call Pro owns four collections: `integrations_callpro` (unique
   `phoneNumber`, `inboxId`), `customers_callpro` (unique `phoneNumber`),
   `conversations_callpro` (unique `callId`), and `logs_callpro` (the raw
@@ -573,6 +633,41 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ## Local Invariants
 
+- Every client-portal read of ticket notes must exclude `isInternal` notes.
+  `cpTicketGetNotes` is the customer's view of a ticket, so a resolver added
+  beside it that returns notes has to carry the same filter; the agent-side
+  toggle is presentation and cannot be relied on to keep one hidden.
+- Every GraphQL type this plugin declares must be prefixed with the plugin or
+  module name. A bare name is merged by federation as a value type with the
+  identically named type in another subgraph, and the two must then stay
+  field-for-field identical forever or the supergraph stops composing. The
+  ticket note type is `TicketNote` for exactly that reason: `operation_api`
+  declares its own `Note`, so adding `attachments`/`isInternal` here broke
+  `updateNote` at the gateway. A rename like that must sweep every schema in the
+  plugin - `modules/inbox/graphql/schemas/widget.ts` returns the ticket note
+  too, and a missed reference fails the subgraph at boot with `Unknown type`.
+- A help center's general settings and appearance belong to
+  `frontline_help_center_configs`, never to a knowledge base topic. The
+  knowledge base owns article content; a config points at the topic it publishes
+  through `kbTopicId`. Never re-add `url`, the `kb*`/`ticket*` groups or a
+  `styles` block to `topicSchema` to make a help center screen work.
+- `erxesAppToken` is this plugin's **own stored string**, the messenger widget
+  token the published site boots with — the 1.x client portal field of the same
+  name. `content_api`'s `Web` model carries it the same way, seeded from the
+  client portal's `token`. It is a copy taken when a website is chosen, not a
+  live read: this plugin never reaches into core's `ClientPortal`, so a token
+  regenerated in core does not follow, and re-picking the website refreshes it.
+  Never resolve it through a cross-service call to make it live.
+- A domain is matched against a config's `url` through one helper,
+  `normalizeHelpCenterUrl` in `helpcenter/utils/helpCenterConfig.ts`, used by
+  both `normalizeHelpCenterConfig` on write and `getConfigByDomain` on read. The
+  two sides must normalize identically or a site's own domain stops finding its
+  config — never re-derive the trim/trailing-slash rule at a call site.
+- `normalizeHelpCenterConfig` is the only validation gate for a config: it
+  requires a title, rejects a non-http(s) website, requires `kbTopicId` when
+  `kbToggle` is on and a channel plus pipeline when `ticketToggle` is on, and
+  blanks a disabled feature's group. Resolvers stay thin — add a rule there, not
+  in a resolver or in the UI alone.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -769,6 +864,47 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   interaction, an already-open window, or a valid tag.
 - Comment-triggered Facebook automations never send `typing_on`, including bot
   sequence steps after the initial private reply.
+- `FACEBOOK_GRAPH_URL` redirects every Graph call to a stand-in through
+  `fbgraph`'s `setGraphUrl`. It exists so the outbox, pacing and breaker can be
+  load tested without a page absorbing the traffic — Meta enforces per page,
+  and a stress run against a real one is what gets it restricted. Unset in any
+  deployment.
+- `POST /facebook/receive` answers every webhook it accepts, including one it
+  ignores or cannot classify — but **exactly once**, through the handler's own
+  `respond()` guard. Falling through without a response leaves the request open
+  and makes Facebook redeliver the event; ending twice is worse, because
+  `processMessagingEvent` already answers on its path and the second `end()`
+  raises `ERR_STREAM_WRITE_AFTER_END` from an event handler, which is unhandled
+  and kills the process.
+- The message trigger's **Direct Message** condition means someone typed. Every
+  postback — Get Started, a persistent menu item, an ice breaker, a quick reply,
+  a card button — arrives with the button's own title as the message text, so
+  content cannot separate them; only `isPostbackPayload` can. Guarding just
+  `btnId`, as it did, let one tap match both a Direct Message automation and the
+  specific one, and `receiveTrigger` runs every active automation that matches,
+  so the person got answered twice.
+- A comment reply's attachment is stored as the upload's key, not a URL, so the
+  outbox runs it through `generateAttachmentUrl` before handing it to Facebook
+  as `attachment_url` — Facebook fetches the image itself and cannot resolve a
+  storage key. Graph takes exactly one attachment on a comment reply.
+- A public comment reply that meets an open breaker is **rescheduled, not
+  failed**: the window lifts on its own and the reply is still worth sending.
+  The requeue takes a fresh pacing slot on top of the wait, because a backlog
+  released at one instant repeats the burst that opened the breaker. The only
+  thing that ends a queued reply is `MAX_QUEUE_AGE_MS` — a day, chosen to clear
+  the 2-to-8.4-hour enforcement windows measured on the 2026-09-07 dump.
+- There is no per-post reply cap. One was tried and removed: measured against
+  that dump, no threshold on volume, repetition count, repetition share or post
+  concentration separated blocked hours from clean ones — the highest repetition
+  in the data (16,388 uses of one sentence in seven days) drew no refusal at
+  all. Pacing defends the documented API rate limit, and the breaker defends
+  against a refusal already received; neither is a spam-classifier model. Do not
+  reintroduce a cap without evidence that names the threshold.
+- A public comment reply carries the `@[senderId]` mention only when its action
+  sets `mentionSender`. The mention was unconditional for years, which tagged
+  every commenter publicly whether the automation wanted it or not; the outbox
+  document carries the flag so a queued reply keeps the setting it was created
+  with.
 - In `sendReply`, request-level Graph error codes (`1`, `10`, `100`, `10900`)
   must not flip `FacebookIntegrations.healthStatus` to a token state — only
   genuine token and permission failures may.
@@ -964,6 +1100,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `ConversationMessages` model validates the parent against its own
   conversations collection, so a crossed model fails at write time with
   `Conversation not found with id ...` after the message has already been sent.
+- `checkContentConditions` ORs its conditions: each entry is another way for the
+  same trigger to answer, so adding one widens the match. Every branch must
+  keep returning a boolean rather than falling out of the loop — the original
+  returned inside the `switch`, so only the first condition was ever read and a
+  second one silently did nothing. A condition holding no keyword matches
+  nothing; `every` over an empty list is `true`, which made a half-filled rule
+  answer every message. Keyword text is never compiled into a `RegExp`: a
+  comment rule holding a bracket or a plus threw and took the whole trigger
+  check down with it.
 - Status permissions are three separate rules and must stay separate.
   `Status.memberIds` (with `visibilityType: 'private'`) decides who may **see**
   the status, `canMoveMemberIds` who may move tickets **across** it, and
@@ -1401,6 +1546,18 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   then open the channel ticket list (no `pipelineId` in the URL); only that
   pipeline's rows are narrowed to the current user, other pipelines are intact.
 - No `test` target is defined in `project.json`; do not invent one.
+- Smoke (help center by domain): query
+  `helpCenterGetConfigByDomain(domain: "<a config's website>")` with no
+  authorization header — it must return that config, return `null` for an
+  unknown domain, and behave the same whether or not the domain carries a
+  trailing slash.
+- Smoke (help center): open `/frontline/helpcenter`, save a name/website change
+  from the drawer's General tab and a colour from its Appearance tab, reload —
+  the values persist and the network tab shows `helpCenterConfig` and
+  `helpCenterConfigUpdate`, never a `knowledgeBase*` operation.
+- Migration: run `src/migrations/migrateHelpCenterConfigs.ts` once per
+  deployment before serving the new help center screens; it is idempotent
+  (an existing config is left alone, the topic is cleaned either way).
 - Smoke: connect a mail inbox without a `channelId` → a `Personal inbox`
   channel is created with one admin member and the integration attaches to it;
   a second connect reuses the same channel; the same holds for a non-mailbox
@@ -1444,7 +1601,119 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-### `2026-09-07` — Polls pin their messenger integration by brand
+### `2026-09-10` — A tap stopped counting as a direct message
+
+- **Summary:** The message trigger's Direct Message condition excluded only
+  `btnId`, so Get Started, persistent menu, ice breaker, quick reply and card
+  button taps matched it too and fired a second automation alongside the one
+  that owned them; it now skips any payload carrying a bot key. The webhook
+  route also stopped ending a response twice, which crashed the process with
+  `ERR_STREAM_WRITE_AFTER_END` on every messaging event.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/messages/index.ts`,
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`
+- **Contracts changed:** None. `isPostbackPayload` is newly exported from
+  `messageUtils`.
+
+### `2026-09-09` — A comment reply can carry an image
+
+- **Summary:** The outbox passed the stored attachment straight through as
+  `attachment_url`, which Facebook cannot fetch because the form stores an
+  upload key; it now resolves through `generateAttachmentUrl`, so the reply
+  form's newly enabled image upload actually reaches the page.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`
+- **Contracts changed:** None.
+
+### `2026-09-09` — Blocked comment replies wait the window out
+
+- **Summary:** The per-post budget is removed and pacing raised from 10 to 30 a
+  minute; a reply that meets an open breaker is requeued for when the block
+  lifts rather than marked failed, and is dropped only once it is 24 hours old.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentGuard.ts`,
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/models/CommentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** `FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST` is no longer
+  read. The action no longer returns `post-public-reply-limit`; the outbox
+  document gained `attempts`.
+
+### `2026-09-09` — Graph calls can be pointed at a stand-in
+
+- **Summary:** The comment outbox had no way to be exercised without sending to
+  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
+  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
+  two paths that returned without answering the request now end it.
+- **Affected areas:**
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`,
+  `src/modules/integrations/facebook/helpers.ts`
+- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
+  empty by default.
+
+### `2026-09-09` — The bot reports which replies it repeats
+
+- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
+  bot surface could say two replies were sent but not what they were;
+  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
+  returns each one's totals, newest failure, last use and the posts it ran
+  under — named by the post's own text from `FacebookPostConversations`, since
+  the outbox only records an id.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
+  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
+- **Contracts changed:** New `FacebookBotCommentReplyStat` and
+  `FacebookBotCommentReplyPost` types and
+  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
+  capped at 50 rows.
+
+### `2026-09-09` — The comment reply mention became opt-in
+
+- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
+  the Send comment action now carries a `mentionSender` flag, stored on the
+  outbox document, and the mention goes out only when it is set.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean; automations without it stop mentioning.
+
+### `2026-09-09` — Keyword conditions on Meta triggers actually work
+
+- **Summary:** `checkContentConditions` read only its first condition, could
+  never satisfy `every` on the Facebook side (it compared each keyword to the
+  whole message), matched every message when a rule held no keyword, and threw
+  whenever a keyword contained a regex metacharacter; conditions now OR
+  together and each operator returns a boolean.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
+- **Contracts changed:** None. `checkContentConditions` returns `boolean`
+  instead of `boolean | undefined`; matching stays case-sensitive except
+  `isContains`, as before.
+
+### `2026-09-07` — A help center points at the knowledge base topic it serves
+
+### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
+
+- **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
+  merged by federation with the `Note` value type `operation_api` declares, so
+  the `attachments` and `isInternal` fields only this subgraph has left
+  `operation`'s `updateNote` unsatisfiable and the gateway refused to compose
+  the supergraph.
+- **Affected areas:** `src/modules/ticket/graphql/schemas/note.ts`,
+  `src/modules/inbox/graphql/schemas/widget.ts`
+- **Contracts changed:** `ticketGetNote`, `cpTicketGetNotes`,
+  `ticketCreateNote`, `ticketUpdateNote`, `cpTicketCreateNote`,
+  `widgetTicketComments` and `widgetTicketCommentAdd` return `TicketNote`
+  instead of `Note`. Field names and arguments are unchanged, so a document that
+  selects fields without naming the type needs no edit.
+
+### `2026-09-10` — The help center search escape uses a raw string
 
 - **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
   `pollSendToConversation` honour it, and create/update refuse a brand that has no
@@ -1455,107 +1724,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
 - **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
   `Poll` type.
-
-### `2026-09-07` — Guest voting on the client portal poll surface
-
-- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
-  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
-  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
-  return, while a signed-in `cpUser` still wins over the argument.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
-  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
-- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
-  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
-  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
-
-### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
-
-- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
-  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
-  module's shared `utils.ts` so both resolver maps use one lookup.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
-  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/utils.ts`.
-- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
-  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
-  `PollConnectResponse` to `CpPollResponse`.
-
-### `2026-09-07` — Poll answering moved from the widget to the client portal
-
-- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
-  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
-  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
-  anonymous widget visitor. The voter is now taken from `cpUser`
-  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
-  `visitorId` / `cachedCustomerId` arguments.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
-  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
-  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/{utils.ts,@types/poll.ts}`,
-  `src/apollo/resolvers/{queries,mutations}.ts`.
-- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
-  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
-  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
-  `cpPollSubmit(pollCode, optionIds)`.
-
-### `2026-09-05` — `Export repeating ticket properties by row`
-
-- **Summary:** Ticket import/export expands a repeating property group into one numbered column per row (`<Group> <n> / <Field>`) and reassembles those columns back into rows on import, replacing the single column that serialised the row array.
-- **Affected areas:** `src/meta/import-export/utils.ts`, `src/meta/import-export/export/buildTicketExportRow.ts`, `src/meta/import-export/export/getTicketExportHeaders.ts`, `src/meta/import-export/import/importHandlers.ts`
-- **Contracts changed:** Export and import headers for a repeating group are now numbered; the previous single `propertiesData.<groupId>` column is gone.
-
-### `2026-09-05` — `Use the shared propertiesData path helper`
-
-- **Summary:** Report property filters build their `propertiesData` path through the shared `propertyPath` helper instead of an inline template string.
-- **Affected areas:** `backend/plugins/frontline_api/src/modules/reports/utils.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-05` — Poll voting has no in-repo client
-
-- **Summary:** The customer-facing poll surfaces were removed from
-  `frontline-widgets`; the public `widgetsPoll*` mutations were kept but now
-  have no caller in this repository.
-- **Affected areas:** `AGENTS.md` only — no API change.
-- **Contracts changed:** None.
-
-### `2026-09-02` — Ticket visibility rules apply outside pipeline-scoped lists
-
-- **Summary:** All four pipeline visibility rules were dead on the channel
-  ticket list: `generateFilter` only consulted the pipeline when the query
-  carried a `filter.pipelineId`, and the channel page never sends one, so every
-  ticket in the channel was returned. `isCheckDate` was additionally never
-  referenced by any query, and `isCheckBranch`/`isCheckDepartment` only acted as
-  pipeline access gates rather than the per-ticket filters their labels promise.
-  Rules now live in `buildVisibilityCondition` and are applied per pipeline on
-  unscoped lists, which also stops private-pipeline tickets leaking there.
-- **Affected areas:** `src/modules/ticket/utils/generateFilter.ts`.
-- **Contracts changed:** None (`getTickets` arguments are unchanged).
-
-### `2026-09-02` — IMAP integration removed
-
-- **Summary:** The IMAP channel runtime was deleted in full — poller, client,
-  message processing/saving, models, message broker, and GraphQL layer — along
-  with every registration that referenced it.
-- **Affected areas:** `src/modules/integrations/imap/` (deleted), `src/main.ts`,
-  `src/connectionResolvers.ts`, `src/apollo/{resolvers,schema}`,
-  `src/modules/inbox/graphql/resolvers/{customResolvers/integration.ts,mutations/integrations.ts}`,
-  `src/modules/inbox/utils.ts`, `src/modules/inbox/trpc/inbox.ts`,
-  `src/shared/types.ts`, `package.json`.
-- **Contracts changed:** Removed GraphQL `imapConversationDetail`,
-  `imapGetIntegrations`, `imapLogs`, `imapSendMail`, types `IMap` and
-  `IMapIntegration`; `imap` is no longer an accepted integration kind for
-  create/update/remove or `getIntegrationsKinds`; the `imap_customers`,
-  `imap_integrations`, `imap_messages` and `imap_logs` models are no longer
-  registered.
-
-### `2026-09-01` — `checkTargetMatch` producer removed
-
-- **Summary:** The `checkTargetMatch` producer was deleted from the plugin-level
-  automations object and from the ticket module's producers; automation target
-  matching now runs through the segment engine, so the Elasticsearch-era
-  selector round-trip has no caller left anywhere in the repository.
-- **Affected areas:** `src/meta/automations.ts`,
-  `src/modules/ticket/meta/automations/ticketAutomationsProducers.ts`.
-- **Contracts changed:** `/automations` no longer answers `checkTargetMatch`.
-  The `TAutomationProducers.CHECK_TARGET_MATCH` method no longer exists in
-  `erxes-api-shared`.

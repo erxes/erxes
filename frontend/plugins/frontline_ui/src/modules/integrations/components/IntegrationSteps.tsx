@@ -19,13 +19,13 @@ export const IntegrationSteps = ({
         </Badge>
         <h2 className="text-primary font-semibold text-base">{title}</h2>
       </div>
-      <div
-        className="flex items-center gap-1"
-        role="progressbar"
-        aria-valuemin={1}
-        aria-valuemax={stepsLength}
-        aria-valuenow={step}
-      >
+      <progress
+        className="sr-only"
+        value={step}
+        max={stepsLength}
+        aria-label={`Step ${step} of ${stepsLength}`}
+      />
+      <div className="flex items-center gap-1" aria-hidden="true">
         {Array.from({ length: stepsLength }).map((_, index) => (
           <div
             key={index}
