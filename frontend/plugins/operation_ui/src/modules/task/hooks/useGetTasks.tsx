@@ -16,7 +16,6 @@ import { useAtomValue } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { currentUserState } from 'ui-modules';
-import { useGetStatusByTeam } from '@/task/hooks/useGetStatusByTeam';
 
 const TASKS_PER_PAGE = 30;
 
@@ -100,9 +99,6 @@ export const useTasksVariables = (
   return {
     cursor: '',
     limit: TASKS_PER_PAGE,
-    orderBy: {
-      updatedAt: -1,
-    },
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
@@ -148,12 +144,6 @@ export const useTasks = (
     [JSON.stringify(rawVariables)],
   );
   const { toast } = useToast();
-  const teamId =
-    typeof variables.teamId === 'string' ? variables.teamId : undefined;
-  const { statuses } = useGetStatusByTeam({
-    variables: { teamId },
-    skip: !teamId,
-  });
   const { data, loading, fetchMore, subscribeToMore } = useQuery<
     ICursorListResponse<ITask>
   >(GET_TASKS, {
@@ -170,22 +160,7 @@ export const useTasks = (
     },
   });
 
-  const { list: taskList, pageInfo, totalCount } = data?.getTasks || {};
-  const tasks = useMemo(() => {
-    if (!taskList || !statuses.length) {
-      return taskList;
-    }
-
-    const statusOrder = new Map(
-      statuses.map(({ value }, index) => [value, index]),
-    );
-
-    return [...taskList].sort(
-      (left, right) =>
-        (statusOrder.get(left.status) ?? statuses.length) -
-        (statusOrder.get(right.status) ?? statuses.length),
-    );
-  }, [statuses, taskList]);
+  const { list: tasks, pageInfo, totalCount } = data?.getTasks || {};
 
   useEffect(() => {
     const unsubscribe = subscribeToMore<ITaskChanged>({
@@ -232,8 +207,8 @@ export const useTasks = (
               type === 'create'
                 ? prev.getTasks.totalCount + 1
                 : type === 'remove'
-                  ? prev.getTasks.totalCount - 1
-                  : prev.getTasks.totalCount,
+                ? prev.getTasks.totalCount - 1
+                : prev.getTasks.totalCount,
           },
         };
       },
