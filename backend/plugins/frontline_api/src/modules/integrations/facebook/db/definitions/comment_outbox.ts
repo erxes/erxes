@@ -28,8 +28,7 @@ export interface IFacebookCommentOutbox {
 }
 
 export interface IFacebookCommentOutboxDocument
-  extends IFacebookCommentOutbox,
-    Document {
+  extends IFacebookCommentOutbox, Document {
   _id: string;
 }
 

@@ -1138,8 +1138,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 ### `2026-09-09` — The bot form splits settings from activity
 
-- **Summary:** The Facebook bot sheet mixed what the bot *is* with what it is
-  *doing*; the name stays at the top and the rest moved into Settings
+- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
+  _doing_; the name stays at the top and the rest moved into Settings
   (persistent menu, ice breakers, optional configuration) and Activity (health
   counters, connected automations) tabs. The open tab is held for the session,
   so reopening a bot lands back where the last one was left.

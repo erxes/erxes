@@ -647,7 +647,10 @@ export const facebookQueries = {
 
   /** What the outbox is holding for this bot's page, and when it next sends. */
   async facebookMessengerBotDelivery(_root, { _id }, { models }: IContext) {
-    const bot = await models.FacebookBots.findOne({ _id }, { pageId: 1 }).lean();
+    const bot = await models.FacebookBots.findOne(
+      { _id },
+      { pageId: 1 },
+    ).lean();
 
     if (!bot) {
       throw new Error('Bot not found');
@@ -688,7 +691,10 @@ export const facebookQueries = {
     { _id, limit }: { _id: string; limit?: number },
     { models }: IContext,
   ) {
-    const bot = await models.FacebookBots.findOne({ _id }, { pageId: 1 }).lean();
+    const bot = await models.FacebookBots.findOne(
+      { _id },
+      { pageId: 1 },
+    ).lean();
 
     if (!bot) {
       throw new Error('Bot not found');
