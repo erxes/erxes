@@ -9,6 +9,10 @@ import {
   TAutomationWorkflowNode,
 } from 'ui-modules';
 
+// The single slot size between two connected nodes, in flow units.
+export const NODE_SPACING_X = 500;
+export const NODE_SPACING_Y = 300;
+
 export const generateNodePosition = (
   nodes: TAutomationAction[] | TAutomationTrigger[] | TAutomationWorkflowNode[],
   node: TAutomationNodeState,
@@ -52,9 +56,9 @@ export const generateNodePosition = (
 
     const base = crossTypePrev.position || { x: 0, y: 0 };
     if (flowDirection === 'vertical') {
-      return { x: base.x, y: base.y + 300 };
+      return { x: base.x, y: base.y + NODE_SPACING_Y };
     }
-    return { x: base.x + 500, y: base.y };
+    return { x: base.x + NODE_SPACING_X, y: base.y };
   }
 
   const generatedPrevNode = generatedNodes.find(
@@ -69,12 +73,12 @@ export const generateNodePosition = (
   if (flowDirection === 'vertical') {
     return {
       x: position?.x,
-      y: position?.y + 300,
+      y: position?.y + NODE_SPACING_Y,
     };
   }
 
   return {
-    x: position?.x + 500,
+    x: position?.x + NODE_SPACING_X,
     y: position?.y,
   };
 };

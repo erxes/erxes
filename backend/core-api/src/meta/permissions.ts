@@ -510,28 +510,6 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
-      name: 'exchangeRates',
-      description: 'Exchange rate management',
-      scopeField: null,
-      ownerFields: [],
-
-      scopes: [{ name: 'all', description: 'All records' }],
-
-      actions: [
-        {
-          title: 'View exchange rates',
-          name: 'exchangeRatesRead',
-          description: 'View exchange rates',
-          always: true,
-        },
-        {
-          title: 'Manage exchange rates',
-          name: 'exchangeRatesManage',
-          description: 'Create, edit, delete exchange rates',
-        },
-      ],
-    },
-    {
       name: 'permissions',
       description: 'Permission management',
       scopeField: null,

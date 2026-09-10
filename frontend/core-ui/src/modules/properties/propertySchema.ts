@@ -48,6 +48,7 @@ export const propertySchema = z
         email: z.boolean().optional(),
         date: z.boolean().optional(),
       })
+      .nullable()
       .optional(),
     isSearchable: z.boolean().default(false),
     isVisible: z
