@@ -188,9 +188,7 @@ const normalizeConfig = (config: RawConfig): ProductPlacesConfigRow => {
     boardId: typeof value.boardId === 'string' ? value.boardId : '',
     pipelineId: typeof value.pipelineId === 'string' ? value.pipelineId : '',
     stageId:
-      typeof value.stageId === 'string'
-        ? value.stageId
-        : config.subId || '',
+      typeof value.stageId === 'string' ? value.stageId : config.subId || '',
     checkPricing: value.checkPricing === true,
     productCategoryIds: toStringArray(value.productCategoryIds),
     excludeCategoryIds: toStringArray(value.excludeCategoryIds),
@@ -329,9 +327,7 @@ const StageFields = ({
           variant="form"
           pipelineId={form.pipelineId}
           value={form.stageId}
-          onValueChange={(stageId) =>
-            setForm((prev) => ({ ...prev, stageId }))
-          }
+          onValueChange={(stageId) => setForm((prev) => ({ ...prev, stageId }))}
           disabled={!form.pipelineId}
         />
       </div>
