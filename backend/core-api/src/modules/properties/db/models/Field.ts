@@ -202,7 +202,7 @@ export const loadFieldClass = (models: IModels) => {
 
         const keys = new Set(objectListConfigs.map((config) => config.key));
 
-        return value
+        const normalizedRows = value
           .filter(
             (row: unknown) =>
               typeof row === 'object' && row !== null && !Array.isArray(row),
@@ -212,6 +212,12 @@ export const loadFieldClass = (models: IModels) => {
               Object.entries(row).filter(([key]) => keys.has(key)),
             ),
           );
+
+        if (validations?.required && normalizedRows.length === 0) {
+          throw new Error(`${field.name}: required`);
+        }
+
+        return normalizedRows;
       }
 
       const isEmptyValue =
