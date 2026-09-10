@@ -1,5 +1,17 @@
 
 
+## [3.1.4](https://github.com/erxes/erxes/compare/3.1.3...3.1.4) (2026-09-10)
+
+
+### Bug Fixes
+
+* prevent double automation triggers from postback payloads ([8814fcd](https://github.com/erxes/erxes/commit/8814fcddac769276152eddd4744420b38a0377c6))
+
+
+### Features
+
+* resolve a per-tenant gateway on SaaS ([#9288](https://github.com/erxes/erxes/issues/9288)) ([8b1008f](https://github.com/erxes/erxes/commit/8b1008fbff8a28231527619db3e9b2f8bcd6bee6))
+
 ## [3.1.3](https://github.com/erxes/erxes/compare/3.1.2...3.1.3) (2026-09-10)
 
 
