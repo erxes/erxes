@@ -6,26 +6,26 @@ import { ITicketConfigDocument } from '@/ticket/@types/ticketConfig';
 
 const TicketFormFieldSchema = new Schema(
   {
-    isShow:      { type: Boolean },
-    label:       { type: String },
+    isShow: { type: Boolean },
+    label: { type: String },
     placeholder: { type: String },
-    order:       { type: Number },
+    order: { type: Number },
   },
   { _id: false },
 );
 
 const TicketConfigSchema = new Schema(
   {
-    name:             { type: String, required: true },
-    pipelineId:       { type: String, index: true },
-    channelId:        { type: String },
+    name: { type: String, required: true },
+    pipelineId: { type: String, index: true },
+    channelId: { type: String },
     selectedStatusId: { type: String },
-    parentId:         { type: String },
+    parentId: { type: String },
     formFields: {
-      name:        { type: TicketFormFieldSchema },
+      name: { type: TicketFormFieldSchema },
       description: { type: TicketFormFieldSchema },
-      attachment:  { type: TicketFormFieldSchema },
-      tags:        { type: TicketFormFieldSchema },
+      attachment: { type: TicketFormFieldSchema },
+      tags: { type: TicketFormFieldSchema },
     },
   },
   { timestamps: true },
@@ -39,7 +39,9 @@ export interface ITicketConfigModel extends Model<ITicketConfigDocument> {
 
 export const loadTicketConfigClass = (models: IModels) => {
   class TicketConfig {
-    public static async getTicketConfig(_id: string): Promise<ITicketConfigDocument> {
+    public static async getTicketConfig(
+      _id: string,
+    ): Promise<ITicketConfigDocument> {
       const ticketConfig = await models.TicketConfig.findOne({ _id });
       if (!ticketConfig) throw new Error('Ticket config not found');
       return ticketConfig;

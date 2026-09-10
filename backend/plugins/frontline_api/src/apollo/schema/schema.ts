@@ -76,10 +76,10 @@ import {
 } from '~/modules/form/graphql/schema/field';
 
 import {
-  mutations as PollMutations,
-  queries as PollQueries,
-  types as PollTypes,
-} from '~/modules/poll/graphql/schema/poll';
+  mutations as SurveyMutations,
+  queries as SurveyQueries,
+  types as SurveyTypes,
+} from '~/modules/survey/graphql/schema/survey';
 
 import {
   queries as ReportCallQueries,
@@ -152,7 +152,7 @@ export const types = `
     ${ReportChartTypes}
     ${FormTypes}
     ${FieldTypes}
-    ${PollTypes}
+    ${SurveyTypes}
     ${KnowledgeBaseTypes}
     ${HelpCenterConfigTypes}
   `;
@@ -177,7 +177,7 @@ export const queries = `
     ${ReportChartQueries}
     ${FormQueries}
     ${FieldQueries}
-    ${PollQueries}
+    ${SurveyQueries}
     ${KnowledgeBaseQueries}
     ${HelpCenterConfigQueries}
     ${CpInboxQueries}
@@ -198,7 +198,7 @@ export const mutations = `
    ${ResponseTemplateMutations}
    ${FormMutations}
    ${FieldMutations}
-   ${PollMutations}
+   ${SurveyMutations}
    ${KnowledgeBaseMutations}
    ${HelpCenterConfigMutations}
    ${CpInboxMutations}

@@ -420,11 +420,7 @@ const BrandFilterBar = () => {
     <Filter.BarItem queryKey="brandId">
       <Filter.BarName>
         <IconBuildingStore />
-        {loading || !brandName ? (
-          <Skeleton className="h-4 w-20" />
-        ) : (
-          brandName
-        )}
+        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
       </Filter.BarName>
     </Filter.BarItem>
   );

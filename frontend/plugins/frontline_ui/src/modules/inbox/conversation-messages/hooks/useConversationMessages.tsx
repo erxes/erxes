@@ -60,7 +60,7 @@ export const useConversationMessages = (
         const newMessage = subscriptionData.data.conversationMessageInserted;
 
         // The same message id can be re-emitted to push an update (e.g. a Discord
-        // poll's vote tallies refreshing on `extraData`). Replace the existing
+        // survey's vote tallies refreshing on `extraData`). Replace the existing
         // copy in place so the card updates, rather than dropping the event as a
         // duplicate or appending a second bubble.
         const existingIndex = prev.conversationMessages.findIndex(

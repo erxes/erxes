@@ -2,6 +2,19 @@ import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 
+const ticketSourceSurveySchema = new Schema(
+  {
+    surveyId: { type: String, label: 'Survey' },
+    surveyStepId: { type: String, label: 'Survey step' },
+    surveyOptionId: { type: String, label: 'Survey option' },
+    question: { type: String, label: 'Survey question' },
+    optionText: { type: String, label: 'Survey option text' },
+    voteCount: { type: Number, label: 'Vote count at creation' },
+    threshold: { type: Number, label: 'Configured threshold' },
+  },
+  { _id: false },
+);
+
 export const ticketSchema = schemaWrapper(
   new Schema(
     {
@@ -58,6 +71,10 @@ export const ticketSchema = schemaWrapper(
         type: Schema.Types.Mixed,
         optional: true,
         label: 'Customer field data',
+      },
+      sourceSurvey: {
+        type: ticketSourceSurveySchema,
+        label: 'Survey that triggered this ticket',
       },
     },
     {

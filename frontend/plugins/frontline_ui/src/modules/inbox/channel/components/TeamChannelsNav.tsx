@@ -25,7 +25,7 @@ import {
 } from '@/inbox/conversations/hooks/useConversationCounts';
 import { useChannelUnreadUpdates } from '@/inbox/channel/hooks/useChannelUnreadUpdates';
 import { ChannelNavItem } from '@/inbox/channel/components/ChannelNavItem';
-import { ChannelPollNavItem } from '@/poll/components/ChannelPollNavItem';
+import { ChannelSurveyNavItem } from '@/survey/components/ChannelSurveyNavItem';
 import {
   INBOX_TARGET_KEYS,
   InboxTarget,
@@ -201,6 +201,7 @@ const TeamChannelItem = ({
       unreadCount={unreadCount}
       members={members}
     >
+      {open && <ChannelSurveyNavItem channelId={channel._id} />}
       {loading && !integrationTypes.length && (
         <Skeleton className="w-28 h-4 ml-8 my-1" />
       )}
@@ -219,7 +220,6 @@ const TeamChannelItem = ({
           nested
         />
       ))}
-      {open && <ChannelPollNavItem channelId={channel._id} />}
     </ChannelNavItem>
   );
 };

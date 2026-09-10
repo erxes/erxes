@@ -7,10 +7,10 @@ import { createNotifications } from '~/utils/notifications';
 
 const noteSchema = new Schema(
   {
-    content:   { type: String, required: true },
+    content: { type: String, required: true },
     contentId: { type: String, required: true },
     createdBy: { type: String, required: true },
-    mentions:  { type: [String], default: [] },
+    mentions: { type: [String], default: [] },
   },
   { timestamps: true },
 );
@@ -20,7 +20,11 @@ const noteSchema = new Schema(
 export interface INoteModel extends Model<INoteDocument> {
   getNote(_id: string): Promise<INoteDocument>;
   getNotes(filter: FilterQuery<INoteDocument>): Promise<INoteDocument[]>;
-  createNote(args: { doc: INote; subdomain: string; userId: string }): Promise<INoteDocument>;
+  createNote(args: {
+    doc: INote;
+    subdomain: string;
+    userId: string;
+  }): Promise<INoteDocument>;
   updateNote(doc: INoteDocument): Promise<INoteDocument | null>;
   removeNote(args: { _id: string; userId: string }): Promise<{ ok: number }>;
 }
@@ -104,7 +108,9 @@ export const loadNoteClass = (models: IModels) => {
       return note;
     }
 
-    public static async updateNote(doc: INoteDocument): Promise<INoteDocument | null> {
+    public static async updateNote(
+      doc: INoteDocument,
+    ): Promise<INoteDocument | null> {
       const { _id, ...rest } = doc;
       return models.Note.findOneAndUpdate({ _id }, { $set: { ...rest } });
     }
@@ -118,7 +124,8 @@ export const loadNoteClass = (models: IModels) => {
     }): Promise<{ ok: number }> {
       const note = await models.Note.findOne({ _id });
       if (!note) throw new Error('Note not found');
-      if (note.createdBy !== userId) throw new Error('You are not authorized to remove this note');
+      if (note.createdBy !== userId)
+        throw new Error('You are not authorized to remove this note');
       const result = await models.Note.deleteOne({ _id });
       return { ok: result.deletedCount || 0 };
     }

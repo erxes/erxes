@@ -9,7 +9,7 @@ import {
   Form,
   Submission,
 } from '@/form/graphql/resolvers/customResolvers/forms';
-import { Poll } from '@/poll/graphql/resolvers/customResolvers/poll';
+import { Survey } from '@/survey/graphql/resolvers/customResolvers/survey';
 import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
 import {
   KnowledgeBaseCategory,
@@ -27,7 +27,7 @@ export const customResolvers = {
   Ticket,
   Form,
   Submission,
-  Poll,
+  Survey,
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,

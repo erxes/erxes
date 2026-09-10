@@ -130,25 +130,25 @@ interface StatusDetailsProps {
 const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => {
   const { t } = useTranslation('frontline');
   return (
-  <div className="space-y-3">
-    {Object.entries(statuses).map(([status, count]) => (
-      <div key={status} className="flex justify-between text-sm">
-        <span className="text-muted-foreground capitalize">{status}</span>
-        <span className="font-medium">{count}</span>
+    <div className="space-y-3">
+      {Object.entries(statuses).map(([status, count]) => (
+        <div key={status} className="flex justify-between text-sm">
+          <span className="text-muted-foreground capitalize">{status}</span>
+          <span className="font-medium">{count}</span>
+        </div>
+      ))}
+      <div className="flex justify-between text-sm font-medium border-t pt-2">
+        <span>{t('total')}</span>
+        <span>{total}</span>
       </div>
-    ))}
-    <div className="flex justify-between text-sm font-medium border-t pt-2">
-      <span>{t('total')}</span>
-      <span>{total}</span>
-    </div>
-    <div className="pt-2">
-      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-500"
-          style={{ width: `${percentage}%` }}
-        />
+      <div className="pt-2">
+        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-500"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
       </div>
     </div>
-  </div>
   );
 };

@@ -53,7 +53,7 @@ export interface IConversation {
   firstRespondedDate?: Date;
 
   isCustomerRespondedLast?: boolean;
-  hasPoll?: boolean;
+  hasSurvey?: boolean;
   customFieldsData?: ICustomField[];
   isBot?: boolean;
   botId?: string;
@@ -76,7 +76,7 @@ export interface IConversationListParams
   status?: string;
   unassigned?: string;
   awaitingResponse?: string;
-  withPoll?: string;
+  withSurvey?: string;
   automationStatus?: string;
   tag?: string;
   integrationType?: string;
