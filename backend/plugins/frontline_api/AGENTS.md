@@ -735,9 +735,11 @@ isInternal)` is the agent-side list and requires `showTickets`.
   instead of opening a ticket. Only an https link on a known provider host is
   stored from that message, since the settings page renders it as a link an
   admin clicks.
-- Every Cloudflare request carries an abort deadline. `ticketCreateNote` awaits
-  delivery, so a stalled request would otherwise hold the mutation open for
-  minutes after the note is already saved.
+- Every Cloudflare request carries an abort deadline that stays armed until the
+  response body has been read, not only until its headers arrive. `fetch`
+  resolves on headers, so clearing the timer there leaves a stalled body running
+  to the runtime's own multi-minute limit — the very wait the deadline exists to
+  remove, since `ticketCreateNote` awaits delivery after the note is saved.
 - `ensureMailIndexes` marks a subdomain reconciled only after the indexes exist,
   and concurrent callers await the same run. Marking it up front let a second
   `mailPipelineConnect` through before the unique `pipelineId` index was built.

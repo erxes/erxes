@@ -41,13 +41,15 @@ const readEnvelope = async <T>(response: Response) => {
   }
 };
 
-const fetchWithDeadline = async (url: string, init: RequestInit) => {
+const readWithDeadline = async <T>(url: string, init: RequestInit) => {
   const controller = new AbortController();
 
   const deadline = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    return await fetch(url, { ...init, signal: controller.signal });
+    const response = await fetch(url, { ...init, signal: controller.signal });
+
+    return { response, envelope: await readEnvelope<T>(response) };
   } catch (e) {
     if (controller.signal.aborted) {
       throw new CloudflareError(
@@ -70,16 +72,17 @@ export const cloudflareRequest = async <T>(
 ): Promise<T> => {
   const isForm = init.body instanceof FormData;
 
-  const response = await fetchWithDeadline(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      authorization: `Bearer ${token}`,
-      ...(isForm ? undefined : { 'content-type': 'application/json' }),
-      ...init.headers,
+  const { response, envelope } = await readWithDeadline<T>(
+    `${API_BASE}${path}`,
+    {
+      ...init,
+      headers: {
+        authorization: `Bearer ${token}`,
+        ...(isForm ? undefined : { 'content-type': 'application/json' }),
+        ...init.headers,
+      },
     },
-  });
-
-  const envelope = await readEnvelope<T>(response);
+  );
 
   if (!response.ok || envelope.success === false) {
     const first = envelope.errors?.[0];
