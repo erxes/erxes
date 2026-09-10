@@ -870,8 +870,29 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   and a stress run against a real one is what gets it restricted. Unset in any
   deployment.
 - `POST /facebook/receive` answers every webhook it accepts, including one it
-  ignores or cannot classify. Falling through without a response leaves the
-  request open and makes Facebook redeliver the same event.
+  ignores or cannot classify — but **exactly once**, through the handler's own
+  `respond()` guard. Falling through without a response leaves the request open
+  and makes Facebook redeliver the event; ending twice is worse, because
+  `processMessagingEvent` already answers on its path and the second `end()`
+  raises `ERR_STREAM_WRITE_AFTER_END` from an event handler, which is unhandled
+  and kills the process.
+- A comment reply's attachment is stored as the upload's key, not a URL, so the
+  outbox runs it through `generateAttachmentUrl` before handing it to Facebook
+  as `attachment_url` — Facebook fetches the image itself and cannot resolve a
+  storage key. Graph takes exactly one attachment on a comment reply.
+- A public comment reply that meets an open breaker is **rescheduled, not
+  failed**: the window lifts on its own and the reply is still worth sending.
+  The requeue takes a fresh pacing slot on top of the wait, because a backlog
+  released at one instant repeats the burst that opened the breaker. The only
+  thing that ends a queued reply is `MAX_QUEUE_AGE_MS` — a day, chosen to clear
+  the 2-to-8.4-hour enforcement windows measured on the 2026-09-07 dump.
+- There is no per-post reply cap. One was tried and removed: measured against
+  that dump, no threshold on volume, repetition count, repetition share or post
+  concentration separated blocked hours from clean ones — the highest repetition
+  in the data (16,388 uses of one sentence in seven days) drew no refusal at
+  all. Pacing defends the documented API rate limit, and the breaker defends
+  against a refusal already received; neither is a spam-classifier model. Do not
+  reintroduce a cap without evidence that names the threshold.
 - A public comment reply carries the `@[senderId]` mention only when its action
   sets `mentionSender`. The mention was unconditional for years, which tagged
   every commenter publicly whether the automation wanted it or not; the outbox
@@ -1573,6 +1594,88 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — A comment reply can carry an image
+
+- **Summary:** The outbox passed the stored attachment straight through as
+  `attachment_url`, which Facebook cannot fetch because the form stores an
+  upload key; it now resolves through `generateAttachmentUrl`, so the reply
+  form's newly enabled image upload actually reaches the page.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`
+- **Contracts changed:** None.
+
+### `2026-09-09` — Blocked comment replies wait the window out
+
+- **Summary:** The per-post budget is removed and pacing raised from 10 to 30 a
+  minute; a reply that meets an open breaker is requeued for when the block
+  lifts rather than marked failed, and is dropped only once it is 24 hours old.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentGuard.ts`,
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/models/CommentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** `FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST` is no longer
+  read. The action no longer returns `post-public-reply-limit`; the outbox
+  document gained `attempts`.
+
+### `2026-09-09` — Graph calls can be pointed at a stand-in
+
+- **Summary:** The comment outbox had no way to be exercised without sending to
+  Meta; `FACEBOOK_GRAPH_URL` now redirects every Graph call. The webhook route
+  also lost a dozen `console.log` traces that duplicated `debugFacebook`, and
+  two paths that returned without answering the request now end it.
+- **Affected areas:**
+  `src/modules/integrations/facebook/utils.ts`,
+  `src/modules/integrations/facebook/controller/controller.ts`,
+  `src/modules/integrations/facebook/helpers.ts`
+- **Contracts changed:** None. New optional `FACEBOOK_GRAPH_URL` env var,
+  empty by default.
+
+### `2026-09-09` — The bot reports which replies it repeats
+
+- **Summary:** `facebookMessengerBotDelivery` only ever returned counts, so the
+  bot surface could say two replies were sent but not what they were;
+  `facebookMessengerBotCommentReplyStats` groups the outbox by reply text and
+  returns each one's totals, newest failure, last use and the posts it ran
+  under — named by the post's own text from `FacebookPostConversations`, since
+  the outbox only records an id.
+- **Affected areas:**
+  `src/modules/integrations/facebook/graphql/schema/facebook.ts`,
+  `src/modules/integrations/facebook/graphql/resolvers/queries.ts`
+- **Contracts changed:** New `FacebookBotCommentReplyStat` and
+  `FacebookBotCommentReplyPost` types and
+  `facebookMessengerBotCommentReplyStats(_id: String!, limit: Int)` query,
+  capped at 50 rows.
+
+### `2026-09-09` — The comment reply mention became opt-in
+
+- **Summary:** Public comment replies prepended `@[senderId]` unconditionally;
+  the Send comment action now carries a `mentionSender` flag, stored on the
+  outbox document, and the mention goes out only when it is set.
+- **Affected areas:**
+  `src/modules/integrations/facebook/commentOutbox.ts`,
+  `src/modules/integrations/facebook/db/definitions/comment_outbox.ts`,
+  `src/modules/integrations/facebook/meta/automation/comments/index.ts`
+- **Contracts changed:** None. The action config gained an optional
+  `mentionSender` boolean; automations without it stop mentioning.
+
+### `2026-09-09` — Keyword conditions on Meta triggers actually work
+
+- **Summary:** `checkContentConditions` read only its first condition, could
+  never satisfy `every` on the Facebook side (it compared each keyword to the
+  whole message), matched every message when a rule held no keyword, and threw
+  whenever a keyword contained a regex metacharacter; conditions now OR
+  together and each operator returns a boolean.
+- **Affected areas:**
+  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
+  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
+- **Contracts changed:** None. `checkContentConditions` returns `boolean`
+  instead of `boolean | undefined`; matching stays case-sensitive except
+  `isContains`, as before.
+
+### `2026-09-07` — A help center points at the knowledge base topic it serves
+
 ### `2026-09-10` — The ticket note type stopped colliding with `operation`'s
 
 - **Summary:** Renamed this plugin's GraphQL `Note` type to `TicketNote`. It was
@@ -1590,6 +1693,39 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 ### `2026-09-10` — The help center search escape uses a raw string
 
+- **Summary:** A poll can now carry a `brandId`; the client-portal submit path and
+  `pollSendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the poll's channel — removing the arbitrary
+  `findOne` pick on a channel with several messenger integrations.
+- **Affected areas:** `src/modules/poll/{@types/poll.ts,db/definitions/polls.ts,db/models/Polls.ts}`,
+  `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/graphql/resolvers/mutations/{polls.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `pollAdd`, `pollEdit` and the
+  `Poll` type.
+
+### `2026-09-07` — Guest voting on the client portal poll surface
+
+- **Summary:** All four `cpPoll*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a poll;
+  `cpPollSubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+  return, while a signed-in `cpUser` still wins over the argument.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/poll/graphql/schema/poll.ts`, `src/modules/poll/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
+  `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
+  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
+
+### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
+
+- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
+  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
+  module's shared `utils.ts` so both resolver maps use one lookup.
+- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
+  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
+  `src/modules/poll/utils.ts`.
+- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
+  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
+  `PollConnectResponse` to `CpPollResponse`.
 - **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
   which the quality gate flags as avoidable escaping. It now reads as
   ``String.raw`\$&` ``; the behaviour is unchanged.

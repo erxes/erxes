@@ -202,6 +202,10 @@
 - The Facebook comment reply action holds a set of reply variants and one is
   picked at random per comment; a single variant is warned about, because Meta's
   Spam policy restricts pages "posting repetitive content" regardless of rate.
+  Public replies are paced through an outbox so a page sends at most a set
+  number a minute, and paused on the bot for hours after Facebook refuses one;
+  a paused reply waits the window out and is only dropped once it is a day old.
+  History reports the queue, the wait, the expiry and which variant went out. Private replies are never paced. The bot form reports its
   Public replies are also capped per post, paced through an outbox so a page
   sends at most a set number a minute, and paused on the bot for hours after
   Facebook refuses one. History reports the queue, the skip, the pause and which
@@ -505,6 +509,15 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 
 ## Local Invariants
 
+- A deferred action's `result` is written the moment the work is queued and is
+  never updated, so history reads the action's own `status` to say how the wait
+  ended. Trusting `result.status` alone left a timed-out reply still promising
+  to send "in about 3 minutes" an hour later.
+- `useFieldArray` does not drive a flat array. React Hook Form documents it as
+  intended for arrays of objects, and on the comment reply variants — a plain
+  `string[]` — it silently stopped appending past the second entry. A list of
+  primitives is read with `watch` and written with `setValue`; that also drops
+  the `as never` cast the hook needed on such a name.
 - `RecordTable.Provider`'s container is `overflow-hidden`, so a table that is
   not wrapped in a scroll area clips every column past the viewport instead of
   scrolling. The help center and its categories tables paginate by page, not by
@@ -1118,6 +1131,73 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-09` — The comment reply takes an image
+
+- **Summary:** The attachment field had been a disabled placeholder from before
+  uploads existed; it now uses the same `FileUploadSection` the message action
+  does, capped at the single image Facebook accepts on a comment reply, and the
+  config schema stopped typing it as `any`.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`,
+  `src/widgets/automations/modules/facebook/components/action/states/replyCommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — The comment reply form got a layout, and adds past two
+
+- **Summary:** Every block in the Send comment panel sat flush against the next
+  because the form had no spacing wrapper, and `useFieldArray` — documented as
+  not supporting flat arrays — stopped appending past the second variant. The
+  list is now driven from form state, the fields are three separated groups,
+  each variant carries its counter and a destructive remove control in a header
+  row above its textarea, and section headings stopped being `Form.Label`s for
+  controls they do not label.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm.tsx`
+- **Contracts changed:** None.
+
+### `2026-09-09` — A paused comment reply waits instead of being dropped
+
+- **Summary:** History rendered a `post-public-reply-limit` skip that the API no
+  longer produces; the per-post cap is gone and a blocked reply is requeued, so
+  the only skip left is `queue-expired` after a day of waiting. A deferred reply
+  that timed out also stopped claiming it was still about to send.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`,
+  `src/widgets/automations/modules/facebook/components/history/useFacebookAutomationHistoryResult.ts`
+- **Contracts changed:** None. The action result no longer carries `limit`.
+
+### `2026-09-09` — The bot's Activity tab is about comments
+
+- **Summary:** One "Bot health" block mixed the Messenger profile's sync state
+  with the comment outbox counters and named neither; it is now a Messenger
+  profile block and a Comment replies block that lists each distinct reply with
+  the share it takes of everything the page has said and the posts it ran
+  under, linked by permalink. Connected automations covers
+  comment triggers as well as message ones, badged per row, and Create
+  automation offers both trigger types.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotProfileHealth.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCommentActivity.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotCommentReplyStats.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotAutomations.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotCreateAutomationButton.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotAutomations.tsx`
+- **Contracts changed:** None. `useFacebookBotAutomations` takes one trigger
+  type or many, and each returned trigger carries its `type`.
+
+### `2026-09-09` — The bot form splits settings from activity
+
+- **Summary:** The Facebook bot sheet mixed what the bot _is_ with what it is
+  _doing_; the name stays at the top and the rest moved into Settings
+  (persistent menu, ice breakers, optional configuration) and Activity (health
+  counters, connected automations) tabs. The open tab is held for the session,
+  so reopening a bot lands back where the last one was left.
+- **Affected areas:**
+  `src/widgets/automations/modules/facebook/components/bots/components/AutomationFbBotFormContent.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/components/FacebookBotSettingsTab.tsx`,
+  `src/widgets/automations/modules/facebook/components/bots/states/facebookBotStates.tsx`
+- **Contracts changed:** None.
+
 ### `2026-09-10` — Quality gate fixes across the note input and help center drawer
 
 - **Summary:** The submit button's label came from a doubly nested ternary and
@@ -1271,3 +1351,64 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - **Contracts changed:** `FacebookBotHealth` gains `lastError`,
   `sendBlockedUntil`, `sendBlockReason` and `sendBlockCount`;
   `facebookMessengerBotDelivery(_id: String!)` is new.
+
+### `2026-09-08` — Public comment replies go through a paced outbox
+
+- **Summary:** `frontline:facebook.comments.create` declares
+  `deferred: { enable: true, mode: 'ignore' }`, records the reply in a new
+  `comment_outbox_facebook` collection and returns a queued marker, so the
+  private reply after it runs immediately instead of waiting behind the pacing.
+  A per-page Redis counter hands out send slots
+  (`FACEBOOK_COMMENT_REPLIES_PER_MINUTE`, default 10) and each reply is scheduled
+  as a delayed BullMQ job, so nothing polls. The worker sends, closes or opens
+  the page breaker, and reports back through the new
+  `sendAutomationDeferredCompletion`.
+- **Affected areas:** `erxes-api-shared`
+  `core-modules/automations/sendAutomationMessage.ts`. `frontline_api` new
+  `modules/integrations/facebook/{commentOutbox,commentOutboxWorker}.ts`,
+  `db/definitions/comment_outbox.ts`, `db/models/CommentOutbox.ts`;
+  `commentGuard.ts`, `meta/automation/{constants.ts,comments/index.ts}`,
+  `connectionResolvers.ts`, `main.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action now returns a deferred marker rather
+  than a send result; `sendAutomationDeferredCompletion` is new in
+  `erxes-api-shared`.
+
+### `2026-09-08` — Facebook's refusal now stops public comment replies
+
+- **Summary:** `sendReply` throws a `FacebookSendError` carrying Meta's `code`
+  and `error_subcode`, which it previously logged and discarded. A spam refusal
+  or `#613` opens a breaker on the bot's `health` — `sendBlockedUntil`,
+  `sendBlockReason`, `sendBlockCount` — pausing public comment replies for 1h,
+  doubling per consecutive refusal up to 24h, and a reply that gets through
+  closes it. On the 2026-09-07 dump the same page was hit for five days across
+  three enforcement windows; this turns that into an hour. Both the pause and a
+  refusal are reported instead of thrown, so the private reply that follows still
+  runs. Private replies are untouched: 141,158 of them went out with no refusal.
+- **Affected areas:** `frontline_api` new
+  `modules/integrations/facebook/errors.ts`; `utils.ts`,
+  `db/definitions/bots.ts` (health fields and a `pageId` index),
+  `db/models/Bots.ts`, `meta/automation/comments/index.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action result gains
+  `{ status: 'skipped', reason: 'send-blocked', blockedUntil }` and
+  `{ status: 'failed', error, blockedUntil }`.
+
+### `2026-09-08` — Public comment replies are capped per post
+
+- **Summary:** `frontline:facebook.comments.create` now spends a per-post budget
+  before replying publicly (`FACEBOOK_COMMENT_PUBLIC_REPLY_PER_POST`, default
+  100, counted in Redis for seven days). Over the cap it returns
+  `{ status: 'skipped' }` instead of throwing, so the private reply that follows
+  it in the automation still runs — a thrown action ends the execution. The run
+  also records the variant it posted, so history shows the reply that actually
+  went out, and renders the skip with its reason.
+- **Affected areas:** `frontline_api` new
+  `modules/integrations/facebook/commentGuard.ts`;
+  `meta/automation/comments/index.ts`. `frontline_ui`
+  `src/widgets/automations/modules/facebook/components/AutomationHistoryResult.tsx`
+  and `components/history/useFacebookAutomationHistoryResult.ts`.
+- **Contracts changed:** the comment action result gains `text` on success and a
+  `{ status: 'skipped', reason, limit, used }` shape when capped.

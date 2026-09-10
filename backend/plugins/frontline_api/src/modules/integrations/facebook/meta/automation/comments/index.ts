@@ -53,24 +53,6 @@ export const actionCreateComment = async (
       };
     }
 
-    const budget = await consumePostPublicReplyBudget(
-      models,
-      subdomain,
-      target?.postId,
-    );
-
-    if (!budget.allowed) {
-      // Returned rather than thrown: a thrown action ends the execution, and the
-      // private reply that follows it is the one that actually converts.
-      return {
-        status: 'skipped',
-        reason: 'post-public-reply-limit',
-        postId: target?.postId,
-        limit: budget.limit,
-        used: budget.used,
-      };
-    }
-
     const { jobId, delay } = await queueCommentReply(models, subdomain, {
       executionId: execution._id,
       actionId: action.id,
