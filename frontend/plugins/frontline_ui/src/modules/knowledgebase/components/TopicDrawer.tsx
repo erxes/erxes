@@ -190,8 +190,8 @@ export function TopicDrawer({
                 ? t('saving', 'Saving…')
                 : t('kb-creating', 'Creating...')
               : isEditing
-              ? t('kb-save-changes', 'Save Changes')
-              : t('kb-create-topic', 'Create Topic')}
+                ? t('kb-save-changes', 'Save Changes')
+                : t('kb-create-topic', 'Create Topic')}
           </Button>
         </Sheet.Footer>
       </Sheet.View>
