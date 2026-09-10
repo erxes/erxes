@@ -1122,9 +1122,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 
 - **Summary:** The submit button's label came from a doubly nested ternary and
   the note wrapper carried a keydown handler with no role, both flagged on new
-  code. The label is now three named values, and the wrapper is marked
-  presentational — it is a drop target whose keydown only sees what the editor
-  inside bubbles up.
+  code. The label is now three named values, and the wrapper carries `group` —
+  it is a drop target watching the keys the editor inside bubbles up, not a
+  control of its own.
 - **Affected areas:** `src/modules/activity/components/NoteInput.tsx`,
   `src/modules/helpcenter/components/help-center-drawer/HelpCenterDrawer.tsx`
 - **Contracts changed:** `None`
