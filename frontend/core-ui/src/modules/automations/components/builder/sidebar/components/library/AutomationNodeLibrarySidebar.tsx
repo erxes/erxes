@@ -1,5 +1,6 @@
 import { AutomationNodeLibraryTabContent } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabContent';
 import { AutomationNodeLibraryTabs } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabs';
+import { NodeLibraryPlacementNote } from '@/automations/components/builder/sidebar/components/library/NodeLibraryPlacementNote';
 import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck, IconFilter, IconX } from '@tabler/icons-react';
@@ -102,6 +103,7 @@ const AutomationNodeLibrarySidebarContent = ({
   return (
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
       <AutomationNodeLibraryTabs activeNodeTab={activeNodeTab} />
+      <NodeLibraryPlacementNote />
       <div className="flex shrink-0 flex-row gap-2 px-5 py-4">
         <Command.Input
           placeholder={t('search')}

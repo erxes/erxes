@@ -2,6 +2,7 @@ import { useFacebookBot } from '@/integrations/facebook/hooks/useFacebookBots';
 import { TCommentTriggerCondition } from '../types/commentTrigger';
 import { TMessageTriggerCondition } from '../types/messageTrigger';
 import {
+  TCommentTriggerConfigContentConfig,
   TTriggerConfigContentConfig,
   TTriggerConfigSummaryResult,
 } from '../types/triggerSummary';
@@ -43,6 +44,7 @@ export const useTriggerConfigSummary = (
     conditionSummaries: isCommentTrigger
       ? buildCommentTriggerConditionSummaries({
           conditions: commentConditions,
+          ...(config as TCommentTriggerConfigContentConfig),
         })
       : buildSelectedConditionSummaries({
           conditions: getMessageConditions(config),

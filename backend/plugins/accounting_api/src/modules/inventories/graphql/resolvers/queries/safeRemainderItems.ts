@@ -12,6 +12,17 @@ const DIFF_TYPE_OPERATORS: Record<string, '$gt' | '$lt' | '$eq' | '$ne'> = {
   ne: '$ne',
 };
 
+const canViewSafeRemainderItemCounts = async (
+  checkPermission: IContext['checkPermission'],
+) => {
+  try {
+    await checkPermission('viewSafeRemainderItemCounts');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType, searchValue } =
     params;
@@ -86,9 +97,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItems: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return paginate(
       models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       params,
@@ -98,9 +116,16 @@ const safeRemainderItemsQueries = {
   safeRemainderItemsCount: async (
     _root: any,
     params: any,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
-    const query: any = await generateFilterItems(subdomain, params);
+    await checkPermission('readSafeRemainders');
+    const canViewItemCounts =
+      await canViewSafeRemainderItemCounts(checkPermission);
+    const filterParams = canViewItemCounts
+      ? params
+      : { ...params, diffType: undefined };
+
+    const query: any = await generateFilterItems(subdomain, filterParams);
     return models.SafeRemainderItems.find(query).countDocuments();
   },
 };

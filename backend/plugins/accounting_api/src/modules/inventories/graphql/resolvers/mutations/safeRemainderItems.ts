@@ -14,8 +14,10 @@ const safeRemainderItemMutations = {
       remainder: number;
       trInfo?: any;
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageSafeRemainders');
+
     const { _id, status, remainder, trInfo } = params;
 
     const doc = {
@@ -38,8 +40,10 @@ const safeRemainderItemMutations = {
       productsData: { productCode: string; count: number }[];
       duplicateRule?: 'skip' | 'last' | 'add';
     },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('manageSafeRemainders');
+
     const safeRemainder = await models.SafeRemainders.getRemainder(
       safeRemainderId,
     );
@@ -159,8 +163,10 @@ const safeRemainderItemMutations = {
   async safeRemainderItemsRemove(
     _root: any,
     { ids }: { ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('removeSafeRemainders');
+
     return models.SafeRemainderItems.removeItems(ids);
   },
 };

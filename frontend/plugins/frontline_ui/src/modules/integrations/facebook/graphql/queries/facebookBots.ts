@@ -43,6 +43,10 @@ const FACEBOOK_BOT_FIELDS = `
     isProfileSynced
     lastSyncedAt
     lastVerifiedAt
+    lastError
+    sendBlockedUntil
+    sendBlockReason
+    sendBlockCount
   }
 `;
 
@@ -115,5 +119,37 @@ export const FACEBOOK_GET_BOT_POSTS = gql`
 export const FACEBOOK_GET_BOT_POST = gql`
   query FacebookGetBotPost($botId: String, $postId: String) {
     facebookGetBotPost(botId: $botId, postId: $postId)
+  }
+`;
+
+export const FACEBOOK_BOT_DELIVERY = gql`
+  query FacebookMessengerBotDelivery($_id: String!) {
+    facebookMessengerBotDelivery(_id: $_id) {
+      pending
+      sent
+      failed
+      nextSendAt
+    }
+  }
+`;
+
+export const FACEBOOK_BOT_COMMENT_REPLY_STATS = gql`
+  query FacebookMessengerBotCommentReplyStats($_id: String!, $limit: Int) {
+    facebookMessengerBotCommentReplyStats(_id: $_id, limit: $limit) {
+      text
+      total
+      sent
+      failed
+      pending
+      postCount
+      posts {
+        postId
+        count
+        content
+        permalinkUrl
+      }
+      lastAt
+      lastError
+    }
   }
 `;
