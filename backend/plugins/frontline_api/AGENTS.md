@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -60,8 +60,9 @@
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
-  Removal is local only. No Viber HTTP route or message delivery handler is
-  registered.
+  Removal is local only. A standalone raw-body parser preserves numeric Viber
+  message tokens as exact strings; it is not yet wired into the receiver.
+  No Viber HTTP route or message delivery handler is registered.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -153,7 +154,8 @@
 
 Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connection
 creation and local removal, `messageBroker.ts` adapts their inputs and error
-handling, and `utils/` holds signature/account helpers and their colocated tests.
+handling, and `utils/` holds signature/account helpers, raw-body webhook parsing,
+and their colocated tests.
 `@types/` and `db/` hold document types, schema definitions, and the model loader.
 `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
 connection. `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
@@ -628,6 +630,11 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Viber signatures authenticate the exact `rawBody` with the bot token; reject
   missing tokens and non-64-hex signatures. Never parse and reserialize the body
   for signing or log tokens, signatures, or payloads.
+- `parseViberWebhookBody(rawBody)` returns `unknown` and preserves numeric
+  `message_token` values using the JSON reviver's original source string, never
+  a rounded JavaScript number. Malformed JSON or unavailable numeric source
+  throws. Payload validation remains the receiver's responsibility; authenticate
+  the original bytes before using this parser in the receive path.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -1487,6 +1494,8 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   They use the existing `tsx` dependency and Node's test runner. HTTP tests fake
   `globalThis.fetch` with `t.mock.method` and remain non-concurrent. No real
   credentials, network, or project-wide test configuration are required.
+  Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
+  malformed JSON, and a mocked runtime without reviver source support.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1533,6 +1542,16 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-10` — Exact Viber webhook token parsing
+
+- **Summary:** Added a raw-body parser and regression tests that preserve large
+  numeric Viber message tokens without rounding or changing the original bytes.
+- **Affected areas:** `src/modules/integrations/viber/utils/webhook.ts`,
+  `src/modules/integrations/viber/utils/__tests__/webhook.spec.ts`.
+- **Contracts changed:** Added internal
+  `parseViberWebhookBody(rawBody: Buffer): unknown`; HTTP routes and receiver
+  wiring are unchanged.
 
 ### `2026-09-09` — Viber token whitespace validation
 
@@ -1627,21 +1646,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
   Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
   `PollConnectResponse` to `CpPollResponse`.
-
-### `2026-09-07` — Poll answering moved from the widget to the client portal
-
-- **Summary:** The public `widgetsPoll*` surface was deleted and replaced with a
-  client-portal one — `cpPollConnect`, `cpPollSubmit`, `cpPollVote`, and
-  `cpPollVotes` — so a poll is answered by a signed-in portal user instead of an
-  anonymous widget visitor. The voter is now taken from `cpUser`
-  (`erxesCustomerId || _id`) rather than from client-supplied `customerId` /
-  `visitorId` / `cachedCustomerId` arguments.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/{mutations,queries}/clientPortal.ts`
-  (new), `.../mutations/{widget,widgetPopup}.ts` and `.../queries/widget.ts`
-  (deleted), `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/{utils.ts,@types/poll.ts}`,
-  `src/apollo/resolvers/{queries,mutations}.ts`.
-- **Contracts changed:** Removed `widgetsPollVotes`, `widgetsPollVote`,
-  `widgetsPollConnect`, `widgetsPollSubmit`. Added `cpPollVotes(conversationId)`,
-  `cpPollVote(messageId, optionIds)`, `cpPollConnect(channelId, pollCode)`,
-  `cpPollSubmit(pollCode, optionIds)`.
