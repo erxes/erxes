@@ -22,12 +22,15 @@ export const ResponseSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>{t('manage-channel-response-templates')}</p>
+          <p>
+            {t(
+              'manage-channel-response-templates',
+              'Manage channel response templates',
+            )}
+          </p>
 
           <div className="flex items-center gap-2">
-            <p className="text-xs">
-              {t('response', { count })}
-            </p>
+            <p className="text-xs">{t('response', { count })}</p>
             <IconChevronRight className="w-4 h-4" />
           </div>
         </div>

@@ -24,7 +24,7 @@ export const ActivityDate = ({
           </Badge>
         </>
       )}{' '}
-      {t('to')}
+      {t('to', 'to')}
       <Badge variant="secondary" className="flex-none">
         {format(new Date(newValue), 'MMM d, yyyy')}
       </Badge>

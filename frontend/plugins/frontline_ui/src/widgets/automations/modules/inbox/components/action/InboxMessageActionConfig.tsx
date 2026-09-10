@@ -12,7 +12,7 @@ export const InboxMessageActionConfig = (
   if (!messages.length) {
     return (
       <p className="text-xs text-muted-foreground italic">
-        {t('no-message-configured')}
+        {t('no-message-configured', 'No message configured')}
       </p>
     );
   }

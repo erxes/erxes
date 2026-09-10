@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import {
   PageContainer,
   ScrollArea,
@@ -6,96 +6,45 @@ import {
   Button,
   Spinner,
   Alert,
-  useConfirm,
+  useToast,
 } from 'erxes-ui';
 import { EmptyState } from '../modules/integrations/github/components/EmptyState';
 import { ConnectedOrgCard } from '../modules/integrations/github/components/ConnectedOrgCard';
-import { GithubIssuesSection } from '../modules/integrations/github/components/GithubIssuesSection';
 import { useGithubConnection } from '../modules/integrations/github/hooks/useGithubConnection';
-
-const GITHUB_APP_SLUG = 'erxes-operation-github';
-
-function buildInstallUrl(): string {
-  return `https://github.com/apps/${GITHUB_APP_SLUG}/installations/new`;
-}
+import { useGithubInstall } from '../modules/integrations/github/hooks/useGithubInstall';
 
 export const GithubIntegrationPage = () => {
-  const { confirm } = useConfirm();
-  const {
-    data,
-    loading,
-    error,
-    refetch,
-    disconnectGithub,
-    disconnecting,
-    disconnectError,
-  } = useGithubConnection();
+  const { toast } = useToast();
+  const { data, loading, error, refetchUntilNewConnection } =
+    useGithubConnection();
 
-  const connection = data?.getGithubConnection;
-  const isConnected = connection?.isActive;
-  const popupRef = useRef<Window | null>(null);
-
-  function handleConnect() {
-    if (popupRef.current && !popupRef.current.closed) {
-      popupRef.current.focus();
-      return;
-    }
-
-    const url = buildInstallUrl();
-    const width = 1020;
-    const height = 618;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
-    popupRef.current = window.open(
-      url,
-      'github-install',
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
+  const connections = data?.getGithubConnections ?? [];
+  const isConnected = connections.length > 0;
+  const handleInstallComplete = useCallback(() => {
+    const knownInstallationIds = connections.map(
+      (connection) => connection.installationId,
     );
 
-    const timer = setInterval(() => {
-      if (popupRef.current?.closed) {
-        clearInterval(timer);
-        refetch();
-      }
-    }, 1000);
-  }
-
-  useEffect(() => {
-    function handleMessage(e: MessageEvent) {
-      if (e.data?.type === 'github-install-complete') {
-        if (popupRef.current && !popupRef.current.closed) {
-          popupRef.current.close();
+    void refetchUntilNewConnection(knownInstallationIds)
+      .then(({ added }) => {
+        if (!added) {
+          toast({
+            title: 'No new GitHub organization detected',
+            description:
+              'Finish the GitHub installation, then try adding the organization again.',
+            variant: 'warning',
+          });
         }
-        refetch();
-      }
-    }
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [refetch]);
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (!isConnected && !loading) {
-      interval = setInterval(() => {
-        refetch();
-      }, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isConnected, loading, refetch]);
-
-  function handleDisconnect() {
-    confirm({
-      message: 'Are you sure you want to disconnect the GitHub integration?',
-    }).then(() => {
-      if (!connection?.installationId) return;
-      disconnectGithub({
-        variables: { installationId: connection.installationId },
-      });
-    });
-  }
+      })
+      .catch((refetchError: Error) =>
+        toast({
+          title: 'Could not refresh GitHub organizations',
+          description: refetchError.message,
+          variant: 'destructive',
+        }),
+      );
+  }, [connections, refetchUntilNewConnection, toast]);
+  const { openGithubInstall } = useGithubInstall(handleInstallComplete);
 
   return (
     <PageContainer>
@@ -108,10 +57,6 @@ export const GithubIntegrationPage = () => {
             </p>
           </div>
 
-          {disconnectError && (
-            <Alert variant="error">{disconnectError.message}</Alert>
-          )}
-
           <Card>
             <Card.Header className="flex flex-row items-center justify-between">
               <div>
@@ -121,7 +66,7 @@ export const GithubIntegrationPage = () => {
                 </Card.Description>
               </div>
               {isConnected && (
-                <Button size="sm" onClick={handleConnect}>
+                <Button size="sm" onClick={openGithubInstall}>
                   + Add Another
                 </Button>
               )}
@@ -133,27 +78,23 @@ export const GithubIntegrationPage = () => {
                   <Spinner />
                 </div>
               ) : error ? (
-                <Alert variant="error">
+                <Alert variant="destructive">
                   Failed to load connection status. Please refresh.
                 </Alert>
               ) : isConnected ? (
-                <ConnectedOrgCard
-                  org={connection}
-                  onDisconnect={handleDisconnect}
-                  disconnecting={disconnecting}
-                />
+                <div className="space-y-2">
+                  {connections.map((connection) => (
+                    <ConnectedOrgCard
+                      key={connection.installationId}
+                      org={connection}
+                    />
+                  ))}
+                </div>
               ) : (
-                <EmptyState onConnect={handleConnect} />
+                <EmptyState onConnect={openGithubInstall} />
               )}
             </Card.Content>
           </Card>
-
-          {isConnected && (
-            <GithubIssuesSection
-              installationId={connection.installationId}
-              orgName={connection.orgName}
-            />
-          )}
 
           {isConnected && (
             <Card>

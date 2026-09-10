@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { IconBookmarkPlus, IconListSearch } from '@tabler/icons-react';
+import {
+  IconBookmarkPlus,
+  IconListSearch,
+  IconLoader2,
+} from '@tabler/icons-react';
 import { Button, Popover, Dialog } from 'erxes-ui';
 import {
   SegmentForm,
@@ -105,7 +109,7 @@ const AutomationSegmentFormFooter = ({
 }) => {
   const { form } = useSegment();
   const { isReadOnly } = useAutomation();
-  const { handleSave } = useSegmentActions({ callback });
+  const { handleSave, saving } = useSegmentActions({ callback });
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Trigger',
   });
@@ -119,6 +123,7 @@ const AutomationSegmentFormFooter = ({
   return (
     <AutoamtionConfigFormFooter
       label={saveButtonLabel}
+      saving={saving}
       onSave={form.handleSubmit(handleSave, handleValidationErrors)}
     />
   );
@@ -184,7 +189,14 @@ const KeepAsSegment = ({
             disabled={saving}
             onClick={form.handleSubmit(handleSave, handleValidationErrors)}
           >
-            Save
+            {saving ? (
+              <>
+                <IconLoader2 className="animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save'
+            )}
           </Button>
         </Dialog.Footer>
       </Dialog.ContentCombined>

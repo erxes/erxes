@@ -367,7 +367,10 @@ export const useMessageInputController = (conversationId: string) => {
           : {}),
       },
       onCompleted: () => {
-        toast({ title: t('message-sent'), variant: 'default' });
+        toast({
+          title: t('message-sent', 'Message sent!'),
+          variant: 'default',
+        });
         if (content?.length) editor?.removeBlocks(content);
 
         setContent(() => undefined);
@@ -428,7 +431,7 @@ export const useMessageInputController = (conversationId: string) => {
             'FrontlineInboxSidebarWorkCounts',
           ],
         });
-        toast({ title: 'Poll sent!', variant: 'default' });
+        toast({ title: t('poll-sent', 'Poll sent!'), variant: 'default' });
         return true;
       } catch (err) {
         toast({
@@ -438,7 +441,7 @@ export const useMessageInputController = (conversationId: string) => {
         return false;
       }
     },
-    [conversationId, addConversationMessage],
+    [conversationId, addConversationMessage, t],
   );
 
   useScopedHotkeys('mod+enter', handleSubmit, InboxHotkeyScope.MessageInput);

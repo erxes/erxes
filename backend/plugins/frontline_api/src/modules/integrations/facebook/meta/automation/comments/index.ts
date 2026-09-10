@@ -1,7 +1,24 @@
 import { generateModels, IModels } from '~/connectionResolvers';
+import { consumePostPublicReplyBudget } from '@/integrations/facebook/commentGuard';
 import { debugError } from '@/integrations/facebook/debuggers';
+import { queueCommentReply } from '@/integrations/facebook/commentOutbox';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
-import { sendReply } from '@/integrations/facebook/utils';
+
+/**
+ * Meta restricts pages "posting repetitive content", and a single template can
+ * appear thousands of times under one post. Variants are picked at random so no
+ * single sentence dominates a thread.
+ */
+const pickReplyText = (config: { text?: string; texts?: string[] }) => {
+  const texts = (config?.texts || []).filter((text) => Boolean(text?.trim()));
+
+  if (!texts.length) {
+    // Automations saved before variants existed carry a single `text`.
+    return config?.text || '';
+  }
+
+  return texts[Math.floor(Math.random() * texts.length)];
+};
 
 export const actionCreateComment = async (
   models: IModels,
@@ -14,16 +31,8 @@ export const actionCreateComment = async (
     const { config } = action || {};
 
     const { recipientId, comment_id, senderId, erxesApiId } = target;
-    const { text, attachments } = config;
-
-    const data: any = {
-      message: `@[${senderId}] ${text}`,
-    };
-
-    if (!!attachments?.length) {
-      const url = attachments[0].url;
-      data.attachment_url = url;
-    }
+    const { attachments, mentionSender } = config;
+    const text = pickReplyText(config);
 
     const inboxConversation = await models.Conversations.findOne({
       _id: erxesApiId,
@@ -33,24 +42,54 @@ export const actionCreateComment = async (
       throw new Error('No inbox conversation found');
     }
 
-    await sendReply(
+    const sendBlock = await models.FacebookBots.getSendBlock(recipientId);
+
+    if (sendBlock) {
+      return {
+        status: 'skipped',
+        reason: 'send-blocked',
+        blockedUntil: sendBlock.until,
+        blockReason: sendBlock.reason,
+      };
+    }
+
+    const budget = await consumePostPublicReplyBudget(
       models,
-      `${comment_id}/comments`,
-      data,
-      recipientId,
-      inboxConversation.integrationId,
+      subdomain,
+      target?.postId,
     );
 
-    await models.FacebookCommentConversationReply.create({
-      recipientId: recipientId,
-      senderId: senderId,
-      attachments: attachments,
-      createdAt: new Date(Date.now()),
-      content: `${text}`,
-      parentId: comment_id,
+    if (!budget.allowed) {
+      // Returned rather than thrown: a thrown action ends the execution, and the
+      // private reply that follows it is the one that actually converts.
+      return {
+        status: 'skipped',
+        reason: 'post-public-reply-limit',
+        postId: target?.postId,
+        limit: budget.limit,
+        used: budget.used,
+      };
+    }
+
+    const { jobId, delay } = await queueCommentReply(models, subdomain, {
+      executionId: execution._id,
+      actionId: action.id,
+      pageId: recipientId,
+      postId: target?.postId,
+      commentId: comment_id,
+      senderId,
+      integrationId: inboxConversation.integrationId,
+      text,
+      attachments,
+      mentionSender: !!mentionSender,
     });
 
-    return { status: 'success' };
+    // The engine records the action as queued and moves on; the outbox worker
+    // reports the outcome once the reply actually goes out.
+    return {
+      deferred: { jobId, mode: 'ignore', timeoutMinutes: 60 },
+      result: { status: 'queued', text, sendAfterMs: delay },
+    };
   } catch (error) {
     debugError(error.message);
     throw new Error(error.message);

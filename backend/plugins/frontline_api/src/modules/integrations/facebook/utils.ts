@@ -5,8 +5,13 @@ import {
 } from '@/integrations/facebook/@types/utils';
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
+import { FacebookSendError } from '@/integrations/facebook/errors';
 import * as AWS from 'aws-sdk';
-import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getEnv,
+  randomAlphanumeric,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
@@ -14,6 +19,14 @@ import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
+    // Load testing has to stop before Meta: pointing this at a local stand-in
+    // exercises the outbox, pacing and breaker without a page paying for it.
+    const graphUrl = getEnv({ name: 'FACEBOOK_GRAPH_URL', defaultValue: '' });
+
+    if (graphUrl) {
+      graph.setGraphUrl(graphUrl);
+    }
+
     // set access token
     graph.setAccessToken(accessToken);
     graph.setVersion('7.0');
@@ -634,10 +647,14 @@ export const sendReply = async (
     }
 
     if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
+      throw new FacebookSendError(
+        'Comment has been deleted by the customer',
+        e.code,
+        e.error_subcode,
+      );
     }
 
-    throw new Error(e.message);
+    throw new FacebookSendError(e.message, e.code, e.error_subcode);
   }
 };
 

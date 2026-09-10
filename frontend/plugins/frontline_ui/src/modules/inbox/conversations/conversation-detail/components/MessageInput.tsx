@@ -32,12 +32,14 @@ import {
   type MessageInputController,
 } from '@/inbox/conversations/conversation-detail/hooks/useMessageInputController';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+import { useTranslation } from 'react-i18next';
 
 type MessageInputControllerProps = {
   controller: MessageInputController;
 };
 
 const ReplyPreview = ({ controller }: MessageInputControllerProps) => {
+  const { t } = useTranslation('frontline');
   const { isInternalNote, replyTo, setReplyTo } = controller;
 
   if (isInternalNote || !replyTo) return null;
@@ -59,7 +61,7 @@ const ReplyPreview = ({ controller }: MessageInputControllerProps) => {
         )}
         <span className="min-w-0">
           <span className="block truncate text-xs font-semibold text-foreground">
-            {replyTo.nativeReply ? 'Replying to' : 'Quoting'}{' '}
+            {replyTo.nativeReply ? t('replying-to', 'Replying to:') : 'Quoting'}{' '}
             {replyTo.authorName || 'message'}
           </span>
           <span className="block truncate text-xs">{replyTo.preview}</span>
@@ -243,7 +245,7 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
           if (!onlyInternal) setIsInternalNote(!isInternalNote);
         }}
       >
-        <span className="truncate">{t('internal-note')}</span>
+        <span className="truncate">{t('internal-note', 'Internal Note')}</span>
       </Toggle>
 
       {!isInternalNote && (
@@ -288,13 +290,13 @@ const ComposerToolbar = ({ controller }: MessageInputControllerProps) => {
 
       <Button
         size="sm"
-        aria-label={t('send')}
+        aria-label={t('send', 'Send')}
         className="ml-auto h-9 flex-none rounded-lg px-2.5 sm:px-4"
         disabled={sendDisabled}
         onClick={handleSubmit}
       >
         {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
-        <span className="hidden sm:inline">{t('send')}</span>
+        <span className="hidden sm:inline">{t('send', 'Send')}</span>
         <Kbd className="ml-1 hidden lg:flex">
           <IconCommand size={12} />
           <IconCornerDownLeft size={12} />

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const UPSERT_GITHUB_CONFIG = gql`
-  mutation UpsertGithubConfig(
+  mutation operationGithubUpsertConfig(
     $teamId: String!
     $repoName: String!
     $installationId: Int!
@@ -16,7 +16,16 @@ export const UPSERT_GITHUB_CONFIG = gql`
       _id
       teamId
       repoName
+      installationId
       syncMode
+    }
+  }
+`;
+
+export const DISCONNECT_GITHUB_TEAM = gql`
+  mutation operationGithubDisconnectTeam($teamId: String!) {
+    operationGithubDisconnectTeam(teamId: $teamId) {
+      success
     }
   }
 `;

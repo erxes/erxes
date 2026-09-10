@@ -58,32 +58,32 @@ const TicketsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder={t('filter')}
+                placeholder={t('filter', 'Filter...')}
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
                 <Filter.Item value="searchValue" inDialog>
                   <IconSearch />
-                  {t('search')}
+                  {t('search', 'Search')}
                 </Filter.Item>
                 <Command.Separator className="my-1" />
                 <Filter.Item value="assignee">
                   <IconUser />
-                  {t('assignee-label')}
+                  {t('assignee-label', 'Assignee')}
                 </Filter.Item>
                 <Filter.Item value="priority">
                   <IconAlertSquareRounded />
-                  {t('priority-label')}
+                  {t('priority-label', 'Priority')}
                 </Filter.Item>
                 <Filter.Item value="state">
                   <IconArchive />
-                  {t('state-label')}
+                  {t('state-label', 'State')}
                 </Filter.Item>
                 {view === 'list' && (
                   <Filter.Item value="statusId">
                     <IconProgressCheck />
-                    {t('status-label')}
+                    {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
               </Command.List>
@@ -136,7 +136,7 @@ export const TicketsFilter = () => {
           <Filter.BarItem queryKey="searchValue">
             <Filter.BarName>
               <IconSearch />
-              {t('search')}
+              {t('search', 'Search')}
             </Filter.BarName>
             <Filter.BarButton filterKey="searchValue" inDialog>
               {searchValue}
@@ -147,14 +147,14 @@ export const TicketsFilter = () => {
         <Filter.BarItem queryKey="priority">
           <Filter.BarName>
             <IconAlertSquareRounded />
-            {t('priority-label')}
+            {t('priority-label', 'Priority')}
           </Filter.BarName>
           <SelectPriorityTicket.FilterBar />
         </Filter.BarItem>
         <Filter.BarItem queryKey="state">
           <Filter.BarName>
             <IconArchive />
-            {t('state-label')}
+            {t('state-label', 'State')}
           </Filter.BarName>
           <SelectStateTicket.FilterBar />
         </Filter.BarItem>
@@ -162,7 +162,7 @@ export const TicketsFilter = () => {
           <Filter.BarItem queryKey="statusId">
             <Filter.BarName>
               <IconProgressCheck />
-              {t('status-label')}
+              {t('status-label', 'Status')}
             </Filter.BarName>
             <SelectStatusTicket.FilterBar
               pipelineId={queries?.pipelineId || ''}
@@ -173,7 +173,7 @@ export const TicketsFilter = () => {
         <Filter.BarItem queryKey="assignee">
           <Filter.BarName>
             <IconUser />
-            {t('assignee-label')}
+            {t('assignee-label', 'Assignee')}
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>

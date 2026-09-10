@@ -45,7 +45,7 @@ const InboxPageHeader = ({ title }: { title: string }) => {
 
 const InboxIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const title = t('inbox');
+  const title = t('inbox', 'Inbox');
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">

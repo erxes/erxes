@@ -41,7 +41,7 @@ export const TicketsViewControl = () => {
       <Popover.Trigger asChild>
         <Button variant="ghost">
           <IconAdjustmentsHorizontal />
-          {t('view')}
+          {t('view', 'View')}
         </Button>
       </Popover.Trigger>
       <Popover.Content>
@@ -62,7 +62,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconTable className="!size-5" />
-              <span className="text-xs font-normal">{t('list')}</span>
+              <span className="text-xs font-normal">{t('list', 'List')}</span>
             </Button>
           </ToggleGroup.Item>
           <ToggleGroup.Item value="grid" asChild>
@@ -72,7 +72,7 @@ export const TicketsViewControl = () => {
               className="h-11 flex-col gap-0"
             >
               <IconLayoutKanban className="!size-5" />
-              <span className="text-xs font-normal">{t('board')}</span>
+              <span className="text-xs font-normal">{t('board', 'Board')}</span>
             </Button>
           </ToggleGroup.Item>
         </ToggleGroup>

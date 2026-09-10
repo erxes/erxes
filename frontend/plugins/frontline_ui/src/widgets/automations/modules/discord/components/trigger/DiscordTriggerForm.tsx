@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, Input } from 'erxes-ui';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import {
   AutomationTriggerFormProps,
@@ -24,6 +25,7 @@ export const DiscordTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TDiscordTriggerForm>) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TDiscordTriggerForm>({
     resolver: zodResolver(discordTriggerSchema),
     defaultValues: {
@@ -32,7 +34,7 @@ export const DiscordTriggerForm = ({
   });
   const { control, handleSubmit } = form;
   const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Discord Message Trigger',
+    formName: t('discord-trigger.form-name', 'Discord Message Trigger'),
   });
 
   useAutomationRemoteFormSubmit({
@@ -59,17 +61,27 @@ export const DiscordTriggerForm = ({
           name="keywords"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Keyword filter (optional)</Form.Label>
+              <Form.Label>
+                {t(
+                  'discord-trigger.keyword-filter-optional',
+                  'Keyword filter (optional)',
+                )}
+              </Form.Label>
               <Form.Control>
                 <Input
                   {...field}
                   value={field.value || ''}
-                  placeholder="e.g. help, support — leave blank for every event"
+                  placeholder={t(
+                    'discord-trigger.keyword-filter-placeholder',
+                    'e.g. help, support — leave blank for every event',
+                  )}
                 />
               </Form.Control>
               <Form.Description>
-                Only enroll when the message content contains one of these
-                comma-separated keywords. Blank triggers on every event.
+                {t(
+                  'discord-trigger.keyword-filter-description',
+                  'Only enroll when the message content contains one of these comma-separated keywords. Blank triggers on every event.',
+                )}
               </Form.Description>
               <Form.Message />
             </Form.Item>

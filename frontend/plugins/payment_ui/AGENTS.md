@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-08-29`
+- **Last synchronized:** `2026-09-09`
 
 ## Scope
 
@@ -34,12 +34,14 @@
   the row's **more → Edit** sheet form; both surfaces require the `paymentInvoiceEdit` action and
   disappear/fall back to read-only without it.
 - Manage corporate gateway configurations, accounts, and transactions per bank.
+- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
 | Area              | Path                                                    | Responsibility                                                 |
 | ----------------- | ------------------------------------------------------- | -------------------------------------------------------------- |
 | Federation config | `src/config.tsx`                                        | `IUIConfig`: settings navigation + `invoices` relation widget  |
+| Dev server config | `rspack.config.ts`                                      | Module Federation development serving and watch ignore rules    |
 | Pages             | `src/pages/payment`                                     | Invoices, payment settings, corporate gateway route entries    |
 | Payment module    | `src/modules/payment`                                   | Payment/invoice GraphQL documents, hooks, types, Jotai state   |
 | Invoice cells     | `src/modules/payment/components/InvoiceInlineCells.tsx` | Permission-aware inline editors for the invoice table          |
@@ -111,6 +113,12 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-09` — Bound dev watchers
+
+- **Summary:** Payment UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
+- **Affected areas:** `rspack.config.ts`.
+- **Contracts changed:** `None`
 
 ### `2026-08-29` — Payment settings sheet waits for the mutation before closing
 

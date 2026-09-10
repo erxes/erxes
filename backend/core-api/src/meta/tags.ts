@@ -12,6 +12,7 @@ const modelChanger = (type: string, models: IModels) => {
     user: models.Users,
     form: models.Forms,
     automation: models.Automations,
+    documents: models.Documents,
   }[record];
 };
 
@@ -28,6 +29,10 @@ export const tags = {
     {
       description: 'Product & Service',
       type: 'product',
+    },
+    {
+      description: 'Documents',
+      type: 'documents',
     },
   ],
   tag: async ({ subdomain, data }) => {

@@ -88,7 +88,7 @@ const PipelineItem = ({ channelId }: { channelId: string }) => {
       <Sidebar.GroupContent>
         <Sidebar.Menu>
           <span className="font-sans text-xs font-semibold normal-case text-accent-foreground pl-6 px-4">
-            {t('pipelines')}
+            {t('pipelines', 'Pipelines')}
           </span>
           <div className="pl-2">
             {pipelines?.map((pipeline) => (

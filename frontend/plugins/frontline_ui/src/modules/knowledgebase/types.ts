@@ -6,6 +6,13 @@ export type {
   ITopic,
 } from '../../../../content_ui/src/modules/cms/types';
 
+export interface ITopicFormData {
+  title: string;
+  description: string;
+  color: string;
+  backgroundImage: string;
+}
+
 export interface IArticleCustomFormField {
   id: string;
   label: string;

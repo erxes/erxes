@@ -97,3 +97,46 @@ export const sendAutomationTrigger = (
       console.error('Error adding job to queue:', error);
     });
 };
+
+export type TDeferredCompletion = {
+  executionId: string;
+  actionId: string;
+  jobId: string;
+  status: 'success' | 'error' | 'dropped';
+  result?: any;
+};
+
+/**
+ * Reports a deferred action back to the automations service. The plugin that
+ * queued the work owns the callback, so this is the other half of the marker
+ * returned from `receiveActions`.
+ */
+export const sendAutomationDeferredCompletion = async (
+  subdomain: string,
+  completion: TDeferredCompletion,
+): Promise<void> => {
+  const address = await redis.get('erxes-service-automations');
+
+  if (!address) {
+    throw new Error(
+      'Missing address for sendAutomationDeferredCompletion. Ensure service discovery has erxes-service-automations set.',
+    );
+  }
+
+  const client = createTRPCUntypedClient({
+    links: [
+      httpBatchLink({
+        url: `${address}/trpc`,
+        headers: () => ({
+          [trpcContextHeaderName]: encodeTRPCContextHeader(
+            subdomain,
+            'mutation',
+            {},
+          ),
+        }),
+      }),
+    ],
+  });
+
+  await client.mutation('automations.completeDeferredAction', completion);
+};

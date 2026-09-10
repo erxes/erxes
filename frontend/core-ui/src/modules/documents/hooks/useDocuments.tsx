@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { NetworkStatus, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -20,18 +20,23 @@ type DocumentsQueryResponse = {
 };
 
 export const useDocuments = () => {
-  const [{ createdAt, createdBy, contentType, searchValue }] =
+  const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([
       'createdAt',
       'createdBy',
       'contentType',
       'searchValue',
+      'tagIds',
     ]);
 
   const variables: Record<string, unknown> = {
     limit: DOCUMENTS_PER_PAGE,
     orderBy: { createdAt: -1 },
   };
+
+  if (tagIds?.length) {
+    variables.tagIds = tagIds;
+  }
 
   if (contentType) {
     variables['contentType'] = contentType;
@@ -54,14 +59,14 @@ export const useDocuments = () => {
     });
   }
 
-  const { data, error, loading, fetchMore } = useQuery<DocumentsQueryResponse>(
-    GET_DOCUMENTS,
-    {
+  const { data, error, loading, fetchMore, networkStatus, refetch } =
+    useQuery<DocumentsQueryResponse>(GET_DOCUMENTS, {
+      notifyOnNetworkStatusChange: true,
       variables,
-    },
-  );
+    });
 
   const { list: documents = [], pageInfo } = data?.documents || {};
+  const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
   function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
     if (!pageInfo || !validateFetchMore({ direction, pageInfo })) {
@@ -96,9 +101,10 @@ export const useDocuments = () => {
 
   return {
     documents,
-    error,
+    hasError,
     loading,
     pageInfo,
     handleFetchMore,
+    refetch,
   };
 };

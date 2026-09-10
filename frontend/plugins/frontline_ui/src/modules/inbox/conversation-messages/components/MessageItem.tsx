@@ -34,6 +34,7 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { IntegrationType } from '@/types/Integration';
 import { IconMicrophone, IconPin } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MessageActions } from '@/inbox/conversation-messages/components/MessageActions';
 import { DiscordMessageActions } from '@/integrations/discord/components/DiscordMessageActions';
 export { MessageDaySeparator };
@@ -53,6 +54,7 @@ const getReplyPreview = (content?: string) => {
 
 // skipcq: JS-R1005 — many independent display branches (text / attachment /
 export const MessageItem = () => {
+  const { t } = useTranslation('frontline');
   const [actionsOpen, setActionsOpen] = useState(false);
   const { previousMessage, ...message } = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
@@ -227,9 +229,9 @@ export const MessageItem = () => {
   const showAuthorName = Boolean(
     (isGroupConversation ||
       integration?.kind === IntegrationType.DISCORD_MESSENGER) &&
-    !userId &&
-    customerId &&
-    separatePrevious,
+      !userId &&
+      customerId &&
+      separatePrevious,
   );
 
   const showBotName = Boolean(fromBot) && separatePrevious;
@@ -332,7 +334,7 @@ export const MessageItem = () => {
                   (showAuthorName || showBotName ? 'mt-0' : 'mt-8'),
               )}
             >
-              Message deleted
+              {t('message-deleted-on-discord', 'Message deleted on Discord')}
               {separateNext && (
                 <div className="mt-1 text-xs not-italic">
                   <RelativeDateDisplay value={createdAt}>

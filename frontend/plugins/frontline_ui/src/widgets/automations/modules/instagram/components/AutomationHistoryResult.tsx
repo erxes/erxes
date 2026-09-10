@@ -11,12 +11,16 @@ export const InstagramAutomationHistoryResult = ({
       <Tooltip.Provider>
         <Tooltip>
           <Tooltip.Trigger>
-            <Badge variant="destructive">{t('error')}</Badge>
+            <Badge variant="destructive">{t('error', 'Error')}</Badge>
           </Tooltip.Trigger>
         </Tooltip>
       </Tooltip.Provider>
     );
   }
 
-  return <Badge variant="success">{t('sent-successfully')}</Badge>;
+  return (
+    <Badge variant="success">
+      {t('sent-successfully', 'Sent successfully')}
+    </Badge>
+  );
 };

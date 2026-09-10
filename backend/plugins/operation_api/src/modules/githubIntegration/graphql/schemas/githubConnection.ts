@@ -23,22 +23,12 @@ export const type = `
   }
 `;
 
-const upsertGithubConnectionParams = `
-  installationId: Int!
-  orgName: String!
-  orgAvatarUrl: String
-  orgType: String!
-  initiatedUserId: String
-  subdomain: String!
-  isActive: Boolean!
-`;
-
 export const queries = `
   getGithubConnection: GithubConnection
+  getGithubConnections: [GithubConnection!]!
   getGithubRepositories(installationId: Int!): [GithubRepository]
 `;
 
 export const mutations = `
-    upsertGithubConnection(${upsertGithubConnectionParams}): GithubConnection
     disconnectGithubConnection(installationId: Int!): DisconnectResponse
 `;

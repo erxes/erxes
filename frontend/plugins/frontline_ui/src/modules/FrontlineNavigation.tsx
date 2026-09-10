@@ -5,6 +5,7 @@ import {
   IconChartHistogram,
   IconForms,
   IconBook,
+  IconLifebuoy,
   IconPlus,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Button, Skeleton, Badge } from 'erxes-ui';
@@ -26,35 +27,35 @@ export const FrontlineDestinationLinks = () => {
   return (
     <>
       <NavigationMenuLinkItem
-        name={t('team-inbox')}
+        name={t('team-inbox', 'Team Inbox')}
         icon={IconMail}
         path="frontline/inbox"
       >
         <NotificationCount />
       </NavigationMenuLinkItem>
       <NavigationMenuLinkItem
-        name={t('tickets')}
+        name={t('tickets', 'Tickets')}
         icon={IconTicket}
         path="frontline/tickets"
       />
       <NavigationMenuLinkItem
-        name={t('reports')}
+        name={t('reports', 'Reports')}
         icon={IconChartHistogram}
         path="frontline/reports"
       />
       <IntegrationNavigation />
       <NavigationMenuLinkItem
-        name={t('forms')}
+        name={t('forms', 'Forms')}
         icon={IconForms}
         path="frontline/forms"
       />
       <NavigationMenuLinkItem
-        name={t('polls')}
+        name={t('polls', 'Polls')}
         icon={IconChartBar}
         path="frontline/polls"
       />
       <NavigationMenuLinkItem
-        name={t('knowledge-base')}
+        name={t('knowledge-base', 'Knowledge Base')}
         icon={IconBook}
         className="group/knowledgebase"
         path="frontline/knowledgebase"
@@ -67,12 +68,17 @@ export const FrontlineDestinationLinks = () => {
               e.stopPropagation();
               navigate('/frontline/knowledgebase?createTopic=true');
             }}
-            aria-label={t('create-new-topic')}
-            title={t('create-new-topic')}
+            aria-label={t('create-new-topic', 'Create new topic')}
+            title={t('create-new-topic', 'Create new topic')}
           >
             <IconPlus className="size-4" />
           </Button>
         }
+      />
+      <NavigationMenuLinkItem
+        name={t('help-center', 'Help Center')}
+        icon={IconLifebuoy}
+        path="frontline/helpcenter"
       />
     </>
   );

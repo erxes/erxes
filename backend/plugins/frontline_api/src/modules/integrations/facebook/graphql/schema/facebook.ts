@@ -18,6 +18,8 @@ const commonBotMutationParams = `
   accountId:String,
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
+  iceBreakers:[BotIceBreakerInput],
+  getStartedText:String,
   greetText:String,
   handoffMessage:String,
   automationActiveMessage:String,
@@ -119,6 +121,36 @@ export const types = `
     isProfileSynced: Boolean
     lastSyncedAt: Date
     lastVerifiedAt: Date
+    lastError: String
+    sendBlockedUntil: Date
+    sendBlockReason: String
+    sendBlockCount: Int
+  }
+
+  type FacebookBotDelivery {
+    pending: Int
+    sent: Int
+    failed: Int
+    nextSendAt: Date
+  }
+
+  type FacebookBotCommentReplyPost {
+    postId: String
+    count: Int
+    content: String
+    permalinkUrl: String
+  }
+
+  type FacebookBotCommentReplyStat {
+    text: String
+    total: Int
+    sent: Int
+    failed: Int
+    pending: Int
+    postCount: Int
+    posts: [FacebookBotCommentReplyPost]
+    lastAt: Date
+    lastError: String
   }
 
   input BotPersistentMenuInput {
@@ -126,6 +158,16 @@ export const types = `
     type:String
     text: String
     link: String
+  }
+
+  type BotIceBreakerType {
+    _id:String
+    question: String
+  }
+
+  input BotIceBreakerInput {
+    _id:String
+    question: String
   }
 
   type FacebookMessengerBot {
@@ -142,6 +184,8 @@ export const types = `
     createdUser: User
     updatedUser: User
     persistentMenus:[BotPersistentMenuType]
+    iceBreakers:[BotIceBreakerType]
+    getStartedText:String
     profileUrl:String
     greetText:String
     handoffMessage:String
@@ -172,6 +216,8 @@ export const queries = `
   facebookMessengerBotsTotalCount:Int
   facebookMessengerBots:[FacebookMessengerBot]
   facebookMessengerBot(_id:String):FacebookMessengerBot
+  facebookMessengerBotDelivery(_id:String!):FacebookBotDelivery
+  facebookMessengerBotCommentReplyStats(_id:String!, limit:Int):[FacebookBotCommentReplyStat]
   facebookGetBotPosts(botId:String):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
 `;

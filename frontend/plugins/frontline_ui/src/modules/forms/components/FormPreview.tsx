@@ -53,7 +53,9 @@ export const FormPreview = () => {
       <div className="p-5">
         <InfoCard title={formGeneral.title}>
           <InfoCard.Content>
-            <p className="text-muted-foreground">{t('no-fields-to-preview')}</p>
+            <p className="text-muted-foreground">
+              {t('no-fields-to-preview', 'No fields to preview')}
+            </p>
           </InfoCard.Content>
         </InfoCard>
       </div>
@@ -66,7 +68,12 @@ export const FormPreview = () => {
         <InfoCard title={formCallout.title || formGeneral.title}>
           <InfoCard.Content>
             {formCallout.skip ? (
-              <p className="text-muted-foreground">{t('callout-skipped')}</p>
+              <p className="text-muted-foreground">
+                {t(
+                  'callout-skipped',
+                  'The callout is skipped. The form opens on its first step.',
+                )}
+              </p>
             ) : (
               <>
                 {formCallout.body && (
@@ -81,7 +88,7 @@ export const FormPreview = () => {
                     />
                   </div>
                 )}
-                <Button>{formCallout.buttonText || t('next')}</Button>
+                <Button>{formCallout.buttonText || t('next', 'Next')}</Button>
               </>
             )}
           </InfoCard.Content>
@@ -226,8 +233,11 @@ export const FormPreviewContent = ({
         onSubmit={form.handleSubmit((values) => {
           if (stepsLength === step) {
             toast({
-              title: t('form-submitted'),
-              description: t('form-submitted-successfully'),
+              title: t('form-submitted', 'Form submitted'),
+              description: t(
+                'form-submitted-successfully',
+                'Form submitted successfully',
+              ),
               variant: 'success',
             });
             return;
@@ -508,7 +518,8 @@ export const FormPreviewContent = ({
                                   variant={'outline'}
                                   size="sm"
                                 >
-                                  {erxesField.placeholder || t('upload-file')}
+                                  {erxesField.placeholder ||
+                                    t('upload-file', 'Upload file')}
                                 </Upload.Button>
                               </Upload.Root>
                             </Form.Control>
@@ -554,11 +565,11 @@ export const FormPreviewContent = ({
                 onClick={() => setActiveStep(step - 1)}
                 disabled={step === 1}
               >
-                {t('previous')}
+                {t('previous', 'Previous')}
               </Button>
               <Button type="submit">
                 {stepsLength > step
-                  ? t('next')
+                  ? t('next', 'Next')
                   : formGeneral.buttonText || 'Send'}
               </Button>
             </div>

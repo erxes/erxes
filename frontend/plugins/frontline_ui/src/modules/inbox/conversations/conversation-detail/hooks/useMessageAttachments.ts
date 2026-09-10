@@ -25,7 +25,9 @@ export const useMessageAttachments = (isDiscord: boolean) => {
       const oversized = selectedFiles.find((file) => file.size > maximumBytes);
       if (oversized) {
         toast({
-          title: `${oversized.name} exceeds the ${maximumBytes / 1024 / 1024} MB channel limit`,
+          title: `${oversized.name} exceeds the ${
+            maximumBytes / 1024 / 1024
+          } MB channel limit`,
           variant: 'destructive',
         });
         return;
@@ -42,7 +44,10 @@ export const useMessageAttachments = (isDiscord: boolean) => {
       upload({
         files,
         beforeUpload: () =>
-          toast({ title: t('uploading-file'), variant: 'default' }),
+          toast({
+            title: t('uploading-file', 'Uploading file...'),
+            variant: 'default',
+          }),
         afterRead: ({ fileInfo }) => setAttachmentPreview(fileInfo),
         afterUpload: ({ status, response, fileInfo }) => {
           if (status === 'ok') {
@@ -56,7 +61,7 @@ export const useMessageAttachments = (isDiscord: boolean) => {
           toast({
             title:
               status === 'ok'
-                ? t('file-uploaded-successfully')
+                ? t('file-uploaded-successfully', 'File uploaded successfully!')
                 : 'Upload failed',
             variant: status === 'ok' ? 'default' : 'destructive',
           });
@@ -78,7 +83,10 @@ export const useMessageAttachments = (isDiscord: boolean) => {
   };
   const handleDeleteAttachment = (url: string) => {
     setAttachments((current) => current.filter((file) => file.url !== url));
-    toast({ title: t('attachment-removed'), variant: 'default' });
+    toast({
+      title: t('attachment-removed', 'Attachment removed'),
+      variant: 'default',
+    });
   };
 
   return {

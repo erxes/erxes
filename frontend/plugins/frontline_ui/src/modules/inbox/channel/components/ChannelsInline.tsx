@@ -63,7 +63,7 @@ export const ChannelsInlineProvider = ({
         channels: channels || _channels,
         loading: false,
         channelIds: channelIds || [],
-        placeholder: placeholder || t('select-channels'),
+        placeholder: placeholder || t('select-channels', 'Select channels'),
         updateChannels: updateChannels || _setChannels,
         showIcon: showIcon || false,
       }}

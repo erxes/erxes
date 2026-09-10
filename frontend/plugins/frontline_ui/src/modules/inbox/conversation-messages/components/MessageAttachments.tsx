@@ -1,6 +1,7 @@
 import { IconDownload, IconFile } from '@tabler/icons-react';
 import { Dialog, cn, formatBytes, readImage } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/MessagePresentation';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
@@ -125,6 +126,8 @@ function FileAttachmentTrigger({
 }: Readonly<{
   attachment: IAttachment;
 }>) {
+  const { t } = useTranslation('frontline');
+
   return (
     <Dialog.Trigger asChild>
       <button
@@ -136,7 +139,7 @@ function FileAttachmentTrigger({
         </div>
         <div className="min-w-0 flex-1 leading-tight">
           <span className="block truncate text-xs font-semibold text-foreground">
-            {attachment.name || 'File'}
+            {attachment.name || t('file', 'File')}
           </span>
           {Boolean(attachment.size) && (
             <span className="mt-0.5 block text-[11px] text-muted-foreground">
@@ -154,11 +157,13 @@ function FileAttachmentPreview({
 }: Readonly<{
   attachment: IAttachment;
 }>) {
+  const { t } = useTranslation('frontline');
+
   return (
     <Dialog.Content className="max-w-sm rounded-2xl p-5">
       <Dialog.Header>
         <Dialog.Title className="truncate text-base">
-          {attachment.name || 'File'}
+          {attachment.name || t('file', 'File')}
         </Dialog.Title>
       </Dialog.Header>
       <div className="flex flex-col items-center gap-3 py-4 text-center">

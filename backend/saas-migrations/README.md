@@ -39,6 +39,24 @@ pnpm migrate:list     # list only
 The runner exits non-zero if any migration fails. By default it **stops on the
 first failure**; pass `--continue` to run the rest regardless.
 
+## Knowledge Base to CMS
+
+The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts
+topics into root CMS categories, preserves category hierarchy, and imports
+articles as Knowledge Base posts in an existing client portal/CMS. It supports
+dry-run, author/ID mapping, recognized KB translations, collision checks and
+resumable insert-only writes. Source collections remain intact.
+
+```bash
+pnpm exec tsx backend/saas-migrations/content/knowledgebase/migrateKnowledgeBaseToCms.ts
+```
+
+Run from the repository root after configuring the tenant and portal settings
+in the linked guide. Dry-run defaults to true. The command is deliberately not
+discovered by either automatic runner. Private/non-public content blocks apply
+because current CMS portal reads cannot preserve those access semantics;
+review the guide's access, media, backup and rollback requirements first.
+
 ## WordPress WXR import
 
 The WordPress importer is an explicit command and is not discovered by

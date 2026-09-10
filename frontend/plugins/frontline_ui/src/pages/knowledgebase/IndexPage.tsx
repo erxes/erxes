@@ -34,20 +34,21 @@ const IndexPage = () => {
     return (cats || []).find((c: any) => c._id === categoryId);
   }, [currentTopic, categoryId]);
 
-  let lastLabel = t('knowledge-base');
+  let lastLabel = t('knowledge-base', 'Knowledge Base');
 
   if (topicId) {
-    lastLabel = t('kb-categories');
+    lastLabel = t('kb-categories', 'Categories');
   }
 
   if (categoryId) {
-    lastLabel = t('articles');
+    lastLabel = t('articles', 'Articles');
   }
 
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
-    t('knowledge-base'),
-    topicId && (currentTopic?.title || t('unnamed-topic')),
-    categoryId && (currentCategory?.title || t('unnamed-category')),
+    t('knowledge-base', 'Knowledge Base'),
+    topicId && (currentTopic?.title || t('unnamed-topic', 'Unnamed topic')),
+    categoryId &&
+      (currentCategory?.title || t('unnamed-category', 'Unnamed category')),
   );
 
   const handleEditTopic = (topic: any) => {
@@ -79,7 +80,7 @@ const IndexPage = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/frontline/knowledgeBase">
                     <IconLibraryPhoto className="h-4 w-4" />
-                    {t('knowledge-base')}
+                    {t('knowledge-base', 'Knowledge Base')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -90,7 +91,8 @@ const IndexPage = () => {
                   <Breadcrumb.Item>
                     <Button variant="ghost" asChild>
                       <Link to={`/frontline/knowledgeBase?topicId=${topicId}`}>
-                        {currentTopic?.title || t('unnamed-topic')}
+                        {currentTopic?.title ||
+                          t('unnamed-topic', 'Unnamed topic')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -105,7 +107,8 @@ const IndexPage = () => {
                       <Link
                         to={`/frontline/knowledgeBase?topicId=${topicId}&categoryId=${categoryId}`}
                       >
-                        {currentCategory?.title || t('unnamed-category')}
+                        {currentCategory?.title ||
+                          t('unnamed-category', 'Unnamed category')}
                       </Link>
                     </Button>
                   </Breadcrumb.Item>
@@ -136,7 +139,9 @@ const IndexPage = () => {
             className="h-7 py-1"
           >
             <IconPlus className="w-4 h-4" />
-            {categoryId ? t('new-article') : t('kb-new-topic')}
+            {categoryId
+              ? t('new-article', 'New Article')
+              : t('kb-new-topic', 'New Topic')}
             <Kbd>C</Kbd>
           </Button>
         </PageHeader.End>

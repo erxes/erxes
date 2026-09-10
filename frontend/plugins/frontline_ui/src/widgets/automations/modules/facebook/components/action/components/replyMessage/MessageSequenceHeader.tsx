@@ -10,9 +10,9 @@ export const MessageSequenceHeader = () => {
   return (
     <>
       <div className="flex flex-row gap-2 items-center px-6 py-2">
-        <Label>{t('message-sequence')}</Label>
+        <Label>{t('message-sequence', 'Message Sequence')}</Label>
         <Badge variant="secondary">
-          {t('n-messages', { count: messages.length })}
+          {t('n-messages', '{{count}} messages', { count: messages.length })}
         </Badge>
       </div>
       {maxMessages === 1 && (

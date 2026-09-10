@@ -8,7 +8,7 @@ export const TicketSidebar = () => {
   return (
     <Sidebar.Content>
       <Sidebar.Group>
-        <Sidebar.GroupLabel>{t('general')}</Sidebar.GroupLabel>
+        <Sidebar.GroupLabel>{t('general', 'General')}</Sidebar.GroupLabel>
         <Sidebar.GroupContent className="mt-2">
           <Sidebar.Menu>
             {['overview', 'properties'].map((tab) => (

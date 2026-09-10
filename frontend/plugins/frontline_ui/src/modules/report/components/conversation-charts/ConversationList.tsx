@@ -14,6 +14,7 @@ import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
 import { memo, useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   IconMessageShare,
   IconDownload,
@@ -157,7 +158,7 @@ export const ConversationList = ({
           className="size-7"
           onClick={handleExport}
           disabled={exporting}
-          title={t('export-excel')}
+          title={t('export-excel', 'Export Excel')}
         >
           <IconDownload className="size-3.5" />
         </Button>
@@ -194,7 +195,9 @@ export const ConversationList = ({
       >
         <FrontlineCard.Content>
           <Alert variant="destructive">
-            <Alert.Title>{t('error-loading-data')}</Alert.Title>
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
             <Alert.Description>
               {error.message || 'Failed to load conversation list'}
             </Alert.Description>
@@ -281,7 +284,7 @@ const Pagination = memo(function Pagination({
           disabled={page <= 1}
         >
           <IconChevronLeft className="size-4" />
-          {t('prev')}
+          {t('prev', 'Prev')}
         </Button>
         <span className="text-xs text-muted-foreground px-2">
           {page} / {totalPages}
@@ -292,7 +295,7 @@ const Pagination = memo(function Pagination({
           onClick={onNext}
           disabled={page >= totalPages}
         >
-          {t('next')}
+          {t('next', 'Next')}
           <IconChevronRight className="size-4" />
         </Button>
       </div>
@@ -305,11 +308,12 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
+  const { t } = useTranslation('frontline');
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
         data={conversationList}
-        columns={conversationListColumns}
+        columns={conversationListColumns(t)}
         className="m-3"
         tableId="frontline_conversation_report_record_table"
       >
@@ -326,10 +330,12 @@ const ConversationListTable = memo(function ConversationListTable({
   );
 });
 
-export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
+export const conversationListColumns = (
+  t: TFunction,
+): ColumnDef<ConversationListItem>[] => [
   {
     id: 'createdAt',
-    header: 'Created At',
+    header: t('created-at', 'Created At'),
     accessorKey: 'createdAt',
     cell: ({ cell }) => {
       return (
@@ -343,7 +349,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'customerId',
-    header: 'Customer',
+    header: t('customer', 'Customer'),
     accessorKey: 'customerId',
     cell: ({ cell }) => {
       return (
@@ -358,7 +364,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'userId',
-    header: 'Last Conversation by',
+    header: t('last-conversation-by', 'Last Conversation by'),
     accessorKey: 'userId',
     size: 100,
     cell: ({ cell }) => {
@@ -367,7 +373,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
         return (
           <RecordTableInlineCell className="flex items-center justify-center">
             <Badge variant="secondary" className="text-xs">
-              Customer
+              {t('customer', 'Customer')}
             </Badge>
           </RecordTableInlineCell>
         );
@@ -375,7 +381,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
       return (
         <RecordTableInlineCell className="flex items-center justify-center">
           <Badge variant="secondary" className="text-xs">
-            Member
+            {t('member', 'Member')}
           </Badge>
         </RecordTableInlineCell>
       );
@@ -383,7 +389,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'status',
-    header: 'Status',
+    header: t('status', 'Status'),
     accessorKey: 'status',
     size: 100,
     cell: ({ cell }) => {
@@ -396,7 +402,7 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'assignedUserId',
-    header: 'Assigned to',
+    header: t('assigned-to', 'Assigned to'),
     accessorKey: 'assignedUserId',
     cell: ({ cell }) => {
       return (
@@ -411,12 +417,12 @@ export const conversationListColumns: ColumnDef<ConversationListItem>[] = [
   },
   {
     id: 'readUsers',
-    header: 'Opened by',
+    header: t('opened-by', 'Opened by'),
     accessorKey: 'readUsers',
     cell: ({ cell }) => {
       const { readUsers } = cell.row.original || {};
       if (!readUsers) {
-        return <RecordTableInlineCell>N/A</RecordTableInlineCell>;
+        return <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>;
       }
       return (
         <RecordTableInlineCell>

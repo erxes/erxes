@@ -5,10 +5,22 @@ import { Link } from 'react-router-dom';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { IconFile, IconCalendar } from '@tabler/icons-react';
 
-const DateCell = ({ getValue }: any) => {
+const formatCodeTitle = (
+  record?: {
+    code?: string | null;
+    title?: string | null;
+    name?: string | null;
+  } | null,
+) => {
+  return [record?.code, record?.title || record?.name]
+    .filter(Boolean)
+    .join(' - ');
+};
+
+const DateCell = ({ value }: { value: Date | string | number }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(new Date(value)).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
@@ -40,7 +52,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
     id: 'date',
     header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell value={row.original.date} />,
   },
   {
     id: 'branch',
@@ -48,7 +60,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
     accessorKey: 'branch',
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {`${row.original.branch?.code} - ${row.original.branch?.title}`}
+        {formatCodeTitle(row.original.branch)}
       </RecordTableInlineCell>
     ),
   },
@@ -58,7 +70,7 @@ export const safeRemainderColumns: ColumnDef<ISafeRemainder>[] = [
     accessorKey: 'department',
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        {`${row.original.department?.code} - ${row.original.department?.title}`}
+        {formatCodeTitle(row.original.department)}
       </RecordTableInlineCell>
     ),
   },

@@ -5,6 +5,11 @@ export type IFacebookBotPersistentMenu = {
   link?: string;
 };
 
+export type IFacebookBotIceBreaker = {
+  _id: string;
+  question: string;
+};
+
 export type IFacebookBotHealth = {
   status?: 'healthy' | 'degraded' | 'broken' | 'syncing';
   isSubscribed?: boolean;
@@ -12,6 +17,10 @@ export type IFacebookBotHealth = {
   lastSyncedAt?: string;
   lastVerifiedAt?: string;
   lastError?: string;
+  // Public comment replies are paused until this time after Facebook refused one.
+  sendBlockedUntil?: string;
+  sendBlockReason?: string;
+  sendBlockCount?: number;
 };
 
 export type IFacebookBotUser = {
@@ -39,6 +48,8 @@ export type IFacebookBot = {
   pageId: string;
   profileUrl: string;
   persistentMenus: IFacebookBotPersistentMenu[];
+  iceBreakers?: IFacebookBotIceBreaker[];
+  getStartedText?: string;
   greetText: string;
   handoffMessage?: string;
   automationActiveMessage?: string;
