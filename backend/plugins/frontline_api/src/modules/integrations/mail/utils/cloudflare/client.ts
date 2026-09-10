@@ -2,6 +2,8 @@ import { describeError } from '@/integrations/mail/utils/errors';
 
 const API_BASE = 'https://api.cloudflare.com/client/v4';
 
+const REQUEST_TIMEOUT_MS = 20000;
+
 interface ICloudflareEnvelope<T> {
   success?: boolean;
   errors?: { code?: number; message?: string }[];
@@ -39,6 +41,28 @@ const readEnvelope = async <T>(response: Response) => {
   }
 };
 
+const fetchWithDeadline = async (url: string, init: RequestInit) => {
+  const controller = new AbortController();
+
+  const deadline = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (e) {
+    if (controller.signal.aborted) {
+      throw new CloudflareError(
+        0,
+        504,
+        `Cloudflare did not answer within ${REQUEST_TIMEOUT_MS / 1000}s`,
+      );
+    }
+
+    throw e;
+  } finally {
+    clearTimeout(deadline);
+  }
+};
+
 export const cloudflareRequest = async <T>(
   token: string,
   path: string,
@@ -46,7 +70,7 @@ export const cloudflareRequest = async <T>(
 ): Promise<T> => {
   const isForm = init.body instanceof FormData;
 
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetchWithDeadline(`${API_BASE}${path}`, {
     ...init,
     headers: {
       authorization: `Bearer ${token}`,

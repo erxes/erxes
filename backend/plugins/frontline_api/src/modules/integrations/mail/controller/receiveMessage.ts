@@ -102,10 +102,10 @@ const isSenderMismatch = (
 ) =>
   Boolean(
     headerFrom &&
-    envelopeFrom &&
-    parseTaggedAddress(envelopeFrom).address !==
-      parseTaggedAddress(headerFrom).address &&
-    !isForwardedBy(integration, envelopeFrom, deliveredTo),
+      envelopeFrom &&
+      parseTaggedAddress(envelopeFrom).address !==
+        parseTaggedAddress(headerFrom).address &&
+      !isForwardedBy(integration, envelopeFrom, deliveredTo),
   );
 
 const normalizeSubject = (subject?: string) => {
@@ -124,7 +124,10 @@ const continuesSubject = (previous?: string, subject?: string) =>
 const toStoredAddresses = (addresses: IInboundAddress[] = []): IMailAddress[] =>
   addresses
     .filter((entry) => Boolean(entry?.address))
-    .map((entry) => ({ name: entry.name, address: entry.address as string }));
+    .map((entry) => ({
+      name: entry.name,
+      address: normalizeAddress(entry.address),
+    }));
 
 interface IInboundContext {
   models: IModels;

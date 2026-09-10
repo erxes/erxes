@@ -13,6 +13,8 @@ const INBOX_INTEGRATION_INDEX = 'inboxId_1';
 
 const reconciled = new Set<string>();
 
+const reconciling = new Map<string, Promise<void>>();
+
 interface IExistingIndex {
   name?: string;
   unique?: boolean;
@@ -50,6 +52,42 @@ const reconcileIntegrationIndexes = async (models: IModels) => {
   );
 };
 
+const reconcileMailIndexes = async (models: IModels): Promise<void> => {
+  const collection = models.MailMessages.collection;
+
+  const indexes: IExistingIndex[] = await collection.indexes();
+  const byName = (name: string) => indexes.find((index) => index.name === name);
+
+  const legacy = byName(LEGACY_MESSAGE_INDEX);
+  const droppedLegacy = Boolean(legacy?.unique);
+
+  if (droppedLegacy) {
+    await collection.dropIndex(LEGACY_MESSAGE_INDEX);
+  }
+
+  if (!byName(SCOPED_MESSAGE_INDEX)) {
+    await collection.createIndex(
+      { inboxIntegrationId: 1, messageId: 1 },
+      { unique: true, name: SCOPED_MESSAGE_INDEX },
+    );
+  }
+
+  const keepsMessageIdLookup = indexes.some(
+    (index) =>
+      isMessageIdLookup(index) &&
+      !(droppedLegacy && index.name === LEGACY_MESSAGE_INDEX),
+  );
+
+  if (!keepsMessageIdLookup) {
+    await collection.createIndex(
+      { messageId: 1 },
+      { name: MESSAGE_LOOKUP_INDEX },
+    );
+  }
+
+  await reconcileIntegrationIndexes(models);
+};
+
 export const ensureMailIndexes = async (
   models: IModels,
   subdomain: string,
@@ -58,46 +96,24 @@ export const ensureMailIndexes = async (
     return;
   }
 
-  reconciled.add(subdomain);
+  const running = reconciling.get(subdomain);
 
-  const collection = models.MailMessages.collection;
-
-  try {
-    const indexes: IExistingIndex[] = await collection.indexes();
-    const byName = (name: string) =>
-      indexes.find((index) => index.name === name);
-
-    const legacy = byName(LEGACY_MESSAGE_INDEX);
-    const droppedLegacy = Boolean(legacy?.unique);
-
-    if (droppedLegacy) {
-      await collection.dropIndex(LEGACY_MESSAGE_INDEX);
-    }
-
-    if (!byName(SCOPED_MESSAGE_INDEX)) {
-      await collection.createIndex(
-        { inboxIntegrationId: 1, messageId: 1 },
-        { unique: true, name: SCOPED_MESSAGE_INDEX },
-      );
-    }
-
-    const keepsMessageIdLookup = indexes.some(
-      (index) =>
-        isMessageIdLookup(index) &&
-        !(droppedLegacy && index.name === LEGACY_MESSAGE_INDEX),
-    );
-
-    if (!keepsMessageIdLookup) {
-      await collection.createIndex(
-        { messageId: 1 },
-        { name: MESSAGE_LOOKUP_INDEX },
-      );
-    }
-
-    await reconcileIntegrationIndexes(models);
-  } catch (e) {
-    reconciled.delete(subdomain);
-
-    debugError('Could not reconcile mail message indexes:', e);
+  if (running) {
+    return running;
   }
+
+  const run = reconcileMailIndexes(models)
+    .then(() => {
+      reconciled.add(subdomain);
+    })
+    .catch((e) => {
+      debugError('Could not reconcile mail message indexes:', e);
+    })
+    .finally(() => {
+      reconciling.delete(subdomain);
+    });
+
+  reconciling.set(subdomain, run);
+
+  return run;
 };

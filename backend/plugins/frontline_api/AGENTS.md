@@ -720,6 +720,27 @@ isInternal)` is the agent-side list and requires `showTickets`.
 - Inbound mail is deduplicated on `messageId` before anything is written, and an
   automated reply (`isAutomatedMessage`) is stored but never becomes a comment,
   so an out-of-office does not answer the requester on their own ticket.
+- A note answered back to a ticket goes to the sender of that ticket's newest
+  inbound message, never to whichever customer happens to be related first. A
+  ticket can carry several customer relations and their order says nothing about
+  who wrote in; the related-customer lookup is only the fallback for a ticket
+  that has no inbound message yet.
+- Every mail address is stored lowercased. `toStoredAddresses` normalizes on the
+  way in because `findLatestFromSender` matches `from.address` exactly — a
+  mixed-case `From` header would otherwise open a second ticket for a sender who
+  already has one.
+- A forwarding confirmation is only recognised when the sender itself looks
+  automated. A subject match alone is never enough, or a requester could write
+  "confirm forwarding" while the window is open and have their message swallowed
+  instead of opening a ticket. Only an https link on a known provider host is
+  stored from that message, since the settings page renders it as a link an
+  admin clicks.
+- Every Cloudflare request carries an abort deadline. `ticketCreateNote` awaits
+  delivery, so a stalled request would otherwise hold the mutation open for
+  minutes after the note is already saved.
+- `ensureMailIndexes` marks a subdomain reconciled only after the indexes exist,
+  and concurrent callers await the same run. Marking it up front let a second
+  `mailPipelineConnect` through before the unique `pipelineId` index was built.
 - The plugin answers segment requests only about its own collections. No
   segment producer here may call another plugin: that shape is what produced
   the plugin-to-plugin RPC loop the Elasticsearch-era producers carried.
@@ -1631,6 +1652,19 @@ isInternal)` is the agent-side list and requires `showTickets`.
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-09-10` — Review fixes on the pipeline mail path
+
+- **Summary:** An answer now goes to the sender of the ticket's newest inbound
+  message instead of its first related customer, inbound addresses are stored
+  lowercased so a mixed-case sender no longer opens a second ticket, Cloudflare
+  requests carry a 20s abort deadline, a forwarding confirmation is recognised
+  only from an automated-looking sender and only its https links on known
+  provider hosts are kept, and index reconciliation is serialized per subdomain.
+- **Affected areas:** `src/modules/integrations/mail/utils/{tickets,forwardVerification,indexes}.ts`,
+  `src/modules/integrations/mail/utils/cloudflare/client.ts`,
+  `src/modules/integrations/mail/controller/receiveMessage.ts`
+- **Contracts changed:** `None`
+
 ### `2026-09-10` — A ticket pipeline owns its mail address
 
 - **Summary:** A pipeline can be given an address of its own. Mail sent there
@@ -1766,30 +1800,3 @@ isInternal)` is the agent-side list and requires `showTickets`.
   `src/modules/integrations/facebook/meta/automation/comments/index.ts`
 - **Contracts changed:** None. The action config gained an optional
   `mentionSender` boolean; automations without it stop mentioning.
-
-### `2026-09-09` — Keyword conditions on Meta triggers actually work
-
-- **Summary:** `checkContentConditions` read only its first condition, could
-  never satisfy `every` on the Facebook side (it compared each keyword to the
-  whole message), matched every message when a rule held no keyword, and threw
-  whenever a keyword contained a regex metacharacter; conditions now OR
-  together and each operator returns a boolean.
-- **Affected areas:**
-  `src/modules/integrations/facebook/meta/automation/utils/messageUtils.ts`,
-  `src/modules/integrations/instagram/meta/automation/utils/messageUtils.ts`
-- **Contracts changed:** None. `checkContentConditions` returns `boolean`
-  instead of `boolean | undefined`; matching stays case-sensitive except
-  `isContains`, as before.### `2026-09-08` — An internal ticket note stays out of the portal
-
-- **Summary:** `Note` gained an `isInternal` flag, `ticketCreateNote` stores it,
-  and `cpTicketGetNotes` filters flagged notes out, so the agent-side "Internal
-  Note" toggle now actually hides the note from the customer instead of only
-  tinting the composer. Notes written before this change carry no flag and stay
-  visible.
-- **Affected areas:** `modules/ticket/db/definitions/note.ts`,
-  `modules/ticket/@types/note.ts`, `modules/ticket/graphql/schemas/note.ts`,
-  `modules/ticket/graphql/resolvers/mutations/note.ts`,
-  `modules/ticket/graphql/resolvers/queries/clientPortal.ts`
-- **Contracts changed:** `ticketCreateNote` and `ticketUpdateNote` gain
-  `isInternal: Boolean`; the `Note` type exposes `isInternal: Boolean`.
-  `cpTicketCreateNote` is unchanged — a portal visitor cannot write one.

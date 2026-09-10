@@ -8,6 +8,7 @@ import {
 } from '@/integrations/mail/@types/message';
 import { findPipelineIntegration } from '@/integrations/mail/utils/pipeline';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
+import { MAIL_MESSAGE_TYPES } from '@/integrations/mail/constants';
 import { toPlainText } from '@/integrations/mail/utils/transports/common';
 
 const TICKET_TYPE = 'frontline:ticket';
@@ -157,7 +158,21 @@ export const findTicketIntegration = async (
   return integration;
 };
 
-const resolveTicketRecipient = async (
+const lastInboundSender = async (
+  models: IModels,
+  ticketId: string,
+): Promise<string | undefined> => {
+  const inbound = await models.MailMessages.findOne({
+    ticketId,
+    type: MAIL_MESSAGE_TYPES.INBOX,
+  })
+    .sort({ createdAt: -1, _id: -1 })
+    .lean();
+
+  return inbound?.from?.[0]?.address;
+};
+
+const relatedCustomerEmail = async (
   subdomain: string,
   ticketId: string,
 ): Promise<string | undefined> => {
@@ -192,7 +207,10 @@ export const sendTicketMail = async (
 
   const recipients = args.to?.length
     ? args.to
-    : [await resolveTicketRecipient(subdomain, ticket._id)];
+    : [
+        (await lastInboundSender(models, ticket._id)) ??
+          (await relatedCustomerEmail(subdomain, ticket._id)),
+      ];
 
   const to = recipients
     .filter((address): address is string => Boolean(address?.trim()))

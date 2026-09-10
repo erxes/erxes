@@ -14,16 +14,32 @@ const VERIFICATION_SENDERS = new Set([
   'forwarding-noreply@gmail.com',
 ]);
 
-const VERIFICATION_SENDER_PATTERN = /^forward(ing)?-?(no-?reply|confirm)/i;
+const AUTOMATED_SENDER_PATTERN =
+  /^(forward(ing)?|no-?reply|do-?not-?reply|postmaster|mailer-daemon)\b/i;
 
 const VERIFICATION_SUBJECT_PATTERN =
   /(forward\w*[\s\S]{0,40}(confirm|verif|request))|((confirm|verif)\w*[\s\S]{0,40}forward)/i;
 
 const CODE_PATTERN = /\b(\d{6,12})\b/;
 
-const LINK_PATTERN = /https?:\/\/[^\s"'<>]+/g;
+const LINK_PATTERN = /https:\/\/[^\s"'<>]+/g;
 
-const PREFERRED_LINK_PATTERN = /(google|forward|confirm|verif)/i;
+const PREFERRED_LINK_PATTERN = /(forward|confirm|verif)/i;
+
+const TRUSTED_LINK_HOSTS = [
+  'google.com',
+  'gmail.com',
+  'microsoft.com',
+  'outlook.com',
+  'live.com',
+  'office.com',
+  'yahoo.com',
+  'yahooinc.com',
+  'zoho.com',
+  'icloud.com',
+  'apple.com',
+  'proton.me',
+];
 
 const normalize = (value?: string) => (value || '').trim().toLowerCase();
 
@@ -49,8 +65,8 @@ const looksLikeVerification = (payload: IInboundMailPayload) => {
     return true;
   }
 
-  if (VERIFICATION_SENDER_PATTERN.test(sender.split('@')[0] ?? '')) {
-    return true;
+  if (!AUTOMATED_SENDER_PATTERN.test(sender.split('@')[0] ?? '')) {
+    return false;
   }
 
   return VERIFICATION_SUBJECT_PATTERN.test(payload.subject ?? '');
@@ -59,8 +75,26 @@ const looksLikeVerification = (payload: IInboundMailPayload) => {
 const readCode = (subject: string, text: string) =>
   (CODE_PATTERN.exec(subject) ?? CODE_PATTERN.exec(text))?.[1] ?? '';
 
+const isTrustedLink = (link: string) => {
+  try {
+    const { protocol, hostname } = new URL(link);
+
+    if (protocol !== 'https:') {
+      return false;
+    }
+
+    const host = hostname.toLowerCase();
+
+    return TRUSTED_LINK_HOSTS.some(
+      (trusted) => host === trusted || host.endsWith(`.${trusted}`),
+    );
+  } catch {
+    return false;
+  }
+};
+
 const readLink = (html: string) => {
-  const links = html.match(LINK_PATTERN) ?? [];
+  const links = (html.match(LINK_PATTERN) ?? []).filter(isTrustedLink);
 
   if (!links.length) {
     return '';
