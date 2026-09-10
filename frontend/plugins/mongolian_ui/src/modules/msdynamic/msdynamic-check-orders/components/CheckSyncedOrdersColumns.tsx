@@ -128,7 +128,7 @@ export const getCheckSyncedOrdersColumns = ({
           <TextOverflowTooltip
             value={
               syncedInfo?.syncedDate
-                ? dayjs(syncedInfo.syncedDate).format('LL')
+                ? dayjs(syncedInfo.syncedDate).format('YYYY-MM-DD')
                 : ''
             }
           />

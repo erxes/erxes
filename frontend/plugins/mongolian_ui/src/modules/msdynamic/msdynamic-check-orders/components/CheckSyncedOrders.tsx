@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { RecordTable, useToast } from 'erxes-ui';
 import { IconInbox } from '@tabler/icons-react';
@@ -17,7 +17,7 @@ type TCheckSyncedOrdersResponse = {
 };
 
 type TSendMsdOrdersResponse = {
-  toSendMsdOrders: ICheckSyncedOrderStatus;
+  toSendMsdOrders: ICheckSyncedOrderStatus[];
 };
 
 /** Empty ued synced order list deer message gargana. */
@@ -43,7 +43,6 @@ const CheckSyncedOrders = () => {
   const [syncedOrderInfos, setSyncedOrderInfos] = useState<
     Record<string, ISyncedOrderInfo>
   >({});
-
   const [toCheckMsdSynced, { loading: checkingSyncedOrders }] = useMutation<
     TCheckSyncedOrdersResponse,
     { ids: string[] }
@@ -95,6 +94,31 @@ const CheckSyncedOrders = () => {
       });
     }
   };
+  useEffect(() => {
+    if (!orders?.length) return;
+
+    const orderIds = orders.map((order) => order._id);
+
+    void toCheckMsdSynced({
+      variables: { ids: orderIds },
+    }).then((response) => {
+      const statuses = response.data?.toCheckMsdSynced || [];
+
+      const syncedInfos: Record<string, ISyncedOrderInfo> = {};
+
+      statuses
+        .filter((s) => s.isSynced)
+        .forEach((item) => {
+          syncedInfos[item._id] = {
+            syncedBillNumber: item.syncedBillNumber || '',
+            syncedDate: item.syncedDate || '',
+            syncedCustomer: item.syncedCustomer || '',
+          };
+        });
+
+      setSyncedOrderInfos(syncedInfos);
+    });
+  }, [orders, toCheckMsdSynced]);
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -107,18 +131,31 @@ const CheckSyncedOrders = () => {
           variables: { orderIds: [orderId] },
         });
 
-        const item = response.data?.toSendMsdOrders;
+        const item = response.data?.toSendMsdOrders?.[0];
 
         if (!item) return;
 
-        setSyncedOrderInfos((prev) => ({
-          ...prev,
-          [item._id]: {
-            syncedBillNumber: item.syncedBillNumber || '',
-            syncedDate: item.syncedDate || '',
-            syncedCustomer: item.syncedCustomer || '',
-          },
-        }));
+        if (!item.isSynced) {
+          toast({
+            title: t('failed-to-resend-order'),
+            description: t('please-try-again-later'),
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        setSyncedOrderInfos((prev) => {
+          const next = {
+            ...prev,
+            [item._id]: {
+              syncedBillNumber: item.syncedBillNumber || '',
+              syncedDate: item.syncedDate || '',
+              syncedCustomer: item.syncedCustomer || '',
+            },
+          };
+          return next;
+        });
+
         toast({
           title: t('order-resent-successfully'),
           variant: 'success',
@@ -134,7 +171,6 @@ const CheckSyncedOrders = () => {
         });
       }
     };
-
     return getCheckSyncedOrdersColumns({
       syncedOrderInfos,
       onResend: resend,

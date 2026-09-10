@@ -191,7 +191,6 @@ export const getMsdCustomerInfo = async (
   }).lean();
 
   const customer = await getCustomer(subdomain, customerId, customerType);
-
   if (relation) {
     const dayBefore = Math.round(
       (now.getTime() - relation.modifiedAt.getTime()) / (1000 * 3600 * 24),
@@ -203,11 +202,13 @@ export const getMsdCustomerInfo = async (
 
     filterStr = `No eq '${relation.no}'`;
     msdCustomer = await checkSend(customer, config, filterStr);
-  } else {
+  } else if (customer?.primaryPhone) {
     filterStr = `Phone_No eq '${customer.primaryPhone}'`;
     msdCustomer = await checkSend(customer, config, filterStr);
+  } else if (customer?.primaryEmail) {
+    filterStr = `E_Mail eq '${customer.primaryEmail}'`;
+    msdCustomer = await checkSend(customer, config, filterStr);
   }
-
   const brandIds = customer?.scopeBrandIds || [];
 
   if (!brandIds.includes(brandId)) {
@@ -232,7 +233,6 @@ export const getMsdCustomerInfo = async (
       });
     }
   }
-
   await models.CustomerRelations.updateOne(
     { customerId, brandId },
     {
