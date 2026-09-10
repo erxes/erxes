@@ -1664,7 +1664,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 
 <!-- Newest first. Keep at most 10 entries. -->
 
-<<<<<<< HEAD
 ### `2026-09-10` — Polls became surveys, database included
 
 - **Summary:** The whole feature was renamed from poll to survey — module,
@@ -1754,65 +1753,6 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added `SurveyStep`, `SurveyStepResult` and `SurveyStepInput`;
   `Survey.steps` and `SurveyResults.steps` are new non-null fields; `surveyAdd` and
   `surveyEdit` accept `steps` and no longer require `question` or `options`.
-=======
-### `2026-09-10` — The help center search escape uses a raw string
-
-- **Summary:** `escapeRegExp` built its replacement from an escaped `'\\$&'`,
-  which the quality gate flags as avoidable escaping. It now reads as
-  ``String.raw`\$&` ``; the behaviour is unchanged.
-- **Affected areas:**
-  `src/modules/helpcenter/graphql/resolvers/queries/helpCenterConfig.ts`
-- **Contracts changed:** `None`
-
-### `2026-09-09` — A help center carries its messenger app token
-
-- **Summary:** Added `erxesAppToken` to `HelpCenterConfig` and its input, so
-  `helpCenterGetConfigByDomain` hands the published site the widget token it
-  boots with — the 1.x client portal field of the same name, stored the way
-  `content_api`'s `Web` stores it.
-- **Affected areas:**
-  `src/modules/helpcenter/{@types,db/definitions,graphql/schemas,utils}/helpCenterConfig.ts`
-- **Contracts changed:** `HelpCenterConfig.erxesAppToken` and
-  `HelpCenterConfigInput.erxesAppToken` added. Nothing removed or renamed.
-
-### `2026-09-09` — A help center is readable by its own domain
-
-- **Summary:** Added `helpCenterGetConfigByDomain(domain)`, the help center's
-  own public counterpart of the client portal's domain lookup, so a published
-  site can fetch its config without a staff session and without going through
-  a client portal operation. Domain matching reuses the write path's
-  normalization through the new `normalizeHelpCenterUrl` helper.
-- **Affected areas:**
-  `src/modules/helpcenter/graphql/{schemas,resolvers/queries}/helpCenterConfig.ts`,
-  `src/modules/helpcenter/db/models/HelpCenterConfig.ts`,
-  `src/modules/helpcenter/utils/helpCenterConfig.ts`
-- **Contracts changed:** Added the `helpCenterGetConfigByDomain` query. No
-  existing operation, type or input changed.
-
-### `2026-09-09` — Help center settings left the knowledge base topic
-
-- **Summary:** General settings and appearance moved off `KnowledgeBaseTopic`
-  into a plugin-owned `frontline_help_center_configs` collection read through
-  `helpCenterConfig`/`helpCenterConfigs` and written through
-  `helpCenterConfigUpdate` — the 2.0 business portal's whole-config shape under
-  a name that says which domain owns it, not `clientPortal*`, which is
-  `core-api`'s unrelated entity;
-  `src/migrations/migrateHelpCenterConfigs.ts` moves existing topic values across
-  and unsets them on the topic.
-- **Affected areas:** `src/modules/helpcenter/**` (new),
-  `src/modules/knowledgebase/{@types/topic.ts,db/definitions/topic.ts,graphql/schemas/knowledgeBaseTypeDefs.ts}`,
-  `src/{connectionResolvers.ts,meta/permissions.ts}`, `src/apollo/**`,
-  `src/migrations/migrateHelpCenterConfigs.ts`
-- **Contracts changed:** Added `HelpCenterConfig`, `HelpCenterConfigStyles`,
-  `HelpCenterConfigInput`, `HelpCenterConfigStylesInput`, the three
-  `helpCenterConfig*` queries and `helpCenterConfigUpdate` /
-  `helpCenterConfigRemove`, plus a `helpCenter` permission module
-  (`showHelpCenter`, `helpCenterManage`). Removed `url`, `kbToggle`, `kbLabel`,
-  `kbTopicId`, `ticketToggle`, `ticketLabel`, `ticketChannelId`,
-  `ticketPipelineId`, `ticketStatusId` and `styles` from `KnowledgeBaseTopic`
-  and `KnowledgeBaseTopicDoc`, and dropped `KnowledgeBaseTopicStyles` /
-  `KnowledgeBaseTopicStylesInput`.
->>>>>>> origin/main
 
 ### `2026-09-09` — Graph calls can be pointed at a stand-in
 
@@ -1906,4 +1846,27 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   `src/modules/knowledgebase/graphql/schemas/knowledgeBaseTypeDefs.ts`
 - **Contracts changed:** `KnowledgeBaseTopic` exposes `kbTopicId: String` and
   `KnowledgeBaseTopicDoc` accepts it.
->>>>>>> origin/main
+
+### `2026-09-07` — Surveys pin their messenger integration by brand
+
+- **Summary:** A survey can now carry a `brandId`; the client-portal submit path and
+  `surveySendToConversation` honour it, and create/update refuse a brand that has no
+  active messenger integration in the survey's channel — removing the arbitrary
+  `findOne` pick on a channel with several messenger integrations.
+- **Affected areas:** `src/modules/survey/{@types/survey.ts,db/definitions/surveys.ts,db/models/Surveys.ts}`,
+  `src/modules/survey/graphql/schema/survey.ts`,
+  `src/modules/survey/graphql/resolvers/mutations/{surveys.ts,clientPortal.ts}`.
+- **Contracts changed:** Added `brandId: String` to `surveyAdd`, `surveyEdit` and the
+  `Survey` type.
+
+### `2026-09-07` — Guest voting on the client portal survey surface
+
+- **Summary:** All four `cpSurvey*` operations now accept an optional client-supplied
+  `visitorId`, so an unauthenticated portal visitor can read and answer a survey;
+  `cpSurveySubmit` gives a guest a `state: 'visitor'` customer and reuses it on
+  return, while a signed-in `cpUser` still wins over the argument.
+- **Affected areas:** `src/modules/survey/graphql/resolvers/{mutations,queries}/clientPortal.ts`,
+  `src/modules/survey/graphql/schema/survey.ts`, `src/modules/survey/utils.ts`.
+- **Contracts changed:** Added `visitorId: String` to `cpSurveyDetail`,
+  `cpSurveyVotes`, `cpSurveySubmit` and `cpSurveyVote`. Both client-portal survey
+  resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
