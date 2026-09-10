@@ -102,10 +102,10 @@ const isSenderMismatch = (
 ) =>
   Boolean(
     headerFrom &&
-      envelopeFrom &&
-      parseTaggedAddress(envelopeFrom).address !==
-        parseTaggedAddress(headerFrom).address &&
-      !isForwardedBy(integration, envelopeFrom, deliveredTo),
+    envelopeFrom &&
+    parseTaggedAddress(envelopeFrom).address !==
+      parseTaggedAddress(headerFrom).address &&
+    !isForwardedBy(integration, envelopeFrom, deliveredTo),
   );
 
 const normalizeSubject = (subject?: string) => {

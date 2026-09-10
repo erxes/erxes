@@ -48,7 +48,8 @@ export const isWaitingForForwardVerification = (
   integration: IMailPipelineIntegration | null,
 ) =>
   Boolean(
-    integration?.awaitingForwardVerification && !integration.forwardVerification,
+    integration?.awaitingForwardVerification &&
+    !integration.forwardVerification,
   );
 
 export const useMailPipelineIntegration = (pipelineId?: string) => {
