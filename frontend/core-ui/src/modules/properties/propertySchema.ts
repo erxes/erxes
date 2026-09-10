@@ -26,6 +26,12 @@ export const optionSchema = z.object({
   value: z.string().min(1, 'Value is required'),
 });
 
+export const objectListConfigSchema = z.object({
+  key: z.string().min(1, 'Key is required'),
+  label: z.string().min(1, 'Label is required'),
+  type: z.enum(['text', 'textarea']),
+});
+
 export const logicSchema = z.object({
   field: z.string(),
   operator: z.string(),
@@ -72,6 +78,32 @@ export const propertySchema = z
       .optional()
       .transform((v) => v ?? false),
     logics: z.array(logicSchema).nullable().optional(),
+    configs: z
+      .object({ objectListConfigs: z.array(objectListConfigSchema).optional() })
+      .optional(),
+    objectListConfigs: z
+      .array(objectListConfigSchema)
+      .optional()
+      .superRefine((configs, ctx) => {
+        if (!configs || configs.length === 0) return;
+
+        const keys = configs.map((config) => config.key.trim().toLowerCase());
+        const keySet = new Set(keys);
+
+        if (keys.length !== keySet.size) {
+          keys.forEach((key, index) => {
+            const firstIndex = keys.indexOf(key);
+
+            if (firstIndex !== index && key) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Key must be unique',
+                path: [index, 'key'],
+              });
+            }
+          });
+        }
+      }),
     options: z
       .array(optionSchema)
       .optional()
@@ -113,5 +145,14 @@ export const propertySchema = z
     {
       path: ['relationType'],
       message: 'Relation type is required',
+    },
+  )
+  .refine(
+    (data) =>
+      data.type !== 'objectList' ||
+      (data.objectListConfigs && data.objectListConfigs.length > 0),
+    {
+      path: ['objectListConfigs'],
+      message: 'At least one field is required',
     },
   );

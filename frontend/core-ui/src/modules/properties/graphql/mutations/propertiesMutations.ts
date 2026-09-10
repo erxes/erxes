@@ -73,6 +73,7 @@ export const FIELD_ADD = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
     $isVisible: Boolean
     $isVisibleToCreate: Boolean
@@ -88,6 +89,7 @@ export const FIELD_ADD = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
       isVisible: $isVisible
       isVisibleToCreate: $isVisibleToCreate
@@ -111,6 +113,7 @@ export const FIELD_EDIT = gql`
     $options: [FieldOptionInput]
     $validations: JSON
     $logics: JSON
+    $configs: JSON
     $icon: String
     $isVisible: Boolean
     $isVisibleToCreate: Boolean
@@ -128,6 +131,7 @@ export const FIELD_EDIT = gql`
       options: $options
       validations: $validations
       logics: $logics
+      configs: $configs
       icon: $icon
       isVisible: $isVisible
       isVisibleToCreate: $isVisibleToCreate

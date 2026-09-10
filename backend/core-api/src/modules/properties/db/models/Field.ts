@@ -183,6 +183,43 @@ export const loadFieldClass = (models: IModels) => {
 
       const { type, validations } = field;
 
+      if (type === 'objectList') {
+        const objectListConfigs = field.configs?.objectListConfigs || [];
+
+        if (!objectListConfigs.length) {
+          throw new Error(`${field.name}: Object List don't have any keys`);
+        }
+
+        if (!value) {
+          return value;
+        }
+
+        if (!Array.isArray(value)) {
+          throw new TypeError(
+            `${field.name}: Object List value must be a list`,
+          );
+        }
+
+        const keys = new Set(objectListConfigs.map((config) => config.key));
+
+        const normalizedRows = value
+          .filter(
+            (row: unknown) =>
+              typeof row === 'object' && row !== null && !Array.isArray(row),
+          )
+          .map((row: Record<string, unknown>) =>
+            Object.fromEntries(
+              Object.entries(row).filter(([key]) => keys.has(key)),
+            ),
+          );
+
+        if (validations?.required && normalizedRows.length === 0) {
+          throw new Error(`${field.name}: required`);
+        }
+
+        return normalizedRows;
+      }
+
       const isEmptyValue =
         value === undefined ||
         value === null ||
@@ -445,9 +482,8 @@ export const loadFieldClass = (models: IModels) => {
         });
       }
 
-      result.propertiesData = await models.Fields.validateFieldValues(
-        mergedData,
-      );
+      result.propertiesData =
+        await models.Fields.validateFieldValues(mergedData);
 
       return result;
     }
