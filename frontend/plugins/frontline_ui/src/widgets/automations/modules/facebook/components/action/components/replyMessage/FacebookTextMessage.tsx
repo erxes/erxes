@@ -34,7 +34,7 @@ export const FacebookTextMessage = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label className="flex flex-row justify-between">
-              {t('text')}
+              {t('text', 'Text')}
               <InputTextCounter
                 count={field.value?.length || 0}
                 limit={limit}
@@ -53,7 +53,7 @@ export const FacebookTextMessage = ({
         render={({ field }) => (
           <Form.Item>
             <Form.Label className="flex flex-row justify-between">
-              {t('button')}
+              {t('button', 'Button')}
               <InputTextCounter count={field.value?.length || 0} limit={3} />
             </Form.Label>
             <Form.Control>

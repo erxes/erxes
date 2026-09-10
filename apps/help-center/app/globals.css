@@ -1,0 +1,177 @@
+@import 'tailwindcss';
+
+@source '../../../frontend/libs/erxes-ui/src';
+
+@plugin 'tailwindcss-animate';
+
+@theme {
+  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --color-subtle: #f8f8fb;
+  --color-ink: #14142b;
+  --color-ink-soft: #45435f;
+  --color-line: #e7e6f0;
+  --color-line-soft: #f0eff6;
+
+  --color-brand: #4f33af;
+  --color-brand-strong: #3f2790;
+  --color-brand-soft: #f1eefc;
+
+  --color-hero: #3b2f6e;
+
+  --color-hero-soft: #4d3f92;
+  --color-hero-line: #6255a8;
+
+  --shadow-card: 0 1px 2px rgb(20 20 43 / 4%), 0 1px 3px rgb(20 20 43 / 3%);
+  --shadow-card-hover:
+    0 4px 12px rgb(20 20 43 / 6%), 0 12px 28px rgb(20 20 43 / 8%);
+
+  --color-footer: #ffffff;
+  --color-link: var(--color-brand);
+  --color-link-hover: var(--color-brand-strong);
+
+  --color-success: #12855c;
+  --color-success-soft: #e4f5ee;
+  --color-warning: #b3690a;
+  --color-warning-soft: #fdf1e0;
+  --color-danger: #c73b3b;
+  --color-danger-soft: #fdeced;
+
+  --color-background: #ffffff;
+  --color-foreground: var(--color-ink);
+  --color-border: var(--color-line);
+  --color-ring: var(--color-brand);
+
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: #ffffff;
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+
+  --color-muted: var(--color-line);
+  --color-muted-foreground: #7b7a92;
+  --color-accent: var(--color-subtle);
+  --color-accent-foreground: var(--color-muted-foreground);
+
+  --shadow-xs:
+    0 0 0 1px var(--color-line), 0 1px 1px rgb(23 22 42 / 5%),
+    0 2px 2px rgb(23 22 42 / 5%);
+  --shadow-focus: 0 0 0 4px rgb(79 51 175 / 25%), 0 0 0 1px var(--color-brand);
+}
+
+@layer base {
+  .kb-article {
+    @apply text-[13px] leading-relaxed text-ink-soft;
+  }
+
+  .kb-article > * + * {
+    @apply mt-4;
+  }
+
+  .kb-article :is(h1, h2, h3, h4) {
+    @apply font-semibold leading-snug text-ink;
+  }
+
+  .kb-article :is(h1, h2, h3, h4):not(:first-child) {
+    @apply mt-8;
+  }
+
+  .kb-article h1 {
+    @apply text-[17px];
+  }
+
+  .kb-article h2 {
+    @apply text-[15px];
+  }
+
+  .kb-article h3 {
+    @apply text-sm;
+  }
+
+  .kb-article h4 {
+    @apply text-[13px];
+  }
+
+  .kb-article strong {
+    @apply font-semibold text-ink;
+  }
+
+  .kb-article a {
+    @apply underline underline-offset-2;
+    color: var(--color-link);
+  }
+
+  .kb-article a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .kb-article :is(ul, ol) {
+    @apply pl-5;
+  }
+
+  .kb-article ul {
+    @apply list-disc;
+  }
+
+  .kb-article ol {
+    @apply list-decimal;
+  }
+
+  .kb-article li + li {
+    @apply mt-1.5;
+  }
+
+  .kb-article li::marker {
+    @apply text-muted-foreground;
+  }
+
+  .kb-article blockquote {
+    @apply border-l-[3px] border-line pl-4 text-muted-foreground;
+  }
+
+  .kb-article :is(img, video) {
+    @apply h-auto max-w-full rounded-xl;
+  }
+
+  .kb-article code {
+    @apply rounded border border-line bg-subtle px-1.5 py-0.5 text-[0.875em];
+  }
+
+  .kb-article pre {
+    @apply overflow-x-auto rounded-xl border border-line bg-subtle p-4;
+  }
+
+  .kb-article pre code {
+    @apply border-0 bg-transparent p-0;
+  }
+
+  .kb-article hr {
+    @apply my-6 border-line;
+  }
+
+  .kb-article table {
+    @apply block w-full overflow-x-auto border-collapse;
+  }
+
+  .kb-article :is(th, td) {
+    @apply border border-line px-3 py-2 text-left;
+  }
+
+  .kb-article th {
+    @apply bg-subtle font-semibold text-ink;
+  }
+}
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

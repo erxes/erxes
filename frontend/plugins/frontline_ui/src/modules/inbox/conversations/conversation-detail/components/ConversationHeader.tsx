@@ -202,7 +202,7 @@ const AssignConversation = ({
       },
       onError: (error: Error) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -272,13 +272,13 @@ export const ConversationTags = ({
         options={() => ({
           onCompleted: () => {
             toast({
-              title: t('tag-updated'),
+              title: t('tag-updated', 'Tag updated'),
               variant: 'default',
             });
           },
           onError: (error: Error) => {
             toast({
-              title: t('failed-to-update-tags'),
+              title: t('failed-to-update-tags', 'Failed to update tags'),
               description: error.message,
               variant: 'destructive',
             });
@@ -326,7 +326,7 @@ const ConversationActionsDropdown = ({
           variant="secondary"
           size="icon"
           className="flex-none [&>svg]:size-4"
-          aria-label={t('actions')}
+          aria-label={t('actions', 'Actions')}
         >
           <IconDots />
         </Button>
@@ -339,7 +339,7 @@ const ConversationActionsDropdown = ({
           <>
             <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
               <IconUser className="size-4" />
-              {t('assignee')}
+              {t('assignee', 'Assignee')}
             </DropdownMenu.Label>
             <div className="px-1 pb-2">
               <AssignConversation withinDropdown />
@@ -349,7 +349,7 @@ const ConversationActionsDropdown = ({
         )}
         <DropdownMenu.Label className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
           <IconTags className="size-4" />
-          {t('tags')}
+          {t('tags', 'Tags')}
         </DropdownMenu.Label>
         <div className="px-1 pb-2 [&>div]:flex-col [&>div]:items-stretch [&>div>button]:order-last [&>div>button]:mt-2 [&>div>button]:w-full [&>div>button]:justify-between [&>div>button]:border-dashed [&>div>button]:bg-muted/30 [&>div>div]:max-h-28 [&>div>div]:w-full [&>div>div]:overflow-y-auto [&>div>div]:pr-1">
           <ConversationTags showAllTags withinDropdown />
@@ -361,7 +361,7 @@ const ConversationActionsDropdown = ({
           disabled={loading}
         >
           <StatusIcon className="size-4" />
-          {isClosed ? t('open-label') : t('resolve')}
+          {isClosed ? t('open-label', 'Open') : t('resolve', 'Resolve')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>

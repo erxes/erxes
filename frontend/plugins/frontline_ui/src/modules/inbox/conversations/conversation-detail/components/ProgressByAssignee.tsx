@@ -47,7 +47,7 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
                 <div className="flex items-center gap-2 w-full">
                   <MembersInline
                     memberIds={[item.assigneeId]}
-                    placeholder={t('no-assignee')}
+                    placeholder={t('no-assignee', 'No Assignee')}
                   />
 
                   <ChartContainer config={{}} className="aspect-square size-6">
@@ -60,7 +60,7 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
                       outerRadius={10}
                       data={[
                         {
-                          name: t('progress'),
+                          name: t('progress', 'Progress'),
                           value: progress,
                           fill: 'var(--primary)',
                         },
@@ -92,18 +92,18 @@ export const ProgressByAssignee = ({ customerId }: { customerId?: string }) => {
               <div className="flex flex-col gap-1 text-muted-foreground">
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="open" />
-                  {t('open-label')}:
+                  {t('open-label', 'Open')}:
                   <span className="text-foreground ml-auto">{item.open}</span>
                 </p>
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="new" />
-                  {t('new-label')}:
+                  {t('new-label', 'New')}:
                   <span className="text-foreground ml-auto">{item.new}</span>
                 </p>
 
                 <p className="text-sm flex items-center gap-1">
                   <ProgressDot status="closed" />
-                  {t('closed-label')}:
+                  {t('closed-label', 'Closed')}:
                   <span className="text-foreground ml-auto">{item.closed}</span>
                 </p>
               </div>

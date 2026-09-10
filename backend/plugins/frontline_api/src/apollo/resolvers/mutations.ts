@@ -10,6 +10,7 @@ import { discordMutations } from '@/integrations/discord/graphql/resolvers/mutat
 import { instagramMutations } from '@/integrations/instagram/graphql/resolvers/mutations';
 import { mailMutations } from '@/integrations/mail/graphql/resolvers/mutations';
 import { knowledgeBaseMutations } from '@/knowledgebase/graphql/resolvers/mutations/knowledgeBaseMutations';
+import { helpCenterConfigMutations } from '@/helpcenter/graphql/resolvers/mutations/helpCenterConfig';
 import { reportChartMutations } from '@/reports/graphql/resolvers/chartMutations';
 import { reportFacebookMutations } from '@/reports/graphql/resolvers/facebookMutations';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
@@ -42,6 +43,7 @@ export const mutations = {
   ...pollMutations,
   ...cpPollMutations,
   ...knowledgeBaseMutations,
+  ...helpCenterConfigMutations,
   ...reportInboxQueries,
   ...reportTicketQueries,
   ...reportChartMutations,

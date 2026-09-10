@@ -8,7 +8,6 @@ import { useMutation, useQuery } from '@apollo/client';
 import { toast, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { generateAutomationElementId } from 'ui-modules';
 import { z } from 'zod';
 import {
   ADD_FACEBOOK_BOT,
@@ -17,9 +16,14 @@ import {
 import { facebookBotFormSchema } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotForm';
 import { FacebookBotDetailQueryResponse } from '~/widgets/automations/modules/facebook/components/bots/types/facebookBotTypes';
 
-export const useFacebookBotSave = () => {
+export const useFacebookBotSave = (
+  // Surfaces that open the form outside the bots settings page hold the bot in
+  // their own state rather than in the query string.
+  botId?: string | null,
+) => {
   const { t } = useTranslation('frontline');
-  const [facebookBotId] = useQueryState<string>('facebookBotId');
+  const [queryBotId] = useQueryState<string>('facebookBotId');
+  const facebookBotId = botId ?? queryBotId;
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
   const [save, { loading: onSaveloading }] = useMutation(
@@ -67,13 +71,13 @@ export const useFacebookBotSave = () => {
       },
       onCompleted: () => {
         toast({
-          title: t('save-successful'),
+          title: t('save-successful', 'Save successful'),
         });
       },
       onError: (error) => {
         toast({
           variant: 'destructive',
-          title: t('something-went-wrong'),
+          title: t('something-went-wrong', 'Uh oh! Something went wrong.'),
           description: error?.message,
         });
       },

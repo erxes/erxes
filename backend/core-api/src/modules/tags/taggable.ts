@@ -4,6 +4,7 @@ export type TaggableTarget = {
 };
 
 export const TAGGABLE_TARGETS: Record<string, TaggableTarget> = {
+  documents: { moduleName: 'documents', collectionName: 'documents' },
   customer: { moduleName: 'contacts', collectionName: 'customers' },
   company: { moduleName: 'contacts', collectionName: 'companies' },
   product: { moduleName: 'products', collectionName: 'products' },

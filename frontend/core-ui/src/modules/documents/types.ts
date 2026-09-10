@@ -7,6 +7,7 @@ export type IDocument = {
   content?: string;
   createdAt?: string;
   createdUser?: IUser;
+  tagIds?: string[];
 };
 
 export type IDocumentType = {
@@ -17,6 +18,7 @@ export type IDocumentType = {
 };
 
 export type DocumentFilterState = {
+  tagIds: string[] | null;
   searchValue: string | null;
   createdAt: string | null;
   createdBy: string | string[] | null;

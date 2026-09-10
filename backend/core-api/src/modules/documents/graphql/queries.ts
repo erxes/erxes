@@ -4,14 +4,20 @@ import {
   getPlugins,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { documents } from '~/meta/documents';
 import { IDocumentDocument, IDocumentFilterQueryParams } from '../types';
 
 const generateFilter = (params: IDocumentFilterQueryParams) => {
-  const { searchValue, contentType, subType, userIds, dateFilters } = params;
+  const { searchValue, contentType, subType, userIds, dateFilters, tagIds } =
+    params;
 
-  const filter: any = {};
+  const filter: FilterQuery<IDocumentDocument> = {};
+
+  if (tagIds?.length) {
+    filter.tagIds = { $in: tagIds };
+  }
 
   if (contentType) {
     filter.contentType = contentType;

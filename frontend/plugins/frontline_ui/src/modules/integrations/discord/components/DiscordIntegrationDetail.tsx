@@ -21,6 +21,7 @@ import {
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
@@ -60,6 +61,7 @@ const IntegrationNamePicker = ({
   onChange: (value: string) => void;
   presets: string[];
 }) => {
+  const { t } = useTranslation('frontline');
   const [open, setOpen] = useState(false);
 
   const query = value.trim().toLowerCase();
@@ -72,7 +74,10 @@ const IntegrationNamePicker = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
         <Combobox.Trigger className="w-full shadow-xs">
-          <Combobox.Value value={value} placeholder={NAME_PLACEHOLDER} />
+          <Combobox.Value
+            value={value}
+            placeholder={t('discord-name-placeholder', NAME_PLACEHOLDER)}
+          />
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
@@ -80,7 +85,10 @@ const IntegrationNamePicker = ({
           <Command.Input
             value={value}
             onValueChange={onChange}
-            placeholder="Type a new name or reuse an existing one"
+            placeholder={t(
+              'discord-type-or-reuse-name',
+              'Type a new name or reuse an existing one',
+            )}
             focusOnMount
           />
           <Command.List>
@@ -95,7 +103,9 @@ const IntegrationNamePicker = ({
               </Command.Item>
             )}
             {matches.length > 0 && (
-              <Command.Group heading="Reuse a previous name">
+              <Command.Group
+                heading={t('reuse-a-previous-name', 'Reuse a previous name')}
+              >
                 {matches.map((preset) => (
                   <Command.Item
                     key={preset}
@@ -113,7 +123,7 @@ const IntegrationNamePicker = ({
             )}
             {!value.trim() && presets.length === 0 && (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                No saved names yet.
+                {t('no-saved-names-yet', 'No saved names yet.')}
               </p>
             )}
           </Command.List>
@@ -125,6 +135,7 @@ const IntegrationNamePicker = ({
 
 // skipcq: JS-R1005
 export const DiscordIntegrationDetail = () => {
+  const { t } = useTranslation('frontline');
   const { id: inboxChannelId } = useParams();
   const [open, setOpen] = useState(false);
   const { addIntegration, loading } = useIntegrationAdd();
@@ -274,7 +285,7 @@ export const DiscordIntegrationDetail = () => {
   if (guildsLoading) {
     serverStepContent = (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Spinner size="sm" /> Loading servers…
+        <Spinner size="sm" /> {t('discord-loading-servers', 'Loading servers…')}
       </div>
     );
   } else if (guilds.length) {
@@ -287,7 +298,9 @@ export const DiscordIntegrationDetail = () => {
         }}
       >
         <Select.Trigger id="discord-server">
-          <Select.Value placeholder="Select a server" />
+          <Select.Value
+            placeholder={t('discord-select-a-server', 'Select a server')}
+          />
         </Select.Trigger>
         <Select.Content>
           {guilds.map((g) => (
@@ -302,9 +315,14 @@ export const DiscordIntegrationDetail = () => {
     serverStepContent = (
       <Alert variant="warning">
         <IconAlertTriangle className="size-4" />
-        <Alert.Title>This bot isn&apos;t in any server</Alert.Title>
+        <Alert.Title>
+          {t('discord-bot-not-in-server', "This bot isn't in any server")}
+        </Alert.Title>
         <Alert.Description>
-          Use “Add this bot to a server” on the previous step, then come back.
+          {t(
+            'discord-add-bot-to-server-hint',
+            'Use "Add this bot to a server" on the previous step, then come back.',
+          )}
         </Alert.Description>
       </Alert>
     );
@@ -323,7 +341,7 @@ export const DiscordIntegrationDetail = () => {
         <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
-            Add Discord bot
+            {t('discord-add-bot', 'Add Discord bot')}
           </Button>
         </Sheet.Trigger>
         <Sheet.View>
@@ -333,10 +351,14 @@ export const DiscordIntegrationDetail = () => {
               onSubmit={form.handleSubmit(onSubmit)}
             >
               <Sheet.Header>
-                <Sheet.Title>Add Discord bot</Sheet.Title>
+                <Sheet.Title>
+                  {t('discord-add-bot', 'Add Discord bot')}
+                </Sheet.Title>
                 <Sheet.Description className="sr-only">
-                  Connect a Discord bot to manage your Discord channel messages
-                  right from your Team Inbox.
+                  {t(
+                    'discord-add-bot-description',
+                    'Connect a Discord bot to manage your Discord channel messages right from your Team Inbox.',
+                  )}
                 </Sheet.Description>
                 <Sheet.Close />
               </Sheet.Header>
@@ -354,13 +376,16 @@ export const DiscordIntegrationDetail = () => {
                         htmlFor="discord-bot-token"
                         className="text-sm font-medium"
                       >
-                        Bot token
+                        {t('discord-bot-token', 'Bot token')}
                       </label>
                       <Input
                         id="discord-bot-token"
                         type="password"
                         value={token}
-                        placeholder="Paste your bot token"
+                        placeholder={t(
+                          'discord-paste-bot-token',
+                          'Paste your bot token',
+                        )}
                         onChange={(e) => setToken(e.target.value)}
                         onBlur={() => {
                           const trimmed = token.trim();
@@ -370,13 +395,16 @@ export const DiscordIntegrationDetail = () => {
                         }}
                       />
                       <p className="text-xs text-muted-foreground">
-                        From the Discord Developer Portal → Bot. We&apos;ll
-                        verify it and fill in the rest automatically.
+                        {t(
+                          'discord-bot-token-hint',
+                          "From the Discord Developer Portal → Bot. We'll verify it and fill in the rest automatically.",
+                        )}
                       </p>
 
                       {validating && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Spinner size="sm" /> Verifying token…
+                          <Spinner size="sm" />{' '}
+                          {t('discord-verifying-token', 'Verifying token…')}
                         </div>
                       )}
 
@@ -384,11 +412,19 @@ export const DiscordIntegrationDetail = () => {
                         <Alert variant="default">
                           <IconCircleCheck className="size-4 text-green-600" />
                           <Alert.Title>
-                            Connected as {currentValidation.botUsername}
+                            {t(
+                              'discord-connected-as',
+                              'Connected as {{botUsername}}',
+                              {
+                                botUsername: currentValidation.botUsername,
+                              },
+                            )}
                           </Alert.Title>
                           <Alert.Description>
-                            Application ID and public key detected
-                            automatically.
+                            {t(
+                              'discord-app-id-detected',
+                              'Application ID and public key detected automatically.',
+                            )}
                           </Alert.Description>
                         </Alert>
                       )}
@@ -398,11 +434,16 @@ export const DiscordIntegrationDetail = () => {
                           <Alert variant="warning">
                             <IconAlertTriangle className="size-4" />
                             <Alert.Title>
-                              MESSAGE CONTENT intent is off
+                              {t(
+                                'discord-message-content-intent-off',
+                                'MESSAGE CONTENT intent is off',
+                              )}
                             </Alert.Title>
                             <Alert.Description>
-                              Enable it in the Developer Portal → Bot, or
-                              incoming messages will arrive empty.
+                              {t(
+                                'discord-enable-message-content-intent',
+                                'Enable it in the Developer Portal → Bot, or incoming messages will arrive empty.',
+                              )}
                             </Alert.Description>
                           </Alert>
                         )}
@@ -410,10 +451,15 @@ export const DiscordIntegrationDetail = () => {
                       {currentValidation && !currentValidation.valid && (
                         <Alert variant="destructive">
                           <IconAlertTriangle className="size-4" />
-                          <Alert.Title>Invalid token</Alert.Title>
+                          <Alert.Title>
+                            {t('discord-invalid-token', 'Invalid token')}
+                          </Alert.Title>
                           <Alert.Description>
                             {currentValidation.error ||
-                              'Discord rejected this token. Double-check it and try again.'}
+                              t(
+                                'discord-token-rejected',
+                                'Discord rejected this token. Double-check it and try again.',
+                              )}
                           </Alert.Description>
                         </Alert>
                       )}
@@ -426,7 +472,10 @@ export const DiscordIntegrationDetail = () => {
                           className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                         >
                           <IconExternalLink className="size-4" />
-                          Add this bot to a server
+                          {t(
+                            'discord-add-bot-to-server',
+                            'Add this bot to a server',
+                          )}
                         </a>
                       )}
 
@@ -435,7 +484,7 @@ export const DiscordIntegrationDetail = () => {
                           <div className="flex items-center gap-2">
                             <div className="h-px flex-1 bg-border" />
                             <span className="text-xs text-muted-foreground">
-                              or
+                              {t('discord-or-separator', 'or')}
                             </span>
                             <div className="h-px flex-1 bg-border" />
                           </div>
@@ -443,7 +492,10 @@ export const DiscordIntegrationDetail = () => {
                             htmlFor="discord-connected-server"
                             className="text-sm font-medium"
                           >
-                            Add channels to a connected server
+                            {t(
+                              'discord-add-channels-to-connected-server',
+                              'Add channels to a connected server',
+                            )}
                           </label>
                           <Select
                             value=""
@@ -460,7 +512,12 @@ export const DiscordIntegrationDetail = () => {
                             }}
                           >
                             <Select.Trigger id="discord-connected-server">
-                              <Select.Value placeholder="Select a connected server" />
+                              <Select.Value
+                                placeholder={t(
+                                  'discord-select-connected-server',
+                                  'Select a connected server',
+                                )}
+                              />
                             </Select.Trigger>
                             <Select.Content>
                               {connectedServers.map((server) => (
@@ -474,8 +531,10 @@ export const DiscordIntegrationDetail = () => {
                             </Select.Content>
                           </Select>
                           <p className="text-xs text-muted-foreground">
-                            Skip the token step and pick more channels for a bot
-                            you&apos;ve already connected.
+                            {t(
+                              'discord-skip-token-step-hint',
+                              "Skip the token step and pick more channels for a bot you've already connected.",
+                            )}
                           </p>
                         </div>
                       )}
@@ -488,7 +547,7 @@ export const DiscordIntegrationDetail = () => {
                         htmlFor="discord-server"
                         className="text-sm font-medium"
                       >
-                        Server
+                        {t('server', 'Server')}
                       </label>
                       {serverStepContent}
                     </div>
@@ -502,7 +561,7 @@ export const DiscordIntegrationDetail = () => {
                             htmlFor="discord-channels"
                             className="text-sm font-medium"
                           >
-                            Discord channels
+                            {t('discord-channels', 'Discord channels')}
                           </label>
                           {channelOptions.length > 0 && (
                             <Button
@@ -519,8 +578,8 @@ export const DiscordIntegrationDetail = () => {
                               }}
                             >
                               {channels.length === channelOptions.length
-                                ? 'Clear all'
-                                : 'Select all'}
+                                ? t('clear-all', 'Clear all')
+                                : t('select-all', 'Select all')}
                             </Button>
                           )}
                         </div>
@@ -542,18 +601,29 @@ export const DiscordIntegrationDetail = () => {
                           }}
                           placeholder={
                             channelsLoading
-                              ? 'Loading channels…'
-                              : 'Select one or more channels'
+                              ? t(
+                                  'discord-loading-channels',
+                                  'Loading channels…',
+                                )
+                              : t(
+                                  'discord-select-one-or-more-channels',
+                                  'Select one or more channels',
+                                )
                           }
                           emptyIndicator={
                             <p className="text-center text-sm text-muted-foreground py-2">
-                              No text channels found
+                              {t(
+                                'discord-no-text-channels-found',
+                                'No text channels found',
+                              )}
                             </p>
                           }
                         />
                         <p className="text-xs text-muted-foreground">
-                          One integration is created per channel, all sharing
-                          this bot.
+                          {t(
+                            'discord-integration-per-channel-hint',
+                            'One integration is created per channel, all sharing this bot.',
+                          )}
                         </p>
                       </div>
 
@@ -561,7 +631,12 @@ export const DiscordIntegrationDetail = () => {
                         name="name"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>Integration name</Form.Label>
+                            <Form.Label>
+                              {t(
+                                'discord-integration-name',
+                                'Integration name',
+                              )}
+                            </Form.Label>
                             {namePresets.length > 0 ? (
                               <IntegrationNamePicker
                                 value={field.value}
@@ -577,8 +652,10 @@ export const DiscordIntegrationDetail = () => {
                               </Form.Control>
                             )}
                             <Form.Description>
-                              Used as a prefix; each integration is named “
-                              {'{name}'} - #channel”.
+                              {t(
+                                'discord-integration-name-description',
+                                'Used as a prefix; each integration is named "{name} - #channel".',
+                              )}
                             </Form.Description>
                             <Form.Message />
                           </Form.Item>
@@ -589,7 +666,7 @@ export const DiscordIntegrationDetail = () => {
                         name="brandId"
                         render={({ field }) => (
                           <Form.Item>
-                            <Form.Label>Brand</Form.Label>
+                            <Form.Label>{t('brand', 'Brand')}</Form.Label>
                             <Form.Control>
                               <SelectBrands.FormItem
                                 value={field.value}
@@ -612,7 +689,7 @@ export const DiscordIntegrationDetail = () => {
                     variant="ghost"
                     type="button"
                   >
-                    Cancel
+                    {t('cancel', 'Cancel')}
                   </Button>
                 </Sheet.Close>
 
@@ -633,7 +710,7 @@ export const DiscordIntegrationDetail = () => {
                     setStep((s) => s - 1);
                   }}
                 >
-                  Previous step
+                  {t('previous-step', 'Previous step')}
                 </Button>
 
                 {step < 3 ? (
@@ -645,11 +722,11 @@ export const DiscordIntegrationDetail = () => {
                     }
                     onClick={() => setStep((s) => s + 1)}
                   >
-                    Next step
+                    {t('next-step', 'Next step')}
                   </Button>
                 ) : (
                   <Button type="submit" disabled={loading || !channels.length}>
-                    Save
+                    {t('save', 'Save')}
                   </Button>
                 )}
               </Sheet.Footer>

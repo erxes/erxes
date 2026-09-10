@@ -22,7 +22,7 @@ export const ChannelDetailsPage = () => {
                     onClick={() => navigate('/settings/frontline/channels')}
                   >
                     <IconArrowLeft size={16} className="stroke-foreground" />
-                    {t('channels')}
+                    {t('channels', 'Channels')}
                   </Button>
                 </Breadcrumb.Link>
               </Breadcrumb.Item>

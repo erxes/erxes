@@ -23,7 +23,7 @@ export const TicketsArchive = ({
       }}
     >
       <IconSquareToggle className="size-4" />
-      {archived ? t('unarchive') : t('archive')}
+      {archived ? t('unarchive', 'Unarchive') : t('archive', 'Archive')}
     </Command.Item>
   );
 };

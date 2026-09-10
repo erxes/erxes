@@ -20,6 +20,7 @@ export const GET_DOCUMENTS = gql(`
     $searchValue: String
     $contentType: String
     $subType: String
+    $tagIds: [String]
     $userIds: [String]
     $dateFilters: String
     $orderBy: JSON
@@ -29,6 +30,7 @@ export const GET_DOCUMENTS = gql(`
       searchValue: $searchValue
       contentType: $contentType
       subType: $subType
+      tagIds: $tagIds
       userIds: $userIds
       dateFilters: $dateFilters
       orderBy: $orderBy
@@ -36,6 +38,7 @@ export const GET_DOCUMENTS = gql(`
     ) {
       list {
         _id
+        tagIds
         code
         createdAt
         createdUser {
@@ -65,6 +68,7 @@ export const GET_DOCUMENT_DETAIL = gql(`
       _id: $_id
     ) {
       _id
+      tagIds
       code
       createdAt
       createdUser {

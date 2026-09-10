@@ -36,12 +36,14 @@ import {
   type MessageInputController,
 } from '@/inbox/conversations/conversation-detail/hooks/useMessageInputController';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
+import { useTranslation } from 'react-i18next';
 
 type MessageInputControllerProps = {
   controller: MessageInputController;
 };
 
 const ReplyPreview = ({ controller }: MessageInputControllerProps) => {
+  const { t } = useTranslation('frontline');
   const { isInternalNote, replyTo, setReplyTo } = controller;
 
   if (isInternalNote || !replyTo) return null;
@@ -63,7 +65,7 @@ const ReplyPreview = ({ controller }: MessageInputControllerProps) => {
         )}
         <span className="min-w-0">
           <span className="block truncate text-xs font-semibold text-foreground">
-            {replyTo.nativeReply ? 'Replying to' : 'Quoting'}{' '}
+            {replyTo.nativeReply ? t('replying-to', 'Replying to:') : 'Quoting'}{' '}
             {replyTo.authorName || 'message'}
           </span>
           <span className="block truncate text-xs">{replyTo.preview}</span>

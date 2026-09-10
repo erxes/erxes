@@ -21,7 +21,8 @@ export const AutomationBotForm = ({
     <>
       <Sheet.Header>
         <Sheet.Title className="capitalize">
-          {instagramBotId ? t('edit') : t('add-new')} {t('instagram-bot')}
+          {instagramBotId ? t('edit', 'Edit') : t('add-new', 'Add new')}{' '}
+          {t('instagram-bot', 'Instagram bot')}
         </Sheet.Title>
         <Sheet.Close />
       </Sheet.Header>

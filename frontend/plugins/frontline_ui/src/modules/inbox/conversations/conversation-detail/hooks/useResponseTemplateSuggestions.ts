@@ -38,7 +38,10 @@ export const useResponseTemplateSuggestions = (editor: MessageEditor) => {
   const handleTemplateSelect = useCallback(
     async (templateContent: string, templateId?: string) => {
       if (!editor) {
-        toast({ title: t('editor-not-ready'), variant: 'destructive' });
+        toast({
+          title: t('editor-not-ready', 'Editor not ready'),
+          variant: 'destructive',
+        });
         return;
       }
       const parseTemplateToBlocks = (content: string) => {
@@ -65,7 +68,7 @@ export const useResponseTemplateSuggestions = (editor: MessageEditor) => {
         setResponseTemplateId(templateId || null);
       } catch {
         toast({
-          title: t('failed-to-insert-template'),
+          title: t('failed-to-insert-template', 'Failed to insert template'),
           variant: 'destructive',
         });
       }
