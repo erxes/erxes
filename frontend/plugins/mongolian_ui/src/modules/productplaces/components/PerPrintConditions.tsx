@@ -1,8 +1,7 @@
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 
-import SelectBranches from '../selects/SelectBranches';
-import SelectDepartments from '../selects/SelectDepartments';
 import { Condition } from '../types';
 
 type PrintCondition = Condition & {
@@ -32,16 +31,24 @@ const PerPrintConditions = ({
     <div className="flex items-end gap-3">
       <div className="flex-1 grid grid-cols-2 gap-3">
         <div>
-          <SelectBranches
+          <SelectBranches.Root
             value={condition.branchId || ''}
-            onChange={(branchId) => onChangeConfig('branchId', branchId)}
+            onValueChange={(branchId) =>
+              onChangeConfig(
+                'branchId',
+                typeof branchId === 'string' ? branchId : '',
+              )
+            }
           />
         </div>
         <div>
-          <SelectDepartments
+          <SelectDepartments.Root
             value={condition.departmentId || ''}
-            onChange={(departmentId) =>
-              onChangeConfig('departmentId', departmentId)
+            onValueChange={(departmentId) =>
+              onChangeConfig(
+                'departmentId',
+                typeof departmentId === 'string' ? departmentId : '',
+              )
             }
           />
         </div>

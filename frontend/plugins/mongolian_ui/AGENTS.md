@@ -35,6 +35,12 @@
   `RecordTable` lists and manage create/edit/delete through a right-side
   `Sheet`; place, split, and print config rows display board, pipeline, and
   stage names rather than raw ids.
+- Product places board, pipeline, and stage pickers and inline table displays
+  use the shared sales selectors from `ui-modules`; plugin-local duplicate
+  sales selectors are intentionally absent.
+- Product places product, tag, branch, and department selectors use shared
+  `ui-modules` selectors; plugin-local duplicate selectors are intentionally
+  absent.
 - Product places default product filters query Mongolian configs with
   `dealsProductsDefaultFilter`, store one config document per user with
   `subId` equal to the selected user id, and persist multi-segment selections
@@ -92,6 +98,10 @@
 ### Consumes
 
 - Public UI and utility APIs from `erxes-ui` and `ui-modules`.
+- Shared sales `SelectBoard`, `SelectPipeline`, and `SelectStage` components
+  from `ui-modules` for product-place stage configuration and table display.
+- Shared product, tag, branch, and department selectors from `ui-modules` for
+  product-place condition and split configuration forms.
 - Shared `SelectSegment` and `SelectMember` from `ui-modules` for product-place
   segment and assignee selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
@@ -146,6 +156,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-11` - Shared product-place condition selectors
+
+- **Summary:** Product-place condition and split forms now use shared `ui-modules` product, tag, branch, and department selectors, and duplicate plugin-local selector files were removed.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, `src/modules/productplaces/components/PerConditions.tsx`, `src/modules/productplaces/components/PerPrintConditions.tsx`, removed product-place local selector files.
+- **Contracts changed:** None.
+
+### `2026-09-11` - Shared product-place stage selectors
+
+- **Summary:** Product-place config forms and tables now use shared `ui-modules` board, pipeline, and stage selectors, and duplicate plugin-local sales selectors were removed.
+- **Affected areas:** `src/modules/productplaces/components/ProductPlacesConfigManager.tsx`, removed `src/modules/productplaces/selects/SelectSalesBoard.tsx`, `src/modules/productplaces/selects/SelectPipeline.tsx`, `src/modules/productplaces/selects/SelectStage.tsx`, `src/modules/productplaces/selects/SelectShared.tsx`.
+- **Contracts changed:** None.
 
 ### `2026-09-11` - Product places stage display
 

@@ -19,7 +19,16 @@ import {
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { SelectCategory, SelectMember, SelectSegment } from 'ui-modules';
+import {
+  SelectBoard,
+  SelectCategory,
+  SelectMember,
+  SelectPipeline,
+  SelectProduct,
+  SelectSegment,
+  SelectStage,
+  SelectTags,
+} from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -33,11 +42,6 @@ import {
   keyValueArrayToObject,
   objectToKeyValueArray,
 } from '../utils/transformers';
-import { SelectPipeline } from '../selects/SelectPipeline';
-import SelectProducts from '../selects/SelectProducts';
-import SelectProductTags from '../selects/SelectProductTags';
-import { SelectSalesBoard } from '../selects/SelectSalesBoard';
-import { SelectStage } from '../selects/SelectStage';
 import PerConditions from './PerConditions';
 import PerPrintConditions from './PerPrintConditions';
 
@@ -86,7 +90,6 @@ type ProductPlacesConfigRow = ProductPlacesConfigForm & {
 };
 
 const PRODUCT_SEGMENT_CONTENT_TYPE = 'core:products.products';
-const noopValueChange = () => undefined;
 
 const defaultForm = (): ProductPlacesConfigForm => ({
   userId: '',
@@ -296,40 +299,49 @@ const StageFields = ({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="space-y-2">
         <Label>{t('board')}</Label>
-        <SelectSalesBoard
-          variant="form"
+        <SelectBoard
           value={form.boardId}
           onValueChange={(boardId) =>
             setForm((prev) => ({
               ...prev,
-              boardId,
+              boardId: typeof boardId === 'string' ? boardId : '',
               pipelineId: '',
               stageId: '',
             }))
           }
+          placeholder={t('select-board')}
         />
       </div>
       <div className="space-y-2">
         <Label>{t('pipeline')}</Label>
         <SelectPipeline
-          variant="form"
           boardId={form.boardId}
           value={form.pipelineId}
           onValueChange={(pipelineId) =>
-            setForm((prev) => ({ ...prev, pipelineId, stageId: '' }))
+            setForm((prev) => ({
+              ...prev,
+              pipelineId: typeof pipelineId === 'string' ? pipelineId : '',
+              stageId: '',
+            }))
           }
           disabled={!form.boardId}
+          placeholder={t('select-pipeline')}
         />
       </div>
       <div className="space-y-2">
         <Label>{t('stage')}</Label>
         <SelectStage
-          id="product-places-config-stage"
-          variant="form"
           pipelineId={form.pipelineId}
           value={form.stageId}
-          onValueChange={(stageId) => setForm((prev) => ({ ...prev, stageId }))}
+          onValueChange={(stageId) =>
+            setForm((prev) => ({
+              ...prev,
+              stageId: typeof stageId === 'string' ? stageId : '',
+            }))
+          }
           disabled={!form.pipelineId}
+          placeholder={t('select-stage')}
+          autoSelectFirst={false}
         />
       </div>
     </div>
@@ -434,28 +446,48 @@ const ProductPlacesConfigEditor = ({
           </div>
           <div className="space-y-2">
             <Label>{t('include-tags')}</Label>
-            <SelectProductTags
+            <SelectTags
+              mode="multiple"
+              tagType="core:product"
               value={form.productTagIds}
               onValueChange={(productTagIds) =>
-                setForm((prev) => ({ ...prev, productTagIds }))
+                setForm((prev) => ({
+                  ...prev,
+                  productTagIds: Array.isArray(productTagIds)
+                    ? productTagIds
+                    : [productTagIds],
+                }))
               }
             />
           </div>
           <div className="space-y-2">
             <Label>{t('exclude-tags')}</Label>
-            <SelectProductTags
+            <SelectTags
+              mode="multiple"
+              tagType="core:product"
               value={form.excludeTagIds}
               onValueChange={(excludeTagIds) =>
-                setForm((prev) => ({ ...prev, excludeTagIds }))
+                setForm((prev) => ({
+                  ...prev,
+                  excludeTagIds: Array.isArray(excludeTagIds)
+                    ? excludeTagIds
+                    : [excludeTagIds],
+                }))
               }
             />
           </div>
           <div className="space-y-2">
             <Label>{t('exclude-products')}</Label>
-            <SelectProducts
+            <SelectProduct
+              mode="multiple"
               value={form.excludeProductIds}
-              onValueChange={(excludeProductIds: string[]) =>
-                setForm((prev) => ({ ...prev, excludeProductIds }))
+              onValueChange={(excludeProductIds) =>
+                setForm((prev) => ({
+                  ...prev,
+                  excludeProductIds: Array.isArray(excludeProductIds)
+                    ? excludeProductIds
+                    : [excludeProductIds],
+                }))
               }
             />
           </div>
@@ -731,14 +763,7 @@ export const ProductPlacesConfigManager = ({
         accessorKey: 'boardId',
         header: () => <RecordTable.InlineHead label={t('board')} />,
         cell: ({ row }) => (
-          <RecordTableInlineCell>
-            <SelectSalesBoard.Provider
-              value={row.original.boardId}
-              onValueChange={noopValueChange}
-            >
-              <SelectSalesBoard.Value placeholder="-" />
-            </SelectSalesBoard.Provider>
-          </RecordTableInlineCell>
+          <SelectBoard.InlineCell value={row.original.boardId} />
         ),
         size: 180,
       },
@@ -746,19 +771,12 @@ export const ProductPlacesConfigManager = ({
         id: 'pipelineId',
         accessorKey: 'pipelineId',
         header: () => <RecordTable.InlineHead label={t('pipeline')} />,
-        cell: ({ row }) => {
-          return (
-            <RecordTableInlineCell>
-              <SelectPipeline.Provider
-                boardId={row.original.boardId}
-                value={row.original.pipelineId}
-                onValueChange={noopValueChange}
-              >
-                <SelectPipeline.Value placeholder="-" />
-              </SelectPipeline.Provider>
-            </RecordTableInlineCell>
-          );
-        },
+        cell: ({ row }) => (
+          <SelectPipeline.InlineCell
+            boardId={row.original.boardId}
+            value={row.original.pipelineId}
+          />
+        ),
         size: 180,
       },
       {
@@ -766,15 +784,11 @@ export const ProductPlacesConfigManager = ({
         accessorKey: 'stageId',
         header: () => <RecordTable.InlineHead label={t('stage')} />,
         cell: ({ row }) => (
-          <RecordTableInlineCell>
-            <SelectStage.Provider
-              pipelineId={row.original.pipelineId}
-              value={row.original.stageId}
-              onValueChange={noopValueChange}
-            >
-              <SelectStage.Value placeholder="-" />
-            </SelectStage.Provider>
-          </RecordTableInlineCell>
+          <SelectStage.InlineCell
+            pipelineId={row.original.pipelineId}
+            value={row.original.stageId}
+            autoSelectFirst={false}
+          />
         ),
         size: 180,
       },
