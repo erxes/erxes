@@ -6,7 +6,7 @@ import { IntegrationType } from '@/types/Integration';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { useConversationListVisibility } from '@/inbox/hooks/useConversationListVisibility';
 import { useInboxLayout } from '@/inbox/hooks/useInboxLayout';
-import { useOverflowCompact } from '@/inbox/hooks/useCompactWidth';
+import { useCompactWidth } from '@/inbox/hooks/useCompactWidth';
 import { refetchConversationsAtom } from '@/inbox/conversations/states/refetchConversationState';
 import { ConversationStatus } from '@/inbox/types/Conversation';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
@@ -28,7 +28,6 @@ import {
   Combobox,
   DropdownMenu,
   PopoverScoped,
-  Separator,
   Skeleton,
   Tooltip,
   cn,
@@ -83,7 +82,7 @@ const ConversationHeaderProfile = () => {
 
   if (isDiscord && loading && !channel?.channelName) {
     return (
-      <div className="flex items-center gap-2 flex-none">
+      <div className="flex min-w-0 items-center gap-2">
         <Skeleton className="size-6 rounded-full" />
         <Skeleton className="w-32 h-4" />
       </div>
@@ -93,14 +92,14 @@ const ConversationHeaderProfile = () => {
   if (isDiscord && channel?.channelName) {
     const letter = channel.channelName.trim().charAt(0).toUpperCase();
     return (
-      <div className="flex items-center gap-2 flex-none">
+      <div className="flex min-w-0 items-center gap-2">
         <Avatar size="lg">
           <Avatar.Fallback className="bg-primary/10 text-primary font-medium">
             {letter}
           </Avatar.Fallback>
         </Avatar>
         <span
-          className="text-sm text-foreground"
+          className="truncate text-sm text-foreground"
           title={`Discord channel: #${channel.channelName}`}
         >
           #{channel.channelName}
@@ -113,7 +112,7 @@ const ConversationHeaderProfile = () => {
     <CustomersInline
       customers={customer ? [customer] : undefined}
       customerIds={customerId ? [customerId] : undefined}
-      className="text-sm text-foreground flex-none"
+      className="min-w-0 text-sm text-foreground [&>span]:truncate"
       placeholder="anonymous customer"
     />
   );
@@ -370,49 +369,74 @@ const ConversationActionsDropdown = ({
 };
 
 export const ConversationHeader = () => {
-  const { loading } = useConversationContext();
+  const { loading, status } = useConversationContext();
+  const { t } = useTranslation('frontline');
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useInboxLayout();
-  const {
-    ref: headerRef,
-    isCompact,
-    compactLevel,
-  } = useOverflowCompact<HTMLDivElement>();
-  const hideAssignee = compactLevel === 2;
+  const { ref: headerRef, isCompact } = useCompactWidth<HTMLDivElement>(480);
+
+  const isClosed = status === ConversationStatus.CLOSED;
+  const isNew = status === ConversationStatus.NEW;
+  const ConversationStatusIcon = isClosed ? IconCircleCheck : IconCircleDashed;
+  const statusIconClassName = isClosed
+    ? 'size-4 text-success'
+    : 'size-4 text-primary';
+
+  let statusLabel: string;
+  if (isClosed) {
+    statusLabel = t('closed', { defaultValue: 'Closed' });
+  } else if (isNew) {
+    statusLabel = t('new', { defaultValue: 'New' });
+  } else {
+    statusLabel = t('open-label');
+  }
 
   return (
-    <div
-      ref={headerRef}
-      className="h-11 flex items-center px-5 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
-    >
-      {view === 'list' ? (
-        <Button
-          variant="secondary"
-          size="icon"
-          className="[&>svg]:size-4 text-foreground flex-none"
-          onClick={() => setConversationId(null)}
-        >
-          <IconArrowLeft />
-        </Button>
-      ) : (
-        <ConversationListToggle />
-      )}
-      {!loading ? (
-        <ConversationHeaderProfile />
-      ) : (
-        <Skeleton className="w-32 h-4 ml-2" />
-      )}
-      <Separator.Inline />
-      {!hideAssignee && <AssignConversation />}
-      <AutomatedReplyStatusBadge />
-      <div className="flex items-center gap-3 ml-auto flex-none">
-        {!isCompact && <ConversationTags />}
-        <IntegrationActions />
-        {isCompact ? (
-          <ConversationActionsDropdown showAssignee={hideAssignee} />
+    <div className="flex-none border-b bg-background">
+      <div
+        ref={headerRef}
+        className="min-h-12 flex items-center px-3 text-xs font-medium text-accent-foreground flex-none gap-3 whitespace-nowrap overflow-hidden"
+      >
+        {view === 'list' ? (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="[&>svg]:size-4 text-foreground flex-none"
+            aria-label={t('back', { defaultValue: 'Back' })}
+            onClick={() => setConversationId(null)}
+          >
+            <IconArrowLeft />
+          </Button>
         ) : (
-          <ConversationActions />
+          <ConversationListToggle />
         )}
+        <div className="min-w-0 flex-1 overflow-hidden">
+          {!loading ? (
+            <ConversationHeaderProfile />
+          ) : (
+            <Skeleton className="w-32 h-4 ml-2" />
+          )}
+        </div>
+        <div className="flex items-center gap-3 ml-auto flex-none">
+          {!isCompact && <ConversationTags />}
+          <IntegrationActions />
+          {isCompact ? (
+            <ConversationActionsDropdown />
+          ) : (
+            <ConversationActions />
+          )}
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t bg-muted/20 px-3 py-2 text-xs">
+        <span className="flex items-center gap-1.5 font-medium">
+          <ConversationStatusIcon className={statusIconClassName} />
+          {statusLabel}
+        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-muted-foreground">{t('assignee')}</span>
+          <AssignConversation />
+        </div>
+        <AutomatedReplyStatusBadge />
       </div>
     </div>
   );

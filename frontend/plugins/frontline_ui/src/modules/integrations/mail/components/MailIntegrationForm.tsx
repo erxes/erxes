@@ -175,14 +175,11 @@ const MailSendingSummary = ({
   );
 };
 
-const STEP_DETAILS = [
-  { title: 'mail-step-basics', description: 'mail-step-basics-description' },
-  {
-    title: 'mail-step-receiving',
-    description: 'mail-step-receiving-description',
-  },
-  { title: 'mail-step-sending', description: 'mail-step-sending-description' },
-  { title: 'mail-step-done', description: 'mail-step-done-description' },
+const STEP_TITLES = [
+  'mail-step-basics',
+  'mail-step-receiving',
+  'mail-step-sending',
+  'mail-step-done',
 ];
 
 const MailIntegrationCreated = ({
@@ -328,7 +325,7 @@ export const MailIntegrationFormSheet = () => {
             >
               <Sheet.Header>
                 <Sheet.Title>{t('add-email-integration')}</Sheet.Title>
-                <Sheet.Description>
+                <Sheet.Description className="sr-only">
                   {t('mail-setup-description')}
                 </Sheet.Description>
                 <Sheet.Close />
@@ -337,9 +334,8 @@ export const MailIntegrationFormSheet = () => {
               <Sheet.Content className="flex flex-col overflow-hidden">
                 <IntegrationSteps
                   step={step}
-                  title={t(STEP_DETAILS[step - 1].title)}
-                  stepsLength={STEP_DETAILS.length}
-                  description={t(STEP_DETAILS[step - 1].description)}
+                  title={t(STEP_TITLES[step - 1])}
+                  stepsLength={STEP_TITLES.length}
                 />
 
                 <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 pt-0">

@@ -4,6 +4,7 @@ import { listCloudflareZones } from '@/integrations/mail/utils/cloudflare/connec
 import { readSendingQuota } from '@/integrations/mail/utils/cloudflare/sending';
 import { toPublicConnection } from '@/integrations/mail/utils/cloudflare/serialize';
 import { readSendingReadiness } from '@/integrations/mail/utils/transports/readiness';
+import { visibleChannelsFilter } from '@/channel/utils';
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 500;
@@ -41,6 +42,60 @@ const convertAddresses = (addresses: IMailAddress[] = []) =>
   addresses.map(({ name, address }) => ({ name, email: address }));
 
 export const mailQueries = {
+  async mailSenders(
+    _root: undefined,
+    _args: undefined,
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('conversationMessageAdd');
+
+    if (!user?._id) {
+      throw new Error('Unauthorized');
+    }
+
+    const channelIds = await models.Channels.find(
+      await visibleChannelsFilter({ models, subdomain, user }),
+    ).distinct('_id');
+
+    const inboxes = await models.Integrations.find({
+      kind: 'mail',
+      isActive: true,
+      channelId: { $in: channelIds },
+      ...(user.isOwner
+        ? {}
+        : {
+            $or: [
+              { visibility: { $exists: false } },
+              { visibility: 'public' },
+              {
+                visibility: 'private',
+                $or: [
+                  { createdUserId: user._id },
+                  { departmentIds: { $in: user.departmentIds ?? [] } },
+                ],
+              },
+            ],
+          }),
+    })
+      .select(['_id', 'name'])
+      .sort({ name: 1 })
+      .lean();
+
+    const mailIntegrations = await models.MailIntegrations.find({
+      inboxId: { $in: inboxes.map(({ _id }) => _id) },
+      healthStatus: { $ne: 'unhealthy' },
+    })
+      .select(['inboxId', 'address'])
+      .lean();
+    const addressByInboxId = new Map(
+      mailIntegrations.map(({ inboxId, address }) => [inboxId, address]),
+    );
+
+    return inboxes.flatMap(({ _id, name }) => {
+      const address = addressByInboxId.get(_id);
+      return address ? [{ integrationId: _id, name, address }] : [];
+    });
+  },
   async mailCloudflareConnection(
     _root: undefined,
     _args: undefined,

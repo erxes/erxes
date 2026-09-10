@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-05`
 
 ## Scope
 
@@ -22,7 +22,6 @@
 ## Current Capabilities
 
 - Runs as the sales Module Federation remote.
-- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - Pipeline create/edit supports general settings, stages, product configuration,
   and grouped selection of Core `sales:deal` properties.
 - Deal detail renders only the properties selected on the deal's pipeline.
@@ -34,7 +33,6 @@
 | Area            | Path                                                                  | Responsibility                                                |
 | --------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
 | Registration    | `frontend/plugins/sales_ui/src/config.tsx`                            | Sales routes, navigation, and remote registration             |
-| Dev server      | `frontend/plugins/sales_ui/rspack.config.ts`                          | Module Federation development serving and watch ignore rules  |
 | Pipeline editor | `frontend/plugins/sales_ui/src/modules/deals/pipelines`               | Pipeline form, stages, product config, and property selection |
 | Deal detail     | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail` | Deal overview, properties, activity, and products             |
 | GraphQL         | `frontend/plugins/sales_ui/src/modules/deals/graphql`                 | Sales client operations                                       |
@@ -118,12 +116,6 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-09` — `Bound Dev Watchers`
-
-- **Summary:** Sales UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`.
-- **Contracts changed:** None.
 
 ### `2026-09-05` — `Property groups share one card shell`
 

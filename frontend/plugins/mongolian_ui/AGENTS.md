@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-02`
 
 ## Scope
 
@@ -24,7 +24,6 @@
 ## Current Capabilities
 
 - Exposes the Module Federation remote `mongolian_ui` on port `3007`.
-- Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - Provides main routes under `/mongolian`, including put responses, by-date
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
@@ -40,21 +39,20 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| ---- | ---- | -------------- |
-| Module Federation | `frontend/plugins/mongolian_ui/module-federation.config.ts` | Public exposes for config, routes, widgets, and floating widget. |
-| Dev server config | `frontend/plugins/mongolian_ui/rspack.config.ts` | Module Federation development serving and watch ignore rules. |
-| Navigation config | `frontend/plugins/mongolian_ui/src/config.tsx` | Plugin navigation groups and module paths. |
-| Main routes | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx` | Route tree mounted under `/mongolian`. |
-| Settings routes | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx` | Settings route tree mounted in the core settings shell. |
-| eBarimt | `frontend/plugins/mongolian_ui/src/modules/ebarimt` | eBarimt put responses, filters, tables, and settings UI. |
-| eBarimt print | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded` | Popup receipt HTML for deal eBarimt responses. |
-| Erkhet sync | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync` | Erkhet checking, sync, and settings UI. |
-| MS Dynamic | `frontend/plugins/mongolian_ui/src/modules/msdynamic` | MS Dynamic checking, sync history, and settings UI. |
-| Product places | `frontend/plugins/mongolian_ui/src/modules/productplaces` | Product place settings and UI. |
-| Exchange rates | `frontend/plugins/mongolian_ui/src/modules/exchangeRates` | Exchange rate list and related UI. |
-| Pages | `frontend/plugins/mongolian_ui/src/pages` | Route-level page composition. |
-| Widgets | `frontend/plugins/mongolian_ui/src/widgets` | Plugin widget exports only. |
+| Area              | Path                                                              | Responsibility                                                   |
+| ----------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Module Federation | `frontend/plugins/mongolian_ui/module-federation.config.ts`       | Public exposes for config, routes, widgets, and floating widget. |
+| Navigation config | `frontend/plugins/mongolian_ui/src/config.tsx`                    | Plugin navigation groups and module paths.                       |
+| Main routes       | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`     | Route tree mounted under `/mongolian`.                           |
+| Settings routes   | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx` | Settings route tree mounted in the core settings shell.          |
+| eBarimt           | `frontend/plugins/mongolian_ui/src/modules/ebarimt`               | eBarimt put responses, filters, tables, and settings UI.         |
+| eBarimt print     | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`     | Popup receipt HTML for deal eBarimt responses.                   |
+| Erkhet sync       | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`           | Erkhet checking, sync, and settings UI.                          |
+| MS Dynamic        | `frontend/plugins/mongolian_ui/src/modules/msdynamic`             | MS Dynamic checking, sync history, and settings UI.              |
+| Product places    | `frontend/plugins/mongolian_ui/src/modules/productplaces`         | Product place settings and UI.                                   |
+| Exchange rates    | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`         | Exchange rate list and related UI.                               |
+| Pages             | `frontend/plugins/mongolian_ui/src/pages`                         | Route-level page composition.                                    |
+| Widgets           | `frontend/plugins/mongolian_ui/src/widgets`                       | Plugin widget exports only.                                      |
 
 ## Contracts
 
@@ -121,12 +119,6 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-09-09` - Bound dev watchers
-
-- **Summary:** Mongolian UI Rspack development serving now ignores generated dependency, cache, coverage, temp, and output folders to reduce local watcher pressure.
-- **Affected areas:** `rspack.config.ts`
-- **Contracts changed:** None
 
 ### `2026-09-02` - Harden deal eBarimt print logo
 

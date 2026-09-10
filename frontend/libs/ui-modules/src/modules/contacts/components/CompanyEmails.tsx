@@ -7,6 +7,7 @@ import {
   ValidationStatus,
 } from 'erxes-ui';
 import { useCompaniesEdit } from '../hooks/useEditCompany';
+import { useEmailDoubleClick } from './useEmailDoubleClick';
 
 export const CompanyEmails = ({
   primaryEmail,
@@ -15,6 +16,7 @@ export const CompanyEmails = ({
   emailValidationStatus,
   scope,
   Trigger,
+  onEmailClick,
 }: {
   primaryEmail: string;
   _id: string;
@@ -22,8 +24,10 @@ export const CompanyEmails = ({
   emailValidationStatus?: ValidationStatus;
   scope?: string;
   Trigger: React.ComponentType<{ children: React.ReactNode }>;
+  onEmailClick?: (email: string) => void;
 }) => {
   const { companiesEdit } = useCompaniesEdit();
+  const { open, setOpen, handleEmailClick } = useEmailDoubleClick(onEmailClick);
   const emailProps = {
     primaryEmail,
     emails,
@@ -49,9 +53,9 @@ export const CompanyEmails = ({
   };
 
   return (
-    <PopoverScoped scope={scope || ''} modal>
+    <PopoverScoped scope={scope || ''} modal open={open} onOpenChange={setOpen}>
       <Trigger>
-        <EmailDisplay {...emailProps} />
+        <EmailDisplay {...emailProps} onEmailClick={handleEmailClick} />
       </Trigger>
       <RecordTableInlineCell.Content className="w-72">
         <EmailListField
