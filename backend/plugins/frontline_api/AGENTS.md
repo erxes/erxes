@@ -60,9 +60,10 @@
   The external-integration creation dispatcher routes the `viber` service prefix
   to this adapter. The removal dispatcher awaits tenant-scoped Viber record
   cleanup before the common integration is removed; cleanup failures propagate.
-  Removal is local only. A standalone raw-body parser preserves numeric Viber
-  message tokens as exact strings; it is not yet wired into the receiver.
-  No Viber HTTP route or message delivery handler is registered.
+  Removal is local only. Internal receiver validation authenticates raw bytes,
+  parses numeric message tokens as exact strings, acknowledges webhook checks,
+  and rejects malformed message payloads. No Viber HTTP route is mounted, and
+  valid messages are not yet persisted or acknowledged by this receiver.
 - Polls are a reusable definition (`title`, `question`, ordered `options`,
   `allowMultiselect`, optional `durationHours`, optional `brandId`,
   `active`/`archived` status) owned by a channel through `channelId`. An agent posts one into a messenger
@@ -156,6 +157,9 @@ Viber lives under `src/modules/integrations/viber/`: `helpers.ts` owns connectio
 creation and local removal, `messageBroker.ts` adapts their inputs and error
 handling, and `utils/` holds signature/account helpers, raw-body webhook parsing,
 and their colocated tests.
+`controller/receiveMessage.ts` contains the unmounted callback validation path;
+its colocated tests mock tenant lookup while using the real signature and parser
+utilities.
 `@types/` and `db/` hold document types, schema definitions, and the model loader.
 `src/connectionResolvers.ts` registers `ViberIntegrations` on the supplied tenant
 connection. `src/modules/inbox/graphql/resolvers/mutations/integrations.ts`
@@ -635,6 +639,12 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   a rounded JavaScript number. Malformed JSON or unavailable numeric source
   throws. Payload validation remains the receiver's responsibility; authenticate
   the original bytes before using this parser in the receive path.
+- The internal Viber receiver resolves the integration by inbox id on the
+  request tenant and explicitly selects `+token`. Signature failures return
+  401 before parsing; malformed JSON or payloads return 400. Only `message`
+  events require a non-empty decimal-digit `message_token` string, checked
+  before sender validation. The `webhook` check is acknowledged with 200 without
+  requiring message fields. These guards do not implement message persistence.
 - Viber account responses stay `unknown` until validated: numeric `status === 0`
   and non-blank string `id` and `name`, returning only those two fields. The
   HTTP helper rejects blank tokens and tokens with leading or trailing
@@ -1496,6 +1506,13 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   credentials, network, or project-wide test configuration are required.
   Parser tests cover exact numeric tokens, unchanged fields and raw bytes,
   malformed JSON, and a mocked runtime without reviver source support.
+- All saved Viber utility and receiver tests, from the repository root:
+  `pnpm exec tsx --tsconfig=backend/plugins/frontline_api/tsconfig.json --test backend/plugins/frontline_api/src/modules/integrations/viber/{utils,controller}/__tests__/*.spec.ts`.
+  Receiver tests use the existing plugin aliases and replace only the shared
+  tenant lookup and model-loader imports in the CommonJS cache. They restore
+  those entries and the receiver entry after each test, remain non-concurrent,
+  and use real signature verification and raw-body parsing. No live database,
+  server, or bot token is required; successful message persistence is not covered.
 - Focused Viber removal checks use mocked tenant models: verify provider cleanup
   precedes common integration deletion, an absent provider record is tolerated,
   and a provider cleanup failure prevents common deletion. No bot token or live
@@ -1542,6 +1559,15 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-10` — Viber receiver validation coverage
+
+- **Summary:** Added offline receiver tests for tenant lookup, signature and
+  parsing boundaries, webhook acknowledgement, and exact decimal message ids.
+- **Affected areas:** `src/modules/integrations/viber/controller/`,
+  `src/modules/integrations/viber/@types/webhook.ts`.
+- **Contracts changed:** Internal `receiveViberMessage(req, res)` validates
+  callbacks; no HTTP route or message-persistence contract is exposed.
 
 ### `2026-09-10` — Exact Viber webhook token parsing
 
@@ -1634,15 +1660,3 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - **Contracts changed:** Added `visitorId: String` to `cpPollDetail`,
   `cpPollVotes`, `cpPollSubmit` and `cpPollVote`. Both client-portal poll
   resolver maps dropped `cpUserRequired` and keep `forClientPortal`.
-
-### `2026-09-07` — `cpPollConnect` became the `cpPollDetail` query
-
-- **Summary:** The read-only client-portal poll lookup moved from `Mutation` to
-  `Query` and lost its widget-handshake name; `getActivePoll` moved into the
-  module's shared `utils.ts` so both resolver maps use one lookup.
-- **Affected areas:** `src/modules/poll/graphql/resolvers/queries/clientPortal.ts`,
-  `.../mutations/clientPortal.ts`, `src/modules/poll/graphql/schema/poll.ts`,
-  `src/modules/poll/utils.ts`.
-- **Contracts changed:** Removed mutation `cpPollConnect(channelId, pollCode)`.
-  Added query `cpPollDetail(channelId, pollCode): CpPollResponse`. Renamed type
-  `PollConnectResponse` to `CpPollResponse`.
