@@ -27,6 +27,11 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsAdd');
+
+    if (doc.productsData !== undefined) {
+      await checkPermission('dealsProductsEdit');
+    }
+
     return await addDeal({ models, subdomain, user, doc });
   },
 
@@ -39,6 +44,11 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+
+    if (doc.productsData !== undefined) {
+      await checkPermission('dealsProductsEdit');
+    }
+
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -157,6 +167,10 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('No Item Found');
     }
 
+    if (item.productsData?.length) {
+      await checkPermission('dealsProductsEdit');
+    }
+
     const doc = {
       ...item,
       _id: undefined,
@@ -267,6 +281,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     return createProductsData({ models, processId, dealId, docs });
   },
 
@@ -286,6 +301,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     if (!deal.productsData?.length) {
@@ -469,6 +485,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
+    await checkPermission('dealsProductsEdit');
     const deal = await models.Deals.getDeal(dealId);
 
     const oldPData = (deal.productsData || []).filter(
