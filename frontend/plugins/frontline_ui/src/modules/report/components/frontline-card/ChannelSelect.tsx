@@ -30,17 +30,17 @@ export const ChannelSelect = ({
   if (!channels?.length)
     return (
       <div className="text-sm text-accent-foreground ml-3 my-4">
-        {t('no-channels-found')}
+        {t('no-channels-found', 'No channels found')}
       </div>
     );
 
   const getDisplayLabel = () => {
-    if (!value || value.length === 0) return t('all-channels');
+    if (!value || value.length === 0) return t('all-channels', 'All Channels');
     if (value.length === 1) {
       const channel = channels.find((c: IChannel) => c._id === value[0]);
-      return channel?.name || t('all-channels');
+      return channel?.name || t('all-channels', 'All Channels');
     }
-    return t('n-channels', { count: value.length });
+    return t('n-channels', '{{count}} Channels', { count: value.length });
   };
 
   const handleValueChange = (selectedValue: string) => {
@@ -80,7 +80,7 @@ export const ChannelSelect = ({
                   {(!value || value.length === 0) && (
                     <IconCheck className="size-4" />
                   )}
-                  <span>{t('all-channels')}</span>
+                  <span>{t('all-channels', 'All Channels')}</span>
                 </div>
               </Command.Item>
 

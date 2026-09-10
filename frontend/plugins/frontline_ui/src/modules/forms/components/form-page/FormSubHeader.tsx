@@ -1,11 +1,20 @@
-import { Combobox, Command, Filter, isUndefinedOrNull, PageSubHeader, Skeleton, useMultiQueryState, useQueryState } from "erxes-ui";
-import { FormsPageHotKeyScope } from "@/forms/types/formTypes";
-import { IconTag } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
-import { FormStatus } from "./filters/FormStatus";
-import { SelectTags } from "ui-modules";
-import { useFormsList } from "@/forms/hooks/useFormsList";
-import { SelectChannel } from "@/inbox/channel/components/SelectChannel";
+import {
+  Combobox,
+  Command,
+  Filter,
+  isUndefinedOrNull,
+  PageSubHeader,
+  Skeleton,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
+import { FormsPageHotKeyScope } from '@/forms/types/formTypes';
+import { IconTag } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { FormStatus } from './filters/FormStatus';
+import { SelectTags } from 'ui-modules';
+import { useFormsList } from '@/forms/hooks/useFormsList';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 
 export const FormSubHeader = () => {
   const { t } = useTranslation('common');
@@ -41,13 +50,16 @@ export const FormSubHeader = () => {
             <Filter.View>
               <Command>
                 <Filter.CommandInput
-                  placeholder={t('filter._')}
+                  placeholder={t('filter._', 'Filter')}
                   variant="secondary"
                   className="bg-background"
                 />
                 <Command.List className="p-1">
                   <Filter.SearchValueTrigger />
-                  <SelectTags.FilterItem value="tagId" label={tf('by-tag')} />
+                  <SelectTags.FilterItem
+                    value="tagId"
+                    label={tf('by-tag', 'By Tag')}
+                  />
                   <FormStatus.Item />
                   <SelectChannel.FilterItem />
                 </Command.List>
@@ -67,10 +79,10 @@ export const FormSubHeader = () => {
         <SelectChannel.FilterBar />
 
         <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
-          {(isUndefinedOrNull(totalCount) || loading) ? (
+          {isUndefinedOrNull(totalCount) || loading ? (
             <Skeleton className="w-20 h-4 inline-block mt-1.5" />
           ) : (
-            `${totalCount} ${t('records-found')}`
+            `${totalCount} ${t('records-found', 'Records Found')}`
           )}
         </div>
       </Filter>
@@ -90,10 +102,10 @@ export const FormTagFilterBarItem = ({ queryKey }: { queryKey: string }) => {
         filterKey={queryKey}
         tagType="frontline:form"
         variant="filter"
-        label={tf('by-tag')}
+        label={tf('by-tag', 'By Tag')}
         initialValue={[query as string]}
         onValueChange={(value) => setQuery(value as string)}
       />
     </Filter.BarItem>
   );
-}
+};

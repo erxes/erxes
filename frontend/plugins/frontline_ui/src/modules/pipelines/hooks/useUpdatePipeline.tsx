@@ -15,15 +15,18 @@ export const useUpdatePipeline = () => {
       ...options,
       onCompleted: (data) => {
         toast({
-          title: t('success'),
-          description: t('pipeline-updated-successfully'),
+          title: t('success', 'Success!'),
+          description: t(
+            'pipeline-updated-successfully',
+            'Pipeline updated successfully',
+          ),
           variant: 'success',
         });
         options.onCompleted?.(data);
       },
       onError: (error: ApolloError) => {
         toast({
-          title: t('error'),
+          title: t('error', 'Error'),
           variant: 'destructive',
           description: error.message,
         });

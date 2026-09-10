@@ -107,7 +107,7 @@ export const ConversationDetailView = ({
                   : undefined
               }
               className="text-sm text-foreground flex-none"
-              placeholder={t('conversation-with')}
+              placeholder={t('conversation-with', 'Conversation with')}
             />
             <Button
               variant={'outline'}
@@ -115,7 +115,7 @@ export const ConversationDetailView = ({
                 navigate(`/frontline/inbox?conversationId=${conversationId}`)
               }
             >
-              {t('go-to-conversation')}
+              {t('go-to-conversation', 'Go to conversation')}
               <IconMail />
             </Button>
           </div>
