@@ -13,18 +13,13 @@ import {
   SelectTriggerVariant,
 } from '@/productplaces/selects/SelectShared';
 import { useGetSalesStages } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesStages';
-
-interface IStage {
-  _id: string;
-  name: string;
-  [key: string]: any;
-}
+import { IStage } from '@/ebarimt/settings/stage-in-ebarimt-config/types/stage';
 
 interface SelectStageContextType {
   value: string;
   onValueChange: (stageId: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: Error | undefined;
   stages?: IStage[];
   pipelineId?: string;
 }
@@ -169,7 +164,6 @@ const SelectStageContent = () => {
 
 const SelectStageRoot = ({
   value,
-  id,
   pipelineId,
   variant,
   scope,
@@ -177,7 +171,7 @@ const SelectStageRoot = ({
   disabled,
 }: {
   value: string;
-  id: string;
+  id?: string;
   pipelineId: string;
   variant: `${SelectTriggerVariant}`;
   scope?: string;

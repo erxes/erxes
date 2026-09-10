@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Label, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import SelectSegments from '../selects/SelectSegments';
+import { SelectSegment } from 'ui-modules';
 import SelectUsers from '../selects/SelectUsers';
 
-const SEGMENT_CONTENT_TYPES = ['core:product.product'];
+const SEGMENT_CONTENT_TYPE = 'core:product.product';
 
 type FilterConfig = {
   title: string;
@@ -13,10 +13,13 @@ type FilterConfig = {
 };
 
 type Props = {
-  config: any;
+  config?: {
+    _id?: string;
+    filters?: FilterConfig[];
+  };
   currentStageId?: string;
-  save: (config: any) => void;
-  delete: () => void;
+  save: (config: { _id?: string; filters: FilterConfig[] }) => Promise<boolean>;
+  delete: (id: string) => Promise<void>;
 };
 
 const emptyFilter = (index: number): FilterConfig => ({
@@ -24,6 +27,9 @@ const emptyFilter = (index: number): FilterConfig => ({
   segmentId: '',
   userIds: [],
 });
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 const DefaultFilterConfig: React.FC<Props> = ({
   config,
@@ -38,7 +44,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
   useEffect(() => {
     const incoming = Array.isArray(config?.filters) ? config.filters : [];
     setFilters(
-      incoming.map((f: any, i: number) => ({
+      incoming.map((f, i: number) => ({
         title: f?.title || `Filter ${i + 1}`,
         segmentId: f?.segmentId || '',
         userIds: Array.isArray(f?.userIds) ? f.userIds : [],
@@ -53,7 +59,7 @@ const DefaultFilterConfig: React.FC<Props> = ({
   const updateFilter = (
     index: number,
     field: keyof FilterConfig,
-    value: any,
+    value: FilterConfig[typeof field],
   ) => {
     setFilters((prev) => {
       const next = [...prev];
@@ -86,37 +92,43 @@ const DefaultFilterConfig: React.FC<Props> = ({
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
-      save({ filters });
+      await save({ _id: config?._id, filters });
       toast({
         title: t('success'),
         description: t('filter-configuration-saved'),
         variant: 'default',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: t('error'),
-        description: error?.message || t('failed-to-save-filter'),
+        description: getErrorMessage(error, t('failed-to-save-filter')),
         variant: 'destructive',
       });
     }
   };
 
-  const handleDeleteAll = () => {
+  const handleDeleteAll = async () => {
     if (!window.confirm(t('delete-all-filter-confirm'))) return;
+
+    if (!config?._id) {
+      setFilters([]);
+      return;
+    }
+
     try {
-      deleteConfig();
+      await deleteConfig(config._id);
       setFilters([]);
       toast({
         title: t('success'),
         description: t('filter-configuration-deleted'),
         variant: 'default',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: t('error'),
-        description: error?.message || t('failed-to-delete-filter'),
+        description: getErrorMessage(error, t('failed-to-delete-filter')),
         variant: 'destructive',
       });
     }
@@ -193,10 +205,10 @@ const DefaultFilterConfig: React.FC<Props> = ({
 
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">{t('segment')}</Label>
-                    <SelectSegments
-                      contentTypes={SEGMENT_CONTENT_TYPES}
-                      value={filter.segmentId}
-                      onValueChange={(segmentId) =>
+                    <SelectSegment
+                      contentType={SEGMENT_CONTENT_TYPE}
+                      selected={filter.segmentId}
+                      onSelect={(segmentId) =>
                         updateFilter(index, 'segmentId', segmentId || '')
                       }
                     />

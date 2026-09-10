@@ -2,7 +2,16 @@ import { nanoid } from 'nanoid';
 
 type SetFormData<T> = React.Dispatch<React.SetStateAction<T>>;
 
-export function useConditions<T extends { conditions: any[] }>(
+export type ConfigCondition = {
+  id: string;
+  branchId?: string;
+  departmentId?: string;
+};
+
+export function useConditions<
+  TCondition extends ConfigCondition,
+  T extends { conditions: TCondition[] },
+>(
   setFormData: SetFormData<T>,
 ) {
   const addCondition = () => {
@@ -10,12 +19,12 @@ export function useConditions<T extends { conditions: any[] }>(
       ...prev,
       conditions: [
         ...prev.conditions,
-        { id: nanoid(), branchId: '', departmentId: '' },
+        { id: nanoid(), branchId: '', departmentId: '' } as TCondition,
       ],
     }));
   };
 
-  const updateCondition = (id: string, updated: any) => {
+  const updateCondition = (id: string, updated: TCondition) => {
     setFormData((prev) => ({
       ...prev,
       conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),

@@ -5,12 +5,20 @@ import { useTranslation } from 'react-i18next';
 import { PRODUCT_PLACES_RESPONDED } from '~/modules/productplaces/graphql/subscriptions';
 import { PerResponse } from '~/modules/productplaces/components/PerResponse';
 import { Response } from '~/modules/productplaces/components/Response';
+import { ProductPlacesReceipt } from '~/modules/productplaces/types';
+
+type ProductPlacesResponded = {
+  productPlacesResponded?: {
+    responseId: string;
+    content?: ProductPlacesReceipt[];
+  };
+};
 
 export const ProductPlacesRespondedPage = () => {
   const { t } = useTranslation('mongolian');
   const currentUser = useAtomValue(currentUserState);
 
-  useSubscription(PRODUCT_PLACES_RESPONDED, {
+  useSubscription<ProductPlacesResponded>(PRODUCT_PLACES_RESPONDED, {
     variables: {
       userId: currentUser?._id,
       sessionCode: '',
@@ -23,7 +31,7 @@ export const ProductPlacesRespondedPage = () => {
       const parsedContent = productPlacesResponded.content;
       if (!parsedContent?.length) return;
 
-      const printContents = parsedContent.map((receipt: any, index: number) =>
+      const printContents = parsedContent.map((receipt, index) =>
         PerResponse(receipt, index),
       );
       const printMainContent = Response(printContents.join(''));

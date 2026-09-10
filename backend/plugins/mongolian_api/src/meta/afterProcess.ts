@@ -124,13 +124,22 @@ export const afterProcess: AfterProcessConfigs = {
     // ---- Product Places ----
     if (productPlacesMutationNames.includes(mutationName)) {
       try {
-        await productPlacesAfterMutation(ctx.subdomain, {
-          type: 'sales:deal',
-          action: 'update',
-          updatedDocument: result,
-          object: { stageId: sourceStageId },
-          user: userId,
-        });
+        const currentStageId = result?.stageId || destinationStageId;
+        const isStageChanged =
+          destinationStageId &&
+          destinationStageId !== sourceStageId &&
+          destinationStageId === currentStageId &&
+          itemId;
+
+        if (isStageChanged) {
+          await productPlacesAfterMutation(ctx.subdomain, {
+            type: 'sales:deal',
+            action: 'update',
+            updatedDocument: result,
+            object: { _id: itemId, stageId: sourceStageId },
+            user: userId,
+          });
+        }
       } catch (error) {
         console.error('Product places afterMutation failed:', error);
       }

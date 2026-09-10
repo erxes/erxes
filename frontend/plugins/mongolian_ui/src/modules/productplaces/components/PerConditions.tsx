@@ -5,8 +5,7 @@ import SelectDepartments from '../selects/SelectDepartments';
 import SelectBranches from '../selects/SelectBranches';
 import SelectProducts from '../selects/SelectProducts';
 import SelectProductTags from '../selects/SelectProductTags';
-import SelectSegments from '../selects/SelectSegments';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory, SelectSegment } from 'ui-modules';
 
 type Props = {
   condition: any;
@@ -90,11 +89,11 @@ const PerConditions = ({
             <Label className="text-xs font-semibold uppercase text-muted-foreground">
               {t('segment')}
             </Label>
-            <SelectSegments
-              contentTypes={['core:product']}
-              value={condition.segmentId || ''}
-              onValueChange={(segmentId) =>
-                onChangeConfig('segmentId', segmentId)
+            <SelectSegment
+              contentType="core:product"
+              selected={condition.segmentId || ''}
+              onSelect={(segmentId) =>
+                onChangeConfig('segmentId', segmentId || '')
               }
             />
           </div>

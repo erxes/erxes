@@ -6,6 +6,7 @@ const ProductFilterPage = () => {
     <SettingsContainer
       component={DefaultFilterConfig}
       configCode="dealsProductsDefaultFilter"
+      multiple
     />
   );
 };

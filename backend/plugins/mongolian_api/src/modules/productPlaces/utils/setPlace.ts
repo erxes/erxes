@@ -62,7 +62,6 @@ export const setPlace = async (
       if (matches) {
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
-        break;
       }
     }
   }
@@ -91,7 +90,7 @@ export const setPlace = async (
       },
     });
   } catch (error) {
-    console.log('setPlace ERR:', error);
+    console.error('Product places setPlace failed:', error);
   }
 
   return pdatas;

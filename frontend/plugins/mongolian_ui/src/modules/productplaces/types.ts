@@ -1,4 +1,4 @@
-export type MNConfig<T = any> = {
+export type MNConfig<T = unknown> = {
   _id: string;
   code: string;
   subId?: string;
@@ -25,7 +25,7 @@ export interface MNConfigsRemoveMutationResponse {
 
 export type Condition = {
   id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type PerPrintConfig = {
@@ -34,7 +34,7 @@ export type PerPrintConfig = {
   pipelineId: string;
   stageId: string;
   conditions: Condition[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type PerSplitConfig = {
@@ -48,7 +48,7 @@ export type PerSplitConfig = {
   excludeTagIds?: string[];
   excludeProductIds?: string[];
   segments?: string[];
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type DefaultFilterConfig = {
@@ -64,7 +64,7 @@ export type IConfigsMap = {
   dealsProductsDataSplit?: Record<string, PerSplitConfig>;
   dealsProductsDefaultFilter?: DefaultFilterConfig[];
   // Allow other string keys for flexibility
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type IConfig = {
@@ -160,9 +160,44 @@ export type PlaceConditionUI = {
   branchId?: string;
   departmentId?: string;
 };
-export type ConfigValueItem = {
-  key: string;
-  value: any;
+
+export type ProductPlacesReceiptProduct = {
+  code?: string;
+  name?: string;
 };
 
-export type NormalizedConfig = Record<string, any>;
+export type ProductPlacesReceiptStock = {
+  product?: ProductPlacesReceiptProduct;
+  unitPrice: string | number;
+  quantity: string | number;
+  amount: string | number;
+};
+
+export type ProductPlacesReceiptBranch = {
+  code?: string;
+  title?: string;
+};
+
+export type ProductPlacesReceiptDepartment = {
+  code?: string;
+  title?: string;
+};
+
+export type ProductPlacesReceipt = {
+  date: string;
+  number?: string;
+  branch?: ProductPlacesReceiptBranch | null;
+  department?: ProductPlacesReceiptDepartment | null;
+  customerCode?: string;
+  customerName?: string;
+  pDatas?: ProductPlacesReceiptStock[];
+  amount: string | number;
+  headerText?: string;
+  footerText?: string;
+};
+export type ConfigValueItem = {
+  key: string;
+  value: unknown;
+};
+
+export type NormalizedConfig = Record<string, unknown>;

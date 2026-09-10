@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, type ComponentType, type ElementType } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Spinner, Form, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 
 import type {
+  MNConfig,
   MNConfigsCreateMutationResponse,
   MNConfigsUpdateMutationResponse,
   MNConfigsRemoveMutationResponse,
@@ -25,15 +26,75 @@ import {
   normalizePrintConfig,
 } from '../configUtils';
 
+const DEFAULT_FILTER_CONFIG_CODE = 'dealsProductsDefaultFilter';
+
+type ConfigRecord = Record<string, unknown> & {
+  _id?: string;
+  subId?: string;
+};
+
+type SettingsComponentProps = {
+  configs: ConfigRecord[];
+  config?: ConfigRecord;
+  save: (config: ConfigRecord, formSubId?: string) => Promise<boolean>;
+  delete: (id: string) => Promise<void>;
+  loading: boolean;
+};
+
+type MNConfigQueryData = {
+  mnConfig?: MNConfig | null;
+  mnConfigs?: MNConfig[];
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
+const normalizeDefaultFilterConfig = (raw: { value?: unknown }) => {
+  const { value } = raw || {};
+
+  if (Array.isArray(value)) {
+    const legacyFiltersEntry = value.find(
+      (item) =>
+        isRecord(item) &&
+        'key' in item &&
+        item.key === 'filters',
+    );
+
+    if (
+      legacyFiltersEntry &&
+      isRecord(legacyFiltersEntry) &&
+      'value' in legacyFiltersEntry &&
+      Array.isArray(legacyFiltersEntry.value)
+    ) {
+      return { filters: legacyFiltersEntry.value };
+    }
+
+    return { filters: value };
+  }
+
+  if (
+    isRecord(value) &&
+    'filters' in value &&
+    Array.isArray(value.filters)
+  ) {
+    return { filters: value.filters };
+  }
+
+  return { filters: [] };
+};
+
 type Props = {
-  component: React.ComponentType<any>;
+  component: ElementType;
   configCode: string;
   subId?: string;
   multiple?: boolean;
 };
 
 const SettingsContainer = ({
-  component: Component,
+  component,
   configCode,
   subId,
   multiple = false,
@@ -41,8 +102,9 @@ const SettingsContainer = ({
   const { t } = useTranslation('mongolian');
   const { toast } = useToast();
   const form = useForm();
+  const Component = component as ComponentType<SettingsComponentProps>;
 
-  const { data, loading, error, refetch } = useQuery(
+  const { data, loading, error, refetch } = useQuery<MNConfigQueryData>(
     multiple ? MN_CONFIGS : MN_CONFIG,
     {
       variables: multiple
@@ -66,10 +128,12 @@ const SettingsContainer = ({
     if (multiple) {
       const rawList = data?.mnConfigs || [];
 
-      return rawList.map((raw: any) => {
+      return rawList.map((raw) => {
         let normalized;
 
-        if (configCode === 'dealsProductsDataPlaces') {
+        if (configCode === DEFAULT_FILTER_CONFIG_CODE) {
+          normalized = normalizeDefaultFilterConfig(raw);
+        } else if (configCode === 'dealsProductsDataPlaces') {
           normalized = normalizePlaceConfig(raw);
         } else if (configCode === 'dealsProductsDataSplit') {
           normalized = normalizeSplitConfig(raw);
@@ -93,7 +157,9 @@ const SettingsContainer = ({
 
     let normalized;
 
-    if (configCode === 'dealsProductsDataPlaces') {
+    if (configCode === DEFAULT_FILTER_CONFIG_CODE) {
+      normalized = normalizeDefaultFilterConfig(raw);
+    } else if (configCode === 'dealsProductsDataPlaces') {
       normalized = normalizePlaceConfig(raw);
     } else if (configCode === 'dealsProductsDataSplit') {
       normalized = normalizeSplitConfig(raw);
@@ -111,6 +177,8 @@ const SettingsContainer = ({
       },
     ];
   }, [data, configCode, multiple]);
+
+  const selectedConfig = normalizedConfigs[0];
 
   if (loading) {
     return (
@@ -133,10 +201,13 @@ const SettingsContainer = ({
     );
   }
 
-  const save = async (config: Record<string, any>, formSubId?: string) => {
+  const save = async (config: ConfigRecord, formSubId?: string) => {
     try {
       const { _id, ...rest } = config;
-      const value = denormalizeConfig(rest);
+      const value =
+        configCode === DEFAULT_FILTER_CONFIG_CODE
+          ? rest.filters || []
+          : denormalizeConfig(rest);
 
       const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
 
@@ -170,10 +241,13 @@ const SettingsContainer = ({
 
       await refetch();
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Алдаа',
-        description: error?.message || 'Тохиргоо хадгалахад алдаа гарлаа',
+        description: getErrorMessage(
+          error,
+          'Тохиргоо хадгалахад алдаа гарлаа',
+        ),
         variant: 'destructive',
       });
       throw error;
@@ -195,10 +269,13 @@ const SettingsContainer = ({
       });
 
       await refetch();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Алдаа',
-        description: error?.message || 'Тохиргоо устгахад алдаа гарлаа',
+        description: getErrorMessage(
+          error,
+          'Тохиргоо устгахад алдаа гарлаа',
+        ),
         variant: 'destructive',
       });
       throw error;
@@ -209,6 +286,11 @@ const SettingsContainer = ({
     <Form {...form}>
       <Component
         configs={normalizedConfigs}
+        config={
+          configCode === DEFAULT_FILTER_CONFIG_CODE || !multiple
+            ? selectedConfig
+            : undefined
+        }
         save={save}
         delete={remove}
         loading={loading}

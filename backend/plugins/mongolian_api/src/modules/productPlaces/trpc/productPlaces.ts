@@ -9,25 +9,42 @@ export type ProductPlacesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<ProductPlacesTRPCContext>().create();
 
+const beforeResolverInput = z.object({
+  resolver: z.string(),
+  args: z.record(z.unknown()).optional(),
+  user: z.unknown().optional(),
+  headers: z.record(z.unknown()).optional(),
+});
+
+const afterMutationInput = z.object({
+  type: z.string(),
+  action: z.string(),
+  updatedDocument: z.unknown().optional(),
+  object: z.unknown().optional(),
+  user: z.unknown().optional(),
+});
+
 export const productPlacesTrpcRouter = t.router({
-  afterMutation: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-    const { subdomain } = ctx;
-    return await afterMutationHandlers(subdomain, input);
-  }),
+  afterMutation: t.procedure
+    .input(afterMutationInput)
+    .mutation(async ({ ctx, input }) => {
+      const { subdomain } = ctx;
+      return await afterMutationHandlers(subdomain, input);
+    }),
 
   beforeResolver: t.procedure
-    .input(z.any())
+    .input(beforeResolverInput)
     .mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
-      return await beforeResolverHandlers(models, subdomain, input);
+      const { subdomain } = ctx;
+      return await beforeResolverHandlers(subdomain, input);
     }),
 
   afterDealStageChanged: t.procedure
     .input(
       z.object({
-        deal: z.any(),
+        deal: z.unknown(),
         sourceStageId: z.string().nullable(),
-        userId: z.string(), // Pass userId explicitly
+        userId: z.string(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

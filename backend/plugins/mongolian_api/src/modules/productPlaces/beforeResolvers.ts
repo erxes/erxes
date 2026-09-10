@@ -1,15 +1,16 @@
-import { IModels } from '~/connectionResolvers';
+import { BeforeResolverParams } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
 
 export default {
   products: ['products', 'productsTotalCount'],
 };
 
 export const beforeResolverHandlers = async (
-  models: IModels,
   subdomain: string,
-  params,
+  params: BeforeResolverParams,
 ) => {
-  const { args, user } = params;
+  const models = await generateModels(subdomain);
+  const { args = {}, user } = params;
   const { segment } = args;
 
   if (segment) {
@@ -35,8 +36,15 @@ export const beforeResolverHandlers = async (
     return args;
   }
 
+  const userId =
+    typeof user === 'object' && user !== null && '_id' in user
+      ? user._id
+      : undefined;
+
   return {
     ...args,
-    segment: configs.find((c) => c.userIds?.includes(user._id))?.segmentId,
+    segment: configs.find((config) =>
+      Array.isArray(config?.userIds) ? config.userIds.includes(userId) : false,
+    )?.segmentId,
   };
 };

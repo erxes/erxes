@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const MN_CONFIGS_CREATE = gql`
-  mutation MnConfigsCreate(
+  mutation productPlacesMnConfigsCreate(
     $code: String!
     $subId: String
     $value: JSON
@@ -20,7 +20,7 @@ export const MN_CONFIGS_CREATE = gql`
 `;
 
 export const MN_CONFIGS_UPDATE = gql`
-  mutation MnConfigsUpdate(
+  mutation productPlacesMnConfigsUpdate(
     $_id: String!
     $subId: String
     $value: JSON
@@ -39,7 +39,7 @@ export const MN_CONFIGS_UPDATE = gql`
 `;
 
 export const MN_CONFIGS_REMOVE = gql`
-  mutation MnConfigsRemove($_id: String!) {
+  mutation productPlacesMnConfigsRemove($_id: String!) {
     mnConfigsRemove(_id: $_id)
   }
 `;

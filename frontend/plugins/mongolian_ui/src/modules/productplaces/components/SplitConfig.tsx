@@ -7,8 +7,7 @@ import { SelectPipeline } from '../selects/SelectPipeline';
 import { SelectStage } from '../selects/SelectStage';
 import SelectProductTags from '../selects/SelectProductTags';
 import SelectProducts from '../selects/SelectProducts';
-import SelectSegments from '../selects/SelectSegments';
-import { SelectCategory } from 'ui-modules';
+import { SelectCategory, SelectSegment } from 'ui-modules';
 import { MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
@@ -272,11 +271,11 @@ const SplitConfig: React.FC = () => {
               </div>
               <div className="flex flex-col gap-2">
                 <Label className="text-sm font-medium">{t('segment')}</Label>
-                <SelectSegments
-                  contentTypes={['core:product']}
-                  value={getSingle(formData.segmentIds)}
-                  onValueChange={(id) =>
-                    updateField('segmentIds', toSingleArray(id))
+                <SelectSegment
+                  contentType="core:product"
+                  selected={getSingle(formData.segmentIds)}
+                  onSelect={(id) =>
+                    updateField('segmentIds', toSingleArray(id || undefined))
                   }
                 />
               </div>

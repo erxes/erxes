@@ -10,26 +10,21 @@ import {
   Combobox,
   Command,
   PopoverScoped,
-  SelectTriggerVariant,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetSalesBoards } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesBoards';
+import { IBoard } from '@/ebarimt/settings/stage-in-ebarimt-config/types/board';
 import {
   SelectContent,
   SelectTrigger,
+  SelectTriggerVariant,
 } from '@/productplaces/selects/SelectShared';
-
-interface IBoard {
-  _id: string;
-  name: string;
-  [key: string]: any;
-}
 
 interface SelectSalesBoardContextType {
   value: string;
   onValueChange: (boardId: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: Error | undefined;
   boards?: IBoard[];
 }
 

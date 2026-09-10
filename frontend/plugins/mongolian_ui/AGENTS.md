@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-09-09`
+- **Last synchronized:** `2026-09-10`
 
 ## Scope
 
@@ -29,6 +29,15 @@
   summaries, duplicated put responses, sync Erkhet, and MS Dynamic workflows.
 - Provides settings routes for eBarimt, MS Dynamic, product places, sync Erkhet,
   and exchange rates.
+- Product places settings include stage, split, print, and default product
+  filter configuration screens under `settings/mongolian/product-places/*`.
+- Product places default product filters query Mongolian configs with
+  `dealsProductsDefaultFilter` and persist the config value as the filter array
+  consumed by the backend before-resolver.
+- Product places segment pickers use the shared `ui-modules` `SelectSegment`
+  component instead of plugin-local segment GraphQL selectors.
+- Product places listens to the `productPlacesResponded` subscription from the
+  floating widget and opens printable receipt HTML for the current user.
 - Renders cursor-paginated `RecordTable` lists for put responses and related
   sync history/checking screens.
 - Prints deal eBarimt responses in a popup receipt template that supports
@@ -67,6 +76,9 @@
   `/mongolian/msdynamic/*`.
 - Floating eBarimt response widget that listens for `ebarimtResponded` and
   opens printable deal receipt HTML.
+- Floating product-places response widget that listens for
+  `productPlacesResponded` and prints the JSON receipt content returned by the
+  backend.
 - Settings routes mounted by `./mongolianSettings`, including `ebarimt/*`,
   `msdynamic/*`, `product-places/*`, `sync-erkhet/*`, and
   `exchange-rates/*`.
@@ -74,6 +86,7 @@
 ### Consumes
 
 - Public UI and utility APIs from `erxes-ui` and `ui-modules`.
+- Shared `SelectSegment` from `ui-modules` for product-place segment selection.
 - Apollo GraphQL contracts exposed by the Mongolian backend and platform
   services used by the existing feature GraphQL documents.
 - React Router host mounting contracts from core UI Module Federation.
@@ -108,9 +121,14 @@
 ## Validation
 
 - `pnpm exec eslint frontend/plugins/mongolian_ui/src`
+- `pnpm exec eslint frontend/plugins/mongolian_ui/src/modules/productplaces frontend/plugins/mongolian_ui/src/pages/productplaces`
 - `pnpm nx build mongolian_ui`
 - No `test` target is currently defined in `project.json`; add and document one
   before introducing tested behavior.
+- Product places smoke scenario: configure split/place/print settings for a
+  sales stage, move a deal with products into that stage, and verify the
+  floating widget prints branch, department, product, customer, header, and
+  footer data without a manual refresh.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
   and displays `createdAt` relatively when available.
@@ -121,6 +139,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-09-10` - Use shared segment selector
+
+- **Summary:** Product places segment fields now use the shared `ui-modules` `SelectSegment` component, the default-filter page passes through `dealsProductsDefaultFilter` configs correctly, and the plugin-local segment selector was removed.
+- **Affected areas:** `src/modules/productplaces/components`, `src/modules/productplaces/containers`, `src/modules/productplaces/graphql`, `src/modules/productplaces/selects`.
+- **Contracts changed:** None.
+
+### `2026-09-09` - Restore product places printing
+
+- **Summary:** Product places subscription printing now consumes the full JSON receipt payload, uses typed receipt data, removes the stale mock-user container, and fixes product-place select/condition compile issues.
+- **Affected areas:** `src/pages/productplaces/ProductPlacesRespondedPage.tsx`, `src/modules/productplaces`.
+- **Contracts changed:** `productPlacesResponded` now requests `content` as JSON instead of a narrowed nested selection.
 
 ### `2026-09-09` - Bound dev watchers
 

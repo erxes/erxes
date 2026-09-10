@@ -1,19 +1,30 @@
-import React from 'react';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 import SelectBranches from '../selects/SelectBranches';
 import SelectDepartments from '../selects/SelectDepartments';
+import { Condition } from '../types';
 
-type Props = {
-  condition: any;
-  onChange: (id: string, condition: any) => void;
-  onRemove: (id: string) => void;
+type PrintCondition = Condition & {
+  branchId?: string;
+  departmentId?: string;
 };
 
-const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
+type Props = {
+  condition: PrintCondition;
+  onChange: (id: string, condition: PrintCondition) => void;
+  onRemove: (id: string) => void;
+  onAddCondition?: () => void;
+};
+
+const PerPrintConditions = ({
+  condition,
+  onChange,
+  onRemove,
+  onAddCondition,
+}: Props) => {
   const { t } = useTranslation('mongolian');
-  const onChangeConfig = (key: string, value: any) => {
+  const onChangeConfig = (key: string, value: string) => {
     onChange(condition.id, { ...condition, [key]: value });
   };
 
@@ -45,6 +56,17 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
         >
           ✕ {t('delete-condition')}
         </Button>
+        {onAddCondition && (
+          <Button
+            type="button"
+            className="h-8"
+            variant="outline"
+            size="sm"
+            onClick={onAddCondition}
+          >
+            + {t('add-condition')}
+          </Button>
+        )}
       </div>
     </div>
   );

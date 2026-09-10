@@ -10,26 +10,21 @@ import {
   Combobox,
   Command,
   PopoverScoped,
-  SelectTriggerVariant,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetSalesPipelines } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useGetSalesPipelines';
+import { IPipeline } from '@/ebarimt/settings/stage-in-ebarimt-config/types/pipeline';
 import {
   SelectContent,
   SelectTrigger,
+  SelectTriggerVariant,
 } from '@/productplaces/selects/SelectShared';
-
-interface IPipeline {
-  _id: string;
-  name: string;
-  [key: string]: any;
-}
 
 interface SelectPipelineContextType {
   value: string;
   onValueChange: (pipelineId: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: Error | undefined;
   pipelines?: IPipeline[];
   boardId?: string;
 }
