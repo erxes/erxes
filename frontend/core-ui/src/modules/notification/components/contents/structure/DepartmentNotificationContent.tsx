@@ -1,6 +1,6 @@
-import { IconBuildings } from '@tabler/icons-react';
-import { AssigneeNotificationContent, IUser, TNotification } from 'ui-modules';
-import { useDepartmentById } from 'ui-modules/modules/structure/hooks/useDepartmentById';
+import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartmentDetailsById';
+import { TNotification } from 'ui-modules';
+import { StructureNotificationDetail } from './StructureNotificationDetail';
 
 export const DepartmentNotificationContent = ({
   action,
@@ -8,18 +8,26 @@ export const DepartmentNotificationContent = ({
   fromUser,
   contentTypeId,
 }: TNotification) => {
-  const { departmentDetail, loading } = useDepartmentById({
+  const { departmentDetail, loading } = useDepartmentDetailsById({
     variables: { id: contentTypeId },
   });
+
   return (
-    <AssigneeNotificationContent
-      action={action || '-'}
+    <StructureNotificationDetail
+      action={action}
       loading={loading}
-      name={departmentDetail?.title || '-'}
+      name={departmentDetail?.title}
       contentType="department"
       createdAt={createdAt}
-      fromUser={fromUser || ({} as IUser)}
-      Icon={IconBuildings}
+      fromUser={fromUser}
+      details={[
+        { label: 'Code', value: departmentDetail?.code },
+        { label: 'Status', value: departmentDetail?.status },
+        { label: 'Description', value: departmentDetail?.description },
+        { label: 'Members', value: departmentDetail?.userCount },
+        { label: 'Supervisor', value: departmentDetail?.supervisorId },
+        { label: 'Parent department', value: departmentDetail?.parentId },
+      ]}
     />
   );
 };

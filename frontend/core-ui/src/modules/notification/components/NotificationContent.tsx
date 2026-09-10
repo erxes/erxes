@@ -2,7 +2,11 @@ import { CoreNotificationContent } from '@/notification/components/contents/Core
 import { NoNotificationSelected } from '@/notification/components/NoNotificationSelected';
 import { useNotification } from '@/notification/hooks/useNotification';
 import { ScrollArea, Spinner } from 'erxes-ui';
-import { TNotification, usePermissionCheck } from 'ui-modules';
+import {
+  TNotification,
+  usePermissionCheck,
+  WelcomeNotificationFallback,
+} from 'ui-modules';
 import { NoAccessPage } from '~/pages/no-access/NoAccessPage';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 
@@ -42,15 +46,19 @@ const NotificationContentWrapper = ({
   const parts = normalized.split('.');
   const plugin = parts[0] || 'core';
   const moduleName = parts[1] || '';
+  const contentName = parts[parts.length - 1] || '';
 
   if (plugin === 'core') {
-    const key = parts[parts.length - 1] || '';
-
     const CoreNotificationComponent =
-      CoreNotificationContent[key as keyof typeof CoreNotificationContent] ??
-      (() => <></>);
+      CoreNotificationContent[
+        contentName as keyof typeof CoreNotificationContent
+      ] ?? (() => <></>);
 
     return <CoreNotificationComponent {...notification} />;
+  }
+
+  if (moduleName === 'system' && contentName === 'welcome') {
+    return <WelcomeNotificationFallback pluginName={plugin} />;
   }
 
   if (

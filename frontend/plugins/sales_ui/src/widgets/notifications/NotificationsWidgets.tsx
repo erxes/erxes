@@ -1,14 +1,10 @@
 import { useQuery } from '@apollo/client';
-import {
-  IconBriefcase,
-  IconExternalLink,
-  IconInfoCircle,
-} from '@tabler/icons-react';
+import { IconExternalLink, IconInfoCircle } from '@tabler/icons-react';
 import {
   Avatar,
   Button,
   RelativeDateDisplay,
-  Skeleton,
+  Spinner,
   readImage,
 } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -17,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { IDeal } from '@/deals/types/deals';
+import { DealsProvider } from '@/deals/context/DealContext';
+import { Overview } from '@/deals/cards/components/detail/overview/Overview';
 
 const getUserDisplayName = (user?: IUser) =>
   user?.details?.fullName || user?.email || 'Unknown user';
@@ -69,61 +67,66 @@ const SalesDealNotificationContent = ({
 
   const deal = data?.dealDetail;
 
+  if (loading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!deal) {
+    return (
+      <NotificationContentUnavailable
+        title={t('deal-not-found', 'Deal not found')}
+        description={t(
+          'deal-no-longer-available',
+          'This deal may have been removed or is no longer available.',
+        )}
+      />
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4 w-full max-w-md mx-auto justify-center items-center min-h-screen text-muted-foreground">
-      <div className="size-36 bg-sidebar rounded-2xl border-2 border-dashed flex flex-col items-center justify-center">
-        <IconBriefcase
-          size={64}
-          className="text-accent-foreground"
-          stroke={1}
-        />
-      </div>
-
-      <p className="font-bold text-lg text-foreground">{t('deal', 'Deal')}</p>
-
-      <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex items-center gap-2">
-          <Avatar className="size-6">
-            <Avatar.Image
-              src={readImage(fromUser?.details?.avatar || '')}
-              alt={getUserDisplayName(fromUser)}
-            />
-            <Avatar.Fallback className="rounded-lg text-xs">
-              {getUserDisplayName(fromUser)[0].toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar>
-          <span className="font-semibold text-foreground">
-            {getUserDisplayName(fromUser)}
-          </span>
+    <DealsProvider>
+      <div className="flex min-h-dvh w-full flex-col">
+        <header className="sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b bg-background px-6 py-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-xl font-semibold text-foreground">
+              {deal.name || t('untitled-deal', 'Untitled deal')}
+            </h2>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              {deal.number && <span>#{deal.number}</span>}
+              {fromUser && (
+                <span className="flex items-center gap-1.5">
+                  <Avatar className="size-5">
+                    <Avatar.Image
+                      src={readImage(fromUser.details?.avatar || '')}
+                      alt={getUserDisplayName(fromUser)}
+                    />
+                    <Avatar.Fallback className="text-[10px]">
+                      {getUserDisplayName(fromUser)[0].toUpperCase()}
+                    </Avatar.Fallback>
+                  </Avatar>
+                  {getUserDisplayName(fromUser)}
+                </span>
+              )}
+              {action && <span>{action}</span>}
+              {createdAt && <RelativeDateDisplay.Value value={createdAt} />}
+            </div>
+          </div>
+          <Button variant="secondary" asChild>
+            <Link to={buildDealPath(deal)}>
+              <IconExternalLink className="size-4" />
+              {t('open-deal', 'Open deal')}
+            </Link>
+          </Button>
+        </header>
+        <div className="flex-1 overflow-auto">
+          <Overview deal={deal} />
         </div>
-
-        <p className="flex flex-wrap items-baseline justify-center gap-1 text-foreground">
-          <span>{action || t('has-updated-deal', 'has updated deal')}</span>
-          {loading ? (
-            <Skeleton className="inline-block w-24 h-4 align-middle" />
-          ) : (
-            <span className="font-bold text-foreground">
-              {deal?.name || ''}
-            </span>
-          )}
-        </p>
       </div>
-
-      {createdAt && (
-        <p className="text-sm text-accent-foreground">
-          <RelativeDateDisplay.Value value={createdAt} />
-        </p>
-      )}
-
-      {!loading && deal && (
-        <Button variant="secondary" asChild>
-          <Link to={buildDealPath(deal)}>
-            <IconExternalLink className="size-4" />
-            {t('open-deal', 'Open deal')}
-          </Link>
-        </Button>
-      )}
-    </div>
+    </DealsProvider>
   );
 };
 
