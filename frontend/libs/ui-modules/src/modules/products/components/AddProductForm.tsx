@@ -40,7 +40,10 @@ import {
   toProductAttachmentList,
   type ProductAttachmentItem,
 } from './ProductImageUploads';
-import { PRODUCT_VIDEO_LIMIT, ProductVideosUpload } from './ProductVideoUploads';
+import {
+  PRODUCT_VIDEO_LIMIT,
+  ProductVideosUpload,
+} from './ProductVideoUploads';
 import { SelectProductType } from './SelectProductType';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
