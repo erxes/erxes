@@ -933,7 +933,7 @@ function AddProductVideos({
   );
 
   return (
-    <InfoCard title={t('videos') || 'Videos'} className="h-full">
+    <InfoCard title={t('videos', 'Videos')} className="h-full">
       <InfoCard.Content className="h-full">
         <ProductVideosUpload
           value={files}

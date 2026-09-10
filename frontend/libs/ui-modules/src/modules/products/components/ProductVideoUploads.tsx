@@ -26,10 +26,11 @@ export const PRODUCT_VIDEO_LIMIT = 5;
  * `https://customer-xxx.cloudflarestream.com/{uid}/manifest/video.m3u8`.
  * Extract the base so we can build a thumbnail (`/thumbnails/thumbnail.jpg`).
  */
+const CLOUDFLARE_STREAM_BASE_PATTERN =
+  /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/;
+
 const getCloudflareStreamBase = (url: string): string | null => {
-  const match = url.match(
-    /^(https:\/\/customer-[^/]+\.cloudflarestream\.com\/[^/]+)/,
-  );
+  const match = CLOUDFLARE_STREAM_BASE_PATTERN.exec(url);
   return match ? match[1] : null;
 };
 
@@ -155,11 +156,11 @@ export function ProductVideosUpload({
   value,
   onChange,
   maxVideos = PRODUCT_VIDEO_LIMIT,
-}: {
+}: Readonly<{
   value?: ProductAttachmentItem[];
   onChange: (value: ProductAttachmentItem[]) => void;
   maxVideos?: number;
-}) {
+}>) {
   const videos = useMemo(() => value || [], [value]);
   const { upload, progress, loading, error } = useUploadChunked();
   const { removeFile, isLoading: isRemoving } = useRemoveFile();
