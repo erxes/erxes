@@ -6,11 +6,7 @@ export const MN_CONFIGS_CREATE = gql`
     $subId: String
     $value: JSON
   ) {
-    mnConfigsCreate(
-      code: $code
-      subId: $subId
-      value: $value
-    ) {
+    mnConfigsCreate(code: $code, subId: $subId, value: $value) {
       _id
       code
       subId
@@ -25,11 +21,7 @@ export const MN_CONFIGS_UPDATE = gql`
     $subId: String
     $value: JSON
   ) {
-    mnConfigsUpdate(
-      _id: $_id
-      subId: $subId
-      value: $value
-    ) {
+    mnConfigsUpdate(_id: $_id, subId: $subId, value: $value) {
       _id
       code
       subId

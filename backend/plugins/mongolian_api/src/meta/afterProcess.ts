@@ -16,11 +16,11 @@ const productPlacesMutationNames = ['dealsChange', 'dealsEdit'];
 
 // MSDynamic mutation names – using a Set for O(1) lookups
 const msdynamicMutationNames = new Set([
-  'dealsAdd',      // sales:deal create
-  'dealsEdit',     // sales:deal update
-  'dealsChange',   // sales:deal update (stage change)
-  'customersAdd',  // core:customer create
-  'companiesAdd',  // core:company create
+  'dealsAdd', // sales:deal create
+  'dealsEdit', // sales:deal update
+  'dealsChange', // sales:deal update (stage change)
+  'customersAdd', // core:customer create
+  'companiesAdd', // core:company create
   // 'posOrdersSync', // uncomment if you have a mutation that syncs pos orders
 ]);
 
@@ -109,9 +109,7 @@ export const afterProcess: AfterProcessConfigs = {
           await dealAfterErkhet(ctx.subdomain, {
             type: 'sales:deal',
             action: isCreate ? 'create' : 'update',
-            object: isCreate
-              ? result
-              : { _id: itemId, stageId: sourceStageId },
+            object: isCreate ? result : { _id: itemId, stageId: sourceStageId },
             updatedDocument: result,
             user: { _id: userId },
           });

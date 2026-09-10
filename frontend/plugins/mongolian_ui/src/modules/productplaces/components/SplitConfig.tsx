@@ -247,7 +247,9 @@ const SplitConfig: React.FC = () => {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">{t('include-tags')}</Label>
+                <Label className="text-sm font-medium">
+                  {t('include-tags')}
+                </Label>
                 <SelectProductTags
                   value={formData.productTagIds}
                   onValueChange={(v) => updateField('productTagIds', v)}
@@ -256,14 +258,18 @@ const SplitConfig: React.FC = () => {
             </div>
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">{t('exclude-tags')}</Label>
+                <Label className="text-sm font-medium">
+                  {t('exclude-tags')}
+                </Label>
                 <SelectProductTags
                   value={formData.excludeTagIds}
                   onValueChange={(v) => updateField('excludeTagIds', v)}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">{t('exclude-products')}</Label>
+                <Label className="text-sm font-medium">
+                  {t('exclude-products')}
+                </Label>
                 <SelectProducts
                   value={formData.excludeProductIds}
                   onValueChange={(v) => updateField('excludeProductIds', v)}

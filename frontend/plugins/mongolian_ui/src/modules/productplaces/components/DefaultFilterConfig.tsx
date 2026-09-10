@@ -204,7 +204,9 @@ const DefaultFilterConfig: React.FC<Props> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">{t('segment')}</Label>
+                    <Label className="text-sm font-medium">
+                      {t('segment')}
+                    </Label>
                     <SelectSegment
                       contentType={SEGMENT_CONTENT_TYPE}
                       selected={filter.segmentId}
@@ -216,7 +218,9 @@ const DefaultFilterConfig: React.FC<Props> = ({
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium">{t('assigned-users')}</Label>
+                  <Label className="text-sm font-medium">
+                    {t('assigned-users')}
+                  </Label>
 
                   <div className="flex gap-3 items-center">
                     <div className="flex-1">

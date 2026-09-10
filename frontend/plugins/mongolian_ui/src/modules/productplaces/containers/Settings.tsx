@@ -57,10 +57,7 @@ const normalizeDefaultFilterConfig = (raw: { value?: unknown }) => {
 
   if (Array.isArray(value)) {
     const legacyFiltersEntry = value.find(
-      (item) =>
-        isRecord(item) &&
-        'key' in item &&
-        item.key === 'filters',
+      (item) => isRecord(item) && 'key' in item && item.key === 'filters',
     );
 
     if (
@@ -75,11 +72,7 @@ const normalizeDefaultFilterConfig = (raw: { value?: unknown }) => {
     return { filters: value };
   }
 
-  if (
-    isRecord(value) &&
-    'filters' in value &&
-    Array.isArray(value.filters)
-  ) {
+  if (isRecord(value) && 'filters' in value && Array.isArray(value.filters)) {
     return { filters: value.filters };
   }
 
@@ -244,10 +237,7 @@ const SettingsContainer = ({
     } catch (error: unknown) {
       toast({
         title: 'Алдаа',
-        description: getErrorMessage(
-          error,
-          'Тохиргоо хадгалахад алдаа гарлаа',
-        ),
+        description: getErrorMessage(error, 'Тохиргоо хадгалахад алдаа гарлаа'),
         variant: 'destructive',
       });
       throw error;
@@ -272,10 +262,7 @@ const SettingsContainer = ({
     } catch (error: unknown) {
       toast({
         title: 'Алдаа',
-        description: getErrorMessage(
-          error,
-          'Тохиргоо устгахад алдаа гарлаа',
-        ),
+        description: getErrorMessage(error, 'Тохиргоо устгахад алдаа гарлаа'),
         variant: 'destructive',
       });
       throw error;

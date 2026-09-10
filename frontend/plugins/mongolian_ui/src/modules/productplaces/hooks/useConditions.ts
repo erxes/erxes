@@ -11,9 +11,7 @@ export type ConfigCondition = {
 export function useConditions<
   TCondition extends ConfigCondition,
   T extends { conditions: TCondition[] },
->(
-  setFormData: SetFormData<T>,
-) {
+>(setFormData: SetFormData<T>) {
   const addCondition = () => {
     setFormData((prev) => ({
       ...prev,
