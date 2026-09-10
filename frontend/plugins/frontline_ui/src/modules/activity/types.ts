@@ -1,3 +1,4 @@
+import { IAttachment } from 'erxes-ui';
 export interface IActivityFormField {
   label: string;
   value: unknown;
@@ -28,5 +29,24 @@ export interface INote {
   createdBy: string;
   contentId: string;
   mentions: string[];
+  attachments?: IAttachment[];
+  isInternal?: boolean;
   updatedAt: string;
+}
+
+export interface INoteTemplateSuggestion {
+  _id: string;
+  name: string;
+  content: string;
+  channelId?: string;
+  updatedAt?: string;
+  preview?: string;
+}
+
+export interface INoteAttachment {
+  name: string;
+  type: string;
+  size: number;
+  url?: string;
+  data?: string;
 }
