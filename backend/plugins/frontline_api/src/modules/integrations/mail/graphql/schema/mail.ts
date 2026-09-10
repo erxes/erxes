@@ -17,12 +17,25 @@ export const types = `
     error: String
   }
 
+  type MailForwardVerification {
+    from: String
+    subject: String
+    code: String
+    link: String
+    excerpt: String
+    receivedAt: Date
+  }
+
   type MailPipelineIntegration {
     _id: String
     pipelineId: String
     name: String
     address: String
     senderName: String
+    forwardFrom: String
+    forwardPendingAt: Date
+    forwardVerification: MailForwardVerification
+    awaitingForwardVerification: Boolean
     healthStatus: String
     error: String
   }
@@ -115,12 +128,16 @@ export const mutations = `
   mailPipelineConnect(
     pipelineId: String!
     senderName: String
+    forwardFrom: String
   ): MailPipelineIntegration
 
   mailPipelineUpdate(
     pipelineId: String!
     senderName: String
+    forwardFrom: String
   ): MailPipelineIntegration
+
+  mailPipelineForwardVerified(pipelineId: String!): MailPipelineIntegration
 
   mailPipelineDisconnect(pipelineId: String!): Boolean
 

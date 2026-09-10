@@ -35,6 +35,7 @@ import {
   isTicketOpen,
 } from '@/integrations/mail/utils/tickets';
 import { commentFromMail } from '@/integrations/mail/utils/comments';
+import { captureForwardVerification } from '@/integrations/mail/utils/forwardVerification';
 import { describeError } from '@/integrations/mail/utils/errors';
 import { mailScopeId } from '@/integrations/mail/utils/scope';
 import { verifySignature } from '@/integrations/mail/utils/signature';
@@ -389,6 +390,23 @@ const storeInboundMessage = async (
   payload: IInboundMailPayload,
   sender: IInboundSender,
 ) => {
+  const verification = captureForwardVerification(
+    integration,
+    payload,
+    payload.html ?? '',
+  );
+
+  if (verification) {
+    await models.MailIntegrations.storeForwardVerification(
+      integration._id,
+      verification,
+    );
+
+    await models.MailIntegrations.markHealthy(integration._id);
+
+    return { status: 'ignored', reason: 'forward-verification' };
+  }
+
   const scopeId = mailScopeId(integration);
 
   const attachments = await storeAttachments(subdomain, payload.attachments);

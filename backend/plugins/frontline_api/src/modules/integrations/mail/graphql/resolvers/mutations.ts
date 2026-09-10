@@ -9,12 +9,9 @@ import {
   IPipelineMailSettings,
   connectPipelineMail,
   disconnectPipelineMail,
+  markPipelineForwardVerified,
   updatePipelineMail,
 } from '@/integrations/mail/utils/pipeline';
-import {
-  IMailTicketSendArgs,
-  sendTicketMail,
-} from '@/integrations/mail/utils/tickets';
 import {
   connectCloudflare,
   disconnectCloudflare,
@@ -102,6 +99,21 @@ export const mailMutations = {
     );
 
     return updatePipelineMail(models, pipelineId, settings);
+  },
+
+  async mailPipelineForwardVerified(
+    _root: undefined,
+    { pipelineId }: { pipelineId: string },
+    { models, user, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    await createPermissionValidator(models).validatePipelineAccess(
+      pipelineId,
+      user,
+    );
+
+    return markPipelineForwardVerified(models, pipelineId);
   },
 
   async mailPipelineDisconnect(

@@ -462,15 +462,25 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
   to the `propertyFields` of the pipeline's ticket config, checked for the
   required ones, validated through core `fields.validateFieldValues`, and stored
   on `Ticket.propertiesData`.
-- GraphQL: `mailPipelineConnect(pipelineId!, senderName)`,
-  `mailPipelineUpdate(pipelineId!, senderName)` (both `MailPipelineIntegration`)
+- GraphQL: `mailPipelineConnect(pipelineId!, senderName, forwardFrom)`,
+  `mailPipelineUpdate(pipelineId!, senderName, forwardFrom)`,
+  `mailPipelineForwardVerified(pipelineId!)` (all `MailPipelineIntegration`)
   and `mailPipelineDisconnect(pipelineId!): Boolean` — all require
   `integrationsEdit` **and** pipeline access. Connect derives the address from
   the pipeline name and writes one `mail_integrations` row carrying
   `pipelineId`; disconnect marks that row disabled rather than deleting it, so a
   later connect revives the same row, the same address and the same thread
-  scope. A pipeline address is written to directly and never forwarded to, so it
-  has no `forwardFrom`.
+  scope. A pipeline address can be written to directly or reached by forwarding
+  from an existing mailbox named in `forwardFrom`.
+- Setting or changing `forwardFrom` opens a verification window on the row
+  (`forwardPendingAt`, `MAIL_FORWARD_VERIFICATION_WINDOW_MS`, 24h). While that
+  window is open, an inbound message that looks like a forwarding confirmation
+  is stored on the row as `forwardVerification` and answered `ignored` instead
+  of opening a ticket, so the provider's confirmation code never becomes a
+  junk ticket and is never dropped by the auto-reply filter. The window closes
+  when `mailPipelineForwardVerified` is called, when `forwardFrom` is cleared,
+  or when 24h elapse. `MailPipelineIntegration.awaitingForwardVerification`
+  answers whether the window is still open.
 - GraphQL: `mailPipelineIntegration(pipelineId!): MailPipelineIntegration` —
   requires `showIntegrations` and pipeline access, and answers `null` for a
   pipeline with no address or a disconnected one.
@@ -592,7 +602,9 @@ customerIds, tagIds, propertiesData: JSON)` — the public messenger ticket
 - Mail collections: `mail_integrations` (one row per address, carrying either
   `inboxId` for a channel inbox or `pipelineId` for a ticket pipeline — both
   unique and sparse, so a row is one lane or the other — plus the generated
-  `address`, `forwardFrom`, `senderName`, `healthStatus`, `error` and
+  `address`, `forwardFrom`, `forwardPendingAt`, the embedded
+  `forwardVerification` (`from`, `subject`, `code`, `link`, `excerpt`,
+  `receivedAt`), `senderName`, `healthStatus`, `error` and
   `disabledAt`), `mail_customers` (an
   `email` → core `contactsId` mirror, `email` unique), `mail_messages`,
   and `mail_cloudflare` — at most one document per workspace holding

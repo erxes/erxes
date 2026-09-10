@@ -3,11 +3,15 @@ import { IMailIntegrationDocument } from '@/integrations/mail/@types/integration
 import { MAIL_HEALTH_STATUSES } from '@/integrations/mail/constants';
 import { buildMailAddress } from '@/integrations/mail/utils/allocate';
 import { ensureMailIndexes } from '@/integrations/mail/utils/indexes';
-import { normalizeSenderName } from '@/integrations/mail/utils/settings';
+import {
+  normalizeForwardFrom,
+  normalizeSenderName,
+} from '@/integrations/mail/utils/settings';
 import { assertSendableIntegration } from '@/integrations/mail/utils/transports/readiness';
 
 export interface IPipelineMailSettings {
   senderName?: string;
+  forwardFrom?: string;
 }
 
 export interface IPipelineMailConnectInput extends IPipelineMailSettings {
@@ -66,11 +70,17 @@ const releaseAddress = async (models: IModels, address: string) => {
   await models.MailIntegrations.deleteOne({ _id: holder._id });
 };
 
+const forwardSetupFields = (forwardFrom: string) =>
+  forwardFrom
+    ? { forwardFrom, forwardPendingAt: new Date(), forwardVerification: null }
+    : { forwardFrom: '', forwardPendingAt: null, forwardVerification: null };
+
 export const connectPipelineMail = async ({
   models,
   subdomain,
   pipelineId,
   senderName,
+  forwardFrom,
 }: IPipelineMailConnectInput): Promise<IMailIntegrationDocument> => {
   const pipeline = await getPipeline(models, pipelineId);
 
@@ -98,6 +108,9 @@ export const connectPipelineMail = async ({
           healthStatus: MAIL_HEALTH_STATUSES.HEALTHY,
           error: '',
           disabledAt: null,
+          ...forwardSetupFields(
+            normalizeForwardFrom(forwardFrom, disconnected.address),
+          ),
         },
       },
       { new: true },
@@ -115,13 +128,14 @@ export const connectPipelineMail = async ({
     senderName: normalizeSenderName(senderName),
     healthStatus: MAIL_HEALTH_STATUSES.HEALTHY,
     error: '',
+    ...forwardSetupFields(normalizeForwardFrom(forwardFrom, address)),
   });
 };
 
 export const updatePipelineMail = async (
   models: IModels,
   pipelineId: string,
-  { senderName }: IPipelineMailSettings,
+  { senderName, forwardFrom }: IPipelineMailSettings,
 ): Promise<IMailIntegrationDocument> => {
   const integration = await findPipelineIntegration(models, pipelineId);
 
@@ -138,9 +152,34 @@ export const updatePipelineMail = async (
     update.senderName = normalizeSenderName(senderName);
   }
 
+  if (forwardFrom !== undefined) {
+    const wanted = normalizeForwardFrom(forwardFrom, integration.address);
+
+    if (wanted !== (integration.forwardFrom ?? '')) {
+      Object.assign(update, forwardSetupFields(wanted));
+    }
+  }
+
   return models.MailIntegrations.findOneAndUpdate(
     { _id: integration._id },
     { $set: update },
+    { new: true },
+  ) as Promise<IMailIntegrationDocument>;
+};
+
+export const markPipelineForwardVerified = async (
+  models: IModels,
+  pipelineId: string,
+): Promise<IMailIntegrationDocument> => {
+  const integration = await findPipelineIntegration(models, pipelineId);
+
+  if (!integration) {
+    throw new Error('This pipeline has no mail address');
+  }
+
+  return models.MailIntegrations.findOneAndUpdate(
+    { _id: integration._id },
+    { $unset: { forwardPendingAt: '', forwardVerification: '' } },
     { new: true },
   ) as Promise<IMailIntegrationDocument>;
 };

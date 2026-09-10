@@ -13,6 +13,7 @@ import {
   MailSenderPreview,
 } from './MailIntegrationForm';
 import { MailSendingRequired } from './MailSendingRequired';
+import { PipelineForwardVerification } from './PipelineForwardVerification';
 import {
   IMailPipelineIntegration,
   useMailPipelineConnect,
@@ -26,6 +27,7 @@ const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
 const pipelineMailSchema = z.object({
   senderName: z.string().trim().max(MAIL_SENDER_NAME_MAX_LENGTH).optional(),
+  forwardFrom: z.string().email().optional().or(z.literal('')),
 });
 
 type PipelineMailValues = z.infer<typeof pipelineMailSchema>;
@@ -37,16 +39,27 @@ const PIPELINE_MAIL_FIELDS = [
     placeholder: 'sender-name-placeholder',
     description: 'sender-name-description',
   },
+  {
+    name: 'forwardFrom' as const,
+    label: 'forwarding-address',
+    placeholder: 'forwarding-address-placeholder',
+    description: 'pipeline-mail-forward-from-description',
+    descriptionFallback:
+      'Only needed when mail reaches this pipeline by forwarding. Naming the mailbox it comes from holds your provider\u2019s confirmation here instead of opening a ticket, and stops every forwarded message being flagged as an unverified sender.',
+  },
 ];
 
 const usePipelineMailForm = (integration: IMailPipelineIntegration | null) => {
   const form = useForm<PipelineMailValues>({
     resolver: zodResolver(pipelineMailSchema),
-    defaultValues: { senderName: '' },
+    defaultValues: { senderName: '', forwardFrom: '' },
   });
 
   useEffect(() => {
-    form.reset({ senderName: integration?.senderName ?? '' });
+    form.reset({
+      senderName: integration?.senderName ?? '',
+      forwardFrom: integration?.forwardFrom ?? '',
+    });
   }, [form, integration]);
 
   return form;
@@ -103,10 +116,12 @@ const PipelineMailConnected = ({
   pipelineId,
   pipelineName,
   integration,
+  waitingForForwardVerification,
 }: {
   pipelineId: string;
   pipelineName: string;
   integration: IMailPipelineIntegration;
+  waitingForForwardVerification: boolean;
 }) => {
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
@@ -155,7 +170,17 @@ const PipelineMailConnected = ({
                 </Alert>
               )}
 
-            <MailAddressCallout address={integration.address} />
+            <MailAddressCallout
+              address={integration.address}
+              description="pipeline-mail-forward-here-description"
+              descriptionFallback="Set up forwarding from your mailbox to this address, or write to it directly. Anything sent there opens a ticket in this pipeline."
+            />
+
+            <PipelineForwardVerification
+              pipelineId={pipelineId}
+              integration={integration}
+              waiting={waitingForForwardVerification}
+            />
 
             <PipelineMailFields form={form} />
 
@@ -193,7 +218,8 @@ export const PipelineMailSettings = ({
   pipelineId: string;
   pipelineName: string;
 }) => {
-  const { integration, loading } = useMailPipelineIntegration(pipelineId);
+  const { integration, waitingForForwardVerification, loading } =
+    useMailPipelineIntegration(pipelineId);
   const { readiness, loading: readinessLoading } = useMailSendingReadiness();
 
   if ((loading && !integration) || readinessLoading) {
@@ -209,6 +235,7 @@ export const PipelineMailSettings = ({
       pipelineId={pipelineId}
       pipelineName={pipelineName}
       integration={integration}
+      waitingForForwardVerification={waitingForForwardVerification}
     />
   ) : (
     <PipelineMailConnect pipelineId={pipelineId} />
